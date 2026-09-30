@@ -2,28 +2,1648 @@
   "schema_version": 1,
   "phase": "245-branch-prune-local-and-remote",
   "plan": "19",
-  "outcome": "blocked_before_classification",
-  "admission_status": "blocked",
-  "classification_performed": false,
-  "classification_blockers": [
-    "d07_current_contract_verification_failed:current_local_ref_identity_changed:refs/heads/phase-244-playwright-measurement",
-    "d05_exact_git_runtime_and_full_shared_coordinator_coverage_not_proven"
-  ],
+  "outcome": "classified",
+  "admission_status": "prepared",
+  "classification_performed": true,
+  "captured_at": "2026-09-30T16:21:07.112Z",
   "source_contract": {
-    "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
-    "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
-    "blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
-    "sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1"
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
+    "active_ref": "refs/heads/phase-244-playwright-measurement",
+    "active_oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+    "local_ref_count": 129,
+    "origin_ref_count": 357,
+    "open_pr_count": 13
   },
-  "baseline_inventory_counts": {
-    "local_refs": 129,
-    "origin_refs": 357,
-    "open_pull_requests": 13,
-    "direct_and_peeled_objects_verified_by_plan_18": 488
+  "safety_refs": [
+    "refs/heads/ci/phase-235-16-source-complete",
+    "refs/heads/safety/local-main-before-release-cleanup-20260831",
+    "refs/tags/archive/local-main-pre-235-recovery"
+  ],
+  "classification_policy": {
+    "protected": "active ref, live origin default, every current open-PR head/base, and D-04 safety refs",
+    "local": "only an unattached local commit proven as an ancestor of the captured active evidence ref",
+    "tracking": "only an absent live origin branch whose tracking commit remains reachable from the captured active evidence ref",
+    "remote": "only a live origin commit proven as an ancestor of the exact live origin default tip",
+    "keep": "known work not proven safe to delete; retain its ref",
+    "blocked": "missing object, linked worktree, stale-tracking identity conflict, or any other incomplete safety proof"
   },
-  "candidate_rows": [],
-  "candidate_rows_reason": "D-01 readiness passed and Plan 18 snapshot object checks passed, but current-contract verification failed before candidate classification because the active evidence branch had advanced beyond the contract's one permitted OID. The full shared-coordinator coverage check also failed. No row is admitted or authorized for deletion.",
-  "allowlist_created": false,
-  "allowlist_commit": null,
-  "production_ref_mutations": 0
+  "counts": {
+    "keep": 49,
+    "protected": 17,
+    "eligible": 3,
+    "blocked": 22
+  },
+  "rows": [
+    {
+      "name": "agent-241-01-rescue",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-241-01-rescue",
+          "oid": "99efe519157a81ffe009d4f5d3868fe14c2c3082",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "agent-241-03-exec",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-241-03-exec",
+          "oid": "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "agent-241-08",
+      "classification": "eligible",
+      "reason": "unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement",
+      "refs": {
+        "local": {
+          "classification": "eligible",
+          "ref": "refs/heads/agent-241-08",
+          "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
+          "type": "commit",
+          "reason": "unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement"
+        }
+      }
+    },
+    {
+      "name": "agent-242-02-clean",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-242-02-clean",
+          "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "agent-242-02-continuation",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-242-02-continuation",
+          "oid": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "agent-242-14-closeout",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-242-14-closeout",
+          "oid": "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "agent-exec-235-1-04-evidence",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-exec-235-1-04-evidence",
+          "oid": "8676a6a7eb0d7487e401c251b8c46ec368e92447",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "agent-exec-235-1-12-evidence",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-exec-235-1-12-evidence",
+          "oid": "47f9578fc97edc63603953d446e79fac884326c3",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "agent-exec-235-1-18-evidence",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-exec-235-1-18-evidence",
+          "oid": "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "agent-exec-235-1-29-authority",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/agent-exec-235-1-29-authority",
+          "oid": "9a7fcba4c6ca218b4f119bea1355a79415764a07",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "brandbook-rail-accent-logo-system",
+      "classification": "eligible",
+      "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement",
+      "refs": {
+        "tracking": {
+          "classification": "eligible",
+          "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
+          "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+          "type": "commit",
+          "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement"
+        }
+      }
+    },
+    {
+      "name": "chore/phase-88-uat-evidence",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/chore/phase-88-uat-evidence",
+          "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/chore/phase-88-uat-evidence",
+          "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "chore/playwright-github-pages-ci",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/chore/playwright-github-pages-ci",
+          "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/chore/playwright-github-pages-ci",
+          "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "ci/phase-235-1-evidence",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/ci/phase-235-1-evidence",
+          "oid": "cdba0b3908a639e069d59c115c23ad23a51deb67",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/ci/phase-235-1-evidence",
+          "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/ci/phase-235-1-evidence",
+          "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "ci/phase-235-16-source-complete",
+      "classification": "protected",
+      "reason": "D-04 safety identity",
+      "refs": {
+        "local": {
+          "classification": "protected",
+          "ref": "refs/heads/ci/phase-235-16-source-complete",
+          "oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+          "type": "commit",
+          "reason": "D-04 safety identity"
+        },
+        "tracking": {
+          "classification": "protected",
+          "ref": "refs/remotes/origin/ci/phase-235-16-source-complete",
+          "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+          "type": "commit",
+          "reason": "D-04 safety identity"
+        },
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/ci/phase-235-16-source-complete",
+          "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+          "type": "commit",
+          "reason": "D-04 safety identity"
+        }
+      }
+    },
+    {
+      "name": "ci/phase-88-provenance",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/ci/phase-88-provenance",
+          "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/ci/phase-88-provenance",
+          "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "ci/recapture-admin-checkpoints-30658359487",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-30658359487",
+          "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/ci/recapture-admin-checkpoints-30658359487",
+          "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "ci/recapture-admin-checkpoints-31043224661",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-31043224661",
+          "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/ci/recapture-admin-checkpoints-31043224661",
+          "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "dependabot/github_actions/actions/attest-build-provenance-4.2.2",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2",
+          "oid": "e101caefbe96923dc23c956f71a4cce5aa780fe7",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/credo-1.7.19",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/hex/credo-1.7.19",
+          "oid": "39a3790ea829d80f864ffbf1564e97052a4262b3",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/dialyxir-1.4.8",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+          "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/ex_doc-0.40.4",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+          "oid": "75b00619d287694ac55643584923011538933660",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/flop_phoenix-0.26.3",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3",
+          "oid": "6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/hammer-7.4.1",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/hex/hammer-7.4.1",
+          "oid": "77b4259f1dbd3507fab2f9a8c743c5576eeeef3a",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/mox-1.3.2",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/hex/mox-1.3.2",
+          "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/oban-2.24.0",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/hex/oban-2.24.0",
+          "oid": "2086bd14372f493a2ec2cf56b56e21b72e5b18cf",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/stream_data-1.4.0",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+          "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/threadline-0.10.1",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+          "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "dependabot/hex/threadline-0.9.0",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/hex/threadline-0.9.0",
+          "oid": "a7ccd0995d5bd82c9a3c0aa6f9195d266039f14f",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0",
+          "oid": "859a77deb5a000024a5022e7ea28be790c3d4c51",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+          "oid": "bb5416341f08e5547962d42aefbd2c012920180c",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0",
+          "oid": "f67c9115b5aaebc7e38073bef8f1abefd73ae6c9",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+          "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+          "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+          "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+          "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+          "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+          "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "docs/230-phase-complete",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/docs/230-phase-complete",
+          "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/docs/230-phase-complete",
+          "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/docs/230-phase-complete",
+          "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "docs/phase-240-planning",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/docs/phase-240-planning",
+          "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/docs/phase-240-planning",
+          "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "elevate-03-wave-v144-pr",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/elevate-03-wave-v144-pr",
+          "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/elevate-03-wave-v144-pr",
+          "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "evidence/phase-241-final-head-782328e65c13",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/evidence/phase-241-final-head-782328e65c13",
+          "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/evidence/phase-241-final-head-782328e65c13",
+          "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "evidence/phase-241-final-head-b09d04bf7bc3",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/evidence/phase-241-final-head-b09d04bf7bc3",
+          "oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "evidence/phase-241-final-head-c4036a571eeb",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/evidence/phase-241-final-head-c4036a571eeb",
+          "oid": "c4036a571eebe113b2aa819c4605b56030d2457b",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "evidence/phase-241-final-head-cd1e7e1252da",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+          "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "evidence/phase-241-final-head-d949725a313a",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/evidence/phase-241-final-head-d949725a313a",
+          "oid": "d949725a313a25bfab59350acd29c045df033cdc",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "evidence/phase-241-final-head-f822381d0ab0",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/evidence/phase-241-final-head-f822381d0ab0",
+          "oid": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "evidence/request-21-f061",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/evidence/request-21-f061",
+          "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/evidence/request-21-f061",
+          "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/evidence/request-21-f061",
+          "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "fix/chimeway-opaque-recipient-backport-62ceb46",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+          "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46",
+          "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+          "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "gh-pages",
+      "classification": "blocked",
+      "reason": "tracking identity differs from the live origin branch; origin commit is unavailable locally for ancestry proof",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gh-pages",
+          "oid": "5fd13b954b3c68ec98b0a5dc56fb81ce98d72d53",
+          "type": "commit",
+          "reason": "tracking identity differs from the live origin branch"
+        },
+        "remote": {
+          "classification": "blocked",
+          "ref": "refs/heads/gh-pages",
+          "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+          "type": "commit",
+          "reason": "origin commit is unavailable locally for ancestry proof"
+        }
+      }
+    },
+    {
+      "name": "gsd-reviewfix/247-29317",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd-reviewfix/247-29317",
+          "oid": "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "gsd/235-13-producer-manifest-chronology",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+          "oid": "54749e55112ba0c6f7227233100dd330e9290001",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/gsd/235-13-producer-manifest-chronology",
+          "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+          "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "gsd/235-13-producer-manifest-chronology-merge",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd/235-13-producer-manifest-chronology-merge",
+          "oid": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "gsd/237-238-clean-baseline",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd/237-238-clean-baseline",
+          "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/gsd/237-238-clean-baseline",
+          "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd/237-238-clean-baseline",
+          "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "gsd/238-generated-auth-runtime-proof-evidence",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "local": {
+          "classification": "protected",
+          "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+          "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        },
+        "tracking": {
+          "classification": "protected",
+          "ref": "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence",
+          "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        },
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+          "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "gsd/phase-232-playwright-economics",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd/phase-232-playwright-economics",
+          "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/gsd/phase-232-playwright-economics",
+          "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd/phase-232-playwright-economics",
+          "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "gsd/phase-236-flake-root-cause",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+          "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/phase-239-priv-templates-sweep",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+          "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/phase-240-closeout",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+          "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/phase-240-green-main-evidence",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+          "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/phase-241-context",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/phase-241-context",
+          "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/phase-241-plans",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/phase-241-plans",
+          "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/phase-241-research",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/phase-241-research",
+          "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/quick-260918-lfq-bookkeeping",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+          "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/quick-green-04-collector-guards",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+          "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/state-reconcile-241",
+      "classification": "blocked",
+      "reason": "stale tracking ref is not proven safe to remove",
+      "refs": {
+        "tracking": {
+          "classification": "blocked",
+          "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+          "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+          "type": "commit",
+          "reason": "stale tracking ref is not proven safe to remove"
+        }
+      }
+    },
+    {
+      "name": "gsd/v1.48-b2c-adopter-readiness",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/gsd/v1.48-b2c-adopter-readiness",
+          "oid": "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "main",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "local": {
+          "classification": "protected",
+          "ref": "refs/heads/main",
+          "oid": "de9145daec2c94dab9043524ec8df94f7fb9d567",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        },
+        "tracking": {
+          "classification": "protected",
+          "ref": "refs/remotes/origin/main",
+          "oid": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        },
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/main",
+          "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "phase-241-ci-reconcile",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-241-ci-reconcile",
+          "oid": "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "phase-242-execution",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-242-execution",
+          "oid": "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/phase-242-execution",
+          "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-242-execution",
+          "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-242-hex-remediation-infrastructure",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/phase-242-hex-remediation-infrastructure",
+          "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-242-hex-remediation-infrastructure",
+          "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-242-safety-closeout",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-242-safety-closeout",
+          "oid": "5fad0e912a8c19189a4d1ed2471a113357c9c549",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "phase-244-full-baseline-capture",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-244-full-baseline-capture",
+          "oid": "3421f1dfbc127b7373afb1a1db54556025670fc2",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-244-full-webkit",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-244-full-webkit",
+          "oid": "3e8d9e86d382000a7b5b2aca429239848698a490",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-244-measure-workflow-fix",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-244-measure-workflow-fix",
+          "oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-244-playwright-measurement",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "local": {
+          "classification": "protected",
+          "ref": "refs/heads/phase-244-playwright-measurement",
+          "oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "phase-244-render-webkit-path",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-244-render-webkit-path",
+          "oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-244-routing-pr",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-244-routing-pr",
+          "oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-244-share-beam-setup",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-244-share-beam-setup",
+          "oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-244-webkit-deps",
+      "classification": "keep",
+      "reason": "remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/phase-244-webkit-deps",
+          "oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "phase-244/measurement",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "tracking": {
+          "classification": "protected",
+          "ref": "refs/remotes/origin/phase-244/measurement",
+          "oid": "f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        },
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/phase-244/measurement",
+          "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "release-1.4.0-changelog",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/release-1.4.0-changelog",
+          "oid": "86728ee1f74913338675786fd871e845904ad8a0",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "release-please--branches--main",
+      "classification": "protected",
+      "reason": "active/default/open-PR head or base",
+      "refs": {
+        "tracking": {
+          "classification": "protected",
+          "ref": "refs/remotes/origin/release-please--branches--main",
+          "oid": "70ba005a694540e488a2e705950c4135268642ad",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        },
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/release-please--branches--main",
+          "oid": "276e8c3fc504d2c0497d801083668267327fab84",
+          "type": "commit",
+          "reason": "active/default/open-PR head or base"
+        }
+      }
+    },
+    {
+      "name": "safety/local-main-before-release-cleanup-20260831",
+      "classification": "protected",
+      "reason": "D-04 safety identity",
+      "refs": {
+        "local": {
+          "classification": "protected",
+          "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+          "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+          "type": "commit",
+          "reason": "D-04 safety identity"
+        },
+        "remote": {
+          "classification": "protected",
+          "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+          "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+          "type": "commit",
+          "reason": "D-04 safety identity"
+        }
+      }
+    },
+    {
+      "name": "v1.1-pr",
+      "classification": "keep",
+      "reason": "tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/v1.1-pr",
+          "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/v1.1-pr",
+          "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "v1.37-auth-branding-admin-polish",
+      "classification": "eligible",
+      "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement",
+      "refs": {
+        "tracking": {
+          "classification": "eligible",
+          "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+          "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+          "type": "commit",
+          "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement"
+        }
+      }
+    },
+    {
+      "name": "v1.47-closeout",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/v1.47-closeout",
+          "oid": "c76d9455315a836c06e423fa38a2429f1fc29486",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        }
+      }
+    },
+    {
+      "name": "worktree-agent-p242-03",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/worktree-agent-p242-03",
+          "oid": "ee61cfb378dbe79de88482c714edeb7f098b469b",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/worktree-agent-p242-03",
+          "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/worktree-agent-p242-03",
+          "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "worktree-agent-p242-11",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/worktree-agent-p242-11",
+          "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/worktree-agent-p242-11",
+          "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/worktree-agent-p242-11",
+          "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "worktree-agent-p242-13",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/worktree-agent-p242-13",
+          "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/worktree-agent-p242-13",
+          "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/worktree-agent-p242-13",
+          "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    },
+    {
+      "name": "worktree-agent-p242-artifacts",
+      "classification": "keep",
+      "reason": "local work is not proven merged into the active evidence ref; tracking ref matches the current live origin branch; remote work is not proven merged into live default refs/heads/main",
+      "refs": {
+        "local": {
+          "classification": "keep",
+          "ref": "refs/heads/worktree-agent-p242-artifacts",
+          "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+          "type": "commit",
+          "reason": "local work is not proven merged into the active evidence ref"
+        },
+        "tracking": {
+          "classification": "keep",
+          "ref": "refs/remotes/origin/worktree-agent-p242-artifacts",
+          "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+          "type": "commit",
+          "reason": "tracking ref matches the current live origin branch"
+        },
+        "remote": {
+          "classification": "keep",
+          "ref": "refs/heads/worktree-agent-p242-artifacts",
+          "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+          "type": "commit",
+          "reason": "remote work is not proven merged into live default refs/heads/main"
+        }
+      }
+    }
+  ],
+  "candidate_rows": [
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-241-08",
+      "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
+      "type": "commit",
+      "reason": "unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement"
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
+      "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+      "type": "commit",
+      "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement"
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement"
+    }
+  ],
+  "allowlist_created": true,
+  "production_ref_mutations": 0,
+  "historical_audits": {
+    "prior_11_row_pr_base_mismatch": "unresolved",
+    "prior_30_row_cleanup_history": "unresolved"
+  }
 }

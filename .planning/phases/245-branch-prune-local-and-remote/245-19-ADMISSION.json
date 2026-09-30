@@ -1,154 +1,35 @@
 {
   "schema_version": 1,
-  "repository": "szTheory/sigra",
   "phase": "245-branch-prune-local-and-remote",
   "plan": "19",
-  "status": "blocked",
-  "stage": "pinned_runtime_capability_preflight",
-  "captured_at": "2026-09-30T05:01:49.848Z",
-  "local_candidate_count": null,
-  "candidate_classification": "not_performed",
-  "allowlist_created_or_committed": false,
-  "coordinator_installed": false,
-  "coordinator_install_attempted": false,
-  "coordinator_coverage": "passed",
-  "exact_git_runtime": "binary_identity_passed_symbolic_head_capability_failed",
-  "inputs": [
-    {
-      "name": "current_contract",
-      "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
-      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
-      "blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
-      "sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1"
-    },
-    {
-      "name": "local_snapshot",
-      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
-      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
-      "blob": "57275812af48b9b45f092680deea291609ff44ce",
-      "sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456"
-    },
-    {
-      "name": "origin_snapshot",
-      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
-      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv",
-      "blob": "82c31ff5df13d9696e5a34123d4e6b5d3356edf1",
-      "sha256": "0531a7981fc75654a77bdbf0752707dd497d6c9ddaa1ab53dd278f4641150efa"
-    },
-    {
-      "name": "open_pr_state",
-      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
-      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-OPEN-PR-STATE.json",
-      "blob": "4015ce71fa0f949d768a65fbe1f93ad92384682e",
-      "sha256": "7290bedb254f9dd38543695bafb1d9e9b01643355ef9ab12220b66fe6098eab8"
-    },
-    {
-      "name": "readiness",
-      "commit": "d7243c193c40a30709edbe306d79038d2286e70e",
-      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
-      "blob": "87484ba00e2418ff705adeeb127dcf7e27f706d4",
-      "sha256": "293c1e7c9610bb9c3ce26d25ecfe952d87be6f8c785be24530a460de55e69903"
-    },
-    {
-      "name": "source_preflight",
-      "commit": "cb5a1290d2a27036676d42f5420453a393588310",
-      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-SOURCE-PREFLIGHT.json",
-      "blob": "1f9e14c17437b4566c06364363d14badbd102b84",
-      "sha256": "7df8b355c7973489d27c485c4f4aee45b46b36087caf1556e9661f9c0a57f06c"
-    }
-  ],
-  "verifiers": {
-    "plan18_pinned_inputs": {
-      "status": "passed",
-      "pinned_input_count": 6,
-      "blob_identity_checks": "passed",
-      "sha256_checks": "passed",
-      "object_readability_checks": "passed",
-      "source": {
-      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-GAP-PREFLIGHT.json",
-      "commit": "e5f3ddecd3a7e4604d5e5afefac2e2e6d34101ea",
-      "blob": "ff3f3b59dfebd1e5baf36e6b05e84c0800728560",
-      "sha256": "45484b4658e3b61bde36d98ed1fd4a22c1c0f9f9528a1a0db855b0ab2da70317"
-      }
-    },
-    "mutation_coverage": {
-      "command": "node scripts/maintainers/prune-stale-branches-admission.mjs coverage --repo .",
-      "exit": 0,
-      "result": {
-        "status": "passed",
-        "findings": []
-      }
-    },
-    "admission_tests": {
-      "command": "node --test scripts/maintainers/prune-stale-branches-admission.test.mjs",
-      "exit": 0,
-      "tests": 4
-    },
-    "current_contract_tests": {
-      "command": "node --test scripts/maintainers/prune-stale-branches-current.test.mjs",
-      "exit": 0,
-      "tests": 5
-    },
-    "coordinator_tests": {
-      "command": "node --test scripts/maintainers/repo-mutation-coordinator.test.mjs && bash scripts/maintainers/repo-mutation-coordinator.test.sh",
-      "exit": 0,
-      "result": "unsupported pinned-runtime capability refused before target configuration or hook writes"
-    },
-    "operator_tests": {
-      "command": "bash scripts/maintainers/prune-stale-branches.test.sh",
-      "exit": 0
-    },
-    "production_coordinator_verify": {
-      "command": "bash scripts/maintainers/repo-mutation-coordinator.sh verify --repo .",
-      "exit": 1,
-      "result": "repo-mutation-coordinator: FAIL: coordinator_symbolic_head_hook_unsupported",
-      "pinned_git": {
-        "path": "/usr/bin/git",
-        "version": "git version 2.50.1 (Apple Git-155)",
-        "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
-        "binary_identity_verified": true
-      },
-      "production_state_before": {
-        "refs_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
-        "worktrees_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
-        "git_config_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b"
-      },
-      "production_state_after": {
-        "refs_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
-        "worktrees_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
-        "git_config_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b"
-      },
-      "production_state_equal": true,
-      "core_hooks_path": "/Users/jon/projects/sigra/.git/hooks",
-      "production_coordinator_installation_attempted": false
-    }
-  },
-  "runtime_observation": {
-    "active_git_path": "/opt/homebrew/bin/git",
-    "active_git_version": "git version 2.41.0",
-    "candidate_git_path": "/usr/bin/git",
-    "candidate_git_version": "git version 2.50.1 (Apple Git-155)",
-    "candidate_git_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
-    "binary_identity_verified": true,
-    "capability_probe": "blocked: coordinator_symbolic_head_hook_unsupported"
-  },
-  "blocked_reasons": [
-    "D-05 pinned /usr/bin/git identity passed, but the linked-worktree symbolic HEAD capability probe reported coordinator_symbolic_head_hook_unsupported; the shared coordinator cannot be installed or verified safely.",
-    "D-07 fresh current-state contract and candidate classification were not run because the D-05 coordinator capability prerequisite failed."
-  ],
-  "no_mutation": {
-    "refs_before_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
-    "refs_after_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
-    "worktrees_before_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
-    "worktrees_after_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
-    "local_git_config_before_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
-    "local_git_config_after_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
-    "equal": true
-  },
+  "status": "prepared",
+  "stage": "admission",
+  "captured_at": "2026-09-30T16:23:02.386Z",
+  "candidate_ref": "refs/heads/agent-241-08",
+  "candidate_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json",
+  "allowlist_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
   "production_mutations": 0,
-  "active_ref_at_gate": {
-    "ref": "refs/heads/phase-244-playwright-measurement",
-    "oid": "64201c899e45d1a01adfba4eefd7bd76aea0dbe3"
-  },
-  "d07_current_contract": "not_run_prerequisite_failed"
+  "verify_inputs": {
+    "current_contract": {
+      "commit": "self",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json"
+    },
+    "local_snapshot": {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv"
+    },
+    "origin_snapshot": {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv"
+    },
+    "allowlist": {
+      "commit": "current_contract",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv"
+    },
+    "readiness": {
+      "commit": "d7243c193c40a30709edbe306d79038d2286e70e",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json"
+    },
+    "candidate_ref": "refs/heads/agent-241-08"
+  }
 }

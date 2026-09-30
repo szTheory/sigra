@@ -1,0 +1,4118 @@
+{
+  "schema_version": 1,
+  "repository": "szTheory/sigra",
+  "checkout_root": "/Users/jon/projects/sigra",
+  "captured_at": "2026-09-30T16:26:30.265Z",
+  "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
+  "capture_head_oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+  "local_refs": [
+    {
+      "ref": "refs/archive/merged-branches/chore/enable-generated-app-login-dispatch",
+      "oid": "dd3d735aa512cb8ef9cb7c4846134d46c1b7c568",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/ci-efficiency-milestone-scope",
+      "oid": "0e918c490f19d5bba11a2ffbd2784828ed5d836e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/ci/phase-235-argv-receipts",
+      "oid": "1ae1cce8b6fb29cf578160dbc12c4314491da3c6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/ci/phase-235-protected-evidence",
+      "oid": "fdf37a3e13227355b6e166db316af2c47bb14e73",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/ci/phase-235-protected-producer-fix",
+      "oid": "3266e7c7237e90ef7ed84acb47fd73894619f66c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/ci/phase-235-skipped-job-receipts",
+      "oid": "0f965b1ffb2ddad9780e3aa4f530230347b13302",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/docs-pin-sigra-1-4",
+      "oid": "736573a5ea6d418bd29259631a5dcd093d62729d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/docs/230-closeout",
+      "oid": "d7be953462b7a8da4a82e5ff16521d97cec33d6b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/evidence/fast-01-cutoff-history-235-10",
+      "oid": "8535324894613bdf8efe616f63c10bdbd274f4ff",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/evidence/fast-01-measurement-235-10",
+      "oid": "e36751e1f7d1efa57941892fe9ddbc27702ef7dc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/evidence/fast-01-portability-235-10",
+      "oid": "cfdfe0e5d96b4bfd756e8a939b802b0d06b0b06a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/evidence/fast-01-readiness-filter-235-10",
+      "oid": "4cd9f9a41860630e24f90f9b370b30547b96f21c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/evidence/fast-01-remeasurement-235-10",
+      "oid": "3f11e384dad8da54ef23bf55007756957ba45883",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/fix/branding-dark-theme-parity",
+      "oid": "0a71b769059c8bfe1e23d587d34b819e320c4e30",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/fix/chimeway-opaque-recipient-main",
+      "oid": "bd622636314a4bdff84a0f6efed55a7680c9fede",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/fix/ci-observe-render",
+      "oid": "26f1e11d0cbdec31fd30f6d7be8a718a16487e39",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/fix/fast-01-evidence-checkout-history",
+      "oid": "7ec3b55aafc4c5066b2f4ee51c362deb601c6521",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/gsd/235-13-producer-manifest-chronology-main",
+      "oid": "53887eeabda9f89e40fcf5a12dbb47d39d6fbd91",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/gsd/235-13-producer-terminal-filter",
+      "oid": "7b0c88030b24554957716528120343c15f49871a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/gsd/phase-233-library-suite-economics",
+      "oid": "10a2c9b30c1ca6b29edf1a8fa75563baceb8097a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/gsd/phase-235-remediation",
+      "oid": "d034eaa0473f28e60214343673e5f05c36c1460b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/gsd/phase-235-remediation-evidence",
+      "oid": "e3b27c6f82dc1da7c088807c52cb697dcfe33857",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/gsd/v1.47-ci-efficiency-integration",
+      "oid": "396539f9c7da4f9a8aa4f85fa9454a90929e3f7f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/post-release-1.4.0-bookkeeping",
+      "oid": "20eca5cbd166feee952b0eb8f1dee9120ad24db3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/v1.46-closeout",
+      "oid": "727728a942eeb41c4a1652a4da7c034e3036ac80",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/worktree-agent-evidence-235-13-plan12-blobs",
+      "oid": "bd0a6de6ba9b4ad5b63d8df4ba0cf34edd2de975",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/merged-branches/worktree-v1.46-login-email-label",
+      "oid": "a297689abdbdf8d5c03e8f67155f76d8cd3cb7d0",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-1f107a51",
+      "oid": "1f107a51f164d88ee5dfea920217987e9e3b3642",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-ecf14dfd",
+      "oid": "ecf14dfdb3a0f4e7d2f8fafd4195b44150f150b2",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-eeb4b3c1",
+      "oid": "eeb4b3c1ba2057ea6c9ccb4d30b4280d48c51e68",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-241-01-rescue",
+      "oid": "99efe519157a81ffe009d4f5d3868fe14c2c3082",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-241-03-exec",
+      "oid": "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-241-08",
+      "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-242-02-clean",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-242-02-continuation",
+      "oid": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-242-14-closeout",
+      "oid": "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-exec-235-1-04-evidence",
+      "oid": "8676a6a7eb0d7487e401c251b8c46ec368e92447",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-exec-235-1-12-evidence",
+      "oid": "47f9578fc97edc63603953d446e79fac884326c3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-exec-235-1-18-evidence",
+      "oid": "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/agent-exec-235-1-29-authority",
+      "oid": "9a7fcba4c6ca218b4f119bea1355a79415764a07",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/ci/phase-235-1-evidence",
+      "oid": "cdba0b3908a639e069d59c115c23ad23a51deb67",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/ci/phase-235-16-source-complete",
+      "oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd-reviewfix/247-29317",
+      "oid": "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+      "oid": "54749e55112ba0c6f7227233100dd330e9290001",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology-merge",
+      "oid": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/v1.48-b2c-adopter-readiness",
+      "oid": "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/main",
+      "oid": "de9145daec2c94dab9043524ec8df94f7fb9d567",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-241-ci-reconcile",
+      "oid": "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-242-execution",
+      "oid": "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-242-safety-closeout",
+      "oid": "5fad0e912a8c19189a4d1ed2471a113357c9c549",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244-playwright-measurement",
+      "oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/release-1.4.0-changelog",
+      "oid": "86728ee1f74913338675786fd871e845904ad8a0",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/v1.47-closeout",
+      "oid": "c76d9455315a836c06e423fa38a2429f1fc29486",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/worktree-agent-p242-03",
+      "oid": "ee61cfb378dbe79de88482c714edeb7f098b469b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
+      "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/chore/phase-88-uat-evidence",
+      "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/chore/playwright-github-pages-ci",
+      "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/ci/phase-235-1-evidence",
+      "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/ci/phase-235-16-source-complete",
+      "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/ci/phase-88-provenance",
+      "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-30658359487",
+      "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-31043224661",
+      "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2",
+      "oid": "e101caefbe96923dc23c956f71a4cce5aa780fe7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/hex/credo-1.7.19",
+      "oid": "39a3790ea829d80f864ffbf1564e97052a4262b3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3",
+      "oid": "6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/hex/hammer-7.4.1",
+      "oid": "77b4259f1dbd3507fab2f9a8c743c5576eeeef3a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/hex/oban-2.24.0",
+      "oid": "2086bd14372f493a2ec2cf56b56e21b72e5b18cf",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/hex/threadline-0.9.0",
+      "oid": "a7ccd0995d5bd82c9a3c0aa6f9195d266039f14f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0",
+      "oid": "859a77deb5a000024a5022e7ea28be790c3d4c51",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0",
+      "oid": "f67c9115b5aaebc7e38073bef8f1abefd73ae6c9",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+      "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+      "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+      "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/docs/phase-240-planning",
+      "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/elevate-03-wave-v144-pr",
+      "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/evidence/phase-241-final-head-782328e65c13",
+      "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gh-pages",
+      "oid": "5fd13b954b3c68ec98b0a5dc56fb81ce98d72d53",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/235-13-producer-manifest-chronology",
+      "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+      "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+      "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+      "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+      "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-context",
+      "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-plans",
+      "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-research",
+      "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+      "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+      "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+      "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/main",
+      "oid": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/phase-242-execution",
+      "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/phase-242-hex-remediation-infrastructure",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/phase-244/measurement",
+      "oid": "f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/release-please--branches--main",
+      "oid": "70ba005a694540e488a2e705950c4135268642ad",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/v1.1-pr",
+      "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/worktree-agent-p242-03",
+      "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/stash",
+      "oid": "089ced30df5f91ede6c97d7c63076da03758075b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/archive/local-main-pre-235-recovery",
+      "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.1",
+      "oid": "05b29e52dbb397d2b2e2f98dcca88aa7d6dbfc03",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.2",
+      "oid": "2d2cea23352eea8dd544421ef452f7ab8d7ff10c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.3",
+      "oid": "dd3ddc42c34546c5644816811744f4c721c2bdbf",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.4",
+      "oid": "5a68344658e6b708373fa43bdb8b0c9e27dbc123",
+      "type": "tag",
+      "peeled_oid": "e7eb414fefbd1587daf3c943868914916a565836",
+      "peeled_type": "commit",
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.5",
+      "oid": "24b075fe5bb6784ced8c77f85a93244aa39da838",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.3.0",
+      "oid": "b186f03ccc5bbc9416f495df3e5dd0bec2f814a4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.0.0",
+      "oid": "5f036bcc8eb1be74e2f646a1c90787a50f531148",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.1.0",
+      "oid": "11243f88fdf3d10c1f4fb2f69f787893e647d082",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.2.0",
+      "oid": "b0ef1097fc968304e3f3afb697cae1dd5754a86b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.3.0",
+      "oid": "8a600ba068c7b63ded9919d0cdafff0a420f43ca",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.4.0",
+      "oid": "cfc5e6b88e1e95403c488fc518fd6f5469a9b015",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.5.0",
+      "oid": "10904571ec65baf42e5fc3bae4170eeb87b109fe",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    }
+  ],
+  "origin_refs": [
+    {
+      "ref": "refs/heads/chore/phase-88-uat-evidence",
+      "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/chore/playwright-github-pages-ci",
+      "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/ci/phase-235-1-evidence",
+      "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/ci/phase-235-16-source-complete",
+      "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/ci/phase-88-provenance",
+      "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/ci/recapture-admin-checkpoints-30658359487",
+      "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/ci/recapture-admin-checkpoints-31043224661",
+      "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+      "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+      "oid": "75b00619d287694ac55643584923011538933660",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/hex/mox-1.3.2",
+      "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+      "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+      "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+      "oid": "bb5416341f08e5547962d42aefbd2c012920180c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+      "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+      "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+      "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/docs/phase-240-planning",
+      "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/elevate-03-wave-v144-pr",
+      "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/evidence/phase-241-final-head-782328e65c13",
+      "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/evidence/phase-241-final-head-b09d04bf7bc3",
+      "oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/evidence/phase-241-final-head-c4036a571eeb",
+      "oid": "c4036a571eebe113b2aa819c4605b56030d2457b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+      "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/evidence/phase-241-final-head-d949725a313a",
+      "oid": "d949725a313a25bfab59350acd29c045df033cdc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/evidence/phase-241-final-head-f822381d0ab0",
+      "oid": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gh-pages",
+      "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+      "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/main",
+      "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-242-execution",
+      "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-242-hex-remediation-infrastructure",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244-full-baseline-capture",
+      "oid": "3421f1dfbc127b7373afb1a1db54556025670fc2",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244-full-webkit",
+      "oid": "3e8d9e86d382000a7b5b2aca429239848698a490",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244-measure-workflow-fix",
+      "oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244-render-webkit-path",
+      "oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244-routing-pr",
+      "oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244-share-beam-setup",
+      "oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244-webkit-deps",
+      "oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/phase-244/measurement",
+      "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/release-please--branches--main",
+      "oid": "276e8c3fc504d2c0497d801083668267327fab84",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/v1.1-pr",
+      "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/worktree-agent-p242-03",
+      "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/heads/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/1/head",
+      "oid": "998b8f55d71b51d5afd40db1f297aad52f84515b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/10/head",
+      "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/100/head",
+      "oid": "7d873ef2a8be26e8b2ec8aad7efdddff1227b897",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/101/head",
+      "oid": "2807e06f2f5dbb89eb153cb296fc2e148a4cb35f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/102/head",
+      "oid": "d543bc19e045d411c10f8467864e5d33ddfc4d5b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/103/head",
+      "oid": "8c4543d48f388cf12d96d1804c36f89c820ec023",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/104/head",
+      "oid": "07012e05f7567bb3a93e0d5a450816a5cdb3c66a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/105/head",
+      "oid": "ceaa656b7e55609a51bc4a7e0c3dc6c85927988a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/106/head",
+      "oid": "963415bc97fdd142da5e92accc4fb80cff9668b6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/107/head",
+      "oid": "8188dc974093400085db250ad47bb340b08cf368",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/108/head",
+      "oid": "cf9ae7eb6377f0d1939a852d4ac0b608627984a5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/109/head",
+      "oid": "d98d5abc0081d2e1fab9513e90c3f7befe907acd",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/11/head",
+      "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/110/head",
+      "oid": "e4ea0164353e1a778853b22267e40d03f090e539",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/111/head",
+      "oid": "ee24e62d40e92673e52210d0cf7f82438a3657c0",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/112/head",
+      "oid": "a7a5bde91775f1f1e1c852b66f000d89060f03b7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/113/head",
+      "oid": "a297689abdbdf8d5c03e8f67155f76d8cd3cb7d0",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/114/head",
+      "oid": "727728a942eeb41c4a1652a4da7c034e3036ac80",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/115/head",
+      "oid": "20eca5cbd166feee952b0eb8f1dee9120ad24db3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/116/head",
+      "oid": "035562f826f6d5129c06165b4e5183a7275a73c9",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/117/head",
+      "oid": "0e918c490f19d5bba11a2ffbd2784828ed5d836e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/119/head",
+      "oid": "9efd757bf6fada14113f5da4e4ca2c30d67302ca",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/12/head",
+      "oid": "89cde402f0cca268e73e9e86067a704a955f0202",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/120/head",
+      "oid": "58ff93ebce6996b5f99c0814e89a6caeacb043b6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/121/head",
+      "oid": "26f1e11d0cbdec31fd30f6d7be8a718a16487e39",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/122/head",
+      "oid": "87c4db40099c5632fa48260ced7c179ec2201424",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/123/head",
+      "oid": "d7be953462b7a8da4a82e5ff16521d97cec33d6b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/124/head",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/125/head",
+      "oid": "a897e724b48c21fa25c8893ede99e1a3b3f56ca5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/126/head",
+      "oid": "5040cdbd6e08d6d900fb136ea0979f325a694c17",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/127/head",
+      "oid": "a85b83053e08cae3783a7d77cd82aaaeaba5ddbc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/128/head",
+      "oid": "0d428bd7e3cfc170955c624ffe85fee1ddb43d81",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/129/head",
+      "oid": "fd38aaefe15c9621fc220fec28bdc7d87063eb13",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/13/head",
+      "oid": "0ca5c2d602b97ad11646df3fd1fd0566e7fd0a00",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/130/head",
+      "oid": "fa7c0b1f9757dcfafe1ef3812db4688ff7318921",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/131/head",
+      "oid": "5e3b97f8a384fe0b2dc6d6f24d6d581e4f462317",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/132/head",
+      "oid": "c4b1a632d0407fcd99525e68060f22a3705e968e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/133/head",
+      "oid": "c9f1713ed22ea9eb94f6d468145d60c0c3130f63",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/134/head",
+      "oid": "f0d01d7dbd4c08cdef66aad7e8633ed9be0499be",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/135/head",
+      "oid": "1e1302c6e6eced76a7076c301216dec8f53bbde6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/136/head",
+      "oid": "da5267a5b5d99a9a4b130637bd9f59431de8949e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/137/head",
+      "oid": "3f23e8ae4b68a421dfdf0a135d632e6d477ad9c9",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/138/head",
+      "oid": "24785d41d3aed438597ad17cb60db1946ae09d9b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/139/head",
+      "oid": "fbe38fc95698fb4cf4bfe2c8b7478de714ba9c67",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/14/head",
+      "oid": "35d650f1aa2bf9cd65fecd2f9c7edcb5045c9c04",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/140/head",
+      "oid": "96acc4f4c28d546dd7b8a66709d27d16f10e7ab7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/141/head",
+      "oid": "ac28fdb0e8b52c9aa3b7c3e34d774fee476e75da",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/142/head",
+      "oid": "48ac99825f31efe5bcf24e2a8a0158bc49c257db",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/143/head",
+      "oid": "aea1a694f75e2b3c82b6727908ac95de50e87ca7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/144/head",
+      "oid": "fdf7b70ac80f4fcd5151bede7885ced8e9f82ffe",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/145/head",
+      "oid": "854105e77511cf5cbe7bd11a426476cbe332c92e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/146/head",
+      "oid": "bd76fc70256ad2748882c6cacb4a52986880aab2",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/147/head",
+      "oid": "fa3fbf0ed9a67f1cf13430a1cc2ff504c3529241",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/148/head",
+      "oid": "c9a3bb11edaa903e3fa29e573a5e4adbc224e6b4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/149/head",
+      "oid": "7056da4ef430cb678725590a067a84331933e752",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/15/head",
+      "oid": "dab2635a808449ddd2277927777631d5597d13ea",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/150/head",
+      "oid": "6cad6ce5d2e86c25a4eef8bb4ee66eaa362f2540",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/151/head",
+      "oid": "ca0c1d26d1987946579ea16176e0d69434eeb7d4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/152/head",
+      "oid": "210b0f1bcd0de757590a74e8522c88dd75be8f43",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/153/head",
+      "oid": "b9bcd9d0b24be6e594ba0eeb3a06612f536a76da",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/154/head",
+      "oid": "2859764156ec56b5a0c473b1529a9ec69901e2f2",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/155/head",
+      "oid": "801c60dd7d818b71415e0abd88a17d454d15ed31",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/156/head",
+      "oid": "4ef088b8e350925e2b4308f9c3448489a0fc2663",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/157/head",
+      "oid": "63e6937437d8a752e0d149fc47ed7e1f331a172f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/158/head",
+      "oid": "133d1ac79883cc45c87c0b516e2b159f286c7c37",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/159/head",
+      "oid": "5218ad150a8ffae67c8eebcc330d2f121190f129",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/16/head",
+      "oid": "7af299801ddbb48971d44bd772fd81ad9a149d41",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/160/head",
+      "oid": "724cbe9300f466297e8f84035c5890db343bb917",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/161/head",
+      "oid": "0368970fc85d49b8a30630619d015ea3e6950cc1",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/162/head",
+      "oid": "e43e7110dddde8d993cd1614e6940c2f86a398bc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/163/head",
+      "oid": "d401fec0df5f2152443167a4e6c9af12d8953298",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/164/head",
+      "oid": "0f8ccb2d8c9dc11ea8b5de94339fea3ab7fccc10",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/165/head",
+      "oid": "ff973b9a4d0698dba832478c4fdabf154c65f08a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/166/head",
+      "oid": "5e00b4b8912b288c568e3d1cee6021503c62356a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/167/head",
+      "oid": "7d8898fa49a7c97b5b3a6f6947a1e5f43bcfda58",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/168/head",
+      "oid": "6e1b3136ce3c24d4dcf175f06561d5b8876e570d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/169/head",
+      "oid": "597a6ee8f344a3fe6991966b1b84d4d479bd46c4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/17/head",
+      "oid": "5c2cd722bae02238f3597987e7f0bd07e2463468",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/170/head",
+      "oid": "b71e2581ec2a13bd9f477256df92c3f6f554cd38",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/171/head",
+      "oid": "e12e72d0b3add8f71f05cfe543170a973796e9a6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/172/head",
+      "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/173/head",
+      "oid": "a0f41581b22061d08cb927ad713005f4f208179f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/174/head",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/175/head",
+      "oid": "3fed50f58277cd768845c9fdb6207865508dfc2c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/176/head",
+      "oid": "c3b819b1747b2ee2f67350a17892729d5650837f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/177/head",
+      "oid": "66546d7d73c448be28f135e3685d1c2146a1d473",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/178/head",
+      "oid": "ae3440ee5bea7f908d13625f732f37b316013fe3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/179/head",
+      "oid": "c86b2a4342a8d6598b41849cac76531f8e2e93c5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/18/head",
+      "oid": "cac5a01188943f2e6ab864edfce6cf58bacbf0b4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/180/head",
+      "oid": "ab401c89210db781883da3d938039abe004a03b1",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/181/head",
+      "oid": "1c9647b9054d72201f7bb6037066ac85b1a2a331",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/182/head",
+      "oid": "84e90835ff27526198002e3347ffc10aa218c72a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/183/head",
+      "oid": "a5c0bcc05bfe46d181e6e475e37be91e7a7d3efd",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/184/head",
+      "oid": "c2bf15655a2ded21e23fdf313848efdfc7d28cca",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/185/head",
+      "oid": "fb93560a7a2892009c4fc791de32dcda0f90217d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/186/head",
+      "oid": "fdf37a3e13227355b6e166db316af2c47bb14e73",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/187/head",
+      "oid": "3266e7c7237e90ef7ed84acb47fd73894619f66c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/188/head",
+      "oid": "0f965b1ffb2ddad9780e3aa4f530230347b13302",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/189/head",
+      "oid": "1ae1cce8b6fb29cf578160dbc12c4314491da3c6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/19/head",
+      "oid": "9b56a14bcfc03ca7a42690ea0708acba1a77f970",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/190/head",
+      "oid": "396539f9c7da4f9a8aa4f85fa9454a90929e3f7f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/191/head",
+      "oid": "3f11e384dad8da54ef23bf55007756957ba45883",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/192/head",
+      "oid": "4cd9f9a41860630e24f90f9b370b30547b96f21c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/193/head",
+      "oid": "cfdfe0e5d96b4bfd756e8a939b802b0d06b0b06a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/194/head",
+      "oid": "970f0e60c6f28dfff0b02d94b6cb25d7d46c1c2b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/195/head",
+      "oid": "d034eaa0473f28e60214343673e5f05c36c1460b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/196/head",
+      "oid": "684836f88dcc3195da78124d78b81b7f2fc0a8df",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/197/head",
+      "oid": "bd0a6de6ba9b4ad5b63d8df4ba0cf34edd2de975",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/198/head",
+      "oid": "f8215b8fbf19b4872feff2bcd05649e9c9a20f8e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/199/head",
+      "oid": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/2/head",
+      "oid": "f5e6cdc8003f06422ebf6f6181e460e90a912fc4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/20/head",
+      "oid": "981a3d5101bd3bf1489d49f317ddbbfd66c07e6f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/200/head",
+      "oid": "53887eeabda9f89e40fcf5a12dbb47d39d6fbd91",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/201/head",
+      "oid": "7b0c88030b24554957716528120343c15f49871a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/202/head",
+      "oid": "6055c4de3f6f13e675863fa9ca7c298eee0fe4e3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/203/head",
+      "oid": "94f9148c35647243c9d07548c24647bd084d99c8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/204/head",
+      "oid": "981c0995ceaf424d6236b6d42e266d588a7f63ac",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/205/head",
+      "oid": "debfe5e6b997ac0d1ed6cf7d8e93965feec7a571",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/206/head",
+      "oid": "1a9ecdaf0008e62e65783c50ba0d4fab153ec2c8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/207/head",
+      "oid": "cb04dbe99e621d887dcad1095f4c2651e30399e7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/208/head",
+      "oid": "af28d7b19430bf6b5e651c5b77b49bcb9ac7fb20",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/209/head",
+      "oid": "7c0fe1e46072e2fecaf23740e2f14cd40be4fa0c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/21/head",
+      "oid": "d407eb453d185475b95d8b8d897a9ea820474449",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/210/head",
+      "oid": "08fbae75680f48f6324596f208694096e7505a1c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/211/head",
+      "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/212/head",
+      "oid": "3f892c9f9a925caf853fc719500d68472ae8aec3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/213/head",
+      "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/214/head",
+      "oid": "dd3d735aa512cb8ef9cb7c4846134d46c1b7c568",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/215/head",
+      "oid": "bb7cfff7a63f7a5730677e349a15d7c40ef87cea",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/216/head",
+      "oid": "ea23cb2776ac9000a4b92107374f303fab6817b1",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/217/head",
+      "oid": "12c73d1a85eda0744a661131b0ebd29c97a846e8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/218/head",
+      "oid": "8f910fc356c5d4c95c9bc6dac6a6c3a872d0819f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/219/head",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/22/head",
+      "oid": "0f39d537181d9d671ca27e0e89fd54e20867261e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/220/head",
+      "oid": "ac70fd06ca59dbaf00b770625d247a21d686fb5c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/221/head",
+      "oid": "3bfc1a899d5855145bcc15a89cec2c11a519eac8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/222/head",
+      "oid": "95d3b7c45d5e83cc25c3f6f27ef7afd4a84c1f12",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/223/head",
+      "oid": "e3bda2d159daa3a7e64f4df8e4f8528c6af8dc1b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/224/head",
+      "oid": "276e8c3fc504d2c0497d801083668267327fab84",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/224/merge",
+      "oid": "9c620c954fda50849c38201cdea0d6650fe86420",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/225/head",
+      "oid": "c036e0195f9805894e455cbb8529fbddeff2c116",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/226/head",
+      "oid": "a4e0a41500a710323c25e4c257af8286c2949458",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/227/head",
+      "oid": "50daad96ae3152c37dca8d7516e3622852155aff",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/228/head",
+      "oid": "cf9c27c3aaebd1756153f851fdbc0df07e7c5ce5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/229/head",
+      "oid": "47778a4bacb50e3e3f01495688ed49c3d8a0fcbf",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/23/head",
+      "oid": "a2c3c1abeb990497c6bdfc71e9be38ca3628731a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/230/head",
+      "oid": "8528e580982702ce835bd8679e0b3b8538327b1f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/232/head",
+      "oid": "2e77218678dfc5a0bc57c5e23afbfd46d6c1016d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/233/head",
+      "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/234/head",
+      "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/235/head",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/236/head",
+      "oid": "bd622636314a4bdff84a0f6efed55a7680c9fede",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/237/head",
+      "oid": "6666ceb60e9f1122830f8a0a7d83df86dad12eda",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/238/head",
+      "oid": "0a71b769059c8bfe1e23d587d34b819e320c4e30",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/239/head",
+      "oid": "535876b07e0b22d911d541bb9471ddc29a6426b4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/24/head",
+      "oid": "7e374d57b33e434eaf431753c5165f9c5a673254",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/240/head",
+      "oid": "9c803d8df1738c431f9f0781b0d2c3d7245a7da0",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/241/head",
+      "oid": "c76d9455315a836c06e423fa38a2429f1fc29486",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/242/head",
+      "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/243/head",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/244/head",
+      "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/245/head",
+      "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/246/head",
+      "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/247/head",
+      "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/248/head",
+      "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/249/head",
+      "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/25/head",
+      "oid": "334ee99f38b6b8041a12f6b588deb73101238a36",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/250/head",
+      "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/251/head",
+      "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/252/head",
+      "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/253/head",
+      "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/254/head",
+      "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/255/head",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/256/head",
+      "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/257/head",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/258/head",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/259/head",
+      "oid": "180b5f7669e6d0cea6ef80e6df04e33c3876dcbe",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/26/head",
+      "oid": "bb6f804068c8ef03c9a5c9604b40cd80bc768bda",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/260/head",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/261/head",
+      "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/262/head",
+      "oid": "d949725a313a25bfab59350acd29c045df033cdc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/263/head",
+      "oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/264/head",
+      "oid": "c4036a571eebe113b2aa819c4605b56030d2457b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/265/head",
+      "oid": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/266/head",
+      "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/266/merge",
+      "oid": "319e0f1e88d90943161f17211ef451c4aa97e702",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/267/head",
+      "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/267/merge",
+      "oid": "17b6aed9566f8742bdfd9b26c18ff25289ecce6d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/268/head",
+      "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/268/merge",
+      "oid": "72e4ec95912727dee6f9d147f3e266481c275039",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/269/head",
+      "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/269/merge",
+      "oid": "fc40788f20aad8a5522d5381946d4af7aee9f4ae",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/27/head",
+      "oid": "fe1897a52f3d8aacc1627063fe4477cee46f9901",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/270/head",
+      "oid": "bb5416341f08e5547962d42aefbd2c012920180c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/270/merge",
+      "oid": "5be6725d10451b80a44938a2d7c5239543a2c9a5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/271/head",
+      "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/271/merge",
+      "oid": "0ade7dcac538ee3c8f7d5d07e259c78e5a2aa101",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/272/head",
+      "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/272/merge",
+      "oid": "56fa42d9bc21c621ba4371020c740e8da472c7d2",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/273/head",
+      "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/273/merge",
+      "oid": "38a8b79fa6f65d0ca197ef917d9fe2ebc6175bd5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/274/head",
+      "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/274/merge",
+      "oid": "93909d2ee1afb463e292bc304e075697eaaf1d53",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/275/head",
+      "oid": "75b00619d287694ac55643584923011538933660",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/275/merge",
+      "oid": "d0f69b4cb2c9528633fcc32eac9145ae5faf9aed",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/276/head",
+      "oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/277/head",
+      "oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/278/head",
+      "oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/279/head",
+      "oid": "3421f1dfbc127b7373afb1a1db54556025670fc2",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/28/head",
+      "oid": "dae8f20d9a1ba0b5aaa0ff8b39855cce8d82f07c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/280/head",
+      "oid": "3e8d9e86d382000a7b5b2aca429239848698a490",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/281/head",
+      "oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/282/head",
+      "oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/283/head",
+      "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/283/merge",
+      "oid": "adfc9a961aa3424a071f3afbd989977ce0f5adc6",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/29/head",
+      "oid": "d17459f9f8703044861c2b8e7248de73bea86205",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/3/head",
+      "oid": "cb7aa6f4d66791482d843d838183bcfe0113d7fd",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/30/head",
+      "oid": "a9452af0de3942f6862f55f7aa9abe98d1a944a3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/31/head",
+      "oid": "ecae1f34ad4d5cb56cf0754ea5cd9df883497989",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/32/head",
+      "oid": "a5c416a5fbdcf25ce92fb4d56cd4ec7936a9edba",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/33/head",
+      "oid": "227953aa312f893489a1b761b17f89b5e349beeb",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/34/head",
+      "oid": "2bd07b161ed38b25bb2b4dabdfc2ce7149359071",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/35/head",
+      "oid": "24b075fe5bb6784ced8c77f85a93244aa39da838",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/36/head",
+      "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/37/head",
+      "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/38/head",
+      "oid": "44cebeb347ae401164fba84db82573795e2cc7d8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/39/head",
+      "oid": "7f8c0cb5bf4011da97ab5596ff6495539ef6ee35",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/4/head",
+      "oid": "85233092c906fbbfbee928ce0e38d5c9733b01e5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/40/head",
+      "oid": "51ef61306d7b6c85b5ddd1bc9d70b4bcb17cbd75",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/41/head",
+      "oid": "551e2169e6d57b2cf879c87ca281a13e7ff3fb3a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/42/head",
+      "oid": "3badc58db2d170e95a4938106a36c3add5481a1a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/43/head",
+      "oid": "44689d036cec5f0d4ce8c63f5f4ce81ab59fa02b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/44/head",
+      "oid": "fdee54cde77ac6596e03bbe9802781dd5b0f938d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/45/head",
+      "oid": "ec254ab94c8e75ee114f45042322582a951c9eba",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/46/head",
+      "oid": "2e38b81d52a02d756b57cd854ed476eb7271f0fb",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/47/head",
+      "oid": "d13e60032edc7da943636b44f3a1e393ffe9799b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/48/head",
+      "oid": "e9f36eee3443692c119158a1fdf0f501649a59cf",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/49/head",
+      "oid": "75c42ae4cc19b223345d0d881d7b137fc3108b9a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/5/head",
+      "oid": "73fba8263b0131c796803786704cb3b8e8c81f21",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/50/head",
+      "oid": "083db4989e25e0f08b54e9e3da9aa5768c442ef2",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/51/head",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/52/head",
+      "oid": "73e9d8765ed2f9f448ab8974c3afc57e054034d3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/53/head",
+      "oid": "4ce37e2c390d1a2cbc9c70ad822d581624c46833",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/54/head",
+      "oid": "d77e10839a40748b7f2bcad0672ca24136b0f049",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/55/head",
+      "oid": "30b6dd24433b063c36764577a5a1f6c4e7b46827",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/56/head",
+      "oid": "ddd8fdbdd0c52bbdce656c9bb6218dff935c6158",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/57/head",
+      "oid": "adbc58c24408c79ea3b1b6dad9c098ad25b69f8d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/58/head",
+      "oid": "83186cedc441dc1c501a8007d13054d0f64d1d84",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/59/head",
+      "oid": "a5cd8ce28f22d308f411e2bf90e394d46b44c356",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/6/head",
+      "oid": "17469b6aa0989c98b32946e31d927432fc50db0d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/60/head",
+      "oid": "fdb24147cd1f4197836ca2cb7e65e084c7121178",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/61/head",
+      "oid": "e74437d7dc95a8b97f88c9594d5a3b73a0a77239",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/62/head",
+      "oid": "8d862bfeafce30224a951b516ecdc1cff754bf99",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/63/head",
+      "oid": "6eab86701ba33ad28aaf758a02509e77a772400b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/64/head",
+      "oid": "118cb58a2548be05861c5845a676802f750d7215",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/65/head",
+      "oid": "6a2e53a56546e4e4936a5ed8ccc0ac77b68320e8",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/66/head",
+      "oid": "425058a4cff624dcf8170524a4f2fe9e5c247cd9",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/67/head",
+      "oid": "42e3c4f25f662fbe81aefb9ab317fff3d39215b5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/68/head",
+      "oid": "1958ed83e8eda80aba393141f0949ac225a5dd39",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/69/head",
+      "oid": "601ba554b43924c151b459a286bd6b12c72f2741",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/7/head",
+      "oid": "281bc20f87be65d471c438eaaf6f31c4c8c6b119",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/70/head",
+      "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/71/head",
+      "oid": "07feeb01d95b43b1e49e12fc06e5d6a46584f8f4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/72/head",
+      "oid": "b19bd2f25a1e1346adfec1c15ecb6bd3f6a0189d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/73/head",
+      "oid": "993f7db402e4b8b8edca0ea44d8796279bc20f6d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/74/head",
+      "oid": "65387e8c90a469d5676ad052fb9509999dc5b7f5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/75/head",
+      "oid": "682d7edc28305b0a80aa689d711d18146b74d454",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/76/head",
+      "oid": "f2d116fb1f89e4ab576eee9e2980b2cd7f888097",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/77/head",
+      "oid": "8faae63c2de29fe87eb8e52297cb0742c8c60693",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/78/head",
+      "oid": "c87808e92aae368cbcb9df2faa0b8ea1fcbc23d5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/79/head",
+      "oid": "b6a956b35eff6abc03ab32ea2b1b5e4c65175595",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/8/head",
+      "oid": "23bf863ff6da21c40d61920c69b9b4e7541f3591",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/80/head",
+      "oid": "6ed0f3e9e37c7ae0074d1aa7e67b4c2479c36f83",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/81/head",
+      "oid": "3ff1e68c061a0515081328f208d7c315d2e0a47b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/82/head",
+      "oid": "a88cd66ef3c21e2bb5b71f344a7d6b399cddf8c5",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/83/head",
+      "oid": "a1af603d247db0970f049509826e72f04f11beb7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/84/head",
+      "oid": "aa617a2c0e0963010856358268321a5fd3629fff",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/85/head",
+      "oid": "a60f9bd66cf7a0c8121a790e951adce726fc5ed3",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/86/head",
+      "oid": "4770188bdff8063a2a1079c15ad12d880a7b2204",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/87/head",
+      "oid": "17a72e3a8e98642e22ddd3a076774f4d70e6bfb7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/88/head",
+      "oid": "d9ba84933956316f3d5b2d9d39a49ac06d3441cf",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/89/head",
+      "oid": "3ddaf275b2b47b5c107a1579a883d701f477fe4a",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/9/head",
+      "oid": "65f5b4d250143831fa55b65866e6b61f2b3c08ab",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/90/head",
+      "oid": "beccb95525f40e722c9eaec1c970a426857b3bfe",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/91/head",
+      "oid": "6ecff4269af3ddca509ff3e0d872db28ec3664dd",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/92/head",
+      "oid": "de3e16ec705d795c66c8498d11b085d36d999172",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/93/head",
+      "oid": "25ff3a5c3e42ff54c34f1d3679a82a588b89b389",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/94/head",
+      "oid": "611ee5e8e860ff3b6bc796146c93158fdcbc1c60",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/95/head",
+      "oid": "7fd63054bab1bad18b86d88dd4f21681edefcdb7",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/96/head",
+      "oid": "c199a8ccf3b290ede71768e6ffda9b4cdc6c2315",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/97/head",
+      "oid": "f83a0c360ae84f4dcb5295d62c1f722afe115984",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/98/head",
+      "oid": "d2f761f3471d250bdb548f09a52138393d4a701c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/pull/99/head",
+      "oid": "0b7955e843c5cc0425796817d7ed7cae1ab4461d",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/remotes/origin/HEAD",
+      "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": "refs/heads/main"
+    },
+    {
+      "ref": "refs/tags/archive/local-main-pre-235-recovery",
+      "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.1",
+      "oid": "05b29e52dbb397d2b2e2f98dcca88aa7d6dbfc03",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.2",
+      "oid": "2d2cea23352eea8dd544421ef452f7ab8d7ff10c",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.3",
+      "oid": "dd3ddc42c34546c5644816811744f4c721c2bdbf",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.4",
+      "oid": "5a68344658e6b708373fa43bdb8b0c9e27dbc123",
+      "type": "tag",
+      "peeled_oid": "e7eb414fefbd1587daf3c943868914916a565836",
+      "peeled_type": "commit",
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.2.5",
+      "oid": "24b075fe5bb6784ced8c77f85a93244aa39da838",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v0.3.0",
+      "oid": "b186f03ccc5bbc9416f495df3e5dd0bec2f814a4",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.0.0",
+      "oid": "5f036bcc8eb1be74e2f646a1c90787a50f531148",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.1.0",
+      "oid": "11243f88fdf3d10c1f4fb2f69f787893e647d082",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.2.0",
+      "oid": "b0ef1097fc968304e3f3afb697cae1dd5754a86b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.3.0",
+      "oid": "8a600ba068c7b63ded9919d0cdafff0a420f43ca",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.4.0",
+      "oid": "cfc5e6b88e1e95403c488fc518fd6f5469a9b015",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    },
+    {
+      "ref": "refs/tags/v1.5.0",
+      "oid": "10904571ec65baf42e5fc3bae4170eeb87b109fe",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": null
+    }
+  ],
+  "open_prs": [
+    {
+      "number": 283,
+      "state": "OPEN",
+      "headRefName": "phase-244/measurement",
+      "baseRefName": "main",
+      "headRefOid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 275,
+      "state": "OPEN",
+      "headRefName": "dependabot/hex/ex_doc-0.40.4",
+      "baseRefName": "main",
+      "headRefOid": "75b00619d287694ac55643584923011538933660",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 274,
+      "state": "OPEN",
+      "headRefName": "dependabot/hex/threadline-0.10.1",
+      "baseRefName": "main",
+      "headRefOid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 273,
+      "state": "OPEN",
+      "headRefName": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+      "baseRefName": "main",
+      "headRefOid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 272,
+      "state": "OPEN",
+      "headRefName": "dependabot/hex/mox-1.3.2",
+      "baseRefName": "main",
+      "headRefOid": "85a9d29f645229c90bd30da8860147591e510aa9",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 271,
+      "state": "OPEN",
+      "headRefName": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+      "baseRefName": "main",
+      "headRefOid": "8bb65f8f78d726318dad6c81361009dada8b917c",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 270,
+      "state": "OPEN",
+      "headRefName": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+      "baseRefName": "main",
+      "headRefOid": "bb5416341f08e5547962d42aefbd2c012920180c",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 269,
+      "state": "OPEN",
+      "headRefName": "dependabot/hex/stream_data-1.4.0",
+      "baseRefName": "main",
+      "headRefOid": "c6e0cc4083656155c14213a88de2a5c646516661",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 268,
+      "state": "OPEN",
+      "headRefName": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+      "baseRefName": "main",
+      "headRefOid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 267,
+      "state": "OPEN",
+      "headRefName": "dependabot/hex/dialyxir-1.4.8",
+      "baseRefName": "main",
+      "headRefOid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 266,
+      "state": "OPEN",
+      "headRefName": "evidence/phase-241-final-head-cd1e7e1252da",
+      "baseRefName": "main",
+      "headRefOid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 224,
+      "state": "OPEN",
+      "headRefName": "release-please--branches--main",
+      "baseRefName": "main",
+      "headRefOid": "276e8c3fc504d2c0497d801083668267327fab84",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    },
+    {
+      "number": 219,
+      "state": "OPEN",
+      "headRefName": "gsd/238-generated-auth-runtime-proof-evidence",
+      "baseRefName": "main",
+      "headRefOid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "baseRefOid": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+      "headRepository": "szTheory/sigra",
+      "baseRepository": "szTheory/sigra"
+    }
+  ],
+  "pr_pages": [
+    {
+      "page": 1,
+      "item_count": 13,
+      "has_next": false,
+      "source": "github-api"
+    }
+  ],
+  "cli_open_pr_count": 13,
+  "pinned_inputs": [
+    {
+      "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+      "blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
+      "sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1"
+    },
+    {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+      "blob": "57275812af48b9b45f092680deea291609ff44ce",
+      "sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456"
+    },
+    {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv",
+      "blob": "82c31ff5df13d9696e5a34123d4e6b5d3356edf1",
+      "sha256": "0531a7981fc75654a77bdbf0752707dd497d6c9ddaa1ab53dd278f4641150efa"
+    },
+    {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-OPEN-PR-STATE.json",
+      "blob": "4015ce71fa0f949d768a65fbe1f93ad92384682e",
+      "sha256": "7290bedb254f9dd38543695bafb1d9e9b01643355ef9ab12220b66fe6098eab8"
+    },
+    {
+      "commit": "d7243c193c40a30709edbe306d79038d2286e70e",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
+      "blob": "87484ba00e2418ff705adeeb127dcf7e27f706d4",
+      "sha256": "293c1e7c9610bb9c3ce26d25ecfe952d87be6f8c785be24530a460de55e69903"
+    },
+    {
+      "commit": "cb5a1290d2a27036676d42f5420453a393588310",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-SOURCE-PREFLIGHT.json",
+      "blob": "1f9e14c17437b4566c06364363d14badbd102b84",
+      "sha256": "7df8b355c7973489d27c485c4f4aee45b46b36087caf1556e9661f9c0a57f06c"
+    }
+  ],
+  "evidence_transition": {
+    "active_ref": "refs/heads/phase-244-playwright-measurement",
+    "captured_head_oid": "d7fc3312c0d59454b292115407959d357d0e4e37",
+    "contract_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
+    "contract_paths": [
+      ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
+      ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json.sha256"
+    ],
+    "precommit_artifacts": {
+      ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json": {
+        "blob": "7d98e9bfbb44a073fa54651e0e2d046fc757477d",
+        "sha256": "2f24cae91138677a939a21c7c6077abff81b43f7763c9f6081e3cde2e14d0970"
+      },
+      ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv": {
+        "blob": "c68f2cdf4e9aaeda83a2e47bd21902ac9da832a2",
+        "sha256": "c58bd225764b1f10a9bb15e19b0cdb2acd6e973a4f3d3a97812b3bc8ab610658"
+      },
+      ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json": {
+        "blob": "d6d21bfe3b8581fead54a86d48aa62d054e10b05",
+        "sha256": "f4985eb944487ef837a6f8714a1d4b22f7e2f899d58682fd23d5690f168db86b"
+      }
+    },
+    "final_child_path_sets": {
+      "blocked": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json"
+      ],
+      "passed": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-POST-LOCAL-REFS.tsv",
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-POST-OPEN-PR-STATE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-POST-ORIGIN-REFS.tsv",
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-SUMMARY.md"
+      ]
+    },
+    "result_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json"
+  }
+}
