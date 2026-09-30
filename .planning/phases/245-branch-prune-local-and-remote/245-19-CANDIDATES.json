@@ -5,11 +5,11 @@
   "outcome": "classified",
   "admission_status": "prepared",
   "classification_performed": true,
-  "captured_at": "2026-09-30T16:34:39.309Z",
+  "captured_at": "2026-09-30T17:35:33.902Z",
   "source_contract": {
     "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
     "active_ref": "refs/heads/phase-244-playwright-measurement",
-    "active_oid": "9ce66b2486c812d037d65a0a9595f0cc6ceeeaba",
+    "active_oid": "99ddf2294a3be459ed53c02d424a719c2ac9a608",
     "local_ref_count": 129,
     "origin_ref_count": 357,
     "open_pr_count": 13,
@@ -77,7 +77,7 @@
           "ref": "refs/heads/agent-241-08",
           "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
           "type": "commit",
-          "reason": "unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)"
+          "reason": "unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)"
         }
       }
     },
@@ -197,7 +197,7 @@
           "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
           "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
           "type": "commit",
-          "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)"
+          "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)"
         }
       }
     },
@@ -1426,7 +1426,7 @@
           "side": "local",
           "classification": "protected",
           "ref": "refs/heads/phase-244-playwright-measurement",
-          "oid": "9ce66b2486c812d037d65a0a9595f0cc6ceeeaba",
+          "oid": "99ddf2294a3be459ed53c02d424a719c2ac9a608",
           "type": "commit",
           "reason": "active/default/open-PR head or base"
         }
@@ -1610,7 +1610,7 @@
           "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
           "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
           "type": "commit",
-          "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)"
+          "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)"
         }
       }
     },
@@ -1761,7 +1761,7 @@
       "ref": "refs/heads/agent-241-08",
       "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
       "type": "commit",
-      "reason": "unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)"
+      "reason": "unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)"
     },
     {
       "side": "tracking",
@@ -1769,7 +1769,7 @@
       "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
       "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
       "type": "commit",
-      "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)"
+      "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)"
     },
     {
       "side": "tracking",
@@ -1777,7 +1777,7 @@
       "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
       "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
       "type": "commit",
-      "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)"
+      "reason": "live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)"
     }
   ],
   "allowlist_created": true,

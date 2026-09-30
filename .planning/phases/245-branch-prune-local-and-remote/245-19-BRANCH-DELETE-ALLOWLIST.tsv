@@ -1,4 +1,4 @@
 side	ref	oid	type	reason
-local	refs/heads/agent-241-08	4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4	commit	unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)
-tracking	refs/remotes/origin/brandbook-rail-accent-logo-system	093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd	commit	live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)
-tracking	refs/remotes/origin/v1.37-auth-branding-admin-polish	b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f	commit	live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 9ce66b2486c812d037d65a0a9595f0cc6ceeeaba)
+local	refs/heads/agent-241-08	4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4	commit	unattached local commit is an ancestor of refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)
+tracking	refs/remotes/origin/brandbook-rail-accent-logo-system	093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd	commit	live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)
+tracking	refs/remotes/origin/v1.37-auth-branding-admin-polish	b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f	commit	live origin branch is absent and commit is retained by refs/heads/phase-244-playwright-measurement (captured active OID 99ddf2294a3be459ed53c02d424a719c2ac9a608)
