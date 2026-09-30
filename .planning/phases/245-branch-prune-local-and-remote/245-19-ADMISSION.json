@@ -4,7 +4,7 @@
   "plan": "19",
   "status": "prepared",
   "stage": "admission",
-  "captured_at": "2026-09-30T17:35:33.906Z",
+  "captured_at": "2026-09-30T17:45:14.987Z",
   "candidate_ref": "refs/heads/agent-241-08",
   "candidate_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json",
   "allowlist_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
