@@ -52,27 +52,24 @@ PROBE_COMMON_DIR="$(git -C "$PROBE_MAIN" rev-parse --path-format=absolute --git-
 PROBE_COORDINATOR_ROOT="${PROBE_COMMON_DIR}/sigra-branch-worktree-coordinator"
 PROBE_HOOKS_BEFORE="$(git -C "$PROBE_MAIN" config --local --get core.hooksPath 2>/dev/null || true)"
 PROBE_HEAD_BEFORE="$(git -C "$PROBE_PEER" symbolic-ref -q HEAD)"
-if bash "$COORDINATOR" install --repo "$PROBE_MAIN" >"$TEMP_DIR/capability-install.log" 2>&1; then
-  grep -Fq 'SUPPORTED: coordinator symbolic HEAD hook enforced' "$TEMP_DIR/capability-install.log" \
-    || fail 'successful install did not report a direct symbolic-HEAD capability proof'
-  [[ "$(git -C "$PROBE_MAIN" config --local --get core.hooksPath)" == "${PROBE_COORDINATOR_ROOT}/hooks" ]] \
-    || fail 'supported capability fixture did not install the verified shared hooks path'
-  [[ -x "${PROBE_COORDINATOR_ROOT}/hooks/reference-transaction" ]] \
-    || fail 'supported capability fixture did not publish its reference-transaction hook'
-  printf 'PASS: supported runtime capability probe installed only in its disposable fixture.\n'
-else
-  if ! grep -Fq 'coordinator_symbolic_head_hook_unsupported' "$TEMP_DIR/capability-install.log"; then
-    fail "capability install failed for an unexpected reason: $(cat "$TEMP_DIR/capability-install.log")"
-  fi
+if ! PATH="${FAKE_GIT_BIN}:${PATH}" bash "$COORDINATOR" install --repo "$PROBE_MAIN" >"$TEMP_DIR/capability-install.log" 2>&1; then
   [[ "$(git -C "$PROBE_MAIN" config --local --get core.hooksPath 2>/dev/null || true)" == "$PROBE_HOOKS_BEFORE" ]] \
-    || fail 'unsupported capability probe changed the target core.hooksPath'
+    || fail 'failed capability probe changed the target core.hooksPath'
   [[ ! -e "$PROBE_COORDINATOR_ROOT" ]] \
-    || fail 'unsupported capability probe created persistent coordinator files in the target repo'
+    || fail 'failed capability probe created persistent coordinator files in the target repo'
   [[ "$(git -C "$PROBE_PEER" symbolic-ref -q HEAD)" == "$PROBE_HEAD_BEFORE" ]] \
-    || fail 'unsupported capability probe changed the target linked-worktree HEAD'
-  printf 'PASS: unsupported runtime capability probe refused before target configuration or hook writes.\n'
-  exit 0
+    || fail 'failed capability probe changed the target linked-worktree HEAD'
+  fail "pinned capability install did not withstand an ambient PATH Git: $(cat "$TEMP_DIR/capability-install.log")"
 fi
+grep -Fq 'SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1' "$TEMP_DIR/capability-install.log" \
+  || fail 'successful install did not prove the exact pinned symbolic-HEAD capability'
+[[ "$(git -C "$PROBE_MAIN" config --local --get core.hooksPath)" == "${PROBE_COORDINATOR_ROOT}/hooks" ]] \
+  || fail 'supported capability fixture did not install the verified shared hooks path'
+[[ -x "${PROBE_COORDINATOR_ROOT}/hooks/reference-transaction" ]] \
+  || fail 'supported capability fixture did not publish its reference-transaction hook'
+[[ "$(git -C "$PROBE_PEER" symbolic-ref -q HEAD)" == "$PROBE_HEAD_BEFORE" ]] \
+  || fail 'capability proof changed the target linked-worktree HEAD'
+printf 'PASS: pinned runtime capability probe withstood ambient PATH Git in its disposable fixture.\n'
 
 git init -q --initial-branch=main "$MAIN"
 git -C "$MAIN" config user.name 'GSD Coordinator Fixture'
@@ -214,24 +211,15 @@ if git -C "$PEER" update-ref refs/heads/blocked-update "$ROOT_OID" >"$TEMP_DIR/b
 grep -q branch_or_worktree_ref_change_during_coordinator_window "$TEMP_DIR/blocked-update.log" || fail 'update-ref lacked coordinator rejection'
 git -C "$PEER" show-ref --verify --quiet refs/heads/blocked-update && fail 'blocked update-ref ref was created'
 
-hook_count_before_head_probe="$(wc -l < "$HOOK_LOG" | tr -d ' ')"
-if git -C "$PEER" symbolic-ref HEAD refs/heads/main >"$TEMP_DIR/head-probe.log" 2>&1; then
-  [[ "$(git -C "$PEER" symbolic-ref HEAD)" == refs/heads/main ]] \
-    || fail 'direct symbolic HEAD update returned success without changing the linked-worktree branch'
-  git -C "$PEER" symbolic-ref HEAD refs/heads/peer \
-    || fail 'could not restore the fixture worktree HEAD after the capability probe'
-  [[ "$(wc -l < "$HOOK_LOG" | tr -d ' ')" == "$hook_count_before_head_probe" ]] \
-    || fail 'direct symbolic HEAD probe returned success after invoking the reference-transaction hook'
-  SYMBOLIC_HEAD_RESULT='bypassed-hook'
-  printf 'KNOWN LIMITATION: direct git symbolic-ref HEAD bypasses reference-transaction on this Git build.\n'
-else
-  grep -q branch_or_worktree_ref_change_during_coordinator_window "$TEMP_DIR/head-probe.log" \
-    || fail "direct symbolic HEAD probe failed for an unexpected reason: $(cat "$TEMP_DIR/head-probe.log")"
-  [[ "$(git -C "$PEER" symbolic-ref HEAD)" == refs/heads/peer ]] \
-    || fail 'rejected direct symbolic HEAD update changed the linked-worktree branch'
-  SYMBOLIC_HEAD_RESULT='gated-by-hook'
-  printf 'PASS: direct git symbolic-ref HEAD is gated by the reference-transaction hook on this Git build.\n'
+if /usr/bin/git -C "$PEER" symbolic-ref HEAD refs/heads/main >"$TEMP_DIR/head-probe.log" 2>&1; then
+  fail 'pinned Git allowed a direct symbolic HEAD update during the coordinator lock'
 fi
+grep -q branch_or_worktree_ref_change_during_coordinator_window "$TEMP_DIR/head-probe.log" \
+  || fail "pinned symbolic HEAD update failed without coordinator hook rejection: $(cat "$TEMP_DIR/head-probe.log")"
+[[ "$(/usr/bin/git -C "$PEER" symbolic-ref HEAD)" == refs/heads/peer ]] \
+  || fail 'rejected pinned symbolic HEAD update changed the linked-worktree branch'
+SYMBOLIC_HEAD_RESULT='gated-by-hook'
+printf 'PASS: pinned Git direct symbolic-ref HEAD is gated by the reference-transaction hook.\n'
 
 ATTACHED="$TEMP_DIR/attached"
 if git -C "$MAIN" worktree add -q "$ATTACHED" owner-authorized >"$TEMP_DIR/blocked-existing-branch-worktree.log" 2>&1; then

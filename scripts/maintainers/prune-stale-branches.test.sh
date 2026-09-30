@@ -82,11 +82,6 @@ if [[ "${PRUNE_TEST_REMAP_LOCAL_ORIGIN:-0}" == 1 && " $* " == *" remote get-url 
     exit 0
   fi
 fi
-if [[ "${PRUNE_TEST_COORDINATOR_PAUSE:-0}" == 1 \
-  && " $* " == *" update-ref --no-deref -d refs/heads/stale/merged "* ]]; then
-  printf 'delete-boundary\n' > "$PRUNE_TEST_COORDINATOR_READY_FIFO"
-  IFS= read -r release_signal < "$PRUNE_TEST_COORDINATOR_RELEASE_FIFO"
-fi
 exec "$PRUNE_TEST_REAL_GIT" "$@"
 GIT
 chmod +x "${FIXTURE_GIT_DIR}/git"
@@ -132,37 +127,35 @@ ALLOWLIST_COMMIT="$(git -C "$REPO" rev-parse HEAD)"
 COORDINATOR="${ROOT_DIR}/scripts/maintainers/repo-mutation-coordinator.sh"
 COMMON_DIR="$(git -C "$REPO" rev-parse --path-format=absolute --git-common-dir)"
 COORDINATOR_ROOT="${COMMON_DIR}/sigra-branch-worktree-coordinator"
-if bash "$COORDINATOR" install --repo "$REPO" > "$TEMP_DIR/coordinator-install.out" 2>&1; then
-  grep -Fq 'SUPPORTED: coordinator symbolic HEAD hook enforced' "$TEMP_DIR/coordinator-install.out" \
-    || fail 'supported runtime install did not prove symbolic HEAD hook coverage'
-else
-  grep -Fq 'coordinator_symbolic_head_hook_unsupported' "$TEMP_DIR/coordinator-install.out" \
-    || fail "coordinator install failed for an unexpected reason: $(cat "$TEMP_DIR/coordinator-install.out")"
-  [[ ! -e "$COORDINATOR_ROOT" ]] \
-    || fail 'unsupported runtime created persistent coordinator files in the fixture repository'
-  [[ -z "$(git -C "$REPO" config --local --get core.hooksPath 2>/dev/null || true)" ]] \
-    || fail 'unsupported runtime changed the fixture repository hooks path'
-  bash "$HELPER" verify-snapshot --repo "$REPO" --snapshot-commit "$SNAPSHOT_COMMIT" \
-    --snapshot "$SNAPSHOT_PATH" --readiness-commit "$ALLOWLIST_COMMIT" --readiness "$READINESS_PATH"
-  REPORT="$(bash "$HELPER" local --repo "$REPO" --snapshot-commit "$SNAPSHOT_COMMIT" \
-    --allowlist-commit "$ALLOWLIST_COMMIT" --allowlist "$ALLOWLIST_PATH" --readiness "$READINESS_PATH")"
-  grep -Fq 'refs/heads/stale/merged' <<<"$REPORT" || fail 'report-only output omitted the exact target ref'
-  if bash "$HELPER" local --repo "$REPO" --apply --snapshot-commit "$SNAPSHOT_COMMIT" \
-    --allowlist-commit "$ALLOWLIST_COMMIT" --allowlist "$ALLOWLIST_PATH" --readiness "$READINESS_PATH" \
-    --pr-state-commit "$SNAPSHOT_COMMIT" --pr-state "$PR_STATE_PATH" --safety-list "$SAFETY_PATH" \
-    > "$TEMP_DIR/local-apply.out" 2>&1; then
-    fail 'unsupported runtime accepted local apply'
-  fi
-  grep -Fq 'shared_coordinator_unavailable: coordinator_symbolic_head_hook_unsupported' "$TEMP_DIR/local-apply.out" \
-    || fail "unsupported local apply did not report its capability blocker: $(cat "$TEMP_DIR/local-apply.out")"
-  git -C "$REPO" show-ref --verify --quiet refs/heads/stale/merged \
-    || fail 'unsupported local apply removed its candidate ref'
-  bash "$HELPER" verify-objects --repo "$REPO" --snapshot-commit "$SNAPSHOT_COMMIT" --snapshot "$SNAPSHOT_PATH"
-  git -C "$REPO" cat-file -e "${ROOT_OID}^{commit}" \
-    || fail 'unsupported local apply lost its snapshotted object'
-  printf 'PASS: unsupported Git refused coordinator installation and local deletion; exact ref and object remain.\n'
-  exit 0
+# The operator pins Git by absolute path, so pause its real ref transaction
+# through a chained fixture hook instead of intercepting PATH Git.
+FIXTURE_HOOKS="$(git -C "$REPO" rev-parse --path-format=absolute --git-path hooks)"
+mkdir -p "$FIXTURE_HOOKS"
+export PRUNE_TEST_HOOK_LOG="${TEMP_DIR}/hook-transactions.log"
+cat > "$FIXTURE_HOOKS/reference-transaction" <<'HOOK'
+#!/usr/bin/env bash
+set -euo pipefail
+phase="$1"
+payload="$(cat)"
+printf '%s: %s\n' "$phase" "$payload" >> "$PRUNE_TEST_HOOK_LOG"
+if [[ "$phase" == prepared && "${PRUNE_TEST_COORDINATOR_PAUSE:-0}" == 1 ]] \
+  && awk '$3 == "refs/heads/stale/merged" && $2 ~ /^0+$/ { found=1 } END { exit !found }' <<< "$payload"; then
+  printf 'delete-boundary\n' > "$PRUNE_TEST_COORDINATOR_READY_FIFO"
+  IFS= read -r release_signal < "$PRUNE_TEST_COORDINATOR_RELEASE_FIFO"
 fi
+HOOK
+chmod 755 "$FIXTURE_HOOKS/reference-transaction"
+if ! bash "$COORDINATOR" install --repo "$REPO" > "$TEMP_DIR/coordinator-install.out" 2>&1; then
+  [[ ! -e "$COORDINATOR_ROOT" ]] \
+    || fail 'failed capability probe created persistent coordinator files in the fixture repository'
+  [[ -z "$(git -C "$REPO" config --local --get core.hooksPath 2>/dev/null || true)" ]] \
+    || fail 'failed capability probe changed the fixture repository hooks path'
+  git -C "$REPO" show-ref --verify --quiet refs/heads/stale/merged \
+    || fail 'failed capability probe removed its candidate ref'
+  fail "pinned Git capability install failed: $(cat "$TEMP_DIR/coordinator-install.out")"
+fi
+grep -Fq 'SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1' "$TEMP_DIR/coordinator-install.out" \
+  || fail 'pinned runtime install did not prove symbolic HEAD hook coverage'
 
 bash "$HELPER" verify-snapshot --repo "$REPO" --snapshot-commit "$SNAPSHOT_COMMIT" \
   --snapshot "$SNAPSHOT_PATH" --readiness-commit "$ALLOWLIST_COMMIT" --readiness "$READINESS_PATH"
@@ -202,10 +195,11 @@ if ! IFS= read -r -t 15 -u 8 delete_signal; then
   wait "$LOCAL_APPLY_PID" 2>/dev/null || true
   LOCAL_APPLY_PID=""
   cat "$TEMP_DIR/local-apply.out" >&2
+  cat "$PRUNE_TEST_HOOK_LOG" >&2
   fail 'capability-supported local prune did not reach the expected-OID deletion boundary under the coordinator'
 fi
 [[ "$delete_signal" == delete-boundary ]] || fail "unexpected prune boundary signal: $delete_signal"
-if git -C "$REPO" worktree add -q "$COMPETING_WORKTREE" stale/merged > "$TEMP_DIR/competing-attach.out" 2>&1; then
+if /usr/bin/git -C "$REPO" worktree add -q "$COMPETING_WORKTREE" stale/merged > "$TEMP_DIR/competing-attach.out" 2>&1; then
   fail 'competing worktree attached the local prune candidate while the coordinator was held'
 fi
 grep -Fq 'branch_or_worktree_ref_change_during_coordinator_window' "$TEMP_DIR/competing-attach.out" \

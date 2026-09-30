@@ -102,7 +102,7 @@ sigra_coordinator_probe_symbolic_head_impl() (
   before="$(git -C "$peer" symbolic-ref -q HEAD)" \
     || { printf 'PROBE_FAILED: fixture_linked_head_read_failed\n' >&2; exit 2; }
   output="${probe_dir}/symbolic-head.out"
-  if env -u SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN git -C "$peer" symbolic-ref HEAD refs/heads/main >"$output" 2>&1; then
+  if env -u SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN "$git_path" -C "$peer" symbolic-ref HEAD refs/heads/main >"$output" 2>&1; then
     after="$(git -C "$peer" symbolic-ref -q HEAD 2>/dev/null || true)"
     if [[ "$after" != "$before" ]]; then
       printf 'UNSUPPORTED: coordinator_symbolic_head_hook_unsupported git=%s version=%s\n' \
