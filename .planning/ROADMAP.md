@@ -462,7 +462,7 @@ Plans:
 - [x] 245-17-PLAN.md — Capture current GitHub PR/ref identities and add fail-closed local admission for the unavailable readiness source (plan wave 2; REPO-04 remains open)
 - [x] 245-18-PLAN.md — Re-prove the Phase 244 prerequisite from available sources and commit a fresh immutable local/origin/PR snapshot (completed 2026-09-30; D-01 and all 488 direct/peeled objects verified)
 - [x] 245-19-PLAN.md — Superseded by Plan 20 after one admitted local deletion; its durable blocked receipt preserves the mutation and verifier failure, and its remaining actions must not be rerun
-- [ ] 245-20-PLAN.md — Repair operation-readback and final-child verification with deterministic fixtures (plan wave 14; depends on 245-18)
+- [x] 245-20-PLAN.md — Repair operation-readback and final-child verification with deterministic fixtures (plan wave 14; depends on 245-18)
 - [ ] 245-21-PLAN.md — Run fresh D-06 preflight, pin the current contract and reconcile only remaining admitted refs under object, PR, safety and coordinator gates (plan wave 15; depends on 245-20; REPO-04 stays open until all current postchecks pass)
 
 ## Progress
@@ -478,7 +478,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 17/20 | In progress | - |
+| 245. Branch Prune | 18/20 | In progress | - |
 
 ## Requirement Coverage
 

@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute Phase 245 gap-closure plans",
-    "reason": "Plans 245-20 and 245-21 are runnable after the gap-closure planning pass; Plan 245-19 is superseded with its blocked receipt retained, and Plan 245-16 remains blocked by halted Plan 245-14."
+    "label": "Execute remaining Phase 245 gap closure",
+    "reason": "Plan 245-20 is complete; Plan 245-21 remains runnable, while Plan 16 is still blocked by Plan 14. REPO-04 remains open until Plan 21 proves the current postchecks."
   },
-  "updated_at": "2026-09-30T19:55:46.921Z"
+  "updated_at": "2026-09-30T20:36:05.418Z"
 }
