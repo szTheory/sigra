@@ -3,27 +3,28 @@
   "phase": "245-branch-prune-local-and-remote",
   "plan": "19",
   "outcome": "blocked",
-  "captured_at": "2026-09-30T05:01:49.848Z",
-  "active_ref_at_gate": {
+  "captured_at": "2026-09-30T17:58:54Z",
+  "active_ref": {
     "ref": "refs/heads/phase-244-playwright-measurement",
-    "oid": "64201c899e45d1a01adfba4eefd7bd76aea0dbe3"
+    "contract_commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e"
   },
   "blocked_reasons": [
-    "D-05 pinned /usr/bin/git identity passed, but the linked-worktree symbolic HEAD capability probe reported coordinator_symbolic_head_hook_unsupported; the shared coordinator cannot be installed or verified safely.",
-    "D-07 fresh current-state contract and candidate classification were not run because the D-05 coordinator capability prerequisite failed."
+    "The local operator deleted the single admitted local candidate with its expected-OID guard while the shared coordinator lock was held, then exited 1 because its immediate current-contract after check requires the final evidence child before that child can be created (evidence_transition_final_child_missing).",
+    "A subsequent tracking apply exited 1 before mutation: the current-contract preflight rejected the already absent allowlisted local candidate (evidence_transition_local_ref_set_changed). Both allowlisted tracking refs remain present at their exact pinned OIDs.",
+    "The current-contract transition verifier compares the live local-ref set to the original pre-mutation set even at the final after stage, so it cannot verify an authorized allowlisted deletion. The current operator also invokes that final after stage before writing the final receipt."
   ],
   "verifier_exits": {
-    "plan18_pinned_inputs": 0,
-    "mutation_coverage": 0,
+    "plan18_pinned_inputs_and_objects_before_mutation": 0,
     "admission_tests": 0,
     "current_contract_tests": 0,
     "coordinator_tests": 0,
     "operator_tests": 0,
-    "production_coordinator_verify": 1,
-    "d07_live_contract": null,
-    "admission": null,
-    "local": null,
-    "remote": null
+    "production_coordinator_verify_after_install": 0,
+    "d07_live_contract_before_mutation": 0,
+    "admission_before_mutation": 0,
+    "local_apply": 1,
+    "tracking_apply_after_local": 1,
+    "final_after_stage": "blocked_by_evidence_transition_local_ref_set_changed"
   },
   "pinned_git": {
     "path": "/usr/bin/git",
@@ -31,67 +32,60 @@
     "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
     "binary_identity_verified": true
   },
-  "coordinator_capability": {
-    "command": "bash scripts/maintainers/repo-mutation-coordinator.sh verify --repo .",
-    "exit": 1,
-    "result": "repo-mutation-coordinator: FAIL: coordinator_symbolic_head_hook_unsupported",
-    "pinned_git": {
-      "path": "/usr/bin/git",
-      "version": "git version 2.50.1 (Apple Git-155)",
-      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
-      "binary_identity_verified": true
+  "coordinator": {
+    "installed": true,
+    "verification": "passed",
+    "lock_after_operations": "free",
+    "transaction_leases": 0,
+    "git_config_sha256_before_install": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
+    "git_config_sha256_after_install": "61da254c163e3ebba10c42b4aa4136a62e1ef3dce0a73645b5f3e79b76c2c822"
+  },
+  "candidate_classification": "passed: 3 exact allowlist rows; 1 local ref and 2 tracking refs",
+  "current_contract": {
+    "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+    "before_mutation_check": "passed",
+    "final_transition_check": "blocked by the verifier behavior recorded above"
+  },
+  "admitted_local_deleted_count": 1,
+  "mutations": {
+    "local_ref_deletions": [
+      {
+        "ref": "refs/heads/agent-241-08",
+        "expected_oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
+        "readback": "absent",
+        "method": "operator expected-OID update-ref under shared coordinator lock"
+      }
+    ],
+    "tracking_ref_deletions": [],
+    "origin_ref_deletions": [],
+    "coordinator_installation": "completed and verified"
+  },
+  "remaining_tracking_refs": [
+    {
+      "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
+      "expected_oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+      "readback": "present"
     },
-    "production_state_before": {
-      "refs_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
-      "worktrees_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
-      "git_config_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b"
-    },
-    "production_state_after": {
-      "refs_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
-      "worktrees_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
-      "git_config_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b"
-    },
-    "production_state_equal": true,
-    "core_hooks_path": "/Users/jon/projects/sigra/.git/hooks",
-    "production_coordinator_installation_attempted": false
-  },
-  "candidate_classification": "not_performed",
-  "current_contract_captured": false,
-  "coordinator_installed": false,
-  "admitted_local_deleted_count": 0,
-  "eligible_remote_disposition_check": "not_run",
-  "current_pr_check": "not_run_no_fresh_contract",
-  "safety_check": "not_run_no_fresh_contract",
-  "object_check": "Plan 18 six-input/object preflight passed; no live post-mutation check run",
-  "exact_ref_check": "not_run_no_admitted_candidate",
-  "local_coordinator_check": "blocked_coordinator_symbolic_head_hook_unsupported",
-  "post_readback_check": "not_run_no_mutation",
-  "production_mutations": 0,
-  "before_after_equality": {
-    "refs": true,
-    "config": true,
-    "worktrees": true
-  },
-  "production_state_fingerprints": {
-    "refs_before_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
-    "refs_after_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
-    "worktrees_before_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
-    "worktrees_after_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
-    "local_git_config_before_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
-    "local_git_config_after_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
-    "equal": true
-  },
-  "evidence_transition": {
-    "status": "not_established",
-    "current_contract_commit": null,
-    "reason": "D-05 capability prerequisite blocked before D-07 contract capture; this receipt does not claim a contract-to-child transition."
-  },
-  "historical_audits": {
-    "prior_11_row_pr_mismatch": "unresolved",
-    "prior_30_row_cleanup_history": "unresolved"
-  },
+    {
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "expected_oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "readback": "present"
+    }
+  ],
+  "eligible_remote_disposition_check": "no remote-side allowlist rows; both corresponding live origin branches are absent",
+  "current_pr_check": "pre-mutation passed; post-mutation full inventory not captured",
+  "safety_check": "pre-mutation passed; post-mutation check not run",
+  "object_check": "Plan 18 pinned objects passed before mutation; post-mutation check not run",
+  "exact_ref_check": "partial readback only; candidate absence and remaining tracking identities verified, full post snapshot not captured",
+  "local_coordinator_check": "passed; verified with free lock after the blocked apply",
+  "post_readback_check": "partial readback passed for the three allowlisted refs; complete local/origin/PR post snapshots not captured",
+  "production_mutations": 1,
   "requirements": {
     "REPO-04": "open"
   },
-  "success_summary_created": false
+  "success_summary_created": false,
+  "historical_audits": {
+    "prior_11_row_pr_mismatch": "unresolved",
+    "prior_30_row_cleanup_history": "unresolved"
+  }
 }
