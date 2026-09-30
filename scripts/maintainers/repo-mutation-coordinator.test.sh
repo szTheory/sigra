@@ -110,7 +110,7 @@ grep -q 'worktree_specific_hooks_path_prevents_install' "$TEMP_DIR/override-inst
   || fail "pre-existing hook override did not produce a specific install failure: $(cat "$TEMP_DIR/override-install.log")"
 [[ -z "$(git -C "$MAIN" config --local --get core.hooksPath 2>/dev/null || true)" ]] \
   || fail 'failed install changed the shared core.hooksPath config'
-[[ ! -e "$(git -C "$MAIN" rev-parse --git-common-dir)/sigra-branch-worktree-coordinator/hooks" ]] \
+[[ ! -e "$(git -C "$MAIN" rev-parse --path-format=absolute --git-common-dir)/sigra-branch-worktree-coordinator/hooks" ]] \
   || fail 'failed install published a coordinator hook before the conflict was resolved'
 git -C "$PEER" config --worktree --unset core.hooksPath
 
@@ -140,6 +140,9 @@ grep -q previous_reference_transaction_hook_missing "$TEMP_DIR/missing-chain-ver
 mv "$TEMP_DIR/prior-hook-backup" "$COORDINATOR_ROOT/previous-reference-transaction"
 bash "$COORDINATOR" verify --repo "$MAIN" >/dev/null || fail 'coordinator did not verify after restoring the fixture hook chain'
 
+bash "$COORDINATOR" run --repo "$MAIN" --operation exported-lock-proof -- \
+  bash -c '[[ "${SIGRA_COORDINATOR_HELD:-0}" == 1 && "${SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN:-}" =~ ^[0-9a-f]{48}$ && -d "${SIGRA_BRANCH_WORKTREE_COORDINATOR_ROOT}/lock" ]]' \
+  || fail 'coordinator lock ownership was not exported to child admission checks'
 bash "$COORDINATOR" run --repo "$MAIN" --operation owner-ref-proof -- git -C "$MAIN" branch owner-authorized "$ROOT_OID"
 git -C "$MAIN" show-ref --verify --quiet refs/heads/owner-authorized || fail 'owner token did not permit its ref transaction'
 printf '%s\t%s\t%s\n' "$ROOT_OID" "$ROOT_OID" refs/heads/hook-chain-probe \
