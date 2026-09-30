@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Resume after D-01 source provenance is committed",
-    "reason": "Plan 245-18 halted before snapshot capture because committed Phase 244 source provenance is unavailable; resume only after the required source evidence is available in a committed tree."
+    "label": "Resume Plan 19 after coordinator capability repair",
+    "reason": "Plan 245-19 is blocked before contract capture because pinned /usr/bin/git 2.50.1 cannot prove symbolic-HEAD hook enforcement"
   },
-  "updated_at": "2026-09-29T21:04:52Z"
+  "updated_at": "2026-09-30T12:46:09Z"
 }
