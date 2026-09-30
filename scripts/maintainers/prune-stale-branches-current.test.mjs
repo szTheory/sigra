@@ -10,6 +10,7 @@ import { inspectEvidenceTransition } from "./prune-stale-branches-current.mjs";
 const OPERATOR = "scripts/maintainers/prune-stale-branches.sh";
 const GIT_BIN = "/usr/bin/git";
 const COMMIT = "1".repeat(40);
+const ROOT = process.cwd();
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, { encoding: "utf8", ...options });
@@ -376,6 +377,57 @@ test("captured current PR/ref contract verifies from committed bytes through the
     const badDigest = verifyLive(digestCommit);
     assert.notEqual(badDigest.status, 0);
     assert.match(badDigest.stderr, /current_contract_sha256_mismatch/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("origin branch capture does not require remote tip objects to be fetched locally", () => {
+  const root = mkdtempSync(join(tmpdir(), "sigra-current-origin-unfetched-"));
+  const source = join(root, "source");
+  const bare = join(root, "origin.git");
+  const repo = join(root, "checkout");
+  const phase = ".planning/phases/245-branch-prune-local-and-remote";
+  const fixturePath = join(repo, phase, "github-fixture.json");
+  const contractPath = join(repo, phase, "current-contract.json");
+  try {
+    mkdirSync(source);
+    run(GIT_BIN, ["init", "-q", "--initial-branch=main", source]);
+    fixtureGit(source, "config", "user.name", "Unfetched Origin Fixture");
+    fixtureGit(source, "config", "user.email", "unfetched-origin@example.invalid");
+    writeFileSync(join(source, "main.txt"), "main\n");
+    fixtureGit(source, "add", "main.txt");
+    fixtureGit(source, "commit", "-q", "-m", "main root");
+    run(GIT_BIN, ["init", "-q", "--bare", "--initial-branch=main", bare]);
+    fixtureGit(source, "remote", "add", "origin", bare);
+    fixtureGit(source, "push", "-q", "origin", "main:refs/heads/main");
+
+    fixtureGit(source, "checkout", "--orphan", "gh-pages");
+    fixtureGit(source, "rm", "-q", "-rf", ".");
+    writeFileSync(join(source, "page.txt"), "independent remote page\n");
+    fixtureGit(source, "add", "page.txt");
+    fixtureGit(source, "commit", "-q", "-m", "independent gh-pages root");
+    const ghPagesOid = fixtureGit(source, "rev-parse", "HEAD");
+    fixtureGit(source, "push", "-q", "origin", "gh-pages:refs/heads/gh-pages");
+
+    run(GIT_BIN, ["clone", "-q", "--depth=1", "--single-branch", "--branch", "main", `file://${bare}`, repo]);
+    const objectMissing = spawnSync(GIT_BIN, ["-C", repo, "cat-file", "-e", `${ghPagesOid}^{commit}`], { encoding: "utf8" });
+    assert.notEqual(objectMissing.status, 0, "the fixture checkout must not contain the remote-only branch tip");
+
+    mkdirSync(join(repo, phase), { recursive: true });
+    writeFileSync(fixturePath, JSON.stringify({ cliPulls: [], pages: [[]] }));
+    const captured = run("node", [
+      "scripts/maintainers/prune-stale-branches-current.mjs", "capture",
+      "--repo", repo,
+      "--output", contractPath,
+      "--source-fixture", fixturePath,
+    ], { cwd: ROOT });
+    assert.match(captured, /captured current PR\/ref contract/);
+    const contract = JSON.parse(readFileSync(contractPath, "utf8"));
+    assert.deepEqual(
+      contract.origin_refs.find((row) => row.ref === "refs/heads/gh-pages"),
+      { ref: "refs/heads/gh-pages", oid: ghPagesOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null },
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

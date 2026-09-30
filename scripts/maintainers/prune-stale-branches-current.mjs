@@ -182,7 +182,11 @@ function parseOriginRefs(repo) {
   if (!defaultRef || !headOid || !direct.size) fail("origin_default_identity_incomplete_or_empty");
   const result = [];
   for (const [ref, oid] of direct) {
-    const type = objectType(repo, oid, ref);
+    // GitHub branch refs point to commits, but the checkout may not have
+    // fetched every live origin branch tip. The OID comes directly from
+    // ls-remote; requiring cat-file here would make a complete remote
+    // inventory depend on the local fetch configuration.
+    const type = ref.startsWith("refs/heads/") ? "commit" : objectType(repo, oid, ref);
     const peeledOid = peeled.get(ref) ?? null;
     if ((type === "tag") !== Boolean(peeledOid)) fail(`origin_peeled_identity_mismatch:${ref}`);
     const peeledType = peeledOid ? objectType(repo, peeledOid, ref) : null;
