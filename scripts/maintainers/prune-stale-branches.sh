@@ -185,7 +185,7 @@ if (( CURRENT_CONTRACT_MODE && APPLY )) && [[ "$COMMAND" == local ]]; then
   safe_repo_path "$READINESS_PATH"
 fi
 
-command -v git >/dev/null 2>&1 || fail 'git_not_on_path'
+sigra_coordinator_pin_git || fail "git_runtime_unpinned: ${SIGRA_COORDINATOR_ERROR:-unknown}"
 command -v awk >/dev/null 2>&1 || fail 'awk_not_on_path'
 command -v jq >/dev/null 2>&1 || fail 'jq_not_on_path'
 git -C "$REPO" rev-parse --show-toplevel >/dev/null 2>&1 || fail "not_a_git_repository: $REPO"

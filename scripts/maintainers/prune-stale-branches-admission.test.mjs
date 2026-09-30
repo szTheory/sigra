@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
+import { inspectMutationCoverage } from "./prune-stale-branches-admission.mjs";
 
 const ROOT = process.cwd();
 const ADMISSION = "scripts/maintainers/prune-stale-branches-admission.mjs";
@@ -102,6 +103,33 @@ function snapshotState(repo) {
     hooksPath: hooksPath.status === 0 ? hooksPath.stdout.trim() : null,
   };
 }
+
+test("mutator inventory ignores scanner regex text but rejects an executable rogue mutator", () => {
+  const sourceRoot = mkdtempSync(join(tmpdir(), "sigra-prune-coverage-"));
+  try {
+    mkdirSync(join(sourceRoot, "scripts"), { recursive: true });
+    cpSync(join(ROOT, "scripts"), join(sourceRoot, "scripts"), { recursive: true });
+    const admissionSource = join(sourceRoot, ADMISSION);
+    writeFileSync(admissionSource, `${readFileSync(admissionSource, "utf8")}\nconst scannerPatternFixture = /git\\s+-C\\s+"\\$REPO"\\s+(?:update-ref|push|worktree|branch)/;\n`);
+    assert.deepEqual(inspectMutationCoverage(sourceRoot), [], "scanner pattern text must not be treated as an executable Git call");
+
+    const operator = join(sourceRoot, "scripts/maintainers/prune-stale-branches.sh");
+    const operatorSource = readFileSync(operator, "utf8");
+    writeFileSync(operator, `${operatorSource}\n/usr/bin/git update-ref refs/heads/unpinned HEAD\n`);
+    assert.ok(inspectMutationCoverage(sourceRoot).some((finding) => finding.includes("prune-stale-branches.sh") && finding.includes("uncoordinated")),
+      "an absolute-path Git mutator must not inherit the operator's wrapper coverage");
+    writeFileSync(operator, `${operatorSource}\nenv git update-ref refs/heads/unpinned HEAD\n`);
+    assert.ok(inspectMutationCoverage(sourceRoot).some((finding) => finding.includes("prune-stale-branches.sh") && finding.includes("uncoordinated")),
+      "a PATH-resolved Git mutator must not inherit the operator's wrapper coverage");
+
+    const rogue = join(sourceRoot, "scripts/maintainers/rogue-mutator.sh");
+    writeFileSync(rogue, '#!/usr/bin/env bash\ngit -C "$REPO" update-ref refs/heads/rogue deadbeef\n');
+    const findings = inspectMutationCoverage(sourceRoot);
+    assert.ok(findings.some((finding) => finding.includes("rogue-mutator.sh") && finding.includes("uncoordinated")), findings.join("\n"));
+  } finally {
+    rmSync(sourceRoot, { recursive: true, force: true });
+  }
+});
 
 test("admission blocks missing source-backed D-01 before coordinator install or ref mutation", () => {
   const fixture = setupFixture();

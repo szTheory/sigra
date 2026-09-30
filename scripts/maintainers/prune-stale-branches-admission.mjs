@@ -1,20 +1,30 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, readdirSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const SCRIPT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const PHASE_DIR = ".planning/phases/245-branch-prune-local-and-remote";
+const GIT_BIN = "/usr/bin/git";
+const GIT_VERSION_PREFIX = "git version 2.50.1";
+const GIT_SHA256 = "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9";
 const OID = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/;
 const TYPES = new Set(["commit", "tree", "blob", "tag"]);
-const MUTATOR_PATHS = [
+const SHELL_MUTATOR_PATHS = [
   "scripts/maintainers/prune-stale-branches.sh",
   "scripts/maintainers/repo-mutation-coordinator.sh",
   "scripts/maintainers/repo-mutation-reference-transaction",
 ];
+const PINNED_RUNTIME_PATHS = [
+  "scripts/maintainers/prune-stale-branches-admission.mjs",
+  "scripts/maintainers/prune-stale-branches-current.mjs",
+  "scripts/maintainers/prune-stale-branches-readiness.mjs",
+  "scripts/maintainers/prune-stale-branches-pr-audit.mjs",
+];
+const EXECUTABLES = new Set(["spawn", "spawnSync", "execFile", "execFileSync", "execSync", "command"]);
 
 function fail(code, detail = "") {
   throw new Error(detail ? `${code}:${detail}` : code);
@@ -30,7 +40,172 @@ function command(program, args, { cwd, input, encoding = "utf8", maxBuffer = 32 
 }
 
 function git(repo, args, options = {}) {
-  return command("git", ["-C", repo, ...args], options);
+  return command(GIT_BIN, ["-C", repo, ...args], options);
+}
+
+function sourceFiles(root, directory = "scripts") {
+  const base = path.join(root, directory);
+  if (!base.startsWith(`${root}${path.sep}`) || !path.isAbsolute(root)) return [];
+  let entries;
+  try { entries = readdirSync(base, { withFileTypes: true }); } catch { return []; }
+  return entries.flatMap((entry) => {
+    if (entry.name === "node_modules" || entry.name.startsWith(".")) return [];
+    const relative = path.join(directory, entry.name);
+    if (entry.isDirectory()) return sourceFiles(root, relative);
+    if (!entry.isFile() || /\.test\.[^.]+$/.test(entry.name)) return [];
+    if (!/\.(?:sh|bash|mjs|js)$/.test(entry.name) && entry.name !== "repo-mutation-reference-transaction") return [];
+    return [relative];
+  });
+}
+
+function stripShellComment(line) {
+  let quote = "";
+  let escaped = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    if (escaped) { escaped = false; continue; }
+    if (quote === "'" && char !== "'") continue;
+    if (quote === '"' && char !== '"' && char !== "\\") continue;
+    if (char === "\\" && quote !== "'") { escaped = true; continue; }
+    if ((char === "'" || char === '"') && (!quote || quote === char)) { quote = quote ? "" : char; continue; }
+    if (!quote && char === "#") return line.slice(0, index);
+  }
+  return line;
+}
+
+function shellMutatorSites(source) {
+  const mutation = /\b(?:update-ref|branch\s+-[dD]|worktree\s+(?:add|move|remove|prune|lock|unlock)|checkout\s+-[bB]|switch\s+-[cC])\b/;
+  return source.split(/\r?\n/).flatMap((line, index) => {
+    const code = stripShellComment(line);
+    return /\bgit\b/.test(code) && mutation.test(code) ? [{ line: index + 1, source: line }] : [];
+  });
+}
+
+function shellUsesPinnedGitFunction(line) {
+  const code = stripShellComment(line);
+  if (/(['"])?\/(?:[^\s/'"]+\/)*git\1?\s/.test(code)) return false;
+  if (/(?:^|[;&|()\s])(?:command|env|exec|nohup|sudo)\s+(?:[^\s;&|()]+\s+)*git\s/.test(code)) return false;
+  return /(?:^|[;&|()\s])git\s/.test(code);
+}
+
+function jsTokens(source) {
+  const tokens = [];
+  let index = 0;
+  let previous = "";
+  while (index < source.length) {
+    const char = source[index];
+    if (/\s/.test(char)) { index += 1; continue; }
+    if (char === "/" && source[index + 1] === "/") {
+      index = source.indexOf("\n", index + 2);
+      if (index < 0) break;
+      continue;
+    }
+    if (char === "/" && source[index + 1] === "*") {
+      const end = source.indexOf("*/", index + 2);
+      index = end < 0 ? source.length : end + 2;
+      continue;
+    }
+    if (char === "/" && /^(?:=|\(|\[|\{|:|,|;|!|\?|&&|\|\||return|throw)$/.test(previous)) {
+      index += 1;
+      let escaped = false;
+      while (index < source.length) {
+        const current = source[index++];
+        if (escaped) { escaped = false; continue; }
+        if (current === "\\") { escaped = true; continue; }
+        if (current === "/") break;
+        if (current === "\n") break;
+      }
+      while (/[a-z]/i.test(source[index] ?? "")) index += 1;
+      previous = "<regex>";
+      continue;
+    }
+    if (char === "'" || char === '"' || char === "`") {
+      const quote = char;
+      let value = "";
+      index += 1;
+      let escaped = false;
+      while (index < source.length) {
+        const current = source[index++];
+        if (escaped) { value += current; escaped = false; continue; }
+        if (current === "\\") { escaped = true; continue; }
+        if (current === quote) break;
+        value += current;
+      }
+      tokens.push({ type: quote === "`" ? "template" : "string", value });
+      previous = "<literal>";
+      continue;
+    }
+    if (/[A-Za-z_$]/.test(char)) {
+      const start = index++;
+      while (/[A-Za-z0-9_$]/.test(source[index] ?? "")) index += 1;
+      const value = source.slice(start, index);
+      tokens.push({ type: "identifier", value });
+      previous = value;
+      continue;
+    }
+    tokens.push({ type: "punctuation", value: char });
+    previous = char;
+    index += 1;
+  }
+  return tokens;
+}
+
+function unpinnedJsGitCalls(source) {
+  const tokens = jsTokens(source);
+  const calls = [];
+  for (let index = 0; index < tokens.length - 2; index += 1) {
+    if (tokens[index].type !== "identifier" || !EXECUTABLES.has(tokens[index].value)) continue;
+    if (tokens[index + 1].value !== "(" || tokens[index + 2].type !== "string" || tokens[index + 2].value !== "git") continue;
+    calls.push(`${tokens[index].value}("git", ...)`);
+  }
+  return calls;
+}
+
+export function inspectMutationCoverage(root) {
+  const absoluteRoot = path.resolve(root);
+  const files = sourceFiles(absoluteRoot);
+  const fileSet = new Set(files);
+  const findings = [];
+  const coordinatorPath = "scripts/maintainers/repo-mutation-coordinator.sh";
+  const operatorPath = "scripts/maintainers/prune-stale-branches.sh";
+  const coordinator = fileSet.has(coordinatorPath) ? readFileSync(path.join(absoluteRoot, coordinatorPath), "utf8") : "";
+  const operator = fileSet.has(operatorPath) ? readFileSync(path.join(absoluteRoot, operatorPath), "utf8") : "";
+  const coordinatorPinned = coordinator.includes('readonly SIGRA_COORDINATOR_GIT_PATH="/usr/bin/git"')
+    && coordinator.includes(`readonly SIGRA_COORDINATOR_GIT_SHA256="${GIT_SHA256}"`)
+    && coordinator.includes('"$SIGRA_COORDINATOR_GIT_PATH" "$@"')
+    && coordinator.includes("sigra_coordinator_pin_git || return 126");
+  if (!coordinatorPinned) findings.push(`${coordinatorPath}: pinned_git_wrapper_missing_or_changed`);
+  const operatorPinned = operator.includes('source "${SCRIPT_ROOT}/scripts/maintainers/repo-mutation-coordinator.sh"')
+    && operator.includes('sigra_coordinator_pin_git || fail')
+    && operator.includes('sigra_coordinator_acquire "$REPO"')
+    && operator.includes(') acquire_lock ;;');
+  if (!operatorPinned) {
+    findings.push(`${operatorPath}: shared_pinned_git_wrapper_not_sourced`);
+  }
+  for (const relativePath of PINNED_RUNTIME_PATHS) {
+    if (!fileSet.has(relativePath)) { findings.push(`${relativePath}: runtime_entrypoint_missing`); continue; }
+    const source = readFileSync(path.join(absoluteRoot, relativePath), "utf8");
+    if (!source.includes(`const GIT_BIN = "${GIT_BIN}";`)) findings.push(`${relativePath}: exact_git_path_pin_missing`);
+    for (const call of unpinnedJsGitCalls(source)) findings.push(`${relativePath}: ${call}`);
+  }
+  for (const relativePath of files) {
+    if (!/\.(?:sh|bash)$/.test(relativePath) && relativePath !== "scripts/maintainers/repo-mutation-reference-transaction") continue;
+    const source = readFileSync(path.join(absoluteRoot, relativePath), "utf8");
+    for (const site of shellMutatorSites(source)) {
+      const disposableProbe = relativePath === coordinatorPath && site.source.includes("DISPOSABLE_PROBE_MUTATION");
+      const coveredOperatorSite = relativePath === operatorPath && coordinatorPinned && operatorPinned
+        && shellUsesPinnedGitFunction(site.source);
+      const coveredCoordinatorSite = relativePath === coordinatorPath && coordinatorPinned && disposableProbe;
+      if (!coveredOperatorSite && !coveredCoordinatorSite) findings.push(`${relativePath}:${site.line}: uncoordinated Git ref/worktree mutator`);
+    }
+    if ((relativePath === operatorPath || relativePath === coordinatorPath) && /\bcommand\s+-v\s+git\b/.test(source)) {
+      findings.push(`${relativePath}: ambient_git_path_lookup`);
+    }
+  }
+  for (const relativePath of SHELL_MUTATOR_PATHS) {
+    if (!fileSet.has(relativePath)) findings.push(`${relativePath}: mutation_entrypoint_missing`);
+  }
+  return [...new Set(findings)];
 }
 
 function safePath(value) {
@@ -46,8 +221,8 @@ function readPinned(repo, commit, relativePath, label) {
   try { git(repo, ["cat-file", "-e", `${commit}^{commit}`]); } catch { fail(`${label}_commit_unavailable`, commit); }
   let blob;
   try { blob = git(repo, ["rev-parse", `${commit}:${relativePath}`]).trim(); } catch { fail(`${label}_path_unavailable`, relativePath); }
-  const raw = command("git", ["-C", repo, "show", `${commit}:${relativePath}`], { encoding: null });
-  const recalculated = command("git", ["-C", repo, "hash-object", "--stdin", "-t", "blob"], { input: raw }).trim();
+  const raw = command(GIT_BIN, ["-C", repo, "show", `${commit}:${relativePath}`], { encoding: null });
+  const recalculated = command(GIT_BIN, ["-C", repo, "hash-object", "--stdin", "-t", "blob"], { input: raw }).trim();
   if (blob !== recalculated) fail(`${label}_blob_mismatch`, relativePath);
   return { raw, blob, sha256: createHash("sha256").update(raw).digest("hex") };
 }
@@ -94,7 +269,7 @@ function parseAllowlist(bytes) {
     const [side, ref, oid, type, reason, ...extra] = line.split("\t");
     if (extra.length || !["local", "remote", "tracking", "safety-publish"].includes(side) || !ref?.startsWith("refs/") || !OID.test(oid ?? "") || !TYPES.has(type) || !reason?.trim()) fail("allowlist_row_invalid");
     if (seen.has(`${side}\0${ref}`)) fail("allowlist_duplicate_row", ref);
-    if (command("git", ["check-ref-format", ref]).trim() !== "") fail("allowlist_ref_invalid", ref);
+    if (command(GIT_BIN, ["check-ref-format", ref]).trim() !== "") fail("allowlist_ref_invalid", ref);
     seen.add(`${side}\0${ref}`);
     rows.push({ side, ref, oid, type, reason });
   }
@@ -109,7 +284,7 @@ function checkReadiness(repo, input, reasons) {
   const source = receipt?.source_commit;
   if (!OID.test(source ?? "")) reasons.push({ code: "d01_readiness_source_commit_invalid" });
   else {
-    const resolved = spawnSync("git", ["-C", repo, "rev-parse", "--verify", `${source}^{commit}`], { encoding: "utf8" });
+    const resolved = spawnSync(GIT_BIN, ["-C", repo, "rev-parse", "--verify", `${source}^{commit}`], { encoding: "utf8" });
     if (resolved.status !== 0 || resolved.stdout.trim() !== source) {
       reasons.push({ code: `d01_readiness_source_commit_unavailable:${source}` });
     } else {
@@ -121,20 +296,28 @@ function checkReadiness(repo, input, reasons) {
 
 function checkRuntime(reasons) {
   const resolved = spawnSync("sh", ["-lc", "command -v git"], { encoding: "utf8" });
-  const gitPath = resolved.status === 0 ? resolved.stdout.trim() : null;
+  const ambientGitPath = resolved.status === 0 ? resolved.stdout.trim() : null;
   let candidate = null;
+  let pinnedGitVerified = false;
   try {
-    const candidatePath = "/usr/bin/git";
-    const digest = createHash("sha256").update(readFileSync(candidatePath)).digest("hex");
-    const version = command(candidatePath, ["--version"]).trim();
-    candidate = { path: candidatePath, version, sha256: digest };
+    const resolvedPath = realpathSync(GIT_BIN);
+    const digest = createHash("sha256").update(readFileSync(GIT_BIN)).digest("hex");
+    const version = command(GIT_BIN, ["--version"]).trim();
+    pinnedGitVerified = resolvedPath === GIT_BIN && version.startsWith(GIT_VERSION_PREFIX) && digest === GIT_SHA256;
+    candidate = { path: GIT_BIN, resolved_path: resolvedPath, version, sha256: digest };
   } catch {
     candidate = null;
   }
-  const source = readFileSync(path.join(SCRIPT_ROOT, MUTATOR_PATHS[0]), "utf8");
-  const hasAmbientMutators = /(^|[;&|()\s])git\s+-C\s+"\$REPO"\s+(?:update-ref|push|worktree|branch)\b/m.test(source);
-  if (!gitPath || hasAmbientMutators) reasons.push({ code: `unproved_git_mutator_runtime:${MUTATOR_PATHS[0]}` });
-  return { active_git_path: gitPath, candidate_git: candidate, operator_mutators_pinned: !hasAmbientMutators };
+  if (!pinnedGitVerified) reasons.push({ code: "pinned_git_identity_unverified" });
+  const coverageFindings = inspectMutationCoverage(SCRIPT_ROOT);
+  if (coverageFindings.length) reasons.push({ code: "mutator_coverage_failed", findings: coverageFindings });
+  return {
+    active_git_path: ambientGitPath,
+    candidate_git: candidate,
+    pinned_git_verified: pinnedGitVerified,
+    operator_mutators_pinned: pinnedGitVerified && coverageFindings.length === 0,
+    mutator_coverage: { status: coverageFindings.length ? "blocked" : "passed", findings: coverageFindings },
+  };
 }
 
 function checkCoordinator(repo, stage, reasons) {
@@ -152,17 +335,17 @@ function checkCandidate(repo, rows, candidateRef, reasons) {
     reasons.push({ code: `candidate_not_in_exact_allowlist:${candidateRef}` });
     return null;
   }
-  const actual = spawnSync("git", ["-C", repo, "for-each-ref", `--format=%(objectname)%09%(objecttype)`, candidateRef], { encoding: "utf8" });
+  const actual = spawnSync(GIT_BIN, ["-C", repo, "for-each-ref", `--format=%(objectname)%09%(objecttype)`, candidateRef], { encoding: "utf8" });
   if (actual.status !== 0 || actual.stdout.trim() !== `${candidate.oid}\t${candidate.type}`) reasons.push({ code: `candidate_identity_changed:${candidateRef}` });
   if (candidate.type !== "commit") reasons.push({ code: `candidate_not_commit:${candidateRef}` });
   const worktrees = worktreeFingerprint(repo);
   if (worktrees.some((line) => line === `branch ${candidateRef}`)) reasons.push({ code: `candidate_attached_worktree:${candidateRef}` });
-  const head = spawnSync("git", ["-C", repo, "symbolic-ref", "-q", "HEAD"], { encoding: "utf8" });
+  const head = spawnSync(GIT_BIN, ["-C", repo, "symbolic-ref", "-q", "HEAD"], { encoding: "utf8" });
   const target = head.status === 0 ? head.stdout.trim() : null;
   const targetOid = target ? git(repo, ["rev-parse", "--verify", target]).trim() : null;
   if (!target || !target.startsWith("refs/heads/") || !targetOid) reasons.push({ code: "merge_target_not_stable_symbolic_branch" });
   else {
-    const ancestor = spawnSync("git", ["-C", repo, "merge-base", "--is-ancestor", candidate.oid, targetOid]);
+    const ancestor = spawnSync(GIT_BIN, ["-C", repo, "merge-base", "--is-ancestor", candidate.oid, targetOid]);
     if (ancestor.status !== 0) reasons.push({ code: `candidate_not_merged_into_stable_target:${candidateRef}` });
   }
   return candidate;
@@ -221,6 +404,10 @@ function evaluate(options) {
 
 function parseArgs(argv) {
   const action = argv.shift();
+  if (action === "coverage") {
+    if (argv.length !== 2 || argv[0] !== "--repo") fail("usage", "coverage --repo PATH");
+    return { action, repo: argv[1] };
+  }
   if (!new Set(["capture", "verify"]).has(action)) fail("usage", "<capture|verify> --repo PATH ...");
   const options = { action, stage: "admission" };
   const seen = new Set();
@@ -244,19 +431,27 @@ function parseArgs(argv) {
   return options;
 }
 
-try {
-  const options = parseArgs(process.argv.slice(2));
-  const receipt = evaluate(options);
-  const bytes = `${JSON.stringify(receipt, null, 2)}\n`;
-  if (options.action === "capture") {
-    const output = path.resolve(options.output);
-    const temp = `${output}.tmp-${process.pid}`;
-    writeFileSync(temp, bytes, { flag: "wx", mode: 0o600 });
-    renameSync(temp, output);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    const options = parseArgs(process.argv.slice(2));
+    if (options.action === "coverage") {
+      const findings = inspectMutationCoverage(options.repo);
+      process.stdout.write(`${JSON.stringify({ status: findings.length ? "blocked" : "passed", findings }, null, 2)}\n`);
+      if (findings.length) process.exitCode = 2;
+    } else {
+      const receipt = evaluate(options);
+      const bytes = `${JSON.stringify(receipt, null, 2)}\n`;
+      if (options.action === "capture") {
+        const output = path.resolve(options.output);
+        const temp = `${output}.tmp-${process.pid}`;
+        writeFileSync(temp, bytes, { flag: "wx", mode: 0o600 });
+        renameSync(temp, output);
+      }
+      process.stdout.write(bytes);
+      if (receipt.status !== "admitted") process.exitCode = 2;
+    }
+  } catch (error) {
+    process.stderr.write(`prune-stale-branches-admission: FAIL: ${error.message}\n`);
+    process.exitCode = 2;
   }
-  process.stdout.write(bytes);
-  if (receipt.status !== "admitted") process.exitCode = 2;
-} catch (error) {
-  process.stderr.write(`prune-stale-branches-admission: FAIL: ${error.message}\n`);
-  process.exitCode = 2;
 }

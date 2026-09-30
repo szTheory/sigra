@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# Shared Git hook: serialize branch/remote-tracking/HEAD ref transactions with pruning.
+set -euo pipefail
+
+phase="${1:-}"
+[[ "$phase" == preparing || "$phase" == prepared || "$phase" == committed || "$phase" == aborted ]] || exit 0
+hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+coordinator_root="$(cd "${hook_dir}/.." && pwd -P)"
+lock_dir="${coordinator_root}/lock"
+gate_dir="${coordinator_root}/gate"
+transactions_dir="${coordinator_root}/transactions"
+transaction_dir="${transactions_dir}/txn-${PPID}"
+payload="$(mktemp "${coordinator_root}/hook-input.XXXXXX")" || exit 1
+GATE_HELD=0
+
+release_gate() {
+  [[ "$GATE_HELD" == 1 ]] || return 0
+  rm -f "${gate_dir}/pid"
+  rmdir "$gate_dir" 2>/dev/null || true
+  GATE_HELD=0
+}
+cleanup() {
+  release_gate
+  rm -f "$payload"
+}
+trap cleanup EXIT
+cat > "$payload"
+
+is_guarded_transaction() {
+  awk '$3 == "HEAD" || $3 ~ /^refs\/heads\// || $3 ~ /^refs\/remotes\// { guarded=1 } END { exit !guarded }' "$payload"
+}
+
+enter_gate() {
+  if ! mkdir "$gate_dir" 2>/dev/null; then
+    printf 'repo-mutation-coordinator: FAIL: admission_gate_busy_or_stale\n' >&2
+    return 1
+  fi
+  GATE_HELD=1
+  printf '%s\n' "$$" > "${gate_dir}/pid"
+}
+
+owner_token() {
+  [[ -s "${lock_dir}/owner.json" ]] || return 1
+  jq -er '.token | select(type == "string" and length == 48)' "${lock_dir}/owner.json" 2>/dev/null
+}
+
+check_or_register_prepared() {
+  local lock_token
+  is_guarded_transaction || return 0
+  enter_gate || return 1
+  if [[ -d "$lock_dir" ]]; then
+    lock_token="$(owner_token)" || {
+      printf 'repo-mutation-coordinator: FAIL: malformed_or_missing_coordinator_owner\n' >&2
+      return 1
+    }
+    if [[ "${SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN:-}" != "$lock_token" ]]; then
+      printf 'repo-mutation-coordinator: FAIL: branch_or_worktree_ref_change_during_coordinator_window\n' >&2
+      return 1
+    fi
+    release_gate
+    return 0
+  fi
+  if [[ -e "$transaction_dir" ]]; then
+    printf 'repo-mutation-coordinator: FAIL: prior_ref_transaction_lease_unresolved: %s\n' "$transaction_dir" >&2
+    return 1
+  fi
+  mkdir "$transaction_dir" 2>/dev/null || {
+    printf 'repo-mutation-coordinator: FAIL: ref_transaction_lease_create_failed\n' >&2
+    return 1
+  }
+  if ! jq -n \
+    --arg pid "$PPID" \
+    --arg hook_pid "$$" \
+    --arg host "$(hostname 2>/dev/null || printf unknown)" \
+    --arg phase "$phase" \
+    '{schema_version:1,pid:$pid,hook_pid:$hook_pid,host:$host,phase:$phase}' \
+    > "${transaction_dir}/owner.json"; then
+    printf 'repo-mutation-coordinator: FAIL: ref_transaction_lease_record_failed\n' >&2
+    return 1
+  fi
+  release_gate
+}
+
+release_prepared_lease() {
+  local lock_token=""
+  is_guarded_transaction || return 0
+  enter_gate || return 1
+  if [[ -d "$lock_dir" ]]; then
+    lock_token="$(owner_token 2>/dev/null || true)"
+    if [[ "${SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN:-}" == "$lock_token" && -n "$lock_token" ]]; then
+      release_gate
+      return 0
+    fi
+    printf 'repo-mutation-coordinator: FAIL: coordinator_owner_changed_before_ref_completion\n' >&2
+    return 1
+  fi
+  if [[ -d "$transaction_dir" ]]; then
+    rm -f "${transaction_dir}/owner.json" || return 1
+    rmdir "$transaction_dir" 2>/dev/null || return 1
+  fi
+  release_gate
+}
+
+invoke_chained_hook() {
+  local chained="${coordinator_root}/previous-reference-transaction"
+  [[ -x "$chained" ]] || return 0
+  "$chained" "$phase" < "$payload"
+}
+
+case "$phase" in
+  preparing)
+    invoke_chained_hook || exit 1
+    ;;
+  prepared)
+    check_or_register_prepared || exit 1
+    if ! invoke_chained_hook; then
+      release_prepared_lease || true
+      exit 1
+    fi
+    ;;
+  committed|aborted)
+    invoke_chained_hook || true
+    release_prepared_lease || exit 1
+    ;;
+esac
+exit 0
