@@ -5,14 +5,14 @@
   "plan": "19",
   "status": "blocked",
   "stage": "admission",
-  "captured_at": "2026-09-30T01:25:00Z",
+  "captured_at": "2026-09-30T01:31:29Z",
   "local_candidate_count": 0,
   "candidate_classification": "not_performed",
   "allowlist_created_or_committed": false,
   "coordinator_installed": false,
   "coordinator_install_attempted": false,
-  "coordinator_coverage": "blocked_unproven",
-  "exact_git_runtime": "blocked_unproven",
+  "coordinator_coverage": "blocked_failed",
+  "exact_git_runtime": "capability_passed_but_mutator_pinning_blocked",
   "inputs": [
     {
       "name": "current_contract",
@@ -60,26 +60,39 @@
   "verifiers": {
     "readiness": {
       "command": "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo /Users/jon/projects/sigra --artifact .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json --artifact-commit d7243c193c40a30709edbe306d79038d2286e70e",
-      "exit": 1,
+      "exit": 0,
       "result": {
-        "valid": false,
-        "status": "blocked",
-        "reasons": [
-          {
-            "code": "source_worktree_dirty",
-            "source": ".planning/state.json",
-            "message": ".planning/state.json failed its committed identity check (source_worktree_dirty)."
-          }
-        ]
+        "valid": true,
+        "status": "ready",
+        "reasons": []
       }
     },
+    "snapshot_objects": {
+      "exit": 0,
+      "result": "PASS: all direct and peeled local and origin snapshot objects remain readable (local=129 origin=357)."
+    },
     "current_contract_live_verification": {
-      "status": "not_run",
-      "reason": "Admission implementation stops before contacting GitHub or checking coordinator state when D-01 source evidence is unauthenticated."
+      "status": "blocked",
+      "exit": 1,
+      "result": "prune-stale-branches-current: FAIL: current_local_ref_identity_changed:refs/heads/phase-244-playwright-measurement",
+      "live_pr_projection": "Compared before the local-ref mismatch; no PR comparison error occurred.",
+      "actual_active_branch_oid": "874b39f5795aeb0cc32a9df694f99a5d9fc83b4c",
+      "only_contract_permitted_active_branch_oid": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+      "reason": "The first blocked diagnostic commit advanced the active evidence branch beyond the one OID allowed by the Plan 18 current contract. Origin and safety identity comparisons did not complete."
     },
     "admission_script_verify": {
       "status": "not_run",
-      "reason": "No separately committed exact allowlist exists; D-01 failed before candidate/allowlist admission."
+      "reason": "The exact current baseline failed D-07 and coordinator coverage failed D-05; no candidate classification or allowlist was authorized."
+    },
+    "coordinator_capability_fixture": {
+      "exit": 0,
+      "result": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)",
+      "scope": "Disposable temporary repository only."
+    },
+    "coordinator_coverage_fixture": {
+      "exit": 1,
+      "result": "uncoordinated Git ref/worktree mutator: scripts/maintainers/prune-stale-branches-admission.mjs:135; FAIL: production mutation inventory found an uncoordinated entry point",
+      "scope": "Disposable test fixture; no production coordinator was installed."
     }
   },
   "runtime_observation": {
@@ -88,21 +101,22 @@
     "candidate_git_path": "/usr/bin/git",
     "candidate_git_version": "git version 2.50.1 (Apple Git-155)",
     "candidate_git_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
-    "capability_probe": "not_run_after_earliest_D01_blocker",
-    "operator_pin_evidence": "scripts/maintainers/prune-stale-branches.sh contains ambient git -C $REPO worktree/update-ref invocations; exact binary is not proven for every mutator.",
-    "coordinator_pin_evidence": "scripts/maintainers/repo-mutation-coordinator.sh resolves Git with command -v git; exact /usr/bin/git pinning for all participating coordinator and hook invocations is not proven."
+    "capability_probe": "passed in disposable fixture using /usr/bin/git",
+    "operator_pin_evidence": "scripts/maintainers/prune-stale-branches.sh contains ambient git invocations, including git -C \"$REPO\" update-ref at lines 555 and 1159 and push calls at lines 1066 and 1112; no exact per-mutator executable pin exists.",
+    "coordinator_pin_evidence": "scripts/maintainers/repo-mutation-coordinator.sh resolves Git with command -v git and invokes ambient git throughout; exact /usr/bin/git pinning for all participating invocations is not proven.",
+    "active_git_path": "/opt/homebrew/bin/git",
+    "active_git_version": "git version 2.41.0"
   },
   "blocked_reasons": [
-    "d01_readiness_verification_exit_1:source_worktree_dirty:.planning/state.json",
-    "candidate_classification_and_exact_allowlist_not_authorized_before_D01_pass",
-    "exact_git_runtime_capability_not_proven",
-    "repository_wide_mutator_runtime_and_shared_coordinator_coverage_not_proven"
+    "d05_coordinator_coverage_fixture_exit_1:scripts/maintainers/prune-stale-branches-admission.mjs:135",
+    "d05_exact_runtime_not_pinned_for_all_operator_and_coordinator_mutators",
+    "d07_current_contract_verification_exit_1:current_local_ref_identity_changed:refs/heads/phase-244-playwright-measurement"
   ],
   "no_mutation": {
-    "production_refs_before_sha256": "cb8c004d6a8606164e969b4949d7feebc64db06f42ba49ef714c79b6e0f44af8",
-    "production_refs_after_sha256": "cb8c004d6a8606164e969b4949d7feebc64db06f42ba49ef714c79b6e0f44af8",
-    "worktrees_before_sha256": "6f8a7e3d8399428b89fc7ce25bebf9367b5c4569e19af7fd26e2344ca63ad704",
-    "worktrees_after_sha256": "6f8a7e3d8399428b89fc7ce25bebf9367b5c4569e19af7fd26e2344ca63ad704",
+    "production_refs_before_sha256": "833e0372936aa45ad309136a9e6ec9ba825c4e40a883fbb524b781979b9af77e",
+    "production_refs_after_sha256": "833e0372936aa45ad309136a9e6ec9ba825c4e40a883fbb524b781979b9af77e",
+    "worktrees_before_sha256": "4ab3a184d80b5aa2fc9fda3e6de8deb586e5c9f9e50a2cc861034613397cad06",
+    "worktrees_after_sha256": "4ab3a184d80b5aa2fc9fda3e6de8deb586e5c9f9e50a2cc861034613397cad06",
     "local_git_config_before_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
     "local_git_config_after_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
     "equal": true

@@ -3,35 +3,42 @@
   "phase": "245-branch-prune-local-and-remote",
   "plan": "19",
   "outcome": "blocked",
-  "captured_at": "2026-09-30T01:25:00Z",
+  "captured_at": "2026-09-30T01:31:29Z",
   "blocked_reasons": [
-    "D-01 readiness verifier failed with source_worktree_dirty for .planning/state.json.",
-    "Exact candidate classification and committed allowlist were not reached.",
-    "Exact /usr/bin/git capability and full shared-coordinator mutator coverage remain unproven."
+    "D-05 coordinator coverage fixture exited 1 and reported scripts/maintainers/prune-stale-branches-admission.mjs:135 as an uncoordinated mutator entry point.",
+    "D-05 exact Git capability passed in a disposable fixture, but the operator and coordinator still use ambient Git calls without a complete exact executable pin.",
+    "D-07 current-contract verification exited 1: current_local_ref_identity_changed:refs/heads/phase-244-playwright-measurement; active evidence branch is 874b39f5795aeb0cc32a9df694f99a5d9fc83b4c while the contract permits 319bc487e8b438ff135d84f5d42018f3f35940e7."
   ],
   "verifier_exits": {
-    "readiness": 1,
+    "readiness": 0,
+    "objects": 0,
+    "coordinator_coverage": 1,
+    "current_contract": 1,
     "admission": null,
     "current_contract_after": null,
     "safety": null,
     "local": null,
-    "remote": null,
-    "objects": null
+    "remote": null
   },
   "production_mutations": 0,
   "coordinator_installed": false,
   "admitted_local_deleted_count": 0,
   "eligible_remote_disposition_check": "not_run",
-  "current_pr_check": "not_run",
+  "current_pr_check": "partial_pass_before_current_ref_failure",
   "safety_check": "not_run",
-  "object_check": "not_run",
+  "object_check": "passed",
   "exact_ref_check": "not_run",
-  "local_coordinator_check": "blocked_unproven",
+  "local_coordinator_check": "blocked_failed_coverage_and_unpinned_mutators",
   "post_readback_check": "not_run",
   "before_after_equality": {
     "refs": true,
     "config": true,
     "worktrees": true
+  },
+  "pre_mutation_fingerprints": {
+    "refs_sha256": "833e0372936aa45ad309136a9e6ec9ba825c4e40a883fbb524b781979b9af77e",
+    "worktrees_sha256": "4ab3a184d80b5aa2fc9fda3e6de8deb586e5c9f9e50a2cc861034613397cad06",
+    "git_config_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b"
   },
   "historical_audits": {
     "prior_11_row_pr_mismatch": "unresolved",

@@ -5,7 +5,10 @@
   "outcome": "blocked_before_classification",
   "admission_status": "blocked",
   "classification_performed": false,
-  "classification_blocker": "d01_readiness_source_worktree_dirty:.planning/state.json",
+  "classification_blockers": [
+    "d07_current_contract_verification_failed:current_local_ref_identity_changed:refs/heads/phase-244-playwright-measurement",
+    "d05_exact_git_runtime_and_full_shared_coordinator_coverage_not_proven"
+  ],
   "source_contract": {
     "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
     "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
@@ -19,7 +22,7 @@
     "direct_and_peeled_objects_verified_by_plan_18": 488
   },
   "candidate_rows": [],
-  "candidate_rows_reason": "D-01 source-backed readiness failed before current candidate classification. No row is eligible or authorized for deletion. No live GitHub or origin refresh was attempted after the earliest failing readiness gate.",
+  "candidate_rows_reason": "D-01 readiness passed and Plan 18 snapshot object checks passed, but current-contract verification failed before candidate classification because the active evidence branch had advanced beyond the contract's one permitted OID. The full shared-coordinator coverage check also failed. No row is admitted or authorized for deletion.",
   "allowlist_created": false,
   "allowlist_commit": null,
   "production_ref_mutations": 0
