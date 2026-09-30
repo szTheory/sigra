@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Resume active Phase 245 Plan 19 gap execution",
-    "reason": "The pinned Git symbolic-HEAD capability gate is resolved and its four-suite regression passes; Plan 19 still needs fresh contract capture and candidate classification"
+    "label": "Execute Phase 245 gap-closure plans",
+    "reason": "Plans 245-20 and 245-21 are runnable after the gap-closure planning pass; Plan 245-19 is superseded with its blocked receipt retained, and Plan 245-16 remains blocked by halted Plan 245-14."
   },
-  "updated_at": "2026-09-30T15:22:20Z"
+  "updated_at": "2026-09-30T19:55:46.921Z"
 }

@@ -62,8 +62,8 @@
 - **236 + 237 → 240** — the green-main evidence needs the flake fix on `main` and Pages green before issue #231 can be closed against it.
 - **239 → 241** — the shipped-surface strip must precede the leakage gate; gating a dirty tree is red forever.
 - **236 → 241** — the honest-skip-parity guard pins `ci.yml` job ids; writing it before 236's `ci.yml` edits pins a moving target.
-- **238 + 239 + 240 → 242** — the release cut needs a green gate, a namespace that cannot be re-polluted, and a clean shipped surface.
-- **242 → 243** — drain after the cut, so the release does not ship deps that never ran a full green.
+- **238 + 239 + 240 → 242** — the safety closeout preserves the bounded-install source contract and historical evidence without inferring an external release outcome.
+- **242 → 243** — drain after the safety closeout; Phase 243 does not depend on a 1.5.1 release.
 - **243 → 244** — Playwright 1.62 lands last and alone, or baseline drift is unattributable.
 - **243 + 244 → 245** — the branch prune is last: PR #211/#219's *base* branch is a prune candidate, and deleting a PR's base closes the PR.
 
@@ -75,9 +75,9 @@
 - [x] **Phase 239: `priv/templates/` Sweep + One Batched Re-bless** - Strip adopter-shipped bookkeeping, verified on a freshly generated app and the built tarball — never on the source tree (completed 2026-09-18)
 - [x] **Phase 240: Green-Main Evidence + Honest Pages Script** - n≥20 dispatch-proven green on the affected job at final HEAD, a script that fails loudly on 403, and issue #231 closed against that evidence (completed 2026-09-18)
 - [x] **Phase 241: Retire v1.47's Dishonest Debt + Adopter-Leakage Guard** - Four guards made real or removed, each demonstrated RED against a committed known-bad fixture (completed 2026-09-19)
-- [ ] **Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1** - The irreversible public-artifact phase: retire `1.20.0`, revert its docs, record what retirement does *not* do, publish 1.5.1
-- [ ] **Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage** - Merge on locked versions (branch names lie), close 8 stale PRs with reasons, triage every todo without fixing one
-- [ ] **Phase 244: `@playwright/test` 1.59.1 → 1.62.1, Alone** - Measure CI-native drift across ~115 PNGs; merge only at zero drift, otherwise defer with the measurement attached
+- [x] **Phase 242: Safety Closeout for Phantom Release Adoption** - Preserve the bounded-install safeguard and raw remediation halts, retire unexecuted external actions, and require separate authorization for future registry or release work (plan evidence integrated; root-tree verification pending) (completed 2026-09-24)
+- [x] **Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage** - Merge on locked versions (branch names lie), close 8 stale PRs with reasons, triage every todo without fixing one
+- [x] **Phase 244: `@playwright/test` 1.59.1 → 1.62.1, Alone** - Measure CI-native drift across ~115 PNGs; merge only at zero drift, otherwise defer with the measurement attached (completed 2026-09-26; verification passed 29/29 in the execution checkout)
 - [ ] **Phase 245: Branch Prune — Local and Remote** - Destructive and PR-coupled, so it goes last, with every pre-prune SHA still resolvable afterward
 
 ## Phase Details
@@ -312,25 +312,28 @@ Plans:
 
 Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393` are **stale**. The real rot is in the honest-skip section (five rots, two unnamed by D-15) and the prohibitions glob `run:` was at `ci.yml:408` at planning HEAD. Every coordinate is re-located by content at execution time.
 
-### Phase 242: Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1
+### Phase 242: Safety Closeout for Phantom Release Adoption
 
-**Goal**: An adopter landing on Sigra's Hex page reads current documentation, is warned about the phantom `1.20.0`, and can install a real release — and the project's own record states plainly what the retire did and did not fix.
-**Depends on**: Phase 240 (green-gate evidence), Phase 238 (namespace guard in place before release-please tags `v1.5.1`), Phase 239 (the tarball ships clean)
+**Goal**: An adopter receives a bounded, source-controlled `{:sigra, "~> 1.5.0"}` install path while the project record truthfully preserves the failed remediation evidence and makes no claim that Hex, HexDocs, or a release was repaired.
+**Depends on**: Phase 240 (green-gate evidence), Phase 238 (namespace guard), Phase 239 (the tarball ships clean)
 **Requirements**: REL-03, REL-04, REL-05, REL-06
 **Success Criteria** (what must be TRUE):
 
-  1. `GET https://hex.pm/api/packages/sigra` is captured as **committed pre/post artifacts**, and the post artifact's `retirements` field contains `1.20.0` with reason `invalid` — executed by a `workflow_dispatch` job under the existing `secrets.HEX_API_KEY` (the same non-interactive `api:write` path `hex-publish.yml:180-187` already uses), **not** an interactive operator runbook. The write key is never pasted into any plan, evidence file, or commit message — this is a public repo.
-  2. The milestone states the truth about resolution, positively asserted: `latest_stable_version` is **still `1.20.0`** post-retire, and in a clean `HEX_HOME` a `{:sigra, "~> 1.0"}` `mix deps.get` resolves `1.20.0` while printing `RETIRED!`, and `{:sigra, "~> 1.5"}` resolves 1.5.x cleanly. `HEX_IGNORE_RETIREMENTS` is never set — the warning *is* the proof. No artifact in this milestone claims the retire fixed resolution.
-  3. `https://hexdocs.pm/sigra/` serves **1.5.x** documentation instead of "Sigra v1.20.0" — title read live after `mix hex.publish docs --revert 1.20.0` (the *docs* revert, which has no time limit; the release-tarball revert's window closed in 2026-04 and is never attempted). Whether the docs revert also moves `latest_stable_version` is **measured** from the pre/post artifacts and reported, never assumed.
-  4. An ADR records pinned install docs (`{:sigra, "~> 1.5"}`) as the deliberate resolution decision and states that retirement moves neither `latest_stable_version` nor resolution.
-  5. `sigra 1.5.1` is listed on the Hex API as a published release, cut from a gate observed green, with the `## Unreleased` CHANGELOG block folded into the release section **before** PR #224 merges, and `scripts/ci/release-post-publish-verify.sh` passing on the publish path.
+  1. The dedicated phantom-remediation workflow and its p22 guard are absent from the repository, so no stale Phase 242 plan can dispatch a registry mutation.
+  2. The ten owned public installation snippets use `{:sigra, "~> 1.5.0"}` and the Phase 242 contract proves that bounded source surface.
+  3. Raw halt records for runs 35554955828, 35709493996, and 35714147650 are preserved with SHA-256 references; none is reported as a validated retirement, docs revert, resolver observation, or release receipt.
+  4. Plans 06–09 are superseded without execution. Any future registry mutation, HexDocs revert, or release work requires a separately scoped phase and fresh explicit authorization.
 
-**Plans**: TBD
+**Plans**: 14 plans (Plans 06–09 are superseded by the safety closeout; Plan 14 completes the closeout)
+
+Plans:
+
+- [x] 242-14-PLAN.md — Record the safety closeout, retire the unexecuted mutation/release path, and route any future registry work to a separately authorized phase.
 
 ### Phase 243: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage
 
 **Goal**: The open-PR and todo backlog reflects live work only, with every merged bump's real version verified and nothing quietly fixed along the way.
-**Depends on**: Phase 242 (drain after the cut, so the release ships nothing that never ran a full green)
+**Depends on**: Phase 242 safety closeout; Phase 243 does not assume that a 1.5.1 release was cut.
 **Requirements**: QUEUE-01, QUEUE-03, QUEUE-04
 **Success Criteria** (what must be TRUE):
 
@@ -340,7 +343,19 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
   4. Every pending todo carries exactly one disposition — keep (with a reason), close (with evidence), or defer (with a named future milestone) — and the triage commit's diff touches **only** `.planning/todos/`. **Zero todos are fixed during triage.** The ~12 owned by earlier phases close as a side effect of those phases, not here.
   5. `FUT-01`…`FUT-05` plus the two adjacent gaps (`example_unit_smoke` absent from `ci-gate.needs`; `launch-pack-contract.sh` with no workflow caller) exist as todo files with their diagnosis attached, and Dependabot `groups:` is filed rather than implemented.
 
-**Plans**: TBD
+**Plans**: 4 plans in 2 waves
+
+Plans:
+
+**Wave 1**
+
+- [x] 243-01-PLAN.md — Merge and verify the Tier A batch
+- [x] 243-03-PLAN.md — Close stale phase/recapture PRs with reasons
+- [x] 243-04-PLAN.md — Freeze and disposition the pending todo inventory
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 243-02-PLAN.md — Merge Tier B updates one at a time with green CI boundaries
 
 ### Phase 244: `@playwright/test` 1.59.1 → 1.62.1, Alone
 
@@ -354,7 +369,18 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
   3. PR #213 is merged **only if measured drift is exactly zero**; otherwise it is closed/deferred to a todo carrying the measurement, and **no recapture lane is opened** — visible either way in `gh pr view 213`.
   4. Whichever branch is taken, `ci-gate` is observed green on `main` afterward across every Playwright consumer (`example_playwright_shard`, `example_playwright_smoke`, `generated_admin_playwright_smoke`), and no PNG baseline is committed in the same change as any other cause.
 
-**Plans**: TBD
+**Plans**: 8 plans, all complete
+
+Plans:
+
+- [x] 244-01-PLAN.md — Prove CI-native screenshot capture and complete inventory
+- [x] 244-02-PLAN.md — Enforce exact decoded-pixel verdicts and prepare the isolated candidate
+- [x] 244-03-PLAN.md — Measure browser drift and preserve the decision evidence
+- [x] 244-04-PLAN.md — Gate any requested restoration of #213 on a live candidate
+- [x] 244-05-PLAN.md — Reject stale or incomplete final-main receipts and capture the consumer gate
+- [x] 244-06-PLAN.md — Bind the measurement manifest to run and artifact identity
+- [x] 244-07-PLAN.md — Enforce equality across paired install source trees
+- [x] 244-08-PLAN.md — Record the final CI watcher and successful `mix ci` result
 
 ### Phase 245: Branch Prune — Local and Remote
 
@@ -366,9 +392,78 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
   1. A pre-prune `git for-each-ref` snapshot is committed, and after the prune **every** SHA recorded in it is still `git cat-file -e`-resolvable — proven by re-running the check against the committed snapshot, not asserted.
   2. The documented safety refs survive on `origin`: `ci/phase-235-16-source-complete` (442 commits ahead of `main`, holding the TEST-01/02 re-wiring), `safety/local-main-before-release-cleanup-*`, and `archive/local-main-pre-235-recovery`.
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
-  4. No `git gc`, `git reflog expire`, or `--prune=now` ran anywhere in this milestone, recorded explicitly in the phase SUMMARY.
+  4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: TBD
+**Plans**: 21 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plans 20–21 repair the verifier and own fresh execution evidence; Plan 16 remains blocked by Plan 14.
+
+Plans:
+**Wave 1**
+
+- [x] 245-01-PLAN.md — Build the guarded branch-prune operator and isolated fixtures
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 245-02-PLAN.md — Commit pre-prune inventories and establish origin safety refs
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 245-03-PLAN.md — Commit exact-name candidates and prune local branches
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 245-04-PLAN.md — Remote refs and objects verified; halted at the 11-PR base-OID mismatch (see 245-04-SUMMARY.md)
+
+**Gap-closure execution** — run with `$gsd-execute-phase 245 --gaps-only`; these gap waves exclude the halted original Plan 245-04.
+
+**Gap Wave 1**
+
+- [x] 245-05-PLAN.md — Pin Phase 244 readiness and local compare-and-delete
+
+**Gap Wave 2** *(blocked on gap Wave 1 completion)*
+
+- [x] 245-06-PLAN.md — Lease-protect origin mutations and preserve complete fixture evidence
+
+**Gap Wave 3** *(blocked on gap Wave 2 completion)*
+
+- [x] 245-07-PLAN.md — Audit the 11 historical PR mismatches and verify current identity
+
+**Gap Wave 4** *(blocked on gap Wave 3 completion)*
+
+- [x] 245-08-PLAN.md — Audit cleanup history and report REPO-04 at evidence-supported certainty
+
+**Gap Wave 5** *(blocked on gap Wave 4 completion; plans are independent)*
+
+- [ ] 245-09-PLAN.md — Enforce protected-ref checks at apply time and close local HEAD/worktree races (halted: user chose fail-closed local apply until a verifiable shared coordinator exists; unchanged-eligible-delete criterion remains unsatisfied)
+- [x] 245-10-PLAN.md — Authenticate cleanup-history evidence and bind window times to boundary commits
+
+**Gap Wave 6** *(depends on 245-10 because both update the cleanup-history validator; independent of the unresolved local-prune contract)*
+
+- [x] 245-11-PLAN.md — Scan signed history events and Git global options in cleanup evidence
+
+**Gap Wave 7** *(depends on 245-11)*
+
+- [ ] 245-12-PLAN.md — Build the shared coordinator; halted after Git 2.41.0 bypassed symbolic-HEAD hook coverage (see 245-12-SUMMARY.md)
+
+**Gap Wave 8** *(fixture proof after the coordinator prototype)*
+
+- [x] 245-13-PLAN.md — Prove exact-runtime capability gating and safe local deletion on disposable Git 2.50.1; production remains blocked
+
+**Gap Wave 9** *(independent read-only evidence attempts)*
+
+- [ ] 245-14-PLAN.md — Reconcile exact historical PR identity with fresh GitHub and origin reads; retain blocked mismatches
+- [ ] 245-15-PLAN.md — Inventory trusted full-window cleanup history and rebuild the 30-row audit without promoting unknowns
+
+**Gap Wave 10** *(depends on 245-14; production apply requires a ready D-05 admission and an exact eligible candidate)*
+
+- [ ] 245-16-PLAN.md — Gate any production local prune on shared coordination, strict PR integrity, and a committed exact candidate; halt without mutation when absent
+
+**D-07 current-source rebaseline** *(additional gap closure; 245-13 → 245-17 → 245-18 → Plan 19's blocked receipt and superseded remainder → 245-20 → 245-21; run with `$gsd-execute-phase 245 --gaps-only`)*
+
+- [x] 245-17-PLAN.md — Capture current GitHub PR/ref identities and add fail-closed local admission for the unavailable readiness source (plan wave 2; REPO-04 remains open)
+- [x] 245-18-PLAN.md — Re-prove the Phase 244 prerequisite from available sources and commit a fresh immutable local/origin/PR snapshot (completed 2026-09-30; D-01 and all 488 direct/peeled objects verified)
+- [x] 245-19-PLAN.md — Superseded by Plan 20 after one admitted local deletion; its durable blocked receipt preserves the mutation and verifier failure, and its remaining actions must not be rerun
+- [ ] 245-20-PLAN.md — Repair operation-readback and final-child verification with deterministic fixtures (plan wave 14; depends on 245-18)
+- [ ] 245-21-PLAN.md — Run fresh D-06 preflight, pin the current contract and reconcile only remaining admitted refs under object, PR, safety and coordinator gates (plan wave 15; depends on 245-20; REPO-04 stays open until all current postchecks pass)
 
 ## Progress
 
@@ -380,10 +475,10 @@ Note on SC-3 and SC-5's citations: `MAINTAINING.md:172-178,231` and `ci.yml:393`
 | 239. `priv/templates/` Sweep + Re-bless | 16/16 | Complete    | 2026-09-18 |
 | 240. Green-Main Evidence + Honest Pages Script | 5/5 | Complete    | 2026-09-18 |
 | 241. Debt Retirement + Leakage Guard | 8/8 | Complete    | 2026-09-19 |
-| 242. Hex Retire + Docs Revert + Cut 1.5.1 | 0/? | Not started | - |
-| 243. Queue Drain + Todo Triage | 0/? | Not started | - |
-| 244. `@playwright/test` Bump, Alone | 0/? | Not started | - |
-| 245. Branch Prune | 0/? | Not started | - |
+| 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
+| 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
+| 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
+| 245. Branch Prune | 17/20 | In progress | - |
 
 ## Requirement Coverage
 

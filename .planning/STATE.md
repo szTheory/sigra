@@ -4,17 +4,17 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 245
 current_phase_name: Branch Prune — Local and Remote
-current_plan: 19
+current_plan: 20
 status: executing
-stopped_at: Plan 245-19 ready to resume after coordinator capability fix; D-07 capture remains pending
-last_updated: "2026-09-30T15:22:20Z"
+stopped_at: Plans 245-20 and 245-21 are ready for gap-closure execution; Plan 19's remaining actions are superseded
+last_updated: "2026-09-30T19:55:46.902Z"
 last_activity: 2026-09-30
-last_activity_desc: Plan 245-19 coordinator capability debug resolved; gap execution ready to resume
-state_head: 5bae068a976c21404576500a6d4ccb5d8b70347f
+last_activity_desc: Phase 245 gap planning complete — 20 active plans ready to execute
+state_head: d27a43a21e22aad0978b2069340d8605c37a3fb9
 progress:
   total_phases: 10
   completed_phases: 9
-  total_plans: 82
+  total_plans: 83
   completed_plans: 79
   percent: 90
 ---
@@ -31,15 +31,15 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 245 (Branch Prune — Local and Remote) — EXECUTING
-Most recent completed phase: 244. Plan 245-18 is complete: its nine required Phase 244 sources are pinned from 0dd5d17954a5e824b86fde1038cd34b177867269, D-01 passed, and the current 129-local-ref / 357-origin-ref / 13-open-PR baseline is captured with all 488 direct and peeled OIDs readable.
-Current Plan: 19
-Total Plans in Phase: 19
-Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, and 18 (13 total). Plans 04, 09, 12, and 14 halted; Plan 16 remains blocked by Plan 14; Plan 19 is active and ready to resume after the coordinator capability fix.
-Status: Phase 245 is active; Plan 19 still needs fresh contract capture and candidate classification.
-Verification: The prior report remains historical `gaps_found` (21/24). The 11-row PR mismatch and 30-row cleanup-history audits remain explicitly unresolved. The new plan set passed GSD plan checking; this is not a replacement phase verification.
-Last activity: 2026-09-30 — Pinned `/usr/bin/git` 2.50.1 now proves symbolic-HEAD hook enforcement in the disposable coordinator fixture; the Plan 245-19 four-suite gate passes. See `.planning/debug/resolved/coordinator-symbolic-head-hook.md`.
-Next GSD command: `$gsd-execute-phase 245 --gaps-only`. Plan 19 still needs current-state contract capture and candidate classification; REPO-04 remains open. Plan 245-16 stays blocked by halted Plan 245-14. Do not route to stale `$gsd-verify-work` or start Phase 246.
+Phase: 245 (Branch Prune — Local and Remote) — READY TO EXECUTE
+Most recent completed phase: 244. Plan 245-18 is complete: its nine required Phase 244 sources are pinned from 0dd5d17954a5e824b86fde1038cd34b177867269, D-01 passed, and the current 129-local-ref / 357-origin-ref / 13-open-PR baseline is captured with all 488 direct and peeled OIDs readable. Plan 245-19 applied one admitted local deletion, then its final transition verifier blocked; its durable receipt remains `.planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json` in commit `d27a43a2`. Plan 19 is now superseded by Plans 20–21; its recorded deletion remains counted once, and its remaining actions must not be rerun.
+Current Plan: 20
+Total Plans in Phase: 20
+Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, and 18 (13 total). Plans 04, 09, 12, and 14 halted; Plan 16 remains blocked by Plan 14; Plan 19 is superseded after its blocked receipt. Plans 20 and 21 are the runnable gap-closure sequence.
+Status: Phase 245 is active and ready to execute. Plan 20 repairs the current-contract verifier/operator transition; Plan 21 starts with a fresh D-06 preflight and either reconciles only still-admitted tracking refs under D-01 through D-07 or leaves a durable blocked receipt. Plan 19's blocked receipt remains historical evidence. The two tracking refs remain untouched as of that receipt.
+Verification: The historical phase verification reports `gaps_found`; it remains separate maintenance and does not block this route. `init.execute-phase 245` reports Plans 20 and 21 runnable and Plan 16 blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain explicitly unresolved. Phase 244 is the last completed phase; its stale historical verification is separate maintenance.
+Last activity: 2026-09-30 — completed gap planning for 20 active Phase 245 plans, marked Plan 19 superseded while retaining its blocked receipt, and confirmed Plans 20–21 are runnable. The shared coordinator was verified with a free lock by the D-06 planning preflight.
+Next GSD command: `$gsd-execute-phase 245 --gaps-only`. Execute Plans 20 and 21 only; do not rerun Plan 19's remaining actions or start Phase 246. Plan 16 remains blocked by Plan 14.
 The only historical sources are this local checkout and GitHub. The pinned Phase 245 baseline `9c0a6b818d2d58858b5db274cc1cf0a9803f69f5` is absent from both; do not search another service or claim who removed it. Git on PATH is 2.41.0; `/usr/bin/git` is 2.50.1 and is usable only if the exact binary and every relevant mutator are pinned under the shared coordinator. D-05's production fail-closed gate remains active.
 The prior state recommendation to re-run verification came from stale historical evidence; phase-specific `init.execute-phase 245` is the current routing source. Keep Phase 245 active and do not invent Phase 246.
 
