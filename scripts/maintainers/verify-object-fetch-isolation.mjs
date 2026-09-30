@@ -248,6 +248,7 @@ export function runFixtureCase({ fetchHead = "present", fetcher } = {}) {
       && before.symbolic_head_bytes_base64 === after.symbolic_head_bytes_base64;
     const fetchHeadEqual = equalFetchHead(before.fetch_head, after.fetch_head);
     const trackingRefEqual = oldTrackingOid !== null && oldTrackingOid === trackingOidAfter;
+    const trackingBaselineEqual = oldTrackingOid !== null && oldTrackingOid === oldOriginOid;
     const originSourceOidUnchanged = advertisedBefore.exit_code === 0
       && advertisedAfter.exit_code === 0
       && advertisedBefore.oid === sourceOid
@@ -265,6 +266,7 @@ export function runFixtureCase({ fetchHead = "present", fetcher } = {}) {
     if (!symbolicHeadEqual) failedPredicates.push("symbolic_head_changed");
     if (!fetchHeadEqual) failedPredicates.push("fetch_head_changed");
     if (!trackingRefEqual) failedPredicates.push("tracking_ref_changed");
+    if (!trackingBaselineEqual) failedPredicates.push("tracking_ref_did_not_start_at_old_origin_oid");
 
     return {
       name: fetchHead === "present" ? "fetch_head_present" : "fetch_head_absent",
@@ -280,6 +282,7 @@ export function runFixtureCase({ fetchHead = "present", fetcher } = {}) {
       old_origin_gh_pages_oid: oldOriginOid,
       old_tracking_oid: oldTrackingOid,
       tracking_oid_after: trackingOidAfter,
+      tracking_baseline_equal: trackingBaselineEqual,
       origin_source_oid_unchanged: originSourceOidUnchanged,
       object_readable_before: objectReadableBefore,
       object_readable_after: objectReadableAfter,
@@ -363,22 +366,33 @@ function checkPinnedSources(repoRoot, records) {
   return { count: checked.length, passed: checked.filter((row) => row.status === "ready").length, failures, checked };
 }
 
-function checkPlanningInputs(repoRoot, inputs) {
+function checkPlanningInputs(repoRoot, inputs, supersededPaths = new Set()) {
   const failures = [];
   const checked = [];
   for (const input of Array.isArray(inputs) ? inputs : []) {
-    const entry = { path: input.path, expected_sha256: input.sha256, observed_sha256: null, matches: false };
+    const entry = { path: input.path, expected_sha256: input.sha256, observed_sha256: null, matches: false, accepted_superseded: false };
     try {
       entry.observed_sha256 = sha256(readFileSync(join(repoRoot, input.path)));
       entry.matches = entry.observed_sha256 === input.sha256;
     } catch (error) {
       entry.error = String(error);
     }
-    if (!entry.matches) failures.push(`planning_input_mismatch:${input.path}`);
+    if (!entry.matches && supersededPaths.has(input.path)) {
+      entry.accepted_superseded = true;
+      entry.reason = "Current Plan 21 wave, Plan 20 and Plan 22 dependencies, and fetch-proof prerequisite were revalidated.";
+    } else if (!entry.matches) {
+      failures.push(`planning_input_mismatch:${input.path}`);
+    }
     checked.push(entry);
   }
   if (!Array.isArray(inputs) || inputs.length === 0) failures.push("planning_input_records_missing");
-  return { count: checked.length, passed: checked.filter((entry) => entry.matches).length, failures, checked };
+  return {
+    count: checked.length,
+    passed: checked.filter((entry) => entry.matches || entry.accepted_superseded).length,
+    accepted_superseded: checked.filter((entry) => entry.accepted_superseded).map((entry) => entry.path),
+    failures,
+    checked,
+  };
 }
 
 function checkPriorReceipts(repoRoot) {
@@ -464,11 +478,15 @@ export function buildFetchProof({ repoRoot = process.cwd(), outputPath } = {}) {
   proof.runtime = runtimeCheck.runtime;
   failures.push(...runtimeCheck.failures);
 
+  proof.dependency = checkPlan21Dependency(resolvedRoot);
+  failures.push(...proof.dependency.failures);
+
   if (preflight) {
     proof.preflight.status = preflight.status ?? "missing_status";
     proof.preflight.purpose = preflight.purpose ?? null;
     proof.preflight.pinned_sources = checkPinnedSources(resolvedRoot, preflight.pinned_sources?.records);
-    proof.preflight.planning_inputs = checkPlanningInputs(resolvedRoot, preflight.inputs);
+    const supersededInputs = proof.dependency.passed ? new Set([PLAN21_PATH]) : new Set();
+    proof.preflight.planning_inputs = checkPlanningInputs(resolvedRoot, preflight.inputs, supersededInputs);
     proof.preflight.checks = preflight.checks ?? {};
     if (preflight.status !== "ready") failures.push("planning_preflight_not_ready");
     if (preflight.pinned_sources?.count !== proof.preflight.pinned_sources.count) failures.push("pinned_source_count_mismatch");
@@ -486,9 +504,6 @@ export function buildFetchProof({ repoRoot = process.cwd(), outputPath } = {}) {
     details: priorCheck.receipts,
   };
   failures.push(...priorCheck.failures);
-
-  proof.dependency = checkPlan21Dependency(resolvedRoot);
-  failures.push(...proof.dependency.failures);
 
   // Do not invoke any fixture Git command unless the binary exactly matches the ready preflight.
   const runtimePinned = runtimeCheck.failures.length === 0;
