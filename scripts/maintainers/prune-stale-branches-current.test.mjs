@@ -125,7 +125,9 @@ function commitFinalEvidence(fixture, { extraPath = false, secondCommit = false,
     fixtureGit(fixture.repo, "add", "middle.txt");
     fixtureGit(fixture.repo, "commit", "-q", "-m", "wrong final parent");
   }
-  writeFileSync(join(fixture.repo, fixture.resultPath), '{"outcome":"blocked"}\n');
+  writeFileSync(join(fixture.repo, fixture.resultPath), `${JSON.stringify({ outcome: "blocked", mutations: {
+    local_ref_deletions: [], tracking_ref_deletions: [], remote_ref_deletions: [],
+  } })}\n`);
   writeFileSync(join(fixture.repo, fixture.postPath), "post-state\n");
   const finalPaths = [fixture.resultPath, fixture.postPath];
   if (extraPath) {
@@ -193,7 +195,7 @@ test("D-07 rejects wrong contract parents, extra contract paths, wrong final par
     { name: "wrong final parent", setup: (root) => makeEvidenceFixture(root), prepare: (fixture) => commitFinalEvidence(fixture, { wrongParent: true }), stage: "after", error: /evidence_transition_final_parent_mismatch/ },
     { name: "extra final path", setup: (root) => makeEvidenceFixture(root), prepare: (fixture) => commitFinalEvidence(fixture, { extraPath: true }), stage: "after", error: /evidence_transition_final_path_set_mismatch/ },
     { name: "second final commit", setup: (root) => makeEvidenceFixture(root), prepare: (fixture) => commitFinalEvidence(fixture, { secondCommit: true }), stage: "after", error: /evidence_transition_final_parent_mismatch/ },
-    { name: "unrelated local ref", setup: (root) => makeEvidenceFixture(root), prepare: (fixture) => fixtureGit(fixture.repo, "branch", "unrelated"), stage: "before", error: /evidence_transition_local_ref_set_changed/ },
+    { name: "unrelated local ref", setup: (root) => makeEvidenceFixture(root), prepare: (fixture) => fixtureGit(fixture.repo, "branch", "unrelated"), stage: "before", error: /evidence_transition_local_ref_unexpected/ },
   ];
   for (const scenario of cases) {
     const root = mkdtempSync(join(tmpdir(), "sigra-evidence-rejection-"));

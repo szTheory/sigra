@@ -121,6 +121,7 @@ PREFLIGHT_COMMIT=""
 PREFLIGHT_PATH="$DEFAULT_PREFLIGHT"
 OPERATION=""
 REF=""
+APPLIED_REFS=()
 APPLY=0
 
 while (($#)); do
@@ -152,6 +153,7 @@ while (($#)); do
     --preflight-commit) (($# >= 2)) || fail 'preflight_commit_flag_missing_value'; PREFLIGHT_COMMIT="$2"; shift 2 ;;
     --preflight) (($# >= 2)) || fail 'preflight_flag_missing_value'; PREFLIGHT_PATH="$2"; shift 2 ;;
     --operation) (($# >= 2)) || fail 'operation_flag_missing_value'; OPERATION="$2"; shift 2 ;;
+    --applied-ref) (($# >= 2)) || fail 'applied_ref_flag_missing_value'; APPLIED_REFS+=("$2"); shift 2 ;;
     --ref) (($# >= 2)) || fail 'ref_flag_missing_value'; REF="$2"; shift 2 ;;
     --apply) APPLY=1; shift ;;
     -h|--help) usage ;;
@@ -233,6 +235,12 @@ verify_current_contract() {
   if [[ -n "$side" || -n "$ref" || -n "$operation" ]]; then
     [[ -n "$side" && -n "$ref" && -n "$operation" ]] || fail 'current_operation_identity_incomplete'
     args+=(--operation-side "$side" --operation-ref "$ref" --operation-kind "$operation")
+  fi
+  if [[ "$stage" == operation ]]; then
+    [[ "${SIGRA_COORDINATOR_HELD:-0}" == 1 && -n "${SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN:-}" ]] \
+      || fail 'shared_coordinator_lock_not_held_at_operation_readback'
+    local applied_ref
+    for applied_ref in "${APPLIED_REFS[@]}"; do args+=(--applied-ref "$applied_ref"); done
   fi
   if [[ -n "$CURRENT_CONTRACT_FIXTURE" ]]; then args+=(--source-fixture "$CURRENT_CONTRACT_FIXTURE"); fi
   node "$SCRIPT_ROOT/scripts/maintainers/prune-stale-branches-current.mjs" "${args[@]}" \
@@ -564,7 +572,8 @@ run_local_pass() {
       2>"$TMP_DIR/local-delete.stderr" </dev/null; then
       fail "local_expected_oid_delete_failed: $ref"
     fi
-    verify_current_contract after local "$ref" delete
+    APPLIED_REFS+=("$ref")
+    verify_current_contract operation local "$ref" delete
     printf 'deleted local ref %s (%s)\n' "$ref" "$reason"
     deleted=$((deleted + 1))
   done < <(tail -n +2 "$TMP_DIR/allowlist.tsv")
@@ -1167,7 +1176,8 @@ run_tracking_pass() {
     if ! out="$(git -C "$REPO" update-ref --no-deref -d "$ref" "$oid" 2>&1 </dev/null)"; then
       fail "tracking_ref_delete_failed: $ref"
     fi
-    verify_current_contract after tracking "$ref" delete
+    APPLIED_REFS+=("$ref")
+    verify_current_contract operation tracking "$ref" delete
     printf 'deleted tracking ref %s with no-deref expected-old-OID guard\n' "$ref"
   done < <(tail -n +2 "$TMP_DIR/allowlist.tsv")
   printf 'PASS: exact tracking-ref pass processed %s committed rows.\n' "$count"
@@ -1366,13 +1376,20 @@ if (( CURRENT_CONTRACT_MODE && APPLY )) && [[ "$COMMAND" == local ]]; then
   verify_local_admission admission
 fi
 if (( CURRENT_CONTRACT_MODE )) && [[ "$COMMAND" != verify-prs && "$COMMAND" != verify-allowlist ]]; then
-  verify_current_contract before
+  if (( APPLY )) && ((${#APPLIED_REFS[@]} > 0)); then
+    : # Validate the supplied cumulative transition after acquiring the coordinator lock below.
+  else
+    verify_current_contract before
+  fi
 fi
 if (( APPLY )); then
   case "$COMMAND" in
     local|remote|tracking|safety-publish) acquire_lock ;;
     *) fail "apply_not_valid_for_${COMMAND}" ;;
   esac
+fi
+if (( CURRENT_CONTRACT_MODE && APPLY )) && ((${#APPLIED_REFS[@]} > 0)); then
+  verify_current_contract operation
 fi
 case "$COMMAND" in
   capture-local) capture_local ;;

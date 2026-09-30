@@ -277,14 +277,15 @@ function exactPathSet(actual, expected, label) {
   if (new Set(right).size !== right.length || canonical(left) !== canonical(right)) fail(`${label}_path_set_mismatch`);
 }
 
-function verifyLocalEvidenceRef(repo, contract, activeRef, allowedHeadOid) {
+function verifyLocalEvidenceRef(repo, contract, activeRef, allowedHeadOid, allowedMissingRefs = []) {
   if (!Array.isArray(contract.local_refs)) fail("evidence_transition_local_snapshot_missing");
   const expected = new Map(contract.local_refs.map((row) => [row.ref, row]));
   const actual = new Map(parseLocalRefs(repo).map((row) => [row.ref, row]));
-  if (actual.size !== expected.size) fail("evidence_transition_local_ref_set_changed");
+  const missingRefs = [...expected.keys()].filter((ref) => !actual.has(ref)).sort();
+  if (canonical(missingRefs) !== canonical([...allowedMissingRefs].sort())) fail("evidence_transition_local_ref_set_changed");
   for (const [ref, row] of expected) {
     const current = actual.get(ref);
-    if (!current) fail(`evidence_transition_local_ref_missing:${ref}`);
+    if (!current) continue;
     if (canonical(row) === canonical(current)) continue;
     if (ref === activeRef && current.oid === allowedHeadOid && current.type === "commit"
       && row.type === "commit" && current.peeled_oid === row.peeled_oid
@@ -294,9 +295,38 @@ function verifyLocalEvidenceRef(repo, contract, activeRef, allowedHeadOid) {
   for (const ref of actual.keys()) if (!expected.has(ref)) fail(`evidence_transition_local_ref_unexpected:${ref}`);
 }
 
-export function inspectEvidenceTransition(repo, contractCommit, contractPath, contract, stage = "before") {
+function normalizeAppliedRefs(allowlistRows, appliedRefs) {
+  if (!Array.isArray(allowlistRows) || !Array.isArray(appliedRefs)) fail("evidence_transition_operation_inputs_missing");
+  const applied = appliedRefs.map((ref) => safeEvidencePath(ref, "evidence_transition_applied_ref")).sort();
+  if (new Set(applied).size !== applied.length) fail("evidence_transition_applied_ref_duplicate");
+  const rows = new Map(allowlistRows.filter((row) => ["local", "tracking", "remote"].includes(row.side)).map((row) => [row.ref, row]));
+  if (rows.size !== allowlistRows.filter((row) => ["local", "tracking", "remote"].includes(row.side)).length) fail("evidence_transition_allowlist_duplicate_ref");
+  for (const ref of applied) {
+    const row = rows.get(ref);
+    if (!row || !OID.test(row.oid ?? "") || !["local", "tracking", "remote"].includes(row.side)) fail(`evidence_transition_applied_ref_not_allowlisted:${ref}`);
+  }
+  return { applied, rows };
+}
+
+function resultAppliedRefs(result) {
+  const mutations = result?.mutations;
+  if (!mutations || typeof mutations !== "object" || Array.isArray(mutations)) fail("evidence_transition_result_mutations_missing");
+  const refs = [];
+  for (const key of ["local_ref_deletions", "tracking_ref_deletions", "remote_ref_deletions"]) {
+    if (!Array.isArray(mutations[key])) fail(`evidence_transition_result_mutations_invalid:${key}`);
+    for (const item of mutations[key]) {
+      if (typeof item?.ref !== "string") fail(`evidence_transition_result_mutation_ref_missing:${key}`);
+      refs.push(safeEvidencePath(item.ref, "evidence_transition_result_ref"));
+    }
+  }
+  refs.sort();
+  if (new Set(refs).size !== refs.length) fail("evidence_transition_result_ref_duplicate");
+  return refs;
+}
+
+export function inspectEvidenceTransition(repo, contractCommit, contractPath, contract, stage = "before", options = {}) {
   const transition = contract?.evidence_transition;
-  if (!transition || !new Set(["before", "boundary", "after"]).has(stage)) fail("evidence_transition_contract_missing_or_invalid");
+  if (!transition || !new Set(["before", "boundary", "operation", "after"]).has(stage)) fail("evidence_transition_contract_missing_or_invalid");
   const activeRef = safeEvidencePath(transition.active_ref, "evidence_transition_active_ref");
   const capturedOid = transition.captured_head_oid;
   if (!OID.test(capturedOid ?? "") || activeRef !== contract.capture_head_ref || capturedOid !== contract.capture_head_oid) {
@@ -334,6 +364,12 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
   const actualHeadRef = git(repo, ["symbolic-ref", "-q", "HEAD"], "evidence_transition_head_ref_unavailable").trim();
   const actualHeadOid = git(repo, ["rev-parse", "--verify", "HEAD"], "evidence_transition_head_oid_unavailable").trim();
   if (actualHeadRef !== activeRef) fail("evidence_transition_active_ref_changed");
+  let applied = [];
+  let appliedRows = new Map();
+  let parsedResult = null;
+  if (stage === "operation" || stage === "after" && options.appliedRefs !== undefined) {
+    ({ applied, rows: appliedRows } = normalizeAppliedRefs(options.allowlistRows, options.appliedRefs));
+  }
   let acceptedHeadOid = contractCommit;
   let finalCommit = null;
   let finalPaths = [];
@@ -347,7 +383,6 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
     if (!pathSets || !Array.isArray(pathSets.blocked) || !Array.isArray(pathSets.passed)
       || !pathSets.blocked.includes(resultPath) || !pathSets.passed.includes(resultPath)) fail("evidence_transition_final_path_sets_invalid");
     const result = commitFilePin(repo, actualHeadOid, resultPath, "evidence_transition_result");
-    let parsedResult;
     try { parsedResult = JSON.parse(result.raw.toString("utf8")); } catch { fail("evidence_transition_result_json_invalid"); }
     const outcome = parsedResult?.outcome;
     if (!new Set(["blocked", "passed"]).has(outcome)) fail("evidence_transition_result_outcome_invalid");
@@ -366,8 +401,30 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
     acceptedHeadOid = finalCommit;
   } else if (stage === "after") {
     fail("evidence_transition_final_child_missing");
+  } else if (actualHeadOid !== contractCommit) {
+    fail("evidence_transition_advanced_before_final_child");
   }
-  verifyLocalEvidenceRef(repo, contract, activeRef, acceptedHeadOid);
+  const localMissing = [];
+  if (stage === "operation" || stage === "after") {
+    const expectedLocal = new Map(contract.local_refs.map((row) => [row.ref, row]));
+    const currentLocal = new Map(parseLocalRefs(repo).map((row) => [row.ref, row]));
+    for (const ref of applied) {
+      const row = appliedRows.get(ref);
+      const expected = expectedLocal.get(ref);
+      if (["local", "tracking"].includes(row.side)) {
+        if (!expected || expected.oid !== row.oid || expected.type !== row.type) fail(`evidence_transition_allowlist_local_identity_mismatch:${ref}`);
+        if (currentLocal.has(ref)) fail(`evidence_transition_applied_ref_still_present:${ref}`);
+        localMissing.push(ref);
+      } else if (row.side === "remote" && currentLocal.has(ref)) {
+        fail(`evidence_transition_remote_ref_local_presence_changed:${ref}`);
+      }
+    }
+    if (stage === "after") {
+      const declared = resultAppliedRefs(parsedResult);
+      if (canonical(declared) !== canonical(applied)) fail("evidence_transition_result_applied_refs_mismatch");
+    }
+  }
+  verifyLocalEvidenceRef(repo, contract, activeRef, acceptedHeadOid, localMissing);
   return {
     contract_commit: contractCommit,
     contract_parent: contractParent[0],
@@ -377,6 +434,7 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
     final_evidence_paths: finalPaths,
     final_file_pins: finalPins.map(({ path: file, blob, sha256 }) => ({ path: file, blob, sha256 })),
     active_ref: activeRef,
+    applied_refs: applied,
     captured_head_oid: capturedOid,
     verified_head_oid: acceptedHeadOid,
   };
@@ -587,11 +645,10 @@ function capture(repo, output, fixturePath, pinSpecs, transitionOptions = {}) {
 }
 
 function verify(repo, commit, path, stage, fixturePath, options) {
-  if (!new Set(["before", "boundary", "after"]).has(stage)) fail("current_contract_stage_invalid");
+  if (!new Set(["before", "boundary", "operation", "after"]).has(stage)) fail("current_contract_stage_invalid");
   const pinned = committedBytes(repo, commit, path);
   const contract = JSON.parse(pinned.raw.toString("utf8"));
   if (contract?.schema_version !== 1) fail("current_contract_schema_invalid");
-  const transition = contract.evidence_transition ? inspectEvidenceTransition(repo, commit, path, contract, stage) : null;
   for (const input of contract.pinned_inputs ?? []) {
     const actualPin = readPinnedFile(repo, input.commit, input.path, "current_pinned_input");
     if (input.blob !== actualPin.blob || input.sha256 !== actualPin.sha256) fail(`current_pinned_input_identity_changed:${input.path}`);
@@ -608,6 +665,12 @@ function verify(repo, commit, path, stage, fixturePath, options) {
     if ((options.operationSide === "safety-publish" && options.operationKind !== "publish") || (options.operationSide !== "safety-publish" && options.operationKind !== "delete")) fail("current_operation_kind_side_mismatch");
   }
   if (options.verifyAllowlist && !allowlist) fail("current_allowlist_commit_path_required");
+  const transition = contract.evidence_transition
+    ? inspectEvidenceTransition(repo, commit, path, contract, stage, {
+      allowlistRows: allowlist?.rows,
+      appliedRefs: options.appliedRefs ?? [],
+    })
+    : null;
   const actual = collect(repo, fixturePath);
   const compareOptions = { stage, operationSide: options.operationSide, operationRef: options.operationRef };
   if (transition) compareOptions.allowedActiveOid = transition.verified_head_oid;
@@ -627,7 +690,7 @@ function verify(repo, commit, path, stage, fixturePath, options) {
 }
 
 function parseArgs(args) {
-  const result = { command: args[0], repo: process.cwd(), stage: "before", pinInputs: [], evidencePaths: [], blockedPaths: [], passedPaths: [] };
+  const result = { command: args[0], repo: process.cwd(), stage: "before", pinInputs: [], evidencePaths: [], blockedPaths: [], passedPaths: [], appliedRefs: [] };
   for (let index = 1; index < args.length; ) {
     const key = args[index++];
     if (key === "--apply") fail("current_contract_is_read_only");
@@ -650,6 +713,7 @@ function parseArgs(args) {
     else if (key === "--operation-side") result.operationSide = value;
     else if (key === "--operation-ref") result.operationRef = value;
     else if (key === "--operation-kind") result.operationKind = value;
+    else if (key === "--applied-ref") result.appliedRefs.push(value);
     else fail(`unknown_argument:${key}`);
   }
   return result;
