@@ -252,6 +252,7 @@ function committedInputSet(options) {
     ["allowlist", options.allowlistCommit, options.allowlist],
     ["readiness", options.readinessCommit, options.readiness],
   ];
+  if (options.admission) specs.push(["initial_admission", options.currentContractCommit, options.admission]);
   const inputs = {};
   for (const [name, commit, file] of specs) {
     if (!commit || !file) fail(`${name}_commit_path_required`);
@@ -360,8 +361,19 @@ function evaluate(options) {
   const contract = JSON.parse(inputs.current_contract.raw.toString("utf8"));
   if (contract?.schema_version !== 1) reasons.push({ code: "current_contract_schema_invalid" });
   const allowRows = parseAllowlist(inputs.allowlist.raw);
-  const allowPin = (contract?.pinned_inputs ?? []).find((row) => row.commit === inputs.allowlist.commit && row.path === inputs.allowlist.path);
+  const allowPin = (contract?.pinned_inputs ?? []).find((row) => row.commit === inputs.allowlist.commit && row.path === inputs.allowlist.path)
+    ?? (inputs.allowlist.commit === inputs.current_contract.commit ? contract?.evidence_transition?.precommit_artifacts?.[inputs.allowlist.path] : null);
   if (!allowPin || allowPin.blob !== inputs.allowlist.blob || allowPin.sha256 !== inputs.allowlist.sha256) reasons.push({ code: "allowlist_not_pinned_by_current_contract" });
+  if (inputs.initial_admission) {
+    const receipt = JSON.parse(inputs.initial_admission.raw.toString("utf8"));
+    const receiptPin = contract?.evidence_transition?.precommit_artifacts?.[inputs.initial_admission.path];
+    if (!receiptPin || receiptPin.blob !== inputs.initial_admission.blob || receiptPin.sha256 !== inputs.initial_admission.sha256) {
+      reasons.push({ code: "initial_admission_not_pinned_by_current_contract" });
+    }
+    if (receipt?.schema_version !== 1 || receipt?.status !== "prepared" || receipt?.production_mutations !== 0) {
+      reasons.push({ code: "initial_admission_receipt_invalid_or_not_read_only" });
+    }
+  }
 
   // Readiness is the earliest production gate. In particular, do not contact
   // GitHub or inspect coordinator state after the pinned D-01 source is known
@@ -371,12 +383,21 @@ function evaluate(options) {
   const currentArgs = [path.join(SCRIPT_ROOT, "scripts/maintainers/prune-stale-branches-current.mjs"), "verify", "--repo", root,
     "--contract-commit", inputs.current_contract.commit, "--contract", inputs.current_contract.path,
     "--allowlist-commit", inputs.allowlist.commit, "--allowlist", inputs.allowlist.path,
+    "--verify-allowlist",
     "--stage", options.stage === "boundary" ? "boundary" : "before"];
   const missingReadinessSource = reasons.some((row) => row.code.startsWith("d01_readiness_source_commit_unavailable:"));
+  let evidenceTransition = null;
   if (!missingReadinessSource) {
     if (options.sourceFixture) currentArgs.push("--source-fixture", safePath(options.sourceFixture));
     const current = spawnSync("node", currentArgs, { cwd: SCRIPT_ROOT, encoding: "utf8" });
     if (current.status !== 0) reasons.push({ code: `current_contract_verification_failed:${(current.stderr || current.stdout).trim().slice(0, 240)}` });
+    else if (contract?.evidence_transition) {
+      const marker = current.stdout.split(/\r?\n/).find((line) => line.startsWith("EVIDENCE_TRANSITION_JSON="));
+      try { evidenceTransition = marker ? JSON.parse(marker.slice("EVIDENCE_TRANSITION_JSON=".length)) : null; } catch { evidenceTransition = null; }
+      if (!evidenceTransition || evidenceTransition.contract_commit !== inputs.current_contract.commit) {
+        reasons.push({ code: "current_contract_evidence_transition_receipt_missing_or_mismatched" });
+      }
+    }
   }
 
   const runtime = checkRuntime(reasons);
@@ -392,7 +413,9 @@ function evaluate(options) {
     stage: options.stage,
     status: reasons.length ? "blocked" : "admitted",
     current_contract: { commit: inputs.current_contract.commit, path: inputs.current_contract.path, blob: inputs.current_contract.blob, sha256: inputs.current_contract.sha256 },
+    evidence_transition: evidenceTransition,
     inputs: Object.fromEntries(Object.entries(inputs).map(([key, row]) => [key, { commit: row.commit, path: row.path, blob: row.blob, sha256: row.sha256 }])),
+    initial_admission: inputs.initial_admission ? { commit: inputs.initial_admission.commit, path: inputs.initial_admission.path, blob: inputs.initial_admission.blob, sha256: inputs.initial_admission.sha256 } : null,
     candidate_ref: options.candidateRef,
     candidate: allowRows.find((row) => row.side === "local" && row.ref === options.candidateRef) ?? null,
     runtime,
@@ -416,6 +439,7 @@ function parseArgs(argv) {
     ["--snapshot-commit", "snapshotCommit"], ["--snapshot", "snapshot"], ["--origin-snapshot-commit", "originSnapshotCommit"], ["--origin-snapshot", "originSnapshot"],
     ["--allowlist-commit", "allowlistCommit"], ["--allowlist", "allowlist"], ["--readiness-commit", "readinessCommit"], ["--readiness", "readiness"],
     ["--source-fixture", "sourceFixture"], ["--candidate-ref", "candidateRef"], ["--output", "output"], ["--stage", "stage"],
+    ["--admission", "admission"],
   ]);
   while (argv.length) {
     const key = argv.shift();
@@ -428,6 +452,29 @@ function parseArgs(argv) {
   if (!options.repo) fail("repo_required");
   if (action === "capture" && !options.output) fail("output_required");
   if (action === "verify" && !new Set(["admission", "boundary", "after"]).has(options.stage)) fail("stage_invalid");
+  if (action === "verify" && options.admission && !options.currentContractCommit) {
+    const admissionPath = safePath(options.admission);
+    let receipt;
+    try { receipt = JSON.parse(readFileSync(path.resolve(options.repo, admissionPath), "utf8")); }
+    catch { fail("initial_admission_receipt_unreadable", admissionPath); }
+    const source = receipt?.verify_inputs;
+    if (!source || typeof source !== "object") fail("initial_admission_verify_inputs_missing");
+    options.currentContract = options.currentContract ?? safePath(source.current_contract?.path);
+    options.currentContractCommit = source.current_contract?.commit === "self"
+      ? git(options.repo, ["log", "-1", "--format=%H", "--", options.currentContract]).trim()
+      : source.current_contract?.commit;
+    options.snapshot = options.snapshot ?? safePath(source.local_snapshot?.path);
+    options.snapshotCommit = options.snapshotCommit ?? source.local_snapshot?.commit;
+    options.originSnapshot = options.originSnapshot ?? safePath(source.origin_snapshot?.path);
+    options.originSnapshotCommit = options.originSnapshotCommit ?? source.origin_snapshot?.commit;
+    options.allowlist = options.allowlist ?? safePath(source.allowlist?.path);
+    options.allowlistCommit = options.allowlistCommit ?? (source.allowlist?.commit === "current_contract"
+      ? options.currentContractCommit : source.allowlist?.commit);
+    options.readiness = options.readiness ?? safePath(source.readiness?.path);
+    options.readinessCommit = options.readinessCommit ?? source.readiness?.commit;
+    options.sourceFixture = options.sourceFixture ?? (source.source_fixture ? safePath(source.source_fixture) : undefined);
+    options.candidateRef = options.candidateRef ?? source.candidate_ref;
+  }
   return options;
 }
 

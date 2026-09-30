@@ -34,6 +34,11 @@ function setupFixture() {
     origin: `${phase}/245-ORIGIN-REFS.tsv`,
     fixture: `${phase}/github-fixture.json`,
     contract: `${phase}/245-CURRENT-CONTRACT.json`,
+    candidates: `${phase}/245-CANDIDATES.json`,
+    admission: `${phase}/245-ADMISSION.json`,
+    result: `${phase}/245-RESULT.json`,
+    postLocal: `${phase}/245-POST-LOCAL-REFS.tsv`,
+    summary: `${phase}/245-SUMMARY.md`,
   };
   run("git", ["init", "-q", "--initial-branch=main", repo]);
   git(repo, "config", "user.name", "GSD Admission Fixture");
@@ -69,9 +74,41 @@ function setupFixture() {
   git(repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture inventories");
   const snapshotCommit = git(repo, "rev-parse", "HEAD");
 
-  const current = run("node", [CURRENT, "capture", "--repo", repo, "--output", join(repo, paths.contract), "--source-fixture", paths.fixture, "--pin-input", `${inputCommit}:${paths.allowlist}`]);
+  writeFileSync(join(repo, paths.allowlist), `side\tref\toid\ttype\treason\nlocal\trefs/heads/stale/merged\t${rootOid}\tcommit\tcurrent contract fixture candidate\n`);
+  writeFileSync(join(repo, paths.candidates), JSON.stringify({ schema_version: 1, rows: [{ ref: "refs/heads/stale/merged", classification: "eligible" }] }, null, 2) + "\n");
+  writeFileSync(join(repo, paths.admission), JSON.stringify({
+    schema_version: 1,
+    status: "prepared",
+    production_mutations: 0,
+    candidate_path: paths.candidates,
+    allowlist_path: paths.allowlist,
+    verify_inputs: {
+      current_contract: { commit: "self", path: paths.contract },
+      local_snapshot: { commit: snapshotCommit, path: paths.snapshot },
+      origin_snapshot: { commit: snapshotCommit, path: paths.origin },
+      allowlist: { commit: "current_contract", path: paths.allowlist },
+      readiness: { commit: inputCommit, path: paths.readiness },
+      source_fixture: paths.fixture,
+      candidate_ref: "refs/heads/stale/merged",
+    },
+  }, null, 2) + "\n");
+
+  const current = run("node", [CURRENT, "capture", "--repo", repo, "--output", join(repo, paths.contract), "--source-fixture", paths.fixture,
+    "--pin-input", `${inputCommit}:${paths.allowlist}`,
+    "--contract-evidence-path", paths.candidates,
+    "--contract-evidence-path", paths.allowlist,
+    "--contract-evidence-path", paths.admission,
+    "--final-blocked-path", paths.result,
+    "--final-blocked-path", paths.postLocal,
+    "--final-passed-path", paths.result,
+    "--final-passed-path", paths.postLocal,
+    "--final-passed-path", paths.summary,
+    "--result-path", paths.result,
+  ]);
   assert.equal(current.status, 0, `${current.stdout ?? ""}${current.stderr ?? ""}`);
-  git(repo, "add", paths.contract, `${paths.contract}.sha256`);
+  const capturedContract = JSON.parse(readFileSync(join(repo, paths.contract), "utf8"));
+  assert.equal(capturedContract.evidence_transition.contract_paths.length, 5);
+  git(repo, "add", paths.contract, `${paths.contract}.sha256`, paths.candidates, paths.allowlist, paths.admission);
   git(repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture current contract");
   const contractCommit = git(repo, "rev-parse", "HEAD");
   return { temp, repo, paths, inputCommit, allowlistCommit, snapshotCommit, contractCommit, rootOid };
@@ -86,11 +123,12 @@ function admissionArgs(fixture) {
     "--snapshot", fixture.paths.snapshot,
     "--origin-snapshot-commit", fixture.snapshotCommit,
     "--origin-snapshot", fixture.paths.origin,
-    "--allowlist-commit", fixture.inputCommit,
+    "--allowlist-commit", fixture.contractCommit,
     "--allowlist", fixture.paths.allowlist,
     "--readiness-commit", fixture.inputCommit,
     "--readiness", fixture.paths.readiness,
     "--source-fixture", fixture.paths.fixture,
+    "--admission", fixture.paths.admission,
     "--candidate-ref", "refs/heads/stale/merged",
   ];
 }
@@ -141,7 +179,11 @@ test("admission blocks missing source-backed D-01 before coordinator install or 
     assert.ok(existsSync(receiptPath), "capture must persist a blocked admission receipt before returning its blocker");
     const receipt = JSON.parse(readFileSync(receiptPath, "utf8"));
     assert.equal(receipt.status, "blocked");
-    assert.ok(receipt.blocked_reasons.some((row) => row.code === `d01_readiness_source_commit_unavailable:${PINNED_READINESS_SOURCE}`));
+    assert.equal(receipt.initial_admission.path, fixture.paths.admission);
+    assert.equal(receipt.initial_admission.commit, fixture.contractCommit);
+    assert.ok(receipt.blocked_reasons.some((row) => row.code.startsWith(`d01_readiness_source_commit_unavailable:${PINNED_READINESS_SOURCE}`)));
+    assert.ok(!receipt.blocked_reasons.some((row) => row.code === "allowlist_not_pinned_by_current_contract"));
+    assert.ok(!receipt.blocked_reasons.some((row) => row.code === "initial_admission_not_pinned_by_current_contract"));
     assert.deepEqual(receipt.no_mutation.refs_before, receipt.no_mutation.refs_after);
     assert.deepEqual(receipt.no_mutation.worktrees_before, receipt.no_mutation.worktrees_after);
     assert.deepEqual(receipt.no_mutation.config_before, receipt.no_mutation.config_after);
@@ -153,6 +195,33 @@ test("admission blocks missing source-backed D-01 before coordinator install or 
     assert.deepEqual(snapshotState(fixture.repo), before);
     assert.equal(snapshotState(fixture.repo).hooksPath, null);
     assert.equal(git(fixture.repo, "rev-parse", "refs/heads/stale/merged"), fixture.rootOid);
+  } finally {
+    rmSync(fixture.temp, { recursive: true, force: true });
+  }
+});
+
+test("admission verify hydrates exact pinned inputs from the prepared receipt", () => {
+  const fixture = setupFixture();
+  try {
+    const verified = run("node", [ADMISSION, "verify", "--repo", fixture.repo, "--admission", fixture.paths.admission]);
+    assert.notEqual(verified.status, 0, "fixture's unavailable D-01 source must remain a blocker");
+    const receipt = JSON.parse(verified.stdout);
+    assert.equal(receipt.initial_admission.path, fixture.paths.admission);
+    assert.equal(receipt.initial_admission.commit, fixture.contractCommit);
+    assert.equal(receipt.current_contract.path, fixture.paths.contract);
+    assert.equal(receipt.current_contract.commit, fixture.contractCommit);
+    assert.equal(receipt.inputs.local_snapshot.path, fixture.paths.snapshot);
+    assert.equal(receipt.inputs.local_snapshot.commit, fixture.snapshotCommit);
+    assert.equal(receipt.inputs.origin_snapshot.path, fixture.paths.origin);
+    assert.equal(receipt.inputs.origin_snapshot.commit, fixture.snapshotCommit);
+    assert.equal(receipt.inputs.allowlist.path, fixture.paths.allowlist);
+    assert.equal(receipt.inputs.allowlist.commit, fixture.contractCommit);
+    assert.equal(receipt.inputs.readiness.path, fixture.paths.readiness);
+    assert.equal(receipt.inputs.readiness.commit, fixture.inputCommit);
+    assert.ok(receipt.blocked_reasons.some((row) => row.code.startsWith(`d01_readiness_source_commit_unavailable:${PINNED_READINESS_SOURCE}`)));
+    assert.ok(!receipt.blocked_reasons.some((row) => row.code === "initial_admission_verify_inputs_missing"));
+    assert.ok(!receipt.blocked_reasons.some((row) => row.code.endsWith("_commit_path_required")));
+    assert.equal(receipt.no_mutation.equal, true);
   } finally {
     rmSync(fixture.temp, { recursive: true, force: true });
   }

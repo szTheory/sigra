@@ -13,6 +13,7 @@ DEFAULT_SAFETY_LIST="${DEFAULT_PHASE_DIR}/245-SAFETY-PUBLISH.tsv"
 DEFAULT_READINESS="${DEFAULT_PHASE_DIR}/245-READINESS.json"
 DEFAULT_PR_STATE="${DEFAULT_PHASE_DIR}/245-OPEN-PR-STATE.json"
 DEFAULT_PREFLIGHT="${DEFAULT_PHASE_DIR}/245-ORIGIN-ACCESS-PREFLIGHT.json"
+DEFAULT_ADMISSION="${DEFAULT_PHASE_DIR}/245-19-ADMISSION.json"
 SNAPSHOT_HEADER=$'refname\toid\ttype\tpeeled_oid\tpeeled_type\tsymref_target'
 ALLOWLIST_HEADER=$'side\tref\toid\ttype\treason'
 ORIGIN_LIMIT=1000
@@ -72,6 +73,7 @@ Options:
   --current-contract-fixture PATH disposable GitHub source fixture (read-only verify-prs only)
   --origin-snapshot-commit SHA  immutable commit containing the origin inventory
   --candidate-ref FULL_REF      exact local candidate selected for admission
+  --admission PATH               initial admission receipt pinned by the current contract
   --preflight-commit SHA    immutable commit containing an access preflight receipt
   --preflight PATH          preflight receipt path (defaults to the Phase 245 artifact)
   --identity-audit PATH     committed Phase 245 historical PR identity audit
@@ -114,6 +116,7 @@ CURRENT_CONTRACT_PATH=""
 CURRENT_CONTRACT_FIXTURE=""
 ORIGIN_SNAPSHOT_COMMIT=""
 CANDIDATE_REF=""
+ADMISSION_PATH="$DEFAULT_ADMISSION"
 PREFLIGHT_COMMIT=""
 PREFLIGHT_PATH="$DEFAULT_PREFLIGHT"
 OPERATION=""
@@ -145,6 +148,7 @@ while (($#)); do
     --current-contract-fixture) (($# >= 2)) || fail 'current_contract_fixture_flag_missing_value'; CURRENT_CONTRACT_FIXTURE="$2"; shift 2 ;;
     --origin-snapshot-commit) (($# >= 2)) || fail 'origin_snapshot_commit_flag_missing_value'; ORIGIN_SNAPSHOT_COMMIT="$2"; shift 2 ;;
     --candidate-ref) (($# >= 2)) || fail 'candidate_ref_flag_missing_value'; CANDIDATE_REF="$2"; shift 2 ;;
+    --admission) (($# >= 2)) || fail 'admission_flag_missing_value'; ADMISSION_PATH="$2"; shift 2 ;;
     --preflight-commit) (($# >= 2)) || fail 'preflight_commit_flag_missing_value'; PREFLIGHT_COMMIT="$2"; shift 2 ;;
     --preflight) (($# >= 2)) || fail 'preflight_flag_missing_value'; PREFLIGHT_PATH="$2"; shift 2 ;;
     --operation) (($# >= 2)) || fail 'operation_flag_missing_value'; OPERATION="$2"; shift 2 ;;
@@ -178,11 +182,12 @@ if (( CURRENT_CONTRACT_MODE )) && [[ -n "$PR_STATE_COMMIT" || -n "$IDENTITY_AUDI
 fi
 if (( CURRENT_CONTRACT_MODE && APPLY )) && [[ "$COMMAND" == local ]]; then
   [[ -n "$SNAPSHOT_COMMIT" && -n "$ORIGIN_SNAPSHOT_COMMIT" && -n "$ALLOWLIST_COMMIT" \
-    && -n "$READINESS_COMMIT" && -n "$CANDIDATE_REF" ]] || fail 'local_admission_committed_inputs_required'
+    && -n "$READINESS_COMMIT" && -n "$CANDIDATE_REF" && -n "$ADMISSION_PATH" ]] || fail 'local_admission_committed_inputs_required'
   safe_repo_path "$SNAPSHOT_PATH"
   safe_repo_path "$ORIGIN_PATH"
   safe_repo_path "$ALLOWLIST_PATH"
   safe_repo_path "$READINESS_PATH"
+  safe_repo_path "$ADMISSION_PATH"
 fi
 
 sigra_coordinator_pin_git || fail "git_runtime_unpinned: ${SIGRA_COORDINATOR_ERROR:-unknown}"
@@ -242,6 +247,7 @@ verify_local_admission() {
     --origin-snapshot-commit "$ORIGIN_SNAPSHOT_COMMIT" --origin-snapshot "$ORIGIN_PATH"
     --allowlist-commit "$ALLOWLIST_COMMIT" --allowlist "$ALLOWLIST_PATH"
     --readiness-commit "$READINESS_COMMIT" --readiness "$READINESS_PATH"
+    --admission "$ADMISSION_PATH"
     --candidate-ref "$candidate")
   [[ -z "$CURRENT_CONTRACT_FIXTURE" ]] || args+=(--source-fixture "$CURRENT_CONTRACT_FIXTURE")
   output="$(node "$SCRIPT_ROOT/scripts/maintainers/prune-stale-branches-admission.mjs" "${args[@]}" 2>&1)" || status=$?

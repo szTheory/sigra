@@ -4,15 +4,15 @@
   "phase": "245-branch-prune-local-and-remote",
   "plan": "19",
   "status": "blocked",
-  "stage": "admission",
-  "captured_at": "2026-09-30T01:31:29Z",
-  "local_candidate_count": 0,
+  "stage": "pinned_runtime_capability_preflight",
+  "captured_at": "2026-09-30T05:01:49.848Z",
+  "local_candidate_count": null,
   "candidate_classification": "not_performed",
   "allowlist_created_or_committed": false,
   "coordinator_installed": false,
   "coordinator_install_attempted": false,
-  "coordinator_coverage": "blocked_failed",
-  "exact_git_runtime": "capability_passed_but_mutator_pinning_blocked",
+  "coordinator_coverage": "passed",
+  "exact_git_runtime": "binary_identity_passed_symbolic_head_capability_failed",
   "inputs": [
     {
       "name": "current_contract",
@@ -58,41 +58,69 @@
     }
   ],
   "verifiers": {
-    "readiness": {
-      "command": "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo /Users/jon/projects/sigra --artifact .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json --artifact-commit d7243c193c40a30709edbe306d79038d2286e70e",
-      "exit": 0,
-      "result": {
-        "valid": true,
-        "status": "ready",
-        "reasons": []
+    "plan18_pinned_inputs": {
+      "status": "passed",
+      "pinned_input_count": 6,
+      "blob_identity_checks": "passed",
+      "sha256_checks": "passed",
+      "object_readability_checks": "passed",
+      "source": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-GAP-PREFLIGHT.json",
+      "commit": "e5f3ddecd3a7e4604d5e5afefac2e2e6d34101ea",
+      "blob": "ff3f3b59dfebd1e5baf36e6b05e84c0800728560",
+      "sha256": "45484b4658e3b61bde36d98ed1fd4a22c1c0f9f9528a1a0db855b0ab2da70317"
       }
     },
-    "snapshot_objects": {
+    "mutation_coverage": {
+      "command": "node scripts/maintainers/prune-stale-branches-admission.mjs coverage --repo .",
       "exit": 0,
-      "result": "PASS: all direct and peeled local and origin snapshot objects remain readable (local=129 origin=357)."
+      "result": {
+        "status": "passed",
+        "findings": []
+      }
     },
-    "current_contract_live_verification": {
-      "status": "blocked",
-      "exit": 1,
-      "result": "prune-stale-branches-current: FAIL: current_local_ref_identity_changed:refs/heads/phase-244-playwright-measurement",
-      "live_pr_projection": "Compared before the local-ref mismatch; no PR comparison error occurred.",
-      "actual_active_branch_oid": "874b39f5795aeb0cc32a9df694f99a5d9fc83b4c",
-      "only_contract_permitted_active_branch_oid": "319bc487e8b438ff135d84f5d42018f3f35940e7",
-      "reason": "The first blocked diagnostic commit advanced the active evidence branch beyond the one OID allowed by the Plan 18 current contract. Origin and safety identity comparisons did not complete."
-    },
-    "admission_script_verify": {
-      "status": "not_run",
-      "reason": "The exact current baseline failed D-07 and coordinator coverage failed D-05; no candidate classification or allowlist was authorized."
-    },
-    "coordinator_capability_fixture": {
+    "admission_tests": {
+      "command": "node --test scripts/maintainers/prune-stale-branches-admission.test.mjs",
       "exit": 0,
-      "result": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)",
-      "scope": "Disposable temporary repository only."
+      "tests": 4
     },
-    "coordinator_coverage_fixture": {
+    "current_contract_tests": {
+      "command": "node --test scripts/maintainers/prune-stale-branches-current.test.mjs",
+      "exit": 0,
+      "tests": 5
+    },
+    "coordinator_tests": {
+      "command": "node --test scripts/maintainers/repo-mutation-coordinator.test.mjs && bash scripts/maintainers/repo-mutation-coordinator.test.sh",
+      "exit": 0,
+      "result": "unsupported pinned-runtime capability refused before target configuration or hook writes"
+    },
+    "operator_tests": {
+      "command": "bash scripts/maintainers/prune-stale-branches.test.sh",
+      "exit": 0
+    },
+    "production_coordinator_verify": {
+      "command": "bash scripts/maintainers/repo-mutation-coordinator.sh verify --repo .",
       "exit": 1,
-      "result": "uncoordinated Git ref/worktree mutator: scripts/maintainers/prune-stale-branches-admission.mjs:135; FAIL: production mutation inventory found an uncoordinated entry point",
-      "scope": "Disposable test fixture; no production coordinator was installed."
+      "result": "repo-mutation-coordinator: FAIL: coordinator_symbolic_head_hook_unsupported",
+      "pinned_git": {
+        "path": "/usr/bin/git",
+        "version": "git version 2.50.1 (Apple Git-155)",
+        "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+        "binary_identity_verified": true
+      },
+      "production_state_before": {
+        "refs_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
+        "worktrees_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
+        "git_config_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b"
+      },
+      "production_state_after": {
+        "refs_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
+        "worktrees_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
+        "git_config_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b"
+      },
+      "production_state_equal": true,
+      "core_hooks_path": "/Users/jon/projects/sigra/.git/hooks",
+      "production_coordinator_installation_attempted": false
     }
   },
   "runtime_observation": {
@@ -101,25 +129,26 @@
     "candidate_git_path": "/usr/bin/git",
     "candidate_git_version": "git version 2.50.1 (Apple Git-155)",
     "candidate_git_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
-    "capability_probe": "passed in disposable fixture using /usr/bin/git",
-    "operator_pin_evidence": "scripts/maintainers/prune-stale-branches.sh contains ambient git invocations, including git -C \"$REPO\" update-ref at lines 555 and 1159 and push calls at lines 1066 and 1112; no exact per-mutator executable pin exists.",
-    "coordinator_pin_evidence": "scripts/maintainers/repo-mutation-coordinator.sh resolves Git with command -v git and invokes ambient git throughout; exact /usr/bin/git pinning for all participating invocations is not proven.",
-    "active_git_path": "/opt/homebrew/bin/git",
-    "active_git_version": "git version 2.41.0"
+    "binary_identity_verified": true,
+    "capability_probe": "blocked: coordinator_symbolic_head_hook_unsupported"
   },
   "blocked_reasons": [
-    "d05_coordinator_coverage_fixture_exit_1:scripts/maintainers/prune-stale-branches-admission.mjs:135",
-    "d05_exact_runtime_not_pinned_for_all_operator_and_coordinator_mutators",
-    "d07_current_contract_verification_exit_1:current_local_ref_identity_changed:refs/heads/phase-244-playwright-measurement"
+    "D-05 pinned /usr/bin/git identity passed, but the linked-worktree symbolic HEAD capability probe reported coordinator_symbolic_head_hook_unsupported; the shared coordinator cannot be installed or verified safely.",
+    "D-07 fresh current-state contract and candidate classification were not run because the D-05 coordinator capability prerequisite failed."
   ],
   "no_mutation": {
-    "production_refs_before_sha256": "833e0372936aa45ad309136a9e6ec9ba825c4e40a883fbb524b781979b9af77e",
-    "production_refs_after_sha256": "833e0372936aa45ad309136a9e6ec9ba825c4e40a883fbb524b781979b9af77e",
-    "worktrees_before_sha256": "4ab3a184d80b5aa2fc9fda3e6de8deb586e5c9f9e50a2cc861034613397cad06",
-    "worktrees_after_sha256": "4ab3a184d80b5aa2fc9fda3e6de8deb586e5c9f9e50a2cc861034613397cad06",
+    "refs_before_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
+    "refs_after_sha256": "9ccd784eb20dd6c824fa0ecf3318bb9469d8581d38f8b328ee22d3e09f927a12",
+    "worktrees_before_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
+    "worktrees_after_sha256": "023e832a6a30bb04aa8b7f4efb14e8f4415913bc0e1281e485de3820a4797370",
     "local_git_config_before_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
     "local_git_config_after_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
     "equal": true
   },
-  "production_mutations": 0
+  "production_mutations": 0,
+  "active_ref_at_gate": {
+    "ref": "refs/heads/phase-244-playwright-measurement",
+    "oid": "64201c899e45d1a01adfba4eefd7bd76aea0dbe3"
+  },
+  "d07_current_contract": "not_run_prerequisite_failed"
 }

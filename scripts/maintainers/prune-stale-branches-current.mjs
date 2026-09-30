@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { readFileSync, renameSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, realpathSync, renameSync, writeFileSync } from "node:fs";
+import path, { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const REPOSITORY = "szTheory/sigra";
 const GIT_BIN = "/usr/bin/git";
@@ -240,6 +241,143 @@ function readPinnedFile(repo, commit, path, label = "input") {
   return { raw, blob, sha256: createHash("sha256").update(raw).digest("hex") };
 }
 
+function safeEvidencePath(value, label) {
+  if (typeof value !== "string" || !value || value.startsWith("/") || value.includes("..") || value.includes("\n") || value.includes(":")) {
+    fail(`${label}_path_invalid:${value ?? ""}`);
+  }
+  return value;
+}
+
+function changedPaths(repo, parent, commit, label) {
+  const output = git(repo, ["diff-tree", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", parent, commit], `${label}_diff_failed`);
+  return output.split("\0").filter(Boolean).sort();
+}
+
+function commitParents(repo, commit, label) {
+  const row = git(repo, ["rev-list", "--parents", "-n", "1", commit], `${label}_commit_unreadable`).trim().split(/\s+/);
+  if (row[0] !== commit) fail(`${label}_commit_identity_invalid`);
+  return row.slice(1);
+}
+
+function commitFilePin(repo, commit, filePath, label) {
+  const relativePath = safeEvidencePath(filePath, label);
+  const blob = git(repo, ["rev-parse", `${commit}:${relativePath}`], `${label}_blob_missing`).trim();
+  const result = spawnSync(GIT_BIN, ["-C", repo, "show", `${commit}:${relativePath}`], { encoding: null, maxBuffer: 32 * 1024 * 1024 });
+  if (result.status !== 0) fail(`${label}_bytes_missing`);
+  return { path: relativePath, blob, sha256: createHash("sha256").update(result.stdout).digest("hex"), raw: result.stdout };
+}
+
+function exactPathSet(actual, expected, label) {
+  const left = [...actual].sort();
+  const right = [...expected].sort();
+  if (new Set(right).size !== right.length || canonical(left) !== canonical(right)) fail(`${label}_path_set_mismatch`);
+}
+
+function verifyLocalEvidenceRef(repo, contract, activeRef, allowedHeadOid) {
+  if (!Array.isArray(contract.local_refs)) fail("evidence_transition_local_snapshot_missing");
+  const expected = new Map(contract.local_refs.map((row) => [row.ref, row]));
+  const actual = new Map(parseLocalRefs(repo).map((row) => [row.ref, row]));
+  if (actual.size !== expected.size) fail("evidence_transition_local_ref_set_changed");
+  for (const [ref, row] of expected) {
+    const current = actual.get(ref);
+    if (!current) fail(`evidence_transition_local_ref_missing:${ref}`);
+    if (canonical(row) === canonical(current)) continue;
+    if (ref === activeRef && current.oid === allowedHeadOid && current.type === "commit"
+      && row.type === "commit" && current.peeled_oid === row.peeled_oid
+      && current.peeled_type === row.peeled_type && current.symref === row.symref) continue;
+    fail(`evidence_transition_unrelated_local_ref_changed:${ref}`);
+  }
+  for (const ref of actual.keys()) if (!expected.has(ref)) fail(`evidence_transition_local_ref_unexpected:${ref}`);
+}
+
+export function inspectEvidenceTransition(repo, contractCommit, contractPath, contract, stage = "before") {
+  const transition = contract?.evidence_transition;
+  if (!transition || !new Set(["before", "boundary", "after"]).has(stage)) fail("evidence_transition_contract_missing_or_invalid");
+  const activeRef = safeEvidencePath(transition.active_ref, "evidence_transition_active_ref");
+  const capturedOid = transition.captured_head_oid;
+  if (!OID.test(capturedOid ?? "") || activeRef !== contract.capture_head_ref || capturedOid !== contract.capture_head_oid) {
+    fail("evidence_transition_capture_identity_mismatch");
+  }
+  const relativeContract = safeEvidencePath(contractPath, "evidence_transition_contract");
+  if (relativeContract !== transition.contract_path) fail("evidence_transition_contract_path_mismatch");
+  const contractPaths = transition.contract_paths;
+  if (!Array.isArray(contractPaths) || !contractPaths.includes(relativeContract) || !contractPaths.includes(`${relativeContract}.sha256`)) {
+    fail("evidence_transition_contract_path_set_invalid");
+  }
+  const normalizedContractPaths = contractPaths.map((file) => safeEvidencePath(file, "evidence_transition_contract"));
+  const contractParent = commitParents(repo, contractCommit, "evidence_transition_contract");
+  if (contractParent.length !== 1 || contractParent[0] !== capturedOid) fail("evidence_transition_contract_parent_mismatch");
+  exactPathSet(changedPaths(repo, capturedOid, contractCommit, "evidence_transition_contract"), normalizedContractPaths, "evidence_transition_contract");
+  if (git(repo, ["log", "-1", "--format=%H", "--", relativeContract]).trim() !== contractCommit) {
+    fail("evidence_transition_contract_commit_not_latest_for_path");
+  }
+  const contractPin = commitFilePin(repo, contractCommit, relativeContract, "evidence_transition_contract");
+  const sidecar = commitFilePin(repo, contractCommit, `${relativeContract}.sha256`, "evidence_transition_contract_sha256");
+  if (sidecar.raw.toString("utf8").trim() !== contractPin.sha256) fail("evidence_transition_contract_sha256_mismatch");
+
+  const artifactPaths = normalizedContractPaths.filter((file) => file !== relativeContract && file !== `${relativeContract}.sha256`).sort();
+  const declaredArtifacts = transition.precommit_artifacts;
+  if (!declaredArtifacts || typeof declaredArtifacts !== "object" || Array.isArray(declaredArtifacts)) fail("evidence_transition_precommit_artifacts_missing");
+  exactPathSet(Object.keys(declaredArtifacts), artifactPaths, "evidence_transition_precommit_artifacts");
+  const contractPins = [contractPin, sidecar];
+  for (const file of artifactPaths) {
+    const actual = commitFilePin(repo, contractCommit, file, "evidence_transition_precommit_artifact");
+    const expected = declaredArtifacts[file];
+    if (!expected || expected.blob !== actual.blob || expected.sha256 !== actual.sha256) fail(`evidence_transition_precommit_artifact_mismatch:${file}`);
+    contractPins.push(actual);
+  }
+
+  const actualHeadRef = git(repo, ["symbolic-ref", "-q", "HEAD"], "evidence_transition_head_ref_unavailable").trim();
+  const actualHeadOid = git(repo, ["rev-parse", "--verify", "HEAD"], "evidence_transition_head_oid_unavailable").trim();
+  if (actualHeadRef !== activeRef) fail("evidence_transition_active_ref_changed");
+  let acceptedHeadOid = contractCommit;
+  let finalCommit = null;
+  let finalPaths = [];
+  let finalPins = [];
+  if (actualHeadOid !== contractCommit) {
+    if (stage !== "after") fail("evidence_transition_advanced_before_final_child");
+    const finalParent = commitParents(repo, actualHeadOid, "evidence_transition_final");
+    if (finalParent.length !== 1 || finalParent[0] !== contractCommit) fail("evidence_transition_final_parent_mismatch");
+    const pathSets = transition.final_child_path_sets;
+    const resultPath = safeEvidencePath(transition.result_path, "evidence_transition_result");
+    if (!pathSets || !Array.isArray(pathSets.blocked) || !Array.isArray(pathSets.passed)
+      || !pathSets.blocked.includes(resultPath) || !pathSets.passed.includes(resultPath)) fail("evidence_transition_final_path_sets_invalid");
+    const result = commitFilePin(repo, actualHeadOid, resultPath, "evidence_transition_result");
+    let parsedResult;
+    try { parsedResult = JSON.parse(result.raw.toString("utf8")); } catch { fail("evidence_transition_result_json_invalid"); }
+    const outcome = parsedResult?.outcome;
+    if (!new Set(["blocked", "passed"]).has(outcome)) fail("evidence_transition_result_outcome_invalid");
+    const expectedFinalPaths = pathSets[outcome].map((file) => safeEvidencePath(file, "evidence_transition_final")).sort();
+    exactPathSet(changedPaths(repo, contractCommit, actualHeadOid, "evidence_transition_final"), expectedFinalPaths, "evidence_transition_final");
+    const directChildren = git(repo, ["rev-list", "--all", "--parents"], "evidence_transition_child_inventory_failed")
+      .trim().split(/\r?\n/).filter(Boolean).flatMap((line) => {
+        const [oid, ...parents] = line.split(/\s+/);
+        return parents.includes(contractCommit) ? [oid] : [];
+      });
+    if (directChildren.length !== 1 || directChildren[0] !== actualHeadOid) fail("evidence_transition_multiple_or_foreign_final_children");
+    if (git(repo, ["log", "-1", "--format=%H", "--", resultPath]).trim() !== actualHeadOid) fail("evidence_transition_final_commit_not_latest_for_result");
+    finalCommit = actualHeadOid;
+    finalPaths = expectedFinalPaths;
+    finalPins = finalPaths.map((file) => commitFilePin(repo, finalCommit, file, "evidence_transition_final_artifact"));
+    acceptedHeadOid = finalCommit;
+  } else if (stage === "after") {
+    fail("evidence_transition_final_child_missing");
+  }
+  verifyLocalEvidenceRef(repo, contract, activeRef, acceptedHeadOid);
+  return {
+    contract_commit: contractCommit,
+    contract_parent: contractParent[0],
+    contract_paths: normalizedContractPaths.sort(),
+    contract_file_pins: contractPins.map(({ path: file, blob, sha256 }) => ({ path: file, blob, sha256 })),
+    final_evidence_commit: finalCommit,
+    final_evidence_paths: finalPaths,
+    final_file_pins: finalPins.map(({ path: file, blob, sha256 }) => ({ path: file, blob, sha256 })),
+    active_ref: activeRef,
+    captured_head_oid: capturedOid,
+    verified_head_oid: acceptedHeadOid,
+  };
+}
+
 function compareCurrent(contract, actual, contractCommit, options) {
   if (contract.repository !== actual.repository) fail("current_repository_identity_changed");
   const expectedPrs = contract.open_prs;
@@ -299,7 +437,8 @@ function compareCurrent(contract, actual, contractCommit, options) {
     const current = actualLocal.get(ref);
     if (!current) fail(`current_local_ref_missing:${ref}`);
     if (canonical(expected) === canonical(current)) continue;
-    if (ref === contract.capture_head_ref && current.oid === contractCommit && current.type === "commit" && expected.type === "commit" && current.peeled_oid === expected.peeled_oid && current.peeled_type === expected.peeled_type && current.symref === expected.symref) continue;
+    const allowedActiveOid = options.allowedActiveOid ?? contractCommit;
+    if (ref === contract.capture_head_ref && current.oid === allowedActiveOid && current.type === "commit" && expected.type === "commit" && current.peeled_oid === expected.peeled_oid && current.peeled_type === expected.peeled_type && current.symref === expected.symref) continue;
     fail(`current_local_ref_identity_changed:${ref}`);
   }
   for (const ref of actualLocal.keys()) if (!expectedLocal.has(ref)) fail(`current_local_ref_unexpected:${ref}`);
@@ -329,11 +468,13 @@ function parseAllowlist(raw) {
   return rows;
 }
 
-function verifyAllowlist(repo, contract, allowlistCommit, allowlistPath) {
+function verifyAllowlist(repo, contract, allowlistCommit, allowlistPath, contractCommit) {
   if (!allowlistCommit || !allowlistPath) fail("current_allowlist_commit_path_required");
   const input = readPinnedFile(repo, allowlistCommit, allowlistPath, "current_allowlist");
   const pin = (contract.pinned_inputs ?? []).find((entry) => entry.commit === allowlistCommit && entry.path === allowlistPath);
-  if (!pin || pin.blob !== input.blob || pin.sha256 !== input.sha256) fail("current_allowlist_not_pinned_by_contract");
+  const selfPin = allowlistCommit === contractCommit ? contract.evidence_transition?.precommit_artifacts?.[allowlistPath] : null;
+  const expected = pin ?? selfPin;
+  if (!expected || expected.blob !== input.blob || expected.sha256 !== input.sha256) fail("current_allowlist_not_pinned_by_contract");
   const rows = parseAllowlist(input.raw);
   const local = new Map(contract.local_refs.map((row) => [row.ref, row]));
   const origin = new Map(contract.origin_refs.map((row) => [row.ref, row]));
@@ -383,7 +524,7 @@ function committedBytes(repo, commit, path) {
   return { raw, blob, sha256 };
 }
 
-function capture(repo, output, fixturePath, pinSpecs) {
+function capture(repo, output, fixturePath, pinSpecs, transitionOptions = {}) {
   if (!output) fail("current_contract_output_required");
   const payload = collect(repo, fixturePath);
   const pinnedInputs = pinSpecs.map((spec, index) => {
@@ -394,8 +535,43 @@ function capture(repo, output, fixturePath, pinSpecs) {
     const input = readPinnedFile(payload.checkout_root, commit, path, `pinned_input_${index + 1}`);
     return { commit, path, blob: input.blob, sha256: input.sha256 };
   });
-  const bytes = `${JSON.stringify({ schema_version: 1, ...payload, pinned_inputs: pinnedInputs }, null, 2)}\n`;
-  const destination = resolve(output);
+  const requestedDestination = resolve(output);
+  const destination = path.join(realpathSync(path.dirname(requestedDestination)), path.basename(requestedDestination));
+  if (!destination.startsWith(`${payload.checkout_root}${path.sep}`)) fail(`evidence_transition_contract_outside_checkout:${payload.checkout_root}:${destination}`);
+  const relativeContractPath = path.relative(payload.checkout_root, destination).split(path.sep).join("/");
+  const contractPath = safeEvidencePath(relativeContractPath, "evidence_transition_contract");
+  let evidenceTransition;
+  const evidencePaths = transitionOptions.evidencePaths ?? [];
+  const blockedPaths = transitionOptions.blockedPaths ?? [];
+  const passedPaths = transitionOptions.passedPaths ?? [];
+  if (evidencePaths.length || blockedPaths.length || passedPaths.length || transitionOptions.resultPath) {
+    if (!evidencePaths.length || !blockedPaths.length || !passedPaths.length || !transitionOptions.resultPath) fail("evidence_transition_capture_paths_incomplete");
+    const normalizedEvidencePaths = evidencePaths.map((file) => safeEvidencePath(file, "evidence_transition_precommit"));
+    const normalizedBlockedPaths = blockedPaths.map((file) => safeEvidencePath(file, "evidence_transition_blocked"));
+    const normalizedPassedPaths = passedPaths.map((file) => safeEvidencePath(file, "evidence_transition_passed"));
+    const resultPath = safeEvidencePath(transitionOptions.resultPath, "evidence_transition_result");
+    const precommitArtifacts = {};
+    for (const file of normalizedEvidencePaths) {
+      if (file === contractPath || file === `${contractPath}.sha256`) fail("evidence_transition_artifact_overlaps_contract");
+      const absolute = resolve(payload.checkout_root, file);
+      if (!absolute.startsWith(`${payload.checkout_root}${path.sep}`)) fail("evidence_transition_artifact_outside_checkout");
+      const raw = readFileSync(absolute);
+      const blob = spawnSync(GIT_BIN, ["-C", payload.checkout_root, "hash-object", "--stdin", "-t", "blob"], { input: raw, encoding: "utf8" });
+      if (blob.status !== 0) fail(`evidence_transition_artifact_hash_failed:${file}`);
+      precommitArtifacts[file] = { blob: blob.stdout.trim(), sha256: createHash("sha256").update(raw).digest("hex") };
+    }
+    evidenceTransition = {
+      active_ref: payload.capture_head_ref,
+      captured_head_oid: payload.capture_head_oid,
+      contract_path: contractPath,
+      contract_paths: [...new Set([contractPath, `${contractPath}.sha256`, ...normalizedEvidencePaths])].sort(),
+      precommit_artifacts: precommitArtifacts,
+      final_child_path_sets: { blocked: [...new Set(normalizedBlockedPaths)].sort(), passed: [...new Set(normalizedPassedPaths)].sort() },
+      result_path: resultPath,
+    };
+  }
+  const contract = { schema_version: 1, ...payload, pinned_inputs: pinnedInputs, ...(evidenceTransition ? { evidence_transition: evidenceTransition } : {}) };
+  const bytes = `${JSON.stringify(contract, null, 2)}\n`;
   const temp = `${destination}.tmp-${process.pid}`;
   writeFileSync(temp, bytes, { mode: 0o600, flag: "wx" });
   renameSync(temp, destination);
@@ -411,13 +587,14 @@ function verify(repo, commit, path, stage, fixturePath, options) {
   const pinned = committedBytes(repo, commit, path);
   const contract = JSON.parse(pinned.raw.toString("utf8"));
   if (contract?.schema_version !== 1) fail("current_contract_schema_invalid");
+  const transition = contract.evidence_transition ? inspectEvidenceTransition(repo, commit, path, contract, stage) : null;
   for (const input of contract.pinned_inputs ?? []) {
     const actualPin = readPinnedFile(repo, input.commit, input.path, "current_pinned_input");
     if (input.blob !== actualPin.blob || input.sha256 !== actualPin.sha256) fail(`current_pinned_input_identity_changed:${input.path}`);
   }
   let allowlist;
   if (options.allowlistCommit || options.allowlistPath) {
-    allowlist = verifyAllowlist(repo, contract, options.allowlistCommit, options.allowlistPath);
+    allowlist = verifyAllowlist(repo, contract, options.allowlistCommit, options.allowlistPath, commit);
   }
   let operationRow = null;
   if (options.operationSide || options.operationRef || options.operationKind) {
@@ -429,6 +606,7 @@ function verify(repo, commit, path, stage, fixturePath, options) {
   if (options.verifyAllowlist && !allowlist) fail("current_allowlist_commit_path_required");
   const actual = collect(repo, fixturePath);
   const compareOptions = { stage, operationSide: options.operationSide, operationRef: options.operationRef };
+  if (transition) compareOptions.allowedActiveOid = transition.verified_head_oid;
   compareOptions.allowlistRows = allowlist?.rows ?? [];
   compareCurrent(contract, actual, commit, compareOptions);
   if (stage === "after" && options.operationSide === "safety-publish") {
@@ -441,10 +619,11 @@ function verify(repo, commit, path, stage, fixturePath, options) {
     if (refs.some((row) => row.ref === options.operationRef)) fail(`current_operation_readback_still_present:${options.operationRef}`);
   }
   process.stdout.write(`PASS: current PR/ref contract verified at ${stage}; blob=${pinned.blob}; sha256=${pinned.sha256}\n`);
+  if (transition) process.stdout.write(`EVIDENCE_TRANSITION_JSON=${JSON.stringify(transition)}\n`);
 }
 
 function parseArgs(args) {
-  const result = { command: args[0], repo: process.cwd(), stage: "before", pinInputs: [] };
+  const result = { command: args[0], repo: process.cwd(), stage: "before", pinInputs: [], evidencePaths: [], blockedPaths: [], passedPaths: [] };
   for (let index = 1; index < args.length; ) {
     const key = args[index++];
     if (key === "--apply") fail("current_contract_is_read_only");
@@ -458,6 +637,10 @@ function parseArgs(args) {
     else if (key === "--stage") result.stage = value;
     else if (key === "--source-fixture") result.fixturePath = value;
     else if (key === "--pin-input") result.pinInputs.push(value);
+    else if (key === "--contract-evidence-path") result.evidencePaths.push(value);
+    else if (key === "--final-blocked-path") result.blockedPaths.push(value);
+    else if (key === "--final-passed-path") result.passedPaths.push(value);
+    else if (key === "--result-path") result.resultPath = value;
     else if (key === "--allowlist-commit") result.allowlistCommit = value;
     else if (key === "--allowlist") result.allowlistPath = value;
     else if (key === "--operation-side") result.operationSide = value;
@@ -468,12 +651,14 @@ function parseArgs(args) {
   return result;
 }
 
-try {
-  const args = parseArgs(process.argv.slice(2));
-  if (args.command === "capture") capture(args.repo, args.output, args.fixturePath, args.pinInputs);
-  else if (args.command === "verify") verify(args.repo, args.commit, args.path, args.stage, args.fixturePath, args);
-  else fail("usage: prune-stale-branches-current.mjs <capture|verify> [--repo PATH] [--output PATH] [--contract-commit SHA --contract PATH --stage before|boundary|after]");
-} catch (error) {
-  process.stderr.write(`prune-stale-branches-current: FAIL: ${error.message}\n`);
-  process.exitCode = 1;
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    const args = parseArgs(process.argv.slice(2));
+    if (args.command === "capture") capture(args.repo, args.output, args.fixturePath, args.pinInputs, args);
+    else if (args.command === "verify") verify(args.repo, args.commit, args.path, args.stage, args.fixturePath, args);
+    else fail("usage: prune-stale-branches-current.mjs <capture|verify> [--repo PATH] [--output PATH] [--contract-commit SHA --contract PATH --stage before|boundary|after]");
+  } catch (error) {
+    process.stderr.write(`prune-stale-branches-current: FAIL: ${error.message}\n`);
+    process.exitCode = 1;
+  }
 }
