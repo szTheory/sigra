@@ -2,19 +2,17 @@
 
 ## Last action
 
-Committed D-05 mutator pinning and D-07 bounded evidence-transition enforcement in `5bae068a`; focused tests and mutation coverage pass. The pinned `/usr/bin/git` 2.50.1 capability probe fails with `coordinator_symbolic_head_hook_unsupported`. The read-only check left refs, worktrees, and Git config unchanged. See `245-19-PLAN.md`, `245-19-ADMISSION.json`, and `245-19-RESULT.json`.
+Resolved Plan 245-19 D-05's symbolic-HEAD capability mismatch: the probe now invokes the validated `/usr/bin/git` 2.50.1 directly, and disposable fixtures require hook enforcement under a poisoned PATH. The coordinator and pruning shell suites pass; both Node suites pass 5/5; reverting the executable-path fix reproduces the failure. No production refs, worktrees, Git config, coordinator installation, or origin state were mutated. See `.planning/debug/resolved/coordinator-symbolic-head-hook.md` and `245-19-PLAN.md`.
 
 ## Next action
 
 Run:
 
-`$gsd-debug "Plan 245-19 D-05: diagnose and resolve coordinator_symbolic_head_hook_unsupported for pinned /usr/bin/git 2.50.1 while preserving fail-closed mutation safety"`
-
-After the coordinator can prove its capability, resume the existing gap plan with `$gsd-execute-phase 245 --gaps-only`.
+`$gsd-execute-phase 245 --gaps-only`
 
 ## Why
 
-Re-running Plan 19 now would stop at the same capability check. The next useful action is to resolve that specific blocker; the plan already contains the required D-07 transition tests and admission plumbing.
+The exact pinned-runtime capability gate and its regression coverage now pass. Plan 19 remains active because no fresh D-07 contract or candidate classification has been captured; resume the existing gap plan to continue its admission and mutation-boundary checks.
 
 ## Open threads
 
@@ -25,6 +23,6 @@ Re-running Plan 19 now would stop at the same capability check. The next useful 
 
 ## Do not
 
-- Do not capture a current contract, classify candidates, install the production coordinator, delete refs, or push until the capability gate passes.
+- Do not bypass Plan 19's D-06 source-pin, current-state, admission, PR/ref, exact-binary, or shared-lock checks. Do not install the production coordinator, delete refs, or push unless the plan's mutation gates pass.
 - Do not route to stale `$gsd-verify-work` or restart completed Phase 244 work.
 - Preserve the unrelated dirty workspace; do not reset, stash, clean, or broadly stage.

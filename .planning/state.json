@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:debug \"Plan 245-19 D-05: diagnose and resolve coordinator_symbolic_head_hook_unsupported for pinned /usr/bin/git 2.50.1 while preserving fail-closed mutation safety\"",
-    "label": "Debug Plan 19 coordinator capability blocker",
-    "reason": "Plan 245-19 is blocked before contract capture because pinned /usr/bin/git 2.50.1 cannot prove symbolic-HEAD hook enforcement; re-running execute-phase now would hit the same gate"
+    "command": "/gsd:execute-phase 245 --gaps-only",
+    "label": "Resume active Phase 245 Plan 19 gap execution",
+    "reason": "The pinned Git symbolic-HEAD capability gate is resolved and its four-suite regression passes; Plan 19 still needs fresh contract capture and candidate classification"
   },
-  "updated_at": "2026-09-30T12:47:51Z"
+  "updated_at": "2026-09-30T15:22:20Z"
 }
