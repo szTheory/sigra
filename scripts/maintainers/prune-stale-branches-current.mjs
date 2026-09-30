@@ -5,6 +5,7 @@ import { readFileSync, renameSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const REPOSITORY = "szTheory/sigra";
+const GIT_BIN = "/usr/bin/git";
 const OID = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
 
 function fail(reason) {
@@ -18,12 +19,12 @@ function command(bin, args, cwd, label) {
 }
 
 function git(repo, args, label = "git_failed") {
-  return command("git", ["-C", repo, ...args], undefined, label);
+  return command(GIT_BIN, ["-C", repo, ...args], undefined, label);
 }
 
 function validBranch(name, label) {
   if (typeof name !== "string" || !name || name.startsWith("-") || name.includes("\n")) fail(`${label}_invalid`);
-  const result = spawnSync("git", ["check-ref-format", "--branch", name], { encoding: "utf8" });
+  const result = spawnSync(GIT_BIN, ["check-ref-format", "--branch", name], { encoding: "utf8" });
   if (result.status !== 0) fail(`${label}_invalid`);
   return name;
 }
@@ -148,7 +149,7 @@ function parseLocalRefs(repo) {
 }
 
 function objectType(repo, oid, ref) {
-  const result = spawnSync("git", ["-C", repo, "cat-file", "-t", oid], { encoding: "utf8" });
+  const result = spawnSync(GIT_BIN, ["-C", repo, "cat-file", "-t", oid], { encoding: "utf8" });
   if (result.status !== 0) fail(`origin_object_unreadable:${ref}:${oid}`);
   return result.stdout.trim();
 }
@@ -229,12 +230,12 @@ function canonical(value) { return JSON.stringify(value); }
 function readPinnedFile(repo, commit, path, label = "input") {
   if (!OID.test(commit ?? "")) fail(`${label}_commit_invalid`);
   if (typeof path !== "string" || !path || path.startsWith("/") || path.includes("..") || path.includes("\n") || path.includes(":")) fail(`${label}_path_invalid`);
-  command("git", ["-C", repo, "cat-file", "-e", `${commit}^{commit}`], undefined, `${label}_commit_unreadable`);
-  const blob = command("git", ["-C", repo, "rev-parse", `${commit}:${path}`], undefined, `${label}_path_missing`).trim();
-  const result = spawnSync("git", ["-C", repo, "show", `${commit}:${path}`], { encoding: null, maxBuffer: 32 * 1024 * 1024 });
+  command(GIT_BIN, ["-C", repo, "cat-file", "-e", `${commit}^{commit}`], undefined, `${label}_commit_unreadable`);
+  const blob = command(GIT_BIN, ["-C", repo, "rev-parse", `${commit}:${path}`], undefined, `${label}_path_missing`).trim();
+  const result = spawnSync(GIT_BIN, ["-C", repo, "show", `${commit}:${path}`], { encoding: null, maxBuffer: 32 * 1024 * 1024 });
   if (result.status !== 0) fail(`${label}_bytes_unreadable`);
   const raw = result.stdout;
-  const hash = spawnSync("git", ["-C", repo, "hash-object", "--stdin", "-t", "blob"], { input: raw, encoding: "utf8" });
+  const hash = spawnSync(GIT_BIN, ["-C", repo, "hash-object", "--stdin", "-t", "blob"], { input: raw, encoding: "utf8" });
   if (hash.status !== 0 || hash.stdout.trim() !== blob) fail(`${label}_git_blob_mismatch`);
   return { raw, blob, sha256: createHash("sha256").update(raw).digest("hex") };
 }
@@ -319,7 +320,7 @@ function parseAllowlist(raw) {
     const [side, ref, oid, type, reason, ...extra] = line.split("\t");
     if (extra.length || !["local", "remote", "tracking", "safety-publish"].includes(side) || !OID.test(oid ?? "") || !["commit", "tree", "blob", "tag"].includes(type) || !reason?.trim()) fail("current_allowlist_row_invalid");
     if (!ref?.startsWith("refs/") || seen.has(`${side}\0${ref}`)) fail(`current_allowlist_duplicate_or_invalid_ref:${ref}`);
-    const check = spawnSync("git", ["check-ref-format", ref], { encoding: "utf8" });
+    const check = spawnSync(GIT_BIN, ["check-ref-format", ref], { encoding: "utf8" });
     if (check.status !== 0) fail(`current_allowlist_ref_invalid:${ref}`);
     seen.add(`${side}\0${ref}`);
     rows.push({ side, ref, oid, type, reason });
@@ -367,16 +368,16 @@ function verifyAllowlist(repo, contract, allowlistCommit, allowlistPath) {
 function committedBytes(repo, commit, path) {
   if (!OID.test(commit ?? "")) fail("current_contract_commit_invalid");
   if (typeof path !== "string" || !path || path.startsWith("/") || path.includes("..") || path.includes("\n") || path.includes(":")) fail("current_contract_path_invalid");
-  command("git", ["-C", repo, "cat-file", "-e", `${commit}^{commit}`], undefined, "current_contract_commit_unreadable");
-  const blob = command("git", ["-C", repo, "rev-parse", `${commit}:${path}`], undefined, "current_contract_path_missing").trim();
+  command(GIT_BIN, ["-C", repo, "cat-file", "-e", `${commit}^{commit}`], undefined, "current_contract_commit_unreadable");
+  const blob = command(GIT_BIN, ["-C", repo, "rev-parse", `${commit}:${path}`], undefined, "current_contract_path_missing").trim();
   if (!OID.test(blob)) fail("current_contract_blob_oid_invalid");
-  const bytes = spawnSync("git", ["-C", repo, "show", `${commit}:${path}`], { encoding: null, maxBuffer: 32 * 1024 * 1024 });
+  const bytes = spawnSync(GIT_BIN, ["-C", repo, "show", `${commit}:${path}`], { encoding: null, maxBuffer: 32 * 1024 * 1024 });
   if (bytes.status !== 0) fail("current_contract_committed_bytes_unreadable");
   const raw = bytes.stdout;
-  const rehashedBlob = spawnSync("git", ["-C", repo, "hash-object", "--stdin", "-t", "blob"], { input: raw, encoding: "utf8" });
+  const rehashedBlob = spawnSync(GIT_BIN, ["-C", repo, "hash-object", "--stdin", "-t", "blob"], { input: raw, encoding: "utf8" });
   if (rehashedBlob.status !== 0 || rehashedBlob.stdout.trim() !== blob) fail("current_contract_git_blob_mismatch");
   const sha256 = createHash("sha256").update(raw).digest("hex");
-  const sidecar = command("git", ["-C", repo, "show", `${commit}:${path}.sha256`], undefined, "current_contract_sha256_record_missing").trim();
+  const sidecar = command(GIT_BIN, ["-C", repo, "show", `${commit}:${path}.sha256`], undefined, "current_contract_sha256_record_missing").trim();
   if (!/^[0-9a-f]{64}$/.test(sidecar)) fail("current_contract_sha256_record_invalid");
   if (sidecar !== sha256) fail("current_contract_sha256_mismatch");
   return { raw, blob, sha256 };
