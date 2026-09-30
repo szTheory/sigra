@@ -2,20 +2,21 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 243
-current_phase_name: Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage
+current_phase: 245
+current_phase_name: Branch Prune — Local and Remote
+current_plan: 19
 status: executing
-stopped_at: Phase 243 context gathered (assumptions mode)
-last_updated: "2026-09-25T02:29:36.066Z"
-last_activity: 2026-09-24
-last_activity_desc: Phase 242 complete, transitioned to Phase 243
-state_head: b4f940d958642811e2aa073f0e15b49e58a825e2
+stopped_at: Plan 245-18 complete; Plan 245-19 ready to execute
+last_updated: "2026-09-30T00:40:33Z"
+last_activity: 2026-09-29
+last_activity_desc: Plan 245-18 completed with verified D-01 provenance and a committed current-state baseline
+state_head: 02d3370f9edd05fa598216d6bef34958310881ec
 progress:
   total_phases: 10
-  completed_phases: 7
-  total_plans: 58
-  completed_plans: 54
-  percent: 70
+  completed_phases: 9
+  total_plans: 82
+  completed_plans: 79
+  percent: 90
 ---
 
 # Project State
@@ -26,14 +27,21 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 242 safety closeout; refresh stale verification evidence before Phase 243
+**Current focus:** Phase 245 — Branch Prune — Local and Remote
 
 ## Current Position
 
-Phase: 243 (Drain the Queue — Dependabot Tiers A/B, Stale PRs, Todo Triage) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-24 — Phase 242 complete, transitioned to Phase 243
+Phase: 245 (Branch Prune — Local and Remote) — EXECUTING
+Most recent completed phase: 244. Plan 245-18 is complete: its nine required Phase 244 sources are pinned from 0dd5d17954a5e824b86fde1038cd34b177867269, D-01 passed, and the current 129-local-ref / 357-origin-ref / 13-open-PR baseline is captured with all 488 direct and peeled OIDs readable.
+Current Plan: 19
+Total Plans in Phase: 19
+Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, and 18 (13 total). Plans 04, 09, 12, and 14 halted; Plan 16 remains blocked by Plan 14; Plan 19 is next.
+Status: Plan 245-18 complete; Plan 245-19 is ready to execute with its D-01–D-07 admission gates. No production refs changed.
+Verification: The prior report remains historical `gaps_found` (21/24). The 11-row PR mismatch and 30-row cleanup-history audits remain explicitly unresolved. The new plan set passed GSD plan checking; this is not a replacement phase verification.
+Last activity: 2026-09-29 — Plan 245-18 completed; the current pre-mutation contract is committed and verified.
+Next GSD command: Run $gsd-execute-phase 245 --gaps-only to continue with Plan 245-19. Plan 18 is complete; Plan 19 must still pass its own admission/runtime/coordinator gates before any mutation. Plan 245-16 stays blocked by halted Plan 245-14. Do not route to stale $gsd-verify-work or start Phase 246.
+The only historical sources are this local checkout and GitHub. The pinned Phase 245 baseline `9c0a6b818d2d58858b5db274cc1cf0a9803f69f5` is absent from both; do not search another service or claim who removed it. Git on PATH is 2.41.0; `/usr/bin/git` is 2.50.1 and is usable only if the exact binary and every relevant mutator are pinned under the shared coordinator. D-05's production fail-closed gate remains active.
+The prior state recommendation to re-run verification came from stale historical evidence; phase-specific `init.execute-phase 245` is the current routing source. Keep Phase 245 active and do not invent Phase 246.
 
 ### v1.48 phase map
 
@@ -526,6 +534,11 @@ Last activity: 2026-09-24 — Phase 242 complete, transitioned to Phase 243
 - [Phase 241]: R1, R2, and R3 remain independent non-increase counters; no fused total can offset a regression.
 - [Phase 241]: D-29 declines v1.48 case-folding (R2 220→221) and block-aware widening; pending todo remains partially folded.
 - [Phase 242]: Phase 242 Plan 01: remediation is dispatch-only and fixed to sigra 1.20.0; public evidence is sanitized and resolver homes are isolated.
+- [Phase 244]: Pin Ubuntu ImageMagick 8:6.9.12.98+dfsg1-5.2build2 and fail closed when the installed package identity differs.
+- [Phase 244]: Keep @playwright/test 1.62.1 isolated to the example Playwright tooling candidate and update all existing browser cache keys.
+- [Phase 244]: Proceed past the package legitimacy gate only after npm tarball integrity, attestation provenance, and Microsoft release identity agree.
+- [Phase 245]: Keep production local apply fail-closed until Plan 19 proves exact Git runtime and repository-wide shared-coordinator coverage; Phase 244 readiness is now source-pinned.
+- [Phase 245]: Treat the current-state D-07 contract separately from unresolved historical PR and cleanup audits; REPO-04 remains open.
 
 ### Pending Todos
 
@@ -729,19 +742,16 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-25T02:16:06.605Z
-Stopped at: Phase 243 context gathered (assumptions mode)
-Resume file: .planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-CONTEXT.md
+Last session: 2026-09-30T00:40:33Z
+Stopped at: Plan 245-18 complete; Plan 245-19 ready to execute
+Resume file: .planning/phases/245-branch-prune-local-and-remote/continue.md
 
 ## Operator Next Steps
 
-- Phase 236 verification now passes. GSD identifies Phase 237 as the first remaining stale verification after the shared requirements/roadmap reconciliation. Start with `$gsd-verify-work 237`, then follow GSD's stale-verification routing through Phases 238, 241, and 242 before Phase 243.
-- **TEST-01/TEST-02 is now scheduled, not open:** Phase 241 records the supersession as an ADR and deletes the orphaned `ExUnitTimingFormatter`, with the replacement guard demonstrated RED against a committed known-bad fixture.
-- **`example_unit_smoke` / `ci-gate.needs` is deliberately a todo, not a phase** (FUT-03) — filed in Phase 243's triage with the diagnosis attached.
-- **Decide TEST-01/TEST-02 first.** They shipped unsatisfied: the timing machinery is dead code at HEAD and the Phase 233 contract test was rewritten to require the replacement single-owner topology. Either re-wire it (the work exists on the parked `ci/phase-235-16-source-complete` branch) or formally retire the requirements and delete the orphaned module — but make it a recorded decision, not a silent regression. See `todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md`.
-- **Cheap, high-value:** add `example_unit_smoke` to `ci-gate.needs` and to `honest-skip-verdict.sh`'s lane set. It is a ruleset-required context absent from both, and `wait-for-ci-gate.sh` polls only the `ci-gate` job — so a red `example_unit_smoke` on a push to main does not currently stop a Hex publish.
-- Four further audit-surfaced findings are filed under `todos/pending/2026-09-15-*`.
-- **No git tag** — milestone tags were dropped after v1.35 (collision risk with the Hex package version).
+- Plans 245-17 and 245-18 are complete. Plan 18 pinned and verified current Phase 244 provenance and committed the exact local/origin/open-PR baseline in 245-18-CURRENT-CONTRACT.json. Run $gsd-execute-phase 245 --gaps-only to advance to Plan 19.
+- Plan 19 remains the only runnable forward plan; its costly ref deletions are gated by exact candidate, PR/safety, Git-runtime, and shared-coordinator checks. Phase 245 remains incomplete with REPO-04 open. Plan 16 remains blocked by Plan 14. Phase 246 is not in the roadmap.
+- Current PR identities are verified in the committed baseline. Remaining gaps are Plan 19 production local apply and complete cleanup-history evidence; the historical 11-row PR mismatch and 30-row cleanup-history audits remain unresolved. REPO-04 remains unchecked.
+- The primary checkout contains unrelated user edits. Preserve them; do not reset, stash, clean, broadly stage, or discard files.
 
 ## Performance Metrics
 
@@ -943,3 +953,5 @@ Resume file: .planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs
 | Phase 241 P02 | 5min | 3 tasks | 3 files |
 | Phase 241 P06 | 24m | 3 tasks | 10 files |
 | Phase 242 P01 | 40min | 2 tasks | 7 files |
+| Phase 244 P02 | 31min | 3 tasks | 10 files |
+| Phase 245 P17 | 88min | 3 tasks | 13 files |
