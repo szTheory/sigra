@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "19",
+  "outcome": "blocked_before_classification",
+  "admission_status": "blocked",
+  "classification_performed": false,
+  "classification_blocker": "d01_readiness_source_worktree_dirty:.planning/state.json",
+  "source_contract": {
+    "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+    "blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
+    "sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1"
+  },
+  "baseline_inventory_counts": {
+    "local_refs": 129,
+    "origin_refs": 357,
+    "open_pull_requests": 13,
+    "direct_and_peeled_objects_verified_by_plan_18": 488
+  },
+  "candidate_rows": [],
+  "candidate_rows_reason": "D-01 source-backed readiness failed before current candidate classification. No row is eligible or authorized for deletion. No live GitHub or origin refresh was attempted after the earliest failing readiness gate.",
+  "allowlist_created": false,
+  "allowlist_commit": null,
+  "production_ref_mutations": 0
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "19",
+  "outcome": "blocked",
+  "captured_at": "2026-09-30T01:25:00Z",
+  "blocked_reasons": [
+    "D-01 readiness verifier failed with source_worktree_dirty for .planning/state.json.",
+    "Exact candidate classification and committed allowlist were not reached.",
+    "Exact /usr/bin/git capability and full shared-coordinator mutator coverage remain unproven."
+  ],
+  "verifier_exits": {
+    "readiness": 1,
+    "admission": null,
+    "current_contract_after": null,
+    "safety": null,
+    "local": null,
+    "remote": null,
+    "objects": null
+  },
+  "production_mutations": 0,
+  "coordinator_installed": false,
+  "admitted_local_deleted_count": 0,
+  "eligible_remote_disposition_check": "not_run",
+  "current_pr_check": "not_run",
+  "safety_check": "not_run",
+  "object_check": "not_run",
+  "exact_ref_check": "not_run",
+  "local_coordinator_check": "blocked_unproven",
+  "post_readback_check": "not_run",
+  "before_after_equality": {
+    "refs": true,
+    "config": true,
+    "worktrees": true
+  },
+  "historical_audits": {
+    "prior_11_row_pr_mismatch": "unresolved",
+    "prior_30_row_cleanup_history": "unresolved"
+  },
+  "requirements": {
+    "REPO-04": "open"
+  },
+  "success_summary_created": false
+}

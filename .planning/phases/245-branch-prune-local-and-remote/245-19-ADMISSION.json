@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "repository": "szTheory/sigra",
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "19",
+  "status": "blocked",
+  "stage": "admission",
+  "captured_at": "2026-09-30T01:25:00Z",
+  "local_candidate_count": 0,
+  "candidate_classification": "not_performed",
+  "allowlist_created_or_committed": false,
+  "coordinator_installed": false,
+  "coordinator_install_attempted": false,
+  "coordinator_coverage": "blocked_unproven",
+  "exact_git_runtime": "blocked_unproven",
+  "inputs": [
+    {
+      "name": "current_contract",
+      "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+      "blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
+      "sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1"
+    },
+    {
+      "name": "local_snapshot",
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+      "blob": "57275812af48b9b45f092680deea291609ff44ce",
+      "sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456"
+    },
+    {
+      "name": "origin_snapshot",
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv",
+      "blob": "82c31ff5df13d9696e5a34123d4e6b5d3356edf1",
+      "sha256": "0531a7981fc75654a77bdbf0752707dd497d6c9ddaa1ab53dd278f4641150efa"
+    },
+    {
+      "name": "open_pr_state",
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-OPEN-PR-STATE.json",
+      "blob": "4015ce71fa0f949d768a65fbe1f93ad92384682e",
+      "sha256": "7290bedb254f9dd38543695bafb1d9e9b01643355ef9ab12220b66fe6098eab8"
+    },
+    {
+      "name": "readiness",
+      "commit": "d7243c193c40a30709edbe306d79038d2286e70e",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
+      "blob": "87484ba00e2418ff705adeeb127dcf7e27f706d4",
+      "sha256": "293c1e7c9610bb9c3ce26d25ecfe952d87be6f8c785be24530a460de55e69903"
+    },
+    {
+      "name": "source_preflight",
+      "commit": "cb5a1290d2a27036676d42f5420453a393588310",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-SOURCE-PREFLIGHT.json",
+      "blob": "1f9e14c17437b4566c06364363d14badbd102b84",
+      "sha256": "7df8b355c7973489d27c485c4f4aee45b46b36087caf1556e9661f9c0a57f06c"
+    }
+  ],
+  "verifiers": {
+    "readiness": {
+      "command": "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo /Users/jon/projects/sigra --artifact .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json --artifact-commit d7243c193c40a30709edbe306d79038d2286e70e",
+      "exit": 1,
+      "result": {
+        "valid": false,
+        "status": "blocked",
+        "reasons": [
+          {
+            "code": "source_worktree_dirty",
+            "source": ".planning/state.json",
+            "message": ".planning/state.json failed its committed identity check (source_worktree_dirty)."
+          }
+        ]
+      }
+    },
+    "current_contract_live_verification": {
+      "status": "not_run",
+      "reason": "Admission implementation stops before contacting GitHub or checking coordinator state when D-01 source evidence is unauthenticated."
+    },
+    "admission_script_verify": {
+      "status": "not_run",
+      "reason": "No separately committed exact allowlist exists; D-01 failed before candidate/allowlist admission."
+    }
+  },
+  "runtime_observation": {
+    "active_git_path": "/opt/homebrew/bin/git",
+    "active_git_version": "git version 2.41.0",
+    "candidate_git_path": "/usr/bin/git",
+    "candidate_git_version": "git version 2.50.1 (Apple Git-155)",
+    "candidate_git_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "capability_probe": "not_run_after_earliest_D01_blocker",
+    "operator_pin_evidence": "scripts/maintainers/prune-stale-branches.sh contains ambient git -C $REPO worktree/update-ref invocations; exact binary is not proven for every mutator.",
+    "coordinator_pin_evidence": "scripts/maintainers/repo-mutation-coordinator.sh resolves Git with command -v git; exact /usr/bin/git pinning for all participating coordinator and hook invocations is not proven."
+  },
+  "blocked_reasons": [
+    "d01_readiness_verification_exit_1:source_worktree_dirty:.planning/state.json",
+    "candidate_classification_and_exact_allowlist_not_authorized_before_D01_pass",
+    "exact_git_runtime_capability_not_proven",
+    "repository_wide_mutator_runtime_and_shared_coordinator_coverage_not_proven"
+  ],
+  "no_mutation": {
+    "production_refs_before_sha256": "cb8c004d6a8606164e969b4949d7feebc64db06f42ba49ef714c79b6e0f44af8",
+    "production_refs_after_sha256": "cb8c004d6a8606164e969b4949d7feebc64db06f42ba49ef714c79b6e0f44af8",
+    "worktrees_before_sha256": "6f8a7e3d8399428b89fc7ce25bebf9367b5c4569e19af7fd26e2344ca63ad704",
+    "worktrees_after_sha256": "6f8a7e3d8399428b89fc7ce25bebf9367b5c4569e19af7fd26e2344ca63ad704",
+    "local_git_config_before_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
+    "local_git_config_after_sha256": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
+    "equal": true
+  },
+  "production_mutations": 0
+}
