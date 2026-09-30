@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute remaining Phase 245 gap closure",
-    "reason": "Plan 245-20 is complete; Plan 245-21 remains runnable, while Plan 16 is still blocked by Plan 14. REPO-04 remains open until Plan 21 proves the current postchecks."
+    "command": "/gsd:plan-phase 245 --gaps",
+    "label": "Plan recovery for the Phase 245 D-06 block",
+    "reason": "Plan 245-21 halted before its contract after the permitted exact-object fetch moved local refs/remotes/origin/gh-pages. Preserve the on-disk blocked diagnostics and create a follow-up gap plan before any retry; Plan 16 remains blocked by Plan 14 and REPO-04 remains open."
   },
-  "updated_at": "2026-09-30T20:36:05.418Z"
+  "updated_at": "2026-09-30T20:57:46Z"
 }
