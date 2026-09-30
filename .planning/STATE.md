@@ -4,18 +4,18 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 245
 current_phase_name: Branch Prune — Local and Remote
-current_plan: 22
-status: executing
-stopped_at: Plan 245-22 is ready at wave 15; execute its fetch proof before the dependent Plan 21 retry
-last_updated: "2026-09-30T21:39:25Z"
+current_plan: 21
+status: Plan 245-22 completed; Plan 245-21 fresh retry preflight is next. REPO-04 remains open; Plan 16 is blocked by halted Plan 14.
+stopped_at: Completed Plan 245-22; Plan 245-21 retry is next
+last_updated: "2026-09-30T22:19:06.403Z"
 last_activity: 2026-09-30
-last_activity_desc: Phase 245 Plan 22 planned; execute its fetch proof before the dependent Plan 21 retry
-state_head: 1c1cda52b38d9c9fc085de1ec6df0ff1bcdf0e6f
+last_activity_desc: Plan 245-22 completed; Plan 245-21 retry is next.
+state_head: fa23ad17265bde33719fa32d87e8a396fcc7cb27
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 84
-  completed_plans: 80
+  completed_plans: 81
   percent: 90
 ---
 
@@ -31,14 +31,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 245 (Branch Prune — Local and Remote) — READY TO EXECUTE
+Phase: 245 (Branch Prune — Local and Remote) — EXECUTING
 Most recent completed phase: 244. Plan 245-18 is complete: its nine required Phase 244 sources are pinned from 0dd5d17954a5e824b86fde1038cd34b177867269, D-01 passed, and the current 129-local-ref / 357-origin-ref / 13-open-PR baseline is captured with all 488 direct and peeled OIDs readable. Plan 245-19 applied one admitted local deletion, then its final transition verifier blocked; its durable receipt remains `.planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json` in commit `d27a43a2`. Plan 19 remains superseded after its blocked receipt; its recorded deletion remains counted once, and its remaining actions must not be rerun.
-Current Plan: 22
+Current Plan: 21
 Total Plans in Phase: 21
 Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, 18, and 20 (14 summaries). Plans 04, 09, 12, and 14 halted; Plan 16 remains blocked by Plan 14; Plan 19 is superseded after its blocked receipt. Plan 22 is the next gap plan at wave 15; Plan 21 remains incomplete at wave 16 and depends on Plan 22's passing fetch proof.
-Status: Plan 20 complete; Plan 21 halted at D-06 after the permitted exact-object fetch moved local `refs/remotes/origin/gh-pages` from `5fd13b95…` to `dd671004…`. No Plan 21 contract, admission, allowlist, or result commit was created, and no tracking ref was removed. The blocked Plan 21 preflight and result remain unchanged; Plan 22 must prove source-only fetch isolation before Plan 21's fresh retry preflight or any contract/ref operation.
+Status: Plan 245-22 completed; Plan 245-21 fresh retry preflight is next. REPO-04 remains open; Plan 16 is blocked by halted Plan 14.
 Verification: The historical phase verification remains `gaps_found` and is stale; it does not block the phase-specific execution readiness, which reports Plans 22 and 21 runnable in dependency order. REPO-04 remains open pending their execution. Plan 16 remains blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain explicitly unresolved.
-Last activity: 2026-09-30 — Phase 245 Plan 22 planned to prove isolated object fetch before the dependent Plan 21 retry.
+Last activity: 2026-09-30 — Plan 245-22 completed; Plan 245-21 retry is next.
 Next GSD command: `$gsd-execute-phase 245 --gaps-only`. Execute Plan 22 first, then its dependent Plan 21 retry; do not rerun Plan 19 or start Phase 246.
 The only historical sources are this local checkout and GitHub. The pinned Phase 245 baseline `9c0a6b818d2d58858b5db274cc1cf0a9803f69f5` is absent from both; do not search another service or claim who removed it. Git on PATH is 2.41.0; `/usr/bin/git` is 2.50.1 and is usable only if the exact binary and every relevant mutator are pinned under the shared coordinator. D-05's production fail-closed gate remains active.
 The prior state recommendation to re-run verification came from stale historical evidence; phase-specific `init.execute-phase 245` is the current routing source. Keep Phase 245 active and do not invent Phase 246.
@@ -540,6 +540,7 @@ The prior state recommendation to re-run verification came from stale historical
 - [Phase 245]: Keep production local apply fail-closed until Plan 19 proves exact Git runtime and repository-wide shared-coordinator coverage; Phase 244 readiness is now source-pinned.
 - [Phase 245]: Treat the current-state D-07 contract separately from unresolved historical PR and cleanup audits; REPO-04 remains open.
 - [Phase 245]: Phase 245 Plan 20 separates cumulative operation readback from final result-child verification and binds declared removals to committed allowlist dispositions.
+- [Phase 245]: Plan 245-22 proved exact-object acquisition with an empty ref map in two disposable mapped-origin fixtures. — The exact object became readable while the old tracking ref, complete ref inventory, symbolic HEAD, and FETCH_HEAD remained unchanged, establishing a safe prerequisite for Plan 21.
 
 ### Pending Todos
 
@@ -743,8 +744,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-09-30T20:57:46Z
-Stopped at: Plan 245-21 D-06 blocked result; exact diagnostics remain on disk and the phase is still open
+Last session: 2026-09-30T22:18:33.610Z
+Stopped at: Completed Plan 245-22; Plan 245-21 retry is next
 Resume file: None
 
 ## Operator Next Steps
@@ -957,3 +958,4 @@ Resume file: None
 | Phase 244 P02 | 31min | 3 tasks | 10 files |
 | Phase 245 P17 | 88min | 3 tasks | 13 files |
 | Phase 245 P20 | 19min | 2 tasks | 3 files |
+| Phase 245 P22 | 21min | 2 tasks | 5 files |
