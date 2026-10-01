@@ -1,28 +1,28 @@
-# Continue — Plan 245-19
+# Continue — Phase 245 Plan 25 halted
 
 ## Last action
 
-Resolved Plan 245-19 D-05's symbolic-HEAD capability mismatch: the probe now invokes the validated `/usr/bin/git` 2.50.1 directly, and disposable fixtures require hook enforcement under a poisoned PATH. The coordinator and pruning shell suites pass; both Node suites pass 5/5; reverting the executable-path fix reproduces the failure. No production refs, worktrees, Git config, coordinator installation, or origin state were mutated. See `.planning/debug/resolved/coordinator-symbolic-head-hook.md` and `245-19-PLAN.md`.
+Plan 245-25 captured a fresh D-06 census, committed the current-ref contract and exact two-row tracking admission (`6f5aa403`), and invoked the existing tracking operator. The operator stopped with exit 1 at its D-01 readiness gate before entering the tracking loop. It had copied the pinned Plan 23 readiness receipt to a temporary directory, then the schema-2 verifier rejected that out-of-repository path as missing from the commit and worktree. No tracking ref was changed. The contract-declared blocked RESULT child (`a1cd058d`) is the authoritative terminal receipt and passed the after-stage verifier.
 
 ## Next action
 
-Run:
-
-`$gsd-execute-phase 245 --gaps-only`
+Plan a new Phase 245 gap plan to address the operator's temporary-path readiness verification failure. Do not retry Plan 25 pruning or bypass its gate. Keep REPO-04 open.
 
 ## Why
 
-The exact pinned-runtime capability gate and its regression coverage now pass. Plan 19 remains active because no fresh D-07 contract or candidate classification has been captured; resume the existing gap plan to continue its admission and mutation-boundary checks.
+The committed Plan 23 readiness source passes its direct verifier when checked at its repository path. The production operator verifies a temporary copy instead, and its schema-2 path guard blocks that copy. The Plan 25 safety predicate therefore failed at the operation boundary and the planned ref mutations halted.
 
 ## Open threads
 
-- No fresh D-07 contract was captured and no candidate was classified. REPO-04 remains open.
-- Plan 245-16 remains blocked by halted Plan 245-14. Plans 245-04, 09, 12, and 14 remain halted.
-- The historical 11-row PR-base and 30-row cleanup-history audits remain unresolved.
-- `/usr/bin/git` is pinned at version 2.50.1 with SHA-256 `b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9`; PATH Git is 2.41.0.
+- Plan 25's two previously admitted tracking refs remain present; Plan 25 tracking, local-head, origin, and PR ref operations are all zero.
+- Plan 19's one local deletion remains counted exactly once and must not be replayed.
+- Plan 16 remains blocked by halted Plan 14.
+- The historical 11-row PR-base mismatch and 30-row cleanup-history audit remain unresolved; the missing baseline remains unknown.
+- REPO-04 remains open and Phase 245 is not complete.
+- Preserve the unrelated dirty and untracked workspace; do not reset, stash, clean, or broadly stage.
 
 ## Do not
 
-- Do not bypass Plan 19's D-06 source-pin, current-state, admission, PR/ref, exact-binary, or shared-lock checks. Do not install the production coordinator, delete refs, or push unless the plan's mutation gates pass.
-- Do not route to stale `$gsd-verify-work` or restart completed Phase 244 work.
-- Preserve the unrelated dirty workspace; do not reset, stash, clean, or broadly stage.
+- Do not mark Plan 25 complete or route REPO-04 as satisfied.
+- Do not retry the tracking operation or change the safety predicate in place; use a new reviewed gap plan.
+- Do not rerun Plan 19 or Plan 21, start Plan 16, or start Phase 246.

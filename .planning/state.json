@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute Phase 245 gap closure Plan 25",
-    "reason": "Plan 245-25 is the sole runnable gap closure and depends on completed Plan 23; Plan 24 remains blocked historical context only. Run its fresh D-06 gate, keep REPO-04 open, and leave the historical PR and cleanup audits unresolved."
+    "command": "/gsd:plan-phase 245 --gaps",
+    "label": "Plan operator readiness-gate repair",
+    "reason": "Plan 245-25 halted before ref pruning because the tracking operator's schema-2 readiness verifier rejected its temporary artifact copy as outside the repository; keep REPO-04 open and do not retry the prune until a new gap plan resolves the gate."
   },
-  "updated_at": "2026-10-01T13:35:38Z"
+  "updated_at": "2026-10-01T14:26:10Z"
 }

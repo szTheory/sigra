@@ -5,17 +5,17 @@ milestone_name: CLEAN-BASELINE
 current_phase: 245
 current_phase_name: Branch Prune — Local and Remote
 current_plan: 25
-status: Plan 245-25 is planned as a gap closure and ready to execute; Plan 245-24 remains halted historical context, and REPO-04 remains open.
-stopped_at: Completed 245-25-PLAN.md; ready to execute the sole runnable gap plan
-last_updated: "2026-10-01T13:35:38Z"
+status: Plan 245-25 halted at the D-01 operator readiness gate before tracking mutation; REPO-04 remains open.
+stopped_at: 245-25 Task 3 — operator readiness verifier rejected its temporary artifact path
+last_updated: "2026-10-01T14:26:10Z"
 last_activity: 2026-10-01
-last_activity_desc: Planned and checked gap-closure Plan 245-25; the fresh D-06 gate remains required at execution time.
-state_head: b12c08cc55474376820e284ee62a6870baca6388
+last_activity_desc: Plan 245-25 committed a blocked D-01 result before any tracking ref mutation.
+state_head: a1cd058d63eb713ce50568a953b316cdfc3ef7bd
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 87
-  completed_plans: 83
+  completed_plans: 84
   percent: 90
 ---
 
@@ -31,15 +31,15 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 245 (Branch Prune — Local and Remote) — READY TO EXECUTE
+Phase: 245 (Branch Prune — Local and Remote) — BLOCKED AT PLAN 25 D-01
 Most recent completed phase: 244. Plan 245-18 is complete: its nine required Phase 244 sources are pinned from 0dd5d17954a5e824b86fde1038cd34b177867269, D-01 passed, and the current 129-local-ref / 357-origin-ref / 13-open-PR baseline is captured with all 488 direct and peeled OIDs readable. Plan 245-19 applied one admitted local deletion, then its final transition verifier blocked; its durable receipt remains `.planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json` in commit `d27a43a2`. Plan 19 remains superseded after its blocked receipt; its recorded deletion remains counted once, and its remaining actions must not be rerun.
-Current Plan: 25 (gap closure; depends on completed Plan 23 and reads halted Plan 24 receipts as historical context only)
+Current Plan: 25 (halted at Task 3 before tracking-ref mutation)
 Total Plans in Phase: 25
 Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, 18, 20, 22, and 23 (16 completed plans). Plans 04, 09, 12, and 14 halted; Plan 16 remains blocked by Plan 14; Plan 19 is superseded after its blocked receipt; Plan 21 remains halted/superseded after D-01.
-Status: Plan 245-25 is the only runnable gap closure. Its independent plan review passed after the after-stage failure path was revised to commit an authoritative blocked result linked to the preserved rejected child. Execution must still perform a fresh D-06 census; Plan 24's object-acquisition receipt is historical provenance only. Phase 245 remains active and REPO-04 remains open. Plan 16 remains blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
-Verification: The historical phase verification remains gaps_found and stale. Plan 22 passed, and Plan 23's committed schema-2 readiness receipt independently verifies Phase 244 evidence. Plan 24 verified that readiness receipt and all 488 Plan 18 object IDs, then halted on the unreadable live `origin/gh-pages` object. A later exact-object acquisition confirms the same live OID is readable and that refs, symbolic HEAD, FETCH_HEAD, the origin tracking ref, index, and working tree were unchanged. Plan 25 has not executed and must freshly recheck D-06. Plan 21 remains halted/superseded at D-01. REPO-04 remains open. Plan 16 remains blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
-Last activity: 2026-10-01 — gap-closure Plan 245-25 passed independent plan review and is ready for execution.
-Next GSD command: $gsd-execute-phase 245 --gaps-only (Plan 25 is the sole runnable gap closure; REPO-04 remains open)
+Status: Plan 245-25 halted at the operator's D-01 readiness gate before tracking mutation; Phase 245 remains active.
+Verification: Plan 25's fresh D-06 census recorded 128 local refs, 357 live origin refs, and 13 open PRs; all 488 Plan 18 and 487 current direct/peeled object checks passed. Its exact two-row Plan 19 tracking admission and current contract are committed. The operator then rejected the temporary readiness copy as outside the repository and missing from its commit/worktree. The blocked RESULT is committed as the sole direct child of the contract and passes after-stage verification. Plan 25 performed zero tracking, local-head, origin, or PR ref operations. REPO-04 remains open; Plan 16 remains blocked by Plan 14; the 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
+Last activity: 2026-10-01 — Plan 245-25 committed a blocked D-01 result before ref pruning.
+Next GSD command: $gsd-plan-phase 245 --gaps (plan a repair for the operator's temporary-path readiness verification; do not retry pruning or close REPO-04)
 The only historical sources are this local checkout and GitHub. The pinned Phase 245 baseline `9c0a6b818d2d58858b5db274cc1cf0a9803f69f5` is absent from both; do not search another service or claim who removed it. Git on PATH is 2.41.0; `/usr/bin/git` is 2.50.1 and is usable only if the exact binary and every relevant mutator are pinned under the shared coordinator. D-05's production fail-closed gate remains active.
 The prior state recommendation to re-run verification came from stale historical evidence; phase-specific `init.execute-phase 245` is the current routing source. Keep Phase 245 active and do not invent Phase 246.
 
