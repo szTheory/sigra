@@ -51,7 +51,7 @@ function normalizePrCli(row) {
     baseRefName: row?.baseRefName ?? "",
     headRefOid: row?.headRefOid ?? "",
     baseRefOid: row?.baseRefOid ?? "",
-    headRepository: null,
+    headRepository: row?.headRepository?.nameWithOwner ?? null,
     baseRepository: null,
   };
 }
@@ -110,7 +110,7 @@ function loadPrInventory(fixturePath) {
     const rate = JSON.parse(gh(["api", "rate_limit"], "github_rate_limit_unavailable"));
     const remaining = Number(rate?.resources?.core?.remaining);
     if (!Number.isSafeInteger(remaining) || remaining <= 250) fail("github_core_rate_budget_at_or_below_250");
-    cliPulls = JSON.parse(gh(["pr", "list", "--repo", REPOSITORY, "--state", "open", "--limit", "1000", "--json", "number,state,headRefName,baseRefName,headRefOid,baseRefOid"], "gh_pr_list_failed"))
+    cliPulls = JSON.parse(gh(["pr", "list", "--repo", REPOSITORY, "--state", "open", "--limit", "1000", "--json", "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"], "gh_pr_list_failed"))
       .map(normalizePrCli);
     const pages = [];
     const pulls = [];
@@ -128,9 +128,9 @@ function loadPrInventory(fixturePath) {
   if (!Array.isArray(cliPulls)) fail("cli_pr_list_invalid");
   assertUniquePulls(cliPulls, "cli");
   assertUniquePulls(inventory.pulls, "api");
-  const cliNames = cliPulls.map((pull) => `${pull.number}\0${pull.headRefName}\0${pull.baseRefName}`).sort();
-  const apiNames = inventory.pulls.map((pull) => `${pull.number}\0${pull.headRefName}\0${pull.baseRefName}`).sort();
-  if (JSON.stringify(cliNames) !== JSON.stringify(apiNames)) fail("pr_cli_api_number_head_base_set_mismatch");
+  const cliIdentities = cliPulls.map((pull) => `${pull.number}\0${pull.headRefName}\0${pull.headRefOid}\0${pull.baseRefName}\0${pull.baseRefOid}\0${pull.headRepository ?? ""}`).sort();
+  const apiIdentities = inventory.pulls.map((pull) => `${pull.number}\0${pull.headRefName}\0${pull.headRefOid}\0${pull.baseRefName}\0${pull.baseRefOid}\0${pull.headRepository ?? ""}`).sort();
+  if (JSON.stringify(cliIdentities) !== JSON.stringify(apiIdentities)) fail("pr_cli_api_number_head_base_identity_mismatch");
   return { pulls: inventory.pulls, pages: inventory.pages, cli_count: cliPulls.length, complete: true };
 }
 
@@ -478,6 +478,9 @@ function compareCurrent(contract, actual, contractCommit, options) {
     if (current.headRefName !== expected.headRefName) fail(`current_pr_head_name_changed:${number}`);
     if (current.baseRefName !== expected.baseRefName) fail(`current_pr_base_name_changed:${number}`);
     if (current.headRefOid !== expected.headRefOid) fail(`current_pr_head_oid_changed:${number}`);
+    if (current.baseRefOid !== expected.baseRefOid) fail(`current_pr_base_oid_changed:${number}`);
+    if (current.headRepository !== expected.headRepository) fail(`current_pr_head_repository_changed:${number}`);
+    if (current.baseRepository !== expected.baseRepository) fail(`current_pr_base_repository_changed:${number}`);
     // GitHub's base SHA is an observation only; the exact live origin identity below is authoritative.
   }
   for (const pull of actualPrs) {

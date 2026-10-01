@@ -174,13 +174,15 @@ esac
   const allowlist = `${PHASE_DIR}/245-26-FIXTURE-ALLOWLIST.tsv`;
   const contract = `${PHASE_DIR}/245-26-FIXTURE-CURRENT-CONTRACT.json`;
   const sourceFixture = join(fixture.temp, "prs.json");
-  const cliPrs = (options.contractPRs ?? []).map((pull) => ({ ...pull, headRefOid: pull.headRefOid ?? oid, baseRefOid: pull.baseRefOid ?? oid }));
+  const cliPrs = (options.contractPRs ?? []).map((pull) => ({ ...pull, headRefOid: pull.headRefOid ?? oid, baseRefOid: pull.baseRefOid ?? oid,
+    headRepository: pull.headRepository ?? { nameWithOwner: "szTheory/sigra" } }));
   const apiPrs = options.contractApiPRs ?? cliPrs;
-  const liveCliPrs = (options.liveCliPRs ?? cliPrs).map((pull) => ({ ...pull, headRefOid: pull.headRefOid ?? oid, baseRefOid: pull.baseRefOid ?? oid }));
+  const liveCliPrs = (options.liveCliPRs ?? cliPrs).map((pull) => ({ ...pull, headRefOid: pull.headRefOid ?? oid, baseRefOid: pull.baseRefOid ?? oid,
+    headRepository: pull.headRepository ?? { nameWithOwner: "szTheory/sigra" } }));
   const liveApiPrs = (options.liveApiPRs ?? apiPrs).map((pull) => ({ ...pull, headRefOid: pull.headRefOid ?? oid, baseRefOid: pull.baseRefOid ?? oid }));
   const apiShape = (pulls) => pulls.map((pull) => ({ number: pull.number, state: "OPEN",
-    head: { ref: pull.headRefName, sha: pull.headRefOid, repo: { full_name: "szTheory/sigra" } },
-    base: { ref: pull.baseRefName, sha: pull.baseRefOid, repo: { full_name: "szTheory/sigra" } } }));
+    head: { ref: pull.headRefName, sha: pull.headRefOid, repo: { full_name: pull.headRepository?.nameWithOwner ?? pull.headRepository ?? "szTheory/sigra" } },
+    base: { ref: pull.baseRefName, sha: pull.baseRefOid, repo: { full_name: pull.baseRepository ?? "szTheory/sigra" } } }));
   const cliJson = join(fixture.temp, "live-cli-prs.json");
   const apiJson = join(fixture.temp, "live-api-prs.json");
   const truncatedJson = join(fixture.temp, "truncated-api-prs.json");
@@ -207,7 +209,8 @@ esac
   const contractCommit = commit(fixture.repo, [contract, `${contract}.sha256`], "fixture: pin current refs and tracking allowlist");
   const installed = run("bash", [join(ROOT, "scripts/maintainers/repo-mutation-coordinator.sh"), "install", "--repo", fixture.repo], { cwd: ROOT });
   assert.equal(installed.status, 0, `${installed.stdout ?? ""}${installed.stderr ?? ""}`);
-  return { ...fixture, bare, bin, ssh, env: fixtureEnv, trackingRef, oid, snapshot, originSnapshot, snapshotCommit, allowlist, allowlistCommit, contract, contractCommit, sourceFixture };
+  return { ...fixture, bare, bin, ssh, env: fixtureEnv, trackingRef, oid, snapshot, originSnapshot, snapshotCommit, allowlist, allowlistCommit,
+    contract, contractCommit, sourceFixture, liveCliPRs: cliJson, liveApiPRs: apiJson };
 }
 
 function directVerify(fixture, artifact = RECEIPT, artifactCommit = fixture.receiptCommit) {
@@ -555,7 +558,7 @@ test("schema-2 tracking apply removes one admitted fixture ref under the shared 
 });
 
 test("current-contract cumulative passes carry a tracking deletion into a guarded origin deletion", () => {
-  const fixture = makeTrackingFixture();
+  const fixture = makeTrackingFixture({ contractPRs: [{ number: 283, state: "OPEN", headRefName: "fixture-pr-head", baseRefName: "main" }] });
   const remoteRef = "refs/heads/stale/fixture-origin-only";
   const safetyList = `${PHASE_DIR}/245-26-FIXTURE-SAFETY.tsv`;
   const preflight = `${PHASE_DIR}/245-26-FIXTURE-PREFLIGHT.json`;
@@ -627,6 +630,31 @@ test("current-contract cumulative passes carry a tracking deletion into a guarde
     assert.equal(firstPass.status, 0, `${firstPass.stdout ?? ""}${firstPass.stderr ?? ""}`);
     assert.ok(!refs(fixture.repo).includes(`${fixture.trackingRef}\t`), `first pass removes only the exact tracking row: ${firstPass.stdout}\n${firstPass.stderr}\n${refs(fixture.repo)}`);
     assert.ok(originRefs(fixture).includes(`${remoteRef}\t${fixture.oid}\tcommit`), "first pass leaves origin unchanged");
+
+    const cliBytes = readFileSync(fixture.liveCliPRs, "utf8");
+    const apiBytes = readFileSync(fixture.liveApiPRs, "utf8");
+    const changedBaseOid = "a".repeat(fixture.oid.length);
+    const changedCli = JSON.parse(cliBytes);
+    changedCli[0].baseRefOid = changedBaseOid;
+    const changedApiOid = JSON.parse(apiBytes);
+    changedApiOid[0].base.sha = changedBaseOid;
+    writeFileSync(fixture.liveCliPRs, JSON.stringify(changedCli));
+    writeFileSync(fixture.liveApiPRs, JSON.stringify(changedApiOid));
+    const blockedChangedBase = remoteApply(fixture, preflightCommit, [safetySourceRef, fixture.trackingRef]);
+    assert.notEqual(blockedChangedBase.status, 0, "a changed PR base OID blocks the next operation boundary");
+    assert.match(`${blockedChangedBase.stdout ?? ""}${blockedChangedBase.stderr ?? ""}`, /current_pr_base_oid_changed:283/);
+    assert.ok(originRefs(fixture).includes(`${remoteRef}\t${fixture.oid}\tcommit`), "changed PR base OID cannot authorize origin deletion");
+    writeFileSync(fixture.liveCliPRs, cliBytes);
+    writeFileSync(fixture.liveApiPRs, apiBytes);
+
+    const changedApiRepository = JSON.parse(apiBytes);
+    changedApiRepository[0].base.repo.full_name = "szTheory/other";
+    writeFileSync(fixture.liveApiPRs, JSON.stringify(changedApiRepository));
+    const blockedChangedRepository = remoteApply(fixture, preflightCommit, [safetySourceRef, fixture.trackingRef]);
+    assert.notEqual(blockedChangedRepository.status, 0, "a changed PR base repository blocks the next operation boundary");
+    assert.match(`${blockedChangedRepository.stdout ?? ""}${blockedChangedRepository.stderr ?? ""}`, /current_pr_base_repository_changed:283/);
+    writeFileSync(fixture.liveCliPRs, cliBytes);
+    writeFileSync(fixture.liveApiPRs, apiBytes);
 
     const blockedInvented = remoteApply(fixture, preflightCommit, [safetySourceRef, "refs/heads/not-admitted"]);
     assert.notEqual(blockedInvented.status, 0, "invented cumulative identity must be rejected");
