@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.48 — CLEAN-BASELINE",
+  "milestone": "v1.48 \u2014 CLEAN-BASELINE",
   "phases": [
     {
       "number": "236",
@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:plan-phase 245 --gaps",
-    "label": "Plan operator readiness-gate repair",
-    "reason": "Plan 245-25 halted before ref pruning because the tracking operator's schema-2 readiness verifier rejected its temporary artifact copy as outside the repository; keep REPO-04 open and do not retry the prune until a new gap plan resolves the gate."
+    "command": "/gsd:execute-phase 245 --gaps-only",
+    "label": "Execute Plan 245-26 readiness-path repair",
+    "reason": "Plan 245-26 passed independent planning verification and is the sole runnable gap plan. Repair the operator's schema-2 readiness path, prove disposable integration tests and confirm the production receipt read-only. Preserve halted Plan 25, require a fresh contract for any later live prune, and keep REPO-04 open."
   },
-  "updated_at": "2026-10-01T14:26:10Z"
+  "updated_at": "2026-10-01T15:51:42.451123Z"
 }

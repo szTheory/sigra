@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 25 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation. Plan 23 repaired the readiness source. Plan 24 halted at D-06. Plan 25 passed its fresh D-06 census and committed the current contract, then halted at the operator's D-01 temporary-copy readiness check before any tracking deletion. Plan 16 remains blocked by Plan 14.
+**Plans**: 26 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation. Plan 23 repaired the readiness source. Plan 24 halted at D-06. Plan 25 passed its fresh D-06 census and committed the current contract, then halted at the operator's D-01 temporary-copy readiness check before any tracking deletion. Plan 26 plans the operator repair, disposable integration proof and read-only production check; it does not retry pruning. Plan 16 remains blocked by Plan 14.
 
 Plans:
 **Wave 1**
@@ -474,9 +474,13 @@ Plans:
 
 - [ ] 245-24-PLAN.md — Reissue only the halted Plan 21 Tasks 2–3 from Plan 23's committed schema-2 readiness receipt; preserve the prior deletion count and unresolved historical audits
 
-**D-07 current-contract continuation** — gap wave 19; depends on 245-23; halted at the operator's D-01 gate; next: `$gsd-plan-phase 245 --gaps`
+**D-07 current-contract continuation** — gap wave 19; depends on 245-23; halted at the operator's D-01 gate; preserve the blocked receipt
 
 - [ ] 245-25-PLAN.md — Halted at Task 3: the operator's temporary readiness copy fails schema-2 path validation; blocked RESULT `a1cd058d` is committed, with zero pruning operations and REPO-04 open
+
+**D-01 operator readiness-path repair** — gap wave 20; depends on completed 245-23; run with `$gsd-execute-phase 245 --gaps-only`
+
+- [ ] 245-26-PLAN.md — Repair the public schema-2 readiness path, prove the guarded tracking boundary in disposable repositories, and confirm the production receipt read-only; fresh live-contract work remains separate and REPO-04 stays open
 
 ## Progress
 
@@ -491,7 +495,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 16/25 | In progress | - |
+| 245. Branch Prune | 16/26 | In progress | - |
 
 ## Requirement Coverage
 
