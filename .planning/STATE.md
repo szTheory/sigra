@@ -5,11 +5,11 @@ milestone_name: CLEAN-BASELINE
 current_phase: 245
 current_phase_name: Branch Prune — Local and Remote
 current_plan: 24
-status: Plan 245-24 halted at D-06; Phase 245 remains active and REPO-04 remains open.
+status: Plan 245-24 halted at D-06; its exact current origin/gh-pages object is now readable, and Phase 245 remains active with REPO-04 open.
 stopped_at: Blocked 245-24 Task 1 on unreadable current origin/gh-pages object
-last_updated: "2026-10-01T11:41:10.302Z"
+last_updated: "2026-10-01T12:09:51Z"
 last_activity: 2026-10-01
-last_activity_desc: Plan 245-24 halted at D-06; current origin/gh-pages object is not locally readable.
+last_activity_desc: Acquired the exact current origin/gh-pages object under the coordinator; refs, FETCH_HEAD, index, and working tree stayed unchanged.
 state_head: 74035eb60f021426485757ea79bc30eeeee96a06
 progress:
   total_phases: 10
@@ -31,15 +31,15 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 245 (Branch Prune — Local and Remote) — ACTIVE, Plan 24 halted at D-06
+Phase: 245 (Branch Prune — Local and Remote) — ACTIVE, Plan 24 halted at D-06; its missing-object prerequisite has since been satisfied
 Most recent completed phase: 244. Plan 245-18 is complete: its nine required Phase 244 sources are pinned from 0dd5d17954a5e824b86fde1038cd34b177867269, D-01 passed, and the current 129-local-ref / 357-origin-ref / 13-open-PR baseline is captured with all 488 direct and peeled OIDs readable. Plan 245-19 applied one admitted local deletion, then its final transition verifier blocked; its durable receipt remains `.planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json` in commit `d27a43a2`. Plan 19 remains superseded after its blocked receipt; its recorded deletion remains counted once, and its remaining actions must not be rerun.
-Current Plan: 24 (halted at Task 1 D-06 preflight; live `origin/gh-pages` object `4641cff13f410c29976c76713a100457d9dbc888` is not readable locally)
+Current Plan: 24 (halted at Task 1 D-06 preflight; live `origin/gh-pages` object `4641cff13f410c29976c76713a100457d9dbc888` is now readable after a separate exact-object acquisition)
 Total Plans in Phase: 23
 Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, 18, 20, 22, and 23 (16 completed plans). Plans 04, 09, 12, and 14 halted; Plan 16 remains blocked by Plan 14; Plan 19 is superseded after its blocked receipt; Plan 21 remains halted/superseded after D-01.
-Status: Plan 245-24 halted at its fresh D-06 preflight because the exact current origin `gh-pages` tip is unreadable from the local object database. No Plan 24 contract, admission, or ref operation was performed. Phase 245 remains active and REPO-04 remains open. Plan 16 remains blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
-Verification: The historical phase verification remains gaps_found and stale. Plan 22 passed, and Plan 23's committed schema-2 readiness receipt independently verifies Phase 244 evidence. Plan 24 verified the readiness receipt and all 488 Plan 18 object IDs, but stopped on the unreadable live `origin/gh-pages` object. Plan 21 remains halted/superseded at D-01. REPO-04 remains open. Plan 16 remains blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
-Last activity: 2026-10-01 — Plan 245-24 saved a blocked D-06 preflight; no refs changed.
-Next GSD command: $gsd-plan-phase 245 --gaps (after the exact live `origin/gh-pages` object is locally readable; REPO-04 remains open)
+Status: Plan 245-24 remains halted at its captured D-06 preflight because the exact current origin `gh-pages` tip was unreadable at that time. A separate coordinator-guarded acquisition has since made that exact object readable; `.planning/phases/245-branch-prune-local-and-remote/245-24-OBJECT-ACQUISITION.json` records the passing evidence. No Plan 24 contract, admission, or ref operation was performed. Phase 245 remains active and REPO-04 remains open. Plan 16 remains blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
+Verification: The historical phase verification remains gaps_found and stale. Plan 22 passed, and Plan 23's committed schema-2 readiness receipt independently verifies Phase 244 evidence. Plan 24 verified the readiness receipt and all 488 Plan 18 object IDs, then stopped on the unreadable live `origin/gh-pages` object. The later exact-object acquisition confirms the same live OID is now a readable commit and that refs, symbolic HEAD, FETCH_HEAD, the origin tracking ref, index, and working tree are unchanged. Plan 21 remains halted/superseded at D-01. REPO-04 remains open. Plan 16 remains blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
+Last activity: 2026-10-01 — exact live `origin/gh-pages` object acquired under the coordinator; no ref or working-tree changes.
+Next GSD command: $gsd-plan-phase 245 --gaps (REPO-04 remains open)
 The only historical sources are this local checkout and GitHub. The pinned Phase 245 baseline `9c0a6b818d2d58858b5db274cc1cf0a9803f69f5` is absent from both; do not search another service or claim who removed it. Git on PATH is 2.41.0; `/usr/bin/git` is 2.50.1 and is usable only if the exact binary and every relevant mutator are pinned under the shared coordinator. D-05's production fail-closed gate remains active.
 The prior state recommendation to re-run verification came from stale historical evidence; phase-specific `init.execute-phase 245` is the current routing source. Keep Phase 245 active and do not invent Phase 246.
 
