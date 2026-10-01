@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 5
+open_count: 7
 waived_count: 0
 fixed_count: 0
-total_count: 5
-last_updated: 2026-09-18T18:32:01.923Z
+total_count: 7
+last_updated: 2026-10-01T11:42:24.793Z
 ---
 
 # Broken Windows Ledger
@@ -20,6 +20,8 @@ last_updated: 2026-09-18T18:32:01.923Z
 | 3 | 235 | stub | scripts/ci/verify-fast-01-source-complete-attestation-offline.sh | 14 | Four UNSET_PLAN_17 capture pins intentionally fail closed until Plan 17 installs protected capture provenance | open |  | 2026-09-09T01:27:29.104Z |  |
 | 4 | 236 | deviation | test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs |  | Pre-existing, unrelated mix ci failure (3 tests) stale since v1.48 REQUIREMENTS.md rollover cc6f17e4; documented in 236-02-SUMMARY.md and filed as a todo, not fixed (out of plan 236-02's file scope) | open |  | 2026-09-15T21:56:09.715Z |  |
 | 5 | 240 | deviation | .planning/phases/240-green-main-evidence-honest-pages-script/240-EVIDENCE.md |  | 240-05 Task 3: harness auto-mode classifier refused gh issue close 231; the close ran as gh api -X PATCH /issues/231 state=closed under operator standing authorization. Recorded in the AFTER-ISSUE-231-CLOSED slot; verification (gh issue view --json state => CLOSED) unchanged. | open |  | 2026-09-18T18:32:01.923Z |  |
+| 6 | 245 | unrun-verify | .planning/phases/245-branch-prune-local-and-remote/245-24-PLAN.md |  | Task 2 current-contract/admission verifier was not run because Task 1 D-06 preflight blocked on unreadable live origin/gh-pages object. | open |  | 2026-10-01T11:42:24.708Z |  |
+| 7 | 245 | unrun-verify | .planning/phases/245-branch-prune-local-and-remote/245-24-PLAN.md |  | Task 3 after-stage/post-state verifier was not run because Task 1 D-06 preflight blocked before contract and ref operation. | open |  | 2026-10-01T11:42:24.793Z |  |
 
 ````json
 [
@@ -82,6 +84,32 @@ last_updated: 2026-09-18T18:32:01.923Z
     "reason": "",
     "recorded_at": "2026-09-18T18:32:01.923Z",
     "resolved_at": null
+  },
+  {
+    "id": 6,
+    "kind": "unrun-verify",
+    "phase": "245",
+    "file": ".planning/phases/245-branch-prune-local-and-remote/245-24-PLAN.md",
+    "line": null,
+    "description": "Task 2 current-contract/admission verifier was not run because Task 1 D-06 preflight blocked on unreadable live origin/gh-pages object.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-10-01T11:42:24.708Z",
+    "resolved_at": null,
+    "milestone": "v1.48"
+  },
+  {
+    "id": 7,
+    "kind": "unrun-verify",
+    "phase": "245",
+    "file": ".planning/phases/245-branch-prune-local-and-remote/245-24-PLAN.md",
+    "line": null,
+    "description": "Task 3 after-stage/post-state verifier was not run because Task 1 D-06 preflight blocked before contract and ref operation.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-10-01T11:42:24.793Z",
+    "resolved_at": null,
+    "milestone": "v1.48"
   }
 ]
 ````

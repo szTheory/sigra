@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute gap closure",
-    "reason": "Plan 245-23 is written and passed plan review; REPO-04 remains open"
+    "command": "/gsd:plan-phase 245 --gaps",
+    "label": "Replan Phase 245 after blocked preflight",
+    "reason": "Plan 245-24 halted at Task 1 D-06: live origin/gh-pages OID 4641cff13f410c29976c76713a100457d9dbc888 is not locally readable. REPO-04 remains open; Plan 245-16 remains blocked by Plan 245-14. Replan only after the current-object gate can pass."
   },
-  "updated_at": "2026-10-01T00:59:25.223Z"
+  "updated_at": "2026-10-01T11:41:10.302Z"
 }
