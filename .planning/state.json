@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute Plan 245-26 readiness-path repair",
-    "reason": "Plan 245-26 passed independent planning verification and is the sole runnable gap plan. Repair the operator's schema-2 readiness path, prove disposable integration tests and confirm the production receipt read-only. Preserve halted Plan 25, require a fresh contract for any later live prune, and keep REPO-04 open."
+    "command": "/gsd:plan-phase 245 --gaps",
+    "label": "Plan a fresh Phase 245 current-state contract",
+    "reason": "Plan 245-26 is complete: 53 tests passed and the committed production receipt verifies read-only with zero pruning. Fresh execution readiness reports no runnable plans; Plan 16 remains blocked by halted Plan 14. Planning readiness has complete context/research and reports no prerequisite blocker. Plan fresh D-06/D-07 evidence for later live work; do not replay Plans 19/21/24/25. Phase 245 and REPO-04 remain open."
   },
-  "updated_at": "2026-10-01T15:51:42.451123Z"
+  "updated_at": "2026-10-01T19:04:27Z"
 }
