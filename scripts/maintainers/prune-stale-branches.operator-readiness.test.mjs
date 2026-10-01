@@ -215,13 +215,14 @@ function directVerify(fixture, artifact = RECEIPT, artifactCommit = fixture.rece
     "--artifact", artifact, "--artifact-commit", artifactCommit], { cwd: ROOT });
 }
 
-function trackingApply(fixture) {
+function trackingApply(fixture, appliedRefs = []) {
   return run("bash", [OPERATOR, "tracking", "--repo", fixture.repo, "--apply",
     "--snapshot-commit", fixture.snapshotCommit, "--snapshot", fixture.snapshot,
     "--origin-snapshot-commit", fixture.originSnapshotCommit ?? fixture.snapshotCommit, "--origin-snapshot", fixture.originSnapshot,
     "--allowlist-commit", fixture.allowlistCommit, "--allowlist", fixture.allowlist,
     "--readiness-commit", fixture.receiptCommit, "--readiness", RECEIPT,
-    "--current-contract-commit", fixture.contractCommit, "--current-contract", fixture.contract], {
+    "--current-contract-commit", fixture.contractCommit, "--current-contract", fixture.contract,
+    ...appliedRefs.flatMap((ref) => ["--applied-ref", ref])], {
     cwd: ROOT,
     env: fixture.env,
   });
@@ -233,10 +234,27 @@ function remoteApply(fixture, preflightCommit, appliedRefs = []) {
     "--origin-commit", fixture.originSnapshotCommit ?? fixture.snapshotCommit,
     "--origin-snapshot-commit", fixture.originSnapshotCommit ?? fixture.snapshotCommit, "--origin-snapshot", fixture.originSnapshot,
     "--allowlist-commit", fixture.allowlistCommit, "--allowlist", fixture.allowlist,
-    "--safety-list", fixture.safetyList,
+    "--safety-commit", fixture.allowlistCommit, "--safety-list", fixture.allowlist,
     "--readiness-commit", fixture.receiptCommit, "--readiness", RECEIPT,
     "--current-contract-commit", fixture.contractCommit, "--current-contract", fixture.contract,
     "--preflight-commit", preflightCommit, "--preflight", fixture.preflight,
+    ...appliedRefs.flatMap((ref) => ["--applied-ref", ref])], {
+    cwd: ROOT,
+    env: fixture.env,
+  });
+}
+
+function safetyPublishApply(fixture, preflightCommit, appliedRefs = []) {
+  return run("bash", [OPERATOR, "safety-publish", "--repo", fixture.repo, "--apply",
+    "--snapshot-commit", fixture.snapshotCommit, "--snapshot", fixture.snapshot,
+    "--origin-commit", fixture.originSnapshotCommit ?? fixture.snapshotCommit,
+    "--origin-snapshot", fixture.originSnapshot,
+    "--allowlist-commit", fixture.allowlistCommit, "--allowlist", fixture.allowlist,
+    "--safety-commit", fixture.allowlistCommit, "--safety-list", fixture.allowlist,
+    "--readiness-commit", fixture.receiptCommit, "--readiness", RECEIPT,
+    "--current-contract-commit", fixture.contractCommit, "--current-contract", fixture.contract,
+    "--preflight-commit", preflightCommit, "--preflight", fixture.publishPreflight,
+    "--operation", "publish", "--ref", fixture.safetyPublicationRef,
     ...appliedRefs.flatMap((ref) => ["--applied-ref", ref])], {
     cwd: ROOT,
     env: fixture.env,
@@ -541,62 +559,81 @@ test("current-contract cumulative passes carry a tracking deletion into a guarde
   const remoteRef = "refs/heads/stale/fixture-origin-only";
   const safetyList = `${PHASE_DIR}/245-26-FIXTURE-SAFETY.tsv`;
   const preflight = `${PHASE_DIR}/245-26-FIXTURE-PREFLIGHT.json`;
+  const publishPreflight = `${PHASE_DIR}/245-26-FIXTURE-PUBLISH-PREFLIGHT.json`;
   fixture.safetyList = safetyList;
   fixture.preflight = preflight;
+  fixture.publishPreflight = publishPreflight;
   try {
     git(fixture.repo, "push", "-q", fixture.bare, `${fixture.oid}:${remoteRef}`);
     const safetyRefs = git(fixture.repo, "for-each-ref", "--format=%(refname)",
       "refs/heads/ci/phase-235-16-source-complete", "refs/heads/safety/local-main-before-release-cleanup-20260831",
       "refs/tags/archive/local-main-pre-235-recovery").split("\n").filter(Boolean);
     for (const ref of safetyRefs) git(fixture.repo, "push", "-q", fixture.bare, `${ref}:${ref}`);
+    const safetySourceRef = "refs/heads/safety/local-main-before-release-cleanup-fixture";
+    fixture.safetyPublicationRef = safetySourceRef;
+    git(fixture.repo, "update-ref", safetySourceRef, fixture.oid);
     git(fixture.repo, "remote", "set-url", "origin", "git@github.com:szTheory/sigra.git");
+    const localCapture = run("bash", [OPERATOR, "capture-local", "--repo", fixture.repo,
+      "--output", join(fixture.repo, fixture.snapshot)], { cwd: ROOT, env: fixture.env });
+    assert.equal(localCapture.status, 0, `${localCapture.stdout ?? ""}${localCapture.stderr ?? ""}`);
     assert.ok(originRefs(fixture).includes(`${remoteRef}\t${fixture.oid}\tcommit`), originRefs(fixture));
 
     const originCapture = run("bash", [OPERATOR, "capture-origin", "--repo", fixture.repo,
       "--output", join(fixture.repo, fixture.originSnapshot)], { cwd: ROOT, env: fixture.env });
     assert.equal(originCapture.status, 0, `${originCapture.stdout ?? ""}${originCapture.stderr ?? ""}`);
     writeFileSync(join(fixture.repo, safetyList), "side\tref\toid\ttype\treason\n");
-    const allowlistBytes = `${readFileSync(join(fixture.repo, fixture.allowlist), "utf8")}remote\t${remoteRef}\t${fixture.oid}\tcommit\tdisposable origin candidate\n`;
+    const allowlistBytes = `${readFileSync(join(fixture.repo, fixture.allowlist), "utf8")}remote\t${remoteRef}\t${fixture.oid}\tcommit\tdisposable origin candidate\nsafety-publish\t${safetySourceRef}\t${fixture.oid}\tcommit\tdisposable exact safety publication\n`;
     writeFileSync(join(fixture.repo, fixture.allowlist), allowlistBytes);
-    fixture.preflight = preflight;
     const preflightResult = run("bash", [OPERATOR, "preflight-origin-access", "--repo", fixture.repo,
       "--operation", "delete", "--ref", remoteRef, "--output", join(fixture.repo, preflight)], {
       cwd: ROOT, env: fixture.env,
     });
     assert.equal(preflightResult.status, 0, `${preflightResult.stdout ?? ""}${preflightResult.stderr ?? ""}`);
+    const publishPreflightResult = run("bash", [OPERATOR, "preflight-origin-access", "--repo", fixture.repo,
+      "--operation", "publish", "--ref", safetySourceRef, "--output", join(fixture.repo, publishPreflight)], {
+      cwd: ROOT, env: fixture.env,
+    });
+    assert.equal(publishPreflightResult.status, 0, `${publishPreflightResult.stdout ?? ""}${publishPreflightResult.stderr ?? ""}`);
 
     const contractCapture = run(process.execPath, [join(ROOT, "scripts/maintainers/prune-stale-branches-current.mjs"),
       "capture", "--repo", fixture.repo, "--output", fixture.contract, "--source-fixture", fixture.sourceFixture,
-      "--contract-evidence-path", fixture.allowlist, "--contract-evidence-path", fixture.originSnapshot,
+      "--contract-evidence-path", fixture.snapshot, "--contract-evidence-path", fixture.allowlist,
+      "--contract-evidence-path", fixture.originSnapshot,
       "--contract-evidence-path", safetyList, "--contract-evidence-path", preflight,
+      "--contract-evidence-path", publishPreflight,
       "--final-blocked-path", `${PHASE_DIR}/245-26-FIXTURE-RESULT.json`,
       "--final-passed-path", `${PHASE_DIR}/245-26-FIXTURE-POST-STATE.json`,
       "--final-passed-path", `${PHASE_DIR}/245-26-FIXTURE-RESULT.json`,
       "--final-passed-path", `${PHASE_DIR}/245-26-FIXTURE-SUMMARY.md`,
       "--result-path", `${PHASE_DIR}/245-26-FIXTURE-RESULT.json`], { cwd: fixture.repo, env: fixture.env });
     assert.equal(contractCapture.status, 0, `${contractCapture.stdout ?? ""}${contractCapture.stderr ?? ""}`);
-    const contractPaths = [fixture.allowlist, fixture.originSnapshot, safetyList, preflight, fixture.contract, `${fixture.contract}.sha256`];
+    const contractPaths = [fixture.snapshot, fixture.allowlist, fixture.originSnapshot, safetyList, preflight, publishPreflight, fixture.contract, `${fixture.contract}.sha256`];
     fixture.contractCommit = commit(fixture.repo, contractPaths, "fixture: commit cumulative current contract and evidence");
     fixture.allowlistCommit = fixture.contractCommit;
     fixture.originSnapshotCommit = fixture.contractCommit;
     fixture.snapshotCommit = fixture.contractCommit;
+    fixture.safetyList = fixture.allowlist;
     const preflightCommit = fixture.contractCommit;
 
     const localBefore = refs(fixture.repo);
     const originBefore = originRefs(fixture);
     assert.ok(localBefore.includes(`${fixture.trackingRef}\t${fixture.oid}\tcommit`));
     assert.ok(originBefore.includes(`${remoteRef}\t${fixture.oid}\tcommit`));
-    const firstPass = trackingApply(fixture);
+    const published = safetyPublishApply(fixture, preflightCommit);
+    assert.equal(published.status, 0, `${published.stdout ?? ""}${published.stderr ?? ""}`);
+    assert.ok(originRefs(fixture).includes(`${safetySourceRef}\t${fixture.oid}\tcommit`), "only the absent safety ref publishes at its exact identity");
+
+    const firstPass = trackingApply(fixture, [safetySourceRef]);
     assert.equal(firstPass.status, 0, `${firstPass.stdout ?? ""}${firstPass.stderr ?? ""}`);
-    assert.ok(!refs(fixture.repo).includes(`${fixture.trackingRef}\t`), "first pass removes only the exact tracking row");
+    assert.ok(!refs(fixture.repo).includes(`${fixture.trackingRef}\t`), `first pass removes only the exact tracking row: ${firstPass.stdout}\n${firstPass.stderr}\n${refs(fixture.repo)}`);
     assert.ok(originRefs(fixture).includes(`${remoteRef}\t${fixture.oid}\tcommit`), "first pass leaves origin unchanged");
 
-    const blockedInvented = remoteApply(fixture, preflightCommit, ["refs/heads/not-admitted"]);
+    const blockedInvented = remoteApply(fixture, preflightCommit, [safetySourceRef, "refs/heads/not-admitted"]);
     assert.notEqual(blockedInvented.status, 0, "invented cumulative identity must be rejected");
     assert.match(`${blockedInvented.stdout ?? ""}${blockedInvented.stderr ?? ""}`, /evidence_transition_applied_ref_not_allowlisted/);
     assert.ok(originRefs(fixture).includes(`${remoteRef}\t${fixture.oid}\tcommit`), "invalid cumulative input cannot mutate origin");
 
-    const secondPass = remoteApply(fixture, preflightCommit, [fixture.trackingRef]);
+    const secondPass = remoteApply(fixture, preflightCommit, [safetySourceRef, fixture.trackingRef]);
     assert.equal(secondPass.status, 0, `${secondPass.stdout ?? ""}${secondPass.stderr ?? ""}`);
     assert.ok(!originRefs(fixture).includes(`${remoteRef}\t`), "second pass removes the exact expected-OID origin row");
     assertSnapshotObjectsReadable(fixture);

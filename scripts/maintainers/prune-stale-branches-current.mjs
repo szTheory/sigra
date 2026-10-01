@@ -277,7 +277,12 @@ function exactPathSet(actual, expected, label) {
   if (new Set(right).size !== right.length || canonical(left) !== canonical(right)) fail(`${label}_path_set_mismatch`);
 }
 
-function verifyLocalEvidenceRef(repo, contract, activeRef, allowedHeadOid, allowedMissingRefs = []) {
+function safetyTrackingRef(row) {
+  return row?.side === "safety-publish" && row.ref.startsWith("refs/heads/")
+    ? `refs/remotes/origin/${row.ref.slice("refs/heads/".length)}` : null;
+}
+
+function verifyLocalEvidenceRef(repo, contract, activeRef, allowedHeadOid, allowedMissingRefs = [], allowlistRows = [], appliedRefs = []) {
   if (!Array.isArray(contract.local_refs)) fail("evidence_transition_local_snapshot_missing");
   const expected = new Map(contract.local_refs.map((row) => [row.ref, row]));
   const actual = new Map(parseLocalRefs(repo).map((row) => [row.ref, row]));
@@ -292,18 +297,27 @@ function verifyLocalEvidenceRef(repo, contract, activeRef, allowedHeadOid, allow
       && current.peeled_type === row.peeled_type && current.symref === row.symref) continue;
     fail(`evidence_transition_unrelated_local_ref_changed:${ref}`);
   }
-  for (const ref of actual.keys()) if (!expected.has(ref)) fail(`evidence_transition_local_ref_unexpected:${ref}`);
+  for (const ref of actual.keys()) {
+    if (expected.has(ref)) continue;
+    const publishRow = allowlistRows.find((row) => appliedRefs.includes(row.ref) && safetyTrackingRef(row) === ref);
+    const localSafety = publishRow && expected.get(publishRow.ref);
+    const current = actual.get(ref);
+    if (!publishRow || !localSafety || current.oid !== publishRow.oid || current.type !== publishRow.type
+      || current.peeled_oid !== localSafety.peeled_oid || current.peeled_type !== localSafety.peeled_type || current.symref !== null) {
+      fail(`evidence_transition_local_ref_unexpected:${ref}`);
+    }
+  }
 }
 
 function normalizeAppliedRefs(allowlistRows, appliedRefs) {
   if (!Array.isArray(allowlistRows) || !Array.isArray(appliedRefs)) fail("evidence_transition_operation_inputs_missing");
   const applied = appliedRefs.map((ref) => safeEvidencePath(ref, "evidence_transition_applied_ref")).sort();
   if (new Set(applied).size !== applied.length) fail("evidence_transition_applied_ref_duplicate");
-  const rows = new Map(allowlistRows.filter((row) => ["local", "tracking", "remote"].includes(row.side)).map((row) => [row.ref, row]));
-  if (rows.size !== allowlistRows.filter((row) => ["local", "tracking", "remote"].includes(row.side)).length) fail("evidence_transition_allowlist_duplicate_ref");
+  const rows = new Map(allowlistRows.filter((row) => ["local", "tracking", "remote", "safety-publish"].includes(row.side)).map((row) => [row.ref, row]));
+  if (rows.size !== allowlistRows.filter((row) => ["local", "tracking", "remote", "safety-publish"].includes(row.side)).length) fail("evidence_transition_allowlist_duplicate_ref");
   for (const ref of applied) {
     const row = rows.get(ref);
-    if (!row || !OID.test(row.oid ?? "") || !["local", "tracking", "remote"].includes(row.side)) fail(`evidence_transition_applied_ref_not_allowlisted:${ref}`);
+    if (!row || !OID.test(row.oid ?? "") || !["local", "tracking", "remote", "safety-publish"].includes(row.side)) fail(`evidence_transition_applied_ref_not_allowlisted:${ref}`);
   }
   return { applied, rows };
 }
@@ -377,7 +391,7 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
   let applied = [];
   let appliedRows = new Map();
   let parsedResult = null;
-  if (stage === "operation" || stage === "after" && options.appliedRefs !== undefined) {
+  if (["boundary", "operation"].includes(stage) || stage === "after" && options.appliedRefs !== undefined) {
     ({ applied, rows: appliedRows } = normalizeAppliedRefs(options.allowlistRows, options.appliedRefs));
   }
   let acceptedHeadOid = contractCommit;
@@ -415,7 +429,7 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
     fail("evidence_transition_advanced_before_final_child");
   }
   const localMissing = [];
-  if (stage === "operation" || stage === "after") {
+  if (["boundary", "operation", "after"].includes(stage)) {
     const expectedLocal = new Map(contract.local_refs.map((row) => [row.ref, row]));
     const currentLocal = new Map(parseLocalRefs(repo).map((row) => [row.ref, row]));
     for (const ref of applied) {
@@ -434,7 +448,7 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
       if (canonical(declared) !== canonical(applied)) fail("evidence_transition_result_applied_refs_mismatch");
     }
   }
-  verifyLocalEvidenceRef(repo, contract, activeRef, acceptedHeadOid, localMissing);
+  verifyLocalEvidenceRef(repo, contract, activeRef, acceptedHeadOid, localMissing, options.allowlistRows ?? [], applied);
   return {
     contract_commit: contractCommit,
     contract_parent: contractParent[0],
@@ -475,6 +489,7 @@ function compareCurrent(contract, actual, contractCommit, options) {
   const actualLocal = new Map(actual.local_refs.map((row) => [row.ref, row]));
   const expectedOrigin = new Map(contract.origin_refs.map((row) => [row.ref, row]));
   const actualOrigin = new Map(actual.origin_refs.map((row) => [row.ref, row]));
+  const appliedRefs = new Set(options.appliedRefs ?? []);
   for (const row of options.allowlistRows ?? []) {
     const ref = row.ref;
     if (row.side === "local" || row.side === "tracking") {
@@ -484,7 +499,7 @@ function compareCurrent(contract, actual, contractCommit, options) {
     } else if (row.side === "remote") {
       const expected = expectedOrigin.get(ref);
       if (!expected || expected.oid !== row.oid || expected.type !== row.type) fail(`current_allowlist_origin_identity_mismatch:${ref}`);
-      if (!actualOrigin.has(ref)) expectedOrigin.delete(ref);
+      if (!actualOrigin.has(ref) && appliedRefs.has(ref)) expectedOrigin.delete(ref);
     } else if (row.side === "safety-publish") {
       const local = expectedLocal.get(ref);
       const current = actualOrigin.get(ref);
@@ -494,7 +509,12 @@ function compareCurrent(contract, actual, contractCommit, options) {
   }
   for (const [ref, expected] of expectedOrigin) {
     const current = actualOrigin.get(ref);
-    if (!current && options.stage === "after" && options.operationSide === "remote" && ref === options.operationRef) continue;
+    if (!current && appliedRefs.has(ref) && (options.allowlistRows ?? []).some((row) => row.side === "remote" && row.ref === ref && row.oid === expected.oid && row.type === expected.type)) {
+      expectedOrigin.delete(ref);
+      continue;
+    }
+    if (!current && ["operation", "after"].includes(options.stage)
+      && options.operationSide === "remote" && ref === options.operationRef) continue;
     if (!current || canonical(expected) !== canonical(current)) fail(`current_origin_ref_identity_changed:${ref}`);
   }
   for (const [ref, current] of actualOrigin) {
@@ -504,7 +524,10 @@ function compareCurrent(contract, actual, contractCommit, options) {
     if (safetyRow && localSafety && current.oid === safetyRow.oid && current.type === safetyRow.type && current.peeled_oid === localSafety.peeled_oid && current.peeled_type === localSafety.peeled_type) continue;
     fail(`current_origin_ref_unexpected:${ref}`);
   }
-  if (expectedLocal.size !== actualLocal.size) fail("current_local_ref_set_changed");
+  const safetyTrackingRows = (options.allowlistRows ?? []).filter((row) => appliedRefs.has(row.ref) && row.side === "safety-publish");
+  const allowedSafetyTracking = new Set(safetyTrackingRows.map(safetyTrackingRef).filter(Boolean));
+  const presentSafetyTrackingCount = [...allowedSafetyTracking].filter((ref) => actualLocal.has(ref)).length;
+  if (actualLocal.size !== expectedLocal.size + presentSafetyTrackingCount) fail("current_local_ref_set_changed");
   for (const [ref, expected] of expectedLocal) {
     const current = actualLocal.get(ref);
     if (!current) fail(`current_local_ref_missing:${ref}`);
@@ -513,7 +536,16 @@ function compareCurrent(contract, actual, contractCommit, options) {
     if (ref === contract.capture_head_ref && current.oid === allowedActiveOid && current.type === "commit" && expected.type === "commit" && current.peeled_oid === expected.peeled_oid && current.peeled_type === expected.peeled_type && current.symref === expected.symref) continue;
     fail(`current_local_ref_identity_changed:${ref}`);
   }
-  for (const ref of actualLocal.keys()) if (!expectedLocal.has(ref)) fail(`current_local_ref_unexpected:${ref}`);
+  for (const ref of actualLocal.keys()) {
+    if (expectedLocal.has(ref)) continue;
+    const row = safetyTrackingRows.find((candidate) => safetyTrackingRef(candidate) === ref);
+    const source = row && expectedLocal.get(row.ref);
+    const current = actualLocal.get(ref);
+    if (!row || !source || current.oid !== row.oid || current.type !== row.type
+      || current.peeled_oid !== source.peeled_oid || current.peeled_type !== source.peeled_type || current.symref !== null) {
+      fail(`current_local_ref_unexpected:${ref}`);
+    }
+  }
   for (const ref of actualOrigin.keys()) {
     if (expectedOrigin.has(ref)) continue;
     const safetyRow = (options.allowlistRows ?? []).find((row) => row.side === "safety-publish" && row.ref === ref);
@@ -571,7 +603,8 @@ function verifyAllowlist(repo, contract, allowlistCommit, allowlistPath, contrac
     const defaultRef = contract.origin_refs.find((entry) => entry.ref === "refs/remotes/origin/HEAD")?.symref;
     const protectedRef = `refs/heads/${branch}`;
     if (protectedRef === defaultRef) fail(`current_allowlist_contains_origin_default:${row.ref}`);
-    if (["refs/heads/ci/phase-235-16-source-complete", "refs/heads/safety/local-main-before-release-cleanup-20260831", "refs/tags/archive/local-main-pre-235-recovery"].includes(protectedRef)) fail(`current_allowlist_contains_safety_ref:${row.ref}`);
+    if (["refs/heads/ci/phase-235-16-source-complete", "refs/tags/archive/local-main-pre-235-recovery"].includes(protectedRef)
+      || /^refs\/heads\/safety\/local-main-before-release-cleanup-/.test(protectedRef)) fail(`current_allowlist_contains_safety_ref:${row.ref}`);
     const source = row.side === "remote" ? origin.get(row.ref) : local.get(row.ref);
     if (!source || source.oid !== row.oid || source.type !== row.type) fail(`current_allowlist_ref_identity_mismatch:${row.ref}`);
   }
@@ -684,14 +717,15 @@ function verify(repo, commit, path, stage, fixturePath, options) {
   const actual = collect(repo, fixturePath);
   const compareOptions = { stage, operationSide: options.operationSide, operationRef: options.operationRef };
   if (transition) compareOptions.allowedActiveOid = transition.verified_head_oid;
+  if (transition) compareOptions.appliedRefs = transition.applied_refs;
   compareOptions.allowlistRows = allowlist?.rows ?? [];
   compareCurrent(contract, actual, commit, compareOptions);
-  if (stage === "after" && options.operationSide === "safety-publish") {
+  if (["operation", "after"].includes(stage) && options.operationSide === "safety-publish") {
     const localSafety = contract.local_refs.find((row) => row.ref === options.operationRef);
     const originSafety = actual.origin_refs.find((row) => row.ref === options.operationRef);
     if (!localSafety || !originSafety || canonical({ ...originSafety, symref: null }) !== canonical(localSafety)) fail(`current_safety_publish_readback_mismatch:${options.operationRef}`);
   }
-  if (stage === "after" && ["local", "remote", "tracking"].includes(options.operationSide) && operationRow) {
+  if (["operation", "after"].includes(stage) && ["local", "remote", "tracking"].includes(options.operationSide) && operationRow) {
     const refs = options.operationSide === "remote" ? actual.origin_refs : actual.local_refs;
     if (refs.some((row) => row.ref === options.operationRef)) fail(`current_operation_readback_still_present:${options.operationRef}`);
   }

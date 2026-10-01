@@ -236,11 +236,13 @@ verify_current_contract() {
     [[ -n "$side" && -n "$ref" && -n "$operation" ]] || fail 'current_operation_identity_incomplete'
     args+=(--operation-side "$side" --operation-ref "$ref" --operation-kind "$operation")
   fi
-  if [[ "$stage" == operation ]]; then
+  if [[ "$stage" == operation || "$stage" == boundary ]]; then
     [[ "${SIGRA_COORDINATOR_HELD:-0}" == 1 && -n "${SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN:-}" ]] \
       || fail 'shared_coordinator_lock_not_held_at_operation_readback'
     local applied_ref
-    for applied_ref in "${APPLIED_REFS[@]}"; do args+=(--applied-ref "$applied_ref"); done
+    if ((${#APPLIED_REFS[@]})); then
+      for applied_ref in "${APPLIED_REFS[@]}"; do args+=(--applied-ref "$applied_ref"); done
+    fi
   fi
   if [[ -n "$CURRENT_CONTRACT_FIXTURE" ]]; then args+=(--source-fixture "$CURRENT_CONTRACT_FIXTURE"); fi
   node "$SCRIPT_ROOT/scripts/maintainers/prune-stale-branches-current.mjs" "${args[@]}" \
@@ -1043,7 +1045,7 @@ run_safety_publish() {
   while IFS=$'\t' read -r side ref oid type reason; do
     [[ "$side" == safety-publish ]] || continue
     case "$ref" in
-      refs/tags/archive/local-main-pre-235-recovery|refs/heads/safety/local-main-before-release-cleanup-20260831) ;;
+      refs/tags/archive/local-main-pre-235-recovery|refs/heads/safety/local-main-before-release-cleanup-*) ;;
       *) fail "safety_publish_destination_not_approved: $ref" ;;
     esac
     case "$ref:$type" in
@@ -1088,7 +1090,8 @@ run_safety_publish() {
     fi
     live="$(current_origin_identity "$ref")" || fail "safety_publish_readback_missing: $ref"
     [[ "$live" == "$oid"$'\t'"$type" ]] || fail "safety_publish_readback_mismatch: $ref"
-    verify_current_contract after safety-publish "$ref" publish
+    APPLIED_REFS+=("$ref")
+    verify_current_contract operation safety-publish "$ref" publish
     printf 'published absent safety ref: %s (%s)\n' "$ref" "$reason"
   done < <(tail -n +2 "$TMP_DIR/safety-list.tsv")
   printf 'PASS: safety publication pass processed %s committed exact ref rows.\n' "$count"
@@ -1132,7 +1135,8 @@ run_remote_pass() {
       observed_identity="$(current_origin_identity "$ref" 2>/dev/null || printf absent)"
       fail "remote_delete_lease_rejected: ${ref} expected=${oid}/${type} observed=${observed_identity}: ${out}"
     fi
-    verify_current_contract after remote "$ref" delete
+    APPLIED_REFS+=("$ref")
+    verify_current_contract operation remote "$ref" delete
     if current_origin_identity "$ref" >/dev/null 2>&1; then fail "remote_delete_readback_still_present: $ref"; fi
     printf 'deleted origin ref %s (%s)\n' "$ref" "$reason"
   done < <(tail -n +2 "$TMP_DIR/allowlist.tsv")
