@@ -24,7 +24,11 @@ const SOURCE_PATHS = [
 const STATE_PATH = SOURCE_PATHS[0];
 
 function command(binary, args, options = {}) {
-  return spawnSync(binary, args, { encoding: "utf8", ...options });
+  const result = spawnSync(binary, args, { encoding: "utf8", timeout: 60_000, ...options });
+  if (result.error || result.signal || result.status === null) {
+    throw new Error(`${binary} ${args.join(" ")} did not exit normally: ${result.error?.message ?? result.signal ?? "unknown subprocess failure"}`);
+  }
+  return result;
 }
 
 function git(repo, ...args) {
@@ -144,6 +148,28 @@ testWithFixture("schema 2 accepts route-only metadata drift and records all thre
   assert.notEqual(route.capture_observations.worktree.blob_oid, route.capture_observations.head.blob_oid);
 
   const artifactCommit = commitReceipt(fixture);
+  const verified = runVerify(fixture, artifactCommit);
+  assert.equal(verified.status, 0, `${verified.stdout ?? ""}${verified.stderr ?? ""}`);
+  assert.equal(report(verified)?.status, "ready");
+  assert.deepEqual(report(verified)?.reasons, []);
+});
+
+testWithFixture("schema 2 captures and verifies a large committed markdown source", (fixture) => {
+  const sourcePath = SOURCE_PATHS[1];
+  const sourceFile = join(fixture.repo, sourcePath);
+  const original = readFileSync(sourceFile, "utf8");
+  const largeSource = `${original}\n${"x".repeat(683_388)}\n`;
+  writeFileSync(sourceFile, largeSource);
+  const sourceCommit = commitFiles(fixture.repo, [sourcePath], "fixture large committed markdown source");
+
+  const receipt = captureReady(fixture);
+  assert.equal(receipt.source_commit, git(fixture.repo, "rev-parse", "HEAD"));
+  const source = receipt.sources.find((row) => row.path === sourcePath);
+  assert.equal(source?.commit, sourceCommit);
+  assert.match(source?.blob_oid ?? "", /^[0-9a-f]{40}$/);
+  assert.match(source?.sha256 ?? "", /^[0-9a-f]{64}$/);
+
+  const artifactCommit = commitReceipt(fixture, "fixture large-source readiness artifact");
   const verified = runVerify(fixture, artifactCommit);
   assert.equal(verified.status, 0, `${verified.stdout ?? ""}${verified.stderr ?? ""}`);
   assert.equal(report(verified)?.status, "ready");
