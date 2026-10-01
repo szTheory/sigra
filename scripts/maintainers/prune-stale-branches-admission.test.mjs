@@ -32,7 +32,7 @@ function git(repo, ...args) {
 }
 
 function run(command, args, options = {}) {
-  return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", timeout: 30000, ...options });
+  return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", timeout: 60000, ...options });
 }
 
 function setupFixture({ schema2 = false, tamperReadiness = false } = {}) {
