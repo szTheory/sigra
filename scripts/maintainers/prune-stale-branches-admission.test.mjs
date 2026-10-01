@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { inspectMutationCoverage } from "./prune-stale-branches-admission.mjs";
@@ -11,6 +12,18 @@ const ADMISSION = "scripts/maintainers/prune-stale-branches-admission.mjs";
 const CURRENT = "scripts/maintainers/prune-stale-branches-current.mjs";
 const OPERATOR = "scripts/maintainers/prune-stale-branches.sh";
 const PINNED_READINESS_SOURCE = "7257f232a38591b0044f1b929bba1fc2e9fa83da";
+const READINESS = "scripts/maintainers/prune-stale-branches-readiness.mjs";
+const PHASE_244_SOURCES = [
+  ".planning/state.json",
+  ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+  ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+  ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md",
+  ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+  ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md",
+  ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+  ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log",
+  ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+];
 
 function git(repo, ...args) {
   const result = spawnSync("git", ["-C", repo, ...args], { encoding: "utf8" });
@@ -19,10 +32,10 @@ function git(repo, ...args) {
 }
 
 function run(command, args, options = {}) {
-  return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", ...options });
+  return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", timeout: 30000, ...options });
 }
 
-function setupFixture() {
+function setupFixture({ schema2 = false, tamperReadiness = false } = {}) {
   const temp = mkdtempSync(join(tmpdir(), "sigra-prune-admission-"));
   const repo = join(temp, "repo");
   const bare = join(temp, "origin.git");
@@ -55,15 +68,55 @@ function setupFixture() {
   git(repo, "push", "-q", "origin", "HEAD:refs/heads/main");
   git(repo, "fetch", "-q", "origin");
   git(repo, "remote", "set-head", "origin", "main");
+  let readinessCommit = null;
+  if (schema2) {
+    mkdirSync(join(repo, phase), { recursive: true });
+    for (const sourcePath of PHASE_244_SOURCES) {
+      const bytes = spawnSync("git", ["-C", ROOT, "show", `HEAD:${sourcePath}`], { encoding: null });
+      assert.equal(bytes.status, 0, `committed Phase 244 source must exist: ${sourcePath}`);
+      const destination = join(repo, sourcePath);
+      mkdirSync(dirname(destination), { recursive: true });
+      writeFileSync(destination, bytes.stdout);
+    }
+    const evidenceBase = git(repo, "rev-parse", "HEAD");
+    git(repo, "add", "--", ...PHASE_244_SOURCES);
+    git(repo, "-c", "core.hooksPath=/dev/null", "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture committed Phase 244 evidence");
+    for (const sourcePath of [PHASE_244_SOURCES[6], PHASE_244_SOURCES[8]]) {
+      const file = join(repo, sourcePath);
+      const original = readFileSync(file, "utf8");
+      const updated = original.replace(/^(source_commit:\s*)[0-9a-f]{40}\s*$/m, `$1${evidenceBase}`);
+      assert.notEqual(updated, original, `${sourcePath} fixture must contain a source_commit field`);
+      writeFileSync(file, updated);
+    }
+    git(repo, "add", "--", PHASE_244_SOURCES[6], PHASE_244_SOURCES[8]);
+    git(repo, "-c", "core.hooksPath=/dev/null", "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture reconciled dependency source commits");
+    const sourceCommit = git(repo, "rev-parse", "HEAD");
+    const captured = run("node", [READINESS, "capture", "--schema-version", "2", "--repo", repo, "--output", join(repo, `${phase}/245-READINESS.json`)]);
+    assert.equal(captured.status, 0, `${captured.stdout ?? ""}${captured.stderr ?? ""}`);
+    const readiness = JSON.parse(readFileSync(join(repo, `${phase}/245-READINESS.json`), "utf8"));
+    assert.equal(readiness.status, "ready", JSON.stringify(readiness.blocked_reasons));
+    assert.equal(readiness.source_commit, sourceCommit);
+    git(repo, "add", "--", `${phase}/245-READINESS.json`);
+    git(repo, "-c", "core.hooksPath=/dev/null", "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture schema-2 readiness artifact");
+    readinessCommit = git(repo, "rev-parse", "HEAD");
+    if (tamperReadiness) {
+      readiness.sources[1].sha256 = "f".repeat(64);
+      writeFileSync(join(repo, `${phase}/245-READINESS.json`), `${JSON.stringify(readiness, null, 2)}\n`);
+      git(repo, "add", "--", `${phase}/245-READINESS.json`);
+      git(repo, "-c", "core.hooksPath=/dev/null", "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture tampered schema-2 readiness artifact");
+      readinessCommit = git(repo, "rev-parse", "HEAD");
+    }
+  }
   const fixtureDir = join(repo, phase);
   run("mkdir", ["-p", fixtureDir]);
   writeFileSync(join(repo, paths.allowlist), `side\tref\toid\ttype\treason\nlocal\trefs/heads/stale/merged\t${rootOid}\tcommit\tmerged fixture candidate\n`);
-  writeFileSync(join(repo, paths.readiness), readFileSync(join(ROOT, phase, "245-READINESS.json")));
+  if (!schema2) writeFileSync(join(repo, paths.readiness), readFileSync(join(ROOT, phase, "245-READINESS.json")));
   writeFileSync(join(repo, paths.fixture), JSON.stringify({ cliPulls: [], pages: [[]] }));
   const allowlistCommit = git(repo, "rev-parse", "HEAD");
   git(repo, "add", paths.allowlist, paths.readiness, paths.fixture);
   git(repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture source inputs");
   const inputCommit = git(repo, "rev-parse", "HEAD");
+  readinessCommit ??= inputCommit;
 
   const local = run("bash", [OPERATOR, "capture-local", "--repo", repo, "--output", join(repo, paths.snapshot)]);
   assert.equal(local.status, 0, `${local.stdout ?? ""}${local.stderr ?? ""}`);
@@ -87,7 +140,7 @@ function setupFixture() {
       local_snapshot: { commit: snapshotCommit, path: paths.snapshot },
       origin_snapshot: { commit: snapshotCommit, path: paths.origin },
       allowlist: { commit: "current_contract", path: paths.allowlist },
-      readiness: { commit: inputCommit, path: paths.readiness },
+      readiness: { commit: readinessCommit, path: paths.readiness },
       source_fixture: paths.fixture,
       candidate_ref: "refs/heads/stale/merged",
     },
@@ -95,6 +148,7 @@ function setupFixture() {
 
   const current = run("node", [CURRENT, "capture", "--repo", repo, "--output", join(repo, paths.contract), "--source-fixture", paths.fixture,
     "--pin-input", `${inputCommit}:${paths.allowlist}`,
+    ...(schema2 ? ["--pin-input", `${readinessCommit}:${paths.readiness}`] : []),
     "--contract-evidence-path", paths.candidates,
     "--contract-evidence-path", paths.allowlist,
     "--contract-evidence-path", paths.admission,
@@ -111,7 +165,7 @@ function setupFixture() {
   git(repo, "add", paths.contract, `${paths.contract}.sha256`, paths.candidates, paths.allowlist, paths.admission);
   git(repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture current contract");
   const contractCommit = git(repo, "rev-parse", "HEAD");
-  return { temp, repo, paths, inputCommit, allowlistCommit, snapshotCommit, contractCommit, rootOid };
+  return { temp, repo, paths, inputCommit, readinessCommit, allowlistCommit, snapshotCommit, contractCommit, rootOid };
 }
 
 function admissionArgs(fixture) {
@@ -125,7 +179,7 @@ function admissionArgs(fixture) {
     "--origin-snapshot", fixture.paths.origin,
     "--allowlist-commit", fixture.contractCommit,
     "--allowlist", fixture.paths.allowlist,
-    "--readiness-commit", fixture.inputCommit,
+    "--readiness-commit", fixture.readinessCommit,
     "--readiness", fixture.paths.readiness,
     "--source-fixture", fixture.paths.fixture,
     "--admission", fixture.paths.admission,
@@ -222,6 +276,56 @@ test("admission verify hydrates exact pinned inputs from the prepared receipt", 
     assert.ok(!receipt.blocked_reasons.some((row) => row.code === "initial_admission_verify_inputs_missing"));
     assert.ok(!receipt.blocked_reasons.some((row) => row.code.endsWith("_commit_path_required")));
     assert.equal(receipt.no_mutation.equal, true);
+  } finally {
+    rmSync(fixture.temp, { recursive: true, force: true });
+  }
+});
+
+test("admission verifies a committed schema-2 readiness receipt and current contract pin", () => {
+  const fixture = setupFixture({ schema2: true });
+  try {
+    const verified = run("node", [ADMISSION, "verify", ...admissionArgs(fixture)]);
+    assert.equal(verified.status, 0, `${verified.stdout ?? ""}${verified.stderr ?? ""}`);
+    const receipt = JSON.parse(verified.stdout);
+    assert.equal(receipt.status, "admitted");
+    assert.equal(receipt.inputs.readiness.commit, fixture.readinessCommit);
+    assert.equal(receipt.inputs.readiness.path, fixture.paths.readiness);
+    assert.equal(receipt.inputs.readiness.sha256.length, 64);
+    assert.ok(!receipt.blocked_reasons.some((row) => row.code.startsWith("d01_readiness_")));
+
+    const contract = JSON.parse(git(fixture.repo, "show", `${fixture.contractCommit}:${fixture.paths.contract}`));
+    const readinessPin = contract.pinned_inputs.find((row) => row.commit === fixture.readinessCommit && row.path === fixture.paths.readiness);
+    assert.ok(readinessPin, "the current contract must carry a generic exact readiness input pin");
+    assert.equal(readinessPin.blob, receipt.inputs.readiness.blob);
+    assert.equal(readinessPin.sha256, receipt.inputs.readiness.sha256);
+
+    readinessPin.blob = "f".repeat(40);
+    const contractBytes = `${JSON.stringify(contract, null, 2)}\n`;
+    writeFileSync(join(fixture.repo, fixture.paths.contract), contractBytes);
+    writeFileSync(join(fixture.repo, `${fixture.paths.contract}.sha256`), `${createHash("sha256").update(contractBytes).digest("hex")}\n`);
+    git(fixture.repo, "add", "--", fixture.paths.contract, `${fixture.paths.contract}.sha256`);
+    git(fixture.repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture tampered readiness pin");
+    const badContractCommit = git(fixture.repo, "rev-parse", "HEAD");
+    const current = run("node", [CURRENT, "verify", "--repo", fixture.repo, "--contract-commit", badContractCommit,
+      "--contract", fixture.paths.contract, "--stage", "before"]);
+    assert.notEqual(current.status, 0);
+    assert.match(`${current.stdout ?? ""}${current.stderr ?? ""}`, new RegExp(`current_pinned_input_identity_changed:${fixture.paths.readiness}`));
+  } finally {
+    rmSync(fixture.temp, { recursive: true, force: true });
+  }
+});
+
+test("admission rejects a committed schema-2 readiness receipt with a tampered source identity", () => {
+  const fixture = setupFixture({ schema2: true, tamperReadiness: true });
+  try {
+    const verified = run("node", [ADMISSION, "verify", ...admissionArgs(fixture)]);
+    assert.notEqual(verified.status, 0);
+    const receipt = JSON.parse(verified.stdout);
+    assert.equal(receipt.inputs.readiness.commit, fixture.readinessCommit);
+    assert.ok(receipt.blocked_reasons.some((row) => row.code.startsWith("d01_readiness_source_verification_failed:")),
+      JSON.stringify(receipt.blocked_reasons));
+    assert.deepEqual(receipt.no_mutation.equal, true);
+    assert.equal(git(fixture.repo, "rev-parse", "refs/heads/stale/merged"), fixture.rootOid);
   } finally {
     rmSync(fixture.temp, { recursive: true, force: true });
   }
