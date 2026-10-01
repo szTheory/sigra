@@ -70,7 +70,10 @@
     "unavailable_pre_phase_baseline": "unknown",
     "independent_full_window_cleanup_registry": "unknown"
   },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
   "blocked_dependency": "Plan 16 remains blocked by Plan 14",
   "no_live_prune_or_requirement_closure": true
 }
-

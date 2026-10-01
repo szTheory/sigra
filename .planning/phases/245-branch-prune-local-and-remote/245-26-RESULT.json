@@ -13,6 +13,11 @@
     "production_pr_query_operations": 0,
     "live_tracking_continuation": false
   },
+  "production_prune_operations": 0,
+  "prior_plan19_local_deletions": 1,
+  "prior_plan25_prune_operations": 0,
+  "repo_04": "open",
+  "local_refs_unchanged": true,
   "source_preflight": {
     "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-SOURCE-PREFLIGHT.json",
     "verdict": "ready",
@@ -666,4 +671,3 @@
   ],
   "failed_predicates": []
 }
-
