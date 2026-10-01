@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "245-24",
+  "captured_at": "2026-10-01T11:35:53.873Z",
+  "outcome": "blocked",
+  "failed_stage": "task1_fresh_d06_preflight",
+  "failed_predicates": [
+    {
+      "code": "current_origin_gh_pages_object_unreadable",
+      "detail": {
+        "oid": "4641cff13f410c29976c76713a100457d9dbc888",
+        "readable": false,
+        "command": "/usr/bin/git cat-file -e 4641cff13f410c29976c76713a100457d9dbc888",
+        "exit_code": 1
+      }
+    }
+  ],
+  "preflight_path": ".planning/phases/245-branch-prune-local-and-remote/245-24-EXEC-PREFLIGHT.json",
+  "preflight_sha256": "48498f0c296e35925c747932d08279f15a157ca724423c003280f4df153907dc",
+  "plan19_admitted_local_deletions": 1,
+  "plan24_ref_operations": 0,
+  "observed_ref_delta": {
+    "baseline_head": "fcb4b1fb8cf3bffeaa44e903622c91ca393489a7",
+    "active_ref": "refs/heads/phase-244-playwright-measurement",
+    "plan24_ref_operations": 0,
+    "local_ref_delta": [],
+    "origin_ref_delta": [],
+    "pr_ref_operations": 0
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved",
+    "missing_pre_phase_baseline": "unknown_unresolved"
+  },
+  "next_action": "Stop before contract/admission commit or ref operation; REPO-04 remains open."
+}
