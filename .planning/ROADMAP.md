@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 26 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation. Plan 23 repaired the readiness source. Plan 24 halted at D-06. Plan 25 passed its fresh D-06 census and committed the current contract, then halted at the operator's D-01 temporary-copy readiness check before any tracking deletion. Plan 26 completed the operator repair, 53 passing regression tests and the read-only production receipt check, with zero production pruning. Its handoff requires a fresh D-06 preflight and D-07 current contract for later live work. Plan 16 remains blocked by Plan 14.
+**Plans**: 27 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation. Plan 23 repaired the readiness source. Plan 24 halted at D-06. Plan 25 passed its fresh D-06 census and committed the current contract, then halted at the operator's D-01 temporary-copy readiness check before any tracking deletion. Plan 26 completed the operator repair, 53 passing regression tests and the read-only production receipt check, with zero production pruning. Plan 27 adds a fresh D-06/D-07 current-state contract and exact live prune/postcheck path; it is pending. Plan 16 remains blocked by Plan 14.
 
 Plans:
 **Wave 1**
@@ -482,6 +482,10 @@ Plans:
 
 - [x] 245-26-PLAN.md — Repaired the public schema-2 readiness path, proved the guarded tracking boundary in disposable repositories, and verified the production receipt read-only; zero production pruning, fresh live-contract planning next, and REPO-04 stays open
 
+**D-07 current-state gap closure** — gap wave 21; depends on completed 245-26; fresh execution preflight and current contract required
+
+- [ ] 245-27-PLAN.md — Admit exact current local/origin/tracking candidates, apply only through shared-coordinator and expected-OID gates, then prove objects, PRs and safety refs from independent post-state
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -495,7 +499,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 17/26 | In progress | - |
+| 245. Branch Prune | 17/27 | In progress | - |
 
 ## Requirement Coverage
 
