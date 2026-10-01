@@ -8,27 +8,34 @@ PHASE_244="${ROOT_DIR}/.planning/phases/244-playwright-test-1-59-1-1-62-1-alone"
 TEMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TEMP_DIR"' EXIT
 
-# Production sees only GitHub origins. This fixture-only shim reports the
-# canonical URL for a configured local bare origin while forwarding all real
-# Git fetch/push operations to the disposable repository.
-FIXTURE_GIT_DIR="${TEMP_DIR}/fixture-git-bin"
-mkdir -p "$FIXTURE_GIT_DIR"
-PRUNE_TEST_REAL_GIT="$(command -v git)"
-cat > "${FIXTURE_GIT_DIR}/git" <<'GIT'
+# Keep the real pinned Git and origin-identity checks. Only the SSH transport
+# is replaced: it accepts this exact repository and serves the disposable bare
+# origin locally, without invoking ssh or any network service.
+export PATH="/usr/bin:/bin:$PATH"
+FIXTURE_ORIGIN='git@github.com:szTheory/sigra.git'
+FIXTURE_SSH="${TEMP_DIR}/fixture-ssh"
+cat > "$FIXTURE_SSH" <<'SSH'
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ "${PRUNE_TEST_REMAP_LOCAL_ORIGIN:-0}" == 1 && " $* " == *" remote get-url "* ]]; then
-  actual="$("$PRUNE_TEST_REAL_GIT" "$@")"
-  if [[ -n "${PRUNE_TEST_LOCAL_ORIGIN:-}" && "$actual" == "$PRUNE_TEST_LOCAL_ORIGIN" ]]; then
-    printf '%s\n' 'https://github.com/szTheory/sigra.git'
-    exit 0
-  fi
-fi
-exec "$PRUNE_TEST_REAL_GIT" "$@"
-GIT
-chmod +x "${FIXTURE_GIT_DIR}/git"
-export PRUNE_TEST_REAL_GIT PRUNE_TEST_REMAP_LOCAL_ORIGIN=1
-export PATH="${FIXTURE_GIT_DIR}:$PATH"
+while [[ "${1:-}" == -o ]]; do
+  [[ "${2:-}" == SendEnv=GIT_PROTOCOL ]] || exit 90
+  shift 2
+done
+[[ $# == 2 && "$1" == git@github.com ]] || exit 91
+[[ -n "${PRUNE_TEST_LOCAL_ORIGIN:-}" && -d "${PRUNE_TEST_LOCAL_ORIGIN}/objects" ]] || exit 92
+case "$2" in
+  "git-upload-pack 'szTheory/sigra.git'")
+    exec /usr/bin/git-upload-pack "$PRUNE_TEST_LOCAL_ORIGIN" ;;
+  "git-receive-pack 'szTheory/sigra.git'")
+    [[ -z "${FIXTURE_PUSH_LOG:-}" ]] || printf '%s\n' "$2" >> "$FIXTURE_PUSH_LOG"
+    exec /usr/bin/git-receive-pack "$PRUNE_TEST_LOCAL_ORIGIN" ;;
+  *) exit 93 ;;
+esac
+SSH
+chmod +x "$FIXTURE_SSH"
+export GIT_SSH="$FIXTURE_SSH" GIT_SSH_VARIANT=ssh
+printf -v GIT_SSH_COMMAND '%q' "$FIXTURE_SSH"
+export GIT_SSH_COMMAND
 
 node --test "${ROOT_DIR}/scripts/maintainers/prune-stale-branches-pr-audit.test.mjs"
 
@@ -131,6 +138,20 @@ BARE="${TEMP_DIR}/origin.git"
 WORK="${TEMP_DIR}/origin-work"
 export PRUNE_TEST_LOCAL_ORIGIN="$BARE"
 git init -q --bare --initial-branch=main "$BARE"
+cat > "${BARE}/hooks/pre-receive" <<'HOOK'
+#!/usr/bin/env bash
+set -euo pipefail
+while read -r old new ref; do
+  [[ -z "${FIXTURE_PUSH_LOG:-}" ]] || printf '%s %s %s\n' "$old" "$new" "$ref" >> "$FIXTURE_PUSH_LOG"
+  [[ -n "${RACE_TARGET_REF:-}" && "$ref" == "$RACE_TARGET_REF" ]] || continue
+  printf '%s %s %s\n' "$old" "$new" "$ref" >> "$RACE_PUSH_LOG"
+  [[ ! -e "$RACE_TRIGGERED" ]] || continue
+  /usr/bin/env -u GIT_QUARANTINE_PATH -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES \
+    /usr/bin/git --git-dir="$PRUNE_TEST_LOCAL_ORIGIN" update-ref "$ref" "$RACE_VALUE_OID" "${RACE_EXPECTED_OLD_OID:-$old}"
+  : > "$RACE_TRIGGERED"
+done
+HOOK
+chmod +x "${BARE}/hooks/pre-receive"
 git clone -q --shared "$ROOT_DIR" "$WORK"
 git -C "$WORK" config user.name 'GSD Fixture'
 git -C "$WORK" config user.email 'gsd-fixture@example.invalid'
@@ -158,7 +179,7 @@ perl -0pi -e "s/^source_commit:.*/source_commit: ${READINESS_SOURCE_BASE}/m" \
   "${WORK}/.planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md"
 git -C "$WORK" add "${READINESS_SOURCES[@]}"
 git -C "$WORK" -c gc.auto=0 -c maintenance.auto=false commit -q -m 'fixture: commit Phase 244 readiness sources'
-git -C "$WORK" remote set-url origin "$BARE"
+git -C "$WORK" remote set-url origin "$FIXTURE_ORIGIN"
 # The shared source checkout carries live tracking refs; strip this D-04 name
 # from the isolated fixture so the absent-only publication case stays absent.
 git -C "$WORK" update-ref -d refs/remotes/origin/safety/local-main-before-release-cleanup-20260831 2>/dev/null || true
@@ -214,7 +235,7 @@ for origin_url in \
     .origin_identity == "unknown"' "$IDENTITY_RECEIPT" >/dev/null \
     || fail "lookalike GitHub host did not fail at origin identity: ${origin_url}"
 done
-git -C "$WORK" remote set-url origin "$BARE"
+git -C "$WORK" remote set-url origin "$FIXTURE_ORIGIN"
 export PRUNE_GH_SCENARIO=valid
 
 for scenario in list-fail rate-limit auth-fail; do
@@ -353,40 +374,10 @@ git -C "$WORK" merge-base --is-ancestor "$ROOT_OID" "$SAFETY_SOURCE_OID" \
 if git --git-dir="$BARE" show-ref --verify --quiet "$SAFETY_REF"; then
   fail 'safety race destination unexpectedly exists before publication'
 fi
-RACE_BIN_DIR="${TEMP_DIR}/race-bin"
-mkdir -p "$RACE_BIN_DIR"
-REAL_GIT="$PRUNE_TEST_REAL_GIT"
-cat > "${RACE_BIN_DIR}/git" <<'GIT'
-#!/usr/bin/env bash
-set -euo pipefail
-if [[ "${PRUNE_TEST_REMAP_LOCAL_ORIGIN:-0}" == 1 && " $* " == *" remote get-url "* ]]; then
-  actual="$("$REAL_GIT" "$@")"
-  if [[ -n "${PRUNE_TEST_LOCAL_ORIGIN:-}" && "$actual" == "$PRUNE_TEST_LOCAL_ORIGIN" ]]; then
-    printf '%s\n' 'https://github.com/szTheory/sigra.git'
-    exit 0
-  fi
-fi
-joined=" $* "
-if [[ "$joined" == *" push "* && "$joined" != *" --dry-run "* \
-  && "$joined" == *" origin ${RACE_REFSPEC} "* ]]; then
-  printf '%s\n' "$joined" >> "$RACE_PUSH_LOG"
-  if [[ ! -e "$RACE_TRIGGERED" ]]; then
-    if [[ -n "${RACE_EXPECTED_OLD_OID:-}" ]]; then
-      "$REAL_GIT" --git-dir="$RACE_BARE" update-ref "$RACE_TARGET_REF" "$RACE_VALUE_OID" "$RACE_EXPECTED_OLD_OID"
-    else
-      "$REAL_GIT" --git-dir="$RACE_BARE" update-ref "$RACE_TARGET_REF" "$RACE_VALUE_OID"
-    fi
-    : > "$RACE_TRIGGERED"
-  fi
-fi
-exec "$REAL_GIT" "$@"
-GIT
-chmod +x "${RACE_BIN_DIR}/git"
 SAFETY_RACE_LOG="${TEMP_DIR}/safety-race-pushes.log"
 SAFETY_RACE_TRIGGERED="${TEMP_DIR}/safety-race-triggered"
 : > "$SAFETY_RACE_LOG"
-if SAFETY_RACE_OUTPUT="$(PATH="${RACE_BIN_DIR}:$PATH" REAL_GIT="$REAL_GIT" RACE_BARE="$BARE" \
-  RACE_TARGET_REF="$SAFETY_REF" RACE_VALUE_OID="$ROOT_OID" RACE_REFSPEC="${SAFETY_REF}:${SAFETY_REF}" \
+if SAFETY_RACE_OUTPUT="$(RACE_TARGET_REF="$SAFETY_REF" RACE_VALUE_OID="$ROOT_OID" \
   RACE_PUSH_LOG="$SAFETY_RACE_LOG" RACE_TRIGGERED="$SAFETY_RACE_TRIGGERED" \
   bash "$HELPER" safety-publish --repo "$WORK" --apply --snapshot-commit "$INVENTORY_COMMIT" \
   --origin-commit "$INVENTORY_COMMIT" --allowlist-commit "$ALLOWLIST_COMMIT" \
@@ -424,31 +415,13 @@ COMMON_ARGS=(--repo "$WORK" --snapshot-commit "$INVENTORY_COMMIT" --origin-commi
   --pr-state-commit "$INVENTORY_COMMIT" --preflight-commit "$PREFLIGHT_COMMIT" --safety-list "$SAFETY_PATH")
 
 # Public --repo selection alone must not authorize writes to a local origin.
-# Instrument git push as well as comparing the remote refs to prove both apply
-# paths reject the origin identity before reaching the mutation boundary.
-LOCAL_APPLY_GUARD="${TEMP_DIR}/local-apply-guard"
-mkdir -p "$LOCAL_APPLY_GUARD"
+# Observe receive-pack and compare remote refs to prove both apply paths reject
+# the origin identity before reaching the mutation boundary.
 LOCAL_APPLY_PUSH_LOG="${TEMP_DIR}/local-apply-pushes.log"
 : > "$LOCAL_APPLY_PUSH_LOG"
-cat > "${LOCAL_APPLY_GUARD}/git" <<'GIT'
-#!/usr/bin/env bash
-set -euo pipefail
-if [[ "${PRUNE_TEST_REMAP_LOCAL_ORIGIN:-0}" == 1 && " $* " == *" remote get-url "* ]]; then
-  actual="$("$REAL_GIT" "$@")"
-  if [[ -n "${PRUNE_TEST_LOCAL_ORIGIN:-}" && "$actual" == "$PRUNE_TEST_LOCAL_ORIGIN" ]]; then
-    printf '%s\n' 'https://github.com/szTheory/sigra.git'
-    exit 0
-  fi
-fi
-if [[ " $* " == *" push "* ]]; then printf '%s\n' "$*" >> "$LOCAL_APPLY_PUSH_LOG"; fi
-exec "$REAL_GIT" "$@"
-GIT
-chmod +x "${LOCAL_APPLY_GUARD}/git"
-REAL_GIT="$PRUNE_TEST_REAL_GIT"
-export REAL_GIT LOCAL_APPLY_PUSH_LOG
+git -C "$WORK" remote set-url origin "$BARE"
 LOCAL_ORIGIN_BEFORE_DENIAL="$(git --git-dir="$BARE" for-each-ref --format='%(refname)%09%(objectname)' refs/heads refs/tags)"
-if LOCAL_DENIAL_OUTPUT="$(env PRUNE_STALE_BRANCHES_TEST_ALLOW_LOCAL_ORIGIN=1 PRUNE_TEST_REMAP_LOCAL_ORIGIN=0 \
-  PATH="${LOCAL_APPLY_GUARD}:$PATH" bash "$HELPER" remote "${COMMON_ARGS[@]}" --apply 2>&1)"; then
+if LOCAL_DENIAL_OUTPUT="$(env PRUNE_STALE_BRANCHES_TEST_ALLOW_LOCAL_ORIGIN=1 FIXTURE_PUSH_LOG="$LOCAL_APPLY_PUSH_LOG" bash "$HELPER" remote "${COMMON_ARGS[@]}" --apply 2>&1)"; then
   fail 'remote apply accepted a local origin selected with --repo despite the old environment bypass variable'
 fi
 grep -Fq 'origin_repository_identity_mismatch' <<< "$LOCAL_DENIAL_OUTPUT" \
@@ -456,8 +429,7 @@ grep -Fq 'origin_repository_identity_mismatch' <<< "$LOCAL_DENIAL_OUTPUT" \
 [[ "$(git --git-dir="$BARE" for-each-ref --format='%(refname)%09%(objectname)' refs/heads refs/tags)" == "$LOCAL_ORIGIN_BEFORE_DENIAL" ]] \
   || fail 'remote apply changed the local origin before rejecting its identity'
 [[ ! -s "$LOCAL_APPLY_PUSH_LOG" ]] || fail 'remote apply reached git push before rejecting the local origin'
-if LOCAL_DENIAL_OUTPUT="$(env PRUNE_STALE_BRANCHES_TEST_ALLOW_LOCAL_ORIGIN=1 PRUNE_TEST_REMAP_LOCAL_ORIGIN=0 \
-  PATH="${LOCAL_APPLY_GUARD}:$PATH" bash "$HELPER" safety-publish --repo "$WORK" --apply \
+if LOCAL_DENIAL_OUTPUT="$(env PRUNE_STALE_BRANCHES_TEST_ALLOW_LOCAL_ORIGIN=1 FIXTURE_PUSH_LOG="$LOCAL_APPLY_PUSH_LOG" bash "$HELPER" safety-publish --repo "$WORK" --apply \
   --snapshot-commit "$INVENTORY_COMMIT" --origin-commit "$INVENTORY_COMMIT" \
   --allowlist-commit "$ALLOWLIST_COMMIT" --readiness-commit "$INVENTORY_COMMIT" \
   --readiness "$READINESS_PATH" --pr-state-commit "$INVENTORY_COMMIT" \
@@ -470,50 +442,34 @@ grep -Fq 'origin_repository_identity_mismatch' <<< "$LOCAL_DENIAL_OUTPUT" \
   || fail 'safety-publish changed the local origin before rejecting its identity'
 [[ ! -s "$LOCAL_APPLY_PUSH_LOG" ]] || fail 'safety-publish reached git push before rejecting the local origin'
 
+git -C "$WORK" remote set-url origin "$FIXTURE_ORIGIN"
+
 # A trusted fetch URL must not authorize writes to a separately configured
-# push destination. Guard git invocations as well as both bare repositories so
-# these apply-path checks prove they stop before any push is attempted.
+# push destination. Observe receive-pack and compare both bare repositories so
+# these apply-path checks prove they stop before reaching a remote mutation.
 PUSH_DESTINATION_BARE="${TEMP_DIR}/untrusted-push.git"
 git init -q --bare --initial-branch=main "$PUSH_DESTINATION_BARE"
-PUSH_GUARD_BIN="${TEMP_DIR}/push-guard-bin"
-mkdir -p "$PUSH_GUARD_BIN"
 PUSH_GUARD_LOG="${TEMP_DIR}/push-guard.log"
 : > "$PUSH_GUARD_LOG"
-cat > "${PUSH_GUARD_BIN}/git" <<'GIT'
-#!/usr/bin/env bash
-set -euo pipefail
-if [[ "${PRUNE_TEST_REMAP_LOCAL_ORIGIN:-0}" == 1 && " $* " == *" remote get-url "* ]]; then
-  actual="$("$REAL_GIT" "$@")"
-  if [[ -n "${PRUNE_TEST_LOCAL_ORIGIN:-}" && "$actual" == "$PRUNE_TEST_LOCAL_ORIGIN" ]]; then
-    printf '%s\n' 'https://github.com/szTheory/sigra.git'
-    exit 0
-  fi
-fi
-if [[ " $* " == *" push "* ]]; then printf '%s\n' "$*" >> "$PUSH_GUARD_LOG"; fi
-exec "$REAL_GIT" "$@"
-GIT
-chmod +x "${PUSH_GUARD_BIN}/git"
-REAL_GIT="$PRUNE_TEST_REAL_GIT"
-export REAL_GIT PUSH_GUARD_LOG
 git -C "$WORK" remote set-url --push origin "$PUSH_DESTINATION_BARE"
 ORIGIN_REFS_BEFORE_PUSH_MISMATCH="$(git --git-dir="$BARE" for-each-ref --format='%(refname)%09%(objectname)' refs/heads refs/tags)"
-if PUSH_MISMATCH_OUTPUT="$(PRUNE_TEST_REMAP_LOCAL_ORIGIN=1 PATH="${PUSH_GUARD_BIN}:$PATH" bash "$HELPER" remote "${COMMON_ARGS[@]}" --apply 2>&1)"; then
+if PUSH_MISMATCH_OUTPUT="$(FIXTURE_PUSH_LOG="$PUSH_GUARD_LOG" bash "$HELPER" remote "${COMMON_ARGS[@]}" --apply 2>&1)"; then
   fail 'remote deletion accepted a trusted fetch URL with an untrusted push URL'
 fi
-grep -Eq 'origin_(push_destination_identity_mismatch|repository_identity_mismatch)' <<< "$PUSH_MISMATCH_OUTPUT" \
+grep -Fq 'origin_repository_identity_mismatch' <<< "$PUSH_MISMATCH_OUTPUT" \
   || fail "remote deletion did not fail closed on the mismatched push URL: ${PUSH_MISMATCH_OUTPUT}"
 [[ "$(git --git-dir="$BARE" for-each-ref --format='%(refname)%09%(objectname)' refs/heads refs/tags)" == "$ORIGIN_REFS_BEFORE_PUSH_MISMATCH" ]] \
   || fail 'mismatched push URL changed the trusted fetch origin'
 [[ -z "$(git --git-dir="$PUSH_DESTINATION_BARE" for-each-ref --format='%(refname)%09%(objectname)' refs/heads refs/tags)" ]] \
   || fail 'mismatched push URL changed its configured push destination'
-if PUSH_MISMATCH_OUTPUT="$(PRUNE_TEST_REMAP_LOCAL_ORIGIN=1 PATH="${PUSH_GUARD_BIN}:$PATH" bash "$HELPER" safety-publish --repo "$WORK" --apply \
+if PUSH_MISMATCH_OUTPUT="$(FIXTURE_PUSH_LOG="$PUSH_GUARD_LOG" bash "$HELPER" safety-publish --repo "$WORK" --apply \
   --snapshot-commit "$INVENTORY_COMMIT" --origin-commit "$INVENTORY_COMMIT" \
   --allowlist-commit "$ALLOWLIST_COMMIT" --readiness-commit "$INVENTORY_COMMIT" \
   --readiness "$READINESS_PATH" --pr-state-commit "$INVENTORY_COMMIT" \
   --preflight-commit "$PREFLIGHT_COMMIT" --safety-list "$SAFETY_PATH" 2>&1)"; then
   fail 'safety publication accepted a trusted fetch URL with an untrusted push URL'
 fi
-grep -Eq 'origin_(push_destination_identity_mismatch|repository_identity_mismatch)' <<< "$PUSH_MISMATCH_OUTPUT" \
+grep -Fq 'origin_repository_identity_mismatch' <<< "$PUSH_MISMATCH_OUTPUT" \
   || fail "safety publication did not fail closed on the mismatched push URL: ${PUSH_MISMATCH_OUTPUT}"
 [[ "$(git --git-dir="$BARE" for-each-ref --format='%(refname)%09%(objectname)' refs/heads refs/tags)" == "$ORIGIN_REFS_BEFORE_PUSH_MISMATCH" ]] \
   || fail 'mismatched push URL changed the trusted fetch origin during safety publication'
@@ -541,9 +497,8 @@ REMOTE_DELETE_REF=refs/heads/stale/delete
 REMOTE_RACE_LOG="${TEMP_DIR}/remote-delete-race-pushes.log"
 REMOTE_RACE_TRIGGERED="${TEMP_DIR}/remote-delete-race-triggered"
 : > "$REMOTE_RACE_LOG"
-if REMOTE_RACE_OUTPUT="$(PATH="${RACE_BIN_DIR}:$PATH" REAL_GIT="$REAL_GIT" RACE_BARE="$BARE" \
-  RACE_TARGET_REF="$REMOTE_DELETE_REF" RACE_VALUE_OID="$REMOTE_CI_OID" RACE_EXPECTED_OLD_OID="$DELETE_OID" \
-  RACE_REFSPEC=":${REMOTE_DELETE_REF}" RACE_PUSH_LOG="$REMOTE_RACE_LOG" RACE_TRIGGERED="$REMOTE_RACE_TRIGGERED" \
+if REMOTE_RACE_OUTPUT="$(RACE_TARGET_REF="$REMOTE_DELETE_REF" RACE_VALUE_OID="$REMOTE_CI_OID" RACE_EXPECTED_OLD_OID="$DELETE_OID" \
+  RACE_PUSH_LOG="$REMOTE_RACE_LOG" RACE_TRIGGERED="$REMOTE_RACE_TRIGGERED" \
   bash "$HELPER" remote "${COMMON_ARGS[@]}" --apply 2>&1)"; then
   fail 'expected-OID remote deletion lease accepted a concurrently advanced destination'
 fi
@@ -576,7 +531,7 @@ grep -Fq 'origin_repository_identity_mismatch' <<< "$LOOKALIKE_APPLY_OUTPUT" \
   || fail 'remote apply did not reject the lookalike origin identity'
 [[ "$(git --git-dir="$BARE" rev-parse "$REMOTE_DELETE_REF")" == "$DELETE_OID" ]] \
   || fail 'lookalike-origin remote apply changed the isolated origin'
-git -C "$WORK" remote set-url origin "$BARE"
+git -C "$WORK" remote set-url origin "$FIXTURE_ORIGIN"
 
 bash "$HELPER" remote "${COMMON_ARGS[@]}" --apply
 git -C "$WORK" update-ref refs/remotes/origin/stale/delete "$DELETE_OID"
