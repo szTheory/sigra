@@ -15,7 +15,7 @@ progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 87
-  completed_plans: 84
+  completed_plans: 83
   percent: 90
 ---
 
@@ -35,7 +35,7 @@ Phase: 245 (Branch Prune — Local and Remote) — BLOCKED AT PLAN 25 D-01
 Most recent completed phase: 244. Plan 245-18 is complete: its nine required Phase 244 sources are pinned from 0dd5d17954a5e824b86fde1038cd34b177867269, D-01 passed, and the current 129-local-ref / 357-origin-ref / 13-open-PR baseline is captured with all 488 direct and peeled OIDs readable. Plan 245-19 applied one admitted local deletion, then its final transition verifier blocked; its durable receipt remains `.planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json` in commit `d27a43a2`. Plan 19 remains superseded after its blocked receipt; its recorded deletion remains counted once, and its remaining actions must not be rerun.
 Current Plan: 25 (halted at Task 3 before tracking-ref mutation)
 Total Plans in Phase: 25
-Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, 18, 20, 22, and 23 (16 completed plans). Plans 04, 09, 12, and 14 halted; Plan 16 remains blocked by Plan 14; Plan 19 is superseded after its blocked receipt; Plan 21 remains halted/superseded after D-01.
+Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, 18, 20, 22, and 23 (16 completed plans). Plans 04, 09, 12, 14, 24, and 25 halted; Plan 16 remains blocked by Plan 14; Plan 19 is superseded after its blocked receipt; Plan 21 remains halted/superseded after D-01. Plan 25's halted summary does not add a completed plan.
 Status: Plan 245-25 halted at the operator's D-01 readiness gate before tracking mutation; Phase 245 remains active.
 Verification: Plan 25's fresh D-06 census recorded 128 local refs, 357 live origin refs, and 13 open PRs; all 488 Plan 18 and 487 current direct/peeled object checks passed. Its exact two-row Plan 19 tracking admission and current contract are committed. The operator then rejected the temporary readiness copy as outside the repository and missing from its commit/worktree. The blocked RESULT is committed as the sole direct child of the contract and passes after-stage verification. Plan 25 performed zero tracking, local-head, origin, or PR ref operations. REPO-04 remains open; Plan 16 remains blocked by Plan 14; the 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
 Last activity: 2026-10-01 — Plan 245-25 committed a blocked D-01 result before ref pruning.
