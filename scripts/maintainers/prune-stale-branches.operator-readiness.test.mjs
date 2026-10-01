@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -134,7 +134,18 @@ exec /usr/bin/git-upload-pack "$PRUNE_FIXTURE_BARE"
 set -euo pipefail
 case "$1" in
   auth) exit 0 ;;
-  pr) case "\${PRUNE_FIXTURE_PR_SCENARIO:-normal}" in fail) echo 'fixture PR CLI unavailable' >&2; exit 1 ;; null) printf '%s\\n' null ;; *) cat "$PRUNE_FIXTURE_PR_CLI_JSON" ;; esac ;;
+  pr)
+    if [[ -n "\${PRUNE_FIXTURE_RACE_CALL_COUNT:-}" ]]; then
+      count=0; [[ ! -f "$PRUNE_FIXTURE_RACE_CALL_COUNT" ]] || count="$(cat "$PRUNE_FIXTURE_RACE_CALL_COUNT")"
+      count=$((count + 1)); printf '%s\\n' "$count" > "$PRUNE_FIXTURE_RACE_CALL_COUNT"
+      if [[ "$count" == 2 ]]; then
+        printf 'ready\\n' > "$PRUNE_FIXTURE_RACE_READY_FIFO"
+        IFS= read -r release_signal < "$PRUNE_FIXTURE_RACE_RELEASE_FIFO"
+        echo 'fixture rendezvous released as a blocked PR gate' >&2
+        exit 73
+      fi
+    fi
+    case "\${PRUNE_FIXTURE_PR_SCENARIO:-normal}" in fail) echo 'fixture PR CLI unavailable' >&2; exit 1 ;; null) printf '%s\\n' null ;; *) cat "$PRUNE_FIXTURE_PR_CLI_JSON" ;; esac ;;
   api) case "$2" in
     rate_limit) printf '%s\\n' '{"resources":{"core":{"remaining":5000}}}' ;;
     /repos/szTheory/sigra/pulls*) case "\${PRUNE_FIXTURE_PR_SCENARIO:-normal}" in null) printf '%s\\n' null ;; truncated) cat "$PRUNE_FIXTURE_PR_TRUNCATED_JSON" ;; *) cat "$PRUNE_FIXTURE_PR_API_JSON" ;; esac ;;
@@ -208,6 +219,48 @@ function trackingApply(fixture) {
     "--current-contract-commit", fixture.contractCommit, "--current-contract", fixture.contract], {
     cwd: ROOT,
     env: fixture.env,
+  });
+}
+
+function startTrackingApply(fixture) {
+  const child = spawn("bash", [OPERATOR, "tracking", "--repo", fixture.repo, "--apply",
+    "--snapshot-commit", fixture.snapshotCommit, "--snapshot", fixture.snapshot,
+    "--origin-snapshot-commit", fixture.snapshotCommit, "--origin-snapshot", fixture.originSnapshot,
+    "--allowlist-commit", fixture.allowlistCommit, "--allowlist", fixture.allowlist,
+    "--readiness-commit", fixture.receiptCommit, "--readiness", RECEIPT,
+    "--current-contract-commit", fixture.contractCommit, "--current-contract", fixture.contract], {
+    cwd: ROOT,
+    env: fixture.env,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let stdout = "";
+  let stderr = "";
+  child.stdout.setEncoding("utf8").on("data", (chunk) => { stdout += chunk; });
+  child.stderr.setEncoding("utf8").on("data", (chunk) => { stderr += chunk; });
+  const closed = new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("close", (status, signal) => resolve({ status, signal, stdout, stderr }));
+  });
+  return { child, closed };
+}
+
+function readFifo(fifo, timeoutMs = 30_000) {
+  const reader = spawn("bash", ["-c", "IFS= read -r value < \"$1\"; printf '%s\\n' \"$value\"", "_", fifo], {
+    cwd: ROOT,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let stdout = "";
+  let stderr = "";
+  reader.stdout.setEncoding("utf8").on("data", (chunk) => { stdout += chunk; });
+  reader.stderr.setEncoding("utf8").on("data", (chunk) => { stderr += chunk; });
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reader.kill("SIGTERM"), timeoutMs);
+    reader.once("error", (error) => { clearTimeout(timer); reject(error); });
+    reader.once("close", (status, signal) => {
+      clearTimeout(timer);
+      if (status === 0) resolve(stdout.trim());
+      else reject(new Error(`fixture FIFO reader exited status=${status} signal=${signal}: ${stderr}`));
+    });
   });
 }
 
@@ -458,6 +511,62 @@ test("schema-2 tracking apply removes one admitted fixture ref under the shared 
     assert.equal(run(GIT, ["-C", fixture.repo, "cat-file", "-e", `${fixture.oid}^{commit}`]).status, 0,
       "the deleted tracking target object remains readable");
   } finally {
+    rmSync(fixture.temp, { recursive: true, force: true });
+  }
+});
+
+test("tracking apply serializes a concurrent local tracking-ref update and blocks on the following PR gate", async () => {
+  const fixture = makeTrackingFixture();
+  const readyFifo = join(fixture.temp, "tracking-race-ready.fifo");
+  const releaseFifo = join(fixture.temp, "tracking-race-release.fifo");
+  const callCount = join(fixture.temp, "tracking-race-gh-count");
+  execFileSync("mkfifo", [readyFifo]);
+  execFileSync("mkfifo", [releaseFifo]);
+  fixture.env.PRUNE_FIXTURE_RACE_READY_FIFO = readyFifo;
+  fixture.env.PRUNE_FIXTURE_RACE_RELEASE_FIFO = releaseFifo;
+  fixture.env.PRUNE_FIXTURE_RACE_CALL_COUNT = callCount;
+  let running;
+  let released = false;
+  let rendezvousReached = false;
+  try {
+    const beforeLocal = refs(fixture.repo);
+    const beforeOrigin = originRefs(fixture);
+    const rendezvous = readFifo(readyFifo);
+    running = startTrackingApply(fixture);
+    assert.equal(await rendezvous, "ready");
+    rendezvousReached = true;
+    const commonDir = git(fixture.repo, "rev-parse", "--git-common-dir");
+    const lock = join(fixture.repo, commonDir, "sigra-branch-worktree-coordinator", "lock");
+    assert.ok(existsSync(lock), "PR rendezvous must happen while the public operator holds the coordinator lock");
+
+    const movedOid = git(fixture.repo, "rev-parse", "HEAD^");
+    const unownedEnv = { ...process.env };
+    delete unownedEnv.SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN;
+    delete unownedEnv.SIGRA_BRANCH_WORKTREE_COORDINATOR_ROOT;
+    delete unownedEnv.SIGRA_COORDINATOR_HELD;
+    const competingUpdate = run(GIT, ["-C", fixture.repo, "update-ref", "--no-deref", fixture.trackingRef, movedOid, fixture.oid], { env: unownedEnv });
+    assert.notEqual(competingUpdate.status, 0, "an unowned concurrent tracking-ref update must be rejected");
+    assert.match(`${competingUpdate.stdout ?? ""}${competingUpdate.stderr ?? ""}`, /branch_or_worktree_ref_change_during_coordinator_window/);
+    assert.equal(refs(fixture.repo), beforeLocal, "the competing update must preserve the complete local ref inventory");
+    assert.equal(originRefs(fixture), beforeOrigin, "the competing update must preserve the complete bare-origin inventory");
+
+    writeFileSync(releaseFifo, "continue\n");
+    released = true;
+    const apply = await running.closed;
+    assert.notEqual(apply.status, 0, `${apply.stdout}${apply.stderr}`);
+    assert.match(`${apply.stdout}${apply.stderr}`, /current_pr_ref_contract_blocked:boundary:tracking:refs\/remotes\/origin\/stale\/fixture-only/);
+    assert.match(`${apply.stdout}${apply.stderr}`, /gh_pr_list_failed/);
+    assert.equal(refs(fixture.repo), beforeLocal, "the interrupted operation boundary must not delete the admitted tracking ref");
+    assert.equal(originRefs(fixture), beforeOrigin, "the blocked operation must preserve the complete bare-origin inventory");
+    assertSnapshotObjectsReadable(fixture);
+  } finally {
+    if (!released && rendezvousReached && running && running.child.exitCode === null) {
+      try { writeFileSync(releaseFifo, "continue\n"); } catch { /* cleanup path after an assertion failure */ }
+    }
+    if (running && running.child.exitCode === null) {
+      running.child.kill("SIGTERM");
+      await running.closed.catch(() => undefined);
+    }
     rmSync(fixture.temp, { recursive: true, force: true });
   }
 });
