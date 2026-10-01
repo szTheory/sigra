@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 23 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation; Plan 23 repairs the readiness source and hands off to a future continuation. Plan 16 remains blocked by Plan 14.
+**Plans**: 24 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation. Plan 23 repaired the readiness source and handed off the remaining Tasks 2–3 to Plan 24. Plan 16 remains blocked by Plan 14.
 
 Plans:
 **Wave 1**
@@ -451,7 +451,7 @@ Plans:
 **Gap Wave 9** *(independent read-only evidence attempts)*
 
 - [ ] 245-14-PLAN.md — Reconcile exact historical PR identity with fresh GitHub and origin reads; retain blocked mismatches
-- [ ] 245-15-PLAN.md — Inventory trusted full-window cleanup history and rebuild the 30-row audit without promoting unknowns
+- [x] 245-15-PLAN.md — Inventory trusted full-window cleanup history and rebuild the 30-row audit without promoting unknowns
 
 **Gap Wave 10** *(depends on 245-14; production apply requires a ready D-05 admission and an exact eligible candidate)*
 
@@ -468,7 +468,11 @@ Plans:
 
 **D-01 readiness-source repair** — gap wave 17; depends on 245-20 and 245-22; run with `$gsd-execute-phase 245 --gaps-only`
 
-- [ ] 245-23-PLAN.md — Re-prove Phase 244 readiness from immutable evidence with the current state route observed separately; preserve schema-1 history and hand off without replaying Plan 21 (REPO-04 remains open)
+- [x] 245-23-PLAN.md — Re-prove Phase 244 readiness from immutable evidence with the current state route observed separately; preserve schema-1 history and hand off without replaying Plan 21 (completed 2026-10-01; REPO-04 remains open)
+
+**D-07 current-contract continuation** — gap wave 18; depends on 245-23; run with `$gsd-execute-phase 245 --gaps-only`
+
+- [ ] 245-24-PLAN.md — Reissue only the halted Plan 21 Tasks 2–3 from Plan 23's committed schema-2 readiness receipt; preserve the prior deletion count and unresolved historical audits
 
 ## Progress
 
@@ -483,7 +487,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 15/22 | In progress | - |
+| 245. Branch Prune | 16/23 | In progress | - |
 
 ## Requirement Coverage
 
