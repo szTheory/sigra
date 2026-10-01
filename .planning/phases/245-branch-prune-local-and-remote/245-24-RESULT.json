@@ -2,7 +2,7 @@
   "schema_version": 1,
   "phase": "245",
   "plan": "245-24",
-  "captured_at": "2026-10-01T11:35:53.873Z",
+  "captured_at": "2026-10-01T11:44:47.071Z",
   "outcome": "blocked",
   "failed_stage": "task1_fresh_d06_preflight",
   "failed_predicates": [
@@ -17,7 +17,7 @@
     }
   ],
   "preflight_path": ".planning/phases/245-branch-prune-local-and-remote/245-24-EXEC-PREFLIGHT.json",
-  "preflight_sha256": "48498f0c296e35925c747932d08279f15a157ca724423c003280f4df153907dc",
+  "preflight_sha256": "d26d884e3ebb96648ca9251cb9d2b3e6d87c1713983f7303a6ce2918058901fd",
   "plan19_admitted_local_deletions": 1,
   "plan24_ref_operations": 0,
   "observed_ref_delta": {
