@@ -361,7 +361,7 @@ verify_readiness() {
   safe_repo_path "$READINESS_PATH"
   read_committed_file "$commit" "$READINESS_PATH" "$file" readiness
   if ! out="$(node "$SCRIPT_ROOT/scripts/maintainers/prune-stale-branches-readiness.mjs" verify \
-    --repo "$REPO" --artifact "$file" --artifact-commit "$commit" 2>&1)"; then
+    --repo "$REPO" --artifact "$READINESS_PATH" --artifact-commit "$commit" 2>&1)"; then
     printf '%s\n' "$out" >&2
     fail 'd01_readiness_missing_stale_dirty_or_unresolved'
   fi
