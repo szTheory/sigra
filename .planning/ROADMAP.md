@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 22 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition before Plan 21 retries from the actual post-fetch state. Plan 16 remains blocked by Plan 14.
+**Plans**: 23 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation; Plan 23 repairs the readiness source and hands off to a future continuation. Plan 16 remains blocked by Plan 14.
 
 Plans:
 **Wave 1**
@@ -463,8 +463,12 @@ Plans:
 - [x] 245-18-PLAN.md — Re-prove the Phase 244 prerequisite from available sources and commit a fresh immutable local/origin/PR snapshot (completed 2026-09-30; D-01 and all 488 direct/peeled objects verified)
 - [x] 245-19-PLAN.md — Superseded by Plan 20 after one admitted local deletion; its durable blocked receipt preserves the mutation and verifier failure, and its remaining actions must not be rerun
 - [x] 245-20-PLAN.md — Repair operation-readback and final-child verification with deterministic fixtures (plan wave 14; depends on 245-18)
-- [ ] 245-21-PLAN.md — Retry fresh D-06 preflight from the post-fetch baseline, then pin the current contract and reconcile only remaining admitted refs under object, PR, safety and coordinator gates (plan wave 16; depends on 245-20 and 245-22; the blocked receipt remains unchanged; REPO-04 stays open until all current postchecks pass)
-- [ ] 245-22-PLAN.md — Prove an exact-object fetch cannot update local refs or FETCH_HEAD in a disposable mapped-origin fixture and gate Plan 21's retry (plan wave 15; depends on 245-20; no production ref operation)
+- [ ] 245-21-PLAN.md — Retry halted at Task 2's D-01 readiness gate before contract commit or ref mutation; do not replay (plan wave 16; depends on 245-20 and 245-22)
+- [x] 245-22-PLAN.md — Prove an exact-object fetch cannot update local refs or FETCH_HEAD in a disposable mapped-origin fixture and gate Plan 21's retry (completed 2026-09-30; no production ref operation)
+
+**D-01 readiness-source repair** — gap wave 17; depends on 245-20 and 245-22; run with `$gsd-execute-phase 245 --gaps-only`
+
+- [ ] 245-23-PLAN.md — Re-prove Phase 244 readiness from immutable evidence with the current state route observed separately; preserve schema-1 history and hand off without replaying Plan 21 (REPO-04 remains open)
 
 ## Progress
 
@@ -479,7 +483,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 18/20 | In progress | - |
+| 245. Branch Prune | 15/22 | In progress | - |
 
 ## Requirement Coverage
 

@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute Phase 245 gap plans",
-    "reason": "Phase-specific execution readiness reports Plans 22 and 21 runnable in dependency order; the historical verification is stale and is separate maintenance."
+    "label": "Execute gap closure",
+    "reason": "Plan 245-23 is written and passed plan review; REPO-04 remains open"
   },
-  "updated_at": "2026-09-30T21:39:25Z"
+  "updated_at": "2026-10-01T00:59:25.223Z"
 }
