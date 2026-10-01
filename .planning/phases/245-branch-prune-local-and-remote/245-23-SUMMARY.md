@@ -97,6 +97,8 @@ Each task was committed atomically:
 
 **Plan metadata:** the final documentation commit contains this summary and GSD tracking metadata.
 
+**Post-summary test harness follow-up:** `3676390f` raises the disposable admission fixture subprocess timeout from 30 to 60 seconds after a repeated full-suite run exceeded the old limit under load. This changes test timing tolerance only; production behavior is unchanged.
+
 ## Files Created/Modified
 
 - `scripts/maintainers/prune-stale-branches-readiness.mjs` — schema-2 capture/verification and committed-schema dispatch.
@@ -132,12 +134,21 @@ Each task was committed atomically:
 - **Files modified:** None beyond the planned test changes.
 - **Verification:** Both suites completed: 26 passed, 0 failed.
 
-**Total deviations:** 2 auto-fixed (1 correctness guard, 1 deterministic test invocation).
-**Impact on plan:** Both changes support the planned fail-closed behavior and repeatable verification; scope remained limited to the plan.
+**3. Wider subprocess timeout for disposable admission fixtures**
+- **Found during:** Post-summary verification.
+- **Issue:** A tampered schema-2 admission case exceeded its 30-second subprocess limit in the combined rerun, although it passed in isolation.
+- **Fix:** Increased the admission test helper's child-process timeout to 60 seconds; no sleeps or production code changes.
+- **Files modified:** `scripts/maintainers/prune-stale-branches-admission.test.mjs`.
+- **Verification:** The updated admission test file passed 6/6. The combined suite had passed 26/26 before this timeout-only adjustment; later combined and standalone readiness reruns were interrupted after producing no final summary.
+- **Committed in:** `3676390f`.
+
+**Total deviations:** 3 auto-fixed (1 correctness guard, 2 deterministic test invocation/harness adjustments).
+**Impact on plan:** The changes support the planned fail-closed behavior and repeatable verification; the follow-up only widens the test harness timeout.
 
 ## Issues Encountered
 
 - The sandbox initially denied the coordinator's `.git` write needed for the exact-path evidence commits. The reviewed escalation was approved; commits then succeeded under the shared coordinator with exact paths. Coordinator status returned free with zero transaction leases.
+- A later combined test rerun did not produce a final summary after the readiness file began. It was interrupted; the updated admission file passed independently (6/6), and the unchanged readiness tests were covered by the earlier complete 26/26 run.
 
 ## User Setup Required
 
@@ -154,6 +165,7 @@ None - no external service configuration required.
 - The schema-2 receipt's helper verification passed against its exact committed artifact identity.
 - The 24-record preflight and 29-record Plan 22 fetch proof were rechecked; no production ref operation occurred.
 - The result and handoff validations passed, including `REPO-04: open`, `prune_ref_operations: 0`, and `next_plan: 245-24`.
+- The combined readiness/admission suite passed 26/26 at plan completion; after the test-only timeout follow-up, the admission suite passed 6/6. The later combined/readiness-only reruns were interrupted without a final report.
 - Phase 245 post-wave schema, codebase-drift, and UI safety hooks passed or were explicitly skipped as inapplicable; no phase-level verification ran.
 - The three task/evidence commits exist with exact intended paths, and preserved historical receipt hashes match.
 

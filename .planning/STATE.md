@@ -6,11 +6,11 @@ current_phase: 245
 current_phase_name: Branch Prune — Local and Remote
 current_plan: 24
 status: Plan 245-23 complete; Phase 245 remains active. Plan 245-24 is next.
-stopped_at: Completed 245-23-PLAN.md
-last_updated: "2026-10-01T02:25:06.307Z"
+stopped_at: Completed 245-23-SUMMARY.md and admission test follow-up
+last_updated: "2026-10-01T04:32:04.345Z"
 last_activity: 2026-10-01
-last_activity_desc: Plan 245-23 completed with schema-2 readiness evidence; Plan 245-24 is next.
-state_head: 064c40f6937dbd7147179e1b0eb7bd99397ac6b5
+last_activity_desc: Plan 245-23 complete; admission fixture timeout hardened. Plan 245-24 is next.
+state_head: 3676390f78af5390c506c6c26d4eea6177fd03d3
 progress:
   total_phases: 10
   completed_phases: 9
@@ -38,7 +38,7 @@ Total Plans in Phase: 22
 Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, 18, 20, 22, and 23 (16 completed plans). Plans 04, 09, 12, and 14 halted; Plan 16 remains blocked by Plan 14; Plan 19 is superseded after its blocked receipt; Plan 21 remains halted/superseded after D-01.
 Status: Plan 245-23 complete; Phase 245 remains active. Plan 245-24 is next.
 Verification: The historical phase verification remains gaps_found and stale. Plan 22 passed, and Plan 23 completed with a committed schema-2 readiness receipt that independently verifies Phase 244 evidence. Plan 21 remains halted/superseded at D-01; Plan 24 must continue only Tasks 2-3. REPO-04 remains open. Plan 16 remains blocked by Plan 14. The 11-row PR mismatch and 30-row cleanup-history audits remain unresolved.
-Last activity: 2026-10-01 — Plan 245-23 completed with schema-2 readiness evidence; Plan 245-24 is next.
+Last activity: 2026-10-01 — Plan 245-23 complete; admission fixture timeout hardened. Plan 245-24 is next.
 Next GSD command: $gsd-plan-phase 245 --gaps
 The only historical sources are this local checkout and GitHub. The pinned Phase 245 baseline `9c0a6b818d2d58858b5db274cc1cf0a9803f69f5` is absent from both; do not search another service or claim who removed it. Git on PATH is 2.41.0; `/usr/bin/git` is 2.50.1 and is usable only if the exact binary and every relevant mutator are pinned under the shared coordinator. D-05's production fail-closed gate remains active.
 The prior state recommendation to re-run verification came from stale historical evidence; phase-specific `init.execute-phase 245` is the current routing source. Keep Phase 245 active and do not invent Phase 246.
@@ -746,8 +746,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-01T02:22:52.583Z
-Stopped at: Completed 245-23-PLAN.md
+Last session: 2026-10-01T04:32:04.217Z
+Stopped at: Completed 245-23-SUMMARY.md and admission test follow-up
 Resume file: None
 
 ## Operator Next Steps
