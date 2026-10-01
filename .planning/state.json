@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.48 \u2014 CLEAN-BASELINE",
+  "milestone": "v1.48 — CLEAN-BASELINE",
   "phases": [
     {
       "number": "236",
@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:plan-phase 245 --gaps",
-    "label": "Plan a fresh Phase 245 current-state contract",
-    "reason": "Plan 245-26 is complete: 53 tests passed and the committed production receipt verifies read-only with zero pruning. Fresh execution readiness reports no runnable plans; Plan 16 remains blocked by halted Plan 14. Planning readiness has complete context/research and reports no prerequisite blocker. Plan fresh D-06/D-07 evidence for later live work; do not replay Plans 19/21/24/25. Phase 245 and REPO-04 remain open."
+    "command": "/gsd:execute-phase 245 --gaps-only",
+    "label": "Execute gap closure plan",
+    "reason": "Plan 245-27 is the sole runnable Phase 245 plan; historical verification maintenance is separate"
   },
-  "updated_at": "2026-10-01T19:04:27Z"
+  "updated_at": "2026-10-01T19:49:39Z"
 }
