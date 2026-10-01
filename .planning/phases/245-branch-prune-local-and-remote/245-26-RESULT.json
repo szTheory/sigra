@@ -1,0 +1,669 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-26",
+  "status": "ready",
+  "captured_at": "2026-10-01T18:54:24.955Z",
+  "head_at_capture": "f12e0909b1f72eae55dca6d2475034bfbd21ddad",
+  "branch": "phase-244-playwright-measurement",
+  "scope": {
+    "production_prune_operations": 0,
+    "production_local_ref_operations": 0,
+    "production_origin_ref_operations": 0,
+    "production_pr_query_operations": 0,
+    "live_tracking_continuation": false
+  },
+  "source_preflight": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-SOURCE-PREFLIGHT.json",
+    "verdict": "ready",
+    "failed_predicates": [],
+    "source_pin_verification": "all four required committed artifacts and all nine nested sources matched pinned commit/blob/SHA identities",
+    "required_committed_artifacts": [
+      {
+        "name": "plan23_schema2_readiness",
+        "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+        "blob_oid": "05621c5c0c313848deefe0fd8493648724289a1f",
+        "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193",
+        "worktree_matches_committed": true
+      },
+      {
+        "name": "plan25_current_contract",
+        "commit": "6f5aa40354eb3f3126d8394c80060cc607dfa674",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-25-CURRENT-CONTRACT.json",
+        "blob_oid": "a7b448fe271953ecfe4352784bba4f004e31a748",
+        "sha256": "70d6ee9f4476f61c569dcb83b80715055d3c5b26a40a086d6c2503f2721ba84c",
+        "worktree_matches_committed": true
+      },
+      {
+        "name": "plan25_blocked_result",
+        "commit": "a1cd058d63eb713ce50568a953b316cdfc3ef7bd",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-25-RESULT.json",
+        "blob_oid": "1cd5c8e5503308657d92c3798797b3e556b6f401",
+        "sha256": "37a7c2c9cfa92f54e7cce74781503911811e8f94dbec05e319c4d8d530272c19",
+        "worktree_matches_committed": true
+      },
+      {
+        "name": "plan19_prior_mutation_result",
+        "commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+        "blob_oid": "0e663a0d8610c44dfd5e96c78a2d1190da00c703",
+        "sha256": "20f5083d8a356e056287bc2e54457e48a7cae00cf3b7dee1fbdd9bdb2b037f3e",
+        "worktree_matches_committed": true
+      }
+    ],
+    "readiness_nested_sources": {
+      "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "count": 9,
+      "verified": 9,
+      "sources": [
+        {
+          "path": ".planning/state.json",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+          "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+          "worktree_matches_source": false,
+          "route_status": "complete",
+          "verified": true
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3",
+          "sha256": "70a65a708ea78a299d39d90883876009ec100bbf1851876533834625a2aa4c8f",
+          "worktree_matches_source": true,
+          "route_status": null,
+          "verified": true
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "b868353af4151a39bccfd6c4a9e9a188789f4509",
+          "sha256": "284a0395f66030f783f1e44aa7f3854562eca48b40e4c80d03c8c3997b9ec0bb",
+          "worktree_matches_source": true,
+          "route_status": null,
+          "verified": true
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "2feeedec49d410a99b3e2fa4a3226adade2d21f6",
+          "sha256": "66118bac89fa687dbee6242ac87263fae53d792861003cbfb9f3799d92c422e9",
+          "worktree_matches_source": true,
+          "route_status": null,
+          "verified": true
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "3f92f8d457c12a64b8af29f5e9649feee022f0d6",
+          "sha256": "f3f0212dc094ef1acd2def2a00475f82301fcafc6236b5f1a78d9688418fe501",
+          "worktree_matches_source": true,
+          "route_status": null,
+          "verified": true
+        },
+        {
+          "path": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7",
+          "sha256": "8df140b0007b11d75c273f3c315415b036e44c365bc4cc7bffc265e00439c91c",
+          "worktree_matches_source": true,
+          "route_status": null,
+          "verified": true
+        },
+        {
+          "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "319f20c2321171831a7903137ad47754e270ec43",
+          "sha256": "6217ddc0ff5383baf26e460b42fc3065ae5a319c42e8b453226a14a6b92224f0",
+          "worktree_matches_source": true,
+          "route_status": null,
+          "verified": true
+        },
+        {
+          "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "17d3de04aa878c6c5617c46cceaf46ae3518b339",
+          "sha256": "547eee0ed365f29bad368ae523ea459c2607e4d85b8c655b7edf4d37b8d00471",
+          "worktree_matches_source": true,
+          "route_status": null,
+          "verified": true
+        },
+        {
+          "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+          "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+          "blob_oid": "190144f09bf2f6adfdab40280e8887da00655f18",
+          "sha256": "b16879dc931ebd1d8c15640ecc4401baae2fd19eb348cd730c3c731acf33b70d",
+          "worktree_matches_source": true,
+          "route_status": null,
+          "verified": true
+        }
+      ],
+      "all_source_identity_errors": []
+    },
+    "implementation_inputs": {
+      "tracked_and_clean": true,
+      "paths": [
+        {
+          "path": "scripts/maintainers/prune-stale-branches.sh",
+          "tracked": true,
+          "clean": true
+        },
+        {
+          "path": "scripts/maintainers/prune-stale-branches-readiness.mjs",
+          "tracked": true,
+          "clean": true
+        },
+        {
+          "path": "scripts/maintainers/prune-stale-branches-readiness.test.mjs",
+          "tracked": true,
+          "clean": true
+        },
+        {
+          "path": "scripts/maintainers/prune-stale-branches.test.mjs",
+          "tracked": true,
+          "clean": true
+        },
+        {
+          "path": "scripts/maintainers/prune-stale-branches.test.sh",
+          "tracked": true,
+          "clean": true
+        },
+        {
+          "path": "scripts/maintainers/prune-stale-branches-admission.mjs",
+          "tracked": true,
+          "clean": true
+        },
+        {
+          "path": "scripts/maintainers/prune-stale-branches-current.mjs",
+          "tracked": true,
+          "clean": true
+        },
+        {
+          "path": "scripts/maintainers/repo-mutation-coordinator.sh",
+          "tracked": true,
+          "clean": true
+        }
+      ]
+    }
+  },
+  "readiness": {
+    "public_operator": {
+      "command": "PATH=/Users/jon/.asdf/installs/nodejs/22.14.0/bin:/usr/bin:/bin:$PATH bash scripts/maintainers/prune-stale-branches.sh verify-readiness --repo . --readiness-commit e61432a0248824d14d942c7d4ae2fd428a81ae99 --readiness .planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "exit_code": 0,
+      "stdout": "PASS: committed D-01 readiness is valid at e61432a0248824d14d942c7d4ae2fd428a81ae99.",
+      "status": "ready",
+      "artifact_commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+      "artifact_path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json"
+    },
+    "direct_helper": {
+      "command": "PATH=/Users/jon/.asdf/installs/nodejs/22.14.0/bin:/usr/bin:/bin:$PATH node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo . --artifact .planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json --artifact-commit e61432a0248824d14d942c7d4ae2fd428a81ae99",
+      "exit_code": 0,
+      "valid": true,
+      "status": "ready",
+      "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "artifact": {
+        "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+        "blob_oid": "05621c5c0c313848deefe0fd8493648724289a1f",
+        "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193"
+      },
+      "reason_codes": []
+    },
+    "current_state_route": {
+      "path": ".planning/state.json",
+      "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "source": {
+        "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+        "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+        "phase244_status": "complete"
+      },
+      "capture_observations": {
+        "head": {
+          "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+          "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+          "phase244_status": "complete"
+        },
+        "index": {
+          "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+          "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+          "phase244_status": "complete"
+        },
+        "worktree": {
+          "blob_oid": "e279e11c508e62c0f699042737412dd04e04ddb0",
+          "sha256": "d26e00285d5b939e507896551430cd665b14712bc25cc182a3972166f67bdd14",
+          "phase244_status": "complete"
+        }
+      },
+      "current_observations": {
+        "head": {
+          "blob_oid": "2fc61db8999aac1183275be34d79637d6a42e89d",
+          "sha256": "f207f753df22d81d3268c5f31131490f831f6940f889a0047eab2f48b4eeb5",
+          "phase244_status": "complete"
+        },
+        "index": {
+          "blob_oid": "2fc61db8999aac1183275be34d79637d6a42e89d",
+          "sha256": "f207f753df22d81d3268c5f31131490f831f6940f889a0047eab2f48b4eeb5",
+          "phase244_status": "complete"
+        },
+        "worktree": {
+          "blob_oid": "2fc61db8999aac1183275be34d79637d6a42e89d",
+          "sha256": "f207f753df22d81d3268c5f31131490f831f6940f889a0047eab2f48b4eeb5",
+          "phase244_status": "complete"
+        }
+      },
+      "changed_since_capture": {
+        "head": true,
+        "index": true,
+        "worktree": true
+      }
+    }
+  },
+  "production_inventories": {
+    "local_refs": {
+      "format": "refname<TAB>objectname<TAB>objecttype",
+      "count_before": 128,
+      "count_after": 128,
+      "sha256_before": "184053652ee873c92e03bb81da788437e1a6a04ba4e406a5adb262418dad636c",
+      "sha256_after": "184053652ee873c92e03bb81da788437e1a6a04ba4e406a5adb262418dad636c",
+      "before_inventory": [
+        "refs/archive/merged-branches/chore/enable-generated-app-login-dispatch\tdd3d735aa512cb8ef9cb7c4846134d46c1b7c568\tcommit",
+        "refs/archive/merged-branches/ci-efficiency-milestone-scope\t0e918c490f19d5bba11a2ffbd2784828ed5d836e\tcommit",
+        "refs/archive/merged-branches/ci/phase-235-argv-receipts\t1ae1cce8b6fb29cf578160dbc12c4314491da3c6\tcommit",
+        "refs/archive/merged-branches/ci/phase-235-protected-evidence\tfdf37a3e13227355b6e166db316af2c47bb14e73\tcommit",
+        "refs/archive/merged-branches/ci/phase-235-protected-producer-fix\t3266e7c7237e90ef7ed84acb47fd73894619f66c\tcommit",
+        "refs/archive/merged-branches/ci/phase-235-skipped-job-receipts\t0f965b1ffb2ddad9780e3aa4f530230347b13302\tcommit",
+        "refs/archive/merged-branches/docs-pin-sigra-1-4\t736573a5ea6d418bd29259631a5dcd093d62729d\tcommit",
+        "refs/archive/merged-branches/docs/230-closeout\td7be953462b7a8da4a82e5ff16521d97cec33d6b\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-cutoff-history-235-10\t8535324894613bdf8efe616f63c10bdbd274f4ff\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-measurement-235-10\te36751e1f7d1efa57941892fe9ddbc27702ef7dc\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-portability-235-10\tcfdfe0e5d96b4bfd756e8a939b802b0d06b0b06a\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-readiness-filter-235-10\t4cd9f9a41860630e24f90f9b370b30547b96f21c\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-remeasurement-235-10\t3f11e384dad8da54ef23bf55007756957ba45883\tcommit",
+        "refs/archive/merged-branches/fix/branding-dark-theme-parity\t0a71b769059c8bfe1e23d587d34b819e320c4e30\tcommit",
+        "refs/archive/merged-branches/fix/chimeway-opaque-recipient-main\tbd622636314a4bdff84a0f6efed55a7680c9fede\tcommit",
+        "refs/archive/merged-branches/fix/ci-observe-render\t26f1e11d0cbdec31fd30f6d7be8a718a16487e39\tcommit",
+        "refs/archive/merged-branches/fix/fast-01-evidence-checkout-history\t7ec3b55aafc4c5066b2f4ee51c362deb601c6521\tcommit",
+        "refs/archive/merged-branches/gsd/235-13-producer-manifest-chronology-main\t53887eeabda9f89e40fcf5a12dbb47d39d6fbd91\tcommit",
+        "refs/archive/merged-branches/gsd/235-13-producer-terminal-filter\t7b0c88030b24554957716528120343c15f49871a\tcommit",
+        "refs/archive/merged-branches/gsd/phase-233-library-suite-economics\t10a2c9b30c1ca6b29edf1a8fa75563baceb8097a\tcommit",
+        "refs/archive/merged-branches/gsd/phase-235-remediation\td034eaa0473f28e60214343673e5f05c36c1460b\tcommit",
+        "refs/archive/merged-branches/gsd/phase-235-remediation-evidence\te3b27c6f82dc1da7c088807c52cb697dcfe33857\tcommit",
+        "refs/archive/merged-branches/gsd/v1.47-ci-efficiency-integration\t396539f9c7da4f9a8aa4f85fa9454a90929e3f7f\tcommit",
+        "refs/archive/merged-branches/post-release-1.4.0-bookkeeping\t20eca5cbd166feee952b0eb8f1dee9120ad24db3\tcommit",
+        "refs/archive/merged-branches/v1.46-closeout\t727728a942eeb41c4a1652a4da7c034e3036ac80\tcommit",
+        "refs/archive/merged-branches/worktree-agent-evidence-235-13-plan12-blobs\tbd0a6de6ba9b4ad5b63d8df4ba0cf34edd2de975\tcommit",
+        "refs/archive/merged-branches/worktree-v1.46-login-email-label\ta297689abdbdf8d5c03e8f67155f76d8cd3cb7d0\tcommit",
+        "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-1f107a51\t1f107a51f164d88ee5dfea920217987e9e3b3642\tcommit",
+        "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-ecf14dfd\tecf14dfdb3a0f4e7d2f8fafd4195b44150f150b2\tcommit",
+        "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-eeb4b3c1\teeb4b3c1ba2057ea6c9ccb4d30b4280d48c51e68\tcommit",
+        "refs/heads/agent-241-01-rescue\t99efe519157a81ffe009d4f5d3868fe14c2c3082\tcommit",
+        "refs/heads/agent-241-03-exec\tcfdbab0c2521f0bf08ceb2c017b10d810abc3e69\tcommit",
+        "refs/heads/agent-242-02-clean\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+        "refs/heads/agent-242-02-continuation\t7662ee341cefd6b7a90d10f1c6834870ad5b7bb4\tcommit",
+        "refs/heads/agent-242-14-closeout\tda056c9d7651c33fbf00ad688b67326f9f9c9c2f\tcommit",
+        "refs/heads/agent-exec-235-1-04-evidence\t8676a6a7eb0d7487e401c251b8c46ec368e92447\tcommit",
+        "refs/heads/agent-exec-235-1-12-evidence\t47f9578fc97edc63603953d446e79fac884326c3\tcommit",
+        "refs/heads/agent-exec-235-1-18-evidence\t39f53ca09f74e3bc5c385da7213bc1ce3953dcd8\tcommit",
+        "refs/heads/agent-exec-235-1-29-authority\t9a7fcba4c6ca218b4f119bea1355a79415764a07\tcommit",
+        "refs/heads/ci/phase-235-1-evidence\tcdba0b3908a639e069d59c115c23ad23a51deb67\tcommit",
+        "refs/heads/ci/phase-235-16-source-complete\tdd56ceb3220aca6c92899563e1079dc58fcd8cf8\tcommit",
+        "refs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+        "refs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+        "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+        "refs/heads/gsd-reviewfix/247-29317\tb9dc7b9f2d0878bb8214bbd67bce0267e5191733\tcommit",
+        "refs/heads/gsd/235-13-producer-manifest-chronology\t54749e55112ba0c6f7227233100dd330e9290001\tcommit",
+        "refs/heads/gsd/235-13-producer-manifest-chronology-merge\tf5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f\tcommit",
+        "refs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+        "refs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+        "refs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+        "refs/heads/gsd/v1.48-b2c-adopter-readiness\ta13e999f2afdc8ec9a31c58cd657c6de6d9a37f5\tcommit",
+        "refs/heads/main\tde9145daec2c94dab9043524ec8df94f7fb9d567\tcommit",
+        "refs/heads/phase-241-ci-reconcile\tb7e9d7e52ab5d26b8d5624ddc9935e895ff8f409\tcommit",
+        "refs/heads/phase-242-execution\tff13fa7851a4750fc87ba8c290a7b4be391ca9f0\tcommit",
+        "refs/heads/phase-242-safety-closeout\t5fad0e912a8c19189a4d1ed2471a113357c9c549\tcommit",
+        "refs/heads/phase-244-playwright-measurement\tf12e0909b1f72eae55dca6d2475034bfbd21ddad\tcommit",
+        "refs/heads/release-1.4.0-changelog\t86728ee1f74913338675786fd871e845904ad8a0\tcommit",
+        "refs/heads/safety/local-main-before-release-cleanup-20260831\t04ae0ba753e4f0613df5b3f840955018742ffbb9\tcommit",
+        "refs/heads/v1.47-closeout\tc76d9455315a836c06e423fa38a2429f1fc29486\tcommit",
+        "refs/heads/worktree-agent-p242-03\tee61cfb378dbe79de88482c714edeb7f098b469b\tcommit",
+        "refs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+        "refs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+        "refs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+        "refs/remotes/origin/brandbook-rail-accent-logo-system\t093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd\tcommit",
+        "refs/remotes/origin/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
+        "refs/remotes/origin/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
+        "refs/remotes/origin/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
+        "refs/remotes/origin/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit",
+        "refs/remotes/origin/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
+        "refs/remotes/origin/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
+        "refs/remotes/origin/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
+        "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2\te101caefbe96923dc23c956f71a4cce5aa780fe7\tcommit",
+        "refs/remotes/origin/dependabot/hex/credo-1.7.19\t39a3790ea829d80f864ffbf1564e97052a4262b3\tcommit",
+        "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3\t6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd\tcommit",
+        "refs/remotes/origin/dependabot/hex/hammer-7.4.1\t77b4259f1dbd3507fab2f9a8c743c5576eeeef3a\tcommit",
+        "refs/remotes/origin/dependabot/hex/oban-2.24.0\t2086bd14372f493a2ec2cf56b56e21b72e5b18cf\tcommit",
+        "refs/remotes/origin/dependabot/hex/threadline-0.9.0\ta7ccd0995d5bd82c9a3c0aa6f9195d266039f14f\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0\t859a77deb5a000024a5022e7ea28be790c3d4c51\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0\tf67c9115b5aaebc7e38073bef8f1abefd73ae6c9\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0\t204ce7f59ad2b1a2f709261f69bc35235bdc813c\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1\t9f5150bd3a000dc122e8c185bf06c102ac720667\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4\tc06cc1475ca91519765b3792958bcadd9f131601\tcommit",
+        "refs/remotes/origin/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+        "refs/remotes/origin/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
+        "refs/remotes/origin/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
+        "refs/remotes/origin/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
+        "refs/remotes/origin/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+        "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+        "refs/remotes/origin/gh-pages\tdd671004a276c24fafa8ece80e341706085a999e\tcommit",
+        "refs/remotes/origin/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
+        "refs/remotes/origin/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+        "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+        "refs/remotes/origin/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+        "refs/remotes/origin/gsd/phase-236-flake-root-cause\t337538c48b79c358f19a9e1c514a7a373379d353\tcommit",
+        "refs/remotes/origin/gsd/phase-239-priv-templates-sweep\t5abd3ede7fc11f96a66739e53283f9d5aec3c6ec\tcommit",
+        "refs/remotes/origin/gsd/phase-240-closeout\t9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b\tcommit",
+        "refs/remotes/origin/gsd/phase-240-green-main-evidence\t4429657a725ef5601fe2e0b25cebcd54c314540e\tcommit",
+        "refs/remotes/origin/gsd/phase-241-context\te6b63ca1698e23adb99c84f088fc9ad469122496\tcommit",
+        "refs/remotes/origin/gsd/phase-241-plans\ta38651a37875a340462c647d5f9b1beed30893dd\tcommit",
+        "refs/remotes/origin/gsd/phase-241-research\t62906d14da1cd4c72e5080c1fa686ba4d6948ca8\tcommit",
+        "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping\tdaa8b41f3d458c66ecacb7a0276ab8b65ffc38d6\tcommit",
+        "refs/remotes/origin/gsd/quick-green-04-collector-guards\tcea7098347086166ec3ec6e1a8e0db0403d5b9c0\tcommit",
+        "refs/remotes/origin/gsd/state-reconcile-241\t21c6c25a996ec3497cf89b656bcd0759e5176039\tcommit",
+        "refs/remotes/origin/main\t6f14c04a26dc69125b2aa00f89c3d905b3c4bafa\tcommit",
+        "refs/remotes/origin/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
+        "refs/remotes/origin/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+        "refs/remotes/origin/phase-244/measurement\tf5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac\tcommit",
+        "refs/remotes/origin/release-please--branches--main\t70ba005a694540e488a2e705950c4135268642ad\tcommit",
+        "refs/remotes/origin/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
+        "refs/remotes/origin/v1.37-auth-branding-admin-polish\tb9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f\tcommit",
+        "refs/remotes/origin/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
+        "refs/remotes/origin/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+        "refs/remotes/origin/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+        "refs/remotes/origin/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+        "refs/stash\t089ced30df5f91ede6c97d7c63076da03758075b\tcommit",
+        "refs/tags/archive/local-main-pre-235-recovery\tf9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972\tcommit",
+        "refs/tags/v0.2.1\t05b29e52dbb397d2b2e2f98dcca88aa7d6dbfc03\tcommit",
+        "refs/tags/v0.2.2\t2d2cea23352eea8dd544421ef452f7ab8d7ff10c\tcommit",
+        "refs/tags/v0.2.3\tdd3ddc42c34546c5644816811744f4c721c2bdbf\tcommit",
+        "refs/tags/v0.2.4\t5a68344658e6b708373fa43bdb8b0c9e27dbc123\ttag",
+        "refs/tags/v0.2.5\t24b075fe5bb6784ced8c77f85a93244aa39da838\tcommit",
+        "refs/tags/v0.3.0\tb186f03ccc5bbc9416f495df3e5dd0bec2f814a4\tcommit",
+        "refs/tags/v1.0.0\t5f036bcc8eb1be74e2f646a1c90787a50f531148\tcommit",
+        "refs/tags/v1.1.0\t11243f88fdf3d10c1f4fb2f69f787893e647d082\tcommit",
+        "refs/tags/v1.2.0\tb0ef1097fc968304e3f3afb697cae1dd5754a86b\tcommit",
+        "refs/tags/v1.3.0\t8a600ba068c7b63ded9919d0cdafff0a420f43ca\tcommit",
+        "refs/tags/v1.4.0\tcfc5e6b88e1e95403c488fc518fd6f5469a9b015\tcommit",
+        "refs/tags/v1.5.0\t10904571ec65baf42e5fc3bae4170eeb87b109fe\tcommit"
+      ],
+      "after_inventory": [
+        "refs/archive/merged-branches/chore/enable-generated-app-login-dispatch\tdd3d735aa512cb8ef9cb7c4846134d46c1b7c568\tcommit",
+        "refs/archive/merged-branches/ci-efficiency-milestone-scope\t0e918c490f19d5bba11a2ffbd2784828ed5d836e\tcommit",
+        "refs/archive/merged-branches/ci/phase-235-argv-receipts\t1ae1cce8b6fb29cf578160dbc12c4314491da3c6\tcommit",
+        "refs/archive/merged-branches/ci/phase-235-protected-evidence\tfdf37a3e13227355b6e166db316af2c47bb14e73\tcommit",
+        "refs/archive/merged-branches/ci/phase-235-protected-producer-fix\t3266e7c7237e90ef7ed84acb47fd73894619f66c\tcommit",
+        "refs/archive/merged-branches/ci/phase-235-skipped-job-receipts\t0f965b1ffb2ddad9780e3aa4f530230347b13302\tcommit",
+        "refs/archive/merged-branches/docs-pin-sigra-1-4\t736573a5ea6d418bd29259631a5dcd093d62729d\tcommit",
+        "refs/archive/merged-branches/docs/230-closeout\td7be953462b7a8da4a82e5ff16521d97cec33d6b\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-cutoff-history-235-10\t8535324894613bdf8efe616f63c10bdbd274f4ff\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-measurement-235-10\te36751e1f7d1efa57941892fe9ddbc27702ef7dc\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-portability-235-10\tcfdfe0e5d96b4bfd756e8a939b802b0d06b0b06a\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-readiness-filter-235-10\t4cd9f9a41860630e24f90f9b370b30547b96f21c\tcommit",
+        "refs/archive/merged-branches/evidence/fast-01-remeasurement-235-10\t3f11e384dad8da54ef23bf55007756957ba45883\tcommit",
+        "refs/archive/merged-branches/fix/branding-dark-theme-parity\t0a71b769059c8bfe1e23d587d34b819e320c4e30\tcommit",
+        "refs/archive/merged-branches/fix/chimeway-opaque-recipient-main\tbd622636314a4bdff84a0f6efed55a7680c9fede\tcommit",
+        "refs/archive/merged-branches/fix/ci-observe-render\t26f1e11d0cbdec31fd30f6d7be8a718a16487e39\tcommit",
+        "refs/archive/merged-branches/fix/fast-01-evidence-checkout-history\t7ec3b55aafc4c5066b2f4ee51c362deb601c6521\tcommit",
+        "refs/archive/merged-branches/gsd/235-13-producer-manifest-chronology-main\t53887eeabda9f89e40fcf5a12dbb47d39d6fbd91\tcommit",
+        "refs/archive/merged-branches/gsd/235-13-producer-terminal-filter\t7b0c88030b24554957716528120343c15f49871a\tcommit",
+        "refs/archive/merged-branches/gsd/phase-233-library-suite-economics\t10a2c9b30c1ca6b29edf1a8fa75563baceb8097a\tcommit",
+        "refs/archive/merged-branches/gsd/phase-235-remediation\td034eaa0473f28e60214343673e5f05c36c1460b\tcommit",
+        "refs/archive/merged-branches/gsd/phase-235-remediation-evidence\te3b27c6f82dc1da7c088807c52cb697dcfe33857\tcommit",
+        "refs/archive/merged-branches/gsd/v1.47-ci-efficiency-integration\t396539f9c7da4f9a8aa4f85fa9454a90929e3f7f\tcommit",
+        "refs/archive/merged-branches/post-release-1.4.0-bookkeeping\t20eca5cbd166feee952b0eb8f1dee9120ad24db3\tcommit",
+        "refs/archive/merged-branches/v1.46-closeout\t727728a942eeb41c4a1652a4da7c034e3036ac80\tcommit",
+        "refs/archive/merged-branches/worktree-agent-evidence-235-13-plan12-blobs\tbd0a6de6ba9b4ad5b63d8df4ba0cf34edd2de975\tcommit",
+        "refs/archive/merged-branches/worktree-v1.46-login-email-label\ta297689abdbdf8d5c03e8f67155f76d8cd3cb7d0\tcommit",
+        "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-1f107a51\t1f107a51f164d88ee5dfea920217987e9e3b3642\tcommit",
+        "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-ecf14dfd\tecf14dfdb3a0f4e7d2f8fafd4195b44150f150b2\tcommit",
+        "refs/archive/no-pr-evidence/ci/phase-238-generated-auth-evidence-eeb4b3c1\teeb4b3c1ba2057ea6c9ccb4d30b4280d48c51e68\tcommit",
+        "refs/heads/agent-241-01-rescue\t99efe519157a81ffe009d4f5d3868fe14c2c3082\tcommit",
+        "refs/heads/agent-241-03-exec\tcfdbab0c2521f0bf08ceb2c017b10d810abc3e69\tcommit",
+        "refs/heads/agent-242-02-clean\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+        "refs/heads/agent-242-02-continuation\t7662ee341cefd6b7a90d10f1c6834870ad5b7bb4\tcommit",
+        "refs/heads/agent-242-14-closeout\tda056c9d7651c33fbf00ad688b67326f9f9c9c2f\tcommit",
+        "refs/heads/agent-exec-235-1-04-evidence\t8676a6a7eb0d7487e401c251b8c46ec368e92447\tcommit",
+        "refs/heads/agent-exec-235-1-12-evidence\t47f9578fc97edc63603953d446e79fac884326c3\tcommit",
+        "refs/heads/agent-exec-235-1-18-evidence\t39f53ca09f74e3bc5c385da7213bc1ce3953dcd8\tcommit",
+        "refs/heads/agent-exec-235-1-29-authority\t9a7fcba4c6ca218b4f119bea1355a79415764a07\tcommit",
+        "refs/heads/ci/phase-235-1-evidence\tcdba0b3908a639e069d59c115c23ad23a51deb67\tcommit",
+        "refs/heads/ci/phase-235-16-source-complete\tdd56ceb3220aca6c92899563e1079dc58fcd8cf8\tcommit",
+        "refs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+        "refs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+        "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+        "refs/heads/gsd-reviewfix/247-29317\tb9dc7b9f2d0878bb8214bbd67bce0267e5191733\tcommit",
+        "refs/heads/gsd/235-13-producer-manifest-chronology\t54749e55112ba0c6f7227233100dd330e9290001\tcommit",
+        "refs/heads/gsd/235-13-producer-manifest-chronology-merge\tf5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f\tcommit",
+        "refs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+        "refs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+        "refs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+        "refs/heads/gsd/v1.48-b2c-adopter-readiness\ta13e999f2afdc8ec9a31c58cd657c6de6d9a37f5\tcommit",
+        "refs/heads/main\tde9145daec2c94dab9043524ec8df94f7fb9d567\tcommit",
+        "refs/heads/phase-241-ci-reconcile\tb7e9d7e52ab5d26b8d5624ddc9935e895ff8f409\tcommit",
+        "refs/heads/phase-242-execution\tff13fa7851a4750fc87ba8c290a7b4be391ca9f0\tcommit",
+        "refs/heads/phase-242-safety-closeout\t5fad0e912a8c19189a4d1ed2471a113357c9c549\tcommit",
+        "refs/heads/phase-244-playwright-measurement\tf12e0909b1f72eae55dca6d2475034bfbd21ddad\tcommit",
+        "refs/heads/release-1.4.0-changelog\t86728ee1f74913338675786fd871e845904ad8a0\tcommit",
+        "refs/heads/safety/local-main-before-release-cleanup-20260831\t04ae0ba753e4f0613df5b3f840955018742ffbb9\tcommit",
+        "refs/heads/v1.47-closeout\tc76d9455315a836c06e423fa38a2429f1fc29486\tcommit",
+        "refs/heads/worktree-agent-p242-03\tee61cfb378dbe79de88482c714edeb7f098b469b\tcommit",
+        "refs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+        "refs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+        "refs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+        "refs/remotes/origin/brandbook-rail-accent-logo-system\t093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd\tcommit",
+        "refs/remotes/origin/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
+        "refs/remotes/origin/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
+        "refs/remotes/origin/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
+        "refs/remotes/origin/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit",
+        "refs/remotes/origin/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
+        "refs/remotes/origin/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
+        "refs/remotes/origin/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
+        "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2\te101caefbe96923dc23c956f71a4cce5aa780fe7\tcommit",
+        "refs/remotes/origin/dependabot/hex/credo-1.7.19\t39a3790ea829d80f864ffbf1564e97052a4262b3\tcommit",
+        "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3\t6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd\tcommit",
+        "refs/remotes/origin/dependabot/hex/hammer-7.4.1\t77b4259f1dbd3507fab2f9a8c743c5576eeeef3a\tcommit",
+        "refs/remotes/origin/dependabot/hex/oban-2.24.0\t2086bd14372f493a2ec2cf56b56e21b72e5b18cf\tcommit",
+        "refs/remotes/origin/dependabot/hex/threadline-0.9.0\ta7ccd0995d5bd82c9a3c0aa6f9195d266039f14f\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0\t859a77deb5a000024a5022e7ea28be790c3d4c51\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0\tf67c9115b5aaebc7e38073bef8f1abefd73ae6c9\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0\t204ce7f59ad2b1a2f709261f69bc35235bdc813c\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1\t9f5150bd3a000dc122e8c185bf06c102ac720667\tcommit",
+        "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4\tc06cc1475ca91519765b3792958bcadd9f131601\tcommit",
+        "refs/remotes/origin/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+        "refs/remotes/origin/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
+        "refs/remotes/origin/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
+        "refs/remotes/origin/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
+        "refs/remotes/origin/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+        "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+        "refs/remotes/origin/gh-pages\tdd671004a276c24fafa8ece80e341706085a999e\tcommit",
+        "refs/remotes/origin/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
+        "refs/remotes/origin/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+        "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+        "refs/remotes/origin/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+        "refs/remotes/origin/gsd/phase-236-flake-root-cause\t337538c48b79c358f19a9e1c514a7a373379d353\tcommit",
+        "refs/remotes/origin/gsd/phase-239-priv-templates-sweep\t5abd3ede7fc11f96a66739e53283f9d5aec3c6ec\tcommit",
+        "refs/remotes/origin/gsd/phase-240-closeout\t9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b\tcommit",
+        "refs/remotes/origin/gsd/phase-240-green-main-evidence\t4429657a725ef5601fe2e0b25cebcd54c314540e\tcommit",
+        "refs/remotes/origin/gsd/phase-241-context\te6b63ca1698e23adb99c84f088fc9ad469122496\tcommit",
+        "refs/remotes/origin/gsd/phase-241-plans\ta38651a37875a340462c647d5f9b1beed30893dd\tcommit",
+        "refs/remotes/origin/gsd/phase-241-research\t62906d14da1cd4c72e5080c1fa686ba4d6948ca8\tcommit",
+        "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping\tdaa8b41f3d458c66ecacb7a0276ab8b65ffc38d6\tcommit",
+        "refs/remotes/origin/gsd/quick-green-04-collector-guards\tcea7098347086166ec3ec6e1a8e0db0403d5b9c0\tcommit",
+        "refs/remotes/origin/gsd/state-reconcile-241\t21c6c25a996ec3497cf89b656bcd0759e5176039\tcommit",
+        "refs/remotes/origin/main\t6f14c04a26dc69125b2aa00f89c3d905b3c4bafa\tcommit",
+        "refs/remotes/origin/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
+        "refs/remotes/origin/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+        "refs/remotes/origin/phase-244/measurement\tf5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac\tcommit",
+        "refs/remotes/origin/release-please--branches--main\t70ba005a694540e488a2e705950c4135268642ad\tcommit",
+        "refs/remotes/origin/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
+        "refs/remotes/origin/v1.37-auth-branding-admin-polish\tb9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f\tcommit",
+        "refs/remotes/origin/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
+        "refs/remotes/origin/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+        "refs/remotes/origin/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+        "refs/remotes/origin/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+        "refs/stash\t089ced30df5f91ede6c97d7c63076da03758075b\tcommit",
+        "refs/tags/archive/local-main-pre-235-recovery\tf9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972\tcommit",
+        "refs/tags/v0.2.1\t05b29e52dbb397d2b2e2f98dcca88aa7d6dbfc03\tcommit",
+        "refs/tags/v0.2.2\t2d2cea23352eea8dd544421ef452f7ab8d7ff10c\tcommit",
+        "refs/tags/v0.2.3\tdd3ddc42c34546c5644816811744f4c721c2bdbf\tcommit",
+        "refs/tags/v0.2.4\t5a68344658e6b708373fa43bdb8b0c9e27dbc123\ttag",
+        "refs/tags/v0.2.5\t24b075fe5bb6784ced8c77f85a93244aa39da838\tcommit",
+        "refs/tags/v0.3.0\tb186f03ccc5bbc9416f495df3e5dd0bec2f814a4\tcommit",
+        "refs/tags/v1.0.0\t5f036bcc8eb1be74e2f646a1c90787a50f531148\tcommit",
+        "refs/tags/v1.1.0\t11243f88fdf3d10c1f4fb2f69f787893e647d082\tcommit",
+        "refs/tags/v1.2.0\tb0ef1097fc968304e3f3afb697cae1dd5754a86b\tcommit",
+        "refs/tags/v1.3.0\t8a600ba068c7b63ded9919d0cdafff0a420f43ca\tcommit",
+        "refs/tags/v1.4.0\tcfc5e6b88e1e95403c488fc518fd6f5469a9b015\tcommit",
+        "refs/tags/v1.5.0\t10904571ec65baf42e5fc3bae4170eeb87b109fe\tcommit"
+      ],
+      "byte_identical": true,
+      "unchanged": true
+    },
+    "stashes": {
+      "count_before": 6,
+      "count_after": 6,
+      "sha256_before": "88cadbca7829c6be028c2e508b49d7898e47dd67f0846a83bfb611b3666d01a9",
+      "sha256_after": "88cadbca7829c6be028c2e508b49d7898e47dd67f0846a83bfb611b3666d01a9",
+      "before_inventory": [
+        "stash@{0} 089ced30df5f91ede6c97d7c63076da03758075b On gsd/238-generated-auth-runtime-proof-evidence: safety: pre-release workspace snapshot 2026-08-31",
+        "stash@{1} 9c959d2274aabee537a8d4ea97ce00cde4a72a18 WIP on chore/phase-88-uat-evidence: a93f195 Merge remote-tracking branch 'origin/main' into chore/phase-88-uat-evidence",
+        "stash@{2} b15f95edd6ee8dadb964829fe2b44b138028d320 On chore/phase-88-uat-evidence: GSD broken unstaged changes from incomplete phases 93-96",
+        "stash@{3} 2fc400fd196c08a923599ca4d11d5b353d247221 WIP on worktree-agent-abbba1c7: a046e64 docs(17): gap plan 17-09 — close INV-08 cross-tenant IDOR in revoke/3",
+        "stash@{4} 44e310947ce46140e059d25e453427471e8f4e51 WIP on worktree-agent-a2d214b9: b14e490 chore: merge executor worktree (17-06)",
+        "stash@{5} a649b5affa184835eb835fc9e766331b65b446c7 WIP on worktree-agent-a9e38565: 29f4cca fix(16): drop duplicate delegators now injected by use Sigra.Organizations"
+      ],
+      "after_inventory": [
+        "stash@{0} 089ced30df5f91ede6c97d7c63076da03758075b On gsd/238-generated-auth-runtime-proof-evidence: safety: pre-release workspace snapshot 2026-08-31",
+        "stash@{1} 9c959d2274aabee537a8d4ea97ce00cde4a72a18 WIP on chore/phase-88-uat-evidence: a93f195 Merge remote-tracking branch 'origin/main' into chore/phase-88-uat-evidence",
+        "stash@{2} b15f95edd6ee8dadb964829fe2b44b138028d320 On chore/phase-88-uat-evidence: GSD broken unstaged changes from incomplete phases 93-96",
+        "stash@{3} 2fc400fd196c08a923599ca4d11d5b353d247221 WIP on worktree-agent-abbba1c7: a046e64 docs(17): gap plan 17-09 — close INV-08 cross-tenant IDOR in revoke/3",
+        "stash@{4} 44e310947ce46140e059d25e453427471e8f4e51 WIP on worktree-agent-a2d214b9: b14e490 chore: merge executor worktree (17-06)",
+        "stash@{5} a649b5affa184835eb835fc9e766331b65b446c7 WIP on worktree-agent-a9e38565: 29f4cca fix(16): drop duplicate delegators now injected by use Sigra.Organizations"
+      ],
+      "byte_identical": true,
+      "unchanged": true
+    },
+    "origin_and_pr": {
+      "queried": false,
+      "mutations": 0,
+      "reason": "readiness verification is local and read-only; fresh origin refs and complete live PR head/base data are required for any later current contract"
+    }
+  },
+  "prior_plan_history": {
+    "plan19": {
+      "commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+      "result_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+      "admitted_local_ref_deletions": 1,
+      "deleted_ref": "refs/heads/agent-241-08",
+      "counted_once": true,
+      "replay_prohibited": true
+    },
+    "plan25": {
+      "contract_commit": "6f5aa40354eb3f3126d8394c80060cc607dfa674",
+      "blocked_result_commit": "a1cd058d63eb713ce50568a953b316cdfc3ef7bd",
+      "result_path": ".planning/phases/245-branch-prune-local-and-remote/245-25-RESULT.json",
+      "outcome": "blocked",
+      "operation_disposition": "none",
+      "failed_predicate": "d01_readiness_missing_stale_dirty_or_unresolved",
+      "tracking_ref_operations": 0,
+      "new_local_deletions": 0,
+      "post_failure_prune_operations": 0,
+      "mutations": {
+        "local_ref_deletions": [],
+        "tracking_ref_deletions": [],
+        "remote_ref_deletions": []
+      },
+      "replay_prohibited": true
+    }
+  },
+  "test_gate": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-TEST-GATE.json",
+    "commit": "f12e0909b1f72eae55dca6d2475034bfbd21ddad",
+    "status": "passed",
+    "command": "node --test --test-concurrency=1 scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs scripts/maintainers/prune-stale-branches-readiness.test.mjs scripts/maintainers/prune-stale-branches.test.mjs",
+    "environment": {
+      "node": "v22.14.0",
+      "node_path": "/Users/jon/.asdf/installs/nodejs/22.14.0/bin/node",
+      "git": "git version 2.50.1 (Apple Git-155)",
+      "git_path": "/usr/bin/git",
+      "node_options": null
+    },
+    "exit_code": 0,
+    "counts": {
+      "tests": 53,
+      "pass": 53,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "duration_ms": 678082.821125,
+    "log": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-TESTS.tap",
+      "sha256": "16ca2d85235a235f5f3d4d58f8815ca3e1d20471e5360e1203dff9e5a99511b7"
+    },
+    "named_gate": {
+      "name": "schema-2 operator read-only",
+      "command": "bash -o pipefail -c 'node --test --test-concurrency=1 --test-reporter=tap --test-name-pattern=\"schema-2 operator read-only\" scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs | grep -E \"^ok [0-9]+ - schema-2 operator read-only$\"'",
+      "exit_code": 0,
+      "matched_output": "ok 1 - schema-2 operator read-only"
+    },
+    "review": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-REVIEW.md",
+      "status": "clean",
+      "findings": 0,
+      "source_hashes_match": true
+    },
+    "scope_preservation": {
+      "preexisting_modified_or_untracked_files": 152,
+      "unchanged": 152,
+      "changed": []
+    },
+    "interrupted_runs_counted_as_passed": false,
+    "production_prune_operations": 0
+  },
+  "decisions_and_history": {
+    "repo_04": "open",
+    "plan16": "blocked_by_plan14",
+    "historical_11_pr_mismatches": "unresolved",
+    "historical_30_row_cleanup_audit": "unresolved",
+    "unavailable_pre_phase_baseline": "unknown",
+    "independent_full_window_cleanup_registry": "unknown"
+  },
+  "deviations": [
+    {
+      "kind": "verification-blocker-repair",
+      "file": "scripts/maintainers/prune-stale-branches-readiness.mjs",
+      "commit": "0739adfe",
+      "description": "Repeated cross-runtime synchronous pipe stalls blocked Git hash-object --stdin; the exact bytes are now passed through a private regular-file descriptor to the same pinned Git/path-aware command. The temporary file is hashing input only; readiness artifact provenance and route checks remain unchanged.",
+      "verified_by": {
+        "node": "v22.14.0",
+        "bytes": 683388,
+        "tests": 1000,
+        "passed": 1000,
+        "failed": 0,
+        "exact_expected_blob_checked_each_time": true,
+        "duration_ms": 27144
+      },
+      "diagnostic": ".planning/phases/245-branch-prune-local-and-remote/245-26-RUNTIME-DIAGNOSTIC.json"
+    },
+    {
+      "kind": "regression-harness-repair",
+      "file": "scripts/maintainers/prune-stale-branches.remote.test.sh",
+      "commit": "f1085e79",
+      "description": "Updated offline remote fixture transport and true server-side race injection to work with the public operator and pinned Git; production operator behavior is unchanged."
+    }
+  ],
+  "failed_predicates": []
+}
+

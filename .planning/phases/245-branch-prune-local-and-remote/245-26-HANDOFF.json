@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-26",
+  "status": "ready",
+  "result_path": ".planning/phases/245-branch-prune-local-and-remote/245-26-RESULT.json",
+  "next_action": "fresh_current_contract_required",
+  "repo_04": "open",
+  "production_prune_operations": 0,
+  "live_tracking_continuation_issued": false,
+  "source_readiness": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+    "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+    "status": "ready",
+    "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10"
+  },
+  "prior_results": {
+    "plan19": {
+      "commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+      "admitted_local_ref_deletions": 1,
+      "counted_once": true,
+      "replay": "prohibited"
+    },
+    "plan25": {
+      "commit": "a1cd058d63eb713ce50568a953b316cdfc3ef7bd",
+      "outcome": "blocked",
+      "tracking_ref_operations": 0,
+      "replay": "prohibited"
+    }
+  },
+  "before_any_later_live_apply": {
+    "fresh_d06_preflight": {
+      "required": true,
+      "scope": "current complete local/origin inventory and source feasibility"
+    },
+    "fresh_d07_current_state_contract": {
+      "required": true,
+      "source": "new execution-time contract and exact admission; do not reuse the blocked Plan25 child as an operation contract"
+    },
+    "complete_live_open_pr_head_base_inventory": {
+      "required": true
+    },
+    "fresh_origin_and_safety_ref_inventory": {
+      "required": true
+    },
+    "direct_and_peeled_d02_object_proof": {
+      "required": true
+    },
+    "shared_d05_coordinator_verification": {
+      "required": true
+    },
+    "exact_expected_oid_checks": {
+      "required": true
+    },
+    "readiness_gate": {
+      "required": true,
+      "artifact_path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "artifact_commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99"
+    }
+  },
+  "forbidden_replays": [
+    "245-19",
+    "245-21",
+    "245-24",
+    "245-25"
+  ],
+  "historical_unknowns": {
+    "prior_11_pr_mismatches": "unresolved",
+    "prior_30_row_cleanup_audit": "unresolved",
+    "unavailable_pre_phase_baseline": "unknown",
+    "independent_full_window_cleanup_registry": "unknown"
+  },
+  "blocked_dependency": "Plan 16 remains blocked by Plan 14",
+  "no_live_prune_or_requirement_closure": true
+}
+
