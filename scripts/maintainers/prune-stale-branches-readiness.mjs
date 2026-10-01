@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 
 const SOURCE_PATHS = [
@@ -56,8 +57,26 @@ function readIndexBytes(repo, sourcePath) {
 
 function blobForBytes(repo, sourcePath, bytes) {
   if (!bytes) return null;
-  const result = spawnSync(GIT_BIN, ['-C', repo, 'hash-object', '--stdin', '--path', sourcePath], { input: bytes, encoding: 'utf8' });
-  return result.status === 0 ? result.stdout.trim() : null;
+  // Keep exact bytes and Git's path-aware hashing without relying on pipe EOF
+  // delivery from a synchronous subprocess. This file is only hash input;
+  // the committed readiness artifact retains its repository-relative identity.
+  const inputDir = fs.mkdtempSync(path.join(tmpdir(), 'sigra-readiness-hash-'));
+  let inputFd;
+  try {
+    const inputPath = path.join(inputDir, 'bytes');
+    fs.writeFileSync(inputPath, bytes, { flag: 'wx', mode: 0o600 });
+    inputFd = fs.openSync(inputPath, 'r');
+    const result = spawnSync(GIT_BIN, ['-C', repo, 'hash-object', '--stdin', '--path', sourcePath], {
+      stdio: [inputFd, 'pipe', 'pipe'], encoding: 'utf8',
+    });
+    return result.status === 0 ? result.stdout.trim() : null;
+  } finally {
+    try {
+      if (inputFd !== undefined) fs.closeSync(inputFd);
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true });
+    }
+  }
 }
 
 function inspectPhase244Route(bytes) {
