@@ -142,7 +142,7 @@ test("schema-2 operator rejects one-byte worktree mismatch", () => {
     writeFileSync(fixture.receiptFile, `${readFileSync(fixture.receiptFile, "utf8")} `);
     const direct = directVerify(fixture);
     assert.notEqual(direct.status, 0);
-    assert.ok(report(direct)?.reasons?.some((reason) => reason.code === "readiness_artifact_worktree_bytes_mismatch"),
+    assert.ok(report(direct)?.reasons?.some((reason) => reason.code === "readiness_artifact_worktree_identity_changed"),
       `${direct.stdout ?? ""}${direct.stderr ?? ""}`);
     const publicResult = publicVerify(fixture);
     assert.notEqual(publicResult.status, 0);
