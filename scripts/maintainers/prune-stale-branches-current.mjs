@@ -343,6 +343,19 @@ function resultAppliedRefs(result, allowlistByRef) {
       refs.push(ref);
     }
   }
+  const publications = mutations.safety_ref_publications ?? [];
+  if (!Array.isArray(publications)) fail("evidence_transition_result_mutations_invalid:safety_ref_publications");
+  for (const item of publications) {
+    if (typeof item?.ref !== "string") fail("evidence_transition_result_mutation_ref_missing:safety_ref_publications");
+    const ref = safeEvidencePath(item.ref, "evidence_transition_result_ref");
+    const admitted = allowlistByRef.get(ref);
+    if (!admitted || admitted.side !== "safety-publish") fail(`evidence_transition_result_mutation_side_mismatch:safety_ref_publications:${ref}`);
+    const expectedOid = item.expected_oid ?? item.oid;
+    if (expectedOid !== admitted.oid) fail(`evidence_transition_result_mutation_oid_mismatch:${ref}`);
+    if (item.type !== admitted.type) fail(`evidence_transition_result_mutation_type_mismatch:${ref}`);
+    if (item.readback !== "present") fail(`evidence_transition_result_mutation_readback_invalid:${ref}`);
+    refs.push(ref);
+  }
   refs.sort();
   if (new Set(refs).size !== refs.length) fail("evidence_transition_result_ref_duplicate");
   return refs;
@@ -464,7 +477,7 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
   };
 }
 
-function compareCurrent(contract, actual, contractCommit, options) {
+export function compareCurrent(contract, actual, contractCommit, options) {
   if (contract.repository !== actual.repository) fail("current_repository_identity_changed");
   const expectedPrs = contract.open_prs;
   const actualPrs = actual.open_prs;
@@ -508,6 +521,16 @@ function compareCurrent(contract, actual, contractCommit, options) {
       const current = actualOrigin.get(ref);
       if (!local || local.oid !== row.oid || local.type !== row.type) fail(`current_safety_publish_source_mismatch:${ref}`);
       if (current && (current.oid !== row.oid || current.type !== row.type || current.peeled_oid !== local.peeled_oid || current.peeled_type !== local.peeled_type)) fail(`current_safety_publish_identity_conflict:${ref}`);
+    }
+  }
+  for (const row of options.allowlistRows ?? []) {
+    if (row.side !== "safety-publish" || !appliedRefs.has(row.ref)) continue;
+    const source = expectedLocal.get(row.ref);
+    const published = actualOrigin.get(row.ref);
+    if (!source || source.oid !== row.oid || source.type !== row.type) fail(`current_safety_publish_source_mismatch:${row.ref}`);
+    if (!published || published.oid !== source.oid || published.type !== source.type
+      || published.peeled_oid !== source.peeled_oid || published.peeled_type !== source.peeled_type) {
+      fail(`current_safety_publish_readback_mismatch:${row.ref}`);
     }
   }
   for (const [ref, expected] of expectedOrigin) {

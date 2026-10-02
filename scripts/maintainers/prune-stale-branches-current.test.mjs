@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
-import { inspectEvidenceTransition } from "./prune-stale-branches-current.mjs";
+import { compareCurrent, inspectEvidenceTransition } from "./prune-stale-branches-current.mjs";
 
 const OPERATOR = "scripts/maintainers/prune-stale-branches.sh";
 const GIT_BIN = "/usr/bin/git";
@@ -22,7 +22,7 @@ function fixtureGit(repo, ...args) {
   return run(GIT_BIN, ["-C", repo, ...args]);
 }
 
-function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraContractPath = false, trackingRefs = [], admittedLocalRefs = [], safetyRefs = [] } = {}) {
+function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraContractPath = false, trackingRefs = [], admittedLocalRefs = [], safetyRefs = [], safetyTags = [] } = {}) {
   const repo = join(parentDir, "repo");
   mkdirSync(repo);
   run(GIT_BIN, ["init", "-q", "--initial-branch=main", repo]);
@@ -33,6 +33,14 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
   fixtureGit(repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture seed");
   const capturedHeadOid = fixtureGit(repo, "rev-parse", "HEAD");
   for (const ref of [...trackingRefs, ...admittedLocalRefs, ...safetyRefs]) fixtureGit(repo, "update-ref", ref, capturedHeadOid);
+  for (const tag of safetyTags) fixtureGit(repo, "tag", "-a", tag, "-m", "fixture safety tag");
+  const safetyRows = [
+    ...safetyRefs.map((ref) => ({ ref, oid: capturedHeadOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null })),
+    ...safetyTags.map((tag) => {
+      const [ref, oid, type, peeledOid, peeledType] = fixtureGit(repo, "for-each-ref", "--format=%(refname)%09%(objectname)%09%(objecttype)%09%(*objectname)%09%(*objecttype)", `refs/tags/${tag}`).split("\t");
+      return { ref, oid, type, peeled_oid: peeledOid || null, peeled_type: peeledType || null, symref: null };
+    }),
+  ];
   const contractPath = ".planning/phases/245-19-CURRENT-CONTRACT.json";
   const candidatesPath = ".planning/phases/245-19-CANDIDATES.json";
   const allowlistPath = ".planning/phases/245-19-BRANCH-DELETE-ALLOWLIST.tsv";
@@ -45,11 +53,11 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
   }
   const evidenceBytes = {
     [candidatesPath]: Buffer.from('{"classification":"fixture"}\n'),
-    [allowlistPath]: Buffer.from(trackingRefs.length || admittedLocalRefs.length || safetyRefs.length
+    [allowlistPath]: Buffer.from(trackingRefs.length || admittedLocalRefs.length || safetyRows.length
       ? `side\tref\toid\ttype\treason\n${[
         ...admittedLocalRefs.map((ref) => `local\t${ref}\t${capturedHeadOid}\tcommit\tprior admitted local deletion`),
         ...trackingRefs.map((ref) => `tracking\t${ref}\t${capturedHeadOid}\tcommit\tfixture tracking ref`),
-        ...safetyRefs.map((ref) => `safety-publish\t${ref}\t${capturedHeadOid}\tcommit\tfixture safety publication`),
+        ...safetyRows.map((row) => `safety-publish\t${row.ref}\t${row.oid}\t${row.type}\tfixture safety publication`),
       ].join("\n")}\n`
       : "side\tref\toid\ttype\treason\nlocal\trefs/heads/fixture\t0000000000000000000000000000000000000000\tcommit\tfixture\n"),
     [admissionPath]: Buffer.from('{"status":"prepared"}\n'),
@@ -72,7 +80,7 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
       { ref: "refs/heads/main", oid: capturedHeadOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null },
       ...trackingRefs.map((ref) => ({ ref, oid: capturedHeadOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null })),
       ...admittedLocalRefs.map((ref) => ({ ref, oid: capturedHeadOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null })),
-      ...safetyRefs.map((ref) => ({ ref, oid: capturedHeadOid, type: "commit", peeled_oid: null, peeled_type: null, symref: null })),
+      ...safetyRows,
     ].sort((a, b) => a.ref.localeCompare(b.ref)),
     origin_refs: [],
     open_prs: [],
@@ -111,19 +119,37 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
 test("safety publication result reaches the final after-stage applied-ref ledger", () => {
   const root = mkdtempSync(join(tmpdir(), "sigra-safety-publication-result-"));
   try {
-    const ref = "refs/heads/safety-fixture";
-    const fixture = makeEvidenceFixture(root, { safetyRefs: [ref] });
-    const oid = fixture.contract.capture_head_oid;
-    const allowlistRows = [{ side: "safety-publish", ref, oid, type: "commit" }];
-    commitFinalEvidence(fixture, { mutations: {
-      local_ref_deletions: [], tracking_ref_deletions: [], remote_ref_deletions: [],
-      safety_ref_publications: [{ ref, expected_oid: oid, type: "commit", readback: "present" }],
-    } });
-    const final = inspectEvidenceTransition(fixture.repo, fixture.contractCommit, fixture.contractPath, fixture.contract, "after", {
-      allowlistRows,
-      appliedRefs: [ref],
-    });
-    assert.deepEqual(final.applied_refs, [ref]);
+    const cases = [
+      { ref: "refs/heads/safety-fixture", setup: { safetyRefs: ["refs/heads/safety-fixture"] }, tracking: "refs/remotes/origin/safety-fixture" },
+      { ref: "refs/tags/safety-fixture", setup: { safetyTags: ["safety-fixture"] }, tracking: null },
+    ];
+    for (const [index, scenario] of cases.entries()) {
+      const fixtureRoot = join(root, String(index));
+      mkdirSync(fixtureRoot);
+      const fixture = makeEvidenceFixture(fixtureRoot, scenario.setup);
+      const source = fixture.contract.local_refs.find((row) => row.ref === scenario.ref);
+      const allowlistRows = [{ side: "safety-publish", ref: scenario.ref, oid: source.oid, type: source.type }];
+      if (scenario.tracking) fixtureGit(fixture.repo, "update-ref", scenario.tracking, source.oid);
+      commitFinalEvidence(fixture, { mutations: {
+        local_ref_deletions: [], tracking_ref_deletions: [], remote_ref_deletions: [],
+        safety_ref_publications: [{ ref: scenario.ref, expected_oid: source.oid, type: source.type, readback: "present" }],
+      } });
+      const final = inspectEvidenceTransition(fixture.repo, fixture.contractCommit, fixture.contractPath, fixture.contract, "after", {
+        allowlistRows,
+        appliedRefs: [scenario.ref],
+      });
+      assert.deepEqual(final.applied_refs, [scenario.ref]);
+      const published = { ...source, symref: null };
+      compareCurrent(fixture.contract, {
+        repository: fixture.contract.repository,
+        open_prs: [],
+        local_refs: [...fixture.contract.local_refs, ...(scenario.tracking ? [{
+          ref: scenario.tracking, oid: source.oid, type: source.type, peeled_oid: source.peeled_oid,
+          peeled_type: source.peeled_type, symref: null,
+        }] : [])],
+        origin_refs: [published],
+      }, fixture.contractCommit, { stage: "after", appliedRefs: [scenario.ref], allowlistRows });
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
