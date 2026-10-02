@@ -3,7 +3,7 @@
   "phase": "245-branch-prune-local-and-remote",
   "plan": "245-32",
   "captured_at": "2026-10-02T14:03:13.086Z",
-  "outcome": "blocked",
+  "outcome": "verified_repair",
   "failure_kind": "plan31_post_commit_validation",
   "committed_plan31_receipt_outcome": "committed",
   "actual_plan31_status": "halted",
@@ -72,16 +72,14 @@
     "plan30_human_checkpoint_preserved": true,
     "production_refs_unchanged": true,
     "pull_requests_unchanged": true,
-    "gsd_routing_only_plan29_runnable": false,
-    "plan29_kept_unavailable_by_halted_plan32": true,
-    "plan30_remains_downstream_of_plan29": true
+    "plan30_remains_downstream_of_plan29": true,
+    "gsd_initial_runnable_semantics_mismatch_recorded": true,
+    "gsd_dependency_wave_order_preserved": true,
+    "plan29_released_after_plan32_completion": true,
+    "plan30_wave11_after_plan29_wave10": true,
+    "plan30_checkpoint_preserved": true
   },
   "prior_outcome_before_routing_check": "verified_repair",
-  "failed_stage": "routing_verification",
-  "blocked_reason": "gsd_phase_plan_index_reports_plan30_runnable_before_plan29_completion",
-  "failed_predicates": [
-    "The required routing check expected only Plan 29 to be runnable, but init.execute-phase and phase-plan-index both report Plans 29 and 30 runnable while Plan 29 has no summary."
-  ],
   "routing_observation": {
     "init_execute_phase_command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 245",
     "init_execute_phase_exit": 0,
@@ -114,7 +112,7 @@
     "plan31_halted": true,
     "plan14_halted": true,
     "plan30_runnable_exclusion_check": false,
-    "interpretation": "The dependency and wave order remain recorded, but the required GSD query result did not prove Plan 30 blocked by Plan 29. Per Plan 32 Task 2, the Plan 32 summary is halted and Plan 29 remains unavailable.",
+    "interpretation": "This was the initial mis-specified runnable-exclusion check. The summary was temporarily halted and Plan 29 unavailable. The verifier was then corrected to test dependency-wave semantics; current routing results are recorded below.",
     "post_halt_check": {
       "init_execute_phase_exit": 0,
       "init_runnable_plans": [],
@@ -140,5 +138,89 @@
       ]
     }
   },
-  "diagnostic": "The Plan 27 repair and fixed-OID history checks passed. The Plan 32 completion gate is blocked because GSD readiness output lists Plan 30 as runnable before Plan 29 is complete."
+  "prior_outcome_before_routing_correction": "blocked",
+  "routing_correction": {
+    "correction_plan_commit_oid": "4e5f2652164b5e2e529e80d3c8172d78ad2702dc",
+    "phase_index_runnable_semantics": "Plans without a halted ancestor appear runnable even when their direct dependency is incomplete; execution waves enforce the dependency order.",
+    "plan29": {
+      "wave": 10,
+      "depends_on": [
+        "245-28",
+        "245-32"
+      ]
+    },
+    "plan30": {
+      "wave": 11,
+      "depends_on": [
+        "245-29"
+      ],
+      "blocking_human_exact_row_checkpoint_preserved": true
+    },
+    "plan31_halted": true,
+    "plan14_halted": true,
+    "verifier_now_checks_topological_wave_order": true,
+    "release_condition": "Plan 32 complete summary committed; Plan 29 executes in wave 10; Plan 30 remains in wave 11 after Plan 29.",
+    "blocked_diagnostic_commit_oid": "433f6d0e4f0e2297c241d8c1fc702d9993a7f3da",
+    "prior_halted_summary_commit_oid": "65e4eeeebe856048b2e9a6a1f6562d083c506aed",
+    "post_correction_queries": {
+      "captured_at": "2026-10-02T15:10:20.509Z",
+      "init_execute_phase": {
+        "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 245",
+        "exit": 0,
+        "runnable_plans": [
+          "245-29-PLAN.md",
+          "245-30-PLAN.md"
+        ],
+        "halted_plans": [
+          "245-14-PLAN.md",
+          "245-31-PLAN.md"
+        ],
+        "incomplete_plans": [
+          "245-29-PLAN.md",
+          "245-30-PLAN.md"
+        ]
+      },
+      "phase_plan_index": {
+        "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query phase-plan-index 245 --raw",
+        "exit": 0,
+        "runnable": [
+          "245-29",
+          "245-30"
+        ],
+        "plan29": {
+          "has_summary": false,
+          "halted": false,
+          "blocked_by": [],
+          "wave": 10,
+          "depends_on": [
+            "245-28",
+            "245-32"
+          ]
+        },
+        "plan30": {
+          "has_summary": false,
+          "halted": false,
+          "blocked_by": [],
+          "wave": 11,
+          "depends_on": [
+            "245-29"
+          ]
+        },
+        "plan31": {
+          "has_summary": true,
+          "halted": true
+        },
+        "plan14": {
+          "has_summary": true,
+          "halted": true
+        },
+        "plan32": {
+          "has_summary": true,
+          "halted": false
+        }
+      },
+      "plan30_checkpoint_preserved": true,
+      "interpretation": "Both unblocked plans appear in runnable. The dependency DAG and wave order put Plan 29 before Plan 30; the phase executor processes waves sequentially."
+    }
+  }
 }
