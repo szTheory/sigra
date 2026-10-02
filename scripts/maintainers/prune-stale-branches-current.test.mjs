@@ -211,6 +211,12 @@ test("safety publication result rejects malformed rows and missing or mismatched
       local_refs: fixture.contract.local_refs,
       origin_refs: [{ ...source, oid: "f".repeat(40), symref: null }],
     }, fixture.contractCommit, { stage: "after", appliedRefs: [ref], allowlistRows }), /current_safety_publish_identity_conflict/);
+    assert.throws(() => compareCurrent(fixture.contract, {
+      repository: fixture.contract.repository,
+      open_prs: [],
+      local_refs: fixture.contract.local_refs,
+      origin_refs: [{ ...source, symref: null }],
+    }, fixture.contractCommit, { stage: "after", appliedRefs: [], allowlistRows }), /current_origin_ref_unexpected/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
