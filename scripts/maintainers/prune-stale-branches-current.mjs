@@ -350,6 +350,9 @@ function resultAppliedRefs(result, allowlistByRef) {
     const ref = safeEvidencePath(item.ref, "evidence_transition_result_ref");
     const admitted = allowlistByRef.get(ref);
     if (!admitted || admitted.side !== "safety-publish") fail(`evidence_transition_result_mutation_side_mismatch:safety_ref_publications:${ref}`);
+    if (item.expected_oid !== undefined && item.oid !== undefined && item.expected_oid !== item.oid) {
+      fail(`evidence_transition_result_mutation_oid_mismatch:${ref}`);
+    }
     const expectedOid = item.expected_oid ?? item.oid;
     if (expectedOid !== admitted.oid) fail(`evidence_transition_result_mutation_oid_mismatch:${ref}`);
     if (item.type !== admitted.type) fail(`evidence_transition_result_mutation_type_mismatch:${ref}`);
