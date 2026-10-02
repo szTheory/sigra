@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-34",
+  "captured_at": "2026-10-02T19:49:47Z",
+  "purpose": "Read-only D-06 feasibility census before planning current-state gap closure.",
+  "verdict": "ready_to_plan",
+  "planning_scope": "Reconcile current ref/PR evidence and the exact missing current-source object. Historical PR identity and cleanup-history gaps remain explicitly unresolved; no historical reconstruction is in scope.",
+  "checkout": {
+    "repository": "szTheory/sigra",
+    "head_oid": "18c92aa9b8b8def7a32851e49a9e69d18690a7d2",
+    "branch": "phase-244-playwright-measurement",
+    "active_git": "/opt/homebrew/bin/git",
+    "active_git_version": "2.41.0",
+    "scoped_ref_count": 87
+  },
+  "current_source_object": {
+    "oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+    "type": "commit",
+    "ref": "refs/heads/gh-pages",
+    "local_readable": false,
+    "origin_readable_by_ref": true,
+    "origin_oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+    "github_commit_oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+    "github_tree_oid": "37c54be6a87aa7ded8ac5be5a9ed9f4e5388a533",
+    "prior_attempt": {
+      "receipt": ".planning/phases/245-branch-prune-local-and-remote/245-33-OBJECT-RECOVERY.json",
+      "attempt_count": 1,
+      "exit_code": 128,
+      "failure": "sandbox denied temporary Git object write",
+      "refs_and_prs_unchanged": true,
+      "retry_performed": false
+    }
+  },
+  "live_origin": {
+    "default_branch": "main",
+    "default_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+    "gh_pages_oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3"
+  },
+  "live_open_pr_inventory": {
+    "source_command": "gh pr list --repo szTheory/sigra --state open --limit 1000 --json number,headRefName,headRefOid,baseRefName,baseRefOid",
+    "status": "complete",
+    "count": 13,
+    "canonical_sha256": "a647de5b44b441346ba47515fc68ed3a5460afb0f6b482544a6a021330622383"
+  },
+  "historical_pr_audit": {
+    "rows": 11,
+    "status": "unresolved",
+    "historical_baseline_available": false,
+    "handling": "Preserve the prior mismatch audit. Use fresh current GitHub/ref identities for any new proof; do not require unavailable historical base-OID equality."
+  },
+  "historical_cleanup_audit": {
+    "rows": 30,
+    "unknown_rows": 30,
+    "missing_coverage_rows": 24,
+    "rows_without_committed_direct_history": 24,
+    "rows_without_independent_recorder_trust": 30,
+    "full_window_coverage": false,
+    "handling": "Preserve unknown and stop historical reconstruction per D-06. No audit implementation or no-occurrence claim is admissible from these sources."
+  },
+  "source_pins": {
+    ".planning/phases/245-branch-prune-local-and-remote/245-29-EXEC-PREFLIGHT.json": "sha256:8b1e5bfc3487a9ec0f30ba87804dd41b0e02ce3ee8531fc7546573d745fed90d",
+    ".planning/phases/245-branch-prune-local-and-remote/245-33-D06-READINESS.json": "sha256:444f5ea8d5534b454098621b4b95505f002a0dc8c6ffa776d1bbda250eb5003a",
+    ".planning/phases/245-branch-prune-local-and-remote/245-33-OBJECT-RECOVERY.json": "sha256:fd15fcba048b3cf01ae0b6d53b686dffdec0fcfae4b69a07ebb0eb4322252442",
+    ".planning/phases/245-branch-prune-local-and-remote/245-MILESTONE-CLEANUP-AUDIT.json": "sha256:eb9f141fce4499a9c244e576dc151561510adb2fa9146861d09ca4a610674518",
+    ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json": "sha256:8861d39a207145892ce2d95180d8a244b8d077915f6aea9df34e82ab1d0d9e35"
+  },
+  "execution_constraints": {
+    "historical_audit_reconstruction": false,
+    "replace_historical_baseline_or_acceptance_criteria": false,
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "object_database_write_requires_fresh_explicit_checkpoint": true,
+    "historical_unknowns_must_remain_unknown": true
+  },
+  "checks": {
+    "exact_origin_ref_matches_target_oid": true,
+    "github_serves_exact_commit_and_tree": true,
+    "local_target_object_still_unreadable": true,
+    "live_open_pr_query_complete": true,
+    "historical_pr_unknown_preserved": true,
+    "cleanup_full_window_source_missing": true,
+    "cleanup_independent_trust_missing": true,
+    "no_historical_reconstruction_planned": true,
+    "no_production_mutation_performed": true
+  },
+  "blocked_reasons": []
+}
