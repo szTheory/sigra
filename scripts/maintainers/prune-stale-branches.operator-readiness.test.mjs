@@ -111,6 +111,7 @@ function assertSnapshotObjectsReadable(fixture) {
 
 function makeTrackingFixture(options = {}) {
   const fixture = makeFixture();
+  if (options.omitCiTrackingRef) git(fixture.repo, "update-ref", "-d", "refs/remotes/origin/ci/phase-235-16-source-complete");
   const bare = fixture.bare;
   const bin = join(fixture.temp, "bin");
   const ssh = join(bin, "fixture-ssh");
@@ -558,7 +559,8 @@ test("schema-2 tracking apply removes one admitted fixture ref under the shared 
 });
 
 test("current-contract cumulative passes carry a tracking deletion into a guarded origin deletion", () => {
-  const fixture = makeTrackingFixture({ contractPRs: [{ number: 283, state: "OPEN", headRefName: "fixture-pr-head", baseRefName: "main" }] });
+  const fixture = makeTrackingFixture({ omitCiTrackingRef: true,
+    contractPRs: [{ number: 283, state: "OPEN", headRefName: "fixture-pr-head", baseRefName: "main" }] });
   const remoteRef = "refs/heads/stale/fixture-origin-only";
   const safetyList = `${PHASE_DIR}/245-26-FIXTURE-SAFETY.tsv`;
   const preflight = `${PHASE_DIR}/245-26-FIXTURE-PREFLIGHT.json`;
@@ -571,10 +573,14 @@ test("current-contract cumulative passes carry a tracking deletion into a guarde
     const safetyRefs = git(fixture.repo, "for-each-ref", "--format=%(refname)",
       "refs/heads/ci/phase-235-16-source-complete", "refs/heads/safety/local-main-before-release-cleanup-20260831",
       "refs/tags/archive/local-main-pre-235-recovery").split("\n").filter(Boolean);
-    for (const ref of safetyRefs) git(fixture.repo, "push", "-q", fixture.bare, `${ref}:${ref}`);
+    for (const ref of safetyRefs) {
+      if (ref !== "refs/heads/ci/phase-235-16-source-complete") git(fixture.repo, "push", "-q", fixture.bare, `${ref}:${ref}`);
+    }
     const safetySourceRef = "refs/heads/safety/local-main-before-release-cleanup-fixture";
+    const ciSafetySourceRef = "refs/heads/ci/phase-235-16-source-complete";
     fixture.safetyPublicationRef = safetySourceRef;
     git(fixture.repo, "update-ref", safetySourceRef, fixture.oid);
+    git(fixture.repo, "update-ref", ciSafetySourceRef, fixture.oid);
     git(fixture.repo, "remote", "set-url", "origin", "git@github.com:szTheory/sigra.git");
     const localCapture = run("bash", [OPERATOR, "capture-local", "--repo", fixture.repo,
       "--output", join(fixture.repo, fixture.snapshot)], { cwd: ROOT, env: fixture.env });
@@ -585,7 +591,7 @@ test("current-contract cumulative passes carry a tracking deletion into a guarde
       "--output", join(fixture.repo, fixture.originSnapshot)], { cwd: ROOT, env: fixture.env });
     assert.equal(originCapture.status, 0, `${originCapture.stdout ?? ""}${originCapture.stderr ?? ""}`);
     writeFileSync(join(fixture.repo, safetyList), "side\tref\toid\ttype\treason\n");
-    const allowlistBytes = `${readFileSync(join(fixture.repo, fixture.allowlist), "utf8")}remote\t${remoteRef}\t${fixture.oid}\tcommit\tdisposable origin candidate\nsafety-publish\t${safetySourceRef}\t${fixture.oid}\tcommit\tdisposable exact safety publication\n`;
+    const allowlistBytes = `${readFileSync(join(fixture.repo, fixture.allowlist), "utf8")}remote\t${remoteRef}\t${fixture.oid}\tcommit\tdisposable origin candidate\nsafety-publish\t${safetySourceRef}\t${fixture.oid}\tcommit\tdisposable exact safety publication\nsafety-publish\t${ciSafetySourceRef}\t${fixture.oid}\tcommit\tdisposable exact D-04 ci safety publication\n`;
     writeFileSync(join(fixture.repo, fixture.allowlist), allowlistBytes);
     const preflightResult = run("bash", [OPERATOR, "preflight-origin-access", "--repo", fixture.repo,
       "--operation", "delete", "--ref", remoteRef, "--output", join(fixture.repo, preflight)], {
@@ -625,8 +631,9 @@ test("current-contract cumulative passes carry a tracking deletion into a guarde
     const published = safetyPublishApply(fixture, preflightCommit);
     assert.equal(published.status, 0, `${published.stdout ?? ""}${published.stderr ?? ""}`);
     assert.ok(originRefs(fixture).includes(`${safetySourceRef}\t${fixture.oid}\tcommit`), "only the absent safety ref publishes at its exact identity");
+    assert.ok(originRefs(fixture).includes(`${ciSafetySourceRef}\t${fixture.oid}\tcommit`), "the D-04 ci safety ref publishes at its exact identity");
 
-    const firstPass = trackingApply(fixture, [safetySourceRef]);
+    const firstPass = trackingApply(fixture, [safetySourceRef, ciSafetySourceRef]);
     assert.equal(firstPass.status, 0, `${firstPass.stdout ?? ""}${firstPass.stderr ?? ""}`);
     assert.ok(!refs(fixture.repo).includes(`${fixture.trackingRef}\t`), `first pass removes only the exact tracking row: ${firstPass.stdout}\n${firstPass.stderr}\n${refs(fixture.repo)}`);
     assert.ok(originRefs(fixture).includes(`${remoteRef}\t${fixture.oid}\tcommit`), "first pass leaves origin unchanged");
@@ -640,7 +647,7 @@ test("current-contract cumulative passes carry a tracking deletion into a guarde
     changedApiOid[0].base.sha = changedBaseOid;
     writeFileSync(fixture.liveCliPRs, JSON.stringify(changedCli));
     writeFileSync(fixture.liveApiPRs, JSON.stringify(changedApiOid));
-    const blockedChangedBase = remoteApply(fixture, preflightCommit, [safetySourceRef, fixture.trackingRef]);
+    const blockedChangedBase = remoteApply(fixture, preflightCommit, [safetySourceRef, ciSafetySourceRef, fixture.trackingRef]);
     assert.notEqual(blockedChangedBase.status, 0, "a changed PR base OID blocks the next operation boundary");
     assert.match(`${blockedChangedBase.stdout ?? ""}${blockedChangedBase.stderr ?? ""}`, /current_pr_base_oid_changed:283/);
     assert.ok(originRefs(fixture).includes(`${remoteRef}\t${fixture.oid}\tcommit`), "changed PR base OID cannot authorize origin deletion");
@@ -650,18 +657,18 @@ test("current-contract cumulative passes carry a tracking deletion into a guarde
     const changedApiRepository = JSON.parse(apiBytes);
     changedApiRepository[0].base.repo.full_name = "szTheory/other";
     writeFileSync(fixture.liveApiPRs, JSON.stringify(changedApiRepository));
-    const blockedChangedRepository = remoteApply(fixture, preflightCommit, [safetySourceRef, fixture.trackingRef]);
+    const blockedChangedRepository = remoteApply(fixture, preflightCommit, [safetySourceRef, ciSafetySourceRef, fixture.trackingRef]);
     assert.notEqual(blockedChangedRepository.status, 0, "a changed PR base repository blocks the next operation boundary");
     assert.match(`${blockedChangedRepository.stdout ?? ""}${blockedChangedRepository.stderr ?? ""}`, /current_pr_base_repository_changed:283/);
     writeFileSync(fixture.liveCliPRs, cliBytes);
     writeFileSync(fixture.liveApiPRs, apiBytes);
 
-    const blockedInvented = remoteApply(fixture, preflightCommit, [safetySourceRef, "refs/heads/not-admitted"]);
+    const blockedInvented = remoteApply(fixture, preflightCommit, [safetySourceRef, ciSafetySourceRef, "refs/heads/not-admitted"]);
     assert.notEqual(blockedInvented.status, 0, "invented cumulative identity must be rejected");
     assert.match(`${blockedInvented.stdout ?? ""}${blockedInvented.stderr ?? ""}`, /evidence_transition_applied_ref_not_allowlisted/);
     assert.ok(originRefs(fixture).includes(`${remoteRef}\t${fixture.oid}\tcommit`), "invalid cumulative input cannot mutate origin");
 
-    const secondPass = remoteApply(fixture, preflightCommit, [safetySourceRef, fixture.trackingRef]);
+    const secondPass = remoteApply(fixture, preflightCommit, [safetySourceRef, ciSafetySourceRef, fixture.trackingRef]);
     assert.equal(secondPass.status, 0, `${secondPass.stdout ?? ""}${secondPass.stderr ?? ""}`);
     assert.ok(!originRefs(fixture).includes(`${remoteRef}\t`), "second pass removes the exact expected-OID origin row");
     assertSnapshotObjectsReadable(fixture);

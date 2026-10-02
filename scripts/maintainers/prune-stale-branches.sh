@@ -1045,7 +1045,7 @@ run_safety_publish() {
   while IFS=$'\t' read -r side ref oid type reason; do
     [[ "$side" == safety-publish ]] || continue
     case "$ref" in
-      refs/tags/archive/local-main-pre-235-recovery|refs/heads/safety/local-main-before-release-cleanup-*) ;;
+      refs/heads/ci/phase-235-16-source-complete|refs/tags/archive/local-main-pre-235-recovery|refs/heads/safety/local-main-before-release-cleanup-*) ;;
       *) fail "safety_publish_destination_not_approved: $ref" ;;
     esac
     case "$ref:$type" in
