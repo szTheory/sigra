@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute gap closure plan",
-    "reason": "Plan 245-27 is the sole runnable Phase 245 plan; historical verification maintenance is separate"
+    "label": "Execute Plan 245-32 receipt reconciliation",
+    "reason": "Plan 245-32 is the sole runnable gap-closure plan; Plans 29/30 wait for it and Plan 31 remains halted."
   },
-  "updated_at": "2026-10-01T19:49:39Z"
+  "updated_at": "2026-10-02T12:32:01Z"
 }

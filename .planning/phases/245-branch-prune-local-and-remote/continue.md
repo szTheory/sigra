@@ -1,28 +1,22 @@
-# Continue — Phase 245 Plan 25 halted
+# Continue — Phase 245 receipt reconciliation
 
-## Last action
+## Current status
 
-Plan 245-25 captured a fresh D-06 census, committed the current-ref contract and exact two-row tracking admission (`6f5aa403`), and invoked the existing tracking operator. The operator stopped with exit 1 at its D-01 readiness gate before entering the tracking loop. It had copied the pinned Plan 23 readiness receipt to a temporary directory, then the schema-2 verifier rejected that out-of-repository path as missing from the commit and worktree. No tracking ref was changed. The contract-declared blocked RESULT child (`a1cd058d`) is the authoritative terminal receipt and passed the after-stage verifier.
+Phase 245 is still open; Phase 244 is the latest completed phase. Plan 31 is halted after one approved coordinator admission. Its source and evidence commits are present, but post-commit validation failed because committed 245-27-SUMMARY.md lacks the required requirements-completed: [] frontmatter. The committed evidence receipt says committed despite that failed check. Plan 32 has now been planned and independently checked as the sole runnable gap-closure plan.
 
-## Next action
+- Source commit: b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30 (parent 8d9fac8b7270a06634233e5cf20349f9ed15af44; exact four paths).
+- Evidence commit: 08ac3462549b98a4ca87ea4f9c1631ece2a74363 (parent is the source commit; exact nine paths).
+- Working-tree 245-31-RECOVERY.json records outcome: blocked; 245-31-SUMMARY.md has routing status halted to prevent replay. These two diagnostic corrections are uncommitted because Plan 31 forbids another admission/amendment.
+- No production refs or PRs changed. The staged index is empty. Preserve all unrelated dirty/untracked work.
 
-Plan a new Phase 245 gap plan to address the operator's temporary-path readiness verification failure. Do not retry Plan 25 pruning or bypass its gate. Keep REPO-04 open.
+## Next GSD command
 
-## Why
+Run `$gsd-execute-phase 245 --gaps-only` to execute Plan 32, the sole runnable gap-closure plan. Its checked plan is `.planning/phases/245-branch-prune-local-and-remote/245-32-PLAN.md`; current `init.execute-phase 245` and `phase-plan-index 245` confirm this route. Do not rerun Plan 31 or execute Plans 29/30 until Plan 32 reconciles the evidence and routing. The existing 245-VERIFICATION.md is dated 2026-09-28 and is stale history, separate from the forward route.
 
-The committed Plan 23 readiness source passes its direct verifier when checked at its repository path. The production operator verifies a temporary copy instead, and its schema-2 path guard blocks that copy. The Plan 25 safety predicate therefore failed at the operation boundary and the planned ref mutations halted.
+After Plan 32 completes, check readiness for Plan 29; Plan 30 still requires approval of its exact committed deletion rows before any production ref mutation. The roadmap ends at Phase 245; do not invent Phase 246.
 
-## Open threads
+## Preserve
 
-- Plan 25's two previously admitted tracking refs remain present; Plan 25 tracking, local-head, origin, and PR ref operations are all zero.
-- Plan 19's one local deletion remains counted exactly once and must not be replayed.
-- Plan 16 remains blocked by halted Plan 14.
-- The historical 11-row PR-base mismatch and 30-row cleanup-history audit remain unresolved; the missing baseline remains unknown.
-- REPO-04 remains open and Phase 245 is not complete.
-- Preserve the unrelated dirty and untracked workspace; do not reset, stash, clean, or broadly stage.
-
-## Do not
-
-- Do not mark Plan 25 complete or route REPO-04 as satisfied.
-- Do not retry the tracking operation or change the safety predicate in place; use a new reviewed gap plan.
-- Do not rerun Plan 19 or Plan 21, start Plan 16, or start Phase 246.
+- Plan 28 blocked receipt remains byte-pinned; do not replay its admission.
+- Historical 11-row PR-base mismatch and 30-row cleanup-history audit remain unresolved.
+- Do not alter production refs, origin, or PRs while recovering the evidence.
