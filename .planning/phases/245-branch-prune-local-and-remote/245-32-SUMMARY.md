@@ -7,9 +7,9 @@ requires: []
 provides: [plan31-predicate-reconciliation, plan29-fixed-history-gate]
 affects: [245-29, 245-30]
 actuals:
-  tokens: 2400
+  tokens: 2600
   tasks: 2
-  commits: 4
+  commits: 5
 tech-stack:
   added: []
   patterns: [fixed-OID historical evidence, descendant-only repair, scoped coordinator commits]
@@ -26,7 +26,7 @@ key-decisions:
   - "Repair only the missing Plan 27 requirements-completed: [] frontmatter line in a descendant commit."
   - Keep REPO-04 open and leave historical audit rows unresolved.
 requirements-completed: []
-duration: 56min
+duration: 1h 8min
 completed: 2026-10-02
 status: halted
 ---
@@ -38,10 +38,10 @@ status: halted
 ## Performance
 
 - **Started:** 2026-10-02T13:17:31Z
-- **Completed:** 2026-10-02T14:18:42.058Z
+- **Completed:** 2026-10-02T14:25:49.128Z
 - **Tasks:** 2
 - **Files created or modified:** 5
-- **Plan commits:** 4 (including the routing-failure diagnostic and separate summary commit)
+- **Plan commits:** 5 (including the routing-failure diagnostic, gate hardening, and separate summary commit)
 
 ## Accomplishments
 
@@ -54,10 +54,12 @@ status: halted
 
 - After the GSD readiness query listed both Plans 29 and 30 as runnable while Plan 29 had no summary, committed blocked routing diagnostics in `433f6d0e`; the required halted Plan 32 summary now leaves Plans 29 and 30 unavailable pending correction of that routing check.
 
+- Committed the blocked diagnostic update in `433f6d0e` (receipt path only), then hardened Plan 29’s future proof to locate the exact original two-path receipt commit while validating later diagnostic history.
+
 ## Task Commits
 
 1. **Task 1: Repair the exact failed Plan 27 predicate** — `31a06ab833bfc54b34a653286ee6bfb4123a0e50` (docs).
-2. **Task 2: Bind Plan 29 and record the routing gate** — `9f358d09a9da3a725635bdd512bfd0b8b9cb6a27` (docs); blocked routing diagnostic — `433f6d0e` (docs).
+2. **Task 2: Bind Plan 29 and record the routing gate** — `9f358d09a9da3a725635bdd512bfd0b8b9cb6a27` (docs); blocked routing diagnostic — `433f6d0e` (docs); receipt-chain gate hardening — `7a9dd866` (docs).
 
 The summary is committed separately after GSD routing checks pass.
 
@@ -67,7 +69,7 @@ Plan 31’s original committed success claim remains immutable historical eviden
 
 ## Deviations from Plan
 
-None. The Plan 29 verification gate additionally checks the original source-commit hash separately from the superseded Plan 27 bytes at the fixed evidence commit, so the two historical versions cannot be conflated.
+None. The Plan 29 verification gate additionally checks the original source-commit hash separately from the superseded Plan 27 bytes at the fixed evidence commit, so the two historical versions cannot be conflated. Its exact receipt-commit lookup now accounts for the later blocked diagnostic without weakening path or parent checks.
 
 ## Issues Encountered
 
