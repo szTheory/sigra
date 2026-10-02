@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 27 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation. Plan 23 repaired the readiness source. Plan 24 halted at D-06. Plan 25 passed its fresh D-06 census and committed the current contract, then halted at the operator's D-01 temporary-copy readiness check before any tracking deletion. Plan 26 completed the operator repair, 53 passing regression tests and the read-only production receipt check, with zero production pruning. Plan 27 adds a fresh D-06/D-07 current-state contract and exact live prune/postcheck path; it is pending. Plan 16 remains blocked by Plan 14.
+**Plans**: 31 plan files; Plan 19 is superseded after its blocked receipt (its single admitted local deletion remains part of the recorded state) and is excluded from execution. Plan 20 repaired the verifier; Plan 22 proves ref-isolated object acquisition. Plan 21's retry halted at the D-01 readiness gate before contract commit or ref mutation. Plan 23 repaired the readiness source. Plan 24 halted at D-06. Plan 25 passed its fresh D-06 census and committed the current contract, then halted at the operator's D-01 temporary-copy readiness check before any tracking deletion. Plan 26 completed the operator repair, 53 passing regression tests and the read-only production receipt check, with zero production pruning. Plan 27's named regression/readiness passed but its scoped commit was refused twice; it remains staged with a stale execution preflight and zero production ref operations. Plan 28's sole admission was refused before its child command; its immutable blocked receipt and terminal wave-22 SUMMARY record unchanged staged inputs and zero production ref operations. Plan 31 is a distinct, permission-qualified wave-23 recovery after Plan 28; only its committed exact recovery and Plan 16/28 supersession evidence release wave-24 Plan 29. Plan 29 adds safety-publication support to final evidence verification, then captures fresh execution readiness. Wave-25 Plan 30 owns the new current-source contract, exact-row approval, guarded apply and independent postchecks. Plan 16 remains blocked by Plan 14 until Plan 31 commits its supersession.
 
 Plans:
 **Wave 1**
@@ -486,6 +486,22 @@ Plans:
 
 - [ ] 245-27-PLAN.md — Admit exact current local/origin/tracking candidates, apply only through shared-coordinator and expected-OID gates, then prove objects, PRs and safety refs from independent post-state
 
+**Historical coordinator checkpoint** — gap wave 22; depends on the handled Plan 27 record; Plan 28 is terminal with its blocked SUMMARY and immutable failed-admission receipt; no production ref operations
+
+- [ ] 245-28-PLAN.md — Sole admission blocked before its child command; retain the immutable recovery receipt and do not replay
+
+**Separate coordinator recovery** — gap wave 23; depends on terminal 245-28; one new admission only under explicitly approved elevated Git-directory access; no production ref operations
+
+- [ ] 245-31-PLAN.md — Under explicitly approved elevated Git-directory access, make one distinct exact-source recovery admission and commit Plan 16/28 supersession evidence
+
+**Evidence-verifier repair** — gap wave 24; depends on terminal 245-28 and Plan 31's committed exact recovery and Plan 16/28 supersession; refresh D-06 readiness after the verifier commit; no production ref operations
+
+- [ ] 245-29-PLAN.md — Verify successful safety-ref publications in the exact final-child transition and capture a fresh execution preflight
+
+**Current-source prune continuation** — gap wave 25; depends on 245-29; exact-row human approval and coordinator-held mutation gates required
+
+- [ ] 245-30-PLAN.md — Capture the current Git/GitHub/origin contract, apply only approved refs, and prove independent post-state or a verifier-compatible blocked result
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -499,7 +515,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 17/27 | In progress | - |
+| 245. Branch Prune | 17/31 | In progress | - |
 
 ## Requirement Coverage
 

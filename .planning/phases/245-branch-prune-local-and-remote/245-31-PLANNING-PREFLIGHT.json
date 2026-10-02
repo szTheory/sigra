@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-31",
+  "captured_at": "2026-10-02T04:17:08Z",
+  "purpose": "Read-only D-06 feasibility check for a separately scoped Plan 28 coordinator recovery.",
+  "verdict": "ready_to_plan_elevated_recovery",
+  "admission_in_current_sandbox": "blocked",
+  "observed_head": "46d1a08d1717904236ad72bb31514affffcd1c72",
+  "staged_paths": [
+    "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs",
+    "scripts/maintainers/prune-stale-branches.sh"
+  ],
+  "staged_binary_diff_sha256": "755b3456a91d439430a9f48f04560d1353d7991889958df3bb8c8308e45b7f5c",
+  "plan27_result_sha256": "c9645d850fc17dae1250b921f804bc800c2030beac5fa0a6cd59265200964663",
+  "plan27_summary_sha256": "808c4b7697bb6c3e0fdec74bc93fe14ccd7a03524e0454cf9392d7f2c58ebe65",
+  "plan28_failed_receipt_sha256": "131673660ef9104d05db3acfbc75f0b33f436bb3f5b4a62bcd6a482d480c8097",
+  "plan28_planning_receipt_sha256": "3080a22b540f42aac1c003a14412e2bdbaad20e72700fbb5a0690ea33c4ac506",
+  "plan28_planning_sidecar_matches": true,
+  "plan28_admission_attempts": 1,
+  "plan28_production_ref_operations": 0,
+  "plan28_task2": "not started",
+  "six_pinned_committed_source_paths_readable": true,
+  "current_sandbox": {
+    "git_common_dir": "/Users/jon/projects/sigra/.git",
+    "coordinator_root": "/Users/jon/projects/sigra/.git/sigra-branch-worktree-coordinator",
+    "test_w_git_common_dir": false,
+    "test_w_coordinator_root": false,
+    "gate": "absent_at_observation",
+    "lock": "absent_at_observation",
+    "transaction_leases": 0,
+    "policy": "The host permission profile makes .git read-only. An explicitly approved elevated execution context and fresh in-context write checks are required before a new admission."
+  },
+  "causality_limit": "The current sandbox write restriction is evidenced at the policy/path level. Plan 28's mkdir stderr was suppressed, so its exact historical errno and whether a transient gate owner existed at that instant are unknown.",
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "gate_or_lock_repair": 0,
+  "planning_only": true
+}
