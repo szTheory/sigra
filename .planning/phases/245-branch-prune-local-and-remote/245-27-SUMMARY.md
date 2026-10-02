@@ -18,7 +18,7 @@ decisions:
 metrics:
   duration: "blocked during Task 1 commit"
   completed_date: 2026-10-01
-status: blocked
+status: superseded
 actuals:
   tokens: 8668
   tasks: 0
@@ -51,3 +51,8 @@ Execution stopped at Task 1 because the coordinator would not admit its scoped c
 ## Self-Check: PASSED
 
 The blocked RESULT and this SUMMARY were written to the canonical Plan 27 paths. Neither claims Task 2/3 completion or REPO-04 closure.
+
+
+## Supersession
+
+The blocked attempt and its exact historical receipt remain preserved in the source commit. Plans 31, 29, and 30 replace the remaining work; this record does not claim Plan 27 passed.
