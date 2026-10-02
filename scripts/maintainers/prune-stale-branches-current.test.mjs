@@ -155,6 +155,65 @@ test("safety publication result reaches the final after-stage applied-ref ledger
   }
 });
 
+test("safety publication result rejects malformed rows and missing or mismatched origin readback", () => {
+  const root = mkdtempSync(join(tmpdir(), "sigra-safety-publication-rejections-"));
+  try {
+    const ref = "refs/heads/safety-fixture";
+    const cases = [
+      { name: "omitted publication", mutations: {}, appliedRefs: [ref], error: /evidence_transition_result_applied_refs_mismatch/ },
+      { name: "empty publication array", mutations: { safety_ref_publications: [] }, appliedRefs: [ref], error: /evidence_transition_result_applied_refs_mismatch/ },
+      { name: "wrong allowlist side", allowlistSide: "local", row: { ref, expected_oid: "", type: "commit", readback: "present" }, appliedRefs: [], error: /evidence_transition_result_mutation_side_mismatch/ },
+      { name: "wrong OID", row: { ref, expected_oid: "f".repeat(40), type: "commit", readback: "present" }, error: /evidence_transition_result_mutation_oid_mismatch/ },
+      { name: "wrong type", row: { ref, expected_oid: "source", type: "blob", readback: "present" }, error: /evidence_transition_result_mutation_type_mismatch/ },
+      { name: "duplicate publication ref", duplicate: true, row: { ref, expected_oid: "source", type: "commit", readback: "present" }, error: /evidence_transition_result_ref_duplicate/ },
+      { name: "non-present readback", row: { ref, expected_oid: "source", type: "commit", readback: "absent" }, error: /evidence_transition_result_mutation_readback_invalid/ },
+      { name: "mismatched CLI applied-ref set", row: { ref, expected_oid: "source", type: "commit", readback: "present" }, appliedRefs: [], error: /evidence_transition_result_applied_refs_mismatch/ },
+    ];
+    for (const [index, scenario] of cases.entries()) {
+      const fixtureRoot = join(root, String(index));
+      mkdirSync(fixtureRoot);
+      const fixture = makeEvidenceFixture(fixtureRoot, { safetyRefs: [ref] });
+      const oid = fixture.contract.capture_head_oid;
+      const allowlistRows = [{ side: scenario.allowlistSide ?? "safety-publish", ref, oid, type: "commit" }];
+      const row = { ...scenario.row, expected_oid: scenario.row?.expected_oid === "source" ? oid : scenario.row?.expected_oid };
+      const mutations = {
+        local_ref_deletions: [], tracking_ref_deletions: [], remote_ref_deletions: [],
+        ...scenario.mutations,
+        ...(scenario.mutations ? {} : { safety_ref_publications: [row, ...(scenario.duplicate ? [row] : [])] }),
+      };
+      commitFinalEvidence(fixture, { mutations });
+      assert.throws(() => inspectEvidenceTransition(fixture.repo, fixture.contractCommit, fixture.contractPath, fixture.contract, "after", {
+        allowlistRows,
+        appliedRefs: scenario.appliedRefs ?? [ref],
+      }), scenario.error, scenario.name);
+    }
+
+    const fixtureRoot = join(root, "origin-readback");
+    mkdirSync(fixtureRoot);
+    const fixture = makeEvidenceFixture(fixtureRoot, { safetyRefs: [ref] });
+    const source = fixture.contract.local_refs.find((row) => row.ref === ref);
+    const allowlistRows = [{ side: "safety-publish", ref, oid: source.oid, type: source.type }];
+    commitFinalEvidence(fixture, { mutations: {
+      local_ref_deletions: [], tracking_ref_deletions: [], remote_ref_deletions: [],
+      safety_ref_publications: [{ ref, expected_oid: source.oid, type: source.type, readback: "present" }],
+    } });
+    assert.throws(() => compareCurrent(fixture.contract, {
+      repository: fixture.contract.repository,
+      open_prs: [],
+      local_refs: fixture.contract.local_refs,
+      origin_refs: [],
+    }, fixture.contractCommit, { stage: "after", appliedRefs: [ref], allowlistRows }), /current_safety_publish_readback_mismatch/);
+    assert.throws(() => compareCurrent(fixture.contract, {
+      repository: fixture.contract.repository,
+      open_prs: [],
+      local_refs: fixture.contract.local_refs,
+      origin_refs: [{ ...source, oid: "f".repeat(40), symref: null }],
+    }, fixture.contractCommit, { stage: "after", appliedRefs: [ref], allowlistRows }), /current_safety_publish_identity_conflict/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("D-07 operation readback permits only cumulative committed tracking removals before a result child", () => {
   const root = mkdtempSync(join(tmpdir(), "sigra-operation-readback-"));
   try {
