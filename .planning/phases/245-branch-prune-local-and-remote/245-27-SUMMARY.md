@@ -19,6 +19,7 @@ metrics:
   duration: "blocked during Task 1 commit"
   completed_date: 2026-10-01
 status: superseded
+requirements-completed: []
 actuals:
   tokens: 8668
   tasks: 0
