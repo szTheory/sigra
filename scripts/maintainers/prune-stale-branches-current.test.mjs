@@ -164,6 +164,7 @@ test("safety publication result rejects malformed rows and missing or mismatched
       { name: "empty publication array", mutations: { safety_ref_publications: [] }, appliedRefs: [ref], error: /evidence_transition_result_applied_refs_mismatch/ },
       { name: "wrong allowlist side", allowlistSide: "local", row: { ref, expected_oid: "", type: "commit", readback: "present" }, appliedRefs: [], error: /evidence_transition_result_mutation_side_mismatch/ },
       { name: "wrong OID", row: { ref, expected_oid: "f".repeat(40), type: "commit", readback: "present" }, error: /evidence_transition_result_mutation_oid_mismatch/ },
+      { name: "conflicting OID aliases", row: { ref, expected_oid: "source", oid: "f".repeat(40), type: "commit", readback: "present" }, error: /evidence_transition_result_mutation_oid_mismatch/ },
       { name: "wrong type", row: { ref, expected_oid: "source", type: "blob", readback: "present" }, error: /evidence_transition_result_mutation_type_mismatch/ },
       { name: "duplicate publication ref", duplicate: true, row: { ref, expected_oid: "source", type: "commit", readback: "present" }, error: /evidence_transition_result_ref_duplicate/ },
       { name: "non-present readback", row: { ref, expected_oid: "source", type: "commit", readback: "absent" }, error: /evidence_transition_result_mutation_readback_invalid/ },
@@ -176,6 +177,7 @@ test("safety publication result rejects malformed rows and missing or mismatched
       const oid = fixture.contract.capture_head_oid;
       const allowlistRows = [{ side: scenario.allowlistSide ?? "safety-publish", ref, oid, type: "commit" }];
       const row = { ...scenario.row, expected_oid: scenario.row?.expected_oid === "source" ? oid : scenario.row?.expected_oid };
+      if (row.oid === "f".repeat(40)) row.expected_oid = oid;
       const mutations = {
         local_ref_deletions: [], tracking_ref_deletions: [], remote_ref_deletions: [],
         ...scenario.mutations,
