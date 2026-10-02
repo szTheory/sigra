@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-32",
+  "captured_at": "2026-10-02T14:03:13.086Z",
+  "outcome": "verified_repair",
+  "failure_kind": "plan31_post_commit_validation",
+  "committed_plan31_receipt_outcome": "committed",
+  "actual_plan31_status": "halted",
+  "original_plan27_field": false,
+  "repaired_plan27_field": true,
+  "source_commit_oid": "b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30",
+  "source_commit_parent": "8d9fac8b7270a06634233e5cf20349f9ed15af44",
+  "source_commit_paths": [
+    ".planning/phases/245-branch-prune-local-and-remote/245-27-RESULT.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+    "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs",
+    "scripts/maintainers/prune-stale-branches.sh"
+  ],
+  "source_plan27_summary_sha256": "808c4b7697bb6c3e0fdec74bc93fe14ccd7a03524e0454cf9392d7f2c58ebe65",
+  "source_script_blobs": {
+    "scripts/maintainers/prune-stale-branches.sh": "8468981653ce8290c9886d600c49d44823d293fb",
+    "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs": "b01b1f275e487a2f6f0574ad7da0d694851efcdd"
+  },
+  "evidence_commit_oid": "08ac3462549b98a4ca87ea4f9c1631ece2a74363",
+  "evidence_commit_parent": "b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30",
+  "evidence_commit_paths": [
+    ".planning/phases/245-branch-prune-local-and-remote/245-16-SUMMARY.md",
+    ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+    ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json.sha256",
+    ".planning/phases/245-branch-prune-local-and-remote/245-28-RECOVERY.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-28-SUMMARY.md",
+    ".planning/phases/245-branch-prune-local-and-remote/245-31-EXEC-PREFLIGHT.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-31-RECOVERY.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-31-SUMMARY.md"
+  ],
+  "evidence_plan27_summary_sha256": "935a274fc3081664bd55b0fea3fa839f4fd0d0ba4d6d907eb10ecfb4e22de554",
+  "repair_commit_oid": "31a06ab833bfc54b34a653286ee6bfb4123a0e50",
+  "repair_commit_parent": "81e430a139c76a46d341240036f9c333aaa092bf",
+  "repair_commit_paths": [
+    ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+    ".planning/phases/245-branch-prune-local-and-remote/245-32-PLANNING-PREFLIGHT.json"
+  ],
+  "repair_plan27_summary_blob": "c4501835f74a42c41d5cccbdd06a4e9f93b26335",
+  "repair_preflight_blob": "b273e28ab08028e0494a3a8f12cb84e0a9f1212c",
+  "repaired_plan27_summary_sha256": "b32aaf184b1a6b93e9bf27df32360682491707c9bf103f219958327986b7f9c8",
+  "plan31_admission_attempts": 1,
+  "plan31_fixed_receipt_blob": "e6a94dbb615e9bd61262d01b920cf4f83ec2f937",
+  "plan31_fixed_summary_blob": "c3a1d32ea9f33dbc6c6e1140a68e7db67cadcd84",
+  "plan31_live_recovery_sha256": "025e5142f18233a339e48645bca1e9b40994f757dec073e55b4bf2b3ab2d7ddc",
+  "plan31_live_summary_sha256": "f98118ee0241a166379f43bd5b2b7775c20f29031ea9bb02bb26c46be1df082f",
+  "plan28_receipt_sha256": "131673660ef9104d05db3acfbc75f0b33f436bb3f5b4a62bcd6a482d480c8097",
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "repo_04_status": "open",
+  "checks": {
+    "fixed_oid_plan31_receipt_claims_committed": true,
+    "fixed_oid_plan31_summary_complete_claim": true,
+    "actual_plan27_predicate_recomputed": true,
+    "live_plan31_diagnostics_unchanged": true,
+    "original_commit_ancestry_and_path_sets": true,
+    "source_blob_pins": true,
+    "plan28_receipt_immutable": true,
+    "exact_one_line_plan27_repair": true,
+    "shared_coordinator_verified": true,
+    "plan29_routing_updated": true,
+    "plan30_human_checkpoint_preserved": true,
+    "production_refs_unchanged": true,
+    "pull_requests_unchanged": true
+  }
+}
