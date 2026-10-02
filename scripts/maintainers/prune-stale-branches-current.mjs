@@ -579,7 +579,9 @@ export function compareCurrent(contract, actual, contractCommit, options) {
     if (expectedOrigin.has(ref)) continue;
     const safetyRow = (options.allowlistRows ?? []).find((row) => row.side === "safety-publish" && row.ref === ref);
     const localSafety = expectedLocal.get(ref);
-    if (!safetyRow || !localSafety || actualOrigin.get(ref).oid !== safetyRow.oid || actualOrigin.get(ref).type !== safetyRow.type) fail(`current_origin_ref_unexpected:${ref}`);
+    if (!safetyRow || !appliedRefs.has(ref) || !localSafety || actualOrigin.get(ref).oid !== safetyRow.oid
+      || actualOrigin.get(ref).type !== safetyRow.type || actualOrigin.get(ref).peeled_oid !== localSafety.peeled_oid
+      || actualOrigin.get(ref).peeled_type !== localSafety.peeled_type) fail(`current_origin_ref_unexpected:${ref}`);
   }
 }
 

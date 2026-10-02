@@ -393,6 +393,8 @@ test("D-07 accepts only the exact contract commit and one declared direct-child 
     assert.equal(before.final_evidence_commit, null);
 
     commitFinalEvidence(fixture);
+    const legacyResult = JSON.parse(readFileSync(join(fixture.repo, fixture.resultPath), "utf8"));
+    assert.equal(Object.hasOwn(legacyResult.mutations, "safety_ref_publications"), false);
     const after = inspectEvidenceTransition(fixture.repo, fixture.contractCommit, fixture.contractPath, fixture.contract, "after");
     assert.equal(after.final_evidence_commit, fixtureGit(fixture.repo, "rev-parse", "HEAD"));
     assert.deepEqual(after.final_evidence_paths, fixture.contract.evidence_transition.final_child_path_sets.blocked);
