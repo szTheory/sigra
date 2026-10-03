@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Active milestone — **v1.48 CLEAN-BASELINE** (Phases 236-245). Phase 245 remains open. Plans 30, 35 and 36 retain their blocked history; Plan 35's four-object approval was voided by origin drift before any fetch. Plans 37 and 38 are the fresh forward route: recapture and approve the five-object recovery in wave 5, then capture a new prune contract with a separate exact-row approval in wave 6. Next: `$gsd-execute-phase 245 --gaps-only --wave 5`. REPO-04 and both historical unknown audits remain open.
+**Status:** Active milestone — **v1.48 CLEAN-BASELINE** (Phases 236-245). Phase 245 remains open. Plans 30, 35 and 36 retain their blocked history; Plan 35's four-object approval was voided by origin drift before any fetch. Plans 37 and 38 are the fresh forward route: recapture and approve the five-object recovery in computed wave 3, then capture a new prune contract with a separate exact-row approval in computed wave 4. Plans 35/36 have terminal superseded metadata and immutable blocked receipts. Next: `$gsd-execute-phase 245 --gaps-only --wave 3`. REPO-04 and both historical unknown audits remain open.
 
 ## Milestones
 
@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 37 indexed plan files; the historical Plan 19 plan artifact is absent and its single admitted local deletion remains counted once. Plan 34 recovered its separately approved prior OID. Plan 30 halted before contract capture on four missing objects; its blocked receipts remain immutable. Plan 35's four-object approval was voided by origin drift before any fetch, and Plan 36 committed the resulting blocked diagnostic. Plans 37 and 38 are the fresh forward route: Plan 37 recaptures and, after a new exact approval, recovers the five currently missing commits; Plan 38 requires that ready D-06 receipt, then captures a new contract and its own exact-row approval. Earlier halted/superseded history and the 11-row PR/30-row cleanup unknown audits remain unchanged. Next: `$gsd-execute-phase 245 --gaps-only --wave 5`.
+**Plans**: 35 active indexed plan files; Plans 35 and 36 are superseded terminal plans with immutable blocked receipts. The historical Plan 19 plan artifact is excluded and its single admitted local deletion remains counted once. Plans 37 and 38 are the only incomplete plans: Plan 37 follows completed Plan 34 in computed wave 3 and requires a new five-object approval; Plan 38 follows in computed wave 4 only after a committed ready D-06 receipt, with its own exact-row approval. REPO-04 and the 11-row PR/30-row cleanup historical audits remain unresolved. Next: `$gsd-execute-phase 245 --gaps-only --wave 3`.
 
 Plans:
 **Wave 1**
@@ -511,23 +511,23 @@ Plans:
 
 - [x] 245-34-PLAN.md — Complete one separately approved source-only fetch; verify all 358 required typed objects and no ref/PR/worktree/index changes; issue a ready D-06 receipt (commits `934b1fdf`, `4b3b91c1`, `e2d9e653`)
 
-**Historical current-source prune attempt** — Plan 30 blocked before contract capture; preserve receipts and use the new Plans 35/36 route.
+**Historical current-source prune attempt** — Plan 30 blocked before contract capture; preserve receipts and use Plans 37/38 after the routing repair.
 
 - [ ] 245-30-PLAN.md — Blocked before admission on four missing origin OIDs; no contract, allowlist, approval or ref operation; immutable historical outputs, excluded from replay by its summary.
 
-**Gap Wave 3 — exact four-object recovery** *(depends on completed Plan 34; blocked by origin drift before approval, no fetch attempted)*
+**Superseded Plan 35 — four-object recovery** *(approval voided by origin drift before fetch; immutable blocked receipts)*
 
-- [ ] 245-35-PLAN.md — Refresh the read-only source proof, obtain a fresh digest-bound four-OID approval, import once without ref changes, and prove a separate ready or blocked D-06 receipt.
+- [ ] 245-35-PLAN.md — Superseded by Plan 37; no fetch attempted, prior four-object approval void. Terminal plan metadata excludes replay without changing its blocked outcome.
 
-**Gap Wave 4 — fresh prune continuation** *(blocked on Plan 35's committed ready D-06 receipt; stopped by Plan 36's committed source-drift diagnostic)*
+**Superseded Plan 36 — prune continuation** *(stopped at the blocked D-06 prerequisite; immutable diagnostic)*
 
-- [ ] 245-36-PLAN.md — Capture a new immutable current contract, approve exact deletion rows, apply under the shared coordinator, and prove independent post-state without rewriting Plan 30 history.
+- [ ] 245-36-PLAN.md — Superseded by Plan 38; zero production operations. Terminal plan metadata excludes replay without changing its blocked outcome.
 
-**Gap Wave 5 — fresh five-object recovery** *(depends on Plan 36's committed blocked diagnostic; new digest and blocking-human approval required)*
+**Gap Wave 3 — fresh five-object recovery** *(depends on completed Plan 34; Plans 35/36 are historical inputs; new digest and explicit approval required)*
 
 - [ ] 245-37-PLAN.md — Recapture the complete current source census, approve exactly the five missing commits against the committed preflight digest, fetch once without ref/PR changes, and issue a ready or blocked D-06 receipt.
 
-**Gap Wave 6 — fresh prune continuation** *(depends on Plan 37's committed ready D-06 receipt; a separate exact-row approval is required before any production ref operation)*
+**Gap Wave 4 — fresh prune continuation** *(depends on Plan 37's committed ready D-06 receipt; a separate exact-row approval is required before any production ref operation)*
 
 - [ ] 245-38-PLAN.md — Capture a new immutable local/origin/PR contract and exact deletion admission; apply only separately approved rows and prove complete independent post-state.
 
@@ -544,7 +544,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 33/35 summarized (includes blocked history) | In progress | - |
+| 245. Branch Prune | 33/35 terminal active entries (includes halted history); 2 pending; 35/36 superseded | In progress | - |
 
 ## Requirement Coverage
 

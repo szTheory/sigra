@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 245 --gaps-only --wave 5",
-    "label": "Capture a fresh five-object D-06 preflight in Plan 245-37",
-    "reason": "Plan 35's four-object approval was voided when origin refs advanced, before any fetch. Plan 36 committed the blocked diagnostic. The six scoped Plan 37/38 and routing files are committed as 0e2c14c3 under the shared coordinator. Plan 37 recaptures identities and requires a new digest-bound approval before its one fetch. Plan 38 is gated on ready D-06 evidence and needs separate exact-row approval. Phase 245 remains open and is the roadmap's final phase."
+    "command": "$gsd-execute-phase 245 --gaps-only --wave 3",
+    "label": "Execute Phase 245 Plan 37 fresh five-object recovery",
+    "reason": "Gap planning passed independent checking. Plans 35/36 are superseded in PLAN metadata while blocked receipts stay unchanged. Live DAG selects only Plans 37/38 incomplete and only Plan 37 ready (wave 3, depends on completed Plan 34). Plan 37 needs a fresh committed preflight and new exact five-object approval; Plan 38 follows in wave 4 only after ready D-06 evidence and its own exact-row approval. Production readiness and REPO-04 remain blocked/open; historical 11/30 audits unresolved. Phase 245 is the final roadmap phase."
   },
-  "updated_at": "2026-10-03T14:22:21Z"
+  "updated_at": "2026-10-03T15:26:28Z"
 }

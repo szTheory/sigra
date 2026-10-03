@@ -9,17 +9,17 @@ Phase 244 (`@playwright/test` bump) is complete. Phase 245 (Branch Prune Local a
 Run:
 
 ```text
-$gsd-execute-phase 245 --gaps-only --wave 5
+$gsd-execute-phase 245 --gaps-only --wave 3
 ```
 
-The six scoped planning/routing files were committed as `0e2c14c3` under `repo-mutation-coordinator.sh`. Plan 37 execution has not started. Do not reuse the voided four-object approval or fetch before Plan 37 presents its fresh digest-bound decision.
+The gap-plan route is repaired: Plans 35 and 36 have terminal `superseded` plan metadata, while their blocked receipts and summaries remain unchanged. Plan 37 depends on completed Plan 34 in computed wave 3; Plan 38 follows in wave 4. The live index lists only Plans 37/38 incomplete and only Plan 37 ready. Plan 37 execution has not started. Do not reuse the voided four-object approval or fetch before Plan 37 presents its fresh digest-bound decision.
 
 Plan 37 Task 1 must capture and commit the complete live source preflight. If ready, Task 2 displays its exact five OIDs, source identities, fetch command and preflight SHA-256 and waits for a new explicit approval. The old four-object approval does not authorize this fetch. Do not start Plan 38 until Plan 37 has a committed ready D-06 receipt.
 
 After Plan 37 completes with ready D-06 evidence, the next exact GSD command is:
 
 ```text
-$gsd-execute-phase 245 --gaps-only --wave 6
+$gsd-execute-phase 245 --gaps-only --wave 4
 ```
 
 Plan 38 captures a new current contract and has its own blocking approval before any production ref operation. If Plan 37 blocks, preserve its receipts and plan a fresh recovery from the recorded live state; do not reuse either earlier approval.
