@@ -4,19 +4,19 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 245
 current_phase_name: Branch Prune Local and Remote
-current_plan: 35
-status: ready to execute gap plans
-stopped_at: Plans 245-35 and 245-36 independently checked; execution approvals pending
-last_updated: "2026-10-03T02:30:09Z"
-last_activity: 2026-10-02
-last_activity_desc: Created and verified exact-object recovery and fresh prune continuation plans
-state_head: 74e0937af546849fd29d61535244196ef8c80469
+current_plan: 37
+status: ready for wave 5
+stopped_at: Plans 245-37/38 are prepared and structurally validated; commit the six scoped planning/routing files under the now-free shared coordinator, then start Plan 37 wave 5. No Plan 37 preflight or fetch has started.
+last_updated: "2026-10-03T14:18:25Z"
+state_head: 0adb3ce85325ee42fe713a23df7fcb6c63faddcb
 progress:
   total_phases: 10
   completed_phases: 9
-  total_plans: 98
-  completed_plans: 93
+  total_plans: 102
+  completed_plans: 95
   percent: 90
+last_activity: 2026-10-03
+last_activity_desc: Added a fresh five-object recovery route after origin source drift
 ---
 
 # Project State
@@ -31,16 +31,16 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 245 (Branch Prune Local and Remote) — READY TO EXECUTE GAP PLANS
-Phase 245 remains open. Plan 30 stopped before contract capture on four missing live origin objects; its blocked preflight, result and summary are immutable history in 74e0937af546849fd29d61535244196ef8c80469. Plans 35 and 36 now cover recovery and a fresh prune continuation; both passed independent plan checking.
-Current Plan: 35 (planned; effective wave 3; exact four-object recovery)
-Next Action: Run `$gsd-execute-phase 245 --gaps-only`. GSD selects only Plans 35 and 36 as incomplete; Plan 36 is wave 4 and requires Plan 35's committed ready D-06 receipt.
-Total Plans in Phase: 35
-Status: Ready to execute the new gap plans; pruning and REPO-04 remain blocked pending recovery, fresh current-source admission, exact-row approval and successful post-state verification.
-Planning evidence: `245-35-PLANNING-PREFLIGHT.json` verified all four exact origin-advertised OIDs and GitHub commit/tree identities, while recording them unreadable locally. It is ready for recovery planning, not pruning. `245-35-PLAN-CHECK.json` binds both plan hashes and records the independent passed review. Requirement coverage is 1/1 and decision coverage is 7/7.
+Phase: 245 (Branch Prune Local and Remote) — ACTIVE; Plan 37's fresh recovery and Plan 38's continuation have not started. The previously approved four-object fetch was voided by live origin drift before execution.
+Phase 245 remains open. Plan 30's blocked preflight/result/summary are immutable history at 74e0937af546849fd29d61535244196ef8c80469. Plan 35 has a blocked recovery summary because its source changed before approval; Plan 36 has a blocked prerequisite diagnostic. Plans 37 and 38 define a fresh five-object recovery followed by a separately approved prune continuation.
+Current Plan: 37 (fresh exact-source recovery; gap wave 5)
+Next Action: Commit the six scoped planning/routing files under the verified shared coordinator, then run `$gsd-execute-phase 245 --gaps-only --wave 5` to capture a new full source preflight. If it is ready, stop at its new blocking-human approval before fetching.
+Total Plans in Phase: 37 indexed plan files; the historical Plan 19 file remains absent.
+Status: ready to execute wave 5; REPO-04 remains open.
+Planning evidence: Plan 35's old preflight digest `5fc848c5…` is void because origin gained an advertised `gh-pages` object after capture. Plan 37 binds a fresh five-object census and new approval. Plan 38 remains gated on Plan 37's committed ready D-06 receipt and requires separate approval of exact deletion rows.
 Historical verification: The older Phase 245 verification report remains historical; it does not replace the new executable recovery route. The 11-row PR mismatch and 30-row cleanup-history audits remain explicitly unresolved under D-07.
 History: Plan 19's single admitted local deletion is counted once. Plan 29, Plan 30 and Plan 33 blocked evidence stays immutable. Plan 34's prior one-OID recovery and approval cannot authorize the four new objects. Plan 16 remains superseded and Plan 14 remains halted.
-Next GSD command: `$gsd-execute-phase 245 --gaps-only`. Plan 35 creates a fresh digest-bound approval checkpoint; Plan 36 separately requests approval of exact committed deletion rows. No recovery fetch or production pruning occurred during planning.
+Next GSD command: `$gsd-execute-phase 245 --gaps-only --wave 5`. After Plan 37 is complete and its D-06 receipt is ready, run `$gsd-execute-phase 245 --gaps-only --wave 6`; Task 2 of Plan 38 separately gates every production ref operation.
 The only authoritative sources are this local checkout and GitHub. Do not search another service or reinterpret the unavailable historical baseline. D-05's pinned Git/shared-coordinator gate remains active.
 The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complete from planning evidence.
 
@@ -563,6 +563,7 @@ The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complet
 - Phase 245 Plan 28 Task 1 blocked: its one coordinator admission returned coordinator_admission_gate_busy_or_stale. Follow-up read-only status found verified coordinator, free lock, zero leases, and no gate directory. The staged two-file source delta remained unchanged; 245-28-RECOVERY.json records the refusal. Task 2 did not start.
 - Phase 245 Plan 31 used one approved coordinator admission and created source commit b3e7d8e and evidence commit 08ac346 with exact planned path sets. Post-commit validation failed because committed 245-27-SUMMARY.md lacks `requirements-completed: []`. The worktree 245-31-RECOVERY.json records outcome blocked; 245-31-SUMMARY.md is halted to prevent replay. No production refs or PRs changed; Plans 29 and 30 are blocked by Plan 31.
 - Phase 245 Plan 29 D-06 preflight is durably blocked: required commit c39e423cb023b60aefbda3e848b0a89395ff22d3 for origin refs/heads/gh-pages is unreadable; Plan 30 must remain untouched until a fresh ready preflight.
+- Phase 245 Plan 33 remains an immutable blocked historical attempt. Plan 34 later recovered its separately approved exact OID c39e423cb023b60aefbda3e848b0a89395ff22d3. Plan 30 then stopped on four newer missing live origin OIDs; see committed 245-30-EXEC-PREFLIGHT.json and 245-30-RESULT.json.
 
 ### Roadmap Evolution
 
@@ -751,15 +752,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-03T02:30:09Z
-Stopped at: Plans 245-35 and 245-36 independently checked; ready for gated execution
-Resume file: .planning/phases/245-branch-prune-local-and-remote/245-35-PLAN.md
+Last session: 2026-10-03T14:18:25Z
+Stopped at: The coordinator now reports verified/free. Plans 37 and 38 and their routing updates are prepared and validated; commit only the six scoped files, then run Plan 37 in wave 5. No GSD execution/preflight or fetch has begun.
+Resume file: .planning/phases/245-branch-prune-local-and-remote/continue.md
 
 ## Operator Next Steps
 
-- Run `$gsd-execute-phase 245 --gaps-only`; only Plans 35 and 36 are incomplete. To execute recovery alone, use `--wave 3`.
-- Plan 35 refreshes the source census and requires a new approval bound to its exact four OIDs and preflight digest. Plan 36 runs in wave 4 only after a committed ready D-06 receipt and requires its own exact-row deletion approval.
-- Preserve Plan 30's blocked receipts; Plan 36 supplies new output paths. Do not replay historical halted plans or reuse Plan 34's approval.
+- Commit the six scoped plan/routing files under the now-free shared coordinator, then run `$gsd-execute-phase 245 --gaps-only --wave 5`; Plan 37 captures the new source census and requires a fresh exact five-object approval before its one fetch.
+- After Plan 37 commits ready D-06 evidence and a summary, run `$gsd-execute-phase 245 --gaps-only --wave 6`; Plan 38 captures a fresh contract and requires its own exact-row approval before pruning.
+- Preserve blocked Plans 30, 35 and 36; do not replay halted plans or reuse any earlier object-recovery approval. Keep REPO-04 open until current-source pruning and independent post-state pass, and preserve both historical unknown audits.
 - Keep REPO-04 open until current-source pruning and independent post-state pass. Preserve both historical unknown audits and all unrelated dirty work.
 
 ## Performance Metrics
