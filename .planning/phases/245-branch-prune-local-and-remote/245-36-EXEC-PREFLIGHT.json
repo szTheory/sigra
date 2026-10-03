@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "36",
+  "repository": "szTheory/sigra",
+  "captured_at": "2026-10-03T13:45:50.285Z",
+  "purpose": "fail-fast Plan 36 prerequisite gate; no current contract capture or ref operation",
+  "verdict": "blocked",
+  "blockers": [
+    {
+      "code": "plan35_d06_not_ready",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-D06-READINESS.json",
+      "blob_sha256": "fae2ed2991d072968d51ebf9f97d79078b50912624c15ed133d36c5437a604c6",
+      "committed_blob_matches_worktree": true,
+      "verdict": "blocked"
+    },
+    {
+      "code": "new_current_origin_object_unreadable",
+      "oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+      "ref": "refs/heads/gh-pages",
+      "actual_type": null,
+      "source_evidence_path": ".planning/phases/245-branch-prune-local-and-remote/245-35-OBJECT-RECOVERY.json"
+    }
+  ],
+  "pins": {
+    "plan35_recovery": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-OBJECT-RECOVERY.json",
+      "commit": "b090a8fbdf37b6417de109211b8c385cbbf9bcee",
+      "blob_sha256": "5ca6d9c52468a5e8a546500d4f63f3a6af76ebdd0155e34b8c26bf89091ceef2",
+      "outcome": "blocked",
+      "attempt_count": 0
+    },
+    "plan35_readiness": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-D06-READINESS.json",
+      "blob_sha256": "fae2ed2991d072968d51ebf9f97d79078b50912624c15ed133d36c5437a604c6",
+      "verdict": "blocked",
+      "preflight_sha256": "5fc848c5a21c0dfe160079e237d587f9f383f8c5a5c8ffd31001f99372efe829"
+    },
+    "plan35_preflight": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-EXEC-PREFLIGHT.json",
+      "sha256": "5fc848c5a21c0dfe160079e237d587f9f383f8c5a5c8ffd31001f99372efe829",
+      "approved_sha256": "5fc848c5a21c0dfe160079e237d587f9f383f8c5a5c8ffd31001f99372efe829"
+    }
+  },
+  "checks": {
+    "plan35_ready_receipt": false,
+    "plan35_blocked_receipt_committed": true,
+    "newly_advertised_commit_readable": false,
+    "phase244_readiness_rechecked": false,
+    "complete_current_sources_captured": false,
+    "contract_created": false,
+    "allowlist_created": false,
+    "admission_created": false,
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "object_import_attempts": 0
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  }
+}

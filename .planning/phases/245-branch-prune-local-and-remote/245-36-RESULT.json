@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "36",
+  "repository": "szTheory/sigra",
+  "captured_at": "2026-10-03T13:45:50.285Z",
+  "outcome": "blocked",
+  "attempted_operations": [],
+  "mutations": {
+    "local_ref_deletions": [],
+    "tracking_ref_deletions": [],
+    "remote_ref_deletions": [],
+    "safety_ref_publications": [],
+    "pull_request_mutations": [],
+    "object_import_attempts": []
+  },
+  "plan35": {
+    "recovery_sha256": "5ca6d9c52468a5e8a546500d4f63f3a6af76ebdd0155e34b8c26bf89091ceef2",
+    "readiness_sha256": "fae2ed2991d072968d51ebf9f97d79078b50912624c15ed133d36c5437a604c6",
+    "readiness_verdict": "blocked",
+    "fetch_attempt_count": 0
+  },
+  "blocker": {
+    "code": "d06_source_recovery_required",
+    "missing_current_origin_oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+    "ref": "refs/heads/gh-pages",
+    "reason": "Plan 35 stopped before importing its approved four OIDs because origin changed. Plan 36 forbids expanding that approval and requires separate D-06 recovery for the new source."
+  },
+  "checks": {
+    "plan35_ready_receipt": false,
+    "full_current_contract_captured": false,
+    "plan36_admission_created": false,
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "all_historical_audits_unresolved": true
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "failed_predicates": [
+    "Plan 35 D-06 readiness is blocked.",
+    "Current origin now advertises unreadable commit d2358eebe1cb4411d73552ec2359e54d8a4c98b4 at refs/heads/gh-pages."
+  ],
+  "next_gate": "Complete a separately approved D-06 object recovery, then capture a new ready Plan 35 receipt before Plan 36 admission."
+}
