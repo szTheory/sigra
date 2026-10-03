@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "35",
+  "repository": "szTheory/sigra",
+  "captured_at": "2026-10-03T13:34:15.587Z",
+  "verdict": "blocked",
+  "preflight_path": ".planning/phases/245-branch-prune-local-and-remote/245-35-EXEC-PREFLIGHT.json",
+  "preflight_sha256": "5fc848c5a21c0dfe160079e237d587f9f383f8c5a5c8ffd31001f99372efe829",
+  "recovery_receipt": "245-35-OBJECT-RECOVERY.json",
+  "recovery_receipt_sha256": "5ca6d9c52468a5e8a546500d4f63f3a6af76ebdd0155e34b8c26bf89091ceef2",
+  "required_typed_objects": 364,
+  "preflight_readable_typed_objects": 360,
+  "preflight_unreadable_typed_objects": 4,
+  "preflight_unreadable_oids": [
+    "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+    "8ec669774d33eee30d7b92149808adf835bbd963",
+    "c1df96499fed86602a7c6f27d18d9394582809f1",
+    "d4e206693aa765c0078a89e24963590257d1daf1"
+  ],
+  "current_origin_extra_unique_oids": [
+    "d2358eebe1cb4411d73552ec2359e54d8a4c98b4"
+  ],
+  "current_known_unreadable_extra_oids": [
+    "d2358eebe1cb4411d73552ec2359e54d8a4c98b4"
+  ],
+  "current_source_ref_count": 363,
+  "current_source_ref_sha256": "58a06c4d91f8be15b9e6256a6f8ba7667784983d7cffe3e3514e7d2ce31ec65e",
+  "approved_source_oid_count": 4,
+  "approved_source_oids_still_advertised_and_tree_pinned": true,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "checks": {
+    "complete_current_sources_agree": false,
+    "approval_not_voided": false,
+    "fetch_attempted": false,
+    "all_required_typed_objects_readable": false,
+    "zero_ref_and_pr_operations": true,
+    "plan23_readiness_passed": true,
+    "historical_audits_unresolved": true
+  },
+  "failed_predicates": [
+    {
+      "predicate": "complete_origin_refs_match_approved_preflight",
+      "expected_sha256": "c4c39e26b2a80fd9c8ea58382b3eabb46024693594e91ccfd36ad5f42d89e453",
+      "actual_sha256": "58a06c4d91f8be15b9e6256a6f8ba7667784983d7cffe3e3514e7d2ce31ec65e",
+      "expected_count": 361,
+      "actual_count": 363,
+      "ref_differences": [
+        {
+          "ref": "refs/heads/gh-pages",
+          "before": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+          "after": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4"
+        },
+        {
+          "ref": "refs/tags/v0.2.4^{}",
+          "before": null,
+          "after": "e7eb414fefbd1587daf3c943868914916a565836"
+        }
+      ]
+    },
+    {
+      "predicate": "current_origin_new_head_is_in_approved_object_set",
+      "ref": "refs/heads/gh-pages",
+      "oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+      "actual_local_type": null
+    },
+    {
+      "predicate": "current_local_index_fingerprint_matches_preflight",
+      "expected_sha256": "a6f5c669f29262248eec680b79b00687dcc2b8be518be46e13e3b86837e02ad8",
+      "actual_sha256": "2b3667cab748602ad5077f9de3f65f380502b69c9fa84fc17419318fe0df1c71"
+    },
+    {
+      "predicate": "current_dirty_worktree_fingerprint_matches_preflight",
+      "expected": {
+        "status_sha256": "d3035010cb1c0480b3e1100539579aeda60e3976eb58e486a07f40266063fa5b",
+        "status_bytes": 18215,
+        "staged_binary_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "worktree_binary_diff_sha256": "777757197e696016fe1c0fbe0873578b3576e3266ad442d592d5b1290cd0c877",
+        "untracked_paths_sha256": "70fc45008f857ce6ab21de6f0779ea87a09785ade542c778a0319b5097d33ecb",
+        "untracked_path_count": 117,
+        "stash_list_sha256": "23e253ebac99150464751d836b3f3f5f7aee6ff0c9d5605ded729473aeaeb0e7",
+        "stash_count": 6,
+        "receipt_path_absent_before_capture": true
+      },
+      "actual": {
+        "status_sha256": "0fe398722a525482009163b99747c618439ecdb6fceafb16706ed2a005e472d8",
+        "status_bytes": 18349,
+        "staged_binary_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "staged_binary_diff_bytes": 0,
+        "worktree_binary_diff_sha256": "d34716a553bbf57b1746068257bd9351181191bfd788c5af7d58183ef58a1371",
+        "worktree_binary_diff_bytes": 231806,
+        "stash_list_sha256": "23e253ebac99150464751d836b3f3f5f7aee6ff0c9d5605ded729473aeaeb0e7",
+        "stash_count": 6
+      }
+    }
+  ]
+}
