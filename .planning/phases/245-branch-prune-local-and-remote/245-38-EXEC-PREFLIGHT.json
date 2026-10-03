@@ -3,7 +3,7 @@
   "phase": 245,
   "plan": 38,
   "repository": "szTheory/sigra",
-  "captured_at": "2026-10-03T19:32:29.103Z",
+  "captured_at": "2026-10-03T20:21:53.038Z",
   "verdict": "ready",
   "checks": {
     "plan37_ready_receipt": true,
@@ -349,7 +349,7 @@
   ],
   "current_source": {
     "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
-    "capture_head_oid": "3d39ce2e788639c97be27fc6e0e31280231d5291",
+    "capture_head_oid": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
     "local_ref_count": 128,
     "local_head_count": 33,
     "origin_ref_count": 361,
@@ -364,7 +364,7 @@
         "source": "github-api"
       }
     ],
-    "local_refs_sha256": "d6cf837ffa83c843153e22fe6e6d93635af2b8ba18928c7d70bc3462eb666190",
+    "local_refs_sha256": "57e6fd500bf8aa2baffc04684e587b071172a7ed9cea15f8bac3df165c3508d7",
     "origin_refs_sha256": "29d1c11db72e660608e9d5a32b34fb4bff3c74d92b7beeaad928eb58dda9866e",
     "open_prs_sha256": "e123ab15ddfa674a25d9c085217bcbc6b384c65e43fc80a5fe9f4db87a95b002",
     "complete_live_ls_remote": {
@@ -386,7 +386,7 @@
         "refs/"
       ],
       "exit_code": 0,
-      "stdout_sha256": "d0dd04fc9a0beae36d5a36fa748e257c6118ccdbca430778a604b9f8d34514d1",
+      "stdout_sha256": "f67729b52d8e22cc67e18a96d4fdf279eef0e94974878821b9f170826fcba403",
       "line_count": 128
     },
     "github_open_pr_inventory": {
@@ -896,21 +896,6 @@
         "exit_code": 0
       },
       {
-        "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
-        "expected_types": [
-          "commit"
-        ],
-        "actual_type": "commit",
-        "readable": true,
-        "command": [
-          "/usr/bin/git",
-          "cat-file",
-          "-t",
-          "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4"
-        ],
-        "exit_code": 0
-      },
-      {
         "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
         "expected_types": [
           "commit"
@@ -1256,7 +1241,7 @@
         "exit_code": 0
       },
       {
-        "oid": "02d3370f9edd05fa598216d6bef34958310881ec",
+        "oid": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
         "expected_types": [
           "commit"
         ],
@@ -1266,7 +1251,7 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "02d3370f9edd05fa598216d6bef34958310881ec"
+          "af0bcd46f2475fb3eb4522f36a434d4191c26419"
         ],
         "exit_code": 0
       },
@@ -1706,7 +1691,7 @@
         "exit_code": 0
       },
       {
-        "oid": "5fd13b954b3c68ec98b0a5dc56fb81ce98d72d53",
+        "oid": "dd671004a276c24fafa8ece80e341706085a999e",
         "expected_types": [
           "commit"
         ],
@@ -1716,7 +1701,7 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "5fd13b954b3c68ec98b0a5dc56fb81ce98d72d53"
+          "dd671004a276c24fafa8ece80e341706085a999e"
         ],
         "exit_code": 0
       },
@@ -2216,6 +2201,21 @@
         "exit_code": 0
       },
       {
+        "oid": "8ec669774d33eee30d7b92149808adf835bbd963",
+        "expected_types": [
+          "commit"
+        ],
+        "actual_type": "commit",
+        "readable": true,
+        "command": [
+          "/usr/bin/git",
+          "cat-file",
+          "-t",
+          "8ec669774d33eee30d7b92149808adf835bbd963"
+        ],
+        "exit_code": 0
+      },
+      {
         "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
         "expected_types": [
           "commit"
@@ -2291,7 +2291,7 @@
         "exit_code": 0
       },
       {
-        "oid": "bb5416341f08e5547962d42aefbd2c012920180c",
+        "oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
         "expected_types": [
           "commit"
         ],
@@ -2301,7 +2301,7 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "bb5416341f08e5547962d42aefbd2c012920180c"
+          "5c414c4cec975fcf2755664f6ee294a4760fbe93"
         ],
         "exit_code": 0
       },
@@ -2426,7 +2426,7 @@
         "exit_code": 0
       },
       {
-        "oid": "b71c1cbeb239941af09933193dd8e3b04b425588",
+        "oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
         "expected_types": [
           "commit"
         ],
@@ -2436,7 +2436,7 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "b71c1cbeb239941af09933193dd8e3b04b425588"
+          "d2358eebe1cb4411d73552ec2359e54d8a4c98b4"
         ],
         "exit_code": 0
       },
@@ -4556,7 +4556,7 @@
         "exit_code": 0
       },
       {
-        "oid": "5be6725d10451b80a44938a2d7c5239543a2c9a5",
+        "oid": "bb5416341f08e5547962d42aefbd2c012920180c",
         "expected_types": [
           "commit"
         ],
@@ -4566,7 +4566,7 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "5be6725d10451b80a44938a2d7c5239543a2c9a5"
+          "bb5416341f08e5547962d42aefbd2c012920180c"
         ],
         "exit_code": 0
       },
@@ -4672,6 +4672,36 @@
           "cat-file",
           "-t",
           "adfc9a961aa3424a071f3afbd989977ce0f5adc6"
+        ],
+        "exit_code": 0
+      },
+      {
+        "oid": "c1df96499fed86602a7c6f27d18d9394582809f1",
+        "expected_types": [
+          "commit"
+        ],
+        "actual_type": "commit",
+        "readable": true,
+        "command": [
+          "/usr/bin/git",
+          "cat-file",
+          "-t",
+          "c1df96499fed86602a7c6f27d18d9394582809f1"
+        ],
+        "exit_code": 0
+      },
+      {
+        "oid": "d4e206693aa765c0078a89e24963590257d1daf1",
+        "expected_types": [
+          "commit"
+        ],
+        "actual_type": "commit",
+        "readable": true,
+        "command": [
+          "/usr/bin/git",
+          "cat-file",
+          "-t",
+          "d4e206693aa765c0078a89e24963590257d1daf1"
         ],
         "exit_code": 0
       },
@@ -5771,7 +5801,7 @@
         "exit_code": 0
       },
       {
-        "oid": "3d39ce2e788639c97be27fc6e0e31280231d5291",
+        "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
         "expected_types": [
           "commit"
         ],
@@ -5781,12 +5811,12 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "3d39ce2e788639c97be27fc6e0e31280231d5291"
+          "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4"
         ],
         "exit_code": 0
       },
       {
-        "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+        "oid": "02d3370f9edd05fa598216d6bef34958310881ec",
         "expected_types": [
           "commit"
         ],
@@ -5796,12 +5826,12 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "dd671004a276c24fafa8ece80e341706085a999e"
+          "02d3370f9edd05fa598216d6bef34958310881ec"
         ],
         "exit_code": 0
       },
       {
-        "oid": "8ec669774d33eee30d7b92149808adf835bbd963",
+        "oid": "5fd13b954b3c68ec98b0a5dc56fb81ce98d72d53",
         "expected_types": [
           "commit"
         ],
@@ -5811,12 +5841,12 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "8ec669774d33eee30d7b92149808adf835bbd963"
+          "5fd13b954b3c68ec98b0a5dc56fb81ce98d72d53"
         ],
         "exit_code": 0
       },
       {
-        "oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+        "oid": "b71c1cbeb239941af09933193dd8e3b04b425588",
         "expected_types": [
           "commit"
         ],
@@ -5826,12 +5856,12 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "5c414c4cec975fcf2755664f6ee294a4760fbe93"
+          "b71c1cbeb239941af09933193dd8e3b04b425588"
         ],
         "exit_code": 0
       },
       {
-        "oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+        "oid": "5be6725d10451b80a44938a2d7c5239543a2c9a5",
         "expected_types": [
           "commit"
         ],
@@ -5841,37 +5871,7 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "d2358eebe1cb4411d73552ec2359e54d8a4c98b4"
-        ],
-        "exit_code": 0
-      },
-      {
-        "oid": "c1df96499fed86602a7c6f27d18d9394582809f1",
-        "expected_types": [
-          "commit"
-        ],
-        "actual_type": "commit",
-        "readable": true,
-        "command": [
-          "/usr/bin/git",
-          "cat-file",
-          "-t",
-          "c1df96499fed86602a7c6f27d18d9394582809f1"
-        ],
-        "exit_code": 0
-      },
-      {
-        "oid": "d4e206693aa765c0078a89e24963590257d1daf1",
-        "expected_types": [
-          "commit"
-        ],
-        "actual_type": "commit",
-        "readable": true,
-        "command": [
-          "/usr/bin/git",
-          "cat-file",
-          "-t",
-          "d4e206693aa765c0078a89e24963590257d1daf1"
+          "5be6725d10451b80a44938a2d7c5239543a2c9a5"
         ],
         "exit_code": 0
       }
@@ -5883,7 +5883,8 @@
         "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
         "type": "commit",
         "peeled_oid": null,
-        "peeled_type": null
+        "peeled_type": null,
+        "symref": null
       },
       {
         "side": "origin",
@@ -5891,7 +5892,8 @@
         "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
         "type": "commit",
         "peeled_oid": null,
-        "peeled_type": null
+        "peeled_type": null,
+        "symref": null
       },
       {
         "side": "origin",
@@ -5899,38 +5901,14 @@
         "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
         "type": "commit",
         "peeled_oid": null,
-        "peeled_type": null
-      },
-      {
-        "side": "origin",
-        "ref": "refs/heads/ci/phase-235-16-source-complete",
-        "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
-        "type": "commit",
-        "peeled_oid": null,
-        "peeled_type": null
-      },
-      {
-        "side": "origin",
-        "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
-        "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
-        "type": "commit",
-        "peeled_oid": null,
-        "peeled_type": null
-      },
-      {
-        "side": "origin",
-        "ref": "refs/tags/archive/local-main-pre-235-recovery",
-        "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
-        "type": "commit",
-        "peeled_oid": null,
-        "peeled_type": null
+        "peeled_type": null,
+        "symref": null
       }
     ]
   },
   "candidate_census": {
     "expected": 135,
     "actual": 135,
-    "unresolved": 0,
     "delete_rows": 23,
     "delete_sides": {
       "local": 0,
@@ -6248,17 +6226,22 @@
         "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
         "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3"
+        "readback": "{\"number\":219,\"state\":\"OPEN\",\"headRefName\":\"gsd/238-generated-auth-runtime-proof-evidence\",\"baseRefName\":\"main\",\"headRefOid\":\"78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\",\"baseRefOid\":\"f06137b2ac0e9b2094aa1250e3c036b41e997651\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "local",
@@ -6299,16 +6282,16 @@
         "ref": "refs/heads/main",
         "oid": "de9145daec2c94dab9043524ec8df94f7fb9d567",
         "disposition": "keep",
-        "predicate": "branch_matches_live_origin_default",
+        "predicate": "live_origin_default_branch_protected",
         "command": [
           "/usr/bin/git",
-          "ls-remote",
-          "--symref",
-          "origin",
-          "HEAD"
+          "show-ref",
+          "--verify",
+          "--hash",
+          "refs/heads/main"
         ],
         "exit_code": 0,
-        "readback": "ref: refs/heads/main\tHEAD\n5a00b90d2314bc93f27aec4090b5928018743d1b\tHEAD"
+        "readback": "de9145daec2c94dab9043524ec8df94f7fb9d567"
       },
       {
         "side": "local",
@@ -6364,9 +6347,9 @@
       {
         "side": "local",
         "ref": "refs/heads/phase-244-playwright-measurement",
-        "oid": "3d39ce2e788639c97be27fc6e0e31280231d5291",
+        "oid": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
         "disposition": "keep",
-        "predicate": "branch_is_current_or_attached_to_registered_worktree",
+        "predicate": "registered_worktree_branch_protected",
         "command": [
           "/usr/bin/git",
           "worktree",
@@ -6374,7 +6357,7 @@
           "--porcelain"
         ],
         "exit_code": 0,
-        "readback": "worktree /Users/jon/projects/sigra\nHEAD 3d39ce2e788639c97be27fc6e0e31280231d5291\nbranch refs/heads/phase-244-playwright-measurement"
+        "readback": "branch refs/heads/phase-244-playwright-measurement"
       },
       {
         "side": "local",
@@ -6559,7 +6542,7 @@
           "refs/heads/ci/phase-235-16-source-complete"
         ],
         "exit_code": 0,
-        "readback": "e932a2c84fd356b5a3fe561fb9c77925fa836b34\trefs/heads/ci/phase-235-16-source-complete"
+        "readback": "refs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
       },
       {
         "side": "remote",
@@ -6617,170 +6600,220 @@
         "ref": "refs/heads/dependabot/github_actions/actions/upload-artifact-7.0.1",
         "oid": "8ec669774d33eee30d7b92149808adf835bbd963",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "8ec669774d33eee30d7b92149808adf835bbd963",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "8ec669774d33eee30d7b92149808adf835bbd963"
+        "readback": "{\"number\":286,\"state\":\"OPEN\",\"headRefName\":\"dependabot/github_actions/actions/upload-artifact-7.0.1\",\"baseRefName\":\"main\",\"headRefOid\":\"8ec669774d33eee30d7b92149808adf835bbd963\",\"baseRefOid\":\"5a00b90d2314bc93f27aec4090b5928018743d1b\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
         "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "7eb414854c836f8b45784fca3ffb89ad623e8085",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "7eb414854c836f8b45784fca3ffb89ad623e8085"
+        "readback": "{\"number\":267,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/dialyxir-1.4.8\",\"baseRefName\":\"main\",\"headRefOid\":\"7eb414854c836f8b45784fca3ffb89ad623e8085\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
         "oid": "75b00619d287694ac55643584923011538933660",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "75b00619d287694ac55643584923011538933660",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "75b00619d287694ac55643584923011538933660"
+        "readback": "{\"number\":275,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/ex_doc-0.40.4\",\"baseRefName\":\"main\",\"headRefOid\":\"75b00619d287694ac55643584923011538933660\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/hex/mox-1.3.2",
         "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "85a9d29f645229c90bd30da8860147591e510aa9",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "85a9d29f645229c90bd30da8860147591e510aa9"
+        "readback": "{\"number\":272,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/mox-1.3.2\",\"baseRefName\":\"main\",\"headRefOid\":\"85a9d29f645229c90bd30da8860147591e510aa9\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
         "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "c6e0cc4083656155c14213a88de2a5c646516661",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "c6e0cc4083656155c14213a88de2a5c646516661"
+        "readback": "{\"number\":269,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/stream_data-1.4.0\",\"baseRefName\":\"main\",\"headRefOid\":\"c6e0cc4083656155c14213a88de2a5c646516661\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
         "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "714b6e4ef377d81ada327f0b0840cfcf874ffb84"
+        "readback": "{\"number\":274,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/threadline-0.10.1\",\"baseRefName\":\"main\",\"headRefOid\":\"714b6e4ef377d81ada327f0b0840cfcf874ffb84\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0",
         "oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "5c414c4cec975fcf2755664f6ee294a4760fbe93",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "5c414c4cec975fcf2755664f6ee294a4760fbe93"
+        "readback": "{\"number\":285,\"state\":\"OPEN\",\"headRefName\":\"dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0\",\"baseRefName\":\"main\",\"headRefOid\":\"5c414c4cec975fcf2755664f6ee294a4760fbe93\",\"baseRefOid\":\"5a00b90d2314bc93f27aec4090b5928018743d1b\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
         "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "fcb165adbd4c9d8cc0f09eef1091334495a4700f"
+        "readback": "{\"number\":268,\"state\":\"OPEN\",\"headRefName\":\"dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0\",\"baseRefName\":\"main\",\"headRefOid\":\"fcb165adbd4c9d8cc0f09eef1091334495a4700f\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
         "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "e8c028591ccd806180f0ea048ad5278028fc7c0f",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "e8c028591ccd806180f0ea048ad5278028fc7c0f"
+        "readback": "{\"number\":273,\"state\":\"OPEN\",\"headRefName\":\"dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0\",\"baseRefName\":\"main\",\"headRefOid\":\"e8c028591ccd806180f0ea048ad5278028fc7c0f\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
         "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "8bb65f8f78d726318dad6c81361009dada8b917c",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "8bb65f8f78d726318dad6c81361009dada8b917c"
+        "readback": "{\"number\":271,\"state\":\"OPEN\",\"headRefName\":\"dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5\",\"baseRefName\":\"main\",\"headRefOid\":\"8bb65f8f78d726318dad6c81361009dada8b917c\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
@@ -6889,17 +6922,22 @@
         "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
         "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6"
+        "readback": "{\"number\":266,\"state\":\"OPEN\",\"headRefName\":\"evidence/phase-241-final-head-cd1e7e1252da\",\"baseRefName\":\"main\",\"headRefOid\":\"cd1e7e1252da9388727641160d45bb4f1bf4f1d6\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
@@ -7025,17 +7063,22 @@
         "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
         "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3"
+        "readback": "{\"number\":219,\"state\":\"OPEN\",\"headRefName\":\"gsd/238-generated-auth-runtime-proof-evidence\",\"baseRefName\":\"main\",\"headRefOid\":\"78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\",\"baseRefOid\":\"f06137b2ac0e9b2094aa1250e3c036b41e997651\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
@@ -7059,16 +7102,16 @@
         "ref": "refs/heads/main",
         "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
         "disposition": "keep",
-        "predicate": "branch_matches_live_origin_default",
+        "predicate": "live_origin_default_branch_protected",
         "command": [
           "/usr/bin/git",
           "ls-remote",
           "--symref",
           "origin",
-          "HEAD"
+          "refs/heads/main"
         ],
         "exit_code": 0,
-        "readback": "ref: refs/heads/main\tHEAD\n5a00b90d2314bc93f27aec4090b5928018743d1b\tHEAD"
+        "readback": "refs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
       },
       {
         "side": "remote",
@@ -7228,34 +7271,44 @@
         "ref": "refs/heads/phase-244/measurement",
         "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "f62e252648db66706cf27c3e37241fcd7b78a3de",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "f62e252648db66706cf27c3e37241fcd7b78a3de"
+        "readback": "{\"number\":283,\"state\":\"OPEN\",\"headRefName\":\"phase-244/measurement\",\"baseRefName\":\"main\",\"headRefOid\":\"f62e252648db66706cf27c3e37241fcd7b78a3de\",\"baseRefOid\":\"5a00b90d2314bc93f27aec4090b5928018743d1b\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
         "ref": "refs/heads/release-please--branches--main",
         "oid": "276e8c3fc504d2c0497d801083668267327fab84",
         "disposition": "keep",
-        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "predicate": "open_pr_head_branch_protected",
         "command": [
-          "/usr/bin/git",
-          "rev-list",
-          "276e8c3fc504d2c0497d801083668267327fab84",
-          "--not",
-          "5a00b90d2314bc93f27aec4090b5928018743d1b",
-          "--max-count=1"
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
         ],
         "exit_code": 0,
-        "readback": "276e8c3fc504d2c0497d801083668267327fab84"
+        "readback": "{\"number\":224,\"state\":\"OPEN\",\"headRefName\":\"release-please--branches--main\",\"baseRefName\":\"main\",\"headRefOid\":\"276e8c3fc504d2c0497d801083668267327fab84\",\"baseRefOid\":\"5a00b90d2314bc93f27aec4090b5928018743d1b\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
       },
       {
         "side": "remote",
@@ -7271,7 +7324,7 @@
           "refs/heads/safety/local-main-before-release-cleanup-20260831"
         ],
         "exit_code": 0,
-        "readback": "04ae0ba753e4f0613df5b3f840955018742ffbb9\trefs/heads/safety/local-main-before-release-cleanup-20260831"
+        "readback": "refs/heads/safety/local-main-before-release-cleanup-20260831\t04ae0ba753e4f0613df5b3f840955018742ffbb9\tcommit"
       },
       {
         "side": "remote",
@@ -7368,11 +7421,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/brandbook-rail-accent-logo-system"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/brandbook-rail-accent-logo-system; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7384,8 +7436,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/chore/phase-88-uat-evidence"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit"
@@ -7400,8 +7451,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/chore/playwright-github-pages-ci"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit"
@@ -7416,8 +7466,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/ci/phase-235-1-evidence"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit"
@@ -7432,8 +7481,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/ci/phase-235-16-source-complete"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
@@ -7448,8 +7496,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/ci/phase-88-provenance"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit"
@@ -7464,8 +7511,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/ci/recapture-admin-checkpoints-30658359487"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit"
@@ -7480,8 +7526,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/ci/recapture-admin-checkpoints-31043224661"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit"
@@ -7496,11 +7541,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/github_actions/actions/attest-build-provenance-4.2.2"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/github_actions/actions/attest-build-provenance-4.2.2; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7512,11 +7556,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/hex/credo-1.7.19"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/hex/credo-1.7.19; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7528,11 +7571,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/hex/flop_phoenix-0.26.3"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/hex/flop_phoenix-0.26.3; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7544,11 +7586,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/hex/hammer-7.4.1"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/hex/hammer-7.4.1; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7560,11 +7601,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/hex/oban-2.24.0"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/hex/oban-2.24.0; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7576,11 +7616,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/hex/threadline-0.9.0"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/hex/threadline-0.9.0; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7592,11 +7631,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7608,11 +7646,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7624,11 +7661,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7640,11 +7676,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7656,11 +7691,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7672,8 +7706,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/docs/230-phase-complete"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit"
@@ -7688,8 +7721,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/docs/phase-240-planning"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit"
@@ -7704,8 +7736,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/elevate-03-wave-v144-pr"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit"
@@ -7720,8 +7751,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/evidence/phase-241-final-head-782328e65c13"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit"
@@ -7736,8 +7766,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/evidence/request-21-f061"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit"
@@ -7752,8 +7781,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit"
@@ -7768,8 +7796,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gh-pages"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/gh-pages\td2358eebe1cb4411d73552ec2359e54d8a4c98b4\tcommit"
@@ -7784,8 +7811,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/235-13-producer-manifest-chronology"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit"
@@ -7800,8 +7826,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/237-238-clean-baseline"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit"
@@ -7816,8 +7841,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/238-generated-auth-runtime-proof-evidence"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit"
@@ -7832,8 +7856,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/phase-232-playwright-economics"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit"
@@ -7848,11 +7871,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/phase-236-flake-root-cause"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-236-flake-root-cause; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7864,11 +7886,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/phase-239-priv-templates-sweep"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-239-priv-templates-sweep; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7880,11 +7901,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/phase-240-closeout"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-240-closeout; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7896,11 +7916,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/phase-240-green-main-evidence"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-240-green-main-evidence; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7912,11 +7931,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/phase-241-context"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-241-context; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7928,11 +7946,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/phase-241-plans"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-241-plans; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7944,11 +7961,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/phase-241-research"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-241-research; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7960,11 +7976,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/quick-260918-lfq-bookkeeping"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/quick-260918-lfq-bookkeeping; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7976,11 +7991,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/quick-green-04-collector-guards"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/quick-green-04-collector-guards; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -7992,11 +8006,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/gsd/state-reconcile-241"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/gsd/state-reconcile-241; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -8008,8 +8021,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/main"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
@@ -8024,8 +8036,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/phase-242-execution"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit"
@@ -8040,8 +8051,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/phase-242-hex-remediation-infrastructure"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit"
@@ -8056,8 +8066,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/phase-244/measurement"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/phase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tcommit"
@@ -8072,8 +8081,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/release-please--branches--main"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/release-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tcommit"
@@ -8088,8 +8096,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/v1.1-pr"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit"
@@ -8104,11 +8111,10 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/v1.37-auth-branding-admin-polish"
+          "origin"
         ],
         "exit_code": 0,
-        "readback": "exit 0 with empty stdout; exact origin ref absent"
+        "readback": "exit 0 with empty result for refs/heads/v1.37-auth-branding-admin-polish; exact origin ref absent"
       },
       {
         "side": "tracking",
@@ -8120,8 +8126,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/worktree-agent-p242-03"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit"
@@ -8136,8 +8141,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/worktree-agent-p242-11"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit"
@@ -8152,8 +8156,7 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/worktree-agent-p242-13"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit"
@@ -8168,16 +8171,16 @@
           "/usr/bin/git",
           "ls-remote",
           "--symref",
-          "origin",
-          "refs/heads/worktree-agent-p242-artifacts"
+          "origin"
         ],
         "exit_code": 0,
         "readback": "refs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit"
       }
-    ]
+    ],
+    "unresolved": []
   },
   "contract_commit": {
-    "expected_parent": "3d39ce2e788639c97be27fc6e0e31280231d5291",
+    "expected_parent": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
     "contract_path": ".planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json",
     "sidecar_path": ".planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json.sha256",
     "contract_paths": [
@@ -8199,5 +8202,7 @@
       ]
     },
     "production_ref_operations": 0
-  }
+  },
+  "failed_predicates": [],
+  "production_ref_operations": 0
 }
