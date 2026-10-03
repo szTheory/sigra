@@ -57,7 +57,7 @@
   "next": {
     "command": "$gsd-execute-phase 245 --gaps-only --wave 5",
     "label": "Capture a fresh five-object D-06 preflight in Plan 245-37",
-    "reason": "Plan 35's four-object approval was voided when origin refs advanced, before any fetch. Plan 36 committed the blocked diagnostic. The six scoped Plan 37/38 and routing files are prepared for a coordinator-held commit; the coordinator now reports verified/free. After that commit, Plan 37 recaptures identities and requires a new digest-bound approval before its one fetch. Plan 38 is gated on ready D-06 evidence and needs separate exact-row approval. Phase 245 remains open and is the roadmap's final phase."
+    "reason": "Plan 35's four-object approval was voided when origin refs advanced, before any fetch. Plan 36 committed the blocked diagnostic. The six scoped Plan 37/38 and routing files are committed as 0e2c14c3 under the shared coordinator. Plan 37 recaptures identities and requires a new digest-bound approval before its one fetch. Plan 38 is gated on ready D-06 evidence and needs separate exact-row approval. Phase 245 remains open and is the roadmap's final phase."
   },
-  "updated_at": "2026-10-03T14:18:25Z"
+  "updated_at": "2026-10-03T14:22:21Z"
 }

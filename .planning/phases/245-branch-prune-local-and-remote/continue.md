@@ -12,7 +12,7 @@ Run:
 $gsd-execute-phase 245 --gaps-only --wave 5
 ```
 
-Before running it, commit the six scoped planning/routing files under `repo-mutation-coordinator.sh` if they are not committed yet. The coordinator now reports verified/free; the earlier admission rejections have cleared. Plan 37 execution has not started. Do not bypass the coordinator.
+The six scoped planning/routing files were committed as `0e2c14c3` under `repo-mutation-coordinator.sh`. Plan 37 execution has not started. Do not reuse the voided four-object approval or fetch before Plan 37 presents its fresh digest-bound decision.
 
 Plan 37 Task 1 must capture and commit the complete live source preflight. If ready, Task 2 displays its exact five OIDs, source identities, fetch command and preflight SHA-256 and waits for a new explicit approval. The old four-object approval does not authorize this fetch. Do not start Plan 38 until Plan 37 has a committed ready D-06 receipt.
 
