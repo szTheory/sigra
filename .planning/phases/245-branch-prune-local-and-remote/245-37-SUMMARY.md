@@ -11,7 +11,7 @@ provides:
   - D-06 readiness receipt with complete typed-object and no-delta evidence
 affects: [245-38, REPO-04]
 actuals:
-  tokens: 313764
+  tokens: 314100
   tasks: 3
   commits: 4
 plan_head_before: 392a2424b699b62b7bc1435e8336fbd38c826e7f
@@ -105,3 +105,7 @@ Plan 38 is gated on the committed ready D-06 receipt; the historical audits rema
 ---
 *Phase: 245-branch-prune-local-and-remote*
 *Completed: 2026-10-03*
+
+## Self-Check: PASSED
+
+All three declared artifacts exist; the recovery and summary commits are present in Git history.
