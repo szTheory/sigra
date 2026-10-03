@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.48 — CLEAN-BASELINE",
+  "milestone": "v1.48 \u2014 CLEAN-BASELINE",
   "phases": [
     {
       "number": "236",
@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute Plan 245-32 receipt reconciliation",
-    "reason": "Plan 245-32 is the sole runnable gap-closure plan; Plans 29/30 wait for it and Plan 31 remains halted."
+    "command": "$gsd-execute-phase 245 --gaps-only",
+    "label": "Execute Phase 245 recovery and fresh prune gap plans",
+    "reason": "Plans 245-35 and 245-36 passed independent checking and are the only incomplete plans. Plan 35 recovers four exact objects after fresh approval in wave 3; Plan 36 requires its ready D-06 receipt and separate exact-row approval in wave 4. Phase 245 and REPO-04 remain open; Plan 30 and historical unknown audits are preserved."
   },
-  "updated_at": "2026-10-02T12:32:01Z"
+  "updated_at": "2026-10-03T02:30:09Z"
 }

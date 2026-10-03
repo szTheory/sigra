@@ -3,19 +3,19 @@ gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 245
-current_phase_name: Branch Prune — Local and Remote
-current_plan: 33
-status: ready to execute
-stopped_at: Plan 245-33 planned and independently checked; ready for the gated recovery
-last_updated: "2026-10-02T18:13:32.680Z"
+current_phase_name: Branch Prune Local and Remote
+current_plan: 35
+status: ready to execute gap plans
+stopped_at: Plans 245-35 and 245-36 independently checked; execution approvals pending
+last_updated: "2026-10-03T02:30:09Z"
 last_activity: 2026-10-02
-last_activity_desc: Plan 245-33 planned and independently checked; Plan 30 retargeted to its ready D-06 receipt
-state_head: 40e727bee1b6fa0c429fb47ca33b77e3e855038a
+last_activity_desc: Created and verified exact-object recovery and fresh prune continuation plans
+state_head: 74e0937af546849fd29d61535244196ef8c80469
 progress:
   total_phases: 10
   completed_phases: 9
-  total_plans: 95
-  completed_plans: 92
+  total_plans: 98
+  completed_plans: 93
   percent: 90
 ---
 
@@ -27,24 +27,22 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 245 — Branch Prune — Local and Remote
+**Current focus:** Phase 245 — Branch Prune Local and Remote
 
 ## Current Position
 
-Phase: 245 (Branch Prune — Local and Remote) — READY TO EXECUTE GAP PLANS
-Most recent completed phase: 244. Phase 245 remains open. Plan 32's evidence-only reconciliation is complete. Plan 29's D-06 receipt remains blocked because one required gh-pages commit is unreadable locally. Plan 33 is the new gated exact-object recovery; Plan 30 now depends on Plan 33's separate ready D-06 receipt and keeps its own exact-row approval checkpoint.
-Current Plan: 33 (planned; checker passed; wave 11)
-Next Plan: Execute Plan 33 first, then Plan 30 in wave 12 after the new D-06 receipt is ready.
-Total Plans in Phase: 32
-Completed plans: 01–03, 05–08, 10–11, 13, 15, 17, 18, 20, 22, 23, 26, and 32 (18 completed plans). Plans 04, 09, 12, 14, 24, 25, 29, and 31 are halted; Plan 16 is superseded in Plan 31 evidence; Plan 19 remains superseded after its blocked receipt; Plan 21 remains halted/superseded after D-01. Plan 27's supersession summary lacks the required `requirements-completed: []`; Plan 28 is superseded. Plans 33 and 30 are the remaining gated execution route.
-Status: Ready to execute Plan 33's blocking-human exact-object recovery; Plan 30 is downstream of its ready receipt. REPO-04 remains open.
-Historical verification: Plan 26 passed its prescribed 53-test suite (zero failures, skips, cancellations, or todos), the exact named public gate, and clean code review. Its read-only production check performed zero pruning operations. The Phase 245 verification report dated 2026-09-28 is stale history and does not block forward planning or execution readiness.
-History: Plan 25 remains halted before tracking mutation, with zero operations. Plan 19's one admitted local deletion remains counted once. REPO-04 remains open; Plan 16 is superseded in Plan31 evidence and Plan 14 remains historically halted; the 11-row PR mismatch and 30-row cleanup-history audits remain unresolved. Any later live apply requires a new D-06 preflight, D-07 current contract, complete live PR head/base and origin/safety inventories, direct/peeled object proof, and D-05 exact-OID/coordinator checks.
-Plan evidence: `.planning/phases/245-branch-prune-local-and-remote/245-33-PLAN.md`, `245-33-PLANNING-PREFLIGHT.json`, `245-29-EXEC-PREFLIGHT.json`, and the immutable Plan 29 blocked receipt.
-Last activity: 2026-10-02 — Created and independently checked Plan 245-33; no import, tests, production ref operations, or PR mutations occurred during planning.
-Next GSD command: `$gsd-execute-phase 245 --gaps-only`. Plan 33 stops at explicit approval before the one exact-object request; Plan 30 requires its new ready D-06 receipt and a separate deletion approval. Keep the 11-row PR and 30-row cleanup-history audits unresolved.
-The only historical sources are this local checkout and GitHub. The pinned Phase 245 baseline `9c0a6b818d2d58858b5db274cc1cf0a9803f69f5` is absent from both; do not search another service or claim who removed it. Git on PATH is 2.41.0; `/usr/bin/git` is 2.50.1 and is usable only if the exact binary and every relevant mutator are pinned under the shared coordinator. D-05's production fail-closed gate remains active.
-Current `init.execute-phase 245` lists Plans 33 and 30 as pending; the dependency graph places Plan 33 before Plan 30, which consumes its ready D-06 receipt. Plan 29's blocked receipt stays immutable. Plan 16 is superseded in the Plan 31 evidence commit; Plan 14 remains historically halted. Phase 245 is still open and the roadmap ends at Phase 245; do not invent Phase 246.
+Phase: 245 (Branch Prune Local and Remote) — READY TO EXECUTE GAP PLANS
+Phase 245 remains open. Plan 30 stopped before contract capture on four missing live origin objects; its blocked preflight, result and summary are immutable history in 74e0937af546849fd29d61535244196ef8c80469. Plans 35 and 36 now cover recovery and a fresh prune continuation; both passed independent plan checking.
+Current Plan: 35 (planned; effective wave 3; exact four-object recovery)
+Next Action: Run `$gsd-execute-phase 245 --gaps-only`. GSD selects only Plans 35 and 36 as incomplete; Plan 36 is wave 4 and requires Plan 35's committed ready D-06 receipt.
+Total Plans in Phase: 35
+Status: Ready to execute the new gap plans; pruning and REPO-04 remain blocked pending recovery, fresh current-source admission, exact-row approval and successful post-state verification.
+Planning evidence: `245-35-PLANNING-PREFLIGHT.json` verified all four exact origin-advertised OIDs and GitHub commit/tree identities, while recording them unreadable locally. It is ready for recovery planning, not pruning. `245-35-PLAN-CHECK.json` binds both plan hashes and records the independent passed review. Requirement coverage is 1/1 and decision coverage is 7/7.
+Historical verification: The older Phase 245 verification report remains historical; it does not replace the new executable recovery route. The 11-row PR mismatch and 30-row cleanup-history audits remain explicitly unresolved under D-07.
+History: Plan 19's single admitted local deletion is counted once. Plan 29, Plan 30 and Plan 33 blocked evidence stays immutable. Plan 34's prior one-OID recovery and approval cannot authorize the four new objects. Plan 16 remains superseded and Plan 14 remains halted.
+Next GSD command: `$gsd-execute-phase 245 --gaps-only`. Plan 35 creates a fresh digest-bound approval checkpoint; Plan 36 separately requests approval of exact committed deletion rows. No recovery fetch or production pruning occurred during planning.
+The only authoritative sources are this local checkout and GitHub. Do not search another service or reinterpret the unavailable historical baseline. D-05's pinned Git/shared-coordinator gate remains active.
+The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complete from planning evidence.
 
 ### v1.48 phase map
 
@@ -753,20 +751,16 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-02T18:13:32.680Z
-Stopped at: Plan 245-33 planning and checker complete; ready to execute the exact-object approval gate
-Resume file: .planning/phases/245-branch-prune-local-and-remote/245-33-PLAN.md
+Last session: 2026-10-03T02:30:09Z
+Stopped at: Plans 245-35 and 245-36 independently checked; ready for gated execution
+Resume file: .planning/phases/245-branch-prune-local-and-remote/245-35-PLAN.md
 
 ## Operator Next Steps
 
-- Run `$gsd-execute-phase 245 --gaps-only` to execute Plan 33 before Plan 30. Plan 33 captures fresh read-only evidence, then stops at a blocking-human approval checkpoint before the single exact-OID object request. If approval is declined or any predicate fails, Plan 30 remains blocked and REPO-04 stays open.
-- Plan 30 requires its own approval of exact committed deletion rows before production ref mutation. Do not retry Plan 27's coordinator admission blindly, or edit/unstage/reset/stash/clean/discard its staged files.
-- Plan 25 remains halted at its operator readiness gate. Preserve its blocked RESULT unchanged; any later live tracking attempt needs a fresh D-06 preflight and D-07 current-state contract after the repair is proven.
-- Plan 24 remains halted at its captured D-06 preflight; use its object-acquisition receipt as read-only history and do not replay its fetch or contract/admission work.
-- Preserve the Plan 21 retry receipts; do not replay Plans 19, 21, 24, or 25. Plan 16 is superseded in Plan31 evidence; Plan 14 remains historically halted.
-- Phase 245 remains incomplete with REPO-04 open. Plan 29's blocked D-06 receipt remains immutable; Plan 33 is the gated exact-object recovery and Plan 30 depends on its new ready receipt. No object import is authorized before Plan 33's checkpoint. The historical 11-row PR mismatch and 30-row cleanup-history audits remain unresolved. Plan 26 contributes only the readiness-path repair and its bounded proof.
-- Plan 246 is not in the roadmap.
-- The primary checkout contains extensive unrelated dirty and untracked work. Preserve it; do not reset, stash, clean, broadly stage, or discard files.
+- Run `$gsd-execute-phase 245 --gaps-only`; only Plans 35 and 36 are incomplete. To execute recovery alone, use `--wave 3`.
+- Plan 35 refreshes the source census and requires a new approval bound to its exact four OIDs and preflight digest. Plan 36 runs in wave 4 only after a committed ready D-06 receipt and requires its own exact-row deletion approval.
+- Preserve Plan 30's blocked receipts; Plan 36 supplies new output paths. Do not replay historical halted plans or reuse Plan 34's approval.
+- Keep REPO-04 open until current-source pruning and independent post-state pass. Preserve both historical unknown audits and all unrelated dirty work.
 
 ## Performance Metrics
 
