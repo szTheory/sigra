@@ -3,7 +3,7 @@
   "phase": 245,
   "plan": 38,
   "repository": "szTheory/sigra",
-  "captured_at": "2026-10-03T20:21:53.038Z",
+  "captured_at": "2026-10-03T20:24:28.496Z",
   "verdict": "ready",
   "checks": {
     "plan37_ready_receipt": true,
@@ -349,7 +349,7 @@
   ],
   "current_source": {
     "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
-    "capture_head_oid": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
+    "capture_head_oid": "3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe",
     "local_ref_count": 128,
     "local_head_count": 33,
     "origin_ref_count": 361,
@@ -364,7 +364,7 @@
         "source": "github-api"
       }
     ],
-    "local_refs_sha256": "57e6fd500bf8aa2baffc04684e587b071172a7ed9cea15f8bac3df165c3508d7",
+    "local_refs_sha256": "498ed17b078ea99d379012d4f48078e82405b2eaeb5b76e6a689b4ef46678b12",
     "origin_refs_sha256": "29d1c11db72e660608e9d5a32b34fb4bff3c74d92b7beeaad928eb58dda9866e",
     "open_prs_sha256": "e123ab15ddfa674a25d9c085217bcbc6b384c65e43fc80a5fe9f4db87a95b002",
     "complete_live_ls_remote": {
@@ -386,7 +386,7 @@
         "refs/"
       ],
       "exit_code": 0,
-      "stdout_sha256": "f67729b52d8e22cc67e18a96d4fdf279eef0e94974878821b9f170826fcba403",
+      "stdout_sha256": "61e314347970a8bb83b82a948e7aaecfbda59e2946377573204d2eaebcf709a3",
       "line_count": 128
     },
     "github_open_pr_inventory": {
@@ -1241,7 +1241,7 @@
         "exit_code": 0
       },
       {
-        "oid": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
+        "oid": "3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe",
         "expected_types": [
           "commit"
         ],
@@ -1251,7 +1251,7 @@
           "/usr/bin/git",
           "cat-file",
           "-t",
-          "af0bcd46f2475fb3eb4522f36a434d4191c26419"
+          "3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe"
         ],
         "exit_code": 0
       },
@@ -6347,7 +6347,7 @@
       {
         "side": "local",
         "ref": "refs/heads/phase-244-playwright-measurement",
-        "oid": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
+        "oid": "3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe",
         "disposition": "keep",
         "predicate": "registered_worktree_branch_protected",
         "command": [
@@ -8180,7 +8180,7 @@
     "unresolved": []
   },
   "contract_commit": {
-    "expected_parent": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
+    "expected_parent": "3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe",
     "contract_path": ".planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json",
     "sidecar_path": ".planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json.sha256",
     "contract_paths": [

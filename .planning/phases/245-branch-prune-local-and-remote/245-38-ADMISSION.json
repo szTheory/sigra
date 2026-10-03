@@ -2,7 +2,7 @@
   "schema_version": 1,
   "phase": 245,
   "plan": 38,
-  "captured_at": "2026-10-03T20:21:45.601Z",
+  "captured_at": "2026-10-03T20:24:23.757Z",
   "status": "admitted",
   "rows": [
     {
@@ -10,161 +10,161 @@
       "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
       "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2",
       "oid": "e101caefbe96923dc23c956f71a4cce5aa780fe7",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/hex/credo-1.7.19",
       "oid": "39a3790ea829d80f864ffbf1564e97052a4262b3",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3",
       "oid": "6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/hex/hammer-7.4.1",
       "oid": "77b4259f1dbd3507fab2f9a8c743c5576eeeef3a",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/hex/oban-2.24.0",
       "oid": "2086bd14372f493a2ec2cf56b56e21b72e5b18cf",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/hex/threadline-0.9.0",
       "oid": "a7ccd0995d5bd82c9a3c0aa6f9195d266039f14f",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0",
       "oid": "859a77deb5a000024a5022e7ea28be790c3d4c51",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0",
       "oid": "f67c9115b5aaebc7e38073bef8f1abefd73ae6c9",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
       "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
       "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
       "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
       "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
       "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-240-closeout",
       "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
       "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-241-context",
       "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-241-plans",
       "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-241-research",
       "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
       "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
       "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/state-reconcile-241",
       "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
       "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
       "type": "commit",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility."
     }
   ],
   "candidate_dispositions": [
@@ -823,7 +823,7 @@
     {
       "side": "local",
       "ref": "refs/heads/phase-244-playwright-measurement",
-      "oid": "af0bcd46f2475fb3eb4522f36a434d4191c26419",
+      "oid": "3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe",
       "type": "commit",
       "disposition": "keep",
       "reason": "This exact local branch is checked out by a registered worktree, so it is protected from pruning.",
@@ -831,7 +831,7 @@
         "status": "passed",
         "predicate": "registered_worktree_branch_protected",
         "source_rows": [
-          "local\trefs/heads/phase-244-playwright-measurement\taf0bcd46f2475fb3eb4522f36a434d4191c26419\tcommit"
+          "local\trefs/heads/phase-244-playwright-measurement\t3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2419,12 +2419,12 @@
       "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/brandbook-rail-accent-logo-system\t093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd\tcommit"
+          "local\trefs/remotes/origin/brandbook-rail-accent-logo-system\t093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2447,7 +2447,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
+          "local\trefs/remotes/origin/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
           "remote\trefs/heads/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit"
         ],
         "command": [
@@ -2471,7 +2471,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
+          "local\trefs/remotes/origin/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
           "remote\trefs/heads/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit"
         ],
         "command": [
@@ -2495,7 +2495,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
+          "local\trefs/remotes/origin/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
           "remote\trefs/heads/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit"
         ],
         "command": [
@@ -2519,7 +2519,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit",
+          "local\trefs/remotes/origin/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit",
           "remote\trefs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
         ],
         "command": [
@@ -2543,7 +2543,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
+          "local\trefs/remotes/origin/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
           "remote\trefs/heads/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit"
         ],
         "command": [
@@ -2567,7 +2567,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
+          "local\trefs/remotes/origin/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
           "remote\trefs/heads/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit"
         ],
         "command": [
@@ -2591,7 +2591,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
+          "local\trefs/remotes/origin/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
           "remote\trefs/heads/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit"
         ],
         "command": [
@@ -2610,12 +2610,12 @@
       "oid": "e101caefbe96923dc23c956f71a4cce5aa780fe7",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2\te101caefbe96923dc23c956f71a4cce5aa780fe7\tcommit"
+          "local\trefs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2\te101caefbe96923dc23c956f71a4cce5aa780fe7\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2633,12 +2633,12 @@
       "oid": "39a3790ea829d80f864ffbf1564e97052a4262b3",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/hex/credo-1.7.19\t39a3790ea829d80f864ffbf1564e97052a4262b3\tcommit"
+          "local\trefs/remotes/origin/dependabot/hex/credo-1.7.19\t39a3790ea829d80f864ffbf1564e97052a4262b3\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2656,12 +2656,12 @@
       "oid": "6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3\t6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd\tcommit"
+          "local\trefs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3\t6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2679,12 +2679,12 @@
       "oid": "77b4259f1dbd3507fab2f9a8c743c5576eeeef3a",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/hex/hammer-7.4.1\t77b4259f1dbd3507fab2f9a8c743c5576eeeef3a\tcommit"
+          "local\trefs/remotes/origin/dependabot/hex/hammer-7.4.1\t77b4259f1dbd3507fab2f9a8c743c5576eeeef3a\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2702,12 +2702,12 @@
       "oid": "2086bd14372f493a2ec2cf56b56e21b72e5b18cf",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/hex/oban-2.24.0\t2086bd14372f493a2ec2cf56b56e21b72e5b18cf\tcommit"
+          "local\trefs/remotes/origin/dependabot/hex/oban-2.24.0\t2086bd14372f493a2ec2cf56b56e21b72e5b18cf\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2725,12 +2725,12 @@
       "oid": "a7ccd0995d5bd82c9a3c0aa6f9195d266039f14f",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/hex/threadline-0.9.0\ta7ccd0995d5bd82c9a3c0aa6f9195d266039f14f\tcommit"
+          "local\trefs/remotes/origin/dependabot/hex/threadline-0.9.0\ta7ccd0995d5bd82c9a3c0aa6f9195d266039f14f\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2748,12 +2748,12 @@
       "oid": "859a77deb5a000024a5022e7ea28be790c3d4c51",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0\t859a77deb5a000024a5022e7ea28be790c3d4c51\tcommit"
+          "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0\t859a77deb5a000024a5022e7ea28be790c3d4c51\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2771,12 +2771,12 @@
       "oid": "f67c9115b5aaebc7e38073bef8f1abefd73ae6c9",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0\tf67c9115b5aaebc7e38073bef8f1abefd73ae6c9\tcommit"
+          "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0\tf67c9115b5aaebc7e38073bef8f1abefd73ae6c9\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2794,12 +2794,12 @@
       "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0\t204ce7f59ad2b1a2f709261f69bc35235bdc813c\tcommit"
+          "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0\t204ce7f59ad2b1a2f709261f69bc35235bdc813c\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2817,12 +2817,12 @@
       "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1\t9f5150bd3a000dc122e8c185bf06c102ac720667\tcommit"
+          "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1\t9f5150bd3a000dc122e8c185bf06c102ac720667\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2840,12 +2840,12 @@
       "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4\tc06cc1475ca91519765b3792958bcadd9f131601\tcommit"
+          "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4\tc06cc1475ca91519765b3792958bcadd9f131601\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -2868,7 +2868,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+          "local\trefs/remotes/origin/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
           "remote\trefs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit"
         ],
         "command": [
@@ -2892,7 +2892,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
+          "local\trefs/remotes/origin/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
           "remote\trefs/heads/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit"
         ],
         "command": [
@@ -2916,7 +2916,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
+          "local\trefs/remotes/origin/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
           "remote\trefs/heads/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit"
         ],
         "command": [
@@ -2940,7 +2940,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
+          "local\trefs/remotes/origin/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
           "remote\trefs/heads/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit"
         ],
         "command": [
@@ -2964,7 +2964,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+          "local\trefs/remotes/origin/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
           "remote\trefs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit"
         ],
         "command": [
@@ -2988,7 +2988,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+          "local\trefs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
           "remote\trefs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit"
         ],
         "command": [
@@ -3012,7 +3012,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gh-pages\tdd671004a276c24fafa8ece80e341706085a999e\tcommit",
+          "local\trefs/remotes/origin/gh-pages\tdd671004a276c24fafa8ece80e341706085a999e\tcommit",
           "remote\trefs/heads/gh-pages\td2358eebe1cb4411d73552ec2359e54d8a4c98b4\tcommit"
         ],
         "command": [
@@ -3036,7 +3036,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
+          "local\trefs/remotes/origin/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
           "remote\trefs/heads/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit"
         ],
         "command": [
@@ -3060,7 +3060,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+          "local\trefs/remotes/origin/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
           "remote\trefs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit"
         ],
         "command": [
@@ -3084,7 +3084,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+          "local\trefs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
           "remote\trefs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit"
         ],
         "command": [
@@ -3108,7 +3108,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+          "local\trefs/remotes/origin/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
           "remote\trefs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit"
         ],
         "command": [
@@ -3127,12 +3127,12 @@
       "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/phase-236-flake-root-cause\t337538c48b79c358f19a9e1c514a7a373379d353\tcommit"
+          "local\trefs/remotes/origin/gsd/phase-236-flake-root-cause\t337538c48b79c358f19a9e1c514a7a373379d353\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3150,12 +3150,12 @@
       "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/phase-239-priv-templates-sweep\t5abd3ede7fc11f96a66739e53283f9d5aec3c6ec\tcommit"
+          "local\trefs/remotes/origin/gsd/phase-239-priv-templates-sweep\t5abd3ede7fc11f96a66739e53283f9d5aec3c6ec\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3173,12 +3173,12 @@
       "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/phase-240-closeout\t9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b\tcommit"
+          "local\trefs/remotes/origin/gsd/phase-240-closeout\t9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3196,12 +3196,12 @@
       "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/phase-240-green-main-evidence\t4429657a725ef5601fe2e0b25cebcd54c314540e\tcommit"
+          "local\trefs/remotes/origin/gsd/phase-240-green-main-evidence\t4429657a725ef5601fe2e0b25cebcd54c314540e\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3219,12 +3219,12 @@
       "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/phase-241-context\te6b63ca1698e23adb99c84f088fc9ad469122496\tcommit"
+          "local\trefs/remotes/origin/gsd/phase-241-context\te6b63ca1698e23adb99c84f088fc9ad469122496\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3242,12 +3242,12 @@
       "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/phase-241-plans\ta38651a37875a340462c647d5f9b1beed30893dd\tcommit"
+          "local\trefs/remotes/origin/gsd/phase-241-plans\ta38651a37875a340462c647d5f9b1beed30893dd\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3265,12 +3265,12 @@
       "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/phase-241-research\t62906d14da1cd4c72e5080c1fa686ba4d6948ca8\tcommit"
+          "local\trefs/remotes/origin/gsd/phase-241-research\t62906d14da1cd4c72e5080c1fa686ba4d6948ca8\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3288,12 +3288,12 @@
       "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/quick-260918-lfq-bookkeeping\tdaa8b41f3d458c66ecacb7a0276ab8b65ffc38d6\tcommit"
+          "local\trefs/remotes/origin/gsd/quick-260918-lfq-bookkeeping\tdaa8b41f3d458c66ecacb7a0276ab8b65ffc38d6\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3311,12 +3311,12 @@
       "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/quick-green-04-collector-guards\tcea7098347086166ec3ec6e1a8e0db0403d5b9c0\tcommit"
+          "local\trefs/remotes/origin/gsd/quick-green-04-collector-guards\tcea7098347086166ec3ec6e1a8e0db0403d5b9c0\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3334,12 +3334,12 @@
       "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/gsd/state-reconcile-241\t21c6c25a996ec3497cf89b656bcd0759e5176039\tcommit"
+          "local\trefs/remotes/origin/gsd/state-reconcile-241\t21c6c25a996ec3497cf89b656bcd0759e5176039\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3362,7 +3362,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/main\t6f14c04a26dc69125b2aa00f89c3d905b3c4bafa\tcommit",
+          "local\trefs/remotes/origin/main\t6f14c04a26dc69125b2aa00f89c3d905b3c4bafa\tcommit",
           "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
         ],
         "command": [
@@ -3386,7 +3386,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
+          "local\trefs/remotes/origin/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
           "remote\trefs/heads/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit"
         ],
         "command": [
@@ -3410,7 +3410,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+          "local\trefs/remotes/origin/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
           "remote\trefs/heads/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit"
         ],
         "command": [
@@ -3434,7 +3434,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/phase-244/measurement\tf5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac\tcommit",
+          "local\trefs/remotes/origin/phase-244/measurement\tf5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac\tcommit",
           "remote\trefs/heads/phase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tcommit"
         ],
         "command": [
@@ -3458,7 +3458,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/release-please--branches--main\t70ba005a694540e488a2e705950c4135268642ad\tcommit",
+          "local\trefs/remotes/origin/release-please--branches--main\t70ba005a694540e488a2e705950c4135268642ad\tcommit",
           "remote\trefs/heads/release-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tcommit"
         ],
         "command": [
@@ -3482,7 +3482,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
+          "local\trefs/remotes/origin/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
           "remote\trefs/heads/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit"
         ],
         "command": [
@@ -3501,12 +3501,12 @@
       "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 38 recapture, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
+      "reason": "At fresh Plan 38 recapture from parent 3bb2ebd48194d5d8479bd2f1d1977587f6fa5dfe, the exact live origin branch ref is absent, satisfying tracking deletion eligibility.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
         "source_rows": [
-          "tracking\trefs/remotes/origin/v1.37-auth-branding-admin-polish\tb9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f\tcommit"
+          "local\trefs/remotes/origin/v1.37-auth-branding-admin-polish\tb9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -3529,7 +3529,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
+          "local\trefs/remotes/origin/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
           "remote\trefs/heads/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit"
         ],
         "command": [
@@ -3553,7 +3553,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+          "local\trefs/remotes/origin/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
           "remote\trefs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit"
         ],
         "command": [
@@ -3577,7 +3577,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+          "local\trefs/remotes/origin/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
           "remote\trefs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit"
         ],
         "command": [
@@ -3601,7 +3601,7 @@
         "status": "passed",
         "predicate": "exact_live_origin_branch_present",
         "source_rows": [
-          "tracking\trefs/remotes/origin/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+          "local\trefs/remotes/origin/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
           "remote\trefs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit"
         ],
         "command": [
@@ -3625,7 +3625,7 @@
   },
   "source_contract_preview": {
     "path": ".planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json",
-    "local_refs_sha256": "57e6fd500bf8aa2baffc04684e587b071172a7ed9cea15f8bac3df165c3508d7",
+    "local_refs_sha256": "498ed17b078ea99d379012d4f48078e82405b2eaeb5b76e6a689b4ef46678b12",
     "origin_refs_sha256": "29d1c11db72e660608e9d5a32b34fb4bff3c74d92b7beeaad928eb58dda9866e",
     "open_prs_sha256": "e123ab15ddfa674a25d9c085217bcbc6b384c65e43fc80a5fe9f4db87a95b002"
   }
