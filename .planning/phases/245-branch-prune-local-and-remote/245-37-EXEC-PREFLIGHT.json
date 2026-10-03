@@ -1,7 +1,7 @@
 {
   "approval_scope": {
-    "block_reason": "preflight receipt could not be committed under the shared coordinator",
-    "enabled": false,
+    "block_reason": null,
+    "enabled": true,
     "exact_oids": [
       "5c414c4cec975fcf2755664f6ee294a4760fbe93",
       "8ec669774d33eee30d7b92149808adf835bbd963",
