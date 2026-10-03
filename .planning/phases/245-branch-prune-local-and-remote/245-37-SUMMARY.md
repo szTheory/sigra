@@ -11,7 +11,7 @@ provides:
   - D-06 readiness receipt with complete typed-object and no-delta evidence
 affects: [245-38, REPO-04]
 actuals:
-  tokens: 314100
+  tokens: 314130
   tasks: 3
   commits: 4
 plan_head_before: 392a2424b699b62b7bc1435e8336fbd38c826e7f
