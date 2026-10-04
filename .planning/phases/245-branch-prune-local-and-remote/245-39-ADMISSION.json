@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "phase": "245-39",
-  "captured_at": "2026-10-04T01:43:46.783619+00:00",
+  "captured_at": "2026-10-04T01:49:25.671827+00:00",
   "status": "admitted",
   "contract_capture_head": {
     "ref": "refs/heads/phase-244-playwright-measurement",
-    "oid": "47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7"
+    "oid": "eaf92768b857d7c1604a58184ea1fc5c817edfed"
   },
   "rows": [
     {
@@ -13,98 +13,98 @@
       "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
       "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0 is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0 is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
       "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1 is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1 is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
       "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4 is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4 is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
       "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-236-flake-root-cause is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-236-flake-root-cause is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
       "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-239-priv-templates-sweep is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-239-priv-templates-sweep is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-240-closeout",
       "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-240-closeout is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-240-closeout is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
       "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-240-green-main-evidence is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-240-green-main-evidence is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-241-context",
       "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-context is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-241-context is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-241-plans",
       "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-plans is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-241-plans is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/phase-241-research",
       "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-research is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-241-research is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
       "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/quick-260918-lfq-bookkeeping is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/quick-260918-lfq-bookkeeping is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
       "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/quick-green-04-collector-guards is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/quick-green-04-collector-guards is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/gsd/state-reconcile-241",
       "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/state-reconcile-241 is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/state-reconcile-241 is absent; its exact local tracking identity is eligible for deletion."
     },
     {
       "side": "tracking",
       "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
       "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
       "type": "commit",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/v1.37-auth-branding-admin-polish is absent; its exact local tracking identity is eligible for deletion."
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/v1.37-auth-branding-admin-polish is absent; its exact local tracking identity is eligible for deletion."
     }
   ],
   "candidate_dispositions": [
@@ -763,7 +763,7 @@
     {
       "side": "local",
       "ref": "refs/heads/phase-244-playwright-measurement",
-      "oid": "47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7",
+      "oid": "eaf92768b857d7c1604a58184ea1fc5c817edfed",
       "type": "commit",
       "disposition": "keep",
       "reason": "This exact local branch is the currently checked-out HEAD and is retained as active work.",
@@ -771,7 +771,7 @@
         "status": "passed",
         "predicate": "current_checkout_head_preserved",
         "source_rows": [
-          "local\trefs/heads/phase-244-playwright-measurement\t47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7\tcommit"
+          "local\trefs/heads/phase-244-playwright-measurement\teaf92768b857d7c1604a58184ea1fc5c817edfed\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -780,7 +780,7 @@
           "HEAD"
         ],
         "command_exit": 0,
-        "readback": "refs/heads/phase-244-playwright-measurement at 47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7; current checkout head preserved"
+        "readback": "refs/heads/phase-244-playwright-measurement at eaf92768b857d7c1604a58184ea1fc5c817edfed; current checkout head preserved"
       }
     },
     {
@@ -2527,7 +2527,7 @@
       "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0 is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0 is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2550,7 +2550,7 @@
       "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1 is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1 is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2573,7 +2573,7 @@
       "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4 is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4 is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2860,7 +2860,7 @@
       "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-236-flake-root-cause is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-236-flake-root-cause is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2883,7 +2883,7 @@
       "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-239-priv-templates-sweep is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-239-priv-templates-sweep is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2906,7 +2906,7 @@
       "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-240-closeout is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-240-closeout is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2929,7 +2929,7 @@
       "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-240-green-main-evidence is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-240-green-main-evidence is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2952,7 +2952,7 @@
       "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-context is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-241-context is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2975,7 +2975,7 @@
       "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-plans is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-241-plans is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -2998,7 +2998,7 @@
       "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-research is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/phase-241-research is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -3021,7 +3021,7 @@
       "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/quick-260918-lfq-bookkeeping is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/quick-260918-lfq-bookkeeping is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -3044,7 +3044,7 @@
       "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/quick-green-04-collector-guards is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/quick-green-04-collector-guards is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -3067,7 +3067,7 @@
       "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/state-reconcile-241 is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/gsd/state-reconcile-241 is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",
@@ -3234,7 +3234,7 @@
       "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
       "type": "commit",
       "disposition": "delete",
-      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/v1.37-auth-branding-admin-polish is absent; its exact local tracking identity is eligible for deletion.",
+      "reason": "At fresh Plan 39 capture from eaf92768b857d7c1604a58184ea1fc5c817edfed, exact live origin branch refs/heads/v1.37-auth-branding-admin-polish is absent; its exact local tracking identity is eligible for deletion.",
       "proof": {
         "status": "passed",
         "predicate": "exact_live_origin_branch_absent",

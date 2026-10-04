@@ -2,7 +2,7 @@
   "schema_version": 1,
   "phase": 245,
   "plan": 39,
-  "captured_at": "2026-10-04T01:43:46.783619+00:00",
+  "captured_at": "2026-10-04T01:49:25.671827+00:00",
   "status": "ready",
   "verdict": "ready",
   "source_capture": {
@@ -71,11 +71,11 @@
       "unique_direct_and_peeled_objects": 365
     },
     "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
-    "capture_head_oid": "47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7",
-    "inventory_sha256": "882b2ff34dcf8fe3cf2bceb7203bf72a4a8b436243aad5e58125d93c8ef516f7"
+    "capture_head_oid": "eaf92768b857d7c1604a58184ea1fc5c817edfed",
+    "inventory_sha256": "95308210bd1895b25c8fc6fb80a1f382b6562ef47070700810a56b2664e7c057"
   },
   "identities": {
-    "capture_head": "47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7",
+    "capture_head": "eaf92768b857d7c1604a58184ea1fc5c817edfed",
     "planning_preflight_commit": "7207dad2924c6c83f7851fff605f9fa2d6cf8bbb",
     "plan38_contract_commit": "13760574de0318fd1c120990386473a260cf9a4d",
     "plan38_result_commit": "9a060cbdc2e602ae6f881bca29f5a698675bb089",
@@ -97,10 +97,10 @@
   "source_digests": {
     "plan38_contract_sha256": "6cf2e2e8c4f5e15281755c4b9bc91bfcc8db0d285c878dc062f4226b180fbd81",
     "plan38_allowlist_sha256": "e98cf698eb8792230c37d144820ecd6da8e9783ea6684255b3b7e4aa6a4b9ed1",
-    "plan39_allowlist_sha256": "69174d7d19ff218c04e23d38cbc9b6ba838624264c0191cb073fbb62df62d747",
+    "plan39_allowlist_sha256": "8296bd4b49ae8235381060ebdc53bdb6f390344df7cd650eae15eb7f2976ae6d",
     "github_core_remaining": 5000,
-    "github_core_reset": 1791081827,
-    "plan39_admission_sha256": "4bd8b984dd3bdc2a42b6dc7c9b27ef5d55ff2de0cf0a91e2bba166c0bc7e4817"
+    "github_core_reset": 1791082166,
+    "plan39_admission_sha256": "87569d13d2c980a40014e3aa71a9a6dca33e521862a8be2fe9096eb63aea3ec5"
   },
   "checks": {
     "plan23_readiness_ready": true,
