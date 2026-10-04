@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": 41,
+  "captured_at": "2026-10-04T20:21:33.227Z",
+  "status": "ready",
+  "validation_attempts": [
+    {
+      "attempt": 1,
+      "status": "blocked",
+      "failed_predicates": [
+        "historical_pr_and_cleanup_audits_remain_unresolved"
+      ],
+      "diagnostic": "The initial local validator compared the cleanup rows array to a numeric scalar; source evidence itself was not the cause."
+    },
+    {
+      "attempt": 2,
+      "status": "ready",
+      "failed_predicates": []
+    }
+  ],
+  "authority": {
+    "planning_feasibility_only": true,
+    "approval_requested": false,
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "fetches": 0,
+    "current_source_capture_is_execution_authority": false
+  },
+  "current_source_capture": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-41-PLANNING-SOURCE-CAPTURE.json",
+    "captured_at": "2026-10-04T20:15:27.675Z",
+    "local_refs": 119,
+    "origin_refs": 361,
+    "open_prs": 14,
+    "source_is_execution_authority": false
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved",
+    "reconstruction_required": false
+  },
+  "checks": {
+    "fresh_local_origin_and_pr_capture_complete": true,
+    "planning_capture_is_current_head_at_capture": true,
+    "live_pr_cli_api_inventory_complete_and_open": true,
+    "local_and_origin_ref_names_unique": true,
+    "origin_default_ref_is_present_and_symbolic": true,
+    "required_safety_names_exist_locally_and_on_origin": true,
+    "phase18_preprune_snapshot_is_tracked_and_nonempty": true,
+    "phase244_readiness_inputs_are_ready": true,
+    "prior_plan_results_preserve_authority_and_history": true,
+    "plan40_missing_object_recovery_is_typed_and_non_mutating": true,
+    "pinned_baselines_and_cited_blobs_are_readable_and_hash_linked": true,
+    "baseline_current_and_pr_objects_resolve_at_recorded_type": true,
+    "historical_pr_and_cleanup_audits_remain_unresolved": true,
+    "shared_coordinator_is_verified_free_and_has_zero_leases": true,
+    "plan41_does_not_yet_exist": true
+  },
+  "evidence": {
+    "fresh_local_origin_and_pr_capture_complete": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-41-PLANNING-SOURCE-CAPTURE.json",
+      "captured_at": "2026-10-04T20:15:27.675Z",
+      "local_refs": 119,
+      "origin_refs": 361,
+      "open_prs": 14,
+      "cli_open_pr_count": 14,
+      "pr_pages": [
+        {
+          "page": 1,
+          "item_count": 14,
+          "has_next": false,
+          "source": "github-api"
+        }
+      ]
+    },
+    "planning_capture_is_current_head_at_capture": {
+      "captured_head_ref": "refs/heads/phase-244-playwright-measurement",
+      "captured_head_oid": "4f99df3db0d0a5a9cf801b02134ede0a15e2ddb2",
+      "current_head_ref": "refs/heads/phase-244-playwright-measurement",
+      "current_head_oid": "4f99df3db0d0a5a9cf801b02134ede0a15e2ddb2"
+    },
+    "live_pr_cli_api_inventory_complete_and_open": {
+      "open_prs": 14,
+      "cli_open_pr_count": 14,
+      "pr_pages": [
+        {
+          "page": 1,
+          "item_count": 14,
+          "has_next": false,
+          "source": "github-api"
+        }
+      ]
+    },
+    "local_and_origin_ref_names_unique": {
+      "local_refs": 119,
+      "origin_refs": 361
+    },
+    "origin_default_ref_is_present_and_symbolic": {
+      "origin_default": {
+        "ref": "refs/remotes/origin/HEAD",
+        "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+        "type": "commit",
+        "peeled_oid": null,
+        "peeled_type": null,
+        "symref": "refs/heads/main"
+      }
+    },
+    "required_safety_names_exist_locally_and_on_origin": {
+      "exact_names": [
+        "refs/heads/ci/phase-235-16-source-complete",
+        "refs/tags/archive/local-main-pre-235-recovery"
+      ],
+      "local_safety_refs": [
+        {
+          "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+          "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        }
+      ],
+      "origin_safety_refs": [
+        {
+          "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+          "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        }
+      ]
+    },
+    "phase18_preprune_snapshot_is_tracked_and_nonempty": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "rows": 129,
+      "sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456"
+    },
+    "phase244_readiness_inputs_are_ready": {
+      "plan23": {
+        "schema_version": 2,
+        "status": "ready",
+        "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10"
+      },
+      "plan37": {
+        "verdict": "ready",
+        "production_ref_operations": 0,
+        "historical_audits": {
+          "cleanup_30_rows": "unresolved",
+          "pr_11_rows": "unresolved"
+        }
+      }
+    },
+    "prior_plan_results_preserve_authority_and_history": {
+      "plan38": {
+        "outcome": "blocked",
+        "operations": 9
+      },
+      "plan39": {
+        "outcome": "blocked",
+        "operations": 0,
+        "approval": "not_requested"
+      },
+      "plan40": {
+        "outcome": "blocked",
+        "operations": 0,
+        "approval": "not_requested"
+      }
+    },
+    "plan40_missing_object_recovery_is_typed_and_non_mutating": {
+      "recorded_type": "commit",
+      "observed_type": "commit",
+      "reachable_missing_object_count": 0,
+      "typed_identity_audit": {
+        "unique_oids_checked": 365,
+        "readable_at_declared_type": 365,
+        "failures": 0,
+        "inputs": [
+          "Plan 40 current-contract local and origin ref direct/peeled identities",
+          "Plan 40 open PR head/base commit identities",
+          "Plan 40 pinned evidence commit/blob identities"
+        ]
+      },
+      "scope": {
+        "branch_refs_updated": false,
+        "pull_requests_mutated": false,
+        "admission_created": false,
+        "approval_requested": false,
+        "production_ref_operations": 0,
+        "fresh_source_contract_created": false
+      }
+    },
+    "pinned_baselines_and_cited_blobs_are_readable_and_hash_linked": {
+      "pinned_input_count": 7,
+      "failures": []
+    },
+    "baseline_current_and_pr_objects_resolve_at_recorded_type": {
+      "unique_typed_object_count": 365,
+      "failures": []
+    },
+    "historical_pr_and_cleanup_audits_remain_unresolved": {
+      "pr_audit_outcome": "blocked",
+      "unresolved_pr_row_count": 11,
+      "cleanup_truth_status": "unresolved",
+      "cleanup_row_count": 30,
+      "cleanup_unknown_rows": 30,
+      "plan37_historical_audits": {
+        "cleanup_30_rows": "unresolved",
+        "pr_11_rows": "unresolved"
+      },
+      "historical_sources_required_for_new_plan": false,
+      "reason": "D-06/D-07 preserve both historical audit windows as unresolved; this plan will not reconstruct them."
+    },
+    "shared_coordinator_is_verified_free_and_has_zero_leases": {
+      "verify_exit": 0,
+      "status_exit": 0,
+      "output": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\nPASS: shared branch/worktree coordinator hook and worktree paths verified.\n\nSUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\ncoordinator=verified\ncommon_dir=/Users/jon/projects/sigra/.git\nlock=free\ntransaction_leases=0"
+    },
+    "plan41_does_not_yet_exist": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-41-PLAN.md"
+    }
+  },
+  "failed_predicates": []
+}
