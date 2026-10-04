@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Active milestone — **v1.48 CLEAN-BASELINE** (Phases 236-245). Phase 245 remains open. Plans 30, 35 and 36 retain their blocked history; Plan 35's four-object approval was voided by origin drift before any fetch. Plan 37 completed its approved source-only recovery and issued a ready D-06 receipt. Plan 38 stopped after nine of twenty-three approved tracking refs; its approval is exhausted and fourteen exact rows remain. Plan 39 is the fresh wave-5 continuation, beginning with a new current-source contract and a separate exact-row approval checkpoint. Plans 35/36 remain terminal superseded history. Next: `$gsd-execute-phase 245 --gaps-only --wave 5`. REPO-04 and both historical unknown audits remain open.
+**Status:** Active milestone — **v1.48 CLEAN-BASELINE** (Phases 236-245). Phase 245 remains open. Plans 30, 35 and 36 retain their blocked history; Plan 35's four-object approval was voided by origin drift before any fetch. Plan 37 completed its approved source-only recovery and issued a ready D-06 receipt. Plan 38 stopped after nine of twenty-three approved tracking refs; its approval is exhausted and fourteen historical rows remain. Plan 39 stopped before approval when the live `gh-pages` identity changed; its committed zero-operation result is terminal and its contract/allowlist are not reusable. Plan 40 is the runnable fresh-source continuation, depends on completed Plan 38 and reads Plan 39's blocked result as history. Next: `$gsd-execute-phase 245`. REPO-04 and both historical unknown audits remain open.
 
 ## Milestones
 
@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 37 indexed plan files; Plans 35 and 36 are superseded terminal plans with immutable blocked receipts. The historical Plan 19 plan artifact is excluded and its single admitted local deletion remains counted once. Plan 37 completed the five-object recovery in wave 3. Plan 38 is blocked after nine approved tracking-ref deletions; its approval is exhausted. Plan 39 is terminally blocked before approval after a live `gh-pages` identity change; it made zero ref or PR operations and its contract and fourteen-row allowlist are stale. Plan 40 is the only runnable incomplete follow-up, in wave 6, and requires a fresh complete current-source contract and independent exact-row approval. REPO-04 and the 11-row PR/30-row cleanup historical audits remain unresolved.
+**Plans**: 37 indexed plan files; Plans 35 and 36 are superseded terminal plans with immutable blocked receipts. The historical Plan 19 plan artifact is excluded and its single admitted local deletion remains counted once. Plan 37 completed the five-object recovery in wave 3. Plan 38 is blocked after nine approved tracking-ref deletions; its approval is exhausted. Plan 39 is terminally halted before approval after a live `gh-pages` identity change; it made zero ref or PR operations and its contract and fourteen-row allowlist are stale. Plan 40 is the only runnable incomplete follow-up, in wave 5, depends on completed Plan 38, and consumes the Plan 39 result as immutable history. It requires a fresh complete current-source contract and independent exact-row approval. REPO-04 and the 11-row PR/30-row cleanup historical audits remain unresolved.
 
 Plans:
 **Wave 1**
@@ -531,12 +531,9 @@ Plans:
 
 - [ ] 245-38-PLAN.md — Blocked after nine of twenty-three approved local tracking-ref deletions; the approval is exhausted, fourteen rows remain, and no further operation is authorized by it.
 
-**Gap Wave 5 — terminally blocked partial-prune continuation** *(Plan 39 stopped before approval on changed live `gh-pages` identity; its committed contract/allowlist cannot be replayed)*
+**Gap Wave 5 — fresh-source continuation after the Plan 39 stop** *(Plan 39 is terminally halted; Plan 40 depends on completed Plan 38 and consumes the committed Plan 39 result as history)*
 
 - [ ] 245-39-PLAN.md — Terminally blocked before its approval checkpoint: `refs/heads/gh-pages` changed; committed RESULT records zero production ref or PR operations, and no earlier approval carries forward.
-
-**Gap Wave 6 — rebaseline after changed origin identity** *(follows Plan 39's terminal result; recapture all current sources, classify every candidate and request new exact-row approval only for a nonempty admitted set)*
-
 - [ ] 245-40-PLAN.md — Rebaseline the complete local/origin/open-PR state, preserve Plan 38's nine applied rows as history, derive a new exact tracking allowlist, and perform at most one separately approved coordinator-held operation with independent post-state evidence.
 
 ## Progress

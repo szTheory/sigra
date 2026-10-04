@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.48 \u2014 CLEAN-BASELINE",
+  "milestone": "v1.48 — CLEAN-BASELINE",
   "phases": [
     {
       "number": "236",
@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245 --gaps-only --wave 5",
-    "label": "Recapture Plan 245-39 evidence before exact-row approval",
-    "reason": "The coordinator gate-diagnostic repair and state bookkeeping committed after the first Plan39 contract, so its verifier requires a fresh Task1 contract at the current HEAD. Plan39 Task1 must recapture live sources and commit a replacement contract/allowlist/admission before approval. Task3 has not run; REPO-04 stays open and the historical 11-row/30-row audits remain unresolved."
+    "command": "/gsd:execute-phase 245",
+    "label": "Execute the fresh-source Plan 40 continuation",
+    "reason": "Phase 245 is the final open roadmap phase. The current execute-phase readiness has Plan 40 as the sole ready incomplete plan in wave 5; it depends on completed Plan 38 and consumes Plan 39's committed blocked result as history. Plan 39 stopped before approval after the live refs/heads/gh-pages identity changed; its stale contract and fourteen-row allowlist cannot be replayed. Plan 40 must recapture current local/origin/open-PR sources and request a new exact-row decision only after its new before-stage verifier passes. No prior approval carries forward."
   },
-  "updated_at": "2026-10-04T01:39:32Z"
+  "updated_at": "2026-10-04T16:37:19Z"
 }
