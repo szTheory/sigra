@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 39,
+  "captured_at": "2026-10-04T00:35:09.819797+00:00",
+  "verdict": "ready",
+  "source_capture": {
+    "method": "prune-stale-branches-current.mjs capture",
+    "commands": [
+      {
+        "argv": [
+          "/usr/bin/git",
+          "for-each-ref"
+        ],
+        "exit_code": 0,
+        "rows": 119
+      },
+      {
+        "argv": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "exit_code": 0,
+        "rows": 361
+      },
+      {
+        "argv": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000"
+        ],
+        "exit_code": 0,
+        "rows": 14
+      },
+      {
+        "argv": [
+          "gh",
+          "api",
+          "/repos/szTheory/sigra/pulls?state=open&per_page=100&page=1..N"
+        ],
+        "exit_code": 0,
+        "pages": 1,
+        "rows": 14
+      },
+      {
+        "argv": [
+          "/usr/bin/git",
+          "worktree",
+          "list",
+          "--porcelain"
+        ],
+        "exit_code": 0,
+        "registrations": 1
+      }
+    ],
+    "counts": {
+      "local_refs": 119,
+      "origin_refs": 361,
+      "open_prs": 14,
+      "pr_pages": 1,
+      "candidates": 126,
+      "unique_direct_and_peeled_objects": 365
+    },
+    "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
+    "capture_head_oid": "237f46adf047feb79f301b4c57be85ec60f61c7d"
+  },
+  "identities": {
+    "planning_preflight_commit": "7207dad2924c6c83f7851fff605f9fa2d6cf8bbb",
+    "plan38_contract_commit": "13760574de0318fd1c120990386473a260cf9a4d",
+    "plan38_result_commit": "9a060cbdc2e602ae6f881bca29f5a698675bb089",
+    "plan37_readiness_commit": "084eddf99a6c4a7904d74d738389a46f5e0cc5f2",
+    "plan23_readiness_commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+    "plan18_contract_commit": "319bc487e8b438ff135d84f5d42018f3f35940e7"
+  },
+  "reconciliation": {
+    "plan38_approved_rows": 23,
+    "applied_rows": 9,
+    "applied_rows_absent_and_objects_readable": 9,
+    "remaining_rows": 14,
+    "remaining_rows_exact_and_origin_absent": 14,
+    "unexpected_missing": 0,
+    "moved_or_resurrected": 0,
+    "prior_post_state_sha256": "5b6b3f1605955b8318a10f91991e46e48a0b380d753d176db25cbf0c7ca296fd",
+    "prior_post_state_digest_rechecked": true
+  },
+  "source_digests": {
+    "plan38_contract_sha256": "6cf2e2e8c4f5e15281755c4b9bc91bfcc8db0d285c878dc062f4226b180fbd81",
+    "plan38_allowlist_sha256": "e98cf698eb8792230c37d144820ecd6da8e9783ea6684255b3b7e4aa6a4b9ed1",
+    "plan39_preliminary_contract_sha256": "e9fbb54641a658a91e08260abce2082778a11084e9feabbdcd71d9539dd3e345",
+    "plan39_allowlist_sha256": "69174d7d19ff218c04e23d38cbc9b6ba838624264c0191cb073fbb62df62d747",
+    "github_core_remaining": 5000,
+    "github_core_reset": 1791077710,
+    "plan39_admission_sha256": "d75a2392ffc387254e2d3e003771307e1b1cb344a64e45e00962a7b3220a9d0b"
+  },
+  "checks": {
+    "plan23_readiness_ready": true,
+    "plan37_d06_receipt_ready_and_committed": true,
+    "plan38_result_summary_and_contract_chain_committed": true,
+    "approved_rows_reconcile_as_nine_absent_and_fourteen_exact": true,
+    "all_23_target_objects_readable_at_expected_type": true,
+    "full_plan18_plan38_and_fresh_inventory_object_types_verified": true,
+    "complete_candidate_census": true,
+    "zero_unresolved_candidates": true,
+    "only_fourteen_prior_remaining_tracking_rows_deletable": true,
+    "no_local_or_origin_branch_operations": true,
+    "origin_default_and_d04_safety_identity_preserved": true,
+    "open_pr_cli_api_complete_agreement": true,
+    "coordinator_verified_free_zero_leases": true,
+    "pinned_git_usr_bin_git": true,
+    "mutator_coverage_verified_by_existing_coordinator_hooks_and_operator_review": true,
+    "production_ref_operations": 0,
+    "nine_prior_rows_absent_and_objects_readable": true,
+    "fourteen_remaining_rows_exact_and_origin_absent": true,
+    "candidate_census_matches_fresh_contract": true,
+    "current_candidate_count": 126
+  },
+  "failed_predicates": [],
+  "status": "ready",
+  "production_ref_operations": 0
+}

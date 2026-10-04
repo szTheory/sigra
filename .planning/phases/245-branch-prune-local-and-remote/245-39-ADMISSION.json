@@ -1,0 +1,3478 @@
+{
+  "schema_version": 1,
+  "phase": "245-39",
+  "captured_at": "2026-10-04T00:35:09.819797+00:00",
+  "status": "admitted",
+  "contract_capture_head": {
+    "ref": "refs/heads/phase-244-playwright-measurement",
+    "oid": "237f46adf047feb79f301b4c57be85ec60f61c7d"
+  },
+  "rows": [
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+      "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0 is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+      "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1 is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+      "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4 is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+      "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-236-flake-root-cause is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+      "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-239-priv-templates-sweep is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+      "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-240-closeout is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+      "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-240-green-main-evidence is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-context",
+      "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-context is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-plans",
+      "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-plans is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-research",
+      "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-research is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+      "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/quick-260918-lfq-bookkeeping is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+      "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/quick-green-04-collector-guards is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+      "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/state-reconcile-241 is absent; its exact local tracking identity is eligible for deletion."
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/v1.37-auth-branding-admin-polish is absent; its exact local tracking identity is eligible for deletion."
+    }
+  ],
+  "candidate_dispositions": [
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-241-01-rescue",
+      "oid": "99efe519157a81ffe009d4f5d3868fe14c2c3082",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-241-01-rescue\t99efe519157a81ffe009d4f5d3868fe14c2c3082\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "99efe519157a81ffe009d4f5d3868fe14c2c3082",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "99efe519157a81ffe009d4f5d3868fe14c2c3082"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-241-03-exec",
+      "oid": "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-241-03-exec\tcfdbab0c2521f0bf08ceb2c017b10d810abc3e69\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-242-02-clean",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-242-02-clean\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "17f946554e8c9df5279e1aa42636b48fea229962",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "17f946554e8c9df5279e1aa42636b48fea229962"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-242-02-continuation",
+      "oid": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-242-02-continuation\t7662ee341cefd6b7a90d10f1c6834870ad5b7bb4\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-242-14-closeout",
+      "oid": "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-242-14-closeout\tda056c9d7651c33fbf00ad688b67326f9f9c9c2f\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "da056c9d7651c33fbf00ad688b67326f9f9c9c2f"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-exec-235-1-04-evidence",
+      "oid": "8676a6a7eb0d7487e401c251b8c46ec368e92447",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-exec-235-1-04-evidence\t8676a6a7eb0d7487e401c251b8c46ec368e92447\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "8676a6a7eb0d7487e401c251b8c46ec368e92447",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "8676a6a7eb0d7487e401c251b8c46ec368e92447"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-exec-235-1-12-evidence",
+      "oid": "47f9578fc97edc63603953d446e79fac884326c3",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-exec-235-1-12-evidence\t47f9578fc97edc63603953d446e79fac884326c3\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "47f9578fc97edc63603953d446e79fac884326c3",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "47f9578fc97edc63603953d446e79fac884326c3"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-exec-235-1-18-evidence",
+      "oid": "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-exec-235-1-18-evidence\t39f53ca09f74e3bc5c385da7213bc1ce3953dcd8\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-exec-235-1-29-authority",
+      "oid": "9a7fcba4c6ca218b4f119bea1355a79415764a07",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-exec-235-1-29-authority\t9a7fcba4c6ca218b4f119bea1355a79415764a07\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "9a7fcba4c6ca218b4f119bea1355a79415764a07",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "9a7fcba4c6ca218b4f119bea1355a79415764a07"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/ci/phase-235-1-evidence",
+      "oid": "cdba0b3908a639e069d59c115c23ad23a51deb67",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/ci/phase-235-1-evidence\tcdba0b3908a639e069d59c115c23ad23a51deb67\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "cdba0b3908a639e069d59c115c23ad23a51deb67",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "cdba0b3908a639e069d59c115c23ad23a51deb67"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/ci/phase-235-16-source-complete",
+      "oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Required D-04 safety identity remains protected at its current captured ref name, type, and OID.",
+      "proof": {
+        "status": "passed",
+        "predicate": "required_D04_safety_ref_identity_present",
+        "source_rows": [
+          "local\trefs/heads/ci/phase-235-16-source-complete\tdd56ceb3220aca6c92899563e1079dc58fcd8cf8\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "show-ref",
+          "--verify",
+          "--hash",
+          "refs/heads/ci/phase-235-16-source-complete"
+        ],
+        "command_exit": 0,
+        "readback": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "0a8e5eead47ec541a3489190480d5b846d8c7257",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "0a8e5eead47ec541a3489190480d5b846d8c7257"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd-reviewfix/247-29317",
+      "oid": "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd-reviewfix/247-29317\tb9dc7b9f2d0878bb8214bbd67bce0267e5191733\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b9dc7b9f2d0878bb8214bbd67bce0267e5191733"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+      "oid": "54749e55112ba0c6f7227233100dd330e9290001",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/235-13-producer-manifest-chronology\t54749e55112ba0c6f7227233100dd330e9290001\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "54749e55112ba0c6f7227233100dd330e9290001",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "54749e55112ba0c6f7227233100dd330e9290001"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology-merge",
+      "oid": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/235-13-producer-manifest-chronology-merge\tf5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "c3b468895365be86bf25aac91d1105498a2648ae",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "c3b468895365be86bf25aac91d1105498a2648ae"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "local\trefs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+          "pr\t219\tgsd/238-generated-auth-runtime-proof-evidence\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":219,\"state\":\"OPEN\",\"headRefName\":\"gsd/238-generated-auth-runtime-proof-evidence\",\"baseRefName\":\"main\",\"headRefOid\":\"78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\",\"baseRefOid\":\"f06137b2ac0e9b2094aa1250e3c036b41e997651\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/v1.48-b2c-adopter-readiness",
+      "oid": "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/v1.48-b2c-adopter-readiness\ta13e999f2afdc8ec9a31c58cd657c6de6d9a37f5\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/main",
+      "oid": "de9145daec2c94dab9043524ec8df94f7fb9d567",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "This is the exact live origin default branch name and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "live_origin_default_branch_protected",
+        "source_rows": [
+          "local\trefs/heads/main\tde9145daec2c94dab9043524ec8df94f7fb9d567\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "show-ref",
+          "--verify",
+          "--hash",
+          "refs/heads/main"
+        ],
+        "command_exit": 0,
+        "readback": "de9145daec2c94dab9043524ec8df94f7fb9d567"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-241-ci-reconcile",
+      "oid": "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/phase-241-ci-reconcile\tb7e9d7e52ab5d26b8d5624ddc9935e895ff8f409\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-242-execution",
+      "oid": "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/phase-242-execution\tff13fa7851a4750fc87ba8c290a7b4be391ca9f0\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-242-safety-closeout",
+      "oid": "5fad0e912a8c19189a4d1ed2471a113357c9c549",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/phase-242-safety-closeout\t5fad0e912a8c19189a4d1ed2471a113357c9c549\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "5fad0e912a8c19189a4d1ed2471a113357c9c549",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "5fad0e912a8c19189a4d1ed2471a113357c9c549"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-244-playwright-measurement",
+      "oid": "237f46adf047feb79f301b4c57be85ec60f61c7d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "This exact local branch is the currently checked-out HEAD and is retained as active work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "current_checkout_head_preserved",
+        "source_rows": [
+          "local\trefs/heads/phase-244-playwright-measurement\t237f46adf047feb79f301b4c57be85ec60f61c7d\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "symbolic-ref",
+          "-q",
+          "HEAD"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/phase-244-playwright-measurement at 237f46adf047feb79f301b4c57be85ec60f61c7d; current checkout head preserved"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/release-1.4.0-changelog",
+      "oid": "86728ee1f74913338675786fd871e845904ad8a0",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/release-1.4.0-changelog\t86728ee1f74913338675786fd871e845904ad8a0\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "86728ee1f74913338675786fd871e845904ad8a0",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "86728ee1f74913338675786fd871e845904ad8a0"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Required D-04 safety identity remains protected at its current captured ref name, type, and OID.",
+      "proof": {
+        "status": "passed",
+        "predicate": "required_D04_safety_ref_identity_present",
+        "source_rows": [
+          "local\trefs/heads/safety/local-main-before-release-cleanup-20260831\t04ae0ba753e4f0613df5b3f840955018742ffbb9\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "show-ref",
+          "--verify",
+          "--hash",
+          "refs/heads/safety/local-main-before-release-cleanup-20260831"
+        ],
+        "command_exit": 0,
+        "readback": "04ae0ba753e4f0613df5b3f840955018742ffbb9"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/v1.47-closeout",
+      "oid": "c76d9455315a836c06e423fa38a2429f1fc29486",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/v1.47-closeout\tc76d9455315a836c06e423fa38a2429f1fc29486\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "c76d9455315a836c06e423fa38a2429f1fc29486",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "c76d9455315a836c06e423fa38a2429f1fc29486"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/worktree-agent-p242-03",
+      "oid": "ee61cfb378dbe79de88482c714edeb7f098b469b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/worktree-agent-p242-03\tee61cfb378dbe79de88482c714edeb7f098b469b\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "ee61cfb378dbe79de88482c714edeb7f098b469b",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "ee61cfb378dbe79de88482c714edeb7f098b469b"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "4472ee78337e088ffc9abf254273f30e34c8d233",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "4472ee78337e088ffc9abf254273f30e34c8d233"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d"
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/chore/phase-88-uat-evidence",
+      "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/chore/playwright-github-pages-ci",
+      "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "85a5c62952c21b26a165923abcdd2a4ef014461c",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "85a5c62952c21b26a165923abcdd2a4ef014461c"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/phase-235-1-evidence",
+      "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "ac7d670a72e9209d9de61a7647c1e3da80663a3a"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/phase-235-16-source-complete",
+      "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Required D-04 safety identity remains protected at its current captured ref name, type, and OID.",
+      "proof": {
+        "status": "passed",
+        "predicate": "required_D04_safety_ref_identity_present",
+        "source_rows": [
+          "remote\trefs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin",
+          "refs/heads/ci/phase-235-16-source-complete"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/phase-88-provenance",
+      "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/recapture-admin-checkpoints-30658359487",
+      "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "a8382aabafd76522eca1e63c3286980ec320edf7",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "a8382aabafd76522eca1e63c3286980ec320edf7"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/recapture-admin-checkpoints-31043224661",
+      "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/github_actions/actions/upload-artifact-7.0.1",
+      "oid": "8ec669774d33eee30d7b92149808adf835bbd963",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/github_actions/actions/upload-artifact-7.0.1\t8ec669774d33eee30d7b92149808adf835bbd963\tcommit",
+          "pr\t286\tdependabot/github_actions/actions/upload-artifact-7.0.1\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":286,\"state\":\"OPEN\",\"headRefName\":\"dependabot/github_actions/actions/upload-artifact-7.0.1\",\"baseRefName\":\"main\",\"headRefOid\":\"8ec669774d33eee30d7b92149808adf835bbd963\",\"baseRefOid\":\"5a00b90d2314bc93f27aec4090b5928018743d1b\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+      "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/dialyxir-1.4.8\t7eb414854c836f8b45784fca3ffb89ad623e8085\tcommit",
+          "pr\t267\tdependabot/hex/dialyxir-1.4.8\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":267,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/dialyxir-1.4.8\",\"baseRefName\":\"main\",\"headRefOid\":\"7eb414854c836f8b45784fca3ffb89ad623e8085\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+      "oid": "75b00619d287694ac55643584923011538933660",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/ex_doc-0.40.4\t75b00619d287694ac55643584923011538933660\tcommit",
+          "pr\t275\tdependabot/hex/ex_doc-0.40.4\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":275,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/ex_doc-0.40.4\",\"baseRefName\":\"main\",\"headRefOid\":\"75b00619d287694ac55643584923011538933660\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/mox-1.3.2",
+      "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/mox-1.3.2\t85a9d29f645229c90bd30da8860147591e510aa9\tcommit",
+          "pr\t272\tdependabot/hex/mox-1.3.2\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":272,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/mox-1.3.2\",\"baseRefName\":\"main\",\"headRefOid\":\"85a9d29f645229c90bd30da8860147591e510aa9\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+      "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/stream_data-1.4.0\tc6e0cc4083656155c14213a88de2a5c646516661\tcommit",
+          "pr\t269\tdependabot/hex/stream_data-1.4.0\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":269,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/stream_data-1.4.0\",\"baseRefName\":\"main\",\"headRefOid\":\"c6e0cc4083656155c14213a88de2a5c646516661\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+      "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/threadline-0.10.1\t714b6e4ef377d81ada327f0b0840cfcf874ffb84\tcommit",
+          "pr\t274\tdependabot/hex/threadline-0.10.1\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":274,\"state\":\"OPEN\",\"headRefName\":\"dependabot/hex/threadline-0.10.1\",\"baseRefName\":\"main\",\"headRefOid\":\"714b6e4ef377d81ada327f0b0840cfcf874ffb84\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0",
+      "oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0\t5c414c4cec975fcf2755664f6ee294a4760fbe93\tcommit",
+          "pr\t285\tdependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":285,\"state\":\"OPEN\",\"headRefName\":\"dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0\",\"baseRefName\":\"main\",\"headRefOid\":\"5c414c4cec975fcf2755664f6ee294a4760fbe93\",\"baseRefOid\":\"5a00b90d2314bc93f27aec4090b5928018743d1b\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+      "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0\tfcb165adbd4c9d8cc0f09eef1091334495a4700f\tcommit",
+          "pr\t268\tdependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":268,\"state\":\"OPEN\",\"headRefName\":\"dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0\",\"baseRefName\":\"main\",\"headRefOid\":\"fcb165adbd4c9d8cc0f09eef1091334495a4700f\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+      "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0\te8c028591ccd806180f0ea048ad5278028fc7c0f\tcommit",
+          "pr\t273\tdependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":273,\"state\":\"OPEN\",\"headRefName\":\"dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0\",\"baseRefName\":\"main\",\"headRefOid\":\"e8c028591ccd806180f0ea048ad5278028fc7c0f\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+      "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5\t8bb65f8f78d726318dad6c81361009dada8b917c\tcommit",
+          "pr\t271\tdependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":271,\"state\":\"OPEN\",\"headRefName\":\"dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5\",\"baseRefName\":\"main\",\"headRefOid\":\"8bb65f8f78d726318dad6c81361009dada8b917c\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/docs/phase-240-planning",
+      "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "ac827a3bc916fc8b7612cf92956998bb96066e2d"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/elevate-03-wave-v144-pr",
+      "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "be55e83360a50427d7ee9fc0633b3a05083aecbc"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-782328e65c13",
+      "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "782328e65c134dc4b1f9bba522190838366bf08d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "782328e65c134dc4b1f9bba522190838366bf08d"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-b09d04bf7bc3",
+      "oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-b09d04bf7bc3\tb09d04bf7bc35389bfffa9c110970ebedb9acf96\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b09d04bf7bc35389bfffa9c110970ebedb9acf96"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-c4036a571eeb",
+      "oid": "c4036a571eebe113b2aa819c4605b56030d2457b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-c4036a571eeb\tc4036a571eebe113b2aa819c4605b56030d2457b\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "c4036a571eebe113b2aa819c4605b56030d2457b",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "c4036a571eebe113b2aa819c4605b56030d2457b"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+      "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-cd1e7e1252da\tcd1e7e1252da9388727641160d45bb4f1bf4f1d6\tcommit",
+          "pr\t266\tevidence/phase-241-final-head-cd1e7e1252da\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":266,\"state\":\"OPEN\",\"headRefName\":\"evidence/phase-241-final-head-cd1e7e1252da\",\"baseRefName\":\"main\",\"headRefOid\":\"cd1e7e1252da9388727641160d45bb4f1bf4f1d6\",\"baseRefOid\":\"fed35a4a3725d217486f45a571421dbbf5721765\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-d949725a313a",
+      "oid": "d949725a313a25bfab59350acd29c045df033cdc",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-d949725a313a\td949725a313a25bfab59350acd29c045df033cdc\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "d949725a313a25bfab59350acd29c045df033cdc",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "d949725a313a25bfab59350acd29c045df033cdc"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-f822381d0ab0",
+      "oid": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-f822381d0ab0\tf822381d0ab07928800b53b6ce4c46c06d4e2cdc\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "0a8e5eead47ec541a3489190480d5b846d8c7257",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "0a8e5eead47ec541a3489190480d5b846d8c7257"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gh-pages",
+      "oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/gh-pages\td2358eebe1cb4411d73552ec2359e54d8a4c98b4\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+      "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "c3b468895365be86bf25aac91d1105498a2648ae",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "c3b468895365be86bf25aac91d1105498a2648ae"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+          "pr\t219\tgsd/238-generated-auth-runtime-proof-evidence\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":219,\"state\":\"OPEN\",\"headRefName\":\"gsd/238-generated-auth-runtime-proof-evidence\",\"baseRefName\":\"main\",\"headRefOid\":\"78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\",\"baseRefOid\":\"f06137b2ac0e9b2094aa1250e3c036b41e997651\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/main",
+      "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "This is the exact live origin default branch name and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "live_origin_default_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin",
+          "refs/heads/main"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-242-execution",
+      "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "d7d78eb85e4f8769172741d3682a0941bba25d5b"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-242-hex-remediation-infrastructure",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "17f946554e8c9df5279e1aa42636b48fea229962",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "17f946554e8c9df5279e1aa42636b48fea229962"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-full-baseline-capture",
+      "oid": "3421f1dfbc127b7373afb1a1db54556025670fc2",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-full-baseline-capture\t3421f1dfbc127b7373afb1a1db54556025670fc2\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "3421f1dfbc127b7373afb1a1db54556025670fc2",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "3421f1dfbc127b7373afb1a1db54556025670fc2"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-full-webkit",
+      "oid": "3e8d9e86d382000a7b5b2aca429239848698a490",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-full-webkit\t3e8d9e86d382000a7b5b2aca429239848698a490\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "3e8d9e86d382000a7b5b2aca429239848698a490",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "3e8d9e86d382000a7b5b2aca429239848698a490"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-measure-workflow-fix",
+      "oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-measure-workflow-fix\tb7fd3584daf9bb992e4f4991c52d2c82b21f348d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-render-webkit-path",
+      "oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-render-webkit-path\t1a559d40346d00dc47b0ffc203622fbe89ed7a5f\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-routing-pr",
+      "oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-routing-pr\t305977fd853ccc12be7cd9b4ab7b79252faa98d1\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "305977fd853ccc12be7cd9b4ab7b79252faa98d1"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-share-beam-setup",
+      "oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-share-beam-setup\tfb24b27c7e2ab196260faa72a338ca4b2a41b995\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "fb24b27c7e2ab196260faa72a338ca4b2a41b995"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-webkit-deps",
+      "oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-webkit-deps\t903d4cb583411244befe4a2ab8294e6ef8ce6475\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "903d4cb583411244befe4a2ab8294e6ef8ce6475"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244/measurement",
+      "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/phase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tcommit",
+          "pr\t283\tphase-244/measurement\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":283,\"state\":\"OPEN\",\"headRefName\":\"phase-244/measurement\",\"baseRefName\":\"main\",\"headRefOid\":\"f62e252648db66706cf27c3e37241fcd7b78a3de\",\"baseRefOid\":\"5a00b90d2314bc93f27aec4090b5928018743d1b\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/release-please--branches--main",
+      "oid": "276e8c3fc504d2c0497d801083668267327fab84",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is the head of a current open pull request and must remain protected.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/release-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tcommit",
+          "pr\t224\trelease-please--branches--main\tmain"
+        ],
+        "command": [
+          "gh",
+          "pr",
+          "list",
+          "--repo",
+          "szTheory/sigra",
+          "--state",
+          "open",
+          "--limit",
+          "1000",
+          "--json",
+          "number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository"
+        ],
+        "command_exit": 0,
+        "readback": "{\"number\":224,\"state\":\"OPEN\",\"headRefName\":\"release-please--branches--main\",\"baseRefName\":\"main\",\"headRefOid\":\"276e8c3fc504d2c0497d801083668267327fab84\",\"baseRefOid\":\"5a00b90d2314bc93f27aec4090b5928018743d1b\",\"headRepository\":\"szTheory/sigra\",\"baseRepository\":\"szTheory/sigra\"}"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Required D-04 safety identity remains protected at its current captured ref name, type, and OID.",
+      "proof": {
+        "status": "passed",
+        "predicate": "required_D04_safety_ref_identity_present",
+        "source_rows": [
+          "remote\trefs/heads/safety/local-main-before-release-cleanup-20260831\t04ae0ba753e4f0613df5b3f840955018742ffbb9\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin",
+          "refs/heads/safety/local-main-before-release-cleanup-20260831"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/safety/local-main-before-release-cleanup-20260831\t04ae0ba753e4f0613df5b3f840955018742ffbb9\tcommit"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/v1.1-pr",
+      "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "529ed57bec6ff6499ec15681ddfd3772e56c3d28"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/worktree-agent-p242-03",
+      "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "907d875f5e0953777ffde0657e59082bf68d9e21",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "907d875f5e0953777ffde0657e59082bf68d9e21"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "4472ee78337e088ffc9abf254273f30e34c8d233",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "4472ee78337e088ffc9abf254273f30e34c8d233"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d"
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch has a commit reachable from its captured tip but not from the exact current origin default, so it is retained as unmerged work.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/chore/phase-88-uat-evidence",
+      "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
+          "remote\trefs/heads/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/chore/playwright-github-pages-ci",
+      "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
+          "remote\trefs/heads/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/phase-235-1-evidence",
+      "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
+          "remote\trefs/heads/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/phase-235-16-source-complete",
+      "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit",
+          "remote\trefs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/phase-88-provenance",
+      "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
+          "remote\trefs/heads/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-30658359487",
+      "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
+          "remote\trefs/heads/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-31043224661",
+      "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
+          "remote\trefs/heads/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+      "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0 is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0\t204ce7f59ad2b1a2f709261f69bc35235bdc813c\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+      "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1 is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1\t9f5150bd3a000dc122e8c185bf06c102ac720667\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+      "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4 is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4\tc06cc1475ca91519765b3792958bcadd9f131601\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+          "remote\trefs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/docs/phase-240-planning",
+      "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
+          "remote\trefs/heads/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/elevate-03-wave-v144-pr",
+      "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
+          "remote\trefs/heads/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/evidence/phase-241-final-head-782328e65c13",
+      "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
+          "remote\trefs/heads/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+          "remote\trefs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+          "remote\trefs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gh-pages",
+      "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gh-pages\tdd671004a276c24fafa8ece80e341706085a999e\tcommit",
+          "remote\trefs/heads/gh-pages\td2358eebe1cb4411d73552ec2359e54d8a4c98b4\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gh-pages\td2358eebe1cb4411d73552ec2359e54d8a4c98b4\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/235-13-producer-manifest-chronology",
+      "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
+          "remote\trefs/heads/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+          "remote\trefs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+          "remote\trefs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+          "remote\trefs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+      "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-236-flake-root-cause is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-236-flake-root-cause\t337538c48b79c358f19a9e1c514a7a373379d353\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-236-flake-root-cause; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+      "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-239-priv-templates-sweep is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-239-priv-templates-sweep\t5abd3ede7fc11f96a66739e53283f9d5aec3c6ec\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-239-priv-templates-sweep; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+      "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-240-closeout is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-240-closeout\t9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-240-closeout; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+      "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-240-green-main-evidence is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-240-green-main-evidence\t4429657a725ef5601fe2e0b25cebcd54c314540e\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-240-green-main-evidence; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-context",
+      "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-context is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-241-context\te6b63ca1698e23adb99c84f088fc9ad469122496\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-241-context; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-plans",
+      "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-plans is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-241-plans\ta38651a37875a340462c647d5f9b1beed30893dd\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-241-plans; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-research",
+      "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/phase-241-research is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-241-research\t62906d14da1cd4c72e5080c1fa686ba4d6948ca8\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/phase-241-research; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+      "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/quick-260918-lfq-bookkeeping is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/quick-260918-lfq-bookkeeping\tdaa8b41f3d458c66ecacb7a0276ab8b65ffc38d6\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/quick-260918-lfq-bookkeeping; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+      "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/quick-green-04-collector-guards is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/quick-green-04-collector-guards\tcea7098347086166ec3ec6e1a8e0db0403d5b9c0\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/quick-green-04-collector-guards; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+      "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/gsd/state-reconcile-241 is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/state-reconcile-241\t21c6c25a996ec3497cf89b656bcd0759e5176039\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/gsd/state-reconcile-241; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/main",
+      "oid": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/main\t6f14c04a26dc69125b2aa00f89c3d905b3c4bafa\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/phase-242-execution",
+      "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
+          "remote\trefs/heads/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/phase-242-hex-remediation-infrastructure",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+          "remote\trefs/heads/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/phase-244/measurement",
+      "oid": "f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/phase-244/measurement\tf5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac\tcommit",
+          "remote\trefs/heads/phase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/phase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/release-please--branches--main",
+      "oid": "70ba005a694540e488a2e705950c4135268642ad",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/release-please--branches--main\t70ba005a694540e488a2e705950c4135268642ad\tcommit",
+          "remote\trefs/heads/release-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/release-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.1-pr",
+      "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
+          "remote\trefs/heads/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "disposition": "delete",
+      "reason": "At fresh Plan 39 capture, exact live origin branch refs/heads/v1.37-auth-branding-admin-polish is absent; its exact local tracking identity is eligible for deletion.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent",
+        "source_rows": [
+          "local\trefs/remotes/origin/v1.37-auth-branding-admin-polish\tb9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "exit 0 with empty result for refs/heads/v1.37-auth-branding-admin-polish; exact origin ref absent"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/worktree-agent-p242-03",
+      "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
+          "remote\trefs/heads/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+          "remote\trefs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+          "remote\trefs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit"
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The corresponding exact branch name remains live on origin; tracking deletion eligibility requires that exact origin ref to be absent.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+          "remote\trefs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "ls-remote",
+          "--symref",
+          "origin"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit"
+      }
+    }
+  ],
+  "counts": {
+    "local_heads": 33,
+    "origin_heads": 51,
+    "tracking_refs": 42,
+    "candidate_dispositions": 126,
+    "eligible_deletions": 14,
+    "unresolved": 0,
+    "plan38_applied_reconciled": 9,
+    "plan38_remaining_reconciled": 14
+  },
+  "checks": {
+    "nine_prior_rows_absent_and_objects_readable": true,
+    "fourteen_remaining_rows_exact_and_origin_absent": true,
+    "complete_candidate_census": true,
+    "zero_unresolved_candidates": true,
+    "deletions_exactly_fourteen_tracking": true,
+    "allowlist_one_to_one": true,
+    "all_proof_source_rows_current": true,
+    "origin_default_and_safety_refs_retained": true,
+    "live_open_pr_inventory_complete_and_cli_agrees": true,
+    "coordinator_verified_free_zero_leases": true,
+    "pinned_git": true,
+    "production_ref_operations": 0
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "refs_already_applied": [
+    "refs/remotes/origin/brandbook-rail-accent-logo-system",
+    "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2",
+    "refs/remotes/origin/dependabot/hex/credo-1.7.19",
+    "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3",
+    "refs/remotes/origin/dependabot/hex/hammer-7.4.1",
+    "refs/remotes/origin/dependabot/hex/oban-2.24.0",
+    "refs/remotes/origin/dependabot/hex/threadline-0.9.0",
+    "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0",
+    "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0"
+  ],
+  "refs_remaining": [
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+      "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+      "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+      "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+      "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+      "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+      "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+      "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-context",
+      "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-plans",
+      "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-research",
+      "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+      "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+      "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+      "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    },
+    {
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "live_origin_ref_absent": true
+    }
+  ],
+  "unresolved_candidates": [],
+  "failed_predicates": []
+}
