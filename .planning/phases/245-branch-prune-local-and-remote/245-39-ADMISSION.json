@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "phase": "245-39",
-  "captured_at": "2026-10-04T00:35:09.819797+00:00",
+  "captured_at": "2026-10-04T01:43:46.783619+00:00",
   "status": "admitted",
   "contract_capture_head": {
     "ref": "refs/heads/phase-244-playwright-measurement",
-    "oid": "237f46adf047feb79f301b4c57be85ec60f61c7d"
+    "oid": "47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7"
   },
   "rows": [
     {
@@ -763,7 +763,7 @@
     {
       "side": "local",
       "ref": "refs/heads/phase-244-playwright-measurement",
-      "oid": "237f46adf047feb79f301b4c57be85ec60f61c7d",
+      "oid": "47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7",
       "type": "commit",
       "disposition": "keep",
       "reason": "This exact local branch is the currently checked-out HEAD and is retained as active work.",
@@ -771,7 +771,7 @@
         "status": "passed",
         "predicate": "current_checkout_head_preserved",
         "source_rows": [
-          "local\trefs/heads/phase-244-playwright-measurement\t237f46adf047feb79f301b4c57be85ec60f61c7d\tcommit"
+          "local\trefs/heads/phase-244-playwright-measurement\t47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7\tcommit"
         ],
         "command": [
           "/usr/bin/git",
@@ -780,7 +780,7 @@
           "HEAD"
         ],
         "command_exit": 0,
-        "readback": "refs/heads/phase-244-playwright-measurement at 237f46adf047feb79f301b4c57be85ec60f61c7d; current checkout head preserved"
+        "readback": "refs/heads/phase-244-playwright-measurement at 47f77ed3ba05a301c3bcaf04749a60eb3f55d6a7; current checkout head preserved"
       }
     },
     {
