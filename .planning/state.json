@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only --wave 5",
-    "label": "Execute Phase 245 Plan 39 fresh contract and approval gate",
-    "reason": "The next roadmap phase is still Phase 245 and its readiness selects Plan 39 as the only runnable incomplete plan. Plan 39 first recaptures current sources and reconciles Plan 38's nine applied and fourteen remaining rows; a fresh explicit approval is required before any further ref operation. Historical 11-row PR and 30-row cleanup audits remain unresolved; REPO-04 stays open."
+    "label": "Resume Plan 245-39 at exact-row approval checkpoint",
+    "reason": "Plan 39 Task 1 committed fresh current-source evidence in 640be41cb35844113c904484c771de10d249203c. Task 2 now awaits explicit approval bound to contract SHA-256 7042c39c83ad2fcb92271e8b8079b746de4a82a7cdac31b44d20f6d41974b1cb, allowlist SHA-256 69174d7d19ff218c04e23d38cbc9b6ba838624264c0191cb073fbb62df62d747, and all fourteen literal tracking-ref rows. Task 3 has not run; REPO-04 stays open and the historical 11-row/30-row audits remain unresolved."
   },
-  "updated_at": "2026-10-04T00:10:43.531Z"
+  "updated_at": "2026-10-04T00:43:12Z"
 }

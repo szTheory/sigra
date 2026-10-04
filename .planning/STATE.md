@@ -5,18 +5,18 @@ milestone_name: CLEAN-BASELINE
 current_phase: 245
 current_phase_name: Branch Prune — Local and Remote
 current_plan: 39
-status: Ready to execute
-stopped_at: Plan 245-39 passed independent plan verification; Task 1 must recapture current sources before a new exact-row approval checkpoint
-last_updated: "2026-10-04T00:10:43.515Z"
-state_head: 7207dad2924c6c83f7851fff605f9fa2d6cf8bbb
+status: executing
+stopped_at: Plan 245-39 Task1 committed; awaiting blocking-human approval of the fresh exact-row contract
+last_updated: "2026-10-04T00:43:07.540Z"
+state_head: 640be41cb35844113c904484c771de10d249203c
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 99
-  completed_plans: 96
+  completed_plans: 97
   percent: 90
 last_activity: 2026-10-03
-last_activity_desc: Plan 245-39 passed planning checks; fresh source capture and approval checkpoint are next; no refs changed
+last_activity_desc: Plan 245-39 Task1 evidence committed; awaiting its new exact-row approval; no new ref or PR operations
 ---
 
 # Project State
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 245 (Branch Prune — Local and Remote) — READY TO EXECUTE
-Phase 245 remains open. Plans 35 and 36 retain superseded metadata and immutable blocked receipts. Plan 37 completed the approved five-object source-only recovery and committed ready D-06 evidence. Plan 38 stopped after nine approved tracking-ref deletions; its approval is exhausted, with fourteen exact rows remaining. Plan 39 is the only runnable incomplete plan.
-Current Plan: 39 (fresh current-source contract and exact approval gate; wave 5)
-Next Action: Run `$gsd-execute-phase 245 --gaps-only --wave 5`. Task 1 must recapture all current sources and reconcile Plan 38's partial effects. Task 2 requires new explicit approval bound to Plan 39's contract commit, SHA-256 digests, and every exact row; do not run Task 3 without it.
+Phase: 245 (Branch Prune — Local and Remote) — EXECUTING
+Phase 245 remains open. Plans 35 and 36 retain superseded metadata and immutable blocked receipts. Plan 37 completed the approved five-object source-only recovery and committed ready D-06 evidence. Plan 38 stopped after nine approved tracking-ref deletions; its approval is exhausted, with fourteen exact rows remaining. Plan 39 Task 1 committed a fresh current-source contract and exact tracking-only admission; Task 2 is the blocking approval checkpoint. No Plan 39 production ref or PR operation has occurred.
+Current Plan: 39 (Task 1 complete; awaiting exact-row approval in wave 5)
+Next Action: Approve or stop against contract commit `640be41cb35844113c904484c771de10d249203c`, contract SHA-256 `7042c39c83ad2fcb92271e8b8079b746de4a82a7cdac31b44d20f6d41974b1cb`, allowlist SHA-256 `69174d7d19ff218c04e23d38cbc9b6ba838624264c0191cb073fbb62df62d747`, and all fourteen literal rows. Task 3 remains gated on that exact approval.
 Total Plans in Phase: 36 indexed plan files; Plan 39 is the only runnable incomplete plan.
-Status: Ready to execute Plan 39; REPO-04 remains open.
+Status: Executing Plan 39 at its blocking approval checkpoint; REPO-04 remains open.
 Planning evidence: `245-ROUTING-PLANNING-PREFLIGHT.json` distinguishes routing readiness from the five missing production-source commits; `245-ROUTING-PLAN-CHECK.json` records an independent pass after tightening Plan 38's complete candidate census and zero-unresolved gate. All 7 decisions and REPO-04 are covered. The old four-object approval remains void.
 Historical verification: Phase 245's `gaps_found` report is dated 2026-09-28 and predates Plans 35–38; preserve it as historical context. Phase 244's verification passed, although its Plan 03 summary remains `status: blocked` and can look incomplete to a summary counter; do not replay Phase 244 unless Phase 245 readiness identifies it as a prerequisite. The 11-row PR mismatch and 30-row cleanup-history audits remain explicitly unresolved under D-07.
 History: Plan 19's single admitted local deletion is counted once. Plan 29, Plan 30, Plan 33, Plan 35 and Plan 36 blocked evidence stays immutable. Plan 34's prior one-OID recovery and approval cannot authorize Plan 37's five objects. Plan 16 remains superseded and Plan 14 remains halted.
@@ -752,8 +752,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-04T00:10:43.515Z
-Stopped at: Plan 245-39 passed independent verification; next is a fresh source capture before a new exact-row approval
+Last session: 2026-10-04T00:43:07.161Z
+Stopped at: Plan 245-39 Task1 committed; waiting for explicit exact-row approval
 Resume file: None
 
 ## Operator Next Steps
