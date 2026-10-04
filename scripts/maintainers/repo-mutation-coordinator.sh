@@ -143,8 +143,13 @@ sigra_coordinator_probe_symbolic_head() {
 }
 
 sigra_coordinator_gate_enter() {
-  if ! mkdir "$SIGRA_COORDINATOR_GATE_DIR" 2>/dev/null; then
-    sigra_coordinator_set_error 'coordinator_admission_gate_busy_or_stale'
+  local mkdir_error
+  if ! mkdir_error="$(mkdir "$SIGRA_COORDINATOR_GATE_DIR" 2>&1)"; then
+    if [[ -e "$SIGRA_COORDINATOR_GATE_DIR" || -L "$SIGRA_COORDINATOR_GATE_DIR" ]]; then
+      sigra_coordinator_set_error 'coordinator_admission_gate_busy_or_stale'
+    else
+      sigra_coordinator_set_error "coordinator_gate_create_failed: ${mkdir_error//$'\n'/ }"
+    fi
     return 1
   fi
   SIGRA_COORDINATOR_GATE_HELD=1

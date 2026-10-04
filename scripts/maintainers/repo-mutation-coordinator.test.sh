@@ -140,6 +140,42 @@ grep -q previous_reference_transaction_hook_missing "$TEMP_DIR/missing-chain-ver
 mv "$TEMP_DIR/prior-hook-backup" "$COORDINATOR_ROOT/previous-reference-transaction"
 bash "$COORDINATOR" verify --repo "$MAIN" >/dev/null || fail 'coordinator did not verify after restoring the fixture hook chain'
 
+# Gate creation errors must remain distinct from genuine gate contention. The
+# shim denies only the disposable fixture's gate mkdir; every other mkdir uses
+# the real utility, including the coordinator's capability probe.
+DENIED_MKDIR_BIN="$TEMP_DIR/denied-mkdir-bin"
+mkdir -p "$DENIED_MKDIR_BIN"
+cat > "$DENIED_MKDIR_BIN/mkdir" <<'DENIED_MKDIR'
+#!/usr/bin/env bash
+if [[ "$#" == 1 && "$1" == "${SIGRA_FIXTURE_DENIED_GATE:-}" ]]; then
+  printf 'mkdir: %s: Operation not permitted\n' "$1" >&2
+  exit 1
+fi
+exec /bin/mkdir "$@"
+DENIED_MKDIR
+chmod 755 "$DENIED_MKDIR_BIN/mkdir"
+if SIGRA_FIXTURE_DENIED_GATE="$COORDINATOR_ROOT/gate" PATH="$DENIED_MKDIR_BIN:$PATH" \
+  bash "$COORDINATOR" run --repo "$MAIN" --operation denied-gate -- \
+  touch "$TEMP_DIR/denied-gate-child-ran" >"$TEMP_DIR/denied-gate.log" 2>&1; then
+  fail 'coordinator admitted a child after gate creation was denied'
+fi
+grep -Fq 'coordinator_gate_create_failed:' "$TEMP_DIR/denied-gate.log" \
+  || fail "gate creation denial was misreported: $(cat "$TEMP_DIR/denied-gate.log")"
+grep -Fq 'Operation not permitted' "$TEMP_DIR/denied-gate.log" \
+  || fail 'gate creation denial lost the filesystem reason'
+[[ ! -e "$TEMP_DIR/denied-gate-child-ran" && ! -e "$COORDINATOR_ROOT/gate" && ! -e "$COORDINATOR_ROOT/lock" ]] \
+  || fail 'denied gate creation changed fixture state or ran its child'
+
+mkdir "$COORDINATOR_ROOT/gate"
+if bash "$COORDINATOR" run --repo "$MAIN" --operation occupied-gate -- \
+  touch "$TEMP_DIR/occupied-gate-child-ran" >"$TEMP_DIR/occupied-gate.log" 2>&1; then
+  fail 'coordinator admitted a child through an occupied gate'
+fi
+grep -Fq 'coordinator_admission_gate_busy_or_stale' "$TEMP_DIR/occupied-gate.log" \
+  || fail 'occupied gate did not retain its busy-or-stale error'
+[[ ! -e "$TEMP_DIR/occupied-gate-child-ran" ]] || fail 'occupied gate ran its child'
+rmdir "$COORDINATOR_ROOT/gate"
+
 bash "$COORDINATOR" run --repo "$MAIN" --operation exported-lock-proof -- \
   bash -c '[[ "${SIGRA_COORDINATOR_HELD:-0}" == 1 && "${SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN:-}" =~ ^[0-9a-f]{48}$ && -d "${SIGRA_BRANCH_WORKTREE_COORDINATOR_ROOT}/lock" ]]' \
   || fail 'coordinator lock ownership was not exported to child admission checks'
