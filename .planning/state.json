@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245",
-    "label": "Execute the fresh-source Plan 40 continuation",
-    "reason": "Phase 245 is the final open roadmap phase. The current execute-phase readiness has Plan 40 as the sole ready incomplete plan in wave 5; it depends on completed Plan 38 and consumes Plan 39's committed blocked result as history. Plan 39 stopped before approval after the live refs/heads/gh-pages identity changed; its stale contract and fourteen-row allowlist cannot be replayed. Plan 40 must recapture current local/origin/open-PR sources and request a new exact-row decision only after its new before-stage verifier passes. No prior approval carries forward."
+    "command": "/gsd:execute-phase 245 --gaps-only",
+    "label": "Execute Plan 41 gap closure",
+    "reason": "Plan 41 is the sole runnable incomplete gap-closure plan. It passed plan, requirement, and decision coverage checks; execution must capture fresh current sources and obtain separate exact-row approval before any ref operation."
   },
-  "updated_at": "2026-10-04T16:37:19Z"
+  "updated_at": "2026-10-04T20:44:49Z"
 }
