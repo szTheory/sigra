@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only --wave 5",
-    "label": "Resume Plan 245-39 at exact-row approval checkpoint",
-    "reason": "Plan 39 Task 1 committed fresh current-source evidence in 640be41cb35844113c904484c771de10d249203c. Task 2 now awaits explicit approval bound to contract SHA-256 7042c39c83ad2fcb92271e8b8079b746de4a82a7cdac31b44d20f6d41974b1cb, allowlist SHA-256 69174d7d19ff218c04e23d38cbc9b6ba838624264c0191cb073fbb62df62d747, and all fourteen literal tracking-ref rows. Task 3 has not run; REPO-04 stays open and the historical 11-row/30-row audits remain unresolved."
+    "label": "Recapture Plan 245-39 evidence before exact-row approval",
+    "reason": "The coordinator gate-diagnostic repair and state bookkeeping committed after the first Plan39 contract, so its verifier requires a fresh Task1 contract at the current HEAD. Plan39 Task1 must recapture live sources and commit a replacement contract/allowlist/admission before approval. Task3 has not run; REPO-04 stays open and the historical 11-row/30-row audits remain unresolved."
   },
-  "updated_at": "2026-10-04T00:43:12Z"
+  "updated_at": "2026-10-04T01:39:32Z"
 }
