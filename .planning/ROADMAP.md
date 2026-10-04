@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Active milestone — **v1.48 CLEAN-BASELINE** (Phases 236-245). Phase 245 remains open. Plans 30, 35 and 36 retain their blocked history; Plan 35's four-object approval was voided by origin drift before any fetch. Plans 37 and 38 are the fresh forward route: recapture and approve the five-object recovery in computed wave 3, then capture a new prune contract with a separate exact-row approval in computed wave 4. Plans 35/36 have terminal superseded metadata and immutable blocked receipts. Next: `$gsd-execute-phase 245 --gaps-only --wave 3`. REPO-04 and both historical unknown audits remain open.
+**Status:** Active milestone — **v1.48 CLEAN-BASELINE** (Phases 236-245). Phase 245 remains open. Plans 30, 35 and 36 retain their blocked history; Plan 35's four-object approval was voided by origin drift before any fetch. Plan 37 completed its approved source-only recovery and issued a ready D-06 receipt. Plan 38 stopped after nine of twenty-three approved tracking refs; its approval is exhausted and fourteen exact rows remain. Plan 39 is the fresh wave-5 continuation, beginning with a new current-source contract and a separate exact-row approval checkpoint. Plans 35/36 remain terminal superseded history. Next: `$gsd-execute-phase 245 --gaps-only --wave 5`. REPO-04 and both historical unknown audits remain open.
 
 ## Milestones
 
@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 35 active indexed plan files; Plans 35 and 36 are superseded terminal plans with immutable blocked receipts. The historical Plan 19 plan artifact is excluded and its single admitted local deletion remains counted once. Plans 37 and 38 are the only incomplete plans: Plan 37 follows completed Plan 34 in computed wave 3 and requires a new five-object approval; Plan 38 follows in computed wave 4 only after a committed ready D-06 receipt, with its own exact-row approval. REPO-04 and the 11-row PR/30-row cleanup historical audits remain unresolved. Next: `$gsd-execute-phase 245 --gaps-only --wave 3`.
+**Plans**: 36 active indexed plan files; Plans 35 and 36 are superseded terminal plans with immutable blocked receipts. The historical Plan 19 plan artifact is excluded and its single admitted local deletion remains counted once. Plan 37 completed the five-object recovery in wave 3. Plan 38 is blocked after nine approved tracking-ref deletions; its remaining fourteen rows require a new contract and approval. Plan 39 is the only runnable incomplete plan in wave 5 and begins with a fresh current-source contract. REPO-04 and the 11-row PR/30-row cleanup historical audits remain unresolved. Next: `$gsd-execute-phase 245 --gaps-only --wave 5`.
 
 Plans:
 **Wave 1**
@@ -525,11 +525,15 @@ Plans:
 
 **Gap Wave 3 — fresh five-object recovery** *(depends on completed Plan 34; Plans 35/36 are historical inputs; new digest and explicit approval required)*
 
-- [ ] 245-37-PLAN.md — Recapture the complete current source census, approve exactly the five missing commits against the committed preflight digest, fetch once without ref/PR changes, and issue a ready or blocked D-06 receipt.
+- [x] 245-37-PLAN.md — Recapture the complete current source census, approve exactly the five missing commits against the committed preflight digest, fetch once without ref/PR changes, and issue the ready D-06 receipt (recovery commit `084eddf99a6c4a7904d74d738389a46f5e0cc5f2`).
 
-**Gap Wave 4 — fresh prune continuation** *(depends on Plan 37's committed ready D-06 receipt; a separate exact-row approval is required before any production ref operation)*
+**Gap Wave 4 — blocked partial prune** *(Plan 37's D-06 prerequisite is met; Plan 38 applied nine approved tracking refs and stopped; its approval cannot be reused)*
 
-- [ ] 245-38-PLAN.md — Capture a new immutable local/origin/PR contract and exact deletion admission; apply only separately approved rows and prove complete independent post-state.
+- [ ] 245-38-PLAN.md — Blocked after nine of twenty-three approved local tracking-ref deletions; the approval is exhausted, fourteen rows remain, and no further operation is authorized by it.
+
+**Gap Wave 5 — fresh partial-prune continuation** *(depends on Plan 38's recorded partial result; capture a new contract and obtain separate exact-row approval before any production ref operation)*
+
+- [ ] 245-39-PLAN.md — Reconcile Plan 38's partial result against complete current sources, commit a new tracking-only contract and allowlist, stop at the new exact-row approval checkpoint, then supervise one bounded coordinator-held operator only after approval.
 
 ## Progress
 
@@ -544,7 +548,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 33/35 terminal active entries (includes halted history); 2 pending; 35/36 superseded | In progress | - |
+| 245. Branch Prune | 35/36 terminal active entries (includes halted history); 1 pending; 35/36 superseded | In progress | - |
 
 ## Requirement Coverage
 
