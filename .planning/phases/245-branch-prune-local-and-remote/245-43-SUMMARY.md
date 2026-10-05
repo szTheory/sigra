@@ -11,11 +11,11 @@ provides:
   - Ready D-06 receipt proving all pinned and current typed objects readable without production ref or PR delta
 affects: [245-44, REPO-04]
 actuals:
-  tokens: 219785
+  tokens: 219797
   tasks: 3
   commits: 1
   plan_head_before: afb177a6c8b6e311320e22f52734a0e29a06b354
-  plan_head_after: pending
+  plan_head_after: 048199c7b4f1d0ceed9aa93044d1557df71192d3
 tech-stack:
   added: []
   patterns: [digest-bound source-only fetch, coordinator-gated evidence commit]
@@ -43,7 +43,7 @@ coverage:
         ref: ".planning/phases/245-branch-prune-local-and-remote/245-43-D06-READINESS.json"
         status: pass
     human_judgment: false
-duration: 48min
+duration: 55min
 completed: 2026-10-05
 status: complete
 ---
@@ -54,9 +54,9 @@ status: complete
 
 ## Performance
 
-- **Duration:** 48 minutes from the first execution-preflight capture
+- **Duration:** 55 minutes from the first execution-preflight capture
 - **Started:** 2026-10-05T15:40:02Z (first preflight artifact timestamp)
-- **Completed:** 2026-10-05T16:27:19Z
+- **Completed:** 2026-10-05T16:35:26Z
 - **Tasks:** 3 (Task 2 was the blocking exact-source approval)
 - **Files changed:** 6
 
@@ -73,11 +73,11 @@ status: complete
 
 One scoped evidence child contains the completed Task 1 preflight and Task 3 recovery/readiness receipts:
 
-1. **Task 1: Save a fresh read-only exact-source execution preflight** — included in the scoped evidence commit.
+1. **Task 1: Save a fresh read-only exact-source execution preflight** — included in scoped evidence commit `048199c7`.
 2. **Task 2: Approve the exact object-store write separately** — approved by the user for this preflight only.
-3. **Task 3: Recover once and prove complete D-06 readiness** — included in the scoped evidence commit.
+3. **Task 3: Recover once and prove complete D-06 readiness** — included in scoped evidence commit `048199c7`.
 
-**Scoped evidence commit:** to be measured after commit.
+**Scoped evidence commit:** `048199c7` (`docs(245-43)`).
 
 ## Files Created/Modified
 
