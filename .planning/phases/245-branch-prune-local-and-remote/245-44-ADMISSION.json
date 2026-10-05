@@ -1,0 +1,3373 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": 44,
+  "status": "admitted",
+  "source_status": "complete",
+  "execution_source": {
+    "path": "245-44-CURRENT-CONTRACT.json",
+    "repository": "szTheory/sigra",
+    "source_digests": {
+      "local_refs": "ba36e3022ad436cf8e53c2e4b35c2ed64abb7c72eb1c6cd0d27d1b4424c16571",
+      "origin_refs": "09c307e58f15d1e3d7cde541466571a3d26a8b20255c9e758ddac0dbd8f7eda7",
+      "open_prs": "e123ab15ddfa674a25d9c085217bcbc6b384c65e43fc80a5fe9f4db87a95b002"
+    },
+    "local_refs": 106,
+    "origin_refs": 361,
+    "origin_heads": 51,
+    "open_prs": 14,
+    "cli_open_pr_count": 14,
+    "pr_pages": [
+      {
+        "page": 1,
+        "item_count": 14,
+        "has_next": false,
+        "source": "github-api"
+      }
+    ],
+    "origin_default": {
+      "ref": "refs/heads/main",
+      "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "type": "commit"
+    }
+  },
+  "contract_capture_head": {
+    "ref": "refs/heads/phase-244-playwright-measurement",
+    "oid": "0c3a96a3348b481e0e3ba50e77f9dfd123caf529"
+  },
+  "counts": {
+    "local_heads": 33,
+    "origin_heads": 51,
+    "tracking_refs": 29,
+    "candidate_dispositions": 113,
+    "eligible_deletions": 1,
+    "unresolved": 0,
+    "plan41_applied_reconciled": 13,
+    "plan41_remaining_reconciled": 1
+  },
+  "candidate_dispositions": [
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-241-01-rescue",
+      "oid": "99efe519157a81ffe009d4f5d3868fe14c2c3082",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-241-01-rescue\t99efe519157a81ffe009d4f5d3868fe14c2c3082\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "99efe519157a81ffe009d4f5d3868fe14c2c3082",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "99efe519157a81ffe009d4f5d3868fe14c2c3082",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-241-03-exec",
+      "oid": "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-241-03-exec\tcfdbab0c2521f0bf08ceb2c017b10d810abc3e69\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-242-02-clean",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-242-02-clean\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "17f946554e8c9df5279e1aa42636b48fea229962",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "17f946554e8c9df5279e1aa42636b48fea229962",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-242-02-continuation",
+      "oid": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-242-02-continuation\t7662ee341cefd6b7a90d10f1c6834870ad5b7bb4\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-242-14-closeout",
+      "oid": "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-242-14-closeout\tda056c9d7651c33fbf00ad688b67326f9f9c9c2f\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-exec-235-1-04-evidence",
+      "oid": "8676a6a7eb0d7487e401c251b8c46ec368e92447",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-exec-235-1-04-evidence\t8676a6a7eb0d7487e401c251b8c46ec368e92447\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "8676a6a7eb0d7487e401c251b8c46ec368e92447",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "8676a6a7eb0d7487e401c251b8c46ec368e92447",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-exec-235-1-12-evidence",
+      "oid": "47f9578fc97edc63603953d446e79fac884326c3",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-exec-235-1-12-evidence\t47f9578fc97edc63603953d446e79fac884326c3\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "47f9578fc97edc63603953d446e79fac884326c3",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "47f9578fc97edc63603953d446e79fac884326c3",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-exec-235-1-18-evidence",
+      "oid": "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-exec-235-1-18-evidence\t39f53ca09f74e3bc5c385da7213bc1ce3953dcd8\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/agent-exec-235-1-29-authority",
+      "oid": "9a7fcba4c6ca218b4f119bea1355a79415764a07",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/agent-exec-235-1-29-authority\t9a7fcba4c6ca218b4f119bea1355a79415764a07\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "9a7fcba4c6ca218b4f119bea1355a79415764a07",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "9a7fcba4c6ca218b4f119bea1355a79415764a07",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/ci/phase-235-1-evidence",
+      "oid": "cdba0b3908a639e069d59c115c23ad23a51deb67",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/ci/phase-235-1-evidence\tcdba0b3908a639e069d59c115c23ad23a51deb67\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "cdba0b3908a639e069d59c115c23ad23a51deb67",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "cdba0b3908a639e069d59c115c23ad23a51deb67",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/ci/phase-235-16-source-complete",
+      "oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Required D-04 safety identity remains present at its current local name, type, and OID.",
+      "proof": {
+        "status": "passed",
+        "predicate": "required_D04_safety_ref_identity_present",
+        "source_rows": [
+          "local\trefs/heads/ci/phase-235-16-source-complete\tdd56ceb3220aca6c92899563e1079dc58fcd8cf8\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "local_refs",
+          "refs/heads/ci/phase-235-16-source-complete"
+        ],
+        "command_exit": 0,
+        "readback": "Current local ref identity equals its pinned Plan 41 identity (dd56ceb3220aca6c92899563e1079dc58fcd8cf8, commit).",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "0a8e5eead47ec541a3489190480d5b846d8c7257",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd-reviewfix/247-29317",
+      "oid": "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd-reviewfix/247-29317\tb9dc7b9f2d0878bb8214bbd67bce0267e5191733\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+      "oid": "54749e55112ba0c6f7227233100dd330e9290001",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/235-13-producer-manifest-chronology\t54749e55112ba0c6f7227233100dd330e9290001\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "54749e55112ba0c6f7227233100dd330e9290001",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "54749e55112ba0c6f7227233100dd330e9290001",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology-merge",
+      "oid": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/235-13-producer-manifest-chronology-merge\tf5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "c3b468895365be86bf25aac91d1105498a2648ae",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "c3b468895365be86bf25aac91d1105498a2648ae",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch gsd/238-generated-auth-runtime-proof-evidence is the head of current open PR #219.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "local\trefs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+          "github-api\t219\tOPEN\tgsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tmain\tf06137b2ac0e9b2094aa1250e3c036b41e997651"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "219"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #219 head is branch gsd/238-generated-auth-runtime-proof-evidence."
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/gsd/v1.48-b2c-adopter-readiness",
+      "oid": "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/gsd/v1.48-b2c-adopter-readiness\ta13e999f2afdc8ec9a31c58cd657c6de6d9a37f5\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/main",
+      "oid": "de9145daec2c94dab9043524ec8df94f7fb9d567",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch main is the base of current open PR #286.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "local\trefs/heads/main\tde9145daec2c94dab9043524ec8df94f7fb9d567\tcommit",
+          "github-api\t286\tOPEN\tdependabot/github_actions/actions/upload-artifact-7.0.1\t8ec669774d33eee30d7b92149808adf835bbd963\tmain\t5a00b90d2314bc93f27aec4090b5928018743d1b"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "286"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #286 base is branch main."
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-241-ci-reconcile",
+      "oid": "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/phase-241-ci-reconcile\tb7e9d7e52ab5d26b8d5624ddc9935e895ff8f409\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-242-execution",
+      "oid": "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/phase-242-execution\tff13fa7851a4750fc87ba8c290a7b4be391ca9f0\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-242-safety-closeout",
+      "oid": "5fad0e912a8c19189a4d1ed2471a113357c9c549",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/phase-242-safety-closeout\t5fad0e912a8c19189a4d1ed2471a113357c9c549\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "5fad0e912a8c19189a4d1ed2471a113357c9c549",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "5fad0e912a8c19189a4d1ed2471a113357c9c549",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-244-playwright-measurement",
+      "oid": "0c3a96a3348b481e0e3ba50e77f9dfd123caf529",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch is registered to the active worktree at the fresh Plan 44 captured HEAD.",
+      "proof": {
+        "status": "passed",
+        "predicate": "registered_worktree_branch_protected",
+        "source_rows": [
+          "local\trefs/heads/phase-244-playwright-measurement\t0c3a96a3348b481e0e3ba50e77f9dfd123caf529\tcommit",
+          "worktree\t/Users/jon/projects/sigra\trefs/heads/phase-244-playwright-measurement\t0c3a96a3348b481e0e3ba50e77f9dfd123caf529"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "worktree",
+          "list",
+          "--porcelain"
+        ],
+        "command_exit": 0,
+        "readback": "/Users/jon/projects/sigra registers refs/heads/phase-244-playwright-measurement at 0c3a96a3348b481e0e3ba50e77f9dfd123caf529.",
+        "prior_proof_revalidated": false
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/release-1.4.0-changelog",
+      "oid": "86728ee1f74913338675786fd871e845904ad8a0",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/release-1.4.0-changelog\t86728ee1f74913338675786fd871e845904ad8a0\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "86728ee1f74913338675786fd871e845904ad8a0",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "86728ee1f74913338675786fd871e845904ad8a0",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Required D-04 safety identity remains present at its current local name, type, and OID.",
+      "proof": {
+        "status": "passed",
+        "predicate": "required_D04_safety_ref_identity_present",
+        "source_rows": [
+          "local\trefs/heads/safety/local-main-before-release-cleanup-20260831\t04ae0ba753e4f0613df5b3f840955018742ffbb9\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "local_refs",
+          "refs/heads/safety/local-main-before-release-cleanup-20260831"
+        ],
+        "command_exit": 0,
+        "readback": "Current local ref identity equals its pinned Plan 41 identity (04ae0ba753e4f0613df5b3f840955018742ffbb9, commit).",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/v1.47-closeout",
+      "oid": "c76d9455315a836c06e423fa38a2429f1fc29486",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/v1.47-closeout\tc76d9455315a836c06e423fa38a2429f1fc29486\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "c76d9455315a836c06e423fa38a2429f1fc29486",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "c76d9455315a836c06e423fa38a2429f1fc29486",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/worktree-agent-p242-03",
+      "oid": "ee61cfb378dbe79de88482c714edeb7f098b469b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/worktree-agent-p242-03\tee61cfb378dbe79de88482c714edeb7f098b469b\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "ee61cfb378dbe79de88482c714edeb7f098b469b",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "ee61cfb378dbe79de88482c714edeb7f098b469b",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "4472ee78337e088ffc9abf254273f30e34c8d233",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "4472ee78337e088ffc9abf254273f30e34c8d233",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "local",
+      "ref": "refs/heads/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "local\trefs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/chore/phase-88-uat-evidence",
+      "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/chore/playwright-github-pages-ci",
+      "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "85a5c62952c21b26a165923abcdd2a4ef014461c",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/phase-235-1-evidence",
+      "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/phase-235-16-source-complete",
+      "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Required D-04 safety identity remains present at its current origin name, type, and OID.",
+      "proof": {
+        "status": "passed",
+        "predicate": "required_D04_safety_ref_identity_present",
+        "source_rows": [
+          "remote\trefs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/ci/phase-235-16-source-complete"
+        ],
+        "command_exit": 0,
+        "readback": "Current origin ref identity equals its pinned Plan 41 identity (e932a2c84fd356b5a3fe561fb9c77925fa836b34, commit).",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/phase-88-provenance",
+      "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/recapture-admin-checkpoints-30658359487",
+      "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "a8382aabafd76522eca1e63c3286980ec320edf7",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "a8382aabafd76522eca1e63c3286980ec320edf7",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/ci/recapture-admin-checkpoints-31043224661",
+      "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/github_actions/actions/upload-artifact-7.0.1",
+      "oid": "8ec669774d33eee30d7b92149808adf835bbd963",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/github_actions/actions/upload-artifact-7.0.1 is the head of current open PR #286.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/github_actions/actions/upload-artifact-7.0.1\t8ec669774d33eee30d7b92149808adf835bbd963\tcommit",
+          "github-api\t286\tOPEN\tdependabot/github_actions/actions/upload-artifact-7.0.1\t8ec669774d33eee30d7b92149808adf835bbd963\tmain\t5a00b90d2314bc93f27aec4090b5928018743d1b"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "286"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #286 head is branch dependabot/github_actions/actions/upload-artifact-7.0.1.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+      "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/hex/dialyxir-1.4.8 is the head of current open PR #267.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/dialyxir-1.4.8\t7eb414854c836f8b45784fca3ffb89ad623e8085\tcommit",
+          "github-api\t267\tOPEN\tdependabot/hex/dialyxir-1.4.8\t7eb414854c836f8b45784fca3ffb89ad623e8085\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "267"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #267 head is branch dependabot/hex/dialyxir-1.4.8.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+      "oid": "75b00619d287694ac55643584923011538933660",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/hex/ex_doc-0.40.4 is the head of current open PR #275.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/ex_doc-0.40.4\t75b00619d287694ac55643584923011538933660\tcommit",
+          "github-api\t275\tOPEN\tdependabot/hex/ex_doc-0.40.4\t75b00619d287694ac55643584923011538933660\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "275"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #275 head is branch dependabot/hex/ex_doc-0.40.4.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/mox-1.3.2",
+      "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/hex/mox-1.3.2 is the head of current open PR #272.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/mox-1.3.2\t85a9d29f645229c90bd30da8860147591e510aa9\tcommit",
+          "github-api\t272\tOPEN\tdependabot/hex/mox-1.3.2\t85a9d29f645229c90bd30da8860147591e510aa9\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "272"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #272 head is branch dependabot/hex/mox-1.3.2.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+      "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/hex/stream_data-1.4.0 is the head of current open PR #269.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/stream_data-1.4.0\tc6e0cc4083656155c14213a88de2a5c646516661\tcommit",
+          "github-api\t269\tOPEN\tdependabot/hex/stream_data-1.4.0\tc6e0cc4083656155c14213a88de2a5c646516661\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "269"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #269 head is branch dependabot/hex/stream_data-1.4.0.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+      "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/hex/threadline-0.10.1 is the head of current open PR #274.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/hex/threadline-0.10.1\t714b6e4ef377d81ada327f0b0840cfcf874ffb84\tcommit",
+          "github-api\t274\tOPEN\tdependabot/hex/threadline-0.10.1\t714b6e4ef377d81ada327f0b0840cfcf874ffb84\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "274"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #274 head is branch dependabot/hex/threadline-0.10.1.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0",
+      "oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0 is the head of current open PR #285.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0\t5c414c4cec975fcf2755664f6ee294a4760fbe93\tcommit",
+          "github-api\t285\tOPEN\tdependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0\t5c414c4cec975fcf2755664f6ee294a4760fbe93\tmain\t5a00b90d2314bc93f27aec4090b5928018743d1b"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "285"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #285 head is branch dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+      "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0 is the head of current open PR #268.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0\tfcb165adbd4c9d8cc0f09eef1091334495a4700f\tcommit",
+          "github-api\t268\tOPEN\tdependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0\tfcb165adbd4c9d8cc0f09eef1091334495a4700f\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "268"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #268 head is branch dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+      "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0 is the head of current open PR #273.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0\te8c028591ccd806180f0ea048ad5278028fc7c0f\tcommit",
+          "github-api\t273\tOPEN\tdependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0\te8c028591ccd806180f0ea048ad5278028fc7c0f\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "273"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #273 head is branch dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+      "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5 is the head of current open PR #271.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5\t8bb65f8f78d726318dad6c81361009dada8b917c\tcommit",
+          "github-api\t271\tOPEN\tdependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5\t8bb65f8f78d726318dad6c81361009dada8b917c\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "271"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #271 head is branch dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/docs/phase-240-planning",
+      "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/elevate-03-wave-v144-pr",
+      "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-782328e65c13",
+      "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "782328e65c134dc4b1f9bba522190838366bf08d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "782328e65c134dc4b1f9bba522190838366bf08d",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-b09d04bf7bc3",
+      "oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-b09d04bf7bc3\tb09d04bf7bc35389bfffa9c110970ebedb9acf96\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-c4036a571eeb",
+      "oid": "c4036a571eebe113b2aa819c4605b56030d2457b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-c4036a571eeb\tc4036a571eebe113b2aa819c4605b56030d2457b\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "c4036a571eebe113b2aa819c4605b56030d2457b",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "c4036a571eebe113b2aa819c4605b56030d2457b",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+      "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch evidence/phase-241-final-head-cd1e7e1252da is the head of current open PR #266.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-cd1e7e1252da\tcd1e7e1252da9388727641160d45bb4f1bf4f1d6\tcommit",
+          "github-api\t266\tOPEN\tevidence/phase-241-final-head-cd1e7e1252da\tcd1e7e1252da9388727641160d45bb4f1bf4f1d6\tmain\tfed35a4a3725d217486f45a571421dbbf5721765"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "266"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #266 head is branch evidence/phase-241-final-head-cd1e7e1252da.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-d949725a313a",
+      "oid": "d949725a313a25bfab59350acd29c045df033cdc",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-d949725a313a\td949725a313a25bfab59350acd29c045df033cdc\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "d949725a313a25bfab59350acd29c045df033cdc",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "d949725a313a25bfab59350acd29c045df033cdc",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/phase-241-final-head-f822381d0ab0",
+      "oid": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/phase-241-final-head-f822381d0ab0\tf822381d0ab07928800b53b6ce4c46c06d4e2cdc\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "0a8e5eead47ec541a3489190480d5b846d8c7257",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gh-pages",
+      "oid": "a5e4c3be3422831eab8169982faa8034887075ed",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The recovered live origin branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/gh-pages\ta5e4c3be3422831eab8169982faa8034887075ed\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "a5e4c3be3422831eab8169982faa8034887075ed",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "a5e4c3be3422831eab8169982faa8034887075ed",
+        "prior_proof_revalidated": false
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+      "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "c3b468895365be86bf25aac91d1105498a2648ae",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "c3b468895365be86bf25aac91d1105498a2648ae",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch gsd/238-generated-auth-runtime-proof-evidence is the head of current open PR #219.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+          "github-api\t219\tOPEN\tgsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tmain\tf06137b2ac0e9b2094aa1250e3c036b41e997651"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "219"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #219 head is branch gsd/238-generated-auth-runtime-proof-evidence.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/main",
+      "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch main is the base of current open PR #286.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit",
+          "github-api\t286\tOPEN\tdependabot/github_actions/actions/upload-artifact-7.0.1\t8ec669774d33eee30d7b92149808adf835bbd963\tmain\t5a00b90d2314bc93f27aec4090b5928018743d1b"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "286"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #286 base is branch main.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-242-execution",
+      "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-242-hex-remediation-infrastructure",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "17f946554e8c9df5279e1aa42636b48fea229962",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "17f946554e8c9df5279e1aa42636b48fea229962",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-full-baseline-capture",
+      "oid": "3421f1dfbc127b7373afb1a1db54556025670fc2",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-full-baseline-capture\t3421f1dfbc127b7373afb1a1db54556025670fc2\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "3421f1dfbc127b7373afb1a1db54556025670fc2",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "3421f1dfbc127b7373afb1a1db54556025670fc2",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-full-webkit",
+      "oid": "3e8d9e86d382000a7b5b2aca429239848698a490",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-full-webkit\t3e8d9e86d382000a7b5b2aca429239848698a490\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "3e8d9e86d382000a7b5b2aca429239848698a490",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "3e8d9e86d382000a7b5b2aca429239848698a490",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-measure-workflow-fix",
+      "oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-measure-workflow-fix\tb7fd3584daf9bb992e4f4991c52d2c82b21f348d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-render-webkit-path",
+      "oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-render-webkit-path\t1a559d40346d00dc47b0ffc203622fbe89ed7a5f\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-routing-pr",
+      "oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-routing-pr\t305977fd853ccc12be7cd9b4ab7b79252faa98d1\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-share-beam-setup",
+      "oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-share-beam-setup\tfb24b27c7e2ab196260faa72a338ca4b2a41b995\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244-webkit-deps",
+      "oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/phase-244-webkit-deps\t903d4cb583411244befe4a2ab8294e6ef8ce6475\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/phase-244/measurement",
+      "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch phase-244/measurement is the head of current open PR #283.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/phase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tcommit",
+          "github-api\t283\tOPEN\tphase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tmain\t5a00b90d2314bc93f27aec4090b5928018743d1b"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "283"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #283 head is branch phase-244/measurement.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/release-please--branches--main",
+      "oid": "276e8c3fc504d2c0497d801083668267327fab84",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Branch release-please--branches--main is the head of current open PR #224.",
+      "proof": {
+        "status": "passed",
+        "predicate": "open_pr_head_or_base_branch_protected",
+        "source_rows": [
+          "remote\trefs/heads/release-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tcommit",
+          "github-api\t224\tOPEN\trelease-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tmain\t5a00b90d2314bc93f27aec4090b5928018743d1b"
+        ],
+        "command": [
+          "captured-current-contract",
+          "open_prs",
+          "224"
+        ],
+        "command_exit": 0,
+        "readback": "OPEN PR #224 head is branch release-please--branches--main.",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "Required D-04 safety identity remains present at its current origin name, type, and OID.",
+      "proof": {
+        "status": "passed",
+        "predicate": "required_D04_safety_ref_identity_present",
+        "source_rows": [
+          "remote\trefs/heads/safety/local-main-before-release-cleanup-20260831\t04ae0ba753e4f0613df5b3f840955018742ffbb9\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/safety/local-main-before-release-cleanup-20260831"
+        ],
+        "command_exit": 0,
+        "readback": "Current origin ref identity equals its pinned Plan 41 identity (04ae0ba753e4f0613df5b3f840955018742ffbb9, commit).",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/v1.1-pr",
+      "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/worktree-agent-p242-03",
+      "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "907d875f5e0953777ffde0657e59082bf68d9e21",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "907d875f5e0953777ffde0657e59082bf68d9e21",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "4472ee78337e088ffc9abf254273f30e34c8d233",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "4472ee78337e088ffc9abf254273f30e34c8d233",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "remote",
+      "ref": "refs/heads/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The branch contains a commit not reachable from the exact current origin default.",
+      "proof": {
+        "status": "passed",
+        "predicate": "candidate_tip_has_commit_not_reachable_from_live_origin_default",
+        "source_rows": [
+          "remote\trefs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "/usr/bin/git",
+          "rev-list",
+          "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+          "--not",
+          "5a00b90d2314bc93f27aec4090b5928018743d1b",
+          "--max-count=1"
+        ],
+        "command_exit": 0,
+        "readback": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/chore/phase-88-uat-evidence",
+      "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
+          "remote\trefs/heads/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/chore/phase-88-uat-evidence"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/chore/phase-88-uat-evidence\tdd28b05b6d58b7b26be645a40ba1bb1e3f6283ca\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/chore/playwright-github-pages-ci",
+      "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
+          "remote\trefs/heads/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/chore/playwright-github-pages-ci"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/chore/playwright-github-pages-ci\t85a5c62952c21b26a165923abcdd2a4ef014461c\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/phase-235-1-evidence",
+      "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
+          "remote\trefs/heads/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/ci/phase-235-1-evidence"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/phase-235-1-evidence\tac7d670a72e9209d9de61a7647c1e3da80663a3a\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/phase-235-16-source-complete",
+      "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit",
+          "remote\trefs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/ci/phase-235-16-source-complete"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/phase-235-16-source-complete\te932a2c84fd356b5a3fe561fb9c77925fa836b34\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/phase-88-provenance",
+      "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
+          "remote\trefs/heads/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/ci/phase-88-provenance"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/phase-88-provenance\tf26212cdf3ed13e1eaf3bb24993ed416f558a5ef\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-30658359487",
+      "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
+          "remote\trefs/heads/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/ci/recapture-admin-checkpoints-30658359487"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/recapture-admin-checkpoints-30658359487\ta8382aabafd76522eca1e63c3286980ec320edf7\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-31043224661",
+      "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
+          "remote\trefs/heads/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/ci/recapture-admin-checkpoints-31043224661"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/ci/recapture-admin-checkpoints-31043224661\t9d384bbbca746fe2a3eb3a56634f4a3fb8238653\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/docs/230-phase-complete",
+      "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+          "remote\trefs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/docs/230-phase-complete"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/docs/230-phase-complete\t84ab3a2aefa03fda4965c8fd989be1cdcfad70db\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/docs/phase-240-planning",
+      "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
+          "remote\trefs/heads/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/docs/phase-240-planning"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/docs/phase-240-planning\tac827a3bc916fc8b7612cf92956998bb96066e2d\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/elevate-03-wave-v144-pr",
+      "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
+          "remote\trefs/heads/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/elevate-03-wave-v144-pr"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/elevate-03-wave-v144-pr\tbe55e83360a50427d7ee9fc0633b3a05083aecbc\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/evidence/phase-241-final-head-782328e65c13",
+      "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
+          "remote\trefs/heads/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/evidence/phase-241-final-head-782328e65c13"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/evidence/phase-241-final-head-782328e65c13\t782328e65c134dc4b1f9bba522190838366bf08d\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/evidence/request-21-f061",
+      "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+          "remote\trefs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/evidence/request-21-f061"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/evidence/request-21-f061\t0a8e5eead47ec541a3489190480d5b846d8c7257\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46",
+      "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+          "remote\trefs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46\tb8d71e3af866dd5b3456610cdbfd9dd16904cfb5\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gh-pages",
+      "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gh-pages\tdd671004a276c24fafa8ece80e341706085a999e\tcommit",
+          "remote\trefs/heads/gh-pages\t74e6bda47b3d4eb3354eeefc1adf33b67e82a23e\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/gh-pages"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gh-pages\t74e6bda47b3d4eb3354eeefc1adf33b67e82a23e\tcommit",
+        "tracking_ref_tip_differs_from_live_origin": true,
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/235-13-producer-manifest-chronology",
+      "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
+          "remote\trefs/heads/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/gsd/235-13-producer-manifest-chronology"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gsd/235-13-producer-manifest-chronology\tb79ee6ae83e98a4bc638a9a1cbe8812efde3c471\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/237-238-clean-baseline",
+      "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+          "remote\trefs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/gsd/237-238-clean-baseline"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gsd/237-238-clean-baseline\tc3b468895365be86bf25aac91d1105498a2648ae\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence",
+      "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+          "remote\trefs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/gsd/238-generated-auth-runtime-proof-evidence"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence\t78e08d09135d4d0ae0d3e5636ef166d60d1d82f3\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-232-playwright-economics",
+      "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+          "remote\trefs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/gsd/phase-232-playwright-economics"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/gsd/phase-232-playwright-economics\t97317ae74cf508e8d7677df17da9d3a4f1b40cb6\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/main",
+      "oid": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/main\t6f14c04a26dc69125b2aa00f89c3d905b3c4bafa\tcommit",
+          "remote\trefs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/main"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/main\t5a00b90d2314bc93f27aec4090b5928018743d1b\tcommit",
+        "tracking_ref_tip_differs_from_live_origin": true,
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/phase-242-execution",
+      "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
+          "remote\trefs/heads/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/phase-242-execution"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/phase-242-execution\td7d78eb85e4f8769172741d3682a0941bba25d5b\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/phase-242-hex-remediation-infrastructure",
+      "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+          "remote\trefs/heads/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/phase-242-hex-remediation-infrastructure"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/phase-242-hex-remediation-infrastructure\t17f946554e8c9df5279e1aa42636b48fea229962\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/phase-244/measurement",
+      "oid": "f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/phase-244/measurement\tf5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac\tcommit",
+          "remote\trefs/heads/phase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/phase-244/measurement"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/phase-244/measurement\tf62e252648db66706cf27c3e37241fcd7b78a3de\tcommit",
+        "tracking_ref_tip_differs_from_live_origin": true,
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/release-please--branches--main",
+      "oid": "70ba005a694540e488a2e705950c4135268642ad",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/release-please--branches--main\t70ba005a694540e488a2e705950c4135268642ad\tcommit",
+          "remote\trefs/heads/release-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/release-please--branches--main"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/release-please--branches--main\t276e8c3fc504d2c0497d801083668267327fab84\tcommit",
+        "tracking_ref_tip_differs_from_live_origin": true,
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.1-pr",
+      "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
+          "remote\trefs/heads/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/v1.1-pr"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/v1.1-pr\t529ed57bec6ff6499ec15681ddfd3772e56c3d28\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "reason": "At the fresh Plan 44 source capture, the exact nonsymbolic tracking ref is present at the expected commit; complete live origin refs contain no matching branch head, and none of the 14 complete open PRs uses this branch name as head or base. This is the sole eligible deletion; a separate Plan 44 decision is still required.",
+      "disposition": "delete",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_absent_and_unprotected",
+        "source_rows": [
+          "local\trefs/remotes/origin/v1.37-auth-branding-admin-polish\tb9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f\tcommit",
+          "origin_absent\trefs/heads/v1.37-auth-branding-admin-polish",
+          "open_pr_head_base_absent\tv1.37-auth-branding-admin-polish"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "open_prs",
+          "refs/heads/v1.37-auth-branding-admin-polish"
+        ],
+        "command_exit": 0,
+        "readback": "Complete origin inventory (51 branch heads) has no refs/heads/v1.37-auth-branding-admin-polish; complete current open-PR inventory (14 rows) has no matching head or base; the local ref is nonsymbolic at the expected OID."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/worktree-agent-p242-03",
+      "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
+          "remote\trefs/heads/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/worktree-agent-p242-03"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/worktree-agent-p242-03\t907d875f5e0953777ffde0657e59082bf68d9e21\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/worktree-agent-p242-11",
+      "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+          "remote\trefs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/worktree-agent-p242-11"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/worktree-agent-p242-11\t4472ee78337e088ffc9abf254273f30e34c8d233\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/worktree-agent-p242-13",
+      "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+          "remote\trefs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/worktree-agent-p242-13"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/worktree-agent-p242-13\t9dec6a76bcda32e481b4b60acd31ed1d8da4168d\tcommit",
+        "prior_proof_revalidated": true
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/worktree-agent-p242-artifacts",
+      "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+      "type": "commit",
+      "disposition": "keep",
+      "reason": "The exact corresponding branch name remains live on origin.",
+      "proof": {
+        "status": "passed",
+        "predicate": "exact_live_origin_branch_present",
+        "source_rows": [
+          "local\trefs/remotes/origin/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+          "remote\trefs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit"
+        ],
+        "command": [
+          "captured-current-contract",
+          "origin_refs",
+          "refs/heads/worktree-agent-p242-artifacts"
+        ],
+        "command_exit": 0,
+        "readback": "refs/heads/worktree-agent-p242-artifacts\t18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46\tcommit",
+        "prior_proof_revalidated": true
+      }
+    }
+  ],
+  "rows": [
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "reason": "At the fresh Plan 44 source capture, the exact nonsymbolic tracking ref is present at the expected commit; complete live origin refs contain no matching branch head, and none of the 14 complete open PRs uses this branch name as head or base. This is the sole eligible deletion; a separate Plan 44 decision is still required."
+    }
+  ],
+  "refs_already_applied": [
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+      "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+      "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+      "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+      "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+      "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+      "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+      "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-context",
+      "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-plans",
+      "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/phase-241-research",
+      "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+      "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+      "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+      "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+      "type": "commit",
+      "status": "confirmed_absent",
+      "proof": {
+        "status": "passed",
+        "predicate": "plan41_exact_expected_oid_absent_in_both_postcaptures",
+        "plan41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+        "capture_sha256s": [
+          "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+          "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+        ],
+        "readback": "Absent in both complete committed Plan 41 post-captures and absent in the current local ref inventory; object remains typed and readable."
+      }
+    }
+  ],
+  "refs_remaining": [
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "status": "present_at_expected_oid",
+      "approval": "not_requested"
+    }
+  ],
+  "unresolved_candidates": [],
+  "failed_predicates": [],
+  "checks": {
+    "planning_preflight_ready_and_not_authority": true,
+    "phase244_and_D06_readiness_passed": true,
+    "plan18_snapshot_pinned_and_all_129_ref_objects_readable": true,
+    "plan41_contract_result_and_embedded_capture_digests_rechecked": true,
+    "plan41_13_applied_rows_absent_and_objects_readable": true,
+    "plan41_remaining_ref_exact_present": true,
+    "complete_candidate_census": true,
+    "zero_unresolved_candidates": true,
+    "one_to_one_allowlist": true,
+    "all_keep_and_delete_proofs_passed": true,
+    "current_capture_typed_objects_readable": true,
+    "safety_refs_exact_and_unchanged": true,
+    "origin_default_unchanged": true,
+    "live_open_pr_inventory_complete_and_cli_agrees": true,
+    "coordinator_verified_free_zero_leases": true,
+    "pinned_git": "/usr/bin/git",
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "approval_requested": false
+  },
+  "pinned_inputs": [
+    {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+      "blob": "57275812af48b9b45f092680deea291609ff44ce",
+      "sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456"
+    },
+    {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv",
+      "blob": "82c31ff5df13d9696e5a34123d4e6b5d3356edf1",
+      "sha256": "0531a7981fc75654a77bdbf0752707dd497d6c9ddaa1ab53dd278f4641150efa"
+    },
+    {
+      "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "blob": "05621c5c0c313848deefe0fd8493648724289a1f",
+      "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193"
+    },
+    {
+      "commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-41-RESULT.json",
+      "blob": "b042a558078c0b74c92f3387da9b78b415b15f78",
+      "sha256": "d5c5c3d6c184498316a8e2167c3651baeb7898c94585976de4c08edd20f45971"
+    },
+    {
+      "commit": "86b7ddc6ed6b5748a7358d62a5262a83abe58441",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-42-RESULT.json",
+      "blob": "cb29c30ac010818f7a6e2edc39916e09cd2fe152",
+      "sha256": "2f79183e96ad9f2629f45b5bf136c9304dbd6a226ff135c8cae53bb8a64bb421"
+    },
+    {
+      "commit": "048199c7b4f1d0ceed9aa93044d1557df71192d3",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-43-D06-READINESS.json",
+      "blob": "3240cce7567f0acd9830f67f7a477a5b07f129cc",
+      "sha256": "9ae112fd3d662af588a317a2ac83885f800431f8527a6bef33f645fef10150fb"
+    },
+    {
+      "commit": "048199c7b4f1d0ceed9aa93044d1557df71192d3",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-43-OBJECT-RECOVERY.json",
+      "blob": "68506048f852c6b5f09b8a3beadd3402ec8de91e",
+      "sha256": "3a1a6486f85acc433a15c0f6ffb65c4ffa322a6f665f4825632fa5ec2b4c17d3"
+    }
+  ],
+  "evidence": {
+    "source_digests": {
+      "local_refs": "ba36e3022ad436cf8e53c2e4b35c2ed64abb7c72eb1c6cd0d27d1b4424c16571",
+      "origin_refs": "09c307e58f15d1e3d7cde541466571a3d26a8b20255c9e758ddac0dbd8f7eda7",
+      "open_prs": "e123ab15ddfa674a25d9c085217bcbc6b384c65e43fc80a5fe9f4db87a95b002"
+    },
+    "typed_object_audit": {
+      "unique_oid_type_pairs": 350,
+      "readable": 350,
+      "failures": 0,
+      "scopes": [
+        "Plan 44 complete current local/origin direct/peeled refs",
+        "Plan 44 current open-PR head/base OIDs",
+        "committed Plan 18 snapshot separately verified:129 refs"
+      ]
+    },
+    "plan23_readiness": {
+      "status": "ready",
+      "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99"
+    },
+    "plan43_d06": {
+      "verdict": "ready",
+      "commit": "048199c7b4f1d0ceed9aa93044d1557df71192d3",
+      "failed_predicates": []
+    },
+    "plan41_reconciliation": {
+      "result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+      "contract_commit": "5c704e0eba7556026ed97df5846eb5170144b01d",
+      "approved_rows": 14,
+      "confirmed_absent": 13,
+      "exact_present": {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+        "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+        "type": "commit",
+        "reason": "At fresh Plan 41 capture from b4350becbd89d8b368c42d40cade322298f8dfa1, exact live origin branch refs/heads/v1.37-auth-branding-admin-polish is absent; its exact local tracking identity is eligible for deletion."
+      },
+      "local_identity_delta": {
+        "ref": "refs/heads/phase-244-playwright-measurement",
+        "old_oid": "b4350becbd89d8b368c42d40cade322298f8dfa1",
+        "current_oid": "7d4c4a8591fe0a60b58be8667b23bb6802b99d5d"
+      },
+      "source_deltas": {
+        "origin_ref_changes": 0,
+        "open_pr_identity_changes": 0,
+        "local_missing_exactly_prior_applied": true
+      }
+    },
+    "safety_identities": [
+      {
+        "ref": "refs/heads/ci/phase-235-16-source-complete",
+        "local": {
+          "oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+          "type": "commit"
+        },
+        "origin": {
+          "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+          "type": "commit"
+        }
+      },
+      {
+        "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+        "local": {
+          "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+          "type": "commit"
+        },
+        "origin": {
+          "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+          "type": "commit"
+        }
+      },
+      {
+        "ref": "refs/tags/archive/local-main-pre-235-recovery",
+        "local": {
+          "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+          "type": "commit"
+        },
+        "origin": {
+          "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+          "type": "commit"
+        }
+      }
+    ],
+    "worktrees": {
+      "command": [
+        "/usr/bin/git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "records": [
+        {
+          "worktree": "/Users/jon/projects/sigra",
+          "HEAD": "0c3a96a3348b481e0e3ba50e77f9dfd123caf529",
+          "branch": "refs/heads/phase-244-playwright-measurement"
+        }
+      ],
+      "active_branch_registered": true
+    },
+    "allowlist_sha256": "7c0b089cee4ff67125beef34eb03217c18d51e71fc86003ad0b20e2e52e2302c",
+    "historical_sources": {
+      "pr_11_rows": "unresolved",
+      "cleanup_30_rows": "unresolved"
+    }
+  },
+  "repo_04_status": "open",
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "approval": {
+    "decision": "not_requested",
+    "reason": "Task 2 is a separate blocking-human decision bound to the committed Plan 44 contract and allowlist."
+  }
+}
