@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 49,
+  "status": "blocked_missing_full_window_source_and_trust_root",
+  "representative_pair": "236:git gc",
+  "representative_disposition": "unknown",
+  "representative_phase_window": {
+    "start": {
+      "kind": "first_committed_phase_plan",
+      "commit_oid": "b6e889c42af9c0719e9e4b75da1f145ded95700e",
+      "committed_at": "2026-09-16T03:29:52.000Z",
+      "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md",
+      "blob_oid": "70aef7c18cb55d6164e7751d2da4475343a6647e"
+    },
+    "end": {
+      "kind": "latest_passed_phase_verification",
+      "commit_oid": "1d512e69de12a3ae964f6a84c3ad43fa5da40d10",
+      "committed_at": "2026-09-25T16:01:00.000Z",
+      "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-VERIFICATION.md",
+      "blob_oid": "f989a6903343242ca02e7fe94aa56219de1b67a9"
+    }
+  },
+  "representative_eligible_sources": [],
+  "representative_missing_sources": [
+    "complete_command_history",
+    "independent_trust_root"
+  ],
+  "representative_existing_blockers": [
+    "no_committed_direct_command_history_source"
+  ],
+  "phase_source_gaps": [
+    {
+      "phase": 236,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 237,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 238,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 239,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 240,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 241,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 242,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 243,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 244,
+      "gaps": [
+        "available committed logs are bounded operation records and do not attest complete command history"
+      ],
+      "available_sources": [
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-GAP-CLOSURE-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-POST-REVIEW-MIX-CI-LOG.txt"
+      ]
+    },
+    {
+      "phase": 245,
+      "gaps": [
+        "available committed logs are bounded operation records and do not attest complete command history",
+        "verification_not_passed:gaps_found"
+      ],
+      "available_sources": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-REMOTE-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-07-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-GAP-CODE-TESTS.tap",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SAFETY-BRANCH-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SANDBOX-RETRY-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json"
+      ]
+    }
+  ],
+  "phase_source_gap_count": 10,
+  "uncovered_pair_count": 30,
+  "trust_contract": "ed25519-recorder-attestation-v1",
+  "trust_environment_variable_set": false,
+  "committed_trust_key_candidate_paths": 0,
+  "signed_full_window_event_sequence_present": false,
+  "independent_recorder_trust_root_present": false,
+  "bounded_operation_logs_are_full_history": false,
+  "repeated_searches": 0,
+  "cleanup_operations": 0,
+  "ref_operations": 0,
+  "pr_operations": 0,
+  "source_digests": {
+    "planning_preflight_sha256": "57b5e34ec610c408ce5c4b2b0377307b4d5be421d9166c352d93d16d9604cba2",
+    "inventory_sha256": "16020dae08cc2bb14d97f9811f0db5c43078157a4b158f2b3214b2560d3f369b",
+    "current_audit_sha256": "eb9f141fce4499a9c244e576dc151561510adb2fa9146861d09ca4a610674518"
+  },
+  "reason": "245-15-CLEANUP-SOURCE-INVENTORY.json and 245-MILESTONE-CLEANUP-AUDIT.json identify no independently trusted complete command-history stream for any phase window; repository path checks found no committed recorder trust key. Current logs are bounded operation records.",
+  "next_source_discovery_requires": "fresh_D-06_source_gate"
+}
