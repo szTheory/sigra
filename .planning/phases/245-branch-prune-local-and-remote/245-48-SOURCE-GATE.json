@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 48,
+  "status": "blocked_missing_authoritative_baseline",
+  "source_policy": "D-06/D-07: local Git checkout and GitHub only; a changed source state requires a fresh D-06 gate",
+  "observation_source": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-46-PLANNING-PREFLIGHT.json",
+    "captured_at_utc": "2026-10-05T20:56:57Z",
+    "observation": "historical_pr_baseline",
+    "reused_without_new_lookup": true
+  },
+  "sources": {
+    "commit": {
+      "oid": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "local_command": "git cat-file -t 9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "local_exit": 128,
+      "github_endpoint": "/repos/szTheory/sigra/git/commits/9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "github_http": 404
+    },
+    "blobs": [
+      {
+        "role": "baseline_state",
+        "oid": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "local_command": "git cat-file -t 913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "local_exit": 128,
+        "github_endpoint": "/repos/szTheory/sigra/git/blobs/913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "github_http": 404
+      },
+      {
+        "role": "baseline_evidence",
+        "oid": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+        "local_command": "git cat-file -t eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+        "local_exit": 128,
+        "github_endpoint": "/repos/szTheory/sigra/git/blobs/eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+        "github_http": 404
+      }
+    ]
+  },
+  "old_audits": {
+    "identity": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-PR-IDENTITY-AUDIT.json",
+      "audit_id": "e897a9ea-3808-49bb-8751-1d32207e3424",
+      "sha256": "5aad409061ed3b28820e3c37873dfabf701759b8725538e671cac790a18abec3",
+      "captured_at_utc": "2026-09-28T01:16:03.959Z"
+    },
+    "integrity": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json",
+      "integrity_id": "885c9fd1-5e97-481f-a98b-2bdf9a2c362e",
+      "sha256": "8861d39a207145892ce2d95180d8a244b8d077915f6aea9df34e82ab1d0d9e35",
+      "created_at_utc": "2026-09-28T01:19:54.255Z",
+      "source_commit": "adb15816b6ace5aca4392679b3d775c0158bbe47",
+      "source_blob": "4414693790b11c19b93c8d565ab55d2d6ebbe0e8"
+    }
+  },
+  "coverage_window": {
+    "required": "the pinned historical baseline at commit 9c0a6b818d2d58858b5db274cc1cf0a9803f69f5 and independently pinned contemporaneous PR identity evidence for the 11 recorded keys",
+    "audit_capture_start_utc": "2026-09-28T01:15:42.324Z",
+    "audit_capture_end_utc": "2026-09-28T01:19:54.255Z",
+    "authoritative_baseline_readable": false,
+    "independent_contemporaneous_corroboration_established": false,
+    "present_day_ref_or_pr_state_is_historical_proof": false
+  },
+  "representative_row": 219,
+  "representative_required_evidence": {
+    "pinned_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+    "pinned_state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+    "pinned_evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+    "independent_corroboration": "contemporaneously pinned PR #219 number, base ref main, and base OID f06137b2ac0e9b2094aa1250e3c036b41e997651"
+  },
+  "representative_disposition": "unresolved",
+  "missing_provenance": [
+    "The pinned historical commit is unavailable in local Git (exit 128) and GitHub Git commit API (HTTP 404).",
+    "Both cited historical baseline blobs are unavailable in local Git (exit 128) and GitHub Git blob API (HTTP 404).",
+    "PR #219 cannot be promoted without those historical blobs and independent contemporaneous corroboration of its number, base ref, and base OID."
+  ],
+  "repeated_searches": 0,
+  "pr_mutations": 0,
+  "ref_mutations": 0
+}
