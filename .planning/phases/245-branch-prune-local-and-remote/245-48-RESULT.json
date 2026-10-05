@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 48,
+  "status": "blocked",
+  "source_gate_status": "blocked_missing_authoritative_baseline",
+  "source_gate": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-48-SOURCE-GATE.json",
+    "sha256": "114f930ee009fe1c9b4128e5cd9029df00ef1dd8eec261f6389ff0c9df615b28"
+  },
+  "repo_04_status": "open",
+  "historical_pr_base_identity_status": "unresolved",
+  "pr_mutations": 0,
+  "ref_mutations": 0,
+  "repeated_searches": 0,
+  "row_count": 11,
+  "source_coverage": {
+    "required": "the pinned historical baseline at commit 9c0a6b818d2d58858b5db274cc1cf0a9803f69f5 and independently pinned contemporaneous PR identity evidence for the 11 recorded keys",
+    "audit_capture_start_utc": "2026-09-28T01:15:42.324Z",
+    "audit_capture_end_utc": "2026-09-28T01:19:54.255Z",
+    "authoritative_baseline_readable": false,
+    "independent_contemporaneous_corroboration_established": false,
+    "present_day_ref_or_pr_state_is_historical_proof": false
+  },
+  "command_status_provenance": {
+    "observation_source": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-46-PLANNING-PREFLIGHT.json",
+      "captured_at_utc": "2026-10-05T20:56:57Z",
+      "observation": "historical_pr_baseline",
+      "reused_without_new_lookup": true
+    },
+    "commit": {
+      "oid": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "local_command": "git cat-file -t 9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "local_exit": 128,
+      "github_endpoint": "/repos/szTheory/sigra/git/commits/9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "github_http": 404
+    },
+    "blobs": [
+      {
+        "role": "baseline_state",
+        "oid": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "local_command": "git cat-file -t 913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "local_exit": 128,
+        "github_endpoint": "/repos/szTheory/sigra/git/blobs/913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "github_http": 404
+      },
+      {
+        "role": "baseline_evidence",
+        "oid": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+        "local_command": "git cat-file -t eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+        "local_exit": 128,
+        "github_endpoint": "/repos/szTheory/sigra/git/blobs/eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+        "github_http": 404
+      }
+    ],
+    "prior_source_evidence": [
+      ".planning/phases/245-branch-prune-local-and-remote/245-14-BASELINE-BLOCKER.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-17-SOURCE-PREFLIGHT.json"
+    ]
+  },
+  "old_audits": {
+    "identity": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-PR-IDENTITY-AUDIT.json",
+      "audit_id": "e897a9ea-3808-49bb-8751-1d32207e3424",
+      "sha256": "5aad409061ed3b28820e3c37873dfabf701759b8725538e671cac790a18abec3",
+      "captured_at_utc": "2026-09-28T01:16:03.959Z"
+    },
+    "integrity": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json",
+      "integrity_id": "885c9fd1-5e97-481f-a98b-2bdf9a2c362e",
+      "sha256": "8861d39a207145892ce2d95180d8a244b8d077915f6aea9df34e82ab1d0d9e35",
+      "created_at_utc": "2026-09-28T01:19:54.255Z",
+      "source_commit": "adb15816b6ace5aca4392679b3d775c0158bbe47",
+      "source_blob": "4414693790b11c19b93c8d565ab55d2d6ebbe0e8"
+    }
+  },
+  "old_integrity_outcome": "blocked",
+  "resolution_contract": "Each historical row requires both pinned baseline blobs at the pinned commit and independent contemporaneous corroboration of PR number, base ref, and base OID. A current PR or main ref observation cannot meet this contract.",
+  "rows": [
+    {
+      "number": 219,
+      "historical_base_ref": "main",
+      "historical_base_oid": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/0",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 219,
+        "base_ref": "main",
+        "base_oid": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 266,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/1",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 266,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 267,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/2",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 267,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 268,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/3",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 268,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 269,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/4",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 269,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 270,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/5",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 270,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 271,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/6",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 271,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 272,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/7",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 272,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 273,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/8",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 273,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 274,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/9",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 274,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    },
+    {
+      "number": 275,
+      "historical_base_ref": "main",
+      "historical_base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "historical_base_oid_origin": "old_integrity_audit_recorded_key_unverified",
+      "old_audit_disposition": "unresolved",
+      "old_audit_pointer": "/checked_historical_rows/10",
+      "required_pinned_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "required_independent_corroboration": {
+        "number": 275,
+        "base_ref": "main",
+        "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "contemporaneous_pin_established": false
+      },
+      "disposition": "unresolved",
+      "reason": "missing_authoritative_historical_commit_and_blobs"
+    }
+  ],
+  "blockers": [
+    {
+      "number": 219,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 266,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 267,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 268,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 269,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 270,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 271,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 272,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 273,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 274,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    },
+    {
+      "number": 275,
+      "reason": "missing_authoritative_historical_commit_and_blobs",
+      "missing_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "missing_blobs": [
+        "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      ],
+      "independent_contemporaneous_corroboration_established": false
+    }
+  ],
+  "next_source_action": "A changed source state requires a new D-06 source gate under the unchanged historical acceptance contract."
+}
