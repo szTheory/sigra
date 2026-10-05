@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
@@ -11,6 +12,8 @@ const OPERATOR = join(ROOT, "scripts/maintainers/prune-stale-branches.sh");
 const READINESS = join(ROOT, "scripts/maintainers/prune-stale-branches-readiness.mjs");
 const RECEIPT = ".planning/phases/245-branch-prune-local-and-remote/245-READINESS.json";
 const PHASE_DIR = ".planning/phases/245-branch-prune-local-and-remote";
+const PLAN45_RESULT = join(ROOT, PHASE_DIR, "245-45-RESULT.json");
+const DIAGNOSTIC = join(ROOT, PHASE_DIR, "245-46-DIAGNOSTIC.json");
 const SOURCES = [
   ".planning/state.json",
   ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
@@ -119,6 +122,18 @@ function makeTrackingFixture(options = {}) {
   mkdirSync(bin);
   writeFileSync(ssh, `#!/usr/bin/env bash
 set -euo pipefail
+started_ns="$(node -p 'process.hrtime.bigint().toString()')"
+stage=git_transport_ls_remote
+[[ "$*" == *git-receive-pack* ]] && stage=git_transport_receive_pack
+rows="$(/usr/bin/git --git-dir="$PRUNE_FIXTURE_BARE" for-each-ref --format='%(refname)' | wc -l | tr -d ' ')"
+trace_exit() {
+  local status=$?
+  if [[ -n "\${PRUNE_FIXTURE_TRACE_FILE:-}" ]]; then
+    node -e 'const fs=require("node:fs"); const [path,stage,endpoint,start,end,status,rows,delay]=process.argv.slice(1); fs.appendFileSync(path, JSON.stringify({stage,endpoint,started_ns:start,ended_ns:end,elapsed_ms:Number(end-start)/1e6,status:Number(status),row_count:Number(rows),injected_latency_ms:Number(delay)})+"\\n")' \\
+      "$PRUNE_FIXTURE_TRACE_FILE" "$stage" "$*" "$started_ns" "$(node -p 'process.hrtime.bigint().toString()')" "$status" "$rows" "\${PRUNE_FIXTURE_DELAY_MS:-0}"
+  fi
+}
+trap trace_exit EXIT
 host_seen=0
 request=""
 for arg in "$@"; do
@@ -130,16 +145,41 @@ done
   || { echo "fixture SSH rejected request: $request" >&2; exit 92; }
 if [[ "\${PRUNE_FIXTURE_HOLD_SSH:-0}" == 1 ]]; then
   printf '%s\\n' "$$" > "$PRUNE_FIXTURE_HOLD_MARKER"
-  exec sleep 30
+  sleep 30 &
+  wait "$!"
 fi
+if [[ "\${PRUNE_FIXTURE_DELAY_MS:-0}" != 0 ]]; then sleep "0.$(printf '%03d' "$PRUNE_FIXTURE_DELAY_MS")"; fi
 if [[ "$request" == git-receive-pack* ]]; then
-  exec /usr/bin/git-receive-pack "$PRUNE_FIXTURE_BARE"
+  /usr/bin/git-receive-pack "$PRUNE_FIXTURE_BARE"
+  exit $?
 fi
-exec /usr/bin/git-upload-pack "$PRUNE_FIXTURE_BARE"
+/usr/bin/git-upload-pack "$PRUNE_FIXTURE_BARE"
+exit $?
 `);
   chmodSync(ssh, 0o755);
   writeFileSync(gh, `#!/usr/bin/env bash
 set -euo pipefail
+started_ns="$(node -p 'process.hrtime.bigint().toString()')"
+endpoint="$*"
+stage=github_cli
+[[ "$endpoint" == api* ]] && stage=github_rest_paging
+rows=0
+[[ "$endpoint" == pr* || "$endpoint" == *'/pulls?'* ]] && rows="\${PRUNE_FIXTURE_PR_COUNT:-0}"
+trace_exit() {
+  local status=$?
+  if [[ -n "\${PRUNE_FIXTURE_TRACE_FILE:-}" ]]; then
+    node -e 'const fs=require("node:fs"); const [path,stage,endpoint,start,end,status,rows,delay]=process.argv.slice(1); fs.appendFileSync(path, JSON.stringify({stage,endpoint,started_ns:start,ended_ns:end,elapsed_ms:Number(end-start)/1e6,status:Number(status),row_count:Number(rows),injected_latency_ms:Number(delay)})+"\\n")' \\
+      "$PRUNE_FIXTURE_TRACE_FILE" "$stage" "$endpoint" "$started_ns" "$(node -p 'process.hrtime.bigint().toString()')" "$status" "$rows" "\${PRUNE_FIXTURE_DELAY_MS:-0}"
+  fi
+}
+trap trace_exit EXIT
+if [[ "\${PRUNE_FIXTURE_HOLD_GH_PAGE:-0}" == 1 && "$endpoint" == *'/pulls?'* ]]; then
+  rows=0
+  printf '%s\\n' "$$" > "$PRUNE_FIXTURE_HOLD_MARKER"
+  sleep 30 &
+  wait "$!"
+fi
+if [[ "\${PRUNE_FIXTURE_DELAY_MS:-0}" != 0 ]]; then sleep "0.$(printf '%03d' "$PRUNE_FIXTURE_DELAY_MS")"; fi
 case "$1" in
   auth) exit 0 ;;
   pr)
@@ -173,6 +213,33 @@ esac
   const oid = git(fixture.repo, "rev-parse", "HEAD");
   const trackingRef = "refs/remotes/origin/stale/fixture-only";
   git(fixture.repo, "update-ref", trackingRef, oid);
+  if (options.productionScale) {
+    let localCount = refs(fixture.repo).split("\n").filter(Boolean).length;
+    for (let index = 1; localCount < 106; index += 1) {
+      git(fixture.repo, "update-ref", `refs/heads/fixture-scale/local-${String(index).padStart(3, "0")}`, oid);
+      localCount += 1;
+    }
+    let originCount = git(bare, "for-each-ref", "--format=%(refname)").split("\n").filter(Boolean).length;
+    for (let index = 1; originCount < 360; index += 1) {
+      git(bare, "update-ref", `refs/heads/fixture-scale/origin-${String(index).padStart(3, "0")}`, oid);
+      originCount += 1;
+    }
+    git(fixture.repo, "fetch", "-q", "origin", "+refs/heads/*:refs/remotes/origin/*");
+    const pulls = [];
+    for (let index = 1; index <= 14; index += 1) {
+      const number = 9000 + index;
+      git(fixture.repo, "-c", "user.name=Fixture PR", "-c", "user.email=fixture-pr@example.invalid", "commit", "--allow-empty", "-q", "-m", `fixture PR ${number}`);
+      const headOid = git(fixture.repo, "rev-parse", "HEAD");
+      const headRefName = `fixture-scale/pr-${number}`;
+      git(fixture.repo, "update-ref", `refs/heads/${headRefName}`, headOid);
+      pulls.push({ number, state: "OPEN", headRefName, baseRefName: "main", headRefOid: headOid,
+        baseRefOid: oid, headRepository: { nameWithOwner: "szTheory/sigra" } });
+    }
+    options.contractPRs = pulls;
+    options.liveCliPRs = pulls;
+    options.liveApiPRs = pulls;
+    fixture.scale = { local_ref_count: localCount + pulls.length, origin_ref_count: originCount, open_pr_count: pulls.length };
+  }
 
   const snapshot = `${PHASE_DIR}/245-26-FIXTURE-LOCAL-REFS.tsv`;
   const originSnapshot = `${PHASE_DIR}/245-26-FIXTURE-ORIGIN-REFS.tsv`;
@@ -199,7 +266,8 @@ esac
     headRefOid: oid, baseRefOid: oid,
   })))));
   const fixtureEnv = { ...process.env, PATH: `${bin}:${dirname(process.execPath)}:/usr/bin:/bin`, GIT_SSH_COMMAND: ssh, GIT_SSH_VARIANT: "ssh", PRUNE_FIXTURE_BARE: bare,
-    PRUNE_FIXTURE_PR_CLI_JSON: cliJson, PRUNE_FIXTURE_PR_API_JSON: apiJson, PRUNE_FIXTURE_PR_TRUNCATED_JSON: truncatedJson };
+    PRUNE_FIXTURE_PR_CLI_JSON: cliJson, PRUNE_FIXTURE_PR_API_JSON: apiJson, PRUNE_FIXTURE_PR_TRUNCATED_JSON: truncatedJson,
+    PRUNE_FIXTURE_PR_COUNT: String(options.contractPRs?.length ?? 0) };
   for (const [command, output] of [["capture-local", snapshot], ["capture-origin", originSnapshot]]) {
     const captured = run("bash", [OPERATOR, command, "--repo", fixture.repo, "--output", join(fixture.repo, output)], { cwd: ROOT, env: fixtureEnv });
     assert.equal(captured.status, 0, `${captured.stdout ?? ""}${captured.stderr ?? ""}`);
@@ -316,10 +384,10 @@ async function waitForPath(path, timeoutMs = 5000) {
   assert.ok(existsSync(path), `bounded fixture child did not reach hold point: ${path}`);
 }
 
-function startBoundedTrackingApply(fixture, { silenceMs = 10_000, totalMs = 20_000 } = {}) {
+function startBoundedTrackingApply(fixture, { silenceMs = 10_000, totalMs = 20_000, xtrace = true } = {}) {
   const argv = plan45TrackingArgs(fixture);
   const trace = [];
-  const child = spawn("bash", ["-x", ...argv], {
+  const child = spawn("bash", [...(xtrace ? ["-x"] : []), ...argv], {
     cwd: ROOT,
     env: { ...fixture.env, PS4: "+${SECONDS}s pid=$$ line=${LINENO}: " },
     detached: true,
@@ -677,6 +745,152 @@ test("schema-2 tracking apply removes one admitted fixture ref under the shared 
   } finally {
     rmSync(fixture.temp, { recursive: true, force: true });
   }
+});
+
+test("production-scale tracking source latency", async () => {
+  const productionRefsBefore = refs(ROOT);
+  const plan45Digest = createHash("sha256").update(readFileSync(PLAN45_RESULT)).digest("hex");
+  const scenarios = [];
+  const runScenario = async ({ name, delayMs = 0, holdGitHubPage = false, fixture: existingFixture = null, cleanup = true }) => {
+    const fixture = existingFixture ?? makeTrackingFixture({ productionScale: true });
+    const commonDir = git(fixture.repo, "rev-parse", "--git-common-dir");
+    const resolvedCommonDir = commonDir.startsWith("/") ? commonDir : join(fixture.repo, commonDir);
+    assert.ok(resolvedCommonDir.startsWith(fixture.temp), "production-cardinality fixture common directory stays disposable");
+    assert.ok(!resolvedCommonDir.startsWith(join(ROOT, ".git")), "fixture never shares the production Git common directory");
+    const tracePath = join(fixture.temp, "external-source-spans.jsonl");
+    writeFileSync(tracePath, "");
+    fixture.env.PRUNE_FIXTURE_TRACE_FILE = tracePath;
+    fixture.env.PRUNE_FIXTURE_DELAY_MS = String(delayMs);
+    const holdMarker = join(fixture.temp, "held-source.pid");
+    if (holdGitHubPage) {
+      fixture.env.PRUNE_FIXTURE_HOLD_GH_PAGE = "1";
+      fixture.env.PRUNE_FIXTURE_HOLD_MARKER = holdMarker;
+    }
+    const localBefore = refs(fixture.repo);
+    const originBefore = originRefs(fixture);
+    const prs = JSON.parse(readFileSync(fixture.liveCliPRs, "utf8"));
+    assert.ok(localBefore.split("\n").filter(Boolean).length >= 106, "synthetic local ref cardinality meets the observed source count");
+    assert.ok(originBefore.split("\n").filter(Boolean).length >= 360, "synthetic origin ref cardinality meets the observed source count");
+    assert.equal(prs.length, 14, "fixture contains the observed open PR cardinality");
+    assert.equal(new Set(prs.map((pull) => pull.number)).size, 14, "PR numbers are unique");
+    assert.equal(new Set(prs.map((pull) => pull.headRefName)).size, 14, "PR head names are unique");
+    assert.equal(new Set(prs.map((pull) => pull.headRefOid)).size, 14, "PR head OIDs are unique");
+    let result;
+    let output;
+    let interrupt = null;
+    if (holdGitHubPage) {
+      const running = startBoundedTrackingApply(fixture, { silenceMs: 1500, totalMs: 10_000, xtrace: false });
+      await waitForPath(holdMarker);
+      result = await running.close;
+      output = running.output();
+      interrupt = running.interruptedAt();
+      assert.equal(running.escalationSignal(), null, "held external source exits after the single watchdog interrupt");
+    } else {
+      const running = startBoundedTrackingApply(fixture, { silenceMs: 90_000, totalMs: 180_000, xtrace: false });
+      result = await running.close;
+      output = running.output();
+    }
+    const localAfter = refs(fixture.repo);
+    const originAfter = originRefs(fixture);
+    const spans = readFileSync(tracePath, "utf8").split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
+    assert.ok(spans.length > 0, `${name} records external-source spans`);
+    assert.ok(spans.every((span) => span.started_ns && span.ended_ns && Number.isFinite(span.elapsed_ms)
+      && Number.isInteger(span.status) && Number.isInteger(span.row_count)), `${name} spans include monotonic timing, status, and row count`);
+    assert.ok(spans.some((span) => span.stage === "github_rest_paging"), `${name} records REST pagination calls`);
+    if (!holdGitHubPage) {
+      assert.ok(spans.some((span) => span.stage === "github_rest_paging" && span.endpoint.includes("page=1") && span.row_count === 14),
+        `${name} records the complete single-page inventory of 14 open PRs`);
+      assert.ok(spans.some((span) => span.stage === "github_cli"), `${name} records GitHub CLI calls`);
+      assert.ok(spans.some((span) => span.stage === "git_transport_ls_remote"), `${name} records Git transport source calls`);
+    }
+    if (holdGitHubPage) {
+      assert.ok(spans.some((span) => span.stage === "github_cli"), `${name} records CLI inventory before the held REST call`);
+      assert.ok(spans.some((span) => span.stage === "github_rest_paging" && span.status !== 0 && span.row_count === 0),
+        `${name} identifies the interrupted REST page without claiming returned rows`);
+    }
+    if (delayMs) assert.ok(spans.every((span) => span.injected_latency_ms === delayMs), "controlled delay is disclosed on every source span");
+    if (holdGitHubPage) {
+      assert.ok(interrupt, "held external source reaches watchdog");
+      assert.equal(interrupt.reason, "silence_limit");
+      assert.equal(interrupt.signal, "SIGINT");
+      assert.notEqual(result.status, 0, "held external source fails closed");
+      assert.equal(localAfter, localBefore, "held source leaves fixture local refs exact");
+      assert.equal(originAfter, originBefore, "held source leaves fixture origin refs exact");
+    } else {
+      assert.equal(result.status, 0, `${name} public tracking apply succeeds: ${output.stdout}${output.stderr}`);
+      assert.ok(output.stdout.includes(`deleted tracking ref ${fixture.trackingRef}`), `${name} deletes the exact admitted fixture ref`);
+      const expectedLocal = localBefore.split("\n").filter((row) => !row.startsWith(`${fixture.trackingRef}\t`)).join("\n");
+      assert.equal(localAfter, expectedLocal, `${name} changes only the admitted fixture ref`);
+      assert.equal(originAfter, originBefore, `${name} preserves every origin ref`);
+      assert.equal(run(GIT, ["-C", fixture.repo, "cat-file", "-e", `${fixture.oid}^{commit}`]).status, 0,
+        `${name} keeps the deleted target object readable`);
+    }
+    const report = {
+      name,
+      source_counts: {
+        local_ref_count: localBefore.split("\n").filter(Boolean).length,
+        origin_ref_count: originBefore.split("\n").filter(Boolean).length,
+        open_pr_count: prs.length,
+      },
+      delay_ms: delayMs,
+      watchdog_ms: holdGitHubPage ? { silence: 1500, total: 10_000 } : { silence: 90_000, total: 180_000 },
+      outcome: { status: result.status, signal: result.signal, interrupted: interrupt, target_after: localAfter.includes(`${fixture.trackingRef}\t`) ? "exact_present" : "absent" },
+      local_refs_exact_except_target: holdGitHubPage ? localAfter === localBefore
+        : localAfter === localBefore.split("\n").filter((row) => !row.startsWith(`${fixture.trackingRef}\t`)).join("\n"),
+      origin_refs_unchanged: originAfter === originBefore,
+      external_source_spans: spans,
+      elapsed_source_ms: spans.reduce((sum, span) => sum + span.elapsed_ms, 0),
+    };
+    if (cleanup) rmSync(fixture.temp, { recursive: true, force: true });
+    scenarios.push(report);
+  };
+
+  const heldFixture = makeTrackingFixture({ productionScale: true });
+  await runScenario({ name: "held_github_rest_page", holdGitHubPage: true, fixture: heldFixture, cleanup: false });
+  delete heldFixture.env.PRUNE_FIXTURE_HOLD_GH_PAGE;
+  delete heldFixture.env.PRUNE_FIXTURE_HOLD_MARKER;
+  await runScenario({ name: "zero_latency", fixture: heldFixture });
+  await runScenario({ name: "injected_35ms_per_source_call", delayMs: 35 });
+  assert.equal(refs(ROOT), productionRefsBefore, "production ref inventory is unchanged across every fixture run");
+  assert.equal(createHash("sha256").update(readFileSync(PLAN45_RESULT)).digest("hex"), plan45Digest,
+    "Plan 45 result bytes are unchanged");
+  const spans = scenarios.flatMap((scenario) => scenario.external_source_spans.map((span) => ({ scenario: scenario.name, ...span })));
+  const latency = scenarios.find((scenario) => scenario.name === "injected_35ms_per_source_call");
+  const diagnostic = {
+    schema_version: 1,
+    phase: "245-branch-prune-local-and-remote",
+    plan: 46,
+    status: "blocked_unlocalized",
+    captured_at_utc: new Date().toISOString(),
+    operation: "public tracking --apply in disposable production-cardinality fixtures",
+    command: { executable: "node", argv: ["--test", "--test-name-pattern=production-scale tracking source latency", "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs"] },
+    fixture: {
+      local_ref_count: scenarios[0].source_counts.local_ref_count,
+      origin_ref_count: scenarios[0].source_counts.origin_ref_count,
+      open_pr_count: scenarios[0].source_counts.open_pr_count,
+      identities: "synthetic and unique; 14 distinct PR numbers, head refs, and head commit OIDs",
+      scenarios: scenarios.map(({ external_source_spans: _spans, ...scenario }) => scenario),
+    },
+    external_source_spans: spans,
+    latency_summary: {
+      injected_per_call_ms: 35,
+      delayed_source_call_count: latency.external_source_spans.length,
+      delayed_source_elapsed_ms: latency.elapsed_source_ms,
+      stages: [...new Set(latency.external_source_spans.map((span) => span.stage))].sort(),
+      interpretation: "Synthetic external-source delay is measured but cannot be linked causally to Plan 44, which recorded no production stage spans.",
+    },
+    cause: { kind: "synthetic_latency_only", stage: "fixture_external_sources", bounded_ms: latency.elapsed_source_ms },
+    regression: { red_observed: false, green_observed: false, passed: false, reason: "No deterministic operator defect was reproduced; no repair was attempted." },
+    production_ref_operations: 0,
+    production_refs_unchanged: true,
+    plan45_result_sha256: plan45Digest,
+    plan45_result_bytes_unchanged: true,
+    repo_04_status: "open",
+    live_admission_permitted: false,
+    blockers: ["fixture_latency_not_linked_to_plan44_production_stage", "no_reproduced_operator_defect"],
+    next_missing_signal: "A production-stage trace for Plan 44 is required to identify whether REST paging, Git transport, local validation, or coordinator work caused its 600713 ms silence.",
+  };
+  writeFileSync(DIAGNOSTIC, `${JSON.stringify(diagnostic, null, 2)}\n`);
 });
 
 test("tracking operator bounded fixture diagnosis", async () => {
