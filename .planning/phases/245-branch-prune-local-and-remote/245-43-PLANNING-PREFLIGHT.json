@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": 43,
+  "status": "ready_for_planning_with_source_recovery_required",
+  "authority": "read_only_planning_preflight_no_ref_or_pr_mutation_authority",
+  "required_pins": {
+    "plan_18_snapshot": {"commit": "02d3370f9edd05fa598216d6bef34958310881ec", "sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456", "status": "ready_committed_bytes_match"},
+    "plan_23_readiness": {"commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99", "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193", "status": "ready_committed_bytes_match"},
+    "plan_37_d06_readiness": {"commit": "084eddf99a6c4a7904d74d738389a46f5e0cc5f2", "sha256": "9d41f78914e2ed3fdf98579236075a2bffb9586927073fa46a34ead6b9f32321", "status": "ready_historical_receipt_committed_bytes_match"},
+    "plan_42_result": {"commit": "86b7ddc6ed6b5748a7358d62a5262a83abe58441", "sha256": "2f79183e96ad9f2629f45b5bf136c9304dbd6a226ff135c8cae53bb8a64bb421", "status": "blocked_zero_operations_committed_bytes_match"}
+  },
+  "current_sources": {
+    "local_tracking_ref": {"ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish", "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f", "type": "commit", "status": "present_readable"},
+    "exact_origin_head": {"ref": "refs/heads/v1.37-auth-branding-admin-polish", "status": "absent_in_read_only_ls_remote"},
+    "origin_gh_pages": {"ref": "refs/heads/gh-pages", "oid": "a5e4c3be3422831eab8169982faa8034887075ed", "git_local_object": "unreadable", "github_commit_sha": "a5e4c3be3422831eab8169982faa8034887075ed", "github_tree_sha": "1ef29eb47cf3619ca3ba2fe71304b82fe326c762", "status": "source_only_exact_object_recovery_required_before_current_contract_admission"},
+    "open_prs": {"count_from_gh_pr_list": 14, "using_tracking_branch": 0, "complete_rest_cli_agreement": "not_yet_checked_planning_preflight_only"},
+    "github_core_budget": {"remaining_before_reads": 5000, "status": "above_250_threshold"},
+    "coordinator": {"git": "/usr/bin/git", "git_version": "2.50.1", "verify": "passed", "lock": "free", "transaction_leases": 0}
+  },
+  "historical_sources": {
+    "pinned_baseline": "unavailable_from_local_git_and_github_not_required_for_current_state_contract",
+    "pr_11_row_mismatch": "unresolved",
+    "cleanup_30_row_history": "unresolved_no_qualifying_full_window_trust_source"
+  },
+  "required_execution_boundary": "Recapture complete local, exact origin and REST/CLI open-PR inventories; recover only the exact currently advertised missing object without updating refs if that remains the sole missing source; independently read back all identities and typed objects; commit a fresh one-row contract; obtain separate digest-bound approval immediately before tracking-ref deletion.",
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "object_fetches": 0
+}
