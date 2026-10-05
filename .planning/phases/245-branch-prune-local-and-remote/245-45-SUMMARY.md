@@ -16,6 +16,8 @@ actuals:
   tokens: 151681
   tasks: 2
   commits: 2
+plan_head_before: 60087fba3b17846dd9f9f48fd4eeb8dc9b6dde39
+plan_head_after: 9573e4d7d392e491bcf6ed0f08e4d695141b8ad3
 tech-stack:
   added: []
   patterns: [Detached process-group watchdog and sanitized operator trace]
@@ -72,7 +74,7 @@ status: complete
 
 1. **Task 1: Trace the public tracking path inside a disposable repository** - `af14e40b` (`test`)
 2. **Task 2: Capture a new exact one-row contract after the proven repair** - skipped because Task 1 did not prove a deterministic defect.
-3. **Task 3: Make one bounded live attempt and classify two post-states** - finalized as a zero-attempt blocked receipt; the result and summary are committed together.
+3. **Task 3: Make one bounded live attempt and classify two post-states** - `9573e4d7` (`docs`); finalized as a zero-attempt blocked receipt.
 
 ## Files Created/Modified
 
