@@ -22,8 +22,15 @@ function fixtureGit(repo, ...args) {
   return run(GIT_BIN, ["-C", repo, ...args]);
 }
 
-function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraContractPath = false, trackingRefs = [], admittedLocalRefs = [], safetyRefs = [], safetyTags = [] } = {}) {
+function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraContractPath = false, trackingRefs = [], admittedLocalRefs = [], safetyRefs = [], safetyTags = [], inheritedEvidencePaths = [] } = {}) {
   const repo = join(parentDir, "repo");
+  const contractPath = ".planning/phases/245-19-CURRENT-CONTRACT.json";
+  const candidatesPath = ".planning/phases/245-19-CANDIDATES.json";
+  const allowlistPath = ".planning/phases/245-19-BRANCH-DELETE-ALLOWLIST.tsv";
+  const admissionPath = ".planning/phases/245-19-ADMISSION.json";
+  const resultPath = ".planning/phases/245-19-RESULT.json";
+  const postPath = ".planning/phases/245-19-POST-LOCAL-REFS.tsv";
+  const summaryPath = ".planning/phases/245-19-SUMMARY.md";
   mkdirSync(repo);
   run(GIT_BIN, ["init", "-q", "--initial-branch=main", repo]);
   fixtureGit(repo, "config", "user.name", "Evidence Transition Fixture");
@@ -31,6 +38,17 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
   writeFileSync(join(repo, "seed.txt"), "seed\n");
   fixtureGit(repo, "add", "seed.txt");
   fixtureGit(repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture seed");
+  for (const file of inheritedEvidencePaths) {
+    mkdirSync(join(repo, file, ".."), { recursive: true });
+    const bytes = file === allowlistPath
+      ? `side\tref\toid\ttype\treason\nremote\trefs/heads/fixture\t${"1".repeat(40)}\tcommit\tinherited fixture allowlist\n`
+      : `inherited fixture evidence: ${file}\n`;
+    writeFileSync(join(repo, file), bytes);
+    fixtureGit(repo, "add", "--", file);
+  }
+  if (inheritedEvidencePaths.length) {
+    fixtureGit(repo, "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-q", "-m", "fixture inherited evidence");
+  }
   const capturedHeadOid = fixtureGit(repo, "rev-parse", "HEAD");
   for (const ref of [...trackingRefs, ...admittedLocalRefs, ...safetyRefs]) fixtureGit(repo, "update-ref", ref, capturedHeadOid);
   for (const tag of safetyTags) fixtureGit(repo, "tag", "-a", tag, "-m", "fixture safety tag");
@@ -41,13 +59,6 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
       return { ref, oid, type, peeled_oid: peeledOid || null, peeled_type: peeledType || null, symref: null };
     }),
   ];
-  const contractPath = ".planning/phases/245-19-CURRENT-CONTRACT.json";
-  const candidatesPath = ".planning/phases/245-19-CANDIDATES.json";
-  const allowlistPath = ".planning/phases/245-19-BRANCH-DELETE-ALLOWLIST.tsv";
-  const admissionPath = ".planning/phases/245-19-ADMISSION.json";
-  const resultPath = ".planning/phases/245-19-RESULT.json";
-  const postPath = ".planning/phases/245-19-POST-LOCAL-REFS.tsv";
-  const summaryPath = ".planning/phases/245-19-SUMMARY.md";
   for (const file of [candidatesPath, allowlistPath, admissionPath, resultPath, postPath, summaryPath]) {
     mkdirSync(join(repo, file, ".."), { recursive: true });
   }
@@ -62,6 +73,7 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
       : "side\tref\toid\ttype\treason\nlocal\trefs/heads/fixture\t0000000000000000000000000000000000000000\tcommit\tfixture\n"),
     [admissionPath]: Buffer.from('{"status":"prepared"}\n'),
   };
+  for (const file of inheritedEvidencePaths) evidenceBytes[file] = readFileSync(join(repo, file));
   const precommitArtifacts = {};
   for (const [file, raw] of Object.entries(evidenceBytes)) {
     writeFileSync(join(repo, file), raw);
@@ -112,7 +124,7 @@ function makeEvidenceFixture(parentDir, { wrongContractParent = false, extraCont
   }
   fixtureGit(repo, "add", "--", ...commitPaths);
   fixtureGit(repo, "commit", "-q", "-m", "fixture contract commit");
-  return { repo, contract, contractPath, candidatesPath, allowlistPath, admissionPath, resultPath, postPath, summaryPath,
+  return { repo, contract, contractPath, candidatesPath, allowlistPath, admissionPath, resultPath, postPath, summaryPath, capturedHeadOid,
     contractCommit: fixtureGit(repo, "rev-parse", "HEAD") };
 }
 
@@ -405,6 +417,24 @@ test("D-07 accepts only the exact contract commit and one declared direct-child 
   }
 });
 
+test("D-07 accepts a pinned allowlist inherited unchanged from the captured parent", () => {
+  const root = mkdtempSync(join(tmpdir(), "sigra-inherited-allowlist-evidence-"));
+  try {
+    const fixture = makeEvidenceFixture(root, { inheritedEvidencePaths: [
+      ".planning/phases/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
+    ] });
+    const parentBlob = fixtureGit(fixture.repo, "rev-parse", `${fixture.capturedHeadOid}:${fixture.allowlistPath}`);
+    const contractBlob = fixtureGit(fixture.repo, "rev-parse", `${fixture.contractCommit}:${fixture.allowlistPath}`);
+    assert.equal(contractBlob, parentBlob, "the allowlist blob should be inherited unchanged");
+
+    const before = inspectEvidenceTransition(fixture.repo, fixture.contractCommit, fixture.contractPath, fixture.contract, "before");
+    assert.deepEqual(before.contract_paths, fixture.contract.evidence_transition.contract_paths);
+    assert.ok(before.contract_paths.includes(fixture.allowlistPath));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("D-07 rejects wrong contract parents, extra contract paths, wrong final parents, extra final paths, second commits, and unrelated refs", () => {
   const cases = [
     { name: "wrong contract parent", setup: (root) => makeEvidenceFixture(root, { wrongContractParent: true }), stage: "before", error: /evidence_transition_contract_parent_mismatch/ },
@@ -465,6 +495,7 @@ test("captured current PR/ref contract verifies from committed bytes through the
       baseRefName: "main",
       headRefOid: headOid,
       baseRefOid: mainOid,
+      headRepository: { nameWithOwner: "szTheory/sigra" },
     }];
     const sourceFixture = join(repo, "fixture-github.json");
     writeFileSync(sourceFixture, JSON.stringify({

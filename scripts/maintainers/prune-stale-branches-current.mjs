@@ -128,8 +128,10 @@ function loadPrInventory(fixturePath) {
   if (!Array.isArray(cliPulls)) fail("cli_pr_list_invalid");
   assertUniquePulls(cliPulls, "cli");
   assertUniquePulls(inventory.pulls, "api");
-  const cliIdentities = cliPulls.map((pull) => `${pull.number}\0${pull.headRefName}\0${pull.headRefOid}\0${pull.baseRefName}\0${pull.baseRefOid}\0${pull.headRepository ?? ""}`).sort();
-  const apiIdentities = inventory.pulls.map((pull) => `${pull.number}\0${pull.headRefName}\0${pull.headRefOid}\0${pull.baseRefName}\0${pull.baseRefOid}\0${pull.headRepository ?? ""}`).sort();
+  // The REST base SHA can lag behind the live branch. Compare PR identity
+  // fields here; collect() replaces baseRefOid from the complete origin refs.
+  const cliIdentities = cliPulls.map((pull) => `${pull.number}\0${pull.headRefName}\0${pull.headRefOid}\0${pull.baseRefName}\0${pull.headRepository ?? ""}`).sort();
+  const apiIdentities = inventory.pulls.map((pull) => `${pull.number}\0${pull.headRefName}\0${pull.headRefOid}\0${pull.baseRefName}\0${pull.headRepository ?? ""}`).sort();
   if (JSON.stringify(cliIdentities) !== JSON.stringify(apiIdentities)) fail("pr_cli_api_number_head_base_identity_mismatch");
   return { pulls: inventory.pulls, pages: inventory.pages, cli_count: cliPulls.length, complete: true };
 }
@@ -208,7 +210,7 @@ function assertUniqueRefs(rows, side) {
   }
 }
 
-function collect(repo, fixturePath) {
+function collect(repo, fixturePath, { tolerateMissingPrBase = false } = {}) {
   const root = git(repo, ["rev-parse", "--show-toplevel"], "repository_invalid").trim();
   const headRef = git(root, ["symbolic-ref", "-q", "HEAD"], "current_head_not_symbolic").trim();
   const headOid = git(root, ["rev-parse", "--verify", "HEAD"], "current_head_oid_missing").trim();
@@ -216,6 +218,14 @@ function collect(repo, fixturePath) {
   const origin = parseOriginRefs(root);
   const resolvedFixture = fixturePath ? resolve(root, fixturePath) : "";
   const prInventory = loadPrInventory(resolvedFixture);
+  const openPrs = prInventory.pulls.map((pull) => {
+    const baseRef = origin.find((row) => row.ref === `refs/heads/${pull.baseRefName}`);
+    if (!baseRef || baseRef.type !== "commit") {
+      if (!tolerateMissingPrBase) fail(`pr_base_origin_identity_missing:${pull.number}:${pull.baseRefName}`);
+      return pull;
+    }
+    return { ...pull, baseRefOid: baseRef.oid };
+  });
   return {
     repository: REPOSITORY,
     checkout_root: root,
@@ -224,7 +234,7 @@ function collect(repo, fixturePath) {
     capture_head_oid: headOid,
     local_refs: parseLocalRefs(root),
     origin_refs: origin,
-    open_prs: prInventory.pulls,
+    open_prs: openPrs,
     pr_pages: prInventory.pages,
     cli_open_pr_count: prInventory.cli_count,
   };
@@ -381,7 +391,10 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
   const normalizedContractPaths = contractPaths.map((file) => safeEvidencePath(file, "evidence_transition_contract"));
   const contractParent = commitParents(repo, contractCommit, "evidence_transition_contract");
   if (contractParent.length !== 1 || contractParent[0] !== capturedOid) fail("evidence_transition_contract_parent_mismatch");
-  exactPathSet(changedPaths(repo, capturedOid, contractCommit, "evidence_transition_contract"), normalizedContractPaths, "evidence_transition_contract");
+  const artifactPaths = normalizedContractPaths.filter((file) => file !== relativeContract && file !== `${relativeContract}.sha256`).sort();
+  const actualContractPaths = changedPaths(repo, capturedOid, contractCommit, "evidence_transition_contract");
+  const changedArtifacts = artifactPaths.filter((file) => actualContractPaths.includes(file));
+  exactPathSet(actualContractPaths, [relativeContract, `${relativeContract}.sha256`, ...changedArtifacts], "evidence_transition_contract");
   if (git(repo, ["log", "-1", "--format=%H", "--", relativeContract]).trim() !== contractCommit) {
     fail("evidence_transition_contract_commit_not_latest_for_path");
   }
@@ -389,7 +402,6 @@ export function inspectEvidenceTransition(repo, contractCommit, contractPath, co
   const sidecar = commitFilePin(repo, contractCommit, `${relativeContract}.sha256`, "evidence_transition_contract_sha256");
   if (sidecar.raw.toString("utf8").trim() !== contractPin.sha256) fail("evidence_transition_contract_sha256_mismatch");
 
-  const artifactPaths = normalizedContractPaths.filter((file) => file !== relativeContract && file !== `${relativeContract}.sha256`).sort();
   const declaredArtifacts = transition.precommit_artifacts;
   if (!declaredArtifacts || typeof declaredArtifacts !== "object" || Array.isArray(declaredArtifacts)) fail("evidence_transition_precommit_artifacts_missing");
   exactPathSet(Object.keys(declaredArtifacts), artifactPaths, "evidence_transition_precommit_artifacts");
@@ -488,13 +500,14 @@ export function compareCurrent(contract, actual, contractCommit, options) {
   const expectedByNumber = new Map(expectedPrs.map((pull) => [pull.number, pull]));
   const actualByNumber = new Map(actualPrs.map((pull) => [pull.number, pull]));
   if (expectedByNumber.size !== actualByNumber.size) fail("current_open_pr_set_changed");
+  const changedPrBaseOids = [];
   for (const [number, expected] of expectedByNumber) {
     const current = actualByNumber.get(number);
     if (!current) fail(`current_pr_missing_or_closed:${number}`);
     if (current.headRefName !== expected.headRefName) fail(`current_pr_head_name_changed:${number}`);
     if (current.baseRefName !== expected.baseRefName) fail(`current_pr_base_name_changed:${number}`);
     if (current.headRefOid !== expected.headRefOid) fail(`current_pr_head_oid_changed:${number}`);
-    if (current.baseRefOid !== expected.baseRefOid) fail(`current_pr_base_oid_changed:${number}`);
+    if (current.baseRefOid !== expected.baseRefOid) changedPrBaseOids.push(number);
     if (current.headRepository !== expected.headRepository) fail(`current_pr_head_repository_changed:${number}`);
     if (current.baseRepository !== expected.baseRepository) fail(`current_pr_base_repository_changed:${number}`);
     // GitHub's base SHA is an observation only; the exact live origin identity below is authoritative.
@@ -553,6 +566,7 @@ export function compareCurrent(contract, actual, contractCommit, options) {
     if (safetyRow && localSafety && current.oid === safetyRow.oid && current.type === safetyRow.type && current.peeled_oid === localSafety.peeled_oid && current.peeled_type === localSafety.peeled_type) continue;
     fail(`current_origin_ref_unexpected:${ref}`);
   }
+  if (changedPrBaseOids.length) fail(`current_pr_base_oid_changed:${changedPrBaseOids[0]}`);
   const safetyTrackingRows = (options.allowlistRows ?? []).filter((row) => appliedRefs.has(row.ref) && row.side === "safety-publish");
   const allowedSafetyTracking = new Set(safetyTrackingRows.map(safetyTrackingRef).filter(Boolean));
   const presentSafetyTrackingCount = [...allowedSafetyTracking].filter((ref) => actualLocal.has(ref)).length;
@@ -745,7 +759,7 @@ function verify(repo, commit, path, stage, fixturePath, options) {
       appliedRefs: options.appliedRefs ?? [],
     })
     : null;
-  const actual = collect(repo, fixturePath);
+  const actual = collect(repo, fixturePath, { tolerateMissingPrBase: true });
   const compareOptions = { stage, operationSide: options.operationSide, operationRef: options.operationRef };
   if (transition) compareOptions.allowedActiveOid = transition.verified_head_oid;
   if (transition) compareOptions.appliedRefs = transition.applied_refs;
