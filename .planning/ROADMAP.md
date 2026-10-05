@@ -394,7 +394,7 @@ Plans:
   3. The exclusion set is derived from `gh pr list --json headRefName,baseRefName` in **both** directions, and after the prune `gh pr list` shows every open PR still open with an intact base — no PR was closed as a side effect of a deleted base branch.
   4. Phase 245 does not run `git gc`, `git reflog expire`, or `--prune=now`; its summary records the phase's bounded operation evidence. Historical command absence for earlier milestone windows remains unresolved and is not inferred from this phase.
 
-**Plans**: 39 indexed plan files; Plans 30, 35, 36, 39 and 40 retain terminal blocked receipts. The historical Plan 19 plan artifact is excluded and its single admitted local deletion remains counted once. Plan 37 completed the five-object recovery; Plan 38 stopped after nine approved tracking-ref deletions and its approval is exhausted. Plans 39 and 40 stopped before approval with zero production ref operations; neither contract or allowlist is reusable. Plan 40's missing `gh-pages` object was subsequently recovered without updating branch refs. Plan 41 stopped after thirteen of fourteen separately approved tracking-ref deletions; its approval is exhausted. Plan 42 is the wave 7 gap continuation for the one remaining tracking ref, contingent on a fresh complete current-source contract, new exact-row approval and independent post-state verification. REPO-04 and the 11-row PR/30-row cleanup historical audits remain unresolved.
+**Plans**: 40 indexed plan files; Plans 30, 35, 36, 39 and 40 retain terminal blocked receipts. The historical Plan 19 plan artifact is excluded and its single admitted local deletion remains counted once. Plan 37 completed the five-object recovery; Plan 38 stopped after nine approved tracking-ref deletions and its approval is exhausted. Plans 39 and 40 stopped before approval with zero production ref operations; neither contract or allowlist is reusable. Plan 40's missing `gh-pages` object was subsequently recovered without updating branch refs. Plan 41 stopped after thirteen of fourteen separately approved tracking-ref deletions; its approval is exhausted. Plan 42 stopped before apply when `gh-pages` moved; its exact-row approval is exhausted and zero production ref operations occurred. Plan 43 is the wave 8 fresh-source continuation for the one remaining tracking ref, including exact source-only object recovery if still needed, a new complete current contract, separate exact approval and independent post-state verification. REPO-04 and the 11-row PR/30-row cleanup historical audits remain unresolved.
 
 Plans:
 **Wave 1**
@@ -542,7 +542,11 @@ Plans:
 
 **Gap Wave 7 — new exact-row decision after Plan 41's partial operation** *(Plan 41's approval is exhausted; its result is historical input, not a replay target)*
 
-- [ ] 245-42-PLAN.md — Recapture current local/origin/open-PR identities, admit the one still eligible tracking row only if exact evidence holds, obtain new row-specific approval, and record independent post-state proof or an open blocked result.
+- [ ] 245-42-PLAN.md — Terminally blocked before apply when origin `gh-pages` moved; the separate approval is exhausted and no production ref or PR operation occurred.
+
+**Gap Wave 8 — fresh source and exact-row continuation after Plan 42's zero-operation stop** *(depends on completed Plan 38; Plans 41/42 are immutable history)*
+
+- [ ] 245-43-PLAN.md — Recover the exact current origin source object if still required without changing refs, commit a complete new current-state contract for the one remaining tracking row, request separate row-specific approval, and prove the bounded result or record a truthful blocker.
 
 ## Progress
 
