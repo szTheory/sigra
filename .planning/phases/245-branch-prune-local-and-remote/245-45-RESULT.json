@@ -3,10 +3,12 @@
   "phase": "245-branch-prune-local-and-remote",
   "plan": 45,
   "outcome": "blocked",
-  "captured_at": "2026-10-05T20:25:38.766Z",
+  "captured_at": "2026-10-05T20:28:53.553Z",
   "operation_attempted": false,
   "operator": {
-    "attempt_count": 0
+    "attempt_count": 0,
+    "argv": [],
+    "launch_count": 0
   },
   "production_ref_operations": 0,
   "pull_request_mutations": 0,
@@ -22,7 +24,8 @@
     "safety_ref_publications": []
   },
   "failed_predicates": [
-    "fixture diagnosis did not reproduce or localize a deterministic defect; live admission prohibited"
+    "No deterministic defect was reproduced in the bounded fixture; Plan 45 live admission gate remains closed.",
+    "The exact target production tracking ref remains present at the Plan 44-approved OID; no Plan 45 live attempt was authorized or launched."
   ],
   "diagnostic": {
     "production_repo_mutations": 0,
@@ -11894,5 +11897,27 @@
     },
     "live_apply_permitted": false,
     "next_machine_actionable_diagnostic": "If a later authorized diagnostic needs the production-scale input, add disposable load fixtures and trace external-source latency; this run proves the current fixture path and bounded interruption but no code defect."
+  },
+  "stop_reason": "task1_deterministic_defect_not_proven_task2_skipped",
+  "finalization": {
+    "task1_commit": "af14e40b",
+    "task1_focused_gate": {
+      "status": "passed",
+      "tests": 2,
+      "skipped": 0
+    },
+    "current_contract_suite": {
+      "status": "passed",
+      "tests": 14,
+      "skipped": 0
+    },
+    "live_apply": {
+      "status": "not_attempted",
+      "reason": "Task 1 did not prove a deterministic defect"
+    },
+    "full_mix_env_test_ci": {
+      "status": "not_run",
+      "reason": "Known pre-test formatter failure remains in unchanged Phase 242 scope"
+    }
   }
 }
