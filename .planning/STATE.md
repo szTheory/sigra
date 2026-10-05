@@ -4,19 +4,19 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 245
 current_phase_name: Branch Prune — Local and Remote
-current_plan: 43–44 (gap closure; ready to execute)
+current_plan: 45
 status: executing
-stopped_at: "Plans 43 and 44 passed independent plan checking and coverage gates; no production ref or PR operations occurred. Next: $gsd-execute-phase 245 --gaps-only."
-last_updated: "2026-10-05T15:15:11Z"
-state_head: b0e51d7785673cfa0166ae5ccf9367d1345d1029
+stopped_at: Completed 245-45-PLAN.md
+last_updated: "2026-10-05T20:33:31.374Z"
+state_head: 9573e4d777fadcb141f2b8dbe6e3e9f061b3a59c
 progress:
   total_phases: 10
   completed_phases: 9
-  total_plans: 104
-  completed_plans: 100
+  total_plans: 105
+  completed_plans: 104
   percent: 90
 last_activity: 2026-10-05
-last_activity_desc: Plans 43 and 44 passed independent checking and all coverage gates; next route is $gsd-execute-phase 245 --gaps-only.
+last_activity_desc: Plan 45 completed with a blocked zero-attempt result; REPO-04 and the historical audits remain open.
 ---
 
 # Project State
@@ -31,16 +31,16 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 ## Current Position
 
-Phase: 245 (Branch Prune — Local and Remote) — READY TO EXECUTE
-Phase 245 remains open and REPO-04 is unresolved. Plans 35 and 36 retain superseded metadata and immutable blocked receipts. Plan 37 completed the approved five-object source-only recovery and committed ready D-06 evidence. Plan 38 applied nine approved tracking-ref deletions; that approval is exhausted. Plans 39 and 40 remain terminally halted with no approval and zero production ref or PR operations. Plan 40's unreadable `gh-pages` commit was recovered from the exact OID advertised by `origin`; its contract and allowlist remain unusable. Plan 41 applied 13 of 14 approved tracking-ref deletions and ended blocked partial; its approval is exhausted. Plan 42 blocked before apply after `refs/heads/gh-pages` moved, with no production ref or PR operation. Plans 43 and 44 are newly planned, independently checked gap closures: Plan 43 requires separate exact-object recovery approval before any object-store write; Plan 44 depends on its ready receipt and requires a fresh exact deletion approval. No production ref or PR operation was approved or performed during planning.
-Current Plan: 43 (wave 8 recovery), followed by 44 (wave 9 tracking-ref continuation)
-Next Action: Run `$gsd-execute-phase 245 --gaps-only`. Plan 43 must pass its fresh source preflight and exact recovery decision; Plan 44 requires a new current contract and separate deletion decision. Keep REPO-04 open and the 11-row PR mismatch and 30-row cleanup-history audit unresolved.
-Total Plans in Phase: 41
-Status: Ready to execute
-Planning evidence: Commit `b0e51d7785673cfa0166ae5ccf9367d1345d1029` contains Plans 43/44 and the phase-scoped Plan 43 planning preflight receipt (SHA-256 `bdefec8bad6d46743629d3edbb48a5be5b150f842a1f9ac568d9e408745a49d9`). Both plans passed independent checking, REPO-04 coverage, all 7 decision-coverage checks, and the 8-item post-planning gap analysis. The 11-row PR mismatch and 30-row cleanup-history audit remain unresolved.
+Phase: 245 (Branch Prune — Local and Remote) — EXECUTING
+Phase 245 remains open and REPO-04 is unresolved. Plans 35 and 36 retain superseded metadata and immutable blocked receipts. Plan 37 completed the approved five-object source-only recovery and committed ready D-06 evidence. Plan 38 applied nine approved tracking-ref deletions; that approval is exhausted. Plans 39 and 40 remain terminally halted with no approval and zero production ref or PR operations. Plan 40's unreadable `gh-pages` commit was recovered from the exact OID advertised by `origin`; its contract and allowlist remain unusable. Plan 41 applied 13 of 14 approved tracking-ref deletions and ended blocked partial; its approval is exhausted. Plan 42 blocked before apply after `refs/heads/gh-pages` moved, with no production ref or PR operation. Plan 43 recovered its approved source object; Plan 44's one operator attempt timed out and its authorization is spent. Plan 45's bounded disposable diagnosis did not prove a deterministic defect, so its final result records zero live attempts. Keep the 11 PR-base rows and 30 cleanup-history rows unresolved.
+Current Plan: 45
+Next Action: Phase 245 remains incomplete. Plan 45 ended blocked at zero attempts because the deterministic defect gate was not proven; any further work needs fresh scoped planning and admission. Preserve the 11 PR-base and 30 cleanup-history rows and keep REPO-04 open.
+Total Plans in Phase: 42
+Status: In progress — Plan 45 complete with a blocked zero-attempt result
+Planning evidence: Plan 43's source recovery and Plan 44's approved operator attempt are recorded in their immutable receipts; Plan 45's bounded disposable diagnosis did not prove a deterministic defect. The 11-row PR mismatch and 30-row cleanup-history audit remain unresolved.
 Historical verification: Phase 245's gaps_found report is dated 2026-09-28 and predates Plans 35–40 and the 2026-10-04 object recovery; preserve it as historical context, not a forward-phase prerequisite. Phase 244 verification passed per Plan 40's D-01 readiness, although its Plan 03 summary says blocked and can skew old counters; do not replay Phase 244 unless Phase 245 readiness identifies it as a prerequisite. The 11-row PR mismatch and 30-row cleanup-history audit remain unresolved under D-07.
 History: Plan 19's single admitted local deletion is counted once. Plans 29, 30, 33, 35, 36, 39, and 40 blocked evidence stays immutable. Plan 34's prior one-OID recovery and approval cannot authorize Plan 37's five objects. Plan 16 remains superseded and Plan 14 remains halted.
-Next GSD command: $gsd-execute-phase 245 --gaps-only
+Next GSD command: Determine from fresh Phase 245 readiness; the stale verification route does not establish the next action.
 The only authoritative sources are this local checkout and GitHub. Do not search another service or reinterpret the unavailable historical baseline. D-05's pinned Git/shared-coordinator gate remains active.
 The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complete from planning evidence.
 
@@ -544,6 +544,8 @@ The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complet
 - [Phase 245]: Plan 245-22 proved exact-object acquisition with an empty ref map in two disposable mapped-origin fixtures. — The exact object became readable while the old tracking ref, complete ref inventory, symbolic HEAD, and FETCH_HEAD remained unchanged, establishing a safe prerequisite for Plan 21.
 - [Phase 245]: Plan 245-23 keeps schema 1 strict and adds explicit schema 2 for immutable evidence pins plus independent route observations.
 - [Phase 245]: Plan 245-24 must consume the new readiness receipt, reissue only Plan 21 Tasks 2-3, and leave REPO-04 open until remaining evidence is complete.
+- [Phase 245]: No deterministic operator defect was proven in a bounded disposable fixture; keep live admission blocked and leave REPO-04 open.
+- [Phase 245]: Skip Task 2 unless Task 1 proves a deterministic defect with a passing regression and exact fixture readback.
 
 ### Pending Todos
 
@@ -752,9 +754,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-04T20:44:49Z
-Stopped at: Plans 43 and 44 are ready for execution after passing independent plan checks and coverage gates; no production ref or PR operations occurred. Next: $gsd-execute-phase 245 --gaps-only.
-Resume file: .planning/phases/245-branch-prune-local-and-remote/continue.md
+Last session: 2026-10-05T20:33:31.077Z
+Stopped at: Completed 245-45-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -968,3 +970,4 @@ Resume file: .planning/phases/245-branch-prune-local-and-remote/continue.md
 | Phase 245 P22 | 21min | 2 tasks | 5 files |
 | Phase 245 P23 | 51min | 2 tasks | 6 files |
 | Phase 245 P29 | 45min | 3 tasks | 6 files |
+| Phase 245 P45 | 33min | 2 tasks | 3 files |

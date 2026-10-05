@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute Phase 245 gap plans",
-    "reason": "Plans 43 and 44 passed independent plan checking and all requirement, decision, and post-planning gap coverage gates. Execute only the new recovery and separately approved ref-deletion plans; Phase 245 and REPO-04 remain open."
+    "command": "/gsd:plan-phase 245",
+    "label": "Plan remaining Phase 245 gaps",
+    "reason": "Plan 45 ended blocked at zero attempts because no deterministic defect was proven. Phase 245 and REPO-04 remain open; any further operation needs fresh scoped planning and admission."
   },
-  "updated_at": "2026-10-05T15:15:11Z"
+  "updated_at": "2026-10-05T20:37:50.850Z"
 }
