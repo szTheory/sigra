@@ -559,8 +559,8 @@ Plans:
 **Gap closure wave 8 — current diagnostic and historical source gates** *(Plan 45 is terminal history; these plans share no modified files)*
 
 - [x] 245-46-PLAN.md — Measured the public tracking operator with production-scale disposable sources and per-call latency. Completed with a blocked unlocalized diagnostic, zero production operations, and live admission closed.
-- [ ] 245-48-PLAN.md — Record the 11 historical PR-base rows' exact missing baseline and blob blockers without inferring past identity from current PRs.
-- [ ] 245-49-PLAN.md — Record all 30 cleanup-history pairs' missing complete-window source and independent trust-root blockers.
+- [x] 245-48-PLAN.md — Recorded all 11 historical PR-base rows unresolved under the missing pinned source; no past base identity was inferred from current PRs.
+- [x] 245-49-PLAN.md — Recorded all 30 cleanup-history pairs unknown under the missing complete-window source and independent trust-root blockers; no cleanup or ref operation occurred.
 
 **Gap closure wave 9 — conditional exact tracking attempt** *(depends on Plan 46's ready diagnostic)*
 
@@ -579,7 +579,7 @@ Plans:
 | 242. Safety Closeout for Phantom Release Adoption | 8/8 | Complete    | 2026-09-24 |
 | 243. Queue Drain + Todo Triage | 4/4 | Complete    | 2026-09-25 |
 | 244. `@playwright/test` Bump, Alone | 8/8 | Complete    | 2026-09-26 |
-| 245. Branch Prune | 43/46 plans summarized; 3 pending (Plan 47 gated) | In progress | - |
+| 245. Branch Prune | 45/46 plans summarized; 1 pending (Plan 47 conditional closeout) | In progress | - |
 
 ## Requirement Coverage
 

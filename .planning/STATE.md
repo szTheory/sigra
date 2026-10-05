@@ -4,19 +4,19 @@ milestone: v1.48
 milestone_name: CLEAN-BASELINE
 current_phase: 245
 current_phase_name: Branch Prune — Local and Remote
-current_plan: 48
+current_plan: 49
 status: executing
-stopped_at: Completed 245-48-PLAN.md with blocked historical source gate
-last_updated: "2026-10-05T22:32:54.988Z"
-state_head: e97fb4049550d37f63a1caff889f337c55268c7a
+stopped_at: Completed 245-49-PLAN.md with blocked cleanup history source gate
+last_updated: "2026-10-05T22:38:35.849Z"
+state_head: c2c57a189f4d5cc8f136a40c133048f9c7679a3e
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 109
-  completed_plans: 106
+  completed_plans: 107
   percent: 90
 last_activity: 2026-10-05
-last_activity_desc: Plan 48 committed a blocked historical PR source gate and 11 unresolved rows; live admission and REPO-04 remain open.
+last_activity_desc: Plan 49 committed a blocked cleanup-history source gate and 30 unknown rows; REPO-04 remains open.
 ---
 
 # Project State
@@ -33,14 +33,14 @@ See: `.planning/PROJECT.md` (updated 2026-09-09)
 
 Phase: 245 (Branch Prune — Local and Remote) — EXECUTING
 Phase 245 remains open and REPO-04 is unresolved. Plans 35 and 36 retain superseded metadata and immutable blocked receipts. Plan 37 completed the approved five-object source-only recovery and committed ready D-06 evidence. Plan 38 applied nine approved tracking-ref deletions; that approval is exhausted. Plans 39 and 40 remain terminally halted with no approval and zero production ref or PR operations. Plan 40's unreadable `gh-pages` commit was recovered from the exact OID advertised by `origin`; its contract and allowlist remain unusable. Plan 41 applied 13 of 14 approved tracking-ref deletions and ended blocked partial; its approval is exhausted. Plan 42 blocked before apply after `refs/heads/gh-pages` moved, with no production ref or PR operation. Plan 43 recovered its approved source object; Plan 44's one operator attempt timed out and its authorization is spent. Plan 45's bounded disposable diagnosis did not prove a deterministic defect, so its final result records zero live attempts. Keep the 11 PR-base rows and 30 cleanup-history rows unresolved.
-Current Plan: 48
-Next Action: Phase 245 remains incomplete. Plan 48 records all 11 historical PR-base rows unresolved under the missing pinned source; Plan 47's ready-diagnostic gate is unmet. Continue independently scoped historical source work while keeping live admission and REPO-04 open.
+Current Plan: 49
+Next Action: Phase 245 remains incomplete. Plan 49 records all 30 cleanup-history pairs unknown under missing complete history and trust root. Execute Plan 47's conditional zero-attempt closeout because Plan 46 did not produce a ready diagnostic; keep live admission and REPO-04 open.
 Total Plans in Phase: 46
-Status: In progress — Plan 48 complete with blocked historical PR source gate
-Planning evidence: Plan 43's source recovery and Plan 44's approved operator attempt are recorded in their immutable receipts; Plan 45's bounded disposable diagnosis did not prove a deterministic defect. Plan 48 records the missing pinned historical PR source and all 11 rows unresolved; the 30-row cleanup-history audit also remains unresolved.
+Status: In progress — Plan 49 complete with blocked cleanup-history source gate
+Planning evidence: Plan 43's source recovery and Plan 44's approved operator attempt are recorded in their immutable receipts; Plan 45's bounded disposable diagnosis and Plan 46's production-scale fixture did not prove a deterministic defect. Plan 48 records 11 historical PR-base rows unresolved, and Plan 49 records 30 cleanup-history pairs unknown.
 Historical verification: Phase 245's gaps_found report is dated 2026-09-28 and predates Plans 35–40 and the 2026-10-04 object recovery; preserve it as historical context, not a forward-phase prerequisite. Phase 244 verification passed per Plan 40's D-01 readiness, although its Plan 03 summary says blocked and can skew old counters; do not replay Phase 244 unless Phase 245 readiness identifies it as a prerequisite. The 11-row PR mismatch and 30-row cleanup-history audit remain unresolved under D-07.
 History: Plan 19's single admitted local deletion is counted once. Plans 29, 30, 33, 35, 36, 39, and 40 blocked evidence stays immutable. Plan 34's prior one-OID recovery and approval cannot authorize Plan 37's five objects. Plan 16 remains superseded and Plan 14 remains halted.
-Next GSD command: `$gsd-execute-phase 245 --gaps-only` for remaining independently scoped historical source plans; Plan 47 remains gated by Plan 46's blocked diagnostic.
+Next GSD command: `$gsd-execute-phase 245 --gaps-only` for Plan 47's conditional zero-attempt closeout; its live-operation gate remains closed by Plan 46's blocked diagnostic.
 The only authoritative sources are this local checkout and GitHub. Do not search another service or reinterpret the unavailable historical baseline. D-05's pinned Git/shared-coordinator gate remains active.
 The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complete from planning evidence.
 
@@ -548,6 +548,7 @@ The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complet
 - [Phase 245]: Skip Task 2 unless Task 1 proves a deterministic defect with a passing regression and exact fixture readback.
 - [Phase 245]: Plan 46 measured synthetic source latency but Plan 44 has no production-stage trace; live admission remains blocked and REPO-04 open.
 - [Phase 245]: Plan 48 keeps all 11 historical PR-base rows unresolved because the pinned baseline remains unavailable in the recorded D-06 preflight.
+- [Phase 245]: Keep 30 Phase 236-245 cleanup-history pairs unknown until complete signed command history and an independent recorder trust root pass a fresh D-06 gate.
 
 ### Pending Todos
 
@@ -757,8 +758,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-05T22:32:54.811Z
-Stopped at: Completed 245-48-PLAN.md with blocked historical source gate
+Last session: 2026-10-05T22:38:35.662Z
+Stopped at: Completed 245-49-PLAN.md with blocked cleanup history source gate
 Resume file: None
 
 ## Operator Next Steps
@@ -976,3 +977,4 @@ Resume file: None
 | Phase 245 P45 | 33min | 2 tasks | 3 files |
 | Phase 245 P46 | 10min observed closeout | 2 tasks | 2 files |
 | Phase 245 P48 | 4min | 2 tasks | 3 files |
+| Phase 245 P49 | 4min | 2 tasks | 3 files |

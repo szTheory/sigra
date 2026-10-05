@@ -57,7 +57,7 @@
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only",
     "label": "Continue Phase 245 gaps",
-    "reason": "Plan 48 completed with all 11 historical PR-base rows unresolved under the missing pinned source. Continue independent historical source work; Plan 47 requires a ready diagnostic and REPO-04 remains open."
+    "reason": "Plan 49 completed with all 30 cleanup-history pairs unknown under missing complete history and independent trust root. Continue Plan 47's conditional zero-attempt closeout; its live-operation gate is closed by Plan 46's blocked diagnostic, and REPO-04 remains open."
   },
   "updated_at": "2026-10-05T22:32:54.988Z"
 }
