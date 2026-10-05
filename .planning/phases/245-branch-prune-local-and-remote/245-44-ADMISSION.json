@@ -3353,7 +3353,7 @@
       ],
       "active_branch_registered": true
     },
-    "allowlist_sha256": "7c0b089cee4ff67125beef34eb03217c18d51e71fc86003ad0b20e2e52e2302c",
+    "allowlist_sha256": "69af16af1b208be375bc3df7faf9888436e2ce1697ef70cc2af0e09198b85d3f",
     "historical_sources": {
       "pr_11_rows": "unresolved",
       "cleanup_30_rows": "unresolved"

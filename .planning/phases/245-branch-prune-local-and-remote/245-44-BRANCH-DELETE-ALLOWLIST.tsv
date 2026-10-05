@@ -1,1 +1,2 @@
+side	ref	oid	type	reason
 tracking	refs/remotes/origin/v1.37-auth-branding-admin-polish	b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f	commit	At the fresh Plan 44 source capture, the exact nonsymbolic tracking ref is present at the expected commit; complete live origin refs contain no matching branch head, and none of the 14 complete open PRs uses this branch name as head or base. This is the sole eligible deletion; a separate Plan 44 decision is still required.
