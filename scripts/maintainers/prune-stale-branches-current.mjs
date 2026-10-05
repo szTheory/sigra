@@ -527,7 +527,14 @@ export function compareCurrent(contract, actual, contractCommit, options) {
     if (row.side === "local" || row.side === "tracking") {
       const expected = expectedLocal.get(ref);
       if (!expected || expected.oid !== row.oid || expected.type !== row.type) fail(`current_allowlist_local_identity_mismatch:${ref}`);
-      if (!actualLocal.has(ref)) expectedLocal.delete(ref);
+      if (!actualLocal.has(ref)) {
+        const operationRecorded = ["operation", "after"].includes(options.stage)
+          && appliedRefs.has(ref)
+          && (options.evidenceTransitionVerified === true
+            || (options.operationSide === row.side && options.operationRef === ref));
+        if (!operationRecorded) fail(`current_allowlisted_local_ref_missing_without_applied_operation:${ref}`);
+        expectedLocal.delete(ref);
+      }
     } else if (row.side === "remote") {
       const expected = expectedOrigin.get(ref);
       if (!expected || expected.oid !== row.oid || expected.type !== row.type) fail(`current_allowlist_origin_identity_mismatch:${ref}`);
@@ -762,7 +769,8 @@ function verify(repo, commit, path, stage, fixturePath, options) {
   const actual = collect(repo, fixturePath, { tolerateMissingPrBase: true });
   const compareOptions = { stage, operationSide: options.operationSide, operationRef: options.operationRef };
   if (transition) compareOptions.allowedActiveOid = transition.verified_head_oid;
-  if (transition) compareOptions.appliedRefs = transition.applied_refs;
+  compareOptions.appliedRefs = transition ? transition.applied_refs : options.appliedRefs ?? [];
+  compareOptions.evidenceTransitionVerified = Boolean(transition);
   compareOptions.allowlistRows = allowlist?.rows ?? [];
   compareCurrent(contract, actual, commit, compareOptions);
   if (["operation", "after"].includes(stage) && options.operationSide === "safety-publish") {

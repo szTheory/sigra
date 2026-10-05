@@ -234,6 +234,59 @@ test("safety publication result rejects malformed rows and missing or mismatched
   }
 });
 
+test("D-07 rejects missing allowlisted local refs unless an exact post-operation ref is recorded", () => {
+  const root = mkdtempSync(join(tmpdir(), "sigra-transition-less-missing-refs-"));
+  try {
+    const localRef = "refs/heads/stale-local";
+    const trackingRef = "refs/remotes/origin/stale-tracking";
+    const fixture = makeEvidenceFixture(root, { admittedLocalRefs: [localRef], trackingRefs: [trackingRef] });
+    const contract = { ...fixture.contract };
+    delete contract.evidence_transition;
+    const oid = contract.capture_head_oid;
+    const allowlistRows = [
+      { side: "local", ref: localRef, oid, type: "commit" },
+      { side: "tracking", ref: trackingRef, oid, type: "commit" },
+    ];
+    const actual = {
+      repository: contract.repository,
+      open_prs: contract.open_prs,
+      local_refs: contract.local_refs.filter((row) => ![localRef, trackingRef].includes(row.ref)),
+      origin_refs: contract.origin_refs,
+    };
+
+    assert.throws(() => compareCurrent(contract, actual, fixture.contractCommit, {
+      stage: "before",
+      allowlistRows,
+    }), new RegExp(`current_allowlisted_local_ref_missing_without_applied_operation:${localRef}`));
+    assert.throws(() => compareCurrent(contract, actual, fixture.contractCommit, {
+      stage: "after",
+      operationSide: "tracking",
+      operationRef: trackingRef,
+      allowlistRows,
+    }), new RegExp(`current_allowlisted_local_ref_missing_without_applied_operation:${localRef}`));
+
+    const trackingOnlyActual = {
+      ...actual,
+      local_refs: contract.local_refs.filter((row) => row.ref !== trackingRef),
+    };
+    assert.throws(() => compareCurrent(contract, trackingOnlyActual, fixture.contractCommit, {
+      stage: "after",
+      operationSide: "tracking",
+      operationRef: trackingRef,
+      allowlistRows,
+    }), new RegExp(`current_allowlisted_local_ref_missing_without_applied_operation:${trackingRef}`));
+    assert.doesNotThrow(() => compareCurrent(contract, trackingOnlyActual, fixture.contractCommit, {
+      stage: "after",
+      operationSide: "tracking",
+      operationRef: trackingRef,
+      appliedRefs: [trackingRef],
+      allowlistRows,
+    }));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("D-07 operation readback permits only cumulative committed tracking removals before a result child", () => {
   const root = mkdtempSync(join(tmpdir(), "sigra-operation-readback-"));
   try {
@@ -573,6 +626,7 @@ test("captured current PR/ref contract verifies from committed bytes through the
       "--operation-side", "local",
       "--operation-ref", "refs/heads/stale/merged",
       "--operation-kind", "delete",
+      "--applied-ref", "refs/heads/stale/merged",
     ], { encoding: "utf8", env: { ...process.env, SIGRA_CURRENT_GITHUB_FIXTURE: sourceFixture } });
     assert.equal(afterDelete.status, 0, afterDelete.stderr);
     run("git", ["-C", repo, "update-ref", "refs/heads/stale/merged", mainOid]);
