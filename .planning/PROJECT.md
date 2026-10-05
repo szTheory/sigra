@@ -15,6 +15,13 @@ CI evidence wherever practical. Keep human verification and UAT for genuinely ir
 or manual actions only. See [VERIFICATION-POLICY.md](VERIFICATION-POLICY.md) for the standing GSD
 policy.
 
+During execution, a user request to proceed authorizes scoped repository work and its deterministic
+checks under the plan's stated allowlists and fail-closed preconditions; do not repeat approval
+checkpoints for actions already inside that authorization. Escalate only when the next step exceeds
+scope, requires unavailable credentials, creates an unapproved external or materially irreversible
+side effect, changes a security or public-contract decision, or leaves uncertainty that automation
+cannot resolve.
+
 ## Current Milestone: v1.48 CLEAN-BASELINE
 
 **Goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
