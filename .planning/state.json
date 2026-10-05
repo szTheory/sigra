@@ -57,7 +57,7 @@
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only",
     "label": "Continue Phase 245 gaps",
-    "reason": "Plan 46 completed with blocked live admission. Continue independent historical source plans; Plan 47 requires a ready diagnostic and REPO-04 remains open."
+    "reason": "Plan 48 completed with all 11 historical PR-base rows unresolved under the missing pinned source. Continue independent historical source work; Plan 47 requires a ready diagnostic and REPO-04 remains open."
   },
-  "updated_at": "2026-10-05T22:25:25.342Z"
+  "updated_at": "2026-10-05T22:32:54.988Z"
 }
