@@ -55,9 +55,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:plan-phase 245",
-    "label": "Plan remaining Phase 245 gaps",
-    "reason": "Plan 45 ended blocked at zero attempts because no deterministic defect was proven. Phase 245 and REPO-04 remain open; any further operation needs fresh scoped planning and admission."
+    "command": "/gsd:execute-phase 245 --gaps-only",
+    "label": "Continue Phase 245 gaps",
+    "reason": "Plan 46 completed with blocked live admission. Continue independent historical source plans; Plan 47 requires a ready diagnostic and REPO-04 remains open."
   },
-  "updated_at": "2026-10-05T20:37:50.850Z"
+  "updated_at": "2026-10-05T22:25:25.342Z"
 }
