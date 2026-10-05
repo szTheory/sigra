@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Execute Plan 41 gap closure",
-    "reason": "Plan 41 is the sole runnable incomplete gap-closure plan. It passed plan, requirement, and decision coverage checks; execution must capture fresh current sources and obtain separate exact-row approval before any ref operation."
+    "label": "Execute Phase 245 gap plans",
+    "reason": "Plans 43 and 44 passed independent plan checking and all requirement, decision, and post-planning gap coverage gates. Execute only the new recovery and separately approved ref-deletion plans; Phase 245 and REPO-04 remain open."
   },
-  "updated_at": "2026-10-04T20:44:49Z"
+  "updated_at": "2026-10-05T15:15:11Z"
 }
