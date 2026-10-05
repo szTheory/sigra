@@ -128,6 +128,10 @@ done
 [[ "$host_seen" == 1 ]] || { echo 'fixture SSH rejected unknown host' >&2; exit 91; }
 [[ "$request" =~ ^git-(upload|receive)-pack[[:space:]]+[\\\"\\\']?szTheory/sigra\\.git[\\\"\\\']?$ ]] \\
   || { echo "fixture SSH rejected request: $request" >&2; exit 92; }
+if [[ "\${PRUNE_FIXTURE_HOLD_SSH:-0}" == 1 ]]; then
+  printf '%s\\n' "$$" > "$PRUNE_FIXTURE_HOLD_MARKER"
+  exec sleep 30
+fi
 if [[ "$request" == git-receive-pack* ]]; then
   exec /usr/bin/git-receive-pack "$PRUNE_FIXTURE_BARE"
 fi
@@ -285,6 +289,123 @@ function startTrackingApply(fixture) {
     child.once("close", (status, signal) => resolve({ status, signal, stdout, stderr }));
   });
   return { child, closed };
+}
+
+function plan45TrackingArgs(fixture) {
+  return [OPERATOR, "tracking", "--repo", fixture.repo, "--apply",
+    "--snapshot-commit", fixture.snapshotCommit, "--snapshot", fixture.snapshot,
+    "--readiness-commit", fixture.receiptCommit, "--readiness", RECEIPT,
+    "--current-contract-commit", fixture.contractCommit, "--current-contract", fixture.contract,
+    "--allowlist-commit", fixture.allowlistCommit, "--allowlist", fixture.allowlist];
+}
+
+function processGroupSnapshot(pgid) {
+  const result = spawnSync("/bin/ps", ["-axo", "pid=,ppid=,pgid=,command="], { encoding: "utf8" });
+  if (result.status !== 0) return [];
+  return result.stdout.split("\n").map((line) => line.trim()).filter((line) => {
+    const columns = line.split(/\s+/, 4);
+    return columns[2] === String(pgid);
+  });
+}
+
+async function waitForPath(path, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  while (!existsSync(path) && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  assert.ok(existsSync(path), `bounded fixture child did not reach hold point: ${path}`);
+}
+
+function startBoundedTrackingApply(fixture, { silenceMs = 10_000, totalMs = 20_000 } = {}) {
+  const argv = plan45TrackingArgs(fixture);
+  const trace = [];
+  const child = spawn("bash", ["-x", ...argv], {
+    cwd: ROOT,
+    env: { ...fixture.env, PS4: "+${SECONDS}s pid=$$ line=${LINENO}: " },
+    detached: true,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let stdout = "";
+  let stderr = "";
+  let lastOutputAt = new Date().toISOString();
+  let interruptedAt = null;
+  let activeGroup = [];
+  let escalationSignal = null;
+  const append = (kind, chunk) => {
+    const text = chunk.toString("utf8");
+    lastOutputAt = new Date().toISOString();
+    trace.push({ at: lastOutputAt, stream: kind, text });
+    if (kind === "stdout") stdout += text;
+    else stderr += text;
+  };
+  child.stdout.on("data", (chunk) => append("stdout", chunk));
+  child.stderr.on("data", (chunk) => append("stderr", chunk));
+  const startedAt = new Date().toISOString();
+  const close = new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("close", (status, signal) => resolve({ status, signal }));
+  });
+  const ended = new Promise((resolve) => {
+    let closed = false;
+    let silenceTimer;
+    const totalTimer = setTimeout(() => interrupt("total_runtime_limit"), totalMs);
+    function clear() {
+      closed = true;
+      clearTimeout(silenceTimer);
+      clearTimeout(totalTimer);
+    }
+    function interrupt(reason) {
+      if (closed || interruptedAt) return;
+      interruptedAt = { at: new Date().toISOString(), reason, signal: "SIGINT" };
+      activeGroup = processGroupSnapshot(child.pid);
+      try { process.kill(-child.pid, "SIGINT"); } catch {}
+      const escalate = setTimeout(() => {
+        if (closed) return;
+        escalationSignal = "SIGTERM";
+        try { process.kill(-child.pid, "SIGTERM"); } catch {}
+      }, 1500);
+      close.then((result) => {
+        clearTimeout(escalate);
+        clear();
+        resolve(result);
+      }, (error) => {
+        clearTimeout(escalate);
+        clear();
+        reject(error);
+      });
+    }
+    function armSilence() {
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => interrupt("silence_limit"), silenceMs);
+    }
+    child.stdout.on("data", armSilence);
+    child.stderr.on("data", armSilence);
+    close.then((result) => { if (!interruptedAt) { clear(); resolve(result); } }, (error) => { clear(); reject(error); });
+    armSilence();
+  });
+  return { child, argv, trace, close: ended, startedAt, lastOutputAt: () => lastOutputAt,
+    interruptedAt: () => interruptedAt, activeGroup: () => activeGroup, escalationSignal: () => escalationSignal,
+    xtrace: () => "",
+    output: () => ({ stdout, stderr }) };
+}
+
+function sanitizeXtrace(text) {
+  return text.split("\n").filter(Boolean).map((line) => line
+    .replace(/((?:token|secret|password|authorization)[^= ]*=)[^ \t]+/gi, "$1[REDACTED]")
+    .replace(/\btoken ([^ ;]+)/gi, "token [REDACTED]")
+    .replace(/\b[0-9a-f]{40,64}\b/gi, "[REDACTED_HEX]")
+    .replace(/(?:\\[0-9a-f]){40,64}/gi, "[REDACTED_ESCAPED_HEX]"));
+}
+
+function separateXtrace(text) {
+  const lines = text.split(/\r?\n/);
+  const xtrace = lines.filter((line) => /^\+{1,}\d+s pid=\d+ line=\d+: /.test(line));
+  const output = lines.filter((line) => !/^\+{1,}\d+s pid=\d+ line=\d+: /.test(line));
+  return { xtrace: sanitizeXtrace(xtrace.join("\n")), output: output.join("\n").trim() };
+}
+
+function xtraceCommands(lines) {
+  return lines.filter((line) => /^\+/.test(line)).map((line) => line.slice(1));
 }
 
 function readFifo(fifo, timeoutMs = 30_000) {
@@ -555,6 +676,177 @@ test("schema-2 tracking apply removes one admitted fixture ref under the shared 
       "the deleted tracking target object remains readable");
   } finally {
     rmSync(fixture.temp, { recursive: true, force: true });
+  }
+});
+
+test("tracking operator bounded fixture diagnosis", async () => {
+  const productionRefsBefore = refs(ROOT);
+  const fixture = makeTrackingFixture();
+  let heldFixture;
+  try {
+    const commonDir = git(fixture.repo, "rev-parse", "--git-common-dir");
+    const resolvedCommonDir = commonDir.startsWith("/") ? commonDir : join(fixture.repo, commonDir);
+    assert.ok(resolvedCommonDir.startsWith(fixture.temp), "fixture common directory must stay disposable");
+    assert.ok(!resolvedCommonDir.startsWith(join(ROOT, ".git")), "fixture must never share production Git common-dir");
+
+    const localBefore = refs(fixture.repo);
+    const originBefore = originRefs(fixture);
+    const prsBefore = readFileSync(fixture.liveCliPRs, "utf8");
+    const normal = startBoundedTrackingApply(fixture);
+    const normalResult = await normal.close;
+    const normalCompletedAt = new Date().toISOString();
+    const normalOutput = normal.output();
+    const normalLocalAfter = refs(fixture.repo);
+    const normalOriginAfter = originRefs(fixture);
+    assert.equal(normalResult.status, 0, `${normalOutput.stdout}${normalOutput.stderr}`);
+    assert.ok(normalOutput.stdout.includes(`deleted tracking ref ${fixture.trackingRef}`),
+      "public tracking command must report exact fixture deletion");
+    const localExpected = localBefore.split("\n").filter((row) => !row.startsWith(`${fixture.trackingRef}\t`)).join("\n");
+    assert.equal(normalLocalAfter, localExpected, "successful public pass changes only the admitted fixture tracking ref");
+    assert.equal(normalOriginAfter, originBefore, "successful public pass leaves origin identities unchanged");
+    assert.equal(readFileSync(fixture.liveCliPRs, "utf8"), prsBefore, "fixture open-PR identities remain unchanged");
+    assert.equal(run(GIT, ["-C", fixture.repo, "cat-file", "-e", `${fixture.oid}^{commit}`]).status, 0,
+      "the deleted tracking target commit remains readable");
+    assertSnapshotObjectsReadable(fixture);
+
+    heldFixture = makeTrackingFixture();
+    const holdMarker = join(heldFixture.temp, "held-child.pid");
+    heldFixture.env.PRUNE_FIXTURE_HOLD_SSH = "1";
+    heldFixture.env.PRUNE_FIXTURE_HOLD_MARKER = holdMarker;
+    const heldLocalBefore = refs(heldFixture.repo);
+    const heldOriginBefore = originRefs(heldFixture);
+    const heldPrsBefore = readFileSync(heldFixture.liveCliPRs, "utf8");
+    const held = startBoundedTrackingApply(heldFixture, { silenceMs: 1500, totalMs: 10_000 });
+    await waitForPath(holdMarker);
+    const heldResult = await held.close;
+    const heldOutput = held.output();
+    const heldLocalAfter = refs(heldFixture.repo);
+    const heldOriginAfter = originRefs(heldFixture);
+    const interrupt = held.interruptedAt();
+    assert.ok(interrupt, "held fixture child must trip watchdog");
+    assert.equal(interrupt.reason, "silence_limit");
+    assert.equal(interrupt.signal, "SIGINT");
+    assert.equal(held.escalationSignal(), null, "the single watchdog interrupt should stop the fixture group");
+    assert.notEqual(heldResult.status, 0, "held fixture apply must terminate as interrupted");
+    assert.equal(heldLocalAfter, heldLocalBefore, "interrupted pass must preserve all fixture local refs");
+    assert.equal(heldOriginAfter, heldOriginBefore, "interrupted pass must preserve all fixture origin refs");
+    assert.equal(readFileSync(heldFixture.liveCliPRs, "utf8"), heldPrsBefore,
+      "interrupted pass must preserve the fixture open-PR inventory");
+    const coordinatorRoot = join(heldFixture.repo, git(heldFixture.repo, "rev-parse", "--git-common-dir"),
+      "sigra-branch-worktree-coordinator");
+    assert.equal(existsSync(join(coordinatorRoot, "lock")), false, "interrupted operator releases the fixture coordinator");
+    assert.equal(refs(ROOT), productionRefsBefore, "diagnosis leaves production local refs unchanged");
+
+    const normalStdout = separateXtrace(normalOutput.stdout);
+    const normalStderr = separateXtrace(normalOutput.stderr);
+    const heldStdout = separateXtrace(heldOutput.stdout);
+    const heldStderr = separateXtrace(heldOutput.stderr);
+    const normalXtrace = [...normalStdout.xtrace, ...normalStderr.xtrace];
+    const heldXtrace = [...heldStdout.xtrace, ...heldStderr.xtrace];
+    const normalCommands = xtraceCommands(normalXtrace);
+    const heldCommands = xtraceCommands(heldXtrace);
+    const summarizeEvents = (events) => events.map(({ at, stream, text }) => ({ at, stream, bytes: Buffer.byteLength(text) }));
+    const fixtureResult = {
+      schema_version: 1,
+      phase: "245-branch-prune-local-and-remote",
+      plan: 45,
+      outcome: "blocked",
+      captured_at: new Date().toISOString(),
+      operation_attempted: false,
+      operator: { attempt_count: 0 },
+      production_ref_operations: 0,
+      pull_request_mutations: 0,
+      repo_04_status: "open",
+      historical_audits: { pr_11_rows: "unresolved", cleanup_30_rows: "unresolved" },
+      mutations: { local_ref_deletions: [], tracking_ref_deletions: [], remote_ref_deletions: [], safety_ref_publications: [] },
+      failed_predicates: ["fixture diagnosis did not reproduce or localize a deterministic defect; live admission prohibited"],
+      diagnostic: {
+        production_repo_mutations: 0,
+        plan44_observed: {
+          duration_ms: 600713,
+          signal: "SIGINT",
+          wrapper_exit_code: 1,
+          stdout: "",
+          stderr: "",
+          readback: {
+            state: "exact_present",
+            ref: "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+            oid: "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+            type: "commit",
+          },
+        },
+        repro_inputs: {
+          operator: "public tracking --apply entry point",
+          repo: "disposable fixture with local bare origin, fake GitHub CLI, committed snapshots/readiness/current contract and shared coordinator",
+          argv: normal.argv,
+          watchdog_ms: { silence: 1500, total: 10000 },
+          production_repo_mutations: 0,
+        },
+        fixture: {
+          repo: fixture.repo,
+          git_common_dir: resolvedCommonDir,
+          target_ref: fixture.trackingRef,
+          target_before: { oid: fixture.oid, type: "commit" },
+          target_after: "absent",
+          target_object_readable: true,
+          local_ref_count_before: localBefore.split("\n").filter(Boolean).length,
+          origin_ref_count_before: originBefore.split("\n").filter(Boolean).length,
+          normal_exit: { status: normalResult.status, signal: normalResult.signal, stdout: normalStdout.output, stderr: normalStderr.output },
+          normal_refs_exact_except_target: normalLocalAfter === localExpected,
+          origin_refs_unchanged: normalOriginAfter === originBefore,
+          open_prs_unchanged: readFileSync(fixture.liveCliPRs, "utf8") === prsBefore,
+          held_target_after: heldLocalAfter.includes(`${heldFixture.trackingRef}\t${heldFixture.oid}\tcommit`) ? "exact_present" : "unknown",
+          held_local_refs_unchanged: heldLocalAfter === heldLocalBefore,
+          held_origin_refs_unchanged: heldOriginAfter === heldOriginBefore,
+        },
+        trace: {
+          deterministic_defect_proven: false,
+          last_stage: "public tracking apply completed successfully in normal fixture; held-child run stopped at fixture SSH child",
+          normal: {
+            started_at: normal.startedAt,
+            completed_at: normalCompletedAt,
+            duration_ms: Date.parse(normalCompletedAt) - Date.parse(normal.startedAt),
+            last_output_at: normal.lastOutputAt(),
+            last_completed_command: normalCommands.at(-1) ?? "none",
+            command_count: normalCommands.length,
+            xtrace: normalXtrace,
+            output_events: summarizeEvents(normal.trace),
+            stdout: normalStdout.output,
+            stderr: normalStderr.output,
+          },
+          held: {
+            started_at: held.startedAt,
+            interrupted_at: interrupt.at,
+            reason: interrupt.reason,
+            last_output_at: held.lastOutputAt(),
+            last_completed_command: heldCommands.at(-1) ?? "none",
+            active_process_group: [
+              { pid: held.child.pid, pgid: held.child.pid, command: "bash detached process group running public tracking operator" },
+              { pid: Number(readFileSync(holdMarker, "utf8").trim()), pgid: held.child.pid, command: "fixture-ssh exec sleep 30" },
+            ],
+            held_child_pid: Number(readFileSync(holdMarker, "utf8").trim()),
+            exit: { status: heldResult.status, signal: heldResult.signal, escalation_signal: held.escalationSignal() },
+            command_count: heldCommands.length,
+            xtrace: heldXtrace,
+            output_events: summarizeEvents(held.trace),
+            stdout: heldStdout.output,
+            stderr: heldStderr.output,
+            coordinator_lock_released: !existsSync(join(coordinatorRoot, "lock")),
+          },
+        },
+        watchdog: { single_interrupt_no_relaunch: true, interrupt_count: 1, launch_count: 1, escalation_signal: null },
+        deterministic_defect_proven: false,
+        regression: { red_observed: false, green_observed: false },
+        live_apply_permitted: false,
+        next_machine_actionable_diagnostic: "If a later authorized diagnostic needs the production-scale input, add disposable load fixtures and trace external-source latency; this run proves the current fixture path and bounded interruption but no code defect.",
+      },
+    };
+    const resultPath = join(ROOT, PHASE_DIR, "245-45-RESULT.json");
+    writeFileSync(resultPath, `${JSON.stringify(fixtureResult, null, 2)}\n`);
+    assert.equal(refs(ROOT), productionRefsBefore, "diagnostic result creation must not mutate production refs");
+  } finally {
+    rmSync(fixture.temp, { recursive: true, force: true });
+    if (heldFixture) rmSync(heldFixture.temp, { recursive: true, force: true });
   }
 });
 
