@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "szTheory/sigra",
   "checkout_root": "/Users/jon/projects/sigra",
-  "captured_at": "2026-10-05T16:52:19.758Z",
+  "captured_at": "2026-10-05T17:40:58.929Z",
   "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
-  "capture_head_oid": "ab99c6b344bfefbb986f5aaf0acecee01958be74",
+  "capture_head_oid": "4bd0ac1128c2b70e4816e5598a3257038ded9fe9",
   "local_refs": [
     {
       "ref": "refs/archive/merged-branches/chore/enable-generated-app-login-dispatch",
@@ -448,7 +448,7 @@
     },
     {
       "ref": "refs/heads/phase-244-playwright-measurement",
-      "oid": "ab99c6b344bfefbb986f5aaf0acecee01958be74",
+      "oid": "4bd0ac1128c2b70e4816e5598a3257038ded9fe9",
       "type": "commit",
       "peeled_oid": null,
       "peeled_type": null,
@@ -3782,7 +3782,7 @@
       "headRefName": "dependabot/hex/ex_doc-0.40.4",
       "baseRefName": "main",
       "headRefOid": "75b00619d287694ac55643584923011538933660",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3792,7 +3792,7 @@
       "headRefName": "dependabot/hex/threadline-0.10.1",
       "baseRefName": "main",
       "headRefOid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3802,7 +3802,7 @@
       "headRefName": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
       "baseRefName": "main",
       "headRefOid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3812,7 +3812,7 @@
       "headRefName": "dependabot/hex/mox-1.3.2",
       "baseRefName": "main",
       "headRefOid": "85a9d29f645229c90bd30da8860147591e510aa9",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3822,7 +3822,7 @@
       "headRefName": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
       "baseRefName": "main",
       "headRefOid": "8bb65f8f78d726318dad6c81361009dada8b917c",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3832,7 +3832,7 @@
       "headRefName": "dependabot/hex/stream_data-1.4.0",
       "baseRefName": "main",
       "headRefOid": "c6e0cc4083656155c14213a88de2a5c646516661",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3842,7 +3842,7 @@
       "headRefName": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
       "baseRefName": "main",
       "headRefOid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3852,7 +3852,7 @@
       "headRefName": "dependabot/hex/dialyxir-1.4.8",
       "baseRefName": "main",
       "headRefOid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3862,7 +3862,7 @@
       "headRefName": "evidence/phase-241-final-head-cd1e7e1252da",
       "baseRefName": "main",
       "headRefOid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
-      "baseRefOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     },
@@ -3882,7 +3882,7 @@
       "headRefName": "gsd/238-generated-auth-runtime-proof-evidence",
       "baseRefName": "main",
       "headRefOid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
-      "baseRefOid": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
       "headRepository": "szTheory/sigra",
       "baseRepository": "szTheory/sigra"
     }
@@ -3942,7 +3942,7 @@
   ],
   "evidence_transition": {
     "active_ref": "refs/heads/phase-244-playwright-measurement",
-    "captured_head_oid": "ab99c6b344bfefbb986f5aaf0acecee01958be74",
+    "captured_head_oid": "4bd0ac1128c2b70e4816e5598a3257038ded9fe9",
     "contract_path": ".planning/phases/245-branch-prune-local-and-remote/245-44-CURRENT-CONTRACT.json",
     "contract_paths": [
       ".planning/phases/245-branch-prune-local-and-remote/245-44-ADMISSION.json",
@@ -3956,12 +3956,13 @@
         "sha256": "69af16af1b208be375bc3df7faf9888436e2ce1697ef70cc2af0e09198b85d3f"
       },
       ".planning/phases/245-branch-prune-local-and-remote/245-44-ADMISSION.json": {
-        "blob": "8b69dbd80d3f6e386470a6582355bf543b9d4948",
-        "sha256": "71ad19a9c675ef84b8e8ee0c2cd78ffb81c3f1ecdfbb9540b40b36a9423af053"
+        "blob": "74e807b4687666dc48e5a0122abeb81af7158b10",
+        "sha256": "918230210ad1676cfc86b1534ab73ee2d737ef62cfccc4f723e4fab36e6e6957"
       }
     },
     "final_child_path_sets": {
       "blocked": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-44-POST-STATE.json",
         ".planning/phases/245-branch-prune-local-and-remote/245-44-RESULT.json",
         ".planning/phases/245-branch-prune-local-and-remote/245-44-SUMMARY.md"
       ],

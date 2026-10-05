@@ -8,9 +8,9 @@
     "path": "245-44-CURRENT-CONTRACT.json",
     "repository": "szTheory/sigra",
     "source_digests": {
-      "local_refs": "ba36e3022ad436cf8e53c2e4b35c2ed64abb7c72eb1c6cd0d27d1b4424c16571",
+      "local_refs": "72b524e94f86323ca9430207598fb90eb270da94f456a0e51bed3a70bbbdcb8b",
       "origin_refs": "09c307e58f15d1e3d7cde541466571a3d26a8b20255c9e758ddac0dbd8f7eda7",
-      "open_prs": "e123ab15ddfa674a25d9c085217bcbc6b384c65e43fc80a5fe9f4db87a95b002"
+      "open_prs": "4c2ef50809b4a1e1cdad639918f03f659a3a2b5e11364b075fc6bb1a90ca0e1b"
     },
     "local_refs": 106,
     "origin_refs": 361,
@@ -33,7 +33,7 @@
   },
   "contract_capture_head": {
     "ref": "refs/heads/phase-244-playwright-measurement",
-    "oid": "0c3a96a3348b481e0e3ba50e77f9dfd123caf529"
+    "oid": "4bd0ac1128c2b70e4816e5598a3257038ded9fe9"
   },
   "counts": {
     "local_heads": 33,
@@ -712,7 +712,7 @@
     {
       "side": "local",
       "ref": "refs/heads/phase-244-playwright-measurement",
-      "oid": "0c3a96a3348b481e0e3ba50e77f9dfd123caf529",
+      "oid": "4bd0ac1128c2b70e4816e5598a3257038ded9fe9",
       "type": "commit",
       "disposition": "keep",
       "reason": "The branch is registered to the active worktree at the fresh Plan 44 captured HEAD.",
@@ -720,8 +720,8 @@
         "status": "passed",
         "predicate": "registered_worktree_branch_protected",
         "source_rows": [
-          "local\trefs/heads/phase-244-playwright-measurement\t0c3a96a3348b481e0e3ba50e77f9dfd123caf529\tcommit",
-          "worktree\t/Users/jon/projects/sigra\trefs/heads/phase-244-playwright-measurement\t0c3a96a3348b481e0e3ba50e77f9dfd123caf529"
+          "local\trefs/heads/phase-244-playwright-measurement\t4bd0ac1128c2b70e4816e5598a3257038ded9fe9\tcommit",
+          "worktree\t/Users/jon/projects/sigra\trefs/heads/phase-244-playwright-measurement\t4bd0ac1128c2b70e4816e5598a3257038ded9fe9"
         ],
         "command": [
           "/usr/bin/git",
@@ -730,8 +730,8 @@
           "--porcelain"
         ],
         "command_exit": 0,
-        "readback": "/Users/jon/projects/sigra registers refs/heads/phase-244-playwright-measurement at 0c3a96a3348b481e0e3ba50e77f9dfd123caf529.",
-        "prior_proof_revalidated": false
+        "readback": "/Users/jon/projects/sigra registers refs/heads/phase-244-playwright-measurement at 4bd0ac1128c2b70e4816e5598a3257038ded9fe9.",
+        "prior_proof_revalidated": true
       }
     },
     {
@@ -3256,9 +3256,9 @@
   ],
   "evidence": {
     "source_digests": {
-      "local_refs": "ba36e3022ad436cf8e53c2e4b35c2ed64abb7c72eb1c6cd0d27d1b4424c16571",
+      "local_refs": "72b524e94f86323ca9430207598fb90eb270da94f456a0e51bed3a70bbbdcb8b",
       "origin_refs": "09c307e58f15d1e3d7cde541466571a3d26a8b20255c9e758ddac0dbd8f7eda7",
-      "open_prs": "e123ab15ddfa674a25d9c085217bcbc6b384c65e43fc80a5fe9f4db87a95b002"
+      "open_prs": "4c2ef50809b4a1e1cdad639918f03f659a3a2b5e11364b075fc6bb1a90ca0e1b"
     },
     "typed_object_audit": {
       "unique_oid_type_pairs": 350,
@@ -3347,7 +3347,7 @@
       "records": [
         {
           "worktree": "/Users/jon/projects/sigra",
-          "HEAD": "0c3a96a3348b481e0e3ba50e77f9dfd123caf529",
+          "HEAD": "4bd0ac1128c2b70e4816e5598a3257038ded9fe9",
           "branch": "refs/heads/phase-244-playwright-measurement"
         }
       ],
