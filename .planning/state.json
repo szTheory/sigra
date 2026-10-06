@@ -1,78 +1,12 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.48 — CLEAN-BASELINE (closed; override_closeout)",
-  "phases": [
-    {
-      "number": "236",
-      "name": "Flake Root Cause",
-      "status": "stale"
-    },
-    {
-      "number": "237",
-      "name": "Clean Working Tree + Pages + `lib/` Docs",
-      "status": "stale"
-    },
-    {
-      "number": "238",
-      "name": "Tag Guard, Then Tag Deletion",
-      "status": "stale"
-    },
-    {
-      "number": "239",
-      "name": "`priv/templates/` Sweep + Re-bless",
-      "status": "passed"
-    },
-    {
-      "number": "240",
-      "name": "Green-Main Evidence + Honest Pages Script",
-      "status": "passed"
-    },
-    {
-      "number": "241",
-      "name": "Debt Retirement + Leakage Guard",
-      "status": "stale"
-    },
-    {
-      "number": "242",
-      "name": "Safety Closeout for Phantom Release Adoption",
-      "status": "stale"
-    },
-    {
-      "number": "243",
-      "name": "Queue Drain + Todo Triage",
-      "status": "stale"
-    },
-    {
-      "number": "244",
-      "name": "`@playwright/test` Bump, Alone",
-      "status": "stale"
-    },
-    {
-      "number": "245",
-      "name": "Branch Prune",
-      "status": "gaps_found"
-    }
-  ],
+  "milestone": "v1.49",
+  "phases": [],
   "next": {
-    "command": "$gsd-new-milestone",
-    "label": "Define the next milestone",
-    "reason": "v1.48 is archived as an override closeout; Phase 246 is not defined."
+    "command": "/gsd:discuss-phase",
+    "label": "Discuss the first phase",
+    "reason": "Project initialized — plan your first phase"
   },
-  "updated_at": "2026-10-06T02:46:50.255Z",
-  "closeout_type": "override_closeout",
-  "current_phase": null,
-  "requirements": {
-    "satisfied": 21,
-    "partial": [
-      "GREEN-04",
-      "GREEN-05",
-      "REL-05",
-      "SURF-01"
-    ],
-    "unsatisfied": [
-      "REL-06",
-      "REPO-04"
-    ]
-  }
+  "updated_at": "2026-10-06T14:54:36.443Z"
 }

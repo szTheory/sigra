@@ -1,40 +1,34 @@
 ---
 gsd_state_version: "1.0"
-milestone: v1.48
-milestone_name: CLEAN-BASELINE
-status: Awaiting next milestone
-stopped_at: Reconciled live GSD readiness, deprecated audit tooling, worktree scope, and milestone-tag policy
-last_updated: "2026-10-06T02:48:35Z"
-last_activity: 2026-10-05
-last_activity_desc: Milestone v1.48 completed and archived
-state_head: 41c1d4abd4f635839bf888fe25c2df1465ba3802
-closeout_type: override_closeout
+milestone: v1.49
+milestone_name: RELEASE-1.6.0
+status: planning
+last_updated: "2026-10-06T14:54:36.440Z"
+last_activity: 2026-10-06
 progress:
-  total_phases: 10
-  completed_phases: 2
-  total_plans: 109
-  completed_plans: 108
-  percent: 20
-current_phase: null
-current_phase_name: null
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-10-05)
+See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Define the next milestone with `$gsd-new-milestone`; v1.48 is archived as an override closeout.
+**Current focus:** Define requirements and roadmap for v1.49 RELEASE-1.6.0; Phase 246 is the first planned phase.
 
 ## Current Position
 
-Phase: No active phase — v1.48 archived as `override_closeout`
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-10-05 — Milestone v1.48 completed and archived
+Status: Defining requirements
+Last activity: 2026-10-06 — Milestone v1.49 started
 
 ### v1.48 closeout outcome
 
@@ -44,7 +38,7 @@ Last activity: 2026-10-05 — Milestone v1.48 completed and archived
 - Phase 245 is terminal with no runnable plans. Its 11 historical PR-base rows and 30 cleanup-history pairs remain unresolved; do not repeat the same negative-proof plans without a source change.
 - The pre-close manual inventory found 69 pending todo files, one unfinished quick task, three open seeds, four deferred items, one dormant seed, and two implemented seeds. No items were acknowledged or suppressed because `audit-open` is deprecated and unreliable for this repository. These remain visible debt.
 - The 175-path pre-close worktree inventory was preserved. Phase directories moved intact to `milestones/v1.48-phases/`; unrelated product/CI changes remain separate from the closeout checkpoint.
-- No Phase 246 is defined. Next GSD command: `$gsd-new-milestone`.
+- At the v1.48 closeout, no Phase 246 was defined; v1.49 now begins at Phase 246.
 
 ### v1.48 phase map
 
