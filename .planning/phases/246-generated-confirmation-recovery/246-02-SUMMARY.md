@@ -91,7 +91,7 @@ commits: 3
 2. **Task 1 GREEN: Accept scoped spaced confirmation codes** - `978c84f5` (`feat`)
 3. **Task 2: Assert accessible feedback and retry behavior** - `0278d916` (`test`)
 
-**Plan metadata:** pending.
+**Plan metadata:** `7903d8a9` (summary), `fc6eccde` (state and roadmap).
 
 ## Files Created/Modified
 
@@ -158,6 +158,7 @@ Plan 02 is complete and ready for Plan 246-03's generated-host browser and CI ev
 
 - All six modified implementation/test files exist.
 - Task commits `1d6d818f`, `978c84f5`, and `0278d916` are ancestors of the recorded plan head.
+- Summary commit `7903d8a9` and state/roadmap commit `fc6eccde` are present.
 - Focused library tests passed: 71 tests, 0 failures.
 - Focused generator/UI contract tests passed: 47 tests, 0 failures.
 - Fresh-host install smoke passed: 8 generated-host tests, 0 failures.
