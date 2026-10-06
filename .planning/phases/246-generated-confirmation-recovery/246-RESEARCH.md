@@ -282,19 +282,17 @@ await expect(page.getByRole('status')).toContainText(successCopy);
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
 | A1 | Only literal ASCII spaces inserted by the generated HTML email should be removed; tabs/newlines and other Unicode whitespace are rejected. | Architecture Pattern 3 | A mail client that transforms separators could create a false rejection; broaden only if a supported generated email rendering demonstrably emits different whitespace. |
-| A2 | The narrow fresh-host browser test can run from the existing Playwright package while targeting the disposable host created by install-smoke, with browser installation added to that CI job if needed. | Validation Architecture | CI wiring may need a small dedicated job if the generated host lifecycle cannot be kept in the install-smoke job; either way the recurring required gate must observe it. |
-| A3 | A success feedback result may follow existing redirect behavior after link/code confirmation, provided shared flash rendering makes it visible on the generated destination. | Feedback pattern | If the home route does not render the shared auth page, success copy must be displayed on a confirmation result page instead. |
+| A2 | RESOLVED by `246-03-PLAN.md` Task 1: the narrow browser test uses the existing Playwright package and the disposable host already booted by `scripts/ci/admin-acceptance-smoke.sh` in required generated-admin CI; install-smoke retains the database probe. | Validation Architecture | The generated-admin job must execute the new target under `--test all` and remain a ci-gate dependency. |
+| A3 | RESOLVED by `246-01-PLAN.md` Task 1: link/code success remains on a confirmation result screen rendered by the shared auth page. | Feedback pattern | Shared status must be visible on that screen; relying on the home route is insufficient. |
 
 ## Open Questions
 
-1. **Which generated screen owns success feedback after a successful confirmation?**
+1. **RESOLVED — Which generated screen owns success feedback after a successful confirmation?**
    - What we know: Current handlers set localized success flash then redirect to `/`; the shared auth page has no flash slot today.
-   - What's unclear: Whether every freshly generated host renders shared auth feedback on `/`.
-   - Recommendation: Keep success in the shared flash if rendered on the redirected page; otherwise retain the visitor on an explicit confirmation-complete screen that renders the same component. Test the visible success end to end.
-2. **How should route groups be split with the generated `--live` and controller modes?**
+   - Resolution: `246-01-PLAN.md` Task 1 keeps the visitor on a confirmation result screen rendered through `sigra_auth_page`, adds the shared visible status region, and tests the result in the generated host. This does not depend on `/` rendering auth flash.
+2. **RESOLVED — How should route groups be split with the generated `--live` and controller modes?**
    - What we know: LiveView confirmation is the phase issue; controller mode emits GET and POST routes from the same authenticated redirect scope.
-   - What's unclear: Whether Phase 246 intentionally changes only LiveView generation or expects parity for `--no-live` hosts.
-   - Recommendation: Use the scope smallest consistent with D-01 and requirements; discuss-phase says reachable generated Phoenix confirmation flow, while specific D-08 browser proof covers the generated default LiveView. Avoid broad controller redesign unless a confirmed requirement demands it.
+   - Resolution: `246-01-PLAN.md` Tasks 1–2 move the default generated LiveView confirmation routes to an optional-current-scope browser group and prove both visitor states in a fresh host. They retain a no-live generation contract check while leaving the controller route group and controller behavior intact, as this phase's D-08/D-09 behavioral proof targets the generated LiveView journey.
 
 ## Environment Availability
 

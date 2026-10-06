@@ -1,8 +1,8 @@
 # Phase 246: Generated Confirmation Recovery - Pattern Map
 
 **Mapped:** 2026-10-06  
-**Files analyzed:** 15 planned/new or modified files  
-**Analogs found:** 15 / 15 (several are closest infrastructure analogs, not feature-identical)
+**Files analyzed:** 16 planned/new or modified files  
+**Analogs found:** 16 / 16 (several are closest infrastructure analogs, not feature-identical)
 
 ## File Classification
 
@@ -17,12 +17,13 @@
 | `priv/templates/sigra.install/core/sigra_auth_components.ex` | component | transform | same `sigra_auth_page` component | exact |
 | `priv/templates/sigra.install/core/sigra_auth.css` | config | transform | existing success/danger status classes in same stylesheet | exact |
 | `priv/templates/sigra.install/core/emails.ex` | service | request-response | same confirmation email builder | exact; displayed spacing is its contract |
-| `test/sigra/install/generated_confirmation_live_test.exs` | test | request-response | `test/sigra/install/features/core_test.exs` plus existing auth tests | role-match |
+| `scripts/ci/generated-confirmation-probe.exs` | test | request-response | `scripts/ci/install-smoke.sh` generated-host probe plus `test/sigra/install/features/core_test.exs` | role-match |
 | `test/sigra/auth_test.exs` | test | CRUD | same library auth test module | exact |
 | `test/sigra/install/auth_ui_contract_test.exs` | test | transform | `test/sigra/install/generator_email_test.exs` template assertions | role-match |
+| `test/sigra/install/generated_confirmation_ci_contract_test.exs` | test | batch | existing generated-admin CI route in `.github/workflows/ci.yml` | role-match |
 | generated host `test/generated_confirmation_probe_test.exs` | test | CRUD | `scripts/ci/install-smoke.sh` generated-host test probe | role-match |
 | `test/example/priv/playwright/tests/generated-confirmation.spec.ts` | test | request-response | `test/example/priv/playwright/tests/passkey-login.spec.ts` | role-match |
-| `.github/workflows/ci.yml` / `scripts/ci/install-smoke.sh` | config | batch | existing `install_smoke` CI job and harness | exact |
+| `scripts/ci/admin-acceptance-smoke.sh` / `.github/workflows/ci.yml` | config | batch | existing generated-admin fresh-host browser job and required ci-gate edge | exact |
 
 ## Pattern Assignments
 
@@ -227,7 +228,7 @@ await page.goto(`${appOrigin}${confirmUrl.pathname}${confirmUrl.search}${confirm
 ```
 Reuse mailbox extraction and the LiveView-connected readiness signal. For this phase, prefer role/label selectors and Playwright retrying assertions; browser scenario must paste the literal spaced clipboard value and assert visible status/error then retry. Keep target origin and fresh-host lifecycle aligned with install-smoke.
 
-**Fresh-host and CI analogs:** `scripts/ci/install-smoke.sh:43-80` generates a disposable Phoenix host, installs Sigra, and compiles it; `.github/workflows/ci.yml:756-824` owns the recurring `install_smoke` job and PostgreSQL service. Extend this existing path or a dedicated job aggregated into required CI, retaining diagnostics identifying failed generated-host/browser steps.
+**Fresh-host and CI analogs:** `scripts/ci/install-smoke.sh:43-80` generates a disposable Phoenix host, installs Sigra, and compiles it for the persisted-state probe. `scripts/ci/admin-acceptance-smoke.sh` already boots a separate freshly generated host with Playwright in the required generated-admin job; `.github/workflows/ci.yml` carries both that job and `install_smoke` into ci-gate. Add the narrow browser target to the running generated-admin host and retain diagnostics identifying its failed step.
 
 ## Shared Patterns
 
