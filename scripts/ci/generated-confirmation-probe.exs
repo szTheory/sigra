@@ -152,4 +152,69 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
     assert is_nil(Repo.get!(User, visitor.id).confirmed_at)
     IO.puts("PASS confirmation probe: client account identifier did not select confirmation target")
   end
+
+  test "confirmation codes stay account-bound and accept the exact email spacing", %{conn: conn} do
+    owner = AccountsFixtures.user_fixture()
+    current_user = AccountsFixtures.user_fixture()
+
+    {_signed_token, owner_code, link_token, code_token} =
+      Sigra.Auth.generate_confirmation_token(Repo, owner,
+        secret_key_base: <%= app_module %>Web.Endpoint.config(:secret_key_base),
+        user_token_schema: UserToken
+      )
+
+    Repo.insert!(link_token)
+    Repo.insert!(code_token)
+
+    owner_before = Repo.get!(User, owner.id).confirmed_at
+    current_before = Repo.get!(User, current_user.id).confirmed_at
+    assert is_nil(owner_before)
+    assert is_nil(current_before)
+
+    current_session_token = Auth.generate_user_session_token(current_user)
+
+    current_conn =
+      conn
+      |> Phoenix.ConnTest.init_test_session(%{})
+      |> Plug.Conn.put_session(:user_token, current_session_token)
+
+    {:ok, current_view, _html} = live(current_conn, "/users/confirm")
+
+    rejected_html =
+      current_view
+      |> element("#confirmation_form")
+      |> render_submit(%{
+        "confirmation" => %{
+          "code" => Enum.join(String.graphemes(owner_code), " "),
+          "user_id" => to_string(owner.id)
+        }
+      })
+
+    assert rejected_html =~ "Invalid confirmation code. Please try again."
+    assert Repo.get!(User, owner.id).confirmed_at == owner_before
+    assert Repo.get!(User, current_user.id).confirmed_at == current_before
+    IO.puts("PASS confirmation probe: another account's code left both persisted users unchanged")
+
+    owner_session_token = Auth.generate_user_session_token(owner)
+
+    owner_conn =
+      conn
+      |> Phoenix.ConnTest.init_test_session(%{})
+      |> Plug.Conn.put_session(:user_token, owner_session_token)
+
+    {:ok, owner_view, _html} = live(owner_conn, "/users/confirm")
+
+    accepted_html =
+      owner_view
+      |> element("#confirmation_form")
+      |> render_submit(%{
+        "confirmation" => %{"code" => Enum.join(String.graphemes(owner_code), " ")}
+      })
+
+    assert accepted_html =~ "Your email has been confirmed."
+    assert Repo.get!(User, owner.id).confirmed_at
+    assert Repo.get!(User, current_user.id).confirmed_at == current_before
+    assert Repo.get_by(UserToken, user_id: owner.id, context: "confirm_code") == nil
+    IO.puts("PASS confirmation probe: owner accepted the spaced code and consumed confirmation credentials")
+  end
 end

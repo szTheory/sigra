@@ -847,7 +847,8 @@ defmodule Sigra.AuthTest do
         )
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm_code"] ->
+      |> expect(:get_by, fn TestUserToken,
+                            [token: _, context: "confirm_code", user_id: 1] ->
         %TestUserToken{
           id: 2,
           token: code_struct.token,
@@ -876,7 +877,10 @@ defmodule Sigra.AuthTest do
 
     test "with invalid code returns {:error, :invalid_code}" do
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm_code"] -> nil end)
+      |> expect(:get_by, fn TestUserToken,
+                            [token: _, context: "confirm_code", user_id: 1] ->
+        nil
+      end)
 
       result =
         Auth.verify_confirmation_code(Sigra.MockRepo, "000000",
@@ -990,6 +994,23 @@ defmodule Sigra.AuthTest do
         )
 
       assert {:error, :rate_limited} = result
+    end
+
+    test "a code belonging to another user is rejected before a transaction starts" do
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken,
+                             [token: _, context: "confirm_code", user_id: 2] ->
+        nil
+      end)
+
+      result =
+        Auth.verify_confirmation_code(Sigra.MockRepo, "123456",
+          user_id: 2,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser
+        )
+
+      assert {:error, :invalid_code} = result
     end
   end
 
