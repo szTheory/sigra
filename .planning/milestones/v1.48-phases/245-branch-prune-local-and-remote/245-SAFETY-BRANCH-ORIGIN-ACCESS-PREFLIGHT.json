@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "repository": "szTheory/sigra",
+  "origin_identity": "github.com/szTheory/sigra",
+  "actor": "szTheory",
+  "operation": "publish",
+  "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+  "result": "passed",
+  "detail": "passed",
+  "pr_count": 13,
+  "push_refspec": "refs/heads/safety/local-main-before-release-cleanup-20260831:refs/heads/safety/local-main-before-release-cleanup-20260831",
+  "captured_at": "2026-09-27T19:30:41Z",
+  "checks": [
+    {
+      "check": "origin_identity",
+      "status": "passed"
+    },
+    {
+      "check": "gh_auth",
+      "status": "passed"
+    },
+    {
+      "check": "account_identity",
+      "status": "passed"
+    },
+    {
+      "check": "complete_pr_read",
+      "status": "passed"
+    },
+    {
+      "check": "pr_completeness",
+      "status": "passed"
+    },
+    {
+      "check": "pr_exclusion",
+      "status": "passed"
+    },
+    {
+      "check": "origin_read",
+      "status": "passed"
+    },
+    {
+      "check": "push_permission",
+      "status": "passed"
+    },
+    {
+      "check": "exact_ref_push_dry_run",
+      "status": "passed"
+    }
+  ]
+}

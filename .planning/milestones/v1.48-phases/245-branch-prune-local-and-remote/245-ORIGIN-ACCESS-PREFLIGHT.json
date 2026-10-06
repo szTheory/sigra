@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "repository": "szTheory/sigra",
+  "origin_identity": "github.com/szTheory/sigra",
+  "actor": "szTheory",
+  "operation": "delete",
+  "ref": "refs/heads/brandbook-rail-accent-logo-system",
+  "result": "passed",
+  "detail": "passed",
+  "pr_count": 13,
+  "push_refspec": ":refs/heads/brandbook-rail-accent-logo-system",
+  "captured_at": "2026-09-27T20:23:27Z",
+  "checks": [
+    {
+      "check": "origin_identity",
+      "status": "passed"
+    },
+    {
+      "check": "gh_auth",
+      "status": "passed"
+    },
+    {
+      "check": "account_identity",
+      "status": "passed"
+    },
+    {
+      "check": "complete_pr_read",
+      "status": "passed"
+    },
+    {
+      "check": "pr_completeness",
+      "status": "passed"
+    },
+    {
+      "check": "pr_exclusion",
+      "status": "passed"
+    },
+    {
+      "check": "origin_read",
+      "status": "passed"
+    },
+    {
+      "check": "push_permission",
+      "status": "passed"
+    },
+    {
+      "check": "exact_ref_push_dry_run",
+      "status": "passed"
+    }
+  ]
+}

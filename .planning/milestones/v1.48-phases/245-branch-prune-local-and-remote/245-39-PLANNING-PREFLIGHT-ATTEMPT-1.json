@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 39,
+  "purpose": "D-06 read-only feasibility preflight before planning a narrow continuation of Plan 38's interrupted, previously approved local tracking-ref operations.",
+  "captured_at": "2026-10-03T23:43:58.671Z",
+  "status": "blocked",
+  "source_scope": "Current Git checkout only for pinned Plan 37/38 evidence and exact local ref reconciliation. The 11-row PR mismatch and 30-row cleanup-history audits remain unresolved and out of scope.",
+  "prohibited_operations": [
+    "fetch",
+    "remote ref mutation",
+    "pull-request mutation",
+    "reuse of Plan 38 approval for a new contract"
+  ],
+  "identities": {
+    "head": "9a060cbdc2e602ae6f881bca29f5a698675bb089",
+    "plan38_contract_commit": "13760574de0318fd1c120990386473a260cf9a4d",
+    "plan38_result_commit": "9a060cbdc2e602ae6f881bca29f5a698675bb089",
+    "plan38_result_parent": "13760574de0318fd1c120990386473a260cf9a4d",
+    "plan37_readiness_commit": "084eddf99a6c4a7904d74d738389a46f5e0cc5f2",
+    "post_state_sha256": "5b6b3f1605955b8318a10f91991e46e48a0b380d753d176db25cbf0c7ca296fd"
+  },
+  "counts": {
+    "approved_tracking_rows": 23,
+    "plan38_applied_rows": 9,
+    "currently_absent_applied_rows": 9,
+    "remaining_exact_rows": 14,
+    "mismatches": 0,
+    "unreadable_or_wrong_type_objects": 0
+  },
+  "checks": {
+    "plan37_d06_receipt_ready_and_committed": true,
+    "plan38_result_is_current_head_and_direct_child_of_contract": true,
+    "plan38_result_and_summary_are_committed_at_head": true,
+    "post_state_digest_matches_result": true,
+    "post_state_contains_two_agreeing_observations": true,
+    "approved_tracking_rows_reconcile": false,
+    "all_approved_tracking_objects_remain_readable": true,
+    "coordinator_verified_free_zero_leases": true,
+    "no_plan39_artifact_exists": true,
+    "worktree_setting_not_enabled": true
+  },
+  "failed_predicates": [
+    "approved_tracking_rows_reconcile"
+  ],
+  "coordinator_status": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\ncoordinator=verified\ncommon_dir=/Users/jon/projects/sigra/.git\nlock=free\ntransaction_leases=0",
+  "worktree_setting": false,
+  "auto_advance_setting": false,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "refs_already_applied": [
+    "refs/remotes/origin/brandbook-rail-accent-logo-system",
+    "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2",
+    "refs/remotes/origin/dependabot/hex/credo-1.7.19",
+    "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3",
+    "refs/remotes/origin/dependabot/hex/hammer-7.4.1",
+    "refs/remotes/origin/dependabot/hex/oban-2.24.0",
+    "refs/remotes/origin/dependabot/hex/threadline-0.9.0",
+    "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0",
+    "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0"
+  ],
+  "remaining_rows": [
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+      "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+      "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+      "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+      "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+      "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+      "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+      "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-context",
+      "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-plans",
+      "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/phase-241-research",
+      "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+      "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+      "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+      "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+      "type": "commit"
+    },
+    {
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit"
+    }
+  ],
+  "detail": {
+    "current_ref_mismatches": [],
+    "object_failures": []
+  }
+}

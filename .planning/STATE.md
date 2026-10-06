@@ -2,47 +2,49 @@
 gsd_state_version: "1.0"
 milestone: v1.48
 milestone_name: CLEAN-BASELINE
-current_phase: 245
-current_phase_name: Branch Prune — Local and Remote
-current_plan: 49
-status: executing
-stopped_at: Completed 245-49-PLAN.md with blocked cleanup history source gate
-last_updated: "2026-10-05T22:38:35.849Z"
-state_head: c2c57a189f4d5cc8f136a40c133048f9c7679a3e
+status: Awaiting next milestone
+stopped_at: Reconciled live GSD readiness, deprecated audit tooling, worktree scope, and milestone-tag policy
+last_updated: "2026-10-06T02:48:35Z"
+last_activity: 2026-10-05
+last_activity_desc: Milestone v1.48 completed and archived
+state_head: 41c1d4abd4f635839bf888fe25c2df1465ba3802
+closeout_type: override_closeout
 progress:
   total_phases: 10
-  completed_phases: 9
+  completed_phases: 2
   total_plans: 109
-  completed_plans: 107
-  percent: 90
-last_activity: 2026-10-05
-last_activity_desc: Plan 49 committed a blocked cleanup-history source gate and 30 unknown rows; REPO-04 remains open.
+  completed_plans: 108
+  percent: 20
+current_phase: null
+current_phase_name: null
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-09-09)
+See: `.planning/PROJECT.md` (updated 2026-10-05)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 245 — Branch Prune — Local and Remote
+**Current focus:** Define the next milestone with `$gsd-new-milestone`; v1.48 is archived as an override closeout.
 
 ## Current Position
 
-Phase: 245 (Branch Prune — Local and Remote) — EXECUTING
-Phase 245 remains open and REPO-04 is unresolved. Plans 35 and 36 retain superseded metadata and immutable blocked receipts. Plan 37 completed the approved five-object source-only recovery and committed ready D-06 evidence. Plan 38 applied nine approved tracking-ref deletions; that approval is exhausted. Plans 39 and 40 remain terminally halted with no approval and zero production ref or PR operations. Plan 40's unreadable `gh-pages` commit was recovered from the exact OID advertised by `origin`; its contract and allowlist remain unusable. Plan 41 applied 13 of 14 approved tracking-ref deletions and ended blocked partial; its approval is exhausted. Plan 42 blocked before apply after `refs/heads/gh-pages` moved, with no production ref or PR operation. Plan 43 recovered its approved source object; Plan 44's one operator attempt timed out and its authorization is spent. Plan 45's bounded disposable diagnosis did not prove a deterministic defect, so its final result records zero live attempts. Keep the 11 PR-base rows and 30 cleanup-history rows unresolved.
-Current Plan: 49
-Next Action: Phase 245 remains incomplete. Plan 49 records all 30 cleanup-history pairs unknown under missing complete history and trust root. Execute Plan 47's conditional zero-attempt closeout because Plan 46 did not produce a ready diagnostic; keep live admission and REPO-04 open.
-Total Plans in Phase: 46
-Status: In progress — Plan 49 complete with blocked cleanup-history source gate
-Planning evidence: Plan 43's source recovery and Plan 44's approved operator attempt are recorded in their immutable receipts; Plan 45's bounded disposable diagnosis and Plan 46's production-scale fixture did not prove a deterministic defect. Plan 48 records 11 historical PR-base rows unresolved, and Plan 49 records 30 cleanup-history pairs unknown.
-Historical verification: Phase 245's gaps_found report is dated 2026-09-28 and predates Plans 35–40 and the 2026-10-04 object recovery; preserve it as historical context, not a forward-phase prerequisite. Phase 244 verification passed per Plan 40's D-01 readiness, although its Plan 03 summary says blocked and can skew old counters; do not replay Phase 244 unless Phase 245 readiness identifies it as a prerequisite. The 11-row PR mismatch and 30-row cleanup-history audit remain unresolved under D-07.
-History: Plan 19's single admitted local deletion is counted once. Plans 29, 30, 33, 35, 36, 39, and 40 blocked evidence stays immutable. Plan 34's prior one-OID recovery and approval cannot authorize Plan 37's five objects. Plan 16 remains superseded and Plan 14 remains halted.
-Next GSD command: `$gsd-execute-phase 245 --gaps-only` for Plan 47's conditional zero-attempt closeout; its live-operation gate remains closed by Plan 46's blocked diagnostic.
-The only authoritative sources are this local checkout and GitHub. Do not search another service or reinterpret the unavailable historical baseline. D-05's pinned Git/shared-coordinator gate remains active.
-The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complete from planning evidence.
+Phase: No active phase — v1.48 archived as `override_closeout`
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-10-05 — Milestone v1.48 completed and archived
+
+### v1.48 closeout outcome
+
+- Internal planning closeout only; no 1.5.1 Hex release and no v1.48 git tag.
+- Requirements: 21/27 satisfied; GREEN-04, GREEN-05, REL-05, and SURF-01 partial; REL-06 and REPO-04 unsatisfied.
+- Live verification readiness: Phases 239 and 240 passed; 236–238 and 241–244 stale; Phase 245 `gaps_found`.
+- Phase 245 is terminal with no runnable plans. Its 11 historical PR-base rows and 30 cleanup-history pairs remain unresolved; do not repeat the same negative-proof plans without a source change.
+- The pre-close manual inventory found 69 pending todo files, one unfinished quick task, three open seeds, four deferred items, one dormant seed, and two implemented seeds. No items were acknowledged or suppressed because `audit-open` is deprecated and unreliable for this repository. These remain visible debt.
+- The 175-path pre-close worktree inventory was preserved. Phase directories moved intact to `milestones/v1.48-phases/`; unrelated product/CI changes remain separate from the closeout checkpoint.
+- No Phase 246 is defined. Next GSD command: `$gsd-new-milestone`.
 
 ### v1.48 phase map
 
@@ -549,6 +551,7 @@ The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complet
 - [Phase 245]: Plan 46 measured synthetic source latency but Plan 44 has no production-stage trace; live admission remains blocked and REPO-04 open.
 - [Phase 245]: Plan 48 keeps all 11 historical PR-base rows unresolved because the pinned baseline remains unavailable in the recorded D-06 preflight.
 - [Phase 245]: Keep 30 Phase 236-245 cleanup-history pairs unknown until complete signed command history and an independent recorder trust root pass a fresh D-06 gate.
+- [Phase 245]: Plan 47's blocked Plan 46 diagnostic forbids a current contract and live tracking operation; retain REPO-04 open with zero attempts.
 
 ### Pending Todos
 
@@ -628,6 +631,10 @@ The roadmap ends at Phase 245; do not invent Phase 246 or mark the phase complet
 | 260918-lfq | Closed the three Phase 240 GREEN-04 collector follow-up todos as one change — collector now fails closed on a zero-match SC-2 job selector (`sc2_job_not_found`), a matched job with a null conclusion (`sc2_job_conclusion_null`, a deliberately distinct token), a `main` window below the run floor (`insufficient_main_runs`, default 5, overridable only via an explicit `--min-main-runs` recorded in the receipt), and a window not containing the dispatch run (`main_window_excludes_dispatch_run`); wired `capture-green-04-evidence.test.sh` into `ci.yml` `fast_checks`. Non-vacuity proven by mutation — neutering each of the 5 guards drives the suite red. Verified: self-test 62 pass / 0 fail (was 36/0), prohibitions 93/0, receipt strictly additive at `schema_version` v1. PR #248 (b9f2c4b5). | complete ✓ | 2026-09-18 |
 
 ## Deferred Items
+
+### v1.48 closeout inventory (2026-10-05; unsuppressed)
+
+The manual, grep-driven closeout inventory is summarized above. No rows are added to the acknowledged-items ledger because no acknowledgement was performed. Keep the todos, quick task, seeds, and deferred items open until their own state is reconciled.
 
 ### Acknowledged at v1.46 close (2026-07-27)
 
@@ -758,15 +765,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-05T22:38:35.662Z
-Stopped at: Completed 245-49-PLAN.md with blocked cleanup history source gate
-Resume file: None
+Last session: 2026-10-06T00:45:50Z
+Stopped at: Reconciled Phase 245 terminal status and captured new REL-03/04 Hex evidence; closeout artifact/worktree inventory still needs reconciliation
+Resume file: .planning/HANDOFF.json
 
 ## Operator Next Steps
 
-- Run `$gsd-execute-phase 245 --gaps-only`. Plan 43 performs separately approved exact-object recovery; only after its ready receipt can Plan 44 capture a fresh one-row contract and request separate deletion approval. Do not reuse Plan 42's exhausted approval or older contracts.
-- Preserve blocked Plans 30, 35, 36, 39, and 40 and their immutable results. Keep REPO-04 open until current-source classification, any separately approved guarded pruning, and independent post-state verification pass.
-- Preserve the unresolved 11-row PR mismatch, 30-row cleanup-history audit, and all unrelated dirty work. The roadmap ends at Phase 245; there is no Phase 246. After Phase 245 is verified and complete, route to `$gsd-complete-milestone`.
+- Run `$gsd-new-milestone` to define the next milestone; no Phase 246 is on the roadmap.
 
 ## Performance Metrics
 
@@ -978,3 +983,4 @@ Resume file: None
 | Phase 245 P46 | 10min observed closeout | 2 tasks | 2 files |
 | Phase 245 P48 | 4min | 2 tasks | 3 files |
 | Phase 245 P49 | 4min | 2 tasks | 3 files |
+| Phase 245 P47 | 2min | 1 tasks | 2 files |

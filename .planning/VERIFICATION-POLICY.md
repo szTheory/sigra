@@ -30,6 +30,39 @@ around those checkpoints, so the handoff asks only for the decision or action th
 proven by a machine. A `human_judgment` label in planning coverage is a prompt to look for a
 repeatable rubric or test; it is not by itself a reason to send work to the user.
 
+## Local database preflight
+
+Before database-backed local verification, use `scripts/db/up.sh` and source the freshly written
+`tmp/db.env` in the same shell that runs the checks. Do not trust `PGPORT` or
+`SIGRA_TEST_PG_PORT` inherited from a long-lived agent shell: compare the configured port with the
+current listener or the Sigra test container's published port. When an unrelated app logs a
+connection refusal but the selected checks pass, identify the app and port from its config before
+classifying it as a test failure. Never prune or stop project containers as a response to a port
+mismatch; use the named Sigra test database and leave other projects' containers untouched.
+
+## No-repeat verification routing
+
+Treat UAT state and canonical phase-verification state as separate gates. A completed automated
+UAT file does not refresh `*-VERIFICATION.md`, and a passing verification report does not justify
+asking the user to repeat machine-checkable acceptance steps.
+
+When a GSD command reports a stale or otherwise blocked verification:
+
+- Read the canonical status and its routing output, then identify which workflow actually writes
+  or refreshes the verification report. Do not assume the command named by a stale-status message
+  can regenerate that report.
+- After one attempt, compare the status and relevant artifact timestamps/fingerprint. If the same
+  blocker remains and no verification artifact changed, do not invoke the same command again as a
+  proposed fix. Follow the report-producing workflow directly, or stop with the precise routing
+  dead end recorded in the active phase's `continue.md`.
+- Before recommending a resume command, inspect its no-work/already-complete route. A phase with
+  every PLAN summarized can exit before verification; never claim it will refresh the report
+  unless that route demonstrably invokes the verifier.
+- Keep the phase blocked until the canonical completion predicate passes. Never hide stale status,
+  bypass it, mark it passed, or substitute conversational UAT for the missing machine evidence.
+- Present the user only an action that cannot be completed safely by the available GSD workflow.
+  Do not make them repeat checks that already have current automated evidence.
+
 This policy applies to planning, execution, verification, and closeout. Prefer concrete committed
 tests and machine-readable evidence over conversational UAT, while keeping verification scope
 limited to the authorized phase and its recurring quality needs.

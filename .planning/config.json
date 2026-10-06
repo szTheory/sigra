@@ -1,5 +1,5 @@
 {
-  "model_profile": "balanced",
+  "model_profile": "adaptive",
   "commit_docs": true,
   "parallelization": true,
   "search_gitignored": false,
@@ -7,6 +7,7 @@
   "firecrawl": false,
   "exa_search": false,
   "git": {
+    "create_tag": false,
     "branching_strategy": "none",
     "phase_branch_template": "gsd/phase-{phase}-{slug}",
     "milestone_branch_template": "gsd/{milestone}-{slug}",
@@ -16,6 +17,7 @@
     "research": true,
     "plan_check": true,
     "verifier": true,
+    "ai_integration_phase": true,
     "nyquist_validation": true,
     "auto_advance": false,
     "node_repair": true,
@@ -33,7 +35,8 @@
       "semver_or_public_api_break",
       "security_model_vs_owasp_doc",
       "generator_or_host_contract_output"
-    ]
+    ],
+    "use_worktrees": false
   },
   "sigra_defaults": {
     "audit_atomicity_doc": ".planning/AUDIT-ATOMICITY-DEFAULTS.md",
@@ -45,11 +48,18 @@
   "project_code": null,
   "phase_naming": "sequential",
   "agent_skills": {},
-  "resolve_model_ids": "omit",
   "mode": "yolo",
   "granularity": "fine",
-  "model_overrides": {
-    "gsd-executor": "claude-sonnet-4-6",
-    "gsd-code-fixer": "claude-sonnet-4-6"
+  "model_profile_overrides": {
+    "codex": {
+      "opus": "gpt-6-sol",
+      "sonnet": "gpt-6-luna",
+      "haiku": "gpt-6-luna"
+    },
+    "claude": {
+      "opus": "claude-opus-5-5",
+      "sonnet": "claude-opus-5-5",
+      "haiku": "claude-sonnet-5-5"
+    }
   }
 }

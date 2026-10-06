@@ -1,0 +1,1435 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "status": "pruning_completed; PR base-OID criterion failed",
+  "readiness": {
+    "phase_244_status": "complete",
+    "phase_244_verification": "passed",
+    "phase_244_verification_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+    "phase_244_verification_commit": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+    "phase_244_verification_score": "29/29 must-haves",
+    "ref_dependent_disposition": "resolved",
+    "dispositions": [
+      {
+        "item": "PR #213",
+        "status": "deferred",
+        "reason": "Measured visual drift; closed and unmerged with no live head ref; actionable todo retained.",
+        "evidence": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md"
+      },
+      {
+        "item": "PR #283",
+        "status": "open_draft_preserved",
+        "head": "phase-244/measurement",
+        "head_oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+        "reason": "Phase 244 records its separate draft disposition; Phase 245 does not update it."
+      },
+      {
+        "item": "Phase 242 Hex contract blocker to Phase 244 mix ci",
+        "status": "resolved",
+        "evidence": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md"
+      }
+    ],
+    "checked_at": "2026-09-27T18:50:49Z"
+  },
+  "snapshot": {
+    "commit": "f8b04c6a3b0339fd6576dbaa9b84685ae526331e",
+    "commit_pin_status": "pinned",
+    "captured_at": "2026-09-27T18:50:49Z",
+    "local_path": ".planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv",
+    "local_ref_rows": 72,
+    "origin_path": ".planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-REFS.tsv",
+    "origin_ref_rows": 357,
+    "origin_capture_stability": "two complete ls-remote listings matched inside capture helper",
+    "pr_state_path": ".planning/phases/245-branch-prune-local-and-remote/245-OPEN-PR-STATE.json",
+    "open_pr_count": 13,
+    "pr_state_captured_at": "2026-09-27T18:48:45Z",
+    "safety_publish_path": ".planning/phases/245-branch-prune-local-and-remote/245-SAFETY-PUBLISH.tsv",
+    "initial_safety_publish_rows": 1
+  },
+  "ci_gate": {
+    "command": "MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci",
+    "status": "passed",
+    "exit_code": 0,
+    "source_head": "5f15928f12490a3cf3c7d5adfc4ffeb47c37b2dc",
+    "log_path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-LOG.txt",
+    "log_sha256": "5531300b92edaf8e9e08d6d8c17c9d6e3ad3496c02d6fe2a35ecc26b49184ce1",
+    "sandbox_denied_attempts": [
+      {
+        "exit_code": 2,
+        "cause": "Two Phase 235 source-complete contract tests could not launch sandbox-exec; child process returned exit 71.",
+        "diagnostic_log_path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SANDBOX-RETRY-LOG.txt",
+        "diagnostic_log_sha256": "588a80e02e19efd8dc9ce7f3f5becc88c6b5f44930e3ad1f67ada97a64e203de"
+      }
+    ],
+    "authorized_retry": "passed outside the workspace sandbox; exact repository gate was not waived",
+    "safety_branch_publication": {
+      "command": "MIX_ENV=test HEX_HOME=/private/tmp/sigra-phase244-hex-cache mix ci",
+      "status": "passed",
+      "exit_code": 0,
+      "source_head": "1792c0e0d2e825739e70e10a29c8b59589aae848",
+      "completed_at": "2026-09-27T19:29:39Z",
+      "log_path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SAFETY-BRANCH-LOG.txt",
+      "log_sha256": "154487b40b5a895f5f87d8b2b78e479931e07da3fffb5ab3c35b3147e4a89633"
+    }
+  },
+  "pre_safety_refresh": {
+    "commit": "1833ea7d91f59f5972004d66d4a216032fa0d5df",
+    "commit_pin_status": "pinned",
+    "captured_at": "2026-09-27T18:58:08Z",
+    "origin_path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-ORIGIN-REFS.tsv",
+    "origin_rows": 357,
+    "origin_sha256": "f90abe97aceba435d961457bc5c0bf5814c6562ebb6035f6d9f76572b99cfd2a",
+    "origin_matches_snapshot": true,
+    "pr_state_path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-OPEN-PR-STATE.json",
+    "open_pr_count": 13,
+    "pr_state_captured_at": "2026-09-27T18:57:09Z",
+    "pr_state_sha256": "1a690e68d917a72bd1295e273aa9ae8bc2ed5077d03dd2c458e4db4843b8a32f",
+    "baseline_head_base_identities_unchanged": true
+  },
+  "safety_source_extension": {
+    "commit": "1792c0e0d2e825739e70e10a29c8b59589aae848",
+    "commit_pin_status": "pinned",
+    "safety_list_commit": "1792c0e0d2e825739e70e10a29c8b59589",
+    "status": "published_exact_ref; independent origin readback and all required safety/object verifiers passed",
+    "local_path": ".planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv",
+    "local_ref_rows": 73,
+    "source_ref": "refs/remotes/origin/safety/local-main-before-release-cleanup-20260831",
+    "source_oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+    "source_type": "commit",
+    "materialized_local_ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+    "target_origin_ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+    "target_origin_status": "published_exact_oid_after_absent_initial_and_fresh_prepublication_snapshots",
+    "object_already_proven_in_initial_snapshot": true,
+    "preclassification_origin_path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-CLASSIFICATION-ORIGIN-REFS.tsv",
+    "preclassification_origin_rows": 358,
+    "preclassification_origin_sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283",
+    "preclassification_pr_state_path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-CLASSIFICATION-PR-STATE.json",
+    "preclassification_pr_count": 13,
+    "preclassification_pr_state_sha256": "68f1926fb68ef6007b5b04e82935d4e7187bb2e9a57e464029ee3e0ec2a6b457",
+    "initial_origin_identity_set_unchanged_except_published_archive_tag": true,
+    "pre_safety_open_pr_identities_unchanged": true,
+    "preflight": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-SAFETY-BRANCH-ORIGIN-ACCESS-PREFLIGHT.json",
+      "commit": "e062fdcdfa518d0b420e5e6244268be7d938e5c2",
+      "status": "passed",
+      "captured_at": "2026-09-27T19:30:41Z",
+      "operation": "publish",
+      "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "origin_identity": "github.com/szTheory/sigra",
+      "actor": "szTheory",
+      "complete_pr_count": 13,
+      "exact_ref_dry_run": "refs/heads/safety/local-main-before-release-cleanup-20260831:refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "all_required_access_checks_passed": true
+    },
+    "prepublication_refresh": {
+      "commit": "a37256ebb609e067171ee09150b55178101d009f",
+      "commit_pin_status": "pinned",
+      "origin_path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-BRANCH-ORIGIN-REFS.tsv",
+      "origin_ref_rows": 358,
+      "origin_sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283",
+      "origin_matches_previous_capture": true,
+      "pr_state_path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-BRANCH-PR-STATE.json",
+      "pr_state_captured_at": "2026-09-27T19:28:38Z",
+      "pr_count": 13,
+      "pr_state_sha256": "cb99e8fb3f750034b1535e5ccd0fe5dae9fe5da2b22b04ac94d09e83e308f6ba",
+      "open_pr_identities_unchanged": true
+    },
+    "postpublication_readback": {
+      "commit": "fbf5dd3e363c96c6bfa60239b87b58747c891d9c",
+      "commit_pin_status": "pinned",
+      "operation": "push refs/heads/safety/local-main-before-release-cleanup-20260831:refs/heads/safety/local-main-before-release-cleanup-20260831",
+      "result": "passed with independent live readback",
+      "verified_at": "2026-09-27T19:34:59Z",
+      "origin_path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-BRANCH-ORIGIN-REFS.tsv",
+      "origin_ref_rows": 359,
+      "origin_sha256": "1f4b3df6b383c28e1a86817e7d41a18c64ec5e1bbdc88b804802a64f25b9aeb1",
+      "origin_delta": "exactly the committed safety branch was added to the 358-ref prepublication capture; all other ref names and identities match",
+      "safety_verification": "passed; 3 required safety refs retain their exact local and origin identities",
+      "objects_verification": "passed; 73 local refs and 357 refs from the original origin inventory retain readable objects",
+      "pr_state_path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-BRANCH-PR-STATE.json",
+      "pr_state_captured_at": "2026-09-27T19:34:59Z",
+      "open_pr_count": 13,
+      "pr_state_sha256": "676db0a1e33a35084556d559041cf9ff2f0724248247e5ecef6506e4bfc8d03c",
+      "open_pr_identities_unchanged": true
+    }
+  },
+  "safety": {
+    "preflight": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-ACCESS-PREFLIGHT.json",
+      "commit": "5349bd42e20db6e5313ff944b771800ecc19d852",
+      "status": "passed",
+      "captured_at": "2026-09-27T18:59:23Z",
+      "operation": "publish",
+      "ref": "refs/tags/archive/local-main-pre-235-recovery",
+      "origin_identity": "github.com/szTheory/sigra",
+      "actor": "szTheory",
+      "complete_pr_count": 13,
+      "exact_ref_dry_run": "refs/tags/archive/local-main-pre-235-recovery:refs/tags/archive/local-main-pre-235-recovery",
+      "checks": "origin identity, gh authentication, account identity, complete PR read, PR completeness/exclusion, origin read, push permission, and exact-ref dry run all passed"
+    },
+    "post_publish": {
+      "capture_commit": "4b9af57408428a492f7582d6dba3a4a72fb2d67f",
+      "capture_commit_pin_status": "pinned",
+      "operation": "push refs/tags/archive/local-main-pre-235-recovery:refs/tags/archive/local-main-pre-235-recovery",
+      "result": "passed",
+      "ref_identity": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972 (commit object, same tag namespace)",
+      "verified_at": "2026-09-27T19:04:46Z",
+      "origin_path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-ORIGIN-REFS.tsv",
+      "origin_ref_rows": 358,
+      "origin_sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283",
+      "origin_delta": "exactly the committed archive safety tag was added to the 357-ref snapshot; all other ref names and identities, including refs/remotes/origin/HEAD, match",
+      "safety_verification": "passed; 2 required safety refs retain their exact local and origin identities",
+      "pr_state_path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-OPEN-PR-STATE.json",
+      "pr_state_captured_at": "2026-09-27T19:03:41Z",
+      "open_pr_count": 13,
+      "pr_state_sha256": "f7219b02a708e86d87f091e7b013f89ff94eaebabd0a9df68a58d545d5604d76",
+      "pre_safety_pr_identities_unchanged": true
+    },
+    "origin_only_divergent": [
+      {
+        "ref": "refs/heads/ci/phase-235-16-source-complete",
+        "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+        "type": "commit",
+        "local_branch": "absent",
+        "local_tracking_ref": "refs/remotes/origin/ci/phase-235-16-source-complete",
+        "local_tracking_oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+        "action": "preserve the divergent origin and tracking identities independently without alignment"
+      }
+    ],
+    "safety_prefix_matches": 1,
+    "safety_prefix_match_namespace": "one stale local origin-tracking ref; no live origin or local-head branch at the initial snapshot",
+    "tracking_identity": "refs/remotes/origin/safety/local-main-before-release-cleanup-20260831 at 04ae0ba753e4f0613df5b3f840955018742ffbb9",
+    "local_source_head": "refs/heads/safety/local-main-before-release-cleanup-20260831 at 04ae0ba753e4f0613df5b3f840955018742ffbb9",
+    "required_safety_refs": [
+      {
+        "ref": "refs/tags/archive/local-main-pre-235-recovery",
+        "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+        "type": "commit",
+        "origin_status": "absent_at_snapshot",
+        "publication_status": "published_exact_ref_readback"
+      },
+      {
+        "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+        "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+        "type": "commit",
+        "origin_status": "absent_at_initial_and_fresh_preclassification_snapshots",
+        "source_ref": "refs/remotes/origin/safety/local-main-before-release-cleanup-20260831",
+        "publication_status": "published_exact_ref_readback"
+      }
+    ],
+    "source_set_note": "Both archive tag and safety branch were local-only before publication; the safety branch was discovered by exhaustive D-04 namespace scan after the initial snapshot and published in a separate guarded operation."
+  },
+  "operation_record": {
+    "production_origin_ref_changes": [
+      {
+        "operation": "publish one absent exact ref",
+        "ref": "refs/tags/archive/local-main-pre-235-recovery",
+        "before": "absent",
+        "after_oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+        "result": "passed with independent live readback"
+      },
+      {
+        "operation": "publish one absent exact ref",
+        "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+        "before": "absent",
+        "after_oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+        "result": "passed with independent live readback"
+      },
+      {
+        "operation": "delete one committed exact origin branch ref",
+        "ref": "refs/heads/brandbook-rail-accent-logo-system",
+        "before_oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+        "after_oid": null,
+        "result": "passed with independent live readback absent"
+      },
+      {
+        "operation": "delete one committed exact origin branch ref",
+        "ref": "refs/heads/v1.37-auth-branding-admin-polish",
+        "before_oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+        "after_oid": null,
+        "result": "passed with independent live readback absent"
+      }
+    ],
+    "stashes_touched": false,
+    "git_gc_ran": false,
+    "git_reflog_expire_ran": false,
+    "prune_now_ran": false
+  },
+  "wave3_classification": {
+    "status": "classified; allowlist committed before any deletion; no refs mutated in this wave",
+    "default_ref": "refs/heads/main",
+    "default_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+    "local_inventory": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv",
+      "commit_pin_status": "pinned",
+      "rows": 73,
+      "sha256": "b159fb061f9e5a36c38d72eddea7fa8b310bf9e3357b591ce73a71bc952f6497",
+      "branch_heads": 3,
+      "origin_tracking_branches": 56,
+      "origin_head_symref": "refs/heads/main",
+      "post_capture_current_branch_advance": "allowed by verify-local when the snapshot commit is an ancestor of the current execution branch",
+      "commit": "be3d3a7590be1a526139d80f0bcf00128f3969f2"
+    },
+    "origin_inventory": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-REFS.tsv",
+      "commit_pin_status": "pinned",
+      "rows": 359,
+      "sha256": "1f4b3df6b383c28e1a86817e7d41a18c64ec5e1bbdc88b804802a64f25b9aeb1",
+      "origin_heads": 52,
+      "matches_post_safety_branch_capture": true,
+      "commit": "be3d3a7590be1a526139d80f0bcf00128f3969f2"
+    },
+    "open_pr_state": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-OPEN-PR-STATE.json",
+      "commit_pin_status": "pinned",
+      "captured_at": "2026-09-27T19:38:49Z",
+      "open_pr_count": 13,
+      "sha256": "e5ae5d77f9fce7eea74d3bc4d54f7ab717e7f20eb2162110126a055f48111d0f",
+      "identities_match_post_safety_branch_capture": true,
+      "commit": "be3d3a7590be1a526139d80f0bcf00128f3969f2"
+    },
+    "classification_method": "An origin branch is a merged candidate only when its exact snapshot commit is an ancestor of the exact live default-branch OID; every open PR head/base, default, safety, and non-ancestor ref is kept.",
+    "local_heads": [
+      {
+        "ref": "refs/heads/gsd-quick/260926-gzb-gate-fix",
+        "oid": "61f5f1e85cdf5741a33f8253dffbcbaa7e3f57db",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of origin default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244-playwright-measurement",
+        "oid": "fbf5dd3e363c96c6bfa60239b87b58747c891d9c",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "checked out in a linked worktree; active execution state"
+      },
+      {
+        "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+        "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "required safety source anchor; exact identity is protected by D-04"
+      }
+    ],
+    "local_tracking_refs": [
+      {
+        "ref": "refs/remotes/origin/agent-241-01-rescue",
+        "oid": "99efe519157a81ffe009d4f5d3868fe14c2c3082",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-241-01-rescue",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-241-03-exec",
+        "oid": "cfdbab0c2521f0bf08ceb2c017b10d810abc3e69",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-241-03-exec",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-241-08",
+        "oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-241-08",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-242-02-clean",
+        "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-242-02-clean",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-242-02-continuation",
+        "oid": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-242-02-continuation",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-242-14-closeout",
+        "oid": "da056c9d7651c33fbf00ad688b67326f9f9c9c2f",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-242-14-closeout",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-exec-235-1-04-evidence",
+        "oid": "8676a6a7eb0d7487e401c251b8c46ec368e92447",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-exec-235-1-04-evidence",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-exec-235-1-12-evidence",
+        "oid": "47f9578fc97edc63603953d446e79fac884326c3",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-exec-235-1-12-evidence",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-exec-235-1-18-evidence",
+        "oid": "39f53ca09f74e3bc5c385da7213bc1ce3953dcd8",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-exec-235-1-18-evidence",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/agent-exec-235-1-29-authority",
+        "oid": "9a7fcba4c6ca218b4f119bea1355a79415764a07",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/agent-exec-235-1-29-authority",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/ci/phase-235-1-evidence",
+        "oid": "cdba0b3908a639e069d59c115c23ad23a51deb67",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "divergent tracking identity (cdba0b3908a639e069d59c115c23ad23a51deb67) vs live refs/heads/ci/phase-235-1-evidence (ac7d670a72e9209d9de61a7647c1e3da80663a3a); preserve both without alignment",
+        "live_origin_ref": "refs/heads/ci/phase-235-1-evidence",
+        "live_origin_oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a"
+      },
+      {
+        "ref": "refs/remotes/origin/ci/phase-235-16-source-complete",
+        "oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "required safety anchor; preserve this tracking identity independently",
+        "live_origin_ref": "refs/heads/ci/phase-235-16-source-complete",
+        "live_origin_oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/dialyxir-1.4.8",
+        "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #267",
+        "live_origin_ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+        "live_origin_oid": "7eb414854c836f8b45784fca3ffb89ad623e8085"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/ex_doc-0.40.4",
+        "oid": "75b00619d287694ac55643584923011538933660",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #275",
+        "live_origin_ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+        "live_origin_oid": "75b00619d287694ac55643584923011538933660"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/mox-1.3.2",
+        "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #272",
+        "live_origin_ref": "refs/heads/dependabot/hex/mox-1.3.2",
+        "live_origin_oid": "85a9d29f645229c90bd30da8860147591e510aa9"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/stream_data-1.4.0",
+        "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #269",
+        "live_origin_ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+        "live_origin_oid": "c6e0cc4083656155c14213a88de2a5c646516661"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/threadline-0.10.1",
+        "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #274",
+        "live_origin_ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+        "live_origin_oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+        "oid": "bb5416341f08e5547962d42aefbd2c012920180c",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #270",
+        "live_origin_ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+        "live_origin_oid": "bb5416341f08e5547962d42aefbd2c012920180c"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+        "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #268",
+        "live_origin_ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+        "live_origin_oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+        "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #273",
+        "live_origin_ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+        "live_origin_oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+        "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #271",
+        "live_origin_ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+        "live_origin_oid": "8bb65f8f78d726318dad6c81361009dada8b917c"
+      },
+      {
+        "ref": "refs/remotes/origin/docs/230-phase-complete",
+        "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/docs/230-phase-complete",
+        "live_origin_oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db"
+      },
+      {
+        "ref": "refs/remotes/origin/evidence/phase-241-final-head-b09d04bf7bc3",
+        "oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/evidence/phase-241-final-head-b09d04bf7bc3",
+        "live_origin_oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96"
+      },
+      {
+        "ref": "refs/remotes/origin/evidence/phase-241-final-head-c4036a571eeb",
+        "oid": "c4036a571eebe113b2aa819c4605b56030d2457b",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/evidence/phase-241-final-head-c4036a571eeb",
+        "live_origin_oid": "c4036a571eebe113b2aa819c4605b56030d2457b"
+      },
+      {
+        "ref": "refs/remotes/origin/evidence/phase-241-final-head-cd1e7e1252da",
+        "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #266",
+        "live_origin_ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+        "live_origin_oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6"
+      },
+      {
+        "ref": "refs/remotes/origin/evidence/request-21-f061",
+        "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/evidence/request-21-f061",
+        "live_origin_oid": "0a8e5eead47ec541a3489190480d5b846d8c7257"
+      },
+      {
+        "ref": "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46",
+        "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+        "live_origin_oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5"
+      },
+      {
+        "ref": "refs/remotes/origin/gh-pages",
+        "oid": "8ec8eee0db50faf819fdf0accae56ef0c80155ca",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/gh-pages",
+        "live_origin_oid": "8ec8eee0db50faf819fdf0accae56ef0c80155ca"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd-reviewfix/247-29317",
+        "oid": "b9dc7b9f2d0878bb8214bbd67bce0267e5191733",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/gsd-reviewfix/247-29317",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/235-13-producer-manifest-chronology",
+        "oid": "54749e55112ba0c6f7227233100dd330e9290001",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "divergent tracking identity (54749e55112ba0c6f7227233100dd330e9290001) vs live refs/heads/gsd/235-13-producer-manifest-chronology (b79ee6ae83e98a4bc638a9a1cbe8812efde3c471); preserve both without alignment",
+        "live_origin_ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+        "live_origin_oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/235-13-producer-manifest-chronology-merge",
+        "oid": "f5c1e063b0a590505b6ff35a49c11ad4ec0d5d6f",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/gsd/235-13-producer-manifest-chronology-merge",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/237-238-clean-baseline",
+        "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/gsd/237-238-clean-baseline",
+        "live_origin_oid": "c3b468895365be86bf25aac91d1105498a2648ae"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence",
+        "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #219",
+        "live_origin_ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+        "live_origin_oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-232-playwright-economics",
+        "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/gsd/phase-232-playwright-economics",
+        "live_origin_oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/v1.48-b2c-adopter-readiness",
+        "oid": "a13e999f2afdc8ec9a31c58cd657c6de6d9a37f5",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/gsd/v1.48-b2c-adopter-readiness",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/main",
+        "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "origin default branch tracking ref via refs/remotes/origin/HEAD",
+        "live_origin_ref": "refs/heads/main",
+        "live_origin_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-241-ci-reconcile",
+        "oid": "b7e9d7e52ab5d26b8d5624ddc9935e895ff8f409",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/phase-241-ci-reconcile",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/phase-242-execution",
+        "oid": "ff13fa7851a4750fc87ba8c290a7b4be391ca9f0",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "divergent tracking identity (ff13fa7851a4750fc87ba8c290a7b4be391ca9f0) vs live refs/heads/phase-242-execution (d7d78eb85e4f8769172741d3682a0941bba25d5b); preserve both without alignment",
+        "live_origin_ref": "refs/heads/phase-242-execution",
+        "live_origin_oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-242-safety-closeout",
+        "oid": "5fad0e912a8c19189a4d1ed2471a113357c9c549",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/phase-242-safety-closeout",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244-full-baseline-capture",
+        "oid": "3421f1dfbc127b7373afb1a1db54556025670fc2",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/phase-244-full-baseline-capture",
+        "live_origin_oid": "3421f1dfbc127b7373afb1a1db54556025670fc2"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244-full-webkit",
+        "oid": "3e8d9e86d382000a7b5b2aca429239848698a490",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/phase-244-full-webkit",
+        "live_origin_oid": "3e8d9e86d382000a7b5b2aca429239848698a490"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244-measure-workflow-fix",
+        "oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/phase-244-measure-workflow-fix",
+        "live_origin_oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244-playwright-measurement",
+        "oid": "f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/phase-244-playwright-measurement",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244-render-webkit-path",
+        "oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/phase-244-render-webkit-path",
+        "live_origin_oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244-routing-pr",
+        "oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/phase-244-routing-pr",
+        "live_origin_oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244-share-beam-setup",
+        "oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/phase-244-share-beam-setup",
+        "live_origin_oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244-webkit-deps",
+        "oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/phase-244-webkit-deps",
+        "live_origin_oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244/measurement",
+        "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #283",
+        "live_origin_ref": "refs/heads/phase-244/measurement",
+        "live_origin_oid": "f62e252648db66706cf27c3e37241fcd7b78a3de"
+      },
+      {
+        "ref": "refs/remotes/origin/release-1.4.0-changelog",
+        "oid": "86728ee1f74913338675786fd871e845904ad8a0",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/release-1.4.0-changelog",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/release-please--branches--main",
+        "oid": "276e8c3fc504d2c0497d801083668267327fab84",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #224",
+        "live_origin_ref": "refs/heads/release-please--branches--main",
+        "live_origin_oid": "276e8c3fc504d2c0497d801083668267327fab84"
+      },
+      {
+        "ref": "refs/remotes/origin/safety/local-main-before-release-cleanup-20260831",
+        "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "required safety anchor; preserve this tracking identity independently",
+        "live_origin_ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+        "live_origin_oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9"
+      },
+      {
+        "ref": "refs/remotes/origin/v1.47-closeout",
+        "oid": "c76d9455315a836c06e423fa38a2429f1fc29486",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "no matching live origin head; no paired remote deletion row is selected, so the plan-ineligible tracking ref and object are retained",
+        "live_origin_ref": "refs/heads/v1.47-closeout",
+        "live_origin_oid": null
+      },
+      {
+        "ref": "refs/remotes/origin/worktree-agent-p242-03",
+        "oid": "ee61cfb378dbe79de88482c714edeb7f098b469b",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "divergent tracking identity (ee61cfb378dbe79de88482c714edeb7f098b469b) vs live refs/heads/worktree-agent-p242-03 (907d875f5e0953777ffde0657e59082bf68d9e21); preserve both without alignment",
+        "live_origin_ref": "refs/heads/worktree-agent-p242-03",
+        "live_origin_oid": "907d875f5e0953777ffde0657e59082bf68d9e21"
+      },
+      {
+        "ref": "refs/remotes/origin/worktree-agent-p242-11",
+        "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/worktree-agent-p242-11",
+        "live_origin_oid": "4472ee78337e088ffc9abf254273f30e34c8d233"
+      },
+      {
+        "ref": "refs/remotes/origin/worktree-agent-p242-13",
+        "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/worktree-agent-p242-13",
+        "live_origin_oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d"
+      },
+      {
+        "ref": "refs/remotes/origin/worktree-agent-p242-artifacts",
+        "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "live origin head is not an ancestor of default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain",
+        "live_origin_ref": "refs/heads/worktree-agent-p242-artifacts",
+        "live_origin_oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46"
+      }
+    ],
+    "origin_heads": [
+      {
+        "ref": "refs/heads/brandbook-rail-accent-logo-system",
+        "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+        "type": "commit",
+        "disposition": "delete",
+        "reason": "exact commit is an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; no open PR head/base uses this branch; not default or safety"
+      },
+      {
+        "ref": "refs/heads/chore/phase-88-uat-evidence",
+        "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/chore/playwright-github-pages-ci",
+        "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/ci/phase-235-1-evidence",
+        "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/ci/phase-235-16-source-complete",
+        "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "required safety anchor; exact ref/type/OID is independently verified"
+      },
+      {
+        "ref": "refs/heads/ci/phase-88-provenance",
+        "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/ci/recapture-admin-checkpoints-30658359487",
+        "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/ci/recapture-admin-checkpoints-31043224661",
+        "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+        "oid": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #267"
+      },
+      {
+        "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+        "oid": "75b00619d287694ac55643584923011538933660",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #275"
+      },
+      {
+        "ref": "refs/heads/dependabot/hex/mox-1.3.2",
+        "oid": "85a9d29f645229c90bd30da8860147591e510aa9",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #272"
+      },
+      {
+        "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+        "oid": "c6e0cc4083656155c14213a88de2a5c646516661",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #269"
+      },
+      {
+        "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+        "oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #274"
+      },
+      {
+        "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+        "oid": "bb5416341f08e5547962d42aefbd2c012920180c",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #270"
+      },
+      {
+        "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+        "oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #268"
+      },
+      {
+        "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+        "oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #273"
+      },
+      {
+        "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+        "oid": "8bb65f8f78d726318dad6c81361009dada8b917c",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #271"
+      },
+      {
+        "ref": "refs/heads/docs/230-phase-complete",
+        "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/docs/phase-240-planning",
+        "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/elevate-03-wave-v144-pr",
+        "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/evidence/phase-241-final-head-782328e65c13",
+        "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/evidence/phase-241-final-head-b09d04bf7bc3",
+        "oid": "b09d04bf7bc35389bfffa9c110970ebedb9acf96",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/evidence/phase-241-final-head-c4036a571eeb",
+        "oid": "c4036a571eebe113b2aa819c4605b56030d2457b",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+        "oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #266"
+      },
+      {
+        "ref": "refs/heads/evidence/phase-241-final-head-d949725a313a",
+        "oid": "d949725a313a25bfab59350acd29c045df033cdc",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/evidence/phase-241-final-head-f822381d0ab0",
+        "oid": "f822381d0ab07928800b53b6ce4c46c06d4e2cdc",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/evidence/request-21-f061",
+        "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/fix/chimeway-opaque-recipient-backport-62ceb46",
+        "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/gh-pages",
+        "oid": "8ec8eee0db50faf819fdf0accae56ef0c80155ca",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/gsd/235-13-producer-manifest-chronology",
+        "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/gsd/237-238-clean-baseline",
+        "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+        "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #219"
+      },
+      {
+        "ref": "refs/heads/gsd/phase-232-playwright-economics",
+        "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/main",
+        "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "origin default branch selected by refs/remotes/origin/HEAD"
+      },
+      {
+        "ref": "refs/heads/phase-242-execution",
+        "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-242-hex-remediation-infrastructure",
+        "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244-full-baseline-capture",
+        "oid": "3421f1dfbc127b7373afb1a1db54556025670fc2",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244-full-webkit",
+        "oid": "3e8d9e86d382000a7b5b2aca429239848698a490",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244-measure-workflow-fix",
+        "oid": "b7fd3584daf9bb992e4f4991c52d2c82b21f348d",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244-render-webkit-path",
+        "oid": "1a559d40346d00dc47b0ffc203622fbe89ed7a5f",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244-routing-pr",
+        "oid": "305977fd853ccc12be7cd9b4ab7b79252faa98d1",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244-share-beam-setup",
+        "oid": "fb24b27c7e2ab196260faa72a338ca4b2a41b995",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244-webkit-deps",
+        "oid": "903d4cb583411244befe4a2ab8294e6ef8ce6475",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/phase-244/measurement",
+        "oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #283"
+      },
+      {
+        "ref": "refs/heads/release-please--branches--main",
+        "oid": "276e8c3fc504d2c0497d801083668267327fab84",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "open PR head/base protected by #224"
+      },
+      {
+        "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+        "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "required safety anchor; exact ref/type/OID is independently verified"
+      },
+      {
+        "ref": "refs/heads/v1.1-pr",
+        "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/v1.37-auth-branding-admin-polish",
+        "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+        "type": "commit",
+        "disposition": "delete",
+        "reason": "exact commit is an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; no open PR head/base uses this branch; not default or safety"
+      },
+      {
+        "ref": "refs/heads/worktree-agent-p242-03",
+        "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/worktree-agent-p242-11",
+        "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/worktree-agent-p242-13",
+        "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      },
+      {
+        "ref": "refs/heads/worktree-agent-p242-artifacts",
+        "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+        "type": "commit",
+        "disposition": "keep",
+        "reason": "not an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; unmerged or ambiguous, retain"
+      }
+    ],
+    "remote_candidates": [
+      {
+        "ref": "refs/heads/brandbook-rail-accent-logo-system",
+        "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+        "type": "commit",
+        "reason": "exact commit is an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; no open PR head/base uses this branch; not default or safety"
+      },
+      {
+        "ref": "refs/heads/v1.37-auth-branding-admin-polish",
+        "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+        "type": "commit",
+        "reason": "exact commit is an ancestor of live default refs/heads/main at 5a00b90d2314bc93f27aec4090b5928018743d1b; no open PR head/base uses this branch; not default or safety"
+      }
+    ],
+    "local_head_noop": {
+      "status": "no_eligible_local_heads",
+      "captured_local_head_count": 3,
+      "eligible_count": 0,
+      "action": "recorded no-op; no empty local deletion allowlist or local mutation pass invoked",
+      "verification": "verify-local passed; no local rows were emitted and no local mutation pass was run."
+    },
+    "tracking_noop": {
+      "status": "no_matching_tracking_refs_for_selected_remote_heads",
+      "selected_remote_head_count": 2,
+      "matching_tracking_ref_count": 0,
+      "action": "no tracking rows; no tracking mutation pass in Wave 3",
+      "verification": "No allowlisted candidate has a matching local tracking ref; no empty tracking pass was run."
+    },
+    "other_orphan_tracking_refs": {
+      "count": 18,
+      "action": "kept because no paired origin deletion is selected; objects remain snapshot-protected"
+    },
+    "divergent_tracking_identities": {
+      "count": 5,
+      "action": "preserve local tracking and live origin identities independently without alignment"
+    },
+    "production_origin_ref_changes_in_wave3": 0,
+    "classification_recorded_at": "2026-09-27T19:41:26Z",
+    "pr_state_captured_at": "2026-09-27T19:38:49Z",
+    "allowlist": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-BRANCH-DELETE-ALLOWLIST.tsv",
+      "commit": "be3d3a7590be1a526139d80f0bcf00128f3969f2",
+      "commit_pin_status": "pinned",
+      "rows": 2,
+      "sha256": "8967af11697b631132d90ac7b32603e74b041d496c636f3f161b902bc754d98b",
+      "contains_only_remote_rows": true
+    },
+    "validation": {
+      "checked_at": "2026-09-27T20:02:56Z",
+      "baseline_commit": "be3d3a7590be1a526139d80f0bcf00128f3969f2",
+      "checks": [
+        {
+          "command": "prune-stale-branches.sh verify-snapshot --snapshot-commit <baseline> --origin-commit <baseline> --evidence-commit <baseline> --safety-commit 1792c0e0",
+          "status": "passed",
+          "result": "73 local and 359 origin refs; direct/peeled objects and D-01 readiness valid"
+        },
+        {
+          "command": "prune-stale-branches.sh verify-allowlist --snapshot-commit <baseline> --origin-commit <baseline> --allowlist-commit <baseline> --safety-commit 1792c0e0 --evidence-commit <baseline> --pr-state-commit <baseline>",
+          "status": "passed",
+          "result": "2 committed exact allowlist rows bind to inventories, pass current PR identity checks, and avoid protected PR names"
+        },
+        {
+          "command": "prune-stale-branches.sh remote --snapshot-commit <baseline> --origin-commit <baseline> --allowlist-commit <baseline> --safety-commit 1792c0e0 --evidence-commit <baseline> --pr-state-commit <baseline> (report-only; no --apply)",
+          "status": "passed",
+          "result": "would delete refs/heads/brandbook-rail-accent-logo-system and refs/heads/v1.37-auth-branding-admin-polish; processed 2 rows with no mutation"
+        },
+        {
+          "command": "prune-stale-branches.sh verify-local --snapshot-commit <baseline> --allowlist-commit <baseline> --safety-commit 1792c0e0",
+          "status": "passed",
+          "result": "complete local ref names and identities match the committed keep set; current execution branch is a descendant of the snapshot commit"
+        },
+        {
+          "command": "prune-stale-branches.sh verify-objects --snapshot-commit <baseline> --origin-commit <baseline>",
+          "status": "passed",
+          "result": "all direct and peeled objects readable (local=73, origin=359)"
+        }
+      ],
+      "live_pr_guard": "passed during verify-allowlist and report-only remote pass; all 13 captured PR head/base identities still match",
+      "safety_guard": "passed during verify-allowlist and report-only remote pass; 3 required safety refs retain exact full name, namespace/type, OID, and peeled identity",
+      "local_mutations": 0,
+      "origin_mutations": 0,
+      "tracking_mutations": 0,
+      "first_cli_attempt": "A shortened commit ID was rejected with snapshot_commit_invalid_oid before any ref operation; retrying with the full 40-character baseline commit passed."
+    }
+  },
+  "wave4_execution": {
+    "status": "prune-and-readbacks-complete; phase verification blocked by pre-existing PR base OID mismatches",
+    "pre_prune": {
+      "allowlist_commit": "be3d3a7590be1a526139d80f0bcf00128f3969f2",
+      "pre_prune_pr_capture_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "pre_prune_pr_capture_at": "2026-09-27T20:22:40Z",
+      "origin_access_preflight_commit": "326e10d733009f5ffa3a6e64655b69b469253a18",
+      "origin_access_preflight_result": "passed",
+      "origin_access_preflight_at": "2026-09-27T20:23:27Z",
+      "identity": "github.com/szTheory/sigra",
+      "actor": "szTheory",
+      "complete_pr_count": 13,
+      "exact_ref_dry_run": "passed for :refs/heads/brandbook-rail-accent-logo-system"
+    },
+    "remote_mutations": [
+      {
+        "ref": "refs/heads/brandbook-rail-accent-logo-system",
+        "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+        "type": "commit",
+        "result": "deleted",
+        "live_readback": "absent"
+      },
+      {
+        "ref": "refs/heads/v1.37-auth-branding-admin-polish",
+        "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+        "type": "commit",
+        "result": "deleted",
+        "live_readback": "absent"
+      }
+    ],
+    "local_tracking_pass": {
+      "status": "not_run_no_rows",
+      "matching_allowlist_rows": 0,
+      "matching_tracking_refs_before_prune": 0,
+      "reason": "Plan 03 committed an explicit zero-row no-op; no empty tracking deletion pass was invoked.",
+      "post_prune_local_set_check": "passed"
+    },
+    "independent_readbacks": [
+      {
+        "check": "verify-remote",
+        "status": "passed",
+        "result": "all 359 committed origin refs matched the expected keep set after exactly two removals (357 refs)"
+      },
+      {
+        "check": "verify-local",
+        "status": "passed",
+        "result": "all 73 local refs match the committed keep set"
+      },
+      {
+        "check": "verify-safety",
+        "status": "passed",
+        "result": "3 required safety refs retain exact full names, types, OIDs, and peeled identities"
+      },
+      {
+        "check": "verify-objects",
+        "status": "passed",
+        "result": "all direct and peeled objects remain readable (local=73, origin=359)"
+      }
+    ],
+    "pull_request_integrity": {
+      "baseline_capture_commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "post_prune_capture_commit": "d0b32356975b7a42bd3d42d1e62b7997f0e0c8e6",
+      "baseline_capture_at": "2026-09-27T20:22:40Z",
+      "post_prune_capture_at": "2026-09-27T20:30:32Z",
+      "baseline_and_post_capture_rows_identical": true,
+      "open_pr_count": 13,
+      "head_base_identities_unchanged_during_remote_apply": true,
+      "live_origin_main_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "github_api_main_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "base_ref_oid_verification": {
+        "status": "failed",
+        "command": "prune-stale-branches.sh verify-prs --pr-state-commit <pre-prune-capture>",
+        "exit_code": 1,
+        "first_failure": "pr_base_oid_mismatch: #275",
+        "mismatch_count": 11,
+        "mismatches": [
+          {
+            "number": 275,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 274,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 273,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 272,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 271,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 270,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 269,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 268,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 267,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 266,
+            "baseRefName": "main",
+            "capturedBaseOid": "fed35a4a3725d217486f45a571421dbbf5721765",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          },
+          {
+            "number": 219,
+            "baseRefName": "main",
+            "capturedBaseOid": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+            "liveOriginBaseOid": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+          }
+        ],
+        "existed_in_wave3_capture": true,
+        "reason": "The open PR capture records historical base OIDs for main that do not equal the live origin/main tip; the mismatch predates the Wave 4 deletions. The plan requires exact equality and this evidence is not waived."
+      },
+      "base_oid_objects_readable": [
+        {
+          "oid": "fed35a4a3725d217486f45a571421dbbf5721765",
+          "type": "commit",
+          "status": "present",
+          "ancestor_of_live_origin_main": true
+        },
+        {
+          "oid": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+          "type": "commit",
+          "status": "present",
+          "ancestor_of_live_origin_main": true
+        }
+      ]
+    },
+    "deterministic_preflight_rejection": "The first verify-allowlist call omitted --allowlist-commit and exited with allowlist_commit_required before any mutation; the corrected full-SHA invocation passed."
+  }
+}

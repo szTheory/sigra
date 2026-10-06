@@ -1059,12 +1059,64 @@ A systematically audited, award-grade admin/operator design system, graded *frac
 
 ---
 
+## Milestone: v1.48 — CLEAN-BASELINE
+
+**Closed:** 2026-10-05 · 10 phases (236–245) · 109 plans · 154 tasks · 2026-09-15 → 2026-10-05 (20 days)
+**Verdict:** `override_closeout` · 21/27 requirements satisfied · four partial · REL-06 and REPO-04 unsatisfied
+**Git range:** `b6e889c4` → `41c1d4ab` · 324 commits · excludes the mixed uncommitted checkout
+**Release status:** Internal planning closeout only. No 1.5.1 Hex release and no v1.48 git tag.
+
+### What Was Built
+
+- Reproduced and fixed the generated-admin audit-filter navigation race without adding retries.
+- Added the release-tag shape guard, removed the allowlisted planning/proof tags, and added adopter-surface leakage guards and a documentation ratchet.
+- Gathered live GitHub evidence for CI and Pages behavior, and updated queue/dependency work with measured dispositions.
+- Reconciled the Hex retirement and docs-only revert against the live package API and HexDocs root; the version resolver still reports 1.20.0.
+- Built fail-closed branch-prune tooling and recorded bounded evidence. The final requirement remains open because 11 historical PR-base rows and 30 cleanup-history pairs lack their required sources.
+- Measured the Playwright candidate and deferred it when the pixel comparison showed nonzero drift.
+
+### What Worked
+
+- Rechecking the live Hex API and HexDocs after a partially failed workflow separated the steps that succeeded from the skipped resolver proof. REL-03/04 could be updated while REL-06 stayed unsatisfied.
+- The branch-prune path refused to infer safety from missing historical records. Plans 48 and 49 captured the exact source deficits, and production deletion stayed blocked where its contract was not proven.
+- Disabling milestone-tag creation preserved the repository's release-tag policy while still allowing this internal archive.
+
+### What Was Inefficient
+
+- Phase 245 reached 46 terminal plans with no runnable work and 11 halted plans. Several rounds investigated the same unavailable historical sources; once the prerequisites were shown absent, the useful next step was to record the debt and stop.
+- Stored phase pass reports were not enough for current readiness: seven were stale by `init.manager`, and Phase 245 remained `gaps_found`. The stale set should have been surfaced as a separate closeout fact earlier.
+- The pre-close checkout mixed 175 dirty paths across planning evidence, docs, CI, and tests, so it could not be treated as one reviewable PR. Archive the phase evidence and keep the remaining product changes scoped separately.
+- The generic `audit-open` helper is deprecated for Sigra. A grep-driven inventory was more trustworthy, but the open artifacts remain unsuppressed and must not be represented as cleared.
+
+### Patterns Established
+
+- Shift verification left: prefer deterministic checks, browser automation, CI receipts, and machine-readable evidence; reserve human UAT for judgment or inherently external actions.
+- At phase and milestone boundaries, report live readiness separately from historical summaries and plan counts.
+- Internal milestone IDs do not create release tags. GSD milestone tag creation stays disabled.
+- When source prerequisites are unavailable, store the exact missing evidence and stop repeating negative-proof plans until those conditions change.
+
+### Key Lessons
+
+1. A terminal plan inventory is not equivalent to a verified phase or a satisfied milestone requirement.
+2. A workflow run can partially succeed. Attribute success to the exact completed steps and preserve downstream failures and skipped proofs.
+3. A milestone archive is a planning boundary, not a public release. State both clearly when closeout proceeds with debt.
+4. Do not mark audit items acknowledged when the inventory tool is unreliable; keep the manually observed backlog visible and unsuppressed.
+
+### Cost Observations
+
+- Model mix and session counts were not measured.
+- The committed range contains 324 commits over 20 days; most closeout cost came from evidence reconciliation and historical branch provenance, not new product surface.
+- The closeout itself ran no test suite; it reconciled existing evidence and archived the reported outcomes.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process evolution
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.48 | n/a | 10 | Root-cause fixes and live receipts advanced baseline trust; fail-closed source audits preserved unresolved branch history; closeout now records current readiness separately from plan completion |
 | v1.42 | n/a | 9 | Building-blocks-up fractal elevation (L0/L1/L2 → page judgment → remaining cells) reaching all-`2`; durable adversarial persona/JTBD judge instrument (non-CI); **run-don't-read** verification + **honest-flip-after-CI-green** (D-16) patterns established after cite-and-flip masked ~15 real Playwright failures, forcing inserted integration phases 208.1 + 212 |
 | v1.39 | n/a | 9 | Fractal design-system audit (L0–L4) governed by a re-runnable quality-tier ledger + merge-blocking monotonic guard; admin `sg-*` CSS shipped to hosts as `sigra_admin.css`; terminal ratification gate (Phase 192) replaced a separate milestone audit |
 | v1.16 | n/a | 1 | **`APIToken.verify/2`** failure **`api.token_verify.failure`** → **`Multi` + `log_multi_safe`** + **`api_token_audit_atomic_test.exs`** (**044–046** **T1**) |
@@ -1087,3 +1139,4 @@ A systematically audited, award-grade admin/operator design system, graded *frac
 
 1. **Automation-first verification** pays off again (v1.0 Playwright → v1.2 harness → v1.3 GA shift-left).
 2. **Explicit waivers beat implicit debt** for planning artifacts (Nyquist inventory pattern).
+3. **Stop when the source is unavailable.** Record the exact missing evidence, keep the verdict unresolved, and resume only when the source condition changes.

@@ -10,6 +10,21 @@ Prefer checks that run automatically on every relevant change when they provide 
 
 Treat human verification as the last resort: use it only for outcomes that cannot be established reliably by automation, such as subjective judgment or an unavailable external authority. When a human checkpoint remains necessary, state the exact uncertainty and preserve machine-readable evidence for every other criterion. Do not ask the operator to repeat checks already established by reproducible automated evidence.
 
+## GSD Milestone Tags
+
+GSD milestone identifiers such as `v1.48` are planning labels, not Hex releases. Keep
+`git.create_tag` disabled for this repository's milestone closeouts; only the release workflow
+may create three-component SemVer tags. This preserves Phase 238's live rule that reserves the
+`v*` tag namespace for real releases.
+
+## Evidence Feasibility Before Planning
+
+Before a plan depends on an immutable baseline, exact object identities, an external authority, or a historical absence claim, define and run a deterministic preflight. It must resolve the full baseline commit and every cited blob from the active checkout and named trusted source, and confirm the required evidence producer, complete time window, boundaries, and independent trust material are available. Record a machine-readable `ready` or `blocked` result as the first plan artifact; do not begin implementation or mutation while it is blocked.
+
+Historical negative claims cannot be reconstructed by starting a recorder after the interval. If no independently trusted source covers the full requested window, keep the claim unknown and resolve the scope or acceptance contract before creating implementation or gap-closure plans. Do not spend repeated plans probing for evidence that could not have been recorded retroactively.
+
+At closeout, list execution commit IDs only when `git cat-file` resolves them and their integration branch or containing ref is recorded. Mark a requirement complete only when its complete acceptance evidence passes; a valid blocked audit can complete the bounded audit attempt while leaving the parent requirement open.
+
 ## Decisive Defaulting
 
 Use researched, repo-consistent defaults unless a choice materially changes security posture, public contract, generated-host contract, or proof/truth claims.

@@ -1,0 +1,76 @@
+{
+  "schema": "sigra.phase-243-tier-a-evidence/1",
+  "captured_at": "2026-09-25T05:56:00Z",
+  "phase": 243,
+  "plan": "243-01",
+  "baseline_main_sha": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
+  "batch_order": [
+    215,
+    227,
+    228,
+    220
+  ],
+  "items": [
+    {
+      "pr": 215,
+      "package": "actions/attest-build-provenance",
+      "version": "4.2.2",
+      "merge_sha": "eca754c5dbba1472356c4f1554dbd3fd18a8797f",
+      "pr_run": 36092183600,
+      "ci_gate_job": 107938419574,
+      "pr_run_url": "https://github.com/szTheory/sigra/actions/runs/36092183600",
+      "ci_gate_conclusion": "success",
+      "merge_commit_url": "https://github.com/szTheory/sigra/commit/eca754c5dbba1472356c4f1554dbd3fd18a8797f"
+    },
+    {
+      "pr": 227,
+      "package": "@anthropic-ai/sdk",
+      "version": "0.123.0",
+      "merge_sha": "78def9e06e7d2af130fbff551183f54cd9b8440e",
+      "pr_run": 36093295424,
+      "ci_gate_job": 107941978212,
+      "pr_run_url": "https://github.com/szTheory/sigra/actions/runs/36093295424",
+      "ci_gate_conclusion": "success",
+      "merge_commit_url": "https://github.com/szTheory/sigra/commit/78def9e06e7d2af130fbff551183f54cd9b8440e"
+    },
+    {
+      "pr": 228,
+      "package": "zod",
+      "version": "4.5.4",
+      "merge_sha": "e5d8495763600b78ae53047be1691de651085383",
+      "pr_run": 36094146718,
+      "ci_gate_job": 107944442095,
+      "pr_run_url": "https://github.com/szTheory/sigra/actions/runs/36094146718",
+      "ci_gate_conclusion": "success",
+      "merge_commit_url": "https://github.com/szTheory/sigra/commit/e5d8495763600b78ae53047be1691de651085383"
+    },
+    {
+      "pr": 220,
+      "package": "otplib",
+      "version": "13.5.0",
+      "merge_sha": "53d83ba50df877044fcb1350b5a58f79d766751e",
+      "pr_run": 36097071095,
+      "ci_gate_job": 107952751861,
+      "pr_run_url": "https://github.com/szTheory/sigra/actions/runs/36097071095",
+      "ci_gate_conclusion": "success",
+      "merge_commit_url": "https://github.com/szTheory/sigra/commit/53d83ba50df877044fcb1350b5a58f79d766751e"
+    }
+  ],
+  "resulting_main": {
+    "sha": "53d83ba50df877044fcb1350b5a58f79d766751e",
+    "ci_run": 36100547128,
+    "ci_run_url": "https://github.com/szTheory/sigra/actions/runs/36100547128",
+    "ci_gate_job": 107963937362,
+    "ci_gate_conclusion": "success",
+    "other_probe": "The optional admin-eval probe failed on intermediate main SHA e5d8495763600b78ae53047be1691de651085383 with a registration page waitForURL timeout; that full workflow later concluded success on final main SHA 53d83ba50df877044fcb1350b5a58f79d766751e.",
+    "ci_run_conclusion": "success"
+  },
+  "contract_preserved": {
+    "pr": 215,
+    "same_line_annotations": [
+      "# v4.2.2"
+    ],
+    "phase_235_contract_sha_assertions_updated": true
+  },
+  "all_four_merged": true
+}

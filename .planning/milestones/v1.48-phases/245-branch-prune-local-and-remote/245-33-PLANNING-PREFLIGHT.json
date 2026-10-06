@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-33",
+  "captured_at": "2026-10-02T17:21:59.366Z",
+  "purpose": "Read-only D-06 planning feasibility for an exact-object GitHub recovery of the sole current-source blocker.",
+  "verdict": "ready_to_plan",
+  "repository": "szTheory/sigra",
+  "current_head_oid": "40e727bee1b6fa0c429fb47ca33b77e3e855038a",
+  "current_branch": "phase-244-playwright-measurement",
+  "prior_d06_receipt": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-29-EXEC-PREFLIGHT.json",
+    "blob": "52ff9570fdd91293f05d1300d293a25c900cb937",
+    "verdict": "blocked",
+    "captured_at": "2026-10-02T15:55:54.775Z"
+  },
+  "earlier_planning_preflight": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-32-PLANNING-PREFLIGHT.json",
+    "blob": "b273e28ab08028e0494a3a8f12cb84e0a9f1212c",
+    "verdict": "ready_to_plan",
+    "captured_at": "2026-10-02T13:17:31Z"
+  },
+  "missing_local_object": {
+    "oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+    "type": "commit",
+    "ref": "refs/heads/gh-pages",
+    "readable": false
+  },
+  "live_origin_ref": {
+    "ref": "refs/heads/gh-pages",
+    "oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3"
+  },
+  "github_commit": {
+    "sha": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+    "tree": "37c54be6a87aa7ded8ac5be5a9ed9f4e5388a533"
+  },
+  "checks": {
+    "phase24529ReceiptCommittedAndUnmodified": true,
+    "phase24529ReceiptIsBlockedOnExactObject": true,
+    "phase24532PlanningPreflightCommittedAndUnmodified": true,
+    "originGhPagesStillPointsAtBlockedOid": true,
+    "githubAuthoritativelyServesExactCommit": true,
+    "localObjectStillUnreadable": true,
+    "historicalPrAuditRemainsUnresolved": true,
+    "historicalCleanupAuditRemainsUnresolved": true,
+    "noProductionRefOrPrMutationRecorded": true
+  },
+  "failed_predicates": [],
+  "operator_direction": "The user authorized planning a gated exact-object recovery from GitHub. This does not authorize object-database writes; execution requires an explicit blocking-human checkpoint.",
+  "prior_plan29_no_fetch_decision": "Retain as the default execution boundary. Plan 245-33 must pause for explicit user approval before any exact-object import; no refs or PRs may be mutated.",
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "execution_constraints": {
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "historical_audit_reconstruction": false,
+    "replace_baseline_or_acceptance_criteria": false,
+    "mutate_refs_or_worktrees": false,
+    "explicit_object_import_checkpoint_required": true
+  }
+}

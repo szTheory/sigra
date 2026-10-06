@@ -1,63 +1,78 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.48 — CLEAN-BASELINE",
+  "milestone": "v1.48 — CLEAN-BASELINE (closed; override_closeout)",
   "phases": [
     {
       "number": "236",
       "name": "Flake Root Cause",
-      "status": "complete"
+      "status": "stale"
     },
     {
       "number": "237",
       "name": "Clean Working Tree + Pages + `lib/` Docs",
-      "status": "complete"
+      "status": "stale"
     },
     {
       "number": "238",
       "name": "Tag Guard, Then Tag Deletion",
-      "status": "complete"
+      "status": "stale"
     },
     {
       "number": "239",
       "name": "`priv/templates/` Sweep + Re-bless",
-      "status": "complete"
+      "status": "passed"
     },
     {
       "number": "240",
       "name": "Green-Main Evidence + Honest Pages Script",
-      "status": "complete"
+      "status": "passed"
     },
     {
       "number": "241",
       "name": "Debt Retirement + Leakage Guard",
-      "status": "complete"
+      "status": "stale"
     },
     {
       "number": "242",
       "name": "Safety Closeout for Phantom Release Adoption",
-      "status": "complete"
+      "status": "stale"
     },
     {
       "number": "243",
       "name": "Queue Drain + Todo Triage",
-      "status": "complete"
+      "status": "stale"
     },
     {
       "number": "244",
       "name": "`@playwright/test` Bump, Alone",
-      "status": "complete"
+      "status": "stale"
     },
     {
       "number": "245",
       "name": "Branch Prune",
-      "status": "in_progress"
+      "status": "gaps_found"
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 245 --gaps-only",
-    "label": "Continue Phase 245 gaps",
-    "reason": "Plan 49 completed with all 30 cleanup-history pairs unknown under missing complete history and independent trust root. Continue Plan 47's conditional zero-attempt closeout; its live-operation gate is closed by Plan 46's blocked diagnostic, and REPO-04 remains open."
+    "command": "$gsd-new-milestone",
+    "label": "Define the next milestone",
+    "reason": "v1.48 is archived as an override closeout; Phase 246 is not defined."
   },
-  "updated_at": "2026-10-05T22:32:54.988Z"
+  "updated_at": "2026-10-06T02:46:50.255Z",
+  "closeout_type": "override_closeout",
+  "current_phase": null,
+  "requirements": {
+    "satisfied": 21,
+    "partial": [
+      "GREEN-04",
+      "GREEN-05",
+      "REL-05",
+      "SURF-01"
+    ],
+    "unsatisfied": [
+      "REL-06",
+      "REPO-04"
+    ]
+  }
 }

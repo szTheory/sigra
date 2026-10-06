@@ -22,9 +22,14 @@ scope, requires unavailable credentials, creates an unapproved external or mater
 side effect, changes a security or public-contract decision, or leaves uncertainty that automation
 cannot resolve.
 
-## Current Milestone: v1.48 CLEAN-BASELINE
+## Archived Milestone Context: v1.48 CLEAN-BASELINE (opened 2026-09-15; closed 2026-10-05)
 
-**Goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
+**Closeout:** Internal `override_closeout`, not a Hex release. The milestone audit records 21/27
+requirements satisfied, four partial, and two unsatisfied. Live GSD readiness is 2/10 phases
+complete and passed, seven stale, and Phase 245 `gaps_found`; none of those statuses was promoted
+to passed during archival. No 1.5.1 release was published.
+
+**Original goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
 code free of planning artifacts, and a release cut — so Sigra sits in a quiet, ready posture
 where the next milestone can start whenever we choose.
 
@@ -71,7 +76,32 @@ intended *next* milestone), admin/operator-UI iteration, pruning `.planning/` ou
 BFG/filter-repo history slimming (the 645M `.git` is acknowledged and deliberately untouched),
 and any new feature work.
 
-## Current State
+## Current State (2026-10-05)
+
+**v1.48 CLEAN-BASELINE is archived as an internal override closeout.** It advanced the generated-
+admin flake fix, release-tag namespace cleanup, adopter-surface ratchets, queue triage, and
+fail-closed branch-prune tooling. Its closeout record preserves the unfinished work: REL-06 has no
+1.5.1 release receipt, REPO-04 remains unsatisfied, and GREEN-04, GREEN-05, REL-05, and SURF-01
+remain partial. The archive and milestone audit are under `.planning/milestones/`.
+
+**Hex status:** 1.20.0 is retired and the HexDocs root serves v1.5.0 documentation, but Hex still
+reports `latest_stable_version: 1.20.0`. This closeout did not publish 1.5.1 and does not claim
+that dependency resolution is repaired.
+
+**Verification and planning status:** Live `init.manager` reports Phases 239 and 240 complete and
+passed, Phases 236–238 and 241–244 stale, and Phase 245 `gaps_found`. Phase 245 has no runnable
+plans; its 11 PR-base rows and 30 cleanup-history pairs remain unresolved. No Phase 246 is defined.
+
+**Next milestone goals:** Not yet selected. Run `$gsd-new-milestone` to scope the next work from
+current evidence. The generated-auth runtime-proof idea from the v1.48 brief is a candidate, not
+an approved scope.
+
+**Closeout inventory:** The read-only pre-close inventory recorded 175 dirty paths across phase
+evidence, planning, docs, CI, and tests. The phase directories were moved intact into the v1.48
+archive and checkpointed separately from the remaining mixed product/CI worktree. The current
+branch has no upstream and was not treated as a PR candidate.
+
+## State at v1.48 Start (2026-09-15)
 
 **Milestone v1.47 CI-EFFICIENCY shipped 2026-09-15** as an `override_closeout`. Six phases
 (230-235) cut PR wall-clock p50 from **27.3 minutes to 469 seconds (7m49s)** across n=52
@@ -1128,6 +1158,9 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | A green gate must prove a lane actually ran | Phase 231 found stale conditions and skip-tolerant aggregation could report green without executing required work; live run evidence is the acceptance boundary. | ✓ Validated Phase 231 — honest-skip verdict wired into `ci-gate`; scheduled run `30607570671` closed the nightly on a real `schedule` event |
 | Source-complete signed evidence is the FAST-01 authority | Derived statistics cannot prove membership, chronology, pagination exhaustion, or preserved terminal outcomes; the signed raw source must replay exactly against the metrics instrument. | ✓ Validated Phase 235 — protected run `34350618761`, n=52, p50=469 seconds, exact offline replay |
 | FAST-01 reconciliation cannot reopen GATE-05 | Performance evidence and ownership evidence have separate protected receipts and verifiers, preventing a favorable performance result from weakening coverage ownership. | ✓ Validated Phase 235 — independent 93-row GATE-05 proof remained byte-stable and green |
+| Internal milestone closeout does not create a release tag | Planning IDs such as v1.48 are not Hex releases; two-component `v*` tags collide with the release namespace. | ✓ Recorded for v1.48 — `git.create_tag` is false and `init.complete-milestone` excludes `git-tag` |
+| Current GSD readiness takes precedence over historical pass reports | Stale verification and gaps must remain visible through closeout; archiving plans does not make their evidence current. | ✓ Applied at v1.48 close — 2/10 phases current, seven stale, Phase 245 gaps_found |
+| Shift verification left and minimize human handoffs | Prefer deterministic checks, browser automation, CI evidence, and durable machine-readable receipts; reserve human review for irreducible judgment or external actions. | ✓ Recorded as the default in `VERIFICATION-POLICY.md` and this project's Verification Default |
 
 ## Evolution
 
@@ -1249,4 +1282,7 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-09-15 — `/gsd-new-milestone` opened **v1.48 CLEAN-BASELINE** (phases continue from 236). Housekeeping/release-readiness lane chosen over the W-3/W-4 auth-UI proof milestone, which is deliberately queued next. Evidence gathered this session: `ci-gate` intermittently red on `main` via a flaky `Generated admin Playwright smoke` (the v1.45 silent-strand mechanism recurring); `pages build` red on every push; Hex `latest_stable_version` still the phantom `1.20.0`, unretired, so `{:sigra, "~> 1.0"}` misresolves; 28 `v1.NN` planning tags + 11 `phase-238-*` proof tags polluting the release-tag namespace (ADR-003 footgun, still being fed); 171 planning-bookkeeping references in `lib/`+`priv/templates/`, 5 of them dead `.planning/` paths incl. one shipping to adopters; 18 open PRs, 19 local / 31 remote branches, 3 stale worktrees, 6 stashes, 41 pending todos. Six target features: (1) green main honestly; (2) unambiguous release namespace + cut the release, incl. gated Hex `1.20.0` retire; (3) clean shipped surface; (4) clean git working state; (5) drain the PR/todo queue; (6) retire v1.47's dishonest debt (TEST-01/02 supersession, fictional parity guard, composite-action supply-chain gap). Also corrected a stale Current State claim that `1.4.0` was latest — `v1.5.0` is live. Human-gated: `mix hex.retire sigra 1.20.0 invalid`. Out of scope: W-3/W-4 auth-UI runtime proof, admin/operator-UI iteration, `.planning/` pruning, BFG history slimming, all new features. Next: define REQUIREMENTS.md → roadmap.*
 
+
 *Last updated: 2026-09-17 after Phase **238 Tag Guard, Then Tag Deletion** completed (6/6 plans; verification passed, UAT 1/1, security threats_open 0 across a 35-entry register). REL-01 satisfied as a **supersession** — its "server-side ruleset + paired contract test, demonstrated RED, before any deletion" holds, but its implied SemVer-validator mechanism does not: Tier 1 `tag_name_pattern` is enterprise-gated and was rejected live (`HTTP 422`) on this Free-tier repo, so the landed Tier 2 `creation` rule with `exclude: refs/tags/v*.*.*` is a shape guard. REL-02 satisfied: 39 tags deleted from a committed allowlist (never a glob), one literal name per invocation, `pre_delete_sha` captured for every ref, release surface unchanged and zero untagged drafts. The last UAT item — whether the `tag_ruleset_drift` observer actually executes post-merge — was closed by evidence, not by eye: observe run `35249205910` ran the job green (`live tag-namespace ruleset (id 23574716) matches the committed snapshot`). Recorded trap: two earlier observe runs at the same head SHA reported the RUN green while the job was `skipped` (its guard is `workflow_run.event != 'pull_request'`), so a green run is not proof — only the job's own conclusion and stdout are. Carry-forward: `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-*` now tracks three items — the unreachable `ABSENT` branch, the unpaginated ruleset list, and the absent assertion that the job ran; all three fail closed. **Never run `git gc`, `reflog expire` or `prune`** — the allowlist's `pre_delete_sha` column is Phase 245's forward-feed and the deleted objects must stay reachable by SHA. Phase 239 (`priv/templates/` sweep + one batched re-bless) is next.*
+
+*Last updated: 2026-10-05 after v1.48 CLEAN-BASELINE closed as an internal override_closeout. The milestone archive preserves 21/27 requirements satisfied, four partial, two unsatisfied, seven stale phase reports, and Phase 245 gaps_found. No 1.5.1 Hex release was published; the next scope is deliberately left for $gsd-new-milestone.*

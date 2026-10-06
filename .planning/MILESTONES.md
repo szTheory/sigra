@@ -1,5 +1,33 @@
 # Milestones
 
+## v1.48 CLEAN-BASELINE (Closed: 2026-10-05 — override_closeout)
+
+**Classification:** Internal planning milestone closeout; no Hex release was published.
+**Phases / plans / tasks:** 10 phases, 109 plans, 154 tasks.
+**Outcome:** 21/27 requirements satisfied; GREEN-04, GREEN-05, REL-05, and SURF-01 partial; REL-06 and REPO-04 unsatisfied.
+**Current verification:** 2/10 phases complete and passed; seven historical reports stale; Phase 245 gaps_found. These remain overrides, not passes.
+**Git range:** b6e889c4 (2026-09-15) → 41c1d4ab (2026-10-05), 324 commits. No v1.48 git tag; milestone tags are disabled.
+
+**Key accomplishments:**
+- Reproduced and fixed the generated-admin audit-filter navigation race without retry-wrapping; preserved repeatable RED/GREEN evidence.
+- Added a server-side planning-tag shape guard and removed the allowlisted planning/proof tags while preserving release tags.
+- Removed adopter-visible bookkeeping from installer templates and added fail-closed leakage guards and a monotonic documentation ratchet.
+- Reconciled the Hex retirement and docs-revert steps against the live API and HexDocs root; 1.5.1 was not published and Hex still reports 1.20.0 as latest stable.
+- Measured the isolated Playwright update and deferred it with nonzero visual drift recorded; no recapture was opened.
+- Kept branch cleanup fail-closed where historical identities and complete signed operation history could not be proven.
+
+**Known gaps and carried debt:**
+- REL-06: no 1.5.1 release receipt; latest_stable_version remains 1.20.0.
+- REPO-04: 11 historical PR-base rows and 30 cleanup-history phase/family pairs remain unresolved; the approved tracking ref remains.
+- Four requirements remain partial; seven phase reports are stale and Phase 245 remains gaps_found.
+- The grep-driven inventory found 69 pending todo files, one unfinished quick task, three open seeds, four deferred items, one dormant seed, and two implemented seeds. No items were suppressed or acknowledged in this closeout because the repository marks audit-open unreliable/deprecated; see the audit and STATE.md.
+
+**Verification overrides:** 8 phase statuses (seven stale, one gaps_found); no audit-open items newly acknowledged. The milestone audit remains status gaps_found and is archived at milestones/v1.48-MILESTONE-AUDIT.md.
+
+**Next:** Define scope through $gsd-new-milestone. No Phase 246 is on the roadmap.
+
+---
+
 ## v1.47 CI-EFFICIENCY (Shipped: 2026-09-15)
 
 **Phases completed:** 6 phases, 67 plans, 93 tasks
@@ -261,6 +289,12 @@ All eight carry full diagnosis, file:line evidence, and a recommended fix in `to
 - [v1.39 Requirements](milestones/v1.39-REQUIREMENTS.md)
 
 ---
+
+---
+
+## v1.38 BRAND-V2 (Shipped: 2026-06-13)
+
+**Note:** Backfilled from the archived roadmap snapshot on 2026-09-23; the original shipped date is recorded in that snapshot.
 
 ## v1.37 AUTH-BRANDING-WHITELABEL (Shipped: 2026-06-07)
 
