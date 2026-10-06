@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 246
 current_phase_name: Generated Confirmation Recovery
 status: executing
-stopped_at: "Blocked 246-03: local mix ci gate failed; see 246-CI-EVIDENCE.json"
-last_updated: "2026-10-06T19:58:14.802194Z"
+stopped_at: Phase 247 context gathered (assumptions mode)
+last_updated: "2026-10-06T21:09:04.390Z"
 last_activity: 2026-10-06
 last_activity_desc: Phase 246 local confirmation proof and review complete; required CI blocked
-state_head: fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a
+state_head: e16f413d4941008fdf0b4287dfe51fd6971785a1
 progress:
   total_phases: 4
   completed_phases: 0
@@ -788,9 +788,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T19:58:14.802194Z
-Stopped at: Blocked 246-03: local mix ci gate failed; see 246-CI-EVIDENCE.json
-Resume file: .planning/phases/246-generated-confirmation-recovery/continue.md
+Last session: 2026-10-06T21:09:04.347Z
+Stopped at: Phase 247 context gathered (assumptions mode)
+Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md
 
 ## Operator Next Steps
 
