@@ -182,12 +182,25 @@ defmodule Sigra.Install.GeneratorWiringTest do
       source = File.read!(@features_core_path)
       assert source =~ ~s(live "/confirm", ConfirmationLive)
       assert source =~ ~s(live "/confirm/:token", ConfirmationLive, :confirm)
+      assert source =~ "live_session :sigra_confirmation"
     end
 
     test "LiveView routes include reset password paths" do
       source = File.read!(@features_core_path)
       assert source =~ ~s(live "/reset-password", ResetPasswordLive)
       assert source =~ ~s(live "/reset-password/:token", ResetPasswordLive, :edit)
+    end
+  end
+
+  describe "confirmation LiveView anonymous safety" do
+    test "code and resend events require a signed-in scope and provide a login link" do
+      content = render_template("confirmation_live.ex")
+
+      assert content =~ "defp with_confirmation_user(socket, callback)"
+      assert content =~ "case socket.assigns[:current_scope] do"
+      assert content =~ "Please sign in to confirm your email."
+      assert content =~ ~s|navigate={~p"/users/log_in"}|
+      refute content =~ ~s|%{"user_id" => user_id}|
     end
   end
 
