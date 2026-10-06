@@ -1,7 +1,7 @@
 # Phase 247: Release Candidate and Repository Readiness - Pattern Map
 
-**Mapped:** 2026-10-06  
-**Files analyzed:** 6 anticipated/modified artifacts  
+**Mapped:** 2026-10-06
+**Files analyzed:** 6 anticipated/modified artifacts
 **Analogs found:** 6 / 6
 
 This map covers the concrete artifacts in RESEARCH.md's Recommended Project Structure and Wave 0 Gaps, plus the package metadata file required by READY-01. The inventory artifact's filename and format remain delegated to planning. Release Please config/workflows are existing seams to reuse; neither CONTEXT.md nor RESEARCH.md directs changes to them. A dedicated acceptance checker is only suggested conditionally in RESEARCH.md, so no new checker path is assumed here.
@@ -150,6 +150,6 @@ No exact analog exists yet for a Phase 247-specific READY-01/READY-02 acceptance
 
 ## Metadata
 
-**Analog search scope:** phase context/research, README and introduction guides, release metadata/configuration, workflow seams, and tracked planning inventory reports.  
-**Files scanned:** 8 principal sources; no parallel search beyond the needed analogs.  
+**Analog search scope:** phase context/research, README and introduction guides, release metadata/configuration, workflow seams, and tracked planning inventory reports.
+**Files scanned:** 8 principal sources; no parallel search beyond the needed analogs.
 **Pattern extraction date:** 2026-10-06
