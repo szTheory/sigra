@@ -140,6 +140,7 @@ defmodule Sigra.Install.AuthUIContractTest do
     assert confirmation =~ "{:noreply, assign(socket, form: form)}"
     assert submit_handler =~ "String.replace(code, \" \", \"\")"
     assert submit_handler =~ "~r/\\A[0-9]{6}\\z/"
+
     assert elem(:binary.match(submit_handler, "Regex.match?"), 0) <
              elem(:binary.match(submit_handler, "Auth.confirm_user_by_code"), 0)
   end
