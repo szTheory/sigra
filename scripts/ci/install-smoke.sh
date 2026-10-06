@@ -24,6 +24,15 @@ export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 
+# The disposable host lives under /tmp, outside the repository's .tool-versions
+# lookup path. Preserve this checkout's pinned Erlang/Elixir for the whole smoke.
+if command -v asdf >/dev/null 2>&1 && [[ -f "${SIGRA_REPO}/.tool-versions" ]]; then
+  pinned_erlang_version=$(awk '$1 == "erlang" { print $2; exit }' "${SIGRA_REPO}/.tool-versions")
+  pinned_elixir_version=$(awk '$1 == "elixir" { print $2; exit }' "${SIGRA_REPO}/.tool-versions")
+  [[ -z "${ASDF_ERLANG_VERSION:-}" && -n "${pinned_erlang_version}" ]] && export ASDF_ERLANG_VERSION="${pinned_erlang_version}"
+  [[ -z "${ASDF_ELIXIR_VERSION:-}" && -n "${pinned_elixir_version}" ]] && export ASDF_ELIXIR_VERSION="${pinned_elixir_version}"
+fi
+
 echo "==> install-smoke: using Sigra repo at ${SIGRA_REPO}"
 
 # D-11: assert the resolved phx.new version matches the pin target before
@@ -54,6 +63,10 @@ mix phx.new "$(basename "${TMP_APP_DIR}")" \
   --database postgres
 
 cd "${TMP_APP_DIR}"
+
+# Keep generated-host dependency writes inside the disposable app instead of
+# relying on a shared user cache that may have different ownership.
+export HEX_HOME="${TMP_APP_DIR}/.hex"
 
 echo "==> install-smoke: patching mix.exs to add {:sigra, path: \"${SIGRA_REPO}\"}"
 export SIGRA_REPO
@@ -224,6 +237,13 @@ EOF
 CLOAK_KEY="${CLOAK_KEY:-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=}"
 export CLOAK_KEY
 MIX_ENV=test mix ecto.drop || true
-MIX_ENV=test mix test test/generated_capability_gate_probe_test.exs
+elixir -e '
+  [probe_path, app_name] = System.argv()
+  app_module = Macro.camelize(app_name)
+  source = File.read!(probe_path)
+  rendered = EEx.eval_string(source, app_module: app_module)
+  File.write!("test/generated_confirmation_probe_test.exs", rendered)
+' "${SIGRA_REPO}/scripts/ci/generated-confirmation-probe.exs" "${APP}"
+MIX_ENV=test mix test test/generated_capability_gate_probe_test.exs test/generated_confirmation_probe_test.exs
 
 echo "==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean"

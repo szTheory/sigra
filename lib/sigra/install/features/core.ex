@@ -384,6 +384,25 @@ defmodule Sigra.Install.Features.Core do
         """
       end
 
+    optional_scope_confirmation_routes =
+      if live? do
+        """
+
+            scope "/users", #{web_module} do
+              pipe_through [:browser]
+
+              live_session :sigra_confirmation,
+                on_mount: [{#{web_module}.UserAuth, :mount_current_scope}] do
+          #{confirmation_routes}
+              end
+            end
+        """
+      else
+        ""
+      end
+
+    redirect_scope_confirmation_routes = if live?, do: "", else: confirmation_routes
+
     reset_routes =
       if live? do
         """
@@ -497,6 +516,8 @@ defmodule Sigra.Install.Features.Core do
     #{mfa_challenge_routes}
       end
 
+    #{optional_scope_confirmation_routes}
+
       scope "/users", #{web_module} do
         pipe_through [:browser, :redirect_if_user_is_authenticated]
 
@@ -505,7 +526,7 @@ defmodule Sigra.Install.Features.Core do
     #{live_routes}
         post "/log_in", SessionController, :create
         get "/log_in/:token", SessionController, :magic_link
-    #{confirmation_routes}
+    #{redirect_scope_confirmation_routes}
     #{reset_routes}
       end
 
