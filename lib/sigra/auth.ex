@@ -982,22 +982,16 @@ defmodule Sigra.Auth do
         err
 
       :ok ->
-        hashed_code = Token.hash_token(code)
-
-        case repo.get_by(user_token_schema,
-               token: hashed_code,
-               context: "confirm_code",
-               user_id: user_id
-             ) do
+        case confirmation_code_user_id(repo, user_token_schema, code, user_id) do
           nil ->
             {:error, :invalid_code}
 
-          token_record ->
+          matched_user_id ->
             # Build atomic transaction: confirm user + delete all confirm tokens
             multi =
               Multi.new()
               |> Multi.run(:confirm_user, fn _repo, _changes ->
-                user = repo.get!(user_schema, token_record.user_id)
+                user = repo.get!(user_schema, matched_user_id)
 
                 if user.confirmed_at do
                   {:error, :already_confirmed}
@@ -1016,7 +1010,7 @@ defmodule Sigra.Auth do
 
                 query =
                   from(t in user_token_schema,
-                    where: t.user_id == ^token_record.user_id,
+                    where: t.user_id == ^matched_user_id,
                     where: t.context in ["confirm", "confirm_code"]
                   )
 
@@ -1054,6 +1048,37 @@ defmodule Sigra.Auth do
                 {:error, reason}
             end
         end
+    end
+  end
+
+  defp confirmation_code_user_id(repo, user_token_schema, code, user_id) do
+    if function_exported?(user_token_schema, :verify_confirmation_code_query, 2) do
+      case user_token_schema.verify_confirmation_code_query(code, user_id) do
+        {:ok, query} ->
+          case repo.one(query) do
+            %{id: matched_user_id} -> matched_user_id
+            _ -> nil
+          end
+
+        _ ->
+          nil
+      end
+    else
+      import Ecto.Query
+
+      hashed_code = Token.hash_token(code)
+
+      query =
+        from t in user_token_schema,
+          where: t.token == ^hashed_code,
+          where: t.context == "confirm_code",
+          where: t.user_id == ^user_id,
+          where: t.inserted_at > ago(48, "hour")
+
+      case repo.one(query) do
+        %{user_id: ^user_id} -> user_id
+        _ -> nil
+      end
     end
   end
 

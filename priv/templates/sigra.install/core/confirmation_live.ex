@@ -70,8 +70,6 @@ defmodule <%= web_module %>.ConfirmationLive do
               label={dgettext("sigra", "Confirmation code")}
               inputmode="numeric"
               autocomplete="one-time-code"
-              maxlength="6"
-              pattern="[0-9]{6}"
               aria-label={dgettext("sigra", "Confirmation code")}
               class="sigra-auth-code-input"
               required
@@ -172,22 +170,15 @@ defmodule <%= web_module %>.ConfirmationLive do
 
   def handle_event("validate", %{"confirmation" => %{"code" => code}}, socket) do
     form = to_form(%{"code" => code}, as: "confirmation")
-    socket = assign(socket, form: form)
-
-    # Call the confirm path directly when the user has typed a
-    # full 6-digit code instead of dispatching via `send(self(), …)`. The
-    # mailbox round-trip allowed a stale 6-digit prefix to fire after the
-    # user typed a 7th character, wasting an attempt against the rate
-    # limiter's max_code_attempts counter.
-    if String.length(code) == 6 and Regex.match?(~r/^\d{6}$/, code) do
-      do_confirm(socket, code)
-    else
-      {:noreply, socket}
-    end
+    {:noreply, assign(socket, form: form)}
   end
 
   def handle_event("confirm", %{"confirmation" => %{"code" => code}}, socket) do
     do_confirm(socket, code)
+  end
+
+  def handle_event("confirm", _params, socket) do
+    do_confirm(socket, "")
   end
 
   def handle_event("resend", _params, socket) do
@@ -205,34 +196,46 @@ defmodule <%= web_module %>.ConfirmationLive do
     end)
   end
 
-  defp do_confirm(socket, code) do
-    with_confirmation_user(socket, fn socket, user ->
-      case Auth.confirm_user_by_code(user, code) do
-        {:ok, _user} ->
-          {:noreply,
-           socket
-           |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
-           |> redirect(to: ~p"/")}
+  defp do_confirm(socket, code) when is_binary(code) do
+    normalized_code = String.replace(code, " ", "")
 
-        {:error, :invalid_code} ->
-          form = to_form(%{"code" => ""}, as: "confirmation")
+    if Regex.match?(~r/\A[0-9]{6}\z/, normalized_code) do
+      with_confirmation_user(socket, fn socket, user ->
+        case Auth.confirm_user_by_code(user, normalized_code) do
+          {:ok, _user} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
+             |> assign(live_action: :confirmed)}
 
-          {:noreply,
-           socket
-           |> put_flash(:error, dgettext("sigra", "Invalid confirmation code. Please try again."))
-           |> assign(form: form)}
+          {:error, :invalid_code} ->
+            invalid_code_response(socket, code)
 
-        {:error, :rate_limited} ->
-          {:noreply,
-           put_flash(socket, :error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))}
+          {:error, :rate_limited} ->
+            {:noreply,
+             socket
+             |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))
+             |> assign(form: to_form(%{"code" => code}, as: "confirmation"))}
 
-        {:error, :already_confirmed} ->
-          {:noreply,
-           socket
-           |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
-           |> redirect(to: ~p"/")}
-      end
-    end)
+          {:error, :already_confirmed} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
+             |> assign(live_action: :confirmed)}
+        end
+      end)
+    else
+      invalid_code_response(socket, code)
+    end
+  end
+
+  defp do_confirm(socket, _code), do: invalid_code_response(socket, "")
+
+  defp invalid_code_response(socket, code) do
+    {:noreply,
+     socket
+     |> put_flash(:error, dgettext("sigra", "Invalid confirmation code. Please try again."))
+     |> assign(form: to_form(%{"code" => code}, as: "confirmation"))}
   end
 
   defp with_confirmation_user(socket, callback) do
