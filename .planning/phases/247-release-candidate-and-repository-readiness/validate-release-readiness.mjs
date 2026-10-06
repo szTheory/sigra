@@ -169,13 +169,17 @@ function validateWorkingCopy(snapshot, observed) {
   const errors = [];
   const source = snapshot.source ?? snapshot.entry_snapshot?.source;
   const allowed = new Set(snapshot.phase_artifacts ?? phaseArtifacts);
+  const checkpointMetadata = new Set(['.planning/STATE.md', '.planning/HANDOFF.json']);
   if (observed.repo_root !== source.inherited_checkout.path) errors.push({ code: 'repository_root_changed', message: 'Validation is running from a different repository root.' });
   if (observed.local_origin_main_sha !== source.trusted_main_sha) errors.push({ code: 'origin_main_not_refreshed', message: 'The local origin/main ref does not match the live trusted main SHA.' });
   if (observed.current_head_sha !== source.inherited_checkout.head_sha) {
     if (!observed.own_commits.length) errors.push({ code: 'inherited_head_moved', message: 'HEAD moved without an allowed Phase 247 artifact commit.' });
     for (const commit of observed.own_commits) {
       const pathsAreScoped = commit.paths.length > 0 && commit.paths.every(file => allowed.has(file));
-      if (!/^(feat|test)\(247-01\):/.test(commit.subject) || !pathsAreScoped) {
+      const isTaskCommit = /^(feat|test|fix)\(247-01\):/.test(commit.subject) && pathsAreScoped;
+      const isCheckpointCommit = commit.subject === 'docs(247-01): record phase 246 evidence checkpoint'
+        && commit.paths.length > 0 && commit.paths.every(file => checkpointMetadata.has(file));
+      if (!isTaskCommit && !isCheckpointCommit) {
         errors.push({ code: 'unexpected_post_snapshot_commit', message: `Post-snapshot commit ${commit.sha} is not scoped to this plan's artifact files.` });
       }
     }
