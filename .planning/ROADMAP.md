@@ -56,7 +56,7 @@ Plans:
 - [x] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [x] 246-03-PLAN.md — Narrow fresh-host Chromium proof on required CI.
+- [ ] 246-03-PLAN.md — Local Chromium proof and route implemented; required CI receipt blocked by four older local gate failures.
 
 **UI hint**: yes
 
@@ -109,4 +109,4 @@ Plans:
 
 ### Next
 
-Phase 246 is planned with three runnable plans and no prerequisite blocker. Run `$gsd-execute-phase 246` to implement the generated confirmation recovery work. Phase 245's historical verification gaps remain visible in its archived reports and do not expand v1.49 scope.
+Phase 246 is in progress: Plans 01/02 are complete; Plan 03 local proof and review pass, while required CI evidence remains blocked. After inherited local gate failures are resolved, resume `$gsd-execute-phase 246` to capture required CI and finish verification. Phase 245's historical verification gaps remain visible in its archived reports and do not expand v1.49 scope.

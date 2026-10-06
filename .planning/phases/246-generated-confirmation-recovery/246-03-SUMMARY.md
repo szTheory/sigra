@@ -22,97 +22,96 @@ key-files:
     - test/sigra/install/generated_confirmation_ci_contract_test.exs
     - .planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json
     - .planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md
+    - .planning/phases/246-generated-confirmation-recovery/246-MIX-CI-FAILURES.json
+    - test/example/priv/playwright/spec-ownership.json
   modified:
     - test/example/priv/playwright/playwright.config.ts
     - scripts/ci/admin-acceptance-smoke.sh
     - test/sigra/install/auth_ui_contract_test.exs
     - test/sigra/planning/phase_242_shift_left_contract_test.exs
+    - priv/templates/sigra.install/core/confirmation_live.ex
+    - scripts/ci/generated-confirmation-probe.exs
+    - test/sigra/templates/installer_drift_test.exs
+    - test/sigra/planning/phase_234_playwright_inventory_contract_test.exs
     - .planning/phases/246-generated-confirmation-recovery/246-VALIDATION.md
 decisions:
-  - "The required workflow was not pushed or dispatched because the mandatory clean-source local mix ci gate failed on unrelated planning contract gaps."
+  - "Required CI was not dispatched after the clean-source local gate failed. Phase-induced drift and ownership regressions were repaired; four older contract failures remain."
   - "Kept recurring CI job conclusions as not-run; the local generated-host smoke is recorded separately and is not presented as workflow evidence."
 metrics:
-  duration: 45min
+  duration: 45min initial execution plus 30min scoped verification follow-up
   completed: 2026-10-06
-  commits: 4
+  commits: 9
   plan_head_before: d25c46bdf85d9ebba4978f2a680d162d11c728c9
-  plan_head_after: 78f973a43e24b0813029b0dec2285dd3f5f54a8b
+  plan_head_after: fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a
 actuals:
   tokens: 3082
   tasks: 2
-  commits: 4
+  commits: 9
 status: blocked
 ---
 
 # Phase 246 Plan 03: Generated Confirmation Recovery Summary
 
-**A fresh generated Phoenix host now proves the literal spaced email code can be pasted, rejected visibly when wrong, retried, and accepted; recurring CI proof is held by unrelated failures in the required local gate.**
-
-## Performance
-
-- **Duration:** approximately 45 minutes
-- **Completed:** 2026-10-06
-- **Tasks implemented:** 2
-- **Source changes:** 6 files, 12329 bytes of zero-context diff (approximately 3082 tokens)
+**The generated-host Chromium journey and required-CI route are implemented; actual recurring CI proof remains blocked.**
 
 ## Accomplishments
 
-- Added a dedicated `generated-host-chromium` Playwright project that runs only the confirmation journey and excludes it from the general example-app projects.
-- The browser journey registers an unconfirmed user, waits for LiveView connection, polls the generated mailbox with a bounded retry, pastes the exact six digits plus five spaces, asserts visible invalid-code feedback, then submits the real value and asserts visible success.
-- Added focused `--test confirmation` and wired `--test all` to run the confirmation browser target before generated-server teardown. The full smoke still runs existing admin coverage and the revocation recheck.
-- Added an ExUnit route contract proving the confirmation journey remains in the recurring generated-admin job and that the required `ci-gate` keeps that job as a dependency.
-- Added a machine-readable receipt. It records current-source local browser and contract success, prior Plan 246-02 fresh-host evidence separately, and the absence of any current-source GitHub workflow run.
+- Added the dedicated `generated-host-chromium` project and one scenario that registers an unconfirmed account, observes LiveView readiness, retrieves its real email, pastes the literal spaced code, sees invalid feedback, retries, and sees success.
+- Added `--test confirmation` and included that scenario in required `--test all` before host teardown, preserving the admin suite and revocation recheck.
+- Added a three-test source contract tying the runner to the existing generated-admin job and required `ci-gate`.
+- Fixed WR-01: authorization precedes code validation, so every anonymous code shape receives sign-in guidance. The generated probe covers malformed and nil submissions as well as valid input.
+- Reconciled the optional-scope installer guard and current Playwright ownership. The new current registry preserves the archived inventory's exact captured bytes and Phase 235 provenance.
+- Retained exact-source test evidence, all four final CI failure messages, prior failure observations, clean code review, and honest missing workflow conclusions.
 
 ## Task Commits
 
-1. **Task 1: Exercise literal email-code paste in the generated-host browser** — `09f9c468`
-2. **Task 2: Lock the required CI route and retain its result** — `17b2b97a`
-3. **Task 2 formatter correction:** `59d8deaf`
-4. **Authorized prerequisite formatter fixes for the required local gate:** `78f973a4`
+| Change | Commit |
+|---|---|
+| Generated-host browser, project and runner | `09f9c468` |
+| Required CI route contract | `17b2b97a` |
+| Formatter corrections | `59d8deaf`, `78f973a4` |
+| Anonymous malformed-input regression and fix | `a0826442`, `1ca5f21e` |
+| Optional-scope installer drift guard | `6f10be85` |
+| Current browser ownership and immutable archive preservation | `306a7865e`, `fd75cad25` |
+
+Final reviewed source: `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`. Planning-only evidence commits follow this source commit.
 
 ## Verification
 
-| Check | Result |
+| Check | Observed result |
 |---|---|
-| `PLAYWRIGHT_BROWSERS_PATH=/tmp/sigra-playwright-browsers bash scripts/ci/admin-acceptance-smoke.sh --test all` | Passed at `78f973a43e24b0813029b0dec2285dd3f5f54a8b`: 8 admin tests passed, 1 planned skip; confirmation journey 1 passed; revocation recheck 1 passed. |
-| `MIX_ENV=test mix test test/sigra/install/generated_confirmation_ci_contract_test.exs` | Passed: 3 tests, 0 failures. |
-| `MIX_ENV=test mix ci` in a clean committed-source checkout | **Blocked:** exit 2; full suite reported 2623 tests, 17 failures, 12 skips, 22 exclusions. Detailed failure categories are in `246-MIX-CI-BLOCKED.md`. |
-| Required GitHub CI workflow | Not dispatched because the mandatory local gate failed. No run ID, URL, or job conclusions exist for this source SHA. |
+| Final-source scoped ExUnit suite | **236 tests, 0 failures**, including auth, generation, UI, CI route, installer drift, current ownership and historical ratification. |
+| Fresh-host installer | **8 tests, 0 failures**, generated at `6f10be8504075d3b8a676f6ef1b064dd2783387b`; generation and probe sources are byte-identical to final source. |
+| Final-source `admin-acceptance-smoke.sh --test all` | **8 admin tests passed, 1 planned skip; confirmation 1 passed; revocation recheck 1 passed**, after one retry of an existing admin LiveView-readiness timeout. |
+| Clean-source `MIX_ENV=test mix ci` | **Exit 2: 2623 tests, 4 failures, 12 skips, 22 exclusions**; subsequent threadline guard **65 tests, 0 failures**. |
+| Example `mix precommit` | **Blocked:** existing test-environment `/dev/mailbox` route warning fails compile with warnings-as-errors. |
+| Re-review | **19 source files, 0 findings**; WR-01 remains recorded as fixed. |
+| Required GitHub CI | **Not dispatched.** No run ID/URL or current-source job conclusions exist. |
 
-The initial clean checkout could not safely reuse the main worktree's dependency directory because its installed `plug_crypto` version diverged from the committed lockfile. A private Hex cache and clean checkout resolved dependencies at the committed versions; the remaining `mix ci` failures are cross-phase planning contracts, not a dependency-resolution failure.
+`246-CI-EVIDENCE.json` binds receipts to their actual source SHAs and retains log fingerprints and the first browser timeout. `246-MIX-CI-FAILURES.json` retains complete final failure diagnostics and the earlier async Oban observation. Local success is separate from required workflow proof.
 
 ## Deviations from Plan
 
-### Auto-fixed Issues
+- **Rule 3 — required formatter prerequisite:** formatting-only repairs to two tests allowed the local gate to progress.
+- **Rule 3 — exact-source environment:** a clean detached verification checkout and private Hex cache avoided mixed dependency versions. A fresh compile removed stale dependency-off output. Nested sandbox fixtures were verified with the enclosing sandbox limitation removed.
+- **Review fix:** observed malformed-anonymous regression RED (5 tests, 1 failure), repaired scope checking, then observed GREEN (5 tests, 0 failures) and the 8-test fresh-host installer proof.
+- **Phase integration repair:** updated the optional-scope drift guard and exact browser ownership mapping. An initial archived inventory edit exposed its captured hash dependency; the historical bytes were restored and live reconciliation moved to `spec-ownership.json`. Current and historical inventory contracts pass together.
+- **Browser environment and retry:** installed Chromium matching committed Playwright 1.59.1 after a missing-executable launch. The first actual suite timed out on existing admin branding LiveView readiness; its single retry passed. The initial failure is retained.
 
-**1. [Rule 3 - Blocking] Formatted prerequisite files failing the required formatter gate**
-- **Found during:** Task 2 local `mix ci`
-- **Issue:** `test/sigra/install/auth_ui_contract_test.exs` and `test/sigra/planning/phase_242_shift_left_contract_test.exs` were not formatter-clean, preventing the required gate from progressing.
-- **Fix:** Applied formatting-only changes after confirming both paths had no pre-existing dirty edits; no assertion or behavior changed.
-- **Files modified:** the two test files above.
-- **Commit:** `78f973a4`
+## Required CI Gate Blocker
 
-**2. [Rule 3 - Blocking] Isolated locked dependencies for exact committed-source verification**
-- **Found during:** Task 2 local `mix ci`
-- **Issue:** Reusing `deps/` from the mixed main checkout loaded a `plug_crypto` version incompatible with the committed Phoenix lockfile; the default shared Hex cache also rejected writes.
-- **Fix:** Ran the clean detached checkout with its own dependencies and a private `HEX_HOME`.
-- **Files modified:** none.
+The final four failures concern the older Phase 232 cache-key expectation, Phase 236 and Phase 242 archived evidence paths, and the committed README install tuple. Existing dirty workflow/package/docs work was preserved. The first run's classification of all 17 failures as unrelated was corrected; the phase-induced failures were repaired. See `246-MIX-CI-BLOCKED.md` for the final scope and retained diagnostics.
 
-### Required CI Gate Blocker
-
-The clean-source full suite reports cross-phase failures: Phase 242's committed README/closeout evidence contract, missing Phase 236 evidence, Phase 234 inventory contracts, Phase 235 completion contracts, plus Phase 232 cache-key and Threadline forwarder tests. The exact gate output is summarized in the committed blocker note. Those unrelated files were left unchanged. Since the local gate did not pass, no evidence branch was pushed and no GitHub workflow was dispatched; the plan's actual recurring-CI success criterion remains unproven.
+Task 1's local browser proof is complete. Task 2's runner/route implementation is complete, while its actual required run and conclusions remain missing. Plan 246-03 stays **blocked**, phase progress stays **2/3**, and requirements stay pending. Final phase verification and completion have not run. Resume `$gsd-execute-phase 246` after the inherited gate failures are resolved within their authorized scope.
 
 ## TDD Gate Compliance
 
-Task 1's browser scenario is committed and passed against the final source SHA, including the wrong-code/retry/success sequence. The browser runner's initial failure was an environment sandbox launch failure, not an observed product assertion failure; the retry used the installed pinned browser under the permitted environment. The route contract also passes at the final SHA. Global phase `tdd_mode` is false; task-level test-first execution was applied without a phase-wide TDD gate.
+The new browser exercises wrong-code/retry/success without sleeps. The malformed-anonymous probe was observed RED then GREEN. Global phase `tdd_mode` is false. Missing recurring CI is retained as a blocker.
 
 ## Known Stubs
 
-None found in the files changed by this plan.
+None found in the changed source. Required CI proof is missing evidence, not a stub.
 
-## Self-Check: PASSED
+## Self-Check: BLOCKED
 
-- Browser spec, runner wiring, scoped CI contract, validation map, CI receipt, blocker note, and summary exist.
-- Task commits `09f9c468`, `17b2b97a`, `59d8deaf`, and `78f973a4` are ancestors of the recorded source SHA.
-- Current-source generated-host acceptance and the focused three-test CI route contract passed.
-- Required recurring CI is explicitly recorded as not dispatched and not passed.
+Source artifacts, task commits, local receipts and review exist. Required CI is unproven; no completion claim is made.

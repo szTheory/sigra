@@ -1,15 +1,25 @@
-# Phase 246 Plan 03: Local CI Gate Blocker
+# Phase 246 Plan 03: Required CI Blocker
 
-`MIX_ENV=test mix ci` was run from a clean detached checkout at source SHA `78f973a43e24b0813029b0dec2285dd3f5f54a8b` on 2026-10-06. It exited 2 in the full ExUnit stage with 2,623 tests, 17 failures, 12 skips, and 22 exclusions. The subsequent focused threadline guard stage passed 65 tests with 0 failures.
+At committed source `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`, a clean detached checkout ran `MIX_ENV=test mix ci` after `mix clean`. It exited 2: **33 doctests, 3 properties, 2623 tests, 4 failures, 12 skips, 22 exclusions**. The later dependency-off guard passed **65 tests, 0 failures**. Complete failure messages, stack locations, seed, source SHA, and the log fingerprint are retained in `246-MIX-CI-FAILURES.json`.
 
-The full-suite failures are outside Plan 246-03's product and test files. The run exposed existing cross-phase contract gaps in the committed source tree:
+| Failing contract | Observed diagnostic | Scope |
+|---|---|---|
+| Phase 232 Playwright economics | The committed workflow has zero matches for its expected `playwright-chromium-1.62.1-v3` cache marker. | Workflow/package updates already dirty at phase entry are separate inherited work. |
+| Phase 236 evidence provenance | Guard reads an absent `.planning/phases/236-…/236-EVIDENCE.md` path after archival. | Historical evidence/path maintenance. |
+| Phase 242 install guidance | Committed README lacks the supported install tuple. | Existing dirty public documentation was preserved. |
+| Phase 242 safety closeout | Guard reads an absent `.planning/phases/242-…/242-SAFETY-CLOSEOUT.md` path after archival. | Historical evidence/path maintenance; the phase's test received formatting-only changes. |
 
-- `Sigra.Planning.Phase242ShiftLeftContractTest`: README lacks the supported install tuple; `.planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md` is absent.
-- `Sigra.Planning.Phase236EvidenceProvenanceGuardTest`: `.planning/phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md` is absent.
-- `Sigra.Planning.Phase234PlaywrightInventoryContractTest`: inventory validation and live-spec reconciliation fail against the committed inventory/lane state.
-- `Sigra.Planning.Phase235Fast01SourceCompleteContractTest`: source-completion and authenticated strict-pass reconciliation contracts fail against the committed phase artifacts.
-- Additional failures include the Phase 232 Playwright cache-key contract and Threadline forwarder tests; these predate Plan 246-03 and are not included in its implementation scope.
+The first 17-failure run included phase-induced failures, so its initial classification as entirely unrelated was inaccurate. Follow-up work repaired the optional-scope installer drift guard and registered the new browser spec with an exact harness mapping. Live ownership now resides in `test/example/priv/playwright/spec-ownership.json`; the archived Phase 234 inventory retains its original captured bytes, preserving Phase 235 provenance. A fresh compile also removed stale Threadline dependency-off output, and the nested sandbox fixtures passed when permitted to run outside the enclosing process sandbox. The final four failures remain outside the confirmation implementation.
 
-The phase 242 formatter-only prerequisite repair was completed as authorized, but it did not supply the missing phase artifact or README content. The plan did not change unrelated cross-phase behavior to force this gate green. No GitHub workflow was pushed or dispatched after the mandatory local gate failed, so `install_smoke`, `generated_admin_playwright_smoke`, and `ci-gate` have no current-SHA workflow conclusions. The generated-host local acceptance smoke and the three-test CI route contract both passed at the recorded SHA.
+## Local proof retained
 
-The run's full output was captured at `/private/tmp/sigra-phase-246-03-mix-ci.log`; the failure categories and outcome needed for follow-up are retained here and in `246-CI-EVIDENCE.json`.
+- Final-source focused suite: **236 tests, 0 failures**.
+- Fresh-host installer: **8 tests, 0 failures**, generated from `6f10be8504075d3b8a676f6ef1b064dd2783387b`. `git diff` proves its `lib/`, `priv/`, confirmation probe, and installer runner are identical to the final source.
+- Final-source generated-host full browser command: **8 admin tests passed, 1 planned skip; confirmation 1 passed; revoked-admin recheck 1 passed**. The existing admin branding navigation timed out on LiveView readiness once; its single retry passed and the first failure remains in the receipt.
+- The committed Playwright version is **1.59.1**. Its matching Chromium browser was installed after an initial launch-prerequisite failure.
+- Re-review: **19 files, 0 findings**. WR-01 is fixed and retained in the disposition ledger.
+- The example app's additional `mix precommit` fails its warnings-as-errors compile on an existing `/dev/mailbox` test-environment route warning at `settings_live.ex:133`. Its complete log fingerprint is retained in the receipt.
+
+No branch was pushed and no GitHub workflow was dispatched after the required local gate failed. `install_smoke`, `generated_admin_playwright_smoke`, and `ci-gate` therefore have no current-source workflow conclusions. Local equivalence is recorded separately. Plan 246-03 and phase completion remain blocked; CONF-01 through CONF-03 stay pending in the phase requirements ledger.
+
+After the inherited CI blockers are resolved in their authorized scope, resume `$gsd-execute-phase 246` to capture the actual required run. This invocation did not start Phase 247 or reopen historical milestone phases.

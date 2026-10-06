@@ -3,31 +3,86 @@
   "phase": "246",
   "plan": "03",
   "status": "blocked",
-  "tested_source_sha": "78f973a43e24b0813029b0dec2285dd3f5f54a8b",
-  "tested_at_utc": "2026-10-06T19:04:24Z",
+  "tested_source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+  "tested_at_utc": "2026-10-06T19:32:42.902818Z",
   "workflow": {
     "name": "CI",
     "run_id": null,
     "run_url": null,
     "dispatch_status": "not-dispatched",
-    "reason": "Required local mix ci did not pass; push/dispatch was held at the documented pre-push gate."
+    "reason": "Required local mix ci exited 2 with four older contract failures; no push or required CI run was performed."
   },
   "jobs": {
     "install_smoke": {
-      "conclusion": "not-run-at-tested-source-sha",
-      "prior_phase_evidence": "Plan 246-02 summary records 8 fresh-host tests passing; that result predates this source SHA."
+      "conclusion": "not-run",
+      "local_equivalent": {
+        "command": "bash scripts/ci/install-smoke.sh",
+        "conclusion": "passed",
+        "tests": 8,
+        "failures": 0,
+        "source_sha": "6f10be8504075d3b8a676f6ef1b064dd2783387b",
+        "source_equivalence": {
+          "compared_to_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+          "identical_generation_and_probe_sources": true,
+          "paths": [
+            "lib/",
+            "priv/",
+            "scripts/ci/generated-confirmation-probe.exs",
+            "scripts/ci/install-smoke.sh"
+          ]
+        },
+        "log": {
+          "local_path": "/private/tmp/sigra-phase-246-final-install.log",
+          "sha256": "bbdfecd605df5cfd80c7bbbad2804f8ed6f1fc051c257e14fe6004627070225e"
+        }
+      }
     },
     "generated_admin_playwright_smoke": {
       "workflow_conclusion": "not-run",
       "local_equivalent": {
         "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/sigra-playwright-browsers bash scripts/ci/admin-acceptance-smoke.sh --test all",
         "conclusion": "passed",
+        "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+        "playwright_version": "1.59.1",
         "results": {
-          "admin_generated": "8 passed, 1 planned skip",
-          "generated_confirmation_chromium": "1 passed",
-          "revoked_admin_recheck": "1 passed"
+          "admin_generated": {
+            "passed": 8,
+            "planned_skips": 1
+          },
+          "generated_confirmation_chromium": {
+            "passed": 1
+          },
+          "revoked_admin_recheck": {
+            "passed": 1
+          }
         },
-        "source_sha": "78f973a43e24b0813029b0dec2285dd3f5f54a8b"
+        "attempts_after_browser_setup": 2,
+        "retry_policy": "One retry of the existing admin LiveView readiness timeout; first failure retained.",
+        "first_attempt": {
+          "conclusion": "failed",
+          "admin_generated": {
+            "passed": 7,
+            "failed": 1,
+            "planned_skips": 1
+          },
+          "diagnostic": "1) [admin-generated] \u203a tests/admin-generated.spec.ts:247:5 \u203a generated host admin shell renders on desktop and mobile \n\n    TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\n    Call log:\n    \u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n\n      39 |\n      40 | async function waitForLiveViewReady(page: Page) {\n    > 41 |   await page.waitForSelector(\"[data-phx-session].phx-connected\", {\n         |              ^\n      42 |     state: \"attached\",\n      43 |   });\n      44 | }\n        at waitForLiveViewReady (/private/tmp/sigra-phase-246-03-ci/test/example/priv/playwright/tests/admin-generated.spec.ts:41:14)\n        at /private/tmp/sigra-phase-246-03-ci/test/example/priv/playwright/tests/admin-generated.spec.ts:283:9",
+          "log": {
+            "local_path": "/private/tmp/sigra-phase-246-final-browser-retry.log",
+            "sha256": "ff5450d93855d2db50988d2ebd9b0b825f050e9efcd6be9009a8bece18708b32"
+          }
+        },
+        "log": {
+          "local_path": "/private/tmp/sigra-phase-246-final-browser-last.log",
+          "sha256": "3007903db83bb1d11f8d2246c1322ccc11d2d5e99aca70b074316a163bee73b2"
+        },
+        "preparation": {
+          "matching_browser_installed": true,
+          "initial_launch_without_matching_browser": "failed; no product assertions executed",
+          "log": {
+            "local_path": "/private/tmp/sigra-phase-246-final-browser.log",
+            "sha256": "0230d831c6d0f071a619fb10db0a56fe126aced378b153f946126e0f8ff8af77"
+          }
+        }
       }
     },
     "ci-gate": {
@@ -37,8 +92,13 @@
       "command": "MIX_ENV=test mix ci",
       "conclusion": "failed",
       "exit_code": 2,
-      "result": "The full ExUnit stage reported 2623 tests, 17 failures, 12 skips (22 excluded). A later focused threadline guard stage reported 65 tests, 0 failures.",
-      "diagnostics": ".planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md"
+      "result": "33 doctests, 3 properties, 2623 tests, 4 failures, 12 skipped (22 excluded); subsequent threadline guard 65 tests, 0 failures.",
+      "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+      "diagnostics": "246-MIX-CI-FAILURES.json",
+      "log": {
+        "local_path": "/private/tmp/sigra-phase-246-final-ci.log",
+        "sha256": "b9bc0629f1d3b77b1f3b345263428c2decedfcc707d81d808b64dd2ae771c92a"
+      }
     }
   },
   "local_contract": {
@@ -46,7 +106,61 @@
     "conclusion": "passed",
     "tests": 3,
     "failures": 0,
-    "source_sha": "78f973a43e24b0813029b0dec2285dd3f5f54a8b"
+    "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+    "included_in_final_focused_suite": true
+  },
+  "local_focused_suite": {
+    "command": "MIX_ENV=test mix test test/sigra/auth_test.exs test/sigra/install/generator_email_test.exs test/sigra/install/generator_wiring_test.exs test/sigra/install/features/core_test.exs test/sigra/install/auth_ui_contract_test.exs test/sigra/install/generated_confirmation_ci_contract_test.exs test/sigra/templates/installer_drift_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_235_terminal_ratification_contract_test.exs",
+    "conclusion": "passed",
+    "tests": 236,
+    "failures": 0,
+    "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+    "log": {
+      "local_path": "/private/tmp/sigra-phase-246-final-focused.log",
+      "sha256": "307c3972e2d100d6a79e26c2c4359f11422eb349ca7fe34e2c81c6159fa74506"
+    }
+  },
+  "example_precommit": {
+    "command": "MIX_ENV=test mix precommit",
+    "conclusion": "failed",
+    "exit_code": 1,
+    "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+    "stage": "compile --warnings-as-errors",
+    "diagnostic": "Existing test-environment route warning: lib/example_web/live/settings_live.ex:133 references /dev/mailbox, which is absent from ExampleWeb.Router in test.",
+    "log": {
+      "local_path": "/private/tmp/sigra-phase-246-example-precommit.log",
+      "sha256": "e33eaa09e02baab87c7fa21dafc82ef27b1d28dd7f8c2db10202f22e3450982e"
+    }
+  },
+  "code_review": {
+    "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+    "files_reviewed": 19,
+    "critical": 0,
+    "warning": 0,
+    "info": 0,
+    "status": "clean",
+    "report": "246-REVIEW.md",
+    "disposition": "246-REVIEW-DISPOSITION.md"
+  },
+  "wave_post_gates": {
+    "schema_drift": {
+      "block": false,
+      "skipped": false
+    },
+    "codebase_drift": {
+      "block": false,
+      "skipped": true,
+      "reason": "no-structure-md"
+    },
+    "ui_safety": {
+      "block": false,
+      "hasUiSpec": false
+    }
+  },
+  "superseded_run": {
+    "source_sha": "78f973a43e24b0813029b0dec2285dd3f5f54a8b",
+    "local_mix_ci_failures": 17,
+    "note": "The first classification as entirely unrelated was corrected: phase-induced drift and browser inventory failures were repaired. Final current-source diagnostics are authoritative."
   },
   "missing_evidence_is_passed": false
 }
