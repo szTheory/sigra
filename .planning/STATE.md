@@ -794,7 +794,7 @@ Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247
 
 ## Operator Next Steps
 
-- **Next command: `$gsd-discuss-phase 247`.** Read `.planning/phases/246-generated-confirmation-recovery/continue.md` first. `init.plan-phase 247` reports no planning prerequisite blocker and no context/research; discuss repository readiness and inherited checkout/gate disposition.
+- **Next command: `$gsd-plan-phase 247`.** Phase 247 context is complete, and `init.plan-phase 247` reports no planning prerequisite blocker. Plan release-candidate and repository-readiness work from the accepted assumptions in `247-CONTEXT.md`; keep Phase 246's required CI blocker visible and do not start dependent execution until Phase 246 is complete.
 - Keep Phase 246 at 2/3. After gate inputs change, resume `$gsd-execute-phase 246` for Plan 03 required CI and final verification; completed Plans 01/02 must not be repeated. Dependent execution still requires Phase 246 completion.
 - Routing evidence: `.planning/phases/246-generated-confirmation-recovery/246-FORWARD-ROUTE.json`. Historical Phase 245 verification remains separate.
 
