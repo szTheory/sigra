@@ -122,9 +122,11 @@ Plan 01 remains incomplete and is still the only ready Phase 247 plan. Resolve P
 
 **Immediate route:** `$gsd-execute-phase 246`.
 
-## Self-Check: PENDING
+## Self-Check: PASSED
 
-The summary file, its scoped commit, state validation, and phase-plan index will be verified after writing.
+- Summary file exists and is committed as `265284deb`.
+- Task 1 verification commits `9643d20f4`, `83aff7df0`, and `92fe589d2` are ancestors of HEAD.
+- State validation passed; the phase-plan index keeps 247-01 ready and 247-02 through 247-04 unresolved.
 
 ---
 *Phase: 247-release-candidate-and-repository-readiness*
