@@ -17,6 +17,11 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       "command_marker" => "scripts/ci/admin-acceptance-smoke.sh --test all",
       "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
       "harness_spec_marker" => "tests/admin-generated.spec.ts"
+    },
+    "test/example/priv/playwright/tests/generated-confirmation.spec.ts" => %{
+      "command_marker" => "scripts/ci/admin-acceptance-smoke.sh --test all",
+      "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
+      "harness_spec_marker" => "tests/generated-confirmation.spec.ts"
     }
   }
 
@@ -147,6 +152,13 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     assert_harness_lane!(inventory, "admin-generated.spec.ts", %{
       "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
       "harness_spec_marker" => "tests/admin-generated.spec.ts"
+    })
+
+    assert_harness_lane!(inventory, "generated-confirmation.spec.ts", %{
+      "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
+      "harness_spec_marker" => "tests/generated-confirmation.spec.ts",
+      "project" => "generated-host-chromium",
+      "config_seam" => "GENERATED_CONFIRMATION_SPEC"
     })
 
     {admin_eval, other_specs} = pop_spec!(inventory["specs"], "admin-eval.spec.ts")
