@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-discuss-phase 247",
-    "label": "Discuss Release Candidate and Repository Readiness",
-    "reason": "Phase 247 planner reports no planning blocker and lacks context/research. Preserve Phase 246 at 2/3 with required CI open; prepare inherited checkout and gate disposition without rerunning completed plans."
+    "command": "$gsd-plan-phase 247",
+    "label": "Plan Release Candidate and Repository Readiness",
+    "reason": "Phase 247 context is complete and planner readiness reports no prerequisite blocker. Phase 246's required CI verification remains blocked; this forward route is planning-only under repository routing rules."
   },
-  "updated_at": "2026-10-06T19:58:14.802194Z"
+  "updated_at": "2026-10-06T21:13:46Z"
 }

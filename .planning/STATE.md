@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 246
 current_phase_name: Generated Confirmation Recovery
 status: executing
-stopped_at: Phase 247 context gathered (assumptions mode)
-last_updated: "2026-10-06T21:09:04.390Z"
+stopped_at: "Phase 247 context gathered; next: $gsd-plan-phase 247 (planning only); Phase 246 required CI remains blocked."
+last_updated: "2026-10-06T21:13:27.389Z"
 last_activity: 2026-10-06
 last_activity_desc: Phase 246 local confirmation proof and review complete; required CI blocked
-state_head: e16f413d4941008fdf0b4287dfe51fd6971785a1
+state_head: 033590f420d53af34177caea34c264dec9c75495
 progress:
   total_phases: 4
   completed_phases: 0
@@ -788,8 +788,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T21:09:04.347Z
-Stopped at: Phase 247 context gathered (assumptions mode)
+Last session: 2026-10-06T21:13:27.325Z
+Stopped at: Phase 247 context gathered; next: $gsd-plan-phase 247 (planning only); Phase 246 required CI remains blocked.
 Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md
 
 ## Operator Next Steps
