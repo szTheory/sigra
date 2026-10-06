@@ -102,17 +102,22 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
     Repo.insert!(link_token)
     Repo.insert!(code_token)
 
-    {:ok, code_view, _html} = live(conn, "/users/confirm")
+    for submitted_code <- [code, "12345", "123\t456", "١٢٣٤٥٦", "", nil] do
+      {:ok, code_view, _html} = live(conn, "/users/confirm")
 
-    code_html =
-      code_view
-      |> element("#confirmation_form")
-      |> render_submit(%{"confirmation" => %{"code" => code, "user_id" => to_string(user.id)}})
+      code_html =
+        code_view
+        |> element("#confirmation_form")
+        |> render_submit(%{
+          "confirmation" => %{"code" => submitted_code, "user_id" => to_string(user.id)}
+        })
 
-    assert code_html =~ "Please sign in to confirm your email."
-    assert code_html =~ ~s(href="/users/log_in")
-    assert is_nil(Repo.get!(User, user.id).confirmed_at)
-    assert Repo.aggregate(UserSession, :count, :id) == 0
+      assert code_html =~ "Please sign in to confirm your email."
+      assert code_html =~ ~s(href="/users/log_in")
+      refute code_html =~ "Invalid confirmation code. Please try again."
+      assert is_nil(Repo.get!(User, user.id).confirmed_at)
+      assert Repo.aggregate(UserSession, :count, :id) == 0
+    end
 
     {:ok, resend_view, _html} = live(conn, "/users/confirm")
     resend_html = resend_view |> element("button[phx-click=resend]") |> render_click()
