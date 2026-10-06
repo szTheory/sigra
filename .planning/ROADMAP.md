@@ -109,4 +109,4 @@ Plans:
 
 ### Next
 
-Phase 246 is in progress: Plans 01/02 are complete; Plan 03 local proof and review pass, while required CI evidence remains blocked. After inherited local gate failures are resolved, resume `$gsd-execute-phase 246` to capture required CI and finish verification. Phase 245's historical verification gaps remain visible in its archived reports and do not expand v1.49 scope.
+**Next: `$gsd-discuss-phase 247`.** Its planner readiness reports no planning prerequisite blocker and it has no context/research. Discuss Release Candidate and Repository Readiness, including inherited checkout and gate disposition. Phase 246 stays in progress (2/3): its implementation/local proof are retained, while actual required CI and final verification remain open. Resume only its remaining Plan 03/gates after the inherited blockers change; complete Phase 246 before dependent execution. Phase 245's historical verification gaps remain visible in its archived reports and do not expand v1.49 scope.

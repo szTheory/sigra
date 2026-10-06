@@ -18,6 +18,10 @@ Key constraints:
 
 ## GSD forward routing
 
+At every GSD stopping point, report the exact next command and distinguish completed
+implementation from completed phase verification. Before a context reset, persist the
+route, remaining blockers, and evidence references in the project handoff and state files.
+
 Before reporting the immediate next GSD command after a phase completes, identify the next
 roadmap phase and check its readiness and context with `init.plan-phase <n>` (or
 `init.execute-phase <n>` if it already has plans). Do not infer the forward route from the oldest

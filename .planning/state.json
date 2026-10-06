@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 246",
-    "label": "Resume required CI evidence after gate repair",
-    "reason": "Phase 246 remains in progress (2/3): Plan 03 local proof passed; required CI not dispatched after four local contract failures."
+    "command": "$gsd-discuss-phase 247",
+    "label": "Discuss Release Candidate and Repository Readiness",
+    "reason": "Phase 247 planner reports no planning blocker and lacks context/research. Preserve Phase 246 at 2/3 with required CI open; prepare inherited checkout and gate disposition without rerunning completed plans."
   },
-  "updated_at": "2026-10-06T19:32:42.902818Z"
+  "updated_at": "2026-10-06T19:58:14.802194Z"
 }

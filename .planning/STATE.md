@@ -6,7 +6,7 @@ current_phase: 246
 current_phase_name: Generated Confirmation Recovery
 status: executing
 stopped_at: "Blocked 246-03: local mix ci gate failed; see 246-CI-EVIDENCE.json"
-last_updated: "2026-10-06T19:32:42.902818Z"
+last_updated: "2026-10-06T19:58:14.802194Z"
 last_activity: 2026-10-06
 last_activity_desc: Phase 246 local confirmation proof and review complete; required CI blocked
 state_head: fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a
@@ -85,6 +85,11 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - New prohibition guards go in `scripts/ci/prohibitions/*.test.mjs` — never into `mix ci` (changing the alias re-opens the v1.47 wound this milestone closes).
 - A guard never observed RED does not count.
 - The `REQUIREMENTS.md` Out of Scope table binds every phase.
+
+## Blockers
+
+- Phase 246 completion: Plan 03 lacks an actual required CI run. The final clean-source `mix ci` has four older contract failures; complete diagnostics are in `.planning/phases/246-generated-confirmation-recovery/246-MIX-CI-FAILURES.json`.
+- Additional repository readiness: example `mix precommit` fails the existing `/dev/mailbox` test-route warning; inherited workflow/package/docs edits still require disposition. These remain visible inputs to Phase 247 discussion, not waived evidence.
 
 ## Accumulated Context
 
@@ -783,13 +788,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T19:32:42.902818Z
+Last session: 2026-10-06T19:58:14.802194Z
 Stopped at: Blocked 246-03: local mix ci gate failed; see 246-CI-EVIDENCE.json
-Resume file: .planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json
+Resume file: .planning/phases/246-generated-confirmation-recovery/continue.md
 
 ## Operator Next Steps
 
-- Resolve the inherited local gate blockers in their authorized scope, then resume `$gsd-execute-phase 246` for Plan 03 required CI evidence. Plans 01/02 are complete; phase completion and Phase 247 remain pending.
+- **Next command: `$gsd-discuss-phase 247`.** Read `.planning/phases/246-generated-confirmation-recovery/continue.md` first. `init.plan-phase 247` reports no planning prerequisite blocker and no context/research; discuss repository readiness and inherited checkout/gate disposition.
+- Keep Phase 246 at 2/3. After gate inputs change, resume `$gsd-execute-phase 246` for Plan 03 required CI and final verification; completed Plans 01/02 must not be repeated. Dependent execution still requires Phase 246 completion.
+- Routing evidence: `.planning/phases/246-generated-confirmation-recovery/246-FORWARD-ROUTE.json`. Historical Phase 245 verification remains separate.
 
 ## Performance Metrics
 
