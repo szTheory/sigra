@@ -9,7 +9,7 @@ created: "2026-10-06"
 
 # Phase 246 — Validation Strategy
 
-> Validation contract for the generated confirmation journey. Task IDs below are provisional and must be reconciled with the final PLAN.md task breakdown before execution.
+> Validation contract for the generated confirmation journey. Task IDs match the three executable Phase 246 plans; evidence status remains pending until execution.
 
 ## Test Infrastructure
 
@@ -17,8 +17,9 @@ created: "2026-10-06"
 |----------|-------|
 | **Framework** | ExUnit + Phoenix.LiveViewTest; Playwright Test 1.62.1 |
 | **Config file** | `mix.exs`; `test/example/priv/playwright/playwright.config.ts` |
-| **Quick run command** | `mix test test/sigra/auth_test.exs test/sigra/install/generator_email_test.exs test/sigra/install/generator_wiring_test.exs test/sigra/install/features/core_test.exs test/sigra/install/generated_confirmation_live_test.exs` |
-| **Full suite command** | `mix ci` plus the required `install_smoke` lane and generated-host browser proof; runner duration varies and has not been measured for this phase |
+| **Quick run command** | `mix test test/sigra/auth_test.exs test/sigra/install/generator_email_test.exs test/sigra/install/generator_wiring_test.exs test/sigra/install/features/core_test.exs test/sigra/install/auth_ui_contract_test.exs test/sigra/install/generated_confirmation_ci_contract_test.exs` |
+| **Fresh-host commands** | `bash scripts/ci/install-smoke.sh`; `bash scripts/ci/admin-acceptance-smoke.sh --test confirmation` |
+| **Full suite command** | `mix ci` plus the required `install_smoke` and `generated_admin_playwright_smoke` CI lanes; runner duration varies and has not been measured for this phase |
 
 ## Sampling Rate
 
@@ -31,18 +32,21 @@ created: "2026-10-06"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 246-01-01 | 01 | 1 | CONF-01 | T-246-01, T-246-02 | Link GET leaves confirmation state unchanged; explicit submit confirms the token owner without creating or switching the visitor's session; persisted `confirmed_at` changes and token replay fails. | LiveView/integration + generated-host | `mix test test/sigra/install/generated_confirmation_live_test.exs`; `bash scripts/ci/install-smoke.sh` | ❌ Wave 0 coverage required | ⬜ pending |
-| 246-01-02 | 01 | 1 | CONF-02 | T-246-03, T-246-04 | Exact email display spacing reaches the server; only allowed spacing is normalized; six ASCII digits are required; a code for account A cannot confirm account B; per-account rate limiting remains in place. | Unit/integration + browser | `mix test test/sigra/auth_test.exs test/sigra/install/generated_confirmation_live_test.exs`; from `test/example/priv/playwright`, `npx playwright test tests/generated-confirmation.spec.ts --project=generated-host-chromium` | ❌ Wave 0 coverage required | ⬜ pending |
-| 246-01-03 | 01 | 1 | CONF-03 | — | Success and invalid-code text is visible, localized, exposed with status/alert semantics, and retry remains available without forced focus movement. | Template contract + LiveView + browser | `mix test test/sigra/install/auth_ui_contract_test.exs test/sigra/install/generator_email_test.exs`; generated-host Playwright scenario from `test/example/priv/playwright` | ❌ Wave 0 assertions required | ⬜ pending |
+| 246-01-01 | 01 | 1 | CONF-01, CONF-03 | T-246-01, T-246-02 | Anonymous link GET is read-only; explicit submit changes persisted `confirmed_at`, keeps the visitor anonymous, consumes the token, and displays success. | Fresh-host LiveView/DB | `bash scripts/ci/install-smoke.sh` | ❌ Probe source added in task | ⬜ pending |
+| 246-01-02 | 01 | 1 | CONF-01 | T-246-02, T-246-03 | Signed-in B can submit A's link without changing B's session; anonymous code/resend show guidance. | Fresh-host LiveView/DB + route contract | `mix test test/sigra/install/features/core_test.exs test/sigra/install/generator_wiring_test.exs`; `bash scripts/ci/install-smoke.sh` | ❌ Probe cases added in task | ⬜ pending |
+| 246-02-01 | 02 | 2 | CONF-02 | T-246-04, T-246-05, T-246-06 | Spaced code normalizes narrowly and confirms only its current account; malformed input and A-code/B-scope cannot mutate state; limiter remains per account. | Library ExUnit + fresh-host LiveView/DB | `mix test test/sigra/auth_test.exs`; `bash scripts/ci/install-smoke.sh` | ❌ Regression cases added in task | ⬜ pending |
+| 246-02-02 | 02 | 2 | CONF-03 | T-246-07 | Localized success/invalid results are visible with status/alert semantics, and invalid entry is retryable. | Template contract + fresh-host LiveView | `mix test test/sigra/install/generator_email_test.exs test/sigra/install/auth_ui_contract_test.exs`; `bash scripts/ci/install-smoke.sh` | ❌ Contract file and probe cases added in task | ⬜ pending |
+| 246-03-01 | 03 | 3 | CONF-02, CONF-03 | T-246-08 | Chromium pastes the literal spaced email code in a fresh generated host, sees invalid alert, retries, and sees success status. | Real browser | `bash scripts/ci/admin-acceptance-smoke.sh --test confirmation` | ❌ Browser spec added in task | ⬜ pending |
+| 246-03-02 | 03 | 3 | CONF-01, CONF-02, CONF-03 | T-246-09 | Required CI runs the generated confirmation target and retains actual result and source SHA. | CI contract + recurring run receipt | `mix test test/sigra/install/generated_confirmation_ci_contract_test.exs`; `bash scripts/ci/admin-acceptance-smoke.sh --test all` | ❌ Contract/receipt added in task | ⬜ pending |
 
 ## Wave 0 Requirements
 
-- [ ] Add focused LiveView coverage for anonymous and signed-in link confirmation, GET no-op, explicit submit, unchanged session identity, anonymous code/resend guidance, and safe handling of missing scope.
+- [ ] Add the tracked `scripts/ci/generated-confirmation-probe.exs` and execute its generated-host LiveView cases for anonymous and signed-in link confirmation, GET no-op, explicit submit, unchanged session identity, anonymous code/resend guidance, and safe handling of missing scope.
 - [ ] Add an account-binding regression proving a valid code for account A cannot change account B's persisted confirmation state, while retaining the per-account rate limit.
 - [ ] Update generator assertions for the complete spaced input, server-side normalization, and visible accessible feedback.
 - [ ] Extend the fresh-host probe to assert persisted confirmation state, session identity, and single-use token behavior.
-- [ ] Add one deterministic Chromium scenario that pastes the spaced email code into the fresh host and checks visible success/invalid-code feedback and retry.
-- [ ] Wire browser setup, app readiness, teardown, and failure artifacts into the existing required CI aggregation, without fixed sleeps.
+- [ ] Add one deterministic Chromium scenario that pastes the spaced email code into the host generated by `admin-acceptance-smoke.sh` and checks visible success/invalid-code feedback and retry.
+- [ ] Wire the confirmation target into the existing `generated_admin_playwright_smoke` required CI job and its running generated-host server, with deterministic readiness and retained failure artifacts; keep `install_smoke` for persisted-state proof.
 
 ## Manual-Only Verifications
 

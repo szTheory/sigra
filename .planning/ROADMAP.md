@@ -44,7 +44,11 @@
   1. In a fresh generated host, anonymous and already signed-in visitors can confirm an account, and deterministic evidence shows the persisted account state changes.
   2. A visitor can paste the code shown in a generated confirmation email into the confirmation form and submit it successfully, including a spaced code, without truncation or locale-dependent rejection.
   3. Generated authentication screens visibly show confirmation success and invalid-code feedback emitted by their LiveViews.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 246-01-PLAN.md — Reachable, explicit email-link confirmation with fresh-host persistence proof.
+- [ ] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
+- [ ] 246-03-PLAN.md — Narrow fresh-host Chromium proof on required CI.
 **UI hint**: yes
 
 #### Phase 247: Release Candidate and Repository Readiness
