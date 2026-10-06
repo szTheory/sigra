@@ -4,17 +4,17 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 246
 current_phase_name: Generated Confirmation Recovery
-status: Ready to execute Phase 246
-stopped_at: Phase 246 planned with three runnable plans
-last_updated: "2026-10-06T16:49:24Z"
+status: executing
+stopped_at: Completed 246-01-PLAN.md
+last_updated: "2026-10-06T17:39:04.967Z"
 last_activity: 2026-10-06
-last_activity_desc: Phase 246 planning complete
-state_head: d74f4026b2b68ba62dbf088b7d759f06d856b4e7
+last_activity_desc: Phase 246 execution started
+state_head: e47dafca11681221e7aba96f1ad3d6ce8aa40631
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 3
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 246, Generated Confirmation Recovery, is planned and ready for execution as the first phase in the approved-scope v1.49 RELEASE-1.6.0 roadmap.
+**Current focus:** Phase 246 — Generated Confirmation Recovery
 
 ## Current Position
 
-Phase: 246 (Generated Confirmation Recovery) — READY TO EXECUTE
-Plan: 3 plans (0/3 complete)
-Status: Ready to execute Phase 246
-Last activity: 2026-10-06 — Phase 246 planning complete
+Phase: 246 (Generated Confirmation Recovery) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-10-06 — Phase 246 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -564,6 +564,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 245]: Plan 48 keeps all 11 historical PR-base rows unresolved because the pinned baseline remains unavailable in the recorded D-06 preflight.
 - [Phase 245]: Keep 30 Phase 236-245 cleanup-history pairs unknown until complete signed command history and an independent recorder trust root pass a fresh D-06 gate.
 - [Phase 245]: Plan 47's blocked Plan 46 diagnostic forbids a current contract and live tracking operation; retain REPO-04 open with zero attempts.
+- [Phase 246]: Keep confirmation LiveViews in an optional current-scope session so signed-in visitors retain identity while the token owner is confirmed.
+- [Phase 246]: Bind confirmation-code lookup to both the hashed code and the current user's ID.
 
 ### Pending Todos
 
@@ -778,9 +780,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T16:49:24Z
-Stopped at: Phase 246 planning complete; ready to execute three plans
-Resume file: .planning/phases/246-generated-confirmation-recovery/246-01-PLAN.md
+Last session: 2026-10-06T17:39:04.853Z
+Stopped at: Completed 246-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -997,3 +999,4 @@ Resume file: .planning/phases/246-generated-confirmation-recovery/246-01-PLAN.md
 | Phase 245 P48 | 4min | 2 tasks | 3 files |
 | Phase 245 P49 | 4min | 2 tasks | 3 files |
 | Phase 245 P47 | 2min | 1 tasks | 2 files |
+| Phase 246 P1 | 44min | 2 tasks | 9 files |

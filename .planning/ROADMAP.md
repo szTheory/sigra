@@ -37,6 +37,7 @@
 ### Phase Details
 
 #### Phase 246: Generated Confirmation Recovery
+
 **Goal**: Freshly generated Phoenix hosts can complete and understand the full confirmation journey.
 **Depends on**: Nothing in v1.49; follows terminal Phase 245 without reopening its historical evidence gaps.
 **Requirements**: CONF-01, CONF-02, CONF-03
@@ -45,11 +46,11 @@
   2. A visitor can paste the code shown in a generated confirmation email into the confirmation form and submit it successfully, including a spaced code, without truncation or locale-dependent rejection.
   3. Generated authentication screens visibly show confirmation success and invalid-code feedback emitted by their LiveViews.
 
-**Plans**: 3 plans
+**Plans**: 1/3 plans executed
 Plans:
 
 **Wave 1**
-- [ ] 246-01-PLAN.md — Reachable, explicit email-link confirmation with fresh-host persistence proof.
+- [x] 246-01-PLAN.md — Reachable, explicit email-link confirmation with fresh-host persistence proof.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
@@ -60,6 +61,7 @@ Plans:
 **UI hint**: yes
 
 #### Phase 247: Release Candidate and Repository Readiness
+
 **Goal**: Maintainers and adopters have a reviewable 1.6.0 candidate and a clean, fully accounted-for source checkout.
 **Depends on**: Phase 246
 **Requirements**: READY-01, READY-02
@@ -71,6 +73,7 @@ Plans:
 **Plans**: TBD
 
 #### Phase 248: Exact-Source Release Gate
+
 **Goal**: Maintainers can prove the existing release lane evaluated the exact source that it will publish and can diagnose every result.
 **Depends on**: Phase 247
 **Requirements**: AUTO-01, AUTO-02
@@ -82,6 +85,7 @@ Plans:
 **Plans**: TBD
 
 #### Phase 249: Publish and Prove Sigra 1.6.0
+
 **Goal**: Adopters can install documented Sigra 1.6.0, and maintainers can trace it to the exact gated source while finishing in a clean repository state.
 **Depends on**: Phase 248
 **Requirements**: REL-01, REL-02
@@ -98,7 +102,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 246. Generated Confirmation Recovery | v1.49 | 0/TBD | Not started | - |
+| 246. Generated Confirmation Recovery | v1.49 | 1/3 | In Progress | - |
 | 247. Release Candidate and Repository Readiness | v1.49 | 0/TBD | Not started | - |
 | 248. Exact-Source Release Gate | v1.49 | 0/TBD | Not started | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
