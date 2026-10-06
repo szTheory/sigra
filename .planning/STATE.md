@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 247
 current_phase_name: Release Candidate and Repository Readiness
 status: executing
-stopped_at: "Phase 247 planning complete; next: $gsd-execute-phase 247; candidate source selection remains gated on Phase 246 required CI evidence."
-last_updated: "2026-10-06T22:54:27Z"
+stopped_at: Phase 247 Plan 01 Task 2 precondition blocked; resume Phase 246 required CI, then Phase 247
+last_updated: "2026-10-06T23:28:41.254Z"
 last_activity: 2026-10-06
 last_activity_desc: Phase 247 planning complete; four plans independently checked; Phase 246 required CI remains blocked
-state_head: 55c3a86252f00e7170fd0090ddb5deaa5bf16056
+state_head: 83aff7df0c689b586ff5044dac2f556e456c6fd0
 progress:
   total_phases: 4
   completed_phases: 0
@@ -32,8 +32,8 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 Phase: 247 (Release Candidate and Repository Readiness) — READY TO EXECUTE
 Plan: 0 of 4
-Status: Ready to execute — Plan 247-01/02 must keep candidate source selection and refresh blocked until Phase 246's required CI evidence is present; see `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`.
-Last activity: 2026-10-06 — Four Phase 247 plans passed independent review with no blockers or actionable warnings. Phase 246's required CI remains open.
+Status: Plan 247-01 Task 1 implementation is committed; Task 2 is stopped at its blocking precondition because Phase 246's exact-source required CI receipt remains blocked. Source selection and candidate checkout have not started.
+Last activity: 2026-10-06 — Phase 247-01 recorded 364 inherited commits, 1,185 committed paths, 55 dirty paths, and 14 open PRs. Task 2 remains gated by `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -90,6 +90,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 
 - Phase 246 completion: Plan 03 lacks an actual required CI run. The final clean-source `mix ci` has four older contract failures; complete diagnostics are in `.planning/phases/246-generated-confirmation-recovery/246-MIX-CI-FAILURES.json`.
 - Additional repository readiness: example `mix precommit` fails the existing `/dev/mailbox` test-route warning; inherited workflow/package/docs edits still require disposition. These remain visible inputs to Phase 247 discussion, not waived evidence.
+- Phase 247 Plan 01 Task 2 source selection is blocked: Phase 246 CI receipt is status=blocked for fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a; ci-gate, install_smoke, and generated_admin_playwright_smoke have no required workflow conclusion. Evidence: .planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json and 246-MIX-CI-BLOCKED.md.
 
 ## Accumulated Context
 
@@ -788,15 +789,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T21:13:27.325Z
-Stopped at: Phase 247 context gathered; next: $gsd-plan-phase 247 (planning only); Phase 246 required CI remains blocked.
-Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md
+Last session: 2026-10-06T23:28:41.211Z
+Stopped at: Phase 247 Plan 01 Task 2 precondition blocked; resume Phase 246 required CI, then Phase 247
+Resume file: .planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json
 
 ## Operator Next Steps
 
-- **Next command: `$gsd-plan-phase 247`.** Phase 247 context is complete, and `init.plan-phase 247` reports no planning prerequisite blocker. Plan release-candidate and repository-readiness work from the accepted assumptions in `247-CONTEXT.md`; keep Phase 246's required CI blocker visible and do not start dependent execution until Phase 246 is complete.
-- Keep Phase 246 at 2/3. After gate inputs change, resume `$gsd-execute-phase 246` for Plan 03 required CI and final verification; completed Plans 01/02 must not be repeated. Dependent execution still requires Phase 246 completion.
-- Routing evidence: `.planning/phases/246-generated-confirmation-recovery/246-FORWARD-ROUTE.json`. Historical Phase 245 verification remains separate.
+- **Next command: `$gsd-execute-phase 246`.** Phase 247-01 Task 1 implementation is committed, but Plan 01 and phase verification are incomplete. Phase 246's receipt at `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json` records `status: blocked` for `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`; `ci-gate`, `install_smoke`, and `generated_admin_playwright_smoke` have no successful required workflow conclusions. Resolve the recorded local CI failures, then resume Phase 246 Plan 03.
+- After Phase 246 completes with the required receipt, resume `$gsd-execute-phase 247`; completed Plan 247-01 Task 1 commits are `9643d20f4` and `83aff7df0`. Do not select source or create the candidate worktree before that receipt is valid.
+- Routing evidence: `.planning/phases/246-generated-confirmation-recovery/246-FORWARD-ROUTE.json`, `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`, `.planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md`, and `.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json`. Historical Phase 245 verification remains separate.
 
 ## Performance Metrics
 

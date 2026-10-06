@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-10-06T03:00:00Z",
-  "phase": "v1.48",
-  "phase_name": "CLEAN-BASELINE \u2014 Milestone Closeout",
-  "plan": 0,
-  "task": 0,
-  "total_tasks": 0,
-  "status": "v1.48 archived as override_closeout; archive safety commit ba4a24b7; live requirements removal and this handoff are included in the final closeout commit.",
+  "timestamp": "2026-10-06T23:29:11.471Z",
+  "phase": "247",
+  "phase_name": "Release Candidate and Repository Readiness",
+  "plan": 1,
+  "task": 2,
+  "total_tasks": 2,
+  "status": "Plan 247-01 Task 1 committed; Task 2 is paused at its Phase 246 required-CI precondition. No candidate source or worktree was selected.",
   "completed_tasks": [
     {
       "id": "v1.48-archive",
@@ -21,13 +21,33 @@
       "id": "v1.48-live-requirements-removal",
       "name": "Remove live requirements file after archival",
       "status": "Archived requirements remain at .planning/milestones/v1.48-REQUIREMENTS.md; the live file is removed in the final closeout commit."
+    },
+    {
+      "id": "247-01-task-1-red",
+      "name": "Readiness validator RED fixtures",
+      "status": "Committed 9643d20f4; verified missing-PR and duplicate-path failures plus explicit-empty acceptance."
+    },
+    {
+      "id": "247-01-task-1-green",
+      "name": "Inherited checkout and live PR disposition inventory",
+      "status": "Committed 83aff7df0; 364 commits, 1,185 committed paths, 55 dirty paths, and 14 open PRs recorded with dispositions."
     }
   ],
   "remaining_tasks": [
     {
-      "id": "next-milestone",
-      "name": "Define the next milestone",
-      "status": "After clearing context, run $gsd-new-milestone. No Phase 246 is defined."
+      "id": "246-03-required-ci",
+      "name": "Required Phase 246 CI receipt",
+      "status": "Blocked: repair the four local mix ci contract failures, then produce a successful required workflow run for one exact committed source SHA; see .planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json and 246-MIX-CI-BLOCKED.md."
+    },
+    {
+      "id": "247-01-task-2",
+      "name": "Select reviewed source and isolate its clean checkout",
+      "status": "Not started: resume only after the Phase 246 receipt records ci-gate, install_smoke, and generated_admin_playwright_smoke success for the same exact SHA."
+    },
+    {
+      "id": "247-02-through-04",
+      "name": "Remaining Phase 247 plans",
+      "status": "Not started; do not begin until Plan 01 source selection is unblocked."
     }
   ],
   "blockers": [
@@ -35,7 +55,8 @@
     "Accepted closeout debt: REPO-04 remains unsatisfied; 11 historical PR-base rows and 30 cleanup-history pairs remain unresolved, and the tracking ref remains.",
     "Accepted verification overrides: seven historical phase reports are stale and Phase 245 is gaps_found; none was marked passed.",
     "The manual artifact inventory remains unsuppressed: 69 pending todo files, one unfinished quick task, three open seeds, four deferred items, one dormant seed, and two implemented seeds.",
-    "The remaining mixed checkout is not a PR candidate. Its exact uncommitted paths are listed in uncommitted_files."
+    "The remaining mixed checkout is not a PR candidate. Its exact uncommitted paths are listed in uncommitted_files.",
+    "Phase 247 Plan 01 Task 2 is blocked on Phase 246 required CI evidence for an exact committed source SHA; no candidate worktree was created."
   ],
   "async_jobs": [],
   "human_actions_pending": [],
@@ -101,6 +122,6 @@
     "scripts/maintainers/validate-milestone-cleanup-audit.mjs",
     "scripts/maintainers/validate-milestone-cleanup-audit.test.mjs"
   ],
-  "next_action": "After clearing context, run $gsd-new-milestone. No Phase 246 is defined.",
-  "context_notes": "v1.48 is archived as an internal override_closeout, not a Hex release. Audit: 21/27 satisfied, four partial, REL-06 and REPO-04 unsatisfied. Live init.manager had 239/240 complete and passed; 236-238 and 241-244 stale; 245 gaps_found. REL-03/04 have post-closeout evidence from successful steps 7-10 of workflow_dispatch run 35714147650 and current public API/docs reads; the run failed at HexDocs root classification. latest_stable_version remains 1.20.0 and 1.5.1 is absent. All Phase 245 plans are terminal; do not repeat source-negative gap plans. No Phase 246 exists. The archive is checkpointed as ba4a24b7; live requirements removal is included in the final closeout commit. The mixed code/docs/CI worktree paths listed below remain untouched and are not a PR candidate. No CI or tests were run during closeout. No milestone tag was created."
+  "next_action": "Run $gsd-execute-phase 246 to resolve required CI evidence; then resume $gsd-execute-phase 247. Phase 247-01 Task 1 implementation is committed, but Plan 01 and phase verification are incomplete.",
+  "context_notes": "v1.48 is archived as an internal override_closeout, not a Hex release. Audit: 21/27 satisfied, four partial, REL-06 and REPO-04 unsatisfied. Live init.manager had 239/240 complete and passed; 236-238 and 241-244 stale; 245 gaps_found. REL-03/04 have post-closeout evidence from successful steps 7-10 of workflow_dispatch run 35714147650 and current public API/docs reads; the run failed at HexDocs root classification. latest_stable_version remains 1.20.0 and 1.5.1 is absent. All Phase 245 plans are terminal; do not repeat source-negative gap plans. No Phase 246 exists. The archive is checkpointed as ba4a24b7; live requirements removal is included in the final closeout commit. The mixed code/docs/CI worktree paths listed below remain untouched and are not a PR candidate. No CI or tests were run during closeout. No milestone tag was created.\n\nPhase 247-01 checkpoint (2026-10-06): Task 1 is committed in 9643d20f4 and 83aff7df0. The readiness ledger at .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json captures trusted main 5a00b90d2314bc93f27aec4090b5928018743d1b, inherited HEAD 7e5c19361135aeb63bac006323ffd5899e0d402b, merge base 417130bdc0e69dd102431391cd6cd30bf88b2fa5, 364 inherited commits, 1,185 committed paths, 55 dirty paths, and 14 live open PRs. Phase 246 receipt remains blocked at tested source fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a; ci-gate, install_smoke, and generated_admin_playwright_smoke are not successful workflow conclusions. Do not select source or create tmp/phase-247-candidate. Next: $gsd-execute-phase 246, then $gsd-execute-phase 247. Historical v1.48 closeout context follows."
 }
