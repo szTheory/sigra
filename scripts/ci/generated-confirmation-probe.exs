@@ -204,6 +204,36 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
 
     {:ok, owner_view, _html} = live(owner_conn, "/users/confirm")
 
+    changed_html =
+      owner_view
+      |> element("#confirmation_form")
+      |> render_change(%{"confirmation" => %{"code" => owner_code}})
+
+    assert changed_html =~ ~s(id="confirmation_form")
+    assert is_nil(Repo.get!(User, owner.id).confirmed_at)
+    assert Repo.get_by(UserToken, user_id: owner.id, context: "confirm_code")
+
+    for malformed_code <- [
+          "123\t456",
+          "123\n456",
+          "123 456",
+          "١٢٣٤٥٦",
+          "12a456",
+          "12345",
+          "1234567"
+        ] do
+      malformed_html =
+        owner_view
+        |> element("#confirmation_form")
+        |> render_submit(%{"confirmation" => %{"code" => malformed_code}})
+
+      assert malformed_html =~ "Invalid confirmation code. Please try again."
+      assert malformed_html =~ ~s(role="alert")
+      assert malformed_html =~ ~s(id="confirmation_form")
+      assert is_nil(Repo.get!(User, owner.id).confirmed_at)
+      assert Repo.get_by(UserToken, user_id: owner.id, context: "confirm_code")
+    end
+
     accepted_html =
       owner_view
       |> element("#confirmation_form")
@@ -212,9 +242,11 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
       })
 
     assert accepted_html =~ "Your email has been confirmed."
+    assert accepted_html =~ ~s(role="status")
     assert Repo.get!(User, owner.id).confirmed_at
     assert Repo.get!(User, current_user.id).confirmed_at == current_before
     assert Repo.get_by(UserToken, user_id: owner.id, context: "confirm_code") == nil
+    assert Repo.get_by(UserToken, user_id: owner.id, context: "confirm") == nil
     IO.puts("PASS confirmation probe: owner accepted the spaced code and consumed confirmation credentials")
   end
 end
