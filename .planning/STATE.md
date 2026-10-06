@@ -5,10 +5,10 @@ milestone_name: RELEASE-1.6.0
 current_phase: 246
 current_phase_name: Generated Confirmation Recovery
 status: Ready to discuss and plan Phase 246
-stopped_at: v1.49 roadmap is committed and Phase 246 readiness is clear; next run $gsd-discuss-phase 246
-last_updated: "2026-10-06T15:15:48.295Z"
+stopped_at: Phase 246 context gathered (assumptions mode)
+last_updated: "2026-10-06T15:47:04.198Z"
 last_activity: 2026-10-06
-state_head: 328cd5c6fd36e8dd4e2b1fae3e18f5f9b4a57989
+state_head: e5e79bf8e70eced1ae2ffabd403bcc0b9286f3ab
 progress:
   total_phases: 4
   completed_phases: 0
@@ -777,9 +777,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T15:15:48.266Z
-Stopped at: v1.49 roadmap is committed and Phase 246 readiness is clear; next run $gsd-discuss-phase 246
-Resume file: .planning/HANDOFF.json
+Last session: 2026-10-06T15:47:04.170Z
+Stopped at: Phase 246 context gathered (assumptions mode)
+Resume file: .planning/phases/246-generated-confirmation-recovery/246-CONTEXT.md
 
 ## Operator Next Steps
 
