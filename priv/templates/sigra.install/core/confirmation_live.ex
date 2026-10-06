@@ -196,40 +196,44 @@ defmodule <%= web_module %>.ConfirmationLive do
     end)
   end
 
-  defp do_confirm(socket, code) when is_binary(code) do
+  defp do_confirm(socket, code) do
+    with_confirmation_user(socket, fn socket, user ->
+      do_confirm_user(socket, user, code)
+    end)
+  end
+
+  defp do_confirm_user(socket, user, code) when is_binary(code) do
     normalized_code = String.replace(code, " ", "")
 
     if Regex.match?(~r/\A[0-9]{6}\z/, normalized_code) do
-      with_confirmation_user(socket, fn socket, user ->
-        case Auth.confirm_user_by_code(user, normalized_code) do
-          {:ok, _user} ->
-            {:noreply,
-             socket
-             |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
-             |> assign(live_action: :confirmed)}
+      case Auth.confirm_user_by_code(user, normalized_code) do
+        {:ok, _user} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
+           |> assign(live_action: :confirmed)}
 
-          {:error, :invalid_code} ->
-            invalid_code_response(socket, code)
+        {:error, :invalid_code} ->
+          invalid_code_response(socket, code)
 
-          {:error, :rate_limited} ->
-            {:noreply,
-             socket
-             |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))
-             |> assign(form: to_form(%{"code" => code}, as: "confirmation"))}
+        {:error, :rate_limited} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))
+           |> assign(form: to_form(%{"code" => code}, as: "confirmation"))}
 
-          {:error, :already_confirmed} ->
-            {:noreply,
-             socket
-             |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
-             |> assign(live_action: :confirmed)}
-        end
-      end)
+        {:error, :already_confirmed} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
+           |> assign(live_action: :confirmed)}
+      end
     else
       invalid_code_response(socket, code)
     end
   end
 
-  defp do_confirm(socket, _code), do: invalid_code_response(socket, "")
+  defp do_confirm_user(socket, _user, _code), do: invalid_code_response(socket, "")
 
   defp invalid_code_response(socket, code) do
     {:noreply,
