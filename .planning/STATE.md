@@ -32,8 +32,8 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 Phase: 246 (Generated Confirmation Recovery) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
-Last activity: 2026-10-06 — Phase 246 execution started
+Status: Blocked — Plan 246-03 local `mix ci` gate failures; see `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`.
+Last activity: 2026-10-06 — Plan 246-03 browser and route checks passed; required CI was not dispatched because unrelated cross-phase tests fail locally.
 
 Progress: [░░░░░░░░░░] 0%
 
