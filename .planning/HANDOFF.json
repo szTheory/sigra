@@ -1,105 +1,106 @@
 {
-  "version": "1.0",
-  "timestamp": "2026-09-24T02:46:07Z",
-  "phase": "242",
-  "phase_name": "Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1",
-  "phase_dir": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1",
-  "plan": 3,
-  "task": 2,
-  "total_tasks": null,
-  "status": "in_progress",
+  "timestamp": "2026-10-06T03:00:00Z",
+  "phase": "v1.48",
+  "phase_name": "CLEAN-BASELINE \u2014 Milestone Closeout",
+  "plan": 0,
+  "task": 0,
+  "total_tasks": 0,
+  "status": "v1.48 archived as override_closeout; archive safety commit ba4a24b7; live requirements removal and this handoff are included in the final closeout commit.",
   "completed_tasks": [
     {
-      "id": "242-01",
-      "name": "Phase 242 foundation",
-      "status": "done_in_multiple_worktrees",
-      "commit": "summary exists in root and phase worktrees"
+      "id": "v1.48-archive",
+      "name": "Archive v1.48 CLEAN-BASELINE",
+      "status": "Closed 2026-10-05 as an internal override_closeout. 21/27 requirements satisfied; four partial; REL-06 and REPO-04 unsatisfied. No 1.5.1 Hex release and no v1.48 tag."
     },
     {
-      "id": "242-02",
-      "name": "Remediation infrastructure merge",
-      "status": "done_in_separate_worktree",
-      "commit": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4"
+      "id": "v1.48-archive-checkpoint",
+      "name": "Commit archive and phase evidence",
+      "status": "Committed as ba4a24b7; includes roadmap, requirements, audit, all ten phase directories, state, retrospective, tag policy, and automation-first verification policy."
     },
     {
-      "id": "242-03",
-      "name": "Hex remediation receipt",
-      "status": "halted_at_authorization_checkpoint",
-      "commit": "ee61cfb378dbe79de88482c714edeb7f098b469b"
+      "id": "v1.48-live-requirements-removal",
+      "name": "Remove live requirements file after archival",
+      "status": "Archived requirements remain at .planning/milestones/v1.48-REQUIREMENTS.md; the live file is removed in the final closeout commit."
     }
   ],
   "remaining_tasks": [
     {
-      "id": "reconcile-worktrees",
-      "name": "Reconcile Phase 242 worktrees and summaries without overwriting divergent history",
-      "status": "not_started"
-    },
-    {
-      "id": "242-03-task-2",
-      "name": "Obtain explicit authorization before dispatching the corrected Hex remediation workflow",
-      "status": "awaiting_human_authorization"
-    },
-    {
-      "id": "phase-242-closeout",
-      "name": "Resume remaining plans and verification after reconciliation and authorization gate",
-      "status": "not_started"
+      "id": "next-milestone",
+      "name": "Define the next milestone",
+      "status": "After clearing context, run $gsd-new-milestone. No Phase 246 is defined."
     }
   ],
   "blockers": [
-    {
-      "description": "Plan 242-03's corrected Hex remediation dispatch is explicitly stopped pending user authorization; prior run 35554955828 failed on the unsupported --yes flag, and a repaired workflow was merged and CI-verified.",
-      "type": "human_action",
-      "workaround": "Continue only with independent, non-dispatch work after reconciling the scattered worktrees; do not dispatch the Hex workflow without explicit approval."
-    },
-    {
-      "description": "Phase 242 evidence is split across divergent worktrees whose common merge base is 417130bdc0e69dd102431391cd6cd30bf88b2fa5; root progress reports do not include all plan summaries.",
-      "type": "technical",
-      "workaround": "Map commits, summaries, and dirty files per worktree before choosing a canonical continuation branch; do not merge/cherry-pick branches blindly."
-    }
+    "Accepted closeout debt: REL-06 remains unsatisfied; no 1.5.1 release was published and latest_stable_version remains 1.20.0.",
+    "Accepted closeout debt: REPO-04 remains unsatisfied; 11 historical PR-base rows and 30 cleanup-history pairs remain unresolved, and the tracking ref remains.",
+    "Accepted verification overrides: seven historical phase reports are stale and Phase 245 is gaps_found; none was marked passed.",
+    "The manual artifact inventory remains unsuppressed: 69 pending todo files, one unfinished quick task, three open seeds, four deferred items, one dormant seed, and two implemented seeds.",
+    "The remaining mixed checkout is not a PR candidate. Its exact uncommitted paths are listed in uncommitted_files."
   ],
-  "async_jobs": [
-    {
-      "manifest": "/private/tmp/sigra-242-execution/.planning/async-jobs/phase-242-03-executor-result.md",
-      "job_id": "35554955828",
-      "backend": "GitHub Actions / Hex remediation workflow",
-      "status": "halted_pending_explicit_authorization",
-      "submit_command": "Dispatch corrected Phase 242 remediation only after explicit user approval",
-      "submitted_at": "unknown",
-      "expected_artifacts": [
-        "242-HEX-REMEDIATION-EVIDENCE.json",
-        "Plan 242-03 Task 2 receipt"
-      ],
-      "verification_command": "Follow the exact command and evidence contract in 242-03-PLAN.md after authorization",
-      "resume_command": "Reconcile worktrees, then resume Phase 242 at Plan 242-03 Task 2 only after authorization"
-    }
-  ],
-  "human_actions_pending": [
-    {
-      "action": "Explicitly authorize or decline the corrected Hex remediation workflow dispatch required by Plan 242-03 Task 2.",
-      "context": "The workflow mutates external Hex state; its executor halted and recorded that a new explicit authorization is required.",
-      "blocking": true
-    }
-  ],
+  "async_jobs": [],
+  "human_actions_pending": [],
   "decisions": [
     {
-      "decision": "Keep the Codex GSD configuration and root-worktree local changes untouched while preparing the handoff.",
-      "rationale": "They are user-owned dirty files and are unrelated to safe consolidation of the phase work.",
-      "phase": "242"
+      "decision": "Do not repeat Phase 245 negative-proof plans.",
+      "rationale": "All plans are terminal and zero are runnable; the remaining evidence depends on missing historical sources.",
+      "phase": "245"
     },
     {
-      "decision": "Do not merge, cherry-pick, or reset any phase worktree until its divergence and artifacts are mapped.",
-      "rationale": "The worktrees diverge from the root checkout at a common base and contain distinct implementation, state, and verification evidence.",
-      "phase": "242"
+      "decision": "Close v1.48 with the owner-approved override_closeout.",
+      "rationale": "Preserve unsatisfied and partial outcomes as debt; the audit remains gaps_found."
+    },
+    {
+      "decision": "Keep milestone tag creation disabled.",
+      "rationale": "v1.48 is an internal planning identifier and not a release tag."
+    },
+    {
+      "decision": "Route next through $gsd-new-milestone.",
+      "rationale": "There is no Phase 246 on the roadmap; define the next scope from current evidence."
     }
   ],
   "uncommitted_files": [
-    ".planning/config.json",
-    ".planning/state.json",
-    ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/",
-    "/private/tmp/sigra-241-ci-reconcile: modified planning verification/roadmap files and untracked scripts/ci/prohibitions/p23-tag-ruleset-observer-absent.test.mjs",
-    "/private/tmp/sigra-242-execution: modified .planning/STATE.md and .planning/state.json; untracked .planning/async-jobs/",
-    "/private/tmp/sigra-242-execution/.claude/worktrees/agent-p242-13: untracked file 1.5.0"
+    ".github/workflows/ci.yml",
+    ".github/workflows/phase-244-playwright-measure.yml",
+    "README.md",
+    "guides/introduction/first-hour.md",
+    "guides/introduction/getting-started.md",
+    "guides/introduction/installation.md",
+    "guides/recipes/companion-libs/accrue.md",
+    "guides/recipes/companion-libs/lockspire.md",
+    "guides/recipes/companion-libs/mailglass.md",
+    "guides/recipes/companion-libs/relyra.md",
+    "guides/recipes/companion-libs/rulestead.md",
+    "guides/recipes/companion-libs/threadline.md",
+    "scripts/ci/capture-phase-241-final-head.sh",
+    "scripts/ci/capture-phase-241-final-head.test.sh",
+    "scripts/ci/measure-playwright-drift.mjs",
+    "scripts/ci/measure-playwright-drift.test.mjs",
+    "scripts/ci/playwright-cache-key-guard.sh",
+    "scripts/ci/playwright-cache-key-guard.test.sh",
+    "scripts/ci/run-playwright-drift.sh",
+    "scripts/ci/sigra-dep-off.sh",
+    "scripts/ci/test-sigra-dep-off.sh",
+    "test/example/priv/playwright/package-lock.json",
+    "test/example/priv/playwright/package.json",
+    "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
+    "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+    ".planning/debug/plan-245-37-admission.md",
+    ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/260923-uqh-PLAN.md",
+    ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-PLAN.md",
+    ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-VERIFICATION.md",
+    ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-BLOCKED.md",
+    ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-RETRY.log",
+    ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-PLAN.md",
+    ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-VERIFICATION.md",
+    ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-BLOCKED.md",
+    ".planning/research/.cache/1939fe0e54d70d87e56c72f6b607e46b11aecdf90abb479782509d5e7a46b158.json",
+    ".planning/research/.cache/7d49970d3aa51d95afa9ad50dbcf62b3d6b1944459d5a0d27b3c62dce1d37fe8.json",
+    ".planning/research/.cache/912404c9acd26e8b87e584a6fac0c85af887c81caf4097ede313017562e6fbfe.json",
+    ".planning/research/.cache/91c0e7c6ac3912dfa6e9ae0de301c8385f169f7d3936c3d3a7eb4c4d1e2f0a78.json",
+    ".planning/research/.cache/ed0f3ecdac0460eb9afa673a640fbd0e12bd9e5b97d195e5c0792958a358768a.json",
+    "scripts/maintainers/validate-milestone-cleanup-audit.mjs",
+    "scripts/maintainers/validate-milestone-cleanup-audit.test.mjs"
   ],
-  "next_action": "Read this handoff and the per-worktree summary below; inspect the Phase 242 plan dependencies and branch contents, preserving all dirty files, before resuming execution. Keep Plan 242-03 Task 2 stopped until explicit user authorization.",
-  "context_notes": "The root checkout is not the canonical aggregate of Phase 242 work. Root has plans 242-01 through 242-10 and only 242-01-SUMMARY.md. agent-242-02-continuation is clean at 7662ee3 and contains 242-02-SUMMARY.md. phase-242-execution contains summaries 01-05 and 10-14, dirty state files, and halted async metadata for 242-03. Nested executor worktrees contain separate plan work; agent-p242-13 has an untracked 1.5.0 file. phase-241-ci-reconcile has uncommitted verification changes including Phase 242 verification and an untracked P23 test. agent-242-14-closeout is another distinct branch. All listed worktrees are preserved; no merge, reset, commit of source work, remote mutation, or workflow dispatch has been performed."
+  "next_action": "After clearing context, run $gsd-new-milestone. No Phase 246 is defined.",
+  "context_notes": "v1.48 is archived as an internal override_closeout, not a Hex release. Audit: 21/27 satisfied, four partial, REL-06 and REPO-04 unsatisfied. Live init.manager had 239/240 complete and passed; 236-238 and 241-244 stale; 245 gaps_found. REL-03/04 have post-closeout evidence from successful steps 7-10 of workflow_dispatch run 35714147650 and current public API/docs reads; the run failed at HexDocs root classification. latest_stable_version remains 1.20.0 and 1.5.1 is absent. All Phase 245 plans are terminal; do not repeat source-negative gap plans. No Phase 246 exists. The archive is checkpointed as ba4a24b7; live requirements removal is included in the final closeout commit. The mixed code/docs/CI worktree paths listed below remain untouched and are not a PR candidate. No CI or tests were run during closeout. No milestone tag was created."
 }
