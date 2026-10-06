@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "milestone": "v1.49 — RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 247",
-    "label": "Plan Release Candidate and Repository Readiness",
-    "reason": "Phase 247 context is complete and planner readiness reports no prerequisite blocker. Phase 246's required CI verification remains blocked; this forward route is planning-only under repository routing rules."
+      "command": "$gsd-execute-phase 247",
+      "label": "Execute Phase 247 plans",
+      "reason": "Phase 247 has four runnable plans and no GSD prerequisite blocker; its source-selection tasks remain gated on Phase 246 required CI evidence."
   },
-  "updated_at": "2026-10-06T21:13:46Z"
+  "updated_at": "2026-10-06T22:54:27Z"
 }

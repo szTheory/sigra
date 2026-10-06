@@ -2,18 +2,18 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-current_phase: 246
-current_phase_name: Generated Confirmation Recovery
+current_phase: 247
+current_phase_name: Release Candidate and Repository Readiness
 status: executing
-stopped_at: "Phase 247 context gathered; next: $gsd-plan-phase 247 (planning only); Phase 246 required CI remains blocked."
-last_updated: "2026-10-06T21:13:27.389Z"
+stopped_at: "Phase 247 planning complete; next: $gsd-execute-phase 247; candidate source selection remains gated on Phase 246 required CI evidence."
+last_updated: "2026-10-06T22:54:27Z"
 last_activity: 2026-10-06
-last_activity_desc: Phase 246 local confirmation proof and review complete; required CI blocked
-state_head: 033590f420d53af34177caea34c264dec9c75495
+last_activity_desc: Phase 247 planning complete; four plans independently checked; Phase 246 required CI remains blocked
+state_head: 55c3a86252f00e7170fd0090ddb5deaa5bf16056
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 3
+  total_plans: 7
   completed_plans: 2
   percent: 0
 ---
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 246 — Generated Confirmation Recovery
+**Current focus:** Phase 247 — Release Candidate and Repository Readiness
 
 ## Current Position
 
-Phase: 246 (Generated Confirmation Recovery) — EXECUTING
-Plan: 3 of 3
-Status: Blocked — Plan 246-03 local `mix ci` gate failures; see `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`.
-Last activity: 2026-10-06 — Final-source focused suite passed 236/0 and generated-host browser passed on one retained retry; review is clean. Required CI was not dispatched after four older local gate failures.
+Phase: 247 (Release Candidate and Repository Readiness) — READY TO EXECUTE
+Plan: 0 of 4
+Status: Ready to execute — Plan 247-01/02 must keep candidate source selection and refresh blocked until Phase 246's required CI evidence is present; see `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`.
+Last activity: 2026-10-06 — Four Phase 247 plans passed independent review with no blockers or actionable warnings. Phase 246's required CI remains open.
 
 Progress: [░░░░░░░░░░] 0%
 

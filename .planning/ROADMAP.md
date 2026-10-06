@@ -73,9 +73,16 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
+**Wave 1**
 - [ ] 247-01-PLAN.md — Inventory inherited work and PRs; select a clean reviewed source.
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 247-02-PLAN.md — Refresh PR #224 and curate source-backed 1.6.0 notes.
+
+**Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 247-03-PLAN.md — Write the README-to-guide-to-changelog adopter path.
+
+**Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 247-04-PLAN.md — Prove final candidate, package, and repository readiness.
 
 #### Phase 248: Exact-Source Release Gate
@@ -109,10 +116,10 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 2/3 | In Progress | - |
-| 247. Release Candidate and Repository Readiness | v1.49 | 0/TBD | Not started | - |
+| 247. Release Candidate and Repository Readiness | v1.49 | 0/4 | Planned | - |
 | 248. Exact-Source Release Gate | v1.49 | 0/TBD | Not started | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
 
 ### Next
 
-**Next: `$gsd-discuss-phase 247`.** Its planner readiness reports no planning prerequisite blocker and it has no context/research. Discuss Release Candidate and Repository Readiness, including inherited checkout and gate disposition. Phase 246 stays in progress (2/3): its implementation/local proof are retained, while actual required CI and final verification remain open. Resume only its remaining Plan 03/gates after the inherited blockers change; complete Phase 246 before dependent execution. Phase 245's historical verification gaps remain visible in its archived reports and do not expand v1.49 scope.
+**Next: `$gsd-execute-phase 247`.** Phase 247 has four runnable plans and `init.execute-phase 247` reports no GSD prerequisite blocker. Execution must honor the plan's hard source gate: do not select or refresh the release candidate until Phase 246's required CI receipt and tested-source relationship are proven. Phase 246 remains in progress (2/3); its local implementation and review are retained, while required CI evidence remains blocked. Phase 245's historical verification gaps stay separate and do not expand v1.49 scope.
