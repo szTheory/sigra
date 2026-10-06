@@ -984,7 +984,11 @@ defmodule Sigra.Auth do
       :ok ->
         hashed_code = Token.hash_token(code)
 
-        case repo.get_by(user_token_schema, token: hashed_code, context: "confirm_code") do
+        case repo.get_by(user_token_schema,
+               token: hashed_code,
+               context: "confirm_code",
+               user_id: user_id
+             ) do
           nil ->
             {:error, :invalid_code}
 
