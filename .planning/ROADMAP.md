@@ -44,11 +44,19 @@
   1. In a fresh generated host, anonymous and already signed-in visitors can confirm an account, and deterministic evidence shows the persisted account state changes.
   2. A visitor can paste the code shown in a generated confirmation email into the confirmation form and submit it successfully, including a spaced code, without truncation or locale-dependent rejection.
   3. Generated authentication screens visibly show confirmation success and invalid-code feedback emitted by their LiveViews.
+
 **Plans**: 3 plans
 Plans:
+
+**Wave 1**
 - [ ] 246-01-PLAN.md — Reachable, explicit email-link confirmation with fresh-host persistence proof.
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
+
+**Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 246-03-PLAN.md — Narrow fresh-host Chromium proof on required CI.
+
 **UI hint**: yes
 
 #### Phase 247: Release Candidate and Repository Readiness
@@ -59,6 +67,7 @@ Plans:
   1. The 1.6.0 candidate's package metadata, manifest, changelog, planned tag, and HexDocs source reference agree with the reviewed package source.
   2. An adopter can read what changed, supported compatibility, the required generated-host action or an explicit no-action statement, and the `~> 1.6.0` update and check path without internal planning notes presented as product changes.
   3. A maintainer can see a recorded disposition for every open PR and every inherited checkout change; release work has a clean source checkout without unrelated changes folded in.
+
 **Plans**: TBD
 
 #### Phase 248: Exact-Source Release Gate
@@ -69,6 +78,7 @@ Plans:
   1. Before package work starts, the release tag resolves to the exact Release Please output SHA with a passing required CI gate; tests, warning-free documentation, package inspection, and Hex dry run execute against that immutable source.
   2. A running release evaluation can finish without cancellation by a later event; workflow permissions are scoped and the Hex credential is available only to the final publish step.
   3. A maintainer can retrieve machine-readable gate and publish receipts for success, failure, or cancellation, with version/tag, source SHA, workflow and run identity, verdict, relevant URLs, attempts, and timestamps.
+
 **Plans**: TBD
 
 #### Phase 249: Publish and Prove Sigra 1.6.0
@@ -79,6 +89,7 @@ Plans:
   1. Hex serves Sigra 1.6.0 from the gated source, and the 1.6.0 HexDocs and source reference resolve to that same release.
   2. Required CI is green for the final protected-main release commit, and a committed receipt identifies that exact source, tag, package, documentation, and CI run.
   3. Every local worktree is clean and every PR still open at closeout has a recorded disposition.
+
 **Plans**: TBD
 
 ### Progress
@@ -94,4 +105,4 @@ Plans:
 
 ### Next
 
-Phase 246 readiness was checked on 2026-10-06: it is pending, has no context, research, or plans, and reports no prerequisite blocker. Run `$gsd-discuss-phase 246` to establish its context. Phase 245's historical verification gaps remain visible in its archived reports and do not expand v1.49 scope.
+Phase 246 is planned with three runnable plans and no prerequisite blocker. Run `$gsd-execute-phase 246` to implement the generated confirmation recovery work. Phase 245's historical verification gaps remain visible in its archived reports and do not expand v1.49 scope.

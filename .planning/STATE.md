@@ -4,15 +4,16 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 246
 current_phase_name: Generated Confirmation Recovery
-status: Ready to discuss and plan Phase 246
-stopped_at: Phase 246 context gathered (assumptions mode)
-last_updated: "2026-10-06T15:47:04.198Z"
+status: Ready to execute Phase 246
+stopped_at: Phase 246 planned with three runnable plans
+last_updated: "2026-10-06T16:34:27Z"
 last_activity: 2026-10-06
-state_head: e5e79bf8e70eced1ae2ffabd403bcc0b9286f3ab
+last_activity_desc: Phase 246 planning complete
+state_head: d74f4026b2b68ba62dbf088b7d759f06d856b4e7
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
+  total_plans: 3
   completed_plans: 0
   percent: 0
 ---
@@ -25,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 246, Generated Confirmation Recovery, is first in the approved-scope v1.49 RELEASE-1.6.0 roadmap. Establish its context and plan before execution.
+**Current focus:** Phase 246, Generated Confirmation Recovery, is planned and ready for execution as the first phase in the approved-scope v1.49 RELEASE-1.6.0 roadmap.
 
 ## Current Position
 
-Phase: 246 of 249 (Generated Confirmation Recovery)
-Plan: —
-Status: Ready to discuss and plan Phase 246
-Last activity: 2026-10-06
+Phase: 246 (Generated Confirmation Recovery) — READY TO EXECUTE
+Plan: 3 plans (0/3 complete)
+Status: Ready to execute Phase 246
+Last activity: 2026-10-06 — Phase 246 planning complete
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -45,7 +46,7 @@ Progress: [░░░░░░░░░░] 0%
 | 248 | Exact-source release gate | AUTO-01..02 |
 | 249 | Publish and prove Sigra 1.6.0 | REL-01..02 |
 
-The package target is the existing Release Please PR #224 proposing 1.6.0; the GSD milestone remains v1.49. Phase 245's historical evidence gaps, Hex 1.20.0 resolver ranking, and remaining SEED-011 findings are deferred outside this roadmap. Phase 246 readiness was checked on 2026-10-06: it is pending, has no context, research, or plans, and reports no prerequisite blocker.
+The package target is the existing Release Please PR #224 proposing 1.6.0; the GSD milestone remains v1.49. Phase 245's historical evidence gaps, Hex 1.20.0 resolver ranking, and remaining SEED-011 findings are deferred outside this roadmap. Phase 246 planning readiness was checked on 2026-10-06: three plans are runnable, all nine locked decisions and all three phase requirements are covered, and there is no prerequisite blocker. Phase 245's stale historical verification remains separate from this forward route.
 
 ### v1.48 closeout outcome
 
@@ -783,7 +784,7 @@ Resume file: .planning/phases/246-generated-confirmation-recovery/246-CONTEXT.md
 
 ## Operator Next Steps
 
-- Run `$gsd-discuss-phase 246` to establish context, then plan Phase 246; preserve the archived Phase 245 gap record separately.
+- Run `$gsd-execute-phase 246` to execute the three planned Phase 246 plans; preserve the archived Phase 245 gap record separately.
 
 ## Performance Metrics
 
