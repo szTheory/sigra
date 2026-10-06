@@ -9,11 +9,14 @@ defmodule Sigra.Install.GeneratedConfirmationCIContractTest do
     job_header = job |> String.split("    services:\n") |> hd()
 
     assert job =~ "run: scripts/ci/admin-acceptance-smoke.sh --test all"
+
     refute job_header =~ "if:",
            "generated-host acceptance must run on pull requests as well as other CI events"
 
     ci_gate = section(workflow, "  ci-gate:\n", nil)
-    needs = ci_gate |> String.split("    needs:\n") |> Enum.at(1) |> String.split("    if:") |> hd()
+
+    needs =
+      ci_gate |> String.split("    needs:\n") |> Enum.at(1) |> String.split("    if:") |> hd()
 
     assert needs =~ "- install_smoke",
            "the persisted-state generated-host probe must stay on the required ci-gate"
