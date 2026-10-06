@@ -70,7 +70,13 @@ Plans:
   2. An adopter can read what changed, supported compatibility, the required generated-host action or an explicit no-action statement, and the `~> 1.6.0` update and check path without internal planning notes presented as product changes.
   3. A maintainer can see a recorded disposition for every open PR and every inherited checkout change; release work has a clean source checkout without unrelated changes folded in.
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 247-01-PLAN.md — Inventory inherited work and PRs; select a clean reviewed source.
+- [ ] 247-02-PLAN.md — Refresh PR #224 and curate source-backed 1.6.0 notes.
+- [ ] 247-03-PLAN.md — Write the README-to-guide-to-changelog adopter path.
+- [ ] 247-04-PLAN.md — Prove final candidate, package, and repository readiness.
 
 #### Phase 248: Exact-Source Release Gate
 
