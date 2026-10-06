@@ -56,7 +56,7 @@ Plans:
 - [x] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 246-03-PLAN.md — Narrow fresh-host Chromium proof on required CI.
+- [x] 246-03-PLAN.md — Narrow fresh-host Chromium proof on required CI.
 
 **UI hint**: yes
 

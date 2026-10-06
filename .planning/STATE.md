@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 246
 current_phase_name: Generated Confirmation Recovery
 status: executing
-stopped_at: Completed 246-02-PLAN.md
-last_updated: "2026-10-06T18:10:14.222Z"
+stopped_at: "Blocked 246-03: local mix ci gate failed; see 246-CI-EVIDENCE.json"
+last_updated: "2026-10-06T19:05:51.498Z"
 last_activity: 2026-10-06
 last_activity_desc: Phase 246 execution started
-state_head: 7903d8a91ab9f382fc2c0a18dc762a5f147e7eca
+state_head: 78f973a43e24b0813029b0dec2285dd3f5f54a8b
 progress:
   total_phases: 4
   completed_phases: 0
@@ -589,6 +589,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 245 Plan 29 D-06 preflight is durably blocked: required commit c39e423cb023b60aefbda3e848b0a89395ff22d3 for origin refs/heads/gh-pages is unreadable; Plan 30 must remain untouched until a fresh ready preflight.
 - Phase 245 Plan 33 remains an immutable blocked historical attempt. Plan 34 later recovered its separately approved exact OID c39e423cb023b60aefbda3e848b0a89395ff22d3. Plan 30 then stopped on four newer missing live origin OIDs; see committed 245-30-EXEC-PREFLIGHT.json and 245-30-RESULT.json.
 - Plan 48: 11 historical PR-base rows remain unresolved; pinned commit and two blobs unavailable from local Git and GitHub in recorded D-06 preflight.
+- Plan 246-03 local MIX_ENV=test mix ci failed (2623 tests, 17 failures) on unrelated Phase 232/234/235/236/242 planning contracts; recurring required CI was not dispatched. Durable detail: .planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md
 
 ### Roadmap Evolution
 
@@ -782,9 +783,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T18:10:14.160Z
-Stopped at: Completed 246-02-PLAN.md
-Resume file: None
+Last session: 2026-10-06T19:05:51.455Z
+Stopped at: Blocked 246-03: local mix ci gate failed; see 246-CI-EVIDENCE.json
+Resume file: .planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json
 
 ## Operator Next Steps
 
@@ -1003,3 +1004,4 @@ Resume file: None
 | Phase 245 P47 | 2min | 1 tasks | 2 files |
 | Phase 246 P1 | 44min | 2 tasks | 9 files |
 | Phase 246 P02 | 28min | 2 tasks | 6 files |
+| Phase 246 P03 | 45min | 2 tasks | 10 files |

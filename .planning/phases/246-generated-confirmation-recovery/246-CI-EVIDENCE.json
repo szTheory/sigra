@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "phase": "246",
+  "plan": "03",
+  "status": "blocked",
+  "tested_source_sha": "78f973a43e24b0813029b0dec2285dd3f5f54a8b",
+  "tested_at_utc": "2026-10-06T19:04:24Z",
+  "workflow": {
+    "name": "CI",
+    "run_id": null,
+    "run_url": null,
+    "dispatch_status": "not-dispatched",
+    "reason": "Required local mix ci did not pass; push/dispatch was held at the documented pre-push gate."
+  },
+  "jobs": {
+    "install_smoke": {
+      "conclusion": "not-run-at-tested-source-sha",
+      "prior_phase_evidence": "Plan 246-02 summary records 8 fresh-host tests passing; that result predates this source SHA."
+    },
+    "generated_admin_playwright_smoke": {
+      "workflow_conclusion": "not-run",
+      "local_equivalent": {
+        "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/sigra-playwright-browsers bash scripts/ci/admin-acceptance-smoke.sh --test all",
+        "conclusion": "passed",
+        "results": {
+          "admin_generated": "8 passed, 1 planned skip",
+          "generated_confirmation_chromium": "1 passed",
+          "revoked_admin_recheck": "1 passed"
+        },
+        "source_sha": "78f973a43e24b0813029b0dec2285dd3f5f54a8b"
+      }
+    },
+    "ci-gate": {
+      "conclusion": "not-run"
+    },
+    "required_local_mix_ci": {
+      "command": "MIX_ENV=test mix ci",
+      "conclusion": "failed",
+      "exit_code": 2,
+      "result": "The full ExUnit stage reported 2623 tests, 17 failures, 12 skips (22 excluded). A later focused threadline guard stage reported 65 tests, 0 failures.",
+      "diagnostics": ".planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md"
+    }
+  },
+  "local_contract": {
+    "command": "MIX_ENV=test mix test test/sigra/install/generated_confirmation_ci_contract_test.exs",
+    "conclusion": "passed",
+    "tests": 3,
+    "failures": 0,
+    "source_sha": "78f973a43e24b0813029b0dec2285dd3f5f54a8b"
+  },
+  "missing_evidence_is_passed": false
+}
