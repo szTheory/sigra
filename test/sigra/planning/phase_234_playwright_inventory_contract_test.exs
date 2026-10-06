@@ -3,10 +3,9 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
   @workflow_path ".github/workflows/ci.yml"
   @config_path "test/example/priv/playwright/playwright.config.ts"
-  @inventory_path Sigra.Test.PlanningPaths.phase_file(
-                    "234-hygiene-supply-chain-and-contributor-dx",
-                    "234-PLAYWRIGHT-INVENTORY.json"
-                  )
+  # The archived Phase 234 snapshot is immutable input to Phase 235's captured
+  # evidence. Keep live-spec reconciliation in a current registry instead.
+  @inventory_path "test/example/priv/playwright/spec-ownership.json"
   @harness_mappings %{
     "test/example/priv/playwright/tests/admin-eval.spec.ts" => %{
       "command_marker" => "scripts/ci/admin-eval-harness.sh",
@@ -52,7 +51,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     assert terminal =~ "exit 1"
   end
 
-  test "the Phase 235 inventory exactly reconciles live specs and executable lane seams" do
+  test "the current inventory exactly reconciles live specs and executable lane seams" do
     inventory = inventory!()
 
     assert inventory["phase_235_gate_input"] == true
