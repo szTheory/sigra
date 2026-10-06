@@ -46,14 +46,14 @@
   2. A visitor can paste the code shown in a generated confirmation email into the confirmation form and submit it successfully, including a spaced code, without truncation or locale-dependent rejection.
   3. Generated authentication screens visibly show confirmation success and invalid-code feedback emitted by their LiveViews.
 
-**Plans**: 1/3 plans executed
+**Plans**: 2/3 plans executed
 Plans:
 
 **Wave 1**
 - [x] 246-01-PLAN.md — Reachable, explicit email-link confirmation with fresh-host persistence proof.
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
+- [x] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 246-03-PLAN.md — Narrow fresh-host Chromium proof on required CI.
@@ -102,7 +102,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 246. Generated Confirmation Recovery | v1.49 | 1/3 | In Progress | - |
+| 246. Generated Confirmation Recovery | v1.49 | 2/3 | In Progress | - |
 | 247. Release Candidate and Repository Readiness | v1.49 | 0/TBD | Not started | - |
 | 248. Exact-Source Release Gate | v1.49 | 0/TBD | Not started | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |

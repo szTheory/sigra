@@ -5,16 +5,16 @@ milestone_name: RELEASE-1.6.0
 current_phase: 246
 current_phase_name: Generated Confirmation Recovery
 status: executing
-stopped_at: Completed 246-01-PLAN.md
-last_updated: "2026-10-06T17:39:04.967Z"
+stopped_at: Completed 246-02-PLAN.md
+last_updated: "2026-10-06T18:10:14.222Z"
 last_activity: 2026-10-06
 last_activity_desc: Phase 246 execution started
-state_head: e47dafca11681221e7aba96f1ad3d6ce8aa40631
+state_head: 7903d8a91ab9f382fc2c0a18dc762a5f147e7eca
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 246 (Generated Confirmation Recovery) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-10-06 — Phase 246 execution started
 
@@ -566,6 +566,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 245]: Plan 47's blocked Plan 46 diagnostic forbids a current contract and live tracking operation; retain REPO-04 open with zero attempts.
 - [Phase 246]: Keep confirmation LiveViews in an optional current-scope session so signed-in visitors retain identity while the token owner is confirmed.
 - [Phase 246]: Bind confirmation-code lookup to both the hashed code and the current user's ID.
+- [Phase 246]: Use generated confirmation-code queries or a 48-hour user-scoped fallback before mutation.
+- [Phase 246]: Validate pasted codes by removing only ASCII spaces and requiring six ASCII digits on explicit submit.
 
 ### Pending Todos
 
@@ -780,8 +782,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T17:39:04.853Z
-Stopped at: Completed 246-01-PLAN.md
+Last session: 2026-10-06T18:10:14.160Z
+Stopped at: Completed 246-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -1000,3 +1002,4 @@ Resume file: None
 | Phase 245 P49 | 4min | 2 tasks | 3 files |
 | Phase 245 P47 | 2min | 1 tasks | 2 files |
 | Phase 246 P1 | 44min | 2 tasks | 9 files |
+| Phase 246 P02 | 28min | 2 tasks | 6 files |
