@@ -35,11 +35,11 @@ The adopter outcome is a clear account of what changed, compatibility and upgrad
 
 ## Candidate v1.49 Goal and Requirements
 
-**Adopted goal:** Complete the existing Release Please `1.6.0` release from the exact reviewed source, close the committed generated-confirmation fast-follow (SEED-011 findings A and D), provide adopter-facing upgrade information, and finish with green CI on the release/main source, clean local worktrees, a triaged open-PR inventory, and durable machine evidence connecting source SHA, package, and versioned docs.
+**Adopted goal:** Complete the existing Release Please `1.6.0` release from the exact reviewed source, close the committed generated-confirmation fast-follow (SEED-011 findings A and D) plus adjacent verified finding B, provide adopter-facing upgrade information, and finish with green CI on the release/main source, clean local worktrees, a triaged open-PR inventory, and durable machine evidence connecting source SHA, package, and versioned docs.
 
 Milestone requirements:
 
-1. **Generated confirmation recovery:** verify SEED-011 findings A and D against current templates and generated-host behavior; correct confirmed defects and prove anonymous and signed-in confirmation outcomes plus visible feedback with deterministic tests. No human UAT is required for these contracts.
+1. **Generated confirmation recovery:** verify SEED-011 findings A, B, and D against current templates and generated-host behavior; correct confirmed defects and prove anonymous and signed-in confirmation outcomes, acceptance of the spaced email code, and visible feedback with deterministic tests. B is included because it is a verified high-severity defect in the same confirmation journey. No human UAT is required for these contracts.
 2. **Release PR correctness:** review #224 against the actual package diff; `mix.exs`, manifest, changelog heading, tag, package metadata, and ExDoc `source_ref` must agree. Curate notes and ensure the `Unreleased` warning cannot leak into packaged text.
 3. **Repository readiness:** refresh and disposition every open PR as release-blocking, release-relevant, or separate follow-up; preserve inherited user changes; create a clean release source and finish with no dirty local worktrees.
 4. **Exact-source release gate:** resolve the tag and assert it equals Release Please's output SHA before package work; test/build docs and inspect the unpacked Hex artifact from that immutable source. Preserve current tests, warning-free docs, package-content assertions, and Hex dry run.
@@ -52,7 +52,7 @@ Proposed phases begin at **246** and continue the v1.48 numbering.
 
 | Phase | Candidate outcome | Rationale and evidence boundary |
 |---|---|---|
-| **246 — Generated confirmation recovery** | Verify and close the pre-committed SEED-011 findings A and D, with generated-host regression checks for confirmation state and visible feedback | Honors the explicit v1.48 fast-follow while keeping the remaining email/auth findings out of scope. |
+| **246 — Generated confirmation recovery** | Verify and close the pre-committed SEED-011 findings A and D plus adjacent verified finding B, with generated-host regression checks for confirmation state, code paste, and visible feedback | Honors the explicit v1.48 fast-follow and closes the closely coupled high-severity confirmation-code issue while keeping email styling and remaining findings out of scope. |
 | **247 — Release candidate and repo readiness** | Review the 1.6.0 package diff and adopter notes; refresh and disposition all open PRs; preserve inherited worktree changes and establish a clean release source | Align to the existing Release Please candidate without merging unrelated PRs or sweeping the mixed Phase 244/245 tree into the release. |
 | **248 — Exact-source release automation** | Harden the existing Release Please lane: prevent active-run cancellation, prove tag/output-SHA equality, scope permissions and Hex secret, and retain gate/failure receipts; require green CI on the exact release source | Make the current release path reproducible; preserve the existing Release Please and `ci-gate` design. |
 | **249 — Publish and public evidence** | Complete the reviewed release PR through the existing pipeline; verify Hex package, HexDocs, source link, and committed receipt against the same version/SHA; verify final main CI green, PR dispositions, and clean worktrees | End with the actual public release and evidence, not only release readiness. |
@@ -86,7 +86,7 @@ The relevant project-authored inputs are `prompts/elixir-oss-lib-ci-cd-best-prac
 | Package version and release contents | Medium | PR #224 proposed 1.6.0 and had passing CI at research time; compatibility and adopter action still need review against the package diff. |
 | Hex ranking / retirement | Medium, time-bound | v1.48 archive records October 5 live state; recheck at release time. No evidence supports resolver repair from 1.5.1. |
 
-Open gaps for execution: verify current behavior for SEED-011 findings A and D; refresh and disposition all current open PRs; preserve the dirty worktree content while producing a clean release worktree; curate PR #224 notes; rerun exact-source gates; repeat live Hex/API/docs observations immediately before and after publication.
+Open gaps for execution: verify current behavior for SEED-011 findings A, B, and D; refresh and disposition all current open PRs; preserve the dirty worktree content while producing a clean release worktree; curate PR #224 notes; rerun exact-source gates; repeat live Hex/API/docs observations immediately before and after publication.
 
 ## Sources
 

@@ -28,8 +28,8 @@ cannot resolve.
 green main CI, clean worktrees, triaged open PRs, and durable package-to-source evidence.
 
 **Target features:**
-- Close the pre-committed generated confirmation defects A and D from SEED-011 with deterministic
-  generated-host regression coverage, verifying reported behavior before changing code.
+- Close the pre-committed generated confirmation defects A and D, plus the adjacent verified code-paste
+  defect B from SEED-011, with deterministic generated-host regression coverage.
 - Prepare the existing Release Please 1.6.0 candidate from a clean, reviewed source; curate its
   changelog and upgrade guidance; preserve inherited work and disposition every open PR.
 - Harden the existing release lane so the tag, tested source SHA, package, and docs are tied together,
@@ -110,7 +110,8 @@ that dependency resolution is repaired.
 package target is the existing Release Please PR #224, proposing 1.6.0 from protected-main source;
 the existing release checks and public state must be rechecked at execution time. The milestone also
 honors SEED-011's explicit fast-follow commitment to verify and close generated confirmation defects
-A and D in its first phase batch, using machine-verifiable generated-host coverage.
+A and D in its first phase batch, with adjacent confirmed finding B included in the same generated-host
+flow and test seam.
 
 **Carryover boundaries:** Phase 245's 11 historical PR-base rows and 30 cleanup-history pairs remain
 unresolved and out of scope absent new evidence. The Hex 1.20.0 resolver-ranking issue, remaining

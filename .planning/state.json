@@ -1,12 +1,33 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49",
-  "phases": [],
+  "milestone": "v1.49 — RELEASE-1.6.0",
+  "phases": [
+    {
+      "number": "246",
+      "name": "Generated Confirmation Recovery",
+      "status": "pending"
+    },
+    {
+      "number": "247",
+      "name": "Release Candidate and Repository Readiness",
+      "status": "pending"
+    },
+    {
+      "number": "248",
+      "name": "Exact-Source Release Gate",
+      "status": "pending"
+    },
+    {
+      "number": "249",
+      "name": "Publish and Prove Sigra 1.6.0",
+      "status": "pending"
+    }
+  ],
   "next": {
-    "command": "/gsd:discuss-phase",
-    "label": "Discuss the first phase",
-    "reason": "Project initialized — plan your first phase"
+    "command": "/gsd:discuss-phase 246",
+    "label": "Discuss Phase 246",
+    "reason": "Phase 246 is pending with no context, research, or plans, and readiness reports no prerequisite blocker"
   },
-  "updated_at": "2026-10-06T14:54:36.443Z"
+  "updated_at": "2026-10-06T15:12:45.939Z"
 }

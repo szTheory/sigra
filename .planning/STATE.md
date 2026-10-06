@@ -2,11 +2,15 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-status: planning
-last_updated: "2026-10-06T14:54:36.440Z"
+current_phase: 246
+current_phase_name: Generated Confirmation Recovery
+status: Ready to discuss and plan Phase 246
+stopped_at: Created v1.49 roadmap and mapped all nine requirements; Phase 246 has no plan yet
+last_updated: "2026-10-06T15:05:01.079Z"
 last_activity: 2026-10-06
+state_head: 7d66fd8852bc170b8cd171c4e222bada44a98ba1
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +25,27 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Define requirements and roadmap for v1.49 RELEASE-1.6.0; Phase 246 is the first planned phase.
+**Current focus:** Phase 246, Generated Confirmation Recovery, is first in the approved-scope v1.49 RELEASE-1.6.0 roadmap. Establish its context and plan before execution.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 246 of 249 (Generated Confirmation Recovery)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-10-06 — Milestone v1.49 started
+Status: Ready to discuss and plan Phase 246
+Last activity: 2026-10-06
+
+Progress: [░░░░░░░░░░] 0%
+
+### v1.49 phase map
+
+| Phase | Outcome | Requirements |
+|-------|---------|--------------|
+| 246 | Generated confirmation recovery | CONF-01..03 |
+| 247 | Release candidate and repository readiness | READY-01..02 |
+| 248 | Exact-source release gate | AUTO-01..02 |
+| 249 | Publish and prove Sigra 1.6.0 | REL-01..02 |
+
+The package target is the existing Release Please PR #224 proposing 1.6.0; the GSD milestone remains v1.49. Phase 245's historical evidence gaps, Hex 1.20.0 resolver ranking, and remaining SEED-011 findings are deferred outside this roadmap. Phase 246 readiness was checked on 2026-10-06: it is pending, has no context, research, or plans, and reports no prerequisite blocker.
 
 ### v1.48 closeout outcome
 
@@ -58,7 +75,7 @@ Last activity: 2026-10-06 — Milestone v1.49 started
 **Parallel from day one:** 236, 237, 238 (one pre-resolved file collision — `lib/sigra/admin/live/audit_index_live.ex` belongs to 236; 237 skips it).
 **Forced spine:** 236 → 239 → 241; 236 + 237 → 240; 238 + 239 + 240 → 242 → 243 → 244 → 245.
 
-### v1.48 standing constraints (bind every phase)
+### v1.48 standing constraints (historical phase contract)
 
 - One live-external observation per phase (GitHub API / Hex API / freshly generated app / built tarball / captured CI run). Count-only acceptance is rejected.
 - Evidence captured at the final committed HEAD on a clean tree.
@@ -570,6 +587,7 @@ Last activity: 2026-10-06 — Milestone v1.49 started
 
 ### Roadmap Evolution
 
+- v1.49 RELEASE-1.6.0 roadmap created 2026-10-06: 4 phases (246–249), 9/9 requirements mapped. Phase 246 closes SEED-011 generated confirmation findings A/B/D; Phase 247 readies the existing 1.6.0 candidate and clean source; Phase 248 proves and hardens the exact-source release gate; Phase 249 publishes and checks Hex, versioned HexDocs, protected-main CI, PR dispositions, and clean worktrees. The user delegated the package-version decision to the existing Release Please PR #224; this is a package 1.6.0 release under GSD milestone v1.49.
 - Phase 208.1 inserted after Phase 208: v1.42 CI-Gate Remediation: fix ~15 never-CI-validated admin Playwright failures blocking the backlog ship + Phase 208 completion (URGENT)
 - Phase 212 added (2026-07-01): v1.42 integration merge — closes the three gaps from the `/gsd-audit-milestone` aggregate audit (status `gaps_found`): GATE-01 snapshot-canary red vs origin/main (needs human canary decision), FLOW-01 persona-flow specs run in no CI gate, GATE-02 generated-host smoke CI-skipped. Drives PR #63 green + merged; only then ROADMAP v1.42 → shipped. See `.planning/v1.42-MILESTONE-AUDIT.md`.
 - v1.43 STABILIZE roadmap created 2026-07-02: 3 phases (213-215), 13 requirements fully mapped. Phase 213 = Latest-Phoenix Compatibility (COMPAT-01/02/03); Phase 214 = Debt & Robustness Clear (DEBT-01..05, HEALTH-03); Phase 215 = Terminal Ratification (HEALTH-01/02/04, RATIFY-01).
@@ -759,13 +777,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-06T00:45:50Z
-Stopped at: Reconciled Phase 245 terminal status and captured new REL-03/04 Hex evidence; closeout artifact/worktree inventory still needs reconciliation
+Last session: 2026-10-06
+Stopped at: Created v1.49 roadmap and mapped all nine requirements; Phase 246 has no plan yet
 Resume file: .planning/HANDOFF.json
 
 ## Operator Next Steps
 
-- Run `$gsd-new-milestone` to define the next milestone; no Phase 246 is on the roadmap.
+- Run `$gsd-discuss-phase 246` to establish context, then plan Phase 246; preserve the archived Phase 245 gap record separately.
 
 ## Performance Metrics
 

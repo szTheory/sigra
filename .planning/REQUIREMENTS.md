@@ -56,22 +56,22 @@ Tracked for later milestones; not part of the v1.49 roadmap.
 
 ## Traceability
 
-The roadmap writer maps every v1 requirement to exactly one phase.
+Every v1 requirement maps to exactly one v1.49 phase.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONF-01 | TBD | Pending |
-| CONF-02 | TBD | Pending |
-| CONF-03 | TBD | Pending |
-| READY-01 | TBD | Pending |
-| READY-02 | TBD | Pending |
-| AUTO-01 | TBD | Pending |
-| AUTO-02 | TBD | Pending |
-| REL-01 | TBD | Pending |
-| REL-02 | TBD | Pending |
+| CONF-01 | Phase 246 | Pending |
+| CONF-02 | Phase 246 | Pending |
+| CONF-03 | Phase 246 | Pending |
+| READY-01 | Phase 247 | Pending |
+| READY-02 | Phase 247 | Pending |
+| AUTO-01 | Phase 248 | Pending |
+| AUTO-02 | Phase 248 | Pending |
+| REL-01 | Phase 249 | Pending |
+| REL-02 | Phase 249 | Pending |
 
-**Coverage:** 9 v1 requirements; phase mapping pending; 0 unmapped.
+**Coverage:** 9/9 v1 requirements mapped exactly once; 0 unmapped.
 
 ---
 *Requirements defined: 2026-10-06*
-*Last updated: 2026-10-06 after v1.49 scope synthesis*
+*Last updated: 2026-10-06 after v1.49 roadmap mapping*
