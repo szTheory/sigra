@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-      "command": "$gsd-execute-phase 247",
-      "label": "Execute Phase 247 plans",
-      "reason": "Phase 247 has four runnable plans and no GSD prerequisite blocker; its source-selection tasks remain gated on Phase 246 required CI evidence."
+    "command": "$gsd-execute-phase 246",
+    "label": "Resume Phase 246 required CI evidence",
+    "reason": "Phase 247-01 Task 2 is blocked because Phase 246 has no successful ci-gate, install_smoke, and generated_admin_playwright_smoke conclusions for one exact source SHA. Resolve the four recorded clean-source mix ci failures, then resume Phase 246 verification; only after its exact-source receipt passes should Phase 247 resume."
   },
-  "updated_at": "2026-10-06T22:54:27Z"
+  "updated_at": "2026-10-06T23:34:39.786Z"
 }
