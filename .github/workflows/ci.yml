@@ -1703,7 +1703,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [ci-gate]
-    if: always() && github.event_name != 'pull_request' && inputs.phase_246_ci_evidence != true && needs.ci-gate.result == 'failure'
+    if: always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure' && inputs.phase_246_ci_evidence != true
     permissions:
       issues: write
     env:
