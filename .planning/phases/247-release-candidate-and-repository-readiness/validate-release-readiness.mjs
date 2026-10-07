@@ -203,6 +203,209 @@ function validateCheckout(selection, observed) {
   return { valid: errors.length === 0, errors };
 }
 
+function validateCandidate(candidate, observed) {
+  const errors = [];
+  const add = (code, message) => errors.push({ code, message });
+  const sha = value => /^[0-9a-f]{40}$/.test(value ?? '');
+  const identities = candidate ?? {};
+  const live = observed ?? {};
+  const pr = live.pull_request ?? {};
+  const tested = live.phase_246_tested_sha;
+  if (pr.number !== 224 || pr.state !== 'OPEN' || pr.base_ref !== 'main') add('candidate_pr_identity_mismatch', 'The existing open Release Please PR #224 on main is required.');
+  for (const field of ['pre_refresh_pr_head_sha', 'refreshed_pr_head_sha', 'current_pr_head_sha', 'pr_base_sha', 'selected_reviewed_main_sha', 'phase_246_tested_sha']) {
+    if (!sha(identities[field])) add(`candidate_${field}_invalid`, `Candidate ${field} must be a full Git SHA.`);
+  }
+  if (identities.current_pr_head_sha !== pr.head_sha) add('candidate_live_head_mismatch', 'The recorded current candidate head differs from live PR #224.');
+  if (identities.pr_base_sha !== pr.base_sha) add('candidate_live_base_mismatch', 'The recorded candidate base differs from live PR #224 base.');
+  if (identities.selected_reviewed_main_sha !== live.main_sha || pr.base_sha !== live.main_sha) add('candidate_live_main_mismatch', 'The candidate source, PR base, and live protected main must be identical.');
+  if (identities.phase_246_tested_sha !== tested || live.phase_246_status !== 'passed') add('candidate_tested_source_mismatch', 'The exact Phase 246 tested SHA must match the immutable passing receipt.');
+  if (live.identity_stable_during_observation !== true) add('candidate_identity_raced', 'PR head/base/state or protected main changed during the live candidate observation.');
+  const promotionProof = validatePromotionProof(live.promotion_proof ?? {});
+  if (live.ancestry?.tested_to_main !== true && !promotionProof.valid) {
+    add('candidate_tested_source_unproven', 'Phase 246 tested source must be an ancestor of reviewed main or have a complete exact-source promotion proof.');
+    errors.push(...promotionProof.errors);
+  }
+  if (live.ancestry?.main_to_refreshed !== true) add('candidate_main_not_ancestor', 'Reviewed main must be an ancestor of the refreshed candidate head.');
+  if (live.ancestry?.pre_to_refreshed !== true) {
+    const review = identities.renewed_review;
+    if (!(review?.complete_diff_reviewed === true
+      && review.head_sha === identities.refreshed_pr_head_sha
+      && review.base_sha === identities.pr_base_sha
+      && review.source_sha === identities.selected_reviewed_main_sha
+      && review.checks_passed === true)) {
+      add('candidate_refresh_non_fast_forward_unreviewed', 'A non-fast-forward refresh requires renewed review and passing checks bound to its exact head, base, and source.');
+    }
+  }
+  if (live.ancestry?.refreshed_to_current !== true) {
+    const review = identities.renewed_review;
+    if (!(review?.complete_diff_reviewed === true
+      && review.head_sha === identities.current_pr_head_sha
+      && review.base_sha === identities.pr_base_sha
+      && review.source_sha === identities.selected_reviewed_main_sha
+      && review.checks_passed === true)) {
+      add('candidate_current_non_fast_forward_unreviewed', 'The current PR head must descend from the reviewed refresh or carry exact-head renewed review and passing checks.');
+    }
+  }
+  if (live.ancestry?.current_to_worktree !== true) add('candidate_worktree_not_fast_forward', 'The candidate worktree head must descend from the current live PR head.');
+  if (live.worktree_unexpected_paths?.length) add('candidate_worktree_unexpected_changes', `Candidate worktree contains changes outside release metadata: ${live.worktree_unexpected_paths.join(', ')}.`);
+  if (!Array.isArray(identities.changed_files) || identities.changed_files.length === 0) add('candidate_diff_missing', 'The refreshed PR complete changed-file list is required.');
+  if (identities.package_version !== '1.6.0' || identities.manifest_version !== '1.6.0' || identities.mix_version !== '1.6.0') add('candidate_version_mismatch', 'Release manifest, mix.exs, and recorded package version must all be 1.6.0.');
+  if (identities.source_ref !== 'v#{@version}') add('candidate_source_ref_mismatch', 'ExDoc source_ref must derive from the package version as v#{@version}.');
+  if (identities.changelog_heading_count !== 1 || !/^## \[1\.6\.0\](?:\(|\s|$)/.test(identities.changelog_heading ?? '')) add('candidate_changelog_heading_mismatch', 'CHANGELOG must contain exactly one actual ## [1.6.0] heading.');
+  if (identities.include_v_in_tag !== true || identities.planned_tag !== 'v1.6.0') add('candidate_tag_mismatch', 'Release Please must include v in its planned 1.6.0 tag.');
+  if (live.conflicting_tag_exists === true) add('candidate_tag_conflict', 'The planned v1.6.0 tag already exists; candidate readiness cannot create or replace it.');
+  if (identities.candidate_summary_under_versioned_heading !== true || identities.candidate_summary_only_unreleased === true) add('candidate_summary_misplaced', 'Candidate-specific adopter summary must be under the 1.6.0 heading, not only under Unreleased.');
+  if (!Array.isArray(identities.claim_sources) || identities.claim_sources.some(row => !row.claim || !row.source || !row.evidence)) add('candidate_claim_mapping_missing', 'Every curated adopter claim must map to source and required evidence.');
+  return { valid: errors.length === 0, errors };
+}
+
+function validatePromotionProof(proof) {
+  const errors = [];
+  const add = (code, message) => errors.push({ code, message });
+  const expectedPaths = [...APPROVED_PHASE_246_PATHS].sort();
+  const paths = (proof.approved_paths ?? []).map(row => row.path).sort();
+  if (proof.pr_number !== 288 || proof.pr_state !== 'MERGED' || proof.pr_head_sha !== proof.expected_pr_head_sha || proof.pr_base_sha !== proof.expected_pr_base_sha || proof.merge_commit_sha !== proof.expected_main_sha || proof.expected_main_sha !== proof.selected_main_sha) {
+    add('promotion_pr_identity_mismatch', 'The exact reviewed PR #288 head and squash merge commit must match the recorded promotion and selected main.');
+  }
+  if (paths.length !== expectedPaths.length || paths.some((value, index) => value !== expectedPaths[index])) add('promotion_path_allowlist_mismatch', 'The promotion PR changed-path set must equal the four approved Phase 246 paths.');
+  const prPaths = (proof.pr_changed_files ?? []).slice().sort();
+  if (prPaths.length !== expectedPaths.length || prPaths.some((value, index) => value !== expectedPaths[index])) add('promotion_pr_diff_mismatch', 'Live PR #288 complete diff must equal the four approved Phase 246 paths.');
+  if ((proof.approved_paths ?? []).some(row => !row.tested_blob || row.tested_blob !== row.main_blob)) add('promotion_blob_mismatch', 'Every approved path must have an identical Git blob at the tested source and selected main.');
+  const phase = proof.phase_246_ci ?? {};
+  if (phase.source_sha !== proof.tested_source_sha || phase.run_id !== 37676348766 || phase.attempt !== 2 || phase.conclusion !== 'success' || phase.required_jobs?.['ci-gate'] !== 'success' || phase.required_jobs?.install_smoke !== 'success' || phase.required_jobs?.generated_admin_playwright_smoke !== 'success') {
+    add('promotion_phase_ci_missing', 'Phase 246 CI must pass all required jobs on the exact tested source SHA.');
+  }
+  const main = proof.main_ci ?? {};
+  if (main.head_sha !== proof.selected_main_sha || main.run_id !== 37686980115 || main.attempt !== 2 || main.conclusion !== 'success') add('promotion_main_ci_missing', 'Required CI must pass on the exact selected main SHA and recorded run attempt.');
+  return { valid: errors.length === 0, errors };
+}
+
+function observeLiveCandidate(selection, candidate, phaseReceipt) {
+  const candidatePath = path.resolve(selection.candidate_worktree.path);
+  const pr = JSON.parse(runGh(['pr', 'view', '224', '--repo', repository, '--json', 'number,state,url,headRefName,headRefOid,baseRefName,baseRefOid,reviewDecision,statusCheckRollup']));
+  const mainSha = runGh(['api', `repos/${repository}/git/ref/heads/main`, '--jq', '.object.sha']);
+  const remoteHead = runGit(['ls-remote', '--refs', 'origin', `refs/heads/${pr.headRefName}`], candidatePath).split(/\s+/)[0];
+  const prAfterFetch = JSON.parse(runGh(['pr', 'view', '224', '--repo', repository, '--json', 'number,state,url,headRefName,headRefOid,baseRefName,baseRefOid,reviewDecision,statusCheckRollup']));
+  const mainAfterFetch = runGh(['api', `repos/${repository}/git/ref/heads/main`, '--jq', '.object.sha']);
+  const atHead = file => fs.readFileSync(path.join(candidatePath, file), 'utf8');
+  const ancestry = (ancestor, descendant) => {
+    try { runGit(['merge-base', '--is-ancestor', ancestor, descendant], candidatePath); return true; }
+    catch { return false; }
+  };
+  const receipt = JSON.parse(fs.readFileSync(path.resolve(phaseReceipt), 'utf8'));
+  const manifest = JSON.parse(atHead('.release-please-manifest.json'));
+  const mix = atHead('mix.exs');
+  const changelog = atHead('CHANGELOG.md');
+  const config = JSON.parse(fs.readFileSync(path.resolve('release-please-config.json'), 'utf8'));
+  const versionMatches = [...changelog.matchAll(/^## \[(\d+\.\d+\.\d+)\]/gm)].map(match => match[1]);
+  const summaryUnderHeading = /^## \[1\.6\.0\](?:\(|\s|$)[\s\S]*?(?=^## \[|\s*$)/m.test(changelog);
+  const unreleased = changelog.match(/^## \[Unreleased\][\s\S]*?(?=^## \[|\s*$)/m)?.[0] ?? '';
+  const candidateOnlyUnderUnreleased = /confirmation|generated host/i.test(unreleased) && !/^## \[1\.6\.0\][\s\S]*?(?:confirmation|generated host)/im.test(changelog);
+  const currentHead = pr.headRefOid;
+  const candidateHead = runGit(['rev-parse', 'HEAD'], candidatePath);
+  const candidateStatus = runGit(['status', '--porcelain=v1', '-uall'], candidatePath);
+  const candidateStatusPaths = candidateStatus.split('\n').filter(Boolean).map(line => line.slice(3));
+  const allowedCandidatePaths = new Set(['.release-please-manifest.json', 'CHANGELOG.md', 'mix.exs']);
+  const refreshed = candidate.refreshed_pr_head_sha;
+  const pre = candidate.pre_refresh_pr_head_sha;
+  const files = JSON.parse(runGh(['pr', 'view', '224', '--repo', repository, '--json', 'files', '--jq', '[.files[].path]']));
+  const conflictingTag = Boolean(runGit(['ls-remote', '--refs', 'origin', 'refs/tags/v1.6.0'], candidatePath));
+  const promotionPr = JSON.parse(runGh(['pr', 'view', '288', '--repo', repository, '--json', 'number,state,headRefOid,baseRefOid,mergeCommit,files']));
+  const mainCiRun = JSON.parse(runGh(['run', 'view', '37686980115', '--repo', repository, '--json', 'headSha,attempt,conclusion']));
+  const approvedPaths = [...APPROVED_PHASE_246_PATHS].map(file => ({
+    path: file,
+    tested_blob: runGit(['rev-parse', `${receipt.tested_source_sha}:${file}`], candidatePath),
+    main_blob: runGit(['rev-parse', `${selection.selected_source_sha}:${file}`], candidatePath),
+  }));
+  const promotionProof = {
+    pr_number: promotionPr.number,
+    pr_state: promotionPr.state,
+    pr_head_sha: promotionPr.headRefOid,
+    expected_pr_head_sha: candidate.promotion_pr_head_sha,
+    pr_base_sha: promotionPr.baseRefOid,
+    expected_pr_base_sha: candidate.promotion_pr_base_sha,
+    merge_commit_sha: promotionPr.mergeCommit?.oid,
+    expected_main_sha: candidate.promotion_commit_sha,
+    selected_main_sha: selection.selected_source_sha,
+    tested_source_sha: receipt.tested_source_sha,
+    approved_paths: approvedPaths,
+    phase_246_ci: {
+      source_sha: receipt.ci_receipt?.source_sha,
+      run_id: receipt.ci_receipt?.run?.id,
+      attempt: receipt.ci_receipt?.run?.attempt,
+      conclusion: receipt.ci_receipt?.run?.conclusion,
+      required_jobs: Object.fromEntries(Object.entries(receipt.ci_receipt?.required_jobs ?? {}).map(([name, row]) => [name, row.conclusion])),
+    },
+    main_ci: { head_sha: mainCiRun.headSha, attempt: mainCiRun.attempt, conclusion: mainCiRun.conclusion, run_id: 37686980115 },
+    pr_changed_files: promotionPr.files.map(row => row.path),
+  };
+  return {
+    pull_request: { number: pr.number, state: pr.state, head_ref: pr.headRefName, head_sha: currentHead, base_ref: pr.baseRefName, base_sha: pr.baseRefOid, url: pr.url, review_decision: pr.reviewDecision, checks: pr.statusCheckRollup },
+    main_sha: mainSha,
+    phase_246_tested_sha: receipt.tested_source_sha,
+    phase_246_status: receipt.status,
+    promotion_proof: promotionProof,
+    ancestry: {
+      tested_to_main: ancestry(receipt.tested_source_sha, mainSha),
+      main_to_refreshed: Boolean(refreshed) && ancestry(mainSha, refreshed),
+      pre_to_refreshed: Boolean(pre) && Boolean(refreshed) && ancestry(pre, refreshed),
+      refreshed_to_current: Boolean(refreshed) && ancestry(refreshed, currentHead),
+      current_to_worktree: ancestry(currentHead, candidateHead),
+    },
+    candidate_worktree_head_sha: candidateHead,
+    worktree_unexpected_paths: candidateStatusPaths.filter(file => !allowedCandidatePaths.has(file)),
+    conflicting_tag_exists: conflictingTag,
+    identity_stable_during_observation: prAfterFetch.headRefOid === pr.headRefOid
+      && prAfterFetch.baseRefOid === pr.baseRefOid
+      && prAfterFetch.state === pr.state
+      && mainAfterFetch === mainSha
+      && remoteHead === pr.headRefOid,
+    metadata: {
+      manifest_version: manifest['.'],
+      mix_version: mix.match(/@version\s+"([^"]+)"/)?.[1] ?? null,
+      source_ref: mix.match(/source_ref:\s*"([^"]+)"/)?.[1] ?? null,
+      changelog_heading: changelog.match(/^## \[1\.6\.0\](?:\([^\n]*\))?[^\n]*/m)?.[0] ?? null,
+      changelog_heading_count: (changelog.match(/^## \[1\.6\.0\]/gm) ?? []).length,
+      version_headings: versionMatches,
+      include_v_in_tag: config.packages?.['.']?.['include-v-in-tag'] === true,
+      candidate_summary_under_versioned_heading: summaryUnderHeading,
+      candidate_summary_only_unreleased: candidateOnlyUnderUnreleased,
+    },
+    changed_files: files,
+  };
+}
+
+function validateCandidateFile(artifactPath, phaseReceiptPath) {
+  const absoluteArtifact = path.resolve(artifactPath);
+  const ledger = JSON.parse(fs.readFileSync(absoluteArtifact, 'utf8'));
+  const candidate = ledger.candidate ?? {};
+  const observed = observeLiveCandidate(ledger.source_selection, candidate, phaseReceiptPath);
+  const details = validateCandidate({ ...candidate, ...observed.metadata, changed_files: observed.changed_files }, observed);
+  const final = {
+    valid: details.valid,
+    status: details.valid ? 'ready' : 'blocked',
+    checked_at: new Date().toISOString(),
+    checked: {
+      pr_url: observed.pull_request.url,
+      current_pr_head_sha: observed.pull_request.head_sha,
+      candidate_worktree_head_sha: observed.candidate_worktree_head_sha,
+      pr_base_sha: observed.pull_request.base_sha,
+      live_main_sha: observed.main_sha,
+      phase_246_tested_sha: observed.phase_246_tested_sha,
+      review_decision: observed.pull_request.review_decision,
+      checks: observed.pull_request.checks,
+      changed_files: observed.changed_files,
+      ancestry: observed.ancestry,
+      metadata: observed.metadata,
+    },
+    diagnostics: details.errors,
+  };
+  ledger.candidate_validation = final;
+  fs.writeFileSync(absoluteArtifact, `${JSON.stringify(ledger, null, 2)}\n`);
+  console.log(JSON.stringify(final, null, 2));
+  return final.valid;
+}
+
 function observeCandidate(selection) {
   const candidatePath = path.resolve(selection.candidate_worktree.path);
   if (!fs.existsSync(candidatePath)) return { exists: false, head_sha: null, status: null };
@@ -298,16 +501,19 @@ async function validateInventoryFile(artifactPath) {
   return final.valid;
 }
 
-export { validateSnapshot, validationSnapshot, validateCheckout };
+export { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const [stageFlag, stage, artifact] = process.argv.slice(2);
-  if (stageFlag !== '--stage' || !['inventory', 'checkout'].includes(stage) || !artifact) {
-    console.error('Usage: node validate-release-readiness.mjs --stage <inventory|checkout> <ledger.json>');
+  const args = process.argv.slice(2);
+  const [stageFlag, stage] = args;
+  const assertLiveRefresh = args.includes('--assert-live-refresh');
+  const artifact = args.find((arg, index) => index > 1 && !arg.startsWith('--'));
+  if (stageFlag !== '--stage' || !['inventory', 'checkout', 'candidate'].includes(stage) || !artifact || (stage === 'candidate' && !assertLiveRefresh)) {
+    console.error('Usage: node validate-release-readiness.mjs --stage <inventory|checkout|candidate> [--assert-live-refresh] <ledger.json>');
     process.exitCode = 2;
   } else {
     try {
-      const valid = stage === 'inventory' ? await validateInventoryFile(artifact) : validateCheckoutFile(artifact);
+      const valid = stage === 'inventory' ? await validateInventoryFile(artifact) : stage === 'checkout' ? validateCheckoutFile(artifact) : validateCandidateFile(artifact, '.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json');
       if (!valid) process.exitCode = 1;
     } catch (error) {
       console.error(JSON.stringify({ valid: false, status: 'blocked', diagnostics: [{ code: 'inventory_validation_error', message: error.message }] }, null, 2));
