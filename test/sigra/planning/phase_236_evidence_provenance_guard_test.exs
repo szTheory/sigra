@@ -4,6 +4,7 @@ defmodule Sigra.Planning.Phase236EvidenceProvenanceGuardTest do
   @p12 "scripts/ci/prohibitions/p12-run-id-provenance.test.mjs"
   @phase_230_ledger ".planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md"
   @phase_236_ledger ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md"
+  @phase_236_archived_ledger ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md"
   @phase_236_fixture "test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md"
   @workflow ".github/workflows/ci.yml"
   @prohibitions_glob "scripts/ci/prohibitions/*.test.mjs"
@@ -49,7 +50,7 @@ defmodule Sigra.Planning.Phase236EvidenceProvenanceGuardTest do
   end
 
   test "Phase 236 retains exactly three run-backed evidence slots" do
-    evidence = File.read!(@phase_236_ledger)
+    evidence = File.read!(@phase_236_archived_ledger)
 
     headings =
       Regex.scan(~r/^##\s+((?:BEFORE|AFTER)-[A-Z0-9-]+)\s*$/m, evidence)

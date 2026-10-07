@@ -36,15 +36,17 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
     refute File.exists?(Path.join(root(), "scripts/ci/prohibitions/p22-hex-remediation.test.mjs"))
   end
 
-  test "safety closeout preserves raw halt evidence and makes no external success claim" do
+  test "safety closeout preserves raw halt evidence and later requirement dispositions" do
     phase_dir =
       Path.join(
         root(),
-        ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1"
+        ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1"
       )
 
     closeout = phase_dir |> Path.join("242-SAFETY-CLOSEOUT.md") |> File.read!()
-    requirements = root() |> Path.join(".planning/REQUIREMENTS.md") |> File.read!()
+
+    requirements =
+      root() |> Path.join(".planning/milestones/v1.48-REQUIREMENTS.md") |> File.read!()
 
     Enum.each(@halt_summaries, fn {filename, expected_hash} ->
       summary = phase_dir |> Path.join(filename) |> File.read!()
@@ -58,7 +60,14 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
 
     assert closeout =~ "remain unproven"
     assert closeout =~ "fresh explicit authorization"
-    assert requirements =~ "REL-03, REL-04, and REL-06 are superseded-not-satisfied"
-    assert requirements =~ "REL-05 is limited to the delivered source safeguard"
+
+    assert requirements =~
+             "At the 2026-09-22 safety closeout, the three recorded attempts had not produced a complete receipt"
+
+    assert requirements =~ "- [x] **REL-03**"
+    assert requirements =~ "- [x] **REL-04**"
+    assert requirements =~ "- [ ] **REL-05 (PARTIAL)**"
+    assert requirements =~ "- [ ] **REL-06 (UNSATISFIED)**"
+    assert requirements =~ "REL-05 remains limited to the delivered source safeguard"
   end
 end
