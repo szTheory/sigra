@@ -13,14 +13,14 @@
 
 ### Generated confirmation (CONF)
 
-- [ ] **CONF-01**: In a freshly generated host app, an anonymous visitor and an already signed-in visitor can complete email confirmation, and the test proves the persisted account state changed rather than relying on response status alone.
-- [ ] **CONF-02**: A confirmation code copied from the generated email can be pasted into the generated confirmation form and accepted without browser-side truncation or locale-dependent validation failure.
-- [ ] **CONF-03**: Generated authentication screens display confirmation success and error feedback produced by their LiveViews, including invalid-code feedback.
+- [x] **CONF-01**: In a freshly generated host app, an anonymous visitor and an already signed-in visitor can complete email confirmation, and the test proves the persisted account state changed rather than relying on response status alone.
+- [x] **CONF-02**: A confirmation code copied from the generated email can be pasted into the generated confirmation form and accepted without browser-side truncation or locale-dependent validation failure.
+- [x] **CONF-03**: Generated authentication screens display confirmation success and error feedback produced by their LiveViews, including invalid-code feedback.
 
 ### Release readiness (READY)
 
 - [ ] **READY-01**: The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path.
-- [ ] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work.
+- [x] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work.
 
 ### Release automation (AUTO)
 
@@ -60,11 +60,11 @@ Every v1 requirement maps to exactly one v1.49 phase.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONF-01 | Phase 246 | Pending |
-| CONF-02 | Phase 246 | Pending |
-| CONF-03 | Phase 246 | Pending |
+| CONF-01 | Phase 246 | Complete |
+| CONF-02 | Phase 246 | Complete |
+| CONF-03 | Phase 246 | Complete |
 | READY-01 | Phase 247 | Pending |
-| READY-02 | Phase 247 | Pending |
+| READY-02 | Phase 247 | Complete |
 | AUTO-01 | Phase 248 | Pending |
 | AUTO-02 | Phase 248 | Pending |
 | REL-01 | Phase 249 | Pending |

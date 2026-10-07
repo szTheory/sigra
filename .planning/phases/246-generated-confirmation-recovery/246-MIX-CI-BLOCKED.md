@@ -1,4 +1,6 @@
-# Phase 246 Plan 03: Required CI Blocker
+# Phase 246 Plan 03: Historical Local CI Blocker
+
+> Historical diagnostic for source `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`. The later exact-source workflow receipt in `246-CI-EVIDENCE.json` passed for `90ec16f72a71d33224c0816ad77762e2e7262c76`; this report remains for failure history and is no longer a current phase blocker.
 
 At committed source `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`, a clean detached checkout ran `MIX_ENV=test mix ci` after `mix clean`. It exited 2: **33 doctests, 3 properties, 2623 tests, 4 failures, 12 skips, 22 exclusions**. The later dependency-off guard passed **65 tests, 0 failures**. Complete failure messages, stack locations, seed, source SHA, and the log fingerprint are retained in `246-MIX-CI-FAILURES.json`.
 
@@ -9,7 +11,7 @@ At committed source `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`, a clean detached
 | Phase 242 install guidance | Committed README lacks the supported install tuple. | Existing dirty public documentation was preserved. |
 | Phase 242 safety closeout | Guard reads an absent `.planning/phases/242-…/242-SAFETY-CLOSEOUT.md` path after archival. | Historical evidence/path maintenance; the phase's test received formatting-only changes. |
 
-The first 17-failure run included phase-induced failures, so its initial classification as entirely unrelated was inaccurate. Follow-up work repaired the optional-scope installer drift guard and registered the new browser spec with an exact harness mapping. Live ownership now resides in `test/example/priv/playwright/spec-ownership.json`; the archived Phase 234 inventory retains its original captured bytes, preserving Phase 235 provenance. A fresh compile also removed stale Threadline dependency-off output, and the nested sandbox fixtures passed when permitted to run outside the enclosing process sandbox. The final four failures remain outside the confirmation implementation.
+The first 17-failure run included phase-induced failures, so its initial classification as entirely unrelated was inaccurate. Follow-up work repaired the optional-scope installer drift guard and registered the new browser spec with an exact harness mapping. Live ownership now resides in `test/example/priv/playwright/spec-ownership.json`; the archived Phase 234 inventory retains its original captured bytes, preserving Phase 235 provenance. A fresh compile also removed stale Threadline dependency-off output, and the nested sandbox fixtures passed when permitted to run outside the enclosing process sandbox. The final four failures describe the older `fd75cad25` source and were not reproduced by exact-source CI at `90ec16f7`.
 
 ## Local proof retained
 
@@ -20,6 +22,6 @@ The first 17-failure run included phase-induced failures, so its initial classif
 - Re-review: **19 files, 0 findings**. WR-01 is fixed and retained in the disposition ledger.
 - The example app's additional `mix precommit` fails its warnings-as-errors compile on an existing `/dev/mailbox` test-environment route warning at `settings_live.ex:133`. Its complete log fingerprint is retained in the receipt.
 
-No branch was pushed and no GitHub workflow was dispatched after the required local gate failed. `install_smoke`, `generated_admin_playwright_smoke`, and `ci-gate` therefore have no current-source workflow conclusions. Local equivalence is recorded separately. Plan 246-03 and phase completion remain blocked; CONF-01 through CONF-03 stay pending in the phase requirements ledger.
+At the time of this observation, no branch was pushed and no GitHub workflow had been dispatched after the required local gate failed. The later exact-source run passed `install_smoke`, `generated_admin_playwright_smoke`, and `ci-gate`; see `246-CI-EVIDENCE.json` for the machine-readable receipt and exact source identity.
 
-After the inherited CI blockers are resolved in their authorized scope, resume `$gsd-execute-phase 246` to capture the actual required run. This invocation did not start Phase 247 or reopen historical milestone phases.
+The recorded local failures remain useful diagnostics for `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`; they are superseded for phase readiness by the later passing exact-source workflow receipt.

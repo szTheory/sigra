@@ -2,20 +2,21 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-current_phase: 246
-current_phase_name: Generated Confirmation Recovery
+current_phase: 247
+current_phase_name: Release Candidate and Repository Readiness
+current_plan: 2 of 4
 status: executing
-stopped_at: Phase 248 planned; Phase 246 required-CI verification remains
-last_updated: "2026-10-07T18:13:07Z"
+stopped_at: Completed 247-01-PLAN.md
+last_updated: "2026-10-07T22:09:50.270Z"
 last_activity: 2026-10-07
-last_activity_desc: Phase 248 plans are checked; Phase 246 local CI failures are fixed and its clean-source mix ci passes, but required GitHub CI evidence is still missing
-state_head: 0349a23d0f42eed91e47459b6cf65d2cadd0064d
+last_activity_desc: Phase 247 Plan 01 complete; reviewed candidate pinned to protected main SHA 590eb4e with passing CI; Plan 02 is ready
+state_head: 3a70baee9da3b9f1e9ff603566c6bbfa62f7687b
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 12
-  completed_plans: 2
-  percent: 0
+  completed_plans: 4
+  percent: 25
 ---
 
 # Project State
@@ -26,16 +27,18 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 246 — capture required exact-source CI evidence
+**Current focus:** Phase 247 — refresh the 1.6.0 candidate from reviewed source
 
 ## Current Position
 
-Phase: 246 (Generated Confirmation Recovery) — IN PROGRESS
-Plan: 2 of 3 complete; Plan 03 Task 2 still needs a successful required CI run and receipt
-Status: The four deterministic `mix ci` failures are fixed in commit `4df425a62`. The isolated clean-source `MIX_ENV=test mix ci` passed with 2,623 tests and zero failures, plus the 65-test dependency-off guard. No required GitHub CI run or passing Phase 246 verification report is recorded.
-Last activity: 2026-10-07 — `.planning/debug/phase246-four-ci-repair-evidence.json` records the passing local gate; `.planning/debug/resolved/phase246-four-ci-failures.md` records the repair. Phase 247 source selection remains gated on the exact-source required workflow receipt.
+Phase: 247 — Release Candidate and Repository Readiness
+Current Plan: 2 of 4
+Total Plans in Phase: 4
+Plan: 2 of 4 — refresh the existing Release Please proposal
+Status: Ready to execute
+Last activity: 2026-10-07 — Phase 247 Plan 01 complete; reviewed source isolated for Plan 02
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 25%
 
 ### v1.49 phase map
 
@@ -88,9 +91,10 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 
 ## Blockers
 
-- Phase 246 completion: Plan 03 lacks an actual required CI run. The final clean-source `mix ci` has four older contract failures; complete diagnostics are in `.planning/phases/246-generated-confirmation-recovery/246-MIX-CI-FAILURES.json`.
-- Additional repository readiness: example `mix precommit` fails the existing `/dev/mailbox` test-route warning; inherited workflow/package/docs edits still require disposition. These remain visible inputs to Phase 247 discussion, not waived evidence.
-- Phase 247 Plan 01 Task 2 source selection is blocked: Phase 246 CI receipt is status=blocked for fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a; ci-gate, install_smoke, and generated_admin_playwright_smoke have no required workflow conclusion. Evidence: .planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json and 246-MIX-CI-BLOCKED.md.
+- Phase 246 is complete: exact source `90ec16f72a71d33224c0816ad77762e2e7262c76` passed required run [37676348766](https://github.com/szTheory/sigra/actions/runs/37676348766), and phase verification passed 10/10. Earlier local CI failures remain historical diagnostics only.
+- Phase 247 Plan 01 is complete. Its refreshed ledger preserves the original entry snapshot, records scoped PR #288 promotion, and validates the clean candidate worktree at protected main `590eb4ed3323db11dd74326cbee00c9c7973e529`; exact main CI run [37686980115](https://github.com/szTheory/sigra/actions/runs/37686980115) passed on attempt 2.
+- The earlier example `mix precommit` `/dev/mailbox` warning remains a readiness item to check against the selected candidate in Plan 04; it did not fail the selected main's required CI gate.
+- Phase 247 Plans 02–04 remain. Plan 02 is the next runnable plan; Phase 248's five plans are planned and not started.
 
 ## Accumulated Context
 
@@ -574,6 +578,9 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 246]: Bind confirmation-code lookup to both the hashed code and the current user's ID.
 - [Phase 246]: Use generated confirmation-code queries or a 48-hour user-scoped fallback before mutation.
 - [Phase 246]: Validate pasted codes by removing only ASCII spaces and requiring six ASCII digits on explicit submit.
+- [Phase 247]: Keep the immutable entry inventory and refresh a separate current snapshot before making source decisions.
+- [Phase 247]: Promote only the four Phase 246 files whose blobs match the tested source and whose scoped PR passed review and CI; exclude other inherited work and open PRs.
+- [Phase 247]: Pin the candidate to protected main only after its own required CI passes.
 
 ### Pending Todos
 
@@ -789,15 +796,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-07T16:28:48.773Z
-Stopped at: Phase 248 context gathered (assumptions mode)
-Resume file: .planning/phases/248-exact-source-release-gate/248-CONTEXT.md
+Last session: 2026-10-07T22:09:50.206Z
+Stopped at: Completed 247-01-PLAN.md
+Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247-02-PLAN.md
 
 ## Operator Next Steps
 
-- **Next command: `$gsd-execute-phase 246`.** `init.verify-work 246` reports no verification report and routes back through execute-phase, which resumes at verification gates without rerunning plans that already have summaries. The four local CI failures are fixed in `4df425a62`, and `.planning/debug/phase246-four-ci-repair-evidence.json` records a clean-source `MIX_ENV=test mix ci` pass (2,623 tests, zero failures; dependency-off guard 65/0). The required GitHub run, its `ci-gate`/`install_smoke`/`generated_admin_playwright_smoke` conclusions, and a passing `246-CI-EVIDENCE.json` are still missing.
-- After Phase 246 has its passing exact-source receipt and verification, resume `$gsd-execute-phase 247`; Plan 247-01 Task 1 commits are `9643d20f4` and `83aff7df0`. Do not select the release source or create the Phase 247 candidate checkout before that receipt is valid. Phase 248 is fully planned (five plans) and depends on Phase 247.
-- Routing evidence: `.planning/phases/246-generated-confirmation-recovery/246-FORWARD-ROUTE.json`, `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`, `.planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md`, `.planning/debug/phase246-four-ci-repair-evidence.json`, `.planning/debug/resolved/phase246-four-ci-failures.md`, and `.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json`. Historical Phase 245 verification remains separate.
+- **Next command: `$gsd-execute-phase 247`.** `init.execute-phase 247` reports Plans 02–04 runnable with no prerequisite blockers. Plan 01 is complete; continue by refreshing Release Please PR #224 and curating source-backed 1.6.0 notes. The selected candidate is a clean worktree at main `590eb4ed3323db11dd74326cbee00c9c7973e529`, whose exact required CI run 37686980115 passed on attempt 2. Phase 248 remains planned and depends on Phase 247. Historical Phase 245 verification and earlier Phase 246 local CI diagnostics remain separate.
+- Routing evidence: `.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json`, `.planning/phases/247-release-candidate-and-repository-readiness/247-01-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-02-PLAN.md`, and `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`. Historical Phase245 verification remains separate.
 
 ## Performance Metrics
 
@@ -1013,3 +1019,4 @@ Resume file: .planning/phases/248-exact-source-release-gate/248-CONTEXT.md
 | Phase 246 P1 | 44min | 2 tasks | 9 files |
 | Phase 246 P02 | 28min | 2 tasks | 6 files |
 | Phase 246 P03 | 45min | 2 tasks | 10 files |
+| Phase 247 P01 | 167m | 2 tasks | 4 files |

@@ -6,20 +6,21 @@ tags: [git, github, inventory, node, ci-evidence]
 
 requires:
   - phase: 246-generated-confirmation-recovery
-    provides: Required exact-source CI receipt; currently blocked and not yet available.
+    provides: Passing exact-source CI receipt and Phase246 verification.
 provides:
-  - Validated inherited checkout and live PR disposition inventory.
-  - Stable-key ledger and validator designed to be safely rerun after Phase 246 completes.
+  - Validated inventory of inherited checkout, dirty paths, commits, and live pull requests.
+  - Reviewed protected-main source selection and clean isolated candidate worktree.
+  - Inventory and checkout validators tied to immutable and live source identities.
 affects: [247-02, 247-03, 247-04, release-candidate]
 
 actuals:
-  tokens: 394559
-  tasks: 1
-  commits: 6
+  tokens: 884512
+  tasks: 2
+  commits: 17
 
 tech-stack:
   added: []
-  patterns: [stable-key inventory updates, immutable entry snapshot, fail-closed readiness validation]
+  patterns: [stable-key inventory updates, immutable entry snapshot, fail-closed readiness validation, exact-source evidence binding]
 
 key-files:
   created:
@@ -28,18 +29,14 @@ key-files:
     - .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs
     - .planning/phases/247-release-candidate-and-repository-readiness/247-01-tdd-red-evidence.json
   modified:
-    - .planning/STATE.md
-    - .planning/HANDOFF.json
+    - .planning/phases/247-release-candidate-and-repository-readiness/247-01-SUMMARY.md
 
 key-decisions:
-  - "Do not select or isolate a release source until Phase 246 records successful required workflow conclusions for one exact committed SHA."
-  - "Retain the Task 1 inventory and rerun it by stable keys after the Phase 246 blocker is resolved."
+  - "Keep the immutable entry inventory and refresh a separate current snapshot before making source decisions."
+  - "Promote only the four Phase246 files whose blobs match the tested source and whose scoped PR passed review and CI; exclude other inherited work and open PRs."
+  - "Pin the candidate to protected main only after its own required CI passes."
 
-patterns-established:
-  - "Inventory records are updated by stable PR number, commit SHA, and kind-plus-path identity."
-  - "Missing or unsuccessful required CI evidence blocks source selection and remains explicitly diagnostic."
-
-requirements-completed: []
+requirements-completed: [READY-02]
 
 coverage:
   - id: D1
@@ -52,82 +49,79 @@ coverage:
       - kind: other
         ref: "node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage inventory .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json"
         status: pass
-    human_judgment: true
-    rationale: "Task 2's reviewed-source disposition and clean candidate checkout remain unperformed until the exact-source Phase 246 CI receipt exists."
+    human_judgment: false
+    rationale: "The inventory validator re-enumerates live Git/GitHub identities and compares all stable-key populations to the current snapshot while preserving the immutable entry snapshot."
   - id: D2
-    description: "Select reviewed source and isolate its clean checkout."
+    description: "Select reviewed source and isolate its clean candidate checkout."
     requirement: READY-02
-    verification: []
-    human_judgment: true
-    rationale: "Task 2 was not started because its required Phase 246 workflow evidence is blocked."
+    verification:
+      - kind: other
+        ref: "node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage checkout .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json"
+        status: pass
+      - kind: ci
+        ref: "https://github.com/szTheory/sigra/actions/runs/37686980115 (attempt 2, main 590eb4e, success)"
+        status: pass
+    human_judgment: false
+    rationale: "Exact Phase246 evidence, reviewed PR #288, its protected-main squash promotion, passing main CI, four source blob matches, and a clean worktree at the selected SHA are recorded in the ledger."
 
-duration: 12min
-completed: 2026-10-06
-status: blocked
+decisions:
+  - "Phase246 source SHA 90ec16f72a71d33224c0816ad77762e2e7262c76 passed ci-gate, install smoke, and generated-admin Playwright smoke."
+  - "Scoped PR #288 promoted the four approved paths and squash-merged as 590eb4ed3323db11dd74326cbee00c9c7973e529; the selected main CI run passed on attempt 2."
+  - "The inherited checkout and all excluded inherited objects remain preserved; the candidate worktree is a separate clean detached checkout."
+
+duration: 2h47m
+completed: 2026-10-07
+status: complete
 plan_head_before: 7e5c19361135aeb63bac006323ffd5899e0d402b
-plan_head_after: 03cda6a0421e4f0cbc4236e48b17b1c453aba71a
-commits: 6
+plan_head_after: 3a70baee9da3b9f1e9ff603566c6bbfa62f7687b
 ---
 
 # Phase 247 Plan 01: Release Readiness Inventory Summary
 
-**A validated stable-key inventory covers 364 inherited commits, 1,185 committed paths, 55 dirty paths, and 14 open PRs; source selection remains blocked on Phase 246's missing required CI receipt.**
+The validated ledger preserves 380 inherited commits, 1,277 committed-path records, 64 dirty paths, and all 14 currently open PRs; the release candidate is isolated at reviewed main SHA `590eb4e` after exact Phase246 evidence and its own complete CI passed.
 
 ## Performance
 
-- **Duration:** 12 minutes from the first Task 1 commit through checkpoint routing.
+- **Duration:** 2 hours 47 minutes across the resumed checkpoint and Task 2.
 - **Started:** 2026-10-06T23:22:47Z
-- **Completed:** 2026-10-06T23:39:24Z
-- **Tasks:** 1 of 2 complete.
-- **Files modified:** 7 plan-specific files before this summary; 8 including this summary.
+- **Completed:** 2026-10-07T22:09:09Z
+- **Tasks:** 2 of 2 complete.
+- **Files modified:** 3 task artifacts and this summary; inherited Phase246/user-dirty files were preserved.
 
 ## Accomplishments
 
-- Captured and validated the inherited checkout and live PR queue with reasoned dispositions and preservation locations.
-- Added focused validator fixtures for omitted PRs, duplicate path identities, and explicit empty sets; the checks passed.
-- Kept source selection and candidate worktree creation gated because Phase 246 has no successful required workflow conclusions for one exact committed source SHA.
+- Preserved the original entry snapshot and recorded a fresh live inventory after the Phase246 promotion changed main and the open-PR population.
+- Confirmed Phase246's exact tested source SHA `90ec16f72a71d33224c0816ad77762e2e7262c76` had passing `ci-gate`, install smoke, and generated-admin Playwright smoke, with its phase verification at 10/10.
+- Promoted only the four approved Phase246 paths through reviewed PR [#288](https://github.com/szTheory/sigra/pull/288). Their blobs match the tested source. The PR passed CI and squash-merged to protected main as `590eb4ed3323db11dd74326cbee00c9c7973e529`.
+- Required CI and the full main workflow passed on attempt 2 for the exact selected main SHA, including all Playwright shards, install matrices, generated-admin, golden/idempotency, aggregate lifecycle, `ci-gate`, and admin-eval render.
+- Created ignored `tmp/phase-247-candidate` as a clean detached worktree at the selected main SHA. The inherited checkout and all other inherited objects remain preserved and explicitly excluded in the ledger.
+- Extended the validator with a checkout stage that checks live main, refreshed `origin/main`, candidate HEAD/cleanliness, exact Phase246 receipt, reviewed promotion, and the four approved paths.
 
 ## Task Commits
 
-Task 1 is complete. Its test and implementation commits are `9643d20f4` and `83aff7df0`; checkpoint diagnostics and inventory verification are recorded in `e6954a962`, `e10f183db`, and `92fe589d2`. The route update is `03cda6a04`.
+- Task 1 test and implementation: `9643d20f4`, `83aff7df0`.
+- Task 2 implementation: `3a70baee9`.
+- The measured plan range is `7e5c19361135aeb63bac006323ffd5899e0d402b` through `3a70baee9da3b9f1e9ff603566c6bbfa62f7687b`, containing 17 commits.
 
-The measured plan range is `7e5c19361135aeb63bac006323ffd5899e0d402b` through `03cda6a0421e4f0cbc4236e48b17b1c453aba71a`, containing six commits.
+## Verification
 
-## Files Created/Modified
-
-- `247-RELEASE-READINESS.json` — timestamped inventory and dispositions for inherited Git state and live PRs.
-- `validate-release-readiness.mjs` — completeness, uniqueness, and freshness checks.
-- `validate-release-readiness.test.mjs` — focused validation fixtures.
-- `247-01-tdd-red-evidence.json` — retained RED evidence for the validator tests.
-- `.planning/STATE.md` and `.planning/HANDOFF.json` — safe-resume route through Phase 246.
-
-## Decisions Made
-
-- Phase 246's required `ci-gate`, `install_smoke`, and `generated_admin_playwright_smoke` conclusions must all be successful for the same exact source SHA before source selection.
-- The current Phase 246 receipt is `status: blocked`, with `tested_source_sha: fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`; each required workflow conclusion is `not-run`. Local equivalents do not satisfy this precondition.
-- Plan 01 must be resumed or safely replayed after Phase 246 produces the receipt. Its inventory uses stable keys so reruns update existing records without silently changing source identity.
-- READY-01 and READY-02 remain incomplete. No source was selected and no `tmp/phase-247-candidate` worktree was created.
+- `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` — 5 passed.
+- `node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage inventory .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json` — ready; 380 commits, 1,213 unique committed paths, 64 dirty paths, 14 open PRs.
+- `node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage checkout .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json` — ready; candidate clean at the selected SHA.
+- `git diff --check` on task artifacts — passed.
+- Main CI [run 37686980115](https://github.com/szTheory/sigra/actions/runs/37686980115), attempt 2 — success for exact SHA `590eb4ed3323db11dd74326cbee00c9c7973e529`.
 
 ## Deviations from Plan
 
-Checkpoint closeout only: Task 2 was not started because its explicit precondition is unmet. No source-selection work was performed.
+**1. Scoped the Phase246 promotion to a dedicated four-path PR.** The original Phase246 branch contained hundreds of commits ahead of main, so it was not safe to merge wholesale. The already-tested source was promoted through normal protected-branch review and CI using PR #288; only the four approved paths were selected.
 
-## Issues Encountered
-
-The Phase 246 evidence artifact reports `ci-gate`, `install_smoke`, and `generated_admin_playwright_smoke` as `not-run`; its required local `mix ci` failed with four contract failures. Full diagnostics remain in `246-MIX-CI-BLOCKED.md` and `246-MIX-CI-FAILURES.json`.
-
-## Next Phase Readiness
-
-Plan 01 remains incomplete and is still the only ready Phase 247 plan. Resolve Phase 246's required CI receipt first, then safely resume `$gsd-execute-phase 247`. Plans 02–04 remain unresolved dependencies and must not start yet.
-
-**Immediate route:** `$gsd-execute-phase 246`.
+**2. Refreshed the current inventory after promotion.** PR #288's merge changed protected main and the live PR set. The immutable entry snapshot remained unchanged, and a new additive snapshot was captured before source selection.
 
 ## Self-Check: PASSED
 
-- Summary file exists and is committed as `265284deb`.
-- Task 1 verification commits `9643d20f4`, `83aff7df0`, and `92fe589d2` are ancestors of HEAD.
-- State validation passed; the phase-plan index keeps 247-01 ready and 247-02 through 247-04 unresolved.
+- Summary, ledger, validator, and test files exist.
+- Task commits `9643d20f4`, `83aff7df0`, and `3a70baee9` are ancestors of HEAD.
+- Candidate worktree HEAD is `590eb4ed3323db11dd74326cbee00c9c7973e529` and its status is clean.
+- Both inventory and checkout stages pass; focused tests pass 5/5.
 
----
-*Phase: 247-release-candidate-and-repository-readiness*
-*Checkpoint date: 2026-10-06*
+**Next:** continue with the next ready Phase247 plan through `$gsd-execute-phase 247`.

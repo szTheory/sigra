@@ -29,7 +29,7 @@
 
 **Phase Numbering:** Continues from the archived v1.48 Phase 245. The four phases below are the active v1.49 scope; prior milestone history remains in the archive links above.
 
-- [ ] **Phase 246: Generated Confirmation Recovery** - Adopters can use the generated confirmation journey reliably, including pasted codes and visible feedback.
+- [x] **Phase 246: Generated Confirmation Recovery** - Adopters can use the generated confirmation journey reliably, including pasted codes and visible feedback. (completed 2026-10-07)
 - [ ] **Phase 247: Release Candidate and Repository Readiness** - The 1.6.0 candidate is accurate for adopters and comes from a clean, reviewed source with the inherited checkout and PR queue dispositioned.
 - [ ] **Phase 248: Exact-Source Release Gate** - The existing release lane proves source identity, completes its checks, and retains actionable receipts for every outcome.
 - [ ] **Phase 249: Publish and Prove Sigra 1.6.0** - Hex, versioned HexDocs, protected main, local worktrees, and committed evidence agree on the release.
@@ -46,7 +46,7 @@
   2. A visitor can paste the code shown in a generated confirmation email into the confirmation form and submit it successfully, including a spaced code, without truncation or locale-dependent rejection.
   3. Generated authentication screens visibly show confirmation success and invalid-code feedback emitted by their LiveViews.
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans complete
 Plans:
 
 **Wave 1**
@@ -56,7 +56,7 @@ Plans:
 - [x] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 246-03-PLAN.md — Local Chromium proof and route implemented; all four local gate failures are repaired and clean-source `mix ci` passes, but exact-source required GitHub CI evidence is still missing.
+- [x] 246-03-PLAN.md — Generated-host browser, install, and exact-source required CI evidence passed; phase verification scored 10/10.
 
 **UI hint**: yes
 
@@ -70,11 +70,11 @@ Plans:
   2. An adopter can read what changed, supported compatibility, the required generated-host action or an explicit no-action statement, and the `~> 1.6.0` update and check path without internal planning notes presented as product changes.
   3. A maintainer can see a recorded disposition for every open PR and every inherited checkout change; release work has a clean source checkout without unrelated changes folded in.
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 
 Plans:
 **Wave 1**
-- [ ] 247-01-PLAN.md — Inventory inherited work and PRs; select a clean reviewed source.
+- [x] 247-01-PLAN.md — Inventory inherited work and PRs; promote the scoped confirmation fix and pin a clean candidate at reviewed main `590eb4e`.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 247-02-PLAN.md — Refresh PR #224 and curate source-backed 1.6.0 notes.
@@ -132,11 +132,11 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 246. Generated Confirmation Recovery | v1.49 | 2/3 | In Progress | - |
-| 247. Release Candidate and Repository Readiness | v1.49 | 0/4 | Planned | - |
+| 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
+| 247. Release Candidate and Repository Readiness | v1.49 | 1/4 | In Progress | - |
 | 248. Exact-Source Release Gate | v1.49 | 0/5 | Planned | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
 
 ### Next
 
-**Next: `$gsd-execute-phase 246`.** `init.verify-work 246` reports the phase verification report is missing and routes through execute-phase, which resumes at the verification gates. The four deterministic local CI failures are repaired in `4df425a62`; a clean-source `MIX_ENV=test mix ci` passed with 2,623 tests and zero failures plus the 65-test dependency-off guard. The required exact-source GitHub workflow receipt is still missing. After Phase 246 verification passes, resume `$gsd-execute-phase 247`; do not select its release source before that receipt. Phase 248 is planned (five plans) and depends on Phase 247. Phase 245's historical verification gaps stay separate and do not expand v1.49 scope.
+**Next: `$gsd-execute-phase 247`.** `init.execute-phase 247` reports Plans 02–04 runnable with no prerequisite blockers. Plan 01 is complete: a refreshed inventory, exact Phase 246 CI/verification evidence, reviewed scoped PR #288, and a clean candidate worktree at protected main `590eb4ed3323db11dd74326cbee00c9c7973e529` are recorded. Its exact required main CI run 37686980115 passed on attempt 2. Continue with Plan 02 to refresh Release Please PR #224 and curate source-backed 1.6.0 notes. Phase 248 remains planned and depends on Phase 247; stale historical Phase 245 verification remains separate.

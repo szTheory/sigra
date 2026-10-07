@@ -1,15 +1,15 @@
 ---
 phase: "246"
 slug: "generated-confirmation-recovery"
-status: blocked
-nyquist_compliant: false
+status: validated
+nyquist_compliant: true
 wave_0_complete: true
 created: "2026-10-06"
 ---
 
 # Phase 246 — Validation Strategy
 
-> Validation contract for the generated confirmation journey. Plan 246-03's browser and static route checks pass locally; required CI evidence remains blocked by unrelated committed-tree planning guards documented in `246-MIX-CI-BLOCKED.md` and `246-CI-EVIDENCE.json`.
+> Validation contract for the generated confirmation journey. The exact-source required CI receipt is now green for `90ec16f72a71d33224c0816ad77762e2e7262c76`; earlier local blocker diagnostics remain as historical context in `246-MIX-CI-BLOCKED.md` and `246-CI-EVIDENCE.json`.
 
 ## Test Infrastructure
 
@@ -37,7 +37,7 @@ created: "2026-10-06"
 | 246-02-01 | 02 | 2 | CONF-02 | T-246-04, T-246-05, T-246-06 | Spaced code normalizes narrowly and confirms only its current account; malformed input and A-code/B-scope cannot mutate state; limiter remains per account. | Library ExUnit + fresh-host LiveView/DB | `mix test test/sigra/auth_test.exs`; `bash scripts/ci/install-smoke.sh` | ✅ Regression cases added in task | ✅ pass (71 unit; 8 fresh-host tests; Plan 02 summary) |
 | 246-02-02 | 02 | 2 | CONF-03 | T-246-07 | Localized success/invalid results are visible with status/alert semantics, and invalid entry is retryable. | Template contract + fresh-host LiveView | `mix test test/sigra/install/generator_email_test.exs test/sigra/install/auth_ui_contract_test.exs`; `bash scripts/ci/install-smoke.sh` | ✅ Contract file and probe cases added in task | ✅ pass (47 template/UI tests; Plan 02 summary) |
 | 246-03-01 | 03 | 3 | CONF-02, CONF-03 | T-246-08 | Chromium pastes the literal spaced email code in a fresh generated host, sees invalid alert, retries, and sees success status. | Real browser | `PLAYWRIGHT_BROWSERS_PATH=/tmp/sigra-playwright-browsers bash scripts/ci/admin-acceptance-smoke.sh --test confirmation` | ✅ Browser spec added in task | ✅ pass (confirmation segment of full acceptance smoke at `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`; existing admin timeout passed on one retained retry) |
-| 246-03-02 | 03 | 3 | CONF-01, CONF-02, CONF-03 | T-246-09 | Required CI runs the generated confirmation target and retains actual result and source SHA. | CI contract + recurring run receipt | `MIX_ENV=test mix test test/sigra/install/generated_confirmation_ci_contract_test.exs`; `PLAYWRIGHT_BROWSERS_PATH=/tmp/sigra-playwright-browsers bash scripts/ci/admin-acceptance-smoke.sh --test all`; required CI | ✅ Contract/receipt added in task | ⚠️ Local contract (3 tests) and generated-host smoke pass; recurring required CI not dispatched because `MIX_ENV=test mix ci` fails on unrelated planning guards |
+| 246-03-02 | 03 | 3 | CONF-01, CONF-02, CONF-03 | T-246-09 | Required CI runs the generated confirmation target and retains actual result and source SHA. | CI contract + recurring run receipt | `MIX_ENV=test mix test test/sigra/install/generated_confirmation_ci_contract_test.exs`; `PLAYWRIGHT_BROWSERS_PATH=/tmp/sigra-playwright-browsers bash scripts/ci/admin-acceptance-smoke.sh --test all`; required CI | ✅ Contract/receipt added in task | ✅ Exact-source workflow `37676348766` passed `ci-gate`, `install_smoke`, and `generated_admin_playwright_smoke` at `90ec16f72a71d33224c0816ad77762e2e7262c76`; admin-eval and all five browser shards also passed |
 
 ## Wave 0 Requirements
 
@@ -58,7 +58,15 @@ All Phase 246 behaviors have automated verification paths; no manual UAT is requ
 - [x] Sampling continuity has no three consecutive tasks without automated verification.
 - [x] Wave 0 covers all missing references above.
 - [x] Browser tests use stable accessible locators, deterministic LiveView readiness, and no sleeps.
-- [ ] Required CI retains the fresh-host browser and persisted-state evidence (blocked; no workflow was dispatched because the mandatory local `mix ci` gate failed).
-- [ ] Set `nyquist_compliant: true` only after the full validation map and all Wave 0 checks are satisfied.
+- [x] Required CI retains the fresh-host browser and persisted-state evidence for the exact final source; see `246-CI-EVIDENCE.json`.
+- [x] Full validation map and Wave 0 checks are satisfied; phase-level verifier sign-off is recorded separately in `246-VERIFICATION.md`.
 
-**Execution evidence:** final-source focused tests passed 236/0; the full generated-host browser command passed on its single retained retry. Fresh-host installation passed 8/0 at a source with identical generation/probe bytes. Clean-source `mix ci` fails four older contracts, and example `mix precommit` fails an existing route warning. Re-review is clean. Required recurring CI remains unproven; see `246-CI-EVIDENCE.json`, `246-MIX-CI-FAILURES.json`, and `246-MIX-CI-BLOCKED.md`.
+**Execution evidence:** focused regression tests passed 48/0 on the final confirmation fix; fresh-host installation passed 8/0; the install golden/idempotency checks passed 4/0 after refreshing the generated fixture. Required workflow `37676348766` passed for exact source `90ec16f72a71d33224c0816ad77762e2e7262c76`, including the required gate, install smoke, generated-admin Playwright, five example Playwright shards, and admin-eval. The prior `mix ci` and `mix precommit` diagnostics are preserved as historical observations for their earlier source; they do not replace or contradict this later exact-source CI receipt.
+
+## Validation Audit 2026-10-07
+
+| Metric | Count |
+|---|---|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
