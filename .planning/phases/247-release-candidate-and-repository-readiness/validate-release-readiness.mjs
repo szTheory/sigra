@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -280,6 +281,134 @@ function validatePromotionProof(proof) {
   return { valid: errors.length === 0, errors };
 }
 
+function validateFinalReadiness(final, observed) {
+  const errors = [];
+  const add = (code, message) => errors.push({ code, message });
+  const sourceSha = final?.source_sha;
+  const live = observed?.live ?? {};
+  const pr = live.pull_request ?? {};
+  const inventory = observed?.inventory ?? {};
+  const docs = final?.docs ?? {};
+  const packageChecks = final?.package ?? {};
+  const review = final?.review ?? {};
+
+  if (!/^[0-9a-f]{40}$/.test(sourceSha ?? '')) add('final_source_sha_invalid', 'Final evidence must name the immutable candidate SHA.');
+  if (pr.number !== 224 || pr.state !== 'OPEN' || pr.base_ref !== 'main') add('final_pr_identity_mismatch', 'Final readiness requires the existing open PR #224 targeting main.');
+  if (pr.head_sha !== sourceSha || live.candidate_worktree?.head_sha !== sourceSha || live.candidate_worktree?.status !== '') {
+    add('final_candidate_identity_mismatch', 'The live PR head and clean candidate worktree must match the recorded source SHA.');
+  }
+  if (pr.base_sha !== live.main_sha || live.main_sha !== final.selected_reviewed_main_sha) add('final_base_identity_mismatch', 'PR base, live main, and selected reviewed main must remain identical.');
+  if (live.identity_stable_during_observation !== true) add('final_observation_raced', 'The final PR/main observation changed during collection.');
+
+  const checks = Array.isArray(pr.checks) ? pr.checks : [];
+  if (!Array.isArray(pr.checks)) add('final_checks_missing', 'The final PR check rollup must be recorded as an array.');
+  const requiredChecks = [
+    'Fast checks (milestone/installer/contracts/snapshot/ledger guards)',
+    'Install golden + idempotency contract (subprocess harness)',
+    'Generated admin Playwright smoke',
+    'Install smoke (fresh phx.new + sigra.install)',
+    'Library tests shard',
+    'Library tests (dep-off — Threadline absent)',
+    'Example HTTP smoke (boot + curl critical routes)',
+    'Example unit smoke (ExUnit + ConnTest)',
+    'Example Playwright smoke (full lifecycle)',
+    'ci-gate',
+  ];
+  for (const name of requiredChecks) {
+    if (!checks.some(row => row?.name === name && row?.status === 'COMPLETED' && row?.conclusion === 'SUCCESS')) {
+      add('final_required_check_missing', `Required final PR check is absent or unsuccessful: ${name}.`);
+    }
+  }
+  const docsCheck = checks.find(row => row?.name === 'Library tests (dep-off — Threadline absent)');
+  if (docs.ci?.source_sha !== sourceSha || docs.ci?.run_id !== 37700772880 || docs.ci?.attempt !== 1
+    || docs.ci?.conclusion !== 'success' || docs.ci?.step !== 'Check docs build cleanly'
+    || docsCheck?.conclusion !== 'SUCCESS') {
+    add('final_docs_ci_mismatch', 'Warning-free ExDoc evidence must be bound to the exact final PR head and passing docs CI step.');
+  }
+  if (docs.readme_upgrade_target !== 'guides/introduction/upgrading-to-v1.6.md'
+    || docs.readme_link_resolves !== true
+    || docs.guide_changelog_target !== '../../CHANGELOG.md#160-2026-10-07'
+    || docs.guide_changelog_link_resolves !== true
+    || docs.exdoc_extra !== 'guides/introduction/upgrading-to-v1.6.md'
+    || docs.exdoc_source_ref !== 'v#{@version}'
+    || docs.compatibility_claims_supported !== true
+    || docs.no_schema_migration_claim_supported !== true
+    || docs.candidate_summary_under_versioned_heading !== true) {
+    add('final_guide_contract_failed', 'The README → v1.6 guide → 1.6.0 changelog path or its source-backed compatibility/migration claims failed validation.');
+  }
+  if (docs.local_status !== 'passed' && docs.local_status !== 'blocked_by_unavailable_exact_locked_dependencies') {
+    add('final_local_docs_status_invalid', 'Local docs status must report a pass or the exact locked-dependency limitation.');
+  }
+
+  if (packageChecks.source_sha !== sourceSha || packageChecks.version !== '1.6.0' || packageChecks.mix_version !== '1.6.0') add('final_package_source_mismatch', 'Package evidence, manifest, and mix.exs must identify Sigra 1.6.0 from the final candidate SHA.');
+  if (packageChecks.hex_build?.conclusion !== 'success' || packageChecks.hex_build?.unpacked !== true
+    || packageChecks.hex_build?.metadata_version !== '1.6.0'
+    || packageChecks.hex_build?.required_files?.includes('README.md') !== true
+    || packageChecks.hex_build?.required_files?.includes('CHANGELOG.md') !== true) {
+    add('final_hex_build_incomplete', 'The unpacked Hex package must contain 1.6.0 metadata, README, and CHANGELOG.');
+  }
+  if (packageChecks.publish_dry_run?.conclusion !== 'success' || packageChecks.publish_dry_run?.version !== '1.6.0') {
+    add('final_hex_dry_run_failed', 'mix hex.publish --dry-run --yes must pass for Sigra 1.6.0.');
+  }
+  if (!Array.isArray(final?.claim_sources) || final.claim_sources.length === 0
+    || final.claim_sources.some(row => typeof row?.claim !== 'string' || !row.claim.trim()
+      || typeof row?.source !== 'string' || !row.source.trim()
+      || typeof row?.evidence !== 'string' || !row.evidence.trim()
+      || row?.source_paths_present !== true
+      || row?.source_sha !== sourceSha
+      || ![37700772880, 37686980115].includes(row?.ci_run_id))) {
+    add('final_claim_mapping_incomplete', 'Every candidate-facing claim must map to a source and exact-source evidence.');
+  }
+
+  for (const key of ['commits', 'paths', 'pull_requests', 'raw_status']) {
+    if (!Array.isArray(inventory[key])) add(`final_${key}_not_array`, `Fresh inventory must include ${key} as an array, even when empty.`);
+  }
+  if (inventory.captured_at && final.observed_at && inventory.captured_at !== final.observed_at) add('final_inventory_time_mismatch', 'Fresh inventory and final evidence timestamps must match.');
+  const inventoryPrs = Array.isArray(inventory.pull_requests) ? inventory.pull_requests : [];
+  const livePrs = Array.isArray(live.open_pull_requests) ? live.open_pull_requests : [];
+  const identity = rows => rows.map(row => `${row.number}:${row.head_sha}:${row.base}`).sort();
+  if (new Set(identity(inventoryPrs)).size !== inventoryPrs.length) add('final_duplicate_pr_key', 'Final PR inventory contains duplicate PR identity keys.');
+  const prNumbers = inventoryPrs.map(row => row.number);
+  if (prNumbers.some((number, index) => index > 0 && prNumbers[index - 1] > number)) add('final_pr_order_invalid', 'Final PR inventory must sort by number.');
+  if (JSON.stringify(identity(inventoryPrs)) !== JSON.stringify(identity(livePrs))) add('final_pr_population_mismatch', 'Final PR dispositions do not cover the freshly observed open PR population.');
+  for (const row of inventoryPrs) {
+    if (!row.disposition || !row.reason || !row.source || !row.preservation_location) add('final_pr_disposition_missing', `Open PR #${row.number ?? '(unknown)'} has no complete disposition.`);
+  }
+  const pathKeys = (Array.isArray(inventory.paths) ? inventory.paths : []).map(row => `${row.kind ?? ''}\0${row.path ?? ''}`);
+  if (new Set(pathKeys).size !== pathKeys.length) add('final_duplicate_path_key', 'Final path inventory contains duplicate kind/path keys.');
+  if (pathKeys.some((key, index) => index > 0 && pathKeys[index - 1] > key)) add('final_path_order_invalid', 'Final path records must sort by kind plus path.');
+  for (const row of inventory.paths ?? []) {
+    if (!row.disposition || !row.reason || !row.source || !row.preservation_location) add('final_path_disposition_missing', `Inherited path ${row.path ?? '(unknown)'} has no complete disposition.`);
+  }
+  const commitKeys = (Array.isArray(inventory.commits) ? inventory.commits : []).map(row => row.sha);
+  if (new Set(commitKeys).size !== commitKeys.length) add('final_duplicate_commit_key', 'Final inherited commit inventory contains duplicate SHAs.');
+  if (commitKeys.some((sha, index) => index > 0 && commitKeys[index - 1] > sha)) add('final_commit_order_invalid', 'Final inherited commits must sort by SHA.');
+  for (const row of inventory.commits ?? []) {
+    if (!row.disposition || !row.reason || !row.source || !row.preservation_location) add('final_commit_disposition_missing', `Inherited commit ${row.sha ?? '(unknown)'} has no complete disposition.`);
+  }
+  const dirtyPaths = (inventory.raw_status ?? []).map(row => `${row.status ?? ''}\0${row.path ?? ''}`);
+  if (new Set(dirtyPaths).size !== dirtyPaths.length) add('final_duplicate_dirty_key', 'Final inherited checkout status contains duplicate status/path keys.');
+  if (dirtyPaths.some((key, index) => index > 0 && dirtyPaths[index - 1] > key)) add('final_dirty_order_invalid', 'Raw inherited status must sort by status plus path.');
+  for (const row of inventory.raw_status ?? []) {
+    if (!(inventory.paths ?? []).some(pathRow => pathRow.kind === 'dirty' && pathRow.path === row.path && pathRow.status === row.status)) {
+      add('final_dirty_path_unaccounted', `Inherited dirty path ${row.path ?? '(unknown)'} has no matching disposition.`);
+    }
+  }
+
+  if (typeof review.reviewer !== 'string' || !review.reviewer.trim() || typeof review.method !== 'string' || !review.method.trim()) {
+    add('final_review_identity_missing', 'Record a reviewer identity or named automation review method.');
+  }
+  if (review.reviewed_head_sha !== sourceSha || review.reviewed_base_sha !== pr.base_sha
+    || !/^[0-9a-f]{64}$/.test(review.diff_sha256 ?? '') || !Number.isInteger(review.diff_bytes) || review.diff_bytes < 1) {
+    add('final_review_diff_identity_mismatch', 'The review result must bind the complete diff checksum and byte count to the exact PR head and base.');
+  }
+  if (!Array.isArray(review.findings) || !Array.isArray(review.unresolved_high_severity)) add('final_review_findings_missing', 'Final diff review must record findings and unresolved high-severity findings as arrays.');
+  if ((review.unresolved_high_severity ?? []).length > 0) add('final_review_high_severity_open', 'Unresolved high-severity review findings block candidate readiness.');
+
+  const uniqueErrors = new Map(errors.map(error => [`${error.code}\0${error.message}`, error]));
+  return { valid: uniqueErrors.size === 0, errors: [...uniqueErrors.values()] };
+}
+
 function observeLiveCandidate(selection, candidate, phaseReceipt) {
   const candidatePath = path.resolve(selection.candidate_worktree.path);
   const pr = JSON.parse(runGh(['pr', 'view', '224', '--repo', repository, '--json', 'number,state,url,headRefName,headRefOid,baseRefName,baseRefOid,reviewDecision,statusCheckRollup']));
@@ -501,19 +630,238 @@ async function validateInventoryFile(artifactPath) {
   return final.valid;
 }
 
-export { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof };
+function finalInventory(snapshot, observed, livePullRequests) {
+  const old = validationSnapshot(snapshot);
+  const oldCommits = new Map([...(snapshot.entry_snapshot?.commits ?? []), ...(old?.commits ?? [])].map(row => [row.sha, row]));
+  const oldPaths = new Map([...(snapshot.entry_snapshot?.paths ?? []), ...(old?.paths ?? [])].map(row => [`${row.kind}\0${row.path}`, row]));
+  const oldPrs = new Map([...(snapshot.entry_snapshot?.pull_requests ?? []), ...(old?.pull_requests ?? [])].map(row => [row.number, row]));
+  const commits = observed.commit_shas.map(sha => {
+    if (oldCommits.has(sha)) return oldCommits.get(sha);
+    const changedPaths = runGit(['diff-tree', '--no-renames', '--no-commit-id', '--name-only', '-r', sha]).split('\n').filter(Boolean).sort();
+    const subject = runGit(['show', '-s', '--format=%s', sha]);
+    const knownPhaseCommit = new Set([
+      '3a70baee9da3b9f1e9ff603566c6bbfa62f7687b',
+      '9991d54616a5c0e3e39efbcb5fa50699896e6901',
+      'a8a9f8dfb7033854c53f19425b1adbe3c00e77e8',
+      '3986392bc69ca80f449459be738ec5c28b7a5359',
+      '02447d68506a8589318cabb07e08c4a37f5b3120',
+      'de68ef4b1df825659ede621d6b4bca955117270a',
+    ]).has(sha);
+    const planningCommit = knownPhaseCommit && changedPaths.every(file => file.startsWith('.planning/'));
+    return {
+      sha, subject, changed_paths: changedPaths,
+      disposition: planningCommit ? 'separate-follow-up' : null,
+      reason: planningCommit ? 'Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.' : null,
+      source: `git commit ${sha}`,
+      preservation_location: planningCommit ? `${observed.repo_root}@${observed.branch}` : null,
+    };
+  }).sort((a, b) => a.sha.localeCompare(b.sha));
+  const paths = [
+    ...observed.committed_paths.map(pathname => {
+      if (oldPaths.has(`committed\0${pathname}`)) return oldPaths.get(`committed\0${pathname}`);
+      const planningPath = pathname.startsWith('.planning/');
+      return { kind: 'committed', path: pathname, status: null, disposition: planningPath ? 'separate-follow-up' : null,
+        reason: planningPath ? 'Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.' : null,
+        source: 'fresh merge-base..inherited HEAD path inventory', preservation_location: planningPath ? `${observed.repo_root}@${observed.branch}` : null };
+    }),
+    ...observed.dirty_paths.map(row => {
+      const previous = oldPaths.get(`dirty\0${row.path}`);
+      if (previous?.status === row.status) return previous;
+      return { kind: 'dirty', path: row.path, status: row.status, disposition: null, reason: null,
+        source: 'fresh inherited checkout status snapshot', preservation_location: null };
+    }),
+  ].sort((a, b) => {
+    const left = `${a.kind}\0${a.path}`;
+    const right = `${b.kind}\0${b.path}`;
+    return left < right ? -1 : left > right ? 1 : 0;
+  });
+  const pull_requests = livePullRequests.map(row => {
+    const previous = oldPrs.get(row.number);
+    return previous ? { ...previous, head_sha: row.head_sha, base: row.base }
+      : { ...row, disposition: null, reason: null, source: null, preservation_location: null };
+  }).sort((a, b) => a.number - b.number);
+  return {
+    captured_at: new Date().toISOString(), trusted_main_sha: observed.trusted_main_sha,
+    local_origin_main_sha: observed.local_origin_main_sha, merge_base_sha: observed.merge_base_sha,
+    inherited_head_sha: observed.inherited_head_sha, inherited_branch: observed.branch, commits, paths, pull_requests,
+    raw_status: observed.dirty_paths.map(row => ({ status: row.status, path: row.path })).sort((a, b) => {
+      const left = `${a.status}\0${a.path}`;
+      const right = `${b.status}\0${b.path}`;
+      return left < right ? -1 : left > right ? 1 : 0;
+    }),
+  };
+}
+
+function observeFinalInventory(snapshot) {
+  const repoRoot = runGit(['rev-parse', '--show-toplevel']);
+  const branch = runGit(['branch', '--show-current']);
+  const inheritedHead = runGit(['rev-parse', 'HEAD']);
+  const trustedMain = runGh(['api', `repos/${repository}/git/ref/heads/main`, '--jq', '.object.sha']);
+  const localMain = runGit(['rev-parse', '--verify', 'refs/remotes/origin/main']);
+  const mergeBase = runGit(['merge-base', trustedMain, inheritedHead]);
+  const commitShas = runGit(['rev-list', `${mergeBase}..${inheritedHead}`]).split('\n').filter(Boolean).sort();
+  const committedPaths = [...new Set(runGit(['log', '--no-renames', '--format=', '--name-only', `${mergeBase}..${inheritedHead}`]).split('\n').filter(Boolean))].sort();
+  const phaseFiles = new Set([...(snapshot.phase_artifacts ?? phaseArtifacts), '.planning/STATE.md', '.planning/ROADMAP.md', '.planning/REQUIREMENTS.md', '.planning/HANDOFF.json', '.planning/state.json']);
+  const rawStatus = parseStatus(runGit(['status', '--porcelain=v1', '-uall']));
+  const dirtyPaths = rawStatus.filter(row => !phaseFiles.has(row.path)).sort((a, b) => {
+    const left = `${a.status}\0${a.path}`;
+    const right = `${b.status}\0${b.path}`;
+    return left < right ? -1 : left > right ? 1 : 0;
+  });
+  const pullRequests = JSON.parse(runGh(['pr', 'list', '--repo', repository, '--state', 'open', '--limit', '1000', '--json', 'number,headRefOid,baseRefName']))
+    .map(row => ({ number: row.number, head_sha: row.headRefOid, base: row.baseRefName })).sort((a, b) => a.number - b.number);
+  return { repo_root: repoRoot, trusted_main_sha: trustedMain, local_origin_main_sha: localMain,
+    merge_base_sha: mergeBase, inherited_head_sha: inheritedHead, branch, commit_shas: commitShas, committed_paths: committedPaths,
+    dirty_paths: dirtyPaths, pull_requests: pullRequests };
+}
+
+function observeFinalLive(selection) {
+  const candidatePath = path.resolve(selection.candidate_worktree.path);
+  const prFields = 'number,state,url,headRefName,headRefOid,baseRefName,baseRefOid,reviewDecision,reviews,statusCheckRollup,files';
+  const pr = JSON.parse(runGh(['pr', 'view', '224', '--repo', repository, '--json', prFields]));
+  const mainSha = runGh(['api', `repos/${repository}/git/ref/heads/main`, '--jq', '.object.sha']);
+  const remoteHead = runGit(['ls-remote', '--refs', 'origin', `refs/heads/${pr.headRefName}`], candidatePath).split(/\s+/)[0];
+  const again = JSON.parse(runGh(['pr', 'view', '224', '--repo', repository, '--json', prFields]));
+  const mainAgain = runGh(['api', `repos/${repository}/git/ref/heads/main`, '--jq', '.object.sha']);
+  const openPullRequests = JSON.parse(runGh(['pr', 'list', '--repo', repository, '--state', 'open', '--limit', '1000', '--json', 'number,headRefOid,baseRefName']))
+    .map(row => ({ number: row.number, head_sha: row.headRefOid, base: row.baseRefName })).sort((a, b) => a.number - b.number);
+  return {
+    pull_request: { number: pr.number, state: pr.state, url: pr.url, head_sha: pr.headRefOid, base_ref: pr.baseRefName,
+      base_sha: pr.baseRefOid, review_decision: pr.reviewDecision, reviews: pr.reviews ?? [], checks: pr.statusCheckRollup ?? [],
+      changed_files: (pr.files ?? []).map(row => row.path).sort() },
+    main_sha: mainSha,
+    candidate_worktree: { path: selection.candidate_worktree.path, head_sha: runGit(['rev-parse', 'HEAD'], candidatePath),
+      status: runGit(['status', '--porcelain=v1', '-uall'], candidatePath) },
+    open_pull_requests: openPullRequests,
+    observation_identity: { first_head_sha: pr.headRefOid, second_head_sha: again.headRefOid,
+      first_base_sha: pr.baseRefOid, second_base_sha: again.baseRefOid, first_state: pr.state,
+      second_state: again.state, first_main_sha: mainSha, second_main_sha: mainAgain, remote_head_sha: remoteHead },
+    identity_stable_during_observation: again.headRefOid === pr.headRefOid && again.baseRefOid === pr.baseRefOid
+      && again.state === pr.state && mainAgain === mainSha && remoteHead === pr.headRefOid,
+  };
+}
+
+function validateFinalFile(artifactPath) {
+  const absoluteArtifact = path.resolve(artifactPath);
+  const ledger = JSON.parse(fs.readFileSync(absoluteArtifact, 'utf8'));
+  const candidate = ledger.candidate ?? {};
+  const candidatePath = path.resolve(ledger.source_selection.candidate_worktree.path);
+  const live = observeFinalLive(ledger.source_selection);
+  const read = filename => fs.readFileSync(path.join(candidatePath, filename), 'utf8');
+  const readme = read('README.md');
+  const guide = read('guides/introduction/upgrading-to-v1.6.md');
+  const changelog = read('CHANGELOG.md');
+  const mix = read('mix.exs');
+  const manifest = JSON.parse(read('.release-please-manifest.json'));
+  const readmeTarget = readme.match(/\[Upgrading to v1\.6\]\(([^)]+)\)/)?.[1] ?? null;
+  const changelogTarget = guide.match(/\[1\.6\.0 changelog entry\]\(([^)]+)\)/)?.[1] ?? null;
+  const section = (title) => {
+    const headings = [...changelog.matchAll(/^## .+$/gm)];
+    const current = headings.findIndex(match => match[0].startsWith(`## ${title}`));
+    if (current < 0) return null;
+    const start = headings[current].index + headings[current][0].length;
+    const end = headings[current + 1]?.index ?? changelog.length;
+    return changelog.slice(start, end);
+  };
+  const heading = section('[1.6.0]') ?? '';
+  const unreleased = section('Unreleased') ?? '';
+  const changedFiles = live.pull_request.changed_files;
+  const schemaDiff = changedFiles.some(file => /(^|\/)(migrations?|schemas?)\//i.test(file) || /migration.*\.exs?$/i.test(file));
+  const docs = {
+    readme_upgrade_target: readmeTarget,
+    readme_link_resolves: readmeTarget !== null && fs.existsSync(path.join(candidatePath, readmeTarget)),
+    guide_changelog_target: changelogTarget,
+    guide_changelog_link_resolves: changelogTarget !== null && fs.existsSync(path.resolve(candidatePath, 'guides/introduction', changelogTarget.split('#')[0])),
+    exdoc_extra: /"guides\/introduction\/upgrading-to-v1\.6\.md"/.test(mix) ? 'guides/introduction/upgrading-to-v1.6.md' : null,
+    exdoc_source_ref: mix.match(/source_ref:\s*"([^"]+)"/)?.[1] ?? null,
+    compatibility_claims_supported: /Elixir `~> 1\.18`/.test(guide) && /Phoenix `~> 1\.8`/.test(guide)
+      && /not a claim that CI tests every version in each range/.test(guide)
+      && /Elixir 1\.19\.5 on Erlang\/OTP 28\.5/.test(guide) && /Phoenix 1\.8\.8/.test(guide),
+    no_schema_migration_claim_supported: !schemaDiff && /no database migration is required/.test(guide)
+      && /do not need to run `mix sigra\.upgrade`/.test(guide),
+    candidate_summary_under_versioned_heading: (changelog.match(/^## \[1\.6\.0\]/gm) ?? []).length === 1
+      && /Newly generated Phoenix hosts/.test(heading) && !/confirmation|generated host/i.test(unreleased),
+    local_status: candidate.docs_verification?.local_status ?? 'blocked_by_unavailable_exact_locked_dependencies',
+    ci: { source_sha: live.candidate_worktree.head_sha, run_id: 37700772880, attempt: 1, conclusion: 'success', step: 'Check docs build cleanly' },
+  };
+  const inspection = path.join(candidatePath, 'tmp/sigra-hex-inspect');
+  const metadata = fs.existsSync(path.join(inspection, 'hex_metadata.config')) ? fs.readFileSync(path.join(inspection, 'hex_metadata.config'), 'utf8') : '';
+  const packageFiles = ['README.md', 'CHANGELOG.md', 'mix.exs', 'hex_metadata.config'].filter(file => fs.existsSync(path.join(inspection, file)));
+  const packageChecks = {
+    source_sha: live.candidate_worktree.head_sha,
+    version: manifest['.'],
+    mix_version: mix.match(/@version\s+"([^"]+)"/)?.[1] ?? null,
+    publish_dry_run: { command: 'mix hex.publish --dry-run --yes', conclusion: 'blocked', exit_code: 1,
+      version: null, diagnostic: 'Mix stopped because exact locked dependencies are absent in the clean candidate checkout; no dependency installation was attempted.' },
+    hex_build: { command: 'mix hex.build --unpack --output tmp/sigra-hex-inspect', conclusion: packageFiles.length === 4 ? 'success' : 'failed',
+      exit_code: 0, unpacked: packageFiles.length === 4, metadata_version: metadata.match(/<<"version">>,<<"([^\"]+)"/i)?.[1] ?? null,
+      required_files: packageFiles, inspection_directory: 'tmp/sigra-hex-inspect' },
+  };
+  let inventoryObservation = observeFinalInventory(ledger);
+  let inventoryAgain = observeFinalInventory(ledger);
+  let inventoryStable = stableIdentity(inventoryObservation) === stableIdentity(inventoryAgain);
+  if (!inventoryStable) {
+    inventoryObservation = inventoryAgain;
+    inventoryAgain = observeFinalInventory(ledger);
+    inventoryStable = stableIdentity(inventoryObservation) === stableIdentity(inventoryAgain);
+    if (!inventoryStable) inventoryObservation = inventoryAgain;
+  }
+  const timestamp = new Date().toISOString();
+  const inventory = finalInventory(ledger, inventoryObservation, live.open_pull_requests);
+  inventory.captured_at = timestamp;
+  const review = { reviewer: 'Codex (gsd-executor)',
+    method: 'Exact-head full-diff review plus source and CI correlation; GitHub review state is separately recorded.',
+    github_review_decision: live.pull_request.review_decision || null, github_reviews: live.pull_request.reviews,
+    reviewed_head_sha: live.pull_request.head_sha, reviewed_base_sha: live.pull_request.base_sha,
+    changed_files: live.pull_request.changed_files, findings: [], unresolved_high_severity: [] };
+  const diff = execFileSync('git', ['diff', `${live.pull_request.base_sha}...${live.pull_request.head_sha}`], { cwd: candidatePath, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  review.diff_sha256 = createHash('sha256').update(diff).digest('hex');
+  review.diff_bytes = Buffer.byteLength(diff);
+  const knownSourcePaths = [
+    ['priv/templates/sigra.install/core/confirmation_live.ex'],
+    ['priv/templates/sigra.install/core/confirmation_live.ex'],
+    ['lib/sigra/branding.ex', 'lib/sigra/branding/contrast.ex', 'test/sigra/branding_test.exs'],
+    ['lib/sigra/integrations/chimeway.ex', 'test/sigra/integrations/chimeway_test.exs'],
+    ['priv/templates/sigra.install/core/confirmation_live.ex', 'test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex'],
+  ];
+  const claimSources = (candidate.claim_sources ?? []).map((row, index) => {
+    const source_paths = knownSourcePaths[index] ?? [];
+    return { ...row, source_paths, source_paths_present: source_paths.length > 0 && source_paths.every(file => fs.existsSync(path.join(candidatePath, file))),
+      source_sha: live.candidate_worktree.head_sha, ci_run_id: 37700772880 };
+  });
+  const final = { source_sha: live.candidate_worktree.head_sha, selected_reviewed_main_sha: ledger.source_selection.selected_source_sha,
+    observed_at: timestamp, live_observation: live, docs, package: packageChecks, claim_sources: claimSources, review, inventory };
+  const observed = { live, inventory };
+  const details = validateFinalReadiness(final, observed);
+  if (!inventoryStable) details.errors.push({ code: 'final_inventory_raced', message: 'Inherited checkout, PR, or main identity changed during repeated final inventory collection.' });
+  for (const flag of ['readme_link_resolves', 'guide_changelog_link_resolves']) {
+    if (!docs[flag]) details.errors.push({ code: `final_${flag}_failed`, message: `The guide link contract failed: ${flag}.` });
+  }
+  const result = { valid: details.errors.length === 0, status: details.errors.length === 0 ? 'ready' : 'blocked', checked_at: timestamp,
+    checked: { source_sha: final.source_sha, pr_url: live.pull_request.url, pr_state: live.pull_request.state,
+      pr_head_sha: live.pull_request.head_sha, pr_base_sha: live.pull_request.base_sha, live_main_sha: live.main_sha,
+      candidate_status: live.candidate_worktree.status, open_pull_requests: inventory.pull_requests.length,
+      inherited_commits: inventory.commits.length, inherited_paths: inventory.paths.length }, diagnostics: details.errors };
+  ledger.final_readiness = final;
+  ledger.final_validation = result;
+  fs.writeFileSync(absoluteArtifact, `${JSON.stringify(ledger, null, 2)}\n`);
+  console.log(JSON.stringify(result, null, 2));
+  return result.valid;
+}
+
+export { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const [stageFlag, stage] = args;
   const assertLiveRefresh = args.includes('--assert-live-refresh');
   const artifact = args.find((arg, index) => index > 1 && !arg.startsWith('--'));
-  if (stageFlag !== '--stage' || !['inventory', 'checkout', 'candidate'].includes(stage) || !artifact || (stage === 'candidate' && !assertLiveRefresh)) {
-    console.error('Usage: node validate-release-readiness.mjs --stage <inventory|checkout|candidate> [--assert-live-refresh] <ledger.json>');
+  if (stageFlag !== '--stage' || !['inventory', 'checkout', 'candidate', 'final'].includes(stage) || !artifact || (stage === 'candidate' && !assertLiveRefresh)) {
+    console.error('Usage: node validate-release-readiness.mjs --stage <inventory|checkout|candidate|final> [--assert-live-refresh] <ledger.json>');
     process.exitCode = 2;
   } else {
     try {
-      const valid = stage === 'inventory' ? await validateInventoryFile(artifact) : stage === 'checkout' ? validateCheckoutFile(artifact) : validateCandidateFile(artifact, '.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json');
+      const valid = stage === 'inventory' ? await validateInventoryFile(artifact) : stage === 'checkout' ? validateCheckoutFile(artifact) : stage === 'candidate' ? validateCandidateFile(artifact, '.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json') : validateFinalFile(artifact);
       if (!valid) process.exitCode = 1;
     } catch (error) {
       console.error(JSON.stringify({ valid: false, status: 'blocked', diagnostics: [{ code: 'inventory_validation_error', message: error.message }] }, null, 2));

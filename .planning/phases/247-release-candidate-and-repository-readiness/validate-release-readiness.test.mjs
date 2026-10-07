@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof } from './validate-release-readiness.mjs';
+import { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness } from './validate-release-readiness.mjs';
 
 function emptySnapshot() {
   return {
@@ -262,4 +262,110 @@ test('rejects absent or failed Phase 246 and selected-main CI receipts', () => {
   const mainFailure = promotionFixture();
   mainFailure.main_ci.conclusion = 'failure';
   assert.ok(validatePromotionProof(mainFailure).errors.some(error => error.code === 'promotion_main_ci_missing'));
+});
+
+function finalReadinessFixture() {
+  const sha = 'a'.repeat(40);
+  const checks = [
+    'Fast checks (milestone/installer/contracts/snapshot/ledger guards)',
+    'Install golden + idempotency contract (subprocess harness)',
+    'Generated admin Playwright smoke',
+    'Install smoke (fresh phx.new + sigra.install)',
+    'Library tests shard',
+    'Library tests (dep-off — Threadline absent)',
+    'Example HTTP smoke (boot + curl critical routes)',
+    'Example unit smoke (ExUnit + ConnTest)',
+    'Example Playwright smoke (full lifecycle)',
+    'ci-gate',
+  ].map(name => ({ name, status: 'COMPLETED', conclusion: 'SUCCESS' }));
+  const final = {
+    source_sha: sha,
+    selected_reviewed_main_sha: 'b'.repeat(40),
+    observed_at: '2026-10-07T23:00:00Z',
+    claim_sources: [{ claim: 'Claim', source: 'lib/sigra/auth.ex', evidence: 'CI run 37700772880', source_sha: sha, ci_run_id: 37700772880, source_paths_present: true }],
+    docs: {
+      readme_upgrade_target: 'guides/introduction/upgrading-to-v1.6.md',
+      readme_link_resolves: true,
+      guide_changelog_target: '../../CHANGELOG.md#160-2026-10-07',
+      guide_changelog_link_resolves: true,
+      exdoc_extra: 'guides/introduction/upgrading-to-v1.6.md',
+      exdoc_source_ref: 'v#{@version}',
+      compatibility_claims_supported: true,
+      no_schema_migration_claim_supported: true,
+      candidate_summary_under_versioned_heading: true,
+      local_status: 'blocked_by_unavailable_exact_locked_dependencies',
+      ci: { source_sha: sha, run_id: 37700772880, attempt: 1, conclusion: 'success', step: 'Check docs build cleanly' },
+    },
+    package: {
+      source_sha: sha,
+      version: '1.6.0',
+      mix_version: '1.6.0',
+      publish_dry_run: { conclusion: 'success', version: '1.6.0' },
+      hex_build: { conclusion: 'success', unpacked: true, metadata_version: '1.6.0', required_files: ['README.md', 'CHANGELOG.md'] },
+    },
+    review: { reviewer: 'Codex', method: 'exact-head diff and CI review', reviewed_head_sha: sha, reviewed_base_sha: 'b'.repeat(40),
+      diff_sha256: 'c'.repeat(64), diff_bytes: 1, findings: [], unresolved_high_severity: [] },
+  };
+  const observed = {
+    live: {
+      pull_request: { number: 224, state: 'OPEN', head_sha: sha, base_ref: 'main', base_sha: 'b'.repeat(40), checks },
+      main_sha: 'b'.repeat(40),
+      candidate_worktree: { head_sha: sha, status: '' },
+      identity_stable_during_observation: true,
+      open_pull_requests: [{ number: 224, head_sha: sha, base: 'main' }],
+    },
+    inventory: {
+      captured_at: final.observed_at,
+      commits: [],
+      paths: [],
+      pull_requests: [{ number: 224, head_sha: sha, base: 'main', disposition: 'release-relevant', reason: 'Selected release PR.', source: 'https://github.com/szTheory/sigra/pull/224', preservation_location: 'GitHub PR #224' }],
+      raw_status: [],
+    },
+  };
+  return { final, observed };
+}
+
+test('accepts complete final docs, package, review, and live-population evidence', () => {
+  const { final, observed } = finalReadinessFixture();
+  assert.deepEqual(validateFinalReadiness(final, observed), { valid: true, errors: [] });
+});
+
+test('rejects a failed Hex dry run and a changed final PR head', () => {
+  const { final, observed } = finalReadinessFixture();
+  final.package.publish_dry_run.conclusion = 'blocked';
+  observed.live.pull_request.head_sha = 'c'.repeat(40);
+  const result = validateFinalReadiness(final, observed);
+  assert.ok(result.errors.some(error => error.code === 'final_hex_dry_run_failed'));
+  assert.ok(result.errors.some(error => error.code === 'final_candidate_identity_mismatch'));
+});
+
+test('rejects a broken adopter link or claim without final-source CI evidence', () => {
+  const { final, observed } = finalReadinessFixture();
+  final.docs.readme_link_resolves = false;
+  final.claim_sources[0].source_sha = 'f'.repeat(40);
+  const result = validateFinalReadiness(final, observed);
+  assert.ok(result.errors.some(error => error.code === 'final_guide_contract_failed'));
+  assert.ok(result.errors.some(error => error.code === 'final_claim_mapping_incomplete'));
+});
+
+test('rejects incomplete dispositions and unresolved high-severity review findings', () => {
+  const { final, observed } = finalReadinessFixture();
+  observed.inventory.paths.push({ kind: 'dirty', path: 'README.md' });
+  final.review.unresolved_high_severity.push({ finding: 'unresolved' });
+  const result = validateFinalReadiness(final, observed);
+  assert.ok(result.errors.some(error => error.code === 'final_path_disposition_missing'));
+  assert.ok(result.errors.some(error => error.code === 'final_review_high_severity_open'));
+});
+
+test('rejects duplicate and omitted live inventory identities while accepting explicit empty sets', () => {
+  const { final, observed } = finalReadinessFixture();
+  observed.inventory.pull_requests.push({ ...observed.inventory.pull_requests[0] });
+  const duplicate = validateFinalReadiness(final, observed);
+  assert.ok(duplicate.errors.some(error => error.code === 'final_duplicate_pr_key'));
+
+  const empty = finalReadinessFixture();
+  empty.observed.live.open_pull_requests = [];
+  assert.ok(validateFinalReadiness(empty.final, empty.observed).errors.some(error => error.code === 'final_pr_population_mismatch'));
+  delete empty.observed.inventory.commits;
+  assert.ok(validateFinalReadiness(empty.final, empty.observed).errors.some(error => error.code === 'final_commits_not_array'));
 });
