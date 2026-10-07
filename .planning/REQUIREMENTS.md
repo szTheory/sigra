@@ -19,7 +19,7 @@
 
 ### Release readiness (READY)
 
-- [ ] **READY-01**: The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path.
+- [x] **READY-01**: The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path.
 - [x] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work.
 
 ### Release automation (AUTO)
@@ -63,7 +63,7 @@ Every v1 requirement maps to exactly one v1.49 phase.
 | CONF-01 | Phase 246 | Complete |
 | CONF-02 | Phase 246 | Complete |
 | CONF-03 | Phase 246 | Complete |
-| READY-01 | Phase 247 | Pending |
+| READY-01 | Phase 247 | Complete |
 | READY-02 | Phase 247 | Complete |
 | AUTO-01 | Phase 248 | Pending |
 | AUTO-02 | Phase 248 | Pending |

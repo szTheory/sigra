@@ -4,18 +4,18 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 247
 current_phase_name: Release Candidate and Repository Readiness
-current_plan: 2 of 4
+current_plan: 3 of 4
 status: executing
-stopped_at: Completed 247-01-PLAN.md
-last_updated: "2026-10-07T22:09:50.270Z"
+stopped_at: Completed 247-02-PLAN.md
+last_updated: "2026-10-07T22:47:37.743Z"
 last_activity: 2026-10-07
 last_activity_desc: Phase 247 Plan 01 complete; reviewed candidate pinned to protected main SHA 590eb4e with passing CI; Plan 02 is ready
-state_head: 3a70baee9da3b9f1e9ff603566c6bbfa62f7687b
+state_head: 3986392bc69ca80f449459be738ec5c28b7a5359
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 12
-  completed_plans: 4
+  completed_plans: 5
   percent: 25
 ---
 
@@ -32,9 +32,9 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 247 — Release Candidate and Repository Readiness
-Current Plan: 2 of 4
+Current Plan: 3 of 4
 Total Plans in Phase: 4
-Plan: 2 of 4 — refresh the existing Release Please proposal
+Plan: 3 of 4 — refresh the existing Release Please proposal
 Status: Ready to execute
 Last activity: 2026-10-07 — Phase 247 Plan 01 complete; reviewed source isolated for Plan 02
 
@@ -581,6 +581,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 247]: Keep the immutable entry inventory and refresh a separate current snapshot before making source decisions.
 - [Phase 247]: Promote only the four Phase 246 files whose blobs match the tested source and whose scoped PR passed review and CI; exclude other inherited work and open PRs.
 - [Phase 247]: Pin the candidate to protected main only after its own required CI passes.
+- [Phase 247]: Accept exact-source PR #288 squash promotion through pinned identities, four allowlisted blob matches, and exact-source CI receipts; do not describe it as ancestry.
+- [Phase 247]: Accept exact-updated-head CI documentation build as local equivalent only because the candidate lacks exact locked dependencies and installation is prohibited.
 
 ### Pending Todos
 
@@ -796,9 +798,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-07T22:09:50.206Z
-Stopped at: Completed 247-01-PLAN.md
-Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247-02-PLAN.md
+Last session: 2026-10-07T22:47:37.697Z
+Stopped at: Completed 247-02-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -1020,3 +1022,4 @@ Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247
 | Phase 246 P02 | 28min | 2 tasks | 6 files |
 | Phase 246 P03 | 45min | 2 tasks | 10 files |
 | Phase 247 P01 | 167m | 2 tasks | 4 files |
+| Phase 247 P2 | 37min | 2 tasks | 5 files |

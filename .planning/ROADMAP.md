@@ -70,14 +70,14 @@ Plans:
   2. An adopter can read what changed, supported compatibility, the required generated-host action or an explicit no-action statement, and the `~> 1.6.0` update and check path without internal planning notes presented as product changes.
   3. A maintainer can see a recorded disposition for every open PR and every inherited checkout change; release work has a clean source checkout without unrelated changes folded in.
 
-**Plans**: 1/4 plans executed
+**Plans**: 2/4 plans executed
 
 Plans:
 **Wave 1**
 - [x] 247-01-PLAN.md — Inventory inherited work and PRs; promote the scoped confirmation fix and pin a clean candidate at reviewed main `590eb4e`.
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 247-02-PLAN.md — Refresh PR #224 and curate source-backed 1.6.0 notes.
+- [x] 247-02-PLAN.md — Refresh PR #224 and curate source-backed 1.6.0 notes.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 247-03-PLAN.md — Write the README-to-guide-to-changelog adopter path.
@@ -133,7 +133,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
-| 247. Release Candidate and Repository Readiness | v1.49 | 1/4 | In Progress | - |
+| 247. Release Candidate and Repository Readiness | v1.49 | 2/4 | In Progress | - |
 | 248. Exact-Source Release Gate | v1.49 | 0/5 | Planned | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
 
