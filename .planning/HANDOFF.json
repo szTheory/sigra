@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-10-07T22:12:33Z",
+  "timestamp": "2026-10-07T23:24:09Z",
   "phase": "247",
   "phase_name": "Release Candidate and Repository Readiness",
-  "plan": 2,
+  "plan": 4,
   "task": 1,
-  "total_tasks": 2,
-  "status": "Phase 246 passed exact-source verification. Phase 247 Plan 01 completed: scoped PR #288 promoted the four reviewed confirmation paths to protected main, required main CI passed at 590eb4ed3323db11dd74326cbee00c9c7973e529, and a clean candidate worktree is pinned to that SHA. Plan 02 is next.",
+  "total_tasks": 1,
+  "status": "Phase 247 Plans 01–03 complete. Plan 03 added and verified the README → v1.6 guide → changelog adopter path. PR #224 remains open at 563f411bc2659bb9ac1652d552ce58ffb0c876b1 on reviewed main 590eb4ed3323db11dd74326cbee00c9c7973e529; exact-head CI run 37700772880 and the live candidate validator passed. Plan 04 is next and runnable; phase-wide verification remains.",
   "completed_tasks": [
     {
       "id": "v1.48-archive",
@@ -46,30 +46,26 @@
       "id": "247-01-task-2",
       "name": "Select reviewed source and isolate clean candidate",
       "status": "Completed: scoped PR #288 squash-merged to protected main as 590eb4ed3323db11dd74326cbee00c9c7973e529; exact main CI run 37686980115 attempt 2 passed; clean candidate checkout validated."
-    }
-  ],
-  "remaining_tasks": [
+    },
     {
       "id": "247-02",
       "name": "Refresh Release Please PR #224 and curate 1.6.0 notes",
-      "status": "Next; selected candidate and source identity are pinned and validated."
+      "status": "Completed: candidate validator and exact-head docs/required CI passed on 51c0e7a; see 247-02-SUMMARY.md and run 37696042318."
     },
     {
       "id": "247-03",
       "name": "Write the README-to-guide-to-changelog adopter path",
-      "status": "Pending Plan 02 completion."
-    },
+      "status": "Completed: guide and README route committed on PR #224; corrected exact-head CI run 37700772880 passed on 563f411bc2659bb9ac1652d552ce58ffb0c876b1; live candidate validator valid. See 247-03-SUMMARY.md."
+    }
+  ],
+  "remaining_tasks": [
     {
       "id": "247-04",
       "name": "Prove final candidate, package, and repository readiness",
-      "status": "Pending Plan 03 completion."
+      "status": "Next; init.execute-phase 247 reports runnable with no prerequisite blockers."
     }
   ],
-  "blockers": [
-    "No prerequisite blocker for Phase 247 Plan 02; init.execute-phase 247 reports Plans 02–04 runnable.",
-    "The earlier example mix precommit /dev/mailbox warning remains an explicit Plan 04 readiness item; exact required CI passed for selected main.",
-    "The uncommitted inherited checkout remains preserved and excluded from the clean candidate; current identities and dispositions are recorded in 247-RELEASE-READINESS.json."
-  ],
+  "blockers": [],
   "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
@@ -88,7 +84,7 @@
     },
     {
       "decision": "Route next through $gsd-execute-phase 247.",
-      "rationale": "Phase 247 is active; Plan 01 is complete and Plans 02–04 are runnable after the verified candidate was selected.",
+      "rationale": "Plans 01–03 are complete; init.execute-phase 247 reports Plan04 runnable with no prerequisite blocker. PR #224 exact head 563f411bc2659bb9ac1652d552ce58ffb0c876b1 has passing required CI and valid candidate evidence.",
       "phase": "247"
     }
   ],
@@ -122,6 +118,6 @@
     "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
     "test/sigra/planning/phase_233_library_economics_contract_test.exs"
   ],
-  "next_action": "Run $gsd-execute-phase 247. Plan 01 is complete; continue with Plan 02 to refresh Release Please PR #224 against the selected clean candidate at 590eb4ed3323db11dd74326cbee00c9c7973e529 and curate source-backed 1.6.0 notes. Exact main CI run 37686980115 attempt 2 passed. Phase 248 remains planned and depends on Phase 247.",
-  "context_notes": "v1.48 is archived as an internal override_closeout, not a Hex release. Audit: 21/27 satisfied, four partial, REL-06 and REPO-04 unsatisfied. Live init.manager had 239/240 complete and passed; 236-238 and 241-244 stale; 245 gaps_found. REL-03/04 have post-closeout evidence from successful steps 7-10 of workflow_dispatch run 35714147650 and current public API/docs reads; the run failed at HexDocs root classification. latest_stable_version remains 1.20.0 and 1.5.1 is absent. All Phase 245 plans are terminal; do not repeat source-negative gap plans. No Phase 246 exists. The archive is checkpointed as ba4a24b7; live requirements removal is included in the final closeout commit. The mixed code/docs/CI worktree paths listed below remain untouched and are not a PR candidate. No CI or tests were run during closeout. No milestone tag was created.\n\nPhase 247-01 checkpoint (2026-10-06): Task 1 is committed in 9643d20f4 and 83aff7df0. The readiness ledger at .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json captures trusted main 5a00b90d2314bc93f27aec4090b5928018743d1b, inherited HEAD 7e5c19361135aeb63bac006323ffd5899e0d402b, merge base 417130bdc0e69dd102431391cd6cd30bf88b2fa5, 364 inherited commits, 1,185 committed paths, 55 dirty paths, and 14 live open PRs. Phase 246 receipt remains blocked at tested source fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a; ci-gate, install_smoke, and generated_admin_playwright_smoke are not successful workflow conclusions. Do not select source or create tmp/phase-247-candidate. Next: $gsd-execute-phase 246, then $gsd-execute-phase 247. Historical v1.48 closeout context follows.\n\nPhase 248 planning checkpoint (2026-10-07): five plans are present in .planning/phases/248-exact-source-release-gate; final review found zero blockers and two warnings, both corrected (read-only actions:read on every environment-policy API caller; final hermetic suite includes the environment-policy fixture). Decision coverage is 13/13 and API coverage confirms no new external consumer API. Guarded exact-head auto-squash merge is included after candidate, content, and ci-gate checks. Phase 248 depends on completion of Phase 247 and was not executed.\n\nCurrent route (2026-10-07): Phase 246 is complete with exact-source workflow run 37676348766 and verifier score 10/10. Phase 247 Plan 01 refreshed the inventory without replacing its immutable entry snapshot, promoted only four exact-source files through PR #288, and pinned the clean candidate to protected main 590eb4ed3323db11dd74326cbee00c9c7973e529. Main CI run 37686980115 attempt 2 passed. The exact next command is $gsd-execute-phase 247, continuing Plan 02. Phase 248 remains planned; it includes the user-approved guarded exact-head auto-squash merge. The historical uncommitted_files list is the earlier preservation snapshot; the current source-of-truth inventory is the latest generation in 247-RELEASE-READINESS.json."
+  "next_action": "Run $gsd-execute-phase 247 to execute Plan 04, prove final candidate/package/repository readiness, and then complete phase-wide verification. Current PR #224 head is 563f411bc2659bb9ac1652d552ce58ffb0c876b1, base and protected main are 590eb4ed3323db11dd74326cbee00c9c7973e529; exact-head CI run 37700772880 passed and live candidate validation is valid. Do not publish, tag, or merge PR #224 here; Phase 248 contains the user-approved guarded exact-head auto-squash merge.",
+  "context_notes": "v1.48 is archived as an internal override_closeout, not a Hex release. Audit: 21/27 satisfied, four partial, REL-06 and REPO-04 unsatisfied. Live init.manager had 239/240 complete and passed; 236-238 and 241-244 stale; 245 gaps_found. REL-03/04 have post-closeout evidence from successful steps 7-10 of workflow_dispatch run 35714147650 and current public API/docs reads; the run failed at HexDocs root classification. latest_stable_version remains 1.20.0 and 1.5.1 is absent. All Phase 245 plans are terminal; do not repeat source-negative gap plans. No Phase 246 exists. The archive is checkpointed as ba4a24b7; live requirements removal is included in the final closeout commit. The mixed code/docs/CI worktree paths listed below remain untouched and are not a PR candidate. No CI or tests were run during closeout. No milestone tag was created.\n\nPhase 247-01 checkpoint (2026-10-06): Task 1 is committed in 9643d20f4 and 83aff7df0. The readiness ledger at .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json captures trusted main 5a00b90d2314bc93f27aec4090b5928018743d1b, inherited HEAD 7e5c19361135aeb63bac006323ffd5899e0d402b, merge base 417130bdc0e69dd102431391cd6cd30bf88b2fa5, 364 inherited commits, 1,185 committed paths, 55 dirty paths, and 14 live open PRs. Phase 246 receipt remains blocked at tested source fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a; ci-gate, install_smoke, and generated_admin_playwright_smoke are not successful workflow conclusions. Do not select source or create tmp/phase-247-candidate. Next: $gsd-execute-phase 246, then $gsd-execute-phase 247. Historical v1.48 closeout context follows.\n\nPhase 248 planning checkpoint (2026-10-07): five plans are present in .planning/phases/248-exact-source-release-gate; final review found zero blockers and two warnings, both corrected (read-only actions:read on every environment-policy API caller; final hermetic suite includes the environment-policy fixture). Decision coverage is 13/13 and API coverage confirms no new external consumer API. Guarded exact-head auto-squash merge is included after candidate, content, and ci-gate checks. Phase 248 depends on completion of Phase 247 and was not executed.\n\nCurrent route (2026-10-07): Phase 246 is complete with exact-source workflow run 37676348766 and verifier score 10/10. Phase 247 Plans 01–03 are complete: scoped PR #288 promoted the reviewed confirmation source, PR #224 now has the adopter guide and changelog route, and exact-head CI run 37700772880 passed on 563f411bc2659bb9ac1652d552ce58ffb0c876b1. The candidate validator returned valid; PR #224 remains open on base/protected main 590eb4ed3323db11dd74326cbee00c9c7973e529. The exact next command is $gsd-execute-phase 247 to run Plan 04 and then phase-wide verification. Phase 248 remains planned and contains the user-approved guarded exact-head auto-squash merge. The historical uncommitted_files list is the earlier preservation snapshot; current identities and dispositions are recorded in 247-RELEASE-READINESS.json."
 }

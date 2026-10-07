@@ -59384,7 +59384,7 @@
     "pr_branch": "release-please--branches--main",
     "pre_refresh_pr_head_sha": "4b1993e2e967bdcda904c6cf618a5474df832be6",
     "refreshed_pr_head_sha": "4b1993e2e967bdcda904c6cf618a5474df832be6",
-    "current_pr_head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
+    "current_pr_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
     "pr_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
     "selected_reviewed_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
     "phase_246_tested_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
@@ -59522,16 +59522,106 @@
       "rerun_attempt": 2,
       "final_conclusion": "success",
       "checked_at": "2026-10-07T22:45:00Z"
+    },
+    "plan_03_verification": {
+      "docs_commit_sha": "29847f93e89b0eb069604df4507896ef45c414bd",
+      "docs_fix_commit_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+      "previous_candidate_head_sha": "29847f93e89b0eb069604df4507896ef45c414bd",
+      "current_pr_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+      "pr_number": 224,
+      "pr_state": "OPEN",
+      "pr_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "selected_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "local_docs_build": {
+        "command": "mix docs --warnings-as-errors",
+        "status": "blocked_by_unavailable_exact_locked_dependencies",
+        "diagnostic": "Candidate deps/ is absent; mix docs reported unchecked dependencies. No package installation attempted."
+      },
+      "first_exact_head_ci": {
+        "workflow": "CI",
+        "run_id": 37699084723,
+        "attempt": 1,
+        "head_sha": "29847f93e89b0eb069604df4507896ef45c414bd",
+        "conclusion": "failure",
+        "docs_job": "Library tests (dep-off — Threadline absent)",
+        "docs_step": "Check docs build cleanly",
+        "docs_diagnostic": "ExDoc warned that ../../.tool-versions did not exist in packaged docs; warnings-as-errors failed the docs step.",
+        "other_failure": "Generated admin Playwright smoke timed out during browser installation; ci-gate failed on the failed docs lane and cancelled generated-admin lane."
+      },
+      "corrected_exact_head_ci": {
+        "workflow": "CI",
+        "run_id": 37700772880,
+        "url": "https://github.com/szTheory/sigra/actions/runs/37700772880",
+        "attempt": 1,
+        "head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "conclusion": "success",
+        "docs_job": {
+          "name": "Library tests (dep-off — Threadline absent)",
+          "id": 113063478848,
+          "conclusion": "success",
+          "docs_step": "Check docs build cleanly",
+          "docs_step_number": 9,
+          "docs_step_conclusion": "success"
+        },
+        "required_jobs": {
+          "Fast checks (milestone/installer/contracts/snapshot/ledger guards)": {
+            "id": 113063420767,
+            "conclusion": "success"
+          },
+          "Install golden + idempotency contract (subprocess harness)": {
+            "id": 113063442680,
+            "conclusion": "success"
+          },
+          "Generated admin Playwright smoke": {
+            "id": 113063442697,
+            "conclusion": "success"
+          },
+          "Install smoke (fresh phx.new + sigra.install)": {
+            "id": 113063478895,
+            "conclusion": "success"
+          },
+          "Library tests shard": {
+            "id": 113063442649,
+            "conclusion": "success"
+          },
+          "Library tests (dep-off — Threadline absent)": {
+            "id": 113063478848,
+            "conclusion": "success"
+          },
+          "Example HTTP smoke (boot + curl critical routes)": {
+            "id": 113063478760,
+            "conclusion": "success"
+          },
+          "Example unit smoke (ExUnit + ConnTest)": {
+            "id": 113063478839,
+            "conclusion": "success"
+          },
+          "Example Playwright smoke (full lifecycle)": {
+            "id": 113065763180,
+            "conclusion": "success"
+          },
+          "ci-gate": {
+            "id": 113065788349,
+            "conclusion": "success"
+          }
+        }
+      },
+      "push": {
+        "fast_forward_from": "29847f93e89b0eb069604df4507896ef45c414bd",
+        "pushed_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "remote_branch": "release-please--branches--main",
+        "pr_remains_open": true
+      }
     }
   },
   "candidate_validation": {
     "valid": true,
     "status": "ready",
-    "checked_at": "2026-10-07T22:46:22.744Z",
+    "checked_at": "2026-10-07T23:23:56.568Z",
     "checked": {
       "pr_url": "https://github.com/szTheory/sigra/pull/224",
-      "current_pr_head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
-      "candidate_worktree_head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
+      "current_pr_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+      "candidate_worktree_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
       "pr_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
       "live_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
       "phase_246_tested_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
@@ -59539,271 +59629,271 @@
       "checks": [
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:09Z",
+          "completedAt": "2026-10-07T23:11:11Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053621583",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421017",
           "name": "Release ref guard",
-          "startedAt": "2026-10-07T22:25:06Z",
+          "startedAt": "2026-10-07T23:11:08Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:13Z",
+          "completedAt": "2026-10-07T23:11:18Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053656408",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421059",
           "name": "Detect docs-only change",
-          "startedAt": "2026-10-07T22:25:06Z",
+          "startedAt": "2026-10-07T23:11:09Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:39Z",
+          "completedAt": "2026-10-07T23:11:41Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622159",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063420767",
           "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)",
-          "startedAt": "2026-10-07T22:25:06Z",
+          "startedAt": "2026-10-07T23:11:09Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:04Z",
+          "completedAt": "2026-10-07T23:11:07Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053651766",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421957",
           "name": "Passkeys manual fallback smoke",
-          "startedAt": "2026-10-07T22:41:35Z",
+          "startedAt": "2026-10-07T23:11:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:04Z",
+          "completedAt": "2026-10-07T23:11:07Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053654447",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422133",
           "name": "Install matrix (flag combinations)",
-          "startedAt": "2026-10-07T22:41:36Z",
+          "startedAt": "2026-10-07T23:11:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:04Z",
+          "completedAt": "2026-10-07T23:11:07Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053620983",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422152",
           "name": "Passkeys opt-out smoke",
-          "startedAt": "2026-10-07T22:41:30Z",
+          "startedAt": "2026-10-07T23:11:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:04Z",
+          "completedAt": "2026-10-07T23:11:07Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053670155",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422035",
           "name": "Nightly probe (forced-failure self-test)",
-          "startedAt": "2026-10-07T22:41:39Z",
+          "startedAt": "2026-10-07T23:11:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:40Z",
+          "completedAt": "2026-10-07T23:11:45Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622727",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442680",
           "name": "Install golden + idempotency contract (subprocess harness)",
-          "startedAt": "2026-10-07T22:25:11Z",
+          "startedAt": "2026-10-07T23:11:12Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:26:39Z",
+          "completedAt": "2026-10-07T23:12:49Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622684",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442649",
           "name": "Library tests shard",
-          "startedAt": "2026-10-07T22:25:11Z",
+          "startedAt": "2026-10-07T23:11:13Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:09Z",
+          "completedAt": "2026-10-07T23:11:11Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622124",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444137",
           "name": "Upgrade smoke (published source series -> local candidate)",
-          "startedAt": "2026-10-07T22:41:30Z",
+          "startedAt": "2026-10-07T23:11:11Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:44:49Z",
+          "completedAt": "2026-10-07T23:15:13Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053620406",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442697",
           "name": "Generated admin Playwright smoke",
-          "startedAt": "2026-10-07T22:41:31Z",
+          "startedAt": "2026-10-07T23:11:12Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:09Z",
+          "completedAt": "2026-10-07T23:11:11Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053621973",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444878",
           "name": "Recapture admin-design baselines (in-CI)",
-          "startedAt": "2026-10-07T22:41:30Z",
+          "startedAt": "2026-10-07T23:11:11Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:09Z",
+          "completedAt": "2026-10-07T23:11:11Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622181",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444502",
           "name": "Recapture admin-checkpoint baselines (in-CI)",
-          "startedAt": "2026-10-07T22:41:30Z",
+          "startedAt": "2026-10-07T23:11:11Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:25:09Z",
+          "completedAt": "2026-10-07T23:11:11Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622673",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444314",
           "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
-          "startedAt": "2026-10-07T22:41:30Z",
+          "startedAt": "2026-10-07T23:11:11Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:26:02Z",
+          "completedAt": "2026-10-07T23:12:08Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053667259",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478848",
           "name": "Library tests (dep-off — Threadline absent)",
-          "startedAt": "2026-10-07T22:25:15Z",
+          "startedAt": "2026-10-07T23:11:20Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:26:06Z",
+          "completedAt": "2026-10-07T23:12:10Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622361",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478839",
           "name": "Example unit smoke (ExUnit + ConnTest)",
-          "startedAt": "2026-10-07T22:25:15Z",
+          "startedAt": "2026-10-07T23:11:19Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:27:45Z",
+          "completedAt": "2026-10-07T23:13:39Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622525",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478895",
           "name": "Install smoke (fresh phx.new + sigra.install)",
-          "startedAt": "2026-10-07T22:25:15Z",
+          "startedAt": "2026-10-07T23:11:20Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:26:13Z",
+          "completedAt": "2026-10-07T23:12:16Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053674272",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478760",
           "name": "Example HTTP smoke (boot + curl critical routes)",
-          "startedAt": "2026-10-07T22:25:17Z",
+          "startedAt": "2026-10-07T23:11:20Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:32:40Z",
+          "completedAt": "2026-10-07T23:18:21Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622543",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478863",
           "name": "Example Playwright shard (admin_behavior)",
-          "startedAt": "2026-10-07T22:25:15Z",
+          "startedAt": "2026-10-07T23:11:19Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:28:22Z",
+          "completedAt": "2026-10-07T23:15:02Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622490",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478995",
           "name": "Example Playwright shard (admin_checkpoints)",
-          "startedAt": "2026-10-07T22:25:14Z",
+          "startedAt": "2026-10-07T23:11:19Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:29:51Z",
+          "completedAt": "2026-10-07T23:15:37Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622789",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478866",
           "name": "Example Playwright shard (design_gallery)",
-          "startedAt": "2026-10-07T22:25:15Z",
+          "startedAt": "2026-10-07T23:11:19Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:29:28Z",
+          "completedAt": "2026-10-07T23:16:30Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053623743",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478851",
           "name": "Example Playwright shard (non_admin_smoke)",
-          "startedAt": "2026-10-07T22:25:15Z",
+          "startedAt": "2026-10-07T23:11:20Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:26:52Z",
+          "completedAt": "2026-10-07T23:12:58Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053622501",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478999",
           "name": "Example Playwright shard (demo_showcase)",
-          "startedAt": "2026-10-07T22:25:15Z",
+          "startedAt": "2026-10-07T23:11:19Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:26:43Z",
+          "completedAt": "2026-10-07T23:12:53Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053623431",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063967936",
           "name": "Library tests",
-          "startedAt": "2026-10-07T22:26:41Z",
+          "startedAt": "2026-10-07T23:12:51Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:32:44Z",
+          "completedAt": "2026-10-07T23:18:26Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113053624336",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065763180",
           "name": "Example Playwright smoke (full lifecycle)",
-          "startedAt": "2026-10-07T22:32:42Z",
+          "startedAt": "2026-10-07T23:18:23Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:44:59Z",
+          "completedAt": "2026-10-07T23:18:34Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113054749602",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065788349",
           "name": "ci-gate",
-          "startedAt": "2026-10-07T22:44:52Z",
+          "startedAt": "2026-10-07T23:18:28Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T22:44:59Z",
+          "completedAt": "2026-10-07T23:18:34Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37696042318/job/113054804848",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065834185",
           "name": "Notify on red ci-gate (release-lane-rot)",
-          "startedAt": "2026-10-07T22:44:59Z",
+          "startedAt": "2026-10-07T23:18:35Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         }
@@ -59811,6 +59901,8 @@
       "changed_files": [
         ".release-please-manifest.json",
         "CHANGELOG.md",
+        "README.md",
+        "guides/introduction/upgrading-to-v1.6.md",
         "mix.exs"
       ],
       "ancestry": {

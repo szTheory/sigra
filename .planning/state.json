@@ -26,8 +26,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 247",
-    "label": "Continue Phase 247 release readiness",
-    "reason": "Plan 01 is complete, the selected candidate is a clean worktree at reviewed main 590eb4ed3323db11dd74326cbee00c9c7973e529 with passing exact-main CI run 37686980115 attempt 2, and init.execute-phase 247 reports Plans 02–04 runnable with no prerequisite blockers."
+    "label": "Continue Phase 247 readiness",
+    "reason": "Plans 01–03 are complete. init.execute-phase 247 reports Plan 04 runnable with no prerequisite blockers. PR #224 remains open at exact candidate head 563f411bc, based on reviewed main 590eb4ed; exact-head CI run 37700772880 and the live candidate validator passed. Phase 247 is not phase-verified; Phase 248 remains planned."
   },
-  "updated_at": "2026-10-07T22:09:49.623Z"
+  "updated_at": "2026-10-07T23:24:09.000Z"
 }

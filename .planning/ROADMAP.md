@@ -70,7 +70,7 @@ Plans:
   2. An adopter can read what changed, supported compatibility, the required generated-host action or an explicit no-action statement, and the `~> 1.6.0` update and check path without internal planning notes presented as product changes.
   3. A maintainer can see a recorded disposition for every open PR and every inherited checkout change; release work has a clean source checkout without unrelated changes folded in.
 
-**Plans**: 2/4 plans executed
+**Plans**: 3/4 plans executed
 
 Plans:
 **Wave 1**
@@ -80,7 +80,7 @@ Plans:
 - [x] 247-02-PLAN.md — Refresh PR #224 and curate source-backed 1.6.0 notes.
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 247-03-PLAN.md — Write the README-to-guide-to-changelog adopter path.
+- [x] 247-03-PLAN.md — Write the README-to-guide-to-changelog adopter path.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 247-04-PLAN.md — Prove final candidate, package, and repository readiness.
@@ -133,10 +133,10 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
-| 247. Release Candidate and Repository Readiness | v1.49 | 2/4 | In Progress | - |
+| 247. Release Candidate and Repository Readiness | v1.49 | 3/4 | In Progress | - |
 | 248. Exact-Source Release Gate | v1.49 | 0/5 | Planned | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
 
 ### Next
 
-**Next: `$gsd-execute-phase 247`.** `init.execute-phase 247` reports Plans 02–04 runnable with no prerequisite blockers. Plan 01 is complete: a refreshed inventory, exact Phase 246 CI/verification evidence, reviewed scoped PR #288, and a clean candidate worktree at protected main `590eb4ed3323db11dd74326cbee00c9c7973e529` are recorded. Its exact required main CI run 37686980115 passed on attempt 2. Continue with Plan 02 to refresh Release Please PR #224 and curate source-backed 1.6.0 notes. Phase 248 remains planned and depends on Phase 247; stale historical Phase 245 verification remains separate.
+**Next: `$gsd-execute-phase 247`.** `init.execute-phase 247` reports only Plan 04 runnable with no prerequisite blockers. Plans 01–03 are complete. Plan 03 added the README-to-v1.6 guide-to-changelog route and source-backed update/adoption steps; exact-head CI run 37700772880 passed on PR #224 head `563f411bc2659bb9ac1652d552ce58ffb0c876b1`, and the live candidate validator returned valid. PR #224 remains open on reviewed main `590eb4ed3323db11dd74326cbee00c9c7973e529`. Continue with Plan 04, then complete Phase 247 verification. Phase 248 remains planned and includes the user-approved guarded exact-head auto-squash merge; stale historical Phase 245 verification remains separate.

@@ -4,18 +4,18 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 247
 current_phase_name: Release Candidate and Repository Readiness
-current_plan: 3 of 4
+current_plan: 4 of 4
 status: executing
-stopped_at: Completed 247-02-PLAN.md
-last_updated: "2026-10-07T22:47:37.743Z"
+stopped_at: Completed 247-03-PLAN.md
+last_updated: "2026-10-07T23:24:09.000Z"
 last_activity: 2026-10-07
-last_activity_desc: Phase 247 Plan 01 complete; reviewed candidate pinned to protected main SHA 590eb4e with passing CI; Plan 02 is ready
-state_head: 3986392bc69ca80f449459be738ec5c28b7a5359
+last_activity_desc: Phase 247 Plan 03 complete; adopter guide and exact-head CI 37700772880 pass; Plan 04 is next
+state_head: 02447d68506a8589318cabb07e08c4a37f5b3120
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 12
-  completed_plans: 5
+  completed_plans: 6
   percent: 25
 ---
 
@@ -32,11 +32,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 247 — Release Candidate and Repository Readiness
-Current Plan: 3 of 4
+Current Plan: 4 of 4
 Total Plans in Phase: 4
-Plan: 3 of 4 — refresh the existing Release Please proposal
+Plan: 4 of 4 — prove final candidate, package, and repository readiness
 Status: Ready to execute
-Last activity: 2026-10-07 — Phase 247 Plan 01 complete; reviewed source isolated for Plan 02
+Last activity: 2026-10-07 — Phase 247 Plan 03 complete; PR #224 is open at exact head 563f411bc with passing CI
 
 Progress: [███░░░░░░░] 25%
 
@@ -89,12 +89,12 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - A guard never observed RED does not count.
 - The `REQUIREMENTS.md` Out of Scope table binds every phase.
 
-## Blockers
+## Readiness Notes
 
 - Phase 246 is complete: exact source `90ec16f72a71d33224c0816ad77762e2e7262c76` passed required run [37676348766](https://github.com/szTheory/sigra/actions/runs/37676348766), and phase verification passed 10/10. Earlier local CI failures remain historical diagnostics only.
 - Phase 247 Plan 01 is complete. Its refreshed ledger preserves the original entry snapshot, records scoped PR #288 promotion, and validates the clean candidate worktree at protected main `590eb4ed3323db11dd74326cbee00c9c7973e529`; exact main CI run [37686980115](https://github.com/szTheory/sigra/actions/runs/37686980115) passed on attempt 2.
 - The earlier example `mix precommit` `/dev/mailbox` warning remains a readiness item to check against the selected candidate in Plan 04; it did not fail the selected main's required CI gate.
-- Phase 247 Plans 02–04 remain. Plan 02 is the next runnable plan; Phase 248's five plans are planned and not started.
+- Phase 247 Plans 01–03 are complete; Plan 04 remains runnable with no prerequisite blocker. PR #224 remains open at head `563f411bc2659bb9ac1652d552ce58ffb0c876b1`, based on reviewed main `590eb4ed3323db11dd74326cbee00c9c7973e529`; exact-head CI run 37700772880 passed. Phase 248 remains planned and has not started.
 
 ## Accumulated Context
 
@@ -583,6 +583,9 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 247]: Pin the candidate to protected main only after its own required CI passes.
 - [Phase 247]: Accept exact-source PR #288 squash promotion through pinned identities, four allowlisted blob matches, and exact-source CI receipts; do not describe it as ancestry.
 - [Phase 247]: Accept exact-updated-head CI documentation build as local equivalent only because the candidate lacks exact locked dependencies and installation is prohibited.
+- [Phase 247]: Keep package version constraints separate from the CI-tested toolchain and generated-host smoke cases.
+- [Phase 247]: Use the exact-head CI docs build when the isolated candidate lacks locked dependencies; do not install packages.
+- [Phase 247]: Treat generated confirmation LiveView changes as host-owned adoption work; no migration or upgrade task is needed solely for this release.
 
 ### Pending Todos
 
@@ -798,14 +801,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-07T22:47:37.697Z
-Stopped at: Completed 247-02-PLAN.md
+Last session: 2026-10-07T23:22:04.605Z
+Stopped at: Completed 247-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- **Next command: `$gsd-execute-phase 247`.** `init.execute-phase 247` reports Plans 02–04 runnable with no prerequisite blockers. Plan 01 is complete; continue by refreshing Release Please PR #224 and curating source-backed 1.6.0 notes. The selected candidate is a clean worktree at main `590eb4ed3323db11dd74326cbee00c9c7973e529`, whose exact required CI run 37686980115 passed on attempt 2. Phase 248 remains planned and depends on Phase 247. Historical Phase 245 verification and earlier Phase 246 local CI diagnostics remain separate.
-- Routing evidence: `.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json`, `.planning/phases/247-release-candidate-and-repository-readiness/247-01-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-02-PLAN.md`, and `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`. Historical Phase245 verification remains separate.
+- **Next command: `$gsd-execute-phase 247`.** `init.execute-phase 247` reports Plan 04 runnable with no prerequisite blockers. Plans 01–03 are complete. Plan 03 records the README-to-v1.6 guide-to-changelog route, source-backed update guidance, a warning-free ExDoc build, and live candidate validation at PR #224 head `563f411bc2659bb9ac1652d552ce58ffb0c876b1`; base and protected main remain `590eb4ed3323db11dd74326cbee00c9c7973e529`. CI run 37700772880 passed all required lanes and `ci-gate`. Phase 247 is not yet phase-verified; Phase 248 remains planned and depends on its completion. Historical Phase 245 verification and earlier Phase 246 local CI diagnostics remain separate.
+- Routing evidence: `.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json`, `.planning/phases/247-release-candidate-and-repository-readiness/247-03-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-04-PLAN.md`, and `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`. Historical Phase245 verification remains separate.
 
 ## Performance Metrics
 
@@ -1023,3 +1026,4 @@ Resume file: None
 | Phase 246 P03 | 45min | 2 tasks | 10 files |
 | Phase 247 P01 | 167m | 2 tasks | 4 files |
 | Phase 247 P2 | 37min | 2 tasks | 5 files |
+| Phase 247 P03 | 34min | 1 tasks | 4 files |
