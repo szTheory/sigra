@@ -120,6 +120,24 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     // already includes the filter form's default sort and page parameters.
     await page.getByRole('button', { name: 'Apply filters' }).click();
     await waitForLiveViewReady(page);
+    await expect
+      .poll(() => {
+        const url = new URL(page.url());
+        return {
+          pathname: url.pathname,
+          actionPrefix: url.searchParams.get('action_prefix'),
+          orderBy: url.searchParams.get('order_by'),
+          orderDirection: url.searchParams.get('order_direction'),
+          pageSize: url.searchParams.get('page_size'),
+        };
+      })
+      .toEqual({
+        pathname: '/admin/audit',
+        actionPrefix: 'admin.impersonation',
+        orderBy: 'inserted_at',
+        orderDirection: 'desc',
+        pageSize: '25',
+      });
     const connectedAuditUrl = page.url();
     const connectedRows = await page
       .locator('#admin-audit-desktop-results tbody tr')
