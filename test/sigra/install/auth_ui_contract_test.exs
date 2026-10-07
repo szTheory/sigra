@@ -114,6 +114,37 @@ defmodule Sigra.Install.AuthUIContractTest do
     end
   end
 
+  test "confirmation feedback uses localized shared live regions and keeps retry state" do
+    confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
+    components = File.read!(@auth_components)
+
+    assert components =~ ~s(role="status")
+    assert components =~ ~s(role="alert")
+    assert components =~ ~s(aria-live="assertive")
+    assert components =~ "@success_message"
+    assert components =~ "@error_message"
+
+    assert confirmation =~ "dgettext(\"sigra\", \"Your email has been confirmed.\")"
+    assert confirmation =~ "dgettext(\"sigra\", \"Invalid confirmation code. Please try again.\")"
+    assert confirmation =~ "assign(form: to_form(%{\"code\" => code}, as: \"confirmation\"))"
+    assert confirmation =~ "assign(live_action: :confirmed)"
+    refute confirmation =~ "push_event"
+    refute confirmation =~ "JS.focus"
+  end
+
+  test "confirmation validation removes only ASCII spaces before strict ASCII digit matching" do
+    confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
+    submit_handler = confirmation |> String.split("defp do_confirm(socket, code)") |> Enum.at(1)
+
+    assert confirmation =~ "def handle_event(\"validate\""
+    assert confirmation =~ "{:noreply, assign(socket, form: form)}"
+    assert submit_handler =~ "String.replace(code, \" \", \"\")"
+    assert submit_handler =~ "~r/\\A[0-9]{6}\\z/"
+
+    assert elem(:binary.match(submit_handler, "Regex.match?"), 0) <
+             elem(:binary.match(submit_handler, "Auth.confirm_user_by_code"), 0)
+  end
+
   test "audit forms expose one named control per filter and label active state" do
     for path <- [
           "lib/sigra/admin/live/audit_index_live.ex",

@@ -27,6 +27,7 @@ WEB_MODULE="SigraAdminSmokeWeb"
 CONTEXT_MODULE="SigraAdminSmoke.Accounts"
 PORT="${PORT:-4017}"
 TEST_TARGET="all"
+PLAYWRIGHT_OUTPUT="test-results/generated-host"
 SERVER_LOG="${TMP_APP_DIR}/server.log"
 PLAYWRIGHT_SPEC="tests/admin-generated.spec.ts"
 
@@ -49,6 +50,15 @@ export SIGRA_ALLOWED_ORG_SLUG="${SIGRA_ALLOWED_ORG_SLUG:-allowed-org}"
 export SIGRA_ALLOWED_ORG_NAME="${SIGRA_ALLOWED_ORG_NAME:-Allowed Org}"
 export SIGRA_OTHER_ORG_SLUG="${SIGRA_OTHER_ORG_SLUG:-other-scope}"
 export SIGRA_IMPERSONATION_TARGET_EMAIL="${SIGRA_IMPERSONATION_TARGET_EMAIL:-impersonation-target@example.test}"
+
+# The disposable host is generated under /tmp, outside this repository's
+# asdf lookup path. Preserve the repo-pinned Beam versions after changing cwd.
+if command -v asdf >/dev/null 2>&1 && [[ -f "${SIGRA_REPO}/.tool-versions" ]]; then
+  pinned_erlang_version=$(awk '$1 == "erlang" { print $2; exit }' "${SIGRA_REPO}/.tool-versions")
+  pinned_elixir_version=$(awk '$1 == "elixir" { print $2; exit }' "${SIGRA_REPO}/.tool-versions")
+  [[ -z "${ASDF_ERLANG_VERSION:-}" && -n "${pinned_erlang_version}" ]] && export ASDF_ERLANG_VERSION="${pinned_erlang_version}"
+  [[ -z "${ASDF_ELIXIR_VERSION:-}" && -n "${pinned_elixir_version}" ]] && export ASDF_ELIXIR_VERSION="${pinned_elixir_version}"
+fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -103,6 +113,7 @@ mix phx.new "${APP_NAME}" \
   --database postgres
 
 cd "${TMP_APP_DIR}"
+export HEX_HOME="${TMP_APP_DIR}/.hex"
 
 echo "==> admin-acceptance: patching mix.exs with local Sigra path dep"
 export SIGRA_REPO
@@ -361,6 +372,7 @@ fi
 case "${TEST_TARGET}" in
   all)
     PLAYWRIGHT_ARGS=("${PLAYWRIGHT_SPEC}")
+    RUN_CONFIRMATION=true
     ;;
   chrome)
     PLAYWRIGHT_ARGS=("${PLAYWRIGHT_SPEC}" "-g" "generated host admin shell renders on desktop and mobile")
@@ -389,6 +401,14 @@ case "${TEST_TARGET}" in
       "VFY-01 generated host impersonation start"
     )
     ;;
+  confirmation)
+    PLAYWRIGHT_ARGS=(
+      --project=generated-host-chromium
+      tests/generated-confirmation.spec.ts
+    )
+    RUN_CONFIRMATION=false
+    PLAYWRIGHT_OUTPUT="test-results/generated-confirmation"
+    ;;
   *)
     echo "unknown --test target: ${TEST_TARGET}" >&2
     exit 1
@@ -400,10 +420,24 @@ echo "==> admin-acceptance: running Playwright target ${TEST_TARGET}"
   cd "${PLAYWRIGHT_DIR}"
   CI=true \
   SIGRA_EXAMPLE_URL="http://localhost:${PORT}" \
-  npx playwright test --output test-results/generated-host "${PLAYWRIGHT_ARGS[@]}"
+  npx playwright test --output "${PLAYWRIGHT_OUTPUT}" "${PLAYWRIGHT_ARGS[@]}"
 )
 
+if [[ "${RUN_CONFIRMATION:-false}" == "true" ]]; then
+  echo "==> admin-acceptance: running generated confirmation Chromium journey"
+  (
+    cd "${PLAYWRIGHT_DIR}"
+    CI=true \
+    SIGRA_EXAMPLE_URL="http://localhost:${PORT}" \
+    npx playwright test \
+      --project=generated-host-chromium \
+      --output test-results/generated-confirmation \
+      tests/generated-confirmation.spec.ts
+  )
+fi
+
 echo "==> admin-acceptance: revoking platform admin and proving deny-on-next-check"
+if [[ "${TEST_TARGET}" != "confirmation" ]]; then
 mix sigra.admin.revoke --email "${SIGRA_PLATFORM_ADMIN_EMAIL}" --yes
 
 if mix sigra.admin.check --email "${SIGRA_PLATFORM_ADMIN_EMAIL}"; then
@@ -418,10 +452,11 @@ fi
   CI=true \
   SIGRA_EXPECT_PLATFORM_DENIED=1 \
   SIGRA_EXAMPLE_URL="http://localhost:${PORT}" \
-  npx playwright test \
+npx playwright test \
     --output test-results/revocation \
     "${PLAYWRIGHT_SPEC}" \
     -g "revoked platform admin is denied"
 )
+fi
 
 echo "==> admin-acceptance: success"

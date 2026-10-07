@@ -146,11 +146,13 @@ defmodule Sigra.Templates.InstallerDriftTest do
       ]
     },
     %{
-      id: "fix #9 — confirmation_live unused var prefixed _user",
+      id: "fix #9 — confirmation_live handles scope without unused variables",
       template: "priv/templates/sigra.install/core/confirmation_live.ex",
       example: "test/example/lib/example_web/live/confirmation_live.ex",
       must_have: [
-        {"handle_params assigns _user", ~r/_user = socket\.assigns\.current_scope\.user/,
+        # Phase 246 intentionally replaces the template's obsolete unused binding
+        # with optional-scope handling; the historical example retains its fix.
+        {"confirmation scope handling", ~r/case socket\.assigns\[:current_scope\] do/,
          ~r/_user = socket\.assigns\.current_scope\.user/}
       ]
     },

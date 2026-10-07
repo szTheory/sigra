@@ -25,6 +25,11 @@ on:
         required: false
         type: boolean
         default: false
+      phase_246_ci_evidence:
+        description: 'Run required Phase 246 source-evidence gates on its dedicated committed source branch.'
+        required: false
+        type: boolean
+        default: false
   schedule:
     # Nightly-broad run (04:30 UTC). Avoids the 45 6 slot used by playwright-github-pages.yml.
     # Runs the 5 exhaustive/low-probability jobs that are skipped on pull_request events.
@@ -84,6 +89,7 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           PHASE_244_FINAL_MAIN: ${{ inputs.phase_244_final_main }}
+          PHASE_246_CI_EVIDENCE: ${{ inputs.phase_246_ci_evidence }}
           RECAPTURE_BRANCH: ${{ inputs.recapture_branch }}
           FORCE_FAIL_PROBE: ${{ inputs.force_fail_probe }}
           FORCE_ROT_PROBE: ${{ inputs.force_rot_probe }}
@@ -93,6 +99,18 @@ jobs:
           if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
             echo "Non-manual CI run; release-ref guard not applicable."
             exit 0
+          fi
+          if [ "$PHASE_246_CI_EVIDENCE" = "true" ]; then
+            if [ "$REF" = "refs/heads/gsd/phase-246-generated-confirmation-recovery-ci" ] \
+              && [ -z "$RECAPTURE_BRANCH" ] \
+              && [ "$PHASE_244_FINAL_MAIN" = "false" ] \
+              && [ "$FORCE_FAIL_PROBE" = "false" ] \
+              && [ "$FORCE_ROT_PROBE" = "false" ]; then
+              echo "Authorized Phase 246 exact-source evidence dispatch; recapture and failure-probe jobs remain excluded."
+              exit 0
+            fi
+            echo "Phase 246 evidence dispatch requires its exact source branch, no recapture, and false probes."
+            exit 1
           fi
           if [ "$PHASE_244_FINAL_MAIN" = "true" ]; then
             if [ "$REF" = "refs/heads/main" ] && [ -z "$RECAPTURE_BRANCH" ] \
@@ -1686,7 +1704,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [ci-gate]
-    if: always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'
+    if: always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure' && inputs.phase_246_ci_evidence != true
     permissions:
       issues: write
     env:
@@ -1725,7 +1743,7 @@ jobs:
     name: Recapture admin-design baselines (in-CI)
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
+    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true && inputs.phase_246_ci_evidence != true
     needs: release_ref_guard
     permissions:
       contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)
@@ -1963,7 +1981,7 @@ jobs:
     name: Recapture admin-checkpoint baselines (in-CI)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
+    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true && inputs.phase_246_ci_evidence != true
     needs: release_ref_guard
     permissions:
       contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)

@@ -28,7 +28,7 @@ defmodule Sigra.AuthTest do
     use Ecto.Schema
 
     @primary_key {:id, :integer, autogenerate: false}
-    embedded_schema do
+    schema "user_tokens" do
       field :token, :binary
       field :context, :string
       field :sent_to, :string
@@ -847,7 +847,7 @@ defmodule Sigra.AuthTest do
         )
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm_code"] ->
+      |> expect(:one, fn %Ecto.Query{} ->
         %TestUserToken{
           id: 2,
           token: code_struct.token,
@@ -876,7 +876,9 @@ defmodule Sigra.AuthTest do
 
     test "with invalid code returns {:error, :invalid_code}" do
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm_code"] -> nil end)
+      |> expect(:one, fn %Ecto.Query{} ->
+        nil
+      end)
 
       result =
         Auth.verify_confirmation_code(Sigra.MockRepo, "000000",
@@ -990,6 +992,24 @@ defmodule Sigra.AuthTest do
         )
 
       assert {:error, :rate_limited} = result
+    end
+
+    test "a code belonging to another user is rejected before a transaction starts" do
+      Sigra.MockRepo
+      |> expect(:one, fn %Ecto.Query{} = query ->
+        assert inspect(query) =~ "user_id"
+        assert inspect(query) =~ "48"
+        nil
+      end)
+
+      result =
+        Auth.verify_confirmation_code(Sigra.MockRepo, "123456",
+          user_id: 2,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser
+        )
+
+      assert {:error, :invalid_code} = result
     end
   end
 
