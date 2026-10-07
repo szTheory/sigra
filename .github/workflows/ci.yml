@@ -1703,7 +1703,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [ci-gate]
-    if: always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'
+    if: always() && github.event_name != 'pull_request' && inputs.phase_246_ci_evidence != true && needs.ci-gate.result == 'failure'
     permissions:
       issues: write
     env:
@@ -1742,7 +1742,7 @@ jobs:
     name: Recapture admin-design baselines (in-CI)
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
+    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true && inputs.phase_246_ci_evidence != true
     needs: release_ref_guard
     permissions:
       contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)
@@ -1980,7 +1980,7 @@ jobs:
     name: Recapture admin-checkpoint baselines (in-CI)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
+    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true && inputs.phase_246_ci_evidence != true
     needs: release_ref_guard
     permissions:
       contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)

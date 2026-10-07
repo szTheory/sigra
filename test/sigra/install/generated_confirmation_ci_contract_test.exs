@@ -65,6 +65,17 @@ defmodule Sigra.Install.GeneratedConfirmationCIContractTest do
     assert release_guard =~ "&& [ \"$FORCE_FAIL_PROBE\" = \"false\" ]"
     assert release_guard =~ "&& [ \"$FORCE_ROT_PROBE\" = \"false\" ]"
     assert release_guard =~ "recapture and failure-probe jobs remain excluded"
+
+    notify = section(workflow, "  notify_release_lane_rot:\n", "  admin_design_recapture:\n")
+
+    design_recapture =
+      section(workflow, "  admin_design_recapture:\n", "  admin_checkpoint_recapture:\n")
+
+    checkpoint_recapture = section(workflow, "  admin_checkpoint_recapture:\n", nil)
+
+    assert notify =~ "inputs.phase_246_ci_evidence != true"
+    assert design_recapture =~ "inputs.phase_246_ci_evidence != true"
+    assert checkpoint_recapture =~ "inputs.phase_246_ci_evidence != true"
   end
 
   defp read(path), do: File.read!(Path.join(@root, path))
