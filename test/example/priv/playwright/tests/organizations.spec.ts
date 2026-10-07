@@ -25,6 +25,15 @@ async function waitForLiveViewReady(
   });
 }
 
+async function submitRegistration(page: Parameters<typeof test>[0]['page']) {
+  // The password-strength label is patched by the registration LiveView's
+  // phx-change response. Wait for that response before submitting: mobile
+  // WebKit can still be completing the change event when the button is tapped.
+  await expect(page.getByText('Strong', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Create an account' }).click();
+  await expect(page).not.toHaveURL(/\/users\/register/);
+}
+
 async function dismissFlash(page: Parameters<typeof test>[0]['page']) {
   for (let index = 0; index < 2; index += 1) {
     const visibleFlashes = page.locator('#flash-group [data-flash]:visible');
@@ -54,8 +63,7 @@ async function registerAndConfirmUser(
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
-  await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await submitRegistration(page);
   await logInIfNeeded(page, email, password);
 }
 
@@ -187,8 +195,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
-  await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await submitRegistration(page);
 
   // --- Step 2: Confirm via dev mailbox ---
   const confirmHref = await extractConfirmationLink(page, email);
