@@ -138,33 +138,29 @@ defmodule <%= web_module %>.ConfirmationLive do
     {:ok, assign(socket, form: form, link_form: link_form, live_action: :new)}
   end
 
-  def handle_params(%{"token" => token}, _uri, socket) do
+  def handle_params(%{"token" => token}, _uri, socket)
+      when is_binary(token) and byte_size(token) > 0 do
     {:noreply, assign(socket, confirmation_token: token, live_action: :confirm)}
   end
 
+  def handle_params(%{"token" => _token}, _uri, socket) do
+    invalid_confirmation_link_response(socket)
+  end
+
   def handle_params(_params, _uri, socket) do
-    {:noreply, socket}
+    {:noreply,
+     socket
+     |> clear_flash(:error)
+     |> assign(confirmation_token: nil, live_action: :new)}
   end
 
   def handle_event("confirm_link", _params, socket) do
-    case Auth.confirm_user(socket.assigns.confirmation_token) do
-      {:ok, _user} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
-         |> assign(live_action: :confirmed)}
+    case socket.assigns[:confirmation_token] do
+      token when is_binary(token) and byte_size(token) > 0 ->
+        confirm_link_token(socket, token)
 
-      {:error, :already_confirmed} ->
-        {:noreply, assign(socket, live_action: :already_confirmed)}
-
-      {:error, :token_expired} ->
-        {:noreply, assign(socket, live_action: :expired)}
-
-      {:error, :token_invalid} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
-         |> assign(live_action: :new)}
+      _ ->
+        invalid_confirmation_link_response(socket)
     end
   end
 
@@ -196,6 +192,26 @@ defmodule <%= web_module %>.ConfirmationLive do
     end)
   end
 
+  defp confirm_link_token(socket, token) do
+    case Auth.confirm_user(token) do
+      {:ok, _user} ->
+        {:noreply,
+         socket
+         |> clear_flash(:error)
+         |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
+         |> assign(live_action: :confirmed)}
+
+      {:error, :already_confirmed} ->
+        {:noreply, socket |> clear_flash(:error) |> assign(live_action: :already_confirmed)}
+
+      {:error, :token_expired} ->
+        {:noreply, socket |> clear_flash(:error) |> assign(live_action: :expired)}
+
+      {:error, :token_invalid} ->
+        invalid_confirmation_link_response(socket)
+    end
+  end
+
   defp do_confirm(socket, code) do
     with_confirmation_user(socket, fn socket, user ->
       do_confirm_user(socket, user, code)
@@ -210,6 +226,7 @@ defmodule <%= web_module %>.ConfirmationLive do
         {:ok, _user} ->
           {:noreply,
            socket
+           |> clear_flash(:error)
            |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
            |> assign(live_action: :confirmed)}
 
@@ -225,6 +242,7 @@ defmodule <%= web_module %>.ConfirmationLive do
         {:error, :already_confirmed} ->
           {:noreply,
            socket
+           |> clear_flash(:error)
            |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
            |> assign(live_action: :confirmed)}
       end
@@ -240,6 +258,13 @@ defmodule <%= web_module %>.ConfirmationLive do
      socket
      |> put_flash(:error, dgettext("sigra", "Invalid confirmation code. Please try again."))
      |> assign(form: to_form(%{"code" => code}, as: "confirmation"))}
+  end
+
+  defp invalid_confirmation_link_response(socket) do
+    {:noreply,
+     socket
+     |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
+     |> assign(live_action: :new)}
   end
 
   defp with_confirmation_user(socket, callback) do

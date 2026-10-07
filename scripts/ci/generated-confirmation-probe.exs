@@ -11,6 +11,23 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
   test "anonymous link confirmation is explicit, persisted, and single-use", %{conn: conn} do
     user = AccountsFixtures.user_fixture()
 
+    {:ok, tokenless_view, tokenless_html} = live(conn, "/users/confirm")
+    assert tokenless_html =~ ~s(id="confirmation_form")
+
+    tokenless_click_html = render_click(tokenless_view, "confirm_link", %{})
+    assert tokenless_click_html =~ "This confirmation link is invalid or has expired."
+    assert tokenless_click_html =~ ~s(id="confirmation_form")
+
+    {:ok, malformed_view, malformed_html} = live(conn, "/users/confirm?token[]=invalid")
+    assert malformed_html =~ "This confirmation link is invalid or has expired."
+    assert malformed_html =~ ~s(id="confirmation_form")
+
+    malformed_submit_html = render_click(malformed_view, "confirm_link", %{})
+    assert malformed_submit_html =~ "This confirmation link is invalid or has expired."
+    assert malformed_submit_html =~ ~s(id="confirmation_form")
+    assert is_nil(Repo.get!(User, user.id).confirmed_at)
+    assert Repo.aggregate(UserSession, :count, :id) == 0
+
     {signed_token, _code, link_token, code_token} =
       Sigra.Auth.generate_confirmation_token(Repo, user,
         secret_key_base: <%= app_module %>Web.Endpoint.config(:secret_key_base),
@@ -248,6 +265,7 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
 
     assert accepted_html =~ "Your email has been confirmed."
     assert accepted_html =~ ~s(role="status")
+    refute accepted_html =~ "Invalid confirmation code. Please try again."
     assert Repo.get!(User, owner.id).confirmed_at
     assert Repo.get!(User, current_user.id).confirmed_at == current_before
     assert Repo.get_by(UserToken, user_id: owner.id, context: "confirm_code") == nil
