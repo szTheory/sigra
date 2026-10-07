@@ -215,14 +215,18 @@ defmodule Sigra.Install.GeneratorEmailTest do
       assert is_binary(content)
     end
 
-    test "uses phx-change for auto-submit" do
+    test "uses change for form state and explicit submit for verification" do
       content = render_template("confirmation_live.ex")
-      assert content =~ "phx-change"
-    end
-
-    test "checks string length for auto-submit" do
-      content = render_template("confirmation_live.ex")
-      assert content =~ "String.length(code) == 6"
+      assert content =~ ~s(phx-change="validate")
+      assert content =~ ~s(phx-submit="confirm")
+      assert content =~ ~s(type="text")
+      assert content =~ ~s(inputmode="numeric")
+      assert content =~ ~s(autocomplete="one-time-code")
+      refute content =~ ~s(maxlength="6")
+      refute content =~ ~s(pattern="[0-9]{6}")
+      refute content =~ "String.length(code) == 6"
+      assert content =~ "String.replace(code, \" \", \"\")"
+      assert content =~ ~r/Regex\.match\?\(~r\/\\A\[0-9\]\{6\}\\z\//
     end
 
     test "uses LiveView" do

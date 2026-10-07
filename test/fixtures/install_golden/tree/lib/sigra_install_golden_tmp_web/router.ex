@@ -91,6 +91,19 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
   end
 
+
+    scope "/users", SigraInstallGoldenTmpWeb do
+      pipe_through [:browser]
+
+      live_session :sigra_confirmation,
+        on_mount: [{SigraInstallGoldenTmpWeb.UserAuth, :mount_current_scope}] do
+
+    live "/confirm", ConfirmationLive
+    live "/confirm/:token", ConfirmationLive, :confirm
+      end
+    end
+
+
   scope "/users", SigraInstallGoldenTmpWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
@@ -101,9 +114,6 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
     post "/log_in", SessionController, :create
     get "/log_in/:token", SessionController, :magic_link
-
-    live "/confirm", ConfirmationLive
-    live "/confirm/:token", ConfirmationLive, :confirm
 
 
     live "/reset-password", ResetPasswordLive

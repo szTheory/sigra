@@ -529,6 +529,31 @@ defmodule Sigra.Install.Features.CoreTest do
       assert router_inj.content =~ "live \"/register\", RegistrationLive"
     end
 
+    test "confirmation LiveViews use an optional scope with current scope mounting" do
+      [router_inj] =
+        @binding
+        |> Core.injections()
+        |> Enum.filter(&(&1.marker == "# Sigra authentication" and &1.target =~ "router.ex"))
+
+      optional_routes =
+        router_inj.content
+        |> String.split("pipe_through [:browser, :redirect_if_user_is_authenticated]", parts: 2)
+        |> List.first()
+
+      assert optional_routes =~ "live_session :sigra_confirmation"
+      assert optional_routes =~ "on_mount: [{MyAppWeb.UserAuth, :mount_current_scope}]"
+      assert optional_routes =~ "live \"/confirm\", ConfirmationLive"
+      assert optional_routes =~ "live \"/confirm/:token\", ConfirmationLive, :confirm"
+
+      authenticated_routes =
+        router_inj.content
+        |> String.split("pipe_through [:browser, :redirect_if_user_is_authenticated]", parts: 2)
+        |> List.last()
+
+      refute authenticated_routes =~ "live \"/confirm\", ConfirmationLive"
+      refute authenticated_routes =~ "live \"/confirm/:token\", ConfirmationLive, :confirm"
+    end
+
     test "--no-live router injection emits controller-mode registration routes" do
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
 
@@ -540,6 +565,20 @@ defmodule Sigra.Install.Features.CoreTest do
       refute router_inj.content =~ "live \"/register\", RegistrationLive"
       assert router_inj.content =~ "get \"/register\", RegistrationController, :new"
       assert router_inj.content =~ "post \"/register\", RegistrationController, :create"
+    end
+
+    test "--no-live confirmation routes remain controller routes without a LiveView scope" do
+      binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
+
+      [router_inj] =
+        binding
+        |> Core.injections()
+        |> Enum.filter(&(&1.marker == "# Sigra authentication" and &1.target =~ "router.ex"))
+
+      assert router_inj.content =~ "get \"/confirm\", ConfirmationController, :new"
+      assert router_inj.content =~ "get \"/confirm/:token\", ConfirmationController, :confirm"
+      refute router_inj.content =~ "live_session :sigra_confirmation"
+      refute router_inj.content =~ "ConfirmationLive"
     end
 
     test "config injection contains Sigra config block with host otp_app" do
