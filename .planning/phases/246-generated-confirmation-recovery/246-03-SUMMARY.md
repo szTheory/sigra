@@ -11,7 +11,7 @@ requires:
 provides:
   - Real generated-host Chromium proof for literal spaced-code paste, invalid feedback, retry, and success.
   - Static CI route contract connecting the browser journey to the required generated-host job and ci-gate.
-  - Machine-readable local and recurring-CI evidence receipt with an honest blocked conclusion.
+  - Machine-readable exact-source required-CI evidence receipt with successful job conclusions.
 affects: [phase-246-generated-confirmation-recovery]
 tech-stack:
   added: []
@@ -35,8 +35,8 @@ key-files:
     - test/sigra/planning/phase_234_playwright_inventory_contract_test.exs
     - .planning/phases/246-generated-confirmation-recovery/246-VALIDATION.md
 decisions:
-  - "Required CI was not dispatched after the clean-source local gate failed. Phase-induced drift and ownership regressions were repaired; four older contract failures remain."
-  - "Kept recurring CI job conclusions as not-run; the local generated-host smoke is recorded separately and is not presented as workflow evidence."
+  - "Repaired the inherited CI contract drift before producing the required exact-source run; retained the initial failures and their history."
+  - "A managed macOS local mix ci sandbox limitation remains separate from the successful GitHub required workflow and is not reported as a pass."
 metrics:
   duration: 45min initial execution plus 30min scoped verification follow-up
   completed: 2026-10-06
@@ -47,12 +47,12 @@ actuals:
   tokens: 3082
   tasks: 2
   commits: 9
-status: blocked
+status: complete
 ---
 
 # Phase 246 Plan 03: Generated Confirmation Recovery Summary
 
-**The generated-host Chromium journey and required-CI route are implemented; actual recurring CI proof remains blocked.**
+**The generated-host Chromium journey is implemented and verified in the required workflow for exact source `2232272d77a4ebfccafe43ddec877bf3ad6195a7`.**
 
 ## Accomplishments
 
@@ -74,21 +74,31 @@ status: blocked
 | Optional-scope installer drift guard | `6f10be85` |
 | Current browser ownership and immutable archive preservation | `306a7865e`, `fd75cad25` |
 
-Final reviewed source: `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`. Planning-only evidence commits follow this source commit.
+## Required-CI Remediation
+
+| Change | Commit |
+|---|---|
+| Repair inherited fast-check, golden-fixture and install-guidance contracts | `60eb84770` |
+| Stabilize admin-audit URL transition after LiveView query canonicalization | `766f3e0be` |
+| Await the server-rendered password-strength response before mobile registration submit | `2232272d7` |
+
+Final reviewed and CI-tested source: `2232272d77a4ebfccafe43ddec877bf3ad6195a7`.
 
 ## Verification
 
 | Check | Observed result |
 |---|---|
-| Final-source scoped ExUnit suite | **236 tests, 0 failures**, including auth, generation, UI, CI route, installer drift, current ownership and historical ratification. |
-| Fresh-host installer | **8 tests, 0 failures**, generated at `6f10be8504075d3b8a676f6ef1b064dd2783387b`; generation and probe sources are byte-identical to final source. |
-| Final-source `admin-acceptance-smoke.sh --test all` | **8 admin tests passed, 1 planned skip; confirmation 1 passed; revocation recheck 1 passed**, after one retry of an existing admin LiveView-readiness timeout. |
-| Clean-source `MIX_ENV=test mix ci` | **Exit 2: 2623 tests, 4 failures, 12 skips, 22 exclusions**; subsequent threadline guard **65 tests, 0 failures**. |
-| Example `mix precommit` | **Blocked:** existing test-environment `/dev/mailbox` route warning fails compile with warnings-as-errors. |
+| Required GitHub workflow | [Run 37558299754](https://github.com/szTheory/sigra/actions/runs/37558299754): **success** for exact source `2232272d77a4ebfccafe43ddec877bf3ad6195a7`. |
+| Required install smoke | **Success** (fresh `phx.new` host and `sigra.install`), job 112589589901. |
+| Required generated-admin Playwright smoke | **Success**, including confirmation browser journey, job 112589569731. |
+| Required CI gate | **Success**, job 112591516371. |
+| Example Playwright shards | **All five success:** admin behavior, admin checkpoints, design gallery, demo showcase, and non-admin mobile/browser journey; the full lifecycle aggregate also succeeded. |
+| Admin-eval render and probe | **Success**, job 112589569771. |
+| Fast checks, install matrices, library tests, dependency-off tests, upgrade, HTTP smoke, and example unit smoke | **All success** in the same workflow run. |
+| Local `MIX_ENV=test mix ci` | The original four contract failures were repaired. A later local run remains **environment-limited** by nested macOS `sandbox-exec` denial and cold Threadline build output; the dependency-off subset passed **65 tests, 0 failures**. Remote exact-source CI is the required proof. |
 | Re-review | **19 source files, 0 findings**; WR-01 remains recorded as fixed. |
-| Required GitHub CI | **Not dispatched.** No run ID/URL or current-source job conclusions exist. |
 
-`246-CI-EVIDENCE.json` binds receipts to their actual source SHAs and retains log fingerprints and the first browser timeout. `246-MIX-CI-FAILURES.json` retains complete final failure diagnostics and the earlier async Oban observation. Local success is separate from required workflow proof.
+`246-CI-EVIDENCE.json` binds every required job conclusion to the exact tested SHA and retains the original failed-run fingerprints. `246-MIX-CI-FAILURES.json` preserves the pre-repair diagnostics and earlier async Oban observation. The original failures are resolved; the local sandbox limitation remains separate from required workflow proof.
 
 ## Deviations from Plan
 
@@ -98,11 +108,11 @@ Final reviewed source: `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`. Planning-only
 - **Phase integration repair:** updated the optional-scope drift guard and exact browser ownership mapping. An initial archived inventory edit exposed its captured hash dependency; the historical bytes were restored and live reconciliation moved to `spec-ownership.json`. Current and historical inventory contracts pass together.
 - **Browser environment and retry:** installed Chromium matching committed Playwright 1.59.1 after a missing-executable launch. The first actual suite timed out on existing admin branding LiveView readiness; its single retry passed. The initial failure is retained.
 
-## Required CI Gate Blocker
+## Required CI Gate Resolution
 
-The final four failures concern the older Phase 232 cache-key expectation, Phase 236 and Phase 242 archived evidence paths, and the committed README install tuple. Existing dirty workflow/package/docs work was preserved. The first run's classification of all 17 failures as unrelated was corrected; the phase-induced failures were repaired. See `246-MIX-CI-BLOCKED.md` for the final scope and retained diagnostics.
+**Resolved.** The four failures concerned the older Phase 232 cache-key expectation, Phase 236 and Phase 242 archived evidence paths, and the README install tuple. The later mobile browser flake was fixed by waiting for the registration LiveView's password-strength response before submit. Every required job then passed in run 37558299754. See `246-MIX-CI-BLOCKED.md` for the historical diagnosis and resolution record.
 
-Task 1's local browser proof is complete. Task 2's runner/route implementation is complete, while its actual required run and conclusions remain missing. Plan 246-03 stays **blocked**, phase progress stays **2/3**, and requirements stay pending. Final phase verification and completion have not run. Resume `$gsd-execute-phase 246` after the inherited gate failures are resolved within their authorized scope.
+Plan 246-03's implementation, required run, and exact-source receipt are complete. CONF-01 through CONF-03 have automated coverage, and the validation map is Nyquist-compliant. Final phase-level goal-backward verification remains the next workflow step; phase completion must wait for it.
 
 ## TDD Gate Compliance
 
@@ -112,6 +122,6 @@ The new browser exercises wrong-code/retry/success without sleeps. The malformed
 
 None found in the changed source. Required CI proof is missing evidence, not a stub.
 
-## Self-Check: BLOCKED
+## Self-Check: COMPLETE
 
-Source artifacts, task commits, local receipts and review exist. Required CI is unproven; no completion claim is made.
+Source artifacts, task commits, local receipts, required exact-source CI, and review evidence exist. Plan 246-03 is complete; phase-level verification remains separate.

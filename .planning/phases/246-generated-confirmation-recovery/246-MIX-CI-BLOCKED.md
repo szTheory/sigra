@@ -1,5 +1,10 @@
 # Phase 246 Plan 03: Required CI Blocker
 
+> **Resolved:** the diagnostic below records the pre-dispatch failure state. The
+> four contract failures were repaired, and exact-source required CI completed
+> successfully at `2232272d77a4ebfccafe43ddec877bf3ad6195a7`. See
+> `246-CI-EVIDENCE.json` for the successful run and job receipts.
+
 At committed source `fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a`, a clean detached checkout ran `MIX_ENV=test mix ci` after `mix clean`. It exited 2: **33 doctests, 3 properties, 2623 tests, 4 failures, 12 skips, 22 exclusions**. The later dependency-off guard passed **65 tests, 0 failures**. Complete failure messages, stack locations, seed, source SHA, and the log fingerprint are retained in `246-MIX-CI-FAILURES.json`.
 
 | Failing contract | Observed diagnostic | Scope |
@@ -20,6 +25,6 @@ The first 17-failure run included phase-induced failures, so its initial classif
 - Re-review: **19 files, 0 findings**. WR-01 is fixed and retained in the disposition ledger.
 - The example app's additional `mix precommit` fails its warnings-as-errors compile on an existing `/dev/mailbox` test-environment route warning at `settings_live.ex:133`. Its complete log fingerprint is retained in the receipt.
 
-No branch was pushed and no GitHub workflow was dispatched after the required local gate failed. `install_smoke`, `generated_admin_playwright_smoke`, and `ci-gate` therefore have no current-source workflow conclusions. Local equivalence is recorded separately. Plan 246-03 and phase completion remain blocked; CONF-01 through CONF-03 stay pending in the phase requirements ledger.
+At the time this diagnostic was first written, no branch had been pushed and no GitHub workflow had been dispatched. That state was superseded after the four failures were repaired. CI run [37558299754](https://github.com/szTheory/sigra/actions/runs/37558299754) completed successfully for exact source SHA `2232272d77a4ebfccafe43ddec877bf3ad6195a7`: `ci-gate`, `install_smoke`, `generated_admin_playwright_smoke`, all five example Playwright shards, the full Playwright aggregate, and the admin-eval render/probe all passed. The local macOS `mix ci` limitation remains recorded separately and was not waived or presented as a pass. Plan 246-03's required-CI blocker is resolved; final phase verification is still a separate step.
 
-After the inherited CI blockers are resolved in their authorized scope, resume `$gsd-execute-phase 246` to capture the actual required run. This invocation did not start Phase 247 or reopen historical milestone phases.
+Resume `$gsd-execute-phase 246` to consume this actual required run, finish Phase 246 verification, and then continue the already-planned Phase 247 execution. Historical milestone phases remain untouched.

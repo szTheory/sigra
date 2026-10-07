@@ -2,19 +2,22 @@
   "schema_version": 1,
   "phase": "246",
   "plan": "03",
-  "status": "blocked",
-  "tested_source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
-  "tested_at_utc": "2026-10-06T19:32:42.902818Z",
+  "status": "passed",
+  "tested_source_sha": "2232272d77a4ebfccafe43ddec877bf3ad6195a7",
+  "tested_at_utc": "2026-10-07T02:12:02Z",
   "workflow": {
     "name": "CI",
-    "run_id": null,
-    "run_url": null,
-    "dispatch_status": "not-dispatched",
-    "reason": "Required local mix ci exited 2 with four older contract failures; no push or required CI run was performed."
+    "run_id": 37558299754,
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/37558299754",
+    "dispatch_status": "completed-success",
+    "event": "workflow_dispatch",
+    "head_branch": "gsd/phase-246-generated-confirmation-recovery-ci",
+    "head_sha": "2232272d77a4ebfccafe43ddec877bf3ad6195a7",
+    "reason": "Exact-source required CI completed successfully after repairing the inherited contract failures and the mobile WebKit registration transition."
   },
   "jobs": {
     "install_smoke": {
-      "conclusion": "not-run",
+      "conclusion": "success",
       "local_equivalent": {
         "command": "bash scripts/ci/install-smoke.sh",
         "conclusion": "passed",
@@ -35,10 +38,12 @@
           "local_path": "/private/tmp/sigra-phase-246-final-install.log",
           "sha256": "bbdfecd605df5cfd80c7bbbad2804f8ed6f1fc051c257e14fe6004627070225e"
         }
-      }
+      },
+      "job_id": 112589589901,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589589901"
     },
     "generated_admin_playwright_smoke": {
-      "workflow_conclusion": "not-run",
+      "workflow_conclusion": "success",
       "local_equivalent": {
         "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/sigra-playwright-browsers bash scripts/ci/admin-acceptance-smoke.sh --test all",
         "conclusion": "passed",
@@ -83,10 +88,14 @@
             "sha256": "0230d831c6d0f071a619fb10db0a56fe126aced378b153f946126e0f8ff8af77"
           }
         }
-      }
+      },
+      "job_id": 112589569731,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589569731"
     },
     "ci-gate": {
-      "conclusion": "not-run"
+      "conclusion": "success",
+      "job_id": 112591516371,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112591516371"
     },
     "required_local_mix_ci": {
       "command": "MIX_ENV=test mix ci",
@@ -99,6 +108,49 @@
         "local_path": "/private/tmp/sigra-phase-246-final-ci.log",
         "sha256": "b9bc0629f1d3b77b1f3b345263428c2decedfcc707d81d808b64dd2ae771c92a"
       }
+    },
+    "fast_checks": {
+      "conclusion": "success",
+      "job_id": 112589543200,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589543200"
+    },
+    "admin_eval": {
+      "conclusion": "success",
+      "job_id": 112589569771,
+      "duration": "25m03s",
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589569771"
+    },
+    "example_playwright_shards": {
+      "admin_behavior": {
+        "conclusion": "success",
+        "job_id": 112589589954,
+        "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589589954"
+      },
+      "admin_checkpoints": {
+        "conclusion": "success",
+        "job_id": 112589589890,
+        "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589589890"
+      },
+      "design_gallery": {
+        "conclusion": "success",
+        "job_id": 112589589913,
+        "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589589913"
+      },
+      "demo_showcase": {
+        "conclusion": "success",
+        "job_id": 112589589976,
+        "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589589976"
+      },
+      "non_admin_smoke": {
+        "conclusion": "success",
+        "job_id": 112589590006,
+        "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112589590006"
+      }
+    },
+    "example_playwright_aggregate": {
+      "conclusion": "success",
+      "job_id": 112591498655,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37558299754/job/112591498655"
     }
   },
   "local_contract": {
@@ -162,5 +214,18 @@
     "local_mix_ci_failures": 17,
     "note": "The first classification as entirely unrelated was corrected: phase-induced drift and browser inventory failures were repaired. Final current-source diagnostics are authoritative."
   },
-  "missing_evidence_is_passed": false
+  "missing_evidence_is_passed": false,
+  "latest_local_mix_ci_observation": {
+    "command": "MIX_ENV=test mix ci",
+    "conclusion": "environment-limited",
+    "source_sha": "766f3e0be9e3121f5ba2c76608af22fd5cccbec6",
+    "result": "Exit 2 under the managed macOS sandbox: two nested sandbox-exec contract tests were denied by the OS sandbox, and six Threadline forwarder tests lacked their module in the cold local build. The dependency-off guard passed 65 tests with 0 failures. Exact-source GitHub CI at 2232272d7 passed the required jobs and full ci-gate.",
+    "log": {
+      "local_path": "/private/tmp/sigra-phase-246-clean-mix-ci.log"
+    }
+  },
+  "resolution": {
+    "supersedes_blocker": true,
+    "note": "The four final clean-source contract failures described by the original blocked report were repaired. The remaining local environment limitation is separate from the successful exact-source required workflow receipt."
+  }
 }
