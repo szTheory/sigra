@@ -102,8 +102,8 @@ coverage:
 duration: ~25min
 completed: 2026-09-16
 status: complete
-commits: 2
-plan_head_before: 537189e965b0e6dc5ee5d6e220397d044aa3543c
+legacy_commits: 2
+legacy_plan_head_before: 537189e965b0e6dc5ee5d6e220397d044aa3543c
 ---
 
 # Phase 237 Plan 05: Retire Dead Doc-Link Warnings + Earned Suppression-List Reduction Summary

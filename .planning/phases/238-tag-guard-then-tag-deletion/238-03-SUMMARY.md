@@ -87,8 +87,10 @@ coverage:
       - kind: unit
         ref: "range-slice-plus-grep gates over .github/workflows/ci-observe.yml (task 3's three <automated> blocks, all pass); python3 -c 'import yaml; yaml.safe_load(...)' sanity parse (not a gate requirement, executor's own confidence check)"
         status: pass
-    human_judgment: true
-    rationale: "The live drift READ itself cannot be proven in-phase -- workflow_run only ever executes the default-branch copy of ci-observe.yml, and nothing in this plan pushes or merges. The job's structure is machine-verified; whether it correctly catches a real Settings-side deletion or edit is unprovable until it runs post-merge, which is a human/operator observation, not something this plan's automated gates can assert."
+      - kind: integration
+        ref: "gh run view 35249205910 --repo szTheory/sigra --json conclusion,event,headSha,jobs: workflow_run on push head 6b03af0553a13d17db487f06927dc0b990b90e3c; Tag namespace ruleset drift job success; captured stdout in 238-EVIDENCE.md reports live ruleset 23574716 matches committed snapshot"
+        status: pass
+    human_judgment: false
 
 duration: 40min
 completed: 2026-09-17

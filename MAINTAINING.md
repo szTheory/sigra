@@ -239,6 +239,29 @@ GATE-05 builds its before/after coverage inventory. Every entry names the constr
 step id) and its literal gating condition, verified against the shipped `ci.yml` at the commit
 this section was written.
 
+The active identifiers are maintained as a small machine-readable inventory below. It is
+deliberately separate from the historical explanation that follows: the p21 parity guard
+requires this list to equal the current manifest ids, including each step's parent job.
+
+<!-- honest-skip-active-ids:start -->
+- `install_matrix`
+- `upgrade_smoke`
+- `passkeys_manual_fallback_smoke`
+- `passkeys_opt_out_smoke`
+- `nightly_probe`
+- `admin_design_recapture`
+- `admin_checkpoint_recapture`
+- `notify_release_lane_rot`
+- `admin_eval_render`
+- `design_gallery_snapshots`
+- `example_playwright_shard`
+- `library_tests_dep_off`
+- `example_unit_smoke`
+- `install_smoke`
+- `example_http_smoke`
+- `example_playwright_smoke`
+<!-- honest-skip-active-ids:end -->
+
 **Tier A — event-gated, pre-existing (Phase 196).** `install_matrix`, `upgrade_smoke`,
 `passkeys_manual_fallback_smoke`, `passkeys_opt_out_smoke`, `nightly_probe`, plus the two
 recapture lanes (`admin_design_recapture`, `admin_checkpoint_recapture`) and
@@ -260,12 +283,12 @@ event, including `pull_request`, gated by nothing.
   STEP-level `continue-on-error: true` under `id: admin_eval_harness` (D-13) is retained
   permanently so partial evidence bundles still upload as artifacts before the re-fail step turns
   the job red.
-- The step `design_gallery_snapshots` ("Run design gallery board snapshots (non-PR)") inside
-  `example_playwright_smoke` — `id: design_gallery_snapshots`,
+- The step `design_gallery_snapshots` ("Run design gallery behavior and snapshots") inside
+  `example_playwright_shard` — `id: design_gallery_snapshots`,
   `if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true' }}`
   — newly gated to non-`pull_request` events, carrying the 84 per-board pixel-diff snapshot
   assertions (FAST-02, D-01/D-04). Its step id is in the seam-outcome aggregator's hard-coded
-  outcome list (the `Aggregate Playwright step outcomes` step's `for o in ...` loop inside
+  outcome list (the `Aggregate every Playwright shard result` step's `for o in ...` loop inside
   `example_playwright_smoke`), so a snapshot regression on `main` still reds the
   ruleset-required "Example Playwright smoke (full lifecycle)" context. The WCAG axe scan and the
   L1-state behaviour half of the same spec (`design_gallery`, filtered
@@ -275,11 +298,13 @@ event, including `pull_request`, gated by nothing.
 (a new `changes` job's `docs_only` output) rather than on the event, which is a different audit
 question from Tier A/B. Gated:
 
-- The heavy steps (deps cache through the test-running step) of the four app-behaviour
-  ruleset-required lanes — `example_unit_smoke`, `install_smoke`, `example_http_smoke`,
-  `example_playwright_smoke` — each guarded `if: needs.changes.outputs.docs_only != 'true'` (with
+- The heavy steps (deps cache through the test-running step) of the three app-behaviour
+  ruleset-required lanes — `example_unit_smoke`, `install_smoke`, `example_http_smoke` — each
+  guarded `if: needs.changes.outputs.docs_only != 'true'` (with
   `!cancelled()` composed in where the job also carries other conditions). Gated at step level, not
   job level, so all four required contexts still run and conclude `success`.
+- `example_playwright_smoke` is instead a one-step aggregator with no step-level `docs_only`
+  gate; it reports the already-completed `example_playwright_shard` result.
 - The whole `library_tests_dep_off` job —
   `if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true' }}`
   — gated at job level, permitted because it is not a ruleset-required context (D-08).
@@ -318,8 +343,8 @@ treated as "unchanged coverage" — each is disclosed here with its backstop and
 2. **A docs-only PR's Playwright context asserts nothing.** On a docs-only PR, the ruleset-required
    `Example Playwright smoke (full lifecycle)` context concludes `success` with every browser seam
    skipped. **Backstop:** the seam-outcome aggregator emits an explicit docs-only line in that case
-   (`"docs-only fast path: every Playwright seam was skipped -- no browser assertion was made on
-   this run"`, emitted by the `Aggregate Playwright step outcomes` step), so a green context that
+   (`"docs-only fast path: every Playwright seam was skipped (all five shard browser bodies)"`,
+   emitted by the `Aggregate every Playwright shard result` step), so a green context that
    asserted nothing says so in its own log —
    Phase 231's GATE-03 uses that line to tell a correct skip from a rotted one. **Boundary:** this
    applies only when the diff contains nothing outside Markdown and `.planning/`; any other changed

@@ -1,0 +1,6 @@
+name: Release workflow external-composite fixture
+on:
+  workflow_dispatch:
+jobs:
+  release:
+    uses: ./.github/actions/../release/bootstrap

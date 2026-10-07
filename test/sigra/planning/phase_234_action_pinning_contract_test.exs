@@ -8,6 +8,11 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   @release_please_path ".github/workflows/release-please.yml"
   @release_please_ref "45996ed1f6d02564a971a2fa1b5860e934307cf7"
   @forbidden_tag_object "0dfd8538845b8e92600d271a895a5372865d4062"
+  @composite_action_glob ".github/actions/**/action.yml"
+  @action_pattern ~r/^\s*(?:-\s+)?(?:uses|"uses"|'uses')\s*:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
+  @pre_relaxation_action_pattern ~r/^\s*-\s+uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/
+  @flow_uses_pattern ~r/(?:\{|,)\s*(?:uses|"uses"|'uses')\s*:/
+  @block_scalar_uses_pattern ~r/^\s*(?:-\s+)?(?:uses|"uses"|'uses')\s*:\s*[>|][+-]?\s*(?:#.*)?$/
 
   test "release-critical workflows are an explicit, live universe" do
     assert @release_workflows == [
@@ -24,10 +29,41 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   test "every third-party release action is immutable and version-annotated" do
     inventory = production_inventory()
 
-    assert inventory != [],
-           "release action inventory is empty; the extractor must not silently pass"
+    assert length(inventory) >= 16,
+           "release and composite action inventory shrank below its 16-entry floor; the extractor may be silently missing action references"
 
     assert_valid_inventory!(inventory)
+  end
+
+  test "composite actions are discovered from their own non-vacuous universe" do
+    paths = composite_action_paths()
+
+    assert paths != [],
+           "composite action glob #{@composite_action_glob} matched nothing; the discovery glob broke rather than the surface being clean"
+
+    for path <- paths do
+      assert File.exists?(path), "composite action #{path} is missing from the repository"
+    end
+  end
+
+  test "nested composite action manifests are discovered and pinned" do
+    fixture_root = "test/fixtures/prohibitions/phase241-nested-composite-unpinned"
+    fixture_path = fixture_root <> "/release/bootstrap/action.yml"
+
+    assert composite_action_paths(fixture_root) == [fixture_path]
+
+    inventory =
+      fixture_path
+      |> File.read!()
+      |> action_inventory(fixture_path)
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_valid_inventory!(inventory)
+      end
+
+    assert error.message =~ fixture_path <> ":7"
+    assert error.message =~ "non-immutable action ref"
   end
 
   test "Release Please uses the reviewed dereferenced v5.0.0 commit" do
@@ -75,6 +111,104 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
            ) == []
   end
 
+  test "release workflows reject local composites outside .github/actions" do
+    fixture_root = "test/fixtures/prohibitions/phase241-release-workflow-external-composite"
+    workflow_path = fixture_root <> "/release-workflow.yml"
+    composite_path = fixture_root <> "/release/bootstrap/action.yml"
+
+    assert File.read!(composite_path) =~ "uses: actions/checkout@v4 # v4.2.2",
+           "known-bad composite fixture must retain the floating third-party action it models"
+
+    inventory =
+      workflow_path
+      |> File.read!()
+      |> action_inventory(workflow_path)
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_valid_inventory!(inventory)
+      end
+
+    assert error.message =~ workflow_path <> ":6"
+    assert error.message =~ "local action outside .github/actions"
+  end
+
+  test "flow-mapping uses shapes fail closed until the inventory supports them" do
+    fixture_path = "test/fixtures/prohibitions/phase241-composite-unpinned-flow-uses.yml"
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        fixture_path
+        |> File.read!()
+        |> action_inventory(fixture_path)
+      end
+
+    assert error.message =~ fixture_path <> ":5"
+    assert error.message =~ "unsupported YAML uses shape"
+  end
+
+  test "block-scalar uses shapes fail closed until the inventory supports them" do
+    fixture_path = "test/fixtures/prohibitions/phase241-composite-unpinned-block-uses.yml"
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        fixture_path
+        |> File.read!()
+        |> action_inventory(fixture_path)
+      end
+
+    assert error.message =~ fixture_path <> ":5"
+    assert error.message =~ "unsupported YAML uses shape"
+  end
+
+  test "bare uses are visible only after the inventory regex relaxation" do
+    fixture_path = "test/fixtures/prohibitions/phase241-composite-unpinned-bare-uses.yml"
+    fixture = File.read!(fixture_path)
+
+    pre_relaxation_inventory =
+      action_inventory(fixture, fixture_path, @pre_relaxation_action_pattern)
+
+    refute Enum.any?(pre_relaxation_inventory, &(&1.action == "actions/cache@v6"))
+
+    relaxed_inventory = action_inventory(fixture, fixture_path)
+
+    assert Enum.any?(relaxed_inventory, &(&1.action == "actions/cache@v6"))
+
+    error =
+      assert_raise ExUnit.AssertionError, fn ->
+        assert_valid_inventory!(relaxed_inventory)
+      end
+
+    assert error.message =~ fixture_path <> ":63"
+    assert error.message =~ "non-immutable action ref"
+  end
+
+  test "quoted and space-before-colon uses keys remain pinned" do
+    fixtures = [
+      {"quoted key", "test/fixtures/prohibitions/phase241-composite-unpinned-quoted-uses.yml", 6},
+      {"space-before-colon key",
+       "test/fixtures/prohibitions/phase241-composite-unpinned-space-before-colon-uses.yml", 6}
+    ]
+
+    for {name, fixture_path, line} <- fixtures do
+      inventory =
+        fixture_path
+        |> File.read!()
+        |> action_inventory(fixture_path)
+
+      assert Enum.any?(inventory, &(&1.action == "actions/checkout@v4")),
+             "#{name} fixture must expose its third-party action to the inventory"
+
+      error =
+        assert_raise ExUnit.AssertionError, fn ->
+          assert_valid_inventory!(inventory)
+        end
+
+      assert error.message =~ fixture_path <> ":#{line}"
+      assert error.message =~ "non-immutable action ref"
+    end
+  end
+
   test "privileged Release Please boundaries remain byte-stable around the pin" do
     workflow = File.read!(@release_please_path)
 
@@ -92,7 +226,7 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   end
 
   defp production_inventory do
-    @release_workflows
+    (@release_workflows ++ composite_action_paths())
     |> Enum.flat_map(fn path ->
       path
       |> File.read!()
@@ -101,11 +235,17 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
   end
 
   defp action_inventory(workflow, workflow_path) do
+    action_inventory(workflow, workflow_path, @action_pattern)
+  end
+
+  defp action_inventory(workflow, workflow_path, pattern) do
     workflow
     |> String.split("\n")
     |> Enum.with_index(1)
     |> Enum.flat_map(fn {line, line_number} ->
-      case Regex.run(~r/^\s*-\s+uses:\s+([^\s#]+)(?:\s+#\s*(.+))?\s*$/, line) do
+      assert_supported_uses_shape!(workflow_path, line_number, line)
+
+      case Regex.run(pattern, line) do
         [_, action, comment] -> action_entry(workflow_path, line_number, action, comment)
         [_, action] -> action_entry(workflow_path, line_number, action, nil)
         nil -> []
@@ -113,8 +253,26 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     end)
   end
 
+  defp assert_supported_uses_shape!(workflow_path, line_number, line) do
+    if Regex.match?(@flow_uses_pattern, line) or Regex.match?(@block_scalar_uses_pattern, line) do
+      flunk(
+        "#{workflow_path}:#{line_number} has unsupported YAML uses shape; refusing to silently omit it from the action-pinning inventory"
+      )
+    end
+  end
+
+  defp composite_action_paths(root \\ ".github/actions") do
+    case {root, System.get_env("SIGRA_CONTRACT_SUBJECT")} do
+      {".github/actions", subject} when is_binary(subject) and subject != "" -> [subject]
+      _ -> Path.wildcard(Path.join(root, "**/action.yml"))
+    end
+  end
+
   defp assert_valid_inventory!(inventory) do
     for action <- inventory do
+      assert not String.starts_with?(action.action, "./"),
+             "#{action.workflow}:#{action.line} references local action outside .github/actions: #{inspect(action.action)}"
+
       assert action.ref =~ ~r/^[0-9a-f]{40}$/,
              "#{action.workflow}:#{action.line} has non-immutable action ref #{inspect(action.ref)}"
 
@@ -127,7 +285,11 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     end
   end
 
-  defp action_entry(_workflow_path, _line_number, "./" <> _local_action, _comment), do: []
+  defp action_entry(workflow_path, line_number, "./" <> _local_action = action, comment) do
+    if local_action_inside_actions?(action),
+      do: [],
+      else: local_action_entry(workflow_path, line_number, action, comment)
+  end
 
   defp action_entry(workflow_path, line_number, action, comment) do
     case String.split(action, "@", parts: 2) do
@@ -145,5 +307,24 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
       _ ->
         [%{workflow: workflow_path, line: line_number, action: action, ref: "", comment: comment}]
     end
+  end
+
+  defp local_action_entry(workflow_path, line_number, "./" <> local_action, comment) do
+    [
+      %{
+        workflow: workflow_path,
+        line: line_number,
+        action: "./" <> local_action,
+        ref: "",
+        comment: comment
+      }
+    ]
+  end
+
+  defp local_action_inside_actions?(action) do
+    local_path = Path.expand(action)
+    actions_root = Path.expand(".github/actions")
+
+    local_path == actions_root or String.starts_with?(local_path, actions_root <> "/")
   end
 end

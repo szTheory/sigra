@@ -77,6 +77,8 @@ This repo has three documented precedents of a green gate that verified nothing.
 - [ ] **REL-05**: An ADR records pinned install docs (`{:sigra, "~> 1.5"}`) as the deliberate resolution decision, and states plainly that retirement does **not** move `latest_stable_version` or change resolution. No artifact in this milestone may claim the retire fixed resolution.
 - [ ] **REL-06**: Release **1.5.1** is cut and published to Hex from a green gate, with the `## Unreleased` CHANGELOG block folded into the release section before merge.
 
+> **Phase 242 safety-closeout disposition — 2026-09-22.** REL-03, REL-04, and REL-06 are superseded-not-satisfied: three bounded remediation dispatches did not produce a validated retirement, HexDocs revert, or 1.5.1 release receipt, and the remaining external actions were retired rather than retried. REL-05 is limited to the delivered source safeguard: owned public installation guidance uses `{:sigra, "~> 1.5.0"}` and a repository contract enforces it; this is not a claim that the registry was repaired, that an ADR was created, or that resolution changed. Any future registry mutation, docs revert, or release requires a separately scoped, explicitly authorized phase.
+
 ### Clean shipped surface (SURF)
 
 - [x] **SURF-01**: Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree.
@@ -84,7 +86,7 @@ This repo has three documented precedents of a green gate that verified nothing.
   - *Consistency note (plan 239-10, D-27) — SURF-01 vs. the amended SC-2:* the two texts describe the same surface, quoted here side by side rather than left to inference. Amended ROADMAP **SC-2** (Phase 239): "The `mix hex.build` **tarball**, extracted, greps clean for `.planning/` paths **under `lib/` and `priv/`** — the source tree is never the thing that is asserted." **SURF-01** (unchanged by this plan): "Zero `.planning/` path references remain in `lib/` or `priv/templates/` — verified by grepping a **freshly generated app** and the `mix hex.build` tarball, not the source tree." SURF-01 names `lib/` and `priv/templates/` as the *scope* and the tarball as the *verification vehicle*; SC-2 now names `lib/` and `priv/` as the asserted region inside that vehicle. `priv/templates/` ⊂ `priv/`, so SC-2 is the wider of the two and SURF-01 cannot pass while SC-2 fails. SURF-01's requirement sentence is byte-unchanged — it was already the narrower and correct wording, which is exactly why `239-VERIFICATION.md` rates SURF-01 satisfied while SC-2 failed.
 - [x] **SURF-02**: No planning bookkeeping remains in `@moduledoc`/`@doc` ranges that render on HexDocs (starting with `lib/sigra/audit.ex:5`), and `mix docs` is warning-free **as a gate**, with the `skip_undefined_reference_warnings_on` list pruned to what is still needed.
 - [x] **SURF-03**: `priv/templates/` carries no planning bookkeeping, landed as one sweep plus **one batched re-bless per batch of template edits** (`mix sigra.fixture.rebless_golden`), in separate commits — amended from "**one** batched" per D-26, because the gap closure lands a second batch of template edits; each run stays single, fixture-scoped, comment-only and alone in its commit. Only the `test/example/` counterparts of edited templates are mirrored.
-- [ ] **SURF-04**: A `scripts/ci/prohibitions/p18-*.test.mjs` guard blocks new adopter-visible leakage — hard-fail on `.planning/` paths, all of `priv/templates/`, and HexDocs-rendering doc ranges; a **monotonic-decrease ratchet** on remaining inline `lib/` comments. Zero is explicitly not the v1.48 target. Never added to `mix ci`. **Packaged-docs surface (added by plan 239-10 per D-27):** `mix.exs`'s Hex `files:` list (`mix.exs:184` — `~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)`) packages `docs/`, `README.md` and `CHANGELOG.md`, so those files sit inside the artifact an adopter downloads; the SURF-04 ratchet covers that packaged-docs surface alongside the inline `lib/` comment ratchet it already covers. Measured at Phase 239's close: **58** `.planning/` occurrences across 32 lines in 6 files. Routed here by Phase 239's SC-2 amendment — see `.planning/todos/pending/2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md`.
+- [x] **SURF-04**: A `scripts/ci/prohibitions/p18-*.test.mjs` guard blocks new adopter-visible leakage — hard-fail on `.planning/` paths, all of `priv/templates/`, and HexDocs-rendering doc ranges; a **monotonic-decrease ratchet** on remaining inline `lib/` comments. Zero is explicitly not the v1.48 target. Never added to `mix ci`. **Packaged-docs surface (added by plan 239-10 per D-27):** `mix.exs`'s Hex `files:` list (`mix.exs:184` — `~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)`) packages `docs/`, `README.md` and `CHANGELOG.md`, so those files sit inside the artifact an adopter downloads; the SURF-04 ratchet covers that packaged-docs surface alongside the inline `lib/` comment ratchet it already covers. Measured at Phase 239's close: **58** `.planning/` occurrences across 32 lines in 6 files. Routed here by Phase 239's SC-2 amendment — see `.planning/todos/pending/2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md`.
 
 ### Clean git working state (REPO)
 
@@ -102,10 +104,10 @@ This repo has three documented precedents of a green gate that verified nothing.
 
 ### Retire v1.47's dishonest debt (DEBT)
 
-- [ ] **DEBT-01**: TEST-01/02 supersession by the single-owner `mix ci` design is recorded as an ADR, and the orphaned `Sigra.CI.ExUnitTimingFormatter` plus its test are deleted.
-- [ ] **DEBT-02**: `test/sigra/planning/phase_233_library_economics_contract_test.exs` no longer asserts the regression is correct; its replacement is demonstrated **RED** against a committed known-bad fixture before being accepted.
-- [ ] **DEBT-03**: `.github/ci-skip-manifest.tsv` no longer cites the nonexistent `scripts/ci/prohibitions/honest-skip-parity.test.mjs` — either the guard is written and enforces manifest ↔ `ci.yml` ↔ `MAINTAINING.md` parity, or the false claim is removed. `MAINTAINING.md:172-178,231` is corrected to describe the actual HEAD shard topology.
-- [ ] **DEBT-04**: `.github/actions/example-playwright-boot/action.yml` is covered by the action-pinning supply-chain guard (`action_entry/4` currently returns `[]` for local `"./"` actions, making it invisible in both directions).
+- [x] **DEBT-01**: TEST-01/02 supersession by the single-owner `mix ci` design is recorded as an ADR, and the orphaned `Sigra.CI.ExUnitTimingFormatter` plus its test are deleted.
+- [x] **DEBT-02**: `test/sigra/planning/phase_233_library_economics_contract_test.exs` no longer asserts the regression is correct; its replacement is demonstrated **RED** against a committed known-bad fixture before being accepted.
+- [x] **DEBT-03**: `.github/ci-skip-manifest.tsv` no longer cites the nonexistent `scripts/ci/prohibitions/honest-skip-parity.test.mjs` — either the guard is written and enforces manifest ↔ `ci.yml` ↔ `MAINTAINING.md` parity, or the false claim is removed. `MAINTAINING.md:172-178,231` is corrected to describe the actual HEAD shard topology.
+- [x] **DEBT-04**: `.github/actions/example-playwright-boot/action.yml` is covered by the action-pinning supply-chain guard (`action_entry/4` currently returns `[]` for local `"./"` actions, making it invisible in both directions).
 
 ## Deferred to a Future Milestone
 
@@ -158,7 +160,7 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | SURF-01 | Phase 239 | Complete |
 | SURF-02 | Phase 237 | Complete |
 | SURF-03 | Phase 239 | Complete |
-| SURF-04 | Phase 241 | Pending |
+| SURF-04 | Phase 241 | Complete |
 | REPO-01 | Phase 237 | Complete |
 | REPO-02 | Phase 237 | Complete |
 | REPO-03 | Phase 237 | Complete |
@@ -167,10 +169,10 @@ criteria live in `.planning/ROADMAP.md` under `# v1.48 CLEAN-BASELINE (active)`.
 | QUEUE-02 | Phase 244 | Pending |
 | QUEUE-03 | Phase 243 | Pending |
 | QUEUE-04 | Phase 243 | Pending |
-| DEBT-01 | Phase 241 | Pending |
-| DEBT-02 | Phase 241 | Pending |
-| DEBT-03 | Phase 241 | Pending |
-| DEBT-04 | Phase 241 | Pending |
+| DEBT-01 | Phase 241 | Complete |
+| DEBT-02 | Phase 241 | Complete |
+| DEBT-03 | Phase 241 | Complete |
+| DEBT-04 | Phase 241 | Complete |
 
 **Coverage:**
 

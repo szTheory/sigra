@@ -1,6 +1,6 @@
 ---
 phase: 237-clean-working-tree-green-pages-clean-lib-docs-surface
-verified: 2026-09-16T00:00:00Z
+verified: 2026-09-25T16:26:06Z
 status: passed
 score: 5/5 must-haves verified
 covered_files:
@@ -18,17 +18,25 @@ covered_files:
   - ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-05-SUMMARY.md"
   - ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-06-PLAN.md"
   - ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-06-SUMMARY.md"
+  - ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/COVERAGE.md"
   - "doc/llms.txt"
   - "guides/introduction/code-walkthrough.md"
   - "guides/introduction/upgrading-to-v1.10.md"
   - "guides/introduction/upgrading-to-v1.11.md"
   - "lib/mix/tasks/sigra.fixture.rebless_golden.ex"
   - "lib/sigra/audit.ex"
+  - "lib/sigra/install/features/core.ex"
   - "lib/sigra/testing.ex"
   - "mix.exs"
-covered_digest: "v1:sha256:a50b832ca67b8a7781df0efee6b6e95c4a4d7169f189aa11259b967e064e697c"
+covered_digest: "v1:sha256:8220d2cc66cb67435b6c10de38ec1bf19ef0eb478006d3a9e14d1332f2e2d7de"
 behavior_unverified: 0
 overrides_applied: 2
+re_verification:
+  previous_status: stale
+  previous_score: "5/5 must-haves verified"
+  gaps_closed: []
+  gaps_remaining: []
+  regressions: []
 overrides:
   - must_have: "SC-2 — the published Pages check is green after the operator PUT plus the root `.nojekyll` backstop on the default branch"
     reason: "D-07 (237-CONTEXT.md): a root `.nojekyll` on `main` would publish the entire repository root (CLAUDE.md, AGENTS.md, brandbook/, .planning/) as a public static site. The backstop SC-2 asks for already exists on the `gh-pages` publish branch; the fix repoints Pages `source` there instead. Re-observed live: source.branch=gh-pages, status=built, URL 200."
@@ -59,20 +67,68 @@ advisory:
 # Phase 237: Clean Working Tree, Green Pages, Clean `lib/` Docs Surface — Verification Report
 
 **Phase Goal:** A maintainer who clones Sigra fresh sees a clean `git status`, a Pages check that is green because the site builds, and HexDocs pages that carry no internal planning bookkeeping.
-**Verified:** 2026-09-16
+**Verified:** 2026-09-25
 **Status:** passed (5/5, 2 via recorded decision overrides)
-**Re-verification:** No — initial verification
-**Verified at HEAD:** `b5c8b55e` (working tree clean except pre-existing untracked `.planning/milestone.lock`)
+**Re-verification:** Yes — automation-first refresh after later phase updates changed the shared requirements fingerprint
+**Verified at current HEAD:** `1d512e69` (current Phase 237 requirements mapping, docs, consumer seam, clean clone, live Pages, and guard controls rechecked).
 
-Every observation below was **independently re-executed by the verifier** against the live
-codebase at `b5c8b55e` — not read out of a SUMMARY. Where an absence is claimed, a positive
-control from the same run is shown, per this phase's own standing rule.
+The 2026-09-19 refresh replaced conversational UAT with 21 deterministic checks in
+`237-UAT.md`. It also added the seal-time GitHub API coverage matrix and reclassified four
+historical shared-tree commit counters as legacy metadata: their plan-specific hashes and prose
+remain intact, while they no longer pretend that an ever-growing `plan_head_before..HEAD` range
+is a stable per-plan ledger.
 
-Ledger-integrity precondition confirmed first: `237-EVIDENCE.md` names
-`Observed at commit: 0afe33d7`; `git merge-base --is-ancestor 0afe33d7 HEAD` → yes, and
-`git diff --name-only 0afe33d7 HEAD | grep -v '^\.planning/'` → empty. Every commit after the
-ledger's observation point touches `.planning/` only, so the ledger's `mix ci` and gate results
-remain statements about the shipped tree.
+The historical observations below were **independently re-executed by the verifier** against the
+live codebase at `b5c8b55e` — not read out of a SUMMARY. They describe Phase 237's closeout state.
+The current-HEAD refresh below separately records later changes and their checks. Where an
+absence is claimed, a positive control from the same run is shown, per this phase's own rule.
+
+At original verification, ledger-integrity was confirmed: `237-EVIDENCE.md` names
+`Observed at commit: 0afe33d7`; that commit was an ancestor, and no non-planning file had changed
+after the ledger observation. Later phase work has since changed `.gitignore` and made
+documentation-comment edits in `lib/sigra/install/features/core.ex`; the current refresh below
+rechecks the clean-clone rules, generated docs, rationale guard, and full local gate against those
+changes. The original one-worktree observation also remains a Phase 237 closeout snapshot; later
+Phase 241/242 execution worktrees are reported separately rather than mistaken for stale records.
+
+## Current-HEAD Refresh — 2026-09-24
+
+The only product-input changes since the prior Phase 237 code attestation were the added
+`.planning/milestone.lock` ignore rule in `.gitignore` and planning-comment edits in
+`lib/sigra/install/features/core.ex`. Current evidence:
+
+| Seam | Current result |
+|---|---|
+| Fresh clone and ignore rules | `git clone file://...` had empty porcelain status; `doc/llms.txt` is tracked and not ignored; generated `doc/index.html`, `.gsd/scratch/probe.log`, and `.planning/milestone.lock` are ignored. |
+| Docs and consumer contracts | `mix docs --warnings-as-errors` plus `git diff --exit-code -- doc/llms.txt` passed; Phase 148/149 consumers: 7 tests, 0 failures; `scripts/ci/launch-pack-contract.sh`: `OK`. |
+| Generated core module comments | `MIX_ENV=test mix test test/sigra/install/features/core_test.exs`: 29 tests, 0 failures. |
+| Full sanctioned gate | After `MIX_ENV=test mix clean`, `HEX_HOME=/private/tmp/sigra-hex-verify-237 SIGRA_TEST_PG_PORT=5432 MIX_ENV=test mix ci` exited 0: main lane 2614 tests, 0 failures; threadline-guard lane 65 tests, 0 failures. The first restricted-sandbox attempt exposed denied `sandbox-exec`/Hex-cache writes, a reused-build Threadline failure, and a filesystem timeout; the clean retry with a task-scoped Hex cache passed without source changes. |
+| GitHub Pages | API read-back: `gh-pages` at `/`, status `built`; latest build `1235951150` is `built` at `2fe0ebb19f8b`; public URL returns 200 and missing-path control returns 404. |
+| Documentation and rationale | Docs scanner reproduces 337 hits / 254 sites / 69 files; suppression list remains 7; named dead references and links remain absent with content controls. Rationale guard passed the current `lib/` diff with `examined_removed_lines=18`, failed the security-rationale fixture, passed the bookkeeping control, and failed closed on empty input. |
+| Evidence and Git objects | Evidence ledger parser found all 6 required slots. All 6 stashes still match the committed SHA snapshot. The 5 retired worktree path names remain absent; the current list has 9 entries because later Phase 241/242 executions are active. |
+| Human checkpoints | Coverage classifiers returned zero `present[]` items; Phase 237 has no UI-SPEC or UI target, so no manual UI checkpoint is queued. |
+
+The 21 UAT checks remain complete with 21 passes, 0 issues, and 0 pending. Current test output and
+run details are also recorded in `237-UAT.md`.
+
+## Current-HEAD Refresh — 2026-09-25
+
+The stale marker was caused by the shared `.planning/REQUIREMENTS.md` changing during Phase 243
+closeout. The GREEN-03, SURF-02, and REPO-01/02/03 rows still map to Phase 237 and remain Complete.
+No Phase 237 product input changed since the prior full sanctioned CI run; the current `lib/` diff
+is empty. The changed guide files in the shared working tree were included in today's docs build.
+
+| Seam | Current result |
+|---|---|
+| Fresh clone and generated-doc index | Real local clone has empty porcelain status; `doc/llms.txt` is tracked and unignored; generated `doc/index.html` is ignored. |
+| Docs and consumer contracts | `MIX_ENV=dev mix docs --warnings-as-errors` and `git diff --exit-code -- doc/llms.txt` passed; Phase 148/149 consumer seam: 7 tests, 0 failures using the freshly provisioned Sigra test DB; `scripts/ci/launch-pack-contract.sh`: `OK`. |
+| Docs-surface ratchet | Committed scanner reproduces 337 hits / 254 sites / 69 files. |
+| Security-rationale guard | RED fixture is rejected; bookkeeping-only fixture passes with `examined_removed_lines=1`; empty stdin and empty-file controls fail closed. The current `lib/` diff is empty and was not misreported as a non-vacuous guard pass. |
+| GitHub Pages | API read-back: source `gh-pages` at `/`, status `built`; latest build `e8d69044` is `built`; public URL `200`, missing-path control `404`. |
+| UAT and coverage | UAT remains 21/21 passed, 0 issues, 0 pending. Summaries 237-03 through 237-06 classify with no human `present[]` entries; no Phase 237 UI spec or target queues a manual checkpoint. |
+
+Fingerprint refreshed for the exact covered inputs, including the shared requirements update:
+`v1:sha256:8220d2cc66cb67435b6c10de38ec1bf19ef0eb478006d3a9e14d1332f2e2d7de`.
 
 ## Goal Achievement
 

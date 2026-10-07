@@ -5,7 +5,7 @@
 # indistinguishable from "this lane passed" unless the legitimate skips are enumerated
 # somewhere a machine can read. That enumeration used to live only as prose in
 # MAINTAINING.md. Prose is now a RENDERER of this file, not a second source of truth:
-# scripts/ci/prohibitions/honest-skip-parity.test.mjs asserts
+# scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs asserts
 # manifest <=> ci.yml <=> MAINTAINING.md and fails in every direction (an undocumented
 # demotion, a stale doc entry, or a manifest row naming a construct ci.yml does not have).
 #
@@ -13,7 +13,7 @@
 #   - scripts/ci/ci-demotion-observer.sh                   reads the `assert` rows to
 #                                                          decide what must have executed
 #                                                          on a non-pull_request run
-#   - scripts/ci/prohibitions/honest-skip-parity.test.mjs   three-way parity guard
+#   - scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs   three-way parity guard
 #   - Phase 231 GATE-03                                    SHOULD read this file rather
 #                                                          than re-deriving the set.
 #                                                          GATE-03 owns the `ci-gate`
