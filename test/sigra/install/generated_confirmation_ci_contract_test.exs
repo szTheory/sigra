@@ -52,6 +52,21 @@ defmodule Sigra.Install.GeneratedConfirmationCIContractTest do
     refute spec =~ "waitForTimeout"
   end
 
+  test "required Phase 246 evidence dispatch is limited to its exact source branch" do
+    workflow = committed_read(".github/workflows/ci.yml")
+    inputs = section(workflow, "  workflow_dispatch:\n", "  schedule:\n")
+    release_guard = section(workflow, "  release_ref_guard:\n", "  changes:\n")
+
+    assert inputs =~ "phase_246_ci_evidence:"
+    assert inputs =~ "default: false"
+    assert release_guard =~ "PHASE_246_CI_EVIDENCE: ${{ inputs.phase_246_ci_evidence }}"
+    assert release_guard =~ "refs/heads/gsd/phase-246-generated-confirmation-recovery-ci"
+    assert release_guard =~ "&& [ -z \"$RECAPTURE_BRANCH\" ]"
+    assert release_guard =~ "&& [ \"$FORCE_FAIL_PROBE\" = \"false\" ]"
+    assert release_guard =~ "&& [ \"$FORCE_ROT_PROBE\" = \"false\" ]"
+    assert release_guard =~ "recapture and failure-probe jobs remain excluded"
+  end
+
   defp read(path), do: File.read!(Path.join(@root, path))
 
   defp committed_read(path) do
