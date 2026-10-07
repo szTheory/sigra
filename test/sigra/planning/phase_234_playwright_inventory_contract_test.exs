@@ -3,10 +3,9 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
   @workflow_path ".github/workflows/ci.yml"
   @config_path "test/example/priv/playwright/playwright.config.ts"
-  @inventory_path Sigra.Test.PlanningPaths.phase_file(
-                    "234-hygiene-supply-chain-and-contributor-dx",
-                    "234-PLAYWRIGHT-INVENTORY.json"
-                  )
+  # The archived Phase 234 snapshot is immutable input to Phase 235's captured
+  # evidence. Keep live-spec reconciliation in a current registry instead.
+  @inventory_path "test/example/priv/playwright/spec-ownership.json"
   @harness_mappings %{
     "test/example/priv/playwright/tests/admin-eval.spec.ts" => %{
       "command_marker" => "scripts/ci/admin-eval-harness.sh",
@@ -17,6 +16,11 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       "command_marker" => "scripts/ci/admin-acceptance-smoke.sh --test all",
       "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
       "harness_spec_marker" => "tests/admin-generated.spec.ts"
+    },
+    "test/example/priv/playwright/tests/generated-confirmation.spec.ts" => %{
+      "command_marker" => "scripts/ci/admin-acceptance-smoke.sh --test all",
+      "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
+      "harness_spec_marker" => "tests/generated-confirmation.spec.ts"
     }
   }
 
@@ -147,6 +151,13 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     assert_harness_lane!(inventory, "admin-generated.spec.ts", %{
       "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
       "harness_spec_marker" => "tests/admin-generated.spec.ts"
+    })
+
+    assert_harness_lane!(inventory, "generated-confirmation.spec.ts", %{
+      "harness_path" => "scripts/ci/admin-acceptance-smoke.sh",
+      "harness_spec_marker" => "tests/generated-confirmation.spec.ts",
+      "project" => "generated-host-chromium",
+      "config_seam" => "GENERATED_CONFIRMATION_SPEC"
     })
 
     {admin_eval, other_specs} = pop_spec!(inventory["specs"], "admin-eval.spec.ts")
