@@ -80,7 +80,7 @@ coverage:
 1. **Task 1: Refresh PR #224 and reconcile candidate identity** — `3986392` (fix; exact-source promotion validator, fixtures, and evidence ledger).
 2. **Task 2: Curate source-backed adopter changes** — `51c0e7a` (docs; candidate changelog commit on PR #224).
 
-**Plan metadata:** pending GSD-managed summary/state commit.
+**Plan metadata:** `a8a9f8dfb` (GSD-managed summary/state/roadmap/requirements commit).
 
 ## Files Created/Modified
 
