@@ -56,7 +56,7 @@ Plans:
 - [x] 246-02-PLAN.md — Account-bound pasted-code verification and visible feedback.
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 246-03-PLAN.md — Local Chromium proof and route implemented; required CI receipt blocked by four older local gate failures.
+- [ ] 246-03-PLAN.md — Local Chromium proof and route implemented; all four local gate failures are repaired and clean-source `mix ci` passes, but exact-source required GitHub CI evidence is still missing.
 
 **UI hint**: yes
 
@@ -95,7 +95,24 @@ Plans:
   2. A running release evaluation can finish without cancellation by a later event; workflow permissions are scoped and the Hex credential is available only to the final publish step.
   3. A maintainer can retrieve machine-readable gate and publish receipts for success, failure, or cancellation, with version/tag, source SHA, workflow and run identity, verdict, relevant URLs, attempts, and timestamps.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+
+**Wave 1**
+- [ ] 248-01-PLAN.md — Bind the release package checks and CI gate to one exact source SHA.
+
+**Wave 2** *(blocked on Wave 1 completion and Phase 247 candidate readiness)*
+- [ ] 248-02-PLAN.md — Test the Release Please head and guarded auto-squash-merge only that green head.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 248-03-PLAN.md — Scope workflow permissions and isolate release credentials behind main-only environments.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 248-04-PLAN.md — Retain machine-readable terminal gate and publish receipts.
+
+**Wave 5** *(blocked on Waves 2 and 4 completion)*
+- [ ] 248-05-PLAN.md — Capture cancellation receipts and close cross-workflow security contracts.
 
 #### Phase 249: Publish and Prove Sigra 1.6.0
 
@@ -117,9 +134,9 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 2/3 | In Progress | - |
 | 247. Release Candidate and Repository Readiness | v1.49 | 0/4 | Planned | - |
-| 248. Exact-Source Release Gate | v1.49 | 0/TBD | Not started | - |
+| 248. Exact-Source Release Gate | v1.49 | 0/5 | Planned | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
 
 ### Next
 
-**Next: `$gsd-execute-phase 247`.** Phase 247 has four runnable plans and `init.execute-phase 247` reports no GSD prerequisite blocker. Execution must honor the plan's hard source gate: do not select or refresh the release candidate until Phase 246's required CI receipt and tested-source relationship are proven. Phase 246 remains in progress (2/3); its local implementation and review are retained, while required CI evidence remains blocked. Phase 245's historical verification gaps stay separate and do not expand v1.49 scope.
+**Next: `$gsd-execute-phase 246`.** `init.verify-work 246` reports the phase verification report is missing and routes through execute-phase, which resumes at the verification gates. The four deterministic local CI failures are repaired in `4df425a62`; a clean-source `MIX_ENV=test mix ci` passed with 2,623 tests and zero failures plus the 65-test dependency-off guard. The required exact-source GitHub workflow receipt is still missing. After Phase 246 verification passes, resume `$gsd-execute-phase 247`; do not select its release source before that receipt. Phase 248 is planned (five plans) and depends on Phase 247. Phase 245's historical verification gaps stay separate and do not expand v1.49 scope.
