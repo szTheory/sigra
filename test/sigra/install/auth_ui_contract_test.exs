@@ -126,6 +126,7 @@ defmodule Sigra.Install.AuthUIContractTest do
 
     assert confirmation =~ "dgettext(\"sigra\", \"Your email has been confirmed.\")"
     assert confirmation =~ "dgettext(\"sigra\", \"Invalid confirmation code. Please try again.\")"
+    assert confirmation =~ "clear_flash(:error)"
     assert confirmation =~ "assign(form: to_form(%{\"code\" => code}, as: \"confirmation\"))"
     assert confirmation =~ "assign(live_action: :confirmed)"
     refute confirmation =~ "push_event"
@@ -143,6 +144,14 @@ defmodule Sigra.Install.AuthUIContractTest do
 
     assert elem(:binary.match(submit_handler, "Regex.match?"), 0) <
              elem(:binary.match(submit_handler, "Auth.confirm_user_by_code"), 0)
+  end
+
+  test "link confirmation handles missing and nonbinary tokens safely" do
+    confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
+
+    assert confirmation =~ "case socket.assigns[:confirmation_token] do"
+    assert confirmation =~ "when is_binary(token) and byte_size(token) > 0"
+    assert confirmation =~ "invalid_confirmation_link_response(socket)"
   end
 
   test "audit forms expose one named control per filter and label active state" do
