@@ -2,6 +2,14 @@
 
 This file defines repo-level decision lenses that discussion, research, and planning agents should apply before escalating questions.
 
+## Automation-First Verification
+
+Make deterministic verification the default across planning, implementation, and closeout. For each changed behavior, identify the narrowest durable seam that proves it: unit or contract tests for local rules, integration tests for connected modules, generated-host or end-to-end tests for user workflows, and smoke checks for startup and deployment boundaries. Add coverage at more than one layer when the layers catch distinct failure modes.
+
+Prefer checks that run automatically on every relevant change when they provide recurring value. Put merge-critical checks in CI; keep fast feedback local when CI would add cost or delay without improving coverage. Keep external-service checks deterministic through recorded fixtures, read-only live probes, or explicit environment-gated lanes, and require evidence that the intended job actually ran rather than trusting an aggregate green status.
+
+Treat human verification as the last resort: use it only for outcomes that cannot be established reliably by automation, such as subjective judgment or an unavailable external authority. When a human checkpoint remains necessary, state the exact uncertainty and preserve machine-readable evidence for every other criterion. Do not ask the operator to repeat checks already established by reproducible automated evidence.
+
 ## Decisive Defaulting
 
 Use researched, repo-consistent defaults unless a choice materially changes security posture, public contract, generated-host contract, or proof/truth claims.

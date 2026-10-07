@@ -1,0 +1,12 @@
+name: Fixture CI
+
+jobs:
+  library_tests:
+    name: Library tests
+    steps:
+      - run: MIX_ENV=test mix ci
+
+  library_tests-canary_2:
+    name: Library tests canary
+    steps:
+      - run: MIX_ENV=test mix ci

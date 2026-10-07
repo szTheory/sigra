@@ -1,31 +1,6 @@
 #!/usr/bin/env bash
-# Phase 230 (FAST-06 / D-16, D-18): Playwright browser cache key version-drift guard.
-#
-# Contract: asserts the version embedded in .github/workflows/ci.yml's
-# Playwright browser cache key (`playwright-chromium-webkit-<version>-vN`)
-# equals the resolved `@playwright/test` version in
-# test/example/priv/playwright/package-lock.json. package.json declares
-# "@playwright/test": "^1.48.0" while the lockfile currently resolves
-# 1.59.1 -- a literal version in the cache key means a future lockfile bump
-# can leave the workflow key unchanged, an exact cache-hit then restores the
-# OLD browser revision directory, the hit branch skips the full install, and
-# Playwright fails at test time with a missing-executable error. This guard
-# is what makes that failure loud in fast_checks instead of silent inside a
-# passing example_playwright_smoke run.
-#
-# Phase 231 (GATE-04 / C-6): the `-vN` suffix segment is a boundary marker
-# the workflow re-tokens whenever the cached browser SET changes (-v1 -> -v2
-# when admin_eval_render started needing webkit too, see ci.yml's Playwright
-# browser cache comment). The extraction below matches ANY `-vN` token
-# rather than hard-coding `-v1`, so a future re-token advances the marker
-# without also silently turning this guard's "no cache key found" fail-closed
-# path into a real failure over an unrelated-looking cause.
-#
-# Does NOT cover: the browser set ("chromium-webkit") encoded in the same
-# key. That is D-16's concern, asserted structurally by plan 06 Task 1's
-# ci.yml verify block (a single-occurrence grep), not by this script.
-#
-# Consumer: fast_checks (every PR and push).
+# Phase 244: validate every Chromium browser-cache family against the exact
+# Playwright version locked for the example test tooling.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -48,44 +23,34 @@ fail() {
 [[ -f "$WORKFLOW" ]] || fail "workflow file not found: ${WORKFLOW}"
 [[ -f "$LOCKFILE" ]] || fail "lockfile not found: ${LOCKFILE}"
 
-# The cache key line has the shape:
-#   key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v2
-# Extract the literal version between the browser-set segment and the -vN
-# suffix, where N is any version token (not hard-coded to -v1 -- see the
-# Phase 231 / C-6 comment above). No fallback: if the pattern is absent,
-# key_version stays empty and the guard below fails closed rather than
-# silently passing.
-key_version="$(grep -oE 'playwright-chromium-webkit-[0-9]+\.[0-9]+\.[0-9]+-v[0-9]+' "$WORKFLOW" \
-  | head -1 \
-  | sed -E 's/^playwright-chromium-webkit-([0-9]+\.[0-9]+\.[0-9]+)-v[0-9]+$/\1/')" || true
-[[ -n "$key_version" ]] || fail "no Playwright browser cache key (playwright-chromium-webkit-<version>-vN) found in ${WORKFLOW}"
+key_lines="$(grep -oE 'playwright-chromium(-webkit)?-[0-9]+\.[0-9]+\.[0-9]+-v[0-9]+' "$WORKFLOW" || true)"
+key_count="$(printf '%s\n' "$key_lines" | sed '/^$/d' | wc -l | tr -d ' ')"
+[[ "$key_count" -eq 5 ]] || fail "expected all 5 Playwright cache keys, found ${key_count} in ${WORKFLOW}"
 
-# The lockfile entry has the shape:
-#   "node_modules/@playwright/test": {
-#     "version": "1.59.1",
-#     ...
-# "version" is always the first field after the block opens, so scanning
-# two lines past the header is sufficient and does not depend on a JSON
-# parser being installed.
-lockfile_version="$(grep -A 2 '"node_modules/@playwright/test": {' "$LOCKFILE" \
-  | grep -m1 '"version"' \
-  | sed -E 's/.*"version": *"([^"]+)".*/\1/')" || true
-[[ -n "$lockfile_version" ]] || fail "no node_modules/@playwright/test entry found in ${LOCKFILE}"
+chromium_count=0
+webkit_count=0
+while IFS= read -r key; do
+  [[ -n "$key" ]] || continue
+  if [[ "$key" =~ ^playwright-chromium-[0-9]+\.[0-9]+\.[0-9]+-v[0-9]+$ ]]; then
+    chromium_count=$((chromium_count + 1))
+  elif [[ "$key" =~ ^playwright-chromium-webkit-[0-9]+\.[0-9]+\.[0-9]+-v[0-9]+$ ]]; then
+    webkit_count=$((webkit_count + 1))
+  else
+    fail "unrecognized Playwright cache key: ${key}"
+  fi
+done <<< "$key_lines"
+[[ "$chromium_count" -gt 0 ]] || fail "missing chromium-only cache-key family in ${WORKFLOW}"
+[[ "$webkit_count" -gt 0 ]] || fail "missing chromium-webkit cache-key family in ${WORKFLOW}"
 
-[[ "$key_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
-  || fail "workflow cache key version '${key_version}' (from ${WORKFLOW}) is not a valid semver shape"
-[[ "$lockfile_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
-  || fail "lockfile @playwright/test version '${lockfile_version}' (from ${LOCKFILE}) is not a valid semver shape"
+lockfile_version="$(node -e 'const l=require(process.argv[1]); const p=l.packages?.["node_modules/@playwright/test"]; if(p) process.stdout.write(p.version);' "$LOCKFILE")"
+[[ "$lockfile_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "no valid node_modules/@playwright/test version found in ${LOCKFILE}"
 
-if [[ "$key_version" != "$lockfile_version" ]]; then
-  fail "cache key version ${key_version} (${WORKFLOW}) != lockfile @playwright/test version ${lockfile_version} (${LOCKFILE})"
-fi
+while IFS= read -r key; do
+  [[ -n "$key" ]] || continue
+  key_version="${key#playwright-chromium-}"
+  key_version="${key_version#webkit-}"
+  key_version="${key_version%-v*}"
+  [[ "$key_version" == "$lockfile_version" ]] || fail "cache key ${key} (${WORKFLOW}) != lockfile @playwright/test version ${lockfile_version} (${LOCKFILE})"
+done <<< "$key_lines"
 
-echo "playwright-cache-key-guard: PASS (key version ${key_version} matches lockfile ${lockfile_version})"
-
-# Provenance (230-09, FAST-06 evidence capture): CI run 30412458437 is the
-# cache-seeding run for AFTER-PR-WARM in 230-EVIDENCE.md. It saved the
-# Playwright browser cache under key Linux-playwright-chromium-webkit-1.59.1-v1
-# on 2026-07-29 (miss half of the FAST-06 pair). This comment is the one
-# non-Markdown, non-.planning/ change carried by the commit that triggers the
-# warm run observing the corresponding cache hit.
+echo "playwright-cache-key-guard: PASS (${key_count} keys: ${chromium_count} chromium, ${webkit_count} chromium-webkit; all match ${lockfile_version})"

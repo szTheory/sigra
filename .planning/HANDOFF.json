@@ -1,0 +1,105 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-09-24T02:46:07Z",
+  "phase": "242",
+  "phase_name": "Hex Retire + Docs Revert + Pinned-Install ADR + Cut 1.5.1",
+  "phase_dir": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1",
+  "plan": 3,
+  "task": 2,
+  "total_tasks": null,
+  "status": "in_progress",
+  "completed_tasks": [
+    {
+      "id": "242-01",
+      "name": "Phase 242 foundation",
+      "status": "done_in_multiple_worktrees",
+      "commit": "summary exists in root and phase worktrees"
+    },
+    {
+      "id": "242-02",
+      "name": "Remediation infrastructure merge",
+      "status": "done_in_separate_worktree",
+      "commit": "7662ee341cefd6b7a90d10f1c6834870ad5b7bb4"
+    },
+    {
+      "id": "242-03",
+      "name": "Hex remediation receipt",
+      "status": "halted_at_authorization_checkpoint",
+      "commit": "ee61cfb378dbe79de88482c714edeb7f098b469b"
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": "reconcile-worktrees",
+      "name": "Reconcile Phase 242 worktrees and summaries without overwriting divergent history",
+      "status": "not_started"
+    },
+    {
+      "id": "242-03-task-2",
+      "name": "Obtain explicit authorization before dispatching the corrected Hex remediation workflow",
+      "status": "awaiting_human_authorization"
+    },
+    {
+      "id": "phase-242-closeout",
+      "name": "Resume remaining plans and verification after reconciliation and authorization gate",
+      "status": "not_started"
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Plan 242-03's corrected Hex remediation dispatch is explicitly stopped pending user authorization; prior run 35554955828 failed on the unsupported --yes flag, and a repaired workflow was merged and CI-verified.",
+      "type": "human_action",
+      "workaround": "Continue only with independent, non-dispatch work after reconciling the scattered worktrees; do not dispatch the Hex workflow without explicit approval."
+    },
+    {
+      "description": "Phase 242 evidence is split across divergent worktrees whose common merge base is 417130bdc0e69dd102431391cd6cd30bf88b2fa5; root progress reports do not include all plan summaries.",
+      "type": "technical",
+      "workaround": "Map commits, summaries, and dirty files per worktree before choosing a canonical continuation branch; do not merge/cherry-pick branches blindly."
+    }
+  ],
+  "async_jobs": [
+    {
+      "manifest": "/private/tmp/sigra-242-execution/.planning/async-jobs/phase-242-03-executor-result.md",
+      "job_id": "35554955828",
+      "backend": "GitHub Actions / Hex remediation workflow",
+      "status": "halted_pending_explicit_authorization",
+      "submit_command": "Dispatch corrected Phase 242 remediation only after explicit user approval",
+      "submitted_at": "unknown",
+      "expected_artifacts": [
+        "242-HEX-REMEDIATION-EVIDENCE.json",
+        "Plan 242-03 Task 2 receipt"
+      ],
+      "verification_command": "Follow the exact command and evidence contract in 242-03-PLAN.md after authorization",
+      "resume_command": "Reconcile worktrees, then resume Phase 242 at Plan 242-03 Task 2 only after authorization"
+    }
+  ],
+  "human_actions_pending": [
+    {
+      "action": "Explicitly authorize or decline the corrected Hex remediation workflow dispatch required by Plan 242-03 Task 2.",
+      "context": "The workflow mutates external Hex state; its executor halted and recorded that a new explicit authorization is required.",
+      "blocking": true
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Keep the Codex GSD configuration and root-worktree local changes untouched while preparing the handoff.",
+      "rationale": "They are user-owned dirty files and are unrelated to safe consolidation of the phase work.",
+      "phase": "242"
+    },
+    {
+      "decision": "Do not merge, cherry-pick, or reset any phase worktree until its divergence and artifacts are mapped.",
+      "rationale": "The worktrees diverge from the root checkout at a common base and contain distinct implementation, state, and verification evidence.",
+      "phase": "242"
+    }
+  ],
+  "uncommitted_files": [
+    ".planning/config.json",
+    ".planning/state.json",
+    ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/",
+    "/private/tmp/sigra-241-ci-reconcile: modified planning verification/roadmap files and untracked scripts/ci/prohibitions/p23-tag-ruleset-observer-absent.test.mjs",
+    "/private/tmp/sigra-242-execution: modified .planning/STATE.md and .planning/state.json; untracked .planning/async-jobs/",
+    "/private/tmp/sigra-242-execution/.claude/worktrees/agent-p242-13: untracked file 1.5.0"
+  ],
+  "next_action": "Read this handoff and the per-worktree summary below; inspect the Phase 242 plan dependencies and branch contents, preserving all dirty files, before resuming execution. Keep Plan 242-03 Task 2 stopped until explicit user authorization.",
+  "context_notes": "The root checkout is not the canonical aggregate of Phase 242 work. Root has plans 242-01 through 242-10 and only 242-01-SUMMARY.md. agent-242-02-continuation is clean at 7662ee3 and contains 242-02-SUMMARY.md. phase-242-execution contains summaries 01-05 and 10-14, dirty state files, and halted async metadata for 242-03. Nested executor worktrees contain separate plan work; agent-p242-13 has an untracked 1.5.0 file. phase-241-ci-reconcile has uncommitted verification changes including Phase 242 verification and an untracked P23 test. agent-242-14-closeout is another distinct branch. All listed worktrees are preserved; no merge, reset, commit of source work, remote mutation, or workflow dispatch has been performed."
+}

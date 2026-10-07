@@ -149,3 +149,27 @@ Two things for the guard's author to inherit deliberately:
 Phase 239 Standing Constraint 5: this phase builds **no guard**. The widened definition is wired
 into nothing — not `mix ci`, not `.github/workflows/`, not `scripts/ci/prohibitions/*.test.mjs`.
 Phase 239 only measures with it and records it. The `p18` slot is Phase 241 SURF-04's work.
+
+## Phase 241 disposition (2026-09-19) — partially folded, remains pending
+
+**Partially folded into `p18`.** The V3 vocabulary above is now the committed R2
+definition in `scripts/ci/prohibitions/p18-bookkeeping-ratchet.test.mjs`; it is
+imported from the shared p18 helper rather than retyped. The guard keeps it
+separate from R1's narrower Phase-237 doc-range vocabulary and R3's literal
+`.planning/` packaged-docs vocabulary, because those three counters have
+different honest surfaces.
+
+The two proposed widenings are **declined for v1.48** and this todo remains
+pending for a future phase:
+
+- Case-folding plan-reference alternations measured R2 at **221** versus the
+  unwidened committed **220** (a one-line delta). The known lowercase gap,
+  `post plan 04` in `test/example/priv/playwright/tests/golden-path.spec.ts`,
+  remains outside every ratcheted surface.
+- Block/comment-aware matching is also declined. Joining lines could catch the
+  known split phrases, but it has no committed, measured implementation and
+  increases false-positive risk across line boundaries. It must be designed and
+  costed before a future baseline is changed.
+
+The decision was made before committing the Phase 241 baseline, so neither
+widening can be silently absorbed by moving R2's reference number.

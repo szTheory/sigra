@@ -41,7 +41,7 @@ actuals:
   tasks: 2
   commits: 3
 
-plan_head_before: 3bd5146111a14571395aaf542068ada1aa9e492f
+legacy_plan_head_before: 3bd5146111a14571395aaf542068ada1aa9e492f
 commits_note: >
   `git rev-list --count 3bd5146..HEAD` reports 6, but this plan executed in the SHARED main
   working tree alongside concurrent sibling plans 237-01 and 237-03, whose commits fall inside
