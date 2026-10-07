@@ -114,9 +114,12 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     await expect(page.getByText('Impersonation').first()).toBeVisible();
     await expect(page.getByText('acting as').first()).toBeVisible();
 
-    // Repeating the same submit must preserve the connected URL and rendered
-    // rows. This exercises the second push_patch transition, not just the
-    // source-level query construction.
+    // Canonicalize the query once, then ensure repeating the same submit
+    // preserves the connected URL and rendered rows. This exercises a second
+    // push_patch transition rather than assuming the initial hand-written URL
+    // already includes the filter form's default sort and page parameters.
+    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await waitForLiveViewReady(page);
     const connectedAuditUrl = page.url();
     const connectedRows = await page
       .locator('#admin-audit-desktop-results tbody tr')

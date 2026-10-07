@@ -393,7 +393,7 @@ defmodule Sigra.Install.Features.Core do
 
               live_session :sigra_confirmation,
                 on_mount: [{#{web_module}.UserAuth, :mount_current_scope}] do
-          #{confirmation_routes}
+        #{String.trim_trailing(confirmation_routes)}
               end
             end
         """
