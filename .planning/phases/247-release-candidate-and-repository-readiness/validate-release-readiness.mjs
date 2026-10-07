@@ -6,6 +6,12 @@ import { fileURLToPath } from 'node:url';
 const DISPOSITIONS = new Set(['release-blocking', 'release-relevant', 'separate-follow-up']);
 const KINDS = new Set(['committed', 'dirty']);
 const repository = 'szTheory/sigra';
+const APPROVED_PHASE_246_PATHS = [
+  'priv/templates/sigra.install/core/confirmation_live.ex',
+  'test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex',
+  'scripts/ci/generated-confirmation-probe.exs',
+  'test/sigra/install/auth_ui_contract_test.exs',
+];
 const phaseArtifacts = [
   '.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json',
   '.planning/phases/247-release-candidate-and-repository-readiness/247-01-tdd-red-evidence.json',
@@ -165,9 +171,70 @@ function stableIdentity(observation) {
   });
 }
 
+function validationSnapshot(ledger) {
+  return ledger.current_snapshot ?? ledger.entry_snapshot;
+}
+
+function validateCheckout(selection, observed) {
+  const errors = [];
+  const add = (code, message) => errors.push({ code, message });
+  const sha = selection?.selected_source_sha;
+  const worktree = selection?.candidate_worktree;
+  if (!/^[0-9a-f]{40}$/.test(sha ?? '')) add('selected_source_sha_invalid', 'The selected source must be a full Git SHA.');
+  if (!worktree?.path || worktree.head_sha !== sha) add('candidate_worktree_identity_mismatch', 'The candidate worktree path and recorded HEAD must match the selected source SHA.');
+  if (observed?.exists !== true) add('candidate_worktree_missing', 'The candidate worktree directory does not exist.');
+  if (observed?.head_sha !== sha) add('candidate_worktree_head_mismatch', 'The candidate worktree HEAD differs from the selected source SHA.');
+  if (observed?.status) add('candidate_worktree_dirty', 'The candidate worktree has tracked or untracked changes.');
+  if (observed?.live_main_sha !== sha || observed?.local_origin_main_sha !== sha) add('selected_main_identity_mismatch', 'The selected source is no longer the live and locally refreshed protected main SHA.');
+  if (selection?.status !== 'ready') add('source_selection_not_ready', 'Source selection is not marked ready.');
+  const evidence = selection?.phase_246_evidence;
+  if (evidence?.source_sha !== '90ec16f72a71d33224c0816ad77762e2e7262c76') add('phase_246_source_sha_mismatch', 'Phase 246 evidence must name the exact tested source SHA.');
+  if (evidence?.required_jobs?.['ci-gate'] !== 'success' || evidence?.required_jobs?.install_smoke !== 'success' || evidence?.required_jobs?.generated_admin_playwright_smoke !== 'success') {
+    add('phase_246_required_ci_missing', 'Phase 246 ci-gate, install smoke, and generated-admin Playwright smoke must all be successful.');
+  }
+  if (evidence?.reviewed_pr !== 288 || evidence?.promotion_commit !== sha) add('reviewed_promotion_mismatch', 'The selected source must be the exact protected-main promotion commit from reviewed PR #288.');
+  const included = Array.isArray(selection?.included_paths) ? selection.included_paths : [];
+  const includedPaths = included.map(row => row.path).sort();
+  if (included.length !== APPROVED_PHASE_246_PATHS.length
+    || includedPaths.some((value, index) => value !== [...APPROVED_PHASE_246_PATHS].sort()[index])
+    || included.some(row => row.reviewed_source_sha !== evidence?.source_sha || row.reviewed_blob_matches !== true || row.protected_main_sha !== sha || row.reviewed_pr !== 288)) {
+    add('included_paths_incomplete', 'The candidate must list the four approved Phase 246 paths and tie each to the exact tested source SHA.');
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+function observeCandidate(selection) {
+  const candidatePath = path.resolve(selection.candidate_worktree.path);
+  if (!fs.existsSync(candidatePath)) return { exists: false, head_sha: null, status: null };
+  return {
+    exists: true,
+    head_sha: runGit(['rev-parse', 'HEAD'], candidatePath),
+    status: runGit(['status', '--porcelain=v1', '-uall'], candidatePath),
+    live_main_sha: runGh(['api', `repos/${repository}/git/ref/heads/main`, '--jq', '.object.sha']),
+    local_origin_main_sha: runGit(['rev-parse', '--verify', 'refs/remotes/origin/main']),
+  };
+}
+
+function validateCheckoutFile(artifactPath) {
+  const absoluteArtifact = path.resolve(artifactPath);
+  const ledger = JSON.parse(fs.readFileSync(absoluteArtifact, 'utf8'));
+  const result = validateCheckout(ledger.source_selection, observeCandidate(ledger.source_selection ?? {}));
+  const final = {
+    valid: result.valid,
+    status: result.valid ? 'ready' : 'blocked',
+    checked_at: new Date().toISOString(),
+    checked: { selected_source_sha: ledger.source_selection?.selected_source_sha, candidate_worktree: ledger.source_selection?.candidate_worktree },
+    diagnostics: result.errors,
+  };
+  ledger.checkout_validation = final;
+  fs.writeFileSync(absoluteArtifact, `${JSON.stringify(ledger, null, 2)}\n`);
+  console.log(JSON.stringify(final, null, 2));
+  return final.valid;
+}
+
 function validateWorkingCopy(snapshot, observed) {
   const errors = [];
-  const source = snapshot.source ?? snapshot.entry_snapshot?.source;
+  const source = snapshot.source ?? validationSnapshot(snapshot)?.source;
   const allowed = new Set(snapshot.phase_artifacts ?? phaseArtifacts);
   const checkpointMetadata = new Set(['.planning/STATE.md', '.planning/HANDOFF.json']);
   if (observed.repo_root !== source.inherited_checkout.path) errors.push({ code: 'repository_root_changed', message: 'Validation is running from a different repository root.' });
@@ -190,8 +257,8 @@ function validateWorkingCopy(snapshot, observed) {
 async function validateInventoryFile(artifactPath) {
   const absoluteArtifact = path.resolve(artifactPath);
   const ledger = JSON.parse(fs.readFileSync(absoluteArtifact, 'utf8'));
-  const snapshot = ledger.entry_snapshot;
-  if (!snapshot || typeof snapshot !== 'object') throw new Error('The ledger is missing its immutable entry_snapshot.');
+  const snapshot = validationSnapshot(ledger);
+  if (!snapshot || typeof snapshot !== 'object') throw new Error('The ledger is missing an entry or current inventory snapshot.');
 
   const liveContext = { ...ledger, source: snapshot.source };
   let observed = observe(liveContext);
@@ -231,16 +298,16 @@ async function validateInventoryFile(artifactPath) {
   return final.valid;
 }
 
-export { validateSnapshot };
+export { validateSnapshot, validationSnapshot, validateCheckout };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [stageFlag, stage, artifact] = process.argv.slice(2);
-  if (stageFlag !== '--stage' || stage !== 'inventory' || !artifact) {
-    console.error('Usage: node validate-release-readiness.mjs --stage inventory <ledger.json>');
+  if (stageFlag !== '--stage' || !['inventory', 'checkout'].includes(stage) || !artifact) {
+    console.error('Usage: node validate-release-readiness.mjs --stage <inventory|checkout> <ledger.json>');
     process.exitCode = 2;
   } else {
     try {
-      const valid = await validateInventoryFile(artifact);
+      const valid = stage === 'inventory' ? await validateInventoryFile(artifact) : validateCheckoutFile(artifact);
       if (!valid) process.exitCode = 1;
     } catch (error) {
       console.error(JSON.stringify({ valid: false, status: 'blocked', diagnostics: [{ code: 'inventory_validation_error', message: error.message }] }, null, 2));
