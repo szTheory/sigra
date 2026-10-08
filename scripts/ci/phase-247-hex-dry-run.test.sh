@@ -126,6 +126,11 @@ export DRY_RUN_OUTCOME=success DRY_RUN_KEY_PRESENT=true CURL_STATUS=200
 expect_fail unexpected-hex bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/unexpected-hex.json" "$TMP/evidence" "$TMP/pinned"
 jq -e '.verdict == "failed" and .hex_release_after_http_status == 200' "$TMP/unexpected-hex.json" >/dev/null
 
+workflow="$ROOT/.github/workflows/phase-247-hex-dry-run.yml"
+if ! rg -Fq "DRY_RUN_KEY_PRESENT: \${{ secrets.HEX_DRY_RUN_API_KEY != '' }}" "$workflow"; then
+  echo 'fixture requires a boolean-only dedicated-key presence mapping for the safe receipt' >&2
+  exit 1
+fi
 if rg -n 'mix hex\.publish(?! --dry-run --yes)' "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" "$ROOT/.github/workflows/phase-247-hex-dry-run.yml" --pcre2; then
   echo 'fixture found a release-changing command' >&2
   exit 1
