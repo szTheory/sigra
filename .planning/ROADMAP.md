@@ -70,7 +70,7 @@ Plans:
   2. An adopter can read what changed, supported compatibility, the required generated-host action or an explicit no-action statement, and the `~> 1.6.0` update and check path without internal planning notes presented as product changes.
   3. A maintainer can see a recorded disposition for every open PR and every inherited checkout change; release work has a clean source checkout without unrelated changes folded in.
 
-**Plans**: 3/4 plans executed
+**Plans**: Plans 01–08 are implemented; Plan 05 remains checkpointed with its unfinished tasks superseded by the later fixed-source recovery. Plan 08 completed the authenticated non-publishing dry run for candidate `d76d7f2306f6099063a80a420d2d8a4e04c7785f`. Independent verification then found one signup-test synchronization gap, so Plans 09–11 repair it and conditionally refresh exact-source evidence behind two separate approval checkpoints. Phase 247 remains open until Plan 11 passes final validation and independent verification.
 
 Plans:
 **Wave 1**
@@ -83,7 +83,24 @@ Plans:
 - [x] 247-03-PLAN.md — Write the README-to-guide-to-changelog adopter path.
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 247-04-PLAN.md — Prove final candidate, package, and repository readiness.
+- [x] 247-04-PLAN.md — Prove final candidate, package, and repository readiness. Later completed by the authenticated non-publishing recovery in Plan 08.
+- [x] 247-06-PLAN.md — Restore adopter notes and README→guide→changelog navigation, synchronize mobile signup with the LiveView validation response, and prove the exact PR #224 head and CI. Candidate SHA `6f8028658f0bdd7f26e13c3fe4d45437880c341b`; run `37717911489` passed, including docs, mobile signup, and `ci-gate`.
+
+**Wave 5** *(Plan 05 depends on halted Plan 04; Plan 07 depends on Plan 06)*
+- [ ] 247-05-PLAN.md — Checkpointed after partial fixed-source evidence work; its unfinished Tasks 3–4 are operationally superseded by Plan 08 and must not be resumed against the historical SHA.
+- [x] 247-07-PLAN.md — Rebind the existing fixed-candidate workflow and baseline through protected evidence, with fail-closed re-review after any Release Please refresh. Evidence PR #291 passed required CI and merged to main as `9bb7566f31b40a129c5a234b122ac00b540ede29`; manifest blob and exact source baseline verified.
+
+**Wave 6** *(depends on Plan 07; Plan 05 remains checkpointed)*
+- [x] 247-08-PLAN.md — Authenticated non-publishing Hex dry run and final readiness passed on candidate `d76d7f2306f6099063a80a420d2d8a4e04c7785f`; later independent verification found one remaining signup-test gap.
+
+**Wave 7** *(depends on Plan 08; candidate push requires explicit approval)*
+- [ ] 247-09-PLAN.md — Restore the server-rendered `Strong` validation wait in both signup paths and prove mobile WebKit locally; seek approval before pushing the exact test-only commit and running CI.
+
+**Wave 8** *(depends on Plan 09 exact-head CI; evidence rebind requires a separate explicit approval)*
+- [ ] 247-10-PLAN.md — Produce a read-only exact-source rebind proposal, then conditionally bind the existing evidence route through a protected four-path merge.
+
+**Wave 9** *(depends on Plan 10's approved evidence merge)*
+- [ ] 247-11-PLAN.md — Run the authenticated non-publishing dry run, regenerate final READY-01/READY-02 evidence, and require independent Phase 247 verification on the same candidate SHA.
 
 #### Phase 248: Exact-Source Release Gate
 
@@ -133,10 +150,10 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
-| 247. Release Candidate and Repository Readiness | v1.49 | 3/4 | In Progress | - |
+| 247. Release Candidate and Repository Readiness | v1.49 | 6/8 | In Progress | - |
 | 248. Exact-Source Release Gate | v1.49 | 0/5 | Planned | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
 
 ### Next
 
-**Next: `$gsd-execute-phase 247`.** `init.execute-phase 247` reports only Plan 04 runnable with no prerequisite blockers. Plans 01–03 are complete. Plan 03 added the README-to-v1.6 guide-to-changelog route and source-backed update/adoption steps; exact-head CI run 37700772880 passed on PR #224 head `563f411bc2659bb9ac1652d552ce58ffb0c876b1`, and the live candidate validator returned valid. PR #224 remains open on reviewed main `590eb4ed3323db11dd74326cbee00c9c7973e529`. Continue with Plan 04, then complete Phase 247 verification. Phase 248 remains planned and includes the user-approved guarded exact-head auto-squash merge; stale historical Phase 245 verification remains separate.
+**Next: configure the dedicated read-only `HEX_DRY_RUN_API_KEY` in the GitHub Actions `hex-publish` environment, restricted to `main`, and reply `configured`; do not paste its value. Keep waiting for the Plan 05 executor per the user’s choice. Then rerun `init.execute-phase 247`; it currently reports no runnable plans because Plan 05 is blocked by halted Plan 04.** The next authenticated diagnostic run can now retain any dirty paths; fix any reported paths before final readiness. Run `37721969290` reported key presence false and receipt creation blocked on a dirty candidate checkout without paths. A local exact-SHA reproduction remained clean and did not explain the hosted failure. Diagnostic PR #293 at `a733e46eddb184bbbab440336a51981db94baddc` merged as `7b907abcf15785b7396da5d1fe5f5115ccd9af64`; CI run `37723234944` passed all 27 entries including ci-gate. The post-merge four-path baseline, manifest blob, and diff digest still verify. Plan 08 Task 1 is complete through protected PR #292 (`cd978dad3504bf4ff775ea89e98d063d2a189d56`); CI run `37721138344` passed all 27 entries and main now maps only boolean key presence. Plan 05 remains checkpointed while its executor is awaited per the user choice; `init.execute-phase 247` currently reports no runnable plans because Plan 05 is blocked by halted Plan 04. Phase 247 implementation and independent verification remain incomplete; READY-01/READY-02 are still open before Phase 248.

@@ -3,19 +3,19 @@ gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 247
-current_phase_name: Release Candidate and Repository Readiness
-current_plan: 4 of 4
-status: executing
-stopped_at: Completed 247-03-PLAN.md
-last_updated: "2026-10-07T23:24:09.000Z"
-last_activity: 2026-10-07
-last_activity_desc: Phase 247 Plan 03 complete; adopter guide and exact-head CI 37700772880 pass; Plan 04 is next
-state_head: 02447d68506a8589318cabb07e08c4a37f5b3120
+current_phase_name: release-candidate-and-repository-readiness
+current_plan: 9 of 11
+status: Ready to execute Phase 247 Plan 09. Task 1 is local-only. Task 2 requires explicit user approval before pushing the exact test-only commit and CI. Plans 10–11 require separate approval before rebinding candidate-bound evidence; Phase 247 remains unverified.
+stopped_at: Plan 08 Task 2 halted after run 37721969290 reported absent key presence and a dirty candidate checkout
+last_updated: "2026-10-08T17:13:05.045Z"
+last_activity: 2026-10-08
+last_activity_desc: Phase 247 Plans 09–11 passed plan verification
+state_head: a17cc190b287bacd324a0c96439d075bb88f3ede
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 12
-  completed_plans: 6
+  total_plans: 19
+  completed_plans: 11
   percent: 25
 ---
 
@@ -27,16 +27,16 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 247 — refresh the 1.6.0 candidate from reviewed source
+**Current focus:** Phase 247 — Release Candidate and Repository Readiness
 
 ## Current Position
 
-Phase: 247 — Release Candidate and Repository Readiness
-Current Plan: 4 of 4
-Total Plans in Phase: 4
-Plan: 4 of 4 — prove final candidate, package, and repository readiness
-Status: Ready to execute
-Last activity: 2026-10-07 — Phase 247 Plan 03 complete; PR #224 is open at exact head 563f411bc with passing CI
+Phase: 247 (release-candidate-and-repository-readiness) — READY TO EXECUTE
+Current Plan: 9 of 11
+Total Plans in Phase: 11
+Plan: 9 of 11 — Restore LiveView validation synchronization and prove mobile WebKit
+Status: Ready to execute Phase 247 Plan 09. Task 1 is local-only. Task 2 requires explicit user approval before pushing the exact test-only commit and CI. Plans 10–11 require separate approval before rebinding candidate-bound evidence; Phase 247 remains unverified.
+Last activity: 2026-10-08 — Phase 247 Plans 09–11 passed plan verification
 
 Progress: [███░░░░░░░] 25%
 
@@ -586,6 +586,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 247]: Keep package version constraints separate from the CI-tested toolchain and generated-host smoke cases.
 - [Phase 247]: Use the exact-head CI docs build when the isolated candidate lacks locked dependencies; do not install packages.
 - [Phase 247]: Treat generated confirmation LiveView changes as host-owned adoption work; no migration or upgrade task is needed solely for this release.
+- [Phase 247]: Bind the existing workflow and baseline to Plan 06 candidate SHA 6f8028658f0bdd7f26e13c3fe4d45437880c341b and reviewed base e3883b72fb1df5ad6356ef10dbde408f18bbc3be.
+- [Phase 247]: Use clean isolated clones under /private/tmp and preserve the shared checkout work.
 
 ### Pending Todos
 
@@ -608,6 +610,9 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 245 Plan 33 remains an immutable blocked historical attempt. Plan 34 later recovered its separately approved exact OID c39e423cb023b60aefbda3e848b0a89395ff22d3. Plan 30 then stopped on four newer missing live origin OIDs; see committed 245-30-EXEC-PREFLIGHT.json and 245-30-RESULT.json.
 - Plan 48: 11 historical PR-base rows remain unresolved; pinned commit and two blobs unavailable from local Git and GitHub in recorded D-06 preflight.
 - Plan 246-03 local MIX_ENV=test mix ci failed (2623 tests, 17 failures) on unrelated Phase 232/234/235/236/242 planning contracts; recurring required CI was not dispatched. Durable detail: .planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md
+- Phase 247 Plan 04: final readiness remains blocked because mix hex.publish --dry-run --yes cannot run without the candidate locked dependencies; dependency installation is prohibited for this task.
+- Phase 247 Plan 05 checkpoint history: after evidence PR #289 merged, Release Please changed PR #224 from fixed candidate 563f411bc2659bb9ac1652d552ce58ffb0c876b1 to 166ba84d7a25369f052aed3bded9ac68f376b6b5; this was superseded by a later Release Please head.
+- Phase 247 Plan 05 current blocker: PR #224 is open at head 77dd1126436a9e83c04283433e5f60c71ee98287 on base/main e3883b72fb1df5ad6356ef10dbde408f18bbc3be. Its 1.6.0 CHANGELOG section is raw generated history with internal phase IDs and no curated adopter summary (D-03); README still routes existing adopters to upgrading-to-v1.0.md and guides/introduction/upgrading-to-v1.6.md is absent at the exact head (D-05/D-06). Exact-head CI run 37713178478 is watched only by the parent. Do not retarget the fixed-source workflow, inspect credential metadata, dispatch Hex workflow, create tags, publish, or merge PR #224. See `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md`.
 
 ### Roadmap Evolution
 
@@ -801,14 +806,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-07T23:22:04.605Z
-Stopped at: Completed 247-03-PLAN.md
-Resume file: None
+Last session: 2026-10-08T01:42:04.273Z
+Stopped at: PR #293 merged; wait for read-only Hex key setup and Plan 05 executor report, then recheck GSD readiness
+Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md
 
 ## Operator Next Steps
 
-- **Next command: `$gsd-execute-phase 247`.** `init.execute-phase 247` reports Plan 04 runnable with no prerequisite blockers. Plans 01–03 are complete. Plan 03 records the README-to-v1.6 guide-to-changelog route, source-backed update guidance, a warning-free ExDoc build, and live candidate validation at PR #224 head `563f411bc2659bb9ac1652d552ce58ffb0c876b1`; base and protected main remain `590eb4ed3323db11dd74326cbee00c9c7973e529`. CI run 37700772880 passed all required lanes and `ci-gate`. Phase 247 is not yet phase-verified; Phase 248 remains planned and depends on its completion. Historical Phase 245 verification and earlier Phase 246 local CI diagnostics remain separate.
-- Routing evidence: `.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json`, `.planning/phases/247-release-candidate-and-repository-readiness/247-03-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-04-PLAN.md`, and `.planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json`. Historical Phase245 verification remains separate.
+- **Implementation incomplete; independent Phase 247 verification incomplete. Resume command after blockers: `$gsd-execute-phase 247`.** Plans 06–07 are complete. PR #224 remains open at `6f8028658f0bdd7f26e13c3fe4d45437880c341b`; exact-head run `37717911489` attempt 1 passed all 15 required jobs and `ci-gate`. Evidence PR #291 merged to main as `9bb7566f31b40a129c5a234b122ac00b540ede29`; the four-file advance and manifest blob survived. Plan 08 Task 1 merged as PR #292 at `cd978dad3504bf4ff775ea89e98d063d2a189d56`; CI run `37721138344` passed all 27 entries, and live main passes only the boolean key-presence signal. Dry-run run `37721969290` is blocked: key presence was false, and safe receipt creation found a dirty candidate checkout without listing paths. A local exact-SHA reproduction stayed clean and did not reproduce that condition. Diagnostic PR #293 (`a733e46eddb184bbbab440336a51981db94baddc`) merged as `7b907abcf15785b7396da5d1fe5f5115ccd9af64`; CI run `37723234944` passed all 27 entries. Path-only status is now retained in logs and the fallback artifact. User must configure the dedicated read-only key in `hex-publish`, restricted to `main`; the next authenticated diagnostic run will surface any hosted dirty paths so they can be fixed before final readiness. Plan 05 remains checkpointed while its executor is awaited per the user's choice. `init.execute-phase 247` currently reports no runnable plans because Plan 05 is blocked by halted Plan 04. Do not merge PR #224, tag, or publish during Phase 247.
+- Routing evidence: `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-06-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-07-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-08-RESUME-NOTES.md`, and `.planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json`. Historical Phase 245 verification remains separate.
 
 ## Performance Metrics
 
@@ -1027,3 +1032,5 @@ Resume file: None
 | Phase 247 P01 | 167m | 2 tasks | 4 files |
 | Phase 247 P2 | 37min | 2 tasks | 5 files |
 | Phase 247 P03 | 34min | 1 tasks | 4 files |
+| Phase 247 P04 | 7min | 1 tasks | 3 files |
+| Phase 247 P07 | 16min | 2 tasks | 5 files |
