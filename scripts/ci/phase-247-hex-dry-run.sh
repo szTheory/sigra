@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly REVIEWED_BASE="b8b5ae2d146e3c9c480f6ab1d59b5712e2aad2d1"
-readonly CANDIDATE="cce3cf70b1381212f590ff37daae1fc95cdcb320"
+readonly REVIEWED_BASE="d135cbce343947499a0810736c500ef5f1cb5c32"
+readonly CANDIDATE="d76d7f2306f6099063a80a420d2d8a4e04c7785f"
 readonly PR_NUMBER="224"
 readonly ALGORITHM="git-diff-raw-v1"
 readonly MANIFEST_PATH=".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
