@@ -84,6 +84,101 @@ PR_TITLE="$(jq -r '.[0].title' "$PULL_REQUESTS")"
 PR_URL="$(jq -r '.[0].url' "$PULL_REQUESTS")"
 VERSION="$(sed -E 's/^chore\(main\): release ([0-9]+\.[0-9]+\.[0-9]+)$/\1/' <<<"$PR_TITLE")"
 
+if [[ -n "$CHANGELOG" ]]; then
+  VERSION_HEADING_COUNT="$(grep -F -c "## [${VERSION}]" "$CHANGELOG" || true)"
+  [[ "$VERSION_HEADING_COUNT" -eq 1 ]] || fail "CHANGELOG must contain exactly one version section for ${VERSION}"
+
+  VERSION_SECTION="$(awk -v heading="## [${VERSION}]" '
+    index($0, heading) == 1 { active=1; next }
+    active && /^## / { exit }
+    active { print }
+  ' "$CHANGELOG")"
+  [[ -n "$VERSION_SECTION" ]] || fail "the ${VERSION} changelog section is empty"
+
+  UNRELEASED_NOTES="$(awk '
+    /^## Unreleased$/ { active=1; next }
+    active && /^## / { exit }
+    active && /^[[:space:]]*[-*+][[:space:]]+/ { print }
+  ' "$CHANGELOG")"
+  [[ -z "$UNRELEASED_NOTES" ]] || fail "candidate changelog notes remain under Unreleased"
+
+  VERSION_NOTES="$(awk '
+    /^[[:space:]]*[-*+][[:space:]]+/ { print }
+  ' <<<"$VERSION_SECTION" | sed -E 's/\[([^]]+)\]\([^)]*\)/\1/g' \
+      | tr '[:upper:]' '[:lower:]' | sed -E 's/[^[:alnum:]]+/ /g; s/[[:space:]]+/ /g; s/^ | $//g' \
+      | sort | uniq -d)"
+  [[ -z "$VERSION_NOTES" ]] || fail "duplicate normalized changelog note: ${VERSION_NOTES}"
+
+  jq -e '
+    . as $ledger
+    | ($ledger.source_selection.status == "ready"
+      and ($ledger.source_selection.selected_source_sha | type == "string" and test("^[0-9a-f]{40}$"))
+      and $ledger.final_validation.valid == true and $ledger.final_validation.status == "ready"
+      and ($ledger.final_readiness.source_sha | type == "string" and test("^[0-9a-f]{40}$"))
+      and $ledger.final_validation.checked.pr_head_sha == $ledger.final_readiness.source_sha
+      and $ledger.final_readiness.docs.candidate_summary_under_versioned_heading == true
+      and ($ledger.final_readiness.docs.candidate_summary_only_unreleased // false) == false
+      and ($ledger.final_readiness.claim_sources | type == "array" and length > 0)
+      and all($ledger.final_readiness.claim_sources[];
+        (.claim | type == "string" and length > 0)
+        and (.source | type == "string" and length > 0)
+        and (.evidence | type == "string" and length > 0)
+        and (.source_paths | type == "array" and length > 0)
+        and .source_paths_present == true
+        and .source_sha == $ledger.final_readiness.source_sha
+        and (.ci_run_id | type == "number")
+      ))
+  ' "$LEDGER" >/dev/null 2>&1 || fail "candidate readiness ledger is blocked, stale internally, or missing source-backed adopter claim evidence"
+
+  jq -e --arg head_sha "$PR_HEAD_SHA" --argjson run_id "$(jq -r '.databaseId' "$QUERIED_RUN")" '
+    (.source_selection.selected_source_sha | type == "string" and test("^[0-9a-f]{40}$"))
+    and .final_readiness.source_sha == $head_sha
+    and .final_validation.checked.pr_head_sha == $head_sha
+    and all(.final_readiness.claim_sources[]; .source_sha == $head_sha and .ci_run_id == $run_id)
+  ' "$LEDGER" >/dev/null 2>&1 || fail "candidate ledger source or CI evidence does not bind to the exact PR head and successful run"
+
+  normalize_tokens() {
+    tr '[:upper:]' '[:lower:]' <<<"$1" | tr -cs '[:alnum:]' '\n' | awk '
+      BEGIN { split("about after again also and are around as at be been before being between both but by can could did do does down during each else enough every few for from further had has have he her here hers herself him himself his how if in into is it its itself just more most nor not of off on once only onto or other our ours ourselves out over own same she should so some such than that the their theirs them themselves then there these they this those through to too under until up upon us very was we were what when where which while who whom why will with would you your yours yourselves without", words, " "); for (i in words) stop[words[i]]=1 }
+      {
+        word=$0
+        if (length(word) > 5 && substr(word, length(word)-2) == "ies") word=substr(word, 1, length(word)-3) "y"
+        else if (length(word) > 4 && substr(word, length(word), 1) == "s" && word != "business" && word != "process") word=substr(word, 1, length(word)-1)
+        else if (length(word) > 5 && substr(word, length(word)-1) == "ly") word=substr(word, 1, length(word)-2)
+        if (length(word) >= 4 && !stop[word]) print word
+      }
+    ' | sort -u
+  }
+
+  VERSION_BLOCKS="$(awk '
+    function flush() { if (block ~ /[^[:space:]]/) print block; block="" }
+    /^[[:space:]]*$/ { flush(); next }
+    /^## / { flush(); next }
+    /^### / { flush(); next }
+    /^[[:space:]]*[-*+][[:space:]]+/ { flush(); sub(/^[[:space:]]*[-*+][[:space:]]+/, ""); block=$0; flush(); next }
+    { if (block != "") block=block " " $0; else block=$0 }
+    END { flush() }
+  ' <<<"$VERSION_SECTION" | sed -E 's/\[([^]]+)\]\([^)]*\)/\1/g')"
+  BLOCK_TOKEN_SETS=()
+  while IFS= read -r BLOCK; do
+    BLOCK_TOKEN_SETS+=("$(normalize_tokens "$BLOCK")")
+  done <<<"$VERSION_BLOCKS"
+
+  while IFS= read -r CLAIM_ROW; do
+    CLAIM="$(jq -r '.claim' <<<"$CLAIM_ROW")"
+    CLAIM_TOKENS="$(normalize_tokens "$CLAIM")"
+    TOTAL_TOKENS="$(wc -l <<<"$CLAIM_TOKENS" | tr -d '[:space:]')"
+    BEST_MATCH=0
+    for BLOCK_TOKEN_SET in "${BLOCK_TOKEN_SETS[@]}"; do
+      MATCHED_TOKENS="$(comm -12 <(printf '%s\n' "$CLAIM_TOKENS") \
+        <(printf '%s\n' "$BLOCK_TOKEN_SET") | wc -l | tr -d '[:space:]')"
+      (( MATCHED_TOKENS > BEST_MATCH )) && BEST_MATCH=$MATCHED_TOKENS || true
+    done
+    (( BEST_MATCH >= 3 && BEST_MATCH * 100 >= TOTAL_TOKENS * 40 )) \
+      || fail "source-backed adopter summary is absent from the ${VERSION} section: ${CLAIM}"
+  done < <(jq -c '.final_readiness.claim_sources[]' "$LEDGER")
+fi
+
 jq -cn --arg repository "$REPOSITORY" --argjson pr_number "$PR_NUMBER" \
   --arg head_sha "$PR_HEAD_SHA" --arg title "$PR_TITLE" --arg pr_url "$PR_URL" \
   --arg version "$VERSION" --arg run_id "$(jq -r '.databaseId' "$QUERIED_RUN")" \
