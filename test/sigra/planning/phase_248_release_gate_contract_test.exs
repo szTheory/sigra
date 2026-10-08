@@ -90,6 +90,28 @@ defmodule Sigra.Planning.Phase248ReleaseGateContractTest do
              ~r/HEX_DRY_RUN_API_KEY_PRESENT:.*secrets\.HEX_DRY_RUN_API_KEY != ''/
   end
 
+  test "every privileged transition checks credential presence without passing values" do
+    release = read!(".github/workflows/release-please.yml")
+    merge = read!(".github/workflows/release-pr-automerge.yml")
+    recovery = read!(".github/workflows/hex-publish.yml")
+
+    callers = [
+      {job!(release, "release-please"), "RELEASE_PLEASE_TOKEN", "release-token"},
+      {job!(merge, "guarded-merge"), "RELEASE_PLEASE_TOKEN", "release-token"},
+      {job!(release, "publish-hex"), "HEX_DRY_RUN_API_KEY", "hex-dry-run-key"},
+      {job!(release, "publish-hex"), "HEX_API_KEY", "hex-publish-key"},
+      {job!(recovery, "publish"), "HEX_DRY_RUN_API_KEY", "hex-dry-run-key"},
+      {job!(recovery, "publish"), "HEX_API_KEY", "hex-publish-key"}
+    ]
+
+    for {job, secret, argument} <- callers do
+      variable = "#{secret}_PRESENT"
+      assert job =~ "#{variable}: ${{ secrets.#{secret} != '' }}"
+      assert job =~ "--require-#{argument} \"$#{variable}\""
+      refute job =~ ~r/--require-[a-z-]+\s+\$\{\{\s*secrets\./
+    end
+  end
+
   test "workflow contracts preserve exact-source release and exact-head CI boundaries" do
     release = read!(".github/workflows/release-please.yml")
     merge = read!(".github/workflows/release-pr-automerge.yml")
