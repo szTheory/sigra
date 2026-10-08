@@ -5,18 +5,18 @@ milestone_name: RELEASE-1.6.0
 current_phase: 248
 current_phase_name: Exact-Source Release Gate
 current_plan: 5
-status: Phase 248 Plan 04 is complete. Plan 05 is next and runnable. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
+status: Phase 248 Plan 05 is complete. Deterministic checks passed; external edge-probe verification remains unresolved.
 stopped_at: Completed 248-05-PLAN.md
-last_updated: "2026-10-08T23:02:59.927Z"
+last_updated: "2026-10-08T23:03:38.037Z"
 last_activity: 2026-10-08
-state_head: 92546601137f41461d3920eec3c215fb5f5246ff
+state_head: 74679b46867e1c74dd2459c06aa7cd8f967a35c5
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 19
   completed_plans: 18
   percent: 50
-last_activity_desc: Phase 248 Plan 04 complete; Plan 05 is runnable
+last_activity_desc: Phase 248 Plan 05 complete; deterministic observer and cross-workflow contracts passed
 ---
 
 # Project State
@@ -35,7 +35,7 @@ Phase: 248 (Exact-Source Release Gate) — EXECUTING
 Current Plan: 5
 Total Plans in Phase: 5
 Plan: 5 of 5
-Status: Phase 248 Plan 04 is complete. Plan 05 is next and runnable. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
+Status: Phase 248 Plan 05 is complete. Deterministic checks passed; external edge-probe verification remains unresolved.
 Last activity: 2026-10-08
 
 Progress: [█████░░░░░] 50%
