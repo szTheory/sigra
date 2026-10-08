@@ -70,7 +70,7 @@ jobs:
           test "${GITHUB_REF}" = refs/heads/main
           test "${GITHUB_REPOSITORY}" = szTheory/sigra
           test "$(git -C trusted rev-parse HEAD)" = "${GITHUB_SHA}"
-          test "$(git -C candidate rev-parse HEAD)" = d76d7f2306f6099063a80a420d2d8a4e04c7785f
+          test "$(git -C candidate rev-parse HEAD)" = 0e773d3614a242e4fbcdd34c418ecb8a307703d6
           bash trusted/scripts/ci/phase-247-hex-dry-run.sh verify-baseline trusted/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json
 
       - name: Install pinned Beam toolchain and exact candidate dependencies
@@ -93,12 +93,12 @@ jobs:
         run: |
           set -euo pipefail
           pr="$(gh api repos/szTheory/sigra/pulls/224)"
-          test "$(jq -r '.head.sha' <<<"$pr")" = d76d7f2306f6099063a80a420d2d8a4e04c7785f
+          test "$(jq -r '.head.sha' <<<"$pr")" = 0e773d3614a242e4fbcdd34c418ecb8a307703d6
           pr_base="$(jq -r '.base.sha' <<<"$pr")"
           live_main="$(gh api repos/szTheory/sigra/branches/main --jq '.commit.sha')"
           test "$pr_base" = d135cbce343947499a0810736c500ef5f1cb5c32 || test "$pr_base" = "$live_main"
           test "$(jq -r '.state' <<<"$pr")" = open
-          test "$(git -C candidate rev-parse HEAD)" = d76d7f2306f6099063a80a420d2d8a4e04c7785f
+          test "$(git -C candidate rev-parse HEAD)" = 0e773d3614a242e4fbcdd34c418ecb8a307703d6
 
       - name: Confirm Hex 1.6.0 is absent before dry-run
         id: hex_before
