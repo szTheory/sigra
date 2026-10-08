@@ -127,7 +127,7 @@ expect_fail unexpected-hex bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" writ
 jq -e '.verdict == "failed" and .hex_release_after_http_status == 200' "$TMP/unexpected-hex.json" >/dev/null
 
 workflow="$ROOT/.github/workflows/phase-247-hex-dry-run.yml"
-if ! rg -q 'DRY_RUN_KEY_PRESENT:.*secrets\.HEX_DRY_RUN_API_KEY != .+' "$workflow"; then
+if ! rg -Fq "DRY_RUN_KEY_PRESENT: \${{ secrets.HEX_DRY_RUN_API_KEY != '' }}" "$workflow"; then
   echo 'fixture requires a boolean-only dedicated-key presence mapping for the safe receipt' >&2
   exit 1
 fi

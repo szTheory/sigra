@@ -125,6 +125,7 @@ jobs:
           EVIDENCE_PR_HEAD_SHA: ${{ inputs.evidence_pr_head_sha }}
           EVIDENCE_MANIFEST_BLOB_ID: ${{ inputs.manifest_blob_id }}
           DRY_RUN_OUTCOME: ${{ steps.hex_dry_run.outcome }}
+          DRY_RUN_KEY_PRESENT: ${{ secrets.HEX_DRY_RUN_API_KEY != '' }}
           HEX_RELEASE_BEFORE_STATUS: ${{ steps.hex_before.outputs.http_status }}
           GITHUB_WORKFLOW_REF: ${{ github.workflow_ref }}
           GITHUB_RUN_STARTED_AT: ${{ steps.run_started.outputs.started_at }}
