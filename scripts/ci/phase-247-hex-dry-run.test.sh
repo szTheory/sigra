@@ -67,14 +67,19 @@ expect_fail wrong-algorithm env REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/ph
 jq '.diff_sha256 = "0000000000000000000000000000000000000000000000000000000000000000"' "$TMP/baseline.json" >"$TMP/changed-diff.json"
 expect_fail changed-diff env REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/changed-diff.json"
 expect_fail missing-baseline env REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/absent.json"
+expect_fail missing-read-only-token env -u GH_TOKEN -u GITHUB_TOKEN REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/no-token.json"
 
 FIXTURE_PR_HEAD=563f411bc2659bb9ac1652d552ce58ffb0c876b1
 export FIXTURE_PR_HEAD
 expect_fail superseded-candidate bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/superseded.json"
-FIXTURE_PR_HEAD=6f8028658f0bdd7f26e13c3fe4d45437880c341b
+FIXTURE_PR_HEAD=1111111111111111111111111111111111111111
 export FIXTURE_PR_HEAD
 expect_fail stale-head bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/stale.json"
 FIXTURE_PR_HEAD=6f8028658f0bdd7f26e13c3fe4d45437880c341b
+FIXTURE_PR_BASE=1111111111111111111111111111111111111111
+export FIXTURE_PR_HEAD FIXTURE_PR_BASE
+expect_fail changed-pr-base bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/changed-base.json"
+FIXTURE_PR_BASE=e3883b72fb1df5ad6356ef10dbde408f18bbc3be
 FIXTURE_MAIN_SHA=1111111111111111111111111111111111111111
 export FIXTURE_PR_HEAD FIXTURE_MAIN_SHA
 expect_fail advanced-main bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/advanced.json"
@@ -108,7 +113,12 @@ export CANDIDATE_SHA=6f8028658f0bdd7f26e13c3fe4d45437880c341b HEX_RELEASE_BEFORE
 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json" >/dev/null
 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/receipt.json" "$TMP/evidence" "$TMP/pinned" >/dev/null
 jq -e '.verdict == "passed" and .credential_name == "HEX_DRY_RUN_API_KEY" and .credential_present and .hex_release_before_http_status == 404 and .hex_release_after_http_status == 404 and .checked_out_sha == "6f8028658f0bdd7f26e13c3fe4d45437880c341b" and .evidence_pr_head_sha == env.FIXTURE_EVIDENCE_HEAD' "$TMP/receipt.json" >/dev/null
-
+expect_fail wrong-evidence-pr env EVIDENCE_PR_NUMBER=988 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
+expect_fail wrong-manifest-blob env EVIDENCE_MANIFEST_BLOB_ID=0000000000000000000000000000000000000000 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
+expect_fail untrusted-main env GITHUB_REF=refs/heads/evidence/test bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/untrusted-main.json" "$TMP/evidence" "$TMP/evidence"
+expect_fail changed-candidate-checkout bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/changed-checkout.json" "$TMP/evidence" "$TMP/evidence"
+export DRY_RUN_OUTCOME=failure DRY_RUN_KEY_PRESENT=true
+expect_fail unsuccessful-dry-run bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/unsuccessful.json" "$TMP/evidence" "$TMP/pinned"
 export DRY_RUN_OUTCOME=failure DRY_RUN_KEY_PRESENT=false
 expect_fail missing-key-receipt bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/missing-key-receipt.json" "$TMP/evidence" "$TMP/pinned"
 jq -e '.verdict == "failed" and .credential_present == false and .dry_run_outcome == "failure"' "$TMP/missing-key-receipt.json" >/dev/null
@@ -124,10 +134,9 @@ if rg -n 'secrets\.HEX_API_KEY' "$ROOT/.github/workflows/phase-247-hex-dry-run.y
   echo 'fixture found the write-capable Hex secret' >&2
   exit 1
 fi
-# This contract is the TDD target for receipt completeness. The command output
-# is TAP so GSD can validate the actual failing assertion before implementation.
+# Emit a TAP summary so the source-rebind assertion can be classified as RED.
 printf 'TAP version 13\n'
-printf '# phase-247 dry-run fixtures: 14 passed\n'
+printf '# phase-247 dry-run fixtures: 18 passed\n'
 if jq -e 'has("started_at") and has("finished_at") and (.started_at | type == "string") and (.finished_at | type == "string")' "$TMP/receipt.json" >/dev/null; then
   printf 'ok 1 - receipt records workflow start and finish timestamps\n'
   printf '1..1\n'
