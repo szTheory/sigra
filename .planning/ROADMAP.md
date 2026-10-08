@@ -112,7 +112,7 @@ Plans:
   2. A running release evaluation can finish without cancellation by a later event; workflow permissions are scoped and the Hex credential is available only to the final publish step.
   3. A maintainer can retrieve machine-readable gate and publish receipts for success, failure, or cancellation, with version/tag, source SHA, workflow and run identity, verdict, relevant URLs, attempts, and timestamps.
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans executed
 
 Plans:
 
@@ -129,7 +129,7 @@ Plans:
 - [x] 248-04-PLAN.md — Retain machine-readable terminal gate and publish receipts.
 
 **Wave 5** *(blocked on Waves 2 and 4 completion)*
-- [ ] 248-05-PLAN.md — Capture cancellation receipts and close cross-workflow security contracts.
+- [x] 248-05-PLAN.md — Capture cancellation receipts and close cross-workflow security contracts.
 
 #### Phase 249: Publish and Prove Sigra 1.6.0
 
@@ -151,7 +151,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
-| 248. Exact-Source Release Gate | v1.49 | 4/5 | In Progress | - |
+| 248. Exact-Source Release Gate | v1.49 | 5/5 | In Progress | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
 
 ### Next

@@ -6,15 +6,15 @@ current_phase: 248
 current_phase_name: Exact-Source Release Gate
 current_plan: 5
 status: Phase 248 Plan 04 is complete. Plan 05 is next and runnable. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
-stopped_at: Completed 248-04-PLAN.md
-last_updated: "2026-10-08T22:54:00.223Z"
+stopped_at: Completed 248-05-PLAN.md
+last_updated: "2026-10-08T23:02:59.927Z"
 last_activity: 2026-10-08
-state_head: 0c12c4ccfb9a534858e8d0f6c433ea65d769e7df
+state_head: 92546601137f41461d3920eec3c215fb5f5246ff
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 19
-  completed_plans: 17
+  completed_plans: 18
   percent: 50
 last_activity_desc: Phase 248 Plan 04 complete; Plan 05 is runnable
 ---
@@ -593,6 +593,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 248]: Keep repository-level secret copies until target environment secret names are confirmed.
 - [Phase 248]: Canonical release receipts require a complete source identity; unresolved manual recovery inputs receive a failure-only rejection record.
 - [Phase 248]: Capture workflow timestamps with runner steps and persist receipts before supplementary issue notification.
+- [Phase 248]: The cancellation observer re-queries the source run and validates authoritative identity before retaining a receipt.
+- [Phase 248]: Missing or mismatched tag resolution remains diagnostic cancellation evidence, never publication success.
 
 ### Pending Todos
 
@@ -811,8 +813,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-08T22:54:00.053Z
-Stopped at: Completed 248-04-PLAN.md
+Last session: 2026-10-08T23:02:59.833Z
+Stopped at: Completed 248-05-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -1042,3 +1044,4 @@ Resume file: None
 | Phase 248 P02 | 50m | 2 tasks | 4 files |
 | Phase 248 P03 | 157 min | 3 tasks | 8 files |
 | Phase 248 P04 | 45min | 2 tasks | 5 files |
+| Phase 248 P05 | 32min | 2 tasks | 4 files |
