@@ -143,6 +143,14 @@ jq 'del(.workflow_run.id)' "$TMP_DIR/fixture/event.json" > "$TMP_DIR/event-bad.j
 cp "$TMP_DIR/event-bad.json" "$TMP_DIR/fixture/event.json"
 expect_rejected missing-event-run-id
 write_fixtures push
+jq 'del(.workflow_run.workflow_id)' "$TMP_DIR/fixture/event.json" > "$TMP_DIR/event-bad.json"
+cp "$TMP_DIR/event-bad.json" "$TMP_DIR/fixture/event.json"
+expect_rejected missing-event-workflow-id
+write_fixtures push
+jq '.workflow_run.workflow_id="bad-id"' "$TMP_DIR/fixture/event.json" > "$TMP_DIR/event-bad.json"
+cp "$TMP_DIR/event-bad.json" "$TMP_DIR/fixture/event.json"
+expect_rejected malformed-event-workflow-id
+write_fixtures push
 jq '.workflow_run.head_sha="bad-sha"' "$TMP_DIR/fixture/event.json" > "$TMP_DIR/event-bad.json"
 cp "$TMP_DIR/event-bad.json" "$TMP_DIR/fixture/event.json"
 expect_rejected malformed-event-sha

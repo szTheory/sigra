@@ -29,6 +29,7 @@ EVENT_RUN_ID="$(jq -er '.workflow_run.id | select(type == "number" and floor == 
 EVENT_SHA="$(jq -er '.workflow_run.head_sha | select(type == "string" and test("^[0-9a-f]{40}$"))' "$EVENT_FILE" 2>/dev/null)" || fail "event source SHA is malformed"
 EVENT_REPOSITORY="$(jq -er '.repository.full_name | select(type == "string")' "$EVENT_FILE" 2>/dev/null)" || fail "event repository identity is missing"
 EVENT_EVENT="$(jq -er '.workflow_run.event | select(type == "string")' "$EVENT_FILE" 2>/dev/null)" || fail "event source event is missing"
+EVENT_WORKFLOW_ID="$(jq -er '.workflow_run.workflow_id | select(type == "number" and floor == . and . > 0)' "$EVENT_FILE" 2>/dev/null)" || fail "event source workflow ID is malformed"
 [[ "$EVENT_REPOSITORY" == "$GITHUB_REPOSITORY" ]] || fail "event repository does not match observer repository"
 
 SOURCE_RUN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${EVENT_RUN_ID}" 2>/dev/null)" || fail "authoritative source run query failed"
@@ -63,10 +64,7 @@ WORKFLOW_PATH="$(jq -er '.path | select(type == "string")' <<<"$WORKFLOW" 2>/dev
 [[ "$API_WORKFLOW_NAME" == "Release Please" && "$WORKFLOW_NAME" == "Release Please" ]] || fail "source workflow name mismatch"
 [[ "$API_WORKFLOW_PATH" =~ ^\.github/workflows/release-please\.yml(@main)?$ && "$WORKFLOW_PATH" == .github/workflows/release-please.yml ]] || fail "source workflow path mismatch"
 [[ "$API_WORKFLOW_ID" == "$WORKFLOW_ID" ]] || fail "source workflow ID mismatch"
-if jq -e '.workflow_run.workflow_id | numbers' "$EVENT_FILE" >/dev/null 2>&1; then
-  EVENT_WORKFLOW_ID="$(jq -r '.workflow_run.workflow_id' "$EVENT_FILE")"
-  [[ "$EVENT_WORKFLOW_ID" == "$API_WORKFLOW_ID" ]] || fail "event source workflow ID mismatch"
-fi
+[[ "$EVENT_WORKFLOW_ID" == "$API_WORKFLOW_ID" ]] || fail "event source workflow ID mismatch"
 
 RUN_URL_RE='^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+$'
 [[ "$API_URL" =~ $RUN_URL_RE ]] || fail "authoritative source run URL is malformed"
