@@ -67,7 +67,7 @@ if ! jq -e '
   def failure_valid:
     if .terminal_verdict == "failure" then
       (.failure | type == "object") and
-      (.failure.stage == "release-please" or .failure.stage == "gate-ci-green" or .failure.stage == "publish-hex" or .failure.stage == "post-publish-verify") and
+      (.failure.stage == "release-please" or .failure.stage == "gate-ci-green" or .failure.stage == "manual-validation" or .failure.stage == "publish-hex" or .failure.stage == "post-publish-verify") and
       (.failure.diagnostic | safe_diag)
     else .failure == null end;
   def observer_valid:
@@ -82,9 +82,9 @@ if ! jq -e '
     elif .terminal_verdict == "failure" then
       (.release_run.completed_at | timestamp) and
       (if .failure.stage == "release-please" then .gate.verdict == "skipped" and .publish.outcome == "not_run"
-       elif .failure.stage == "gate-ci-green" then .gate.verdict == "fail" and .publish.outcome == "not_run"
+       elif .failure.stage == "gate-ci-green" or .failure.stage == "manual-validation" then .gate.verdict == "fail" and .publish.outcome == "not_run"
        elif .failure.stage == "publish-hex" then .gate.verdict == "pass" and .publish.outcome == "failed"
-       elif .failure.stage == "post-publish-verify" then .gate.verdict == "pass" and .publish.outcome == "published"
+       elif .failure.stage == "post-publish-verify" then .gate.verdict == "pass" and (.publish.outcome == "published" or .publish.outcome == "already_published")
        else true end)
     else .release_run.completed_at == null and .observer_run.id != .release_run.id end;
   type == "object" and .schema_version == 1 and

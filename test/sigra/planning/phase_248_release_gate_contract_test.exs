@@ -127,4 +127,48 @@ defmodule Sigra.Planning.Phase248ReleaseGateContractTest do
     ci = String.replace(ci, ~r/^\s*#.*$/m, "")
     refute ci =~ ~r/(RELEASE_PLEASE_TOKEN|HEX_(?:DRY_RUN_)?API_KEY)/
   end
+
+  test "primary terminal receipt is retained before supplementary issue notification" do
+    workflow = read!(".github/workflows/release-please.yml")
+    receipt_job = job!(workflow, "record-release-result")
+    notifier_job = job!(workflow, "notify-release-failure")
+
+    assert receipt_job =~ "if: always()"
+    assert receipt_job =~ "needs: [release-please, gate-ci-green, publish-hex]"
+    assert receipt_job =~ "release-receipt.sh"
+    assert receipt_job =~ "github.event_name"
+    assert receipt_job =~ "needs.gate-ci-green.result"
+    assert receipt_job =~ "needs.publish-hex.result"
+    assert receipt_job =~ "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+    assert receipt_job =~ "retention-days: 90"
+    assert notifier_job =~ "needs: [release-please, gate-ci-green, publish-hex, record-release-result]"
+    assert notifier_job =~ "if: >-\n      always()"
+    assert notifier_job =~ "notify-failure-issue.sh"
+  end
+
+  test "manual recovery stores dry-run and publish outcomes in a source-event receipt" do
+    workflow = read!(".github/workflows/hex-publish.yml")
+    receipt_job = job!(workflow, "record-recovery-result")
+    publish_job = job!(workflow, "publish")
+
+    assert receipt_job =~ "if: always()"
+    assert receipt_job =~ "needs: publish"
+    assert receipt_job =~ "release-receipt.sh"
+    assert workflow =~ "workflow_dispatch"
+    assert receipt_job =~ "SOURCE_EVENT: ${{ github.event_name }}"
+    assert publish_job =~ "inputs.dry_run"
+    assert receipt_job =~ "PUBLISH_OUTCOME: ${{ needs.publish.outputs.publish_outcome }}"
+    assert receipt_job =~ "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+    assert receipt_job =~ "retention-days: 90"
+    assert receipt_job =~ "SOURCE_SHA_OUTPUT: ${{ needs.publish.outputs.source_sha }}"
+    assert receipt_job =~ "refs/tags/${SOURCE_TAG}:refs/tags/${SOURCE_TAG}"
+    assert receipt_job =~ "release_input_rejection"
+    assert receipt_job =~ "source_identity_unavailable"
+    assert receipt_job =~ "terminal_verdict:\"failure\""
+    assert workflow =~ "PUBLISH_RESULT=\"dry_run\""
+    assert workflow =~ "elif [[ \"$DRY_RUN\" == \"true\" ]]"
+    assert workflow =~ "PREFLIGHT_OUTCOME: ${{ steps.credential-preflight.outcome }}"
+    assert workflow =~ "SOURCE_CHECKOUT_OUTCOME: ${{ steps.source-checkout.outcome }}"
+    assert workflow =~ "credential_preflight_failed"
+  end
 end

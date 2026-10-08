@@ -39,7 +39,12 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
       version: ${{ steps.release.outputs.version }}
       sha: ${{ steps.release.outputs.sha }}
+      started_at: ${{ steps.workflow-start.outputs.started_at }}
     steps:
+      - name: Mark release workflow start
+        id: workflow-start
+        run: echo "started_at=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
@@ -114,6 +119,12 @@ jobs:
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     outputs:
       result: ${{ steps.wait.outputs.result }}
+      gate_verdict: ${{ steps.wait.outputs.gate_verdict }}
+      gate_attempts: ${{ steps.wait.outputs.attempts }}
+      gate_started_at: ${{ steps.wait.outputs.started_at }}
+      gate_completed_at: ${{ steps.wait.outputs.completed_at }}
+      gate_run_id: ${{ steps.wait.outputs.gate_run_id }}
+      gate_url: ${{ steps.wait.outputs.gate_url }}
     permissions:
       actions: write
       contents: read
@@ -141,8 +152,46 @@ jobs:
           RELEASE_SHA: ${{ needs.release-please.outputs.sha }}
         run: |
           set -euo pipefail
-          result="$(bash scripts/ci/wait-for-ci-gate.sh --max-attempts 120 --format json)"
-          echo "result=${result}" >> "$GITHUB_OUTPUT"
+          GATE_STARTED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          GATE_ERROR_FILE="$RUNNER_TEMP/release-ci-gate-error.log"
+          set +e
+          RESULT="$(bash scripts/ci/wait-for-ci-gate.sh --max-attempts 120 --format json 2>"$GATE_ERROR_FILE")"
+          RESULT_CODE=$?
+          set -e
+          GATE_COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+          if [[ "$RESULT_CODE" -eq 0 ]]; then
+            GATE_VERDICT="pass"
+            ATTEMPTS="$(jq -r '.attempts' <<<"$RESULT")"
+            GATE_RUN_ID="$(jq -r '.run_id' <<<"$RESULT")"
+            GATE_URL="$(jq -r '.run_url' <<<"$RESULT")"
+            RESULT="$(jq -c --arg started "$GATE_STARTED_AT" --arg completed "$GATE_COMPLETED_AT" \
+              '. + {gate_started_at:$started, gate_completed_at:$completed, gate_verdict:"pass"}' <<<"$RESULT")"
+          else
+            GATE_VERDICT="fail"
+            ATTEMPTS="$(sed -nE 's/.*after ([0-9]+) attempts.*/\1/p' "$GATE_ERROR_FILE" | tail -n 1)"
+            [[ "$ATTEMPTS" =~ ^[0-9]+$ ]] || ATTEMPTS=0
+            GATE_RUN_ID="$GITHUB_RUN_ID"
+            GATE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            RESULT="$(jq -cn --arg sha "$RELEASE_SHA" --arg run_url "$GATE_URL" \
+              --arg started "$GATE_STARTED_AT" --arg completed "$GATE_COMPLETED_AT" \
+              --argjson attempts "$ATTEMPTS" --arg run_id "$GATE_RUN_ID" \
+              '{sha:$sha, run_url:$run_url, run_id:$run_id, head_sha:$sha, attempts:$attempts,
+                verdict:"FAIL", gate_verdict:"fail", diagnostic:"ci_gate_not_green",
+                gate_started_at:$started, gate_completed_at:$completed}')"
+            cat "$GATE_ERROR_FILE" >&2
+          fi
+
+          {
+            echo "result=${RESULT}"
+            echo "gate_verdict=${GATE_VERDICT}"
+            echo "attempts=${ATTEMPTS}"
+            echo "started_at=${GATE_STARTED_AT}"
+            echo "completed_at=${GATE_COMPLETED_AT}"
+            echo "gate_run_id=${GATE_RUN_ID}"
+            echo "gate_url=${GATE_URL}"
+          } >> "$GITHUB_OUTPUT"
+          exit "$RESULT_CODE"
 
   publish-hex:
     name: Publish to Hex.pm
@@ -153,6 +202,12 @@ jobs:
       actions: read
       contents: read
     environment: hex-publish
+    outputs:
+      outcome: ${{ steps.capture-publish-result.outputs.outcome }}
+      started_at: ${{ steps.capture-publish-result.outputs.started_at }}
+      completed_at: ${{ steps.capture-publish-result.outputs.completed_at }}
+      failure_stage: ${{ steps.capture-publish-result.outputs.failure_stage }}
+      diagnostic: ${{ steps.capture-publish-result.outputs.diagnostic }}
     services:
       postgres:
         image: postgres:15
@@ -182,6 +237,10 @@ jobs:
             --repository "$REPOSITORY" \
             --require-hex-dry-run-key "$HEX_DRY_RUN_API_KEY_PRESENT" \
             --require-hex-publish-key "$HEX_API_KEY_PRESENT"
+
+      - name: Mark package verification start
+        id: publish-start
+        run: echo "started_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -287,12 +346,14 @@ jobs:
           fi
 
       - name: Dry run Hex publish
+        id: dry-run
         if: steps.idempotency.outputs.skip != 'true'
         env:
           HEX_API_KEY: ${{ secrets.HEX_DRY_RUN_API_KEY }}
         run: mix hex.publish --dry-run --yes
 
       - name: Publish to Hex
+        id: publish
         if: steps.idempotency.outputs.skip != 'true'
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
@@ -315,6 +376,7 @@ jobs:
           exit 1
 
       - name: Verify HexDocs source links after publish
+        id: verify-hexdocs
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
           TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
@@ -334,6 +396,142 @@ jobs:
           if-no-files-found: ignore
           retention-days: 90
 
+      - name: Capture publish outcome for terminal receipt
+        id: capture-publish-result
+        if: always()
+        env:
+          JOB_RESULT: ${{ job.status }}
+          ALREADY_PUBLISHED: ${{ steps.idempotency.outputs.skip }}
+          PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
+          VERIFY_OUTCOME: ${{ steps.verify-hexdocs.outcome }}
+          STARTED_AT: ${{ steps.publish-start.outputs.started_at }}
+        run: |
+          set -euo pipefail
+          COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          OUTCOME="failed"
+          FAILURE_STAGE="publish-hex"
+          DIAGNOSTIC="publish_job_failed"
+          if [[ "$ALREADY_PUBLISHED" == "true" ]]; then
+            OUTCOME="already_published"
+            FAILURE_STAGE=""
+            DIAGNOSTIC=""
+          elif [[ "$PUBLISH_OUTCOME" == "success" ]]; then
+            OUTCOME="published"
+            if [[ "$VERIFY_OUTCOME" != "success" || "$JOB_RESULT" != "success" ]]; then
+              FAILURE_STAGE="post-publish-verify"
+              DIAGNOSTIC="post_publish_verification_failed"
+            else
+              FAILURE_STAGE=""
+              DIAGNOSTIC=""
+            fi
+          fi
+          [[ -n "$STARTED_AT" ]] || STARTED_AT="$COMPLETED_AT"
+          {
+            echo "outcome=${OUTCOME}"
+            echo "started_at=${STARTED_AT}"
+            echo "completed_at=${COMPLETED_AT}"
+            echo "failure_stage=${FAILURE_STAGE}"
+            echo "diagnostic=${DIAGNOSTIC}"
+          } >> "$GITHUB_OUTPUT"
+
+  record-release-result:
+    name: Record terminal release result
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: [release-please, gate-ci-green, publish-hex]
+    if: >-
+      always() && needs.release-please.outputs.release_created == 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Build and validate terminal release receipt
+        env:
+          RELEASE_RUN_ID: ${{ github.run_id }}
+          RELEASE_ATTEMPT: ${{ github.run_attempt }}
+          RELEASE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/release-please.yml
+          SOURCE_EVENT: ${{ github.event_name }}
+          SOURCE_VERSION: ${{ needs.release-please.outputs.version }}
+          SOURCE_TAG: ${{ needs.release-please.outputs.tag_name }}
+          SOURCE_SHA: ${{ needs.release-please.outputs.sha }}
+          RELEASE_STARTED_AT: ${{ needs.release-please.outputs.started_at }}
+          GATE_JOB_RESULT: ${{ needs.gate-ci-green.result }}
+          GATE_ATTEMPTS: ${{ needs.gate-ci-green.outputs.gate_attempts }}
+          GATE_STARTED_AT: ${{ needs.gate-ci-green.outputs.gate_started_at }}
+          GATE_COMPLETED_AT: ${{ needs.gate-ci-green.outputs.gate_completed_at }}
+          GATE_RUN_ID: ${{ needs.gate-ci-green.outputs.gate_run_id }}
+          GATE_URL: ${{ needs.gate-ci-green.outputs.gate_url }}
+          GATE_RESULT: ${{ needs.gate-ci-green.outputs.result }}
+          PUBLISH_JOB_RESULT: ${{ needs.publish-hex.result }}
+          PUBLISH_OUTCOME: ${{ needs.publish-hex.outputs.outcome }}
+          PUBLISH_STARTED_AT: ${{ needs.publish-hex.outputs.started_at }}
+          PUBLISH_COMPLETED_AT: ${{ needs.publish-hex.outputs.completed_at }}
+          PUBLISH_FAILURE_STAGE: ${{ needs.publish-hex.outputs.failure_stage }}
+          PUBLISH_DIAGNOSTIC: ${{ needs.publish-hex.outputs.diagnostic }}
+        run: |
+          set -euo pipefail
+          RELEASE_COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          GATE_VERDICT="fail"
+          [[ "$GATE_JOB_RESULT" == "success" ]] && GATE_VERDICT="pass"
+          GATE_ATTEMPTS="${GATE_ATTEMPTS:-0}"
+          [[ "$GATE_ATTEMPTS" =~ ^[0-9]+$ ]] || GATE_ATTEMPTS=0
+          GATE_RUN_ID="${GATE_RUN_ID:-$RELEASE_RUN_ID}"
+          GATE_URL="${GATE_URL:-$RELEASE_RUN_URL}"
+          PUBLISH_OUTCOME="${PUBLISH_OUTCOME:-not_run}"
+          PUBLISH_FAILURE_STAGE="${PUBLISH_FAILURE_STAGE:-}"
+          PUBLISH_DIAGNOSTIC="${PUBLISH_DIAGNOSTIC:-}"
+          TERMINAL_VERDICT="success"
+          FAILURE_JSON="null"
+          if [[ "$GATE_VERDICT" != "pass" ]]; then
+            TERMINAL_VERDICT="failure"
+            FAILURE_JSON="{\"stage\":\"gate-ci-green\",\"diagnostic\":\"ci_gate_not_green\"}"
+            PUBLISH_OUTCOME="not_run"
+          elif [[ "$PUBLISH_JOB_RESULT" != "success" || "$PUBLISH_OUTCOME" == "failed" ]]; then
+            TERMINAL_VERDICT="failure"
+            STAGE="${PUBLISH_FAILURE_STAGE:-publish-hex}"
+            DIAGNOSTIC="${PUBLISH_DIAGNOSTIC:-publish_job_failed}"
+            FAILURE_JSON="$(jq -cn --arg stage "$STAGE" --arg diagnostic "$DIAGNOSTIC" '{stage:$stage,diagnostic:$diagnostic}')"
+          fi
+          if [[ -z "$PUBLISH_STARTED_AT" ]]; then PUBLISH_STARTED_AT="null"; fi
+          if [[ -z "$PUBLISH_COMPLETED_AT" ]]; then PUBLISH_COMPLETED_AT="null"; fi
+          GATE_STARTED_AT="${GATE_STARTED_AT:-$RELEASE_STARTED_AT}"
+          GATE_COMPLETED_AT="${GATE_COMPLETED_AT:-$RELEASE_COMPLETED_AT}"
+          if [[ -z "$GATE_RESULT" ]]; then GATE_RESULT='{}'; fi
+          jq -n \
+            --arg release_id "$RELEASE_RUN_ID" --argjson attempt "$RELEASE_ATTEMPT" \
+            --arg release_url "$RELEASE_RUN_URL" --arg workflow "$WORKFLOW_NAME" --arg workflow_url "$WORKFLOW_URL" \
+            --arg event "$SOURCE_EVENT" --arg version "$SOURCE_VERSION" --arg tag "$SOURCE_TAG" --arg sha "$SOURCE_SHA" \
+            --arg release_started "$RELEASE_STARTED_AT" --arg release_completed "$RELEASE_COMPLETED_AT" \
+            --arg gate_id "$GATE_RUN_ID" --arg gate_url "$GATE_URL" --arg gate_verdict "$GATE_VERDICT" \
+            --argjson attempts "$GATE_ATTEMPTS" --arg gate_started "$GATE_STARTED_AT" --arg gate_completed "$GATE_COMPLETED_AT" \
+            --arg gate_result "$GATE_RESULT" --arg publish_outcome "$PUBLISH_OUTCOME" \
+            --arg publish_started "$PUBLISH_STARTED_AT" --arg publish_completed "$PUBLISH_COMPLETED_AT" \
+            --arg terminal "$TERMINAL_VERDICT" --argjson failure "$FAILURE_JSON" \
+            --arg publish_failure_stage "$PUBLISH_FAILURE_STAGE" \
+            '{schema_version:1,
+              release_run:{id:$release_id,attempt:$attempt,url:$release_url,workflow_name:$workflow,workflow_url:$workflow_url,started_at:$release_started,completed_at:$release_completed},
+              source_event:$event,source:{version:$version,tag:$tag,sha:$sha},
+              gate:({run_id:$gate_id,url:$gate_url,verdict:$gate_verdict,attempts:$attempts,started_at:$gate_started,completed_at:$gate_completed} +
+                (try ($gate_result | fromjson | {ci_run_id:.run_id,ci_run_url:.run_url,head_sha:.head_sha}) catch {})),
+              publish:{outcome:$publish_outcome,started_at:(if $publish_started == "null" then null else $publish_started end),completed_at:(if $publish_completed == "null" then null else $publish_completed end)},
+              terminal_verdict:$terminal,failure:$failure,observer_run:null,
+              stages:{release:{verdict:"created",completed_at:$release_completed},gate:{verdict:$gate_verdict,run_id:$gate_id},publish:{outcome:$publish_outcome,failure_stage:$publish_failure_stage}}}' \
+            > release-result-input.json
+          bash scripts/ci/release-receipt.sh --input release-result-input.json --output release-result.json
+
+      - name: Upload terminal release receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-result-${{ needs.release-please.outputs.version }}-${{ github.run_id }}
+          path: release-result.json
+          if-no-files-found: error
+          retention-days: 90
+
   # HARD-02 (Phase 222 Plan 02, D-06.3): release-please auto-publish previously
   # stalled silently for ~30 minutes when gate-ci-green timed out, or failed
   # quietly on a broken publish-hex step, with no failure consumer. This
@@ -349,7 +547,7 @@ jobs:
     permissions:
       contents: read
       issues: write
-    needs: [release-please, gate-ci-green, publish-hex]
+    needs: [release-please, gate-ci-green, publish-hex, record-release-result]
     if: >-
       always() &&
       needs.release-please.outputs.release_created == 'true' &&
