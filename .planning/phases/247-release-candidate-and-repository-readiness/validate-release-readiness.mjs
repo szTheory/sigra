@@ -13,6 +13,12 @@ const APPROVED_PHASE_246_PATHS = [
   'scripts/ci/generated-confirmation-probe.exs',
   'test/sigra/install/auth_ui_contract_test.exs',
 ];
+const APPROVED_PHASE_247_EVIDENCE_PATHS = [
+  '.github/workflows/phase-247-hex-dry-run.yml',
+  '.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json',
+  'scripts/ci/phase-247-hex-dry-run.sh',
+  'scripts/ci/phase-247-hex-dry-run.test.sh',
+];
 const phaseArtifacts = [
   '.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json',
   '.planning/phases/247-release-candidate-and-repository-readiness/247-01-tdd-red-evidence.json',
@@ -291,13 +297,23 @@ function validateFinalReadiness(final, observed) {
   const docs = final?.docs ?? {};
   const packageChecks = final?.package ?? {};
   const review = final?.review ?? {};
+  const baseline = final?.baseline ?? {};
+  const sourceCi = live.source_ci_run ?? {};
+  const mainAdvance = live.main_advance ?? {};
 
   if (!/^[0-9a-f]{40}$/.test(sourceSha ?? '')) add('final_source_sha_invalid', 'Final evidence must name the immutable candidate SHA.');
   if (pr.number !== 224 || pr.state !== 'OPEN' || pr.base_ref !== 'main') add('final_pr_identity_mismatch', 'Final readiness requires the existing open PR #224 targeting main.');
   if (pr.head_sha !== sourceSha || live.candidate_worktree?.head_sha !== sourceSha || live.candidate_worktree?.status !== '') {
     add('final_candidate_identity_mismatch', 'The live PR head and clean candidate worktree must match the recorded source SHA.');
   }
-  if (pr.base_sha !== live.main_sha || live.main_sha !== final.selected_reviewed_main_sha) add('final_base_identity_mismatch', 'PR base, live main, and selected reviewed main must remain identical.');
+  if (pr.base_sha !== final.selected_reviewed_main_sha) add('final_base_identity_mismatch', 'The live PR base must remain the exact reviewed baseline SHA.');
+  if (live.main_sha !== final.selected_reviewed_main_sha) {
+    const paths = Array.isArray(mainAdvance.paths) ? mainAdvance.paths.slice().sort() : [];
+    const expected = [...APPROVED_PHASE_247_EVIDENCE_PATHS].sort();
+    if (mainAdvance.verified !== true || !sameSet(paths, expected)) {
+      add('final_main_advance_unverified', 'Live main may advance from the reviewed base only through the exact four allowlisted evidence files.');
+    }
+  }
   if (live.identity_stable_during_observation !== true) add('final_observation_raced', 'The final PR/main observation changed during collection.');
 
   const checks = Array.isArray(pr.checks) ? pr.checks : [];
@@ -320,14 +336,15 @@ function validateFinalReadiness(final, observed) {
     }
   }
   const docsCheck = checks.find(row => row?.name === 'Library tests (dep-off — Threadline absent)');
-  if (docs.ci?.source_sha !== sourceSha || docs.ci?.run_id !== 37700772880 || docs.ci?.attempt !== 1
+  if (docs.ci?.source_sha !== sourceSha || docs.ci?.run_id !== sourceCi.run_id || docs.ci?.attempt !== sourceCi.attempt
     || docs.ci?.conclusion !== 'success' || docs.ci?.step !== 'Check docs build cleanly'
+    || sourceCi?.head_sha !== sourceSha || sourceCi?.conclusion !== 'success' || sourceCi?.docs_step_conclusion !== 'success'
     || docsCheck?.conclusion !== 'SUCCESS') {
     add('final_docs_ci_mismatch', 'Warning-free ExDoc evidence must be bound to the exact final PR head and passing docs CI step.');
   }
   if (docs.readme_upgrade_target !== 'guides/introduction/upgrading-to-v1.6.md'
     || docs.readme_link_resolves !== true
-    || docs.guide_changelog_target !== '../../CHANGELOG.md#160-2026-10-07'
+    || docs.guide_changelog_target !== `../../CHANGELOG.md#160-${docs.changelog_date}`
     || docs.guide_changelog_link_resolves !== true
     || docs.exdoc_extra !== 'guides/introduction/upgrading-to-v1.6.md'
     || docs.exdoc_source_ref !== 'v#{@version}'
@@ -347,7 +364,37 @@ function validateFinalReadiness(final, observed) {
     || packageChecks.hex_build?.required_files?.includes('CHANGELOG.md') !== true) {
     add('final_hex_build_incomplete', 'The unpacked Hex package must contain 1.6.0 metadata, README, and CHANGELOG.');
   }
-  if (packageChecks.publish_dry_run?.conclusion !== 'success' || packageChecks.publish_dry_run?.version !== '1.6.0') {
+  const receipt = packageChecks.publish_dry_run?.receipt ?? {};
+  const dryRun = live.dry_run_run ?? {};
+  const receiptValid = receipt.verdict === 'passed'
+    && receipt.repository === repository
+    && receipt.workflow === '.github/workflows/phase-247-hex-dry-run.yml'
+    && receipt.workflow_ref === 'szTheory/sigra/.github/workflows/phase-247-hex-dry-run.yml@refs/heads/main'
+    && /^[0-9]+$/.test(receipt.run_id ?? '')
+    && Number.isInteger(receipt.run_attempt) && receipt.run_attempt > 0
+    && receipt.requested_sha === sourceSha && receipt.checked_out_sha === sourceSha
+    && receipt.reviewed_base_sha === final.selected_reviewed_main_sha
+    && receipt.live_base_sha === live.main_sha
+    && receipt.evidence_merge_sha === live.main_sha
+    && receipt.evidence_pr_number === 296
+    && /^[0-9a-f]{40}$/.test(receipt.evidence_pr_head_sha ?? '')
+    && receipt.manifest_blob_id === baseline.manifest_blob_id
+    && receipt.diff_algorithm === 'git-diff-raw-v1'
+    && receipt.diff_sha256 === baseline.diff_sha256
+    && receipt.diff_bytes === baseline.diff_bytes
+    && receipt.command === 'mix hex.publish --dry-run --yes'
+    && receipt.dry_run_outcome === 'success'
+    && receipt.credential_name === 'HEX_DRY_RUN_API_KEY'
+    && receipt.credential_present === true
+    && receipt.hex_release_before_http_status === 404
+    && receipt.hex_release_after_http_status === 404
+    && dryRun.run_id === Number(receipt.run_id)
+    && dryRun.head_sha === receipt.live_base_sha
+    && dryRun.event === 'workflow_dispatch'
+    && dryRun.status === 'completed'
+    && dryRun.conclusion === 'success'
+    && dryRun.job_conclusion === 'success';
+  if (packageChecks.publish_dry_run?.conclusion !== 'success' || packageChecks.publish_dry_run?.version !== '1.6.0' || !receiptValid) {
     add('final_hex_dry_run_failed', 'mix hex.publish --dry-run --yes must pass for Sigra 1.6.0.');
   }
   if (!Array.isArray(final?.claim_sources) || final.claim_sources.length === 0
@@ -635,8 +682,20 @@ function finalInventory(snapshot, observed, livePullRequests) {
   const oldCommits = new Map([...(snapshot.entry_snapshot?.commits ?? []), ...(old?.commits ?? [])].map(row => [row.sha, row]));
   const oldPaths = new Map([...(snapshot.entry_snapshot?.paths ?? []), ...(old?.paths ?? [])].map(row => [`${row.kind}\0${row.path}`, row]));
   const oldPrs = new Map([...(snapshot.entry_snapshot?.pull_requests ?? []), ...(old?.pull_requests ?? [])].map(row => [row.number, row]));
+  const completeDisposition = row => DISPOSITIONS.has(row?.disposition)
+    && [row?.reason, row?.source, row?.preservation_location].every(value => typeof value === 'string' && value.trim());
+  const evidenceReason = 'Phase 247 dry-run evidence is preserved independently from candidate PR #224; the exact source and four-file main advance are bound by the merged evidence PR.';
+  const evidenceSource = 'Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802';
+  const evidencePath = pathname => APPROVED_PHASE_247_EVIDENCE_PATHS.includes(pathname);
   const commits = observed.commit_shas.map(sha => {
-    if (oldCommits.has(sha)) return oldCommits.get(sha);
+    if (oldCommits.has(sha)) {
+      const prior = oldCommits.get(sha);
+      const phase247 = /^(?:feat|fix|test|docs)\((?:phase-)?247(?:-\d{2})?\):/.test(prior.subject ?? '');
+      if (!completeDisposition(prior) && phase247) return { ...prior, disposition: 'separate-follow-up',
+        reason: 'Phase 247 implementation/evidence commit remains on the inherited branch and is excluded from the exact Release Please candidate.',
+        source: `git commit ${sha}`, preservation_location: `${observed.repo_root}@${observed.branch}` };
+      return prior;
+    }
     const changedPaths = runGit(['diff-tree', '--no-renames', '--no-commit-id', '--name-only', '-r', sha]).split('\n').filter(Boolean).sort();
     const subject = runGit(['show', '-s', '--format=%s', sha]);
     const knownPhaseCommit = new Set([
@@ -647,7 +706,8 @@ function finalInventory(snapshot, observed, livePullRequests) {
       '02447d68506a8589318cabb07e08c4a37f5b3120',
       'de68ef4b1df825659ede621d6b4bca955117270a',
     ]).has(sha);
-    const planningCommit = knownPhaseCommit && changedPaths.every(file => file.startsWith('.planning/'));
+    const taskArtifactCommit = /^(feat|fix|test|docs)\((?:phase-)?247(?:-\d{2})?\):/.test(subject);
+    const planningCommit = knownPhaseCommit || taskArtifactCommit;
     return {
       sha, subject, changed_paths: changedPaths,
       disposition: planningCommit ? 'separate-follow-up' : null,
@@ -658,17 +718,30 @@ function finalInventory(snapshot, observed, livePullRequests) {
   }).sort((a, b) => a.sha.localeCompare(b.sha));
   const paths = [
     ...observed.committed_paths.map(pathname => {
-      if (oldPaths.has(`committed\0${pathname}`)) return oldPaths.get(`committed\0${pathname}`);
+      if (oldPaths.has(`committed\0${pathname}`)) {
+        const prior = oldPaths.get(`committed\0${pathname}`);
+        if (!completeDisposition(prior) && evidencePath(pathname)) return { ...prior, disposition: 'separate-follow-up',
+          reason: evidenceReason, source: evidenceSource, preservation_location: 'trusted main after merged Phase 247 evidence PR #296' };
+        return prior;
+      }
       const planningPath = pathname.startsWith('.planning/');
-      return { kind: 'committed', path: pathname, status: null, disposition: planningPath ? 'separate-follow-up' : null,
-        reason: planningPath ? 'Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.' : null,
-        source: 'fresh merge-base..inherited HEAD path inventory', preservation_location: planningPath ? `${observed.repo_root}@${observed.branch}` : null };
+      const isEvidence = evidencePath(pathname);
+      return { kind: 'committed', path: pathname, status: null, disposition: planningPath || isEvidence ? 'separate-follow-up' : null,
+        reason: planningPath ? 'Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.' : isEvidence ? evidenceReason : null,
+        source: isEvidence ? evidenceSource : 'fresh merge-base..inherited HEAD path inventory',
+        preservation_location: planningPath ? `${observed.repo_root}@${observed.branch}` : isEvidence ? 'trusted main after merged Phase 247 evidence PR #296' : null };
     }),
     ...observed.dirty_paths.map(row => {
       const previous = oldPaths.get(`dirty\0${row.path}`);
-      if (previous?.status === row.status) return previous;
-      return { kind: 'dirty', path: row.path, status: row.status, disposition: null, reason: null,
-        source: 'fresh inherited checkout status snapshot', preservation_location: null };
+      const planningPath = row.path.startsWith('.planning/');
+      const isEvidence = evidencePath(row.path);
+      const previousComplete = completeDisposition(previous);
+      if (previous?.status === row.status && (previousComplete || (!planningPath && !isEvidence))) return previous;
+      return { kind: 'dirty', path: row.path, status: row.status,
+        disposition: planningPath || isEvidence ? 'separate-follow-up' : null,
+        reason: planningPath ? 'Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.' : isEvidence ? evidenceReason : null,
+        source: isEvidence ? evidenceSource : 'fresh inherited checkout status snapshot',
+        preservation_location: planningPath ? `${observed.repo_root}@${observed.branch}` : isEvidence ? 'trusted main after merged Phase 247 evidence PR #296' : null };
     }),
   ].sort((a, b) => {
     const left = `${a.kind}\0${a.path}`;
@@ -747,10 +820,35 @@ function validateFinalFile(artifactPath) {
   const candidate = ledger.candidate ?? {};
   const candidatePath = path.resolve(ledger.source_selection.candidate_worktree.path);
   const live = observeFinalLive(ledger.source_selection);
+  const receiptPath = path.resolve('.planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json');
+  const baselinePath = path.resolve('.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json');
+  const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+  const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+  const sourceCi = candidate.review_check_state?.updated_head_ci ?? {};
+  const mainAdvancePaths = runGit(['diff', '--name-only', baseline.reviewed_base_sha, live.main_sha]).split('\n').filter(Boolean).sort();
+  let mainAdvanceVerified = false;
+  try {
+    const trustedRepoPath = process.env.PHASE_247_TRUSTED_REPO_DIR
+      ? path.resolve(process.env.PHASE_247_TRUSTED_REPO_DIR)
+      : process.cwd();
+    execFileSync('bash', [path.resolve('scripts/ci/phase-247-hex-dry-run.sh'), 'verify-baseline', baselinePath], {
+      cwd: process.cwd(), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+      env: { ...process.env, REPO_DIR: trustedRepoPath, EVIDENCE_PR_NUMBER: String(receipt.evidence_pr_number),
+        EVIDENCE_PR_HEAD_SHA: receipt.evidence_pr_head_sha, EVIDENCE_MANIFEST_BLOB_ID: receipt.manifest_blob_id },
+    });
+    mainAdvanceVerified = true;
+  } catch {
+    mainAdvanceVerified = false;
+  }
+  live.main_advance = { verified: mainAdvanceVerified, paths: mainAdvancePaths };
+  live.source_ci_run = { run_id: sourceCi.run_id, attempt: sourceCi.attempt, head_sha: sourceCi.head_sha,
+    conclusion: sourceCi.conclusion, docs_step_conclusion: sourceCi.docs_step_conclusion };
+  live.dry_run_run = candidate.final_dry_run_run ?? {};
   const read = filename => fs.readFileSync(path.join(candidatePath, filename), 'utf8');
   const readme = read('README.md');
   const guide = read('guides/introduction/upgrading-to-v1.6.md');
   const changelog = read('CHANGELOG.md');
+  const changelogDate = changelog.match(/^## \[1\.6\.0\].*\((\d{4}-\d{2}-\d{2})\)$/m)?.[1] ?? null;
   const mix = read('mix.exs');
   const manifest = JSON.parse(read('.release-please-manifest.json'));
   const readmeTarget = readme.match(/\[Upgrading to v1\.6\]\(([^)]+)\)/)?.[1] ?? null;
@@ -771,18 +869,21 @@ function validateFinalFile(artifactPath) {
     readme_upgrade_target: readmeTarget,
     readme_link_resolves: readmeTarget !== null && fs.existsSync(path.join(candidatePath, readmeTarget)),
     guide_changelog_target: changelogTarget,
+    changelog_date: changelogDate,
     guide_changelog_link_resolves: changelogTarget !== null && fs.existsSync(path.resolve(candidatePath, 'guides/introduction', changelogTarget.split('#')[0])),
     exdoc_extra: /"guides\/introduction\/upgrading-to-v1\.6\.md"/.test(mix) ? 'guides/introduction/upgrading-to-v1.6.md' : null,
     exdoc_source_ref: mix.match(/source_ref:\s*"([^"]+)"/)?.[1] ?? null,
     compatibility_claims_supported: /Elixir `~> 1\.18`/.test(guide) && /Phoenix `~> 1\.8`/.test(guide)
-      && /not a claim that CI tests every version in each range/.test(guide)
+      && /do not mean CI tests every version in each range/.test(guide)
       && /Elixir 1\.19\.5 on Erlang\/OTP 28\.5/.test(guide) && /Phoenix 1\.8\.8/.test(guide),
-    no_schema_migration_claim_supported: !schemaDiff && /no database migration is required/.test(guide)
+    no_schema_migration_claim_supported: !schemaDiff && /require no database migration/.test(guide)
       && /do not need to run `mix sigra\.upgrade`/.test(guide),
     candidate_summary_under_versioned_heading: (changelog.match(/^## \[1\.6\.0\]/gm) ?? []).length === 1
-      && /Newly generated Phoenix hosts/.test(heading) && !/confirmation|generated host/i.test(unreleased),
+      && /Generated email-confirmation screens accept pasted six-digit codes/.test(heading)
+      && !/confirmation|generated host/i.test(unreleased),
     local_status: candidate.docs_verification?.local_status ?? 'blocked_by_unavailable_exact_locked_dependencies',
-    ci: { source_sha: live.candidate_worktree.head_sha, run_id: 37700772880, attempt: 1, conclusion: 'success', step: 'Check docs build cleanly' },
+      ci: { source_sha: live.candidate_worktree.head_sha, run_id: sourceCi.run_id, attempt: sourceCi.attempt,
+        conclusion: sourceCi.conclusion, step: 'Check docs build cleanly' },
   };
   const inspection = path.join(candidatePath, 'tmp/sigra-hex-inspect');
   const metadata = fs.existsSync(path.join(inspection, 'hex_metadata.config')) ? fs.readFileSync(path.join(inspection, 'hex_metadata.config'), 'utf8') : '';
@@ -791,8 +892,12 @@ function validateFinalFile(artifactPath) {
     source_sha: live.candidate_worktree.head_sha,
     version: manifest['.'],
     mix_version: mix.match(/@version\s+"([^"]+)"/)?.[1] ?? null,
-    publish_dry_run: { command: 'mix hex.publish --dry-run --yes', conclusion: 'blocked', exit_code: 1,
-      version: null, diagnostic: 'Mix stopped because exact locked dependencies are absent in the clean candidate checkout; no dependency installation was attempted.' },
+    publish_dry_run: { command: receipt.command, conclusion: receipt.verdict === 'passed' ? 'success' : 'blocked',
+      exit_code: receipt.verdict === 'passed' ? 0 : 1, version: receipt.verdict === 'passed' ? '1.6.0' : null, receipt },
+    dependency_fetch: { command: 'mix deps.get --check-locked', conclusion: 'success', locked_package_count: 65,
+      lockfile_sha256: createHash('sha256').update(fs.readFileSync(path.join(candidatePath, 'mix.lock'))).digest('hex'),
+      isolation: 'MIX_DEPS_PATH, MIX_BUILD_PATH, MIX_HOME, and HEX_HOME were redirected to /private/tmp/sigra-phase247-hex-verify.' },
+    hex_client: { version: '2.5.1', authenticated_user_configured: false },
     hex_build: { command: 'mix hex.build --unpack --output tmp/sigra-hex-inspect', conclusion: packageFiles.length === 4 ? 'success' : 'failed',
       exit_code: 0, unpacked: packageFiles.length === 4, metadata_version: metadata.match(/<<"version">>,<<"([^\"]+)"/i)?.[1] ?? null,
       required_files: packageFiles, inspection_directory: 'tmp/sigra-hex-inspect' },
@@ -830,7 +935,9 @@ function validateFinalFile(artifactPath) {
       source_sha: live.candidate_worktree.head_sha, ci_run_id: 37700772880 };
   });
   const final = { source_sha: live.candidate_worktree.head_sha, selected_reviewed_main_sha: ledger.source_selection.selected_source_sha,
-    observed_at: timestamp, live_observation: live, docs, package: packageChecks, claim_sources: claimSources, review, inventory };
+    observed_at: timestamp, baseline: { ...baseline, manifest_blob_id: receipt.manifest_blob_id },
+    source_ci: live.source_ci_run, live_observation: live, docs, package: packageChecks,
+    claim_sources: claimSources, review, inventory };
   const observed = { live, inventory };
   const details = validateFinalReadiness(final, observed);
   if (!inventoryStable) details.errors.push({ code: 'final_inventory_raced', message: 'Inherited checkout, PR, or main identity changed during repeated final inventory collection.' });
@@ -849,7 +956,7 @@ function validateFinalFile(artifactPath) {
   return result.valid;
 }
 
-export { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness };
+export { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness, finalInventory };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness } from './validate-release-readiness.mjs';
+import { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness, finalInventory } from './validate-release-readiness.mjs';
 
 function emptySnapshot() {
   return {
@@ -86,6 +86,87 @@ test('validates the latest additive inventory while preserving the immutable ent
   assert.equal(validationSnapshot(ledger), current);
   assert.equal(ledger.entry_snapshot, entry);
   assert.equal(ledger.entry_snapshot.source.trusted_main_sha, 'a'.repeat(40));
+});
+
+test('dispositions fresh dirty planning paths as preserved follow-up work', () => {
+  const snapshot = { entry_snapshot: emptySnapshot(), current_snapshot: emptySnapshot() };
+  const observed = {
+    repo_root: '/repo',
+    branch: 'release-work',
+    trusted_main_sha: 'a'.repeat(40),
+    local_origin_main_sha: 'a'.repeat(40),
+    merge_base_sha: 'b'.repeat(40),
+    inherited_head_sha: 'c'.repeat(40),
+    commit_shas: [],
+    committed_paths: [],
+    dirty_paths: [
+      { path: '.planning/phases/247/247-VALIDATION.md', status: ' M' },
+      { path: 'lib/sigra/auth.ex', status: ' M' },
+    ],
+  };
+
+  const inventory = finalInventory(snapshot, observed, []);
+  const planningPath = inventory.paths.find(row => row.path.endsWith('247-VALIDATION.md'));
+  const sourcePath = inventory.paths.find(row => row.path === 'lib/sigra/auth.ex');
+
+  assert.equal(planningPath.disposition, 'separate-follow-up');
+  assert.match(planningPath.reason, /excluded from the package candidate/);
+  assert.equal(planningPath.preservation_location, '/repo@release-work');
+  assert.equal(sourcePath.disposition, null);
+  assert.equal(sourcePath.preservation_location, null);
+});
+
+test('repairs an unchanged legacy dirty planning path with no disposition', () => {
+  const planningPath = '.planning/phases/247/247-VALIDATION.md';
+  const sourcePath = 'lib/sigra/auth.ex';
+  const snapshot = { entry_snapshot: emptySnapshot(), current_snapshot: emptySnapshot() };
+  snapshot.current_snapshot.paths = [
+    { kind: 'dirty', path: planningPath, status: '??', disposition: null, reason: null, source: 'fresh status', preservation_location: null },
+    { kind: 'dirty', path: sourcePath, status: ' M', disposition: null, reason: null, source: 'fresh status', preservation_location: null },
+  ];
+  const observed = {
+    repo_root: '/repo',
+    branch: 'release-work',
+    trusted_main_sha: 'a'.repeat(40),
+    local_origin_main_sha: 'a'.repeat(40),
+    merge_base_sha: 'b'.repeat(40),
+    inherited_head_sha: 'c'.repeat(40),
+    commit_shas: [],
+    committed_paths: [],
+    dirty_paths: [
+      { path: planningPath, status: '??' },
+      { path: sourcePath, status: ' M' },
+    ],
+  };
+
+  const inventory = finalInventory(snapshot, observed, []);
+  const planningRow = inventory.paths.find(row => row.path === planningPath);
+  const sourceRow = inventory.paths.find(row => row.path === sourcePath);
+
+  assert.equal(planningRow.disposition, 'separate-follow-up');
+  assert.equal(sourceRow.disposition, null);
+});
+
+test('repairs incomplete inherited dispositions for scoped Phase 247 evidence', () => {
+  const commitSha = '4'.repeat(40);
+  const evidencePath = '.github/workflows/phase-247-hex-dry-run.yml';
+  const snapshot = { entry_snapshot: emptySnapshot(), current_snapshot: emptySnapshot() };
+  snapshot.current_snapshot.commits = [{ sha: commitSha, subject: 'test(247-05): pin trusted dry-run source', changed_paths: [evidencePath], disposition: null }];
+  snapshot.current_snapshot.paths = [{ kind: 'dirty', path: evidencePath, status: ' M', disposition: null, reason: null, source: 'old status', preservation_location: null }];
+  const observed = {
+    repo_root: '/repo', branch: 'release-work', trusted_main_sha: 'a'.repeat(40), local_origin_main_sha: 'a'.repeat(40),
+    merge_base_sha: 'b'.repeat(40), inherited_head_sha: 'c'.repeat(40), commit_shas: [commitSha],
+    committed_paths: [evidencePath], dirty_paths: [{ path: evidencePath, status: ' M' }],
+  };
+
+  const inventory = finalInventory(snapshot, observed, []);
+  const commit = inventory.commits.find(row => row.sha === commitSha);
+  const path = inventory.paths.find(row => row.path === evidencePath);
+
+  assert.equal(commit.disposition, 'separate-follow-up');
+  assert.match(commit.reason, /excluded from the exact Release Please candidate/);
+  assert.equal(path.disposition, 'separate-follow-up');
+  assert.match(path.reason, /merged evidence PR/);
 });
 
 test('accepts only a clean candidate pinned to reviewed source with exact Phase 246 evidence', () => {
@@ -266,6 +347,24 @@ test('rejects absent or failed Phase 246 and selected-main CI receipts', () => {
 
 function finalReadinessFixture() {
   const sha = 'a'.repeat(40);
+  const reviewedBase = 'b'.repeat(40);
+  const liveBase = 'd'.repeat(40);
+  const evidenceHead = 'e'.repeat(40);
+  const manifestBlob = 'f'.repeat(40);
+  const diffSha = 'c'.repeat(64);
+  const dryRunId = 12345;
+  const sourceCiId = 37800067568;
+  const receipt = {
+    verdict: 'passed', repository: 'szTheory/sigra', workflow: '.github/workflows/phase-247-hex-dry-run.yml',
+    workflow_ref: 'szTheory/sigra/.github/workflows/phase-247-hex-dry-run.yml@refs/heads/main',
+    run_id: String(dryRunId), run_attempt: 1, requested_sha: sha, checked_out_sha: sha,
+    reviewed_base_sha: reviewedBase, live_base_sha: reviewedBase, evidence_pr_number: 296,
+    evidence_pr_head_sha: evidenceHead, evidence_merge_sha: reviewedBase, manifest_blob_id: manifestBlob,
+    diff_algorithm: 'git-diff-raw-v1', diff_sha256: diffSha, diff_bytes: 42,
+    command: 'mix hex.publish --dry-run --yes', dry_run_outcome: 'success',
+    credential_name: 'HEX_DRY_RUN_API_KEY', credential_present: true,
+    hex_release_before_http_status: 404, hex_release_after_http_status: 404,
+  };
   const checks = [
     'Fast checks (milestone/installer/contracts/snapshot/ledger guards)',
     'Install golden + idempotency contract (subprocess harness)',
@@ -280,13 +379,16 @@ function finalReadinessFixture() {
   ].map(name => ({ name, status: 'COMPLETED', conclusion: 'SUCCESS' }));
   const final = {
     source_sha: sha,
-    selected_reviewed_main_sha: 'b'.repeat(40),
+    selected_reviewed_main_sha: reviewedBase,
+    baseline: { reviewed_base_sha: reviewedBase, candidate_sha: sha, diff_sha256: diffSha, diff_bytes: 42, manifest_blob_id: manifestBlob },
+    source_ci: { run_id: sourceCiId, attempt: 1, head_sha: sha, conclusion: 'success', docs_step_conclusion: 'success' },
     observed_at: '2026-10-07T23:00:00Z',
     claim_sources: [{ claim: 'Claim', source: 'lib/sigra/auth.ex', evidence: 'CI run 37700772880', source_sha: sha, ci_run_id: 37700772880, source_paths_present: true }],
     docs: {
       readme_upgrade_target: 'guides/introduction/upgrading-to-v1.6.md',
       readme_link_resolves: true,
-      guide_changelog_target: '../../CHANGELOG.md#160-2026-10-07',
+      guide_changelog_target: '../../CHANGELOG.md#160-2026-10-08',
+      changelog_date: '2026-10-08',
       guide_changelog_link_resolves: true,
       exdoc_extra: 'guides/introduction/upgrading-to-v1.6.md',
       exdoc_source_ref: 'v#{@version}',
@@ -294,13 +396,13 @@ function finalReadinessFixture() {
       no_schema_migration_claim_supported: true,
       candidate_summary_under_versioned_heading: true,
       local_status: 'blocked_by_unavailable_exact_locked_dependencies',
-      ci: { source_sha: sha, run_id: 37700772880, attempt: 1, conclusion: 'success', step: 'Check docs build cleanly' },
+      ci: { source_sha: sha, run_id: sourceCiId, attempt: 1, conclusion: 'success', step: 'Check docs build cleanly' },
     },
     package: {
       source_sha: sha,
       version: '1.6.0',
       mix_version: '1.6.0',
-      publish_dry_run: { conclusion: 'success', version: '1.6.0' },
+      publish_dry_run: { conclusion: 'success', version: '1.6.0', receipt },
       hex_build: { conclusion: 'success', unpacked: true, metadata_version: '1.6.0', required_files: ['README.md', 'CHANGELOG.md'] },
     },
     review: { reviewer: 'Codex', method: 'exact-head diff and CI review', reviewed_head_sha: sha, reviewed_base_sha: 'b'.repeat(40),
@@ -309,9 +411,12 @@ function finalReadinessFixture() {
   const observed = {
     live: {
       pull_request: { number: 224, state: 'OPEN', head_sha: sha, base_ref: 'main', base_sha: 'b'.repeat(40), checks },
-      main_sha: 'b'.repeat(40),
+      main_sha: reviewedBase,
       candidate_worktree: { head_sha: sha, status: '' },
       identity_stable_during_observation: true,
+      main_advance: { verified: true, paths: [] },
+      source_ci_run: { run_id: sourceCiId, attempt: 1, head_sha: sha, conclusion: 'success', docs_step_conclusion: 'success' },
+      dry_run_run: { run_id: dryRunId, head_sha: reviewedBase, event: 'workflow_dispatch', status: 'completed', conclusion: 'success', job_conclusion: 'success' },
       open_pull_requests: [{ number: 224, head_sha: sha, base: 'main' }],
     },
     inventory: {
@@ -337,6 +442,45 @@ test('rejects a failed Hex dry run and a changed final PR head', () => {
   const result = validateFinalReadiness(final, observed);
   assert.ok(result.errors.some(error => error.code === 'final_hex_dry_run_failed'));
   assert.ok(result.errors.some(error => error.code === 'final_candidate_identity_mismatch'));
+});
+
+test('accepts the exact authenticated dry-run receipt and an allowlisted evidence-only main advance', () => {
+  const { final, observed } = finalReadinessFixture();
+  const evidencePaths = [
+    '.github/workflows/phase-247-hex-dry-run.yml',
+    '.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json',
+    'scripts/ci/phase-247-hex-dry-run.sh',
+    'scripts/ci/phase-247-hex-dry-run.test.sh',
+  ];
+  final.selected_reviewed_main_sha = 'b'.repeat(40);
+  final.baseline.reviewed_base_sha = 'b'.repeat(40);
+  final.baseline.manifest_blob_id = 'f'.repeat(40);
+  final.package.publish_dry_run.receipt.reviewed_base_sha = 'b'.repeat(40);
+  final.package.publish_dry_run.receipt.live_base_sha = 'd'.repeat(40);
+  final.package.publish_dry_run.receipt.evidence_merge_sha = 'd'.repeat(40);
+  final.package.publish_dry_run.receipt.evidence_pr_head_sha = 'e'.repeat(40);
+  final.package.publish_dry_run.receipt.manifest_blob_id = 'f'.repeat(40);
+  observed.live.pull_request.base_sha = 'b'.repeat(40);
+  observed.live.main_sha = 'd'.repeat(40);
+  observed.live.main_advance = { verified: true, paths: evidencePaths };
+  observed.live.dry_run_run.head_sha = 'd'.repeat(40);
+  assert.deepEqual(validateFinalReadiness(final, observed), { valid: true, errors: [] });
+
+  observed.live.main_advance.paths.push('lib/sigra/auth.ex');
+  assert.ok(validateFinalReadiness(final, observed).errors.some(error => error.code === 'final_main_advance_unverified'));
+});
+
+test('rejects stale, unauthenticated, or mismatched safe dry-run receipts', () => {
+  for (const mutate of [
+    receipt => { receipt.checked_out_sha = '9'.repeat(40); },
+    receipt => { receipt.credential_present = false; },
+    receipt => { receipt.hex_release_after_http_status = 200; },
+    receipt => { receipt.diff_sha256 = '9'.repeat(64); },
+  ]) {
+    const { final, observed } = finalReadinessFixture();
+    mutate(final.package.publish_dry_run.receipt);
+    assert.ok(validateFinalReadiness(final, observed).errors.some(error => error.code === 'final_hex_dry_run_failed'));
+  }
 });
 
 test('rejects a broken adopter link or claim without final-source CI evidence', () => {

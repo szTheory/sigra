@@ -1,76 +1,73 @@
 ---
 phase: "247"
 slug: "release-candidate-and-repository-readiness"
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: passed
+nyquist_compliant: true
+wave_0_complete: true
 created: "2026-10-06"
+audited: "2026-10-08"
 ---
 
 # Phase 247 — Validation Strategy
 
-> Per-phase validation contract for feedback sampling during execution.
-
----
+> Deterministic ledger checks, exact-source CI, the curated adopter documentation, unpacked package evidence, and an authenticated non-publishing Hex dry run pass for the current reviewed source. The release candidate remains open and unpublished for the independent Phase 247 verifier to assess.
 
 ## Test Infrastructure
 
 | Property | Value |
 |----------|-------|
-| **Framework** | ExUnit for library tests; deterministic shell/Node assertions for repository inventories; GitHub CLI/API for live PR state |
-| **Config file** | `mix.exs`; `.github/workflows/ci.yml`; scoped Phase 247 inventory contract, if the plan adds one |
-| **Quick run command** | `mix docs --warnings-as-errors` and `mix hex.publish --dry-run` from the reviewed candidate worktree |
-| **Full suite command** | No Phase 247 full-suite run. Do not use it to substitute for Phase 246 required CI or Phase 248 exact-source gate evidence. |
-| **Estimated runtime** | Not measured; derive from execution logs and keep the local documentation/package checks bounded. |
-
----
-
-## Sampling Rate
-
-- **After every task commit:** Run the task's narrow source, inventory, or documentation check and `git diff --check` for changed text files.
-- **After every plan wave:** Reconcile the candidate/source and inventory evidence against READY-01/READY-02 using the exact reviewed source SHA.
-- **Before `$gsd-verify-work`:** Run `mix docs --warnings-as-errors`, `mix hex.publish --dry-run`, `mix hex.build --unpack`, metadata/link assertions, the complete PR/path disposition checks, and a clean-worktree assertion in the candidate checkout.
-- **Max feedback latency:** No measured limit; avoid repository-wide CI in this phase.
-
----
+| **Framework** | Node.js built-in test runner for the phase validator; Mix/Hex and required GitHub CI for candidate/package evidence |
+| **Config file** | `validate-release-readiness.mjs`; `mix.exs`; `.github/workflows/ci.yml` |
+| **Focused command** | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` |
+| **Final ledger command** | `node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage final .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json` |
+| **Candidate package commands** | `cd tmp/phase-247-candidate && mix hex.publish --dry-run --yes`; `cd tmp/phase-247-candidate && mix hex.build --unpack --output tmp/sigra-hex-inspect` |
+| **Exact-source CI** | PR #224 head `d76d7f2306f6099063a80a420d2d8a4e04c7785f`; required run `37800067568` passed |
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 247-01-01 | 01 | 1 | READY-02 | T-247-01 | Fresh Git/GitHub observations are captured into stable, complete disposition rows. | inventory contract | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` | ❌ W0 | ⬜ pending |
-| 247-01-02 | 01 | 1 | READY-02 | T-247-02 | A clean worktree is pinned to reviewed source only after Phase 246 evidence and complete dispositions. | Git/inventory assertion | `node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage checkout .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json` | ❌ W0 | ⬜ pending |
-| 247-02-01 | 02 | 2 | READY-01 | T-247-03 | A live post-refresh PR/Git ref query proves recorded pre-refresh head, new head, base, reviewed main, and Phase 246 tested SHA ancestry or exact-head renewed review before further writes; version metadata also agrees. | live source and metadata contract | `node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage candidate --assert-live-refresh .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json` | ❌ W0 | ⬜ pending |
-| 247-02-02 | 02 | 2 | READY-01 | T-247-04 | Curated 1.6.0 notes contain only source-backed adopter claims under the versioned heading, with none stranded under Unreleased. | changelog contract + ExDoc | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && cd tmp/phase-247-candidate && mix docs --warnings-as-errors` | ❌ W0 | ⬜ pending |
-| 247-03-01 | 03 | 3 | READY-01 | T-247-05 | README routes adopters through the v1.6 guide to the versioned changelog; compatibility and host actions are evidence-backed at the rechecked post-write PR head. | docs contract + live source | `cd tmp/phase-247-candidate && mix docs --warnings-as-errors && git show --check --oneline HEAD && cd ../.. && node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage candidate --assert-live-refresh .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json` | ❌ W0 | ⬜ pending |
-| 247-04-01 | 04 | 4 | READY-01, READY-02 | T-247-06 | Final ledger and local package checks cover the same clean candidate head; missing Phase 246 proof remains blocked. | package + final ledger contract | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage final .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json` | ❌ W0 | ⬜ pending |
+| Task ID | Requirement | Behavior under test | Test type | Command / evidence | Result |
+|---------|-------------|----------------------|-----------|-------------------|--------|
+| 247-01-01 | READY-02 | Reject omitted live PRs and duplicate stable path keys; accept explicit empty sets only when fresh observations are empty; preserve immutable entry snapshot. | Unit/contract | Focused suite | **green** — tests 1–4, 19 |
+| 247-01-02 | READY-02 | Candidate worktree must be clean and pinned to reviewed source with exact Phase 246 evidence. | Unit/contract + live ledger | Focused suite; final live validator | **green** — test 5 passes; candidate worktree is clean at the recorded source SHA |
+| 247-02-01 | READY-01 | Candidate version, PR/base/main/tested SHAs and exact-source promotion evidence must agree; stale identity and unreviewed non-fast-forward changes reject. | Unit/contract + exact-source CI | Focused suite; PR #224 run `37700772880` at `563f411bc2659bb9ac1652d552ce58ffb0c876b1` | **green** — tests 6, 8–9, 11–14; exact required CI passed |
+| 247-02-02 | READY-01 | Candidate changelog summary and ExDoc source reference match the release version; misplaced summary rejects. | Unit/contract + CI docs build | Focused suite; required run `37700772880` | **green** — tests 7, 10; warning-free docs build passed in exact-head CI |
+| 247-03-01 | READY-01 | README → v1.6 guide → 1.6.0 changelog path and source/evidence-backed adopter claims. | Unit/contract + CI docs build | Focused suite; required run `37700772880`; `git show --check` at candidate head | **green** — test 17; exact-head docs build passed |
+| 247-04-01 | READY-01, READY-02 | Final readiness rejects missing dry-run evidence, changed candidate head, broken links, incomplete dispositions, and unresolved severe findings. | Unit/contract + live final ledger | Focused suite; final ledger command | **green** — 24/24 tests pass and live final validator is ready |
+| 247-04-package | READY-01 | Build and inspect unpacked 1.6.0 package; publish dry run validates candidate package metadata. | Package integration | `mix hex.build --unpack --output tmp/sigra-hex-inspect` | **green** — 1.6.0 metadata, README, CHANGELOG, and package contents were inspected |
+| 247-04-docs | READY-01 | Candidate documentation builds without warnings at exact locked dependencies. | Package integration | `mix docs --warnings-as-errors` with isolated `/private/tmp` dependency/build paths | **green** — exit 0; generated HTML and Markdown docs |
+| 247-04-dry-run | READY-01 | Hex validates the exact 1.6.0 candidate without publishing. | Protected workflow integration | Trusted-main run `37803817504`, artifact `247-HEX-DRY-RUN-RECEIPT.json` | **green** — authenticated dry run succeeded; boolean-only key-presence evidence and 404 before/after are recorded |
 
----
+## Adversarial Test Execution
 
-## Wave 0 Requirements
+```text
+node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs
+tests 24 | pass 24 | fail 0 | skipped 0 | exit 0
+```
 
-- [ ] Define the inventory artifact schema and its deterministic completeness check before collecting release dispositions; include trusted base SHA, checkout HEAD, every modified/untracked path, each open PR, reason, and disposition.
-- [ ] Confirm whether an existing test/helper can assert candidate version/changelog/README/ExDoc consistency; add a focused check only if no existing seam covers the required behavior.
-- [ ] Make the candidate-stage validator re-query live PR and Git refs after refresh and reject recorded head/base/main/tested-source mismatch or non-fast-forward movement without review evidence bound to the new head.
-- [ ] Confirm Phase 246 required evidence and the reviewed source identity before any candidate-refresh or adopter-claim task becomes executable.
+The tests cover omitted and duplicate populations, explicit empty sets, candidate identity and metadata, stale refs, non-fast-forward movement, source promotion/CI receipts, broken adopter links, missing or stale dry-run evidence, exact evidence-only main movement, incomplete dispositions, and final readiness rejection. Regression cases prove incomplete planning/evidence dispositions are refreshed while unrelated source paths remain fail-closed.
 
----
+The exact candidate lockfile resolved with `mix deps.get --check-locked` in an isolated `/private/tmp` Mix/Hex environment. All 65 locked packages resolved at their recorded versions; the candidate lockfile and worktree remained unchanged. Local `mix docs --warnings-as-errors` then passed. The dry-run built the Sigra 1.6.0 package summary but Hex 2.5.1 exited 1 because the isolated Hex home has no authenticated user/API key. The [Hex task source](https://github.com/hexpm/hex/blob/v2.5.1/lib/mix/tasks/hex.publish.ex#L1657-L1777) shows the owner lookup still runs before the dry-run skips uploading the package.
 
-## Manual-Only Verifications
+Final readiness passed at `2026-10-08T15:59:46.969Z`. The validator checked PR #224 head `d76d7f2306f6099063a80a420d2d8a4e04c7785f`, reviewed base `d135cbce343947499a0810736c500ef5f1cb5c32`, trusted main `a494f3ee3878da93aab4f70712ffddeefd77a802`, exact-head CI run `37800067568`, authenticated dry-run run `37803817504`, candidate cleanliness, docs/package evidence, and current inherited inventory. It accepted only the four evidence paths in the reviewed-base-to-main advance. The primary shared checkout was left untouched; the helper's clean-checkout proof used a separate clean detached checkout at exact live main.
 
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
-| Decide whether an individual inherited PR or checkout change blocks or belongs in the 1.6.0 source. | READY-02 | This is a maintainer scope/ownership decision; automated checks can require a disposition and reason but cannot infer release intent from a title or path. | Record one of the three locked categories, the reason, and the owner/source evidence in the committed disposition ledger; do not merge, close, or discard work as part of this decision without its separately authorized workflow. |
+## Exact-Source Evidence
 
----
+PR #224 remains open at exact head `d76d7f2306f6099063a80a420d2d8a4e04c7785f`, based on reviewed main `d135cbce343947499a0810736c500ef5f1cb5c32`. Required CI run `37800067568` passed on that head. The unpacked Hex package and warning-free docs build passed at that source. Trusted-main run `37803817504` passed the authenticated `mix hex.publish --dry-run --yes` without publishing.
+
+## Blocker and Forward Evidence Route
+
+The readiness validator now passes. The first trusted-main dispatch `37803560621` stopped before authentication because the merged evidence PR's pre-merge ref had been deleted. Recovery restored only the exact verified evidence ref, and the single bounded retry passed. The failure and recovery are documented in [247-08-DRY-RUN-RECOVERY.md](./247-08-DRY-RUN-RECOVERY.md). The remaining phase-level judgment belongs to the independent verifier; this report does not claim the release candidate was merged or published.
+
+| Gap | Classification | Required evidence |
+|-----|----------------|-------------------|
+| Independent phase verification | **FOLLOW-UP** | Run the normal Phase 247 verifier against the current ledger and review its evidence-based result. |
 
 ## Validation Sign-Off
 
-- [ ] All plan tasks have `<automated>` verification or a documented checkpoint where only maintainer intent can decide the outcome.
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verification.
-- [ ] Wave 0 covers every missing validator or source-identity prerequisite.
-- [ ] No watch-mode flags.
-- [ ] Feedback latency recorded from execution evidence; do not claim a bound before measurement.
-- [ ] `nyquist_compliant: true` set in frontmatter after verification evidence is complete.
-
-**Approval:** pending
+- [x] Focused deterministic validator suite passed; 24/24.
+- [x] Meaningful validator acceptance/rejection cases are covered, including the dirty planning-path regression.
+- [x] Exact-source required CI, unpacked Hex package, and local warning-free docs evidence are recorded.
+- [x] Latest live inherited inventory has complete dispositions.
+- [x] Authenticated `mix hex.publish --dry-run --yes` passes for the exact candidate without publishing.
+- [x] Final validator passes and READY-01/READY-02 are ready for independent verification.
+- [x] `nyquist_compliant: true` — deterministic acceptance and rejection evidence is present.

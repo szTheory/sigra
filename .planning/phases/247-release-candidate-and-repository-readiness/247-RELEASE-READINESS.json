@@ -111,7 +111,7 @@
   ],
   "source_selection": {
     "status": "ready",
-    "selected_source_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+    "selected_source_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
     "blocked_by": null,
     "phase_246_evidence": {
       "source_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
@@ -11933,12 +11933,18 @@
       }
     ],
     "candidate_worktree": {
-      "path": "/Users/jon/projects/sigra/tmp/phase-247-candidate",
-      "head_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-      "status": "clean"
+      "path": "/private/tmp/phase247-release-candidate",
+      "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f"
     },
     "selection_rationale": "Select protected main only after Phase 246 exact-source receipt passed, the four approved blobs matched the reviewed PR source, PR #288 passed CI and was squash-merged, and the selected main SHA passed its own required CI. All other inherited work and open PRs remain explicitly excluded and preserved in the inherited checkout/GitHub.",
-    "captured_at": "2026-10-07T22:07:15.521Z"
+    "captured_at": "2026-10-07T22:07:15.521Z",
+    "previous_candidate_worktree": {
+      "path": "/Users/jon/projects/sigra/tmp/phase-247-candidate",
+      "head_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "status": "clean",
+      "preserved": true
+    },
+    "current_reviewed_main_sha": "e3883b72fb1df5ad6356ef10dbde408f18bbc3be"
   },
   "validation_observations": [
     {
@@ -59382,17 +59388,19 @@
     "pr_number": 224,
     "pr_url": "https://github.com/szTheory/sigra/pull/224",
     "pr_branch": "release-please--branches--main",
-    "pre_refresh_pr_head_sha": "4b1993e2e967bdcda904c6cf618a5474df832be6",
-    "refreshed_pr_head_sha": "4b1993e2e967bdcda904c6cf618a5474df832be6",
-    "current_pr_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-    "pr_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-    "selected_reviewed_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+    "pre_refresh_pr_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+    "refreshed_pr_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+    "current_pr_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+    "pr_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+    "selected_reviewed_main_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
     "phase_246_tested_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
     "package_version": "1.6.0",
     "planned_tag": "v1.6.0",
     "changed_files": [
       ".release-please-manifest.json",
       "CHANGELOG.md",
+      "README.md",
+      "guides/introduction/upgrading-to-v1.6.md",
       "mix.exs"
     ],
     "refresh_workflow": {
@@ -59405,26 +59413,55 @@
     "review_check_state": {
       "review_decision": "",
       "existing_head_checks": "success",
-      "checks_head_sha": "4b1993e2e967bdcda904c6cf618a5474df832be6",
+      "checks_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
       "selected_main_ci_run": 37686980115,
       "phase_246_ci_run": 37676348766,
       "updated_head_ci": {
-        "run_id": 37696042318,
-        "attempt": 2,
-        "head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
+        "run_id": 37800067568,
+        "attempt": 1,
+        "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "conclusion": "success",
+        "docs_step_conclusion": "success",
         "required_jobs": {
+          "Fast checks (milestone/installer/contracts/snapshot/ledger guards)": {
+            "id": 113389573339,
+            "conclusion": "success"
+          },
+          "Install golden + idempotency contract (subprocess harness)": {
+            "id": 113389612901,
+            "conclusion": "success"
+          },
+          "Generated admin Playwright smoke": {
+            "id": 113389612910,
+            "conclusion": "success"
+          },
+          "Install smoke (fresh phx.new + sigra.install)": {
+            "id": 113389661270,
+            "conclusion": "success"
+          },
           "Library tests shard": {
-            "id": 113053622684,
+            "id": 113389612782,
+            "conclusion": "success"
+          },
+          "Library tests (dep-off — Threadline absent)": {
+            "id": 113389661111,
             "conclusion": "success",
             "includes_docs_build": true
           },
-          "Generated admin Playwright smoke": {
-            "id": 113053620406,
+          "Example HTTP smoke (boot + curl critical routes)": {
+            "id": 113389661257,
+            "conclusion": "success"
+          },
+          "Example unit smoke (ExUnit + ConnTest)": {
+            "id": 113389661350,
+            "conclusion": "success"
+          },
+          "Example Playwright smoke (full lifecycle)": {
+            "id": 113393218741,
             "conclusion": "success"
           },
           "ci-gate": {
-            "id": 113054749602,
+            "id": 113393261532,
             "conclusion": "success"
           }
         }
@@ -59433,7 +59470,8 @@
     "source_relationship": {
       "tested_sha_ancestor_of_main": false,
       "main_ancestor_of_refreshed_head": true,
-      "pre_refresh_ancestor_of_refreshed_head": true
+      "pre_refresh_ancestor_of_refreshed_head": true,
+      "promotion_proof_retained": true
     },
     "claim_sources": [
       {
@@ -59470,58 +59508,52 @@
     "source_relation": "content-equivalent promotion (reviewed squash PR #288; four exact tested-source/main blob matches; CI receipts bound to exact source and selected main)",
     "pre_push_candidate_head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
     "docs_verification": {
-      "local_status": "blocked_by_unavailable_exact_locked_dependencies",
+      "local_status": "passed",
       "local_command": "mix docs --warnings-as-errors",
-      "local_diagnostic": "Clean candidate deps absent; existing root deps mismatch 13 candidate-locked versions. No package installation attempted per T-247-SC.",
       "ci_equivalent": {
         "workflow": "CI",
-        "run_id": 37696042318,
-        "attempt": 2,
-        "head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
+        "run_id": 37800067568,
+        "attempt": 1,
+        "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "conclusion": "success",
-        "job": "Library tests shard",
+        "job": "Library tests (dep-off — Threadline absent)",
         "job_conclusion": "success",
         "step": "Check docs build cleanly",
-        "step_is_unconditional": true,
-        "required_updated_head": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
-        "prior_failed_attempt": {
-          "attempt": 1,
-          "generated_admin_playwright_smoke": "cancelled",
-          "ci_gate": "failure"
-        }
+        "step_conclusion": "success",
+        "required_updated_head": "d76d7f2306f6099063a80a420d2d8a4e04c7785f"
       }
     },
     "post_push": {
-      "head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
-      "base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-      "selected_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-      "fast_forward_from": "4b1993e2e967bdcda904c6cf618a5474df832be6",
-      "pushed_at": "2026-10-07T22:25:10.384Z",
+      "head_sha": "6f8028658f0bdd7f26e13c3fe4d45437880c341b",
+      "base_sha": "e3883b72fb1df5ad6356ef10dbde408f18bbc3be",
+      "selected_main_sha": "e3883b72fb1df5ad6356ef10dbde408f18bbc3be",
+      "fast_forward_from": "77dd1126436a9e83c04283433e5f60c71ee98287",
+      "pushed_at": "2026-10-08T02:25:00Z",
       "docs_and_ci_pending": false,
       "docs_and_ci": {
-        "run_id": 37696042318,
-        "attempt": 2,
-        "head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
+        "run_id": 37717911489,
+        "attempt": 1,
+        "head_sha": "6f8028658f0bdd7f26e13c3fe4d45437880c341b",
         "conclusion": "success",
         "required_jobs": {
-          "Library tests shard": {
-            "id": 113053622684,
+          "Library tests (dep-off — Threadline absent)": {
+            "id": 113118633061,
             "conclusion": "success",
             "includes_docs_build": true
           },
-          "Generated admin Playwright smoke": {
-            "id": 113053620406,
+          "Example Playwright shard (non_admin_smoke)": {
+            "id": 113118633054,
             "conclusion": "success"
           },
           "ci-gate": {
-            "id": 113054749602,
+            "id": 113120568919,
             "conclusion": "success"
           }
         }
       },
-      "rerun_attempt": 2,
+      "rerun_attempt": 1,
       "final_conclusion": "success",
-      "checked_at": "2026-10-07T22:45:00Z"
+      "checked_at": "2026-10-08T02:38:12.410Z"
     },
     "plan_03_verification": {
       "docs_commit_sha": "29847f93e89b0eb069604df4507896ef45c414bd",
@@ -59612,288 +59644,748 @@
         "remote_branch": "release-please--branches--main",
         "pr_remains_open": true
       }
+    },
+    "historical_post_push": {
+      "head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
+      "base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "selected_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "fast_forward_from": "4b1993e2e967bdcda904c6cf618a5474df832be6",
+      "pushed_at": "2026-10-07T22:25:10.384Z",
+      "docs_and_ci_pending": false,
+      "docs_and_ci": {
+        "run_id": 37696042318,
+        "attempt": 2,
+        "head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
+        "conclusion": "success",
+        "required_jobs": {
+          "Library tests shard": {
+            "id": 113053622684,
+            "conclusion": "success",
+            "includes_docs_build": true
+          },
+          "Generated admin Playwright smoke": {
+            "id": 113053620406,
+            "conclusion": "success"
+          },
+          "ci-gate": {
+            "id": 113054749602,
+            "conclusion": "success"
+          }
+        }
+      },
+      "rerun_attempt": 2,
+      "final_conclusion": "success",
+      "checked_at": "2026-10-07T22:45:00Z"
+    },
+    "historical_review_check_state": {
+      "review_decision": "",
+      "existing_head_checks": "success",
+      "checks_head_sha": "4b1993e2e967bdcda904c6cf618a5474df832be6",
+      "selected_main_ci_run": 37686980115,
+      "phase_246_ci_run": 37676348766,
+      "updated_head_ci": {
+        "run_id": 37696042318,
+        "attempt": 2,
+        "head_sha": "51c0e7a8ca126888fe618ca5ad2401188ff2188b",
+        "conclusion": "success",
+        "required_jobs": {
+          "Library tests shard": {
+            "id": 113053622684,
+            "conclusion": "success",
+            "includes_docs_build": true
+          },
+          "Generated admin Playwright smoke": {
+            "id": 113053620406,
+            "conclusion": "success"
+          },
+          "ci-gate": {
+            "id": 113054749602,
+            "conclusion": "success"
+          }
+        }
+      }
+    },
+    "historical_candidate_validation": [
+      {
+        "valid": true,
+        "status": "ready",
+        "checked_at": "2026-10-07T23:23:56.568Z",
+        "checked": {
+          "pr_url": "https://github.com/szTheory/sigra/pull/224",
+          "current_pr_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+          "candidate_worktree_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+          "pr_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+          "live_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+          "phase_246_tested_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+          "review_decision": "",
+          "checks": [
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:11Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421017",
+              "name": "Release ref guard",
+              "startedAt": "2026-10-07T23:11:08Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:18Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421059",
+              "name": "Detect docs-only change",
+              "startedAt": "2026-10-07T23:11:09Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:41Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063420767",
+              "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)",
+              "startedAt": "2026-10-07T23:11:09Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:07Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421957",
+              "name": "Passkeys manual fallback smoke",
+              "startedAt": "2026-10-07T23:11:07Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:07Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422133",
+              "name": "Install matrix (flag combinations)",
+              "startedAt": "2026-10-07T23:11:07Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:07Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422152",
+              "name": "Passkeys opt-out smoke",
+              "startedAt": "2026-10-07T23:11:07Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:07Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422035",
+              "name": "Nightly probe (forced-failure self-test)",
+              "startedAt": "2026-10-07T23:11:07Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:45Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442680",
+              "name": "Install golden + idempotency contract (subprocess harness)",
+              "startedAt": "2026-10-07T23:11:12Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:12:49Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442649",
+              "name": "Library tests shard",
+              "startedAt": "2026-10-07T23:11:13Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:11Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444137",
+              "name": "Upgrade smoke (published source series -> local candidate)",
+              "startedAt": "2026-10-07T23:11:11Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:15:13Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442697",
+              "name": "Generated admin Playwright smoke",
+              "startedAt": "2026-10-07T23:11:12Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:11Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444878",
+              "name": "Recapture admin-design baselines (in-CI)",
+              "startedAt": "2026-10-07T23:11:11Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:11Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444502",
+              "name": "Recapture admin-checkpoint baselines (in-CI)",
+              "startedAt": "2026-10-07T23:11:11Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:11:11Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444314",
+              "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
+              "startedAt": "2026-10-07T23:11:11Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:12:08Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478848",
+              "name": "Library tests (dep-off — Threadline absent)",
+              "startedAt": "2026-10-07T23:11:20Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:12:10Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478839",
+              "name": "Example unit smoke (ExUnit + ConnTest)",
+              "startedAt": "2026-10-07T23:11:19Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:13:39Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478895",
+              "name": "Install smoke (fresh phx.new + sigra.install)",
+              "startedAt": "2026-10-07T23:11:20Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:12:16Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478760",
+              "name": "Example HTTP smoke (boot + curl critical routes)",
+              "startedAt": "2026-10-07T23:11:20Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:18:21Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478863",
+              "name": "Example Playwright shard (admin_behavior)",
+              "startedAt": "2026-10-07T23:11:19Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:15:02Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478995",
+              "name": "Example Playwright shard (admin_checkpoints)",
+              "startedAt": "2026-10-07T23:11:19Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:15:37Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478866",
+              "name": "Example Playwright shard (design_gallery)",
+              "startedAt": "2026-10-07T23:11:19Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:16:30Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478851",
+              "name": "Example Playwright shard (non_admin_smoke)",
+              "startedAt": "2026-10-07T23:11:20Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:12:58Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478999",
+              "name": "Example Playwright shard (demo_showcase)",
+              "startedAt": "2026-10-07T23:11:19Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:12:53Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063967936",
+              "name": "Library tests",
+              "startedAt": "2026-10-07T23:12:51Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:18:26Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065763180",
+              "name": "Example Playwright smoke (full lifecycle)",
+              "startedAt": "2026-10-07T23:18:23Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:18:34Z",
+              "conclusion": "SUCCESS",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065788349",
+              "name": "ci-gate",
+              "startedAt": "2026-10-07T23:18:28Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            },
+            {
+              "__typename": "CheckRun",
+              "completedAt": "2026-10-07T23:18:34Z",
+              "conclusion": "SKIPPED",
+              "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065834185",
+              "name": "Notify on red ci-gate (release-lane-rot)",
+              "startedAt": "2026-10-07T23:18:35Z",
+              "status": "COMPLETED",
+              "workflowName": "CI"
+            }
+          ],
+          "changed_files": [
+            ".release-please-manifest.json",
+            "CHANGELOG.md",
+            "README.md",
+            "guides/introduction/upgrading-to-v1.6.md",
+            "mix.exs"
+          ],
+          "ancestry": {
+            "tested_to_main": false,
+            "main_to_refreshed": true,
+            "pre_to_refreshed": true,
+            "refreshed_to_current": true,
+            "current_to_worktree": true
+          },
+          "metadata": {
+            "manifest_version": "1.6.0",
+            "mix_version": "1.6.0",
+            "source_ref": "v#{@version}",
+            "changelog_heading": "## [1.6.0](https://github.com/szTheory/sigra/compare/v1.5.0...v1.6.0) (2026-10-07)",
+            "changelog_heading_count": 1,
+            "version_headings": [
+              "1.6.0",
+              "1.5.0",
+              "1.4.0",
+              "1.3.0",
+              "1.2.0",
+              "1.1.0",
+              "1.0.0",
+              "0.3.0",
+              "0.2.5",
+              "0.2.4",
+              "0.2.3",
+              "0.2.2",
+              "0.2.1",
+              "0.2.0",
+              "0.1.0"
+            ],
+            "include_v_in_tag": true,
+            "candidate_summary_under_versioned_heading": true,
+            "candidate_summary_only_unreleased": false
+          }
+        },
+        "diagnostics": []
+      }
+    ],
+    "manifest_version": "1.6.0",
+    "mix_version": "1.6.0",
+    "source_ref": "v#{@version}",
+    "source_blob_ids": {
+      "CHANGELOG.md": "ad11b246fd28df0020ce638bb49ad94ecb771828",
+      "README.md": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+      "guides/introduction/upgrading-to-v1.6.md": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+      "mix.exs": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+      "test/example/priv/playwright/tests/organizations.spec.ts": "daba1555bb862e222e637481cbd417457ba4faca"
+    },
+    "plan_06_verification": {
+      "reviewed_at": "2026-10-08T02:38:12.410Z",
+      "source_head_sha": "6f8028658f0bdd7f26e13c3fe4d45437880c341b",
+      "base_sha": "e3883b72fb1df5ad6356ef10dbde408f18bbc3be",
+      "main_sha": "e3883b72fb1df5ad6356ef10dbde408f18bbc3be",
+      "source_blobs": {
+        "CHANGELOG.md": "ad11b246fd28df0020ce638bb49ad94ecb771828",
+        "README.md": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+        "guides/introduction/upgrading-to-v1.6.md": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+        "mix.exs": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+        "test/example/priv/playwright/tests/organizations.spec.ts": "daba1555bb862e222e637481cbd417457ba4faca"
+      },
+      "source_commit": "6f8028658f0bdd7f26e13c3fe4d45437880c341b",
+      "mobile_sync": "Both direct organization registration and registerAndConfirmUser wait for visible server-rendered Strong feedback before a role-based real submit.",
+      "migration_review": "Compared v1.5.0 to candidate confirmation and migration templates; migration.exs changed comments only. Phase 246 confirmation changes add no schema fields or migration steps. mix sigra.upgrade is not needed solely for these changes.",
+      "claim_sources": [
+        {
+          "claim": "Spaced six-digit confirmation codes, invalid-code retry feedback, and expired-link explanations.",
+          "source": "priv/templates/sigra.install/core/confirmation_live.ex and lib/sigra/auth.ex",
+          "evidence": "Phase 246 CI 37676348766 attempt 2 and exact candidate CI 37717911489 attempt 1."
+        },
+        {
+          "claim": "Existing generated hosts retain ownership and selectively adopt the confirmation LiveView; fresh hosts receive current installer output.",
+          "source": "priv/templates/sigra.install/core/confirmation_live.ex and scripts/ci/install-smoke.sh",
+          "evidence": "Phase 246 generated-host required CI 37676348766 attempt 2 and exact candidate install/Playwright lanes in 37717911489."
+        },
+        {
+          "claim": "No confirmation migration or upgrade-task action is required.",
+          "source": "priv/templates/sigra.install/core/migration.exs diff and lib/mix/tasks/sigra.upgrade.ex",
+          "evidence": "Candidate source review and exact-head required CI 37717911489."
+        }
+      ],
+      "ci": {
+        "run_id": 37717911489,
+        "attempt": 1,
+        "head_sha": "6f8028658f0bdd7f26e13c3fe4d45437880c341b",
+        "conclusion": "success",
+        "required_jobs": 15,
+        "failed_jobs": 0,
+        "docs_build": "success",
+        "mobile_organization_registration": "success"
+      },
+      "changed_files": [
+        ".release-please-manifest.json",
+        "CHANGELOG.md",
+        "README.md",
+        "guides/introduction/upgrading-to-v1.6.md",
+        "mix.exs",
+        "test/example/priv/playwright/tests/organizations.spec.ts"
+      ]
+    },
+    "final_dry_run_run": {
+      "run_id": 37803817504,
+      "attempt": 1,
+      "head_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "job_conclusion": "success"
     }
   },
   "candidate_validation": {
     "valid": true,
     "status": "ready",
-    "checked_at": "2026-10-07T23:23:56.568Z",
+    "checked_at": "2026-10-08T02:39:31.314Z",
     "checked": {
       "pr_url": "https://github.com/szTheory/sigra/pull/224",
-      "current_pr_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-      "candidate_worktree_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-      "pr_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-      "live_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "current_pr_head_sha": "6f8028658f0bdd7f26e13c3fe4d45437880c341b",
+      "candidate_worktree_head_sha": "6f8028658f0bdd7f26e13c3fe4d45437880c341b",
+      "pr_base_sha": "e3883b72fb1df5ad6356ef10dbde408f18bbc3be",
+      "live_main_sha": "e3883b72fb1df5ad6356ef10dbde408f18bbc3be",
       "phase_246_tested_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
       "review_decision": "",
       "checks": [
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:11Z",
+          "completedAt": "2026-10-08T02:26:59Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421017",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118583828",
           "name": "Release ref guard",
-          "startedAt": "2026-10-07T23:11:08Z",
+          "startedAt": "2026-10-08T02:26:56Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:18Z",
+          "completedAt": "2026-10-08T02:27:05Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421059",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118583632",
           "name": "Detect docs-only change",
-          "startedAt": "2026-10-07T23:11:09Z",
+          "startedAt": "2026-10-08T02:26:56Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:41Z",
+          "completedAt": "2026-10-08T02:27:26Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063420767",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118583743",
           "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)",
-          "startedAt": "2026-10-07T23:11:09Z",
+          "startedAt": "2026-10-08T02:26:56Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:07Z",
+          "completedAt": "2026-10-08T02:26:54Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421957",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118584872",
           "name": "Passkeys manual fallback smoke",
-          "startedAt": "2026-10-07T23:11:07Z",
+          "startedAt": "2026-10-08T02:26:55Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:07Z",
+          "completedAt": "2026-10-08T02:26:54Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422133",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118584888",
           "name": "Install matrix (flag combinations)",
-          "startedAt": "2026-10-07T23:11:07Z",
+          "startedAt": "2026-10-08T02:26:55Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:07Z",
+          "completedAt": "2026-10-08T02:26:54Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422152",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118584758",
           "name": "Passkeys opt-out smoke",
-          "startedAt": "2026-10-07T23:11:07Z",
+          "startedAt": "2026-10-08T02:26:55Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:07Z",
+          "completedAt": "2026-10-08T02:26:54Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422035",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118584928",
           "name": "Nightly probe (forced-failure self-test)",
-          "startedAt": "2026-10-07T23:11:07Z",
+          "startedAt": "2026-10-08T02:26:55Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:45Z",
+          "completedAt": "2026-10-08T02:27:32Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442680",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118605921",
           "name": "Install golden + idempotency contract (subprocess harness)",
-          "startedAt": "2026-10-07T23:11:12Z",
+          "startedAt": "2026-10-08T02:27:01Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:12:49Z",
+          "completedAt": "2026-10-08T02:28:21Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442649",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118605808",
           "name": "Library tests shard",
-          "startedAt": "2026-10-07T23:11:13Z",
+          "startedAt": "2026-10-08T02:27:01Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:11Z",
+          "completedAt": "2026-10-08T02:26:59Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444137",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118607931",
           "name": "Upgrade smoke (published source series -> local candidate)",
-          "startedAt": "2026-10-07T23:11:11Z",
+          "startedAt": "2026-10-08T02:27:00Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:15:13Z",
+          "completedAt": "2026-10-08T02:30:58Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442697",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118605891",
           "name": "Generated admin Playwright smoke",
-          "startedAt": "2026-10-07T23:11:12Z",
+          "startedAt": "2026-10-08T02:27:01Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:11Z",
+          "completedAt": "2026-10-08T02:26:59Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444878",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118607253",
           "name": "Recapture admin-design baselines (in-CI)",
-          "startedAt": "2026-10-07T23:11:11Z",
+          "startedAt": "2026-10-08T02:27:00Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:11Z",
+          "completedAt": "2026-10-08T02:26:59Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444502",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118607681",
           "name": "Recapture admin-checkpoint baselines (in-CI)",
-          "startedAt": "2026-10-07T23:11:11Z",
+          "startedAt": "2026-10-08T02:27:00Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:11:11Z",
+          "completedAt": "2026-10-08T02:26:59Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444314",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118607515",
           "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
-          "startedAt": "2026-10-07T23:11:11Z",
+          "startedAt": "2026-10-08T02:27:00Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:12:08Z",
+          "completedAt": "2026-10-08T02:28:00Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478848",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633061",
           "name": "Library tests (dep-off — Threadline absent)",
-          "startedAt": "2026-10-07T23:11:20Z",
+          "startedAt": "2026-10-08T02:27:08Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:12:10Z",
+          "completedAt": "2026-10-08T02:28:04Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478839",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633134",
           "name": "Example unit smoke (ExUnit + ConnTest)",
-          "startedAt": "2026-10-07T23:11:19Z",
+          "startedAt": "2026-10-08T02:27:08Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:13:39Z",
+          "completedAt": "2026-10-08T02:30:06Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478895",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633015",
           "name": "Install smoke (fresh phx.new + sigra.install)",
-          "startedAt": "2026-10-07T23:11:20Z",
+          "startedAt": "2026-10-08T02:27:08Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:12:16Z",
+          "completedAt": "2026-10-08T02:28:00Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478760",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633029",
           "name": "Example HTTP smoke (boot + curl critical routes)",
-          "startedAt": "2026-10-07T23:11:20Z",
+          "startedAt": "2026-10-08T02:27:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:18:21Z",
+          "completedAt": "2026-10-08T02:34:24Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478863",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633131",
           "name": "Example Playwright shard (admin_behavior)",
-          "startedAt": "2026-10-07T23:11:19Z",
+          "startedAt": "2026-10-08T02:27:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:15:02Z",
+          "completedAt": "2026-10-08T02:31:21Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478995",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633179",
           "name": "Example Playwright shard (admin_checkpoints)",
-          "startedAt": "2026-10-07T23:11:19Z",
+          "startedAt": "2026-10-08T02:27:08Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:15:37Z",
+          "completedAt": "2026-10-08T02:30:43Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478866",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633210",
           "name": "Example Playwright shard (design_gallery)",
-          "startedAt": "2026-10-07T23:11:19Z",
+          "startedAt": "2026-10-08T02:27:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:16:30Z",
+          "completedAt": "2026-10-08T02:31:29Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478851",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633054",
           "name": "Example Playwright shard (non_admin_smoke)",
-          "startedAt": "2026-10-07T23:11:20Z",
+          "startedAt": "2026-10-08T02:27:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:12:58Z",
+          "completedAt": "2026-10-08T02:28:42Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478999",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118633102",
           "name": "Example Playwright shard (demo_showcase)",
-          "startedAt": "2026-10-07T23:11:19Z",
+          "startedAt": "2026-10-08T02:27:07Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:12:53Z",
+          "completedAt": "2026-10-08T02:28:27Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063967936",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113118957687",
           "name": "Library tests",
-          "startedAt": "2026-10-07T23:12:51Z",
+          "startedAt": "2026-10-08T02:28:23Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:18:26Z",
+          "completedAt": "2026-10-08T02:34:29Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065763180",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113120549605",
           "name": "Example Playwright smoke (full lifecycle)",
-          "startedAt": "2026-10-07T23:18:23Z",
+          "startedAt": "2026-10-08T02:34:26Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:18:34Z",
+          "completedAt": "2026-10-08T02:34:37Z",
           "conclusion": "SUCCESS",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065788349",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113120568919",
           "name": "ci-gate",
-          "startedAt": "2026-10-07T23:18:28Z",
+          "startedAt": "2026-10-08T02:34:31Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         },
         {
           "__typename": "CheckRun",
-          "completedAt": "2026-10-07T23:18:34Z",
+          "completedAt": "2026-10-08T02:34:37Z",
           "conclusion": "SKIPPED",
-          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065834185",
+          "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37717911489/job/113120603159",
           "name": "Notify on red ci-gate (release-lane-rot)",
-          "startedAt": "2026-10-07T23:18:35Z",
+          "startedAt": "2026-10-08T02:34:38Z",
           "status": "COMPLETED",
           "workflowName": "CI"
         }
@@ -59903,7 +60395,8 @@
         "CHANGELOG.md",
         "README.md",
         "guides/introduction/upgrading-to-v1.6.md",
-        "mix.exs"
+        "mix.exs",
+        "test/example/priv/playwright/tests/organizations.spec.ts"
       ],
       "ancestry": {
         "tested_to_main": false,
@@ -59916,7 +60409,7 @@
         "manifest_version": "1.6.0",
         "mix_version": "1.6.0",
         "source_ref": "v#{@version}",
-        "changelog_heading": "## [1.6.0](https://github.com/szTheory/sigra/compare/v1.5.0...v1.6.0) (2026-10-07)",
+        "changelog_heading": "## [1.6.0](https://github.com/szTheory/sigra/compare/v1.5.0...v1.6.0) (2026-10-08)",
         "changelog_heading_count": 1,
         "version_headings": [
           "1.6.0",
@@ -59943,287 +60436,303 @@
     "diagnostics": []
   },
   "final_readiness": {
-    "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-    "selected_reviewed_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-    "observed_at": "2026-10-07T23:31:57.181Z",
+    "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+    "selected_reviewed_main_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+    "observed_at": "2026-10-08T15:59:46.969Z",
+    "baseline": {
+      "schema_version": 1,
+      "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+      "candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "diff_algorithm": "git-diff-raw-v1",
+      "diff_sha256": "d7cbfeddd55bc0528738f89b82377379e55a73464f2c174217af31410625ac5e",
+      "diff_bytes": 8372,
+      "manifest_blob_id": "c87eeb19e79b4e19d34ff522c487894c8cb3c558"
+    },
+    "source_ci": {
+      "run_id": 37800067568,
+      "attempt": 1,
+      "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "conclusion": "success",
+      "docs_step_conclusion": "success"
+    },
     "live_observation": {
       "pull_request": {
         "number": 224,
         "state": "OPEN",
         "url": "https://github.com/szTheory/sigra/pull/224",
-        "head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "base_ref": "main",
-        "base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+        "base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
         "review_decision": "",
         "reviews": [],
         "checks": [
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:11Z",
+            "completedAt": "2026-10-08T15:21:24Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421017",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389573475",
             "name": "Release ref guard",
-            "startedAt": "2026-10-07T23:11:08Z",
+            "startedAt": "2026-10-08T15:21:22Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:18Z",
+            "completedAt": "2026-10-08T15:21:30Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421059",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389573027",
             "name": "Detect docs-only change",
-            "startedAt": "2026-10-07T23:11:09Z",
+            "startedAt": "2026-10-08T15:21:22Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:41Z",
+            "completedAt": "2026-10-08T15:22:00Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063420767",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389573339",
             "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)",
-            "startedAt": "2026-10-07T23:11:09Z",
+            "startedAt": "2026-10-08T15:21:22Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:07Z",
+            "completedAt": "2026-10-08T15:21:20Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063421957",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389576218",
             "name": "Passkeys manual fallback smoke",
-            "startedAt": "2026-10-07T23:11:07Z",
+            "startedAt": "2026-10-08T15:21:20Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:07Z",
+            "completedAt": "2026-10-08T15:21:20Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422133",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389575191",
             "name": "Install matrix (flag combinations)",
-            "startedAt": "2026-10-07T23:11:07Z",
+            "startedAt": "2026-10-08T15:21:20Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:07Z",
+            "completedAt": "2026-10-08T15:21:20Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422152",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389574989",
             "name": "Passkeys opt-out smoke",
-            "startedAt": "2026-10-07T23:11:07Z",
+            "startedAt": "2026-10-08T15:21:20Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:07Z",
+            "completedAt": "2026-10-08T15:21:20Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063422035",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389575051",
             "name": "Nightly probe (forced-failure self-test)",
-            "startedAt": "2026-10-07T23:11:07Z",
+            "startedAt": "2026-10-08T15:21:20Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:45Z",
+            "completedAt": "2026-10-08T15:21:56Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442680",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389612901",
             "name": "Install golden + idempotency contract (subprocess harness)",
-            "startedAt": "2026-10-07T23:11:12Z",
+            "startedAt": "2026-10-08T15:21:27Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:12:49Z",
+            "completedAt": "2026-10-08T15:23:02Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442649",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389612782",
             "name": "Library tests shard",
-            "startedAt": "2026-10-07T23:11:13Z",
+            "startedAt": "2026-10-08T15:21:27Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:11Z",
+            "completedAt": "2026-10-08T15:21:25Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444137",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389615908",
             "name": "Upgrade smoke (published source series -> local candidate)",
-            "startedAt": "2026-10-07T23:11:11Z",
+            "startedAt": "2026-10-08T15:21:25Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:15:13Z",
+            "completedAt": "2026-10-08T15:25:55Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063442697",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389612910",
             "name": "Generated admin Playwright smoke",
-            "startedAt": "2026-10-07T23:11:12Z",
+            "startedAt": "2026-10-08T15:21:27Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:11Z",
+            "completedAt": "2026-10-08T15:21:25Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444878",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389615843",
             "name": "Recapture admin-design baselines (in-CI)",
-            "startedAt": "2026-10-07T23:11:11Z",
+            "startedAt": "2026-10-08T15:21:25Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:11Z",
+            "completedAt": "2026-10-08T15:21:25Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444502",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389615650",
             "name": "Recapture admin-checkpoint baselines (in-CI)",
-            "startedAt": "2026-10-07T23:11:11Z",
+            "startedAt": "2026-10-08T15:21:25Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:11:11Z",
+            "completedAt": "2026-10-08T15:21:25Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063444314",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389616083",
             "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
-            "startedAt": "2026-10-07T23:11:11Z",
+            "startedAt": "2026-10-08T15:21:25Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:12:08Z",
+            "completedAt": "2026-10-08T15:22:22Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478848",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661111",
             "name": "Library tests (dep-off — Threadline absent)",
-            "startedAt": "2026-10-07T23:11:20Z",
+            "startedAt": "2026-10-08T15:21:33Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:12:10Z",
+            "completedAt": "2026-10-08T15:22:30Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478839",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661350",
             "name": "Example unit smoke (ExUnit + ConnTest)",
-            "startedAt": "2026-10-07T23:11:19Z",
+            "startedAt": "2026-10-08T15:21:33Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:13:39Z",
+            "completedAt": "2026-10-08T15:24:11Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478895",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661270",
             "name": "Install smoke (fresh phx.new + sigra.install)",
-            "startedAt": "2026-10-07T23:11:20Z",
+            "startedAt": "2026-10-08T15:21:33Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:12:16Z",
+            "completedAt": "2026-10-08T15:22:26Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478760",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661257",
             "name": "Example HTTP smoke (boot + curl critical routes)",
-            "startedAt": "2026-10-07T23:11:20Z",
+            "startedAt": "2026-10-08T15:21:33Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:18:21Z",
+            "completedAt": "2026-10-08T15:28:48Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478863",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661372",
             "name": "Example Playwright shard (admin_behavior)",
-            "startedAt": "2026-10-07T23:11:19Z",
+            "startedAt": "2026-10-08T15:21:33Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:15:02Z",
+            "completedAt": "2026-10-08T15:25:56Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478995",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661358",
             "name": "Example Playwright shard (admin_checkpoints)",
-            "startedAt": "2026-10-07T23:11:19Z",
+            "startedAt": "2026-10-08T15:21:33Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:15:37Z",
+            "completedAt": "2026-10-08T15:25:37Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478866",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661549",
             "name": "Example Playwright shard (design_gallery)",
-            "startedAt": "2026-10-07T23:11:19Z",
+            "startedAt": "2026-10-08T15:21:33Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:16:30Z",
+            "completedAt": "2026-10-08T15:26:38Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478851",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661426",
             "name": "Example Playwright shard (non_admin_smoke)",
-            "startedAt": "2026-10-07T23:11:20Z",
+            "startedAt": "2026-10-08T15:21:33Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:12:58Z",
+            "completedAt": "2026-10-08T15:23:19Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063478999",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113389661640",
             "name": "Example Playwright shard (demo_showcase)",
-            "startedAt": "2026-10-07T23:11:19Z",
+            "startedAt": "2026-10-08T15:21:34Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:12:53Z",
+            "completedAt": "2026-10-08T15:23:08Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113063967936",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113390417994",
             "name": "Library tests",
-            "startedAt": "2026-10-07T23:12:51Z",
+            "startedAt": "2026-10-08T15:23:04Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:18:26Z",
+            "completedAt": "2026-10-08T15:28:54Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065763180",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113393218741",
             "name": "Example Playwright smoke (full lifecycle)",
-            "startedAt": "2026-10-07T23:18:23Z",
+            "startedAt": "2026-10-08T15:28:51Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:18:34Z",
+            "completedAt": "2026-10-08T15:29:03Z",
             "conclusion": "SUCCESS",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065788349",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113393261532",
             "name": "ci-gate",
-            "startedAt": "2026-10-07T23:18:28Z",
+            "startedAt": "2026-10-08T15:28:56Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           },
           {
             "__typename": "CheckRun",
-            "completedAt": "2026-10-07T23:18:34Z",
+            "completedAt": "2026-10-08T15:29:03Z",
             "conclusion": "SKIPPED",
-            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37700772880/job/113065834185",
+            "detailsUrl": "https://github.com/szTheory/sigra/actions/runs/37800067568/job/113393336144",
             "name": "Notify on red ci-gate (release-lane-rot)",
-            "startedAt": "2026-10-07T23:18:35Z",
+            "startedAt": "2026-10-08T15:29:04Z",
             "status": "COMPLETED",
             "workflowName": "CI"
           }
@@ -60236,10 +60745,10 @@
           "mix.exs"
         ]
       },
-      "main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
       "candidate_worktree": {
-        "path": "/Users/jon/projects/sigra/tmp/phase-247-candidate",
-        "head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "path": "/private/tmp/phase247-release-candidate",
+        "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "status": ""
       },
       "open_pull_requests": [
@@ -60250,7 +60759,7 @@
         },
         {
           "number": 224,
-          "head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+          "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
           "base": "main"
         },
         {
@@ -60315,47 +60824,116 @@
         }
       ],
       "observation_identity": {
-        "first_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-        "second_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-        "first_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-        "second_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+        "first_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "second_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "first_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "second_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
         "first_state": "OPEN",
         "second_state": "OPEN",
-        "first_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-        "second_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-        "remote_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1"
+        "first_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+        "second_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+        "remote_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f"
       },
-      "identity_stable_during_observation": true
+      "identity_stable_during_observation": true,
+      "main_advance": {
+        "verified": true,
+        "paths": [
+          ".github/workflows/phase-247-hex-dry-run.yml",
+          ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+          "scripts/ci/phase-247-hex-dry-run.sh",
+          "scripts/ci/phase-247-hex-dry-run.test.sh"
+        ]
+      },
+      "source_ci_run": {
+        "run_id": 37800067568,
+        "attempt": 1,
+        "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "conclusion": "success",
+        "docs_step_conclusion": "success"
+      },
+      "dry_run_run": {
+        "run_id": 37803817504,
+        "attempt": 1,
+        "head_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "job_conclusion": "success"
+      }
     },
     "docs": {
       "readme_upgrade_target": "guides/introduction/upgrading-to-v1.6.md",
       "readme_link_resolves": true,
-      "guide_changelog_target": "../../CHANGELOG.md#160-2026-10-07",
+      "guide_changelog_target": "../../CHANGELOG.md#160-2026-10-08",
+      "changelog_date": "2026-10-08",
       "guide_changelog_link_resolves": true,
       "exdoc_extra": "guides/introduction/upgrading-to-v1.6.md",
       "exdoc_source_ref": "v#{@version}",
       "compatibility_claims_supported": true,
       "no_schema_migration_claim_supported": true,
       "candidate_summary_under_versioned_heading": true,
-      "local_status": "blocked_by_unavailable_exact_locked_dependencies",
+      "local_status": "passed",
       "ci": {
-        "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-        "run_id": 37700772880,
+        "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "run_id": 37800067568,
         "attempt": 1,
         "conclusion": "success",
         "step": "Check docs build cleanly"
       }
     },
     "package": {
-      "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+      "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
       "version": "1.6.0",
       "mix_version": "1.6.0",
       "publish_dry_run": {
         "command": "mix hex.publish --dry-run --yes",
-        "conclusion": "blocked",
-        "exit_code": 1,
-        "version": null,
-        "diagnostic": "Mix stopped because exact locked dependencies are absent in the clean candidate checkout; no dependency installation was attempted."
+        "conclusion": "success",
+        "exit_code": 0,
+        "version": "1.6.0",
+        "receipt": {
+          "schema_version": 1,
+          "repository": "szTheory/sigra",
+          "workflow": ".github/workflows/phase-247-hex-dry-run.yml",
+          "workflow_ref": "szTheory/sigra/.github/workflows/phase-247-hex-dry-run.yml@refs/heads/main",
+          "run_id": "37803817504",
+          "run_attempt": 1,
+          "run_url": "https://github.com/szTheory/sigra/actions/runs/37803817504",
+          "requested_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+          "checked_out_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+          "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+          "live_base_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "evidence_pr_number": 296,
+          "evidence_pr_head_sha": "76f6c6aced57a71020573bbd477d3624fd2c2f73",
+          "evidence_merge_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "manifest_blob_id": "c87eeb19e79b4e19d34ff522c487894c8cb3c558",
+          "baseline_manifest_path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+          "diff_algorithm": "git-diff-raw-v1",
+          "diff_sha256": "d7cbfeddd55bc0528738f89b82377379e55a73464f2c174217af31410625ac5e",
+          "diff_bytes": 8372,
+          "recomputed_diff_sha256": "d7cbfeddd55bc0528738f89b82377379e55a73464f2c174217af31410625ac5e",
+          "recomputed_diff_bytes": 8372,
+          "command": "mix hex.publish --dry-run --yes",
+          "dry_run_outcome": "success",
+          "credential_name": "HEX_DRY_RUN_API_KEY",
+          "credential_present": true,
+          "hex_release_url": "https://hex.pm/api/packages/sigra/releases/1.6.0",
+          "hex_release_before_http_status": 404,
+          "hex_release_after_http_status": 404,
+          "started_at": "2026-10-08T15:49:20Z",
+          "finished_at": "2026-10-08T15:51:07Z",
+          "verdict": "passed"
+        }
+      },
+      "dependency_fetch": {
+        "command": "mix deps.get --check-locked",
+        "conclusion": "success",
+        "locked_package_count": 65,
+        "lockfile_sha256": "d5e1ffd653afde7a70fb13fc9756156a10d4a3b0a726d9b79becd4c50afd2b6a",
+        "isolation": "MIX_DEPS_PATH, MIX_BUILD_PATH, MIX_HOME, and HEX_HOME were redirected to /private/tmp/sigra-phase247-hex-verify."
+      },
+      "hex_client": {
+        "version": "2.5.1",
+        "authenticated_user_configured": false
       },
       "hex_build": {
         "command": "mix hex.build --unpack --output tmp/sigra-hex-inspect",
@@ -60381,7 +60959,7 @@
           "priv/templates/sigra.install/core/confirmation_live.ex"
         ],
         "source_paths_present": true,
-        "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "ci_run_id": 37700772880
       },
       {
@@ -60392,7 +60970,7 @@
           "priv/templates/sigra.install/core/confirmation_live.ex"
         ],
         "source_paths_present": true,
-        "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "ci_run_id": 37700772880
       },
       {
@@ -60405,7 +60983,7 @@
           "test/sigra/branding_test.exs"
         ],
         "source_paths_present": true,
-        "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "ci_run_id": 37700772880
       },
       {
@@ -60417,7 +60995,7 @@
           "test/sigra/integrations/chimeway_test.exs"
         ],
         "source_paths_present": true,
-        "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "ci_run_id": 37700772880
       },
       {
@@ -60429,7 +61007,7 @@
           "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex"
         ],
         "source_paths_present": true,
-        "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
         "ci_run_id": 37700772880
       }
     ],
@@ -60438,8 +61016,8 @@
       "method": "Exact-head full-diff review plus source and CI correlation; GitHub review state is separately recorded.",
       "github_review_decision": null,
       "github_reviews": [],
-      "reviewed_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-      "reviewed_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "reviewed_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
       "changed_files": [
         ".release-please-manifest.json",
         "CHANGELOG.md",
@@ -60449,15 +61027,15 @@
       ],
       "findings": [],
       "unresolved_high_severity": [],
-      "diff_sha256": "b6f6db79f69747ac5ee311484a370567c88dabc3aed3385eacf6fe8bca02e64f",
-      "diff_bytes": 8624
+      "diff_sha256": "faa43d617e07c03ab652c2c091514f808e8b3faa023c4927bbdfa0a48f763fe7",
+      "diff_bytes": 8052
     },
     "inventory": {
-      "captured_at": "2026-10-07T23:31:57.181Z",
-      "trusted_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "captured_at": "2026-10-08T15:59:46.969Z",
+      "trusted_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
       "local_origin_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
       "merge_base_sha": "417130bdc0e69dd102431391cd6cd30bf88b2fa5",
-      "inherited_head_sha": "de68ef4b1df825659ede621d6b4bca955117270a",
+      "inherited_head_sha": "58c660b8fb241ed7c85e9a36ac846194eb4de305",
       "inherited_branch": "phase-244-playwright-measurement",
       "commits": [
         {
@@ -60743,6 +61321,19 @@
           "reason": "This commit is historical, planning, test, workflow, or maintainer work outside the candidate source scope; keep it preserved with the inherited branch unless a later reviewed disposition says otherwise.",
           "source": "git ancestry 417130bdc0e69dd102431391cd6cd30bf88b2fa5..7e5c19361135aeb63bac006323ffd5899e0d402b",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "sha": "0aba1874dad1098ebd80a32e98c834e3f5a248d0",
+          "subject": "feat(247-04): add final release-readiness validation",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+            ".planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs",
+            ".planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 0aba1874dad1098ebd80a32e98c834e3f5a248d0",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "sha": "0ad7107f7a6eea38c6eb2fb3b8ac0fb504ef7a56",
@@ -61678,6 +62269,17 @@
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
         },
         {
+          "sha": "35c6905645830eda0ebe23b555283c48fc0b1d99",
+          "subject": "feat(247-05): freeze reviewed candidate diff baseline",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 35c6905645830eda0ebe23b555283c48fc0b1d99",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
           "sha": "3676390f78af5390c506c6c26d4eea6177fd03d3",
           "subject": "test(245-23): bound slow admission fixture runs",
           "authored_at": "2026-10-01T00:30:00-04:00",
@@ -61862,6 +62464,17 @@
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
         },
         {
+          "sha": "3dbc5f192a280e75a594f140cf8473a91d224557",
+          "subject": "fix(247): make dry-run gap plan runnable",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-05-PLAN.md"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 3dbc5f192a280e75a594f140cf8473a91d224557",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
           "sha": "3dd5977d518dd60c91ba12d5dc7ba0e0879eb24e",
           "subject": "test(236): automate UAT with LiveView seam coverage",
           "authored_at": "2026-09-19T10:40:16-04:00",
@@ -62018,6 +62631,17 @@
           "reason": "This commit is historical, planning, test, workflow, or maintainer work outside the candidate source scope; keep it preserved with the inherited branch unless a later reviewed disposition says otherwise.",
           "source": "git ancestry 417130bdc0e69dd102431391cd6cd30bf88b2fa5..7e5c19361135aeb63bac006323ffd5899e0d402b",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "sha": "46a7db135ca3ed490935dffb10e03e15db4901fb",
+          "subject": "fix(247): bind candidate diff baseline before evidence merge",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-05-PLAN.md"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 46a7db135ca3ed490935dffb10e03e15db4901fb",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "sha": "46a8b245804fb5308c9aa77ebeeee8668fff83b9",
@@ -62355,6 +62979,18 @@
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
         },
         {
+          "sha": "58c660b8fb241ed7c85e9a36ac846194eb4de305",
+          "subject": "docs(247): refresh exact-source assumptions",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md",
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-DISCUSSION-LOG.md"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 58c660b8fb241ed7c85e9a36ac846194eb4de305",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
           "sha": "59d8deaf659c6dbc18d2eef77fc24b53b9e1a153",
           "subject": "style(246-03): format required CI route contract",
           "authored_at": "2026-10-06T14:58:37-04:00",
@@ -62532,6 +63168,17 @@
           "reason": "This commit is historical, planning, test, workflow, or maintainer work outside the candidate source scope; keep it preserved with the inherited branch unless a later reviewed disposition says otherwise.",
           "source": "git ancestry 417130bdc0e69dd102431391cd6cd30bf88b2fa5..7e5c19361135aeb63bac006323ffd5899e0d402b",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "sha": "6261beadd823294156915f276598e1388e84c6f6",
+          "subject": "docs(phase-247): verify release readiness threats",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-SECURITY.md"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 6261beadd823294156915f276598e1388e84c6f6",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "sha": "6315c45d734505bdf4bb66dcb224de1c8f4dd04e",
@@ -62770,6 +63417,19 @@
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
         },
         {
+          "sha": "6f604cacb758c70e0bf412c0dc604442f5b5d9d1",
+          "subject": "feat(247-05): add fixed-source Hex dry-run evidence route",
+          "changed_paths": [
+            ".github/workflows/phase-247-hex-dry-run.yml",
+            "scripts/ci/phase-247-hex-dry-run.sh",
+            "scripts/ci/phase-247-hex-dry-run.test.sh"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 6f604cacb758c70e0bf412c0dc604442f5b5d9d1",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
           "sha": "710e0b9a73c66ce49e729f8b666fb8f2fdb92bc7",
           "subject": "docs(245): align forward state",
           "authored_at": "2026-10-01T15:51:06-04:00",
@@ -62931,6 +63591,19 @@
           "reason": "This commit is historical, planning, test, workflow, or maintainer work outside the candidate source scope; keep it preserved with the inherited branch unless a later reviewed disposition says otherwise.",
           "source": "git ancestry 417130bdc0e69dd102431391cd6cd30bf88b2fa5..7e5c19361135aeb63bac006323ffd5899e0d402b",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "sha": "790a2a9fb2d57d636a7d8cb8ee04d70c5cfccdfb",
+          "subject": "fix(247-05): tolerate unchanged reviewed PR base",
+          "changed_paths": [
+            ".github/workflows/phase-247-hex-dry-run.yml",
+            "scripts/ci/phase-247-hex-dry-run.sh",
+            "scripts/ci/phase-247-hex-dry-run.test.sh"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 790a2a9fb2d57d636a7d8cb8ee04d70c5cfccdfb",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "sha": "7a5f62d2b6c9758e3aba961e724222839226de26",
@@ -63650,6 +64323,17 @@
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
         },
         {
+          "sha": "9ebcd5a6ff2756a72e8b731d4f89ea9c7dc21c39",
+          "subject": "docs(247): plan authenticated Hex dry-run gap closure",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-05-PLAN.md"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 9ebcd5a6ff2756a72e8b731d4f89ea9c7dc21c39",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
           "sha": "9f358d09a9da3a725635bdd512bfd0b8b9cb6a27",
           "subject": "docs(245-32): reconcile Plan 31 predicate",
           "authored_at": "2026-10-02T10:03:48-04:00",
@@ -63980,6 +64664,17 @@
           "reason": "This commit is historical, planning, test, workflow, or maintainer work outside the candidate source scope; keep it preserved with the inherited branch unless a later reviewed disposition says otherwise.",
           "source": "git ancestry 417130bdc0e69dd102431391cd6cd30bf88b2fa5..7e5c19361135aeb63bac006323ffd5899e0d402b",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "sha": "a95772d58d4a9c200fea637c2d9f05ada68e7861",
+          "subject": "test(247-05): assert complete dry-run receipt timestamps",
+          "changed_paths": [
+            "scripts/ci/phase-247-hex-dry-run.test.sh"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit a95772d58d4a9c200fea637c2d9f05ada68e7861",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "sha": "a9eb2d437d1edd3aa055992f3742d782af06b24d",
@@ -66805,6 +67500,15 @@
           "reason": "Historical planning, testing, workflow, or maintainer path is outside candidate payload and remains preserved in the inherited branch.",
           "source": "commits f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac (+2)",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "kind": "committed",
+          "path": ".github/workflows/phase-247-hex-dry-run.yml",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 dry-run evidence is preserved independently from candidate PR #224; the exact source and four-file main advance are bound by the merged evidence PR.",
+          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "preservation_location": "trusted main after merged Phase 247 evidence PR #296"
         },
         {
           "kind": "committed",
@@ -79218,6 +79922,24 @@
         },
         {
           "kind": "committed",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-PLAN.md",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh merge-base..inherited HEAD path inventory",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "committed",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "committed",
           "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md",
           "source_commits": [
             "5ef1b4c1b72da9f4f081d6975ad877c9e298abfc"
@@ -79272,6 +79994,15 @@
           "reason": "Historical planning, testing, workflow, or maintainer path is outside candidate payload and remains preserved in the inherited branch.",
           "source": "commits 1d1f5edae8b8d9d9301a3feb602a76694e0b39c7",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "kind": "committed",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-SECURITY.md",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh merge-base..inherited HEAD path inventory",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "kind": "committed",
@@ -79986,6 +80717,24 @@
           "reason": "Historical planning, testing, workflow, or maintainer path is outside candidate payload and remains preserved in the inherited branch.",
           "source": "commits fd15f9117a10232ef5793bc5a5b72eb1188a57d7",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "kind": "committed",
+          "path": "scripts/ci/phase-247-hex-dry-run.sh",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 dry-run evidence is preserved independently from candidate PR #224; the exact source and four-file main advance are bound by the merged evidence PR.",
+          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "preservation_location": "trusted main after merged Phase 247 evidence PR #296"
+        },
+        {
+          "kind": "committed",
+          "path": "scripts/ci/phase-247-hex-dry-run.test.sh",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 dry-run evidence is preserved independently from candidate PR #224; the exact source and four-file main advance are bound by the merged evidence PR.",
+          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "preservation_location": "trusted main after merged Phase 247 evidence PR #296"
         },
         {
           "kind": "committed",
@@ -80953,6 +81702,24 @@
         },
         {
           "kind": "dirty",
+          "path": ".github/workflows/phase-247-hex-dry-run.yml",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 dry-run evidence is preserved independently from candidate PR #224; the exact source and four-file main advance are bound by the merged evidence PR.",
+          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "preservation_location": "trusted main after merged Phase 247 evidence PR #296"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/WINDOWS.md",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
           "path": ".planning/debug/plan-245-37-admission.md",
           "status": "??",
           "disposition": "separate-follow-up",
@@ -80969,6 +81736,204 @@
           "reason": "This uncommitted inherited path is preserved in place and excluded from the candidate until separately reviewed.",
           "source": "git status  M .planning/phases/246-generated-confirmation-recovery/246-REVIEW.md",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (5087d9eb73644e81b1245786e0335e6efc3e0361)"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-04-SUMMARY.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CURRENT-SOURCE-REVIEW.json",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-PLAN.md",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-tdd-red-evidence.json",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-06-PLAN.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-06-SUMMARY.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-07-PLAN.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-07-SUMMARY.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-FINAL-RECOVERY-AMENDMENT.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-PLAN.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-RESUME-NOTES.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-BLOCKED.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-POST-EVIDENCE-HEAD-CHANGE.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-REVIEW.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-UI-REVIEW.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+          "status": "??",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "kind": "dirty",
@@ -81265,6 +82230,15 @@
         },
         {
           "kind": "dirty",
+          "path": ".planning/ui-reviews/.gitignore",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh inherited checkout status snapshot",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "dirty",
           "path": "scripts/ci/capture-phase-241-final-head.sh",
           "status": " M",
           "disposition": "release-blocking",
@@ -81298,6 +82272,24 @@
           "reason": "Inherited CI/test infrastructure affects evidence provenance; retain it for review and do not assume it is represented in the candidate source.",
           "source": "git status --porcelain=v1 -uall captured before Phase 247 artifacts",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "kind": "dirty",
+          "path": "scripts/ci/phase-247-hex-dry-run.sh",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 dry-run evidence is preserved independently from candidate PR #224; the exact source and four-file main advance are bound by the merged evidence PR.",
+          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "preservation_location": "trusted main after merged Phase 247 evidence PR #296"
+        },
+        {
+          "kind": "dirty",
+          "path": "scripts/ci/phase-247-hex-dry-run.test.sh",
+          "status": " M",
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 dry-run evidence is preserved independently from candidate PR #224; the exact source and four-file main advance are bound by the merged evidence PR.",
+          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
+          "preservation_location": "trusted main after merged Phase 247 evidence PR #296"
         },
         {
           "kind": "dirty",
@@ -81524,7 +82516,7 @@
           "number": 224,
           "title": "chore(main): release 1.6.0",
           "url": "https://github.com/szTheory/sigra/pull/224",
-          "head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+          "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
           "base": "main",
           "is_draft": false,
           "merge_state": "CLEAN",
@@ -84163,7 +85155,35 @@
         },
         {
           "status": " M",
+          "path": ".github/workflows/phase-247-hex-dry-run.yml"
+        },
+        {
+          "status": " M",
+          "path": ".planning/WINDOWS.md"
+        },
+        {
+          "status": " M",
           "path": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW.md"
+        },
+        {
+          "status": " M",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-PLAN.md"
+        },
+        {
+          "status": " M",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
+        },
+        {
+          "status": " M",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md"
+        },
+        {
+          "status": " M",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md"
+        },
+        {
+          "status": " M",
+          "path": ".planning/ui-reviews/.gitignore"
         },
         {
           "status": " M",
@@ -84180,6 +85200,14 @@
         {
           "status": " M",
           "path": "scripts/ci/measure-playwright-drift.test.mjs"
+        },
+        {
+          "status": " M",
+          "path": "scripts/ci/phase-247-hex-dry-run.sh"
+        },
+        {
+          "status": " M",
+          "path": "scripts/ci/phase-247-hex-dry-run.test.sh"
         },
         {
           "status": " M",
@@ -84220,6 +85248,78 @@
         {
           "status": "??",
           "path": ".planning/debug/plan-245-37-admission.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-04-SUMMARY.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CURRENT-SOURCE-REVIEW.json"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-tdd-red-evidence.json"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-06-PLAN.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-06-SUMMARY.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-07-PLAN.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-07-SUMMARY.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-FINAL-RECOVERY-AMENDMENT.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-PLAN.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-RESUME-NOTES.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-BLOCKED.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-POST-EVIDENCE-HEAD-CHANGE.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-REVIEW.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-UI-REVIEW.md"
+        },
+        {
+          "status": "??",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md"
         },
         {
           "status": "??",
@@ -84361,26 +85461,21 @@
     }
   },
   "final_validation": {
-    "valid": false,
-    "status": "blocked",
-    "checked_at": "2026-10-07T23:31:57.181Z",
+    "valid": true,
+    "status": "ready",
+    "checked_at": "2026-10-08T15:59:46.969Z",
     "checked": {
-      "source_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+      "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
       "pr_url": "https://github.com/szTheory/sigra/pull/224",
       "pr_state": "OPEN",
-      "pr_head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
-      "pr_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
-      "live_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+      "pr_head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "pr_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+      "live_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
       "candidate_status": "",
       "open_pull_requests": 14,
-      "inherited_commits": 386,
-      "inherited_paths": 1270
+      "inherited_commits": 396,
+      "inherited_paths": 1303
     },
-    "diagnostics": [
-      {
-        "code": "final_hex_dry_run_failed",
-        "message": "mix hex.publish --dry-run --yes must pass for Sigra 1.6.0."
-      }
-    ]
+    "diagnostics": []
   }
 }
