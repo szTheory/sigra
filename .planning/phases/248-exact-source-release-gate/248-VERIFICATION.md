@@ -232,5 +232,5 @@ The working report is `gaps_found`; implementation is substantially present, but
 
 ---
 
-_Verified: 2026-10-08T23:51:24Z_  
+_Verified: 2026-10-08T23:51:24Z_
 _Verifier: the agent (gsd-verifier)_
