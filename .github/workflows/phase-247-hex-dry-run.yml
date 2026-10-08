@@ -1,0 +1,153 @@
+name: Phase 247 Hex dry-run evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Fixed PR #224 candidate source SHA
+        required: true
+        type: string
+      evidence_pr_number:
+        description: Merged evidence-only PR number
+        required: true
+        type: string
+      evidence_pr_head_sha:
+        description: Exact pre-merge evidence PR head SHA
+        required: true
+        type: string
+      manifest_blob_id:
+        description: Baseline manifest blob ID at the evidence PR head
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+concurrency:
+  group: phase-247-hex-dry-run-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  dry-run:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: hex-publish
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    steps:
+      - name: Checkout trusted main workflow source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: trusted
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout fixed candidate source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: szTheory/sigra
+          ref: ${{ inputs.candidate_sha }}
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify trusted source, candidate, PR, baseline, and evidence merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_DIR: trusted
+          EVIDENCE_PR_NUMBER: ${{ inputs.evidence_pr_number }}
+          EVIDENCE_PR_HEAD_SHA: ${{ inputs.evidence_pr_head_sha }}
+          EVIDENCE_MANIFEST_BLOB_ID: ${{ inputs.manifest_blob_id }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF}" = refs/heads/main
+          test "${GITHUB_REPOSITORY}" = szTheory/sigra
+          test "$(git -C trusted rev-parse HEAD)" = "${GITHUB_SHA}"
+          test "$(git -C candidate rev-parse HEAD)" = 563f411bc2659bb9ac1652d552ce58ffb0c876b1
+          bash trusted/scripts/ci/phase-247-hex-dry-run.sh verify-baseline trusted/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json
+
+      - name: Install pinned Beam toolchain and exact candidate dependencies
+        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
+        with:
+          version-file: candidate/.tool-versions
+          version-type: strict
+
+      - name: Install Hex and resolve locked candidate dependencies
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get --check-locked
+
+      - name: Recheck candidate identity immediately before authentication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pr="$(gh api repos/szTheory/sigra/pulls/224)"
+          test "$(jq -r '.head.sha' <<<"$pr")" = 563f411bc2659bb9ac1652d552ce58ffb0c876b1
+          test "$(jq -r '.base.sha' <<<"$pr")" = "$(gh api repos/szTheory/sigra/branches/main --jq '.commit.sha')"
+          test "$(jq -r '.state' <<<"$pr")" = open
+          test "$(git -C candidate rev-parse HEAD)" = 563f411bc2659bb9ac1652d552ce58ffb0c876b1
+
+      - name: Confirm Hex 1.6.0 is absent before dry-run
+        id: hex_before
+        run: echo "http_status=$(bash trusted/scripts/ci/phase-247-hex-dry-run.sh check-release)" >> "$GITHUB_OUTPUT"
+
+      - name: Record dry-run start timestamp
+        id: run_started
+        run: echo "started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticated Hex dry-run
+        id: hex_dry_run
+        working-directory: candidate
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_DRY_RUN_API_KEY }}
+        run: mix hex.publish --dry-run --yes
+
+      - name: Write safe dry-run receipt
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_DIR: trusted
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          EVIDENCE_PR_NUMBER: ${{ inputs.evidence_pr_number }}
+          EVIDENCE_PR_HEAD_SHA: ${{ inputs.evidence_pr_head_sha }}
+          EVIDENCE_MANIFEST_BLOB_ID: ${{ inputs.manifest_blob_id }}
+          DRY_RUN_OUTCOME: ${{ steps.hex_dry_run.outcome }}
+          HEX_RELEASE_BEFORE_STATUS: ${{ steps.hex_before.outputs.http_status }}
+          GITHUB_WORKFLOW_REF: ${{ github.workflow_ref }}
+          GITHUB_RUN_STARTED_AT: ${{ steps.run_started.outputs.started_at }}
+        run: |
+          set -euo pipefail
+          bash trusted/scripts/ci/phase-247-hex-dry-run.sh write-receipt phase-247-hex-dry-run-receipt.json trusted candidate
+
+      - name: Retain blocked-run diagnostic if full receipt could not be written
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          REQUESTED_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          if [ ! -f phase-247-hex-dry-run-receipt.json ]; then
+            jq -n --arg run_id "$RUN_ID" --arg attempt "$RUN_ATTEMPT" --arg sha "$REQUESTED_SHA" \
+              '{schema_version:1,run_id:$run_id,run_attempt:($attempt|tonumber),requested_sha:$sha,verdict:"blocked",diagnostic:"preflight_or_receipt_generation_failed"}' \
+              > phase-247-hex-dry-run-receipt.json
+          fi
+
+      - name: Upload safe dry-run receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: phase-247-hex-dry-run-receipt
+          path: phase-247-hex-dry-run-receipt.json
+          if-no-files-found: error
+          retention-days: 90
