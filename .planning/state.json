@@ -16,7 +16,7 @@
     {
       "number": "248",
       "name": "Exact-Source Release Gate",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "number": "249",
@@ -26,8 +26,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 247",
-    "label": "Continue Phase 247 readiness",
-    "reason": "Plans 01–03 are complete. init.execute-phase 247 reports Plan 04 runnable with no prerequisite blockers. PR #224 remains open at exact candidate head 563f411bc, based on reviewed main 590eb4ed; exact-head CI run 37700772880 and the live candidate validator passed. Phase 247 is not phase-verified; Phase 248 remains planned."
+    "label": "Execute Phase 247 Plan 09 gap closure",
+    "reason": "Plans 09–11 passed plan review. Start the local Playwright repair; exact-head CI and evidence recovery remain behind separate explicit approval checkpoints."
   },
-  "updated_at": "2026-10-07T23:24:09.000Z"
+  "updated_at": "2026-10-08T17:14:15Z"
 }
