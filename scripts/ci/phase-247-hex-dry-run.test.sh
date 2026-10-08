@@ -83,6 +83,7 @@ export FIXTURE_EVIDENCE_HEAD FIXTURE_MAIN_SHA
 export FIXTURE_PR_BASE="$FIXTURE_MAIN_SHA" EVIDENCE_PR_NUMBER=987 EVIDENCE_PR_HEAD_SHA="$FIXTURE_EVIDENCE_HEAD" EVIDENCE_MANIFEST_BLOB_ID="$FIXTURE_BLOB"
 export GITHUB_REF=refs/heads/main GITHUB_REPOSITORY=szTheory/sigra GITHUB_SHA="$FIXTURE_MAIN_SHA" GITHUB_RUN_ID=12345 GITHUB_RUN_ATTEMPT=1
 export GITHUB_WORKFLOW_REF=szTheory/sigra/.github/workflows/phase-247-hex-dry-run.yml@refs/heads/main
+export GITHUB_RUN_STARTED_AT=2026-10-08T00:00:00Z
 export CANDIDATE_SHA=563f411bc2659bb9ac1652d552ce58ffb0c876b1 HEX_RELEASE_BEFORE_STATUS=404 DRY_RUN_OUTCOME=success DRY_RUN_KEY_PRESENT=true
 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json" >/dev/null
 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/receipt.json" "$TMP/evidence" "$TMP/pinned" >/dev/null
