@@ -2,7 +2,8 @@
 set -euo pipefail
 
 readonly REVIEWED_BASE="d135cbce343947499a0810736c500ef5f1cb5c32"
-readonly CANDIDATE="d76d7f2306f6099063a80a420d2d8a4e04c7785f"
+readonly APPROVED_MAIN="a494f3ee3878da93aab4f70712ffddeefd77a802"
+readonly CANDIDATE="0e773d3614a242e4fbcdd34c418ecb8a307703d6"
 readonly PR_NUMBER="224"
 readonly ALGORITHM="git-diff-raw-v1"
 readonly MANIFEST_PATH=".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
@@ -104,8 +105,8 @@ capture_baseline() {
   need gh; need git; need jq; need sha256sum
   [[ -n "${GH_TOKEN:-}" || -n "${GITHUB_TOKEN:-}" ]] || die 'read-only GitHub token unavailable'
   main=$(live_main) || die 'unable to query live main'
-  [[ "$main" == "$REVIEWED_BASE" ]] || die 'live main advanced; capture is permitted only before the evidence merge'
-  check_live_pr "$REVIEWED_BASE"
+  [[ "$main" == "$APPROVED_MAIN" ]] || die 'live main differs from the explicitly approved pre-merge SHA'
+  check_live_pr "$APPROVED_MAIN"
   manifest_write "${REPO_DIR:-.}" "$REVIEWED_BASE" "$CANDIDATE" "$dest"
   printf 'captured baseline: %s\n' "$dest"
 }
