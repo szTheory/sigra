@@ -11,11 +11,11 @@ provides:
   - Hermetic source-run correlation and cross-workflow contracts
 affects: [phase-249-publish-and-prove-sigra-1-6-0, release-automation]
 actuals:
-  tokens: 6685
+  tokens: 6801
   tasks: 2
-  commits: 2
+  commits: 5
   plan_head_before: 43f7842b6e9f4b316a512a172fa09d330cb6e96d
-  plan_head_after: 92546601137f41461d3920eec3c215fb5f5246ff
+  plan_head_after: 823af8e4d3c25e674040b3d75f16091374a200d5
 tech-stack:
   added: []
   patterns: ["workflow_run payload identifies a source run; authoritative API data gates receipt creation"]
@@ -62,8 +62,8 @@ duration: 32min
 completed: 2026-10-08
 status: complete
 plan_head_before: 43f7842b6e9f4b316a512a172fa09d330cb6e96d
-plan_head_after: 92546601137f41461d3920eec3c215fb5f5246ff
-commits: 2
+plan_head_after: 823af8e4d3c25e674040b3d75f16091374a200d5
+commits: 5
 ---
 
 # Phase 248 Plan 05: Trusted cancellation observer Summary
@@ -88,6 +88,9 @@ commits: 2
 
 1. **Task 1: Correlate cancelled source runs and create cancellation receipts** - `46885298c` (`feat(248-05): correlate cancelled release runs`)
 2. **Task 2: Install the trusted completion workflow and cross-workflow security contracts** - `925466011` (`feat(248-05): add trusted cancellation observer`)
+3. **Task 2 follow-up: Require workflow identity in the source event** - `823af8e4d` (`fix(248-05): require source workflow id in event`)
+
+The measured plan range also includes two earlier metadata-only closeout commits: `74679b468` (initial summary/roadmap update) and `8a0ae42de` (state status correction). The final metadata commit below is outside `plan_head_after`.
 
 ## Files Created/Modified
 
@@ -130,7 +133,7 @@ Phase 249, “Publish and Prove Sigra 1.6.0,” is pending with no plans, contex
 
 - Task commits `46885298c` and `925466011` exist and are ancestors of `plan_head_after`.
 - All four planned artifacts exist; task 2's commit contains only the observer workflow and its contract test.
-- Measured plan commit count is 2 from `plan_head_before` through `plan_head_after`.
+- Measured plan commit count is 5 from `plan_head_before` through `plan_head_after`, including the three implementation commits and two earlier metadata-only closeout updates.
 
 ---
 *Phase: 248-exact-source-release-gate*
