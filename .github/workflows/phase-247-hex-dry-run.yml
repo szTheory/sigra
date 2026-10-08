@@ -115,6 +115,10 @@ jobs:
           HEX_API_KEY: ${{ secrets.HEX_DRY_RUN_API_KEY }}
         run: mix hex.publish --dry-run --yes
 
+      - name: Restore the generated ExDoc artifact
+        if: always()
+        run: bash trusted/scripts/ci/phase-247-hex-dry-run.sh restore-generated-docs candidate
+
       - name: Write safe dry-run receipt
         if: always()
         env:

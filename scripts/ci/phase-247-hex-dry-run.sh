@@ -22,6 +22,21 @@ assert_clean_checkout() {
   fi
 }
 
+restore_generated_docs() {
+  local repo="${2:-candidate}" paths
+  [[ $(git -C "$repo" rev-parse HEAD) == "$CANDIDATE" ]] || die 'generated-doc cleanup requires the fixed candidate checkout'
+  paths=$(git -C "$repo" status --porcelain --untracked-files=all) || die 'unable to inspect candidate checkout status'
+  [[ -n "$paths" ]] || { printf 'candidate checkout clean after dry-run\n'; return 0; }
+  [[ "$paths" == ' M doc/llms.txt' ]] || {
+    printf 'unexpected dirty path records after dry-run:\n%s\n' "$paths" >&2
+    die 'candidate checkout contains changes outside the known generated documentation artifact'
+  }
+  git -C "$repo" ls-files --error-unmatch -- doc/llms.txt >/dev/null || die 'generated documentation artifact is not tracked at the candidate source'
+  git -C "$repo" restore --source=HEAD --worktree -- doc/llms.txt || die 'unable to restore generated documentation artifact'
+  assert_clean_checkout candidate "$repo"
+  printf 'restored generated documentation artifact: doc/llms.txt\n'
+}
+
 diff_digest() {
   local repo="$1" base="$2" candidate="$3" output="$4"
   valid_sha "$base" && valid_sha "$candidate" || die 'base and candidate must be full lowercase SHA-1 values'
@@ -185,8 +200,9 @@ main() {
     capture-baseline) capture_baseline "$@" ;;
     verify-baseline) verify_baseline "$@" ;;
     check-release) check_hex_release_absent ;;
+    restore-generated-docs) restore_generated_docs "$@" ;;
     write-receipt) write_receipt "$@" ;;
-    *) die 'usage: phase-247-hex-dry-run.sh {capture-baseline [path]|verify-baseline [path]|write-receipt <path> [trusted-dir] [candidate-dir]}' ;;
+    *) die 'usage: phase-247-hex-dry-run.sh {capture-baseline [path]|verify-baseline [path]|restore-generated-docs <candidate-dir>|write-receipt <path> [trusted-dir] [candidate-dir]}' ;;
   esac
 }
 

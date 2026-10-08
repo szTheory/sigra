@@ -117,6 +117,21 @@ expect_fail wrong-evidence-pr env EVIDENCE_PR_NUMBER=988 bash "$ROOT/scripts/ci/
 expect_fail wrong-manifest-blob env EVIDENCE_MANIFEST_BLOB_ID=0000000000000000000000000000000000000000 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
 expect_fail untrusted-main env GITHUB_REF=refs/heads/evidence/test bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/untrusted-main.json" "$TMP/evidence" "$TMP/evidence"
 expect_fail changed-candidate-checkout bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/changed-checkout.json" "$TMP/evidence" "$TMP/evidence"
+original_llms=$(git -C "$TMP/pinned" show HEAD:doc/llms.txt)
+printf '%s\n' 'GENERATED_DOCS_FIXTURE_CONTENT' >"$TMP/pinned/doc/llms.txt"
+bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" restore-generated-docs "$TMP/pinned" >/dev/null
+[[ "$(git -C "$TMP/pinned" show HEAD:doc/llms.txt)" == "$original_llms" ]]
+[[ -z "$(git -C "$TMP/pinned" status --porcelain --untracked-files=all)" ]]
+printf '%s\n' 'GENERATED_DOCS_FIXTURE_CONTENT' >"$TMP/pinned/doc/llms.txt"
+printf '%s\n' 'UNEXPECTED_FILE_CONTENT' >"$TMP/pinned/unexpected-dirty.txt"
+expect_fail unexpected-dry-run-dirt bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" restore-generated-docs "$TMP/pinned"
+rg -Fq 'unexpected-dirty.txt' "$TMP/unexpected-dry-run-dirt.out" || { echo 'cleanup diagnostic omitted unexpected dirty path' >&2; exit 1; }
+if rg -Fq 'UNEXPECTED_FILE_CONTENT' "$TMP/unexpected-dry-run-dirt.out"; then
+  echo 'cleanup diagnostic exposed unexpected file contents' >&2
+  exit 1
+fi
+git -C "$TMP/pinned" restore --source=HEAD --worktree -- doc/llms.txt
+rm "$TMP/pinned/unexpected-dirty.txt"
 printf '%s\n' 'PRIVATE_FIXTURE_CONTENT_MUST_NOT_APPEAR' >"$TMP/pinned/diagnostic-only-path.txt"
 expect_fail dirty-candidate-paths bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/dirty-candidate.json" "$TMP/evidence" "$TMP/pinned"
 rg -Fq 'diagnostic-only-path.txt' "$TMP/dirty-candidate-paths.out" || { echo 'dirty candidate diagnostic omitted the path' >&2; exit 1; }
@@ -157,7 +172,7 @@ if rg -n 'secrets\.HEX_API_KEY' "$ROOT/.github/workflows/phase-247-hex-dry-run.y
 fi
 # Emit a TAP summary so the source-rebind assertion can be classified as RED.
 printf 'TAP version 13\n'
-printf '# phase-247 dry-run fixtures: 19 passed\n'
+printf '# phase-247 dry-run fixtures: 21 passed\n'
 if jq -e 'has("started_at") and has("finished_at") and (.started_at | type == "string") and (.finished_at | type == "string")' "$TMP/receipt.json" >/dev/null; then
   printf 'ok 1 - receipt records workflow start and finish timestamps\n'
   printf '1..1\n'
