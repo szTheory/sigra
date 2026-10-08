@@ -19,7 +19,7 @@ set -euo pipefail
 case "$*" in
   'api repos/szTheory/sigra/branches/main --jq .commit.sha') printf '%s\n' "${FIXTURE_MAIN_SHA:?}" ;;
   'api repos/szTheory/sigra/pulls/224') printf '{"state":"open","head":{"sha":"%s"},"base":{"sha":"%s"}}\n' "${FIXTURE_PR_HEAD:?}" "${FIXTURE_PR_BASE:?}" ;;
-  "api repos/szTheory/sigra/pulls/${FIXTURE_EVIDENCE_PR:-987}") printf '{"state":"closed","merged":true,"head":{"sha":"%s"},"merge_commit_sha":"%s"}\n' "${FIXTURE_EVIDENCE_HEAD:?}" "${FIXTURE_MAIN_SHA:?}" ;;
+  "api repos/szTheory/sigra/pulls/${FIXTURE_EVIDENCE_PR:-987}") printf '{"state":"closed","merged":true,"head":{"sha":"%s"},"merge_commit_sha":"%s"}\n' "${FIXTURE_EVIDENCE_HEAD:?}" "${FIXTURE_EVIDENCE_MERGE:?}" ;;
   *) echo "unexpected gh call: $*" >&2; exit 91 ;;
 esac
 SH
@@ -78,9 +78,13 @@ git -C "$TMP/evidence" -c user.name=fixture -c user.email=fixture@example.invali
 FIXTURE_EVIDENCE_HEAD=$(git -C "$TMP/evidence" rev-parse HEAD)
 FIXTURE_BLOB=$(git -C "$TMP/evidence" rev-parse HEAD:.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json)
 git -C "$TMP/evidence" -c user.name=fixture -c user.email=fixture@example.invalid commit --allow-empty -qm merge
+FIXTURE_EVIDENCE_MERGE=$(git -C "$TMP/evidence" rev-parse HEAD)
+git -C "$TMP/evidence" -c user.name=fixture -c user.email=fixture@example.invalid commit --allow-empty -qm 'subsequent approved evidence fix'
 FIXTURE_MAIN_SHA=$(git -C "$TMP/evidence" rev-parse HEAD)
-export FIXTURE_EVIDENCE_HEAD FIXTURE_MAIN_SHA
-export FIXTURE_PR_BASE="$FIXTURE_MAIN_SHA" EVIDENCE_PR_NUMBER=987 EVIDENCE_PR_HEAD_SHA="$FIXTURE_EVIDENCE_HEAD" EVIDENCE_MANIFEST_BLOB_ID="$FIXTURE_BLOB"
+export FIXTURE_EVIDENCE_HEAD FIXTURE_EVIDENCE_MERGE FIXTURE_MAIN_SHA
+# The release PR remains at its original reviewed base after the evidence-only
+# main advance; no base update is needed to preserve its fixed head SHA.
+export FIXTURE_PR_BASE=590eb4ed3323db11dd74326cbee00c9c7973e529 EVIDENCE_PR_NUMBER=987 EVIDENCE_PR_HEAD_SHA="$FIXTURE_EVIDENCE_HEAD" EVIDENCE_MANIFEST_BLOB_ID="$FIXTURE_BLOB"
 export GITHUB_REF=refs/heads/main GITHUB_REPOSITORY=szTheory/sigra GITHUB_SHA="$FIXTURE_MAIN_SHA" GITHUB_RUN_ID=12345 GITHUB_RUN_ATTEMPT=1
 export GITHUB_WORKFLOW_REF=szTheory/sigra/.github/workflows/phase-247-hex-dry-run.yml@refs/heads/main
 export GITHUB_RUN_STARTED_AT=2026-10-08T00:00:00Z

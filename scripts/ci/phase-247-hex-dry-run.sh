@@ -63,7 +63,11 @@ check_live_pr() {
   base=$(jq -r '.base.sha' <<<"$pr")
   state=$(jq -r '.state' <<<"$pr")
   [[ "$head" == "$CANDIDATE" ]] || die 'PR #224 head is not the fixed candidate SHA'
-  [[ "$base" == "$expected_base" ]] || die 'PR #224 base does not match expected live main'
+  # GitHub keeps the PR's observed base SHA at the last synchronization point.
+  # The evidence-only main advance does not update PR #224 (and must not touch
+  # its fixed candidate head), so accept either the original reviewed base or
+  # the current live main while rejecting any unrelated base movement.
+  [[ "$base" == "$REVIEWED_BASE" || "$base" == "$expected_base" ]] || die 'PR #224 base is neither the reviewed base nor current live main'
   [[ "$state" == open ]] || die 'PR #224 is not open'
 }
 
@@ -126,7 +130,9 @@ verify_baseline() {
     local pr
     pr=$(gh api "repos/szTheory/sigra/pulls/$evidence_pr") || die 'unable to query evidence PR'
     [[ $(jq -r '.merged' <<<"$pr") == true ]] || die 'evidence PR is not merged'
-    [[ $(jq -r '.merge_commit_sha' <<<"$pr") == "$main" ]] || die 'evidence PR merge commit is not live main'
+    merge_base=$(jq -r '.merge_commit_sha' <<<"$pr")
+    valid_sha "$merge_base" || die 'evidence PR merge SHA is invalid'
+    git -C "${REPO_DIR:-.}" merge-base --is-ancestor "$merge_base" "$main" || die 'evidence PR merge commit is not an ancestor of live main'
     [[ $(jq -r '.head.sha' <<<"$pr") == "$evidence_head" ]] || die 'evidence PR head differs from supplied pre-merge SHA'
   fi
   printf 'verified evidence-only main advance: main=%s base=%s candidate=%s\n' "$main" "$base" "$CANDIDATE"
