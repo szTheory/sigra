@@ -103,6 +103,7 @@ The shared checkout contains unrelated work, so the clean-tree invariant was ver
 - The authenticated safe receipt, recovery record, readiness ledger, and validation report exist.
 - Candidate PR #224 remains open at the recorded source and base.
 - The readiness validator and focused tests passed at the recorded evidence state.
+- Broken-windows ledger entry 8 is marked fixed with the validator and dry-run run IDs.
 
 ---
 *Phase: 247-release-candidate-and-repository-readiness*
