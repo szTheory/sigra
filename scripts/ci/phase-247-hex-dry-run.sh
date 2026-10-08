@@ -13,6 +13,15 @@ need() { command -v "$1" >/dev/null 2>&1 || die "required command missing: $1"; 
 valid_sha() { [[ "${1:-}" =~ ^[0-9a-f]{40}$ ]]; }
 repo_root() { git -C "$1" rev-parse --show-toplevel 2>/dev/null; }
 
+assert_clean_checkout() {
+  local label="$1" repo="$2" paths
+  paths=$(git -C "$repo" status --porcelain --untracked-files=all) || die "unable to inspect $label checkout status"
+  if [[ -n "$paths" ]]; then
+    printf 'dirty path records in %s checkout:\n%s\n' "$label" "$paths" >&2
+    die "$label checkout is not clean"
+  fi
+}
+
 diff_digest() {
   local repo="$1" base="$2" candidate="$3" output="$4"
   valid_sha "$base" && valid_sha "$candidate" || die 'base and candidate must be full lowercase SHA-1 values'
@@ -117,7 +126,7 @@ verify_baseline() {
   paths=$(git -C "${REPO_DIR:-.}" diff --name-only "$base" "$main" | sort)
   expected=$(printf '%s\n' .github/workflows/phase-247-hex-dry-run.yml scripts/ci/phase-247-hex-dry-run.sh scripts/ci/phase-247-hex-dry-run.test.sh "$MANIFEST_PATH" | sort)
   [[ "$paths" == "$expected" ]] || die 'live main advance contains paths outside the four approved evidence files'
-  [[ -z "$(git -C "${REPO_DIR:-.}" status --porcelain --untracked-files=all)" ]] || die 'trusted checkout is not clean'
+  assert_clean_checkout trusted "${REPO_DIR:-.}"
   evidence_pr=${EVIDENCE_PR_NUMBER:-}
   evidence_head=${EVIDENCE_PR_HEAD_SHA:-}
   blob_id=${EVIDENCE_MANIFEST_BLOB_ID:-}
@@ -146,8 +155,8 @@ write_receipt() {
   [[ "${GITHUB_REF:-}" == refs/heads/main ]] || die 'workflow ref is not refs/heads/main'
   [[ $(git -C "$trusted" rev-parse HEAD) == "${GITHUB_SHA:-}" ]] || die 'trusted checkout HEAD differs from workflow SHA'
   [[ $(git -C "$candidate_dir" rev-parse HEAD) == "$CANDIDATE" ]] || die 'candidate checkout HEAD differs from fixed SHA'
-  [[ -z "$(git -C "$trusted" status --porcelain --untracked-files=all)" ]] || die 'trusted checkout is not clean'
-  [[ -z "$(git -C "$candidate_dir" status --porcelain --untracked-files=all)" ]] || die 'candidate checkout is not clean'
+  assert_clean_checkout trusted "$trusted"
+  assert_clean_checkout candidate "$candidate_dir"
   run_id="${GITHUB_RUN_ID:-}"; run_attempt="${GITHUB_RUN_ATTEMPT:-}"; workflow_ref="${GITHUB_WORKFLOW_REF:-}"
   [[ "$run_id" =~ ^[0-9]+$ && "$run_attempt" =~ ^[0-9]+$ && "$workflow_ref" == szTheory/sigra/.github/workflows/phase-247-hex-dry-run.yml@refs/heads/main ]] || die 'workflow run identity is incomplete or untrusted'
   [[ "${GITHUB_RUN_STARTED_AT:-}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || die 'workflow run start timestamp is missing or malformed'

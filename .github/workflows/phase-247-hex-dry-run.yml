@@ -141,8 +141,17 @@ jobs:
           REQUESTED_SHA: ${{ inputs.candidate_sha }}
         run: |
           if [ ! -f phase-247-hex-dry-run-receipt.json ]; then
+            trusted_dirty_paths='[]'
+            candidate_dirty_paths='[]'
+            if [ -d trusted/.git ]; then
+              trusted_dirty_paths="$(git -C trusted status --porcelain --untracked-files=all | jq -Rsc 'split("\\n") | map(select(length > 0))')"
+            fi
+            if [ -d candidate/.git ]; then
+              candidate_dirty_paths="$(git -C candidate status --porcelain --untracked-files=all | jq -Rsc 'split("\\n") | map(select(length > 0))')"
+            fi
             jq -n --arg run_id "$RUN_ID" --arg attempt "$RUN_ATTEMPT" --arg sha "$REQUESTED_SHA" \
-              '{schema_version:1,run_id:$run_id,run_attempt:($attempt|tonumber),requested_sha:$sha,verdict:"blocked",diagnostic:"preflight_or_receipt_generation_failed"}' \
+              --argjson trusted_dirty_paths "$trusted_dirty_paths" --argjson candidate_dirty_paths "$candidate_dirty_paths" \
+              '{schema_version:1,run_id:$run_id,run_attempt:($attempt|tonumber),requested_sha:$sha,verdict:"blocked",diagnostic:"preflight_or_receipt_generation_failed",trusted_dirty_paths:$trusted_dirty_paths,candidate_dirty_paths:$candidate_dirty_paths}' \
               > phase-247-hex-dry-run-receipt.json
           fi
 

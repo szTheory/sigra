@@ -117,6 +117,14 @@ expect_fail wrong-evidence-pr env EVIDENCE_PR_NUMBER=988 bash "$ROOT/scripts/ci/
 expect_fail wrong-manifest-blob env EVIDENCE_MANIFEST_BLOB_ID=0000000000000000000000000000000000000000 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
 expect_fail untrusted-main env GITHUB_REF=refs/heads/evidence/test bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/untrusted-main.json" "$TMP/evidence" "$TMP/evidence"
 expect_fail changed-candidate-checkout bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/changed-checkout.json" "$TMP/evidence" "$TMP/evidence"
+printf '%s\n' 'PRIVATE_FIXTURE_CONTENT_MUST_NOT_APPEAR' >"$TMP/pinned/diagnostic-only-path.txt"
+expect_fail dirty-candidate-paths bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/dirty-candidate.json" "$TMP/evidence" "$TMP/pinned"
+rg -Fq 'diagnostic-only-path.txt' "$TMP/dirty-candidate-paths.out" || { echo 'dirty candidate diagnostic omitted the path' >&2; exit 1; }
+if rg -Fq 'PRIVATE_FIXTURE_CONTENT_MUST_NOT_APPEAR' "$TMP/dirty-candidate-paths.out"; then
+  echo 'dirty candidate diagnostic exposed file contents' >&2
+  exit 1
+fi
+rm "$TMP/pinned/diagnostic-only-path.txt"
 export DRY_RUN_OUTCOME=failure DRY_RUN_KEY_PRESENT=true
 expect_fail unsuccessful-dry-run bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/unsuccessful.json" "$TMP/evidence" "$TMP/pinned"
 export DRY_RUN_OUTCOME=failure DRY_RUN_KEY_PRESENT=false
@@ -131,6 +139,14 @@ if ! rg -Fq "DRY_RUN_KEY_PRESENT: \${{ secrets.HEX_DRY_RUN_API_KEY != '' }}" "$w
   echo 'fixture requires a boolean-only dedicated-key presence mapping for the safe receipt' >&2
   exit 1
 fi
+if ! rg -Fq 'candidate_dirty_paths:$candidate_dirty_paths' "$workflow" || ! rg -Fq 'trusted_dirty_paths:$trusted_dirty_paths' "$workflow"; then
+  echo 'fixture requires path-only trusted/candidate dirtiness in the blocked receipt' >&2
+  exit 1
+fi
+if ! rg -Fq 'status --porcelain --untracked-files=all' "$workflow"; then
+  echo 'fixture requires status-only dirty path collection' >&2
+  exit 1
+fi
 if rg -n 'mix hex\.publish(?! --dry-run --yes)' "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" "$ROOT/.github/workflows/phase-247-hex-dry-run.yml" --pcre2; then
   echo 'fixture found a release-changing command' >&2
   exit 1
@@ -141,7 +157,7 @@ if rg -n 'secrets\.HEX_API_KEY' "$ROOT/.github/workflows/phase-247-hex-dry-run.y
 fi
 # Emit a TAP summary so the source-rebind assertion can be classified as RED.
 printf 'TAP version 13\n'
-printf '# phase-247 dry-run fixtures: 18 passed\n'
+printf '# phase-247 dry-run fixtures: 19 passed\n'
 if jq -e 'has("started_at") and has("finished_at") and (.started_at | type == "string") and (.finished_at | type == "string")' "$TMP/receipt.json" >/dev/null; then
   printf 'ok 1 - receipt records workflow start and finish timestamps\n'
   printf '1..1\n'
