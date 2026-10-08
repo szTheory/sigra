@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness, finalInventory } from './validate-release-readiness.mjs';
+import { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness, finalInventory, trustedCheckoutMatchesLiveMain } from './validate-release-readiness.mjs';
+
+test('requires the clean trusted checkout to match exact observed live main', () => {
+  const liveMain = 'a'.repeat(40);
+  assert.equal(trustedCheckoutMatchesLiveMain(liveMain, '', liveMain), true);
+  assert.equal(trustedCheckoutMatchesLiveMain('b'.repeat(40), '', liveMain), false);
+  assert.equal(trustedCheckoutMatchesLiveMain(liveMain, ' M README.md', liveMain), false);
+});
 
 function emptySnapshot() {
   return {

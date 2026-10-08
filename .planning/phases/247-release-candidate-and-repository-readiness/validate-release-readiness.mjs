@@ -121,6 +121,10 @@ function runGh(args, cwd = process.cwd()) {
   return execFileSync('gh', args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).trim();
 }
 
+function trustedCheckoutMatchesLiveMain(headSha, status, liveMainSha) {
+  return headSha === liveMainSha && status === '';
+}
+
 function parseStatus(text) {
   return text ? text.split('\n').filter(Boolean).map(line => ({ status: line.slice(0, 2), path: line.slice(3) })) : [];
 }
@@ -827,10 +831,17 @@ function validateFinalFile(artifactPath) {
   const sourceCi = candidate.review_check_state?.updated_head_ci ?? {};
   const mainAdvancePaths = runGit(['diff', '--name-only', baseline.reviewed_base_sha, live.main_sha]).split('\n').filter(Boolean).sort();
   let mainAdvanceVerified = false;
+  let trustedCheckoutHead = null;
+  let trustedCheckoutStatus = null;
   try {
     const trustedRepoPath = process.env.PHASE_247_TRUSTED_REPO_DIR
       ? path.resolve(process.env.PHASE_247_TRUSTED_REPO_DIR)
       : process.cwd();
+    trustedCheckoutHead = runGit(['rev-parse', 'HEAD'], trustedRepoPath);
+    trustedCheckoutStatus = runGit(['status', '--porcelain=v1', '-uall'], trustedRepoPath);
+    if (!trustedCheckoutMatchesLiveMain(trustedCheckoutHead, trustedCheckoutStatus, live.main_sha)) {
+      throw new Error('trusted checkout must be clean at the exact observed live main SHA');
+    }
     execFileSync('bash', [path.resolve('scripts/ci/phase-247-hex-dry-run.sh'), 'verify-baseline', baselinePath], {
       cwd: process.cwd(), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
       env: { ...process.env, REPO_DIR: trustedRepoPath, EVIDENCE_PR_NUMBER: String(receipt.evidence_pr_number),
@@ -840,7 +851,8 @@ function validateFinalFile(artifactPath) {
   } catch {
     mainAdvanceVerified = false;
   }
-  live.main_advance = { verified: mainAdvanceVerified, paths: mainAdvancePaths };
+  live.main_advance = { verified: mainAdvanceVerified, paths: mainAdvancePaths,
+    trusted_checkout_head_sha: trustedCheckoutHead ?? null, trusted_checkout_status: trustedCheckoutStatus ?? null };
   live.source_ci_run = { run_id: sourceCi.run_id, attempt: sourceCi.attempt, head_sha: sourceCi.head_sha,
     conclusion: sourceCi.conclusion, docs_step_conclusion: sourceCi.docs_step_conclusion };
   live.dry_run_run = candidate.final_dry_run_run ?? {};
@@ -956,7 +968,7 @@ function validateFinalFile(artifactPath) {
   return result.valid;
 }
 
-export { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness, finalInventory };
+export { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness, finalInventory, trustedCheckoutMatchesLiveMain };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);

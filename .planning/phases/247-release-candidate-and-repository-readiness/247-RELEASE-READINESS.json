@@ -60438,7 +60438,7 @@
   "final_readiness": {
     "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
     "selected_reviewed_main_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
-    "observed_at": "2026-10-08T15:59:46.969Z",
+    "observed_at": "2026-10-08T16:05:38.855Z",
     "baseline": {
       "schema_version": 1,
       "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
@@ -60842,7 +60842,9 @@
           ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
           "scripts/ci/phase-247-hex-dry-run.sh",
           "scripts/ci/phase-247-hex-dry-run.test.sh"
-        ]
+        ],
+        "trusted_checkout_head_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+        "trusted_checkout_status": ""
       },
       "source_ci_run": {
         "run_id": 37800067568,
@@ -61031,11 +61033,11 @@
       "diff_bytes": 8052
     },
     "inventory": {
-      "captured_at": "2026-10-08T15:59:46.969Z",
+      "captured_at": "2026-10-08T16:05:38.855Z",
       "trusted_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
       "local_origin_main_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
       "merge_base_sha": "417130bdc0e69dd102431391cd6cd30bf88b2fa5",
-      "inherited_head_sha": "58c660b8fb241ed7c85e9a36ac846194eb4de305",
+      "inherited_head_sha": "9f945e2cc6f8e4d1896fd69c7ca606b2f359ab70",
       "inherited_branch": "phase-244-playwright-measurement",
       "commits": [
         {
@@ -63986,6 +63988,19 @@
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
         },
         {
+          "sha": "897db1e9be4e332de15c2eff32c1e07ecae6a49c",
+          "subject": "test(247-08): retain authenticated dry-run evidence",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-08-DRY-RUN-RECOVERY.md",
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 897db1e9be4e332de15c2eff32c1e07ecae6a49c",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
           "sha": "8a2efb325d1a4dd89f4e32189a8946895fd92dda",
           "subject": "test(245-20): add failing operation readback case",
           "authored_at": "2026-09-30T16:24:13-04:00",
@@ -64039,6 +64054,17 @@
           "reason": "This commit is historical, planning, test, workflow, or maintainer work outside the candidate source scope; keep it preserved with the inherited branch unless a later reviewed disposition says otherwise.",
           "source": "git ancestry 417130bdc0e69dd102431391cd6cd30bf88b2fa5..7e5c19361135aeb63bac006323ffd5899e0d402b",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "sha": "8e4ba77d21ea77be14f2b12dac7ea95dd2a1eded",
+          "subject": "docs(247-08): complete authenticated readiness plan",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 8e4ba77d21ea77be14f2b12dac7ea95dd2a1eded",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "sha": "927c7a514c763bcf7b61d537f1b85755c9219a2d",
@@ -64345,6 +64371,18 @@
           "reason": "This commit is historical, planning, test, workflow, or maintainer work outside the candidate source scope; keep it preserved with the inherited branch unless a later reviewed disposition says otherwise.",
           "source": "git ancestry 417130bdc0e69dd102431391cd6cd30bf88b2fa5..7e5c19361135aeb63bac006323ffd5899e0d402b",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "sha": "9f945e2cc6f8e4d1896fd69c7ca606b2f359ab70",
+          "subject": "docs(247-08): close final readiness verification record",
+          "changed_paths": [
+            ".planning/WINDOWS.md",
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit 9f945e2cc6f8e4d1896fd69c7ca606b2f359ab70",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "sha": "a00b0494bd9a3670a794a6ea0f4144e674d9e345",
@@ -67363,6 +67401,20 @@
           "reason": "New post-entry commit fdce2286d67d (docs(state): record phase 248 context session) is preserved on the inherited branch; it is not included in the candidate without a reviewed source match.",
           "source": "git ancestry 417130bdc0e69dd102431391cd6cd30bf88b2fa5..5087d9eb73644e81b1245786e0335e6efc3e0361",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (5087d9eb73644e81b1245786e0335e6efc3e0361)"
+        },
+        {
+          "sha": "fe40065a4e04603fc0c9666dc5bddad8581b11a5",
+          "subject": "fix(247-08): validate final readiness evidence",
+          "changed_paths": [
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+            ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+            ".planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs",
+            ".planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs"
+          ],
+          "disposition": "separate-follow-up",
+          "reason": "Phase 247 planning/evidence commit remains on the inherited branch; candidate source is isolated to reviewed PR #224.",
+          "source": "git commit fe40065a4e04603fc0c9666dc5bddad8581b11a5",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "sha": "fe5679de1fab90e3d925f6503ddcc45cb93128ab",
@@ -79931,6 +79983,24 @@
         },
         {
           "kind": "committed",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-DRY-RUN-RECOVERY.md",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh merge-base..inherited HEAD path inventory",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "committed",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh merge-base..inherited HEAD path inventory",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
+        },
+        {
+          "kind": "committed",
           "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
           "status": null,
           "disposition": "separate-follow-up",
@@ -79959,6 +80029,15 @@
           "reason": "Historical planning, testing, workflow, or maintainer path is outside candidate payload and remains preserved in the inherited branch.",
           "source": "commits 5ef1b4c1b72da9f4f081d6975ad877c9e298abfc",
           "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement (7e5c19361135aeb63bac006323ffd5899e0d402b)"
+        },
+        {
+          "kind": "committed",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+          "status": null,
+          "disposition": "separate-follow-up",
+          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
+          "source": "fresh merge-base..inherited HEAD path inventory",
+          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
         },
         {
           "kind": "committed",
@@ -81711,15 +81790,6 @@
         },
         {
           "kind": "dirty",
-          "path": ".planning/WINDOWS.md",
-          "status": " M",
-          "disposition": "separate-follow-up",
-          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
-          "source": "fresh inherited checkout status snapshot",
-          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
-        },
-        {
-          "kind": "dirty",
           "path": ".planning/debug/plan-245-37-admission.md",
           "status": "??",
           "disposition": "separate-follow-up",
@@ -81847,15 +81917,6 @@
         },
         {
           "kind": "dirty",
-          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md",
-          "status": "??",
-          "disposition": "separate-follow-up",
-          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
-          "source": "fresh inherited checkout status snapshot",
-          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
-        },
-        {
-          "kind": "dirty",
           "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-BLOCKED.md",
           "status": "??",
           "disposition": "separate-follow-up",
@@ -81874,26 +81935,8 @@
         },
         {
           "kind": "dirty",
-          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
-          "status": " M",
-          "disposition": "separate-follow-up",
-          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
-          "source": "Phase 247 evidence PR #296 and verified main merge a494f3ee3878da93aab4f70712ffddeefd77a802",
-          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
-        },
-        {
-          "kind": "dirty",
           "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md",
           "status": " M",
-          "disposition": "separate-follow-up",
-          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
-          "source": "fresh inherited checkout status snapshot",
-          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
-        },
-        {
-          "kind": "dirty",
-          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
-          "status": "??",
           "disposition": "separate-follow-up",
           "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
           "source": "fresh inherited checkout status snapshot",
@@ -81912,15 +81955,6 @@
           "kind": "dirty",
           "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-UI-REVIEW.md",
           "status": "??",
-          "disposition": "separate-follow-up",
-          "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
-          "source": "fresh inherited checkout status snapshot",
-          "preservation_location": "/Users/jon/projects/sigra@phase-244-playwright-measurement"
-        },
-        {
-          "kind": "dirty",
-          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
-          "status": " M",
           "disposition": "separate-follow-up",
           "reason": "Planning/evidence change stays preserved on the inherited branch and is excluded from the package candidate.",
           "source": "fresh inherited checkout status snapshot",
@@ -85159,10 +85193,6 @@
         },
         {
           "status": " M",
-          "path": ".planning/WINDOWS.md"
-        },
-        {
-          "status": " M",
           "path": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW.md"
         },
         {
@@ -85171,15 +85201,7 @@
         },
         {
           "status": " M",
-          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
-        },
-        {
-          "status": " M",
           "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md"
-        },
-        {
-          "status": " M",
-          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md"
         },
         {
           "status": " M",
@@ -85295,19 +85317,11 @@
         },
         {
           "status": "??",
-          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md"
-        },
-        {
-          "status": "??",
           "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-BLOCKED.md"
         },
         {
           "status": "??",
           "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-POST-EVIDENCE-HEAD-CHANGE.md"
-        },
-        {
-          "status": "??",
-          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json"
         },
         {
           "status": "??",
@@ -85463,7 +85477,7 @@
   "final_validation": {
     "valid": true,
     "status": "ready",
-    "checked_at": "2026-10-08T15:59:46.969Z",
+    "checked_at": "2026-10-08T16:05:38.855Z",
     "checked": {
       "source_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
       "pr_url": "https://github.com/szTheory/sigra/pull/224",
@@ -85473,8 +85487,8 @@
       "live_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
       "candidate_status": "",
       "open_pull_requests": 14,
-      "inherited_commits": 396,
-      "inherited_paths": 1303
+      "inherited_commits": 400,
+      "inherited_paths": 1301
     },
     "diagnostics": []
   }

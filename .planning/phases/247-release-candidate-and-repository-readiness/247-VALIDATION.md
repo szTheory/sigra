@@ -48,7 +48,7 @@ The tests cover omitted and duplicate populations, explicit empty sets, candidat
 
 The exact candidate lockfile resolved with `mix deps.get --check-locked` in an isolated `/private/tmp` Mix/Hex environment. All 65 locked packages resolved at their recorded versions; the candidate lockfile and worktree remained unchanged. Local `mix docs --warnings-as-errors` then passed. The dry-run built the Sigra 1.6.0 package summary but Hex 2.5.1 exited 1 because the isolated Hex home has no authenticated user/API key. The [Hex task source](https://github.com/hexpm/hex/blob/v2.5.1/lib/mix/tasks/hex.publish.ex#L1657-L1777) shows the owner lookup still runs before the dry-run skips uploading the package.
 
-Final readiness passed at `2026-10-08T15:59:46.969Z`. The validator checked PR #224 head `d76d7f2306f6099063a80a420d2d8a4e04c7785f`, reviewed base `d135cbce343947499a0810736c500ef5f1cb5c32`, trusted main `a494f3ee3878da93aab4f70712ffddeefd77a802`, exact-head CI run `37800067568`, authenticated dry-run run `37803817504`, candidate cleanliness, docs/package evidence, and current inherited inventory. It accepted only the four evidence paths in the reviewed-base-to-main advance. The primary shared checkout was left untouched; the helper's clean-checkout proof used a separate clean detached checkout at exact live main.
+Final readiness passed at `2026-10-08T16:05:38.855Z`. The validator checked PR #224 head `d76d7f2306f6099063a80a420d2d8a4e04c7785f`, reviewed base `d135cbce343947499a0810736c500ef5f1cb5c32`, trusted main `a494f3ee3878da93aab4f70712ffddeefd77a802`, exact-head CI run `37800067568`, authenticated dry-run run `37803817504`, candidate cleanliness, docs/package evidence, and current inherited inventory (400 commits, 1,301 paths, 14 open PRs). It requires the separate trusted checkout to be clean at the exact observed live-main SHA and accepts only the four evidence paths in the reviewed-base-to-main advance. The primary shared checkout was left untouched.
 
 ## Exact-Source Evidence
 
@@ -64,7 +64,7 @@ The readiness validator now passes. The first trusted-main dispatch `37803560621
 
 ## Validation Sign-Off
 
-- [x] Focused deterministic validator suite passed; 24/24.
+- [x] Focused deterministic validator suite passed; 25/25.
 - [x] Meaningful validator acceptance/rejection cases are covered, including the dirty planning-path regression.
 - [x] Exact-source required CI, unpacked Hex package, and local warning-free docs evidence are recorded.
 - [x] Latest live inherited inventory has complete dispositions.
