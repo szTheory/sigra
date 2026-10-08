@@ -2,21 +2,21 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-current_phase: 247
-current_phase_name: release-candidate-and-repository-readiness
-current_plan: 10 of 11
-status: "Plan 09 is complete: the approved candidate push and exact-head CI passed. Plan 10 Task 1 produced the rebind proposal; waiting for explicit approval before any evidence rebind or dry run. Phase 247 remains unverified."
-stopped_at: Plan 10 Task 1 complete; await explicit approval of the exact-source evidence recovery proposal.
-last_updated: "2026-10-08T18:06:20.836Z"
+current_phase: 248
+current_phase_name: Exact-Source Release Gate
+current_plan: 4
+status: Phase 248 Plan 03 complete. Plan 04 is next; exact-main policies are verified. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
+stopped_at: Completed 248-03-PLAN.md
+last_updated: "2026-10-08T22:37:01.761Z"
 last_activity: 2026-10-08
-last_activity_desc: Exact-head CI passed for the approved Phase 247 candidate; Plan 10 rebind proposal is ready for review.
-state_head: c84350abe58bb3a733e1d7db4cebc4de1919e035
+last_activity_desc: Phase 248 execution started
+state_head: 095fc9505cb626fcfacda14620f8a5929041d9d5
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 19
-  completed_plans: 11
-  percent: 25
+  completed_plans: 16
+  percent: 50
 ---
 
 # Project State
@@ -27,18 +27,18 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 247 — Release Candidate and Repository Readiness
+**Current focus:** Phase 248 — Exact-Source Release Gate
 
 ## Current Position
 
-Phase: 247 (release-candidate-and-repository-readiness) — WAITING FOR APPROVAL
-Current Plan: 10 of 11
-Total Plans in Phase: 11
-Plan: 10 of 11 — Prepare exact-source evidence rebind proposal and obtain approval
-Status: Plan 09 is complete: the approved candidate push and exact-head CI passed. Plan 10 Task 1 produced the rebind proposal; waiting for explicit approval before any evidence rebind or dry run. Phase 247 remains unverified.
-Last activity: 2026-10-08 — Exact-head CI passed for the approved Phase 247 candidate; Plan 10 rebind proposal is ready for review.
+Phase: 248 (Exact-Source Release Gate) — EXECUTING
+Current Plan: 4
+Total Plans in Phase: 5
+Plan: 4 of 5
+Status: Phase 248 Plan 03 complete. Plan 04 is next; exact-main policies are verified. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
+Last activity: 2026-10-08 — Phase 248 execution started
 
-Progress: [███░░░░░░░] 25%
+Progress: [█████░░░░░] 50%
 
 ### v1.49 phase map
 
@@ -588,6 +588,9 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 247]: Treat generated confirmation LiveView changes as host-owned adoption work; no migration or upgrade task is needed solely for this release.
 - [Phase 247]: Bind the existing workflow and baseline to Plan 06 candidate SHA 6f8028658f0bdd7f26e13c3fe4d45437880c341b and reviewed base e3883b72fb1df5ad6356ef10dbde408f18bbc3be.
 - [Phase 247]: Use clean isolated clones under /private/tmp and preserve the shared checkout work.
+- [Phase 248]: Validate each source-backed claim against an independent versioned changelog entry and bind ledger CI evidence to the exact release PR head.
+- [Phase 248]: Require can_admins_bypass=false in addition to the exact-main deployment policy.
+- [Phase 248]: Keep repository-level secret copies until target environment secret names are confirmed.
 
 ### Pending Todos
 
@@ -806,14 +809,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-08T01:42:04.273Z
-Stopped at: Plan 10 Task 1 complete; await explicit approval of the exact-source evidence recovery proposal.
-Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md
+Last session: 2026-10-08T22:35:50.927Z
+Stopped at: Completed 248-03-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
-- **Implementation incomplete; independent Phase 247 verification incomplete.** Plan 09 is complete: approved candidate 0e773d3614a242e4fbcdd34c418ecb8a307703d6 is the open PR #224 head on reviewed base d135cbce343947499a0810736c500ef5f1cb5c32; exact-head CI run 37819712610 passed, including non_admin_smoke and ci-gate. Local WebKit remains blocked by the recorded macOS AppKit startup abort, so only CI proves the browser journey. Plan 10 Task 1's exact-source proposal is at .planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json; await explicit approval for its displayed candidate/base/main tuple and one bounded four-path evidence PR/merge, required CI, authenticated non-publishing dry-run, final readiness ledger, and independent verification. No rebind or dry run has happened. After approval, resume with $gsd-execute-phase 247. Do not merge PR #224, tag, or publish during Phase 247.
-- Routing evidence: .planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json, .planning/phases/247-release-candidate-and-repository-readiness/247-09-LOCAL-RESULT.json, .planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json, and .planning/phases/247-release-candidate-and-repository-readiness/247-08-FINAL-RECOVERY-AMENDMENT.md. Historical Phase 245 verification remains separate.
+- **Phase 247 is complete and independently verified.** Candidate PR #224 remains open at 0e773d3614a242e4fbcdd34c418ecb8a307703d6 on base d135cbce343947499a0810736c500ef5f1cb5c32; exact-head CI run 37819712610 passed and the authenticated non-publishing dry run 37824714823 passed. Final readiness is valid with zero diagnostics, and the independent verifier reports 14/14. Local WebKit remains blocked by the recorded AppKit startup abort; exact-head CI supplies browser proof. Phase 248 Plan 01 is active. All five Phase 248 plans are runnable with no prerequisite blockers, and the user authorized guarded exact-head auto-merge in Plan 248-02. Continue with $gsd-execute-phase 248. Do not publish Sigra 1.6.0; publication belongs to Phase 249.
+- Routing evidence: .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md, .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json, .planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json, .planning/phases/248-exact-source-release-gate/248-CONTEXT.md, and .planning/phases/248-exact-source-release-gate/248-RESEARCH.md.
 
 ## Performance Metrics
 
@@ -1034,3 +1037,5 @@ Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247
 | Phase 247 P03 | 34min | 1 tasks | 4 files |
 | Phase 247 P04 | 7min | 1 tasks | 3 files |
 | Phase 247 P07 | 16min | 2 tasks | 5 files |
+| Phase 248 P02 | 50m | 2 tasks | 4 files |
+| Phase 248 P03 | 157 min | 3 tasks | 8 files |

@@ -30,7 +30,7 @@
 **Phase Numbering:** Continues from the archived v1.48 Phase 245. The four phases below are the active v1.49 scope; prior milestone history remains in the archive links above.
 
 - [x] **Phase 246: Generated Confirmation Recovery** - Adopters can use the generated confirmation journey reliably, including pasted codes and visible feedback. (completed 2026-10-07)
-- [ ] **Phase 247: Release Candidate and Repository Readiness** - The 1.6.0 candidate is accurate for adopters and comes from a clean, reviewed source with the inherited checkout and PR queue dispositioned.
+- [x] **Phase 247: Release Candidate and Repository Readiness** - The 1.6.0 candidate is accurate for adopters and comes from a clean, reviewed source with the inherited checkout and PR queue dispositioned. (completed 2026-10-08)
 - [ ] **Phase 248: Exact-Source Release Gate** - The existing release lane proves source identity, completes its checks, and retains actionable receipts for every outcome.
 - [ ] **Phase 249: Publish and Prove Sigra 1.6.0** - Hex, versioned HexDocs, protected main, local worktrees, and committed evidence agree on the release.
 
@@ -70,7 +70,7 @@ Plans:
   2. An adopter can read what changed, supported compatibility, the required generated-host action or an explicit no-action statement, and the `~> 1.6.0` update and check path without internal planning notes presented as product changes.
   3. A maintainer can see a recorded disposition for every open PR and every inherited checkout change; release work has a clean source checkout without unrelated changes folded in.
 
-**Plans**: Plans 01–08 are implemented; Plan 05 remains checkpointed with its unfinished tasks superseded by the later fixed-source recovery. Plan 08 completed the authenticated non-publishing dry run for candidate `d76d7f2306f6099063a80a420d2d8a4e04c7785f`. Independent verification then found one signup-test synchronization gap, so Plans 09–11 repair it and conditionally refresh exact-source evidence behind two separate approval checkpoints. Phase 247 remains open until Plan 11 passes final validation and independent verification.
+**Plans**: Plans 01–04 and 06–11 are implemented; Plan 05 remains checkpointed, with its unfinished evidence-recovery path superseded by Plans 08–11. The final candidate is `0e773d3614a242e4fbcdd34c418ecb8a307703d6`; required exact-head CI passed, the authenticated non-publishing dry run passed, final readiness has zero diagnostics, and independent verification passed 14/14. The local WebKit startup limitation is recorded as `blocked_host_appkit`; browser proof comes from exact-head CI.
 
 Plans:
 **Wave 1**
@@ -94,13 +94,13 @@ Plans:
 - [x] 247-08-PLAN.md — Authenticated non-publishing Hex dry run and final readiness passed on candidate `d76d7f2306f6099063a80a420d2d8a4e04c7785f`; later independent verification found one remaining signup-test gap.
 
 **Wave 7** *(depends on Plan 08; candidate push requires explicit approval)*
-- [ ] 247-09-PLAN.md — Restore the server-rendered `Strong` validation wait in both signup paths and prove mobile WebKit locally; seek approval before pushing the exact test-only commit and running CI.
+- [x] 247-09-PLAN.md — Restore the server-rendered `Strong` validation wait in both signup paths; local WebKit startup is blocked by the documented host AppKit abort, and exact-head CI run `37819712610` passed the mobile journey with zero retries after explicit push approval.
 
 **Wave 8** *(depends on Plan 09 exact-head CI; evidence rebind requires a separate explicit approval)*
-- [ ] 247-10-PLAN.md — Produce a read-only exact-source rebind proposal, then conditionally bind the existing evidence route through a protected four-path merge.
+- [x] 247-10-PLAN.md — Produce the exact-source proposal and, after separate approval, merge evidence PR #297 at `51be73415cf6de5531d3fb4c91ec3caf2c7544b6`; the protected diff contains exactly four approved evidence paths and preserves the manifest blob.
 
 **Wave 9** *(depends on Plan 10's approved evidence merge)*
-- [ ] 247-11-PLAN.md — Run the authenticated non-publishing dry run, regenerate final READY-01/READY-02 evidence, and require independent Phase 247 verification on the same candidate SHA.
+- [x] 247-11-PLAN.md — Authenticated non-publishing dry run `37824714823` passed; the final ledger validates with zero diagnostics and independent verification passed 14/14 on the same candidate SHA.
 
 #### Phase 248: Exact-Source Release Gate
 
@@ -112,18 +112,18 @@ Plans:
   2. A running release evaluation can finish without cancellation by a later event; workflow permissions are scoped and the Hex credential is available only to the final publish step.
   3. A maintainer can retrieve machine-readable gate and publish receipts for success, failure, or cancellation, with version/tag, source SHA, workflow and run identity, verdict, relevant URLs, attempts, and timestamps.
 
-**Plans**: 5 plans
+**Plans**: 3/5 plans executed
 
 Plans:
 
 **Wave 1**
-- [ ] 248-01-PLAN.md — Bind the release package checks and CI gate to one exact source SHA.
+- [x] 248-01-PLAN.md — Bind the release package checks and CI gate to one exact source SHA.
 
 **Wave 2** *(blocked on Wave 1 completion and Phase 247 candidate readiness)*
-- [ ] 248-02-PLAN.md — Test the Release Please head and guarded auto-squash-merge only that green head.
+- [x] 248-02-PLAN.md — Test the Release Please head and guarded auto-squash-merge only that green head.
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 248-03-PLAN.md — Scope workflow permissions and isolate release credentials behind main-only environments.
+- [x] 248-03-PLAN.md — Scope workflow permissions and isolate release credentials behind main-only environments.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 248-04-PLAN.md — Retain machine-readable terminal gate and publish receipts.
@@ -150,10 +150,10 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
-| 247. Release Candidate and Repository Readiness | v1.49 | 6/8 | In Progress | - |
-| 248. Exact-Source Release Gate | v1.49 | 0/5 | Planned | - |
+| 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
+| 248. Exact-Source Release Gate | v1.49 | 3/5 | In Progress | - |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
 
 ### Next
 
-**Next: configure the dedicated read-only `HEX_DRY_RUN_API_KEY` in the GitHub Actions `hex-publish` environment, restricted to `main`, and reply `configured`; do not paste its value. Keep waiting for the Plan 05 executor per the user’s choice. Then rerun `init.execute-phase 247`; it currently reports no runnable plans because Plan 05 is blocked by halted Plan 04.** The next authenticated diagnostic run can now retain any dirty paths; fix any reported paths before final readiness. Run `37721969290` reported key presence false and receipt creation blocked on a dirty candidate checkout without paths. A local exact-SHA reproduction remained clean and did not explain the hosted failure. Diagnostic PR #293 at `a733e46eddb184bbbab440336a51981db94baddc` merged as `7b907abcf15785b7396da5d1fe5f5115ccd9af64`; CI run `37723234944` passed all 27 entries including ci-gate. The post-merge four-path baseline, manifest blob, and diff digest still verify. Plan 08 Task 1 is complete through protected PR #292 (`cd978dad3504bf4ff775ea89e98d063d2a189d56`); CI run `37721138344` passed all 27 entries and main now maps only boolean key presence. Plan 05 remains checkpointed while its executor is awaited per the user choice; `init.execute-phase 247` currently reports no runnable plans because Plan 05 is blocked by halted Plan 04. Phase 247 implementation and independent verification remain incomplete; READY-01/READY-02 are still open before Phase 248.
+**Next: execute Phase 248 Plan 04.** `init.execute-phase 248` reports Plans 04–05 runnable; `init.plan-phase 248` confirms the phase context and research are complete with no prerequisite blocker. Plan03 implementation and live exact-main policy verification are complete. The checklist in `248-USER-SETUP.md` remains incomplete for adding `RELEASE_PLEASE_TOKEN` to `release-automation` and `HEX_API_KEY` to `hex-publish`; repository-level copies remain intact until the environment names are confirmed. Keep Phase248 work bound to exact source and protected-branch checks, and do not publish Sigra 1.6.0 before the separate Phase249 scope.

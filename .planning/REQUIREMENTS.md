@@ -19,12 +19,12 @@
 
 ### Release readiness (READY)
 
-- [x] **READY-01**: The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path.
-- [x] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work.
+- [ ] **READY-01**: The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path. Final local Hex dry-run remains blocked by unavailable candidate locked dependencies.
+- [ ] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work. Final evidence capture remains blocked with Plan 04.
 
 ### Release automation (AUTO)
 
-- [ ] **AUTO-01**: Before release package work starts, the release tag is proven to resolve to the exact Release Please source SHA whose required CI gate passed; the existing test, warning-free docs, package-content, and Hex dry-run checks run against that immutable source. Active release evaluation is not cancelled, workflow permissions are scoped, and the Hex secret is available only to the final publish step.
+- [x] **AUTO-01**: Before release package work starts, the release tag is proven to resolve to the exact Release Please source SHA whose required CI gate passed; the existing test, warning-free docs, package-content, and Hex dry-run checks run against that immutable source. Active release evaluation is not cancelled, workflow permissions are scoped, and the Hex secret is available only to the final publish step.
 - [ ] **AUTO-02**: The release lane retains machine-readable gate and publish receipts for both success and failure, linking version/tag, source SHA, workflow/run identity, verdict, relevant URLs, attempts/timestamps, and failure or cancellation state.
 
 ### Published release (REL)
@@ -63,9 +63,9 @@ Every v1 requirement maps to exactly one v1.49 phase.
 | CONF-01 | Phase 246 | Complete |
 | CONF-02 | Phase 246 | Complete |
 | CONF-03 | Phase 246 | Complete |
-| READY-01 | Phase 247 | Complete |
-| READY-02 | Phase 247 | Complete |
-| AUTO-01 | Phase 248 | Pending |
+| READY-01 | Phase 247 | Blocked |
+| READY-02 | Phase 247 | Blocked |
+| AUTO-01 | Phase 248 | Complete |
 | AUTO-02 | Phase 248 | Pending |
 | REL-01 | Phase 249 | Pending |
 | REL-02 | Phase 249 | Pending |
