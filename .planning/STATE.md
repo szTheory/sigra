@@ -5,9 +5,9 @@ milestone_name: RELEASE-1.6.0
 current_phase: 248
 current_phase_name: Exact-Source Release Gate
 current_plan: 5
-status: Phase 248 Plan 05 implementation is complete. Deterministic checks pass; edge-probe evidence for live exact-source CI and retained remote receipts remains unresolved. Phase 249 has no prerequisite blocker and lacks context, so the forward route is $gsd-discuss-phase 249.
-stopped_at: Completed 248-05-PLAN.md
-last_updated: "2026-10-08T23:04:40.399Z"
+status: Phase 248 Plans 01-05 are implemented and locally verified. Phase verification is gaps_found (13/18): protected environment credentials are missing and secret scope is not proven; hosted dry-run and retained failure/cancellation receipts remain unverified. Do not start dependent Phase 249 until Phase 248 gaps are closed. Current external action: sign in to GitHub and configure the two environment secrets, then remove repository-level duplicates.
+stopped_at: Phase 248 verification gaps_found (13/18)
+last_updated: "2026-10-08T23:56:15Z"
 last_activity: 2026-10-08
 state_head: a197316e2aead41e5f6060ab0d120f36b41a0fde
 progress:
@@ -16,7 +16,7 @@ progress:
   total_plans: 19
   completed_plans: 18
   percent: 50
-last_activity_desc: Phase 248 Plan 05 implementation complete; live edge-probe verification remains
+last_activity_desc: Phase 248 verification recorded gaps_found (13/18); waiting on protected environment setup and hosted evidence
 ---
 
 # Project State
@@ -35,7 +35,7 @@ Phase: 248 (Exact-Source Release Gate) — EXECUTING
 Current Plan: 5
 Total Plans in Phase: 5
 Plan: 5 of 5
-Status: Phase 248 Plan 05 implementation is complete. Deterministic checks pass; edge-probe evidence for live exact-source CI and retained remote receipts remains unresolved. Phase 249 has no prerequisite blocker and lacks context, so the forward route is $gsd-discuss-phase 249.
+Status: Plans 01-05 implemented; verifier reports gaps_found (13/18). Environment secret scope and hosted receipt behavior are still unverified. Phase 249 depends on Phase 248, so close these gaps first.
 Last activity: 2026-10-08
 
 Progress: [█████░░░░░] 50%

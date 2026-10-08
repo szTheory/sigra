@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 — RELEASE-1.6.0",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 248",
-    "label": "Execute Phase 248 Plan 05",
-    "reason": "Plan 04 is complete and Plan 05 is runnable; user setup remains an external release-readiness item"
+    "command": "/gsd:plan-phase 248",
+    "label": "Plan Phase 248 verification-gap closure",
+    "reason": "All five implementation plans are complete, but phase verification is gaps_found (13/18). Resolve environment credential scope and hosted receipt evidence before dependent Phase 249."
   },
-  "updated_at": "2026-10-08T22:53:55.843Z"
+  "updated_at": "2026-10-08T23:56:15Z"
 }
