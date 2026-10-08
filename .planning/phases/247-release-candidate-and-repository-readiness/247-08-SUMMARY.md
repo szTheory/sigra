@@ -12,9 +12,9 @@ provides:
   - Final readiness ledger and validator pass for the current candidate and inherited inventory.
 affects: [247-05, release-readiness]
 actuals:
-  tokens: 42894
+  tokens: 44222
   tasks: 4
-  commits: 2
+  commits: 5
 tech-stack:
   added: []
   patterns: [boolean-only secret presence evidence, exact-source receipt provenance, clean detached trusted-main verification]
@@ -40,8 +40,8 @@ duration: 75min
 completed: 2026-10-08
 status: complete
 plan_head_before: 58c660b8fb241ed7c85e9a36ac846194eb4de305
-plan_head_after: fe40065a4e04603fc0c9666dc5bddad8581b11a5
-commits: 2
+plan_head_after: 7cacda13eee8e55ebf5b5ab1b31585c3847f0913
+commits: 5
 coverage:
   - id: D1
     description: "The trusted-main workflow sends only a boolean key-presence result to the safe receipt helper."
@@ -75,7 +75,7 @@ The initial run `37803560621` failed before authentication because the pre-merge
 - Task 1: workflow key-presence signal — protected merge `cd978dad3504bf4ff775ea89e98d063d2a189d56`.
 - Task 1b: path-only dirty-checkout diagnostics — protected merge `7b907abcf15785b7396da5d1fe5f5115ccd9af64`.
 - Task 2: safe receipt, refreshed baseline, and recovery record — `897db1e9b` (`test(247-08): retain authenticated dry-run evidence`).
-- Task 3: final readiness validator, regression suite, live ledger, and validation report — `fe40065a4` (`fix(247-08): validate final readiness evidence`).
+- Task 3: final readiness validator, regression suite, live ledger, and validation report — `fe40065a4` (`fix(247-08): validate final readiness evidence`) and `7cacda13e` (`fix(247-08): bind trusted checkout to live main`).
 
 ## Deviations from plan
 
@@ -86,15 +86,15 @@ The final validator now accepts the curated 1.6.0 adopter wording and dispositio
 - `bash scripts/ci/phase-247-hex-dry-run.test.sh` — passed; 25 hermetic fixtures plus receipt timestamp assertions.
 - `actionlint .github/workflows/phase-247-hex-dry-run.yml` — passed.
 - Post-merge `verify-baseline` — passed with evidence PR #292 head `aa83727c06e1e1050265e6d9c4bf3e9e9526261c`, manifest blob unchanged, and exact four-path main advance.
-- `node --test .../validate-release-readiness.test.mjs` — passed, 24/24.
-- Final readiness validator — `valid: true`, `status: ready`, zero diagnostics; exact source CI `37800067568`, dry-run run `37803817504`.
+- `node --test .../validate-release-readiness.test.mjs` — passed, 25/25.
+- Final readiness validator — `valid: true`, `status: ready`, zero diagnostics at `2026-10-08T16:05:38.855Z`; exact source CI `37800067568`, dry-run run `37803817504`, trusted checkout exactly matches live main.
 - No tag, Hex publication, or PR #224 merge occurred.
 
 ## Continuation evidence (2026-10-08)
 
 The user configured the dedicated read-only `HEX_DRY_RUN_API_KEY` in the existing main-only environment. No secret value or environment metadata was inspected. The first trusted-main dispatch, run `37803560621`, failed before authentication because the evidence PR's pre-merge tree was unreachable after its branch ref had been deleted. Recovery restored only the evidence branch ref to the already-verified PR #296 head `76f6c6aced57a71020573bbd477d3624fd2c2f73`; no file or commit changed. The bounded retry, run `37803817504`, passed and produced the safe receipt at `247-HEX-DRY-RUN-RECEIPT.json`. Full provenance and the pre-auth stop are recorded in [247-08-DRY-RUN-RECOVERY.md](./247-08-DRY-RUN-RECOVERY.md).
 
-The final validator and focused suite were then refreshed for the current PR #224 source `d76d7f2306f6099063a80a420d2d8a4e04c7785f`, the reviewed base `d135cbce343947499a0810736c500ef5f1cb5c32`, and evidence merge `a494f3ee3878da93aab4f70712ffddeefd77a802`. It now evaluates the actual curated changelog and adopter-guide wording and completes dispositions for inherited Phase 247 evidence commits. The focused suite passes 24/24, and final readiness returned `valid: true`, `status: ready`, with zero diagnostics at `2026-10-08T15:59:46.969Z`. The exact-head CI run was `37800067568`; the final dry-run was `37803817504`. PR #224 remains open and no tag or publication was created.
+The final validator and focused suite were refreshed for the current PR #224 source `d76d7f2306f6099063a80a420d2d8a4e04c7785f`, the reviewed base `d135cbce343947499a0810736c500ef5f1cb5c32`, and evidence merge `a494f3ee3878da93aab4f70712ffddeefd77a802`. It evaluates the curated changelog and adopter-guide wording, completes dispositions for inherited Phase 247 evidence commits, and requires the clean trusted checkout's HEAD to equal the observed live main SHA. The focused suite passes 25/25, and final readiness returned `valid: true`, `status: ready`, with zero diagnostics at `2026-10-08T16:05:38.855Z`. The exact-head CI run was `37800067568`; the final dry-run was `37803817504`. PR #224 remains open and no tag or publication was created.
 
 The shared checkout contains unrelated work, so the clean-tree invariant was verified using a separate clean detached checkout of exact live main `a494f3ee3878da93aab4f70712ffddeefd77a802`. The primary working tree was not reset or cleaned.
 
