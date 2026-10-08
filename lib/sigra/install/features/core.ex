@@ -400,6 +400,7 @@ defmodule Sigra.Install.Features.Core do
       else
         ""
       end
+      |> String.replace(~r/^[ \t]+$/m, "")
 
     redirect_scope_confirmation_routes = if live?, do: "", else: confirmation_routes
 

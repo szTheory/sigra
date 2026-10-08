@@ -215,14 +215,16 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     assert workflow =~ "on:\n  push:\n    branches:\n      - main\n  workflow_dispatch:"
 
     assert workflow =~
-             "permissions:\n  actions: write\n  contents: write\n  issues: write\n  pull-requests: write"
+             "permissions:\n  actions: read\n  checks: read\n  contents: read\n  deployments: read\n  issues: read\n  pull-requests: read"
 
     assert workflow =~ "release_created: ${{ steps.release.outputs.release_created }}"
     assert workflow =~ "tag_name: ${{ steps.release.outputs.tag_name }}"
     assert workflow =~ "version: ${{ steps.release.outputs.version }}"
     assert workflow =~ "sha: ${{ steps.release.outputs.sha }}"
     assert workflow =~ "if: ${{ steps.release-preflight.outputs.should_run == 'true' }}"
-    assert workflow =~ "token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}"
+    assert workflow =~ "token: ${{ secrets.RELEASE_PLEASE_TOKEN }}"
+    refute workflow =~ "github.token"
+    assert workflow =~ "environment: release-automation"
   end
 
   defp production_inventory do

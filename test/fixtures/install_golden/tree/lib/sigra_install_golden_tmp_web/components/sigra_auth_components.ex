@@ -11,6 +11,7 @@ defmodule SigraInstallGoldenTmpWeb.SigraAuthComponents do
 
   attr :branding, :map, default: nil
   attr :class, :any, default: nil
+  attr :flash, :map, default: %{}
   attr :rest, :global
   slot :inner_block, required: true
 
@@ -23,6 +24,8 @@ defmodule SigraInstallGoldenTmpWeb.SigraAuthComponents do
       |> assign(:theme, theme_attr(branding))
       |> assign(:style, Sigra.Branding.css_variables(branding))
       |> assign(:logo, logo_slots(branding))
+      |> assign(:success_message, Phoenix.Flash.get(assigns[:flash] || %{}, :info))
+      |> assign(:error_message, Phoenix.Flash.get(assigns[:flash] || %{}, :error))
 
     ~H"""
     <link phx-track-static rel="stylesheet" href={~p"/assets/sigra_auth.css"} />
@@ -45,6 +48,13 @@ defmodule SigraInstallGoldenTmpWeb.SigraAuthComponents do
             />
             <p class="sigra-auth__product">{@branding.product_name}</p>
           </div>
+
+          <p :if={@success_message} class="sigra-auth-status sigra-auth-status--success" role="status">
+            {@success_message}
+          </p>
+          <p :if={@error_message} class="sigra-auth-status sigra-auth-status--danger" role="alert" aria-live="assertive">
+            {@error_message}
+          </p>
 
           {render_slot(@inner_block)}
 
