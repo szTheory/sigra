@@ -1,6 +1,6 @@
 # Phase 247: Release Candidate and Repository Readiness - Context
 
-**Gathered:** 2026-10-06 (assumptions mode)
+**Gathered:** 2026-10-08 (assumptions refresh)
 **Status:** Ready for planning
 
 <domain>
@@ -27,6 +27,8 @@ Prepare an accurate, adopter-readable Sigra 1.6.0 release candidate from reviewe
 - **D-08:** Before selecting candidate source, inventory both committed changes after the trusted base and all modified/untracked paths in the inherited checkout, and record a disposition for every open PR. Classify each as release-blocking, release-relevant, or separate follow-up. Preserve all inherited changes in their existing durable location until their disposition is recorded.
 - **D-09:** Prepare release work from a clean, reviewed source checkout after the inventory is complete. Keep unrelated Phase 244, historical evidence, planning, and other inherited work out of the candidate unless it has an explicit release disposition and is present in the reviewed source.
 - **D-10:** Refresh live PR and source state when readiness work executes. The 2026-10-06 snapshot is context only: PR #224 was open and mergeable at head 276e8c3f; 14 PRs were open. The checkout was on phase-244-playwright-measurement at e16f413d4, with Phase 246 commits, additional dirty paths, and no upstream. These facts can change and are not release evidence.
+- **D-11:** Close the known authenticated-dry-run evidence gap with a fixed-source, non-publishing workflow for PR #224 at the reviewed full SHA. This one-candidate workflow may verify only the already-selected 1.6.0 source; it must not select arbitrary release candidates, create tags/releases, publish, merge PR #224, or decide future release eligibility. Its safe receipt exists only to prove this phase's READY-01 result. Phase 248 still owns the reusable exact-source release gate, guarded Release Please auto-merge, and per-release receipts.
+- **D-12:** Release readiness is evaluated against the immutable tree at the current, reviewed PR #224 head. Files that exist only in `tmp/phase-247-candidate`, an older release-PR head, or another local/CI workspace do not satisfy adopter-doc or changelog requirements. After Release Please refreshes PR #224 because its base advances, recheck the README route, versioned guide, ExDoc inclusion, curated changelog, and source-backed claims at that exact head; refresh all candidate-bound evidence before any dry run.
 
 ### the agent's Discretion
 - Choose the inventory artifact shape and the clean-checkout mechanics that best preserve the inherited branch and make every disposition auditable.
@@ -70,6 +72,7 @@ Prepare an accurate, adopter-readable Sigra 1.6.0 release candidate from reviewe
 - [Ecto changelog](https://github.com/elixir-ecto/ecto/blob/master/CHANGELOG.md).
 - [Laravel upgrade guide](https://laravel.com/framework/docs/12.x/upgrade).
 - [Live Release Please PR #224](https://github.com/szTheory/sigra/pull/224) — recheck before execution.
+- `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md` — current-source review, exact-head documentation gaps, and resume boundary.
 
 No additional application UI or visual-design contract applies to this phase.
 </canonical_refs>
@@ -87,6 +90,7 @@ No additional application UI or visual-design contract applies to this phase.
 - Package SemVer is the adopter version truth. GSD milestone numbers such as v1.49 are maintainer coordination labels.
 - Current documentation already distinguishes Added, Changed, and Upgrade notes, but generated Phase-prefixed bullets need a reader-facing summary.
 - Release Please source state and local inherited work are separate: the live 1.6.0 PR changes three release metadata/changelog files, while the active local checkout contains Phase 246 commits and other inherited changes.
+- Plan 03's adopter docs were created in an isolated candidate checkout; the refreshed live Release Please head does not contain them. Final validation must check committed candidate paths/blobs, never infer source presence from temporary candidate files or prior-head receipts.
 
 ### Integration Points
 - Candidate version truth spans the Release Please PR, manifest, mix.exs, changelog, ExDoc source_ref, README, and the new version-specific upgrade guide.
@@ -98,6 +102,7 @@ No additional application UI or visual-design contract applies to this phase.
 ## Specific Ideas
 
 - Keep the 1.6.0 package target and PR #224, while refreshing the candidate after Phase 246 evidence and source disposition are complete.
+- Treat the refreshed PR #224 head `77dd1126436a9e83c04283433e5f60c71ee98287` on base/main `e3883b72fb1df5ad6356ef10dbde408f18bbc3be` as a draft that currently fails D-03/D-05/D-06. Re-establish the adopter path and curated notes in the actual reviewed candidate source before reusing release-readiness evidence.
 - Explain the confirmation changes only if they are in the final reviewed release source: the dependency update does not rewrite existing generated host code; existing hosts need selective adoption, and no database migration is required if confirmed against the final source.
 - Give adopters an explicit update/check path from their host app root, using the bounded dependency constraint ~> 1.6.0 and commands verified against the final package.
 - The current generated 1.6.0 notes contain Phase 242/244 identifiers. Replace those as reader-facing descriptions with concise statements of adopter-visible effects.

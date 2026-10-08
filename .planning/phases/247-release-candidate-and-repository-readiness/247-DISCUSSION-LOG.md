@@ -65,3 +65,23 @@ No prompt.txt file was present. Reviewed the applicable prompts:
 - prompts/Building the gold-standard Elixir:Phoenix authentication library.md
 
 The phase changes documentation UX rather than application UI; admin UI visual principles do not apply.
+
+## Assumptions Refresh — 2026-10-08
+
+All four assumptions were Confident and aligned with the existing locked Phase 247 decisions. No new product or security choice was surfaced; the refresh records the source-provenance correction needed before planning resumes.
+
+### Candidate source and adopter claims
+| Assumption | Confidence | Evidence |
+|------------|-----------|----------|
+| Keep PR #224 and 1.6.0, but require the curated changelog and README → guide → changelog route in the current immutable PR head. | Confident | `247-CONTEXT.md` D-01/D-03/D-05; `247-03-SUMMARY.md`; `247-05-CHECKPOINT.md`; live PR #224 at `77dd1126436a9e83c04283433e5f60c71ee98287`. |
+| Preserve source-backed compatibility and generated-host guidance from D-02/D-05/D-06. | Confident | `247-CONTEXT.md`; `tmp/phase-247-candidate/guides/introduction/upgrading-to-v1.6.md`; current PR source lacks that guide. |
+
+### Evidence and repository readiness
+| Assumption | Confidence | Evidence |
+|------------|-----------|----------|
+| Prior verification, candidate diff baseline, and fixed-source dry-run pin are historical after the candidate changes; READY-01 must be rebound to the repaired current head. | Confident | `247-VERIFICATION.md`; `247-CANDIDATE-DIFF-BASELINE.json`; `.github/workflows/phase-247-hex-dry-run.yml`; `scripts/ci/phase-247-hex-dry-run.sh`; `247-05-CHECKPOINT.md`. |
+| Refresh open-PR and source-inventory observations before asserting READY-02. | Confident | `247-CONTEXT.md` D-08–D-10; `247-VERIFICATION.md`; `247-05-CHECKPOINT.md`. |
+
+**Decision applied:** Add D-12 to `247-CONTEXT.md`: only committed artifacts at the exact reviewed candidate head count. Temporary candidate files and prior-head receipts cannot prove current release readiness.
+
+**External research:** None needed for these source-provenance findings; live PR, CI, and dry-run outcomes require fresh execution evidence.
