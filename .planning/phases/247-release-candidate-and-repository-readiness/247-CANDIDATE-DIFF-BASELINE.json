@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "reviewed_base_sha": "590eb4ed3323db11dd74326cbee00c9c7973e529",
+  "candidate_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+  "diff_algorithm": "git-diff-raw-v1",
+  "diff_sha256": "22fe2c382b916d7f2f89afc3efd74b6c78c4312a676d05fd7ea0cd98890238ff",
+  "diff_bytes": 8934
+}
