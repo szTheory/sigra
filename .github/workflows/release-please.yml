@@ -99,6 +99,8 @@ jobs:
     timeout-minutes: 75
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    outputs:
+      result: ${{ steps.wait.outputs.result }}
     permissions:
       actions: write
       contents: read
@@ -118,12 +120,16 @@ jobs:
       # `timeout-minutes: 75` above replaces the previously-inherited 360-minute
       # default with an explicit ceiling comfortably above that 60-minute poll budget.
       - name: Wait for ci-gate on release SHA
+        id: wait
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY: ${{ github.repository }}
           TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
           RELEASE_SHA: ${{ needs.release-please.outputs.sha }}
-        run: bash scripts/ci/wait-for-ci-gate.sh --max-attempts 120
+        run: |
+          set -euo pipefail
+          result="$(bash scripts/ci/wait-for-ci-gate.sh --max-attempts 120 --format json)"
+          echo "result=${result}" >> "$GITHUB_OUTPUT"
 
   publish-hex:
     name: Publish to Hex.pm

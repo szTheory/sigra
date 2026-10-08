@@ -105,7 +105,7 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
       --workflow "$WORKFLOW" \
       --commit "$SHA" \
       --limit 20 \
-      --json databaseId,status,conclusion,url,createdAt)" || fail "gh run list failed (attempt ${ATTEMPT}/${MAX_ATTEMPTS})"
+      --json databaseId,headSha,status,conclusion,url,createdAt,updatedAt)" || fail "gh run list failed (attempt ${ATTEMPT}/${MAX_ATTEMPTS})"
   fi
 
   [[ -n "$RUNS_JSON" ]] || fail "gh run list returned empty output -- the parse broke, this is not a pass"
@@ -115,20 +115,33 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
   RUN_COUNT="$(echo "$RUNS_JSON" | jq 'length')"
   LAST_RUN_COUNT="$RUN_COUNT"
 
+  if (( RUN_COUNT > 0 )); then
+    echo "$RUNS_JSON" | jq -e --arg sha "$SHA" '
+      all(.[]; (.headSha | type == "string" and length > 0)
+        and .headSha == $sha
+        and (.databaseId | type == "number")
+        and (.status | type == "string" and length > 0)
+        and (.conclusion == null or (.conclusion | type == "string"))
+        and (.url | type == "string" and length > 0)
+        and (.createdAt | type == "string" and length > 0)
+        and (.updatedAt | type == "string" and length > 0))
+    ' >/dev/null 2>&1 || fail "run list contains missing metadata or a headSha that differs from requested release SHA ${SHA}"
+  fi
+
   if (( RUN_COUNT == 0 )); then
-    echo "No ${WORKFLOW} run yet for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS})."
+    echo "No ${WORKFLOW} run yet for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS})." >&2
     if (( ATTEMPT == DISPATCH_AFTER )) && [[ "$DISPATCHED" == false ]] && [[ "$NO_DISPATCH" == false ]]; then
       [[ -n "$TAG" ]] || fail "cannot dispatch ${WORKFLOW}: no --tag given (env: TAG_NAME)"
       gh workflow run "$WORKFLOW" --ref "$TAG" --repo "$REPO" || fail "gh workflow run dispatch failed"
       DISPATCHED=true
-      echo "Dispatched ${WORKFLOW} on tag ${TAG} for release SHA ${SHA}."
+      echo "Dispatched ${WORKFLOW} on tag ${TAG} for release SHA ${SHA}." >&2
     fi
   else
     RUN_URL="$(echo "$RUNS_JSON" | jq -r 'sort_by(.createdAt) | reverse | .[0].url')"
     INCOMPLETE="$(echo "$RUNS_JSON" | jq -r '[.[] | select(.status != "completed")] | length')"
 
     if (( INCOMPLETE > 0 )); then
-      echo "${WORKFLOW} still running for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS}): ${RUN_URL}"
+      echo "${WORKFLOW} still running for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS}): ${RUN_URL}" >&2
     else
       FOUND_GREEN=false
       for RUN_ID in $(echo "$RUNS_JSON" | jq -r 'sort_by(.createdAt) | reverse | .[].databaseId'); do
@@ -156,10 +169,16 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
       done
 
       if [[ "$FOUND_GREEN" == true ]]; then
+        RUN_METADATA="$(echo "$RUNS_JSON" | jq -c --argjson id "$RUN_ID" '.[] | select(.databaseId == $id)')"
+        FOUND_HEAD_SHA="$(jq -r '.headSha' <<<"$RUN_METADATA")"
+        FOUND_CREATED_AT="$(jq -r '.createdAt' <<<"$RUN_METADATA")"
+        FOUND_UPDATED_AT="$(jq -r '.updatedAt' <<<"$RUN_METADATA")"
         case "$FORMAT" in
           json)
-            jq -n --arg sha "$SHA" --arg run_url "$FOUND_URL" --argjson attempts "$ATTEMPT" \
-              '{sha: $sha, run_url: $run_url, attempts: $attempts, verdict: "PASS"}'
+            jq -cn --arg sha "$SHA" --arg run_url "$FOUND_URL" --argjson attempts "$ATTEMPT" \
+              --argjson run_id "$RUN_ID" --arg head_sha "$FOUND_HEAD_SHA" \
+              --arg created_at "$FOUND_CREATED_AT" --arg updated_at "$FOUND_UPDATED_AT" \
+              '{sha: $sha, run_url: $run_url, attempts: $attempts, verdict: "PASS", run_id: $run_id, head_sha: $head_sha, created_at: $created_at, updated_at: $updated_at, gate_verdict: "PASS"}'
             ;;
           table)
             echo "ci-gate succeeded on release SHA ${SHA} after ${ATTEMPT} attempt(s): ${FOUND_URL}"
@@ -168,7 +187,7 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
         exit 0
       fi
 
-      echo "No successful ci-gate yet for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS}); waiting for a fresh run."
+      echo "No successful ci-gate yet for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS}); waiting for a fresh run." >&2
     fi
   fi
 
