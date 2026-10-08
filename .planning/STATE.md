@@ -4,13 +4,13 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 247
 current_phase_name: release-candidate-and-repository-readiness
-current_plan: 9 of 11
-status: Ready to execute Phase 247 Plan 09. Task 1 is local-only. Task 2 requires explicit user approval before pushing the exact test-only commit and CI. Plans 10–11 require separate approval before rebinding candidate-bound evidence; Phase 247 remains unverified.
-stopped_at: Plan 08 Task 2 halted after run 37721969290 reported absent key presence and a dirty candidate checkout
-last_updated: "2026-10-08T17:13:05.045Z"
+current_plan: 10 of 11
+status: "Plan 09 is complete: the approved candidate push and exact-head CI passed. Plan 10 Task 1 produced the rebind proposal; waiting for explicit approval before any evidence rebind or dry run. Phase 247 remains unverified."
+stopped_at: Plan 10 Task 1 complete; await explicit approval of the exact-source evidence recovery proposal.
+last_updated: "2026-10-08T18:06:20.836Z"
 last_activity: 2026-10-08
-last_activity_desc: Phase 247 Plans 09–11 passed plan verification
-state_head: a17cc190b287bacd324a0c96439d075bb88f3ede
+last_activity_desc: Exact-head CI passed for the approved Phase 247 candidate; Plan 10 rebind proposal is ready for review.
+state_head: c84350abe58bb3a733e1d7db4cebc4de1919e035
 progress:
   total_phases: 4
   completed_phases: 1
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 247 (release-candidate-and-repository-readiness) — READY TO EXECUTE
-Current Plan: 9 of 11
+Phase: 247 (release-candidate-and-repository-readiness) — WAITING FOR APPROVAL
+Current Plan: 10 of 11
 Total Plans in Phase: 11
-Plan: 9 of 11 — Restore LiveView validation synchronization and prove mobile WebKit
-Status: Ready to execute Phase 247 Plan 09. Task 1 is local-only. Task 2 requires explicit user approval before pushing the exact test-only commit and CI. Plans 10–11 require separate approval before rebinding candidate-bound evidence; Phase 247 remains unverified.
-Last activity: 2026-10-08 — Phase 247 Plans 09–11 passed plan verification
+Plan: 10 of 11 — Prepare exact-source evidence rebind proposal and obtain approval
+Status: Plan 09 is complete: the approved candidate push and exact-head CI passed. Plan 10 Task 1 produced the rebind proposal; waiting for explicit approval before any evidence rebind or dry run. Phase 247 remains unverified.
+Last activity: 2026-10-08 — Exact-head CI passed for the approved Phase 247 candidate; Plan 10 rebind proposal is ready for review.
 
 Progress: [███░░░░░░░] 25%
 
@@ -807,13 +807,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-10-08T01:42:04.273Z
-Stopped at: PR #293 merged; wait for read-only Hex key setup and Plan 05 executor report, then recheck GSD readiness
+Stopped at: Plan 10 Task 1 complete; await explicit approval of the exact-source evidence recovery proposal.
 Resume file: .planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md
 
 ## Operator Next Steps
 
-- **Implementation incomplete; independent Phase 247 verification incomplete. Resume command after blockers: `$gsd-execute-phase 247`.** Plans 06–07 are complete. PR #224 remains open at `6f8028658f0bdd7f26e13c3fe4d45437880c341b`; exact-head run `37717911489` attempt 1 passed all 15 required jobs and `ci-gate`. Evidence PR #291 merged to main as `9bb7566f31b40a129c5a234b122ac00b540ede29`; the four-file advance and manifest blob survived. Plan 08 Task 1 merged as PR #292 at `cd978dad3504bf4ff775ea89e98d063d2a189d56`; CI run `37721138344` passed all 27 entries, and live main passes only the boolean key-presence signal. Dry-run run `37721969290` is blocked: key presence was false, and safe receipt creation found a dirty candidate checkout without listing paths. A local exact-SHA reproduction stayed clean and did not reproduce that condition. Diagnostic PR #293 (`a733e46eddb184bbbab440336a51981db94baddc`) merged as `7b907abcf15785b7396da5d1fe5f5115ccd9af64`; CI run `37723234944` passed all 27 entries. Path-only status is now retained in logs and the fallback artifact. User must configure the dedicated read-only key in `hex-publish`, restricted to `main`; the next authenticated diagnostic run will surface any hosted dirty paths so they can be fixed before final readiness. Plan 05 remains checkpointed while its executor is awaited per the user's choice. `init.execute-phase 247` currently reports no runnable plans because Plan 05 is blocked by halted Plan 04. Do not merge PR #224, tag, or publish during Phase 247.
-- Routing evidence: `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-06-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-07-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md`, `.planning/phases/247-release-candidate-and-repository-readiness/247-08-RESUME-NOTES.md`, and `.planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json`. Historical Phase 245 verification remains separate.
+- **Implementation incomplete; independent Phase 247 verification incomplete.** Plan 09 is complete: approved candidate 0e773d3614a242e4fbcdd34c418ecb8a307703d6 is the open PR #224 head on reviewed base d135cbce343947499a0810736c500ef5f1cb5c32; exact-head CI run 37819712610 passed, including non_admin_smoke and ci-gate. Local WebKit remains blocked by the recorded macOS AppKit startup abort, so only CI proves the browser journey. Plan 10 Task 1's exact-source proposal is at .planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json; await explicit approval for its displayed candidate/base/main tuple and one bounded four-path evidence PR/merge, required CI, authenticated non-publishing dry-run, final readiness ledger, and independent verification. No rebind or dry run has happened. After approval, resume with $gsd-execute-phase 247. Do not merge PR #224, tag, or publish during Phase 247.
+- Routing evidence: .planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json, .planning/phases/247-release-candidate-and-repository-readiness/247-09-LOCAL-RESULT.json, .planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json, and .planning/phases/247-release-candidate-and-repository-readiness/247-08-FINAL-RECOVERY-AMENDMENT.md. Historical Phase 245 verification remains separate.
 
 ## Performance Metrics
 
