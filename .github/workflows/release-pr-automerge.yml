@@ -1,0 +1,78 @@
+name: Release PR auto-merge
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [release-please--branches--main]
+
+permissions:
+  actions: read
+  checks: read
+  contents: read
+  deployments: read
+  pull-requests: read
+
+concurrency:
+  group: release-pr-automerge-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  guarded-merge:
+    name: Guarded Release Please merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'release-please--branches--main'
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      deployments: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Validate exact CI run and current Release Please PR
+        id: preflight
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          EVENT_PATH: ${{ github.event_path }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          work_dir="$(mktemp -d)"
+          trap 'rm -rf "$work_dir"' EXIT
+
+          jq '{repository:.repository.full_name, workflow_name:.workflow_run.name,
+            run_id:.workflow_run.id, event:.workflow_run.event,
+            head_branch:.workflow_run.head_branch, head_sha:.workflow_run.head_sha,
+            conclusion:.workflow_run.conclusion}' "$EVENT_PATH" > "$work_dir/event-run.json"
+
+          gh run view "$SOURCE_RUN_ID" --repo "$REPOSITORY" \
+            --json databaseId,event,headBranch,headSha,conclusion,workflowName,url,jobs \
+            > "$work_dir/run-with-jobs.json"
+          jq --arg repository "$REPOSITORY" \
+            '{repository:$repository, workflowName, databaseId, event, headBranch, headSha, conclusion, url}' \
+            "$work_dir/run-with-jobs.json" > "$work_dir/queried-run.json"
+          jq '[.jobs[] | select(.name == "ci-gate") | {name, conclusion}]' \
+            "$work_dir/run-with-jobs.json" > "$work_dir/gate-jobs.json"
+
+          gh pr list --repo "$REPOSITORY" --state open --base main \
+            --head release-please--branches--main \
+            --json number,state,title,baseRefName,headRefName,headRefOid,headRepository,labels,url \
+            > "$work_dir/pull-requests.json"
+
+          candidate="$(bash scripts/ci/release-candidate-preflight.sh \
+            --repository "$REPOSITORY" \
+            --event-run "$work_dir/event-run.json" \
+            --queried-run "$work_dir/queried-run.json" \
+            --pull-requests "$work_dir/pull-requests.json" \
+            --gate-jobs "$work_dir/gate-jobs.json")"
+          echo "pr_number=$(jq -r '.pr_number' <<<"$candidate")" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$(jq -r '.head_sha' <<<"$candidate")" >> "$GITHUB_OUTPUT"
