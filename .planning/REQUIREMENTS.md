@@ -25,7 +25,7 @@
 ### Release automation (AUTO)
 
 - [x] **AUTO-01**: Before release package work starts, the release tag is proven to resolve to the exact Release Please source SHA whose required CI gate passed; the existing test, warning-free docs, package-content, and Hex dry-run checks run against that immutable source. Active release evaluation is not cancelled, workflow permissions are scoped, and the Hex secret is available only to the final publish step.
-- [ ] **AUTO-02**: The release lane retains machine-readable gate and publish receipts for both success and failure, linking version/tag, source SHA, workflow/run identity, verdict, relevant URLs, attempts/timestamps, and failure or cancellation state.
+- [x] **AUTO-02**: The release lane retains machine-readable gate and publish receipts for both success and failure, linking version/tag, source SHA, workflow/run identity, verdict, relevant URLs, attempts/timestamps, and failure or cancellation state.
 
 ### Published release (REL)
 
@@ -66,7 +66,7 @@ Every v1 requirement maps to exactly one v1.49 phase.
 | READY-01 | Phase 247 | Blocked |
 | READY-02 | Phase 247 | Blocked |
 | AUTO-01 | Phase 248 | Complete |
-| AUTO-02 | Phase 248 | Pending |
+| AUTO-02 | Phase 248 | Complete |
 | REL-01 | Phase 249 | Pending |
 | REL-02 | Phase 249 | Pending |
 

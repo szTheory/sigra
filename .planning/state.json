@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 248 of 4 · 50% · executing"
+    "command": "/gsd:execute-phase 248",
+    "label": "Execute Phase 248 Plan 05",
+    "reason": "Plan 04 is complete and Plan 05 is runnable; user setup remains an external release-readiness item"
   },
-  "updated_at": "2026-10-08T22:35:48.719Z"
+  "updated_at": "2026-10-08T22:53:55.843Z"
 }

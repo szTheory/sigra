@@ -4,19 +4,19 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 248
 current_phase_name: Exact-Source Release Gate
-current_plan: 4
-status: Phase 248 Plan 03 complete. Plan 04 is next; exact-main policies are verified. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
-stopped_at: Completed 248-03-PLAN.md
-last_updated: "2026-10-08T22:38:10.197Z"
+current_plan: 5
+status: Phase 248 Plan 04 is complete. Plan 05 is next and runnable. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
+stopped_at: Completed 248-04-PLAN.md
+last_updated: "2026-10-08T22:54:00.223Z"
 last_activity: 2026-10-08
-state_head: 2ee07e70af3a3234270ba20943b6f3b13cdc5f51
+state_head: 0c12c4ccfb9a534858e8d0f6c433ea65d769e7df
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 19
-  completed_plans: 16
+  completed_plans: 17
   percent: 50
-last_activity_desc: Phase 248 execution started
+last_activity_desc: Phase 248 Plan 04 complete; Plan 05 is runnable
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 248 (Exact-Source Release Gate) — EXECUTING
-Current Plan: 4
+Current Plan: 5
 Total Plans in Phase: 5
-Plan: 4 of 5
-Status: Phase 248 Plan 03 complete. Plan 04 is next; exact-main policies are verified. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
+Plan: 5 of 5
+Status: Phase 248 Plan 04 is complete. Plan 05 is next and runnable. User setup remains incomplete for adding RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish. Existing repository secret copies remain intact until both environment names are confirmed.
 Last activity: 2026-10-08
 
 Progress: [█████░░░░░] 50%
@@ -591,6 +591,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 248]: Validate each source-backed claim against an independent versioned changelog entry and bind ledger CI evidence to the exact release PR head.
 - [Phase 248]: Require can_admins_bypass=false in addition to the exact-main deployment policy.
 - [Phase 248]: Keep repository-level secret copies until target environment secret names are confirmed.
+- [Phase 248]: Canonical release receipts require a complete source identity; unresolved manual recovery inputs receive a failure-only rejection record.
+- [Phase 248]: Capture workflow timestamps with runner steps and persist receipts before supplementary issue notification.
 
 ### Pending Todos
 
@@ -809,8 +811,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-08T22:35:50.927Z
-Stopped at: Completed 248-03-PLAN.md
+Last session: 2026-10-08T22:54:00.053Z
+Stopped at: Completed 248-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -1039,3 +1041,4 @@ Resume file: None
 | Phase 247 P07 | 16min | 2 tasks | 5 files |
 | Phase 248 P02 | 50m | 2 tasks | 4 files |
 | Phase 248 P03 | 157 min | 3 tasks | 8 files |
+| Phase 248 P04 | 45min | 2 tasks | 5 files |
