@@ -70,10 +70,13 @@ jobs:
 
       - name: Validate manual release inputs
         id: validate-inputs
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_VERSION: ${{ inputs.release_version }}
         run: |
           set -euo pipefail
-          input_ref="${{ inputs.tag }}"
-          input_version="${{ inputs.release_version }}"
+          input_ref="$INPUT_TAG"
+          input_version="$INPUT_VERSION"
           expected_tag="v${input_version}"
           if [[ ! "$input_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
             echo "Invalid inputs.release_version: '$input_version'"
@@ -123,10 +126,13 @@ jobs:
 
       - name: Verify manual ref provenance
         id: provenance
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_VERSION: ${{ inputs.release_version }}
         run: |
           set -euo pipefail
-          input_ref="${{ inputs.tag }}"
-          input_version="${{ inputs.release_version }}"
+          input_ref="$INPUT_TAG"
+          input_version="$INPUT_VERSION"
           expected_tag="v${input_version}"
 
           git fetch --force --tags origin
@@ -165,13 +171,17 @@ jobs:
 
       - name: Verify release version in mix.exs
         id: verify-version
-        run: grep -nF "@version \"${{ inputs.release_version }}\"" mix.exs
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: grep -nF "@version \"$RELEASE_VERSION\"" mix.exs
 
       - name: Verify release version in release-please-manifest
         id: verify-manifest
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           set -euo pipefail
-          expected_version="${{ inputs.release_version }}"
+          expected_version="$RELEASE_VERSION"
           actual_version="$(grep -oE '"\."\s*:\s*"[^"]+"' .release-please-manifest.json | sed -E 's/.*"([^"]+)"$/\1/')"
           if [ -z "$actual_version" ]; then
             echo "Unable to read version from .release-please-manifest.json"
@@ -226,9 +236,11 @@ jobs:
       - name: Skip if version already on Hex
         id: idempotency
         if: ${{ inputs.dry_run != true }}
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
-          if mix hex.info sigra "${{ inputs.release_version }}" 2>/dev/null | grep -q "Released:"; then
-            echo "Version ${{ inputs.release_version }} of sigra already on Hex - skipping publish."
+          if mix hex.info sigra "$RELEASE_VERSION" 2>/dev/null | grep -q "Released:"; then
+            echo "Version $RELEASE_VERSION of sigra already on Hex - skipping publish."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -267,11 +279,13 @@ jobs:
       - name: Verify HexDocs source links after publish
         id: verify-hexdocs
         if: ${{ inputs.dry_run != true }}
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           scripts/ci/release-post-publish-verify.sh \
             --package sigra \
-            --version "${{ inputs.release_version }}" \
-            --tag "v${{ inputs.release_version }}" \
+            --version "$RELEASE_VERSION" \
+            --tag "v$RELEASE_VERSION" \
             --evidence-file release-post-publish-evidence.json
 
       - name: Upload release post-publish evidence

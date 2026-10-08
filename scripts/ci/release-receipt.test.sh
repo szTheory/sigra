@@ -70,6 +70,19 @@ if [[ "$RC" -eq 0 ]] && jq -e '.terminal_verdict == "failure" and .failure.stage
   pass "gate failure is retained with its failed stage"
 else fail "gate failure was not accurately retained: rc=$RC $OUT"; fi
 
+echo "Test B2: a gate failure with no observed CI run may record unavailable identity"
+jq '.failure={stage:"gate-ci-green",diagnostic:"ci_gate_not_green"} | .gate={run_id:null,url:null,verdict:"fail",attempts:1,started_at:"2026-10-08T10:05:00Z",completed_at:"2026-10-08T10:15:00Z"}' "$INPUT" > "$TMP/gate-no-run.json"
+run_receipt "$TMP/gate-no-run.json" "$TMP/gate-no-run-receipt.json"
+if [[ "$RC" -eq 0 ]] && jq -e '.terminal_verdict == "failure" and .failure.stage == "gate-ci-green" and .gate.run_id == null and .gate.url == null and .gate.verdict == "fail"' "$TMP/gate-no-run-receipt.json" >/dev/null; then
+  pass "gate failure retains an explicit null identity when no CI run was observed"
+else fail "unobserved gate run identity was not represented truthfully: rc=$RC $OUT"; fi
+
+jq '.terminal_verdict="success" | .failure=null | .gate={run_id:null,url:null,verdict:"pass",attempts:1,started_at:"2026-10-08T10:05:00Z",completed_at:"2026-10-08T10:15:00Z"}' "$INPUT" > "$TMP/gate-success-no-run.json"
+run_receipt "$TMP/gate-success-no-run.json" "$TMP/gate-success-no-run-receipt.json"
+if [[ "$RC" -ne 0 ]]; then
+  pass "a passing gate still requires a real run identity"
+else fail "gate without observed run identity was accepted as valid pass"; fi
+
 echo "Test C: a publish failure requires a diagnostic stage and stays failed"
 INPUT="$(new_input push failure pass failed)"
 run_receipt "$INPUT" "$TMP/publish-failure.json"

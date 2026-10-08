@@ -5,6 +5,43 @@ defmodule Sigra.Planning.Phase248ReleaseGateContractTest do
 
   defp read!(rel), do: root() |> Path.join(rel) |> File.read!()
 
+  defp run_bodies(workflow) do
+    {bodies, current} =
+      workflow
+      |> String.split("\n")
+      |> Enum.reduce({[], nil}, fn line, {bodies, current} ->
+        indent = line |> String.replace(~r/[^ ].*$/, "") |> String.length()
+
+        case Regex.run(~r/^( *)run:\s*(.*)$/, line) do
+          [_, spaces, inline] ->
+            previous =
+              if current,
+                do: [Enum.reverse(current.lines) |> Enum.join("\n") | bodies],
+                else: bodies
+
+            body = if inline in ["", "|", ">", "|-", ">-"], do: [], else: [inline]
+            {previous, %{indent: String.length(spaces), lines: body}}
+
+          nil ->
+            cond do
+              current && (String.trim(line) == "" || indent > current.indent) ->
+                {bodies, %{current | lines: [line | current.lines]}}
+
+              current ->
+                {[Enum.reverse(current.lines) |> Enum.join("\n") | bodies], nil}
+
+              true ->
+                {bodies, nil}
+            end
+        end
+      end)
+
+    final =
+      if current, do: [Enum.reverse(current.lines) |> Enum.join("\n") | bodies], else: bodies
+
+    Enum.reverse(final)
+  end
+
   defp job!(workflow, name) do
     [_before, rest] = String.split(workflow, "  #{name}:\n", parts: 2)
 
@@ -46,6 +83,23 @@ defmodule Sigra.Planning.Phase248ReleaseGateContractTest do
     assert publish_job =~ "inputs.dry_run != true"
   end
 
+  test "manual recovery inputs enter shell scripts through quoted environment variables" do
+    workflow = read!(".github/workflows/hex-publish.yml")
+    raw_input_expression = ~r/\$\{\{\s*inputs\.(?:tag|release_version)\s*\}\}/
+
+    assert workflow =~ "INPUT_TAG: ${{ inputs.tag }}"
+    assert workflow =~ "INPUT_VERSION: ${{ inputs.release_version }}"
+    assert workflow =~ "RELEASE_VERSION: ${{ inputs.release_version }}"
+    assert run_bodies(workflow) != []
+
+    assert Enum.all?(run_bodies(workflow), fn body ->
+             not Regex.match?(raw_input_expression, body)
+           end)
+
+    assert workflow =~ "input_ref=\"$INPUT_TAG\""
+    assert workflow =~ "input_version=\"$INPUT_VERSION\""
+  end
+
   test "merge and publish credentials are environment-bound and step-scoped" do
     release = read!(".github/workflows/release-please.yml")
     merge = read!(".github/workflows/release-pr-automerge.yml")
@@ -66,6 +120,19 @@ defmodule Sigra.Planning.Phase248ReleaseGateContractTest do
     assert recovery =~ "HEX_API_KEY: ${{ secrets.HEX_API_KEY }}"
     ci = read!(".github/workflows/ci.yml") |> String.replace(~r/^\s*#.*$/m, "")
     refute ci =~ ~r/(RELEASE_PLEASE_TOKEN|HEX_(?:DRY_RUN_)?API_KEY)/
+  end
+
+  test "failed gate receipts never substitute the release run for CI identity" do
+    release = read!(".github/workflows/release-please.yml")
+    gate_job = job!(release, "gate-ci-green")
+    record_job = job!(release, "record-release-result")
+
+    assert gate_job =~
+             "GATE_RUN_ID=\"$(jq -r 'if .run_id == null then \"\" else (.run_id | tostring) end'"
+
+    refute gate_job =~ "GATE_RUN_ID=\"$GITHUB_RUN_ID\""
+    refute record_job =~ "GATE_RUN_ID=\"${GATE_RUN_ID:-$RELEASE_RUN_ID}\""
+    assert record_job =~ "run_id:(if $gate_id == \"\" then null else $gate_id end)"
   end
 
   test "only authorized workflows call the environment policy preflight with read permissions" do
@@ -141,7 +208,10 @@ defmodule Sigra.Planning.Phase248ReleaseGateContractTest do
     assert receipt_job =~ "needs.publish-hex.result"
     assert receipt_job =~ "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
     assert receipt_job =~ "retention-days: 90"
-    assert notifier_job =~ "needs: [release-please, gate-ci-green, publish-hex, record-release-result]"
+
+    assert notifier_job =~
+             "needs: [release-please, gate-ci-green, publish-hex, record-release-result]"
+
     assert notifier_job =~ "if: >-\n      always()"
     assert notifier_job =~ "notify-failure-issue.sh"
   end

@@ -169,16 +169,11 @@ jobs:
               '. + {gate_started_at:$started, gate_completed_at:$completed, gate_verdict:"pass"}' <<<"$RESULT")"
           else
             GATE_VERDICT="fail"
-            ATTEMPTS="$(sed -nE 's/.*after ([0-9]+) attempts.*/\1/p' "$GATE_ERROR_FILE" | tail -n 1)"
-            [[ "$ATTEMPTS" =~ ^[0-9]+$ ]] || ATTEMPTS=0
-            GATE_RUN_ID="$GITHUB_RUN_ID"
-            GATE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-            RESULT="$(jq -cn --arg sha "$RELEASE_SHA" --arg run_url "$GATE_URL" \
-              --arg started "$GATE_STARTED_AT" --arg completed "$GATE_COMPLETED_AT" \
-              --argjson attempts "$ATTEMPTS" --arg run_id "$GATE_RUN_ID" \
-              '{sha:$sha, run_url:$run_url, run_id:$run_id, head_sha:$sha, attempts:$attempts,
-                verdict:"FAIL", gate_verdict:"fail", diagnostic:"ci_gate_not_green",
-                gate_started_at:$started, gate_completed_at:$completed}')"
+            ATTEMPTS="$(jq -r '.attempts // 0' <<<"$RESULT")"
+            GATE_RUN_ID="$(jq -r 'if .run_id == null then "" else (.run_id | tostring) end' <<<"$RESULT")"
+            GATE_URL="$(jq -r '.run_url // ""' <<<"$RESULT")"
+            RESULT="$(jq -c --arg started "$GATE_STARTED_AT" --arg completed "$GATE_COMPLETED_AT" \
+              '. + {gate_started_at:$started, gate_completed_at:$completed, gate_verdict:"fail"}' <<<"$RESULT")"
             cat "$GATE_ERROR_FILE" >&2
           fi
 
@@ -479,8 +474,8 @@ jobs:
           [[ "$GATE_JOB_RESULT" == "success" ]] && GATE_VERDICT="pass"
           GATE_ATTEMPTS="${GATE_ATTEMPTS:-0}"
           [[ "$GATE_ATTEMPTS" =~ ^[0-9]+$ ]] || GATE_ATTEMPTS=0
-          GATE_RUN_ID="${GATE_RUN_ID:-$RELEASE_RUN_ID}"
-          GATE_URL="${GATE_URL:-$RELEASE_RUN_URL}"
+          GATE_RUN_ID="${GATE_RUN_ID:-}"
+          GATE_URL="${GATE_URL:-}"
           PUBLISH_OUTCOME="${PUBLISH_OUTCOME:-not_run}"
           PUBLISH_FAILURE_STAGE="${PUBLISH_FAILURE_STAGE:-}"
           PUBLISH_DIAGNOSTIC="${PUBLISH_DIAGNOSTIC:-}"
@@ -515,11 +510,11 @@ jobs:
             '{schema_version:1,
               release_run:{id:$release_id,attempt:$attempt,url:$release_url,workflow_name:$workflow,workflow_url:$workflow_url,started_at:$release_started,completed_at:$release_completed},
               source_event:$event,source:{version:$version,tag:$tag,sha:$sha},
-              gate:({run_id:$gate_id,url:$gate_url,verdict:$gate_verdict,attempts:$attempts,started_at:$gate_started,completed_at:$gate_completed} +
+              gate:({run_id:(if $gate_id == "" then null else $gate_id end),url:(if $gate_url == "" then null else $gate_url end),verdict:$gate_verdict,attempts:$attempts,started_at:$gate_started,completed_at:$gate_completed} +
                 (try ($gate_result | fromjson | {ci_run_id:.run_id,ci_run_url:.run_url,head_sha:.head_sha}) catch {})),
               publish:{outcome:$publish_outcome,started_at:(if $publish_started == "null" then null else $publish_started end),completed_at:(if $publish_completed == "null" then null else $publish_completed end)},
               terminal_verdict:$terminal,failure:$failure,observer_run:null,
-              stages:{release:{verdict:"created",completed_at:$release_completed},gate:{verdict:$gate_verdict,run_id:$gate_id},publish:{outcome:$publish_outcome,failure_stage:$publish_failure_stage}}}' \
+              stages:{release:{verdict:"created",completed_at:$release_completed},gate:{verdict:$gate_verdict,run_id:(if $gate_id == "" then null else $gate_id end)},publish:{outcome:$publish_outcome,failure_stage:$publish_failure_stage}}}' \
             > release-result-input.json
           bash scripts/ci/release-receipt.sh --input release-result-input.json --output release-result.json
 

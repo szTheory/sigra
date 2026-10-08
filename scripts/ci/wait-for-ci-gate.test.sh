@@ -140,6 +140,15 @@ run_gate() {
   set -e
 }
 
+run_gate_capture() {
+  set +e
+  PATH="${STUB_BIN_DIR}:${PATH}" bash "$SCRIPT" "$@" >"${TMPDIR_ROOT}/gate.stdout" 2>"${TMPDIR_ROOT}/gate.stderr"
+  RC=$?
+  set -e
+  JSON_OUT="$(cat "${TMPDIR_ROOT}/gate.stdout")"
+  GATE_ERR="$(cat "${TMPDIR_ROOT}/gate.stderr")"
+}
+
 # ---- A: green on first poll -> exit 0, exactly one `gh run list` call ------------
 echo "Test A: green on first poll -> exit 0, one gh run list call, run URL echoed"
 reset_fixtures
@@ -328,6 +337,34 @@ if [[ "$RC" -eq 1 ]] && grep -q "missing metadata" <<<"$OUT" && [[ "$(gh_call_co
   pass "M: missing run identity/timestamp metadata fails closed"
 else
   fail "M: rc=${RC}, gh calls=$(gh_call_count), output: ${OUT}"
+fi
+
+# ---- N: failed poll reports the actual observed CI run identity ------------------
+echo "Test N: JSON failure output identifies the observed CI run, not the release run"
+reset_fixtures
+cat > "${TMPDIR_ROOT}/list-last.json" <<'JSON'
+[{"databaseId":990,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"completed","conclusion":"failure","url":"https://github.com/szTheory/sigra/actions/runs/990","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
+JSON
+printf 'failure' > "$VIEW_JOBS_PAYLOAD"
+printf 'https://github.com/szTheory/sigra/actions/runs/990' > "$VIEW_URL_PAYLOAD"
+run_gate_capture --sha "$TEST_SHA" --repo test/repo --max-attempts 1 --wait-seconds 0 --no-dispatch --format json
+if [[ "$RC" -eq 1 ]] \
+   && jq -e --arg sha "$TEST_SHA" '.sha == $sha and .run_id == 990 and .run_url == "https://github.com/szTheory/sigra/actions/runs/990" and .head_sha == $sha and .attempts == 1 and .verdict == "FAIL" and .gate_verdict == "FAIL"' >/dev/null 2>&1 <<<"$JSON_OUT"; then
+  pass "N: failure JSON preserves the real CI run identity and release SHA"
+else
+  fail "N: rc=${RC}, JSON=${JSON_OUT}, stderr=${GATE_ERR}"
+fi
+
+# ---- O: failure before observing a CI run represents identity as unavailable ------
+echo "Test O: no observed CI run is represented with null identity fields"
+reset_fixtures
+printf '[]' > "${TMPDIR_ROOT}/list-last.json"
+run_gate_capture --sha "$TEST_SHA" --repo test/repo --max-attempts 1 --wait-seconds 0 --no-dispatch --format json
+if [[ "$RC" -eq 1 ]] \
+   && jq -e --arg sha "$TEST_SHA" '.sha == $sha and .run_id == null and .run_url == null and .head_sha == null and .attempts == 1 and .verdict == "FAIL"' >/dev/null 2>&1 <<<"$JSON_OUT"; then
+  pass "O: failure JSON does not invent a run identity when none was observed"
+else
+  fail "O: rc=${RC}, JSON=${JSON_OUT}, stderr=${GATE_ERR}"
 fi
 
 echo "Results: ${PASS} passed, ${FAIL} failed"

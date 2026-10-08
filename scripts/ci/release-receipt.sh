@@ -52,7 +52,9 @@ if ! jq -e '
   def gate_valid:
     if .gate == null then .terminal_verdict == "cancelled"
     else (.gate | type == "object") and
-      (.gate.run_id | safe_id) and (.gate.url | run_url) and
+      (((.gate.run_id | safe_id) and (.gate.url | run_url)) or
+       (.terminal_verdict == "failure" and .failure.stage == "gate-ci-green" and
+        .gate.verdict == "fail" and .gate.run_id == null and .gate.url == null)) and
       (.gate.verdict == "pass" or .gate.verdict == "fail" or .gate.verdict == "skipped") and
       (.gate as $gate | ($gate.attempts | type == "number" and floor == . and . >= (if $gate.verdict == "fail" then 0 else 1 end) and . <= 120)) and
       (.gate.started_at | timestamp) and (.gate.completed_at | timestamp)
