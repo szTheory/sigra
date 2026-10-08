@@ -62,7 +62,7 @@ Plan 08 implementation commits include `897db1e9b` (receipt/baseline/recovery), 
 
 ## Remaining GSD gate
 
-The independent Phase 247 verification has **not** passed and `247-VERIFICATION.md` was not changed. The immediate next command is `$gsd-verify-work 247`. It must independently assess READY-01 and READY-02 from the current ledger and live evidence. PR #224 remains open; no tag or Hex publication was created.
+The independent Phase 247 verification has **not** passed and `247-VERIFICATION.md` was not changed. The immediate next command is `$gsd-execute-phase 247`; with all plan summaries now present, its `verify_phase_goal` step must dispatch the independent `gsd-verifier` to assess READY-01 and READY-02. PR #224 remains open; no tag or Hex publication was created.
 
 ## Self-Check: PASSED
 
