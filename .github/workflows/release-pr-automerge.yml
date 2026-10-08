@@ -14,7 +14,7 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: release-pr-automerge-${{ github.event.workflow_run.id }}
+  group: release-pr-automerge-${{ github.event.workflow_run.id }}-${{ github.run_id }}-${{ github.run_attempt }}
   cancel-in-progress: false
 
 jobs:
@@ -32,10 +32,22 @@ jobs:
       contents: read
       deployments: read
       pull-requests: read
+    environment: release-automation
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
+
+      - name: Verify credential environments and release token presence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_PLEASE_TOKEN_PRESENT: ${{ secrets.RELEASE_PLEASE_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          bash scripts/ci/release-environment-preflight.sh \
+            --repository "$REPOSITORY" \
+            --require-release-token "$RELEASE_PLEASE_TOKEN_PRESENT"
 
       - name: Validate exact CI run and current Release Please PR
         id: preflight
