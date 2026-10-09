@@ -43,7 +43,8 @@ jobs:
     steps:
       - name: Mark release workflow start
         id: workflow-start
-        run: echo "started_at=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")" >> "$GITHUB_OUTPUT"
+        run: |
+          printf 'started_at=%s\n' "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -469,6 +470,7 @@ jobs:
           PUBLISH_DIAGNOSTIC: ${{ needs.publish-hex.outputs.diagnostic }}
         run: |
           set -euo pipefail
+          RELEASE_STARTED_AT="$(bash scripts/ci/normalize-release-timestamp.sh "$RELEASE_STARTED_AT")"
           RELEASE_COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           GATE_VERDICT="fail"
           [[ "$GATE_JOB_RESULT" == "success" ]] && GATE_VERDICT="pass"
