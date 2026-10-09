@@ -111,6 +111,46 @@ function preservedFixture(t) {
   return { repo, ledger, live, sourcePath, contentSha, ref, git };
 }
 
+function promotionFixture() {
+  const headSha = sha('a');
+  const baseSha = sha('b');
+  const receipt = {
+    version: '1.6.0',
+    package_source_sha: sha('c'),
+    package_source_ci: {
+      run_id: '37875238741',
+      attempt: 2,
+      head_sha: sha('c'),
+      ci_gate_job_id: '113654406257',
+      ci_gate_conclusion: 'success',
+    },
+  };
+  const promotion = {
+    schema_version: 1,
+    verdict: 'promoted',
+    pr: { number: 349, url: 'https://github.com/szTheory/sigra/pull/349' },
+    head_sha: headSha,
+    base_sha: baseSha,
+    changed_paths: ['scripts/ci/release-public-proof.sh'],
+    review: { result: 'approved', commit_sha: headSha },
+    required_ci: { check_name: 'ci-gate', conclusion: 'success', head_sha: headSha, run_id: '400', attempt: 1, job_id: '401' },
+    merge: { merged: true, merge_sha: sha('d') },
+    release_receipt: {
+      path: '249-RELEASE-RECEIPT.json',
+      sha256: digest('e'),
+      package_source_sha: receipt.package_source_sha,
+      package_source_ci: receipt.package_source_ci,
+    },
+  };
+  const constraints = {
+    expected_head_sha: headSha,
+    expected_base_sha: baseSha,
+    allowed_paths: ['scripts/ci/release-public-proof.sh'],
+    release_receipt: receipt,
+  };
+  return { promotion, constraints, headSha, baseSha };
+}
+
 test('a verified preservation ref and exact path hash allow the source worktree to be clean', t => {
   const { repo, ledger, live } = preservedFixture(t);
   const result = invoke('validatePreservation', ledger, live, { repoRoot: repo });
@@ -158,6 +198,43 @@ test('declared phase evidence outputs do not masquerade as newly inherited dirty
   live.worktrees[0].dirty_paths.push({ path: evidencePath, status: '??', content_state: 'regular-file', sha256: digest('e') });
   const result = invoke('validatePreservation', ledger, live, { repoRoot: '/repo' });
   assert.equal(result.errors.some(error => error.code === 'preservation_new_dirty_path'), false);
+});
+
+test('an exact reviewed head, required ci-gate, receipt and scoped diff can be promoted', () => {
+  const { promotion, constraints } = promotionFixture();
+  const result = invoke('validatePromotion', promotion, constraints);
+  assert.equal(result.valid, true, JSON.stringify(result.errors));
+  assert.equal(result.blocked, false);
+});
+
+test('a changed promotion head or base blocks the receipt', () => {
+  const { promotion, constraints } = promotionFixture();
+  promotion.head_sha = sha('f');
+  promotion.base_sha = sha('e');
+  const result = invoke('validatePromotion', promotion, constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_head_mismatch'));
+  assert.ok(result.errors.some(error => error.code === 'promotion_base_mismatch'));
+});
+
+test('promotion without successful ci-gate evidence is blocked', () => {
+  const { promotion, constraints } = promotionFixture();
+  promotion.required_ci = null;
+  const result = invoke('validatePromotion', promotion, constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_ci_gate_missing'));
+});
+
+test('promotion without the immutable artifact-derived release receipt is blocked', () => {
+  const { promotion, constraints } = promotionFixture();
+  promotion.release_receipt = null;
+  const result = invoke('validatePromotion', promotion, constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_receipt_missing'));
+});
+
+test('promotion with an unrelated diff path is blocked', () => {
+  const { promotion, constraints } = promotionFixture();
+  promotion.changed_paths.push('README.md');
+  const result = invoke('validatePromotion', promotion, constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_diff_path_unrelated'));
 });
 
 test('an exact complete inventory accepts a successful empty PR query', () => {
