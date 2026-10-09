@@ -4,18 +4,18 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 7
+current_plan: 3
 status: executing
-stopped_at: Completed 249-04-PLAN.md
-last_updated: "2026-10-09T13:39:00.000Z"
+stopped_at: Completed 249-07-PLAN.md
+last_updated: "2026-10-09T13:56:00.000Z"
 last_activity: 2026-10-09
-last_activity_desc: Plan 249-04 inventory validated; preservation blockers recorded
-state_head: 496f24c2f7c6ef1955d59c82cf925e4c7c37c9d6
+last_activity_desc: Plan 249-07 release-proof mismatch and hostile-artifact matrix passed
+state_head: 8407b867f9edf2e7ddc8f70aae5ab0485bc3f4d4
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 26
-  completed_plans: 21
+  completed_plans: 22
   percent: 50
 ---
 
@@ -32,13 +32,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 249 (Publish and Prove Sigra 1.6.0) — EXECUTING
-Current Plan: 7 (next eligible plan in Wave 2)
+Current Plan: 3 (next eligible plan in Wave 3)
 Total Plans in Phase: 7
-Plans completed: 3 of 7 (43%)
+Plans completed: 4 of 7 (57%)
 Status: Ready to execute
-Last activity: 2026-10-09 — Plan 249-04 inventory validated; preservation blockers recorded
+Last activity: 2026-10-09 — Plan 249-07 identity and hostile-artifact checks passed
 
-Progress: [████░░░░░░] 43%
+Progress: [██████░░░░] 57%
 
 ### v1.49 phase map
 

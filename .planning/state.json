@@ -27,7 +27,7 @@
   "next": {
     "command": "/gsd:execute-phase 249",
     "label": "Continue Phase 249 execution",
-    "reason": "Plan 249-04 is complete; continue with Plan 249-07 in Wave 2, then proceed to Wave 3."
+    "reason": "Wave 2 is complete; Plan 249-03 is the next runnable plan in Wave 3."
   },
-  "updated_at": "2026-10-09T13:39:00Z"
+  "updated_at": "2026-10-09T13:56:00Z"
 }
