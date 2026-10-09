@@ -12,6 +12,7 @@ const DIGEST = /^[0-9a-f]{64}$/;
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(MODULE_DIR, '../../..');
 const CLOSEOUT_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
+const CANDIDATE_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json';
 const ACCEPTED_HANDOFF_LOSS = Object.freeze({
   path: '.planning/HANDOFF.json',
   status: ' M',
@@ -679,7 +680,9 @@ export function validatePromotion(promotion, constraints = {}) {
     }
     return { valid: errors.length === 0, blocked: true, closeout_status: errors.length ? 'invalid' : 'blocked', errors };
   }
-  if (promotion?.verdict !== 'promoted') add('promotion_verdict_invalid', 'Promotion verdict must be promoted or blocked.');
+  const readyToMerge = promotion?.verdict === 'ready-to-merge';
+  const promoted = promotion?.verdict === 'promoted';
+  if (!readyToMerge && !promoted) add('promotion_verdict_invalid', 'Promotion verdict must be ready-to-merge, promoted or blocked.');
 
   if (!SHA.test(constraints.expected_head_sha ?? '') || promotion?.head_sha !== constraints.expected_head_sha) {
     add('promotion_head_mismatch', 'The promotion head must equal the exact reviewed candidate head.');
@@ -687,8 +690,19 @@ export function validatePromotion(promotion, constraints = {}) {
   if (!SHA.test(constraints.expected_base_sha ?? '') || promotion?.base_sha !== constraints.expected_base_sha) {
     add('promotion_base_mismatch', 'The promotion base must equal the protected-main base captured for review.');
   }
-  if (!Number.isInteger(promotion?.pr?.number) || promotion.pr.number < 1 || typeof promotion.pr.url !== 'string' || !promotion.pr.url.startsWith('https://github.com/szTheory/sigra/pull/')) {
+  if (!Number.isInteger(promotion?.pr?.number) || promotion.pr.number < 1 || typeof promotion.pr.url !== 'string' || !promotion.pr.url.startsWith('https://github.com/szTheory/sigra/pull/')
+    || promotion.repository !== REPOSITORY || promotion.pr.head_repository !== REPOSITORY
+    || promotion.pr.head_ref !== (constraints.expected_head_ref ?? 'gsd/phase-249-09-candidate')
+    || promotion.pr.base_ref !== 'main'
+    || promotion.pr.head_sha !== promotion.head_sha || promotion.pr.base_sha !== promotion.base_sha
+    || (readyToMerge && (promotion.pr.state !== 'open' || promotion.pr.merged !== false))
+    || (promoted && (promotion.pr.state !== 'closed' || promotion.pr.merged !== true))) {
     add('promotion_pr_identity_missing', 'Promotion evidence needs a canonical Sigra pull request identity.');
+  }
+  if (promotion?.files_read?.status !== 'complete'
+    || !Number.isInteger(promotion.files_read.file_count)
+    || promotion.files_read.file_count !== promotion.changed_paths?.length) {
+    add('promotion_files_incomplete', 'The complete paginated PR changed-file set must be available and match the recorded path count.');
   }
   if (!Array.isArray(promotion?.changed_paths) || promotion.changed_paths.length === 0) {
     add('promotion_diff_missing', 'Promotion evidence needs the complete changed-path set.');
@@ -700,12 +714,27 @@ export function validatePromotion(promotion, constraints = {}) {
       }
     }
     if (new Set(promotion.changed_paths).size !== promotion.changed_paths.length) add('promotion_diff_duplicate_path', 'Promotion diff paths must be unique.');
+    if (allowed.size !== promotion.changed_paths.length || [...allowed].some(allowedPath => !promotion.changed_paths.includes(allowedPath))) {
+      add('promotion_diff_path_set_mismatch', 'The complete PR diff must equal the exact fourteen-path candidate allowlist.');
+    }
   }
-  if (promotion?.review?.result !== 'approved' || promotion.review.commit_sha !== promotion.head_sha) {
+  const review = promotion?.review;
+  const hostedReviewValid = review?.type === 'github' && review.result === 'approved'
+    && review.commit_sha === promotion.head_sha && review.reviewer_login
+    && review.reviewer_login !== promotion?.pr?.author_login
+    && review.submitted_at && !Number.isNaN(Date.parse(review.submitted_at));
+  const internalReviewValid = review?.type === 'internal' && review.result === 'passed'
+    && review.commit_sha === promotion.head_sha && review.reviewer_login === 'codex-internal-review'
+    && review.source_path === CANDIDATE_PATH && DIGEST.test(review.source_sha256 ?? '')
+    && review.source_sha256 === constraints.internal_review_sha256;
+  if (!hostedReviewValid && !internalReviewValid) {
     add('promotion_review_missing', 'The exact candidate head needs an approved review.');
   }
   const requiredCi = promotion?.required_ci;
   if (requiredCi?.check_name !== (constraints.required_check_name ?? 'ci-gate')
+    || requiredCi.workflow !== MAIN_CI_WORKFLOW
+    || requiredCi.event !== 'pull_request'
+    || requiredCi.status !== 'completed'
     || requiredCi.conclusion !== 'success'
     || requiredCi.head_sha !== promotion?.head_sha
     || typeof requiredCi.run_id !== 'string'
@@ -713,13 +742,24 @@ export function validatePromotion(promotion, constraints = {}) {
     || !Number.isInteger(requiredCi.attempt)
     || requiredCi.attempt < 1
     || typeof requiredCi.job_id !== 'string'
-    || !/^\d+$/.test(requiredCi.job_id)) {
+    || !/^\d+$/.test(requiredCi.job_id)
+    || requiredCi.job_name !== 'ci-gate'
+    || requiredCi.job_head_sha !== promotion?.head_sha
+    || requiredCi.job_status !== 'completed'
+    || requiredCi.job_conclusion !== 'success') {
     add('promotion_ci_gate_missing', 'Successful ci-gate evidence must identify a run, attempt, job and exact candidate head.');
   }
-  if (promotion?.merge?.merged !== true || !SHA.test(promotion.merge.merge_sha ?? '')) {
-    add('promotion_merge_missing', 'Promotion requires a protected-main merge result and full merge SHA.');
+  if (receipt?.blob_sha !== constraints.release_receipt_blob_sha || !SHA.test(receipt?.blob_sha ?? '')) {
+    add('promotion_receipt_mismatch', 'The PR must carry the exact immutable receipt blob from the local verified candidate.');
   }
-  return { valid: errors.length === 0, blocked: errors.length > 0, closeout_status: errors.length ? 'blocked' : 'ready', errors };
+  if (readyToMerge) {
+    if (promotion?.merge != null) add('promotion_merge_missing', 'A ready-to-merge record must not claim that a merge has already happened.');
+  } else if (promoted && (promotion?.merge?.merged !== true || promotion.merge.method !== 'squash'
+    || !SHA.test(promotion.merge.merge_sha ?? '')
+    || !promotion.merge.merged_at || Number.isNaN(Date.parse(promotion.merge.merged_at)))) {
+    add('promotion_merge_missing', 'Promotion requires the protected squash merge result, full merge SHA and merge timestamp.');
+  }
+  return { valid: errors.length === 0, blocked: errors.length > 0, closeout_status: errors.length ? 'blocked' : readyToMerge ? 'ready-to-merge' : 'promoted', errors };
 }
 
 const RECEIPT_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json';
@@ -1057,6 +1097,282 @@ function githubJson(repoRoot, endpoint) {
   }
 }
 
+function githubPaginatedJson(repoRoot, endpoint) {
+  try {
+    const bytes = run('gh', ['api', '--paginate', '--slurp', endpoint], repoRoot);
+    return { ok: true, value: parsePaginatedArrays(bytes) };
+  } catch (error) {
+    const stderr = Buffer.isBuffer(error.stderr) ? error.stderr.toString('utf8') : '';
+    const status = stderr.match(/HTTP (\d{3})/i)?.[1] ?? null;
+    return { ok: false, status, rate_limited: status === '403' || status === '429' };
+  }
+}
+
+function promotionReview(reviews, headSha, authorLogin, candidate, candidateSha256) {
+  const latestByReviewer = new Map();
+  for (const review of reviews) {
+    const login = review.user?.login;
+    if (!login || !review.submitted_at || Number.isNaN(Date.parse(review.submitted_at))) continue;
+    const previous = latestByReviewer.get(login);
+    if (!previous || Date.parse(review.submitted_at) >= Date.parse(previous.submitted_at)) latestByReviewer.set(login, review);
+  }
+  const approved = [...latestByReviewer.values()]
+    .filter(review => review.state === 'APPROVED' && review.commit_id === headSha && review.user.login !== authorLogin)
+    .sort((left, right) => Date.parse(right.submitted_at) - Date.parse(left.submitted_at));
+  const review = approved[0];
+  if (review) return {
+    type: 'github',
+    result: 'approved',
+    commit_sha: review.commit_id,
+    reviewer_login: review.user.login,
+    author_login: authorLogin,
+    submitted_at: review.submitted_at,
+    review_id: String(review.id),
+  };
+  if (candidate?.internal_review?.status === 'passed' && candidate?.candidate?.head_sha === headSha
+    && candidate?.candidate?.clean === true && DIGEST.test(candidateSha256 ?? '')) {
+    return {
+      type: 'internal',
+      result: 'passed',
+      commit_sha: headSha,
+      reviewer_login: 'codex-internal-review',
+      author_login: authorLogin,
+      source_path: CANDIDATE_PATH,
+      source_sha256: candidateSha256,
+      source_recorded_at: candidate.recorded_at,
+    };
+  }
+  return { type: 'missing', result: 'missing', commit_sha: null, reviewer_login: null, author_login: authorLogin, submitted_at: null };
+}
+
+function collectPromotionCi(repoRoot, headSha, prNumber) {
+  const runsEndpoint = `repos/${REPOSITORY}/actions/runs?head_sha=${headSha}&event=pull_request&per_page=100`;
+  const runs = githubJson(repoRoot, runsEndpoint);
+  if (!runs.ok) return { status: runs.rate_limited ? 'rate_limited' : 'failed', endpoint: runsEndpoint };
+  const candidates = (runs.value.workflow_runs ?? []).filter(run => run.path === MAIN_CI_WORKFLOW
+    && run.event === 'pull_request' && run.head_sha === headSha
+    && (run.pull_requests ?? []).some(row => row.number === prNumber));
+  candidates.sort((left, right) => (right.run_number ?? 0) - (left.run_number ?? 0)
+    || (right.run_attempt ?? 0) - (left.run_attempt ?? 0));
+  const runRow = candidates[0];
+  if (!runRow) return { status: 'missing', workflow: MAIN_CI_WORKFLOW, event: 'pull_request', head_sha: headSha };
+  const attempt = Number(runRow.run_attempt);
+  const record = {
+    check_name: 'ci-gate',
+    workflow: runRow.path,
+    event: runRow.event,
+    status: runRow.status,
+    conclusion: runRow.conclusion,
+    head_sha: runRow.head_sha,
+    run_id: String(runRow.id),
+    attempt,
+    url: runRow.html_url,
+    job_name: null,
+    job_id: null,
+    job_head_sha: null,
+    job_status: null,
+    job_conclusion: null,
+  };
+  if (runRow.status !== 'completed' || !Number.isInteger(attempt) || attempt < 1) return record;
+  const jobsEndpoint = `repos/${REPOSITORY}/actions/runs/${runRow.id}/attempts/${attempt}/jobs?per_page=100`;
+  const jobs = githubJson(repoRoot, jobsEndpoint);
+  if (!jobs.ok) return { ...record, jobs_status: jobs.rate_limited ? 'rate_limited' : 'failed' };
+  const gates = (jobs.value.jobs ?? []).filter(job => job.name === 'ci-gate'
+    && job.run_attempt === attempt && job.head_sha === headSha);
+  if (gates.length === 1) {
+    const gate = gates[0];
+    Object.assign(record, {
+      job_name: gate.name,
+      job_id: String(gate.id),
+      job_head_sha: gate.head_sha,
+      job_status: gate.status,
+      job_conclusion: gate.conclusion,
+      job_url: gate.html_url,
+    });
+  } else {
+    record.jobs_status = 'ci_gate_missing_or_ambiguous';
+  }
+  return record;
+}
+
+function collectLivePromotion(repoRoot, candidate, receipt) {
+  const candidateInfo = candidate?.candidate ?? {};
+  const expectedHeadSha = candidateInfo.head_sha;
+  const expectedBaseSha = candidateInfo.base_sha;
+  const allowedPaths = candidateInfo.changed_paths ?? [];
+  let candidateSha256 = null;
+  try { candidateSha256 = sha256(fs.readFileSync(path.join(repoRoot, CANDIDATE_PATH))); } catch { /* An unreadable review artifact cannot satisfy the internal review fallback. */ }
+  const blockers = [];
+  const addBlocker = (code, reason) => blockers.push({ code, reason });
+  const mainBefore = githubJson(repoRoot, `repos/${REPOSITORY}/commits/main`);
+  if (!mainBefore.ok || !SHA.test(mainBefore.value?.sha ?? '')) {
+    addBlocker(mainBefore.rate_limited ? 'github_rate_limited' : 'protected_main_read_failed', 'Protected main could not be read before promotion evidence capture.');
+  } else if (mainBefore.value.sha !== expectedBaseSha) {
+    addBlocker('candidate_base_stale', `Protected main advanced from candidate base ${expectedBaseSha} to ${mainBefore.value.sha}; rebuild/re-review the candidate against current main.`);
+  }
+
+  const prList = githubPaginatedJson(repoRoot, `repos/${REPOSITORY}/pulls?state=all&per_page=100`);
+  if (!prList.ok) {
+    addBlocker(prList.rate_limited ? 'github_rate_limited' : 'pull_request_list_read_failed', 'The complete open PR list could not be read.');
+  }
+  const matching = prList.ok ? prList.value.filter(row => row.head?.ref === candidateInfo.branch
+    && row.head?.repo?.full_name === REPOSITORY && row.base?.ref === 'main') : [];
+  if (matching.length === 0) addBlocker('scoped_pr_not_opened', 'No open same-repository Phase 249 PR exists for the reviewed candidate branch.');
+  if (matching.length > 1) addBlocker('scoped_pr_ambiguous', 'More than one open same-repository PR uses the scoped Phase 249 candidate branch.');
+
+  let promotion = null;
+  let mainAfterSha = null;
+  if (matching.length === 1) {
+    const listed = matching[0];
+    const prResponse = githubJson(repoRoot, `repos/${REPOSITORY}/pulls/${listed.number}`);
+    const pr = prResponse.ok ? prResponse.value : listed;
+    if (!prResponse.ok) addBlocker(prResponse.rate_limited ? 'github_rate_limited' : 'pull_request_read_failed', `The scoped PR #${listed.number} could not be read in full.`);
+    const files = githubPaginatedJson(repoRoot, `repos/${REPOSITORY}/pulls/${listed.number}/files?per_page=100`);
+    const reviews = githubPaginatedJson(repoRoot, `repos/${REPOSITORY}/pulls/${listed.number}/reviews?per_page=100`);
+    if (!files.ok) addBlocker(files.rate_limited ? 'github_rate_limited' : 'changed_files_read_failed', 'The complete paginated PR changed-file list could not be read.');
+    if (!reviews.ok) addBlocker(reviews.rate_limited ? 'github_rate_limited' : 'reviews_read_failed', 'The complete paginated PR review history could not be read.');
+    const changedPaths = files.ok ? files.value.map(row => row.filename) : [];
+    const review = promotionReview(reviews.ok ? reviews.value : [], pr.head?.sha, pr.user?.login, candidate, candidateSha256);
+    if (review.result !== 'approved') addBlocker('review_missing_for_exact_head', 'An independent approved review for the current exact candidate head is not present.');
+    const receiptResponse = githubJson(repoRoot, `repos/${REPOSITORY}/contents/${RECEIPT_PATH}?ref=${pr.head?.sha ?? expectedHeadSha}`);
+    let liveReceipt = null;
+    if (receiptResponse.ok) {
+      try {
+        const bytes = Buffer.from(String(receiptResponse.value.content ?? '').replace(/\s/g, ''), 'base64');
+        liveReceipt = {
+          path: receiptResponse.value.path,
+          blob_sha: receiptResponse.value.sha,
+          sha256: sha256(bytes),
+          value: JSON.parse(bytes.toString('utf8')),
+        };
+      } catch {
+        addBlocker('release_receipt_invalid', 'The candidate receipt exists but its bytes are not valid JSON.');
+      }
+    } else {
+      addBlocker(receiptResponse.rate_limited ? 'github_rate_limited' : 'release_receipt_missing_from_candidate', 'The immutable release receipt could not be read at the candidate head.');
+    }
+    const localReceiptRecord = receipt ? {
+      path: RECEIPT_PATH,
+      sha256: receipt.sha256,
+      blob_sha: receipt.blob_sha,
+      version: receipt.value.version,
+      package_source_sha: receipt.value.package_source_sha,
+      package_source_ci: receipt.value.package_source_ci,
+    } : null;
+    if (!localReceiptRecord || !liveReceipt || liveReceipt.blob_sha !== localReceiptRecord.blob_sha
+      || liveReceipt.sha256 !== localReceiptRecord.sha256
+      || !sameJson(liveReceipt.value, receipt.value)) {
+      addBlocker('release_receipt_mismatch', 'The candidate PR receipt bytes or Git blob differ from the locally verified immutable receipt.');
+    }
+    const ci = collectPromotionCi(repoRoot, pr.head?.sha ?? '', listed.number);
+    if (ci.status === 'missing' || ci.status === 'failed' || ci.status === 'rate_limited') {
+      addBlocker(ci.status === 'rate_limited' ? 'github_rate_limited' : 'ci_gate_missing', 'A complete ordinary pull_request CI run for the exact candidate head is unavailable.');
+    } else if (ci.status !== 'completed' || ci.conclusion !== 'success' || ci.job_status !== 'completed' || ci.job_conclusion !== 'success') {
+      addBlocker('ci_gate_not_successful', 'The exact-head ordinary CI run and ci-gate job have not both completed successfully.');
+    }
+    let merge = null;
+    if (pr.merged === true && pr.merge_commit_sha) {
+      const mergeCommit = githubJson(repoRoot, `repos/${REPOSITORY}/commits/${pr.merge_commit_sha}`);
+      const prCommits = githubPaginatedJson(repoRoot, `repos/${REPOSITORY}/pulls/${listed.number}/commits?per_page=100`);
+      const parents = mergeCommit.ok ? mergeCommit.value.parents ?? [] : [];
+      const isSquash = mergeCommit.ok && prCommits.ok && prCommits.value.length > 1
+        && parents.length === 1 && parents[0].sha === expectedBaseSha
+        && pr.merge_commit_sha !== expectedHeadSha;
+      merge = {
+        merged: true,
+        method: isSquash ? 'squash' : null,
+        merge_sha: pr.merge_commit_sha,
+        merged_at: pr.merged_at,
+        method_evidence: {
+          merge_commit_read: mergeCommit.ok,
+          merge_parent_count: parents.length,
+          merge_parent_sha: parents[0]?.sha ?? null,
+          pull_request_commit_count: prCommits.ok ? prCommits.value.length : null,
+          candidate_head_sha: expectedHeadSha,
+          expected_base_sha: expectedBaseSha,
+        },
+      };
+      if (!isSquash) addBlocker('promotion_merge_method_unproven', 'The merged PR does not have source-backed commit ancestry proving a squash merge from the exact candidate base.');
+    }
+    promotion = {
+      schema_version: 1,
+      repository: REPOSITORY,
+      pr: {
+        number: pr.number,
+        url: pr.html_url,
+        state: pr.state,
+        merged: pr.merged === true,
+        title: pr.title,
+        base_ref: pr.base?.ref,
+        base_sha: pr.base?.sha,
+        head_ref: pr.head?.ref,
+        head_sha: pr.head?.sha,
+        head_repository: pr.head?.repo?.full_name,
+        author_login: pr.user?.login,
+      },
+      head_sha: pr.head?.sha,
+      base_sha: pr.base?.sha,
+      files_read: { status: files.ok ? 'complete' : 'failed', file_count: changedPaths.length, endpoint: `repos/${REPOSITORY}/pulls/${listed.number}/files?per_page=100` },
+      changed_paths: changedPaths.sort(),
+      review,
+      required_ci: ci,
+      release_receipt: localReceiptRecord,
+      receipt_on_candidate: liveReceipt ? { path: liveReceipt.path, blob_sha: liveReceipt.blob_sha, sha256: liveReceipt.sha256 } : null,
+      merge,
+    };
+
+    const prAfter = githubJson(repoRoot, `repos/${REPOSITORY}/pulls/${listed.number}`);
+    const mainAfter = githubJson(repoRoot, `repos/${REPOSITORY}/commits/main`);
+    if (!prAfter.ok || !mainAfter.ok) {
+      addBlocker(prAfter.rate_limited || mainAfter.rate_limited ? 'github_rate_limited' : 'final_recheck_failed', 'The final PR/main reread failed; no merge is safe.');
+    } else {
+      mainAfterSha = mainAfter.value.sha;
+      const currentPr = prAfter.value;
+      if (currentPr.head?.sha !== promotion.head_sha || currentPr.base?.sha !== promotion.base_sha
+        || currentPr.state !== pr.state || currentPr.merged !== pr.merged) {
+        addBlocker('promotion_race_detected', 'The scoped PR state, head or base changed while evidence was being collected.');
+      }
+      if (mainBefore.ok && mainAfter.value.sha !== mainBefore.value.sha) addBlocker('promotion_race_detected', 'Protected main changed while evidence was being collected.');
+      if (mainAfter.value.sha !== expectedBaseSha) addBlocker('candidate_base_stale', 'Protected main no longer equals the reviewed candidate base.');
+    }
+  }
+
+  const noBlockers = blockers.length === 0;
+  if (promotion && noBlockers) promotion.verdict = promotion.pr.merged ? 'promoted' : 'ready-to-merge';
+  const record = {
+    schema_version: 1,
+    phase: 249,
+    plan: '11',
+    repository: REPOSITORY,
+    recorded_at: new Date().toISOString(),
+    verdict: noBlockers && promotion?.pr.merged ? 'promoted' : noBlockers ? 'ready-to-merge' : 'blocked',
+    candidate: { head_sha: expectedHeadSha, base_sha: expectedBaseSha, branch: candidateInfo.branch, changed_path_count: allowedPaths.length },
+    pr: promotion?.pr ?? null,
+    head_sha: promotion?.head_sha ?? expectedHeadSha ?? null,
+    base_sha: promotion?.base_sha ?? expectedBaseSha ?? null,
+    changed_paths: promotion?.changed_paths ?? [],
+    files_read: promotion?.files_read ?? { status: 'missing', file_count: 0 },
+    review: promotion?.review ?? null,
+    required_ci: promotion?.required_ci ?? null,
+    release_receipt: promotion?.release_receipt ?? (receipt ? {
+      path: RECEIPT_PATH, sha256: receipt.sha256, blob_sha: receipt.blob_sha,
+      version: receipt.value.version, package_source_sha: receipt.value.package_source_sha,
+      package_source_ci: receipt.value.package_source_ci,
+    } : null),
+    receipt_on_candidate: promotion?.receipt_on_candidate ?? null,
+    merge: promotion?.merge ?? null,
+    promotion,
+    blockers,
+    observations: {
+      protected_main_before_sha: mainBefore.value?.sha ?? null,
+      protected_main_after_sha: null,
+      open_pr_list_status: prList.ok ? 'complete' : prList.rate_limited ? 'rate_limited' : 'failed',
+      protected_main_after_sha: mainAfterSha,
+    },
+  };
+  return { record, promotion, blockers };
+}
+
 function readLocalPromotion(repoRoot) {
   const ref = 'evidence/phase-249-promotion';
   try {
@@ -1214,6 +1530,287 @@ function writeJsonArtifact(repoRoot, outputPath, value) {
   fs.writeFileSync(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
   fs.renameSync(temporaryPath, absolutePath);
   return absolutePath;
+}
+
+function readCandidateEvidence(repoRoot) {
+  const bytes = fs.readFileSync(path.join(repoRoot, CANDIDATE_PATH));
+  const candidate = JSON.parse(bytes.toString('utf8'));
+  const details = candidate.candidate ?? {};
+  const errors = [];
+  const add = code => errors.push(code);
+  if (candidate.status !== 'ready-for-plan-11' || details.clean !== true
+    || candidate.internal_review?.status !== 'passed') add('candidate_not_reviewed');
+  if (!SHA.test(details.head_sha ?? '') || !SHA.test(details.base_sha ?? '') || !Array.isArray(details.changed_paths)
+    || details.changed_path_count !== details.changed_paths.length || details.changed_paths.length !== 14
+    || new Set(details.changed_paths).size !== details.changed_paths.length) add('candidate_identity_invalid');
+  const candidateRoot = details.worktree;
+  if (typeof candidateRoot !== 'string' || !fs.existsSync(candidateRoot)) add('candidate_worktree_missing');
+  if (!errors.length) {
+    const head = runText('git', ['-C', candidateRoot, 'rev-parse', 'HEAD'], repoRoot);
+    const status = runText('git', ['-C', candidateRoot, 'status', '--porcelain=v1', '-z', '-uall'], repoRoot);
+    const paths = run('git', ['-C', candidateRoot, 'diff', '--name-only', '-z', `${details.base_sha}...${details.head_sha}`], repoRoot)
+      .toString('utf8').split('\0').filter(Boolean).sort();
+    if (head !== details.head_sha || status !== '') add('candidate_worktree_changed');
+    if (!equalList(paths, [...details.changed_paths].sort())) add('candidate_path_set_mismatch');
+    const receipt = localReceipt(candidateRoot);
+    if (!receipt.value || receipt.sha256 !== candidate.release_receipt?.sha256
+      || receipt.value.package_source_sha !== candidate.release_receipt?.package_source_sha) add('candidate_receipt_mismatch');
+    return { candidate, candidate_root: candidateRoot, receipt, artifact_sha256: sha256(bytes), errors };
+  }
+  return { candidate, candidate_root: candidateRoot ?? null, receipt: { value: null, sha256: null, blob_sha: null }, artifact_sha256: sha256(bytes), errors };
+}
+
+function ensureScopedPromotionPr(repoRoot, verified) {
+  const { candidate } = verified;
+  const details = candidate.candidate;
+  const listing = githubPaginatedJson(repoRoot, `repos/${REPOSITORY}/pulls?state=all&head=${encodeURIComponent('szTheory:' + details.branch)}&per_page=100`);
+  if (!listing.ok) return { ok: false, blocker: listing.rate_limited ? 'github_rate_limited' : 'pull_request_list_read_failed' };
+  const rows = listing.value.filter(row => row.head?.ref === details.branch
+    && row.head?.repo?.full_name === REPOSITORY && row.base?.ref === 'main');
+  if (rows.length > 1) return { ok: false, blocker: 'scoped_pr_ambiguous' };
+  if (rows.length === 1) {
+    const pr = githubJson(repoRoot, `repos/${REPOSITORY}/pulls/${rows[0].number}`);
+    if (!pr.ok || pr.value.head?.sha !== details.head_sha || pr.value.base?.sha !== details.base_sha) {
+      return { ok: false, blocker: pr.rate_limited ? 'github_rate_limited' : 'existing_pr_identity_mismatch', pr_number: rows[0].number };
+    }
+    return { ok: true, pr_number: rows[0].number, created: false };
+  }
+
+  const main = githubJson(repoRoot, `repos/${REPOSITORY}/commits/main`);
+  if (!main.ok || main.value?.sha !== details.base_sha) return { ok: false, blocker: main.rate_limited ? 'github_rate_limited' : 'candidate_base_stale' };
+  let remoteSha = null;
+  try {
+    const remote = runText('git', ['-C', verified.candidate_root, 'ls-remote', '--heads', 'origin', `refs/heads/${details.branch}`], repoRoot);
+    remoteSha = remote.split(/\s+/)[0] || null;
+  } catch {
+    return { ok: false, blocker: 'candidate_remote_read_failed' };
+  }
+  if (remoteSha && remoteSha !== details.head_sha) return { ok: false, blocker: 'candidate_remote_branch_conflict' };
+  if (!remoteSha) {
+    try {
+      run('git', ['-C', verified.candidate_root, 'push', 'origin', `HEAD:refs/heads/${details.branch}`], repoRoot);
+    } catch {
+      return { ok: false, blocker: 'candidate_push_failed' };
+    }
+  }
+
+  const finalMain = githubJson(repoRoot, `repos/${REPOSITORY}/commits/main`);
+  if (!finalMain.ok || finalMain.value?.sha !== details.base_sha) return { ok: false, blocker: finalMain.rate_limited ? 'github_rate_limited' : 'candidate_base_stale' };
+  const body = [
+    '## Scope',
+    '',
+    'Promotes the reviewed Sigra 1.6.0 release candidate, its immutable source receipt, and the exact-head CI/release-proof gates for Phase 249.',
+    '',
+    `- Candidate head: \`${details.head_sha}\``,
+    `- Protected-main base: \`${details.base_sha}\``,
+    `- Exact scoped paths: ${details.changed_paths.length} (see the complete PR diff)`,
+    `- Local contributor gate and release-doc contract checks: passed (Plan 10 evidence)`,
+    '',
+    'The package-source SHA and CI run remain the immutable identities recorded in the committed receipt. This PR does not include Release Please PRs or other open work.',
+  ].join('\n');
+  try {
+    const output = runText('gh', ['pr', 'create', '--repo', REPOSITORY, '--base', 'main', '--head', details.branch,
+      '--title', 'feat(249): prove the Sigra 1.6.0 release', '--body', body], repoRoot);
+    const number = Number(output.match(/\/pull\/(\d+)/)?.[1]);
+    if (!Number.isInteger(number) || number < 1) return { ok: false, blocker: 'pull_request_creation_unconfirmed' };
+    return { ok: true, pr_number: number, created: true, url: output };
+  } catch {
+    return { ok: false, blocker: 'pull_request_creation_failed' };
+  }
+}
+
+function commitPromotionEvidence(repoRoot, fileBytes) {
+  const ref = 'refs/heads/evidence/phase-249-promotion';
+  const previous = runText('git', ['rev-parse', '--verify', `${ref}^{commit}`], repoRoot);
+  const blob = execFileSync('git', ['hash-object', '-w', '--stdin'], { cwd: repoRoot, input: fileBytes, encoding: 'utf8' }).trim();
+  const indexDir = fs.mkdtempSync(path.join('/tmp', 'sigra-phase-249-promotion-index-'));
+  const indexPath = path.join(indexDir, 'index');
+  const options = { cwd: repoRoot, env: { ...process.env, GIT_INDEX_FILE: indexPath }, encoding: 'utf8' };
+  try {
+    execFileSync('git', ['read-tree', previous], options);
+    execFileSync('git', ['update-index', '--add', '--cacheinfo', '100644', blob, PROMOTION_PATH], options);
+    const tree = execFileSync('git', ['write-tree'], options).trim();
+    const commit = execFileSync('git', ['commit-tree', tree, '-p', previous, '-m', 'docs(249-11): record scoped promotion evidence'], options).trim();
+    execFileSync('git', ['update-ref', ref, commit, previous], { cwd: repoRoot, stdio: 'ignore' });
+    const verified = run('git', ['show', `${ref}:${PROMOTION_PATH}`], repoRoot);
+    if (!verified.equals(fileBytes)) throw new Error('Promotion evidence ref read-back differed from the captured bytes.');
+    return { ref, previous_commit_sha: previous, commit_sha: commit, sha256: sha256(verified), blob_sha: blob };
+  } finally {
+    fs.rmSync(indexDir, { recursive: true, force: true });
+  }
+}
+
+function persistPromotionEvidence(repoRoot, outputPath, record) {
+  const absolutePath = path.resolve(repoRoot, outputPath);
+  const relativePath = path.relative(repoRoot, absolutePath);
+  if (relativePath === '..' || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) {
+    throw new Error('Promotion evidence output must stay inside the repository.');
+  }
+  if (fs.existsSync(absolutePath)) throw new Error('Promotion evidence output already exists; preserve/read back its bytes before replacing it.');
+  fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
+  const bytes = Buffer.from(`${JSON.stringify(record, null, 2)}\n`);
+  const descriptor = fs.openSync(absolutePath, 'wx', 0o600);
+  try { fs.writeFileSync(descriptor, bytes); } finally { fs.closeSync(descriptor); }
+  const evidenceRef = commitPromotionEvidence(repoRoot, bytes);
+  const workingBytes = fs.readFileSync(absolutePath);
+  if (!workingBytes.equals(bytes) || sha256(workingBytes) !== evidenceRef.sha256) {
+    throw new Error('Promotion evidence working bytes changed before verified evidence-ref cleanup.');
+  }
+  fs.unlinkSync(absolutePath);
+  return evidenceRef;
+}
+
+function completePromotionMerge(repoRoot, evidence) {
+  const promotion = evidence.promotion;
+  const headSha = promotion.head_sha;
+  const baseSha = promotion.base_sha;
+  try {
+    run('gh', ['pr', 'merge', String(promotion.pr.number), '--repo', REPOSITORY, '--auto', '--squash', '--match-head-commit', headSha], repoRoot);
+  } catch (error) {
+    return { merged: false, error: Buffer.isBuffer(error.stderr) ? error.stderr.toString('utf8').slice(-1000) : 'Native protected auto-merge request failed.' };
+  }
+  const prResponse = githubJson(repoRoot, `repos/${REPOSITORY}/pulls/${promotion.pr.number}`);
+  if (!prResponse.ok || prResponse.value.merged !== true || prResponse.value.head?.sha !== headSha
+    || prResponse.value.base?.ref !== 'main' || !prResponse.value.merge_commit_sha) {
+    return { merged: false, pr_state: prResponse.value?.state ?? null, code: prResponse.rate_limited ? 'github_rate_limited' : 'native_auto_merge_pending' };
+  }
+  const mergedPr = prResponse.value;
+  const mergeCommit = githubJson(repoRoot, `repos/${REPOSITORY}/commits/${mergedPr.merge_commit_sha}`);
+  const commits = githubPaginatedJson(repoRoot, `repos/${REPOSITORY}/pulls/${promotion.pr.number}/commits?per_page=100`);
+  const parents = mergeCommit.ok ? mergeCommit.value.parents ?? [] : [];
+  const squash = mergeCommit.ok && commits.ok && commits.value.length > 1
+    && parents.length === 1 && parents[0].sha === baseSha && mergedPr.merge_commit_sha !== headSha;
+  const liveMain = githubJson(repoRoot, `repos/${REPOSITORY}/commits/main`);
+  const onMain = liveMain.ok && liveMain.value.sha === mergedPr.merge_commit_sha;
+  if (!squash || !onMain) return { merged: false, code: squash ? 'merge_not_on_main' : 'squash_merge_unproven' };
+  promotion.verdict = 'promoted';
+  promotion.pr = {
+    ...promotion.pr,
+    state: mergedPr.state,
+    merged: true,
+    head_sha: mergedPr.head.sha,
+    base_ref: mergedPr.base.ref,
+  };
+  promotion.merge = {
+    merged: true,
+    method: 'squash',
+    merge_sha: mergedPr.merge_commit_sha,
+    merged_at: mergedPr.merged_at,
+    method_evidence: {
+      merge_parent_count: parents.length,
+      merge_parent_sha: parents[0]?.sha ?? null,
+      pull_request_commit_count: commits.value.length,
+      expected_base_sha: baseSha,
+      protected_main_sha_after_merge: liveMain.value.sha,
+    },
+  };
+  evidence.verdict = 'promoted';
+  evidence.pr = promotion.pr;
+  evidence.merge = promotion.merge;
+  return { merged: true };
+}
+
+function runPromotionWorkflow(repoRoot, ledger, ledgerPath, outputPath) {
+  const verified = readCandidateEvidence(repoRoot);
+  const live = collectLiveInventory({ repoRoot, ledger });
+  const preservation = validatePreservation(ledger, live, { repoRoot });
+  const blockers = verified.errors.map(code => ({ code, reason: 'The exact Plan 10 candidate worktree, fourteen-path diff, receipt, or internal review could not be revalidated.' }));
+  if (!preservation.valid || preservation.blocked) blockers.push({
+    code: 'preservation_blocked',
+    reason: `${preservation.blockers.length} inherited paths remain blocked; see the exact path/status/hash rows in 249-CLOSEOUT.json.`,
+    closeout_ledger_sha256: sha256(fs.readFileSync(ledgerPath)),
+  });
+  const validationPath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-VALIDATION.json';
+  let validationEvidence = null;
+  try { validationEvidence = sha256(fs.readFileSync(path.join(repoRoot, validationPath))); } catch { /* Preserve this absence as a coded blocker. */ }
+  if (!validationEvidence) blockers.push({ code: 'validation_evidence_missing', reason: 'The Phase 249 Plan 05 focused and full contributor-gate evidence artifact is unavailable.' });
+  if (!verified.receipt.value) blockers.push({ code: 'release_receipt_missing', reason: 'The immutable artifact-derived 1.6.0 receipt could not be read from the clean candidate.' });
+
+  let pr = null;
+  if (blockers.length === 0) {
+    pr = ensureScopedPromotionPr(repoRoot, verified);
+    if (!pr.ok) blockers.push({ code: pr.blocker, reason: 'The exact candidate could not be safely pushed or represented by one same-repository Phase 249 PR.' });
+  }
+
+  let evidence;
+  let validation;
+  if (blockers.length) {
+    const record = {
+      schema_version: 1, phase: 249, plan: '11', repository: REPOSITORY, recorded_at: new Date().toISOString(),
+      verdict: 'blocked', candidate: verified.candidate.candidate,
+      release_receipt: verified.receipt.value ? {
+        path: RECEIPT_PATH, sha256: verified.receipt.sha256, blob_sha: verified.receipt.blob_sha,
+        version: verified.receipt.value.version, package_source_sha: verified.receipt.value.package_source_sha,
+        package_source_ci: verified.receipt.value.package_source_ci,
+      } : null,
+      promotion: null,
+      closeout: { path: path.relative(repoRoot, ledgerPath), sha256: sha256(fs.readFileSync(ledgerPath)), preservation_status: preservation.closeout_status },
+      blockers,
+    };
+    validation = validatePromotion(record, { release_receipt: verified.receipt.value, release_receipt_sha256: verified.receipt.sha256 });
+    evidence = record;
+  } else {
+    let collected = collectLivePromotion(repoRoot, verified.candidate, verified.receipt);
+    const ci = collected.promotion?.required_ci;
+    if (ci?.run_id && ['queued', 'in_progress', 'waiting', 'pending'].includes(ci.status)) {
+      const rate = githubJson(repoRoot, 'rate_limit');
+      const remaining = Number(rate.value?.resources?.core?.remaining);
+      if (!rate.ok || !Number.isInteger(remaining) || remaining <= 250) {
+        collected.blockers.push({ code: rate.rate_limited ? 'github_rate_limited' : 'github_rate_budget_low', reason: 'The REST core budget is at most 250 or unavailable; CI polling is paused until the reset time.' });
+      } else {
+        try {
+          run('gh', ['run', 'watch', ci.run_id, '--repo', REPOSITORY, '--compact', '--interval', '60', '--exit-status'], repoRoot, 16 * 1024 * 1024);
+        } catch {
+          // A completed red run is read once below; failed logs are requested only after its conclusion is confirmed.
+        }
+        collected = collectLivePromotion(repoRoot, verified.candidate, verified.receipt);
+        if (collected.promotion?.required_ci?.status === 'completed' && collected.promotion.required_ci.conclusion !== 'success') {
+          try {
+            const logs = run('gh', ['run', 'view', collected.promotion.required_ci.run_id, '--repo', REPOSITORY, '--log-failed'], repoRoot, 16 * 1024 * 1024).toString('utf8');
+            collected.record.ci_failure_log_bytes_read = Buffer.byteLength(logs);
+          } catch { /* A missing failed-log read does not turn a failed run green. */ }
+        }
+      }
+    }
+    evidence = collected.record;
+    const promotion = collected.promotion;
+    validation = promotion ? validatePromotion(promotion, {
+      expected_head_sha: verified.candidate.candidate.head_sha,
+      expected_base_sha: verified.candidate.candidate.base_sha,
+      expected_head_ref: verified.candidate.candidate.branch,
+      allowed_paths: verified.candidate.candidate.changed_paths,
+      release_receipt: verified.receipt.value,
+      release_receipt_sha256: verified.receipt.sha256,
+      release_receipt_blob_sha: verified.receipt.blob_sha,
+      internal_review_sha256: verified.artifact_sha256,
+    }) : { valid: false, blocked: true, closeout_status: 'blocked', errors: [{ code: 'scoped_pr_not_opened', message: 'No scoped PR evidence is available.' }] };
+    if (!collected.blockers.length && validation.valid && promotion.verdict === 'ready-to-merge') {
+      const merged = completePromotionMerge(repoRoot, evidence);
+      if (merged.merged) validation = validatePromotion(evidence.promotion, {
+        expected_head_sha: verified.candidate.candidate.head_sha,
+        expected_base_sha: verified.candidate.candidate.base_sha,
+        expected_head_ref: verified.candidate.candidate.branch,
+        allowed_paths: verified.candidate.candidate.changed_paths,
+        release_receipt: verified.receipt.value,
+        release_receipt_sha256: verified.receipt.sha256,
+        release_receipt_blob_sha: verified.receipt.blob_sha,
+        internal_review_sha256: verified.artifact_sha256,
+      });
+      else {
+        evidence.verdict = 'blocked';
+        evidence.blockers = [{ code: merged.code ?? 'native_auto_merge_pending', reason: merged.error ?? 'GitHub has not completed the protected squash auto-merge.' }];
+        validation = { valid: false, blocked: true, closeout_status: 'blocked', errors: [{ code: merged.code ?? 'native_auto_merge_pending', message: merged.error ?? 'GitHub has not completed the protected squash auto-merge.' }] };
+      }
+    } else if (collected.blockers.length) {
+      evidence.verdict = 'blocked';
+      evidence.blockers = collected.blockers;
+      validation = { valid: false, blocked: true, closeout_status: 'blocked', errors: collected.blockers.map(row => ({ code: row.code, message: row.reason })) };
+    }
+  }
+
+  evidence.validation = validation;
+  const evidenceRef = persistPromotionEvidence(repoRoot, outputPath, evidence);
+  return { record: evidence, validation, evidence_ref: evidenceRef, pr_created: pr?.created ?? false, pr_number: pr?.pr_number ?? evidence.pr?.number ?? null };
 }
 
 function parseArgs(args) {
@@ -1402,87 +1999,7 @@ async function main() {
       },
     }
       : args.mode === 'preservation' ? preservationResult
-        : args.mode === 'promotion' ? (() => {
-          const receiptRelativePath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json';
-          const receiptAbsolutePath = path.join(DEFAULT_ROOT, receiptRelativePath);
-          const validationRelativePath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-VALIDATION.json';
-          const validationAbsolutePath = path.join(DEFAULT_ROOT, validationRelativePath);
-          let receipt = null;
-          let receiptHash = null;
-          let validationEvidenceHash = null;
-          try {
-            const receiptBytes = fs.readFileSync(receiptAbsolutePath);
-            receipt = JSON.parse(receiptBytes.toString('utf8'));
-            receiptHash = sha256(receiptBytes);
-          } catch {
-            // An unavailable release receipt is recorded as a blocker below.
-          }
-          try {
-            validationEvidenceHash = sha256(fs.readFileSync(validationAbsolutePath));
-          } catch {
-            // An unavailable local verification record is recorded as a blocker below.
-          }
-          const unresolved = ledger.worktrees.flatMap(worktree => (worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? [])
-            .filter(dirty => !['preserved', 'accepted-loss'].includes(dirty.preservation?.state))
-            .map(dirty => ({ worktree_path: worktree.path, path: dirty.path, status: dirty.status, sha256: dirty.sha256 })));
-          const blockers = [];
-          if (!receipt) blockers.push({ code: 'release_receipt_missing', reason: 'The immutable 1.6.0 artifact-derived release receipt could not be read.' });
-          if (!validationEvidenceHash) blockers.push({ code: 'validation_evidence_missing', reason: 'The focused tests, exact-source docs comparison and full source CI result are not available in the Plan 05 validation artifact.' });
-          if (!preservationResult.valid || preservationResult.blocked) {
-            blockers.push({
-              code: 'preservation_blocked',
-              reason: `${preservationResult.blockers.length} inherited paths remain blocked; see the exact path/status/hash rows in 249-CLOSEOUT.json.`,
-              closeout_ledger_sha256: sha256(fs.readFileSync(ledgerPath)),
-              unresolved_path_count: unresolved.length,
-            });
-          }
-          blockers.push({
-            code: 'scoped_pr_not_opened',
-            reason: 'No Plan 05 phase-scoped PR has been opened. Promotion requires unblocked preservation, internal review, exact-head ci-gate and protected merge evidence.',
-          });
-          const promotionRecord = {
-            schema_version: 1,
-            phase: 249,
-            plan: '05',
-            recorded_at: new Date().toISOString(),
-            verdict: 'blocked',
-            release_receipt: receipt ? {
-              path: receiptRelativePath,
-              sha256: receiptHash,
-              version: receipt.version,
-              package_source_sha: receipt.package_source_sha,
-              package_source_ci: receipt.package_source_ci,
-            } : null,
-            validation_evidence: validationEvidenceHash ? {
-              path: validationRelativePath,
-              sha256: validationEvidenceHash,
-            } : null,
-            promotion: null,
-            closeout: {
-              path: path.relative(DEFAULT_ROOT, ledgerPath),
-              sha256: sha256(fs.readFileSync(ledgerPath)),
-              preservation_status: preservationResult.closeout_status,
-              unresolved_path_count: unresolved.length,
-              unresolved_paths: unresolved,
-              accepted_losses: preservationResult.accepted_losses,
-            },
-            blockers,
-          };
-          const validation = validatePromotion(promotionRecord, {
-            release_receipt: receipt,
-            release_receipt_sha256: receiptHash,
-          });
-          const outputPath = path.resolve(DEFAULT_ROOT, args.outputPath);
-          const relativeOutput = path.relative(DEFAULT_ROOT, outputPath);
-          if (relativeOutput === '..' || relativeOutput.startsWith(`..${path.sep}`) || path.isAbsolute(relativeOutput)) {
-            throw new Error('Promotion evidence output must stay inside the repository.');
-          }
-          fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-          const temporaryPath = `${outputPath}.tmp-${process.pid}`;
-          fs.writeFileSync(temporaryPath, `${JSON.stringify(promotionRecord, null, 2)}\n`, { mode: 0o600 });
-          fs.renameSync(temporaryPath, outputPath);
-          return { record: promotionRecord, validation };
-        })()
+      : args.mode === 'promotion' ? runPromotionWorkflow(DEFAULT_ROOT, ledger, ledgerPath, args.outputPath)
       : null;
   if (!result) {
     console.error('Unsupported mode; use capture, inventory, dispositions, preservation, promotion, post-merge or final.');

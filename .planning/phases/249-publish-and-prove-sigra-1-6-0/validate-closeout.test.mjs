@@ -21,6 +21,22 @@ function invoke(name, ...args) {
 
 const sha = value => value.repeat(40).slice(0, 40);
 const digest = value => value.repeat(64).slice(0, 64);
+const promotionPaths = [
+  '.github/ci-skip-manifest.tsv',
+  '.github/workflows/ci.yml',
+  '.github/workflows/release-please.yml',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json',
+  'doc/llms.txt',
+  'scripts/ci/check-docs-index.sh',
+  'scripts/ci/check-docs-index.test.sh',
+  'scripts/ci/honest-skip-verdict.sh',
+  'scripts/ci/honest-skip-verdict.test.sh',
+  'scripts/ci/refresh-release-docs.sh',
+  'scripts/ci/refresh-release-docs.test.sh',
+  'scripts/ci/release-public-proof.sh',
+  'scripts/ci/release-public-proof.test.sh',
+  'test/sigra/planning/phase_249_release_docs_contract_test.exs',
+];
 
 function fixture() {
   const worktree = {
@@ -206,16 +222,52 @@ function promotionFixture() {
   const promotion = {
     schema_version: 1,
     verdict: 'promoted',
-    pr: { number: 349, url: 'https://github.com/szTheory/sigra/pull/349' },
+    repository: 'szTheory/sigra',
+    pr: {
+      number: 349,
+      url: 'https://github.com/szTheory/sigra/pull/349',
+      state: 'closed',
+      merged: true,
+      title: 'feat(249): prove the Sigra 1.6.0 release',
+      base_ref: 'main',
+      base_sha: baseSha,
+      head_ref: 'gsd/phase-249-09-candidate',
+      head_sha: headSha,
+      head_repository: 'szTheory/sigra',
+      author_login: 'contributor',
+    },
     head_sha: headSha,
     base_sha: baseSha,
-    changed_paths: ['scripts/ci/release-public-proof.sh'],
-    review: { result: 'approved', commit_sha: headSha },
-    required_ci: { check_name: 'ci-gate', conclusion: 'success', head_sha: headSha, run_id: '400', attempt: 1, job_id: '401' },
-    merge: { merged: true, merge_sha: sha('d') },
+    files_read: { status: 'complete', file_count: promotionPaths.length },
+    changed_paths: [...promotionPaths],
+    review: {
+      type: 'github',
+      result: 'approved',
+      commit_sha: headSha,
+      reviewer_login: 'independent-reviewer',
+      author_login: 'contributor',
+      submitted_at: '2026-10-09T20:00:00Z',
+    },
+    required_ci: {
+      check_name: 'ci-gate',
+      workflow: '.github/workflows/ci.yml',
+      event: 'pull_request',
+      status: 'completed',
+      conclusion: 'success',
+      head_sha: headSha,
+      run_id: '400',
+      attempt: 1,
+      job_id: '401',
+      job_name: 'ci-gate',
+      job_head_sha: headSha,
+      job_status: 'completed',
+      job_conclusion: 'success',
+    },
+    merge: { merged: true, method: 'squash', merge_sha: sha('d'), merged_at: '2026-10-09T21:00:00Z' },
     release_receipt: {
-      path: '249-RELEASE-RECEIPT.json',
+      path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json',
       sha256: digest('e'),
+      blob_sha: sha('f'),
       version: receipt.version,
       package_source_sha: receipt.package_source_sha,
       package_source_ci: receipt.package_source_ci,
@@ -224,8 +276,11 @@ function promotionFixture() {
   const constraints = {
     expected_head_sha: headSha,
     expected_base_sha: baseSha,
-    allowed_paths: ['scripts/ci/release-public-proof.sh'],
+    allowed_paths: promotionPaths,
     release_receipt: receipt,
+    release_receipt_sha256: digest('e'),
+    release_receipt_blob_sha: sha('f'),
+    internal_review_sha256: digest('1'),
   };
   return { promotion, constraints, headSha, baseSha };
 }
@@ -330,6 +385,17 @@ test('an exact reviewed head, required ci-gate, receipt and scoped diff can be p
   assert.equal(result.blocked, false);
 });
 
+test('an exact reviewed head with successful CI is ready for native protected merge', () => {
+  const { promotion, constraints } = promotionFixture();
+  promotion.verdict = 'ready-to-merge';
+  promotion.pr.state = 'open';
+  promotion.pr.merged = false;
+  promotion.merge = null;
+  const result = invoke('validatePromotion', promotion, constraints);
+  assert.equal(result.valid, true, JSON.stringify(result.errors));
+  assert.equal(result.closeout_status, 'ready-to-merge');
+});
+
 test('a changed promotion head or base blocks the receipt', () => {
   const { promotion, constraints } = promotionFixture();
   promotion.head_sha = sha('f');
@@ -358,6 +424,75 @@ test('promotion with an unrelated diff path is blocked', () => {
   promotion.changed_paths.push('README.md');
   const result = invoke('validatePromotion', promotion, constraints);
   assert.ok(result.errors.some(error => error.code === 'promotion_diff_path_unrelated'));
+});
+
+test('promotion blocks incomplete file pagination and a diff missing an allowlisted path', () => {
+  const incomplete = promotionFixture();
+  incomplete.promotion.files_read.status = 'failed';
+  let result = invoke('validatePromotion', incomplete.promotion, incomplete.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_files_incomplete'));
+
+  const missingPath = promotionFixture();
+  missingPath.promotion.changed_paths.pop();
+  result = invoke('validatePromotion', missingPath.promotion, missingPath.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_diff_path_set_mismatch'));
+});
+
+test('promotion blocks a review attached to an older head or authored by the PR author', () => {
+  const stale = promotionFixture();
+  stale.promotion.review.commit_sha = sha('f');
+  let result = invoke('validatePromotion', stale.promotion, stale.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_review_missing'));
+
+  const selfReview = promotionFixture();
+  selfReview.promotion.review.reviewer_login = selfReview.promotion.pr.author_login;
+  result = invoke('validatePromotion', selfReview.promotion, selfReview.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_review_missing'));
+});
+
+test('promotion accepts only an exact-head internal review artifact whose captured bytes match', () => {
+  const { promotion, constraints, headSha } = promotionFixture();
+  promotion.review = {
+    type: 'internal',
+    result: 'passed',
+    reviewer_login: 'codex-internal-review',
+    commit_sha: headSha,
+    source_path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json',
+    source_sha256: constraints.internal_review_sha256,
+  };
+  assert.equal(invoke('validatePromotion', promotion, constraints).valid, true);
+  promotion.review.source_sha256 = digest('2');
+  const result = invoke('validatePromotion', promotion, constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_review_missing'));
+});
+
+test('promotion blocks skipped, failed, or wrong-head ci-gate job evidence', () => {
+  const skipped = promotionFixture();
+  skipped.promotion.required_ci.job_status = 'skipped';
+  let result = invoke('validatePromotion', skipped.promotion, skipped.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_ci_gate_missing'));
+
+  const failed = promotionFixture();
+  failed.promotion.required_ci.job_conclusion = 'failure';
+  result = invoke('validatePromotion', failed.promotion, failed.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_ci_gate_missing'));
+
+  const wrongHead = promotionFixture();
+  wrongHead.promotion.required_ci.job_head_sha = sha('f');
+  result = invoke('validatePromotion', wrongHead.promotion, wrongHead.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_ci_gate_missing'));
+});
+
+test('promotion only accepts the immutable receipt blob and squash merge evidence', () => {
+  const receipt = promotionFixture();
+  receipt.promotion.release_receipt.blob_sha = sha('a');
+  let result = invoke('validatePromotion', receipt.promotion, receipt.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_receipt_mismatch'));
+
+  const merge = promotionFixture();
+  merge.promotion.merge.method = 'merge';
+  result = invoke('validatePromotion', merge.promotion, merge.constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_merge_missing'));
 });
 
 test('an exact complete inventory accepts a successful empty PR query', () => {
