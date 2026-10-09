@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T18:20:45.573Z",
+  "observed_at": "2026-10-09T18:25:08.660Z",
   "inventory_status": "complete",
   "closeout_status": "blocked-until-dispositions-and-preservation",
   "source_status": {
@@ -10,31 +10,31 @@
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 5,
-      "observed_at": "2026-10-09T18:20:45.573Z"
+      "observed_at": "2026-10-09T18:25:08.660Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
       "count": 14,
-      "observed_at": "2026-10-09T18:20:45.573Z"
+      "observed_at": "2026-10-09T18:25:08.660Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
+    "anchor_head_sha": "f8e9c4c29bbac984ff25fcd26bbd3dcd02a2abec",
     "output_provenance": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
-        "source_commit": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
-        "artifact_identity_sha256": "7cc7954639a414f2f42808437561f259fec3cd41b801d7dab456d4f6445ea0c3",
+        "source_commit": "f8e9c4c29bbac984ff25fcd26bbd3dcd02a2abec",
+        "artifact_identity_sha256": "499a1d923e89b7a20992a3156dd31acc7e94c0b99549c8b84421d2251e8b2b2c",
         "capture_boundary": {
-          "captured_at": "2026-10-09T18:20:45.573Z",
+          "captured_at": "2026-10-09T18:25:08.660Z",
           "worktree_path": "/Users/jon/projects/sigra",
-          "source_head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
+          "source_head_sha": "f8e9c4c29bbac984ff25fcd26bbd3dcd02a2abec",
           "source_path_status": "clean",
-          "source_path_sha256": "4de48ecbce0dbd922c66260d9ccf777bc6b18ed903bc0ae6d42c0091f1032318"
+          "source_path_sha256": "e20e032d7411e036951aa45412a07519f86b817ce63eb1a74f15d03aaeaf5723"
         }
       }
     ],
@@ -45,20 +45,12 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
+      "head_sha": "f8e9c4c29bbac984ff25fcd26bbd3dcd02a2abec",
       "detached": false,
       "locked": false,
       "prunable": false,
       "read_status": "complete",
-      "dirty_paths": [
-        {
-          "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
-          "status": " M",
-          "original_path": null,
-          "content_state": "regular-file",
-          "sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4"
-        }
-      ],
+      "dirty_paths": [],
       "inherited_dirty_paths": [
         {
           "path": ".github/workflows/ci.yml",
@@ -9928,8 +9920,7 @@
   "notes": [
     "This is a live read-only inventory. No worktree, file, or PR was modified by capture.",
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
-    "The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty.",
-    "Phase 233 scaffold-discovery edit was preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery as a separate test/CI maintenance follow-up; it is excluded from the 1.6.0 candidate."
+    "The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty."
   ],
-  "capture_completed_at": "2026-10-09T18:20:59.785Z"
+  "capture_completed_at": "2026-10-09T18:25:22.941Z"
 }
