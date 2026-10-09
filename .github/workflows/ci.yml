@@ -534,7 +534,7 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
-        run: MIX_ENV=test mix sigra.fixture.rebless_golden --check
+        run: mix sigra.fixture.rebless_golden --check
 
   # DX-01: sole full-library-suite owner. It deliberately remains exempt from
   # docs-only gating: repository-facing documentation changes still need the
@@ -585,9 +585,10 @@ jobs:
       - name: Run contributor CI gate
         env:
           PGUSER: postgres
+          MIX_ENV: test
           PGPASSWORD: postgres
           PGHOST: localhost
-        run: MIX_ENV=test mix ci
+        run: mix ci
 
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
   # and name `Library tests` — byte-identical to ruleset 14941512 required check string
@@ -1762,7 +1763,13 @@ jobs:
           find test/example/priv/playwright/tests/admin-design.spec.ts-snapshots \
             -name 'board-notice-admin-design-*.png' -delete || true
           echo "Removed board-notice PNGs:"
-          ls test/example/priv/playwright/tests/admin-design.spec.ts-snapshots/ | grep board-notice || echo "(none — deletion successful)"
+          shopt -s nullglob
+          board_notice_files=(test/example/priv/playwright/tests/admin-design.spec.ts-snapshots/board-notice-admin-design-*.png)
+          if (( ${#board_notice_files[@]} == 0 )); then
+            echo "(none — deletion successful)"
+          else
+            for path in "${board_notice_files[@]}"; do printf '%s\n' "${path##*/}"; done
+          fi
       - name: Recapture admin-design baselines
         # D-09: recapture all 84 admin-design PNGs (28 boards × chromium/mobile/dark)
         # in the ubuntu CI environment so the committed baselines match what CI renders.
@@ -1804,7 +1811,7 @@ jobs:
           # Compute changed slugs (tracked diff vs HEAD + untracked new files).
           # slug_of: strip -admin-design-{chromium,mobile,dark}.png suffix.
           declare -A seen_slugs=()
-          while IFS=$'\t' read -r status path; do
+          while IFS=$'\t' read -r _status path; do
             [[ -z "${path:-}" ]] && continue
             case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
             sl=$(basename "$path" | sed -E 's/-admin-design-(chromium|mobile|dark)\.png$//')
@@ -2006,7 +2013,13 @@ jobs:
           git commit -q -m "ci(219): delete impersonation-banner canary for amd64 rebirth [skip ci]" \
             || echo "(no impersonation-banner PNGs to delete — nothing committed)"
           echo "Committed canary deletion; recreate follows via --update-snapshots. Remaining files:"
-          ls test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/ | grep impersonation-banner || echo "(none — deletion successful)"
+          shopt -s nullglob
+          impersonation_banner_files=(test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/impersonation-banner-admin-checkpoints-*.png)
+          if (( ${#impersonation_banner_files[@]} == 0 )); then
+            echo "(none — deletion successful)"
+          else
+            for path in "${impersonation_banner_files[@]}"; do printf '%s\n' "${path##*/}"; done
+          fi
       - name: Recapture admin-checkpoint baselines
         # D-09: recapture admin-checkpoint PNGs in the ubuntu CI environment so
         # committed baselines match what CI renders. The checkpoint lane covers
@@ -2059,7 +2072,7 @@ jobs:
           # Compute changed slugs (tracked diff vs HEAD + untracked new files).
           # slug_of: strip -admin-checkpoints-{chromium,mobile,dark}.png suffix.
           declare -A seen_slugs=()
-          while IFS=$'\t' read -r status path; do
+          while IFS=$'\t' read -r _status path; do
             [[ -z "${path:-}" ]] && continue
             case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
             sl=$(basename "$path" | sed -E 's/-admin-checkpoints-(chromium|mobile|dark)\.png$//')
