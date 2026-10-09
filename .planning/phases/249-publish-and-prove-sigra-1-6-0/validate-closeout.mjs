@@ -11,41 +11,7 @@ const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(MODULE_DIR, '../../..');
-const SELF_ARTIFACTS = [
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-SUMMARY.md',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-TASK-1-RED.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-TASK-2-RED.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-04-SUMMARY.md',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-SUMMARY.md',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-RED.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-GREEN.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-RED.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-GREEN.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-VALIDATION.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-SUMMARY.md',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-1-RED.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-1-GREEN.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-2-RED.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-2-GREEN.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-SUMMARY.md',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-1-RED.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-2-RED.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PROMOTION.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs',
-  '.planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs',
-  '.planning/ROADMAP.md',
-  '.planning/STATE.md',
-  '.planning/state.json',
-  '.github/workflows/release-please.yml',
-  'scripts/ci/refresh-release-docs.sh',
-  'scripts/ci/refresh-release-docs.test.sh',
-  'scripts/ci/release-public-proof.sh',
-  'scripts/ci/release-public-proof.test.sh',
-  'test/sigra/planning/phase_249_release_docs_contract_test.exs',
-];
+const CLOSEOUT_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
 
 function run(command, args, cwd, maxBuffer = 64 * 1024 * 1024) {
   return execFileSync(command, args, { cwd, encoding: 'buffer', maxBuffer });
@@ -57,6 +23,48 @@ function runText(command, args, cwd, maxBuffer) {
 
 function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
+}
+
+export function artifactIdentitySha256(value) {
+  const normalized = structuredClone(value);
+  for (const output of normalized?.evidence_artifacts?.output_provenance ?? []) {
+    output.artifact_identity_sha256 = null;
+  }
+  return sha256(Buffer.from(JSON.stringify(normalized)));
+}
+
+function validOutputProvenance(output, rootPath, anchorSha) {
+  const boundary = output?.capture_boundary;
+  if (typeof output?.path !== 'string' || !output.path || path.isAbsolute(output.path) || output.path.split(/[\\/]/).includes('..')) return false;
+  return typeof output.producer === 'string' && output.producer.trim().length > 0
+    && output.source_commit === anchorSha
+    && DIGEST.test(output.artifact_identity_sha256 ?? '')
+    && typeof boundary?.captured_at === 'string' && !Number.isNaN(Date.parse(boundary.captured_at))
+    && boundary.worktree_path === rootPath
+    && boundary.source_head_sha === anchorSha
+    && boundary.source_path_status === 'clean'
+    && (boundary.source_path_sha256 === null || DIGEST.test(boundary.source_path_sha256 ?? ''));
+}
+
+function committedPathDigest(repoRoot, commitSha, relativePath) {
+  try {
+    return sha256(run('git', ['-C', repoRoot, 'show', `${commitSha}:${relativePath}`], repoRoot));
+  } catch {
+    return null;
+  }
+}
+
+function verifyOutputArtifact(repoRoot, currentSha, output) {
+  try {
+    const bytes = run('git', ['-C', repoRoot, 'show', `${currentSha}:${output.path}`], repoRoot);
+    const value = JSON.parse(bytes.toString('utf8'));
+    const embedded = value?.evidence_artifacts?.output_provenance?.find(row => row.path === output.path);
+    return embedded
+      && JSON.stringify(embedded) === JSON.stringify(output)
+      && artifactIdentitySha256(value) === output.artifact_identity_sha256;
+  } catch {
+    return false;
+  }
 }
 
 function sortRows(rows, key) {
@@ -192,8 +200,8 @@ function liveChangedFiles(repoRoot, number) {
   return { endpoint, status: 'complete', files: sortRows(rows, row => `${row.path}\0${row.status}`) };
 }
 
-export function evidenceTransition(repoRoot, anchorSha, currentSha, allowedPaths) {
-  if (anchorSha === currentSha) return { valid: true, changed_paths: [] };
+export function evidenceTransition(repoRoot, anchorSha, currentSha, outputProvenance) {
+  if (anchorSha === currentSha) return { valid: true, changed_paths: [], output_provenance: [] };
   let ancestor = false;
   try {
     execFileSync('git', ['-C', repoRoot, 'merge-base', '--is-ancestor', anchorSha, currentSha], { stdio: 'ignore' });
@@ -203,13 +211,37 @@ export function evidenceTransition(repoRoot, anchorSha, currentSha, allowedPaths
   }
   const changed = run('git', ['-C', repoRoot, 'diff', '--name-only', '-z', `${anchorSha}..${currentSha}`], repoRoot).toString('utf8')
     .split('\0').filter(Boolean);
-  const allowed = new Set(allowedPaths);
-  return { valid: ancestor && changed.every(relativePath => allowed.has(relativePath)), changed_paths: sortRows(changed, value => value) };
+  const outputs = Array.isArray(outputProvenance) ? outputProvenance : [];
+  const uniqueOutputs = unique(outputs, row => row?.path);
+  const expectedPaths = sortRows(outputs.map(row => row.path), value => value);
+  const changedPaths = sortRows(changed, value => value);
+  let directChild = false;
+  try {
+    const parents = runText('git', ['-C', repoRoot, 'rev-list', '--parents', '-n', '1', currentSha], repoRoot).split(' ');
+    directChild = parents.length === 2 && parents[1] === anchorSha;
+  } catch {
+    directChild = false;
+  }
+  const descriptorsValid = outputs.length > 0 && uniqueOutputs && outputs.every(output => {
+    if (!validOutputProvenance(output, repoRoot, anchorSha)) return false;
+    if (committedPathDigest(repoRoot, anchorSha, output.path) !== output.capture_boundary.source_path_sha256) return false;
+    return verifyOutputArtifact(repoRoot, currentSha, output);
+  });
+  const exactPathSet = equalList(expectedPaths, changedPaths);
+  return {
+    valid: ancestor && directChild && descriptorsValid && exactPathSet,
+    changed_paths: changedPaths,
+    output_provenance: outputs,
+  };
 }
 
 export function sortLedger(ledger) {
   return {
     ...ledger,
+    evidence_artifacts: ledger.evidence_artifacts ? {
+      ...ledger.evidence_artifacts,
+      output_provenance: sortRows(ledger.evidence_artifacts.output_provenance ?? [], row => row.path ?? ''),
+    } : ledger.evidence_artifacts,
     worktrees: sortRows(ledger.worktrees ?? [], row => row.path).map(row => ({
       ...row,
       dirty_paths: sortRows(row.dirty_paths ?? [], dirtyKey),
@@ -222,7 +254,6 @@ export function sortLedger(ledger) {
 }
 
 export function inventoryFingerprint(ledger, live) {
-  const evidence = ledger?.evidence_artifacts ?? {};
   const stableSource = source => {
     const value = live?.source_status?.[source] ?? {};
     return {
@@ -234,7 +265,6 @@ export function inventoryFingerprint(ledger, live) {
     };
   };
   const worktrees = sortRows((live?.worktrees ?? []).map(row => {
-    const selfPaths = row.path === evidence.worktree_path ? new Set(evidence.paths ?? []) : new Set();
     return {
       path: row.path,
       branch: row.branch ?? null,
@@ -243,7 +273,7 @@ export function inventoryFingerprint(ledger, live) {
       locked: row.locked ?? false,
       prunable: row.prunable ?? false,
       read_status: row.read_status ?? null,
-      dirty_paths: sortRows((row.dirty_paths ?? []).filter(dirty => !selfPaths.has(dirty.path)).map(dirty => ({
+      dirty_paths: sortRows((row.dirty_paths ?? []).map(dirty => ({
         path: dirty.path,
         status: dirty.status,
         original_path: dirty.original_path ?? null,
@@ -305,8 +335,17 @@ export function validateInventory(ledger, live) {
   if (!equalList([...ledgerByPath.keys()].sort(), [...liveByPath.keys()].sort())) add('worktree_population_mismatch', 'The exact registered worktree path set differs from the live set.');
   const evidence = ledger?.evidence_artifacts ?? {};
   if (Array.isArray(evidence.collisions) && evidence.collisions.length > 0) add('evidence_artifact_collision', 'A phase output path was already dirty before capture and must be resolved explicitly.');
-  if (evidence.worktree_path && (!Array.isArray(evidence.paths) || evidence.paths.length === 0 || !SHA.test(evidence.anchor_head_sha ?? ''))) {
-    add('evidence_artifact_anchor_invalid', 'Self-evidencing outputs need one declared worktree, full captured anchor HEAD and exact path allowlist.');
+  const outputProvenance = Array.isArray(evidence.output_provenance) ? evidence.output_provenance : [];
+  if (evidence.worktree_path && (outputProvenance.length === 0 || !SHA.test(evidence.anchor_head_sha ?? ''))) {
+    add('evidence_artifact_anchor_invalid', 'Evidence transitions need a full source commit and at least one provenance-bound exact output.');
+  }
+  if (outputProvenance.length > 0) {
+    if (!unique(outputProvenance, row => row?.path)) add('evidence_output_duplicate', 'Evidence output paths must be unique.');
+    for (const output of outputProvenance) {
+      if (!validOutputProvenance(output, evidence.worktree_path, evidence.anchor_head_sha)) {
+        add('evidence_output_provenance_invalid', `Evidence output ${output?.path ?? '(unknown)'} lacks a producer, exact identity, source commit, hash, or clean capture boundary.`);
+      }
+    }
   }
   for (const expected of ledgerWorktrees) {
     const current = liveByPath.get(expected.path);
@@ -316,13 +355,23 @@ export function validateInventory(ledger, live) {
     if (expected.head_sha !== current.head_sha) {
       const transition = live.evidence_transitions?.[expected.path];
       const transitionPaths = Array.isArray(transition?.changed_paths) ? transition.changed_paths : [];
-      if (!selfWorktree || !Array.isArray(evidence.paths) || transition?.valid !== true || transitionPaths.some(relativePath => !evidence.paths.includes(relativePath))) {
+      const expectedOutputPaths = selfWorktree ? sortRows(outputProvenance.map(output => output.path), value => value) : [];
+      const transitionedOutputPaths = sortRows(transitionPaths, value => value);
+      const verifiedOutputs = Array.isArray(transition?.output_provenance) ? transition.output_provenance : [];
+      const sameProvenance = JSON.stringify(verifiedOutputs) === JSON.stringify(outputProvenance);
+      if (!selfWorktree || transition?.valid !== true || !equalList(transitionedOutputPaths, expectedOutputPaths) || !sameProvenance) {
         add('worktree_head_mismatch', `Worktree HEAD changed outside the declared phase evidence transition for ${expected.path}.`);
       }
     }
-    const ignored = new Set(selfWorktree ? evidence.paths ?? [] : []);
-    const expectedDirty = sortRows((expected.dirty_paths ?? []).filter(row => !ignored.has(row.path)), dirtyKey).map(dirtyKey);
-    const currentDirty = sortRows((current.dirty_paths ?? []).filter(row => !ignored.has(row.path)), dirtyKey).map(dirtyKey);
+    if (selfWorktree) {
+      for (const output of outputProvenance) {
+        if ((expected.dirty_paths ?? []).some(row => row.path === output.path)) {
+          add('evidence_output_collision', `Evidence output ${output.path} was already dirty at its declared clean capture boundary.`);
+        }
+      }
+    }
+    const expectedDirty = sortRows(expected.dirty_paths ?? [], dirtyKey).map(dirtyKey);
+    const currentDirty = sortRows(current.dirty_paths ?? [], dirtyKey).map(dirtyKey);
     if (!equalList(expectedDirty, currentDirty)) add('dirty_path_population_mismatch', `The dirty path/status/content-hash inventory changed for ${expected.path}.`);
   }
 
@@ -429,10 +478,7 @@ export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } =
     const current = liveByPath.get(worktree.path);
     if (!current) continue;
     const baseline = worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? [];
-    const ignored = worktree.path === ledger?.evidence_artifacts?.worktree_path
-      ? new Set(ledger.evidence_artifacts.paths ?? [])
-      : new Set();
-    const currentRows = (current.dirty_paths ?? []).filter(row => !ignored.has(row.path));
+    const currentRows = current.dirty_paths ?? [];
     const currentByIdentity = new Map(currentRows.map(row => [dirtyKey(row), row]));
     const currentByPath = new Map(currentRows.map(row => [row.path, row]));
     const baselineByIdentity = new Map(baseline.map(row => [dirtyKey(row), row]));
@@ -781,12 +827,12 @@ export function collectLiveInventory({ repoRoot = DEFAULT_ROOT, ledger = null } 
     sourceStatus.pull_requests.read_error = 'GitHub open-PR pagination failed; no empty-queue inference is permitted.';
   }
   const evidenceTransitions = {};
-  if (ledger?.evidence_artifacts?.worktree_path && Array.isArray(ledger.evidence_artifacts.paths)) {
+  if (ledger?.evidence_artifacts?.worktree_path && Array.isArray(ledger.evidence_artifacts.output_provenance)) {
     const anchor = ledger.worktrees?.find(row => row.path === ledger.evidence_artifacts.worktree_path);
     const current = worktrees.find(row => row.path === ledger.evidence_artifacts.worktree_path);
     if (anchor && current) {
       try {
-        evidenceTransitions[current.path] = evidenceTransition(repoRoot, anchor.head_sha, current.head_sha, ledger.evidence_artifacts.paths);
+        evidenceTransitions[current.path] = evidenceTransition(repoRoot, anchor.head_sha, current.head_sha, ledger.evidence_artifacts.output_provenance);
       } catch {
         evidenceTransitions[current.path] = { valid: false, changed_paths: [], read_error: 'Evidence-only history transition could not be proven.' };
       }
@@ -802,22 +848,13 @@ export function collectLiveInventory({ repoRoot = DEFAULT_ROOT, ledger = null } 
   };
 }
 
-export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = true } = {}) {
+export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = true, previousLedgerInput = null } = {}) {
+  repoRoot = fs.realpathSync(repoRoot);
   const live = collectLiveInventory({ repoRoot });
-  let previousLedger = null;
-  let priorLedgerExclusion = null;
-  const closeoutRelativePath = SELF_ARTIFACTS[0];
-  const closeoutAbsolutePath = path.join(repoRoot, closeoutRelativePath);
-  try {
-    previousLedger = JSON.parse(fs.readFileSync(closeoutAbsolutePath, 'utf8'));
-    if (previousLedger?.schema_version === 1
-      && previousLedger?.repository === REPOSITORY
-      && previousLedger?.evidence_artifacts?.worktree_path === repoRoot
-      && previousLedger?.evidence_artifacts?.paths?.includes(closeoutRelativePath)) {
-      priorLedgerExclusion = { path: closeoutRelativePath, sha256: sha256(fs.readFileSync(closeoutAbsolutePath)) };
-    }
-  } catch {
-    // An absent or malformed prior artifact is not trusted or silently excluded.
+  const closeoutAbsolutePath = path.join(repoRoot, CLOSEOUT_PATH);
+  let previousLedger = previousLedgerInput;
+  if (!previousLedger) {
+    try { previousLedger = JSON.parse(fs.readFileSync(closeoutAbsolutePath, 'utf8')); } catch { previousLedger = null; }
   }
   const previousWorktrees = new Map((previousLedger?.worktrees ?? []).map(row => [row.path, row]));
   const rows = live.pull_requests.map(pullRequest => {
@@ -848,15 +885,12 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
   });
   const worktrees = live.worktrees.map(worktree => ({
     ...worktree,
-    dirty_paths: worktree.dirty_paths
-      .filter(dirty => !(worktree.path === repoRoot && priorLedgerExclusion?.path === dirty.path))
-      .map(({ preservation: _preservation, ...dirty }) => dirty),
+    dirty_paths: worktree.dirty_paths.map(({ preservation: _preservation, ...dirty }) => dirty),
     inherited_dirty_paths: (() => {
       const previous = previousWorktrees.get(worktree.path);
       const prior = previous?.inherited_dirty_paths ?? previous?.dirty_paths ?? [];
       const rowsByIdentity = new Map(prior.map(dirty => [dirtyKey(dirty), structuredClone(dirty)]));
       for (const current of worktree.dirty_paths) {
-        if (worktree.path === repoRoot && priorLedgerExclusion?.path === current.path) continue;
         const priorRow = rowsByIdentity.get(dirtyKey(current));
         if (priorRow?.preservation) rowsByIdentity.set(dirtyKey(current), { ...current, preservation: priorRow.preservation });
         else if (!priorRow) rowsByIdentity.set(dirtyKey(current), { ...current, preservation: null });
@@ -865,33 +899,57 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
     })(),
   }));
   const rootWorktree = worktrees.find(row => row.path === repoRoot);
-  const selfArtifactCollisions = rootWorktree?.dirty_paths.filter(row => SELF_ARTIFACTS.includes(row.path)) ?? [];
+  const outputCollisions = rootWorktree?.dirty_paths.filter(row => row.path === CLOSEOUT_PATH) ?? [];
+  const outputProvenance = [];
+  if (rootWorktree && outputCollisions.length === 0) {
+    outputProvenance.push({
+      path: CLOSEOUT_PATH,
+      producer: 'node validate-closeout.mjs --mode capture',
+      source_commit: rootWorktree.head_sha,
+      artifact_identity_sha256: null,
+      capture_boundary: {
+        captured_at: live.observed_at,
+        worktree_path: rootWorktree.path,
+        source_head_sha: rootWorktree.head_sha,
+        source_path_status: 'clean',
+        source_path_sha256: committedPathDigest(repoRoot, rootWorktree.head_sha, CLOSEOUT_PATH),
+      },
+    });
+  }
+  const changedFileReadsComplete = rows.every(row => row.files_read.status === 'complete');
   const ledger = {
     schema_version: 1,
     repository: REPOSITORY,
     observed_at: live.observed_at,
-    inventory_status: live.source_status.worktrees.status === 'complete' && live.source_status.pull_requests.status === 'complete' && selfArtifactCollisions.length === 0 ? 'complete' : 'blocked',
+    inventory_status: live.source_status.worktrees.status === 'complete'
+      && live.source_status.pull_requests.status === 'complete'
+      && changedFileReadsComplete
+      && outputCollisions.length === 0 ? 'complete' : 'blocked',
     closeout_status: 'blocked-until-dispositions-and-preservation',
     source_status: live.source_status,
     evidence_artifacts: {
-      worktree_path: repoRoot,
+      worktree_path: rootWorktree?.path ?? repoRoot,
       anchor_head_sha: rootWorktree?.head_sha ?? null,
-      paths: SELF_ARTIFACTS,
-      reason: 'The closeout ledger, scoped phase evidence, validator and scoped GSD state/roadmap updates are self-evidencing phase outputs; permit only commits touching these exact paths after the captured anchor.',
-      previously_generated_outputs_excluded: priorLedgerExclusion ? [priorLedgerExclusion] : [],
-      collisions: selfArtifactCollisions.map(row => ({ path: row.path, status: row.status, sha256: row.sha256 })),
+      output_provenance: outputProvenance,
+      reason: 'Only a committed exact output with a verified producer, source commit, canonical artifact hash, and clean capture boundary may explain one evidence-only HEAD transition. Raw dirty status is never filtered.',
+      collisions: outputCollisions.map(row => ({ path: row.path, status: row.status, sha256: row.sha256 })),
     },
     worktrees,
     pull_requests: rows,
     notes: [
       'This is a live read-only inventory. No worktree, file, or PR was modified by capture.',
       'Content is represented by SHA-256 identities; file contents are not copied into this ledger.',
-      'The clean-closeout claim remains blocked until Plan 05 verifies durable preservation for every inherited dirty path.',
-      ...(selfArtifactCollisions.length ? ['A phase output path was already dirty before capture; inventory is blocked until its ownership is resolved.'] : []),
+      'The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty.',
+      ...(outputCollisions.length ? ['The closeout output path was already dirty at the capture boundary; it remains an inherited path and cannot be overwritten by this capture.'] : []),
+      ...(!changedFileReadsComplete ? ['At least one open PR changed-file read is incomplete; the inventory is blocked.'] : []),
     ],
     capture_completed_at: new Date().toISOString(),
   };
-  return sortLedger(ledger);
+  const sorted = sortLedger(ledger);
+  for (const output of sorted.evidence_artifacts.output_provenance) {
+    output.artifact_identity_sha256 = artifactIdentitySha256(sorted);
+  }
+  return sortLedger(sorted);
 }
 
 function githubJson(repoRoot, endpoint) {
@@ -1092,6 +1150,17 @@ async function main() {
   const ledgerPath = path.resolve(DEFAULT_ROOT, args.ledgerPath);
   if (args.mode === 'capture') {
     const ledger = captureLedger({ repoRoot: DEFAULT_ROOT });
+    if (ledger.evidence_artifacts.collisions?.length) {
+      console.error(JSON.stringify({
+        valid: false,
+        inventory_status: 'blocked',
+        code: 'evidence_output_collision',
+        collisions: ledger.evidence_artifacts.collisions,
+        message: 'The closeout output path is already dirty; preserve or commit it before refreshing this artifact.',
+      }, null, 2));
+      process.exitCode = 1;
+      return;
+    }
     fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
     const temporaryPath = `${ledgerPath}.tmp-${process.pid}`;
     fs.writeFileSync(temporaryPath, `${JSON.stringify(ledger, null, 2)}\n`, { mode: 0o600 });

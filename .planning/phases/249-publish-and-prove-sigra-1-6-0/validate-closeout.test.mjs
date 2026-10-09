@@ -63,6 +63,35 @@ function fixture() {
   return { ledger, live };
 }
 
+function captureFixture(t) {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-closeout-capture-'));
+  const bin = path.join(repo, 'bin');
+  const closeoutPath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
+  t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+  const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  git('init', '-q', '--initial-branch=main');
+  git('config', 'user.name', 'Closeout Fixture');
+  git('config', 'user.email', 'closeout-fixture@example.invalid');
+  fs.mkdirSync(path.dirname(path.join(repo, closeoutPath)), { recursive: true });
+  fs.writeFileSync(path.join(repo, closeoutPath), '{"baseline":true}\n');
+  git('add', closeoutPath);
+  git('commit', '-m', 'capture fixture baseline');
+  fs.mkdirSync(bin);
+  const ghPath = path.join(bin, 'gh');
+  fs.writeFileSync(ghPath, '#!/bin/sh\nprintf "[[]]\\n"\n');
+  fs.chmodSync(ghPath, 0o755);
+  return { repo, closeoutPath, ghPath };
+}
+
+function withGhStub(ghPath, action) {
+  const oldPath = process.env.PATH;
+  process.env.PATH = `${path.dirname(ghPath)}${path.delimiter}${oldPath ?? ''}`;
+  try { return action(); } finally {
+    if (oldPath === undefined) delete process.env.PATH;
+    else process.env.PATH = oldPath;
+  }
+}
+
 function preservedFixture(t) {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-closeout-preservation-'));
   t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
@@ -184,21 +213,26 @@ test('a newly appearing dirty path remains blocked after preservation', t => {
   assert.ok(result.errors.some(error => error.code === 'preservation_new_dirty_path'));
 });
 
-test('declared phase evidence outputs do not masquerade as newly inherited dirty paths', () => {
-  const { ledger, live } = fixture();
-  const evidencePath = '.planning/249-CLOSEOUT.json';
-  ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, paths: [evidencePath] };
-  ledger.worktrees[0].dirty_paths[0].preservation = {
-    owner: 'shared inherited checkout; author unresolved',
-    target: '/repo (preserve in place)',
-    action: 'Leave untouched until an approved scoped ref is verified.',
-    state: 'blocked',
-    reason: 'The source work is shared and no exact preservation destination is approved.',
-    source: 'Captured path and content hash.',
-  };
-  live.worktrees[0].dirty_paths.push({ path: evidencePath, status: '??', content_state: 'regular-file', sha256: digest('e') });
-  const result = invoke('validatePreservation', ledger, live, { repoRoot: '/repo' });
-  assert.equal(result.errors.some(error => error.code === 'preservation_new_dirty_path'), false);
+test('later phase outputs cannot hide behind names, prefixes, or a legacy path allowlist', () => {
+  const laterPaths = [
+    '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md',
+    '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-EXECUTION-HANDOFF.md',
+    '.planning/phases/249-publish-and-prove-sigra-1-6-0/COVERAGE.md',
+    '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-PLAN.md',
+    '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-SUMMARY.md',
+  ];
+  for (const evidencePath of laterPaths) {
+    const { ledger, live } = fixture();
+    ledger.evidence_artifacts = {
+      worktree_path: '/repo',
+      anchor_head_sha: ledger.worktrees[0].head_sha,
+      paths: ['.planning/phases/249-publish-and-prove-sigra-1-6-0/*'],
+    };
+    live.worktrees[0].dirty_paths.push({ path: evidencePath, status: '??', content_state: 'regular-file', sha256: digest('e') });
+    const result = invoke('validateInventory', ledger, live);
+    assert.equal(result.valid, false, `${evidencePath} must remain visible as a new dirty path`);
+    assert.ok(result.errors.some(error => error.code === 'dirty_path_population_mismatch'));
+  }
 });
 
 test('an exact reviewed head, required ci-gate, receipt and scoped diff can be promoted', () => {
@@ -306,53 +340,118 @@ test('a worktree status read failure cannot be represented as a clean worktree',
   assert.equal(invoke('validateInventory', ledger, live).valid, false);
 });
 
-test('only the declared self-evidencing output paths are excluded from inherited dirty-path comparison', () => {
+test('only an exact committed output with provenance can explain a HEAD transition', () => {
   const { ledger, live } = fixture();
-  ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, paths: ['.planning/249-CLOSEOUT.json'] };
-  live.evidence_transitions = { '/repo': { valid: true, changed_paths: [] } };
-  live.worktrees[0].dirty_paths.push({
-    path: '.planning/249-CLOSEOUT.json', status: '??', sha256: digest('f'), content_state: 'regular-file', original_path: null,
-  });
+  const evidencePath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
+  const output = {
+    path: evidencePath,
+    producer: 'validate-closeout --mode inventory',
+    source_commit: ledger.worktrees[0].head_sha,
+    artifact_identity_sha256: digest('f'),
+    capture_boundary: {
+      captured_at: ledger.observed_at,
+      worktree_path: '/repo',
+      source_head_sha: ledger.worktrees[0].head_sha,
+      source_path_status: 'clean',
+      source_path_sha256: digest('a'),
+    },
+  };
+  ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, output_provenance: [output] };
+  live.worktrees[0].head_sha = sha('e');
+  live.evidence_transitions = { '/repo': { valid: true, changed_paths: [evidencePath], output_provenance: [output] } };
   const result = invoke('validateInventory', ledger, live);
   assert.equal(result.valid, true, JSON.stringify(result.errors));
-  live.worktrees[0].dirty_paths.push({ path: 'notes/omitted.md', status: '??', sha256: digest('a') });
-  assert.equal(invoke('validateInventory', ledger, live).valid, false);
-});
-
-test('a later HEAD is allowed only when its complete commit diff stays within self-output paths', () => {
-  const { ledger, live } = fixture();
-  ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, paths: ['.planning/249-CLOSEOUT.json'] };
-  live.worktrees[0].head_sha = sha('e');
-  live.evidence_transitions = { '/repo': { valid: true, changed_paths: ['.planning/249-CLOSEOUT.json'] } };
-  assert.equal(invoke('validateInventory', ledger, live).valid, true);
   live.evidence_transitions['/repo'].changed_paths = ['scripts/unrelated.sh'];
-  assert.equal(invoke('validateInventory', ledger, live).valid, false);
+  assert.equal(invoke('validateInventory', ledger, live).valid, false, 'unrelated committed paths cannot use the output transition');
 });
 
-test('the live evidence-transition probe accepts only descendant commits limited to its allowlist', t => {
+test('the live evidence-transition probe verifies exact output bytes and refuses later unrelated commits', t => {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-closeout-transition-'));
   t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
   const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
   git('init', '-q');
   git('config', 'user.name', 'Closeout Fixture');
   git('config', 'user.email', 'closeout-fixture@example.invalid');
-  fs.writeFileSync(path.join(repo, 'release-proof.json'), '{}\n');
-  git('add', 'release-proof.json');
+  const evidencePath = '.planning/phases/249/249-CLOSEOUT.json';
+  fs.mkdirSync(path.dirname(path.join(repo, evidencePath)), { recursive: true });
+  fs.writeFileSync(path.join(repo, evidencePath), '{"baseline":true}\n');
+  git('add', evidencePath);
   git('commit', '-m', 'anchor');
   const anchor = git('rev-parse', 'HEAD');
-  fs.writeFileSync(path.join(repo, 'release-proof.json'), '{"ok":true}\n');
-  git('add', 'release-proof.json');
-  git('commit', '-m', 'allowed evidence output');
+  const output = {
+    path: evidencePath,
+    producer: 'validate-closeout --mode inventory',
+    source_commit: anchor,
+    artifact_identity_sha256: null,
+    capture_boundary: {
+      captured_at: '2026-10-09T12:00:00.000Z',
+      worktree_path: repo,
+      source_head_sha: anchor,
+      source_path_status: 'clean',
+      source_path_sha256: createHash('sha256').update(fs.readFileSync(path.join(repo, evidencePath))).digest('hex'),
+    },
+  };
+  const artifact = { evidence_artifacts: { worktree_path: repo, anchor_head_sha: anchor, output_provenance: [output] }, captured: true };
+  output.artifact_identity_sha256 = invoke('artifactIdentitySha256', artifact);
+  fs.writeFileSync(path.join(repo, evidencePath), `${JSON.stringify(artifact, null, 2)}\n`);
+  git('add', evidencePath);
+  git('commit', '-m', 'capture inventory evidence');
   const allowedHead = git('rev-parse', 'HEAD');
-  const allowed = invoke('evidenceTransition', repo, anchor, allowedHead, ['release-proof.json']);
-  assert.deepEqual(allowed, { valid: true, changed_paths: ['release-proof.json'] });
+  const allowed = invoke('evidenceTransition', repo, anchor, allowedHead, [output]);
+  assert.equal(allowed.valid, true, JSON.stringify(allowed));
+  assert.deepEqual(allowed.changed_paths, [evidencePath]);
   fs.writeFileSync(path.join(repo, 'unrelated.txt'), 'not allowed\n');
   git('add', 'unrelated.txt');
   git('commit', '-m', 'unrelated change');
   const unrelatedHead = git('rev-parse', 'HEAD');
-  const rejected = invoke('evidenceTransition', repo, anchor, unrelatedHead, ['release-proof.json']);
+  const rejected = invoke('evidenceTransition', repo, anchor, unrelatedHead, [output]);
   assert.equal(rejected.valid, false);
-  assert.deepEqual(rejected.changed_paths, ['release-proof.json', 'unrelated.txt']);
+  output.artifact_identity_sha256 = digest('f');
+  assert.equal(invoke('evidenceTransition', repo, anchor, allowedHead, [output]).valid, false);
+});
+
+test('a later dirty declared output still blocks preservation and terminal cleanliness', () => {
+  const { ledger, live } = fixture();
+  const outputPath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-SUMMARY.md';
+  const row = {
+    path: outputPath,
+    status: '??',
+    content_state: 'regular-file',
+    sha256: digest('f'),
+    preservation: {
+      owner: 'Phase 249',
+      target: 'refs/phase-249-preservation/fixture',
+      action: 'Preserve exact phase output bytes.',
+      state: 'preserved',
+      reason: 'Fixture verifies that output bytes remain visible to terminal checks.',
+      source: 'Synthetic raw porcelain row.',
+      ref: 'refs/phase-249-preservation/fixture',
+      object_sha: sha('e'),
+      paths: [{ path: outputPath, status: '??', content_state: 'regular-file', sha256: digest('f') }],
+    },
+  };
+  ledger.worktrees[0].dirty_paths = [row];
+  ledger.worktrees[0].inherited_dirty_paths = [row];
+  ledger.evidence_artifacts = {
+    worktree_path: '/repo',
+    anchor_head_sha: ledger.worktrees[0].head_sha,
+    output_provenance: [{
+      path: outputPath,
+      producer: 'gsd-executor',
+      source_commit: ledger.worktrees[0].head_sha,
+      artifact_identity_sha256: digest('f'),
+      capture_boundary: {
+        captured_at: ledger.observed_at,
+        worktree_path: '/repo',
+        source_head_sha: ledger.worktrees[0].head_sha,
+        source_path_status: 'clean',
+        source_path_sha256: null,
+      },
+    }],
+  };
+  live.worktrees[0].dirty_paths = structuredClone(ledger.worktrees[0].dirty_paths);
+  const result = invoke('validatePreservation', ledger, live, { repoRoot: '/repo' });
+  assert.ok(result.errors.some(error => error.code === 'preservation_source_not_clean'));
 });
 
 function finalProofFixture() {
@@ -598,13 +697,13 @@ test('final acceptance requires the durable post-merge proof artifact', () => {
   assert.ok(result.errors.some(error => error.code === 'final_main_proof_missing'));
 });
 
-test('the inventory fingerprint ignores only declared self-evidence paths', () => {
+test('the inventory fingerprint includes every raw worktree status row, including evidence outputs', () => {
   const { ledger, live } = fixture();
   const evidencePath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
   ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, paths: [evidencePath] };
   const initial = invoke('inventoryFingerprint', ledger, live);
   live.worktrees[0].dirty_paths.push({ path: evidencePath, status: ' M', content_state: 'regular-file', sha256: digest('f') });
-  assert.equal(invoke('inventoryFingerprint', ledger, live), initial);
+  assert.notEqual(invoke('inventoryFingerprint', ledger, live), initial);
   live.worktrees[0].dirty_paths.push({ path: 'notes/new.md', status: '??', content_state: 'regular-file', sha256: digest('9') });
   assert.notEqual(invoke('inventoryFingerprint', ledger, live), initial);
 });
@@ -616,6 +715,53 @@ test('stable ordering is independent of API and worktree enumeration order', () 
   const sorted = invoke('sortLedger', ledger);
   assert.deepEqual(sorted.worktrees.map(row => row.path), ['/other', '/repo']);
   assert.deepEqual(sorted.pull_requests.map(row => row.number), [219, 302]);
+});
+
+test('capture records exact closeout provenance only from a clean output-path boundary', t => {
+  const { repo, ghPath, closeoutPath } = captureFixture(t);
+  const ledger = withGhStub(ghPath, () => invoke('captureLedger', { repoRoot: repo }));
+  const root = ledger.worktrees.find(row => row.path === fs.realpathSync(repo));
+  assert.equal(ledger.inventory_status, 'complete');
+  assert.deepEqual(ledger.evidence_artifacts.collisions, []);
+  assert.equal(root.dirty_paths.some(row => row.path === closeoutPath), false);
+  assert.equal(ledger.evidence_artifacts.output_provenance.length, 1);
+  assert.equal(ledger.evidence_artifacts.output_provenance[0].capture_boundary.source_path_status, 'clean');
+  assert.equal(
+    ledger.evidence_artifacts.output_provenance[0].artifact_identity_sha256,
+    invoke('artifactIdentitySha256', ledger),
+  );
+});
+
+test('capture inventories later verification, handoff, coverage, plan, and summary outputs as raw paths', t => {
+  const { repo, ghPath } = captureFixture(t);
+  const paths = [
+    '249-VERIFICATION.md',
+    '249-EXECUTION-HANDOFF.md',
+    'COVERAGE.md',
+    '249-08-PLAN.md',
+    '249-08-SUMMARY.md',
+  ].map(name => `.planning/phases/249-publish-and-prove-sigra-1-6-0/${name}`);
+  for (const relativePath of paths) {
+    fs.writeFileSync(path.join(repo, relativePath), 'later output\n');
+  }
+  const ledger = withGhStub(ghPath, () => invoke('captureLedger', { repoRoot: repo }));
+  const root = ledger.worktrees.find(row => row.path === fs.realpathSync(repo));
+  assert.deepEqual(paths, paths.filter(relativePath => root.dirty_paths.some(row => row.path === relativePath)));
+  assert.equal(ledger.evidence_artifacts.output_provenance.some(output => paths.includes(output.path)), false);
+});
+
+test('a pre-dirty closeout output is recorded as inherited collision and never excluded', t => {
+  const { repo, ghPath, closeoutPath } = captureFixture(t);
+  fs.writeFileSync(path.join(repo, closeoutPath), '{"uncommitted":true}\n');
+  const currentBytes = fs.readFileSync(path.join(repo, closeoutPath));
+  const ledger = withGhStub(ghPath, () => invoke('captureLedger', { repoRoot: repo }));
+  const root = ledger.worktrees.find(row => row.path === fs.realpathSync(repo));
+  assert.equal(ledger.inventory_status, 'blocked');
+  assert.deepEqual(ledger.evidence_artifacts.output_provenance, []);
+  assert.equal(ledger.evidence_artifacts.collisions.length, 1);
+  assert.equal(ledger.evidence_artifacts.collisions[0].path, closeoutPath);
+  assert.ok(root.dirty_paths.some(row => row.path === closeoutPath));
+  assert.deepEqual(fs.readFileSync(path.join(repo, closeoutPath)), currentBytes);
 });
 
 test('each dirty path needs an explicit preservation decision and exact hash', () => {
