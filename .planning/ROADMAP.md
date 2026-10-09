@@ -138,10 +138,29 @@ Plans:
 **Requirements**: REL-01, REL-02
 **Success Criteria** (what must be TRUE):
   1. Hex serves Sigra 1.6.0 from the gated source, and the 1.6.0 HexDocs and source reference resolve to that same release.
-  2. Required CI is green for the final protected-main release commit, and a committed receipt identifies that exact source, tag, package, documentation, and CI run.
+  2. Required CI is green for the final protected-main release commit; the committed artifact-derived receipt identifies the immutable 1.6.0 package-source SHA and matching source CI, while final-main SHA and CI are recorded separately.
   3. Every local worktree is clean and every PR still open at closeout has a recorded disposition.
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+
+**Wave 1**
+- [ ] 249-01-PLAN.md — Prove the published 1.6.0 source, public docs and artifact-derived receipt.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 249-02-PLAN.md — Regenerate the complete ExDoc index and require build-then-compare in CI.
+- [ ] 249-04-PLAN.md — Inventory and disposition every current open PR and worktree change set.
+- [ ] 249-07-PLAN.md — Expand exact-source proof mismatch and hostile-artifact fixtures.
+
+**Wave 3** *(blocked on Plan 02)*
+- [ ] 249-03-PLAN.md — Refresh the fixed Release Please candidate automatically with scoped write authority.
+
+**Wave 4** *(blocked on Plans 03 and 04)*
+- [ ] 249-05-PLAN.md — Preserve inherited work and promote the scoped release change through protected review.
+
+**Wave 5** *(blocked on Plan 05)*
+- [ ] 249-06-PLAN.md — Prove the final protected-main head and finish public and repository closeout acceptance.
 
 ### Progress
 
@@ -152,7 +171,7 @@ Plans:
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | In Progress | - |
-| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/TBD | Not started | - |
+| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 0/7 | Not started | - |
 
 ### Next
 

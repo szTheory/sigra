@@ -359,22 +359,19 @@ GitHub's secure-use documentation recommends least privilege and permission incr
 | A3 | [ASSUMED] Local Mix/Elixir versions are relevant only for planning setup and do not prove compatibility of the gated source. | Environment Availability | A clean execution workspace may use another pinned toolchain; re-probe it before implementation. |
 | A4 | [ASSUMED] No phase-249 test file currently exists in this checkout. | Validation Architecture | A clean trusted source may already contain relevant coverage; inspect before adding duplicative tests. |
 
-## Open Questions
+## Open Questions and Execution-Time Checks
 
-1. **What exact source must REL-02's committed receipt point to?**
-   - What we know: REL-01 and D-01–D-04 bind the published artifact, its required CI, tag, and receipt to the gated package source SHA; D-04 says later protected-main commits are recorded separately. [VERIFIED: .planning/REQUIREMENTS.md:32; .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md:18-21]
-   - What's unclear: REL-02 says “the final protected-main release commit has green required CI” and that the receipt “points to that exact source,” which can be read as requiring a main-closeout SHA or the published package SHA.
-   - Recommendation: In the plan, model package source SHA, final protected-main SHA, receipt commit SHA, and each corresponding CI run as distinct named fields; state the join explicitly and keep all CI-green claims on exact heads. If acceptance truly requires a different relationship, preserve it as an explicit flagged assumption rather than silently changing the receipt identity.
+1. **RESOLVED — What exact source must REL-02's committed receipt point to?**
+   - Resolution: Locked D-03 and D-04 bind the committed, artifact-derived receipt to the immutable v1.6.0 package-source SHA and required CI on that same SHA. The later protected-main SHA and its CI are separate final-closeout evidence; they do not replace the package source in the receipt. [VERIFIED: .planning/REQUIREMENTS.md:32-33; .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md:18-21]
+   - Application: Plans 01 and 06 model the package-source receipt/CI and final-main SHA/CI as distinct identities, and 249-VALIDATION.md records the same join. This resolves the wording without changing either locked requirement or inventing live evidence.
 
-2. **Do the unresolved spec-less edge probes change REL-01/REL-02 coverage?**
-   - What we know: Phase preflight found REL-01 unclassified/unresolved and REL-02 adjacency, empty-input, and ordering probes unresolved. [CITED: orchestrator-provided Phase 249 preflight summary]
-   - What's unclear: The generated probes did not settle whether these are required external edge-case behaviors or planner heuristics.
-   - Recommendation: Keep the findings explicitly in plan coverage/assumption notes, map them to a concrete deterministic acceptance probe where meaningful, and do not silently omit them or elevate probe labels into user requirements.
+2. **RESOLVED — DISPOSITIONED AS ASSUMPTIONS ONLY: Do the unresolved spec-less edge probes change REL-01/REL-02 coverage?**
+   - Evidence: Phase preflight found REL-01 unclassified/unresolved and REL-02 adjacency, empty-input, and ordering probes unresolved. [CITED: orchestrator-provided Phase 249 preflight summary]
+   - Resolution: These probe labels remain flagged assumptions, not additional product requirements or acceptance criteria. Deterministic failure cases belong in the plan only where they verify the already-locked release-identity and honest-evidence behavior; no probe label broadens REL-01 or REL-02. 249-VALIDATION.md preserves the assumptions for execution-time disposition.
 
-3. **Which current CI entrypoint and exact current source workspace should run validation?**
-   - What we know: project policy requires current trusted-source evidence; the shared root checkout is dirty/stale and cannot establish source truth. [VERIFIED: .planning/METHODOLOGY.md:20-26; .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md:11]
-   - What's unclear: this research session did not refresh a separate clean current-main source workspace or derive its full-suite alias.
-   - Recommendation: Before implementation, inspect the exact trusted current main source and its CI workflow/alias, and use its declared CI gate. Avoid using this dirty checkout as release evidence.
+3. **RESOLVED AS AN EXECUTION-TIME GATE — Which current CI entrypoint and source workspace should run validation?**
+   - Evidence: Project policy requires current trusted-source evidence; the shared root checkout is dirty/stale and cannot establish source truth. This research session did not refresh a separate clean current-main source workspace or derive its full-suite alias. [VERIFIED: .planning/METHODOLOGY.md:20-26; .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md:11]
+   - Resolution: Before implementation, inspect trusted current main, identify and validate its declared CI entrypoint, and record the observed source identity and command in execution evidence. This is a planning disposition, not a claim that the live SHA or CI command has already been verified; do not reuse stale planning snapshots as current proof.
 
 ## Sources
 
