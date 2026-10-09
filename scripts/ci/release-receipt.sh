@@ -23,10 +23,10 @@ done
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 jq -e 'type == "object"' "$INPUT" >/dev/null 2>&1 || fail "input must be a JSON object"
 
-# Diagnostic text is deliberately an enum-like code rather than arbitrary logs.
-# This prevents runner output or accidentally interpolated credentials from being
-# persisted in the durable evidence artifact.
-if ! jq -e '
+# Diagnostic text is deliberately limited to contract section names rather than
+# arbitrary values. This makes runner-side receipt mismatches actionable without
+# persisting runner output or accidentally interpolated credentials.
+VALIDATION_FAILURES="$(jq -r '
   def timestamp: type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$");
   def run_url: type == "string" and test("^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+$");
   def workflow_url: type == "string" and test("^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/workflows/[A-Za-z0-9_.-]+$");
@@ -89,13 +89,26 @@ if ! jq -e '
        elif .failure.stage == "post-publish-verify" then .gate.verdict == "pass" and (.publish.outcome == "published" or .publish.outcome == "already_published")
        else true end)
     else .release_run.completed_at == null and .observer_run.id != .release_run.id end;
-  type == "object" and .schema_version == 1 and
-  no_credential_keys and release_run_valid and source_valid and gate_valid and publish_valid and
-  (.terminal_verdict == "success" or .terminal_verdict == "failure" or .terminal_verdict == "cancelled") and
-  failure_valid and observer_valid and consistency and
-  ((.stages == null) or (.stages | type == "object"))
-' "$INPUT" >/dev/null 2>&1; then
-  fail "input does not satisfy the release receipt contract"
+  if type != "object" then ["top_level"] else
+    {
+      schema_version: (.schema_version == 1),
+      no_credential_keys: no_credential_keys,
+      release_run: release_run_valid,
+      source: source_valid,
+      gate: gate_valid,
+      publish: publish_valid,
+      terminal_verdict: (.terminal_verdict == "success" or .terminal_verdict == "failure" or .terminal_verdict == "cancelled"),
+      failure: failure_valid,
+      observer: observer_valid,
+      consistency: consistency,
+      stages: ((.stages == null) or (.stages | type == "object"))
+    }
+    | to_entries | map(select(.value != true) | .key)
+  end
+  | join(",")
+' "$INPUT" 2>/dev/null)" || fail "could not evaluate the release receipt contract"
+if [[ -n "$VALIDATION_FAILURES" ]]; then
+  fail "input does not satisfy the release receipt contract (${VALIDATION_FAILURES})"
 fi
 
 RUN_ID="$(jq -r '.release_run.id' "$INPUT")"
