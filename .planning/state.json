@@ -26,8 +26,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 249 --gaps-only",
-    "label": "Execute Phase 249 verification gap closure",
-    "reason": "Plans 08–12 are verified and ready; REL-02 remains open until protected-main promotion and inherited-work preservation are proven"
+    "label": "Resume Phase 249 gap closure after preservation decisions",
+    "reason": "Plan 249-08 is complete. Plan 249-09 must not create a candidate until preservation mode passes. Two blockers need disposition: the Phase 233 contract-test change has no established owner or destination, and the captured historical HANDOFF.json bytes are unavailable. After resolution, rerun the preservation gate and resume gap-only execution."
   },
-  "updated_at": "2026-10-09T17:13:33Z"
+  "updated_at": "2026-10-09T17:56:55.365Z"
 }

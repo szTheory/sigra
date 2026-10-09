@@ -4,18 +4,18 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 249-08 (first of five gap-closure plans)
-status: executing
-stopped_at: Phase 249 gap-closure planning complete; Plan 249-08 is next
-last_updated: "2026-10-09T17:13:04.293Z"
+current_plan: 249-09 (first remaining gap plan; preservation precondition blocked)
+status: blocked
+stopped_at: Plan 249-08 complete; Plan 249-09 is gated by two preservation decisions
+last_updated: "2026-10-09T17:56:55.365Z"
 last_activity: 2026-10-09
-last_activity_desc: Gap-closure plans 08–12 passed independent verification; execute Plan 249-08 next
-state_head: 7041b4f4e89d84fbd3cc4e6a229506e711d6925f
+last_activity_desc: Plan 249-08 completed with 47/47 tests; Plan 249-09 awaits two preservation decisions
+state_head: b1f5e522d2c66aa90aaeec86ba1e5852f9281b4d
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 31
-  completed_plans: 23
+  completed_plans: 26
   percent: 50
 ---
 
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 249 (Publish and Prove Sigra 1.6.0) — READY TO EXECUTE
-Current Plan: 249-08 (first of five gap-closure plans)
+Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-09 is gated
+Current Plan: 249-09 (blocked by the Plan 08 preservation precondition)
 Total Plans in Phase: 12
-Plans executed: 7 of 12
-Status: Ready to execute
-Last activity: 2026-10-09 — Gap-closure plans 08–12 passed independent verification; execute Plan 249-08 next
+Plans executed: 8 of 12
+Status: Blocked pending two preservation decisions
+Last activity: 2026-10-09 — Plan 249-08 completed; Plan 249-09 cannot create a candidate until preservation mode passes
 
 Progress: [█████░░░░░] 50%
 
@@ -820,13 +820,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-10-09T15:27:55Z
-Stopped at: Phase 249 gap-closure planning complete; Plan 249-08 is next
+Stopped at: Plan 249-08 complete; Plan 249-09 gated by the exact blockers below
 Resume file: None
 
 ## Operator Next Steps
 
-- **Phase 249 plan execution is complete (7/7), but phase verification is not.** REL-01 passed. REL-02 remains blocked because protected `main` lacks the receipt-bearing promotion and 95 inherited dirty paths lack verified preservation refs and approved destinations. See `249-VERIFICATION.md`, `249-FINAL-ACCEPTANCE.json`, and `249-CLOSEOUT.json` in the Phase 249 directory.
-- **Next GSD command: `$gsd-plan-phase 249 --gaps`.** Create targeted gap-closure plans from the verification report; then execute them with `$gsd-execute-phase 249 --gaps-only`. Do not mark Phase 249 complete until the verifier passes.
+- **Plan 249-08 is complete; Phase 249 verification is not.** Its current capture covers five worktrees and 14 open PRs. Of 103 inherited identities, 101 have exact preservation refs and two remain blocked. The preservation gate does not pass, and no Plan 249-09 candidate was created.
+- **Blockers:** `test/sigra/planning/phase_233_library_economics_contract_test.exs` (SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) needs an owner and destination/disposition; the old `.planning/HANDOFF.json` revision (SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148`) has no recoverable source and needs acceptance as superseded or a source copy.
+- **Next GSD command after those decisions:** `$gsd-execute-phase 249 --gaps-only`. Do not mark REL-02 complete until preservation mode passes and the remaining protected-main promotion and terminal-closeout evidence is proven.
 
 ## Performance Metrics
 

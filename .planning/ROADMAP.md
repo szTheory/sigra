@@ -163,9 +163,9 @@ Plans:
 - [x] 249-06-PLAN.md — Prove the final protected-main head and finish public and repository closeout acceptance.
 
 **Wave 6** *(blocked on Plans 04–06; prerequisites complete)*
-- [ ] 249-08-PLAN.md — Preserve inherited work under verified, recoverable refs.
+- [x] 249-08-PLAN.md — Preserve inherited work under verified, recoverable refs.
 
-**Wave 7** *(blocked on Plan 08)*
+**Wave 7** *(gated by Plan 08 preservation precondition)*
 - [ ] 249-09-PLAN.md — Assemble the source-bound receipt and required documentation gate.
 
 **Wave 8** *(blocked on Plan 09)*
@@ -186,8 +186,8 @@ Plans:
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | In Progress | - |
-| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 7/12 | In Progress | - |
+| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 8/12 | In Progress | - |
 
 ### Next
 
-**Next: execute Phase 249 gap closure.** Plans 08–12 passed independent plan verification. REL-02 remains unverified until the receipt-bearing promotion reaches protected `main`, inherited work has verified preservation refs and approved destinations, and final-main CI plus terminal cleanliness are proven. Run `$gsd-execute-phase 249 --gaps-only`; do not mark the phase complete until verification passes. Full diagnostics are in `249-VERIFICATION.md`.
+**Next: resolve Plan 249-08 preservation blockers, then resume Phase 249 gap closure.** Plan 08 is complete and its tests pass, but preservation mode remains blocked by the owner/disposition of `test/sigra/planning/phase_233_library_economics_contract_test.exs` and the unavailable historical `.planning/HANDOFF.json` bytes. Plan 09 must not create a candidate until preservation mode passes. After those decisions, run `$gsd-execute-phase 249 --gaps-only`; do not mark REL-02 complete until protected-main promotion and terminal closeout verification pass. Full diagnostics are in `249-VERIFICATION.md` and `249-PRESERVATION.json`.

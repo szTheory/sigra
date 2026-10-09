@@ -1,123 +1,75 @@
 {
-  "timestamp": "2026-10-07T23:24:09Z",
-  "phase": "247",
-  "phase_name": "Release Candidate and Repository Readiness",
-  "plan": 4,
-  "task": 1,
-  "total_tasks": 1,
-  "status": "Phase 247 Plans 01–03 complete. Plan 03 added and verified the README → v1.6 guide → changelog adopter path. PR #224 remains open at 563f411bc2659bb9ac1652d552ce58ffb0c876b1 on reviewed main 590eb4ed3323db11dd74326cbee00c9c7973e529; exact-head CI run 37700772880 and the live candidate validator passed. Plan 04 is next and runnable; phase-wide verification remains.",
+  "timestamp": "2026-10-09T17:56:55.366Z",
+  "phase": "249",
+  "phase_name": "Publish and Prove Sigra 1.6.0",
+  "plan": "09",
+  "task": 0,
+  "total_tasks": 2,
+  "status": "Plan 249-08 complete; Plan 249-09 gated by preservation mode",
   "completed_tasks": [
     {
-      "id": "v1.48-archive",
-      "name": "Archive v1.48 CLEAN-BASELINE",
-      "status": "Closed 2026-10-05 as an internal override_closeout. 21/27 requirements satisfied; four partial; REL-06 and REPO-04 unsatisfied. No 1.5.1 Hex release and no v1.48 tag."
-    },
-    {
-      "id": "v1.48-archive-checkpoint",
-      "name": "Commit archive and phase evidence",
-      "status": "Committed as ba4a24b7; includes roadmap, requirements, audit, all ten phase directories, state, retrospective, tag policy, and automation-first verification policy."
-    },
-    {
-      "id": "v1.48-live-requirements-removal",
-      "name": "Remove live requirements file after archival",
-      "status": "Archived requirements remain at .planning/milestones/v1.48-REQUIREMENTS.md; the live file is removed in the final closeout commit."
-    },
-    {
-      "id": "247-01-task-1-red",
-      "name": "Readiness validator RED fixtures",
-      "status": "Committed 9643d20f4; verified missing-PR and duplicate-path failures plus explicit-empty acceptance."
-    },
-    {
-      "id": "247-01-task-1-green",
-      "name": "Inherited checkout and live PR disposition inventory",
-      "status": "Committed 83aff7df0; 364 commits, 1,185 committed paths, 55 dirty paths, and 14 open PRs recorded with dispositions."
-    },
-    {
-      "id": "246-03-required-ci",
-      "name": "Exact-source Phase 246 required CI",
-      "status": "Run 37676348766 attempt 2 passed for source 90ec16f72a71d33224c0816ad77762e2e7262c76; required ci-gate, install_smoke, and generated_admin_playwright_smoke passed."
-    },
-    {
-      "id": "246-phase-verification",
-      "name": "Phase 246 goal verification",
-      "status": "Passed 10/10 must-haves; fingerprint v3:sha256:89ec80990836d1af0b33bcc4cb067e876c64d3328850082026f01d7446673fd2."
-    },
-    {
-      "id": "247-01-task-2",
-      "name": "Select reviewed source and isolate clean candidate",
-      "status": "Completed: scoped PR #288 squash-merged to protected main as 590eb4ed3323db11dd74326cbee00c9c7973e529; exact main CI run 37686980115 attempt 2 passed; clean candidate checkout validated."
-    },
-    {
-      "id": "247-02",
-      "name": "Refresh Release Please PR #224 and curate 1.6.0 notes",
-      "status": "Completed: candidate validator and exact-head docs/required CI passed on 51c0e7a; see 247-02-SUMMARY.md and run 37696042318."
-    },
-    {
-      "id": "247-03",
-      "name": "Write the README-to-guide-to-changelog adopter path",
-      "status": "Completed: guide and README route committed on PR #224; corrected exact-head CI run 37700772880 passed on 563f411bc2659bb9ac1652d552ce58ffb0c876b1; live candidate validator valid. See 247-03-SUMMARY.md."
+      "id": "249-08",
+      "name": "Preserve inherited work under verified, recoverable refs",
+      "status": "Complete. 47/47 tests pass; 101 of 103 inherited identities have exact preservation refs; two remain explicitly blocked.",
+      "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-SUMMARY.md"
     }
   ],
   "remaining_tasks": [
     {
-      "id": "247-04",
-      "name": "Prove final candidate, package, and repository readiness",
-      "status": "Next; init.execute-phase 247 reports runnable with no prerequisite blockers."
+      "id": "249-09",
+      "name": "Assemble the source-bound receipt and required documentation gate",
+      "status": "Blocked by its Plan 08 precondition: preservation mode must pass before candidate creation."
+    },
+    {
+      "id": "249-10",
+      "name": "Complete and review the scoped promotion candidate",
+      "status": "Waiting on Plan 09."
+    },
+    {
+      "id": "249-11",
+      "name": "Promote the exact reviewed candidate through protected auto-merge",
+      "status": "Waiting on Plan 10."
+    },
+    {
+      "id": "249-12",
+      "name": "Verify final-main evidence and terminal repository cleanliness",
+      "status": "Waiting on Plan 11."
     }
   ],
-  "blockers": [],
+  "blockers": [
+    {
+      "id": "PRES-233",
+      "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+      "sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
+      "status": " M",
+      "decision_needed": "Identify the owner and intended destination/disposition. The path must remain untouched until that is known."
+    },
+    {
+      "id": "PRES-HANDOFF",
+      "path": ".planning/HANDOFF.json",
+      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+      "status": " M (historical captured revision)",
+      "decision_needed": "Accept this revision as superseded and unrecoverable with the current handoff authoritative, or provide a recoverable source for the captured bytes."
+    }
+  ],
   "async_jobs": [],
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    "Decide the owner and destination/disposition for the Phase 233 contract-test change.",
+    "Accept the old handoff revision as superseded/unrecoverable or provide a source copy."
+  ],
   "decisions": [
     {
-      "decision": "Do not repeat Phase 245 negative-proof plans.",
-      "rationale": "All plans are terminal and zero are runnable; the remaining evidence depends on missing historical sources.",
-      "phase": "245"
+      "decision": "Do not create a release candidate while preservation mode has blockers.",
+      "rationale": "Plan 249-09 has an explicit precondition and Phase 249 must not claim a clean closeout without exact preservation proof."
     },
     {
-      "decision": "Close v1.48 with the owner-approved override_closeout.",
-      "rationale": "Preserve unsatisfied and partial outcomes as debt; the audit remains gaps_found."
-    },
-    {
-      "decision": "Keep milestone tag creation disabled.",
-      "rationale": "v1.48 is an internal planning identifier and not a release tag."
-    },
-    {
-      "decision": "Route next through $gsd-execute-phase 247.",
-      "rationale": "Plans 01–03 are complete; init.execute-phase 247 reports Plan04 runnable with no prerequisite blocker. PR #224 exact head 563f411bc2659bb9ac1652d552ce58ffb0c876b1 has passing required CI and valid candidate evidence.",
-      "phase": "247"
+      "decision": "Keep inherited work outside the release candidate.",
+      "rationale": "Plan 08 preserved exact paths under local refs; preservation is not release inclusion."
     }
   ],
   "uncommitted_files": [
-    ".github/workflows/ci.yml",
-    ".github/workflows/phase-244-playwright-measure.yml",
-    ".planning/debug/plan-245-37-admission.md",
-    ".planning/phases/246-generated-confirmation-recovery/246-REVIEW.md",
-    ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/",
-    ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-PLAN.md",
-    ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-VERIFICATION.md",
-    ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-BLOCKED.md",
-    ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-RETRY.log",
-    ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-PLAN.md",
-    ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-VERIFICATION.md",
-    ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-BLOCKED.md",
-    ".planning/research/.cache/",
-    "scripts/ci/capture-phase-241-final-head.sh",
-    "scripts/ci/capture-phase-241-final-head.test.sh",
-    "scripts/ci/measure-playwright-drift.mjs",
-    "scripts/ci/measure-playwright-drift.test.mjs",
-    "scripts/ci/playwright-cache-key-guard.sh",
-    "scripts/ci/playwright-cache-key-guard.test.sh",
-    "scripts/ci/run-playwright-drift.sh",
-    "scripts/ci/sigra-dep-off.sh",
-    "scripts/ci/test-sigra-dep-off.sh",
-    "scripts/maintainers/validate-milestone-cleanup-audit.mjs",
-    "scripts/maintainers/validate-milestone-cleanup-audit.test.mjs",
-    "test/example/priv/playwright/package-lock.json",
-    "test/example/priv/playwright/package.json",
-    "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
     "test/sigra/planning/phase_233_library_economics_contract_test.exs"
   ],
-  "next_action": "Run $gsd-execute-phase 247 to execute Plan 04, prove final candidate/package/repository readiness, and then complete phase-wide verification. Current PR #224 head is 563f411bc2659bb9ac1652d552ce58ffb0c876b1, base and protected main are 590eb4ed3323db11dd74326cbee00c9c7973e529; exact-head CI run 37700772880 passed and live candidate validation is valid. Do not publish, tag, or merge PR #224 here; Phase 248 contains the user-approved guarded exact-head auto-squash merge.",
-  "context_notes": "v1.48 is archived as an internal override_closeout, not a Hex release. Audit: 21/27 satisfied, four partial, REL-06 and REPO-04 unsatisfied. Live init.manager had 239/240 complete and passed; 236-238 and 241-244 stale; 245 gaps_found. REL-03/04 have post-closeout evidence from successful steps 7-10 of workflow_dispatch run 35714147650 and current public API/docs reads; the run failed at HexDocs root classification. latest_stable_version remains 1.20.0 and 1.5.1 is absent. All Phase 245 plans are terminal; do not repeat source-negative gap plans. No Phase 246 exists. The archive is checkpointed as ba4a24b7; live requirements removal is included in the final closeout commit. The mixed code/docs/CI worktree paths listed below remain untouched and are not a PR candidate. No CI or tests were run during closeout. No milestone tag was created.\n\nPhase 247-01 checkpoint (2026-10-06): Task 1 is committed in 9643d20f4 and 83aff7df0. The readiness ledger at .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json captures trusted main 5a00b90d2314bc93f27aec4090b5928018743d1b, inherited HEAD 7e5c19361135aeb63bac006323ffd5899e0d402b, merge base 417130bdc0e69dd102431391cd6cd30bf88b2fa5, 364 inherited commits, 1,185 committed paths, 55 dirty paths, and 14 live open PRs. Phase 246 receipt remains blocked at tested source fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a; ci-gate, install_smoke, and generated_admin_playwright_smoke are not successful workflow conclusions. Do not select source or create tmp/phase-247-candidate. Next: $gsd-execute-phase 246, then $gsd-execute-phase 247. Historical v1.48 closeout context follows.\n\nPhase 248 planning checkpoint (2026-10-07): five plans are present in .planning/phases/248-exact-source-release-gate; final review found zero blockers and two warnings, both corrected (read-only actions:read on every environment-policy API caller; final hermetic suite includes the environment-policy fixture). Decision coverage is 13/13 and API coverage confirms no new external consumer API. Guarded exact-head auto-squash merge is included after candidate, content, and ci-gate checks. Phase 248 depends on completion of Phase 247 and was not executed.\n\nCurrent route (2026-10-07): Phase 246 is complete with exact-source workflow run 37676348766 and verifier score 10/10. Phase 247 Plans 01–03 are complete: scoped PR #288 promoted the reviewed confirmation source, PR #224 now has the adopter guide and changelog route, and exact-head CI run 37700772880 passed on 563f411bc2659bb9ac1652d552ce58ffb0c876b1. The candidate validator returned valid; PR #224 remains open on base/protected main 590eb4ed3323db11dd74326cbee00c9c7973e529. The exact next command is $gsd-execute-phase 247 to run Plan 04 and then phase-wide verification. Phase 248 remains planned and contains the user-approved guarded exact-head auto-squash merge. The historical uncommitted_files list is the earlier preservation snapshot; current identities and dispositions are recorded in 247-RELEASE-READINESS.json."
+  "next_action": "Resolve both preservation decisions, refresh and rerun validate-closeout.mjs --mode preservation, then continue with $gsd-execute-phase 249 --gaps-only only if the gate passes.",
+  "context_notes": "Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v2 (commit 24507c745ebc1e00c254e8e3ab8ea127de49e028). Its complete capture observed 5 worktrees, 14 open PRs, and no failed changed-file reads. Inventory mode is complete; preservation mode remains blocked by the two exact identities above and reports no clean-state pass. The Phase 233 source path remains untouched. No candidate, push, PR, or merge was created. Phase-level REL-02 remains unverified until promotion and terminal closeout evidence pass."
 }
