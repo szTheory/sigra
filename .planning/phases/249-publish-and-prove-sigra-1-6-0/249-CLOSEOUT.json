@@ -53,7 +53,7 @@
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
         "source_commit": "4841cb5fb2953ff14038502f95c1ac9c74803274",
-        "artifact_identity_sha256": "2c6abbe35b870d288b17399ebb2f7a5ff8eead509de863eec8e6b46c59a93c47",
+        "artifact_identity_sha256": "f09e958958d3c810878f89357f818ea00d9fa628653a219b0909bd875630ca5d",
         "capture_boundary": {
           "captured_at": "2026-10-09T23:50:02.391Z",
           "worktree_path": "/Users/jon/projects/sigra",
@@ -10251,7 +10251,20 @@
         }
       ],
       "is_release_please_candidate": true,
-      "disposition": null
+      "disposition": {
+        "category": "release-relevant",
+        "reason": "The current Release Please candidate proposes Sigra 1.7.0 on base 08300af1740fea8b77d5928a182688acbf103edc at head 048f137e146c684b32ca7f40d4885271cf921a7c. Its complete diff changes only .release-please-manifest.json, CHANGELOG.md, doc/llms.txt, and mix.exs. This future release is relevant to release automation but outside Phase 249 proof of the already-published 1.6.0 package; leave it open for its separate exact-head CI and review.",
+        "sources": [
+          "https://github.com/szTheory/sigra/pull/302",
+          "https://github.com/szTheory/sigra/compare/08300af1740fea8b77d5928a182688acbf103edc...048f137e146c684b32ca7f40d4885271cf921a7c",
+          "https://api.github.com/repos/szTheory/sigra/pulls/302/files?per_page=100"
+        ],
+        "candidate_eligibility": "Not eligible for Phase 249 auto-merge: this is a separate 1.7.0 candidate, not the 1.6.0 release proof. No merge or auto-merge change was requested."
+      },
+      "disposition_identity": {
+        "base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+        "head_sha": "048f137e146c684b32ca7f40d4885271cf921a7c"
+      }
     }
   ],
   "notes": [
