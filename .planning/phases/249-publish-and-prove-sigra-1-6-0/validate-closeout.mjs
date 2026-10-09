@@ -22,11 +22,18 @@ const SELF_ARTIFACTS = [
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-GREEN.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-RED.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-GREEN.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-VALIDATION.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-SUMMARY.md',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-1-RED.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-1-GREEN.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-2-RED.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-2-GREEN.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-SUMMARY.md',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-1-RED.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-2-RED.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PROMOTION.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs',
   '.planning/ROADMAP.md',
@@ -743,8 +750,11 @@ async function main() {
         : args.mode === 'promotion' ? (() => {
           const receiptRelativePath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json';
           const receiptAbsolutePath = path.join(DEFAULT_ROOT, receiptRelativePath);
+          const validationRelativePath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-VALIDATION.json';
+          const validationAbsolutePath = path.join(DEFAULT_ROOT, validationRelativePath);
           let receipt = null;
           let receiptHash = null;
+          let validationEvidenceHash = null;
           try {
             const receiptBytes = fs.readFileSync(receiptAbsolutePath);
             receipt = JSON.parse(receiptBytes.toString('utf8'));
@@ -752,11 +762,17 @@ async function main() {
           } catch {
             // An unavailable release receipt is recorded as a blocker below.
           }
+          try {
+            validationEvidenceHash = sha256(fs.readFileSync(validationAbsolutePath));
+          } catch {
+            // An unavailable local verification record is recorded as a blocker below.
+          }
           const unresolved = ledger.worktrees.flatMap(worktree => (worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? [])
             .filter(dirty => dirty.preservation?.state !== 'preserved')
             .map(dirty => ({ worktree_path: worktree.path, path: dirty.path, status: dirty.status, sha256: dirty.sha256 })));
           const blockers = [];
           if (!receipt) blockers.push({ code: 'release_receipt_missing', reason: 'The immutable 1.6.0 artifact-derived release receipt could not be read.' });
+          if (!validationEvidenceHash) blockers.push({ code: 'validation_evidence_missing', reason: 'The focused tests, exact-source docs comparison and full source CI result are not available in the Plan 05 validation artifact.' });
           if (!preservationResult.valid || preservationResult.blocked) {
             blockers.push({
               code: 'preservation_blocked',
@@ -781,6 +797,10 @@ async function main() {
               version: receipt.version,
               package_source_sha: receipt.package_source_sha,
               package_source_ci: receipt.package_source_ci,
+            } : null,
+            validation_evidence: validationEvidenceHash ? {
+              path: validationRelativePath,
+              sha256: validationEvidenceHash,
             } : null,
             promotion: null,
             closeout: {
