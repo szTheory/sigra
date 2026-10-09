@@ -28,7 +28,7 @@
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
         "source_commit": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
-        "artifact_identity_sha256": "0eaa26c9d148625167dd72d7f912324b65fecb30de27e1d76e18cee5c7120027",
+        "artifact_identity_sha256": "7cc7954639a414f2f42808437561f259fec3cd41b801d7dab456d4f6445ea0c3",
         "capture_boundary": {
           "captured_at": "2026-10-09T18:20:45.573Z",
           "worktree_path": "/Users/jon/projects/sigra",
@@ -3563,7 +3563,8 @@
             ],
             "source_clean_after_readback": true,
             "source_head_unchanged": true,
-            "source_index_unchanged": true
+            "source_index_unchanged": true,
+            "source": "Complete live capture 2026-10-09T18:20:45.573Z; branch phase-244-playwright-measurement; source HEAD c5d2895db68ad4f11babf85a0df4c30a3ddc6802; status  M; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4"
           },
           "release_disposition": {
             "category": "separate-follow-up",
