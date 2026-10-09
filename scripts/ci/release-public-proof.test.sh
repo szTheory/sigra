@@ -254,6 +254,33 @@ mutate_artifact() {
   rebuild_archive
 }
 
+add_archive_member() {
+  local member="$1" contents="$2"
+  printf '%s' "$contents" > "$FIXTURE/archive/${member##*/}"
+  (cd "$FIXTURE/archive" && zip -q "$FIXTURE/release-result.zip" "$member")
+  rm -f "$FIXTURE/archive/${member##*/}"
+}
+
+add_traversal_member() {
+  printf '%s' 'untrusted path member' > "$FIXTURE/traversal.txt"
+  (cd "$FIXTURE/archive" && zip -q "$FIXTURE/release-result.zip" ../traversal.txt)
+  rm -f "$FIXTURE/traversal.txt"
+}
+
+replace_with_json_symlink() {
+  local json_target
+  json_target="$(jq -cn --arg source "$FIXTURE_SOURCE_SHA" \
+    '{schema_version:1,release_run_id:"11111",release_run_attempt:3,
+      release_run_url:"https://github.com/szTheory/sigra/actions/runs/11111",workflow_name:"Release Please",
+      source_event:"push",version:"1.6.0",tag:"v1.6.0",source_sha:$source,
+      gate:{verdict:"pass",run_id:"22222",ci_run_id:22222,head_sha:$source,
+        ci_run_url:"https://github.com/szTheory/sigra/actions/runs/22222"},
+      publish:{outcome:"published"},terminal_verdict:"success",failure:null}')"
+  rm -f "$FIXTURE/archive/release-result.json" "$FIXTURE/release-result.zip"
+  ln -s "$json_target" "$FIXTURE/archive/release-result.json"
+  (cd "$FIXTURE/archive" && zip -q -y "$FIXTURE/release-result.zip" release-result.json)
+}
+
 assert_blocked_case() {
   local name="$1" expected="$2"
   shift 2
@@ -261,17 +288,40 @@ assert_blocked_case() {
   PROOF_CASE="$name"
   MISSING_SOURCE_CI=0
   export PROOF_CASE MISSING_SOURCE_CI
-  if [[ "${1:-}" == --missing-source-ci ]]; then
-    MISSING_SOURCE_CI=1
-    export MISSING_SOURCE_CI
-    shift
-  fi
-  if [[ "${1:-}" == --artifact-filter ]]; then
-    shift
-    local filter="$1"
-    shift
-    mutate_artifact "$@" "$filter"
-  fi
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --missing-source-ci)
+        MISSING_SOURCE_CI=1
+        export MISSING_SOURCE_CI
+        shift
+        ;;
+      --artifact-filter)
+        local filter
+        shift
+        filter="$1"
+        shift
+        mutate_artifact "$@" "$filter"
+        set --
+        ;;
+      --archive)
+        local archive_mode
+        shift
+        archive_mode="$1"
+        shift
+        case "$archive_mode" in
+          malformed-json)
+            printf '{not json\n' > "$FIXTURE/archive/release-result.json"
+            rebuild_archive
+            ;;
+          extra-member) add_archive_member notes.txt 'extra archive member' ;;
+          traversal-member) add_traversal_member ;;
+          json-symlink) replace_with_json_symlink ;;
+          *) fail "unknown archive fixture mode: $archive_mode"; return 1 ;;
+        esac
+        ;;
+      *) fail "unknown fixture option: $1"; return 1 ;;
+    esac
+  done
   local preflight="$FIXTURE/preflight.json" receipt="$FIXTURE/receipt.json"
   run_helper "$preflight" "$receipt"
   if [[ "$RC" -ne 0 ]] && [[ ! -e "$receipt" ]] && \
@@ -280,6 +330,61 @@ assert_blocked_case() {
     pass "$name is blocked at $expected without a success receipt"
   else
     fail "$name did not block at $expected: rc=$RC $(cat "$FIXTURE/run.log")"
+  fi
+}
+
+assert_diagnostic_is_inert() {
+  new_fixture artifact-diagnostic
+  PROOF_CASE=positive
+  export PROOF_CASE
+  local payload="artifact diagnostic \$(touch ${FIXTURE}/command-executed) \`touch ${FIXTURE}/command-executed\`"
+  mutate_artifact --arg diagnostic "$payload" '.terminal_verdict="failure" | .failure={stage:"publish-hex",diagnostic:$diagnostic}'
+  local preflight="$FIXTURE/preflight.json" receipt="$FIXTURE/receipt.json"
+  run_helper "$preflight" "$receipt"
+  if [[ "$RC" -ne 0 && ! -e "$receipt" && ! -e "$FIXTURE/command-executed" ]] && \
+    grep -Fq 'release-public-proof: BLOCKED: release_artifact_identity' "$FIXTURE/run.log" && \
+    ! grep -Fq "$payload" "$FIXTURE/run.log" "$preflight"; then
+    pass "arbitrary artifact diagnostics remain inert and out of failure evidence"
+  else
+    fail "artifact diagnostics executed, leaked, or produced a receipt: rc=$RC $(cat "$FIXTURE/run.log")"
+  fi
+}
+
+assert_shell_payload_is_not_projected() {
+  new_fixture shell-payload
+  PROOF_CASE=positive
+  export PROOF_CASE
+  local marker="$FIXTURE/command-executed"
+  local payload="\$(touch ${marker}) \`touch ${marker}\` ; | \${HOME}"
+  mutate_artifact --arg payload "$payload" '.diagnostic=$payload | .metadata={runner_message:$payload}'
+  local preflight="$FIXTURE/preflight.json" receipt="$FIXTURE/receipt.json"
+  run_helper "$preflight" "$receipt"
+  if [[ "$RC" -eq 0 && ! -e "$marker" ]] && \
+    jq -e --arg payload "$payload" '
+      (keys|sort|join(",")) == "hex,observed_at,package,package_source_ci,package_source_sha,release_artifact,release_run,schema,source_reference,tag,verdict,version,versioned_docs_url" and
+      ([..|strings|select(.==$payload)]|length)==0 and
+      (has("final_main_sha")|not) and (has("final_main_ci")|not) and (has("release_receipt_commit")|not)
+    ' "$receipt" >/dev/null; then
+    pass "shell-like artifact values stay inert and success uses only the explicit receipt allowlist"
+  else
+    fail "shell-like artifact value executed or escaped receipt allowlisting: rc=$RC $(cat "$FIXTURE/run.log")"
+  fi
+}
+
+assert_credentials_are_rejected_without_leaking() {
+  new_fixture artifact-credentials
+  PROOF_CASE=positive
+  export PROOF_CASE
+  local canary="secret-canary-DO-NOT-PRINT"
+  mutate_artifact --arg canary "$canary" '.credentials={api_key:$canary, nested:{auth_token:$canary}}'
+  local preflight="$FIXTURE/preflight.json" receipt="$FIXTURE/receipt.json"
+  run_helper "$preflight" "$receipt"
+  if [[ "$RC" -ne 0 && ! -e "$receipt" ]] && \
+    grep -Fq 'release-public-proof: BLOCKED: release_artifact_identity' "$FIXTURE/run.log" && \
+    ! grep -Fq "$canary" "$FIXTURE/run.log" "$preflight"; then
+    pass "credential-shaped artifact keys are rejected without exposing their values"
+  else
+    fail "credential-shaped artifact data passed or leaked: rc=$RC $(cat "$FIXTURE/run.log")"
   fi
 }
 
@@ -366,6 +471,15 @@ assert_blocked_case source-redirect-wrong-commit rendered_source_reference
 assert_blocked_case source-redirect-wrong-path rendered_source_reference
 assert_blocked_case source-content-wrong-commit rendered_source_reference
 assert_blocked_case source-content-wrong-path rendered_source_reference
+
+echo "Test D: artifact bytes remain inert, credential-free, and regular-file only"
+assert_blocked_case artifact-malformed-json release_artifact --archive malformed-json
+assert_blocked_case artifact-extra-member release_artifact --archive extra-member
+assert_blocked_case artifact-traversal-member release_artifact --archive traversal-member
+assert_blocked_case artifact-json-symlink release_artifact --archive json-symlink
+assert_credentials_are_rejected_without_leaking
+assert_diagnostic_is_inert
+assert_shell_payload_is_not_projected
 
 echo "Results: ${PASS} passed, ${FAIL} failed"
 [[ "$FAIL" -eq 0 ]]
