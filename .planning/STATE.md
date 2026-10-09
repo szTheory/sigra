@@ -6,10 +6,10 @@ current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
 current_plan: v1.49 milestone audit
 status: in_progress
-stopped_at: Phase 249 complete; Phase 250 does not exist in the roadmap, so v1.49 milestone audit is next
-last_updated: "2026-10-09T22:31:00.000Z"
+stopped_at: Phase 249 closeout; terminal sealing is the final repository mutation before the v1.49 milestone audit (Phase 250 does not exist)
+last_updated: "2026-10-09T23:55:08Z"
 last_activity: 2026-10-09
-last_activity_desc: Phase 249 terminal acceptance passed with six clean registered worktrees; final state and route are recorded before replaying the seal
+last_activity_desc: Refreshed 6-worktree/14-PR inventory, exact-main acceptance, and interim terminal seal passed; replay after final state and verification commits remains
 state_head: 2782099bb
 progress:
   total_phases: 4
@@ -35,8 +35,8 @@ Phase: 249 (Publish and Prove Sigra 1.6.0) — COMPLETE
 Current Plan: None; v1.49 milestone audit is next
 Total Plans in Phase: 12
 Plans executed: 12 of 12
-Status: Complete; package-source, public release, exact protected-main CI, current PR inventory, preservation disposition, and terminal clean-worktree evidence pass
-Last activity: 2026-10-09 — terminal evidence binds the canonical passing acceptance to two empty raw-status reads across all six registered worktrees
+Status: Phase execution is complete; refreshed package-source, public release, exact-main CI, current inventory, preservation, and terminal evidence are closed by the post-state/report terminal seal.
+Last activity: 2026-10-09 — final terminal evidence is sequenced after all state/report commits and binds the passing acceptance to two empty raw-status reads across all six registered worktrees
 
 Progress: [██████████] 100%
 

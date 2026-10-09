@@ -185,9 +185,9 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
-| 248. Exact-Source Release Gate | v1.49 | 5/5 | In Progress | - |
-| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 8/12 | In Progress | - |
+| 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
+| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
 
 ### Next
 
-**Next: resolve Plan 249-08 preservation blockers, then resume Phase 249 gap closure.** Plan 08 is complete and its tests pass, but preservation mode remains blocked by the owner/disposition of `test/sigra/planning/phase_233_library_economics_contract_test.exs` and the unavailable historical `.planning/HANDOFF.json` bytes. A scoped exception for the latter requires an explicit decision and an updated proof contract; it does not pass the current gate by itself. Plan 09 must not create a candidate until preservation mode passes. After resolution, run `$gsd-execute-phase 249 --gaps-only`; do not mark REL-02 complete until protected-main promotion and terminal closeout verification pass. Full diagnostics are in `249-VERIFICATION.md` and `249-PRESERVATION.json`.
+**Next: run `$gsd-audit-milestone` for v1.49 after the final Phase 249 terminal replay.** Phase 249 release evidence now joins the published 1.6.0 source to protected main `08300af1740fea8b77d5928a182688acbf103edc` and successful exact-main CI run `38003573391` (ci-gate job `114069179560`). The refreshed live inventory contains six clean worktrees and 14 source-dispositioned open PRs; preservation passes with only the previously user-authorized, unrecovered historical HANDOFF loss. The verifier-reported inventory mismatch was a stale snapshot; the final acceptance is closed only by recapturing and sealing after all report/state commits. `init.plan-phase 250` returned `phase_found=false`.

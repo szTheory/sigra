@@ -27,9 +27,9 @@
   "next": {
     "command": "$gsd-audit-milestone",
     "label": "Audit v1.49 release milestone against requirements and end-to-end evidence",
-    "reason": "All four roadmap phases are complete. The Phase 249 terminal acceptance is machine-verified; init.plan-phase 250 reported no next phase, so the milestone audit is the forward GSD route before archival."
+    "reason": "All Phase 249 plans and release proofs are complete. Refreshed protected main 08300af1740fea8b77d5928a182688acbf103edc has exact-head CI run 38003573391 with ci-gate job 114069179560; current inventory is six clean worktrees and 14 dispositioned open PRs. The terminal record is sequenced as the final repository mutation after the committed report/state boundary. init.plan-phase 250 returned phase_found=false, so milestone audit is the next GSD route."
   },
-  "updated_at": "2026-10-09T22:31:00.000Z",
+  "updated_at": "2026-10-09T23:55:08Z",
   "progress": {
     "total_phases": 4,
     "completed_phases": 4,

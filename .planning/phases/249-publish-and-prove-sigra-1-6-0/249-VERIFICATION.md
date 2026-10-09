@@ -1,8 +1,8 @@
 ---
 phase: 249-publish-and-prove-sigra-1-6-0
-verified: 2026-10-09T23:46:19Z
+verified: 2026-10-09T23:56:36Z
 status: gaps_found
-score: 32/40 must-haves verified
+score: 35/40 must-haves verified
 covered_files:
   - .github/ci-skip-manifest.tsv
   - .github/workflows/ci.yml
@@ -59,7 +59,7 @@ covered_files:
   - scripts/maintainers/preserve-phase-249-worktrees.test.mjs
   - test/sigra/planning/phase_232_playwright_economics_test.exs
   - test/sigra/planning/phase_249_release_docs_contract_test.exs
-covered_digest: "v3:sha256:d70a64037a1bba432847c6de1c7b8d60106b42cf495aa78d3df58feee9e66d80"
+covered_digest: "v3:sha256:cf89cf61740b6cf846b74425747cc0e35b0cc0a484505297c3c75ae333a99913"
 behavior_unverified: 0
 overrides_applied: 4
 overrides:
@@ -79,45 +79,41 @@ overrides:
     reason: "A related Phase 232 CI contract regression test for the DockerHub mirror failure was added while resolving the user-authorized CI failure, making the scoped candidate 15 paths. The extra test is isolated, relevant, and covered by passing CI."
     accepted_by: "user"
     accepted_at: "2026-10-09"
+re_verification:
+  previous_status: gaps_found
+  previous_score: 32/40
+  gaps_closed:
+    - "The refreshed live ledger now passes population/identity validation for six worktrees and fourteen open PRs; PR #302 has a current disposition."
+    - "Current inventory and preservation checks pass with zero dirty paths; the exact historical HANDOFF.json accepted-loss remains explicit and bounded."
+    - "Canonical final acceptance and terminal evidence now bind main 08300af1740fea8b77d5928a182688acbf103edc, its successful exact-head ci-gate, and the matching acceptance evidence commit."
+  gaps_remaining:
+    - "The report, phase summary/validation, and project handoff/state/roadmap updates are now dirty after terminal commit a8adada5c34fe09ce41a1cc59be83f4c5a1c7d33; commit the pending updates, then refresh inventory/acceptance and replay terminal sealing last."
+  regressions: []
 gaps:
-  - truth: "Closeout evidence reflects the exact live PR/worktree population, final acceptance is current, and the terminal evidence ref binds that acceptance to post-write clean-worktree reads."
+  - truth: "After all phase evidence is final, every registered worktree is raw-clean and the terminal ref binds the current canonical acceptance to post-ref-write raw status reads."
     status: failed
-    reason: "The live inventory validator rejects the captured ledger with worktree_head_mismatch and pull_request_population_or_identity_mismatch. The ledger's #302 identity is stale. The canonical acceptance and terminal ref still bind the earlier main 3c7d713f rather than current main 08300af1740fea8b77d5928a182688acbf103edc, so the required final replay and seal remain outstanding."
+    reason: "The previous stale worktree/#302 findings are superseded: inventory, dispositions, preservation and canonical final acceptance passed, and terminal commit a8adada5c34fe09ce41a1cc59be83f4c5a1c7d33 binds passed acceptance for main 08300af1740fea8b77d5928a182688acbf103edc. The subsequent report and planning/state updates now change root worktree paths; the read-only validator reports dirty_path_population_mismatch, so the pending updates must be committed before the final inventory/terminal replay."
     artifacts:
-      - path: ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json"
-        issue: "Does not match the current live root worktree head and PR #302 identity."
-      - path: ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json"
-        issue: "Canonical acceptance is not refreshed for current main 08300af1740fea8b77d5928a182688acbf103edc and the current inventory."
+      - path: ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md"
+        issue: "The revised report is modified after the terminal raw-status capture and is not yet included in a new canonical acceptance and terminal seal."
+      - path: ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-12-SUMMARY.md"
+        issue: "The refreshed snapshot diagnosis and final-replay route were added after the terminal capture."
+      - path: ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VALIDATION.md"
+        issue: "The 249-12 final replay row was updated after the terminal capture."
+      - path: ".planning/HANDOFF.json, .planning/ROADMAP.md, .planning/STATE.md, .planning/state.json"
+        issue: "Coordinated project routing/state updates are pending commit and were made after the interim terminal seal."
       - path: "refs/heads/evidence/phase-249-final-acceptance"
-        issue: "Terminal commit 5d32d65e... binds old canonical acceptance commit 6596fa... and main 3c7d713f..., not the current acceptance/main."
+        issue: "Terminal commit a8adada5c34fe09ce41a1cc59be83f4c5a1c7d33 is valid for its captured snapshot but predates the pending phase/state/report updates."
     missing:
-      - "Recapture the complete live PR/worktree inventory and refresh the source-backed disposition for current PR #302."
-      - "After this verification and required state/summary updates are committed, rerun final acceptance against current main and current raw worktree status."
-      - "Write and verify the terminal ref-only record last, binding the canonical acceptance commit and two post-ref-write zero-row status captures; then reread each worktree."
-  - truth: "Every currently open PR has a current source-backed disposition and every local worktree has zero raw porcelain rows at final acceptance."
-    status: failed
-    reason: "The captured closeout ledger is stale for the live PR/worktree identities; the final strict cleanliness assertion has not been replayed after the pending verification/state updates."
-    artifacts:
-      - path: ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json"
-        issue: "Its inventory provenance no longer matches live identities."
-    missing:
-      - "Refresh live inventory and dispositions, then run the terminal all-worktrees-clean check after evidence/state commits."
-  - truth: "The plan's failure cases (changed main, stale/missing CI, missing receipt, new dirty path, or undispositioned PR) leave durable blocked evidence."
-    status: partial
-    reason: "The validator's negative fixtures pass, but the canonical final acceptance and terminal seal have not been refreshed to record the present live-inventory blockers."
-    artifacts:
-      - path: ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json"
-        issue: "The committed canonical record predates current main and current PR/worktree identities."
-    missing:
-      - "Persist the refreshed final blocked-or-passed acceptance and its matching terminal evidence only after all phase updates are final."
+      - "Commit the report and coordinated phase/state updates, refresh inventory and final acceptance against those commits, and rerun terminal sealing as the last repository mutation."
 ---
 
 # Phase 249: Publish and Prove Sigra 1.6.0 Verification Report
 
 **Phase Goal:** Adopters can install documented Sigra 1.6.0, and maintainers can trace it to the exact gated source while finishing in a clean repository state.
-**Verified:** 2026-10-09T23:46:19Z
+**Verified:** 2026-10-09T23:56:36Z
 **Status:** gaps_found
-**Re-verification:** No — initial verification
+**Re-verification:** Yes — after closeout gap closure
 
 ## Goal Achievement
 
@@ -133,18 +129,18 @@ gaps:
 | 6 | Trusted-main refresh edits only the one eligible candidate's docs index without a write token during docs build. | ✓ VERIFIED | Workflow permissions and candidate-bound refresh contract tests pass; writer scope is narrowed to doc/llms.txt. |
 | 7 | Refresh rejects candidate/path/branch drift and non-fast-forward races. | ✓ VERIFIED | Refresh writer identity and race fixtures pass; push is non-force and scoped. |
 | 8 | Refreshed candidate gets ordinary CI and exact-head merge guard. | ✓ VERIFIED | Candidate merge gate and exact-head behavior are covered by workflow contract tests and hosted CI evidence. |
-| 9 | Every current open PR has an explicit release disposition. | ✗ FAILED | The live validator reports pull_request_population_or_identity_mismatch; #302's current identity differs from the ledger. |
-| 10 | Every worktree and dirty path is inventoried with owner/preservation or explicit blocker. | ✗ FAILED | The captured snapshot is stale: validator reports root worktree_head_mismatch and a changed PR identity. |
+| 9 | Every current open PR has an explicit release disposition. | ✓ VERIFIED | Refreshed inventory covers 14 open PRs; disposition validation passes with no missing or stale identities. The earlier #302 mismatch was superseded by the new snapshot. |
+| 10 | Every worktree and dirty path is inventoried with owner/preservation or explicit blocker. | ✗ FAILED | The refreshed snapshot passed for six worktrees; subsequent report, summary, validation, handoff and state edits now create a different root dirty-path set (dirty_path_population_mismatch). |
 | 11 | Inherited changes are preserved before source worktrees are cleaned. | ✓ VERIFIED (override) | All inventoried changes except exact historical .planning/HANDOFF.json bytes have verified preservation; user explicitly accepted that unrecoverable loss. |
 | 12 | Only phase-scoped code, docs index and source-derived receipt are promoted; unrelated PRs stay separate. | ✓ VERIFIED | PR #305 is the scoped release change; unrelated open PRs were not merged. |
 | 13 | Promotion record is separate and receipt remains bound to package source. | ✓ VERIFIED | Promotion record and receipt are distinct; package source remains 9e80cb78... |
 | 14 | Final protected-main receipt commit has exact-head successful ordinary CI and ci-gate. | ✓ VERIFIED | Main 08300af1740fea8b77d5928a182688acbf103edc; run 38003573391, attempt 1, job 114069179560 succeeded. |
 | 15 | REL-02 receipt points to immutable package source/CI; later main proof is separate. | ✓ VERIFIED | The release receipt names source 9e80cb78...; final-main SHA and CI are recorded separately. |
 | 16 | Package, tag, Hex, versioned docs and source destination still join the release receipt. | ✓ VERIFIED | Read-only exact-main public proof passed and resolved source URL to the tagged source commit. |
-| 17 | Every current PR has a disposition and all local worktrees are clean after verified preservation. | ✗ FAILED | Worktree cleanliness was observed before report/state updates, but current ledger identities are stale and final terminal cleanliness has not been replayed. |
+| 17 | Every current PR has a disposition and all local worktrees are clean after verified preservation. | ✗ FAILED | PR dispositions and preservation pass, but seven pending root planning/report paths mean the worktree set is not currently at the sealed clean state. |
 | 18 | Public proof rejects mismatched artifacts, tag, package, docs, source or CI identities. | ✓ VERIFIED | Hostile artifact and identity mismatch fixtures pass. |
 | 19 | Untrusted artifacts are inert; receipt accepts only allowlisted source-bound values. | ✓ VERIFIED | Sanitization and source/main identity separation are covered by passing proof fixtures. |
-| 20 | Fresh complete worktree and paginated PR inventory accounts for all current paths/PRs. | ✗ FAILED | Current inventory validation fails on root worktree head and PR population/identity mismatch. |
+| 20 | Fresh complete worktree and paginated PR inventory accounts for all current paths/PRs. | ✗ FAILED | The refreshed six-worktree/fourteen-PR snapshot passed before subsequent planning/report edits; the validator now detects changed dirty-path population. |
 | 21 | Every inherited path has owner, exact identity and recoverable ref before removal. | ✓ VERIFIED (override) | Verified for inventoried changes except the explicit user-accepted unrecoverable historical handoff bytes. |
 | 22 | Inventory-transition exclusions never weaken the terminal all-worktrees-clean check. | ✓ VERIFIED | The validator and fixtures inspect raw porcelain status and prevent declared evidence outputs from hiding dirty paths. |
 | 23 | Ambiguous ownership, drift, new dirty paths or failed reads create an exact blocker without altering source. | ✓ VERIFIED | Fail-closed preservation fixtures pass, including absent refs, hash drift, owner ambiguity and new dirty paths. |
@@ -159,14 +155,22 @@ gaps:
 | 32 | Protected merge retains unchanged receipt blob and immutable source identity. | ✓ VERIFIED | PR #305 merged as 08300af...; receipt blob is 04319a..., matching the source-bound receipt. |
 | 33 | Reviewed PR includes exactly Plan 09/10 candidate paths and no unrelated work. | ✓ VERIFIED (override) | The only added path beyond the original 14 is the related, user-authorized Phase 232 regression test; hosted exact-head CI passed. |
 | 34 | Exact current PR head/base passed required CI before protected squash auto-merge; promotion records identities. | ✓ VERIFIED | PR #305 CI run 38003010120, job 114067027263, passed on exact PR head; merge SHA is current main. |
-| 35 | Release Please and unrelated PRs remain open with dispositions in refreshed closeout ledger. | ✗ FAILED | Current PR population/identity does not match the recorded ledger; #302 needs a current source-backed disposition. |
+| 35 | Release Please and unrelated PRs remain open with dispositions in refreshed closeout ledger. | ✓ VERIFIED | Refreshed disposition validator passes for all 14 current open PRs, including current #302 identity. |
 | 36 | Current protected main has exact receipt and successful ci-gate, separate from package source. | ✓ VERIFIED | Current main 08300af...; exact-main CI run 38003573391, job 114069179560, succeeded. |
-| 37 | All worktrees are raw-clean after evidence commits and all open PRs have current dispositions. | ✗ FAILED | Final capture is pending; current ledger is stale and the report/state changes still require commit before terminal proof. |
-| 38 | Terminal record binds final validation and post-ref-write raw clean reads to canonical acceptance. | ✗ FAILED | Existing terminal ref binds old acceptance/main (6596fa... / 3c7d713f...), not the current acceptance/main. |
+| 37 | All worktrees are raw-clean after evidence commits and all open PRs have current dispositions. | ✗ FAILED | Terminal commit a8adada5... recorded six zero-byte status reads, but seven planning/report paths changed afterward and need commit plus recapture. |
+| 38 | Terminal record binds final validation and post-ref-write raw clean reads to canonical acceptance. | ✗ FAILED | Terminal commit a8adada5... correctly binds the passed acceptance for main 08300af..., but predates the pending report/state updates and is not the latest repository-state seal. |
 | 39 | REL-01 public proof remains valid without republishing or tag mutation. | ✓ VERIFIED | Exact-current-main clean-clone proof passed; package/tag/docs/source identities remain joined. |
-| 40 | Changed/missing release or inventory evidence produces durable blocked acceptance. | ✗ FAILED | Negative fixtures pass, but canonical final acceptance/terminal artifacts have not been refreshed to encode the current inventory blockers. |
+| 40 | Changed/missing release or inventory evidence produces durable blocked acceptance. | ✓ VERIFIED | The negative fixture for a newly dirty path and undispositioned PR requires final acceptance to block; the focused closeout suite remains 60/60 passing. |
 
-**Score:** 32/40 truths verified (0 present, behavior-unverified)
+**Score:** 35/40 truths verified (0 present, behavior-unverified)
+
+### Deferred Items
+
+None.
+
+### Advisory (New Scope, Unevidenced)
+
+None. The earlier root-worktree/#302 mismatch is superseded by the refreshed inventory; the only remaining issue is the verification report's own post-seal update.
 
 ### Required Artifacts
 
@@ -176,9 +180,9 @@ gaps:
 | 249-FINAL-MAIN-PROOF.json | Current exact-main receipt and CI proof | ✓ VERIFIED | Exact SHA 08300af...; run 38003573391, ci-gate job 114069179560 passed. |
 | validate-closeout.mjs and .test.mjs | Fail-closed inventory, acceptance and terminal validator | ✓ VERIFIED | 60/60 focused tests passed in 1.6s. |
 | 249-VALIDATION.md, 249-SECURITY.md, 249-REVIEW.md | Validation, threat and code-review evidence | ✓ VERIFIED | Nyquist complete; no open threats; zero review findings. |
-| 249-CLOSEOUT.json | Current PR/worktree inventory and dispositions | ✗ STALE | Live validator reports worktree head and PR identity mismatch. |
-| 249-FINAL-ACCEPTANCE.json | Final public/main/inventory acceptance | ✗ STALE | Not refreshed after PR #305 merged and current main advanced to 08300af.... |
-| refs/heads/evidence/phase-249-final-acceptance | Terminal evidence bound to canonical acceptance | ✗ STALE | Existing terminal commit seals prior main/acceptance, not the current final proof. |
+| 249-CLOSEOUT.json | Current PR/worktree inventory and dispositions | ✓ VERIFIED AT CAPTURE | `--mode inventory`, `dispositions` and `preservation` passed for six worktrees and fourteen PRs. This report revision occurred after that capture, so final replay is still required. |
+| 249-FINAL-ACCEPTANCE.json | Final public/main/inventory acceptance | ✓ VERIFIED | Canonical passed acceptance is preserved at commit `ed8cf726f502464bb566efb80d674248606fba2f`, blob `7f3180c487f7d9a69555ab18bc2aad34b07c32ab`, SHA-256 `6a93bbe47f68c2af7f4bdf9270234c10b935e4755c523f46b742248572ad5164`. |
+| refs/heads/evidence/phase-249-final-acceptance | Terminal evidence bound to canonical acceptance | ⚠️ STALE AFTER REPORT UPDATE | Ref points to `a8adada5c34fe09ce41a1cc59be83f4c5a1c7d33`; it validly seals the canonical acceptance and six zero-byte reads, but predates this revised report. |
 
 ### Key Link Verification
 
@@ -187,8 +191,8 @@ gaps:
 | Package-source release artifact | 249-RELEASE-RECEIPT.json | Sanitized artifact fields and package source CI | ✓ WIRED | Receipt source SHA and run identity match the published 1.6.0 source. |
 | Release receipt | Protected main | PR #305 merge and receipt blob | ✓ WIRED | Exact receipt blob 04319a... is on current main. |
 | Protected main | Exact-main CI | Run 38003573391, job 114069179560 | ✓ WIRED | Required ci-gate succeeded on main SHA 08300af.... |
-| Current closeout inventory | Canonical final acceptance | Validator joins PR/worktree identities | ✗ NOT CURRENT | Current validator returns worktree_head_mismatch and pull_request_population_or_identity_mismatch. |
-| Canonical final acceptance | Terminal evidence ref | Ref-only terminal commit | ✗ STALE | Link exists but points to previous canonical acceptance and previous main. |
+| Current closeout inventory | Canonical final acceptance | Validator joins PR/worktree identities | ✓ VERIFIED AT CAPTURE | Refreshed inventory and disposition validators pass; final replay must include this report's new bytes. |
+| Canonical final acceptance | Terminal evidence ref | Ref-only terminal commit | ✓ VERIFIED AT CAPTURE | Terminal record binds canonical blob `7f3180...`, acceptance commit `ed8cf7...`, and current main `08300af...`; it must be resealed after this report update. |
 
 ### Data-Flow Trace (Level 4)
 
@@ -196,8 +200,8 @@ gaps:
 |---|---|---|---|---|
 | 249-RELEASE-RECEIPT.json | package version/source/checksum/docs/source CI | Live Hex/API, tag/source, release artifact and CI | Yes | ✓ FLOWING |
 | 249-FINAL-MAIN-PROOF.json | final main SHA/receipt blob/run/job | GitHub protected main, contents API, Actions run/job | Yes | ✓ FLOWING |
-| 249-CLOSEOUT.json | open PR/worktree identities | Live GitHub PR inventory and raw local porcelain status | Captured data is stale | ⚠️ STATIC/STALE |
-| 249-FINAL-ACCEPTANCE.json and terminal ref | joined verdict and final cleanliness | Closeout plus current public/main proof | Prior capture only | ⚠️ STALE |
+| 249-CLOSEOUT.json | open PR/worktree identities | Live GitHub PR inventory and raw local porcelain status | Six worktrees, fourteen PRs; zero dirty paths at capture | ✓ FLOWING AT CAPTURE |
+| Canonical acceptance and terminal ref | joined verdict and final cleanliness | Closeout plus current public/main proof | Passed acceptance; six byte-empty terminal reads | ✓ FLOWING AT CAPTURE; RESEAL AFTER REPORT COMMIT |
 
 ### Behavioral Spot-Checks
 
@@ -206,7 +210,9 @@ gaps:
 | Closeout validator rejects unsafe preservation, stale identities, missing proof and terminal drift | node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs | 60 passed, 0 failed | ✓ PASS |
 | Public release identity resolves from exact current main checkout | Clean-clone public proof recorded in phase evidence | Version 1.6.0, source resolves to 9e80cb78..., package checksum/docs/source join pass | ✓ PASS |
 | Final-main CI gate belongs to the receipt-bearing protected head | GitHub run 38003573391, job 114069179560 | Completed success on 08300af... | ✓ PASS |
-| Full terminal acceptance matches live closeout state | validate-closeout.mjs --mode inventory | worktree_head_mismatch; pull_request_population_or_identity_mismatch | ✗ FAIL |
+| Refreshed live inventory, PR dispositions, preservation | validate-closeout.mjs --mode inventory/dispositions/preservation | Inventory/dispositions/preservation passed for six worktrees and 14 PRs with one authorized HANDOFF accepted-loss; after later file updates inventory detects dirty-path population drift | ✓ PASS AT CAPTURE |
+| Canonical acceptance and terminal seal bind exact current-main proof | Read canonical acceptance from commit ed8cf726; terminal ref a8adada5 | Passed on main 08300af; 6 worktrees, 14 PRs, 0 dirty paths; 6/6 post-write raw statuses empty | ✓ PASS AT CAPTURE |
+| Current root worktree remains clean after pending updates | validate-closeout.mjs --mode inventory; git status --short | dirty_path_population_mismatch; handoff, roadmap, state, phase summary/validation and this report are modified | ✗ FAIL; commit and reseal |
 
 ### Probe Execution
 
@@ -217,7 +223,7 @@ No phase-declared probe-*.sh script was found. The deterministic closeout test s
 | Requirement | Source Plan | Description | Status | Evidence |
 |---|---|---|---|---|
 | REL-01 | 249-01, 249-06, 249-07, 249-12 | Hex 1.6.0, versioned docs and source reference resolve to the gated release source. | ✓ SATISFIED | Read-only clean-clone proof from exact current main resolves source to immutable 9e80cb78...; Hex checksum and versioned docs agree. |
-| REL-02 | 249-01, 249-04–249-12 | Receipt/main CI, raw-clean worktrees and current dispositions for every open PR. | ✗ BLOCKED | Exact main receipt/CI passed, but closeout inventory is stale and final acceptance/terminal seal have not been replayed. |
+| REL-02 | 249-01, 249-04–249-12 | Receipt/main CI, raw-clean worktrees and current dispositions for every open PR. | ⚠️ BLOCKED PENDING FINAL RESEAL | Refreshed acceptance passed for current main and inventory; commit this report and rerun the terminal seal as the final repository mutation. |
 
 ### Anti-Patterns Found
 
@@ -227,13 +233,13 @@ No phase-declared probe-*.sh script was found. The deterministic closeout test s
 
 ### Human Verification Required
 
-None. The remaining acceptance conditions are deterministic repository/GitHub state checks and can be completed by the already-planned final replay; human UAT would not add evidence.
+None. The remaining acceptance condition is deterministic: commit this revised report, recapture the inventory, refresh canonical acceptance if needed, and reseal the terminal ref. Human UAT would not add evidence.
 
 ### Gaps Summary
 
-The published package and public docs/source proof are valid, and protected main 08300af1740fea8b77d5928a182688acbf103edc has successful exact-head required CI. Phase 249 is not yet fully accepted because the recorded PR/worktree inventory and terminal seal predate the latest merge/current identities. The required final acceptance and terminal evidence replay is explicitly scheduled after this report and the remaining phase/state updates are committed. No release implementation failure or human UAT blocker was found.
+The former stale-inventory and PR #302 identity findings are closed by a refreshed complete snapshot: six worktrees, fourteen PRs, all dispositions valid, preservation valid with the explicitly accepted historical HANDOFF loss, and a passed final acceptance for current main `08300af1740fea8b77d5928a182688acbf103edc`. Terminal commit `a8adada5c34fe09ce41a1cc59be83f4c5a1c7d33` correctly binds that acceptance and six empty post-write status records. This report revision itself is a later tracked-worktree change, so the last closeout step remains: commit this report, refresh acceptance, and reseal/read the terminal status after the commit. No release implementation failure or human UAT blocker was found.
 
 ---
 
-_Verified: 2026-10-09T23:46:19Z_  
+_Verified: 2026-10-09T23:56:36Z_
 _Verifier: the agent (gsd-verifier)_
