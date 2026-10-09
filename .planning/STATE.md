@@ -2,21 +2,22 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-current_phase: 248
-current_phase_name: Exact-Source Release Gate
-current_plan: 5
-status: Phase 248 Plans 01-05 are implemented and locally verified; phase verification is gaps_found (13/18). There is no evidence the current GitHub secrets expired: required names are missing from the protected environments, while same-named repository secrets exist; their values/expiry are not visible, and the user cannot find them in 1Password. Regular Chrome is at GitHub and Hex identity re-checks. GitHub fine-grained token setup is prefilled for only szTheory/sigra, no expiration (subject to org policy), and workflow-required permissions. Hex publishing route is pending user choice between a long-lived API key and OIDC trusted publishing. Do not start dependent Phase 249 until Phase 248 gaps are closed.
-stopped_at: Phase 248 verification gaps_found (13/18)
-last_updated: "2026-10-09T00:11:01Z"
+current_phase: 249
+current_phase_name: Publish and Prove Sigra 1.6.0
+current_plan: 0
+status: >-
+  Phase 248 release execution and environment-secret setup are operationally complete. Sigra 1.6.0 was published from gated source 9e80cb78d6374b1ed4074d5fef6b613fee879dca on run 37875238705 attempt 3 with a successful publish receipt. Phase 249 discussion context is committed; fresh init.plan-phase 249 reports Pending, complete context, zero plans, and no prerequisite blocker. The user approved the recommended doc/llms.txt refresh and automatic CI drift guard. The old Phase 248 13/18 report remains separate verification maintenance; hosted manual dry-run and failure/cancellation receipt behavior remain unverified. Preserve inherited work and refresh live worktree/PR dispositions before closeout.
+stopped_at: Phase 249 context gathered (assumptions mode)
+last_updated: "2026-10-09T11:47:59Z"
 last_activity: 2026-10-09
-state_head: a197316e2aead41e5f6060ab0d120f36b41a0fde
+state_head: 9e2a78d1469e7155179f9d58e68267e5fb5eb494
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 19
   completed_plans: 18
   percent: 50
-last_activity_desc: Phase 248 secret recovery paused at GitHub and Hex identity re-checks; GitHub token is staged; Hex auth route pending user choice
+last_activity_desc: Phase 249 assumptions discussion completed; context committed and plan-phase readiness has no prerequisite blocker
 ---
 
 # Project State
@@ -27,16 +28,16 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 248 — Exact-Source Release Gate
+**Current focus:** Phase 249 — Publish and Prove Sigra 1.6.0
 
 ## Current Position
 
-Phase: 248 (Exact-Source Release Gate) — EXECUTING
-Current Plan: 5
-Total Plans in Phase: 5
-Plan: 5 of 5
-Status: Phase 248 Plans 01-05 are implemented and locally verified; phase verification is gaps_found (13/18). There is no evidence the current GitHub secrets expired: required names are missing from the protected environments, while same-named repository secrets exist; their values/expiry are not visible, and the user cannot find them in 1Password. Regular Chrome is at GitHub and Hex identity re-checks. GitHub fine-grained token setup is prefilled for only szTheory/sigra, no expiration (subject to org policy), and workflow-required permissions. Hex publishing route is pending user choice between a long-lived API key and OIDC trusted publishing. Do not start dependent Phase 249 until Phase 248 gaps are closed.
-Last activity: 2026-10-08
+Phase: 249 (Publish and Prove Sigra 1.6.0) — READY TO PLAN
+Current Plan: 0
+Total Plans in Phase: 0
+Plan: Not yet planned
+Status: Discussion context is committed at `.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md`. The 1.6.0 release and hosted success receipt are verified; the context locks source-bound Hex/HexDocs/receipt proof, the approved `doc/llms.txt` refresh and automatic drift guard, and safe worktree/PR closeout. Fresh `init.plan-phase 249` reports Pending with complete context, zero plans, and no prerequisite blocker. The Phase 248 13/18 report is stale verification maintenance; hosted manual dry-run and failure/cancellation receipt behavior remain unverified. Refresh live inventories and preserve inherited changes.
+Last activity: 2026-10-09
 
 Progress: [█████░░░░░] 50%
 
@@ -813,14 +814,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-08T23:02:59.833Z
-Stopped at: Completed 248-05-PLAN.md
-Resume file: None
+Last session: 2026-10-09T11:46:31.428Z
+Stopped at: Phase 249 context gathered (assumptions mode)
+Resume file: .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md
 
 ## Operator Next Steps
 
-- **Phase 247 is complete and independently verified.** Candidate PR #224 remains open at 0e773d3614a242e4fbcdd34c418ecb8a307703d6 on base d135cbce343947499a0810736c500ef5f1cb5c32; exact-head CI run 37819712610 passed and the authenticated non-publishing dry run 37824714823 passed. Final readiness is valid with zero diagnostics, and the independent verifier reports 14/14. Local WebKit remains blocked by the recorded AppKit startup abort; exact-head CI supplies browser proof. Phase 248 Plan 01 is active. All five Phase 248 plans are runnable with no prerequisite blockers, and the user authorized guarded exact-head auto-merge in Plan 248-02. Continue with $gsd-execute-phase 248. Do not publish Sigra 1.6.0; publication belongs to Phase 249.
-- Routing evidence: .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md, .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json, .planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json, .planning/phases/248-exact-source-release-gate/248-CONTEXT.md, and .planning/phases/248-exact-source-release-gate/248-RESEARCH.md.
+- **Phase 249 context is complete and committed.** The published 1.6.0 release is tied to tag `v1.6.0`, gated source SHA `9e80cb78d6374b1ed4074d5fef6b613fee879dca`, and successful release run `37875238705` attempt 3. Live main at discussion time is `e2fa303017364c7e496c3c620f7b709c8e90c8fb`; Release Please PR #302 is open for 1.6.1. Refresh these identities and the full worktree/PR inventory before execution. The user approved refreshing the tracked ExDoc index and adding a drift guard with automatic Release Please candidate repair. Keep the stale Phase 248 13/18 report and its hosted manual-dry-run/failure/cancellation gaps as separate verification maintenance.
+- **Next GSD command: `$gsd-plan-phase 249`.** Fresh `init.plan-phase 249` reports phase Pending, complete context, zero plans, and no prerequisite blocker. Evidence and decisions: `.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md` and `249-DISCUSSION-LOG.md`; release artifact source run `37875238705`; current main and PR #302 links are in the context.
 
 ## Performance Metrics
 
