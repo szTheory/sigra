@@ -31,7 +31,7 @@
 
 - [x] **Phase 246: Generated Confirmation Recovery** - Adopters can use the generated confirmation journey reliably, including pasted codes and visible feedback. (completed 2026-10-07)
 - [x] **Phase 247: Release Candidate and Repository Readiness** - The 1.6.0 candidate is accurate for adopters and comes from a clean, reviewed source with the inherited checkout and PR queue dispositioned. (completed 2026-10-08)
-- [ ] **Phase 248: Exact-Source Release Gate** - The existing release lane proves source identity, completes its checks, and retains actionable receipts for every outcome.
+- [x] **Phase 248: Exact-Source Release Gate** - The existing release lane proves source identity, completes its checks, and retains actionable receipts for every outcome. (completed 2026-10-09)
 - [ ] **Phase 249: Publish and Prove Sigra 1.6.0** - Hex, versioned HexDocs, protected main, local worktrees, and committed evidence agree on the release.
 
 ### Phase Details
@@ -141,7 +141,7 @@ Plans:
   2. Required CI is green for the final protected-main release commit; the committed artifact-derived receipt identifies the immutable 1.6.0 package-source SHA and matching source CI, while final-main SHA and CI are recorded separately.
   3. Every local worktree is clean and every PR still open at closeout has a recorded disposition.
 
-**Plans**: 7/12 plans executed
+**Plans**: 11/12 plans executed
 
 Plans:
 
@@ -166,13 +166,13 @@ Plans:
 - [x] 249-08-PLAN.md — Preserve inherited work under verified, recoverable refs.
 
 **Wave 7** *(gated by Plan 08 preservation precondition)*
-- [ ] 249-09-PLAN.md — Assemble the source-bound receipt and required documentation gate.
+- [x] 249-09-PLAN.md — Assemble the source-bound receipt and required documentation gate.
 
 **Wave 8** *(blocked on Plan 09)*
-- [ ] 249-10-PLAN.md — Complete and review the scoped promotion candidate.
+- [x] 249-10-PLAN.md — Complete and review the scoped promotion candidate.
 
 **Wave 9** *(blocked on Plan 10)*
-- [ ] 249-11-PLAN.md — Promote the exact reviewed candidate through protected auto-merge.
+- [x] 249-11-PLAN.md — Promote the exact reviewed candidate through protected auto-merge.
 
 **Wave 10** *(blocked on Plan 11)*
 - [ ] 249-12-PLAN.md — Verify final-main evidence and terminal repository cleanliness.

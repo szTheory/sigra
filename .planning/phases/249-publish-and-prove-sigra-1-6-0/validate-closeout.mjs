@@ -12,6 +12,12 @@ const DIGEST = /^[0-9a-f]{64}$/;
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(MODULE_DIR, '../../..');
 const CLOSEOUT_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
+const FINAL_ACCEPTANCE_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json';
+const TERMINAL_STATUS_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-TERMINAL-STATUS.json';
+const SUMMARY_12_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-12-SUMMARY.md';
+const FINAL_MAIN_PROOF_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json';
+const DEFAULT_PUBLIC_PROOF_PATH = 'tmp/phase-249-closeout-public-proof-20261009.json';
+const FINAL_ACCEPTANCE_REF = 'refs/heads/evidence/phase-249-final-acceptance';
 const CANDIDATE_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json';
 const PROMOTION_CANDIDATE_PATHS = Object.freeze([
   '.github/ci-skip-manifest.tsv',
@@ -957,6 +963,188 @@ export function validateFinalAcceptance(proof) {
   };
 }
 
+function worktreeStatusSnapshot(repoRoot) {
+  const worktrees = parseWorktrees(run('git', ['worktree', 'list', '--porcelain', '-z'], repoRoot));
+  if (worktrees.length === 0 || !unique(worktrees, row => row.path)) throw new Error('Registered worktree inventory is empty or ambiguous.');
+  return {
+    paths: worktrees.map(row => row.path),
+    worktrees: worktrees.map(row => {
+      const raw = run('git', ['-C', row.path, 'status', '--porcelain=v1', '-z', '--untracked-files=all'], repoRoot);
+      return {
+        path: row.path,
+        raw_status_base64: raw.toString('base64'),
+        raw_status_sha256: sha256(raw),
+        raw_status_bytes: raw.length,
+        clean: raw.length === 0,
+      };
+    }),
+  };
+}
+
+function validRawStatusSnapshot(snapshot) {
+  if (!snapshot || !Array.isArray(snapshot.paths) || !Array.isArray(snapshot.worktrees)
+    || snapshot.paths.length === 0 || !unique(snapshot.paths, value => value)
+    || !unique(snapshot.worktrees, row => row?.path)) return false;
+  const paths = snapshot.worktrees.map(row => row.path).sort();
+  if (!equalList(paths, [...snapshot.paths].sort())) return false;
+  return snapshot.worktrees.every(row => {
+    if (typeof row.raw_status_base64 !== 'string' || !DIGEST.test(row.raw_status_sha256 ?? '')
+      || !Number.isInteger(row.raw_status_bytes) || row.raw_status_bytes < 0) return false;
+    const raw = Buffer.from(row.raw_status_base64, 'base64');
+    return raw.toString('base64') === row.raw_status_base64
+      && raw.length === row.raw_status_bytes
+      && sha256(raw) === row.raw_status_sha256
+      && row.clean === (raw.length === 0);
+  });
+}
+
+export function validateTerminalStatusRecord(record, expected = {}) {
+  const errors = [];
+  const add = code => errors.push({ code });
+  if (!record || record.schema_version !== 1 || record.phase !== 249 || record.plan !== '12') add('terminal_record_missing_or_invalid');
+  if (record?.verdict !== 'passed' || record?.final_validation?.verdict !== 'passed') add('terminal_verdict_not_passed');
+  if (!record?.canonical_acceptance || record.canonical_acceptance.path !== FINAL_ACCEPTANCE_PATH
+    || !SHA.test(record.canonical_acceptance.commit_sha ?? '') || !/^[0-9a-f]{40,64}$/.test(record.canonical_acceptance.blob_sha ?? '')
+    || !DIGEST.test(record.canonical_acceptance.sha256 ?? '') || record.canonical_acceptance.verdict !== 'passed') add('terminal_canonical_identity_invalid');
+  if (expected.canonical_blob_sha && record?.canonical_acceptance?.blob_sha !== expected.canonical_blob_sha) add('terminal_canonical_blob_mismatch');
+  if (expected.canonical_commit_sha && record?.canonical_acceptance?.commit_sha !== expected.canonical_commit_sha) add('terminal_canonical_commit_mismatch');
+  if (!record?.evidence_commits || !SHA.test(record.evidence_commits.phase_evidence_commit_sha ?? '')
+    || !SHA.test(record.evidence_commits.summary_commit_sha ?? '')) add('terminal_evidence_commit_identity_invalid');
+  const sealed = record?.post_ref_write_status;
+  const reread = expected.final_reread;
+  if (!validRawStatusSnapshot(sealed)) add('terminal_post_ref_write_status_missing_or_invalid');
+  if (reread && !validRawStatusSnapshot(reread)) add('terminal_post_terminal_status_missing_or_invalid');
+  if (validRawStatusSnapshot(sealed) && reread && validRawStatusSnapshot(reread)) {
+    if (!equalList([...sealed.paths].sort(), [...reread.paths].sort())) add('terminal_worktree_population_changed');
+    const sealedByPath = new Map(sealed.worktrees.map(row => [row.path, row]));
+    for (const row of reread.worktrees) {
+      const prior = sealedByPath.get(row.path);
+      if (!prior || prior.raw_status_base64 !== row.raw_status_base64 || prior.raw_status_sha256 !== row.raw_status_sha256) {
+        add('terminal_status_reread_mismatch');
+      }
+    }
+    if (sealed.worktrees.some(row => !row.clean) || reread.worktrees.some(row => !row.clean)) add('terminal_worktree_dirty');
+  }
+  return { valid: errors.length === 0, verdict: errors.length === 0 ? 'passed' : 'blocked', errors };
+}
+
+function commitRefTree(repoRoot, ref, expectedOld, message, relativePath = null, fileBytes = null) {
+  const blob = relativePath ? execFileSync('git', ['hash-object', '-w', '--stdin'], { cwd: repoRoot, input: fileBytes, encoding: 'utf8' }).trim() : null;
+  const indexDir = fs.mkdtempSync(path.join('/tmp', 'sigra-phase-249-terminal-index-'));
+  const indexPath = path.join(indexDir, 'index');
+  const options = { cwd: repoRoot, env: { ...process.env, GIT_INDEX_FILE: indexPath }, encoding: 'utf8' };
+  try {
+    execFileSync('git', ['read-tree', expectedOld], options);
+    if (relativePath) execFileSync('git', ['update-index', '--add', '--cacheinfo', '100644', blob, relativePath], options);
+    const tree = execFileSync('git', ['write-tree'], options).trim();
+    const commit = execFileSync('git', ['commit-tree', tree, '-p', expectedOld, '-m', message], options).trim();
+    execFileSync('git', ['update-ref', ref, commit, expectedOld], { cwd: repoRoot, stdio: 'ignore' });
+    if (runText('git', ['rev-parse', '--verify', `${ref}^{commit}`], repoRoot) !== commit) throw new Error('Evidence ref compare-and-swap read-back differs from the new commit.');
+    if (relativePath && !run('git', ['show', `${ref}:${relativePath}`], repoRoot).equals(fileBytes)) throw new Error('Evidence ref tree read-back differs from the supplied bytes.');
+    return { commit_sha: commit, blob_sha: blob };
+  } finally {
+    fs.rmSync(indexDir, { recursive: true, force: true });
+  }
+}
+
+function canonicalAcceptanceIdentity(repoRoot, ref, canonicalBytes) {
+  const value = JSON.parse(canonicalBytes.toString('utf8'));
+  const blobSha = runText('git', ['rev-parse', '--verify', `${ref}:${FINAL_ACCEPTANCE_PATH}`], repoRoot);
+  const committedBytes = run('git', ['show', `${ref}:${FINAL_ACCEPTANCE_PATH}`], repoRoot);
+  if (!committedBytes.equals(canonicalBytes)) throw new Error('Canonical acceptance bytes do not match the acceptance artifact committed on the scoped evidence ref.');
+  const commitSha = runText('git', ['log', '-1', '--format=%H', ref, '--', FINAL_ACCEPTANCE_PATH], repoRoot);
+  if (!SHA.test(commitSha) || runText('git', ['rev-parse', '--verify', `${commitSha}:${FINAL_ACCEPTANCE_PATH}`], repoRoot) !== blobSha) {
+    throw new Error('Canonical acceptance commit does not contain the exact committed artifact blob.');
+  }
+  return { path: FINAL_ACCEPTANCE_PATH, blob_sha: blobSha, commit_sha: commitSha, sha256: sha256(canonicalBytes), verdict: value.verdict };
+}
+
+export function sealTerminalEvidence({ repoRoot = DEFAULT_ROOT, ref = FINAL_ACCEPTANCE_REF, canonicalBytes, finalValidation, phaseEvidenceCommitSha, summaryCommitSha }) {
+  if (ref !== FINAL_ACCEPTANCE_REF) throw new Error(`Terminal evidence may update only ${FINAL_ACCEPTANCE_REF}.`);
+  if (!Buffer.isBuffer(canonicalBytes)) canonicalBytes = Buffer.from(canonicalBytes ?? '');
+  const canonical = canonicalAcceptanceIdentity(repoRoot, ref, canonicalBytes);
+  const canonicalValue = JSON.parse(canonicalBytes.toString('utf8'));
+  const finalEvidenceMatches = canonicalValue.final_main_sha === finalValidation?.final_main_sha
+    && canonicalValue.package_source_sha === finalValidation?.package_source_sha
+    && sameJson(canonicalValue.package_source_ci, finalValidation?.package_source_ci)
+    && sameJson(canonicalValue.final_main_ci, finalValidation?.final_main_ci)
+    && sameJson(canonicalValue.receipt, finalValidation?.receipt)
+    && sameJson(canonicalValue.public_release, finalValidation?.public_release)
+    && canonicalValue.closeout_ledger_sha256 === finalValidation?.closeout_ledger_sha256
+    && canonicalValue.inventory_fingerprint_sha256 === finalValidation?.inventory_fingerprint_sha256
+    && sameJson(canonicalValue.inventory, finalValidation?.inventory);
+  if (canonical.verdict !== 'passed' || finalValidation?.verdict !== canonical.verdict || !finalEvidenceMatches) {
+    return { valid: false, verdict: 'blocked', code: 'canonical_and_live_final_evidence_disagree', canonical, final_validation_verdict: finalValidation?.verdict ?? null };
+  }
+  if (!SHA.test(phaseEvidenceCommitSha ?? '') || !SHA.test(summaryCommitSha ?? '')) throw new Error('Terminal evidence requires exact phase-evidence and summary commit SHAs.');
+  const checkedOutBranch = ref.slice('refs/heads/'.length);
+  const registered = parseWorktrees(run('git', ['worktree', 'list', '--porcelain', '-z'], repoRoot));
+  if (registered.some(row => row.branch === checkedOutBranch)) throw new Error('The scoped final-acceptance evidence ref must remain unregistered and unchecked out.');
+  const registeredPaths = registered.map(row => row.path).sort();
+  const previous = runText('git', ['rev-parse', '--verify', `${ref}^{commit}`], repoRoot);
+  const checkpoint = commitRefTree(repoRoot, ref, previous, 'chore(249-12): checkpoint before terminal status capture');
+  const firstStatus = worktreeStatusSnapshot(repoRoot);
+  if (!validRawStatusSnapshot(firstStatus) || !equalList(registeredPaths, [...firstStatus.paths].sort())
+    || firstStatus.paths.length !== finalValidation.inventory?.worktree_count || firstStatus.worktrees.some(row => !row.clean)) {
+    return { valid: false, verdict: 'blocked', code: 'post_checkpoint_worktree_status_not_clean', checkpoint_commit_sha: checkpoint.commit_sha, status: firstStatus };
+  }
+  const sanitizedValidation = {
+    verdict: finalValidation.verdict,
+    package_source_sha: finalValidation.package_source_sha ?? null,
+    package_source_ci: finalValidation.package_source_ci ?? null,
+    final_main_sha: finalValidation.final_main_sha ?? null,
+    final_main_ci: finalValidation.final_main_ci ?? null,
+    receipt: finalValidation.receipt ?? null,
+    public_release: finalValidation.public_release ?? null,
+    inventory: finalValidation.inventory ?? null,
+    errors: finalValidation.errors ?? [],
+    blockers: finalValidation.blockers ?? [],
+    closeout_ledger_sha256: finalValidation.closeout_ledger_sha256 ?? null,
+    inventory_fingerprint_sha256: finalValidation.inventory_fingerprint_sha256 ?? null,
+  };
+  const draft = {
+    schema_version: 1,
+    phase: 249,
+    plan: '12',
+    repository: REPOSITORY,
+    recorded_at: new Date().toISOString(),
+    verdict: 'passed',
+    canonical_acceptance: canonical,
+    final_validation: sanitizedValidation,
+    final_validation_sha256: sha256(Buffer.from(JSON.stringify(sanitizedValidation))),
+    evidence_commits: { phase_evidence_commit_sha: phaseEvidenceCommitSha, summary_commit_sha: summaryCommitSha },
+    post_ref_write_status: firstStatus,
+  };
+  const draftBytes = Buffer.from(`${JSON.stringify(draft, null, 2)}\n`);
+  const terminal = commitRefTree(repoRoot, ref, checkpoint.commit_sha, 'chore(249-12): seal terminal clean-worktree evidence', TERMINAL_STATUS_PATH, draftBytes);
+  const finalStatus = worktreeStatusSnapshot(repoRoot);
+  const recordBytes = run('git', ['show', `${ref}:${TERMINAL_STATUS_PATH}`], repoRoot);
+  const record = JSON.parse(recordBytes.toString('utf8'));
+  const terminalValidation = validateTerminalStatusRecord({
+    ...record,
+  }, { canonical_blob_sha: canonical.blob_sha, canonical_commit_sha: canonical.commit_sha, final_reread: finalStatus });
+  const refCommitSha = runText('git', ['rev-parse', '--verify', `${ref}^{commit}`], repoRoot);
+  const storedBlobSha = runText('git', ['rev-parse', '--verify', `${ref}:${TERMINAL_STATUS_PATH}`], repoRoot);
+  const rereadEqual = validRawStatusSnapshot(finalStatus)
+    && equalList([...firstStatus.paths].sort(), [...finalStatus.paths].sort())
+    && firstStatus.worktrees.every(row => finalStatus.worktrees.some(next => next.path === row.path
+      && next.raw_status_base64 === row.raw_status_base64 && next.raw_status_sha256 === row.raw_status_sha256));
+  const valid = terminalValidation.valid && rereadEqual && record.verdict === canonical.verdict
+    && recordBytes.equals(draftBytes) && storedBlobSha === terminal.blob_sha && refCommitSha === terminal.commit_sha;
+  return {
+    valid,
+    verdict: valid ? 'passed' : 'blocked',
+    ref,
+    checkpoint_commit_sha: checkpoint.commit_sha,
+    terminal_commit_sha: terminal.commit_sha,
+    terminal_blob_sha: terminal.blob_sha,
+    canonical_acceptance: canonical,
+    final_status: finalStatus,
+    validation: terminalValidation,
+    errors: valid ? [] : [...terminalValidation.errors, ...(!rereadEqual ? [{ code: 'terminal_post_write_reread_mismatch' }] : []), ...(!recordBytes.equals(draftBytes) ? [{ code: 'terminal_record_readback_mismatch' }] : [])],
+  };
+}
+
 export function collectLiveInventory({ repoRoot = DEFAULT_ROOT, ledger = null } = {}) {
   const observedAt = new Date().toISOString();
   let worktrees = [];
@@ -1871,11 +2059,14 @@ function parseArgs(args) {
     else if (args[index] === '--output') result.outputPath = args[++index];
     else if (args[index] === '--public-proof') result.publicProofPath = args[++index];
     else if (args[index] === '--main-proof') result.mainProofPath = args[++index];
+    else if (args[index] === '--canonical') result.canonicalPath = args[++index];
+    else if (args[index] === '--ref') result.ref = args[++index];
     else throw new Error(`Unknown argument: ${args[index]}`);
   }
-  if (!result.mode || !result.ledgerPath) throw new Error('Usage: validate-closeout.mjs --ledger <path> --mode capture|inventory|dispositions|preservation|promotion|post-merge|final [--public-proof <path>] [--main-proof <path>] [--output <path>]');
+  if (!result.mode || !result.ledgerPath) throw new Error('Usage: validate-closeout.mjs --ledger <path> --mode capture|inventory|dispositions|preservation|promotion|post-merge|final|terminal [--public-proof <path>] [--main-proof <path>] [--canonical <path>] [--ref <ref>] [--output <path>]');
   if (['promotion', 'post-merge', 'final'].includes(result.mode) && !result.outputPath) throw new Error(`${result.mode} mode requires --output <path>.`);
   if (result.mode === 'final' && (!result.publicProofPath || !result.mainProofPath)) throw new Error('Final mode requires --public-proof and --main-proof paths.');
+  if (result.mode === 'terminal' && (!result.canonicalPath || !result.ref)) throw new Error('Terminal mode requires --canonical <path> and --ref <ref>.');
   return result;
 }
 
@@ -1958,6 +2149,50 @@ async function main() {
     writeJsonArtifact(DEFAULT_ROOT, args.outputPath, record);
     console.log(JSON.stringify({ verdict: record.verdict, protected_main_sha: record.protected_main_sha, receipt_present: liveMain.receipt?.exists === true, ci_gate: validation.ci?.ci_gate?.conclusion ?? null, errors: validation.errors }, null, 2));
     process.exitCode = validation.valid ? 0 : 1;
+    return;
+  }
+  if (args.mode === 'terminal') {
+    const canonicalPath = path.resolve(DEFAULT_ROOT, args.canonicalPath);
+    const canonicalBytes = fs.readFileSync(canonicalPath);
+    const validationRelativePath = `tmp/phase-249-terminal-final-validation-${process.pid}.json`;
+    const validationAbsolutePath = path.resolve(DEFAULT_ROOT, validationRelativePath);
+    const publicProofPath = args.publicProofPath ?? DEFAULT_PUBLIC_PROOF_PATH;
+    const mainProofPath = args.mainProofPath ?? FINAL_MAIN_PROOF_PATH;
+    let validation = null;
+    let validationExitCode = 1;
+    try {
+      try {
+        run(process.execPath, [fileURLToPath(import.meta.url), '--ledger', args.ledgerPath, '--mode', 'final',
+          '--public-proof', publicProofPath, '--main-proof', mainProofPath, '--output', validationRelativePath], DEFAULT_ROOT);
+        validationExitCode = 0;
+      } catch (error) {
+        validationExitCode = Number.isInteger(error.status) ? error.status : 1;
+      }
+      if (fs.existsSync(validationAbsolutePath)) validation = JSON.parse(fs.readFileSync(validationAbsolutePath, 'utf8'));
+    } catch (error) {
+      console.error(JSON.stringify({ verdict: 'blocked', code: 'final_revalidation_failed', message: error.message }, null, 2));
+      process.exitCode = 1;
+      return;
+    } finally {
+      fs.rmSync(validationAbsolutePath, { force: true });
+    }
+    if (!validation) {
+      console.error(JSON.stringify({ verdict: 'blocked', code: 'final_revalidation_output_missing', exit_code: validationExitCode }, null, 2));
+      process.exitCode = 1;
+      return;
+    }
+    const phaseEvidenceCommitSha = runText('git', ['rev-parse', '--verify', 'HEAD^{commit}'], DEFAULT_ROOT);
+    const summaryCommitSha = runText('git', ['log', '-1', '--format=%H', 'HEAD', '--', SUMMARY_12_PATH], DEFAULT_ROOT);
+    const result = sealTerminalEvidence({
+      repoRoot: DEFAULT_ROOT,
+      ref: args.ref,
+      canonicalBytes,
+      finalValidation: validation,
+      phaseEvidenceCommitSha,
+      summaryCommitSha,
+    });
+    console.log(JSON.stringify({ ...result, final_revalidation_exit_code: validationExitCode }, null, 2));
+    process.exitCode = result.valid ? 0 : 1;
     return;
   }
   if (args.mode === 'final') {

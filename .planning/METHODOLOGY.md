@@ -16,6 +16,14 @@ Before a merge, publish, deploy, tag, or other external state change, preflight 
 
 For high-fan-out CI service containers, avoid making many concurrent anonymous pulls from a rate-limited registry. Prefer an official public mirror of the same upstream image when available, and pin the image source in a workflow contract test. Diagnose correlated infrastructure failures before changing application code; retry a transient failure once, then retain the causal log and make the stable fix part of CI.
 
+## Terminal Evidence Closeout
+
+Design the terminal evidence writer and its failure tests before beginning a multi-step release closeout. Commit implementation, summaries, and source evidence before refreshing the final inventory. Capture the final acceptance artifact to an ignored task-local path, commit its exact bytes to the scoped evidence ref, and verify that read-back before sealing; do not generate a tracked proof file after the clean-tree snapshot.
+
+The terminal seal should use compare-and-swap ref updates without checking out the evidence ref. Record the exact raw `git status --porcelain=v1 -z --untracked-files=all` bytes for every registered worktree after a checkpoint ref write, then re-read all worktrees after the terminal record ref write. Require an unchanged worktree set and byte-identical empty statuses, and bind the record to the canonical acceptance blob/commit and summary/evidence commits. A dirty status, missing record, failed read, or changed set blocks completion and requires a fresh closeout pass; never hide generated outputs behind an allowlist.
+
+Run the terminal proof as the final repository mutation. If a later state, handoff, summary, or evidence edit is needed, commit it first, refresh the inventory and acceptance evidence, and replay the seal rather than reporting from an older terminal record.
+
 ## GSD Milestone Tags
 
 GSD milestone identifiers such as `v1.48` are planning labels, not Hex releases. Keep

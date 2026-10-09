@@ -16,7 +16,7 @@
     {
       "number": "248",
       "name": "Exact-Source Release Gate",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "249",
@@ -25,9 +25,16 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 249 --gaps-only",
-    "label": "Recheck live main and promote the reviewed fourteen-path candidate",
-    "reason": "Plan 249-10 completed with clean local candidate head 10246c8dbcc2acd3c49432844e84a34ae0bd01c1 based on protected-main observation e2fa303017364c7e496c3c620f7b709c8e90c8fb, exact fourteen-path diff, internal review, focused contracts, docs verification, and the full contributor gate. No push or PR has been opened. Plan 249-11 must resolve live main again, refresh the complete PR/worktree inventory, verify preservation, and only then promote this exact head; Plan 249-12 verifies current main and terminal cleanliness. The one historical HANDOFF loss remains user-authorized, unrecovered, recorded, and excluded from the candidate."
+    "command": "node .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs --ledger .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json --mode capture",
+    "label": "Capture the final complete PR/worktree ledger after all tracked plan outputs are committed",
+    "reason": "Plan 249-12 implementation, state, summary, and prevention guidance are committed before this capture. Commit the resulting ledger as its exact evidence-only transition, then run preservation and final acceptance into ignored task-local output and seal the canonical bytes on the scoped evidence ref."
   },
-  "updated_at": "2026-10-09T20:57:15.000Z"
+  "updated_at": "2026-10-09T22:19:40.000Z",
+  "progress": {
+    "total_phases": 4,
+    "completed_phases": 3,
+    "total_plans": 31,
+    "completed_plans": 28,
+    "percent": 75
+  }
 }

@@ -4,19 +4,19 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 249-11 (promote the reviewed exact-head candidate through protected auto-merge)
+current_plan: 249-12 (verify final-main evidence and seal terminal worktree proof)
 status: in_progress
-stopped_at: Plan 249-10 complete; the exact fourteen-path candidate is locally green and ready for live-base recheck before PR promotion
-last_updated: "2026-10-09T20:57:15.000Z"
+stopped_at: Plan 249-11 complete; Plan 249-12 implementation and terminal-seal tests are complete, with the final evidence replay remaining
+last_updated: "2026-10-09T22:19:40.000Z"
 last_activity: 2026-10-09
-last_activity_desc: Completed Plan 249-10 review and full candidate verification; Plan 249-11 will recheck live main and PR inventory before promotion
+last_activity_desc: Plan 249-12 added automated terminal sealing and passed all 60 closeout tests; final inventory, acceptance, and ref-only seal remain
 state_head: 2782099bb
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 31
-  completed_plans: 27
-  percent: 50
+  completed_plans: 28
+  percent: 75
 ---
 
 # Project State
@@ -31,14 +31,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-10 complete
-Current Plan: 249-11 (recheck live main and inventory, then promote candidate 10246c8dbcc2acd3c49432844e84a34ae0bd01c1)
+Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-11 complete
+Current Plan: 249-12 (refresh final proof, validate all open PRs/worktrees, and seal terminal evidence)
 Total Plans in Phase: 12
-Plans executed: 10 of 12
-Status: In progress; the exact historical loss is user-authorized and recorded; the fourteen-path candidate passed internal review and local CI
-Last activity: 2026-10-09 — Plan 249-10 produced clean candidate 10246c8dbcc2acd3c49432844e84a34ae0bd01c1; Plan 249-11 must re-resolve main before promotion
+Plans executed: 11 of 12
+Status: In progress; final-main CI and public 1.6.0 proof pass; the historical loss is recorded as accepted loss; final closeout seal is pending
+Last activity: 2026-10-09 — Plan 249-12 terminal-seal code and tests pass; refresh live closeout evidence and run the final ref-only seal
 
-Progress: [█████░░░░░] 50%
+Progress: [███████░░░] 75%
 
 ### v1.49 phase map
 
@@ -820,16 +820,16 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-10-09T18:23:54Z
-Stopped at: Plan 249-09 complete; candidate 72fc10449577f63974d068c5aba8c4b3ce99052e awaits Plan 249-10 review
+Stopped at: Plan 249-12 implementation complete; final live acceptance replay and ref-only terminal seal remain
 Resume file: None
 
 ## Operator Next Steps
 
-- **Plan 249-08 implementation is complete; Phase 249 verification is not.** The Phase 233 scaffold-discovery edit is preserved at `refs/phase-249-preservation/phase-233-bounded-scaffold-discovery` (source SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) as a separate Sigra test/CI maintenance follow-up, excluded from the 1.6.0 candidate. The latest complete inventory observed five worktrees and 14 open PRs. Of 103 inherited identities, 102 have exact preservation refs; the sole remaining blocker is the historical `.planning/HANDOFF.json` revision.
+- **Plan 249-11 is complete; Plan 249-12 implementation and tests are complete, while final terminal verification remains.** Protected main `3c7d713f290c93de3b9fd54be7ece31d71f32787` has exact-head successful CI run `37993629114`, `ci-gate` job `114036565274`; public Sigra 1.6.0 proof resolves package source `9e80cb78d6374b1ed4074d5fef6b613fee879dca`. The closeout inventory last recorded six worktrees and 14 open PRs; refresh both before final acceptance.
 - **Historical loss:** `.planning/HANDOFF.json` SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` was not found in 22,410 local Git blobs, 18,847 GitHub-mirror blobs across 65 branches, 14 tags, 300 PR heads and 13 PR merge refs, or 74,345 regular files. The user accepted this exact loss; it remains unrecovered, is not claimed preserved, and is excluded from the candidate. All other missing evidence still blocks.
 - **Prevention:** the exact replacing write/tool is not provable from retained records. The process gap was recording the hash without first pinning the bytes. `AGENTS.md`, `.planning/METHODOLOGY.md`, and closeout tests now require exact write-ahead preservation before dirty planning files are rewritten.
-- **Plan 249-09 candidate:** local branch `gsd/phase-249-09-candidate`, base `e2fa303017364c7e496c3c620f7b709c8e90c8fb`, exact head `72fc10449577f63974d068c5aba8c4b3ce99052e`; ten allowed paths, clean worktree, no push or PR. See `249-09-CANDIDATE.json` and `249-09-SUMMARY.md`.
-- **Next GSD command:** `$gsd-execute-phase 249 --gaps-only`. Plan 249-10 must finish review and contributor verification against the exact candidate before opening a PR; Plans 249-11 and 249-12 still own protected promotion and terminal closeout.
+- **Automated prevention:** `METHODOLOGY.md` now requires terminal evidence design and failure tests before multi-step release closeout, with all summaries committed before recapturing the final inventory. The validator performs a ref-only checkpoint/seal and byte-for-byte raw status reread; do not write further artifacts after it passes.
+- **Next command:** after committing all current tracked outputs, capture and commit a fresh closeout ledger, then run preservation, final acceptance, and terminal seal. The scoped terminal ref is `refs/heads/evidence/phase-249-final-acceptance`; its record binds canonical acceptance bytes and commit identity to all registered worktrees.
 
 ## Performance Metrics
 

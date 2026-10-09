@@ -1097,3 +1097,103 @@ test('a dirty path with no preservation record fails disposition validation', ()
   const { ledger } = fixture();
   assert.equal(invoke('validateDispositions', ledger).valid, false);
 });
+
+test('terminal evidence is committed ref-only and binds canonical bytes plus two clean raw worktree reads', t => {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-closeout-terminal-'));
+  const sibling = `${repo}-sibling`;
+  t.after(() => {
+    fs.rmSync(repo, { recursive: true, force: true });
+    fs.rmSync(sibling, { recursive: true, force: true });
+  });
+  const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  git('init', '-q');
+  git('config', 'user.name', 'Closeout Fixture');
+  git('config', 'user.email', 'closeout-fixture@example.invalid');
+  const canonicalPath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json';
+  const summaryPath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-12-SUMMARY.md';
+  fs.mkdirSync(path.dirname(path.join(repo, canonicalPath)), { recursive: true });
+  const canonicalBytes = Buffer.from(`${JSON.stringify({
+    verdict: 'passed',
+    package_source_sha: null,
+    package_source_ci: null,
+    final_main_sha: sha('a'),
+    final_main_ci: null,
+    receipt: null,
+    public_release: { verdict: 'passed' },
+    closeout_ledger_sha256: digest('b'),
+    inventory_fingerprint_sha256: digest('c'),
+    inventory: { valid: true, worktree_count: 2, pull_request_count: 0, dirty_path_count: 0 },
+  })}\n`);
+  fs.writeFileSync(path.join(repo, canonicalPath), canonicalBytes);
+  fs.writeFileSync(path.join(repo, summaryPath), 'terminal fixture\n');
+  git('add', canonicalPath, summaryPath);
+  git('commit', '-m', 'fixture evidence');
+  const sourceCommit = git('rev-parse', 'HEAD');
+  const ref = 'refs/heads/evidence/phase-249-final-acceptance';
+  git('update-ref', ref, sourceCommit);
+  execFileSync('git', ['worktree', 'add', '-b', 'terminal-sibling', sibling, sourceCommit], { cwd: repo, stdio: 'ignore' });
+
+  const result = invoke('sealTerminalEvidence', {
+    repoRoot: repo,
+    ref,
+    canonicalBytes,
+    finalValidation: {
+      verdict: 'passed',
+      final_main_sha: sha('a'),
+      package_source_sha: null,
+      package_source_ci: null,
+      final_main_ci: null,
+      receipt: null,
+      public_release: { verdict: 'passed' },
+      inventory: { valid: true, worktree_count: 2, pull_request_count: 0, dirty_path_count: 0 },
+      errors: [],
+      blockers: [],
+      closeout_ledger_sha256: digest('b'),
+      inventory_fingerprint_sha256: digest('c'),
+    },
+    phaseEvidenceCommitSha: sourceCommit,
+    summaryCommitSha: sourceCommit,
+  });
+  assert.equal(result.valid, true, JSON.stringify(result));
+  assert.notEqual(result.checkpoint_commit_sha, sourceCommit);
+  assert.notEqual(result.terminal_commit_sha, result.checkpoint_commit_sha);
+  const recordBytes = execFileSync('git', ['show', `${ref}:.planning/phases/249-publish-and-prove-sigra-1-6-0/249-TERMINAL-STATUS.json`], { cwd: repo });
+  const record = JSON.parse(recordBytes.toString('utf8'));
+  assert.equal(record.canonical_acceptance.commit_sha, sourceCommit);
+  assert.deepEqual(record.post_ref_write_status.paths.sort(), [fs.realpathSync(repo), fs.realpathSync(sibling)].sort());
+  assert.equal(record.post_ref_write_status.worktrees.every(row => row.raw_status_bytes === 0 && row.raw_status_base64 === ''), true);
+  assert.equal(invoke('validateTerminalStatusRecord', record, { final_reread: result.final_status }).valid, true);
+  assert.equal(execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], { cwd: repo }).length, 0);
+});
+
+test('terminal evidence rejects a missing or nonempty post-ref-write status record', () => {
+  const rawEmpty = Buffer.alloc(0);
+  const cleanSnapshot = {
+    paths: ['/repo'],
+    worktrees: [{ path: '/repo', raw_status_base64: '', raw_status_sha256: createHash('sha256').update(rawEmpty).digest('hex'), raw_status_bytes: 0, clean: true }],
+  };
+  const record = {
+    schema_version: 1,
+    phase: 249,
+    plan: '12',
+    verdict: 'passed',
+    canonical_acceptance: { path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json', blob_sha: sha('a'), commit_sha: sha('b'), sha256: digest('c'), verdict: 'passed' },
+    final_validation: { verdict: 'passed' },
+    evidence_commits: { phase_evidence_commit_sha: sha('d'), summary_commit_sha: sha('e') },
+    post_ref_write_status: cleanSnapshot,
+  };
+  assert.equal(invoke('validateTerminalStatusRecord', record, { final_reread: cleanSnapshot }).valid, true);
+  const missing = structuredClone(record);
+  delete missing.post_ref_write_status;
+  assert.ok(invoke('validateTerminalStatusRecord', missing, { final_reread: cleanSnapshot }).errors.some(error => error.code === 'terminal_post_ref_write_status_missing_or_invalid'));
+  const dirtyRaw = Buffer.from('?? phase-output.md\0');
+  const dirty = {
+    paths: ['/repo'],
+    worktrees: [{ path: '/repo', raw_status_base64: dirtyRaw.toString('base64'), raw_status_sha256: createHash('sha256').update(dirtyRaw).digest('hex'), raw_status_bytes: dirtyRaw.length, clean: false }],
+  };
+  const dirtyRecord = { ...record, post_ref_write_status: dirty };
+  const dirtyResult = invoke('validateTerminalStatusRecord', dirtyRecord, { final_reread: dirty });
+  assert.ok(dirtyResult.errors.some(error => error.code === 'terminal_worktree_dirty'));
+  const changedAfterSeal = invoke('validateTerminalStatusRecord', record, { final_reread: dirty });
+  assert.ok(changedAfterSeal.errors.some(error => error.code === 'terminal_status_reread_mismatch'));
+});
