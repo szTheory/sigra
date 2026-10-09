@@ -1,40 +1,65 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T19:22:54.492Z",
+  "observed_at": "2026-10-09T19:31:11.225Z",
+  "accepted_loss_exceptions": [
+    {
+      "schema_version": 1,
+      "disposition": "accepted-loss",
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/HANDOFF.json",
+      "status": " M",
+      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+      "source_head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
+      "authorized_by": "user",
+      "authorized_at": "2026-10-09",
+      "authorization": "accept reality and move on accordingly",
+      "scope": "This exact historical .planning/HANDOFF.json revision only; every other missing or unverified path remains blocked.",
+      "reason": "The historical bytes were not recovered after the recorded local, GitHub, worktree-file and artifact-metadata audit. The user accepted this exact loss so Phase 249 can continue; no claim is made that the bytes were preserved.",
+      "audit_record": {
+        "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json",
+        "revision": 4,
+        "ref": "refs/phase-249-preservation/plan-08-preservation-record-v4",
+        "commit_sha": "96581c2b555a11b50b6efece9c25a5b1f8e0e456",
+        "sha256": "b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3",
+        "target_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148"
+      }
+    }
+  ],
+  "planning_mutation_guards": [],
   "inventory_status": "complete",
-  "closeout_status": "accepted-with-recorded-loss",
+  "closeout_status": "blocked-until-dispositions-and-preservation",
   "source_status": {
     "worktrees": {
       "status": "complete",
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 5,
-      "observed_at": "2026-10-09T19:22:54.492Z"
+      "observed_at": "2026-10-09T19:31:11.225Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
       "count": 14,
-      "observed_at": "2026-10-09T19:22:54.492Z"
+      "observed_at": "2026-10-09T19:31:11.225Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "85f640065971f168c44ba01890e4805b29f5c66c",
+    "anchor_head_sha": "49d482c13b3579c63621585c2beba2a59de79401",
     "output_provenance": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
-        "source_commit": "85f640065971f168c44ba01890e4805b29f5c66c",
-        "artifact_identity_sha256": "f0d5a3dadbb576d38973661dcc94cc38bdc11bed852ec0051acf34e6400f2f36",
+        "source_commit": "49d482c13b3579c63621585c2beba2a59de79401",
+        "artifact_identity_sha256": "68d076bee634aa0a75c10b7cae4152fd1c2d36de1d60416dbb50ba49c73c1b8b",
         "capture_boundary": {
-          "captured_at": "2026-10-09T19:22:54.492Z",
+          "captured_at": "2026-10-09T19:31:11.225Z",
           "worktree_path": "/Users/jon/projects/sigra",
-          "source_head_sha": "85f640065971f168c44ba01890e4805b29f5c66c",
+          "source_head_sha": "49d482c13b3579c63621585c2beba2a59de79401",
           "source_path_status": "clean",
-          "source_path_sha256": "939027bd812442878a1957c8a754cd944d3aee5bdfbd2c477772f1264c686e35"
+          "source_path_sha256": "a8b354cd96dec20db416d155c952e05d2af13ae96e0311a0363be4af159edb42"
         }
       }
     ],
@@ -45,7 +70,7 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "85f640065971f168c44ba01890e4805b29f5c66c",
+      "head_sha": "49d482c13b3579c63621585c2beba2a59de79401",
       "detached": false,
       "locked": false,
       "prunable": false,
@@ -9920,33 +9945,8 @@
   "notes": [
     "This is a live read-only inventory. No worktree, file, or PR was modified by capture.",
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
-    "The historical .planning/HANDOFF.json identity is unrecovered and separately recorded as one user-authorized accepted loss; it is not claimed as preserved.",
-    "All other inherited dirty paths must have exact preservation proofs, and every live worktree must remain clean."
+    "Before rewriting any dirty .planning path, preserve or commit its exact captured bytes and verify read-back; the capture lists these paths in planning_mutation_guards.",
+    "The clean-closeout claim remains blocked until every inherited dirty path is either exactly preserved or covered by an explicit validated user-authorized loss exception and all live worktree statuses are empty."
   ],
-  "capture_completed_at": "2026-10-09T19:23:11.549Z",
-  "accepted_loss_exceptions": [
-    {
-      "schema_version": 1,
-      "disposition": "accepted-loss",
-      "worktree_path": "/Users/jon/projects/sigra",
-      "path": ".planning/HANDOFF.json",
-      "status": " M",
-      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
-      "source_head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
-      "authorized_by": "user",
-      "authorized_at": "2026-10-09",
-      "authorization": "accept reality and move on accordingly",
-      "scope": "This exact historical .planning/HANDOFF.json revision only; every other missing or unverified path remains blocked.",
-      "reason": "The historical bytes were not recovered after the recorded local, GitHub, worktree-file and artifact-metadata audit. The user accepted this exact loss so Phase 249 can continue; no claim is made that the bytes were preserved.",
-      "audit_record": {
-        "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json",
-        "revision": 4,
-        "ref": "refs/phase-249-preservation/plan-08-preservation-record-v4",
-        "commit_sha": "96581c2b555a11b50b6efece9c25a5b1f8e0e456",
-        "sha256": "b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3",
-        "target_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148"
-      }
-    }
-  ],
-  "dispositions_updated_at": "2026-10-09T19:29:01.000Z"
+  "capture_completed_at": "2026-10-09T19:31:53.124Z"
 }
