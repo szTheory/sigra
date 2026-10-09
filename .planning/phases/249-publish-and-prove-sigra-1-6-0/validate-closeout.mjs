@@ -356,6 +356,20 @@ export function collectLiveInventory({ repoRoot = DEFAULT_ROOT, ledger = null } 
 
 export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = true } = {}) {
   const live = collectLiveInventory({ repoRoot });
+  let priorLedgerExclusion = null;
+  const closeoutRelativePath = SELF_ARTIFACTS[0];
+  const closeoutAbsolutePath = path.join(repoRoot, closeoutRelativePath);
+  try {
+    const previous = JSON.parse(fs.readFileSync(closeoutAbsolutePath, 'utf8'));
+    if (previous?.schema_version === 1
+      && previous?.repository === REPOSITORY
+      && previous?.evidence_artifacts?.worktree_path === repoRoot
+      && previous?.evidence_artifacts?.paths?.includes(closeoutRelativePath)) {
+      priorLedgerExclusion = { path: closeoutRelativePath, sha256: sha256(fs.readFileSync(closeoutAbsolutePath)) };
+    }
+  } catch {
+    // An absent or malformed prior artifact is not trusted or silently excluded.
+  }
   const rows = live.pull_requests.map(pullRequest => {
     let files = { endpoint: `repos/${REPOSITORY}/pulls/${pullRequest.number}/files?per_page=100`, status: 'failed', files: [] };
     if (includeChangedFiles && live.source_status.pull_requests.status === 'complete') {
@@ -376,7 +390,9 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
   });
   const worktrees = live.worktrees.map(worktree => ({
     ...worktree,
-    dirty_paths: worktree.dirty_paths.map(dirty => ({ ...dirty, preservation: null })),
+    dirty_paths: worktree.dirty_paths
+      .filter(dirty => !(worktree.path === repoRoot && priorLedgerExclusion?.path === dirty.path))
+      .map(dirty => ({ ...dirty, preservation: null })),
   }));
   const rootWorktree = worktrees.find(row => row.path === repoRoot);
   const selfArtifactCollisions = rootWorktree?.dirty_paths.filter(row => SELF_ARTIFACTS.includes(row.path)) ?? [];
@@ -392,6 +408,7 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
       anchor_head_sha: rootWorktree?.head_sha ?? null,
       paths: SELF_ARTIFACTS,
       reason: 'The ledger, summary and scoped GSD state/roadmap updates are self-evidencing phase outputs; exclude only these exact paths from inherited dirty-path identity and permit only commits touching these paths after the captured anchor.',
+      previously_generated_outputs_excluded: priorLedgerExclusion ? [priorLedgerExclusion] : [],
       collisions: selfArtifactCollisions.map(row => ({ path: row.path, status: row.status, sha256: row.sha256 })),
     },
     worktrees,
