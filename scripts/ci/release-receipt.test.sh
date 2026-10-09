@@ -113,8 +113,8 @@ run_receipt "$INPUT" "$TMP/identity.json"
 if [[ -f "$TMP/identity.json" ]]; then cp "$TMP/identity.json" "$TMP/before.json"; else : > "$TMP/before.json"; fi
 jq 'del(.source.sha)' "$INPUT" > "$TMP/missing.json"
 run_receipt "$TMP/missing.json" "$TMP/identity.json"
-if [[ "$RC" -ne 0 ]] && [[ -f "$TMP/identity.json" ]] && cmp -s "$TMP/before.json" "$TMP/identity.json"; then
-  pass "missing source SHA is rejected atomically"
+if [[ "$RC" -ne 0 ]] && [[ "$OUT" == *"source"* ]] && [[ -f "$TMP/identity.json" ]] && cmp -s "$TMP/before.json" "$TMP/identity.json"; then
+  pass "missing source SHA is rejected atomically with a safe contract-section diagnostic"
 else fail "missing source SHA changed or accepted the receipt: rc=$RC $OUT"; fi
 
 echo "Test G: malformed timestamps and unsupported events are rejected"
