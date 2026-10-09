@@ -26,8 +26,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 249 --gaps-only",
-    "label": "Continue Plan 249-09 after exact accepted-loss preservation validation",
-    "reason": "The user accepted only the exact historical HANDOFF.json loss after exhaustive recovery searches. The bytes remain unrecovered and are not described as preserved. Continue candidate assembly only if live preservation validation has zero errors and blockers, every other inherited path is exactly preserved, and all live worktrees are clean. The write-ahead preservation lesson and regression guards are recorded in AGENTS.md, .planning/METHODOLOGY.md, and Phase 249 artifacts."
+    "label": "Review the exact Plan 249-09 candidate before opening a PR",
+    "reason": "Plan 249-09 produced local candidate head 72fc10449577f63974d068c5aba8c4b3ce99052e on freshly resolved protected-main base e2fa303017364c7e496c3c620f7b709c8e90c8fb. The candidate changes exactly ten allowlisted paths and has passing release-proof, docs-index, skip-verdict, ExDoc rebuild, and index-comparison checks. Plan 249-10 must finish review and contributor verification before any PR is opened. The exact historical handoff loss remains explicit and excluded from the candidate."
   },
-  "updated_at": "2026-10-09T19:29:01.000Z"
+  "updated_at": "2026-10-09T19:41:24.157Z"
 }
