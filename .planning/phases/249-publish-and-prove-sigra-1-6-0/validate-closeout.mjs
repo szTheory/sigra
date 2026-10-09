@@ -467,6 +467,86 @@ export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } =
   };
 }
 
+function sameJson(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+export function validatePromotion(promotion, constraints = {}) {
+  const errors = [];
+  const add = (code, message) => errors.push({ code, message });
+  if (promotion?.schema_version !== 1) add('promotion_schema_invalid', 'Promotion evidence must declare schema_version 1.');
+  const receipt = promotion?.release_receipt;
+  const expectedReceipt = constraints.release_receipt;
+  if (!receipt || !expectedReceipt) {
+    if (promotion?.verdict === 'promoted' || !promotion?.blockers?.some(row => row.code === 'release_receipt_missing')) {
+      add('promotion_receipt_missing', 'Promotion evidence must include the artifact-derived 1.6.0 release receipt or explicitly block on its absence.');
+    }
+  } else if (receipt.package_source_sha !== expectedReceipt.package_source_sha
+    || receipt.version !== expectedReceipt.version
+    || !sameJson(receipt.package_source_ci, expectedReceipt.package_source_ci)
+    || (constraints.release_receipt_sha256 && receipt.sha256 !== constraints.release_receipt_sha256)) {
+    add('promotion_receipt_mismatch', 'Promotion evidence changed the immutable package-source receipt identity.');
+  }
+  if (expectedReceipt && (!SHA.test(expectedReceipt.package_source_sha ?? '')
+    || expectedReceipt.package_source_ci?.head_sha !== expectedReceipt.package_source_sha
+    || expectedReceipt.package_source_ci?.ci_gate_conclusion !== 'success'
+    || !/^\d+$/.test(String(expectedReceipt.package_source_ci?.run_id ?? ''))
+    || !Number.isInteger(expectedReceipt.package_source_ci?.attempt)
+    || expectedReceipt.package_source_ci.attempt < 1
+    || typeof expectedReceipt.package_source_ci?.ci_gate_job_id !== 'string')) {
+    add('promotion_receipt_invalid', 'The immutable receipt must bind successful ci-gate evidence to the package-source SHA.');
+  }
+
+  if (promotion?.verdict === 'blocked') {
+    if (!Array.isArray(promotion.blockers) || promotion.blockers.length === 0
+      || promotion.blockers.some(row => typeof row.code !== 'string' || !row.code.trim() || typeof row.reason !== 'string' || !row.reason.trim())) {
+      add('promotion_blocker_missing', 'A blocked promotion needs explicit coded reasons.');
+    }
+    return { valid: errors.length === 0, blocked: true, closeout_status: errors.length ? 'invalid' : 'blocked', errors };
+  }
+  if (promotion?.verdict !== 'promoted') add('promotion_verdict_invalid', 'Promotion verdict must be promoted or blocked.');
+
+  if (!SHA.test(constraints.expected_head_sha ?? '') || promotion?.head_sha !== constraints.expected_head_sha) {
+    add('promotion_head_mismatch', 'The promotion head must equal the exact reviewed candidate head.');
+  }
+  if (!SHA.test(constraints.expected_base_sha ?? '') || promotion?.base_sha !== constraints.expected_base_sha) {
+    add('promotion_base_mismatch', 'The promotion base must equal the protected-main base captured for review.');
+  }
+  if (!Number.isInteger(promotion?.pr?.number) || promotion.pr.number < 1 || typeof promotion.pr.url !== 'string' || !promotion.pr.url.startsWith('https://github.com/szTheory/sigra/pull/')) {
+    add('promotion_pr_identity_missing', 'Promotion evidence needs a canonical Sigra pull request identity.');
+  }
+  if (!Array.isArray(promotion?.changed_paths) || promotion.changed_paths.length === 0) {
+    add('promotion_diff_missing', 'Promotion evidence needs the complete changed-path set.');
+  } else {
+    const allowed = new Set(constraints.allowed_paths ?? []);
+    for (const changedPath of promotion.changed_paths) {
+      if (typeof changedPath !== 'string' || !changedPath || !allowed.has(changedPath)) {
+        add('promotion_diff_path_unrelated', `Promotion diff path ${String(changedPath)} is outside the exact phase allowlist.`);
+      }
+    }
+    if (new Set(promotion.changed_paths).size !== promotion.changed_paths.length) add('promotion_diff_duplicate_path', 'Promotion diff paths must be unique.');
+  }
+  if (promotion?.review?.result !== 'approved' || promotion.review.commit_sha !== promotion.head_sha) {
+    add('promotion_review_missing', 'The exact candidate head needs an approved review.');
+  }
+  const requiredCi = promotion?.required_ci;
+  if (requiredCi?.check_name !== (constraints.required_check_name ?? 'ci-gate')
+    || requiredCi.conclusion !== 'success'
+    || requiredCi.head_sha !== promotion?.head_sha
+    || typeof requiredCi.run_id !== 'string'
+    || !/^\d+$/.test(requiredCi.run_id)
+    || !Number.isInteger(requiredCi.attempt)
+    || requiredCi.attempt < 1
+    || typeof requiredCi.job_id !== 'string'
+    || !/^\d+$/.test(requiredCi.job_id)) {
+    add('promotion_ci_gate_missing', 'Successful ci-gate evidence must identify a run, attempt, job and exact candidate head.');
+  }
+  if (promotion?.merge?.merged !== true || !SHA.test(promotion.merge.merge_sha ?? '')) {
+    add('promotion_merge_missing', 'Promotion requires a protected-main merge result and full merge SHA.');
+  }
+  return { valid: errors.length === 0, blocked: errors.length > 0, closeout_status: errors.length ? 'blocked' : 'ready', errors };
+}
+
 export function collectLiveInventory({ repoRoot = DEFAULT_ROOT, ledger = null } = {}) {
   const observedAt = new Date().toISOString();
   let worktrees = [];
@@ -602,13 +682,15 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
 }
 
 function parseArgs(args) {
-  const result = { mode: null, ledgerPath: null };
+  const result = { mode: null, ledgerPath: null, outputPath: null };
   for (let index = 0; index < args.length; index += 1) {
     if (args[index] === '--mode') result.mode = args[++index];
     else if (args[index] === '--ledger') result.ledgerPath = args[++index];
+    else if (args[index] === '--output') result.outputPath = args[++index];
     else throw new Error(`Unknown argument: ${args[index]}`);
   }
-  if (!result.mode || !result.ledgerPath) throw new Error('Usage: validate-closeout.mjs --ledger <path> --mode capture|inventory|dispositions|preservation');
+  if (!result.mode || !result.ledgerPath) throw new Error('Usage: validate-closeout.mjs --ledger <path> --mode capture|inventory|dispositions|preservation|promotion [--output <path>]');
+  if (result.mode === 'promotion' && !result.outputPath) throw new Error('Promotion mode requires --output <path>.');
   return result;
 }
 
@@ -644,6 +726,7 @@ async function main() {
   const live = collectLiveInventory({ repoRoot: DEFAULT_ROOT, ledger });
   const inventory = validateInventory(ledger, live);
   const dispositionResult = validateDispositions(ledger);
+  const preservationResult = validatePreservation(ledger, live, { repoRoot: DEFAULT_ROOT });
   const result = args.mode === 'inventory' ? inventory
     : args.mode === 'dispositions' ? {
       inventory,
@@ -656,16 +739,84 @@ async function main() {
         blocker_examples: dispositionResult.blockers.slice(0, 8),
       },
     }
-      : args.mode === 'preservation' ? validatePreservation(ledger, live, { repoRoot: DEFAULT_ROOT })
+      : args.mode === 'preservation' ? preservationResult
+        : args.mode === 'promotion' ? (() => {
+          const receiptRelativePath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json';
+          const receiptAbsolutePath = path.join(DEFAULT_ROOT, receiptRelativePath);
+          let receipt = null;
+          let receiptHash = null;
+          try {
+            const receiptBytes = fs.readFileSync(receiptAbsolutePath);
+            receipt = JSON.parse(receiptBytes.toString('utf8'));
+            receiptHash = sha256(receiptBytes);
+          } catch {
+            // An unavailable release receipt is recorded as a blocker below.
+          }
+          const unresolved = ledger.worktrees.flatMap(worktree => (worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? [])
+            .filter(dirty => dirty.preservation?.state !== 'preserved')
+            .map(dirty => ({ worktree_path: worktree.path, path: dirty.path, status: dirty.status, sha256: dirty.sha256 })));
+          const blockers = [];
+          if (!receipt) blockers.push({ code: 'release_receipt_missing', reason: 'The immutable 1.6.0 artifact-derived release receipt could not be read.' });
+          if (!preservationResult.valid || preservationResult.blocked) {
+            blockers.push({
+              code: 'preservation_blocked',
+              reason: `${preservationResult.blockers.length} inherited dirty paths lack approved ownership and verified durable preservation refs; see the exact path/status/hash rows in 249-CLOSEOUT.json.`,
+              closeout_ledger_sha256: sha256(fs.readFileSync(ledgerPath)),
+              unresolved_path_count: unresolved.length,
+            });
+          }
+          blockers.push({
+            code: 'scoped_pr_not_opened',
+            reason: 'No Plan 05 phase-scoped PR has been opened. Promotion requires unblocked preservation, internal review, exact-head ci-gate and protected merge evidence.',
+          });
+          const promotionRecord = {
+            schema_version: 1,
+            phase: 249,
+            plan: '05',
+            recorded_at: new Date().toISOString(),
+            verdict: 'blocked',
+            release_receipt: receipt ? {
+              path: receiptRelativePath,
+              sha256: receiptHash,
+              version: receipt.version,
+              package_source_sha: receipt.package_source_sha,
+              package_source_ci: receipt.package_source_ci,
+            } : null,
+            promotion: null,
+            closeout: {
+              path: path.relative(DEFAULT_ROOT, ledgerPath),
+              sha256: sha256(fs.readFileSync(ledgerPath)),
+              preservation_status: preservationResult.closeout_status,
+              unresolved_path_count: unresolved.length,
+              unresolved_paths: unresolved,
+            },
+            blockers,
+          };
+          const validation = validatePromotion(promotionRecord, {
+            release_receipt: receipt,
+            release_receipt_sha256: receiptHash,
+          });
+          const outputPath = path.resolve(DEFAULT_ROOT, args.outputPath);
+          const relativeOutput = path.relative(DEFAULT_ROOT, outputPath);
+          if (relativeOutput === '..' || relativeOutput.startsWith(`..${path.sep}`) || path.isAbsolute(relativeOutput)) {
+            throw new Error('Promotion evidence output must stay inside the repository.');
+          }
+          fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+          const temporaryPath = `${outputPath}.tmp-${process.pid}`;
+          fs.writeFileSync(temporaryPath, `${JSON.stringify(promotionRecord, null, 2)}\n`, { mode: 0o600 });
+          fs.renameSync(temporaryPath, outputPath);
+          return { record: promotionRecord, validation };
+        })()
       : null;
   if (!result) {
-    console.error('Unsupported mode; use capture, inventory, dispositions or preservation.');
+    console.error('Unsupported mode; use capture, inventory, dispositions, preservation or promotion.');
     process.exitCode = 2;
     return;
   }
   console.log(JSON.stringify(result, null, 2));
   const valid = args.mode === 'inventory' ? result.valid
     : args.mode === 'preservation' ? result.valid && !result.blocked
+      : args.mode === 'promotion' ? result.validation.valid && !result.validation.blocked
       : result.inventory.valid && result.dispositions.valid;
   process.exitCode = valid ? 0 : 1;
 }

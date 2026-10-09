@@ -138,6 +138,7 @@ function promotionFixture() {
     release_receipt: {
       path: '249-RELEASE-RECEIPT.json',
       sha256: digest('e'),
+      version: receipt.version,
       package_source_sha: receipt.package_source_sha,
       package_source_ci: receipt.package_source_ci,
     },
