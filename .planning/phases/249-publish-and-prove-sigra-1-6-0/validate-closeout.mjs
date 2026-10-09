@@ -803,8 +803,13 @@ export function validatePostMerge(promotionRecord, expectedReceipt, liveMain, co
   if (record?.pr && (!Number.isInteger(record.pr.number) || !record.pr.url?.startsWith('https://github.com/szTheory/sigra/pull/'))) {
     add('promotion_pr_identity_invalid', 'The promotion PR identity is not a canonical Sigra pull request.');
   }
-  if (verdict === 'promoted' && (!record?.pr || promotion?.review?.result !== 'approved' || promotion.review.commit_sha !== promotion.head_sha)) {
-    add('promotion_review_missing', 'The exact merged promotion candidate lacks a matching PR and approved review identity.');
+  if (verdict === 'promoted' && (!record?.pr || !validPromotionReview(
+    promotion?.review,
+    promotion?.head_sha,
+    record.pr.author_login,
+    constraints.internal_review_sha256,
+  ))) {
+    add('promotion_review_missing', 'The exact merged promotion candidate lacks a matching hosted approval or verified internal review artifact.');
   }
   if (liveMain?.source_status === 'failed' || !SHA.test(liveMain?.current_main_sha ?? '')) {
     add('final_main_identity_missing', 'The current protected-main SHA could not be read as a full commit identity.');
@@ -902,6 +907,7 @@ export function validateFinalAcceptance(proof) {
     receipt_path: proof?.receipt_path ?? RECEIPT_PATH,
     receipt_sha256: proof?.receipt_sha256,
     receipt_blob_sha: proof?.receipt_blob_sha,
+    internal_review_sha256: proof?.internal_review_sha256,
   });
   errors.push(...mainProof.errors);
   if (proof?.live_main_sha && proof.live_main?.current_main_sha !== proof.live_main_sha) {
@@ -1433,6 +1439,14 @@ function localReceipt(repoRoot) {
   }
 }
 
+function localInternalReviewSha256(repoRoot) {
+  try {
+    return sha256(fs.readFileSync(path.join(repoRoot, CANDIDATE_PATH)));
+  } catch {
+    return null;
+  }
+}
+
 function readProtectedMainProof(repoRoot, promotion) {
   const rate = githubJson(repoRoot, 'rate_limit');
   const remaining = Number(rate.value?.resources?.core?.remaining);
@@ -1909,10 +1923,12 @@ async function main() {
     const promotion = readLocalPromotion(DEFAULT_ROOT);
     const receipt = localReceipt(DEFAULT_ROOT);
     const liveMain = readProtectedMainProof(DEFAULT_ROOT, promotion);
+    const internalReviewSha256 = localInternalReviewSha256(DEFAULT_ROOT);
     const validation = validatePostMerge(promotion.value, receipt.value, liveMain, {
       receipt_path: RECEIPT_PATH,
       receipt_sha256: receipt.sha256,
       receipt_blob_sha: receipt.blob_sha,
+      internal_review_sha256: internalReviewSha256,
     });
     const record = {
       schema_version: 1,
@@ -1963,6 +1979,7 @@ async function main() {
       receipt: receipt.value,
       receipt_sha256: receipt.sha256,
       receipt_blob_sha: receipt.blob_sha,
+      internal_review_sha256: localInternalReviewSha256(DEFAULT_ROOT),
       promotion: promotion.value,
       live_main: mainProof?.live_main ?? null,
       main_proof: mainProof,

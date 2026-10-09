@@ -729,11 +729,18 @@ function finalProofFixture() {
   const promotion = {
     schema_version: 1,
     verdict: 'promoted',
-    pr: { number: 349, url: 'https://github.com/szTheory/sigra/pull/349' },
+    pr: { number: 349, url: 'https://github.com/szTheory/sigra/pull/349', author_login: 'contributor' },
     head_sha: sha('1'),
     base_sha: sha('2'),
     changed_paths: ['.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json'],
-    review: { result: 'approved', commit_sha: sha('1') },
+    review: {
+      type: 'github',
+      result: 'approved',
+      commit_sha: sha('1'),
+      reviewer_login: 'independent-reviewer',
+      author_login: 'contributor',
+      submitted_at: '2026-10-09T14:00:00.000Z',
+    },
     required_ci: { check_name: 'ci-gate', conclusion: 'success', head_sha: sha('1'), run_id: '400', attempt: 1, job_id: '401' },
     merge: { merged: true, merge_sha: mainSha },
     release_receipt: {
@@ -823,6 +830,28 @@ test('post-merge proof requires the completed ci-gate run to match protected mai
     receipt_sha256: proof.receipt_sha256,
     receipt_blob_sha: proof.receipt_blob_sha,
   }).errors.some(error => error.code === 'final_main_ci_head_mismatch'));
+});
+
+test('post-merge proof accepts an exact-head internal review only when its candidate artifact hash matches', () => {
+  const proof = finalProofFixture();
+  const candidateArtifactSha = digest('7');
+  proof.promotion.review = {
+    type: 'internal',
+    result: 'passed',
+    commit_sha: proof.promotion.head_sha,
+    reviewer_login: 'codex-internal-review',
+    source_path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json',
+    source_sha256: candidateArtifactSha,
+  };
+  const constraints = {
+    receipt_sha256: proof.receipt_sha256,
+    receipt_blob_sha: proof.receipt_blob_sha,
+    internal_review_sha256: candidateArtifactSha,
+  };
+  assert.equal(invoke('validatePostMerge', proof.promotion, proof.receipt, proof.live_main, constraints).valid, true);
+  constraints.internal_review_sha256 = digest('8');
+  const result = invoke('validatePostMerge', proof.promotion, proof.receipt, proof.live_main, constraints);
+  assert.ok(result.errors.some(error => error.code === 'promotion_review_missing'));
 });
 
 test('a successful workflow with a failed or missing ci-gate does not prove final main', () => {
@@ -927,6 +956,24 @@ test('complete exact public, protected-main and clean-inventory evidence passes 
   const result = invoke('validateFinalAcceptance', proof);
   assert.equal(result.valid, true, JSON.stringify(result.errors));
   assert.equal(result.verdict, 'passed');
+});
+
+test('final acceptance verifies internal review against the exact candidate artifact bytes', () => {
+  const proof = finalProofFixture();
+  const candidateArtifactSha = digest('7');
+  proof.promotion.review = {
+    type: 'internal',
+    result: 'passed',
+    commit_sha: proof.promotion.head_sha,
+    reviewer_login: 'codex-internal-review',
+    source_path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json',
+    source_sha256: candidateArtifactSha,
+  };
+  proof.internal_review_sha256 = candidateArtifactSha;
+  assert.equal(invoke('validateFinalAcceptance', proof).valid, true);
+  proof.internal_review_sha256 = digest('8');
+  const result = invoke('validateFinalAcceptance', proof);
+  assert.ok(result.errors.some(error => error.code === 'promotion_review_missing'));
 });
 
 test('final acceptance requires the durable post-merge proof artifact', () => {

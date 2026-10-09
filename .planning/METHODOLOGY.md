@@ -10,6 +10,12 @@ Prefer checks that run automatically on every relevant change when they provide 
 
 Treat human verification as the last resort: use it only for outcomes that cannot be established reliably by automation, such as subjective judgment or an unavailable external authority. When a human checkpoint remains necessary, state the exact uncertainty and preserve machine-readable evidence for every other criterion. Do not ask the operator to repeat checks already established by reproducible automated evidence.
 
+## External Mutations And Evidence Writes
+
+Before a merge, publish, deploy, tag, or other external state change, preflight the local durable evidence path that must record its result. Confirm object creation and expected-old ref updates work in the repository that will hold the evidence; a writable checkout does not imply a writable Git object database. If evidence persistence is unavailable, stop before the external mutation. If a tool reports failure after the external action may have completed, re-read the external state first, preserve any captured dirty evidence by exact-byte read-back, and resume from observed state rather than replaying the mutation.
+
+For high-fan-out CI service containers, avoid making many concurrent anonymous pulls from a rate-limited registry. Prefer an official public mirror of the same upstream image when available, and pin the image source in a workflow contract test. Diagnose correlated infrastructure failures before changing application code; retry a transient failure once, then retain the causal log and make the stable fix part of CI.
+
 ## GSD Milestone Tags
 
 GSD milestone identifiers such as `v1.48` are planning labels, not Hex releases. Keep

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T21:20:24.762Z",
+  "observed_at": "2026-10-09T21:53:53.812Z",
   "accepted_loss_exceptions": [
     {
       "schema_version": 1,
@@ -26,7 +26,38 @@
       }
     }
   ],
-  "planning_mutation_guards": [],
+  "planning_mutation_guards": [
+    {
+      "path": ".planning/METHODOLOGY.md",
+      "status": " M",
+      "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc",
+      "before_rewrite": "Preserve or commit these exact bytes before any update or cleanup; stop if read-back cannot be proven."
+    },
+    {
+      "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+      "status": "??",
+      "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07",
+      "before_rewrite": "Preserve or commit these exact bytes before any update or cleanup; stop if read-back cannot be proven."
+    },
+    {
+      "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+      "status": " M",
+      "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23",
+      "before_rewrite": "Preserve or commit these exact bytes before any update or cleanup; stop if read-back cannot be proven."
+    },
+    {
+      "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+      "status": " M",
+      "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102",
+      "before_rewrite": "Preserve or commit these exact bytes before any update or cleanup; stop if read-back cannot be proven."
+    },
+    {
+      "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+      "status": " M",
+      "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3",
+      "before_rewrite": "Preserve or commit these exact bytes before any update or cleanup; stop if read-back cannot be proven."
+    }
+  ],
   "inventory_status": "complete",
   "closeout_status": "blocked-until-dispositions-and-preservation",
   "source_status": {
@@ -35,31 +66,31 @@
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 6,
-      "observed_at": "2026-10-09T21:20:24.762Z"
+      "observed_at": "2026-10-09T21:53:53.812Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
-      "count": 15,
-      "observed_at": "2026-10-09T21:20:24.762Z"
+      "count": 14,
+      "observed_at": "2026-10-09T21:53:53.812Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "ce68011a193971a4b580ab6ce15e0008cb0fc2b0",
+    "anchor_head_sha": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
     "output_provenance": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
-        "source_commit": "ce68011a193971a4b580ab6ce15e0008cb0fc2b0",
-        "artifact_identity_sha256": "99d4b8f57ee7295650d467b21469b310ccddd1fa4d128be7dc30e21085142de4",
+        "source_commit": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
+        "artifact_identity_sha256": "03139abdf0363ea7c274944b2508c917024bb484da56b4112315097700bea512",
         "capture_boundary": {
-          "captured_at": "2026-10-09T21:20:24.762Z",
+          "captured_at": "2026-10-09T21:53:53.812Z",
           "worktree_path": "/Users/jon/projects/sigra",
-          "source_head_sha": "ce68011a193971a4b580ab6ce15e0008cb0fc2b0",
+          "source_head_sha": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
           "source_path_status": "clean",
-          "source_path_sha256": "e35a7dfa355c41bf54282778bcc77bf5c8eef75d22f3f008611433dd4f138801"
+          "source_path_sha256": "589bd016c705e7b4fe2fee0e3768f27fb44094852fbfefd08456f828add4acfa"
         }
       }
     ],
@@ -70,12 +101,48 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "ce68011a193971a4b580ab6ce15e0008cb0fc2b0",
+      "head_sha": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
       "detached": false,
       "locked": false,
       "prunable": false,
       "read_status": "complete",
-      "dirty_paths": [],
+      "dirty_paths": [
+        {
+          "path": ".planning/METHODOLOGY.md",
+          "status": " M",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc"
+        },
+        {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+          "status": "??",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07"
+        },
+        {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+          "status": " M",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23"
+        },
+        {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+          "status": " M",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102"
+        },
+        {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+          "status": " M",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3"
+        }
+      ],
       "inherited_dirty_paths": [
         {
           "path": ".github/workflows/ci.yml",
@@ -253,6 +320,14 @@
             "source_index_unchanged": true,
             "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 22a07dc9e059c967b470a0c7389d8c00869351113024c6ee235270fb30b70e8b"
           }
+        },
+        {
+          "path": ".planning/METHODOLOGY.md",
+          "status": " M",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc",
+          "preservation": null
         },
         {
           "path": ".planning/debug/plan-245-37-admission.md",
@@ -1402,6 +1477,14 @@
           }
         },
         {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+          "status": "??",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07",
+          "preservation": null
+        },
+        {
           "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
           "status": " M",
           "original_path": null,
@@ -1513,6 +1596,14 @@
           }
         },
         {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+          "status": " M",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23",
+          "preservation": null
+        },
+        {
           "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PREFLIGHT.json",
           "status": " M",
           "original_path": null,
@@ -1585,6 +1676,22 @@
             "source_index_unchanged": true,
             "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status ??; SHA-256 7fc1dcbccee7f104cec1856a4d39b34873a127e01b408922849ed32244078edc"
           }
+        },
+        {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+          "status": " M",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102",
+          "preservation": null
+        },
+        {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+          "status": " M",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3",
+          "preservation": null
         },
         {
           "path": ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/260923-uqh-PLAN.md",
@@ -9891,9 +9998,9 @@
       "number": 286,
       "title": "ci: bump actions/upload-artifact from 4.6.2 to 7.0.1",
       "base_ref": "main",
-      "base_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+      "base_sha": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
       "head_ref": "dependabot/github_actions/actions/upload-artifact-7.0.1",
-      "head_sha": "a05b38f91c89aa61e254a14040aaf081f1a19122",
+      "head_sha": "a6f918841cbca39c58df5b23cdbe66bda728b050",
       "url": "https://github.com/szTheory/sigra/pull/286",
       "files_read": {
         "status": "complete",
@@ -9908,7 +10015,7 @@
       "is_release_please_candidate": false,
       "disposition": {
         "category": "separate-follow-up",
-        "reason": "The single changed file is the Phase 244 Playwright measurement workflow; it does not change the release workflow or the immutable 1.6.0 proof source.",
+        "reason": "This open PR changes only the Phase 244 Playwright measurement workflow. It does not affect the already-published 1.6.0 source receipt or the exact-main proof, so it remains a separate workflow follow-up.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/286",
           "https://api.github.com/repos/szTheory/sigra/pulls/286/files?per_page=100"
@@ -9917,11 +10024,11 @@
     },
     {
       "number": 302,
-      "title": "chore(main): release 1.6.1",
+      "title": "chore(main): release 1.7.0",
       "base_ref": "main",
-      "base_sha": "a05589ae35613dc4652fdfa3e57df287c653de8e",
+      "base_sha": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
       "head_ref": "release-please--branches--main",
-      "head_sha": "a0eedb0e7e5c72b03cdf6c5c1730ed2878cb08c0",
+      "head_sha": "d29dde4194ea263af44c1ec1a700308374a2b121",
       "url": "https://github.com/szTheory/sigra/pull/302",
       "files_read": {
         "status": "complete",
@@ -9937,6 +10044,10 @@
           "status": "modified"
         },
         {
+          "path": "doc/llms.txt",
+          "status": "modified"
+        },
+        {
           "path": "mix.exs",
           "status": "modified"
         }
@@ -9944,96 +10055,12 @@
       "is_release_please_candidate": true,
       "disposition": {
         "category": "release-relevant",
-        "reason": "This is the active Release Please candidate for 1.6.1 and changes the release manifest, changelog, and mix.exs. Its eligibility is not established by this inventory; required CI on this exact head and the guarded auto-merge policy remain the gate.",
-        "candidate_eligibility": "not-evaluated-here; require exact-current-head required CI and the existing protected auto-merge guard",
+        "reason": "This open Release Please PR proposes the future 1.7.0 release through the manifest, changelog, docs index, and package version. It is relevant to future release automation but is not needed to prove 1.6.0; leave it open for its own guarded review and do not merge it to shorten this closeout queue.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/302",
           "https://api.github.com/repos/szTheory/sigra/pulls/302/files?per_page=100"
-        ]
-      }
-    },
-    {
-      "number": 304,
-      "title": "feat(249): prove the Sigra 1.6.0 release",
-      "base_ref": "main",
-      "base_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
-      "head_ref": "gsd/phase-249-09-candidate",
-      "head_sha": "4e631d895caa1e02108e05ed9d68069990ca305f",
-      "url": "https://github.com/szTheory/sigra/pull/304",
-      "files_read": {
-        "status": "complete",
-        "endpoint": "repos/szTheory/sigra/pulls/304/files?per_page=100"
-      },
-      "changed_files": [
-        {
-          "path": ".github/ci-skip-manifest.tsv",
-          "status": "modified"
-        },
-        {
-          "path": ".github/workflows/ci.yml",
-          "status": "modified"
-        },
-        {
-          "path": ".github/workflows/release-please.yml",
-          "status": "modified"
-        },
-        {
-          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
-          "status": "added"
-        },
-        {
-          "path": "doc/llms.txt",
-          "status": "modified"
-        },
-        {
-          "path": "scripts/ci/check-docs-index.sh",
-          "status": "added"
-        },
-        {
-          "path": "scripts/ci/check-docs-index.test.sh",
-          "status": "added"
-        },
-        {
-          "path": "scripts/ci/honest-skip-verdict.sh",
-          "status": "modified"
-        },
-        {
-          "path": "scripts/ci/honest-skip-verdict.test.sh",
-          "status": "modified"
-        },
-        {
-          "path": "scripts/ci/refresh-release-docs.sh",
-          "status": "added"
-        },
-        {
-          "path": "scripts/ci/refresh-release-docs.test.sh",
-          "status": "added"
-        },
-        {
-          "path": "scripts/ci/release-public-proof.sh",
-          "status": "added"
-        },
-        {
-          "path": "scripts/ci/release-public-proof.test.sh",
-          "status": "added"
-        },
-        {
-          "path": "test/sigra/planning/phase_232_playwright_economics_test.exs",
-          "status": "modified"
-        },
-        {
-          "path": "test/sigra/planning/phase_249_release_docs_contract_test.exs",
-          "status": "added"
-        }
-      ],
-      "is_release_please_candidate": false,
-      "disposition": {
-        "category": "release-relevant",
-        "reason": "Phase 249 scoped promotion candidate; keep it open until exact-head CI, immutable receipt identity, and protected squash-merge evidence are recorded.",
-        "sources": [
-          "https://github.com/szTheory/sigra/pull/304"
         ],
-        "candidate_eligibility": "pending-exact-head-ci"
+        "candidate_eligibility": "Not considered for auto-merge in the 1.6.0 closeout; keep this 1.7.0 candidate open for its own guarded review and exact-head CI. No merge was requested."
       }
     }
   ],
@@ -10043,5 +10070,5 @@
     "Before rewriting any dirty .planning path, preserve or commit its exact captured bytes and verify read-back; the capture lists these paths in planning_mutation_guards.",
     "The clean-closeout claim remains blocked until every inherited dirty path is either exactly preserved or covered by an explicit validated user-authorized loss exception and all live worktree statuses are empty."
   ],
-  "capture_completed_at": "2026-10-09T21:20:38.808Z"
+  "capture_completed_at": "2026-10-09T21:54:07.302Z"
 }
