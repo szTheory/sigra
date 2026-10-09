@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "milestone": "v1.49 — RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -21,13 +21,13 @@
     {
       "number": "249",
       "name": "Publish and Prove Sigra 1.6.0",
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
   "next": {
-    "command": "/gsd:plan-phase 248",
-    "label": "Plan Phase 248 verification-gap closure",
-    "reason": "Phase verification is gaps_found (13/18). Current evidence indicates missing protected-environment scope, not credential expiration; old values cannot be retrieved. GitHub fine-grained token setup is staged pending identity re-check; Hex API key versus OIDC route awaits user choice. Close Phase 248 gaps before dependent Phase 249."
+    "command": "/gsd:execute-phase 249",
+    "label": "Continue Phase 249 execution",
+    "reason": "Plan 249-02 is complete; continue the remaining Phase 249 plans in dependency order."
   },
-  "updated_at": "2026-10-09T00:11:01Z"
+  "updated_at": "2026-10-09T13:21:09Z"
 }

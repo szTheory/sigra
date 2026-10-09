@@ -4,18 +4,18 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 2
+current_plan: 3
 status: executing
-stopped_at: Completed 249-01-PLAN.md
-last_updated: "2026-10-09T13:06:18.583Z"
+stopped_at: Completed 249-02-PLAN.md
+last_updated: "2026-10-09T13:21:23.448Z"
 last_activity: 2026-10-09
 last_activity_desc: Phase 249 execution started
-state_head: 59a6c54b17afa158ba8fef3bf47297efe80bcef1
+state_head: 0028ac34e33e6bbc66e5419ceea6e201f8e93b63
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 26
-  completed_plans: 19
+  completed_plans: 20
   percent: 50
 ---
 
@@ -32,9 +32,9 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 249 (Publish and Prove Sigra 1.6.0) — EXECUTING
-Current Plan: 2
+Current Plan: 3
 Total Plans in Phase: 7
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-10-09 — Phase 249 execution started
 
@@ -595,6 +595,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 248]: Capture workflow timestamps with runner steps and persist receipts before supplementary issue notification.
 - [Phase 248]: The cancellation observer re-queries the source run and validates authoritative identity before retaining a receipt.
 - [Phase 248]: Missing or mismatched tag resolution remains diagnostic cancellation evidence, never publication success.
+- [Phase 249]: Compare the complete generated doc/llms.txt bytes against the Git index after ExDoc builds. — This validates the committed candidate artifact without rewriting tracked output and catches title or navigation drift.
+- [Phase 249]: Run library_tests_dep_off and its index check on docs-only pull requests. — The required drift gate must execute for the exact change class that can make the generated index stale; ci-gate continues to require the lane.
 
 ### Pending Todos
 
@@ -813,14 +815,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-09T13:06:18.529Z
-Stopped at: Completed 249-01-PLAN.md
+Last session: 2026-10-09T13:20:35.051Z
+Stopped at: Completed 249-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- **Phase 249 context is complete and committed.** The published 1.6.0 release is tied to tag `v1.6.0`, gated source SHA `9e80cb78d6374b1ed4074d5fef6b613fee879dca`, and successful release run `37875238705` attempt 3. Live main at discussion time is `e2fa303017364c7e496c3c620f7b709c8e90c8fb`; Release Please PR #302 is open for 1.6.1. Refresh these identities and the full worktree/PR inventory before execution. The user approved refreshing the tracked ExDoc index and adding a drift guard with automatic Release Please candidate repair. Keep the stale Phase 248 13/18 report and its hosted manual-dry-run/failure/cancellation gaps as separate verification maintenance.
-- **Next GSD command: `$gsd-plan-phase 249`.** Fresh `init.plan-phase 249` reports phase Pending, complete context, zero plans, and no prerequisite blocker. Evidence and decisions: `.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md` and `249-DISCUSSION-LOG.md`; release artifact source run `37875238705`; current main and PR #302 links are in the context.
+- **Phase 249 Plan 02 is complete.** The full generated 1.6.0 ExDoc index is tracked, and required CI compares it after a warning-free docs build, including on docs-only PRs. Plans 249-04 and 249-07 are ready in Wave 2; Plan 249-03 follows them in Wave 3. Refresh live main, PR, and worktree identities in Plan 04 before any promotion. The user also approved automatic Release Please candidate repair in Plan 03.
+- **Next GSD command: `$gsd-execute-phase 249`.** Continue the remaining plans in dependency order. Phase 248's historical 13/18 report and hosted manual-dry-run/failure/cancellation evidence remain separate verification maintenance unless fresh Phase 249 readiness reports a prerequisite blocker.
 
 ## Performance Metrics
 
@@ -1046,3 +1048,4 @@ Resume file: None
 | Phase 248 P04 | 45min | 2 tasks | 5 files |
 | Phase 248 P05 | 32min | 2 tasks | 4 files |
 | Phase 249 P01 | 16 min | 1 tasks | 4 files |
+| Phase 249 P2 | 13min | 2 tasks | 7 files |
