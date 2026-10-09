@@ -19,7 +19,8 @@ new_fixture() {
   FIXTURE_CI_SHA="cccccccccccccccccccccccccccccccccccccccc"
   FIXTURE_BLOB_SHA="dddddddddddddddddddddddddddddddddddddddd"
   FIXTURE_CHECKSUM="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-  export FIXTURE FIXTURE_MAIN_SHA FIXTURE_SOURCE_SHA FIXTURE_CI_SHA FIXTURE_BLOB_SHA FIXTURE_CHECKSUM
+  PROOF_CASE="positive"
+  export FIXTURE FIXTURE_MAIN_SHA FIXTURE_SOURCE_SHA FIXTURE_CI_SHA FIXTURE_BLOB_SHA FIXTURE_CHECKSUM PROOF_CASE
 
   jq -n \
     --arg source "$FIXTURE_SOURCE_SHA" \
@@ -45,6 +46,40 @@ new_fixture() {
   cat > "${FIXTURE}/bin/gh" <<'GH'
 #!/usr/bin/env bash
 set -euo pipefail
+proof_case="${PROOF_CASE:-positive}"
+wrong_sha="ffffffffffffffffffffffffffffffffffffffff"
+ci_sha="$FIXTURE_SOURCE_SHA"
+ci_path=".github/workflows/ci.yml"
+ci_conclusion="success"
+ci_attempt=2
+  ci_detail_attempt=2
+  ci_run_response_id=22222
+job_name="ci-gate"
+job_sha="$FIXTURE_SOURCE_SHA"
+job_attempt=2
+job_conclusion="success"
+  release_head="$FIXTURE_SOURCE_SHA"
+release_path=".github/workflows/release-please.yml"
+release_conclusion="success"
+release_attempt=3
+  release_detail_attempt=3
+case "$proof_case" in
+    package-tag-wrong-source) release_head="$wrong_sha" ;;
+  release-run-wrong-head) release_head="$wrong_sha" ;;
+  release-run-wrong-workflow) release_path=".github/workflows/ci.yml" ;;
+  release-run-failed) release_conclusion="failure" ;;
+  bad-annotated-target) release_head="$wrong_sha" ;;
+  release-attempt-mismatch) release_detail_attempt=2 ;;
+  ci-wrong-workflow|source-ci-wrong-workflow) ci_path=".github/workflows/other.yml" ;;
+  ci-wrong-head|source-ci-wrong-head) ci_sha="$wrong_sha"; job_sha="$wrong_sha" ;;
+  ci-run-wrong-id) ci_run_response_id=99999 ;;
+  ci-failed) ci_conclusion="failure" ;;
+  ci-attempt-mismatch) ci_detail_attempt=1 ;;
+  ci-gate-missing) job_name="unit-tests" ;;
+  ci-gate-wrong-head) job_sha="$wrong_sha" ;;
+  ci-gate-attempt-mismatch) job_attempt=1 ;;
+  ci-gate-failed) job_conclusion="failure" ;;
+esac
 if [[ "${1:-}" == auth && "${2:-}" == status ]]; then
   [[ "${GH_AUTH_FAIL:-0}" == 0 ]] || exit 1
   exit 0
@@ -59,34 +94,64 @@ case "$endpoint" in
     jq -n --arg sha "$FIXTURE_MAIN_SHA" '{sha:$sha,html_url:("https://github.com/szTheory/sigra/commit/"+$sha)}'
     ;;
   repos/szTheory/sigra/git/ref/tags/v1.6.0)
-    jq -n --arg sha "$FIXTURE_SOURCE_SHA" '{ref:"refs/tags/v1.6.0",object:{type:"commit",sha:$sha}}'
+    tag_type="commit"
+    tag_sha="$FIXTURE_SOURCE_SHA"
+    if [[ "$proof_case" == annotated-tag || "$proof_case" == bad-annotated-target ]]; then
+      tag_type="tag"
+      tag_sha="9999999999999999999999999999999999999999"
+    elif [[ "$proof_case" == package-tag-wrong-source ]]; then
+      tag_sha="$wrong_sha"
+    fi
+    jq -n --arg type "$tag_type" --arg sha "$tag_sha" '{ref:"refs/tags/v1.6.0",object:{type:$type,sha:$sha}}'
+    ;;
+  repos/szTheory/sigra/git/tags/9999999999999999999999999999999999999999)
+    tag_target="$FIXTURE_SOURCE_SHA"
+    [[ "$proof_case" != bad-annotated-target ]] || tag_target="ffffffffffffffffffffffffffffffffffffffff"
+    jq -n --arg sha "$tag_target" '{object:{type:"commit",sha:$sha}}'
     ;;
   repos/szTheory/sigra/actions/runs\?head_sha=*)
-    jq -n --arg sha "$FIXTURE_SOURCE_SHA" '{workflow_runs:[{id:11111,run_attempt:3,head_sha:$sha,path:".github/workflows/release-please.yml",event:"push",status:"completed",conclusion:"success",html_url:"https://github.com/szTheory/sigra/actions/runs/11111",run_started_at:"2026-10-09T04:00:00Z"}]}'
+    jq -n --arg sha "$release_head" --arg path "$release_path" --arg conclusion "$release_conclusion" --argjson attempt "$release_attempt" \
+      '{workflow_runs:[{id:11111,run_attempt:$attempt,head_sha:$sha,path:$path,event:"push",status:"completed",conclusion:$conclusion,html_url:"https://github.com/szTheory/sigra/actions/runs/11111",run_started_at:"2026-10-09T04:00:00Z"}]}'
     ;;
-  repos/szTheory/sigra/actions/runs/11111/attempts/3)
-    jq -n --arg sha "$FIXTURE_SOURCE_SHA" '{id:11111,run_attempt:3,head_sha:$sha,path:".github/workflows/release-please.yml",event:"push",status:"completed",conclusion:"success",html_url:"https://github.com/szTheory/sigra/actions/runs/11111"}'
+  repos/szTheory/sigra/actions/runs/11111/attempts/*)
+    jq -n --arg sha "$release_head" --arg path "$release_path" --arg conclusion "$release_conclusion" --argjson attempt "$release_detail_attempt" \
+      '{id:11111,run_attempt:$attempt,head_sha:$sha,path:$path,event:"push",status:"completed",conclusion:$conclusion,html_url:"https://github.com/szTheory/sigra/actions/runs/11111"}'
     ;;
   repos/szTheory/sigra/actions/runs/11111/artifacts)
-    printf '{"artifacts":[{"id":33333,"name":"release-result-1.6.0-11111","expired":false,"archive_download_url":"https://api.github.com/repos/szTheory/sigra/actions/artifacts/33333/zip"}]}\n'
+    [[ "$proof_case" != artifact-unavailable ]] || exit 1
+    [[ "$proof_case" != artifact-malformed-list ]] || { printf '{malformed json\n'; exit 0; }
+    duplicate=false
+    [[ "$proof_case" != duplicate-artifact ]] || duplicate=true
+    jq -n --argjson duplicate "$duplicate" '
+      {artifacts:([{id:33333,name:"release-result-1.6.0-11111",expired:false,archive_download_url:"https://api.github.com/repos/szTheory/sigra/actions/artifacts/33333/zip"}] +
+        (if $duplicate then [{id:33334,name:"release-result-1.6.0-11111",expired:false,archive_download_url:"https://api.github.com/repos/szTheory/sigra/actions/artifacts/33334/zip"}] else [] end))}'
     ;;
   repos/szTheory/sigra/actions/artifacts/33333/zip)
     cat "$FIXTURE/release-result.zip"
     ;;
-  repos/szTheory/sigra/actions/runs/22222)
+  repos/szTheory/sigra/actions/runs/*/attempts/*/jobs)
     [[ "${MISSING_SOURCE_CI:-0}" == 0 ]] || exit 1
-    jq -n --arg sha "$FIXTURE_SOURCE_SHA" '{id:22222,run_attempt:2,head_sha:$sha,path:".github/workflows/ci.yml",status:"completed",conclusion:"success",html_url:"https://github.com/szTheory/sigra/actions/runs/22222"}'
+    jq -n --arg name "$job_name" --arg sha "$job_sha" --arg conclusion "$job_conclusion" --argjson attempt "$job_attempt" \
+      '{jobs:[{id:22223,name:$name,head_sha:$sha,run_attempt:$attempt,status:"completed",conclusion:$conclusion,html_url:"https://github.com/szTheory/sigra/actions/runs/22222/job/22223"}]}'
     ;;
-  repos/szTheory/sigra/actions/runs/22222/attempts/2)
+  repos/szTheory/sigra/actions/runs/*/attempts/*)
     [[ "${MISSING_SOURCE_CI:-0}" == 0 ]] || exit 1
-    jq -n --arg sha "$FIXTURE_SOURCE_SHA" '{id:22222,run_attempt:2,head_sha:$sha,path:".github/workflows/ci.yml",status:"completed",conclusion:"success",html_url:"https://github.com/szTheory/sigra/actions/runs/22222"}'
+    jq -n --arg sha "$ci_sha" --arg path "$ci_path" --arg conclusion "$ci_conclusion" --argjson attempt "$ci_detail_attempt" \
+      '{id:22222,run_attempt:$attempt,head_sha:$sha,path:$path,status:"completed",conclusion:$conclusion,html_url:"https://github.com/szTheory/sigra/actions/runs/22222"}'
     ;;
-  repos/szTheory/sigra/actions/runs/22222/attempts/2/jobs)
+  repos/szTheory/sigra/actions/runs/*)
     [[ "${MISSING_SOURCE_CI:-0}" == 0 ]] || exit 1
-    jq -n --arg sha "$FIXTURE_SOURCE_SHA" '{jobs:[{id:22223,name:"ci-gate",head_sha:$sha,run_attempt:2,status:"completed",conclusion:"success",html_url:"https://github.com/szTheory/sigra/actions/runs/22222/job/22223"}]}'
+    jq -n --arg sha "$ci_sha" --arg path "$ci_path" --arg conclusion "$ci_conclusion" --argjson attempt "$ci_attempt" --argjson id "$ci_run_response_id" \
+      '{id:$id,run_attempt:$attempt,head_sha:$sha,path:$path,status:"completed",conclusion:$conclusion,html_url:("https://github.com/szTheory/sigra/actions/runs/"+($id|tostring))}'
     ;;
-  repos/szTheory/sigra/contents/lib/sigra.ex\?ref=*)
-    jq -n --arg sha "$FIXTURE_BLOB_SHA" --arg source "$FIXTURE_SOURCE_SHA" '{path:"lib/sigra.ex",sha:$sha,html_url:("https://github.com/szTheory/sigra/blob/"+$source+"/lib/sigra.ex")}'
+  repos/szTheory/sigra/contents/*\?ref=*)
+    content_path="${endpoint#repos/szTheory/sigra/contents/}"
+    content_path="${content_path%%\?ref=*}"
+    content_sha="$FIXTURE_SOURCE_SHA"
+    [[ "$proof_case" != source-content-wrong-commit ]] || content_sha="$wrong_sha"
+    [[ "$proof_case" != source-content-wrong-path ]] || content_path="other.ex"
+    jq -n --arg sha "$FIXTURE_BLOB_SHA" --arg source "$content_sha" --arg path "$content_path" \
+      '{path:$path,sha:$sha,html_url:("https://github.com/szTheory/sigra/blob/"+$source+"/"+$path)}'
     ;;
   repos/szTheory/sigra/pulls\?state=open\&base=main\&per_page=100)
     jq -n --arg sha "$FIXTURE_MAIN_SHA" '[{number:302,state:"open",head:{ref:"release-please--branches--main",sha:"ffffffffffffffffffffffffffffffffffffffff"},base:{ref:"main",sha:$sha},html_url:"https://github.com/szTheory/sigra/pull/302"}]'
@@ -113,6 +178,8 @@ set -euo pipefail
 output=""
 url=""
 effective=""
+proof_case="${PROOF_CASE:-positive}"
+wrong_sha="ffffffffffffffffffffffffffffffffffffffff"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -o|--output) output="$2"; shift 2 ;;
@@ -125,14 +192,28 @@ done
 effective="$url"
 case "$url" in
   https://hex.pm/api/packages/sigra/releases/1.6.0)
-    jq -n --arg checksum "$FIXTURE_CHECKSUM" '{version:"1.6.0",html_url:"https://hex.pm/packages/sigra/1.6.0",checksum:$checksum}' > "$output"
+    [[ "$proof_case" != hex-unavailable ]] || exit 22
+    hex_version="1.6.0"
+    [[ "$proof_case" != hex-wrong-version ]] || hex_version="1.5.9"
+    jq -n --arg checksum "$FIXTURE_CHECKSUM" --arg version "$hex_version" '{version:$version,html_url:("https://hex.pm/packages/sigra/"+$version),checksum:$checksum}' > "$output"
     ;;
   https://hexdocs.pm/sigra/1.6.0/Sigra.html)
-    printf '<html><a href="https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1">View Source</a></html>\n' > "$output"
+    [[ "$proof_case" != docs-unavailable ]] || exit 22
+    source_href="https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1"
+    if [[ "$proof_case" == source-href-wrong-tag ]]; then source_href="https://github.com/sztheory/sigra/blob/v1.5.9/lib/sigra.ex#L1"; fi
+    if [[ "$proof_case" == source-href-wrong-path ]]; then source_href="https://github.com/sztheory/sigra/blob/v1.6.0/lib/other.ex#L1"; fi
+    printf '<html><a href="%s">View Source</a></html>\n' "$source_href" > "$output"
     effective="https://sigra.hexdocs.pm/1.6.0/Sigra.html"
+    [[ "$proof_case" != docs-wrong-version ]] || effective="https://sigra.hexdocs.pm/1.5.9/Sigra.html"
     ;;
   https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex\#L1)
     : > "$output"
+    case "$proof_case" in
+      source-redirect-wrong-commit) effective="https://github.com/szTheory/sigra/blob/$wrong_sha/lib/sigra.ex#L1" ;;
+      source-redirect-wrong-path) effective="https://github.com/szTheory/sigra/blob/$FIXTURE_SOURCE_SHA/lib/other.ex#L1" ;;
+      source-redirect-wrong-tag) effective="https://github.com/szTheory/sigra/blob/v1.5.9/lib/sigra.ex#L1" ;;
+      *) effective="$url" ;;
+    esac
     ;;
   *) echo "unexpected URL" >&2; exit 2 ;;
 esac
@@ -153,11 +234,53 @@ run_helper() {
       FIXTURE_CI_SHA="$FIXTURE_CI_SHA" \
       FIXTURE_BLOB_SHA="$FIXTURE_BLOB_SHA" \
       FIXTURE_CHECKSUM="$FIXTURE_CHECKSUM" \
+      PROOF_CASE="$PROOF_CASE" \
       MISSING_SOURCE_CI="${MISSING_SOURCE_CI:-0}" \
       bash "$SCRIPT" --version 1.6.0 --preflight "$preflight" --output "$receipt"
   ) > "${FIXTURE}/run.log" 2>&1
   RC=$?
   set -e
+}
+
+rebuild_archive() {
+  rm -f "$FIXTURE/release-result.zip"
+  (cd "$FIXTURE/archive" && zip -q "$FIXTURE/release-result.zip" release-result.json)
+}
+
+mutate_artifact() {
+  local updated="$FIXTURE/archive/release-result.updated.json"
+  jq "$@" "$FIXTURE/archive/release-result.json" > "$updated"
+  mv "$updated" "$FIXTURE/archive/release-result.json"
+  rebuild_archive
+}
+
+assert_blocked_case() {
+  local name="$1" expected="$2"
+  shift 2
+  new_fixture "$name"
+  PROOF_CASE="$name"
+  MISSING_SOURCE_CI=0
+  export PROOF_CASE MISSING_SOURCE_CI
+  if [[ "${1:-}" == --missing-source-ci ]]; then
+    MISSING_SOURCE_CI=1
+    export MISSING_SOURCE_CI
+    shift
+  fi
+  if [[ "${1:-}" == --artifact-filter ]]; then
+    shift
+    local filter="$1"
+    shift
+    mutate_artifact "$@" "$filter"
+  fi
+  local preflight="$FIXTURE/preflight.json" receipt="$FIXTURE/receipt.json"
+  run_helper "$preflight" "$receipt"
+  if [[ "$RC" -ne 0 ]] && [[ ! -e "$receipt" ]] && \
+    grep -Fq "release-public-proof: BLOCKED: ${expected}" "$FIXTURE/run.log" && \
+    jq -e --arg id "$expected" '.verdict=="blocked" and (.blockers|index($id)!=null) and any(.checks[]; .id==$id and .status=="blocked")' "$preflight" >/dev/null 2>&1; then
+    pass "$name is blocked at $expected without a success receipt"
+  else
+    fail "$name did not block at $expected: rc=$RC $(cat "$FIXTURE/run.log")"
+  fi
 }
 
 echo "Test A: one exact-source public release join produces a sanitized receipt"
@@ -194,6 +317,55 @@ if [[ "$RC" -ne 0 ]] && \
 else
   fail "missing source CI passed or did not persist a blocked preflight: rc=$RC $(cat "${FIXTURE}/run.log")"
 fi
+
+echo "Test B2: annotated tags resolve to their exact commit target"
+new_fixture annotated-tag
+PROOF_CASE=annotated-tag
+export PROOF_CASE
+PREFLIGHT="${FIXTURE}/preflight.json"
+RECEIPT="${FIXTURE}/receipt.json"
+run_helper "$PREFLIGHT" "$RECEIPT"
+if [[ "$RC" -eq 0 ]] && jq -e --arg sha "$FIXTURE_SOURCE_SHA" '.verdict=="passed" and .package_source_sha==$sha' "$RECEIPT" >/dev/null; then
+  pass "annotated tag object resolves to the package source commit"
+else
+  fail "valid annotated tag was rejected or changed identity: rc=$RC $(cat "${FIXTURE}/run.log")"
+fi
+
+echo "Test C: release-run, artifact, tag, package, and source-CI identity mismatches fail closed"
+assert_blocked_case release-run-wrong-head release_run
+assert_blocked_case release-run-wrong-workflow release_run
+assert_blocked_case release-run-failed release_run
+assert_blocked_case release-attempt-mismatch release_run_attempt
+assert_blocked_case artifact-unavailable release_artifact
+assert_blocked_case artifact-malformed-list release_artifact
+assert_blocked_case duplicate-artifact release_artifact
+assert_blocked_case package-tag-wrong-source release_artifact_identity
+assert_blocked_case bad-annotated-target release_artifact_identity
+assert_blocked_case artifact-wrong-run-id release_artifact_identity --artifact-filter '.release_run_id="99999"'
+assert_blocked_case artifact-wrong-attempt release_artifact_identity --artifact-filter '.release_run_attempt=2'
+assert_blocked_case artifact-wrong-source release_artifact_identity --artifact-filter '.source_sha="ffffffffffffffffffffffffffffffffffffffff"'
+assert_blocked_case artifact-wrong-version release_artifact_identity --artifact-filter '.version="1.5.9"'
+assert_blocked_case artifact-wrong-tag release_artifact_identity --artifact-filter '.tag="v1.5.9"'
+assert_blocked_case source-ci-wrong-workflow package_source_ci
+assert_blocked_case source-ci-wrong-head package_source_ci
+assert_blocked_case ci-run-wrong-id package_source_ci
+assert_blocked_case ci-failed package_source_ci
+assert_blocked_case ci-attempt-mismatch package_source_ci
+assert_blocked_case ci-gate-missing package_source_ci
+assert_blocked_case ci-gate-wrong-head package_source_ci
+assert_blocked_case ci-gate-attempt-mismatch package_source_ci
+assert_blocked_case ci-gate-failed package_source_ci
+assert_blocked_case source-ci-missing package_source_ci --missing-source-ci
+assert_blocked_case hex-unavailable hex_release
+assert_blocked_case hex-wrong-version hex_release
+assert_blocked_case docs-unavailable versioned_hexdocs
+assert_blocked_case docs-wrong-version versioned_hexdocs
+assert_blocked_case source-href-wrong-tag rendered_source_reference
+assert_blocked_case source-redirect-wrong-tag rendered_source_reference
+assert_blocked_case source-redirect-wrong-commit rendered_source_reference
+assert_blocked_case source-redirect-wrong-path rendered_source_reference
+assert_blocked_case source-content-wrong-commit rendered_source_reference
+assert_blocked_case source-content-wrong-path rendered_source_reference
 
 echo "Results: ${PASS} passed, ${FAIL} failed"
 [[ "$FAIL" -eq 0 ]]
