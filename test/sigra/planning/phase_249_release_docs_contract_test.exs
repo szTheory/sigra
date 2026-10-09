@@ -23,7 +23,10 @@ defmodule Sigra.Planning.Phase249ReleaseDocsContractTest do
     assert release_job =~ "id: capture-candidate"
     assert release_job =~ "--expected-main-sha \"$WORKFLOW_SHA\""
     assert release_job =~ "GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
-    assert release_job =~ "candidate_identity: ${{ steps.capture-candidate.outputs.candidate_identity }}"
+
+    assert release_job =~
+             "candidate_identity: ${{ steps.capture-candidate.outputs.candidate_identity }}"
+
     assert helper =~ "--state open --base main"
     assert helper =~ "--head \"$RELEASE_BRANCH\""
     assert helper =~ "autorelease: pending"
@@ -59,7 +62,10 @@ defmodule Sigra.Planning.Phase249ReleaseDocsContractTest do
     assert writer_job =~ "GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}"
     assert writer_job =~ "refresh-release-docs.sh write"
     assert helper =~ "gh auth setup-git --hostname github.com"
-    assert helper =~ "git -C \"$REPO_DIR\" push --porcelain origin \"HEAD:refs/heads/$RELEASE_BRANCH\""
+
+    assert helper =~
+             "git -C \"$REPO_DIR\" push --porcelain origin \"HEAD:refs/heads/$RELEASE_BRANCH\""
+
     refute helper =~ "--force"
     refute helper =~ "gh pr merge"
   end
