@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T17:47:48.453Z",
+  "observed_at": "2026-10-09T17:57:39.058Z",
   "inventory_status": "complete",
   "closeout_status": "blocked-until-dispositions-and-preservation",
   "source_status": {
@@ -10,31 +10,31 @@
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 5,
-      "observed_at": "2026-10-09T17:47:48.453Z"
+      "observed_at": "2026-10-09T17:57:39.058Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
       "count": 14,
-      "observed_at": "2026-10-09T17:47:48.453Z"
+      "observed_at": "2026-10-09T17:57:39.058Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "803b307766357502254d7b004749bbb7090e4965",
+    "anchor_head_sha": "f3f64e6a769d0ba78bbdf8d8fbad0dce14e55125",
     "output_provenance": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
-        "source_commit": "803b307766357502254d7b004749bbb7090e4965",
-        "artifact_identity_sha256": "083a4506d11c70ee26954ca89d65286c0e917740eb81876faa2b3ecc8df2df1a",
+        "source_commit": "f3f64e6a769d0ba78bbdf8d8fbad0dce14e55125",
+        "artifact_identity_sha256": "cbecf3642a5e18ee0dfe89318f538f3e4f7bdcd3e6864fdae65fa573a7903eec",
         "capture_boundary": {
-          "captured_at": "2026-10-09T17:47:48.453Z",
+          "captured_at": "2026-10-09T17:57:39.058Z",
           "worktree_path": "/Users/jon/projects/sigra",
-          "source_head_sha": "803b307766357502254d7b004749bbb7090e4965",
+          "source_head_sha": "f3f64e6a769d0ba78bbdf8d8fbad0dce14e55125",
           "source_path_status": "clean",
-          "source_path_sha256": "d65dad77eaba72158aa7c313d1df3cf172f86b0290a0af4afd8326f3f1da44de"
+          "source_path_sha256": "1a6d054ff1bae9fe5b73808f4a7cd771166bd02121aadea7b6fef69e5b1e88e1"
         }
       }
     ],
@@ -45,7 +45,7 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "803b307766357502254d7b004749bbb7090e4965",
+      "head_sha": "f3f64e6a769d0ba78bbdf8d8fbad0dce14e55125",
       "detached": false,
       "locked": false,
       "prunable": false,
@@ -9915,15 +9915,14 @@
   "notes": [
     "This is a live read-only inventory. No worktree, file, or PR was modified by capture.",
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
-    "The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty.",
-    "Superseding Plan 08 recovery record: refs/phase-249-preservation/plan-08-preservation-record-v2:.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json (c9859407de4bae3c1183a2e37c8c437fc484ff715766bf66a47b6ca62f9d076f); 100 captured paths and the prior closeout are preserved, with two explicit blockers remaining."
+    "The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty."
   ],
-  "capture_completed_at": "2026-10-09T17:48:08.384Z",
+  "capture_completed_at": "2026-10-09T17:57:56.588Z",
   "preservation_evidence": {
     "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json",
     "ref": "refs/phase-249-preservation/plan-08-preservation-record-v2",
     "commit_sha": "24507c745ebc1e00c254e8e3ab8ea127de49e028",
-    "sha256": "c9859407de4bae3c1183a2e37c8c437fc484ff715766bf66a47b6ca62f9d076f",
+    "sha256": "c9859407de4bae3c1183a2e37c8c437fc484ff715766bf66a7bb6ca62f9d076f",
     "source_head_sha": "803b307766357502254d7b004749bbb7090e4965",
     "verified": true
   }
