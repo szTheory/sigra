@@ -267,6 +267,12 @@ record_check release_artifact pass "$(jq -cn --arg id "$ARTIFACT_ID" --arg name 
 if ! [[ "$CI_RUN_ID" =~ ^[1-9][0-9]*$ ]] || ! api_json "repos/${REPOSITORY}/actions/runs/${CI_RUN_ID}" "$TMP/source-ci-run.json"; then
   block_and_finish package_source_ci '{"available":false}'
 fi
+if ! jq -e --arg id "$CI_RUN_ID" --arg sha "$SOURCE_SHA" \
+  '(.id|tostring)==$id and .head_sha==$sha and .path==".github/workflows/ci.yml" and
+   .status=="completed" and .conclusion=="success" and
+   (.run_attempt|type)=="number" and .run_attempt>=1' "$TMP/source-ci-run.json" >/dev/null 2>&1; then
+  block_and_finish package_source_ci '{"exact_source_ci_run_identity":false}'
+fi
 CI_ATTEMPT="$(jq -r '.run_attempt // empty' "$TMP/source-ci-run.json")"
 if ! [[ "$CI_ATTEMPT" =~ ^[1-9][0-9]*$ ]]; then
   block_and_finish package_source_ci '{"attempt_valid":false}'
@@ -319,7 +325,7 @@ SOURCE_HREF="$(node -e '
     const u=new URL(matches[0]);
     const encoded=u.pathname.slice(`/${repo.toLowerCase()}/blob/${tag}/`.length);
     const path=decodeURIComponent(encoded);
-    if(u.protocol!=="https:" || u.hostname.toLowerCase()!=="github.com" || !path || path.split("/").some(part=>!part || part==="." || part==="..")) process.exit(1);
+    if(u.protocol!=="https:" || u.hostname.toLowerCase()!=="github.com" || u.search || !path || path.split("/").some(part=>!part || part==="." || part==="..")) process.exit(1);
     if(!/^[A-Za-z0-9._/-]+$/.test(path)) process.exit(1);
     process.stdout.write(matches[0]);
   } catch { process.exit(1); }
@@ -329,6 +335,26 @@ SOURCE_PATH="$(node -e 'const u=new URL(process.argv[1]);process.stdout.write(de
   block_and_finish rendered_source_reference '{"source_path_valid":false}'
 if ! fetch_url "$SOURCE_HREF" "$TMP/source-page.html" || [[ "$HTTP_STATUS" != 200 ]]; then
   block_and_finish rendered_source_reference '{"destination_http_status":"unavailable"}'
+fi
+SOURCE_EFFECTIVE_URL="$HTTP_EFFECTIVE_URL"
+if ! node -e '
+  const [requested, effective, repository, tag, commit, path] = process.argv.slice(1);
+  const identity = raw => {
+    const url = new URL(raw);
+    if (url.protocol !== "https:" || url.hostname.toLowerCase() !== "github.com" || url.search) return null;
+    const parts = url.pathname.split("/");
+    if (parts.length < 6 || parts[0] !== "" || parts[3] !== "blob" || parts.slice(4).some(part => !part)) return null;
+    const [, owner, repo, , ref, ...sourcePath] = parts;
+    return `${owner.toLowerCase()}/${repo.toLowerCase()}/blob/${ref}/${sourcePath.join("/")}`;
+  };
+  const expectedRepository = repository.toLowerCase();
+  const expectedRequested = `${expectedRepository}/blob/${tag}/${path}`;
+  const expectedCommit = `${expectedRepository}/blob/${commit}/${path}`;
+  const requestedIdentity = identity(requested);
+  const effectiveIdentity = identity(effective);
+  if (requestedIdentity !== expectedRequested || ![expectedRequested, expectedCommit].includes(effectiveIdentity)) process.exit(1);
+' "$SOURCE_HREF" "$SOURCE_EFFECTIVE_URL" "$REPOSITORY" "$TAG" "$SOURCE_SHA" "$SOURCE_PATH" 2>/dev/null; then
+  block_and_finish rendered_source_reference '{"resolved_page_destination_match":false}'
 fi
 if ! api_json "repos/${REPOSITORY}/contents/${SOURCE_PATH}?ref=${SOURCE_SHA}" "$TMP/source-content.json"; then
   block_and_finish rendered_source_reference '{"source_blob_available":false}'
