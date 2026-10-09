@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T17:41:10.826Z",
+  "observed_at": "2026-10-09T17:47:48.453Z",
   "inventory_status": "complete",
   "closeout_status": "blocked-until-dispositions-and-preservation",
   "source_status": {
@@ -10,31 +10,31 @@
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 5,
-      "observed_at": "2026-10-09T17:41:10.826Z"
+      "observed_at": "2026-10-09T17:47:48.453Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
       "count": 14,
-      "observed_at": "2026-10-09T17:41:10.826Z"
+      "observed_at": "2026-10-09T17:47:48.453Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "f74b0cde579e175c6177506635c358fa59f5fd52",
+    "anchor_head_sha": "803b307766357502254d7b004749bbb7090e4965",
     "output_provenance": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
-        "source_commit": "f74b0cde579e175c6177506635c358fa59f5fd52",
-        "artifact_identity_sha256": "d380522458fa1f5e384ba8d6e3ea72c42ad00ac74612b40bb9ba740fd40182cd",
+        "source_commit": "803b307766357502254d7b004749bbb7090e4965",
+        "artifact_identity_sha256": "083a4506d11c70ee26954ca89d65286c0e917740eb81876faa2b3ecc8df2df1a",
         "capture_boundary": {
-          "captured_at": "2026-10-09T17:41:10.826Z",
+          "captured_at": "2026-10-09T17:47:48.453Z",
           "worktree_path": "/Users/jon/projects/sigra",
-          "source_head_sha": "f74b0cde579e175c6177506635c358fa59f5fd52",
+          "source_head_sha": "803b307766357502254d7b004749bbb7090e4965",
           "source_path_status": "clean",
-          "source_path_sha256": "c08f70a8409370b08adc49319b2804dc98df9cca27713640981341e375e3b42c"
+          "source_path_sha256": "d65dad77eaba72158aa7c313d1df3cf172f86b0290a0af4afd8326f3f1da44de"
         }
       }
     ],
@@ -45,33 +45,12 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "f74b0cde579e175c6177506635c358fa59f5fd52",
+      "head_sha": "803b307766357502254d7b004749bbb7090e4965",
       "detached": false,
       "locked": false,
       "prunable": false,
       "read_status": "complete",
       "dirty_paths": [
-        {
-          "path": "scripts/ci/sigra-dep-off.sh",
-          "status": " M",
-          "original_path": null,
-          "content_state": "regular-file",
-          "sha256": "9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac"
-        },
-        {
-          "path": "scripts/ci/test-sigra-dep-off.sh",
-          "status": " M",
-          "original_path": null,
-          "content_state": "regular-file",
-          "sha256": "7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100"
-        },
-        {
-          "path": "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
-          "status": " M",
-          "original_path": null,
-          "content_state": "regular-file",
-          "sha256": "1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b"
-        },
         {
           "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
           "status": " M",
@@ -193,43 +172,6 @@
           }
         },
         {
-          "path": ".planning/debug/plan-245-37-admission.md",
-          "status": "??",
-          "original_path": null,
-          "content_state": "regular-file",
-          "sha256": "d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928",
-          "preservation": {
-            "schema_version": 1,
-            "state": "preserved",
-            "owner": "Phase 245 branch-cleanup admission investigation",
-            "target": "refs/phase-249-preservation/cf16569cf5f201cb71b1b3641a6ed5b8",
-            "action": "Pin and verify the exact ?? path at refs/phase-249-preservation/cf16569cf5f201cb71b1b3641a6ed5b8, then clean only this path.",
-            "reason": "explicit Phase 245 debug artifact path and matching v1.49 repository-state inventory; byte identity and exact status come from the complete live capture at 2026-10-09T17:31:57.565Z.",
-            "source_record": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status ??; SHA-256 d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928",
-            "worktree_path": "/Users/jon/projects/sigra",
-            "source_head_sha": "bc3e9d2d9c6b848f5848570963a1db72cd70deaf",
-            "source_status": "??",
-            "source_path": ".planning/debug/plan-245-37-admission.md",
-            "source_content_state": "regular-file",
-            "source_sha256": "d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928",
-            "ref": "refs/phase-249-preservation/cf16569cf5f201cb71b1b3641a6ed5b8",
-            "object_sha": "ee5012e85c1ab7b76905725aab62ee2b29988dd0",
-            "ref_created": true,
-            "paths": [
-              {
-                "path": ".planning/debug/plan-245-37-admission.md",
-                "status": "??",
-                "content_state": "regular-file",
-                "sha256": "d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928"
-              }
-            ],
-            "source_clean_after_readback": true,
-            "source_head_unchanged": true,
-            "source_index_unchanged": true,
-            "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status ??; SHA-256 d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928"
-          }
-        },
-        {
           "path": ".planning/HANDOFF.json",
           "status": " M",
           "original_path": null,
@@ -293,6 +235,43 @@
             "source_head_unchanged": true,
             "source_index_unchanged": true,
             "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 22a07dc9e059c967b470a0c7389d8c00869351113024c6ee235270fb30b70e8b"
+          }
+        },
+        {
+          "path": ".planning/debug/plan-245-37-admission.md",
+          "status": "??",
+          "original_path": null,
+          "content_state": "regular-file",
+          "sha256": "d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928",
+          "preservation": {
+            "schema_version": 1,
+            "state": "preserved",
+            "owner": "Phase 245 branch-cleanup admission investigation",
+            "target": "refs/phase-249-preservation/cf16569cf5f201cb71b1b3641a6ed5b8",
+            "action": "Pin and verify the exact ?? path at refs/phase-249-preservation/cf16569cf5f201cb71b1b3641a6ed5b8, then clean only this path.",
+            "reason": "explicit Phase 245 debug artifact path and matching v1.49 repository-state inventory; byte identity and exact status come from the complete live capture at 2026-10-09T17:31:57.565Z.",
+            "source_record": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status ??; SHA-256 d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928",
+            "worktree_path": "/Users/jon/projects/sigra",
+            "source_head_sha": "bc3e9d2d9c6b848f5848570963a1db72cd70deaf",
+            "source_status": "??",
+            "source_path": ".planning/debug/plan-245-37-admission.md",
+            "source_content_state": "regular-file",
+            "source_sha256": "d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928",
+            "ref": "refs/phase-249-preservation/cf16569cf5f201cb71b1b3641a6ed5b8",
+            "object_sha": "ee5012e85c1ab7b76905725aab62ee2b29988dd0",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": ".planning/debug/plan-245-37-admission.md",
+                "status": "??",
+                "content_state": "regular-file",
+                "sha256": "d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928"
+              }
+            ],
+            "source_clean_after_readback": true,
+            "source_head_unchanged": true,
+            "source_index_unchanged": true,
+            "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status ??; SHA-256 d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928"
           }
         },
         {
@@ -3300,25 +3279,33 @@
           "sha256": "9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac",
           "preservation": {
             "schema_version": 1,
-            "state": "blocked",
-            "owner": "Unresolved baseline-fix owner",
-            "target": "/Users/jon/projects/sigra/scripts/ci/sigra-dep-off.sh",
-            "action": "Leave this exact source path and current bytes/status untouched until its owner and release disposition are established.",
-            "reason": "Phase 249 REPO-STATE.md classifies dependency-off/static-contract edits as plausibly useful but says ownership and release inclusion are not established. Plan 249 requires a narrow ownership decision; no preservation ref or source cleanup was attempted.",
-            "source_record": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac",
+            "state": "preserved",
+            "owner": "Pending todo 2026-09-16: Threadline dependency-off restore fix and regression coverage",
+            "target": "refs/phase-249-preservation/5916f0e6d192c9e31d7dd4c526ac78d5",
+            "action": "Pin and verify the exact  M path at refs/phase-249-preservation/5916f0e6d192c9e31d7dd4c526ac78d5, then clean only this path; keep it out of any Phase 249 release candidate.",
+            "reason": "The pending todo names sigra-dep-off.sh and its reproduced conditional Threadline restore failure; the adjacent script fixture and Phase 198 contract changes test that exact restore behavior. Preserve locally only; do not imply release inclusion.",
+            "source_record": "pending todo 2026-09-16 dependency-off restore regression; live capture 2026-10-09T17:47:48.453Z; branch phase-244-playwright-measurement; source HEAD 803b307766357502254d7b004749bbb7090e4965; status  M; SHA-256 9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac",
+            "source": "pending todo 2026-09-16 dependency-off restore regression; live capture 2026-10-09T17:47:48.453Z; branch phase-244-playwright-measurement; source HEAD 803b307766357502254d7b004749bbb7090e4965; status  M; SHA-256 9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac",
             "worktree_path": "/Users/jon/projects/sigra",
-            "source_head_sha": "bc3e9d2d9c6b848f5848570963a1db72cd70deaf",
+            "source_head_sha": "803b307766357502254d7b004749bbb7090e4965",
             "source_status": " M",
             "source_path": "scripts/ci/sigra-dep-off.sh",
             "source_content_state": "regular-file",
             "source_sha256": "9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac",
-            "ref": null,
-            "object_sha": null,
-            "paths": [],
-            "source_clean_after_readback": false,
+            "ref": "refs/phase-249-preservation/5916f0e6d192c9e31d7dd4c526ac78d5",
+            "object_sha": "a7e2918f6f208d516138ac336c77230f4162e3d3",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": "scripts/ci/sigra-dep-off.sh",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac"
+              }
+            ],
+            "source_clean_after_readback": true,
             "source_head_unchanged": true,
-            "source_index_unchanged": true,
-            "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac"
+            "source_index_unchanged": true
           }
         },
         {
@@ -3329,25 +3316,33 @@
           "sha256": "7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100",
           "preservation": {
             "schema_version": 1,
-            "state": "blocked",
-            "owner": "Unresolved baseline-fix owner",
-            "target": "/Users/jon/projects/sigra/scripts/ci/test-sigra-dep-off.sh",
-            "action": "Leave this exact source path and current bytes/status untouched until its owner and release disposition are established.",
-            "reason": "Phase 249 REPO-STATE.md classifies dependency-off/static-contract edits as plausibly useful but says ownership and release inclusion are not established. Plan 249 requires a narrow ownership decision; no preservation ref or source cleanup was attempted.",
-            "source_record": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100",
+            "state": "preserved",
+            "owner": "Pending todo 2026-09-16: Threadline dependency-off restore fix and regression coverage",
+            "target": "refs/phase-249-preservation/6db97fbc1d1acf01562d04535e8307c1",
+            "action": "Pin and verify the exact  M path at refs/phase-249-preservation/6db97fbc1d1acf01562d04535e8307c1, then clean only this path; keep it out of any Phase 249 release candidate.",
+            "reason": "The pending todo names sigra-dep-off.sh and its reproduced conditional Threadline restore failure; the adjacent script fixture and Phase 198 contract changes test that exact restore behavior. Preserve locally only; do not imply release inclusion.",
+            "source_record": "pending todo 2026-09-16 dependency-off restore regression; live capture 2026-10-09T17:47:48.453Z; branch phase-244-playwright-measurement; source HEAD 803b307766357502254d7b004749bbb7090e4965; status  M; SHA-256 7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100",
+            "source": "pending todo 2026-09-16 dependency-off restore regression; live capture 2026-10-09T17:47:48.453Z; branch phase-244-playwright-measurement; source HEAD 803b307766357502254d7b004749bbb7090e4965; status  M; SHA-256 7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100",
             "worktree_path": "/Users/jon/projects/sigra",
-            "source_head_sha": "bc3e9d2d9c6b848f5848570963a1db72cd70deaf",
+            "source_head_sha": "803b307766357502254d7b004749bbb7090e4965",
             "source_status": " M",
             "source_path": "scripts/ci/test-sigra-dep-off.sh",
             "source_content_state": "regular-file",
             "source_sha256": "7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100",
-            "ref": null,
-            "object_sha": null,
-            "paths": [],
-            "source_clean_after_readback": false,
+            "ref": "refs/phase-249-preservation/6db97fbc1d1acf01562d04535e8307c1",
+            "object_sha": "f83c404b158c551431afc8b270271a59ca274281",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": "scripts/ci/test-sigra-dep-off.sh",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100"
+              }
+            ],
+            "source_clean_after_readback": true,
             "source_head_unchanged": true,
-            "source_index_unchanged": true,
-            "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100"
+            "source_index_unchanged": true
           }
         },
         {
@@ -3506,25 +3501,33 @@
           "sha256": "1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b",
           "preservation": {
             "schema_version": 1,
-            "state": "blocked",
-            "owner": "Unresolved baseline-fix owner",
-            "target": "/Users/jon/projects/sigra/test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
-            "action": "Leave this exact source path and current bytes/status untouched until its owner and release disposition are established.",
-            "reason": "Phase 249 REPO-STATE.md classifies dependency-off/static-contract edits as plausibly useful but says ownership and release inclusion are not established. Plan 249 requires a narrow ownership decision; no preservation ref or source cleanup was attempted.",
-            "source_record": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b",
+            "state": "preserved",
+            "owner": "Pending todo 2026-09-16: Threadline dependency-off restore fix and regression coverage",
+            "target": "refs/phase-249-preservation/da200e67380b924ec9fe0083c61ce182",
+            "action": "Pin and verify the exact  M path at refs/phase-249-preservation/da200e67380b924ec9fe0083c61ce182, then clean only this path; keep it out of any Phase 249 release candidate.",
+            "reason": "The pending todo names sigra-dep-off.sh and its reproduced conditional Threadline restore failure; the adjacent script fixture and Phase 198 contract changes test that exact restore behavior. Preserve locally only; do not imply release inclusion.",
+            "source_record": "pending todo 2026-09-16 dependency-off restore regression; live capture 2026-10-09T17:47:48.453Z; branch phase-244-playwright-measurement; source HEAD 803b307766357502254d7b004749bbb7090e4965; status  M; SHA-256 1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b",
+            "source": "pending todo 2026-09-16 dependency-off restore regression; live capture 2026-10-09T17:47:48.453Z; branch phase-244-playwright-measurement; source HEAD 803b307766357502254d7b004749bbb7090e4965; status  M; SHA-256 1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b",
             "worktree_path": "/Users/jon/projects/sigra",
-            "source_head_sha": "bc3e9d2d9c6b848f5848570963a1db72cd70deaf",
+            "source_head_sha": "803b307766357502254d7b004749bbb7090e4965",
             "source_status": " M",
             "source_path": "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
             "source_content_state": "regular-file",
             "source_sha256": "1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b",
-            "ref": null,
-            "object_sha": null,
-            "paths": [],
-            "source_clean_after_readback": false,
+            "ref": "refs/phase-249-preservation/da200e67380b924ec9fe0083c61ce182",
+            "object_sha": "85d177967882b6d96f68f79803080a0170346664",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b"
+              }
+            ],
+            "source_clean_after_readback": true,
             "source_head_unchanged": true,
-            "source_index_unchanged": true,
-            "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b"
+            "source_index_unchanged": true
           }
         },
         {
@@ -9913,15 +9916,15 @@
     "This is a live read-only inventory. No worktree, file, or PR was modified by capture.",
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
     "The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty.",
-    "Verified Plan 08 preservation evidence is pinned at refs/phase-249-preservation/plan-08-preservation-record; raw live inventory was refreshed after exact-path cleanup."
+    "Superseding Plan 08 recovery record: refs/phase-249-preservation/plan-08-preservation-record-v2:.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json (c9859407de4bae3c1183a2e37c8c437fc484ff715766bf66a47b6ca62f9d076f); 100 captured paths and the prior closeout are preserved, with two explicit blockers remaining."
   ],
-  "capture_completed_at": "2026-10-09T17:41:29.056Z",
+  "capture_completed_at": "2026-10-09T17:48:08.384Z",
   "preservation_evidence": {
     "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json",
-    "ref": "refs/phase-249-preservation/plan-08-preservation-record",
-    "commit_sha": "846a0bc14d7999918ef936ad3e4d2a10d8b9ede2",
-    "sha256": "7f8a931a46d8d9507c7bbac0be5bffda2035f21e043bdf9d7246210862b83060",
-    "source_head_sha": "bc3e9d2d9c6b848f5848570963a1db72cd70deaf",
+    "ref": "refs/phase-249-preservation/plan-08-preservation-record-v2",
+    "commit_sha": "24507c745ebc1e00c254e8e3ab8ea127de49e028",
+    "sha256": "c9859407de4bae3c1183a2e37c8c437fc484ff715766bf66a47b6ca62f9d076f",
+    "source_head_sha": "803b307766357502254d7b004749bbb7090e4965",
     "verified": true
   }
 }
