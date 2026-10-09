@@ -1,0 +1,20 @@
+{
+  "phase": 249,
+  "plan": "05",
+  "task": 1,
+  "kind": "tdd-red-evidence",
+  "command": "node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+  "exit_code": 1,
+  "expected": {
+    "passing": 17,
+    "failing": 4,
+    "failure_reason": "validatePreservation() is not implemented yet"
+  },
+  "required_cases": [
+    "verified durable ref and exact path hash",
+    "missing preservation ref",
+    "preserved content hash mismatch",
+    "newly appearing dirty path"
+  ],
+  "captured_at": "2026-10-09T00:00:00.000Z"
+}

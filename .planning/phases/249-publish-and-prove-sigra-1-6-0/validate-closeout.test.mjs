@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
 let validatorApi;
@@ -61,6 +62,86 @@ function fixture() {
   const live = structuredClone(ledger);
   return { ledger, live };
 }
+
+function preservedFixture(t) {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-closeout-preservation-'));
+  t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+  const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  git('init', '-q');
+  git('config', 'user.name', 'Closeout Fixture');
+  git('config', 'user.email', 'closeout-fixture@example.invalid');
+  fs.writeFileSync(path.join(repo, 'anchor.txt'), 'anchor\n');
+  git('add', 'anchor.txt');
+  git('commit', '-m', 'anchor');
+  const anchor = git('rev-parse', 'HEAD');
+  const sourcePath = 'notes/a.md';
+  const contents = Buffer.from('recoverable bytes\n');
+  const contentSha = createHash('sha256').update(contents).digest('hex');
+  fs.mkdirSync(path.dirname(path.join(repo, sourcePath)), { recursive: true });
+  fs.writeFileSync(path.join(repo, sourcePath), contents);
+  const { ledger, live } = fixture();
+  ledger.worktrees[0].path = repo;
+  live.worktrees[0].path = repo;
+  ledger.worktrees[0].head_sha = anchor;
+  live.worktrees[0].head_sha = anchor;
+  ledger.worktrees[0].dirty_paths[0] = {
+    path: sourcePath,
+    status: '??',
+    content_state: 'regular-file',
+    sha256: contentSha,
+  };
+  live.worktrees[0].dirty_paths = [];
+  git('add', sourcePath);
+  git('commit', '-m', 'preserve inherited bytes');
+  const preservedObject = git('rev-parse', 'HEAD');
+  const ref = 'refs/phase-249-preservation/fixture';
+  git('update-ref', ref, preservedObject);
+  git('checkout', '-q', '--detach', anchor);
+  ledger.worktrees[0].dirty_paths[0].preservation = {
+    owner: 'fixture owner',
+    target: ref,
+    action: 'Preserve the exact path under a durable Git ref.',
+    state: 'preserved',
+    reason: 'Fixture verifies recoverability.',
+    source: 'Synthetic test worktree and content hash.',
+    ref,
+    object_sha: preservedObject,
+    paths: [{ path: sourcePath, status: '??', content_state: 'regular-file', sha256: contentSha }],
+  };
+  return { repo, ledger, live, sourcePath, contentSha, ref, git };
+}
+
+test('a verified preservation ref and exact path hash allow the source worktree to be clean', t => {
+  const { repo, ledger, live } = preservedFixture(t);
+  const result = invoke('validatePreservation', ledger, live, { repoRoot: repo });
+  assert.equal(result.valid, true, JSON.stringify(result.errors));
+  assert.equal(result.blocked, false);
+  assert.equal(result.closeout_status, 'ready');
+});
+
+test('a preserved change without a durable ref remains blocked', t => {
+  const { repo, ledger, live } = preservedFixture(t);
+  delete ledger.worktrees[0].dirty_paths[0].preservation.ref;
+  const result = invoke('validatePreservation', ledger, live, { repoRoot: repo });
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some(error => error.code === 'preservation_ref_missing'));
+});
+
+test('a ref that cannot recover the recorded content hash remains blocked', t => {
+  const { repo, ledger, live } = preservedFixture(t);
+  ledger.worktrees[0].dirty_paths[0].preservation.paths[0].sha256 = digest('f');
+  const result = invoke('validatePreservation', ledger, live, { repoRoot: repo });
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some(error => error.code === 'preservation_content_mismatch'));
+});
+
+test('a newly appearing dirty path remains blocked after preservation', t => {
+  const { repo, ledger, live } = preservedFixture(t);
+  live.worktrees[0].dirty_paths.push({ path: 'notes/new.md', status: '??', content_state: 'regular-file', sha256: digest('a') });
+  const result = invoke('validatePreservation', ledger, live, { repoRoot: repo });
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some(error => error.code === 'preservation_new_dirty_path'));
+});
 
 test('an exact complete inventory accepts a successful empty PR query', () => {
   const { ledger, live } = fixture();
