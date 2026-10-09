@@ -29,10 +29,11 @@ function fixture() {
     number: 302,
     title: 'chore(main): release 1.6.1',
     base_ref: 'main',
+    base_sha: sha('d'),
     head_ref: 'release-please--branches--main',
     head_sha: sha('c'),
     url: 'https://github.com/szTheory/sigra/pull/302',
-    files_read: 'complete',
+    files_read: { status: 'complete', endpoint: 'repos/szTheory/sigra/pulls/302/files?per_page=100' },
     changed_files: [{ path: 'mix.exs', status: 'modified' }],
     disposition: {
       category: 'release-relevant',
@@ -105,6 +106,32 @@ test('a dirty path omitted from the ledger fails even if its worktree HEAD is un
   assert.equal(invoke('validateInventory', ledger, live).valid, false);
 });
 
+test('a changed dirty-path content hash fails even when path and status match', () => {
+  const { ledger, live } = fixture();
+  live.worktrees[0].dirty_paths[0].sha256 = digest('e');
+  assert.equal(invoke('validateInventory', ledger, live).valid, false);
+});
+
+test('a worktree status read failure cannot be represented as a clean worktree', () => {
+  const { ledger, live } = fixture();
+  live.worktrees[0].read_status = 'failed';
+  live.worktrees[0].dirty_paths = [];
+  assert.equal(invoke('validateInventory', ledger, live).valid, false);
+});
+
+test('only the declared self-evidencing output paths are excluded from inherited dirty-path comparison', () => {
+  const { ledger, live } = fixture();
+  ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, paths: ['.planning/249-CLOSEOUT.json'] };
+  live.evidence_transitions = { '/repo': { valid: true, changed_paths: [] } };
+  live.worktrees[0].dirty_paths.push({
+    path: '.planning/249-CLOSEOUT.json', status: '??', sha256: digest('f'), content_state: 'regular-file', original_path: null,
+  });
+  const result = invoke('validateInventory', ledger, live);
+  assert.equal(result.valid, true, JSON.stringify(result.errors));
+  live.worktrees[0].dirty_paths.push({ path: 'notes/omitted.md', status: '??', sha256: digest('a') });
+  assert.equal(invoke('validateInventory', ledger, live).valid, false);
+});
+
 test('stable ordering is independent of API and worktree enumeration order', () => {
   const { ledger } = fixture();
   ledger.worktrees.push({ ...structuredClone(ledger.worktrees[0]), path: '/other' });
@@ -122,6 +149,7 @@ test('each dirty path needs an explicit preservation decision and exact hash', (
     action: 'Leave untouched until a scoped preservation ref is verified.',
     state: 'blocked',
     reason: 'The shared checkout contains inherited changes with unresolved individual ownership.',
+    source: 'git status porcelain and SHA-256 inventory captured for this worktree path.',
   };
   const result = invoke('validateDispositions', ledger);
   assert.equal(result.valid, true, JSON.stringify(result.errors));
