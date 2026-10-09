@@ -171,18 +171,17 @@ manifest_lookup() {
   ' "$MANIFEST"
 }
 
-# Non-vacuity (D-04): the manifest must yield at least five rows whose id
-# intersects the nine-lane set. Five is the post-231-07/D-06 true count
-# (upgrade_smoke, library_tests_dep_off, install_smoke, example_http_smoke,
-# example_playwright_smoke) -- it was six before Phase 231 GATE-02 / D-06
-# deleted the generated_admin_playwright_smoke row.
+# Non-vacuity (D-04): the manifest must yield at least four rows whose id
+# intersects the nine-lane set. The docs-only exemption was removed from
+# library_tests_dep_off, leaving upgrade_smoke, install_smoke,
+# example_http_smoke, and example_playwright_smoke.
 MANIFEST_HIT_COUNT=0
 for lane in "${LANES[@]}"; do
   row="$(manifest_lookup "$lane")"
   [[ -n "$row" ]] && MANIFEST_HIT_COUNT=$((MANIFEST_HIT_COUNT + 1))
 done
-if [[ "$MANIFEST_HIT_COUNT" -lt 5 ]]; then
-  fail "manifest ${MANIFEST} yielded only ${MANIFEST_HIT_COUNT} row(s) intersecting the nine ci-gate.needs lane ids (expected >= 5: upgrade_smoke, library_tests_dep_off, install_smoke, example_http_smoke, example_playwright_smoke) -- the parse broke, this is not a pass"
+if [[ "$MANIFEST_HIT_COUNT" -lt 4 ]]; then
+  fail "manifest ${MANIFEST} yielded only ${MANIFEST_HIT_COUNT} row(s) intersecting the nine ci-gate.needs lane ids (expected >= 4: upgrade_smoke, install_smoke, example_http_smoke, example_playwright_smoke) -- the parse broke, this is not a pass"
 fi
 
 # ---------------------------------------------------------------------------
@@ -218,7 +217,6 @@ if [[ "$EVENT" == "pull_request" ]]; then
   ALLOWED+=("upgrade_smoke")
   if [[ "$DOCS_ONLY_RAW" == "true" ]]; then
     DOCS_ONLY_NORMALIZED="true"
-    ALLOWED+=("library_tests_dep_off")
   fi
 fi
 

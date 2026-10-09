@@ -485,7 +485,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: sigra_test
@@ -571,7 +571,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
@@ -648,15 +648,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [release_ref_guard, changes]
-    # Phase 230 (FAST-05 / D-08): job-level gate -- permitted here because
-    # this is a non-required job (not one of the 5 ruleset-14941512
-    # contexts). Same fail-open polarity and !cancelled() predicate as the
-    # required lanes (T-230-05-07): an empty/failed `changes` output still
-    # runs the job, and a run FAST-04 supersedes still stops.
-    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true' }}
+    # This lane owns the required docs build and full generated-index check,
+    # so it must run for docs-only candidates as well as other PRs.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
@@ -695,6 +692,8 @@ jobs:
       # docs build that is intentionally outside the contributor alias.
       - name: Check docs build cleanly
         run: mix docs --warnings-as-errors
+      - name: Check generated docs index
+        run: bash scripts/ci/check-docs-index.sh
       - name: Cache hit summary
         if: always()
         run: |
@@ -719,7 +718,7 @@ jobs:
     if: ${{ !cancelled() }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -794,7 +793,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -863,7 +862,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -916,7 +915,7 @@ jobs:
     if: github.event_name != 'pull_request'
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -979,7 +978,7 @@ jobs:
           - "--no-organizations --no-passkeys"
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1099,7 +1098,7 @@ jobs:
     if: github.event_name != 'pull_request'
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1157,7 +1156,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1281,7 +1280,7 @@ jobs:
             browser_cache_key: playwright-chromium-1.59.1-v3
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1483,7 +1482,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1757,7 +1756,7 @@ jobs:
       pull-requests: write  # required for gh pr create
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1995,7 +1994,7 @@ jobs:
       pull-requests: write  # required for gh pr create
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -2180,7 +2179,7 @@ jobs:
       PORT: "4011"
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']

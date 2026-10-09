@@ -12,7 +12,7 @@
 #      legitimate event-gated skip.
 #   C: upgrade_smoke skipped on push -> exit 1, reason names the lane AND
 #      the event.
-#   D: library_tests_dep_off skipped on pull_request, docs-only true -> exit 0.
+#   D: library_tests_dep_off skipped on pull_request, docs-only true -> exit 1.
 #   E: same, docs-only false -> exit 1, reason names the lane.
 #   F: same, docs-only empty -> exit 1, output carries the empty-input NOTE.
 #   G: example_playwright_smoke skipped on pull_request -> exit 1; it is not
@@ -35,8 +35,8 @@
 #   O: unknown flag -> exit 2.
 #   P: --format json output parses and carries a lane entry per lane plus a
 #      top-level verdict.
-#   Q: positive control -- the shipped manifest yields at least five
-#      lane-set rows including upgrade_smoke and library_tests_dep_off.
+#   Q: positive control -- the shipped manifest yields at least four
+#      lane-set rows and excludes library_tests_dep_off.
 #   R: workflow cross-check positive control -- the shipped ci.yml's
 #      ci-gate needs and the script's lane list agree modulo the
 #      input-provider exclusion (`changes`).
@@ -146,13 +146,13 @@ else
   fail "C: rc=${RC_C}, output: ${OUT_C}"
 fi
 
-# ---- D: library_tests_dep_off skipped, docs-only true -> exit 0 -----------
-echo "Test D: library_tests_dep_off skipped, docs-only true -> exit 0"
+# ---- D: dep-off skip is rejected even when docs-only ----------------------
+echo "Test D: library_tests_dep_off skipped, docs-only true -> exit 1"
 P_DE="$(jq '.library_tests_dep_off = "skipped"' <<<"$BASE_LANE_JSON")"
 OUT_D="$(run_verdict "$P_DE" --event pull_request --docs-only true)"
 RC_D="$(run_verdict_rc "$P_DE" --event pull_request --docs-only true)"
-if [[ "$RC_D" -eq 0 ]] && grep -q "library_tests_dep_off" <<<"$OUT_D"; then
-  pass "D: exit 0, docs-only true legitimizes the skip"
+if [[ "$RC_D" -eq 1 ]] && grep -q "library_tests_dep_off" <<<"$OUT_D"; then
+  pass "D: exit 1, docs-only true no longer legitimizes the skip"
 else
   fail "D: rc=${RC_D}, output: ${OUT_D}"
 fi
@@ -313,7 +313,7 @@ else
   fail "P: rc=${RC_P}, output: ${OUT_P}"
 fi
 
-# ---- Q: positive control -- shipped manifest yields >= 5 lane-set rows ----
+# ---- Q: positive control -- shipped manifest yields >= 4 lane-set rows ----
 echo "Test Q: the shipped manifest yields the expected lane-set rows"
 SHIPPED_MANIFEST_IDS="$(awk -F'\t' '
   /^#/ { next }
@@ -331,9 +331,9 @@ else
   for id in "${LANE_SET[@]}"; do
     grep -qx "$id" <<<"$SHIPPED_MANIFEST_IDS" && HIT=$((HIT + 1))
   done
-  if [[ "$HIT" -ge 5 ]] && grep -qx "upgrade_smoke" <<<"$SHIPPED_MANIFEST_IDS" \
-     && grep -qx "library_tests_dep_off" <<<"$SHIPPED_MANIFEST_IDS"; then
-    pass "Q: shipped manifest yields ${HIT} lane-set rows (>= 5), including upgrade_smoke and library_tests_dep_off"
+  if [[ "$HIT" -ge 4 ]] && grep -qx "upgrade_smoke" <<<"$SHIPPED_MANIFEST_IDS" \
+     && ! grep -qx "library_tests_dep_off" <<<"$SHIPPED_MANIFEST_IDS"; then
+    pass "Q: shipped manifest yields ${HIT} lane-set rows (>= 4), excludes library_tests_dep_off"
   else
     fail "Q: shipped manifest yielded only ${HIT} lane-set rows: ${SHIPPED_MANIFEST_IDS}"
   fi

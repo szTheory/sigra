@@ -40,6 +40,11 @@ jobs:
       version: ${{ steps.release.outputs.version }}
       sha: ${{ steps.release.outputs.sha }}
       started_at: ${{ steps.workflow-start.outputs.started_at }}
+      has_candidate: ${{ steps.capture-candidate.outputs.has_candidate }}
+      candidate_identity: ${{ steps.capture-candidate.outputs.candidate_identity }}
+      candidate_number: ${{ steps.capture-candidate.outputs.candidate_number }}
+      candidate_head_sha: ${{ steps.capture-candidate.outputs.candidate_head_sha }}
+      trusted_main_sha: ${{ steps.capture-candidate.outputs.trusted_main_sha }}
     steps:
       - name: Mark release workflow start
         id: workflow-start
@@ -111,6 +116,145 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Capture the one eligible Release Please candidate
+        id: capture-candidate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          WORKFLOW_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          bash scripts/ci/refresh-release-docs.sh capture \
+            --repository "$REPOSITORY" \
+            --expected-main-sha "$WORKFLOW_SHA" \
+            --identity-file "$RUNNER_TEMP/release-candidate.json" \
+            --github-output "$GITHUB_OUTPUT"
+
+  build-release-docs:
+    name: Build release candidate docs without write credentials
+    needs: release-please
+    if: ${{ needs.release-please.outputs.has_candidate == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: trusted-main
+          persist-credentials: false
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ needs.release-please.outputs.candidate_head_sha }}
+          path: candidate
+          persist-credentials: false
+
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
+        with:
+          version-file: candidate/.tool-versions
+          version-type: strict
+
+      - name: Install Hex and Rebar
+        working-directory: candidate
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+
+      - name: Fetch candidate dependencies
+        working-directory: candidate
+        run: mix deps.get
+
+      - name: Build candidate docs without credentials
+        working-directory: candidate
+        run: mix docs --warnings-as-errors
+
+      - name: Package only the generated index and selected identity
+        env:
+          CANDIDATE_IDENTITY: ${{ needs.release-please.outputs.candidate_identity }}
+        run: |
+          set -euo pipefail
+          identity_file="$RUNNER_TEMP/release-candidate.json"
+          printf '%s\n' "$CANDIDATE_IDENTITY" > "$identity_file"
+          bash trusted-main/scripts/ci/refresh-release-docs.sh package \
+            --candidate-dir "$GITHUB_WORKSPACE/candidate" \
+            --identity-file "$identity_file" \
+            --output-dir "$RUNNER_TEMP/release-docs-artifact"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4.6.2
+        with:
+          name: release-docs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-docs-artifact
+          if-no-files-found: error
+          retention-days: 1
+
+  write-release-docs:
+    name: Write the exact generated index and confirm fresh CI
+    needs: [release-please, build-release-docs]
+    if: ${{ needs.release-please.outputs.has_candidate == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: release-automation
+    permissions:
+      actions: read
+      contents: read
+      deployments: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: trusted-main
+          persist-credentials: false
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ needs.release-please.outputs.candidate_head_sha }}
+          path: candidate
+          persist-credentials: false
+
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: release-docs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-docs-artifact
+
+      - name: Verify release automation environment before write
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_PLEASE_TOKEN_PRESENT: ${{ secrets.RELEASE_PLEASE_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          bash trusted-main/scripts/ci/release-environment-preflight.sh \
+            --repository "$REPOSITORY" \
+            --require-release-token "$RELEASE_PLEASE_TOKEN_PRESENT"
+
+      - name: Prepare the selected candidate identity
+        env:
+          CANDIDATE_IDENTITY: ${{ needs.release-please.outputs.candidate_identity }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$CANDIDATE_IDENTITY" > "$RUNNER_TEMP/release-candidate.json"
+
+      - name: Apply the generated index and prove exact-head CI registration
+        id: write-candidate
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          bash trusted-main/scripts/ci/refresh-release-docs.sh write \
+            --repository "$REPOSITORY" \
+            --repo-dir "$GITHUB_WORKSPACE/candidate" \
+            --artifact-dir "$RUNNER_TEMP/release-docs-artifact" \
+            --identity-file "$RUNNER_TEMP/release-candidate.json" \
+            --github-output "$GITHUB_OUTPUT" \
+            --summary-file "$GITHUB_STEP_SUMMARY"
 
   gate-ci-green:
     name: Verify CI is green on release SHA
@@ -206,7 +350,7 @@ jobs:
       diagnostic: ${{ steps.capture-publish-result.outputs.diagnostic }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: sigra_test
