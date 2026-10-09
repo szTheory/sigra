@@ -78,7 +78,7 @@ status: complete
 
 1. **Task 1: End-to-end tracer: prove one live 1.6.0 identity from artifact to receipt** — `59a6c54b1` (`feat`)
 
-**Plan metadata:** pending.
+**Plan metadata:** `550f02045` (`docs(249-01): complete end-to-end 1.6.0 release identity plan`)
 
 ## Files Created/Modified
 
