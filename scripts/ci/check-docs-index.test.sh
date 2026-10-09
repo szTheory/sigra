@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 HELPER="${ROOT}/scripts/ci/check-docs-index.sh"
+WORKFLOW="${ROOT}/.github/workflows/ci.yml"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -100,6 +101,45 @@ else
     pass "missing generated file fails with its path"
   else
     fail "missing generated file diagnostic omitted the path: ${OUTPUT}"
+  fi
+fi
+
+echo "Test 6: required CI builds, compares, and gates docs-only changes"
+JOB="${TMP}/library-tests-dep-off.yml"
+awk '
+  /^  library_tests_dep_off:[[:space:]]*$/ { in_job=1 }
+  in_job && /^  [A-Za-z0-9_.-]+:[[:space:]]*$/ && $0 !~ /^  library_tests_dep_off:/ { exit }
+  in_job { print }
+' "$WORKFLOW" >"$JOB"
+if [[ ! -s "$JOB" ]]; then
+  fail "could not extract library_tests_dep_off from ${WORKFLOW}"
+else
+  if awk '
+    /^      - name: Check docs build cleanly$/ {
+      if (getline <= 0 || $0 != "        run: mix docs --warnings-as-errors") exit 1
+      if (getline <= 0 || $0 != "      - name: Check generated docs index") exit 1
+      if (getline <= 0 || $0 != "        run: bash scripts/ci/check-docs-index.sh") exit 1
+      found=1
+    }
+    END { if (!found) exit 1 }
+  ' "$JOB" \
+     && grep -Eq '^    needs: \[release_ref_guard, changes\]$' "$JOB" \
+     && grep -Fq "needs.release_ref_guard.result == 'success'" "$JOB" \
+     && grep -Fq '!cancelled()' "$JOB" \
+     && ! grep -Fq 'needs.changes.outputs.docs_only' "$JOB" \
+     && ! grep -Fq 'continue-on-error:' "$JOB" \
+     && ! grep -Eq 'GH_TOKEN|secrets\.' "$JOB" \
+     && awk '
+       /^  ci-gate:[[:space:]]*$/ { in_job=1; next }
+       in_job && /^  [A-Za-z0-9_.-]+:[[:space:]]*$/ { in_job=0 }
+       in_job && /^      - library_tests_dep_off[[:space:]]*$/ { found=1 }
+       END { if (!found) exit 1 }
+     ' "$WORKFLOW" \
+     && grep -Fq "run 'mix docs --warnings-as-errors'" "$HELPER" \
+     && grep -Fq 'git add ${TRACKED_PATH} and commit' "$HELPER"; then
+    pass "required ci-gate job builds before comparing on docs-only changes with actionable repair guidance"
+  else
+    fail "workflow does not enforce the required build-then-compare contract"
   fi
 fi
 
