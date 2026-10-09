@@ -35,6 +35,7 @@ const promotionPaths = [
   'scripts/ci/refresh-release-docs.test.sh',
   'scripts/ci/release-public-proof.sh',
   'scripts/ci/release-public-proof.test.sh',
+  'test/sigra/planning/phase_232_playwright_economics_test.exs',
   'test/sigra/planning/phase_249_release_docs_contract_test.exs',
 ];
 
@@ -501,6 +502,21 @@ test('an exact complete inventory accepts a successful empty PR query', () => {
   live.pull_requests = [];
   const result = invoke('validateInventory', ledger, live);
   assert.equal(result.valid, true, JSON.stringify(result.errors));
+});
+
+test('Phase 249 promotion PRs receive a source-backed release disposition during capture', () => {
+  const pr = {
+    number: 304,
+    title: 'feat(249): prove the Sigra 1.6.0 release',
+    base_ref: 'main',
+    head_ref: 'gsd/phase-249-09-candidate',
+    url: 'https://github.com/szTheory/sigra/pull/304',
+  };
+  const disposition = invoke('phase249PromotionDisposition', pr);
+  assert.equal(disposition.category, 'release-relevant');
+  assert.deepEqual(disposition.sources, [pr.url]);
+  assert.equal(disposition.candidate_eligibility, 'pending-exact-head-ci');
+  assert.equal(invoke('phase249PromotionDisposition', { ...pr, head_ref: 'release-please--branches--main' }), null);
 });
 
 test('a missing live PR fails exact population comparison', () => {

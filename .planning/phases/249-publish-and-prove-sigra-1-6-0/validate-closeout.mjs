@@ -13,6 +13,23 @@ const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(MODULE_DIR, '../../..');
 const CLOSEOUT_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
 const CANDIDATE_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json';
+const PROMOTION_CANDIDATE_PATHS = Object.freeze([
+  '.github/ci-skip-manifest.tsv',
+  '.github/workflows/ci.yml',
+  '.github/workflows/release-please.yml',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json',
+  'doc/llms.txt',
+  'scripts/ci/check-docs-index.sh',
+  'scripts/ci/check-docs-index.test.sh',
+  'scripts/ci/honest-skip-verdict.sh',
+  'scripts/ci/honest-skip-verdict.test.sh',
+  'scripts/ci/refresh-release-docs.sh',
+  'scripts/ci/refresh-release-docs.test.sh',
+  'scripts/ci/release-public-proof.sh',
+  'scripts/ci/release-public-proof.test.sh',
+  'test/sigra/planning/phase_232_playwright_economics_test.exs',
+  'test/sigra/planning/phase_249_release_docs_contract_test.exs',
+]);
 const ACCEPTED_HANDOFF_LOSS = Object.freeze({
   path: '.planning/HANDOFF.json',
   status: ' M',
@@ -727,7 +744,7 @@ export function validatePromotion(promotion, constraints = {}) {
     }
     if (new Set(promotion.changed_paths).size !== promotion.changed_paths.length) add('promotion_diff_duplicate_path', 'Promotion diff paths must be unique.');
     if (allowed.size !== promotion.changed_paths.length || [...allowed].some(allowedPath => !promotion.changed_paths.includes(allowedPath))) {
-      add('promotion_diff_path_set_mismatch', 'The complete PR diff must equal the exact fourteen-path candidate allowlist.');
+      add('promotion_diff_path_set_mismatch', 'The complete PR diff must equal the reviewed Phase 249 candidate path allowlist.');
     }
   }
   const review = promotion?.review;
@@ -976,6 +993,18 @@ export function collectLiveInventory({ repoRoot = DEFAULT_ROOT, ledger = null } 
   };
 }
 
+export function phase249PromotionDisposition(pullRequest) {
+  if (pullRequest?.head_ref !== 'gsd/phase-249-09-candidate' || pullRequest?.base_ref !== 'main'
+    || pullRequest?.title !== 'feat(249): prove the Sigra 1.6.0 release'
+    || !Number.isInteger(pullRequest?.number) || !pullRequest?.url?.startsWith(`https://github.com/${REPOSITORY}/pull/`)) return null;
+  return {
+    category: 'release-relevant',
+    reason: 'Phase 249 scoped promotion candidate; keep it open until exact-head CI, immutable receipt identity, and protected squash-merge evidence are recorded.',
+    sources: [pullRequest.url],
+    candidate_eligibility: 'pending-exact-head-ci',
+  };
+}
+
 export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = true, previousLedgerInput = null } = {}) {
   repoRoot = fs.realpathSync(repoRoot);
   const live = collectLiveInventory({ repoRoot });
@@ -1008,7 +1037,7 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
       files_read: { status: files.status, endpoint: files.endpoint },
       changed_files: files.files,
       is_release_please_candidate: releasePlease,
-      disposition: sameChangedFiles ? previous.disposition ?? null : null,
+      disposition: phase249PromotionDisposition(pullRequest) ?? (sameChangedFiles ? previous.disposition ?? null : null),
     };
   });
   const worktrees = live.worktrees.map(worktree => ({
@@ -1547,7 +1576,8 @@ function readCandidateEvidence(repoRoot) {
   if (candidate.status !== 'ready-for-plan-11' || details.clean !== true
     || candidate.internal_review?.status !== 'passed') add('candidate_not_reviewed');
   if (!SHA.test(details.head_sha ?? '') || !SHA.test(details.base_sha ?? '') || !Array.isArray(details.changed_paths)
-    || details.changed_path_count !== details.changed_paths.length || details.changed_paths.length !== 14
+    || details.changed_path_count !== PROMOTION_CANDIDATE_PATHS.length
+    || !equalList([...details.changed_paths].sort(), [...PROMOTION_CANDIDATE_PATHS].sort())
     || new Set(details.changed_paths).size !== details.changed_paths.length) add('candidate_identity_invalid');
   const candidateRoot = details.worktree;
   if (typeof candidateRoot !== 'string' || !fs.existsSync(candidateRoot)) add('candidate_worktree_missing');

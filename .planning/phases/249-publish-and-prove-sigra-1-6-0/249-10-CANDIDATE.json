@@ -2,16 +2,16 @@
   "schema_version": 1,
   "phase": 249,
   "plan": "10",
-  "recorded_at": "2026-10-09T20:55:18Z",
+  "recorded_at": "2026-10-09T21:19:32Z",
   "status": "ready-for-plan-11",
   "candidate": {
     "worktree": "/private/tmp/sigra-phase-249-09-candidate",
     "branch": "gsd/phase-249-09-candidate",
     "base_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
     "plan_09_head_sha": "72fc10449577f63974d068c5aba8c4b3ce99052e",
-    "head_sha": "10246c8dbcc2acd3c49432844e84a34ae0bd01c1",
+    "head_sha": "4e631d895caa1e02108e05ed9d68069990ca305f",
     "clean": true,
-    "changed_path_count": 14,
+    "changed_path_count": 15,
     "changed_paths": [
       ".github/ci-skip-manifest.tsv",
       ".github/workflows/ci.yml",
@@ -26,10 +26,11 @@
       "scripts/ci/refresh-release-docs.test.sh",
       "scripts/ci/release-public-proof.sh",
       "scripts/ci/release-public-proof.test.sh",
+      "test/sigra/planning/phase_232_playwright_economics_test.exs",
       "test/sigra/planning/phase_249_release_docs_contract_test.exs"
     ],
-    "pushed": false,
-    "pull_request_opened": false
+    "pushed": true,
+    "pull_request_opened": true
   },
   "release_receipt": {
     "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
@@ -40,8 +41,9 @@
   },
   "internal_review": {
     "status": "passed",
-    "finding_fixed": "The privileged writer now rejects a candidate doc directory or doc/llms.txt destination that is a symlink before copying the unprivileged docs artifact.",
-    "regression_coverage": "Both file and parent-directory symlink cases preserve an external sentinel and make no push."
+    "reviewed_head_sha": "4e631d895caa1e02108e05ed9d68069990ca305f",
+    "finding_fixed": "GitHub Actions CI exhausted Docker Hub anonymous pulls while many jobs started postgres:15 concurrently. CI and Release Please now use the Docker Official Images mirror at public.ecr.aws/docker/library/postgres:15.",
+    "regression_coverage": "Updated the Phase 232 workflow contract to assert the exact mirrored image; the Phase 232 and Phase 248/249 workflow contracts pass locally, and actionlint passes for both changed workflows."
   },
   "verification": [
     {
@@ -107,5 +109,36 @@
   "before_plan_11": [
     "Resolve live protected main and confirm the fourteen-path candidate base remains current.",
     "Refresh the complete PR/worktree inventory and revalidate preservation before push/open."
-  ]
+  ],
+  "plan11_revision": {
+    "reason": "The first exact-head CI run failed on Docker Hub 429 unauthenticated pull limits; one retry reproduced the failure on the unchanged head.",
+    "failed_run_id": "37991965472",
+    "failed_run_attempt": 2,
+    "prior_plan10_candidate": {
+      "head_sha": "10246c8dbcc2acd3c49432844e84a34ae0bd01c1",
+      "changed_path_count": 14,
+      "changed_paths": [
+        ".github/ci-skip-manifest.tsv",
+        ".github/workflows/ci.yml",
+        ".github/workflows/release-please.yml",
+        ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+        "doc/llms.txt",
+        "scripts/ci/check-docs-index.sh",
+        "scripts/ci/check-docs-index.test.sh",
+        "scripts/ci/honest-skip-verdict.sh",
+        "scripts/ci/honest-skip-verdict.test.sh",
+        "scripts/ci/refresh-release-docs.sh",
+        "scripts/ci/refresh-release-docs.test.sh",
+        "scripts/ci/release-public-proof.sh",
+        "scripts/ci/release-public-proof.test.sh",
+        "test/sigra/planning/phase_249_release_docs_contract_test.exs"
+      ],
+      "artifact_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json",
+      "artifact_sha256": "2da48e803e5bda7c46ebef76f685c3689a71d260f808377db6e13b52ef37afc1",
+      "preservation_ref": "refs/phase-249-candidate/plan-10-reviewed",
+      "preservation_commit_sha": "db5efef66ab7add527b3ce48d18d5d1321b8fc56"
+    },
+    "revised_head_sha": "4e631d895caa1e02108e05ed9d68069990ca305f",
+    "scope_adjustment": "Added one directly related Phase 232 workflow-contract test path so CI asserts the public mirror rather than Docker Hub. All original fourteen candidate paths remain unchanged."
+  }
 }
