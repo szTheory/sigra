@@ -22,6 +22,15 @@ packaged into the Hex tarball, so the mistake is permanent for that release.
 ## [1.6.0](https://github.com/szTheory/sigra/compare/v1.5.0...v1.6.0) (2026-10-09)
 
 
+### Adopter notes
+
+- Generated Phoenix hosts let users confirm accounts by email link or displayed code without changing the current session.
+- Generated confirmation screens retry safely with missing or malformed links and clear stale error feedback.
+- Branding profiles support dark logos and dark accents tuned to accessible contrast.
+- Chimeway decodes magic-link tokens before recipient lookup and keeps authentication recipient references opaque.
+- Existing generated host files remain host-owned; apps can selectively adopt confirmation updates.
+
+
 ### Features
 
 * **242-02:** rebase Hex remediation infrastructure candidate ([154dd67](https://github.com/szTheory/sigra/commit/154dd679d0bd0fc18b5d2142c8633c3aa9822ec5))

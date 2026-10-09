@@ -44,18 +44,14 @@ JSON
 
 ## [1.6.0] (2026-10-08)
 
-### Added
+### Adopter notes
 
-- Generated email-confirmation screens accept pasted six-digit codes.
-- Generated Phoenix hosts support confirmation by email link or displayed code without changing an existing session.
-- Generated confirmation retries handle missing or malformed links safely and clear stale error feedback.
-- Branding profiles support a separate dark-theme logo. When no dark accent is configured, Sigra preserves an accent that already meets contrast and adjusts only its lightness when needed; the admin customizer shows how the dark accent was resolved.
-- OAuth callbacks can opt into returning validated provider identity evidence, including issuer, subject, and authentication time when available.
-- Chimeway auth-message integrations support opaque recipient references and resolve magic-link tokens before recipient lookup.
+- Generated Phoenix hosts let users confirm accounts by email link or displayed code without changing the current session.
+- Generated confirmation screens retry safely with missing or malformed links and clear stale error feedback.
+- Branding profiles support dark logos and dark accents tuned to accessible contrast.
+- Chimeway decodes magic-link tokens before recipient lookup and keeps authentication recipient references opaque.
+- Existing generated host files remain host-owned; apps can selectively adopt confirmation updates.
 
-### Upgrade notes
-
-Existing generated files remain host-owned; updating the dependency does not overwrite customized confirmation screens. Existing apps can selectively adopt the generated confirmation LiveView changes from the upgrade guide. The confirmation recovery changes require no database migration.
 MD
   cat > "$TMP/claims.json" <<JSON
 {
@@ -172,6 +168,16 @@ else
   fail "valid candidate content rejected (rc=$RC): $OUT"
 fi
 
+echo "Test H2: repository CHANGELOG release section satisfies Phase 247 source claims -> PASS"
+write_valid_fixtures
+cp "$ROOT/CHANGELOG.md" "$TMP/changelog.md"
+run_content_preflight
+if [[ "$RC" -eq 0 ]] && jq -e '.verdict == "PASS" and .source_blobs_verified == true' >/dev/null 2>&1 <<<"$OUT"; then
+  pass "repository changelog source-backed summaries satisfy the actual candidate-content gate"
+else
+  fail "repository changelog does not satisfy the candidate-content gate (rc=$RC): $OUT"
+fi
+
 echo "Test I: candidate note stranded under Unreleased -> rejected"
 write_valid_fixtures
 awk '1; /^## Unreleased$/ { print ""; print "- Generated confirmation updates remain unreleased." }' \
@@ -181,7 +187,7 @@ if [[ "$RC" -ne 0 ]]; then pass "candidate-specific Unreleased note is rejected"
 
 echo "Test J: duplicate normalized version note -> rejected"
 write_valid_fixtures
-awk '1; /^### Added$/ { print ""; print "- CHIMEWAY auth-message integrations support opaque recipient references and resolve magic-link tokens before recipient lookup!" }' \
+awk '1; /^### Adopter notes$/ { print ""; print "- CHIMEWAY decodes MAGIC-LINK tokens before recipient lookup and keeps authentication recipient references opaque!" }' \
   "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 run_content_preflight
 if [[ "$RC" -ne 0 ]]; then pass "duplicate note after punctuation/case normalization is rejected"; else fail "duplicate versioned note accepted"; fi
@@ -199,19 +205,19 @@ if [[ "$RC" -ne 0 ]]; then pass "duplicate titled version section is rejected"; 
 
 echo "Test L: each source-backed adopter summary absent from version section -> rejected"
 write_valid_fixtures
-awk '!/Generated Phoenix hosts support confirmation/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Generated Phoenix hosts let users confirm accounts/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing generated-confirmation source summary is rejected"
 write_valid_fixtures
-awk '!/Generated confirmation retries handle/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Generated confirmation screens retry safely/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing generated-confirmation recovery summary is rejected"
 write_valid_fixtures
-awk '!/Branding profiles support a separate dark-theme logo/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Branding profiles support dark logos/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing branding source summary is rejected"
 write_valid_fixtures
-awk '!/Chimeway auth-message/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Chimeway decodes magic-link tokens/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing Chimeway source summary is rejected"
 write_valid_fixtures
-awk '!/Existing generated files remain host-owned/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Existing generated host files remain host-owned/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing generated-host upgrade summary is rejected"
 
 echo "Test M: invalid Phase 247 provenance or changed approved source blob -> rejected"
