@@ -647,6 +647,18 @@ function sameJson(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
+function validPromotionReview(review, headSha, authorLogin, internalReviewSha256 = null) {
+  const hostedReviewValid = review?.type === 'github' && review.result === 'approved'
+    && review.commit_sha === headSha && review.reviewer_login
+    && review.reviewer_login !== authorLogin
+    && review.submitted_at && !Number.isNaN(Date.parse(review.submitted_at));
+  const internalReviewValid = review?.type === 'internal' && review.result === 'passed'
+    && review.commit_sha === headSha && review.reviewer_login === 'codex-internal-review'
+    && review.source_path === CANDIDATE_PATH && DIGEST.test(review.source_sha256 ?? '')
+    && review.source_sha256 === internalReviewSha256;
+  return hostedReviewValid || internalReviewValid;
+}
+
 export function validatePromotion(promotion, constraints = {}) {
   const errors = [];
   const add = (code, message) => errors.push({ code, message });
@@ -719,15 +731,7 @@ export function validatePromotion(promotion, constraints = {}) {
     }
   }
   const review = promotion?.review;
-  const hostedReviewValid = review?.type === 'github' && review.result === 'approved'
-    && review.commit_sha === promotion.head_sha && review.reviewer_login
-    && review.reviewer_login !== promotion?.pr?.author_login
-    && review.submitted_at && !Number.isNaN(Date.parse(review.submitted_at));
-  const internalReviewValid = review?.type === 'internal' && review.result === 'passed'
-    && review.commit_sha === promotion.head_sha && review.reviewer_login === 'codex-internal-review'
-    && review.source_path === CANDIDATE_PATH && DIGEST.test(review.source_sha256 ?? '')
-    && review.source_sha256 === constraints.internal_review_sha256;
-  if (!hostedReviewValid && !internalReviewValid) {
+  if (!validPromotionReview(review, promotion?.head_sha, promotion?.pr?.author_login, constraints.internal_review_sha256)) {
     add('promotion_review_missing', 'The exact candidate head needs an approved review.');
   }
   const requiredCi = promotion?.required_ci;
@@ -1233,7 +1237,9 @@ function collectLivePromotion(repoRoot, candidate, receipt) {
     if (!reviews.ok) addBlocker(reviews.rate_limited ? 'github_rate_limited' : 'reviews_read_failed', 'The complete paginated PR review history could not be read.');
     const changedPaths = files.ok ? files.value.map(row => row.filename) : [];
     const review = promotionReview(reviews.ok ? reviews.value : [], pr.head?.sha, pr.user?.login, candidate, candidateSha256);
-    if (review.result !== 'approved') addBlocker('review_missing_for_exact_head', 'An independent approved review for the current exact candidate head is not present.');
+    if (!validPromotionReview(review, pr.head?.sha, pr.user?.login, candidateSha256)) {
+      addBlocker('review_missing_for_exact_head', 'No independent hosted or artifact-bound internal review matches the current exact candidate head.');
+    }
     const receiptResponse = githubJson(repoRoot, `repos/${REPOSITORY}/contents/${RECEIPT_PATH}?ref=${pr.head?.sha ?? expectedHeadSha}`);
     let liveReceipt = null;
     if (receiptResponse.ok) {
