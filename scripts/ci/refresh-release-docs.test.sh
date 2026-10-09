@@ -32,6 +32,7 @@ new_fixture() {
   export FAKE_GH_CALLS="$FIXTURE/gh/calls.log"
   export FAKE_GH_COUNTER="$FIXTURE/gh/pr-count"
   export FAKE_GIT_PUSH_LOG="$FIXTURE/gh/git-push.log"
+  export FAKE_BRANCH="release-please--branches--main"
   export PATH="$FIXTURE/bin:$ORIGINAL_PATH"
 
   cat > "$FIXTURE/bin/gh" <<'GH_MOCK'
@@ -84,6 +85,22 @@ for arg in "$@"; do
   previous="$arg"
 done
 printf '%s\n' "$*" >> "$FAKE_GIT_PUSH_LOG"
+if [[ "$is_push" == true && "${FAKE_PUSH_RACE:-false}" == true && -n "$repo" ]]; then
+  push_url="$("$REAL_GIT_BIN" -C "$repo" remote get-url --push origin)"
+  racer="$(dirname "$repo")/concurrent-writer"
+  "$REAL_GIT_BIN" clone -q --branch "$FAKE_BRANCH" "$push_url" "$racer"
+  "$REAL_GIT_BIN" -C "$racer" config user.name "Concurrent Test"
+  "$REAL_GIT_BIN" -C "$racer" config user.email "concurrent@example.invalid"
+  printf 'advanced by a concurrent writer\n' > "$racer/concurrent.txt"
+  "$REAL_GIT_BIN" -C "$racer" add concurrent.txt
+  "$REAL_GIT_BIN" -C "$racer" commit -qm 'advance candidate during push'
+  "$REAL_GIT_BIN" -C "$racer" push -q origin "HEAD:refs/heads/$FAKE_BRANCH"
+  raced_sha="$("$REAL_GIT_BIN" -C "$racer" rev-parse HEAD)"
+  tmp="$FAKE_PR_FILE.tmp"
+  jq --arg sha "$raced_sha" '.[0].headRefOid = $sha' "$FAKE_PR_FILE" > "$tmp"
+  mv "$tmp" "$FAKE_PR_FILE"
+  export FAKE_PUSH_RACE=false
+fi
 set +e
 "$REAL_GIT_BIN" "$@"
 result=$?
@@ -96,7 +113,11 @@ if [[ "$is_push" == true && "$result" -eq 0 && -n "$repo" ]]; then
 fi
 exit "$result"
 GIT_MOCK
-  chmod +x "$FIXTURE/bin/gh" "$FIXTURE/bin/git"
+  cat > "$FIXTURE/bin/sleep" <<'SLEEP_MOCK'
+#!/usr/bin/env bash
+exit 0
+SLEEP_MOCK
+  chmod +x "$FIXTURE/bin/gh" "$FIXTURE/bin/git" "$FIXTURE/bin/sleep"
 
   export BARE_REPO="$FIXTURE/remote.git"
   export BUILD_REPO="$FIXTURE/build"
@@ -219,6 +240,265 @@ test_generated_index_is_only_pushed_file_and_fresh_ci_is_recorded() {
   cleanup_fixture
 }
 
+test_capture_rejects_candidate_advanced_between_reads() {
+  new_fixture capture-race
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt"
+  jq --arg sha 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' '.[0].headRefOid = $sha' "$FAKE_PR_FILE" \
+    > "$FAKE_GH_FIXTURES/pull-requests-2.json"
+  if bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "capture must reject a candidate that advances between its identity reads"
+    return 1
+  fi
+  [[ ! -e "$identity" ]] || { cleanup_fixture; fail "unstable candidate identity must not be emitted"; return 1; }
+  cleanup_fixture
+}
+
+test_package_rejects_candidate_checkout_or_extra_build_drift() {
+  new_fixture package-drift
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before package drift checks"
+    return 1
+  fi
+  printf 'generated index\n' > "$BUILD_REPO/doc/llms.txt"
+  printf 'unexpected build output\n' >> "$BUILD_REPO/README.md"
+  if bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "docs package must reject build changes outside doc/llms.txt"
+    return 1
+  fi
+  printf 'expected source sha changed\n' > "$BUILD_REPO/extra.txt"
+  "$REAL_GIT" -C "$BUILD_REPO" add extra.txt
+  "$REAL_GIT" -C "$BUILD_REPO" commit -qm 'advance candidate checkout'
+  if bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "docs package must reject a checkout whose HEAD differs from the selected SHA"
+    return 1
+  fi
+  cleanup_fixture
+}
+
+test_writer_rejects_candidate_change_immediately_before_push() {
+  new_fixture writer-pr-race
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before write-race check"
+    return 1
+  fi
+  printf 'fresh generated index\n' > "$BUILD_REPO/doc/llms.txt"
+  if ! bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null; then
+    cleanup_fixture
+    fail "candidate artifact should package before write-race check"
+    return 1
+  fi
+  jq --arg sha 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' '.[0].headRefOid = $sha' "$FAKE_PR_FILE" \
+    > "$FAKE_GH_FIXTURES/pull-requests-4.json"
+  if GH_TOKEN='test-token' bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
+      --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
+      --summary-file "$FIXTURE/summary.md" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "writer must reject a candidate whose head changes immediately before push"
+    return 1
+  fi
+  if grep -E '(^|[[:space:]])push([[:space:]]|$)' "$FAKE_GIT_PUSH_LOG" >/dev/null; then
+    cleanup_fixture
+    fail "changed candidate must not reach git push"
+    return 1
+  fi
+  cleanup_fixture
+}
+
+test_writer_rejects_symlinked_artifact_and_missing_credential() {
+  new_fixture writer-artifact
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before artifact checks"
+    return 1
+  fi
+  printf 'fresh generated index\n' > "$BUILD_REPO/doc/llms.txt"
+  if ! bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null; then
+    cleanup_fixture
+    fail "candidate artifact should package before artifact checks"
+    return 1
+  fi
+  printf 'outside artifact data\n' > "$FIXTURE/outside.txt"
+  rm "$artifact/doc/llms.txt"
+  ln -s "$FIXTURE/outside.txt" "$artifact/doc/llms.txt"
+  if GH_TOKEN='test-token' bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
+      --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
+      --summary-file "$FIXTURE/summary.md" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "writer must reject a symlinked generated artifact"
+    return 1
+  fi
+  rm "$artifact/doc/llms.txt"
+  cp "$FIXTURE/outside.txt" "$artifact/doc/llms.txt"
+  if env -u GH_TOKEN bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
+      --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
+      --summary-file "$FIXTURE/summary.md" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "writer must reject a missing event-capable credential"
+    return 1
+  fi
+  if grep -E '(^|[[:space:]])push([[:space:]]|$)' "$FAKE_GIT_PUSH_LOG" >/dev/null; then
+    cleanup_fixture
+    fail "invalid artifact or missing credential must not reach git push"
+    return 1
+  fi
+  cleanup_fixture
+}
+
+test_non_fast_forward_race_is_rejected_without_overwriting_candidate() {
+  new_fixture writer-non-ff
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before non-fast-forward fixture"
+    return 1
+  fi
+  printf 'fresh generated index\n' > "$BUILD_REPO/doc/llms.txt"
+  if ! bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null; then
+    cleanup_fixture
+    fail "candidate artifact should package before non-fast-forward fixture"
+    return 1
+  fi
+  export FAKE_PUSH_RACE=true
+  if GH_TOKEN='test-token' bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
+      --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
+      --summary-file "$FIXTURE/summary.md" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "non-fast-forward candidate push must fail closed"
+    return 1
+  fi
+  local remote_sha local_sha
+  remote_sha="$(jq -r '.[0].headRefOid' "$FAKE_PR_FILE")"
+  local_sha="$("$REAL_GIT" --git-dir="$BARE_REPO" rev-parse "refs/heads/$BRANCH")"
+  assert_eq "$remote_sha" "$local_sha" "remote candidate retains the concurrent head" || { cleanup_fixture; return 1; }
+  [[ "$remote_sha" != "$CANDIDATE_SHA" ]] || { cleanup_fixture; fail "concurrent fixture must advance the remote candidate"; return 1; }
+  if grep -E -- '(^|[[:space:]])(--force|-f)([[:space:]]|$)' "$FAKE_GIT_PUSH_LOG" >/dev/null; then
+    cleanup_fixture
+    fail "writer must not force over a concurrent candidate head"
+    return 1
+  fi
+  cleanup_fixture
+}
+
+test_absent_fresh_ci_never_reports_refresh_ready() {
+  new_fixture writer-no-ci
+  export FAKE_CI_MODE=absent
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before missing-CI fixture"
+    return 1
+  fi
+  printf 'fresh generated index\n' > "$BUILD_REPO/doc/llms.txt"
+  if ! bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null; then
+    cleanup_fixture
+    fail "candidate artifact should package before missing-CI fixture"
+    return 1
+  fi
+  if GH_TOKEN='test-token' bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
+      --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
+      --summary-file "$FIXTURE/summary.md" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "writer must fail when no ordinary CI run exists for the refreshed SHA"
+    return 1
+  fi
+  if grep -F 'status=refreshed' "$output" >/dev/null || grep -F 'fresh_ci_run_id=' "$output" >/dev/null; then
+    cleanup_fixture
+    fail "missing fresh CI must not be reported as ready"
+    return 1
+  fi
+  cleanup_fixture
+}
+
+test_package_rejects_oversized_generated_index() {
+  new_fixture package-oversize
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before artifact size check"
+    return 1
+  fi
+  dd if=/dev/zero of="$BUILD_REPO/doc/llms.txt" bs=1000000 count=6 2>/dev/null
+  if bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "docs package must reject an unexpectedly large generated index"
+    return 1
+  fi
+  cleanup_fixture
+}
+
+test_package_rejects_empty_generated_index() {
+  new_fixture package-empty
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before empty-index check"
+    return 1
+  fi
+  : > "$BUILD_REPO/doc/llms.txt"
+  if bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "docs package must reject an empty generated index"
+    return 1
+  fi
+  cleanup_fixture
+}
+
+test_writer_rejects_unexpected_artifact_member() {
+  new_fixture writer-extra-artifact
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before unexpected-artifact check"
+    return 1
+  fi
+  printf 'fresh generated index\n' > "$BUILD_REPO/doc/llms.txt"
+  if ! bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null; then
+    cleanup_fixture
+    fail "candidate artifact should package before unexpected-artifact check"
+    return 1
+  fi
+  printf 'unexpected executable-like payload\n' > "$artifact/unexpected.txt"
+  if GH_TOKEN='test-token' bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
+      --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
+      --summary-file "$FIXTURE/summary.md" >/dev/null 2>&1; then
+    cleanup_fixture
+    fail "writer must reject unexpected artifact members"
+    return 1
+  fi
+  if grep -E '(^|[[:space:]])push([[:space:]]|$)' "$FAKE_GIT_PUSH_LOG" >/dev/null; then
+    cleanup_fixture
+    fail "unexpected artifact members must not reach git push"
+    return 1
+  fi
+  cleanup_fixture
+}
+
 printf 'TAP version 13\n'
 if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "capture" ]]; then
   run_test 'captures one eligible fixed Release Please candidate at a stable full SHA' test_capture_one_eligible_candidate
@@ -228,6 +508,33 @@ if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "no-candidate" ]]; then
 fi
 if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "writer" ]]; then
   run_test 'writes only doc/llms.txt and records ordinary CI for the new head' test_generated_index_is_only_pushed_file_and_fresh_ci_is_recorded
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "candidate-race" ]]; then
+  run_test 'rejects a candidate SHA that changes between selection reads' test_capture_rejects_candidate_advanced_between_reads
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "package-drift" ]]; then
+  run_test 'rejects source checkout drift and unrelated docs-build changes' test_package_rejects_candidate_checkout_or_extra_build_drift
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "pre-push-race" ]]; then
+  run_test 'rejects a candidate identity change immediately before push' test_writer_rejects_candidate_change_immediately_before_push
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "artifact-token" ]]; then
+  run_test 'rejects symlinked artifacts and missing release credentials' test_writer_rejects_symlinked_artifact_and_missing_credential
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "non-ff" ]]; then
+  run_test 'rejects non-fast-forward races without overwriting the candidate' test_non_fast_forward_race_is_rejected_without_overwriting_candidate
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "missing-ci" ]]; then
+  run_test 'does not report readiness when ordinary CI is absent for the new SHA' test_absent_fresh_ci_never_reports_refresh_ready
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "oversize" ]]; then
+  run_test 'rejects oversized generated docs before uploading an artifact' test_package_rejects_oversized_generated_index
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "empty-index" ]]; then
+  run_test 'rejects an empty generated index before artifact upload' test_package_rejects_empty_generated_index
+fi
+if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "artifact-extra" ]]; then
+  run_test 'rejects unexpected artifact members before any candidate write' test_writer_rejects_unexpected_artifact_member
 fi
 printf '1..%s\n' "$TOTAL"
 printf '# tests %s\n# pass %s\n# fail %s\n' "$TOTAL" "$((TOTAL - FAILED))" "$FAILED"
