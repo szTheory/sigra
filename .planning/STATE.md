@@ -5,9 +5,9 @@ milestone_name: RELEASE-1.6.0
 current_phase: 248
 current_phase_name: Exact-Source Release Gate
 current_plan: 5
-status: Phase 248 Plans 01-05 are implemented and locally verified. Phase verification is gaps_found (13/18): protected environment credentials are missing and secret scope is not proven; hosted dry-run and retained failure/cancellation receipts remain unverified. Do not start dependent Phase 249 until Phase 248 gaps are closed. Your regular Chrome profile (coderjon.com) is signed in. The `release-automation` Add secret form is staged with name `RELEASE_PLEASE_TOKEN`; the `hex-publish` form is staged with name `HEX_API_KEY`. Both values are blank. Enter each existing value from the secure source of truth and save; then verify names only. Do not paste values into chat.
+status: Phase 248 Plans 01-05 are implemented and locally verified; phase verification is gaps_found (13/18). There is no evidence the current GitHub secrets expired: required names are missing from the protected environments, while same-named repository secrets exist; their values/expiry are not visible, and the user cannot find them in 1Password. Regular Chrome is at GitHub and Hex identity re-checks. GitHub fine-grained token setup is prefilled for only szTheory/sigra, no expiration (subject to org policy), and workflow-required permissions. Hex publishing route is pending user choice between a long-lived API key and OIDC trusted publishing. Do not start dependent Phase 249 until Phase 248 gaps are closed.
 stopped_at: Phase 248 verification gaps_found (13/18)
-last_updated: "2026-10-09T00:03:54Z"
+last_updated: "2026-10-09T00:11:01Z"
 last_activity: 2026-10-09
 state_head: a197316e2aead41e5f6060ab0d120f36b41a0fde
 progress:
@@ -16,7 +16,7 @@ progress:
   total_plans: 19
   completed_plans: 18
   percent: 50
-last_activity_desc: Phase 248 recovery staged in signed-in regular Chrome; user must save both protected environment secrets before hosted evidence work
+last_activity_desc: Phase 248 secret recovery paused at GitHub and Hex identity re-checks; GitHub token is staged; Hex auth route pending user choice
 ---
 
 # Project State
@@ -35,7 +35,7 @@ Phase: 248 (Exact-Source Release Gate) — EXECUTING
 Current Plan: 5
 Total Plans in Phase: 5
 Plan: 5 of 5
-Status: Plans 01-05 implemented; verifier reports gaps_found (13/18). Environment secret scope and hosted receipt behavior are still unverified. Phase 249 depends on Phase 248, so close these gaps first. Your regular Chrome profile (coderjon.com) is signed in. The `release-automation` Add secret form is staged with name `RELEASE_PLEASE_TOKEN`; the `hex-publish` form is staged with name `HEX_API_KEY`. Both values are blank. Enter each existing value from the secure source of truth and save; then verify names only. Do not paste values into chat.
+Status: Phase 248 Plans 01-05 are implemented and locally verified; phase verification is gaps_found (13/18). There is no evidence the current GitHub secrets expired: required names are missing from the protected environments, while same-named repository secrets exist; their values/expiry are not visible, and the user cannot find them in 1Password. Regular Chrome is at GitHub and Hex identity re-checks. GitHub fine-grained token setup is prefilled for only szTheory/sigra, no expiration (subject to org policy), and workflow-required permissions. Hex publishing route is pending user choice between a long-lived API key and OIDC trusted publishing. Do not start dependent Phase 249 until Phase 248 gaps are closed.
 Last activity: 2026-10-08
 
 Progress: [█████░░░░░] 50%

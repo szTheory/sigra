@@ -27,7 +27,7 @@
   "next": {
     "command": "/gsd:plan-phase 248",
     "label": "Plan Phase 248 verification-gap closure",
-    "reason": "All five implementation plans are complete, but phase verification is gaps_found (13/18). Both protected environment secret forms are staged in signed-in regular Chrome; the user must enter and save the values before verifying scope and collecting hosted receipt evidence for dependent Phase 249."
+    "reason": "Phase verification is gaps_found (13/18). Current evidence indicates missing protected-environment scope, not credential expiration; old values cannot be retrieved. GitHub fine-grained token setup is staged pending identity re-check; Hex API key versus OIDC route awaits user choice. Close Phase 248 gaps before dependent Phase 249."
   },
-  "updated_at": "2026-10-09T00:03:54Z"
+  "updated_at": "2026-10-09T00:11:01Z"
 }
