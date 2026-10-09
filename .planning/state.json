@@ -27,7 +27,7 @@
   "next": {
     "command": "/gsd:plan-phase 248",
     "label": "Plan Phase 248 verification-gap closure",
-    "reason": "All five implementation plans are complete, but phase verification is gaps_found (13/18). Resolve environment credential scope and hosted receipt evidence before dependent Phase 249."
+    "reason": "All five implementation plans are complete, but phase verification is gaps_found (13/18). Both protected environment secret forms are staged in signed-in regular Chrome; the user must enter and save the values before verifying scope and collecting hosted receipt evidence for dependent Phase 249."
   },
-  "updated_at": "2026-10-08T23:56:15Z"
+  "updated_at": "2026-10-09T00:03:54Z"
 }
