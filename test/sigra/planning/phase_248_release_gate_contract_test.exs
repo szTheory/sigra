@@ -190,6 +190,10 @@ defmodule Sigra.Planning.Phase248ReleaseGateContractTest do
     assert poller =~ "MAX_ATTEMPTS=120"
     assert poller =~ "WAIT_SECONDS=30"
     assert merge =~ "--match-head-commit"
+    assert merge =~ "248-AUTOMERGE-CLAIMS.json"
+    assert merge =~ "contents/${path}?ref=${head_sha}"
+    assert merge =~ "--claims \"$work_dir/claims.json\""
+    assert merge =~ "--source-blobs \"$source_blobs\""
     assert ci =~ "release-please--branches--main"
     ci = String.replace(ci, ~r/^\s*#.*$/m, "")
     refute ci =~ ~r/(RELEASE_PLEASE_TOKEN|HEX_(?:DRY_RUN_)?API_KEY)/

@@ -8,7 +8,11 @@ QUERIED_RUN=""
 PULL_REQUESTS=""
 GATE_JOBS=""
 CHANGELOG=""
-LEDGER=""
+CLAIMS=""
+SOURCE_BLOBS=""
+SOURCE_BLOBS_VERIFIED=false
+SOURCE_LEDGER_SHA=""
+APPROVED_CANDIDATE_SHA=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -18,9 +22,10 @@ while [[ $# -gt 0 ]]; do
     --pull-requests) PULL_REQUESTS="$2"; shift 2;;
     --gate-jobs) GATE_JOBS="$2"; shift 2;;
     --changelog) CHANGELOG="$2"; shift 2;;
-    --ledger) LEDGER="$2"; shift 2;;
+    --claims) CLAIMS="$2"; shift 2;;
+    --source-blobs) SOURCE_BLOBS="$2"; shift 2;;
     -h|--help)
-      echo "usage: release-candidate-preflight.sh --repository owner/name --event-run FILE --queried-run FILE --pull-requests FILE --gate-jobs FILE [--changelog FILE --ledger FILE]"
+      echo "usage: release-candidate-preflight.sh --repository owner/name --event-run FILE --queried-run FILE --pull-requests FILE --gate-jobs FILE [--changelog FILE --claims FILE --source-blobs FILE]"
       exit 0
       ;;
     *) echo "release-candidate-preflight: FAIL: unknown argument: $1" >&2; exit 2;;
@@ -33,9 +38,10 @@ fail() { echo "release-candidate-preflight: FAIL: $*" >&2; exit 1; }
 for input in "$EVENT_RUN" "$QUERIED_RUN" "$PULL_REQUESTS" "$GATE_JOBS"; do
   [[ -n "$input" && -f "$input" ]] || fail "required JSON input file is missing"
 done
-if [[ -n "$CHANGELOG" || -n "$LEDGER" ]]; then
+if [[ -n "$CHANGELOG" || -n "$CLAIMS" || -n "$SOURCE_BLOBS" ]]; then
   [[ -n "$CHANGELOG" && -f "$CHANGELOG" ]] || fail "candidate changelog input is missing"
-  [[ -n "$LEDGER" && -f "$LEDGER" ]] || fail "candidate ledger input is missing"
+  [[ -n "$CLAIMS" && -f "$CLAIMS" ]] || fail "Phase 247 source-claim manifest is missing"
+  [[ -n "$SOURCE_BLOBS" && -f "$SOURCE_BLOBS" ]] || fail "current candidate source-blob map is missing"
 fi
 
 jq -e --arg repository "$REPOSITORY" '
@@ -110,32 +116,37 @@ if [[ -n "$CHANGELOG" ]]; then
   [[ -z "$VERSION_NOTES" ]] || fail "duplicate normalized changelog note: ${VERSION_NOTES}"
 
   jq -e '
-    . as $ledger
-    | ($ledger.source_selection.status == "ready"
-      and ($ledger.source_selection.selected_source_sha | type == "string" and test("^[0-9a-f]{40}$"))
-      and $ledger.final_validation.valid == true and $ledger.final_validation.status == "ready"
-      and ($ledger.final_readiness.source_sha | type == "string" and test("^[0-9a-f]{40}$"))
-      and $ledger.final_validation.checked.pr_head_sha == $ledger.final_readiness.source_sha
-      and $ledger.final_readiness.docs.candidate_summary_under_versioned_heading == true
-      and ($ledger.final_readiness.docs.candidate_summary_only_unreleased // false) == false
-      and ($ledger.final_readiness.claim_sources | type == "array" and length > 0)
-      and all($ledger.final_readiness.claim_sources[];
+    . as $manifest
+    | ($manifest.schema_version == 1
+      and $manifest.source_ledger.path == ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json"
+      and ($manifest.source_ledger.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+      and ($manifest.source_ledger.validated_candidate_sha | type == "string" and test("^[0-9a-f]{40}$"))
+      and ($manifest.source_ledger.selected_source_sha | type == "string" and test("^[0-9a-f]{40}$"))
+      and ($manifest.source_ledger.source_ci_run_id | type == "number" and . > 0)
+      and ($manifest.source_ledger.hex_dry_run_run_id | type == "number" and . > 0)
+      and ($manifest.approved_source_blobs | type == "object" and length > 0)
+      and all($manifest.approved_source_blobs | to_entries[];
+        (.key | type == "string" and length > 0)
+        and (.value | type == "string" and test("^[0-9a-f]{40}$")))
+      and ($manifest.claim_sources | type == "array" and length > 0)
+      and all($manifest.claim_sources[];
         (.claim | type == "string" and length > 0)
         and (.source | type == "string" and length > 0)
         and (.evidence | type == "string" and length > 0)
         and (.source_paths | type == "array" and length > 0)
-        and .source_paths_present == true
-        and .source_sha == $ledger.final_readiness.source_sha
-        and (.ci_run_id | type == "number")
-      ))
-  ' "$LEDGER" >/dev/null 2>&1 || fail "candidate readiness ledger is blocked, stale internally, or missing source-backed adopter claim evidence"
+        and all(.source_paths[]; . as $path | ($manifest.approved_source_blobs[$path] | type == "string")))
+      )
+  ' "$CLAIMS" >/dev/null 2>&1 || fail "Phase 247 source-claim manifest is malformed or lacks approved evidence"
 
-  jq -e --arg head_sha "$PR_HEAD_SHA" --argjson run_id "$(jq -r '.databaseId' "$QUERIED_RUN")" '
-    (.source_selection.selected_source_sha | type == "string" and test("^[0-9a-f]{40}$"))
-    and .final_readiness.source_sha == $head_sha
-    and .final_validation.checked.pr_head_sha == $head_sha
-    and all(.final_readiness.claim_sources[]; .source_sha == $head_sha and .ci_run_id == $run_id)
-  ' "$LEDGER" >/dev/null 2>&1 || fail "candidate ledger source or CI evidence does not bind to the exact PR head and successful run"
+  jq -e --slurpfile claims "$CLAIMS" '
+    . as $current
+    | type == "object"
+      and (keys | sort) == ($claims[0].approved_source_blobs | keys | sort)
+      and all($claims[0].approved_source_blobs | to_entries[]; $current[.key] == .value)
+  ' "$SOURCE_BLOBS" >/dev/null 2>&1 || fail "candidate source files differ from the Phase 247-approved blobs"
+  SOURCE_BLOBS_VERIFIED=true
+  SOURCE_LEDGER_SHA="$(jq -r '.source_ledger.sha256' "$CLAIMS")"
+  APPROVED_CANDIDATE_SHA="$(jq -r '.source_ledger.validated_candidate_sha' "$CLAIMS")"
 
   normalize_tokens() {
     tr '[:upper:]' '[:lower:]' <<<"$1" | tr -cs '[:alnum:]' '\n' | awk '
@@ -176,11 +187,14 @@ if [[ -n "$CHANGELOG" ]]; then
     done
     (( BEST_MATCH >= 3 && BEST_MATCH * 100 >= TOTAL_TOKENS * 40 )) \
       || fail "source-backed adopter summary is absent from the ${VERSION} section: ${CLAIM}"
-  done < <(jq -c '.final_readiness.claim_sources[]' "$LEDGER")
+  done < <(jq -c '.claim_sources[]' "$CLAIMS")
 fi
 
 jq -cn --arg repository "$REPOSITORY" --argjson pr_number "$PR_NUMBER" \
   --arg head_sha "$PR_HEAD_SHA" --arg title "$PR_TITLE" --arg pr_url "$PR_URL" \
   --arg version "$VERSION" --arg run_id "$(jq -r '.databaseId' "$QUERIED_RUN")" \
   --arg run_url "$(jq -r '.url' "$QUERIED_RUN")" \
-  '{verdict:"PASS", repository:$repository, pr_number:$pr_number, head_sha:$head_sha, title:$title, version:$version, pr_url:$pr_url, run_id:($run_id|tonumber), run_url:$run_url}'
+  --arg source_ledger_sha "$SOURCE_LEDGER_SHA" \
+  --arg approved_candidate_sha "$APPROVED_CANDIDATE_SHA" \
+  --argjson source_blobs_verified "$SOURCE_BLOBS_VERIFIED" \
+  '{verdict:"PASS", repository:$repository, pr_number:$pr_number, head_sha:$head_sha, title:$title, version:$version, pr_url:$pr_url, run_id:($run_id|tonumber), run_url:$run_url, source_ledger_sha:(if $source_ledger_sha == "" then null else $source_ledger_sha end), approved_candidate_sha:(if $approved_candidate_sha == "" then null else $approved_candidate_sha end), source_blobs_verified:$source_blobs_verified}'
