@@ -46,6 +46,7 @@ function fixture() {
     schema_version: 1,
     repository: 'szTheory/sigra',
     observed_at: '2026-10-09T12:00:00.000Z',
+    inventory_status: 'complete',
     source_status: {
       worktrees: { status: 'complete', pagination_complete: true },
       pull_requests: { status: 'complete', pagination_complete: true },
@@ -100,6 +101,12 @@ test('a failed or partial PR query cannot be accepted as an empty queue', () => 
   assert.equal(invoke('validateInventory', ledger, live).valid, false);
 });
 
+test('a captured partial inventory remains blocked even if live reads now succeed', () => {
+  const { ledger, live } = fixture();
+  ledger.inventory_status = 'blocked';
+  assert.equal(invoke('validateInventory', ledger, live).valid, false);
+});
+
 test('a dirty path omitted from the ledger fails even if its worktree HEAD is unchanged', () => {
   const { ledger, live } = fixture();
   live.worktrees[0].dirty_paths.push({ path: 'notes/b.md', status: '??', sha256: digest('d') });
@@ -129,6 +136,16 @@ test('only the declared self-evidencing output paths are excluded from inherited
   const result = invoke('validateInventory', ledger, live);
   assert.equal(result.valid, true, JSON.stringify(result.errors));
   live.worktrees[0].dirty_paths.push({ path: 'notes/omitted.md', status: '??', sha256: digest('a') });
+  assert.equal(invoke('validateInventory', ledger, live).valid, false);
+});
+
+test('a later HEAD is allowed only when its complete commit diff stays within self-output paths', () => {
+  const { ledger, live } = fixture();
+  ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, paths: ['.planning/249-CLOSEOUT.json'] };
+  live.worktrees[0].head_sha = sha('e');
+  live.evidence_transitions = { '/repo': { valid: true, changed_paths: ['.planning/249-CLOSEOUT.json'] } };
+  assert.equal(invoke('validateInventory', ledger, live).valid, true);
+  live.evidence_transitions['/repo'].changed_paths = ['scripts/unrelated.sh'];
   assert.equal(invoke('validateInventory', ledger, live).valid, false);
 });
 
