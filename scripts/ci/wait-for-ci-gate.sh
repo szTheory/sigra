@@ -35,8 +35,6 @@
 # scripts/ci/wait-for-ci-gate.test.sh.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-
 SHA="${RELEASE_SHA:-}"
 REPO="${REPOSITORY:-szTheory/sigra}"
 TAG="${TAG_NAME:-}"
@@ -47,6 +45,11 @@ DISPATCH_AFTER=3
 NO_DISPATCH=false
 FROM_JSON=""
 FORMAT="table"
+RUN_URL=""
+LAST_RUN_ID=""
+LAST_HEAD_SHA=""
+EVER_SEEN_RUN=false
+ATTEMPT=1
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -72,7 +75,19 @@ while [[ $# -gt 0 ]]; do
 done
 
 fail() {
-  echo "wait-for-ci-gate: FAIL: $*" >&2
+  local message="$*"
+  if [[ "$FORMAT" == "json" ]] && command -v jq >/dev/null 2>&1; then
+    local attempts="${ATTEMPT:-0}"
+    [[ "$attempts" =~ ^[0-9]+$ ]] || attempts=0
+    jq -cn --arg sha "$SHA" --arg run_id "$LAST_RUN_ID" --arg run_url "$RUN_URL" \
+      --arg head_sha "$LAST_HEAD_SHA" --argjson attempts "$attempts" \
+      '{sha:(if $sha == "" then null else $sha end),
+        run_id:(if ($run_id | test("^[1-9][0-9]*$")) then ($run_id | tonumber) else null end),
+        run_url:(if $run_url == "" then null else $run_url end),
+        head_sha:(if $head_sha == "" then null else $head_sha end),
+        attempts:$attempts, verdict:"FAIL", gate_verdict:"FAIL", diagnostic:"ci_gate_not_green"}'
+  fi
+  echo "wait-for-ci-gate: FAIL: ${message}" >&2
   exit 1
 }
 
@@ -90,9 +105,6 @@ if [[ -z "$SHA" ]]; then
   [[ -n "$SHA" ]] || fail "gh api commit lookup returned an empty sha for tag ${TAG}"
 fi
 
-RUN_URL=""
-LAST_RUN_COUNT=-1
-ATTEMPT=1
 DISPATCHED=false
 
 while (( ATTEMPT <= MAX_ATTEMPTS )); do
@@ -105,7 +117,7 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
       --workflow "$WORKFLOW" \
       --commit "$SHA" \
       --limit 20 \
-      --json databaseId,status,conclusion,url,createdAt)" || fail "gh run list failed (attempt ${ATTEMPT}/${MAX_ATTEMPTS})"
+      --json databaseId,headSha,status,conclusion,url,createdAt,updatedAt)" || fail "gh run list failed (attempt ${ATTEMPT}/${MAX_ATTEMPTS})"
   fi
 
   [[ -n "$RUNS_JSON" ]] || fail "gh run list returned empty output -- the parse broke, this is not a pass"
@@ -113,22 +125,37 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
     || fail "run list payload is not a JSON array -- the parse broke, this is not a pass"
 
   RUN_COUNT="$(echo "$RUNS_JSON" | jq 'length')"
-  LAST_RUN_COUNT="$RUN_COUNT"
+  if (( RUN_COUNT > 0 )); then
+    echo "$RUNS_JSON" | jq -e --arg sha "$SHA" '
+      all(.[]; (.headSha | type == "string" and length > 0)
+        and .headSha == $sha
+        and (.databaseId | type == "number")
+        and (.status | type == "string" and length > 0)
+        and (.conclusion == null or (.conclusion | type == "string"))
+        and (.url | type == "string" and length > 0)
+        and (.createdAt | type == "string" and length > 0)
+        and (.updatedAt | type == "string" and length > 0))
+    ' >/dev/null 2>&1 || fail "run list contains missing metadata or a headSha that differs from requested release SHA ${SHA}"
+    EVER_SEEN_RUN=true
+    LAST_RUN_METADATA="$(echo "$RUNS_JSON" | jq -c 'sort_by(.createdAt) | reverse | .[0]')"
+    LAST_RUN_ID="$(jq -r '.databaseId | tostring' <<<"$LAST_RUN_METADATA")"
+    RUN_URL="$(jq -r '.url' <<<"$LAST_RUN_METADATA")"
+    LAST_HEAD_SHA="$(jq -r '.headSha' <<<"$LAST_RUN_METADATA")"
+  fi
 
   if (( RUN_COUNT == 0 )); then
-    echo "No ${WORKFLOW} run yet for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS})."
+    echo "No ${WORKFLOW} run yet for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS})." >&2
     if (( ATTEMPT == DISPATCH_AFTER )) && [[ "$DISPATCHED" == false ]] && [[ "$NO_DISPATCH" == false ]]; then
       [[ -n "$TAG" ]] || fail "cannot dispatch ${WORKFLOW}: no --tag given (env: TAG_NAME)"
       gh workflow run "$WORKFLOW" --ref "$TAG" --repo "$REPO" || fail "gh workflow run dispatch failed"
       DISPATCHED=true
-      echo "Dispatched ${WORKFLOW} on tag ${TAG} for release SHA ${SHA}."
+      echo "Dispatched ${WORKFLOW} on tag ${TAG} for release SHA ${SHA}." >&2
     fi
   else
-    RUN_URL="$(echo "$RUNS_JSON" | jq -r 'sort_by(.createdAt) | reverse | .[0].url')"
     INCOMPLETE="$(echo "$RUNS_JSON" | jq -r '[.[] | select(.status != "completed")] | length')"
 
     if (( INCOMPLETE > 0 )); then
-      echo "${WORKFLOW} still running for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS}): ${RUN_URL}"
+      echo "${WORKFLOW} still running for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS}): ${RUN_URL}" >&2
     else
       FOUND_GREEN=false
       for RUN_ID in $(echo "$RUNS_JSON" | jq -r 'sort_by(.createdAt) | reverse | .[].databaseId'); do
@@ -156,10 +183,16 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
       done
 
       if [[ "$FOUND_GREEN" == true ]]; then
+        RUN_METADATA="$(echo "$RUNS_JSON" | jq -c --argjson id "$RUN_ID" '.[] | select(.databaseId == $id)')"
+        FOUND_HEAD_SHA="$(jq -r '.headSha' <<<"$RUN_METADATA")"
+        FOUND_CREATED_AT="$(jq -r '.createdAt' <<<"$RUN_METADATA")"
+        FOUND_UPDATED_AT="$(jq -r '.updatedAt' <<<"$RUN_METADATA")"
         case "$FORMAT" in
           json)
-            jq -n --arg sha "$SHA" --arg run_url "$FOUND_URL" --argjson attempts "$ATTEMPT" \
-              '{sha: $sha, run_url: $run_url, attempts: $attempts, verdict: "PASS"}'
+            jq -cn --arg sha "$SHA" --arg run_url "$FOUND_URL" --argjson attempts "$ATTEMPT" \
+              --argjson run_id "$RUN_ID" --arg head_sha "$FOUND_HEAD_SHA" \
+              --arg created_at "$FOUND_CREATED_AT" --arg updated_at "$FOUND_UPDATED_AT" \
+              '{sha: $sha, run_url: $run_url, attempts: $attempts, verdict: "PASS", run_id: $run_id, head_sha: $head_sha, created_at: $created_at, updated_at: $updated_at, gate_verdict: "PASS"}'
             ;;
           table)
             echo "ci-gate succeeded on release SHA ${SHA} after ${ATTEMPT} attempt(s): ${FOUND_URL}"
@@ -168,7 +201,7 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
         exit 0
       fi
 
-      echo "No successful ci-gate yet for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS}); waiting for a fresh run."
+      echo "No successful ci-gate yet for ${SHA} (${ATTEMPT}/${MAX_ATTEMPTS}); waiting for a fresh run." >&2
     fi
   fi
 
@@ -177,7 +210,7 @@ while (( ATTEMPT <= MAX_ATTEMPTS )); do
   ATTEMPT=$((ATTEMPT + 1))
 done
 
-if (( LAST_RUN_COUNT == 0 )); then
+if [[ "$EVER_SEEN_RUN" == false ]]; then
   fail "no ${WORKFLOW} run ever appeared for ${SHA} through ${MAX_ATTEMPTS} attempts -- a run list of length 0 is not \"nothing to wait for, so green\" -- the parse broke, this is not a pass"
 fi
 

@@ -35,7 +35,7 @@ on:
     # Runs the 5 exhaustive/low-probability jobs that are skipped on pull_request events.
     - cron: '30 4 * * *'
   push:
-    branches: [main]
+    branches: [main, release-please--branches--main]
   pull_request:
     branches: [main]
 

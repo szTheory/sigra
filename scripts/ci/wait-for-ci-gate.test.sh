@@ -41,9 +41,19 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT="${SCRIPT_DIR}/wait-for-ci-gate.sh"
+WORKFLOW="${SCRIPT_DIR}/../../.github/workflows/release-please.yml"
+TEST_SHA="0123456789abcdef0123456789abcdef01234567"
 
 if [[ ! -f "$SCRIPT" ]]; then
   echo "FATAL: script not found at ${SCRIPT}" >&2
+  exit 2
+fi
+
+if ! grep -qx 'MAX_ATTEMPTS=120' "$SCRIPT" \
+   || ! grep -qx 'WAIT_SECONDS=30' "$SCRIPT" \
+   || ! grep -q 'timeout-minutes: 75' "$WORKFLOW" \
+   || ! grep -q 'wait-for-ci-gate.sh --max-attempts 120' "$WORKFLOW"; then
+  echo "FATAL: release gate polling budget changed from 120 attempts / 30 seconds / 75 minutes" >&2
   exit 2
 fi
 
@@ -130,17 +140,27 @@ run_gate() {
   set -e
 }
 
+run_gate_capture() {
+  set +e
+  PATH="${STUB_BIN_DIR}:${PATH}" bash "$SCRIPT" "$@" >"${TMPDIR_ROOT}/gate.stdout" 2>"${TMPDIR_ROOT}/gate.stderr"
+  RC=$?
+  set -e
+  JSON_OUT="$(cat "${TMPDIR_ROOT}/gate.stdout")"
+  GATE_ERR="$(cat "${TMPDIR_ROOT}/gate.stderr")"
+}
+
 # ---- A: green on first poll -> exit 0, exactly one `gh run list` call ------------
 echo "Test A: green on first poll -> exit 0, one gh run list call, run URL echoed"
 reset_fixtures
 cat > "${TMPDIR_ROOT}/list-last.json" <<'JSON'
-[{"databaseId":111,"status":"completed","conclusion":"success","url":"https://github.com/szTheory/sigra/actions/runs/111","createdAt":"2026-07-29T00:00:00Z"}]
+[{"databaseId":111,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"completed","conclusion":"success","url":"https://github.com/szTheory/sigra/actions/runs/111","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
 JSON
 printf 'success' > "$VIEW_JOBS_PAYLOAD"
 printf 'https://github.com/szTheory/sigra/actions/runs/111' > "$VIEW_URL_PAYLOAD"
-run_gate --sha abc123 --repo test/repo --workflow ci.yml --max-attempts 5 --wait-seconds 0 --no-dispatch
+run_gate --sha "$TEST_SHA" --repo test/repo --workflow ci.yml --max-attempts 5 --wait-seconds 0 --no-dispatch
 if [[ "$RC" -eq 0 ]] && grep -q "https://github.com/szTheory/sigra/actions/runs/111" <<<"$OUT" \
-   && [[ "$(list_call_count)" -eq 1 ]]; then
+   && [[ "$(list_call_count)" -eq 1 ]] \
+   && grep -q -- '--json databaseId,headSha,status,conclusion,url,createdAt,updatedAt' "$GH_STUB_LOG"; then
   pass "A: exit 0, run URL echoed, exactly 1 gh run list call"
 else
   fail "A: rc=${RC}, list calls=$(list_call_count), output: ${OUT}"
@@ -150,14 +170,14 @@ fi
 echo "Test B: green after 2 polls -> exit 0, exactly 2 gh run list calls"
 reset_fixtures
 cat > "${TMPDIR_ROOT}/list-1.json" <<'JSON'
-[{"databaseId":222,"status":"in_progress","conclusion":null,"url":"https://github.com/szTheory/sigra/actions/runs/222","createdAt":"2026-07-29T00:00:00Z"}]
+[{"databaseId":222,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"in_progress","conclusion":null,"url":"https://github.com/szTheory/sigra/actions/runs/222","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:01:00Z"}]
 JSON
 cat > "${TMPDIR_ROOT}/list-last.json" <<'JSON'
-[{"databaseId":222,"status":"completed","conclusion":"success","url":"https://github.com/szTheory/sigra/actions/runs/222","createdAt":"2026-07-29T00:00:00Z"}]
+[{"databaseId":222,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"completed","conclusion":"success","url":"https://github.com/szTheory/sigra/actions/runs/222","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
 JSON
 printf 'success' > "$VIEW_JOBS_PAYLOAD"
 printf 'https://github.com/szTheory/sigra/actions/runs/222' > "$VIEW_URL_PAYLOAD"
-run_gate --sha abc123 --repo test/repo --max-attempts 5 --wait-seconds 0 --no-dispatch
+run_gate --sha "$TEST_SHA" --repo test/repo --max-attempts 5 --wait-seconds 0 --no-dispatch
 if [[ "$RC" -eq 0 ]] && grep -q "still running" <<<"$OUT" \
    && grep -q "runs/222" <<<"$OUT" && [[ "$(list_call_count)" -eq 2 ]]; then
   pass "B: exit 0 after polling past an incomplete run, exactly 2 gh run list calls"
@@ -169,11 +189,11 @@ fi
 echo "Test C: ci-gate never green across all listed runs -> exit 1, attempt count named"
 reset_fixtures
 cat > "${TMPDIR_ROOT}/list-last.json" <<'JSON'
-[{"databaseId":333,"status":"completed","conclusion":"failure","url":"https://github.com/szTheory/sigra/actions/runs/333","createdAt":"2026-07-29T00:00:00Z"}]
+[{"databaseId":333,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"completed","conclusion":"failure","url":"https://github.com/szTheory/sigra/actions/runs/333","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
 JSON
 printf 'failure' > "$VIEW_JOBS_PAYLOAD"
 printf 'https://github.com/szTheory/sigra/actions/runs/333' > "$VIEW_URL_PAYLOAD"
-run_gate --sha abc123 --repo test/repo --max-attempts 3 --wait-seconds 0 --no-dispatch
+run_gate --sha "$TEST_SHA" --repo test/repo --max-attempts 3 --wait-seconds 0 --no-dispatch
 if [[ "$RC" -eq 1 ]] && grep -q "Timed out waiting for ci-gate" <<<"$OUT" \
    && grep -q "3 attempts" <<<"$OUT" && [[ "$(list_call_count)" -eq 3 ]]; then
   pass "C: exit 1, 'Timed out waiting for ci-gate' and the attempt count in the output"
@@ -185,7 +205,7 @@ fi
 echo "Test D: zero runs every attempt -> dispatch fires exactly once at --dispatch-after"
 reset_fixtures
 printf '[]' > "${TMPDIR_ROOT}/list-last.json"
-run_gate --sha abc123 --repo test/repo --tag v1.2.3 --max-attempts 5 --wait-seconds 0 --dispatch-after 3
+run_gate --sha "$TEST_SHA" --repo test/repo --tag v1.2.3 --max-attempts 5 --wait-seconds 0 --dispatch-after 3
 if [[ "$RC" -eq 1 ]] && [[ "$(dispatch_call_count)" -eq 1 ]] \
    && grep -q "Dispatched ci.yml on tag v1.2.3" <<<"$OUT"; then
   pass "D: exactly 1 dispatch call, fired at attempt 3, never a second time"
@@ -197,7 +217,7 @@ fi
 echo "Test E: --no-dispatch with zero runs -> zero gh workflow run calls, exit 1"
 reset_fixtures
 printf '[]' > "${TMPDIR_ROOT}/list-last.json"
-run_gate --sha abc123 --repo test/repo --tag v1.2.3 --max-attempts 3 --wait-seconds 0 --dispatch-after 2 --no-dispatch
+run_gate --sha "$TEST_SHA" --repo test/repo --tag v1.2.3 --max-attempts 3 --wait-seconds 0 --dispatch-after 2 --no-dispatch
 if [[ "$RC" -eq 1 ]] && [[ "$(dispatch_call_count)" -eq 0 ]] \
    && grep -q "the parse broke, this is not a pass" <<<"$OUT"; then
   pass "E: zero dispatch calls, exhaustion never reads as 'nothing to wait for, so green'"
@@ -209,10 +229,10 @@ fi
 echo "Test F: gh returns non-zero -> exit 1"
 reset_fixtures
 cat > "${TMPDIR_ROOT}/list-last.json" <<'JSON'
-[{"databaseId":444,"status":"completed","conclusion":"success","url":"https://x/444","createdAt":"2026-07-29T00:00:00Z"}]
+[{"databaseId":444,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"completed","conclusion":"success","url":"https://x/444","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
 JSON
 set +e
-OUT_F="$(GH_STUB_FAIL=1 PATH="${STUB_BIN_DIR}:${PATH}" bash "$SCRIPT" --sha abc123 --repo test/repo --max-attempts 2 --wait-seconds 0 --no-dispatch 2>&1)"
+OUT_F="$(GH_STUB_FAIL=1 PATH="${STUB_BIN_DIR}:${PATH}" bash "$SCRIPT" --sha "$TEST_SHA" --repo test/repo --max-attempts 2 --wait-seconds 0 --no-dispatch 2>&1)"
 RC_F=$?
 set -e
 if [[ "$RC_F" -eq 1 ]]; then
@@ -229,7 +249,7 @@ echo "Test G: gh absent from PATH -> non-zero exit, message names gh"
 EMPTY_BIN="${TMPDIR_ROOT}/emptybin"; mkdir -p "$EMPTY_BIN"
 BASH_BIN="$(command -v bash)"
 set +e
-OUT_G="$(PATH="$EMPTY_BIN" "$BASH_BIN" "$SCRIPT" --sha abc123 --repo test/repo --max-attempts 2 --wait-seconds 0 --no-dispatch 2>&1)"
+OUT_G="$(PATH="$EMPTY_BIN" "$BASH_BIN" "$SCRIPT" --sha "$TEST_SHA" --repo test/repo --max-attempts 2 --wait-seconds 0 --no-dispatch 2>&1)"
 RC_G=$?
 set -e
 if [[ "$RC_G" -ne 0 ]] && grep -qi "gh CLI not found on PATH" <<<"$OUT_G"; then
@@ -253,11 +273,11 @@ echo "Test I: --from-json reaches the same verdict with zero gh invocations"
 reset_fixtures
 FROM_JSON_FILE="${TMPDIR_ROOT}/from.json"
 cat > "$FROM_JSON_FILE" <<'JSON'
-[{"databaseId":555,"status":"completed","conclusion":"success","ci_gate_conclusion":"success","url":"https://github.com/szTheory/sigra/actions/runs/555","createdAt":"2026-07-29T00:00:00Z"}]
+[{"databaseId":555,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"completed","conclusion":"success","ci_gate_conclusion":"success","url":"https://github.com/szTheory/sigra/actions/runs/555","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
 JSON
-run_gate --sha abc123 --repo test/repo --from-json "$FROM_JSON_FILE" --no-dispatch --format json
+run_gate --sha "$TEST_SHA" --repo test/repo --from-json "$FROM_JSON_FILE" --no-dispatch --format json
 if [[ "$RC" -eq 0 ]] && [[ "$(gh_call_count)" -eq 0 ]] \
-   && jq -e '.verdict == "PASS" and .run_url == "https://github.com/szTheory/sigra/actions/runs/555"' >/dev/null 2>&1 <<<"$OUT"; then
+   && jq -e --arg sha "$TEST_SHA" '.verdict == "PASS" and .gate_verdict == "PASS" and .sha == $sha and .head_sha == $sha and .run_id == 555 and .run_url == "https://github.com/szTheory/sigra/actions/runs/555" and .created_at == "2026-07-29T00:00:00Z" and .updated_at == "2026-07-29T00:05:00Z" and .attempts == 1' >/dev/null 2>&1 <<<"$OUT"; then
   pass "I: --from-json emitted a valid PASS verdict with zero gh calls"
 else
   fail "I: rc=${RC}, gh calls=$(gh_call_count), output: ${OUT}"
@@ -267,12 +287,12 @@ fi
 echo "Test J: --max-attempts 2 --wait-seconds 0 completes in well under 5s, 2 list calls"
 reset_fixtures
 cat > "${TMPDIR_ROOT}/list-last.json" <<'JSON'
-[{"databaseId":666,"status":"completed","conclusion":"failure","url":"https://x/666","createdAt":"2026-07-29T00:00:00Z"}]
+[{"databaseId":666,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"completed","conclusion":"failure","url":"https://x/666","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
 JSON
 printf 'failure' > "$VIEW_JOBS_PAYLOAD"
 printf 'https://x/666' > "$VIEW_URL_PAYLOAD"
 START_S="$SECONDS"
-run_gate --sha abc123 --repo test/repo --max-attempts 2 --wait-seconds 0 --no-dispatch
+run_gate --sha "$TEST_SHA" --repo test/repo --max-attempts 2 --wait-seconds 0 --no-dispatch
 ELAPSED=$((SECONDS - START_S))
 if [[ "$RC" -eq 1 ]] && [[ "$(list_call_count)" -eq 2 ]] && [[ "$ELAPSED" -lt 5 ]]; then
   pass "J: exactly 2 gh run list calls (max-attempts respected), elapsed ${ELAPSED}s < 5s"
@@ -285,12 +305,66 @@ echo "Test K: --from-json payload that is not a JSON array -> exit 1, fail-close
 reset_fixtures
 NOT_AN_ARRAY_FILE="${TMPDIR_ROOT}/not-array.json"
 printf '{"databaseId":777}' > "$NOT_AN_ARRAY_FILE"
-run_gate --sha abc123 --repo test/repo --from-json "$NOT_AN_ARRAY_FILE" --no-dispatch
+run_gate --sha "$TEST_SHA" --repo test/repo --from-json "$NOT_AN_ARRAY_FILE" --no-dispatch
 if [[ "$RC" -eq 1 ]] && grep -q "the parse broke, this is not a pass" <<<"$OUT" \
    && [[ "$(gh_call_count)" -eq 0 ]]; then
   pass "K: exit 1, fail-closed on a non-array --from-json payload, zero gh calls"
 else
   fail "K: rc=${RC}, gh calls=$(gh_call_count), output: ${OUT}"
+fi
+
+# ---- L: a run filtered by commit but reporting another headSha is rejected --------
+echo "Test L: mismatched headSha is rejected before inspecting ci-gate"
+reset_fixtures
+MISMATCH_FILE="${TMPDIR_ROOT}/mismatched-head.json"
+cat > "$MISMATCH_FILE" <<'JSON'
+[{"databaseId":888,"headSha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","status":"completed","conclusion":"success","ci_gate_conclusion":"success","url":"https://github.com/szTheory/sigra/actions/runs/888","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
+JSON
+run_gate --sha "$TEST_SHA" --repo test/repo --from-json "$MISMATCH_FILE" --no-dispatch
+if [[ "$RC" -eq 1 ]] && grep -q "headSha that differs" <<<"$OUT" && [[ "$(gh_call_count)" -eq 0 ]]; then
+  pass "L: mismatched headSha fails closed before any ci-gate inspection"
+else
+  fail "L: rc=${RC}, gh calls=$(gh_call_count), output: ${OUT}"
+fi
+
+# ---- M: required identity/timestamp metadata cannot be absent ---------------------
+echo "Test M: missing headSha or timestamps are rejected"
+reset_fixtures
+MISSING_METADATA_FILE="${TMPDIR_ROOT}/missing-metadata.json"
+printf '[{"databaseId":889,"status":"completed","ci_gate_conclusion":"success","url":"https://x/889","createdAt":"2026-07-29T00:00:00Z"}]' > "$MISSING_METADATA_FILE"
+run_gate --sha "$TEST_SHA" --repo test/repo --from-json "$MISSING_METADATA_FILE" --no-dispatch
+if [[ "$RC" -eq 1 ]] && grep -q "missing metadata" <<<"$OUT" && [[ "$(gh_call_count)" -eq 0 ]]; then
+  pass "M: missing run identity/timestamp metadata fails closed"
+else
+  fail "M: rc=${RC}, gh calls=$(gh_call_count), output: ${OUT}"
+fi
+
+# ---- N: failed poll reports the actual observed CI run identity ------------------
+echo "Test N: JSON failure output identifies the observed CI run, not the release run"
+reset_fixtures
+cat > "${TMPDIR_ROOT}/list-last.json" <<'JSON'
+[{"databaseId":990,"headSha":"0123456789abcdef0123456789abcdef01234567","status":"completed","conclusion":"failure","url":"https://github.com/szTheory/sigra/actions/runs/990","createdAt":"2026-07-29T00:00:00Z","updatedAt":"2026-07-29T00:05:00Z"}]
+JSON
+printf 'failure' > "$VIEW_JOBS_PAYLOAD"
+printf 'https://github.com/szTheory/sigra/actions/runs/990' > "$VIEW_URL_PAYLOAD"
+run_gate_capture --sha "$TEST_SHA" --repo test/repo --max-attempts 1 --wait-seconds 0 --no-dispatch --format json
+if [[ "$RC" -eq 1 ]] \
+   && jq -e --arg sha "$TEST_SHA" '.sha == $sha and .run_id == 990 and .run_url == "https://github.com/szTheory/sigra/actions/runs/990" and .head_sha == $sha and .attempts == 1 and .verdict == "FAIL" and .gate_verdict == "FAIL"' >/dev/null 2>&1 <<<"$JSON_OUT"; then
+  pass "N: failure JSON preserves the real CI run identity and release SHA"
+else
+  fail "N: rc=${RC}, JSON=${JSON_OUT}, stderr=${GATE_ERR}"
+fi
+
+# ---- O: failure before observing a CI run represents identity as unavailable ------
+echo "Test O: no observed CI run is represented with null identity fields"
+reset_fixtures
+printf '[]' > "${TMPDIR_ROOT}/list-last.json"
+run_gate_capture --sha "$TEST_SHA" --repo test/repo --max-attempts 1 --wait-seconds 0 --no-dispatch --format json
+if [[ "$RC" -eq 1 ]] \
+   && jq -e --arg sha "$TEST_SHA" '.sha == $sha and .run_id == null and .run_url == null and .head_sha == null and .attempts == 1 and .verdict == "FAIL"' >/dev/null 2>&1 <<<"$JSON_OUT"; then
+  pass "O: failure JSON does not invent a run identity when none was observed"
+else
+  fail "O: rc=${RC}, JSON=${JSON_OUT}, stderr=${GATE_ERR}"
 fi
 
 echo "Results: ${PASS} passed, ${FAIL} failed"
