@@ -648,12 +648,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [release_ref_guard, changes]
-    # Phase 230 (FAST-05 / D-08): job-level gate -- permitted here because
-    # this is a non-required job (not one of the 5 ruleset-14941512
-    # contexts). Same fail-open polarity and !cancelled() predicate as the
-    # required lanes (T-230-05-07): an empty/failed `changes` output still
-    # runs the job, and a run FAST-04 supersedes still stops.
-    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true' }}
+    # This lane owns the required docs build and full generated-index check,
+    # so it must run for docs-only candidates as well as other PRs.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
         image: postgres:15
@@ -695,6 +692,8 @@ jobs:
       # docs build that is intentionally outside the contributor alias.
       - name: Check docs build cleanly
         run: mix docs --warnings-as-errors
+      - name: Check generated docs index
+        run: bash scripts/ci/check-docs-index.sh
       - name: Cache hit summary
         if: always()
         run: |
