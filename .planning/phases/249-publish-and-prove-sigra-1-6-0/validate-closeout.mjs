@@ -373,8 +373,12 @@ export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } =
     const current = liveByPath.get(worktree.path);
     if (!current) continue;
     const baseline = worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? [];
-    const currentByIdentity = new Map((current.dirty_paths ?? []).map(row => [dirtyKey(row), row]));
-    const currentByPath = new Map((current.dirty_paths ?? []).map(row => [row.path, row]));
+    const ignored = worktree.path === ledger?.evidence_artifacts?.worktree_path
+      ? new Set(ledger.evidence_artifacts.paths ?? [])
+      : new Set();
+    const currentRows = (current.dirty_paths ?? []).filter(row => !ignored.has(row.path));
+    const currentByIdentity = new Map(currentRows.map(row => [dirtyKey(row), row]));
+    const currentByPath = new Map(currentRows.map(row => [row.path, row]));
     const baselineByIdentity = new Map(baseline.map(row => [dirtyKey(row), row]));
 
     for (const dirty of baseline) {
@@ -408,7 +412,7 @@ export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } =
       }
     }
 
-    for (const row of current.dirty_paths ?? []) {
+    for (const row of currentRows) {
       const prior = baselineByIdentity.get(dirtyKey(row));
       if (prior?.preservation?.state === 'preserved') {
         add('preservation_source_not_clean', `Preserved path ${worktree.path}:${row.path} reappeared in the source worktree.`);

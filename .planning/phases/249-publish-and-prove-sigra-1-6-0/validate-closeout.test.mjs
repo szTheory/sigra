@@ -143,6 +143,23 @@ test('a newly appearing dirty path remains blocked after preservation', t => {
   assert.ok(result.errors.some(error => error.code === 'preservation_new_dirty_path'));
 });
 
+test('declared phase evidence outputs do not masquerade as newly inherited dirty paths', () => {
+  const { ledger, live } = fixture();
+  const evidencePath = '.planning/249-CLOSEOUT.json';
+  ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, paths: [evidencePath] };
+  ledger.worktrees[0].dirty_paths[0].preservation = {
+    owner: 'shared inherited checkout; author unresolved',
+    target: '/repo (preserve in place)',
+    action: 'Leave untouched until an approved scoped ref is verified.',
+    state: 'blocked',
+    reason: 'The source work is shared and no exact preservation destination is approved.',
+    source: 'Captured path and content hash.',
+  };
+  live.worktrees[0].dirty_paths.push({ path: evidencePath, status: '??', content_state: 'regular-file', sha256: digest('e') });
+  const result = invoke('validatePreservation', ledger, live, { repoRoot: '/repo' });
+  assert.equal(result.errors.some(error => error.code === 'preservation_new_dirty_path'), false);
+});
+
 test('an exact complete inventory accepts a successful empty PR query', () => {
   const { ledger, live } = fixture();
   ledger.pull_requests = [];
