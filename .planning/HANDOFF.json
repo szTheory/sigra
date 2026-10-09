@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-09T18:24:59.000Z",
+  "timestamp": "2026-10-09T19:20:44.000Z",
   "phase": "249",
   "phase_name": "Publish and Prove Sigra 1.6.0",
   "plan": "09",
@@ -42,13 +42,12 @@
       "path": ".planning/HANDOFF.json",
       "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
       "status": " M (historical captured revision)",
-      "decision_needed": "No exact copy was found in the repository, registered worktrees, or Git objects. Keep this identity blocked; resume only if an external backup/editor history supplies bytes matching the recorded SHA-256. No loss waiver or pass substitution."
+      "decision_needed": "Exhaustive local Git and advertised GitHub ref searches found no matching bytes, and the user has no separate copy. Keep this historical identity blocked; do not waive or retry the same search absent new external evidence.",
+      "reason": "The exact SHA-256 was absent from 22,410 local Git blobs, 18,847 blobs across 405 GitHub mirror refs (65 branches, 14 tags, 300 PR heads and 13 PR merge refs), and 74,345 regular files across the repository and registered worktrees. No Git LFS object store or relevant named Actions artifact was found."
     }
   ],
   "async_jobs": [],
-  "human_actions_pending": [
-    "If available, provide an external backup/editor-history copy of the historical .planning/HANDOFF.json bytes so its SHA-256 can be verified; otherwise this gate remains blocked."
-  ],
+  "human_actions_pending": [],
   "decisions": [
     {
       "decision": "Do not create a release candidate while preservation mode has blockers.",
@@ -68,6 +67,6 @@
     }
   ],
   "uncommitted_files": [],
-  "next_action": "Keep Plan 249-09 gated while the exact historical HANDOFF.json bytes are unavailable. If an external copy is recovered, verify its SHA-256 against 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148, refresh preservation evidence, and run $gsd-execute-phase 249 --gaps-only only if preservation mode passes.",
-  "context_notes": "Fresh capture 2026-10-09T18:20:45.573Z observed five worktrees, 14 open PRs, and no failed changed-file reads. Phase 233 source is preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery (commit fca3772b0dc546f954cd28c4122e72c29ddd6a05; source SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4) as separate test/CI maintenance and excluded from the release candidate. The only blocker is old .planning/HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148: audit scanned 22,400 Git blobs and 74,345 regular files across the repository/worktrees with no match; current/base handoff versions differ. Inventory is complete; preservation fails closed on that historical loss. No candidate, push, PR, or merge was created. Plan 249-08 implementation is complete; Phase 249 REL-02 verification remains incomplete. Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v3 (commit c6519bc11c7bf2e9378dd1003a1dc0e947d2594e; SHA-256 7d9a2a1312d5fb93de3f19d6f7add7cf109e8d8df00c5acbc14a326036f10385)."
+  "next_action": "No further local/GitHub search is pending. Keep Plan 249-09 gated and do not create a candidate. Reopen this blocker only if new external evidence appears and first verify that the supplied bytes match SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148; then refresh preservation evidence and run $gsd-execute-phase 249 --gaps-only only if the gate passes.",
+  "context_notes": "Fresh capture 2026-10-09T18:20:45.573Z observed five worktrees, 14 open PRs, and no failed changed-file reads. Phase 233 source is preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery (commit fca3772b0dc546f954cd28c4122e72c29ddd6a05; source SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4) as separate test/CI maintenance and excluded from the release candidate. The only blocker is old .planning/HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148: audit scanned 22,400 Git blobs and 74,345 regular files across the repository/worktrees with no match; current/base handoff versions differ. Inventory is complete; preservation fails closed on that historical loss. No candidate, push, PR, or merge was created. Plan 249-08 implementation is complete; Phase 249 REL-02 verification remains incomplete. Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v3 (commit c6519bc11c7bf2e9378dd1003a1dc0e947d2594e; SHA-256 7d9a2a1312d5fb93de3f19d6f7add7cf109e8d8df00c5acbc14a326036f10385). Follow-up audit 2026-10-09 searched all current local Git objects/blobs and all 405 GitHub mirror refs (branch, tag, PR-head and PR-merge), plus 74,345 registered-worktree files; no target hash match. GitHub artifact metadata had no handoff/planning/preservation/Phase 249 name match. No user-held copy is available, so there is no manual decision/action pending; retain the fail-closed blocker. The audit results are in 249-PRESERVATION.json revision 4."
 }

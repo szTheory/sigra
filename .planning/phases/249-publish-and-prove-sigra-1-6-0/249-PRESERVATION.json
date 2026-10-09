@@ -2,7 +2,7 @@
   "schema_version": 1,
   "phase": 249,
   "plan": "08",
-  "created_at": "2026-10-09T18:23:54Z",
+  "created_at": "2026-10-09T19:20:44Z",
   "repository": "szTheory/sigra",
   "capture": {
     "observed_at": "2026-10-09T18:20:45.573Z",
@@ -3837,26 +3837,56 @@
     "The Phase 233 scaffold-discovery edit is now preserved at refs/phase-249-preservation/phase-233-bounded-scaffold-discovery and classified as a separate test/CI maintenance follow-up; it is excluded from the 1.6.0 candidate.",
     "All preserved bytes are pinned under local scoped refs. The sole remaining blocked identity is the unavailable historical HANDOFF.json revision recorded below.",
     "The handoff recovery audit scanned 22,400 of 68,152 Git objects and 74,345 regular files across the repository and registered worktrees; no exact match or Git LFS object store was found.",
-    "Preservation mode remains blocked; Plan 249-09 candidate assembly must not start until exact historical handoff bytes are recoverable."
+    "Preservation mode remains blocked; Plan 249-09 candidate assembly must not start until exact historical handoff bytes are recoverable.",
+    "Follow-up recovery audit 2026-10-09 searched all 22,410 local Git blobs (68,190 objects), all 18,847 blobs in the GitHub mirror (61,009 objects across branch/tag/PR-head/PR-merge refs), and 74,345 regular files; the target SHA-256 was absent.",
+    "GitHub Actions artifact metadata had no handoff/planning/preservation/Phase 249 artifact-name match; no artifact contents were downloaded."
   ],
   "supersedes": {
-    "ref": "refs/phase-249-preservation/plan-08-preservation-record-v2",
-    "commit_sha": "24507c745ebc1e00c254e8e3ab8ea127de49e028",
-    "sha256": "c9859407de4bae3c1183a2e37c8c437fc484ff715766bf66a7bb6ca62f9d076f"
+    "ref": "refs/phase-249-preservation/plan-08-preservation-record-v3",
+    "commit_sha": "c6519bc11c7bf2e9378dd1003a1dc0e947d2594e",
+    "sha256": "7d9a2a1312d5fb93de3f19d6f7add7cf109e8d8df00c5acbc14a326036f10385"
   },
-  "revision": 3,
+  "revision": 4,
   "recovery_audit": {
     "target_path": ".planning/HANDOFF.json",
     "target_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
-    "checked_at": "2026-10-09T18:23:54Z",
-    "result": "not_found",
-    "git_objects_scanned": 22400,
-    "git_objects_total": 68152,
-    "regular_files_scanned": 74345,
-    "file_scope": "repository root and all registered worktrees",
+    "checked_at": "2026-10-09T19:20:44Z",
+    "local_git": {
+      "all_objects_scanned": 68190,
+      "blob_objects_scanned": 22410,
+      "includes_unreachable_objects": true,
+      "matches": 0
+    },
+    "github": {
+      "repository": "https://github.com/szTheory/sigra",
+      "advertised_ref_scope": {
+        "branches": 65,
+        "tags": 14,
+        "pull_request_heads": 300,
+        "pull_request_merge_refs": 13
+      },
+      "mirror_refs_scanned": 405,
+      "git_objects_scanned": 61009,
+      "blob_objects_scanned": 18847,
+      "matches": 0
+    },
+    "local_files": {
+      "regular_files_scanned": 74345,
+      "scope": "repository root and all registered worktrees",
+      "matches": 0
+    },
+    "github_actions_artifact_metadata": {
+      "name_filter": [
+        "handoff",
+        "planning",
+        "preservation",
+        "phase-249"
+      ],
+      "matches": 0,
+      "artifact_contents_downloaded": false
+    },
     "git_lfs_object_store_present": false,
-    "disposition": "Keep the historical bytes blocked. The current handoff and base-commit version have different hashes and do not prove recovery.",
-    "policy": "Do not waive or mark missing preservation evidence as passed."
+    "disposition": "Exact bytes were not found in the local Git object database, any advertised GitHub branch/tag/PR ref, registered local worktree files, or relevant artifact metadata. Keep the historical identity blocked; do not waive or mark missing evidence as passed."
   },
-  "preservation_record_ref": "refs/phase-249-preservation/plan-08-preservation-record-v3"
+  "preservation_record_ref": "refs/phase-249-preservation/plan-08-preservation-record-v4"
 }

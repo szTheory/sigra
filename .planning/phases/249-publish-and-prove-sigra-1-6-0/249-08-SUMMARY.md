@@ -145,3 +145,5 @@ Plan 249-09 is gated by its explicit Plan 08 precondition: preservation mode mus
 ---
 *Phase: 249-publish-and-prove-sigra-1-6-0*
 *Completed: 2026-10-09*
+
+- **GitHub/local recovery audit:** on 2026-10-09T19:20:44Z, hashed every blob in the current local object database (22,410 blobs) and a temporary GitHub mirror (18,847 blobs across 65 branches, 14 tags, 300 PR heads and 13 PR merge refs); neither contains the target. A prior file audit covered 74,345 regular files across the repository and registered worktrees. No relevant GitHub Actions artifact metadata or Git LFS store was found. No user-held copy is available, so the same search should not be repeated without new evidence.
