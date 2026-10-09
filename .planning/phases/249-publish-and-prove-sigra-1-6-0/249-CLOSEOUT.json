@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T13:34:40.439Z",
+  "observed_at": "2026-10-09T13:37:04.730Z",
   "inventory_status": "complete",
   "closeout_status": "blocked-until-plan-05-preservation",
   "source_status": {
@@ -10,19 +10,19 @@
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 5,
-      "observed_at": "2026-10-09T13:34:40.439Z"
+      "observed_at": "2026-10-09T13:37:04.730Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
       "count": 14,
-      "observed_at": "2026-10-09T13:34:40.439Z"
+      "observed_at": "2026-10-09T13:37:04.730Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "599c6b1889a5d207cffa42a0a669200e32b35ba6",
+    "anchor_head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
     "paths": [
       ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
       ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-04-SUMMARY.md",
@@ -34,7 +34,7 @@
     "previously_generated_outputs_excluded": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
-        "sha256": "d467697494b156d32aeae2a68cea5b50f4e272432e57cae36f1e746cd98eb09c"
+        "sha256": "ff86f784a88632a4f8b3b202f250382e6feb0b5901f91910d3d039445745f46a"
       }
     ],
     "collisions": []
@@ -43,7 +43,7 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "599c6b1889a5d207cffa42a0a669200e32b35ba6",
+      "head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
       "detached": false,
       "locked": false,
       "prunable": false,
@@ -61,7 +61,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 f075f7c011830c82e83f3a66196e86868309ddcfc5601e14084071179367fcc1."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 f075f7c011830c82e83f3a66196e86868309ddcfc5601e14084071179367fcc1."
           }
         },
         {
@@ -76,7 +76,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 48c4d1e5b502868e45e817e0f61b763945f3a63f56cd3b2e23ec4a7ee56d5cbf."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 48c4d1e5b502868e45e817e0f61b763945f3a63f56cd3b2e23ec4a7ee56d5cbf."
           }
         },
         {
@@ -91,7 +91,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 a9e0968decefd333ba0beabc775e2b3f5dcfdb2e00583e2b81195f2747a733bd."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 a9e0968decefd333ba0beabc775e2b3f5dcfdb2e00583e2b81195f2747a733bd."
           }
         },
         {
@@ -106,7 +106,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148."
           }
         },
         {
@@ -121,7 +121,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 d90d3c7e689d1da306e08dfa568e5380177e36aad929cf620ebeb7965620b928."
           }
         },
         {
@@ -136,7 +136,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 b722d5179fa477d2b3d2251e431996bf06dff5a167b1aedcde4b80239d968471."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 b722d5179fa477d2b3d2251e431996bf06dff5a167b1aedcde4b80239d968471."
           }
         },
         {
@@ -151,7 +151,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 7165daf86fde90badde108b313d942280a5852ed1305db21a5ff8e5b742e4e7e."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 7165daf86fde90badde108b313d942280a5852ed1305db21a5ff8e5b742e4e7e."
           }
         },
         {
@@ -166,7 +166,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 050c8f36134c0ebb0d8b1795c1dbd7ae8cb34c74d4fe1befaa80a45553967837."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 050c8f36134c0ebb0d8b1795c1dbd7ae8cb34c74d4fe1befaa80a45553967837."
           }
         },
         {
@@ -181,7 +181,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 f05a453d1ee079f88d6484ea295df03a616db9b36fbe304c9670008d4b829efa."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 f05a453d1ee079f88d6484ea295df03a616db9b36fbe304c9670008d4b829efa."
           }
         },
         {
@@ -196,7 +196,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 f93ff3d22a5d9f75babca90264f8957c7f05bb512d589f59c4f8a3ae68dcde47."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 f93ff3d22a5d9f75babca90264f8957c7f05bb512d589f59c4f8a3ae68dcde47."
           }
         },
         {
@@ -211,7 +211,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 2c4b810f65234dcd4d4e0e042b72094e5f83bc9f37d9baed64ff9bba93c2fee0."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 2c4b810f65234dcd4d4e0e042b72094e5f83bc9f37d9baed64ff9bba93c2fee0."
           }
         },
         {
@@ -226,7 +226,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 eef03ede49f91c9986b7fbb3def2f75519e08923b46f50f2f42201826fac0c30."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 eef03ede49f91c9986b7fbb3def2f75519e08923b46f50f2f42201826fac0c30."
           }
         },
         {
@@ -241,7 +241,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 5c0e9ebd883039cb9bc942fce9c89d69bdbe6bb2e31756a7a19004bbc2c96a6b."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 5c0e9ebd883039cb9bc942fce9c89d69bdbe6bb2e31756a7a19004bbc2c96a6b."
           }
         },
         {
@@ -256,7 +256,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 580a692497a332be2f0feebe2f49b56da879502e5e65b2f1f1de144132e63319."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 580a692497a332be2f0feebe2f49b56da879502e5e65b2f1f1de144132e63319."
           }
         },
         {
@@ -271,7 +271,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 1a1458f46d2656580bde2142f6b4ef436bf0b36ec311f4cfbeba11d8336e184c."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 1a1458f46d2656580bde2142f6b4ef436bf0b36ec311f4cfbeba11d8336e184c."
           }
         },
         {
@@ -286,7 +286,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 0ce5eab764d4d2dcb9dab1ef1e2c5a828fdbd31ea4763e108ac4bf7080dd096e."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 0ce5eab764d4d2dcb9dab1ef1e2c5a828fdbd31ea4763e108ac4bf7080dd096e."
           }
         },
         {
@@ -301,7 +301,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 e9517b1a9bd8d2497b282f3ad34c020823198eb10f09239e6f86faa936371c43."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 e9517b1a9bd8d2497b282f3ad34c020823198eb10f09239e6f86faa936371c43."
           }
         },
         {
@@ -316,7 +316,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 457dce8220bae5168803f5a24ba556018afd390f7e1b62db82f69190d9cad40d."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 457dce8220bae5168803f5a24ba556018afd390f7e1b62db82f69190d9cad40d."
           }
         },
         {
@@ -331,7 +331,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 ecc778f2a90905edcad467ddbf7aa123d496a615790b4eab13956d08cb176ccd."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 ecc778f2a90905edcad467ddbf7aa123d496a615790b4eab13956d08cb176ccd."
           }
         },
         {
@@ -346,7 +346,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 e2d51bb3d9a60931f8120306ef7759e654c11166221b74edc7bf51392e7a263a."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 e2d51bb3d9a60931f8120306ef7759e654c11166221b74edc7bf51392e7a263a."
           }
         },
         {
@@ -361,7 +361,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 9e540e1a90b01ce36b914b91cf3c9e1af273106913c3e55c1a1ca1ce29c78b85."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 9e540e1a90b01ce36b914b91cf3c9e1af273106913c3e55c1a1ca1ce29c78b85."
           }
         },
         {
@@ -376,7 +376,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 9c2739527728bf802ff9d99b18519c0347af0d253587c0ea9d9e8bac46cc9f64."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 9c2739527728bf802ff9d99b18519c0347af0d253587c0ea9d9e8bac46cc9f64."
           }
         },
         {
@@ -391,7 +391,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 3685c58429e2fddf33b4cffb0aadb39919d6d567ae15f9508abc7d0590ca7cb7."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 3685c58429e2fddf33b4cffb0aadb39919d6d567ae15f9508abc7d0590ca7cb7."
           }
         },
         {
@@ -406,7 +406,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 3f7bf44eed60773dac78b4f35ab4f1833843d6db2feccf27269d801cb2bac657."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 3f7bf44eed60773dac78b4f35ab4f1833843d6db2feccf27269d801cb2bac657."
           }
         },
         {
@@ -421,7 +421,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 7185aa8f2a20757b5120c14527a6a8542453c10eba27224c451a1909d2ff7d64."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 7185aa8f2a20757b5120c14527a6a8542453c10eba27224c451a1909d2ff7d64."
           }
         },
         {
@@ -436,7 +436,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 23c5b04c129cbe70d75cbfbdff832df823020ef484481e117cb5dbea35507a0c."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 23c5b04c129cbe70d75cbfbdff832df823020ef484481e117cb5dbea35507a0c."
           }
         },
         {
@@ -451,7 +451,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 88b9eeb603cee5842b74e0cc5abc91398fa0ed9fee99f56df23a28127219c4ac."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 88b9eeb603cee5842b74e0cc5abc91398fa0ed9fee99f56df23a28127219c4ac."
           }
         },
         {
@@ -466,7 +466,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 274045a602ae0910ccf0ae3ce5c7b8149452be85d3178c8bf032d4378efa9287."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 274045a602ae0910ccf0ae3ce5c7b8149452be85d3178c8bf032d4378efa9287."
           }
         },
         {
@@ -481,7 +481,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 158359bc78f08bfc3eedbb1b454001fd8b7454e01d799e417b19ea628ee5fbc4."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 158359bc78f08bfc3eedbb1b454001fd8b7454e01d799e417b19ea628ee5fbc4."
           }
         },
         {
@@ -496,7 +496,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 6e797b6daa2d72054719abbded357ff0b3e03ff9a362a3daf500c920ad8c8e2d."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 6e797b6daa2d72054719abbded357ff0b3e03ff9a362a3daf500c920ad8c8e2d."
           }
         },
         {
@@ -511,7 +511,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 c827ce5f9e39a5ca2e60fda5c9e51d708e637c45e9f11b9b87db3d2b17818487."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 c827ce5f9e39a5ca2e60fda5c9e51d708e637c45e9f11b9b87db3d2b17818487."
           }
         },
         {
@@ -526,7 +526,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 0a29bc9387c0d7f1d3765c3963de00b666d71d181b6aec7d207fd1c5d0221af7."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 0a29bc9387c0d7f1d3765c3963de00b666d71d181b6aec7d207fd1c5d0221af7."
           }
         },
         {
@@ -541,7 +541,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 1a28232f10083ca7a59f8673cd7b6f791822a73f82a7326f700bfcc3fabbf17a."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 1a28232f10083ca7a59f8673cd7b6f791822a73f82a7326f700bfcc3fabbf17a."
           }
         },
         {
@@ -556,7 +556,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 f5b60a36bf3b417fdedd0f8c36d44a3d80bddc7eb7ff831b263ee3a8ae9e2e5e."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 f5b60a36bf3b417fdedd0f8c36d44a3d80bddc7eb7ff831b263ee3a8ae9e2e5e."
           }
         },
         {
@@ -571,7 +571,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 6a1ccd9d5b15bbda0f1ad1e430012f41494c1eb6e2331e0adbb4d552c86fee2c."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 6a1ccd9d5b15bbda0f1ad1e430012f41494c1eb6e2331e0adbb4d552c86fee2c."
           }
         },
         {
@@ -586,7 +586,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 a0c441166fb1641a195400f969224c04ba2cb68838b41ed44b3aa8f734bc8ee3."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 a0c441166fb1641a195400f969224c04ba2cb68838b41ed44b3aa8f734bc8ee3."
           }
         },
         {
@@ -601,7 +601,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 b8b32ea52a558c1ef4a2d5dd54284b964e384194ae443c12d577c6e6facd6b4c."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 b8b32ea52a558c1ef4a2d5dd54284b964e384194ae443c12d577c6e6facd6b4c."
           }
         },
         {
@@ -616,7 +616,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 e7d28696d2e0141c55936089dd62f673a110dbb520c297adf280224576e9d54d."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 e7d28696d2e0141c55936089dd62f673a110dbb520c297adf280224576e9d54d."
           }
         },
         {
@@ -631,7 +631,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 d687751c555f0e2edc993b1d6df394cf1593c6527ff9c431c0694c90a5b4adfc."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 d687751c555f0e2edc993b1d6df394cf1593c6527ff9c431c0694c90a5b4adfc."
           }
         },
         {
@@ -646,7 +646,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 80b52974bc812d02493138427e2835d7180976d003e0d231e7197c6ac235f3b5."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 80b52974bc812d02493138427e2835d7180976d003e0d231e7197c6ac235f3b5."
           }
         },
         {
@@ -661,7 +661,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 63055e6b8e1d942dfc773494e5a5165bbabf2a8f7f9495200e2c71ab9de19501."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 63055e6b8e1d942dfc773494e5a5165bbabf2a8f7f9495200e2c71ab9de19501."
           }
         },
         {
@@ -676,7 +676,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 fbf43fa409354b923ae171ae596e0a4616486bcc40e82a92148d2737980da38f."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 fbf43fa409354b923ae171ae596e0a4616486bcc40e82a92148d2737980da38f."
           }
         },
         {
@@ -691,7 +691,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 fa2fba91b8aa8c084ae0d425909babd0afc9d71c199148c09bbdcc9a00840e36."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 fa2fba91b8aa8c084ae0d425909babd0afc9d71c199148c09bbdcc9a00840e36."
           }
         },
         {
@@ -706,7 +706,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 3e8add49659516d0704befa891be4c427e66b72b58a60a147a3b2ee666c2ea5e."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 3e8add49659516d0704befa891be4c427e66b72b58a60a147a3b2ee666c2ea5e."
           }
         },
         {
@@ -721,7 +721,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 a446a440b7be01d78379472497ddf9f40063c2cdd21a0d75668f36005f172289."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 a446a440b7be01d78379472497ddf9f40063c2cdd21a0d75668f36005f172289."
           }
         },
         {
@@ -736,7 +736,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 0ab6810716c158a72e741acb0100e7a78c18012b789f7df62bd770dc9230ebba."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 0ab6810716c158a72e741acb0100e7a78c18012b789f7df62bd770dc9230ebba."
           }
         },
         {
@@ -751,7 +751,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 82b513340b0974d977761380ca32c1fc99a84c89775cac04e9de886019cc570a."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 82b513340b0974d977761380ca32c1fc99a84c89775cac04e9de886019cc570a."
           }
         },
         {
@@ -766,7 +766,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 9f63b2db40a94f8ee3bce100d42d734715c09cab1e175324e9a3e21e3a8481b8."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 9f63b2db40a94f8ee3bce100d42d734715c09cab1e175324e9a3e21e3a8481b8."
           }
         },
         {
@@ -781,7 +781,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 7430f15ba44d7f50117cce4963c2f238e69b441ad373fde742a0a3366a0f6aa3."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 7430f15ba44d7f50117cce4963c2f238e69b441ad373fde742a0a3366a0f6aa3."
           }
         },
         {
@@ -796,7 +796,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 412b5498e3c4561d1a434bf59874d50b66be141d1fb67ba618c3554821a1fd6b."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 412b5498e3c4561d1a434bf59874d50b66be141d1fb67ba618c3554821a1fd6b."
           }
         },
         {
@@ -811,7 +811,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 b3192726f5599d34c8957982e391493779bcdda66e9061dd16f8334650398dfc."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 b3192726f5599d34c8957982e391493779bcdda66e9061dd16f8334650398dfc."
           }
         },
         {
@@ -826,7 +826,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 09ac524f48774f8ad9773866e62f317f8c31e6b3804cf103d5da92f248ef655d."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 09ac524f48774f8ad9773866e62f317f8c31e6b3804cf103d5da92f248ef655d."
           }
         },
         {
@@ -841,7 +841,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 35ff5f5167171a751bfd91b7dec7e7e51341085ce122949ca7d52952141bf7e0."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 35ff5f5167171a751bfd91b7dec7e7e51341085ce122949ca7d52952141bf7e0."
           }
         },
         {
@@ -856,7 +856,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 bebd39b9f1a4314535d712ef80afded6618c01e74fd211d714c96eb187a6ddf8."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 bebd39b9f1a4314535d712ef80afded6618c01e74fd211d714c96eb187a6ddf8."
           }
         },
         {
@@ -871,7 +871,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 94d21e29ec5624bafe2f4519ddfe333919bcead1e4faa9f6b12786d16d79ba7d."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 94d21e29ec5624bafe2f4519ddfe333919bcead1e4faa9f6b12786d16d79ba7d."
           }
         },
         {
@@ -886,7 +886,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 b9fbc7c0e39dbc9693ab2d405b2578882cf86abcda07c89f60aa170d876e6f92."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 b9fbc7c0e39dbc9693ab2d405b2578882cf86abcda07c89f60aa170d876e6f92."
           }
         },
         {
@@ -901,7 +901,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 87ccf203673b68024beb27e23e15ec9eec774d8ef3be97f6115f643146acc313."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 87ccf203673b68024beb27e23e15ec9eec774d8ef3be97f6115f643146acc313."
           }
         },
         {
@@ -916,7 +916,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 49e02190c77f78982bb79a0a3a1afe76f9e113bfb45290507ba9d7f9d5f0cd97."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 49e02190c77f78982bb79a0a3a1afe76f9e113bfb45290507ba9d7f9d5f0cd97."
           }
         },
         {
@@ -931,7 +931,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 eedc088ca936bf411e18f1ad683840b40386cf6e92b44caa1712a881a440878e."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 eedc088ca936bf411e18f1ad683840b40386cf6e92b44caa1712a881a440878e."
           }
         },
         {
@@ -946,7 +946,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 ab4cded9d2dd45b00c01cf9b728efc0d53c909b3787cf49a76d5d64b3d4d430d."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 ab4cded9d2dd45b00c01cf9b728efc0d53c909b3787cf49a76d5d64b3d4d430d."
           }
         },
         {
@@ -961,7 +961,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 9ceac3292ac9dcbe3cbc5094d74891b7d6bb828737bd5be5cb0bea73aa954843."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 9ceac3292ac9dcbe3cbc5094d74891b7d6bb828737bd5be5cb0bea73aa954843."
           }
         },
         {
@@ -976,7 +976,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 38e8ac06d33782d4d579818119e8cd3e399f1d524983c2e3119d263a06e00076."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 38e8ac06d33782d4d579818119e8cd3e399f1d524983c2e3119d263a06e00076."
           }
         },
         {
@@ -991,7 +991,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 6d6cae0b1165f58d7451f715eecb015d4ba8d4afbd07d15076fbcd3c29c48646."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 6d6cae0b1165f58d7451f715eecb015d4ba8d4afbd07d15076fbcd3c29c48646."
           }
         },
         {
@@ -1006,7 +1006,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 d5a0b7095b7640e9d628c6b5cd5601674b2ccb83416cb7ee28f20a280d4d1e47."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 d5a0b7095b7640e9d628c6b5cd5601674b2ccb83416cb7ee28f20a280d4d1e47."
           }
         },
         {
@@ -1021,7 +1021,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 51f8640e92da5003b9e411a74090f467a20cd2d49a16763a4030a5fc5f33b663."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 51f8640e92da5003b9e411a74090f467a20cd2d49a16763a4030a5fc5f33b663."
           }
         },
         {
@@ -1036,7 +1036,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 a2c0a69816b50f059c03d150d48e77f697ea643cc9d194cdbcda1e909909fc77."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 a2c0a69816b50f059c03d150d48e77f697ea643cc9d194cdbcda1e909909fc77."
           }
         },
         {
@@ -1051,7 +1051,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 b7091ed88f545654ddcb57dceffd616eb3aeafc1e664b5ab871941e736216de9."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 b7091ed88f545654ddcb57dceffd616eb3aeafc1e664b5ab871941e736216de9."
           }
         },
         {
@@ -1066,7 +1066,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 2d11990f4517f93481aad8d65874ff2e64e7518f879c3fc6472ac4d7def6b6cd."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 2d11990f4517f93481aad8d65874ff2e64e7518f879c3fc6472ac4d7def6b6cd."
           }
         },
         {
@@ -1081,7 +1081,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 d01d4eda380bac924676a1075dd8797f6d4a17f5250ba394442069f2fe648201."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 d01d4eda380bac924676a1075dd8797f6d4a17f5250ba394442069f2fe648201."
           }
         },
         {
@@ -1096,7 +1096,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 0c8547ce26ced4f8b72628de445e755e100457638baf56422d2291549b67542c."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 0c8547ce26ced4f8b72628de445e755e100457638baf56422d2291549b67542c."
           }
         },
         {
@@ -1111,7 +1111,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 730c94e38a42fd1cd8fb9c7adbbec8dc536a529ee4eb3519f2dacf58d7486f9c."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 730c94e38a42fd1cd8fb9c7adbbec8dc536a529ee4eb3519f2dacf58d7486f9c."
           }
         },
         {
@@ -1126,7 +1126,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 019313f528ef4e49e5cd88ab5fe6f6de955eb1bcd126104e10332e26fe0b69b3."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 019313f528ef4e49e5cd88ab5fe6f6de955eb1bcd126104e10332e26fe0b69b3."
           }
         },
         {
@@ -1141,7 +1141,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 bb8c68bcf4b81073a4e268d3a9cae6ce60d5cf8e8643698c8c1cd5cd6336da44."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 bb8c68bcf4b81073a4e268d3a9cae6ce60d5cf8e8643698c8c1cd5cd6336da44."
           }
         },
         {
@@ -1156,7 +1156,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 a4b4b2dbd12a0158452908cf3c3f410f0fa13f3704355cb3ed55ae95421782f7."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 a4b4b2dbd12a0158452908cf3c3f410f0fa13f3704355cb3ed55ae95421782f7."
           }
         },
         {
@@ -1171,7 +1171,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 ecb50bdb4bbc298fa868f9b1313559c1d09941e0c6a79115104253a050686b2b."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 ecb50bdb4bbc298fa868f9b1313559c1d09941e0c6a79115104253a050686b2b."
           }
         },
         {
@@ -1186,7 +1186,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 61c67b6e2b2066ccdb9882de6ab2e60a9416dc237ebd23fe06b033ed0631316c."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 61c67b6e2b2066ccdb9882de6ab2e60a9416dc237ebd23fe06b033ed0631316c."
           }
         },
         {
@@ -1201,7 +1201,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 c110b94cbec91ab426a5c1d6d3bbe9eb2c58c509331e34f85a9ad2d423a4e8a3."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 c110b94cbec91ab426a5c1d6d3bbe9eb2c58c509331e34f85a9ad2d423a4e8a3."
           }
         },
         {
@@ -1216,7 +1216,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 ef50e02dd0568313bd3b98566ca311a33fba6162d67f86e5fa86c21454ee4ebb."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 ef50e02dd0568313bd3b98566ca311a33fba6162d67f86e5fa86c21454ee4ebb."
           }
         },
         {
@@ -1231,7 +1231,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 70dabb7b4d9d92c05402b3cf248d43e1129cf018ab0bc2b01a6b029c387b8a1d."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 70dabb7b4d9d92c05402b3cf248d43e1129cf018ab0bc2b01a6b029c387b8a1d."
           }
         },
         {
@@ -1246,7 +1246,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 9aa01c223029bf73e366f08647b5cd692c673d03f8ad3a77a2a4c529981c77ac."
           }
         },
         {
@@ -1261,7 +1261,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 7f57c1a11d6cc53d1795d51b146decbfbe8373a272bbcec524a9108a8f776100."
           }
         },
         {
@@ -1276,7 +1276,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 d2fa5fff4668803b1ba33bdc6b5a0e9f54a9cdcc3420448eb1901b82cb729d63."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 d2fa5fff4668803b1ba33bdc6b5a0e9f54a9cdcc3420448eb1901b82cb729d63."
           }
         },
         {
@@ -1291,7 +1291,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 7e721fc0bd4dfd6aadfce699372a87c8558b13ba9077915c73b63016a0881c2f."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 7e721fc0bd4dfd6aadfce699372a87c8558b13ba9077915c73b63016a0881c2f."
           }
         },
         {
@@ -1306,7 +1306,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 f02e400a5b489f5ba1e18d8aca9edc0f0afe1e14f75e648698958408b29cff18."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 f02e400a5b489f5ba1e18d8aca9edc0f0afe1e14f75e648698958408b29cff18."
           }
         },
         {
@@ -1321,7 +1321,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 a8614fcb52b5dab99f3bb966af5a7cb4e25b13b9d9c53893124761a56ea74c7e."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 a8614fcb52b5dab99f3bb966af5a7cb4e25b13b9d9c53893124761a56ea74c7e."
           }
         },
         {
@@ -1336,7 +1336,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 1e390108bfd382b2d6fa64eaa085ef9c228f3246e3660eaa2c1133353b96281b."
           }
         },
         {
@@ -1351,7 +1351,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch phase-244-playwright-measurement; HEAD 599c6b1889a5d207cffa42a0a669200e32b35ba6; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4."
           }
         }
       ]
@@ -1387,7 +1387,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch gsd/phase-246-generated-confirmation-recovery-ci; HEAD 2232272d77a4ebfccafe43ddec877bf3ad6195a7; SHA-256 ba89293c7f456b82f1ad394155be87958cf7779efc932e3c9e8d644360f14141."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch gsd/phase-246-generated-confirmation-recovery-ci; HEAD 2232272d77a4ebfccafe43ddec877bf3ad6195a7; SHA-256 ba89293c7f456b82f1ad394155be87958cf7779efc932e3c9e8d644360f14141."
           }
         },
         {
@@ -1402,7 +1402,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch gsd/phase-246-generated-confirmation-recovery-ci; HEAD 2232272d77a4ebfccafe43ddec877bf3ad6195a7; SHA-256 5b7c0624890b1334471ab44260698e4a6bae89d35fb31b4501b85055b4dc97af."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch gsd/phase-246-generated-confirmation-recovery-ci; HEAD 2232272d77a4ebfccafe43ddec877bf3ad6195a7; SHA-256 5b7c0624890b1334471ab44260698e4a6bae89d35fb31b4501b85055b4dc97af."
           }
         },
         {
@@ -1417,7 +1417,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch gsd/phase-246-generated-confirmation-recovery-ci; HEAD 2232272d77a4ebfccafe43ddec877bf3ad6195a7; SHA-256 7cdd23c2e28b9aeced2c6cd4db359905c75f3e7e21040eff9169f8f6ed45c7ef."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch gsd/phase-246-generated-confirmation-recovery-ci; HEAD 2232272d77a4ebfccafe43ddec877bf3ad6195a7; SHA-256 7cdd23c2e28b9aeced2c6cd4db359905c75f3e7e21040eff9169f8f6ed45c7ef."
           }
         },
         {
@@ -1432,7 +1432,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch gsd/phase-246-generated-confirmation-recovery-ci; HEAD 2232272d77a4ebfccafe43ddec877bf3ad6195a7; SHA-256 9cdba3bc11b5ff8755ccd9205da81f3e20e6c95ac4df3adc0837fab20a496f50."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch gsd/phase-246-generated-confirmation-recovery-ci; HEAD 2232272d77a4ebfccafe43ddec877bf3ad6195a7; SHA-256 9cdba3bc11b5ff8755ccd9205da81f3e20e6c95ac4df3adc0837fab20a496f50."
           }
         }
       ]
@@ -1468,7 +1468,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch gsd/phase-246-confirmation-guard; HEAD 90ec16f72a71d33224c0816ad77762e2e7262c76; SHA-256 cd3f067edd8ccce9607f9b57acec8ebee8c0397a861a51f9470eba6e2c48ec9e."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch gsd/phase-246-confirmation-guard; HEAD 90ec16f72a71d33224c0816ad77762e2e7262c76; SHA-256 cd3f067edd8ccce9607f9b57acec8ebee8c0397a861a51f9470eba6e2c48ec9e."
           }
         },
         {
@@ -1483,7 +1483,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch gsd/phase-246-confirmation-guard; HEAD 90ec16f72a71d33224c0816ad77762e2e7262c76; SHA-256 5821d5395bf67423fcb6b6a1c4819c3325abda19d6bbc9149ce64a125d0d09bb."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch gsd/phase-246-confirmation-guard; HEAD 90ec16f72a71d33224c0816ad77762e2e7262c76; SHA-256 5821d5395bf67423fcb6b6a1c4819c3325abda19d6bbc9149ce64a125d0d09bb."
           }
         },
         {
@@ -1498,7 +1498,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch gsd/phase-246-confirmation-guard; HEAD 90ec16f72a71d33224c0816ad77762e2e7262c76; SHA-256 a7833603e74ba77122cf6e5810cba0befa79a665fed43503304bbc23e32c218e."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch gsd/phase-246-confirmation-guard; HEAD 90ec16f72a71d33224c0816ad77762e2e7262c76; SHA-256 a7833603e74ba77122cf6e5810cba0befa79a665fed43503304bbc23e32c218e."
           }
         },
         {
@@ -1513,7 +1513,7 @@
             "action": "Leave the path and its current bytes/status unchanged in this worktree; Plan 05 must prove recovery from a durable scoped ref before any relocation or cleanup.",
             "state": "blocked",
             "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim.",
-            "source": "git worktree/status snapshot at 2026-10-09T13:34:40.439Z; branch gsd/phase-246-confirmation-guard; HEAD 90ec16f72a71d33224c0816ad77762e2e7262c76; SHA-256 dcb0f25b02370b925875f4432ac31dd6455c6172045e7239c0f9f33ec3c7e46a."
+            "source": "git worktree/status snapshot at 2026-10-09T13:37:04.730Z; branch gsd/phase-246-confirmation-guard; HEAD 90ec16f72a71d33224c0816ad77762e2e7262c76; SHA-256 dcb0f25b02370b925875f4432ac31dd6455c6172045e7239c0f9f33ec3c7e46a."
           }
         }
       ]
@@ -7532,9 +7532,9 @@
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
     "The clean-closeout claim remains blocked until Plan 05 verifies durable preservation for every inherited dirty path."
   ],
-  "capture_completed_at": "2026-10-09T13:34:54.696Z",
+  "capture_completed_at": "2026-10-09T13:37:19.098Z",
   "disposition_summary": {
-    "recorded_at": "2026-10-09T13:34:56.572Z",
+    "recorded_at": "2026-10-09T13:37:20.739Z",
     "pull_requests": {
       "release-relevant": 4,
       "separate-follow-up": 10
