@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-10-09T19:22:43.000Z",
+  "timestamp": "2026-10-09T20:57:15.000Z",
   "phase": "249",
   "phase_name": "Publish and Prove Sigra 1.6.0",
-  "plan": "10",
+  "plan": "11",
   "task": 0,
   "total_tasks": 2,
-  "status": "Plan 249-09 complete; local ten-path candidate is ready for Plan 249-10 review; no PR has been opened",
+  "status": "Plan 249-10 complete; reviewed fourteen-path candidate 10246c8dbcc2acd3c49432844e84a34ae0bd01c1 is locally green and ready for Plan 11 live-base recheck; no push or PR has been opened",
   "completed_tasks": [
     {
       "id": "249-08",
@@ -18,18 +18,19 @@
       "name": "Assemble the source-bound receipt and required documentation gate",
       "status": "Complete. Candidate 72fc10449577f63974d068c5aba8c4b3ce99052e is based on current main e2fa303017364c7e496c3c620f7b709c8e90c8fb, changes exactly ten paths, passes the plan fixtures and docs rebuild/index comparison, and remains local for Plan 10 review.",
       "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-09-SUMMARY.md"
+    },
+    {
+      "id": "249-10",
+      "name": "Complete and review the scoped promotion candidate",
+      "status": "Complete. Candidate 10246c8dbcc2acd3c49432844e84a34ae0bd01c1 is based on e2fa303017364c7e496c3c620f7b709c8e90c8fb, contains exactly fourteen paths, passes internal security review and the full contributor gate, and remains local pending Plan 11.",
+      "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-SUMMARY.md"
     }
   ],
   "remaining_tasks": [
     {
-      "id": "249-10",
-      "name": "Complete and review the scoped promotion candidate",
-      "status": "Ready: complete internal review and contributor gate against exact candidate 72fc10449577f63974d068c5aba8c4b3ce99052e before opening a PR."
-    },
-    {
       "id": "249-11",
       "name": "Promote the exact reviewed candidate through protected auto-merge",
-      "status": "Waiting on Plan 10."
+      "status": "Ready: re-resolve live protected main and inventory, then push/open only the exact fourteen-path candidate; bind review and ci-gate to its current head."
     },
     {
       "id": "249-12",
@@ -63,7 +64,7 @@
     }
   ],
   "uncommitted_files": [],
-  "next_action": "Execute Plan 249-10 against /private/tmp/sigra-phase-249-09-candidate at exact HEAD 72fc10449577f63974d068c5aba8c4b3ce99052e. Recheck the ten-path allowlist, receipt/source identity, docs and workflow contracts, full candidate diff, and contributor gate. Open a hosted PR only after Plan 10 passes; do not push before its review gate.",
-  "context_notes": "Fresh capture 2026-10-09T18:20:45.573Z observed five worktrees, 14 open PRs, and no failed changed-file reads. Phase 233 source is preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery (commit fca3772b0dc546f954cd28c4122e72c29ddd6a05; source SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4) as separate test/CI maintenance and excluded from the release candidate. The only blocker is old .planning/HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148: audit scanned 22,400 Git blobs and 74,345 regular files across the repository/worktrees with no match; current/base handoff versions differ. Inventory is complete; preservation fails closed on that historical loss. No candidate, push, PR, or merge was created. Plan 249-08 implementation is complete; Phase 249 REL-02 verification remains incomplete. Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v4 (commit 96581c2b555a11b50b6efece9c25a5b1f8e0e456; SHA-256 b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3). Follow-up audit 2026-10-09 searched all current local Git objects/blobs and all 405 GitHub mirror refs (branch, tag, PR-head and PR-merge), plus 74,345 registered-worktree files; no target hash match. GitHub artifact metadata had no handoff/planning/preservation/Phase 249 name match. No user-held copy is available, so there is no manual decision/action pending; retain the fail-closed blocker. The audit results are in 249-PRESERVATION.json revision 4.\n\nRoot-cause limit: retained evidence proves the old handoff revision was inventoried and later unavailable, but does not identify the exact write/tool that replaced it. Prevention controls are in AGENTS.md, .planning/METHODOLOGY.md, the closeout ledger's planning_mutation_guards, and validate-closeout tests. Current preservation record revision 5 supersedes v4 while retaining the immutable recovery audit.\n\nPlan 249-09 candidate: branch gsd/phase-249-09-candidate, base e2fa303017364c7e496c3c620f7b709c8e90c8fb, HEAD 72fc10449577f63974d068c5aba8c4b3ce99052e, ten exact changed paths, clean worktree, no push/PR. Evidence: 249-09-CANDIDATE.json and 249-09-SUMMARY.md. The old HANDOFF identity remains unrecovered and user-authorized as a single accepted loss, not preserved. Prevention rule remains: write-ahead preserve dirty planning files before any rewrite.",
-  "last_updated": "2026-10-09T19:41:24.157Z"
+  "next_action": "Execute Plan 249-11. Immediately re-resolve protected main, refresh the complete PR/worktree inventory, and rerun preservation. If the base is still e2fa303017364c7e496c3c620f7b709c8e90c8fb, push the clean candidate HEAD 10246c8dbcc2acd3c49432844e84a34ae0bd01c1 without force and open only the scoped Phase 249 PR; then validate exact-head review and ci-gate evidence before protected auto-merge. Do not act on unrelated PRs.",
+  "context_notes": "Fresh capture 2026-10-09T18:20:45.573Z observed five worktrees, 14 open PRs, and no failed changed-file reads. Phase 233 source is preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery (commit fca3772b0dc546f954cd28c4122e72c29ddd6a05; source SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4) as separate test/CI maintenance and excluded from the release candidate. The only blocker is old .planning/HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148: audit scanned 22,400 Git blobs and 74,345 regular files across the repository/worktrees with no match; current/base handoff versions differ. Inventory is complete; preservation fails closed on that historical loss. No candidate, push, PR, or merge was created. Plan 249-08 implementation is complete; Phase 249 REL-02 verification remains incomplete. Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v4 (commit 96581c2b555a11b50b6efece9c25a5b1f8e0e456; SHA-256 b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3). Follow-up audit 2026-10-09 searched all current local Git objects/blobs and all 405 GitHub mirror refs (branch, tag, PR-head and PR-merge), plus 74,345 registered-worktree files; no target hash match. GitHub artifact metadata had no handoff/planning/preservation/Phase 249 name match. No user-held copy is available, so there is no manual decision/action pending; retain the fail-closed blocker. The audit results are in 249-PRESERVATION.json revision 4.\n\nRoot-cause limit: retained evidence proves the old handoff revision was inventoried and later unavailable, but does not identify the exact write/tool that replaced it. Prevention controls are in AGENTS.md, .planning/METHODOLOGY.md, the closeout ledger's planning_mutation_guards, and validate-closeout tests. Current preservation record revision 5 supersedes v4 while retaining the immutable recovery audit.\n\nPlan 249-09 candidate: branch gsd/phase-249-09-candidate, base e2fa303017364c7e496c3c620f7b709c8e90c8fb, HEAD 72fc10449577f63974d068c5aba8c4b3ce99052e, ten exact changed paths, clean worktree, no push/PR. Evidence: 249-09-CANDIDATE.json and 249-09-SUMMARY.md. The old HANDOFF identity remains unrecovered and user-authorized as a single accepted loss, not preserved. Prevention rule remains: write-ahead preserve dirty planning files before any rewrite.\n\nPlan 249-10 completed 2026-10-09. Candidate `gsd/phase-249-09-candidate` is clean at 10246c8dbcc2acd3c49432844e84a34ae0bd01c1, based on e2fa303017364c7e496c3c620f7b709c8e90c8fb, with exactly fourteen paths and no push/PR. Plan 10 evidence: 249-10-CANDIDATE.json and 249-10-SUMMARY.md. Release receipt SHA-256 remains c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5 for package source/CI head 9e80cb78d6374b1ed4074d5fef6b613fee879dca, run 37875238741. Full `MIX_ENV=test mix ci` passed outside the command sandbox with temporary Mix home/required phx_new archive and ephemeral Postgres; other focused proof, docs, workflow and symlink-destination tests passed. Plan 11 must freshly resolve main and inventory before any push/open because the candidate base observation predates Plan 10 completion. Preservation remains valid as `accepted-with-recorded-loss` for only the historical HANDOFF identity; its bytes remain unrecovered and are not claimed preserved. Write-ahead planning-artifact preservation controls remain in AGENTS.md, METHODOLOGY.md, closeout capture guards and validator tests.",
+  "last_updated": "2026-10-09T20:57:15.000Z"
 }

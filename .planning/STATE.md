@@ -4,18 +4,18 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 249-10 (complete review of the exact local Phase 249 candidate before opening a PR)
+current_plan: 249-11 (promote the reviewed exact-head candidate through protected auto-merge)
 status: in_progress
-stopped_at: Plan 249-09 complete; Plan 249-10 must review the local candidate before any PR is opened
-last_updated: "2026-10-09T19:29:01.000Z"
+stopped_at: Plan 249-10 complete; the exact fourteen-path candidate is locally green and ready for live-base recheck before PR promotion
+last_updated: "2026-10-09T20:57:15.000Z"
 last_activity: 2026-10-09
-last_activity_desc: Built and verified the exact ten-path Plan 249-09 candidate; Plan 249-10 review remains before PR creation
-state_head: e1d5f050e
+last_activity_desc: Completed Plan 249-10 review and full candidate verification; Plan 249-11 will recheck live main and PR inventory before promotion
+state_head: 2782099bb
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 31
-  completed_plans: 26
+  completed_plans: 27
   percent: 50
 ---
 
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-09 complete
-Current Plan: 249-10 (review candidate 72fc10449577f63974d068c5aba8c4b3ce99052e before hosted PR creation)
+Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-10 complete
+Current Plan: 249-11 (recheck live main and inventory, then promote candidate 10246c8dbcc2acd3c49432844e84a34ae0bd01c1)
 Total Plans in Phase: 12
-Plans executed: 9 of 12
-Status: In progress; the exact historical loss is user-authorized and recorded; the local release candidate is ready for review
-Last activity: 2026-10-09 — Plan 249-09 produced the clean ten-path candidate; Plan 249-10 review precedes any PR
+Plans executed: 10 of 12
+Status: In progress; the exact historical loss is user-authorized and recorded; the fourteen-path candidate passed internal review and local CI
+Last activity: 2026-10-09 — Plan 249-10 produced clean candidate 10246c8dbcc2acd3c49432844e84a34ae0bd01c1; Plan 249-11 must re-resolve main before promotion
 
 Progress: [█████░░░░░] 50%
 
