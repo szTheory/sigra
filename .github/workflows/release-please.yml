@@ -350,7 +350,7 @@ jobs:
       diagnostic: ${{ steps.capture-publish-result.outputs.diagnostic }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: sigra_test

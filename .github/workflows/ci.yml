@@ -485,7 +485,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: sigra_test
@@ -571,7 +571,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
@@ -653,7 +653,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
@@ -718,7 +718,7 @@ jobs:
     if: ${{ !cancelled() }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -793,7 +793,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -862,7 +862,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -915,7 +915,7 @@ jobs:
     if: github.event_name != 'pull_request'
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -978,7 +978,7 @@ jobs:
           - "--no-organizations --no-passkeys"
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1098,7 +1098,7 @@ jobs:
     if: github.event_name != 'pull_request'
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1156,7 +1156,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1280,7 +1280,7 @@ jobs:
             browser_cache_key: playwright-chromium-1.59.1-v3
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1482,7 +1482,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1756,7 +1756,7 @@ jobs:
       pull-requests: write  # required for gh pr create
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1994,7 +1994,7 @@ jobs:
       pull-requests: write  # required for gh pr create
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -2179,7 +2179,7 @@ jobs:
       PORT: "4011"
     services:
       postgres:
-        image: postgres:15
+        image: public.ecr.aws/docker/library/postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
