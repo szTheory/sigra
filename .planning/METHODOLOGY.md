@@ -10,6 +10,12 @@ Prefer checks that run automatically on every relevant change when they provide 
 
 Treat human verification as the last resort: use it only for outcomes that cannot be established reliably by automation, such as subjective judgment or an unavailable external authority. When a human checkpoint remains necessary, state the exact uncertainty and preserve machine-readable evidence for every other criterion. Do not ask the operator to repeat checks already established by reproducible automated evidence.
 
+## Validation Source Identity
+
+Bind every build, generated-artifact comparison, and CI claim to the exact source identity it tested. Before interpreting a result, record the checkout's commit SHA, branch or trusted ref, product version, dirty/clean state, and language/runtime toolchain. Refresh the trusted target ref before using it as a baseline; a stale local tracking ref is not authoritative.
+
+When the active GSD worktree predates the candidate or release under test, treat version and generated-file mismatches there as a checkout-scope diagnostic, not a product failure. Preserve the first result, then reproduce the relevant check in an isolated clean checkout of the exact candidate or trusted target SHA using the supported CI toolchain. Keep both identities and outcomes in the validation record. Do not label the product gate blocked, request human UAT, or change product code until the exact-source reproduction establishes a real failure. Run change-specific checks on the exact PR head and use its hosted exact-head CI as the merge gate.
+
 ## External Mutations And Evidence Writes
 
 Before a merge, publish, deploy, tag, or other external state change, preflight the local durable evidence path that must record its result. Confirm object creation and expected-old ref updates work in the repository that will hold the evidence; a writable checkout does not imply a writable Git object database. If evidence persistence is unavailable, stop before the external mutation. If a tool reports failure after the external action may have completed, re-read the external state first, preserve any captured dirty evidence by exact-byte read-back, and resume from observed state rather than replaying the mutation.

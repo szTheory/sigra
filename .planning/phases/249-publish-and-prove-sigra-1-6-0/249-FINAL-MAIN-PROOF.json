@@ -3,7 +3,7 @@
   "phase": 249,
   "plan": "06",
   "repository": "szTheory/sigra",
-  "recorded_at": "2026-10-09T21:53:46.267Z",
+  "recorded_at": "2026-10-09T23:36:07.671Z",
   "promotion": {
     "ref": "evidence/phase-249-promotion",
     "commit_sha": "9b1074975077ffdc5a711327a2de50bce15b787f",
@@ -36,7 +36,7 @@
       }
     }
   },
-  "protected_main_sha": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
+  "protected_main_sha": "08300af1740fea8b77d5928a182688acbf103edc",
   "receipt_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
   "receipt_blob_sha": "04319a489442de5ac80a80a992df5927973d49aa",
   "receipt_sha256": "c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5",
@@ -53,23 +53,23 @@
   },
   "ci": {
     "workflow": ".github/workflows/ci.yml",
-    "run_id": "37993629114",
+    "run_id": "38003573391",
     "attempt": 1,
-    "url": "https://github.com/szTheory/sigra/actions/runs/37993629114",
-    "head_sha": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38003573391",
+    "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
     "conclusion": "success",
     "ci_gate": {
-      "job_id": "114036565274",
-      "url": "https://github.com/szTheory/sigra/actions/runs/37993629114/job/114036565274",
-      "head_sha": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
+      "job_id": "114069179560",
+      "url": "https://github.com/szTheory/sigra/actions/runs/38003573391/job/114069179560",
+      "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
       "conclusion": "success"
     }
   },
   "live_main": {
-    "observed_at": "2026-10-09T21:53:43.781Z",
+    "observed_at": "2026-10-09T23:36:04.885Z",
     "source_status": "complete",
-    "current_main_sha": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
-    "current_main_sha_after": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
+    "current_main_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+    "current_main_sha_after": "08300af1740fea8b77d5928a182688acbf103edc",
     "promotion_merge_on_main": true,
     "receipt": {
       "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
@@ -123,17 +123,17 @@
       "workflow": ".github/workflows/ci.yml",
       "status": "completed",
       "conclusion": "success",
-      "head_sha": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
-      "run_id": "37993629114",
+      "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+      "run_id": "38003573391",
       "attempt": 1,
-      "url": "https://github.com/szTheory/sigra/actions/runs/37993629114",
+      "url": "https://github.com/szTheory/sigra/actions/runs/38003573391",
       "ci_gate": {
         "name": "ci-gate",
-        "job_id": "114036565274",
+        "job_id": "114069179560",
         "status": "completed",
         "conclusion": "success",
-        "head_sha": "3c7d713f290c93de3b9fd54be7ece31d71f32787",
-        "url": "https://github.com/szTheory/sigra/actions/runs/37993629114/job/114036565274"
+        "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+        "url": "https://github.com/szTheory/sigra/actions/runs/38003573391/job/114069179560"
       }
     }
   },
