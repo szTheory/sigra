@@ -94,7 +94,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 246 is complete: exact source `90ec16f72a71d33224c0816ad77762e2e7262c76` passed required run [37676348766](https://github.com/szTheory/sigra/actions/runs/37676348766), and phase verification passed 10/10. Earlier local CI failures remain historical diagnostics only.
 - Phase 247 Plan 01 is complete. Its refreshed ledger preserves the original entry snapshot, records scoped PR #288 promotion, and validates the clean candidate worktree at protected main `590eb4ed3323db11dd74326cbee00c9c7973e529`; exact main CI run [37686980115](https://github.com/szTheory/sigra/actions/runs/37686980115) passed on attempt 2.
 - The earlier example `mix precommit` `/dev/mailbox` warning remains a readiness item to check against the selected candidate in Plan 04; it did not fail the selected main's required CI gate.
-- Phase 247 Plans 01–03 are complete; Plan 04 remains runnable with no prerequisite blocker. PR #224 remains open at head `563f411bc2659bb9ac1652d552ce58ffb0c876b1`, based on reviewed main `590eb4ed3323db11dd74326cbee00c9c7973e529`; exact-head CI run 37700772880 passed. Phase 248 remains planned and has not started.
+- Phase 248 release implementation and environment-secret setup are operationally complete; Sigra 1.6.0 has a successful hosted publish receipt. Its historical 13/18 verification report still lacks hosted manual dry-run and failure/cancellation proof. Keep those as separate verification maintenance unless fresh GSD readiness reports a prerequisite blocker for the current forward phase.
 
 ## Accumulated Context
 
