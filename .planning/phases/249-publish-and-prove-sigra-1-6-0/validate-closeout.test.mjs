@@ -1,5 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 let validatorApi;
 try {
@@ -147,6 +151,32 @@ test('a later HEAD is allowed only when its complete commit diff stays within se
   assert.equal(invoke('validateInventory', ledger, live).valid, true);
   live.evidence_transitions['/repo'].changed_paths = ['scripts/unrelated.sh'];
   assert.equal(invoke('validateInventory', ledger, live).valid, false);
+});
+
+test('the live evidence-transition probe accepts only descendant commits limited to its allowlist', t => {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-closeout-transition-'));
+  t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+  const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  git('init', '-q');
+  git('config', 'user.name', 'Closeout Fixture');
+  git('config', 'user.email', 'closeout-fixture@example.invalid');
+  fs.writeFileSync(path.join(repo, 'release-proof.json'), '{}\n');
+  git('add', 'release-proof.json');
+  git('commit', '-m', 'anchor');
+  const anchor = git('rev-parse', 'HEAD');
+  fs.writeFileSync(path.join(repo, 'release-proof.json'), '{"ok":true}\n');
+  git('add', 'release-proof.json');
+  git('commit', '-m', 'allowed evidence output');
+  const allowedHead = git('rev-parse', 'HEAD');
+  const allowed = invoke('evidenceTransition', repo, anchor, allowedHead, ['release-proof.json']);
+  assert.deepEqual(allowed, { valid: true, changed_paths: ['release-proof.json'] });
+  fs.writeFileSync(path.join(repo, 'unrelated.txt'), 'not allowed\n');
+  git('add', 'unrelated.txt');
+  git('commit', '-m', 'unrelated change');
+  const unrelatedHead = git('rev-parse', 'HEAD');
+  const rejected = invoke('evidenceTransition', repo, anchor, unrelatedHead, ['release-proof.json']);
+  assert.equal(rejected.valid, false);
+  assert.deepEqual(rejected.changed_paths, ['release-proof.json', 'unrelated.txt']);
 });
 
 test('stable ordering is independent of API and worktree enumeration order', () => {
