@@ -6,6 +6,7 @@ set -euo pipefail
 
 readonly RELEASE_BRANCH="release-please--branches--main"
 readonly INDEX_PATH="doc/llms.txt"
+readonly MAX_INDEX_BYTES=5000000
 readonly EXPECTED_ARTIFACT_ENTRIES=$'./candidate.json\n./doc\n./doc/llms.txt'
 
 fail() {
@@ -128,6 +129,18 @@ same_json() {
   jq -cS . "$1" > "$2"
 }
 
+validate_index_file() {
+  local file="$1" size
+  [[ -f "$file" && ! -L "$file" && -s "$file" ]] \
+    || fail "generated doc/llms.txt must be a non-empty regular file"
+  size="$(wc -c < "$file" | tr -d '[:space:]')"
+  [[ "$size" =~ ^[0-9]+$ ]] || fail "generated docs index size is malformed"
+  (( size <= MAX_INDEX_BYTES )) \
+    || fail "generated docs index exceeds the ${MAX_INDEX_BYTES}-byte artifact limit"
+  iconv -f UTF-8 -t UTF-8 "$file" >/dev/null 2>&1 \
+    || fail "generated docs index must contain valid UTF-8 text"
+}
+
 capture() {
   parse_options capture "$@"
   require_file_path repository "$REPOSITORY"
@@ -137,7 +150,7 @@ capture() {
   valid_sha "$EXPECTED_MAIN_SHA" || fail "expected main SHA is malformed"
   [[ "$REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || fail "repository is malformed"
 
-  local temp_dir main_before main_after first second identity_json
+  local temp_dir main_before main_after identity_json
   temp_dir="$(mktemp -d)"
   trap 'rm -rf "$temp_dir"' RETURN
   main_before="$(main_sha)"
@@ -202,8 +215,7 @@ package_artifact() {
     || fail "candidate checkout is not a Git repository"
   [[ "$(git -C "$actual_root" rev-parse HEAD)" == "$expected_sha" ]] \
     || fail "docs were not built from the recorded candidate SHA"
-  [[ -f "$actual_root/$INDEX_PATH" && ! -L "$actual_root/$INDEX_PATH" && -s "$actual_root/$INDEX_PATH" ]] \
-    || fail "generated doc/llms.txt must be a non-empty regular file"
+  validate_index_file "$actual_root/$INDEX_PATH"
   status_line="$(git -C "$actual_root" status --porcelain --untracked-files=all)"
   while IFS= read -r status_line; do
     [[ -z "$status_line" ]] && continue
@@ -261,7 +273,7 @@ write_candidate() {
   [[ "$(jq -r '.repository' "$IDENTITY_FILE")" == "$REPOSITORY" ]] || fail "identity repository differs from writer target"
   [[ "$(jq -r '.candidate == null' "$IDENTITY_FILE")" == "false" ]] || fail "writer received no candidate"
 
-  local artifact_entries actual_entries artifact_identity expected_identity candidate_sha main_before
+  local actual_entries artifact_identity expected_identity candidate_sha main_before
   [[ -d "$ARTIFACT_DIR" && ! -L "$ARTIFACT_DIR" ]] || fail "downloaded docs artifact is missing or unsafe"
   actual_entries="$(cd "$ARTIFACT_DIR" && find . -mindepth 1 -maxdepth 2 -print | LC_ALL=C sort)"
   [[ "$actual_entries" == "$EXPECTED_ARTIFACT_ENTRIES" ]] \
@@ -270,8 +282,7 @@ write_candidate() {
     || fail "artifact candidate identity must be a regular file"
   [[ ! -L "$ARTIFACT_DIR/doc" && -d "$ARTIFACT_DIR/doc" ]] \
     || fail "artifact doc directory must be a regular directory"
-  [[ ! -L "$ARTIFACT_DIR/$INDEX_PATH" && -f "$ARTIFACT_DIR/$INDEX_PATH" && -s "$ARTIFACT_DIR/$INDEX_PATH" ]] \
-    || fail "artifact index must be a non-empty regular file"
+  validate_index_file "$ARTIFACT_DIR/$INDEX_PATH"
   artifact_identity="$(jq -cS . "$ARTIFACT_DIR/candidate.json")" || fail "artifact identity is not valid JSON"
   expected_identity="$(jq -cS . "$IDENTITY_FILE")"
   [[ "$artifact_identity" == "$expected_identity" ]] || fail "artifact identity differs from the selected candidate"
@@ -280,7 +291,7 @@ write_candidate() {
 
   [[ -d "$REPO_DIR" && ! -L "$REPO_DIR" ]] || fail "writer checkout is missing or unsafe"
   REPO_DIR="$(cd "$REPO_DIR" && pwd -P)"
-  local git_root origin_url current_sha status expected_candidate tmp_dir normalized pushed_sha ci_rows ci_run_id ci_url
+  local git_root origin_url current_sha expected_candidate tmp_dir normalized pushed_sha ci_rows ci_run_id ci_url
   git_root="$(git -C "$REPO_DIR" rev-parse --show-toplevel)" || fail "writer checkout is not a Git repository"
   [[ "$git_root" == "$REPO_DIR" ]] || fail "writer checkout path is not the repository root"
   origin_url="$(git -C "$REPO_DIR" remote get-url origin)" || fail "writer checkout has no origin remote"
@@ -309,7 +320,7 @@ write_candidate() {
       echo 'fresh_ci_run_id='
       echo 'fresh_ci_url='
     } >> "$GITHUB_OUTPUT_FILE"
-    printf '# Release candidate docs refresh\n\nThe generated index already matches candidate `%s`; no commit was created.\n' \
+    printf '# Release candidate docs refresh\n\nThe generated index already matches candidate %s; no commit was created.\n' \
       "$candidate_sha" >> "$SUMMARY_FILE"
     echo "refresh-release-docs: generated index already matches; explicit no-op"
     return 0
@@ -358,10 +369,10 @@ write_candidate() {
   {
     echo '# Release candidate docs refresh'
     echo
-    printf 'Updated only `%s` on PR #%s.\n' "$INDEX_PATH" "$(jq -r '.candidate.number' "$IDENTITY_FILE")"
+    printf 'Updated only %s on PR #%s.\n' "$INDEX_PATH" "$(jq -r '.candidate.number' "$IDENTITY_FILE")"
     echo
-    printf -- '- Previous head: `%s`\n' "$candidate_sha"
-    printf -- '- Refreshed head: `%s`\n' "$pushed_sha"
+    printf -- '- Previous head: %s\n' "$candidate_sha"
+    printf -- '- Refreshed head: %s\n' "$pushed_sha"
     printf -- '- Ordinary CI: [%s](%s)\n' "$ci_run_id" "$ci_url"
     echo '- Merge remains governed by the existing exact-head CI guard.'
   } >> "$SUMMARY_FILE"
