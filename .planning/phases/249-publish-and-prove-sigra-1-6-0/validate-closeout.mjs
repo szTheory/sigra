@@ -221,6 +221,55 @@ export function sortLedger(ledger) {
   };
 }
 
+export function inventoryFingerprint(ledger, live) {
+  const evidence = ledger?.evidence_artifacts ?? {};
+  const stableSource = source => {
+    const value = live?.source_status?.[source] ?? {};
+    return {
+      status: value.status ?? null,
+      pagination_complete: value.pagination_complete ?? false,
+      count: value.count ?? null,
+      method: value.method ?? null,
+      read_error: value.read_error ?? null,
+    };
+  };
+  const worktrees = sortRows((live?.worktrees ?? []).map(row => {
+    const selfPaths = row.path === evidence.worktree_path ? new Set(evidence.paths ?? []) : new Set();
+    return {
+      path: row.path,
+      branch: row.branch ?? null,
+      head_sha: row.head_sha ?? null,
+      detached: row.detached ?? false,
+      locked: row.locked ?? false,
+      prunable: row.prunable ?? false,
+      read_status: row.read_status ?? null,
+      dirty_paths: sortRows((row.dirty_paths ?? []).filter(dirty => !selfPaths.has(dirty.path)).map(dirty => ({
+        path: dirty.path,
+        status: dirty.status,
+        original_path: dirty.original_path ?? null,
+        content_state: dirty.content_state ?? null,
+        sha256: dirty.sha256 ?? null,
+      })), dirtyKey),
+    };
+  }), row => row.path);
+  const pullRequests = sortRows((live?.pull_requests ?? []).map(row => ({
+    number: row.number,
+    title: row.title,
+    base_ref: row.base_ref,
+    base_sha: row.base_sha,
+    head_ref: row.head_ref,
+    head_sha: row.head_sha,
+    url: row.url,
+  })), row => String(row.number).padStart(12, '0'));
+  const snapshot = {
+    repository: live?.repository ?? null,
+    source_status: { worktrees: stableSource('worktrees'), pull_requests: stableSource('pull_requests') },
+    worktrees,
+    pull_requests: pullRequests,
+  };
+  return sha256(Buffer.from(JSON.stringify(snapshot)));
+}
+
 export function validateInventory(ledger, live) {
   const errors = [];
   const add = (code, message) => errors.push({ code, message });
@@ -1128,11 +1177,11 @@ async function main() {
       repo_root: DEFAULT_ROOT,
     };
     const validation = validateFinalAcceptance(proof);
-    const inventoryFingerprint = sha256(Buffer.from(JSON.stringify({
-      worktrees: liveInventory.worktrees,
-      pull_requests: liveInventory.pull_requests,
-      source_status: liveInventory.source_status,
-    })));
+    const evidencePaths = new Set(ledger.evidence_artifacts?.paths ?? []);
+    const evidenceWorktreePath = ledger.evidence_artifacts?.worktree_path;
+    const inventoryFingerprintValue = inventoryFingerprint(ledger, liveInventory);
+    const inheritedDirtyPathCount = liveInventory.worktrees.reduce((sum, worktree) => sum + worktree.dirty_paths
+      .filter(row => worktree.path !== evidenceWorktreePath || !evidencePaths.has(row.path)).length, 0);
     const record = {
       schema_version: 1,
       phase: 249,
@@ -1156,11 +1205,11 @@ async function main() {
         source_commit_sha: publicProof.source_reference?.resolved_commit_sha ?? receipt.value?.source_reference?.resolved_commit_sha ?? null,
       } : { verdict: 'blocked', reason: 'Public release proof could not be read.' },
       closeout_ledger_sha256: sha256(fs.readFileSync(ledgerPath)),
-      inventory_fingerprint_sha256: inventoryFingerprint,
+      inventory_fingerprint_sha256: inventoryFingerprintValue,
       inventory: {
         worktree_count: liveInventory.worktrees.length,
         pull_request_count: liveInventory.pull_requests.length,
-        dirty_path_count: liveInventory.worktrees.reduce((sum, row) => sum + row.dirty_paths.length, 0),
+        dirty_path_count: inheritedDirtyPathCount,
         worktree_read_status: liveInventory.source_status.worktrees.status,
         pull_request_read_status: liveInventory.source_status.pull_requests.status,
       },

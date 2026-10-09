@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T14:43:23.847Z",
+  "observed_at": "2026-10-09T14:52:55.916Z",
   "inventory_status": "complete",
   "closeout_status": "blocked-until-dispositions-and-preservation",
   "source_status": {
@@ -10,19 +10,19 @@
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 5,
-      "observed_at": "2026-10-09T14:43:23.847Z"
+      "observed_at": "2026-10-09T14:52:55.916Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
       "count": 14,
-      "observed_at": "2026-10-09T14:43:23.847Z"
+      "observed_at": "2026-10-09T14:52:55.916Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "787130dd295a3cacd58508efaf4036dc65fd0f49",
+    "anchor_head_sha": "1643272f18446b09c6750d3d2523347db7b9e2b1",
     "paths": [
       ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
       ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-SUMMARY.md",
@@ -62,7 +62,7 @@
     "previously_generated_outputs_excluded": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
-        "sha256": "f0a3c45790eeb40db465bcd996db7da9118733d656ec607a78abafef51417d5e"
+        "sha256": "0e4aca4268832554fa238cb08a30c719b20941db0a9a486de6c87e27f12a52d1"
       }
     ],
     "collisions": []
@@ -71,7 +71,7 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "787130dd295a3cacd58508efaf4036dc65fd0f49",
+      "head_sha": "1643272f18446b09c6750d3d2523347db7b9e2b1",
       "detached": false,
       "locked": false,
       "prunable": false,
@@ -8233,5 +8233,5 @@
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
     "The clean-closeout claim remains blocked until Plan 05 verifies durable preservation for every inherited dirty path."
   ],
-  "capture_completed_at": "2026-10-09T14:43:37.772Z"
+  "capture_completed_at": "2026-10-09T14:53:10.410Z"
 }

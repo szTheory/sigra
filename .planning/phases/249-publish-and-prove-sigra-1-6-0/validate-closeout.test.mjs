@@ -598,6 +598,17 @@ test('final acceptance requires the durable post-merge proof artifact', () => {
   assert.ok(result.errors.some(error => error.code === 'final_main_proof_missing'));
 });
 
+test('the inventory fingerprint ignores only declared self-evidence paths', () => {
+  const { ledger, live } = fixture();
+  const evidencePath = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
+  ledger.evidence_artifacts = { worktree_path: '/repo', anchor_head_sha: ledger.worktrees[0].head_sha, paths: [evidencePath] };
+  const initial = invoke('inventoryFingerprint', ledger, live);
+  live.worktrees[0].dirty_paths.push({ path: evidencePath, status: ' M', content_state: 'regular-file', sha256: digest('f') });
+  assert.equal(invoke('inventoryFingerprint', ledger, live), initial);
+  live.worktrees[0].dirty_paths.push({ path: 'notes/new.md', status: '??', content_state: 'regular-file', sha256: digest('9') });
+  assert.notEqual(invoke('inventoryFingerprint', ledger, live), initial);
+});
+
 test('stable ordering is independent of API and worktree enumeration order', () => {
   const { ledger } = fixture();
   ledger.worktrees.push({ ...structuredClone(ledger.worktrees[0]), path: '/other' });
