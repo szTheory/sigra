@@ -1,0 +1,20 @@
+{
+  "phase": 249,
+  "plan": "05",
+  "task": 1,
+  "kind": "tdd-green-evidence",
+  "command": "node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+  "exit_code": 0,
+  "result": {
+    "tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "new_cases": [
+      "verified durable ref and exact path hash",
+      "missing preservation ref",
+      "preserved content hash mismatch",
+      "newly appearing dirty path"
+    ]
+  },
+  "captured_at": "2026-10-09T14:21:08.000Z"
+}

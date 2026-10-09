@@ -13,10 +13,31 @@ const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(MODULE_DIR, '../../..');
 const SELF_ARTIFACTS = [
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-SUMMARY.md',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-TASK-1-RED.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-TASK-2-RED.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-04-SUMMARY.md',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-SUMMARY.md',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-RED.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-GREEN.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-RED.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-GREEN.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-SUMMARY.md',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-SUMMARY.md',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-1-RED.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-2-RED.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PROMOTION.json',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs',
+  '.planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs',
+  '.planning/ROADMAP.md',
   '.planning/STATE.md',
   '.planning/state.json',
-  '.planning/ROADMAP.md',
+  '.github/workflows/release-please.yml',
+  'scripts/ci/refresh-release-docs.sh',
+  'scripts/ci/refresh-release-docs.test.sh',
+  'scripts/ci/release-public-proof.sh',
+  'scripts/ci/release-public-proof.test.sh',
+  'test/sigra/planning/phase_249_release_docs_contract_test.exs',
 ];
 
 function run(command, args, cwd, maxBuffer = 64 * 1024 * 1024) {
@@ -275,7 +296,7 @@ export function validateDispositions(ledger) {
     return { valid: false, blocked: true, closeout_status: 'blocked', errors, blockers };
   }
   for (const worktree of ledger.worktrees) {
-    for (const dirty of worktree.dirty_paths ?? []) {
+    for (const dirty of worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? []) {
       const record = dirty.preservation;
       if (!DIGEST.test(dirty.sha256 ?? '') && dirty.content_state !== 'deleted' && dirty.content_state !== 'directory-or-submodule' && dirty.content_state !== 'non-regular-file') {
         add('dirty_hash_missing', `Dirty path ${worktree.path}:${dirty.path} lacks a SHA-256 content identity.`);
@@ -309,6 +330,136 @@ export function validateDispositions(ledger) {
     closeout_status: blockers.length ? 'blocked' : 'ready',
     errors,
     blockers,
+  };
+}
+
+function recoveryPathKey(row) {
+  return JSON.stringify([row.path, row.status, row.content_state, row.sha256]);
+}
+
+function recoveredBlobHashes(repoRoot, commitSha, relativePath) {
+  const commits = runText('git', ['rev-list', '--parents', '-n', '1', commitSha], repoRoot).split(' ').slice(0, 4);
+  const hashes = new Set();
+  for (const commit of commits) {
+    const entries = run('git', ['ls-tree', '-rz', '-r', '--full-tree', commit], repoRoot).toString('utf8').split('\0');
+    for (const entry of entries) {
+      if (!entry) continue;
+      const separator = entry.indexOf('\t');
+      if (separator < 0 || entry.slice(separator + 1) !== relativePath) continue;
+      const [mode, type, objectSha] = entry.slice(0, separator).split(' ');
+      if (type !== 'blob' || !/^[0-7]{6}$/.test(mode ?? '') || !SHA.test(objectSha ?? '')) continue;
+      hashes.add(sha256(run('git', ['cat-file', 'blob', objectSha], repoRoot)));
+    }
+  }
+  return hashes;
+}
+
+export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } = {}) {
+  const errors = [];
+  const blockers = [];
+  const add = (code, message) => errors.push({ code, message });
+  const inventory = validateInventory(ledger, live);
+  for (const error of inventory.errors) {
+    if (error.code !== 'dirty_path_population_mismatch') errors.push(error);
+  }
+  if (!Array.isArray(ledger?.worktrees) || !Array.isArray(live?.worktrees)) {
+    add('preservation_worktrees_missing', 'Complete ledger and live worktree arrays are required.');
+    return { valid: false, blocked: true, closeout_status: 'invalid', errors, blockers };
+  }
+
+  const liveByPath = new Map(live.worktrees.map(worktree => [worktree.path, worktree]));
+  const preservationGroups = new Map();
+  for (const worktree of ledger.worktrees) {
+    const current = liveByPath.get(worktree.path);
+    if (!current) continue;
+    const baseline = worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? [];
+    const currentByIdentity = new Map((current.dirty_paths ?? []).map(row => [dirtyKey(row), row]));
+    const currentByPath = new Map((current.dirty_paths ?? []).map(row => [row.path, row]));
+    const baselineByIdentity = new Map(baseline.map(row => [dirtyKey(row), row]));
+
+    for (const dirty of baseline) {
+      const record = dirty.preservation;
+      if (!record || !PRESERVATION_STATES.has(record.state)) {
+        add('preservation_decision_missing', `Inherited path ${worktree.path}:${dirty.path} has no valid preservation decision.`);
+        continue;
+      }
+      const currentExact = currentByIdentity.has(dirtyKey(dirty));
+      const currentAtPath = currentByPath.get(dirty.path);
+      if (record.state === 'preserved') {
+        if (currentAtPath) add('preservation_source_not_clean', `Preserved path ${worktree.path}:${dirty.path} is still dirty in its source worktree.`);
+        if (!record.ref || !/^refs\/phase-249-preservation\/[A-Za-z0-9._/-]+$/.test(record.ref) || record.ref.includes('..')) {
+          add('preservation_ref_missing', `Preserved path ${worktree.path}:${dirty.path} needs a named refs/phase-249-preservation/* ref.`);
+          continue;
+        }
+        if (!Array.isArray(record.paths) || record.paths.length === 0 || !SHA.test(record.object_sha ?? '')) {
+          add('preservation_path_set_invalid', `Preserved path ${worktree.path}:${dirty.path} needs a full ref object SHA and exact path set.`);
+          continue;
+        }
+        const group = preservationGroups.get(record.ref) ?? { worktree_path: worktree.path, object_sha: record.object_sha, rows: [], declarations: [] };
+        group.rows.push(dirty);
+        group.declarations.push(record.paths);
+        if (group.object_sha !== record.object_sha || group.worktree_path !== worktree.path) {
+          add('preservation_ref_reused', `Preservation ref ${record.ref} is assigned to different objects or source worktrees.`);
+        }
+        preservationGroups.set(record.ref, group);
+      } else {
+        if (!currentExact) add('preservation_source_drift', `Unpreserved path ${worktree.path}:${dirty.path} no longer matches its captured bytes/status.`);
+        blockers.push({ worktree_path: worktree.path, path: dirty.path, state: record.state, reason: record.reason });
+      }
+    }
+
+    for (const row of current.dirty_paths ?? []) {
+      const prior = baselineByIdentity.get(dirtyKey(row));
+      if (prior?.preservation?.state === 'preserved') {
+        add('preservation_source_not_clean', `Preserved path ${worktree.path}:${row.path} reappeared in the source worktree.`);
+      } else if (!prior) {
+        add('preservation_new_dirty_path', `New or changed dirty path ${worktree.path}:${row.path} is absent from the preservation ledger.`);
+      }
+    }
+  }
+
+  for (const [ref, group] of preservationGroups) {
+    let resolvedSha;
+    try {
+      resolvedSha = runText('git', ['rev-parse', '--verify', `${ref}^{commit}`], repoRoot);
+    } catch {
+      add('preservation_ref_unresolvable', `Preservation ref ${ref} does not resolve to a commit.`);
+      continue;
+    }
+    if (resolvedSha !== group.object_sha) add('preservation_ref_object_mismatch', `Preservation ref ${ref} resolves to ${resolvedSha}, not its recorded object SHA.`);
+    const expectedPaths = sortRows(group.rows.map(({ path: relativePath, status, content_state, sha256: digestValue }) => ({ path: relativePath, status, content_state, sha256: digestValue })), recoveryPathKey);
+    for (const declaration of group.declarations) {
+      const declared = sortRows(declaration, recoveryPathKey);
+      if (!equalList(declared.map(recoveryPathKey), expectedPaths.map(recoveryPathKey))) {
+        const hashMismatch = declared.some(row => expectedPaths.some(expected => expected.path === row.path && expected.sha256 !== row.sha256));
+        add(hashMismatch ? 'preservation_content_mismatch' : 'preservation_path_set_mismatch', `Preservation ref ${ref} does not declare the exact captured source path set and content hashes.`);
+        break;
+      }
+    }
+    for (const expected of expectedPaths) {
+      if (!DIGEST.test(expected.sha256 ?? '') || !['regular-file', 'symlink-target'].includes(expected.content_state)) {
+        add('preservation_content_unverifiable', `Preserved path ${group.worktree_path}:${expected.path} has no recoverable regular-file content hash.`);
+        continue;
+      }
+      try {
+        const hashes = recoveredBlobHashes(repoRoot, resolvedSha, expected.path);
+        if (!hashes.has(expected.sha256)) add('preservation_content_mismatch', `Preservation ref ${ref} cannot recover the captured bytes for ${expected.path}.`);
+      } catch {
+        add('preservation_content_mismatch', `Preservation ref ${ref} cannot read the captured bytes for ${expected.path}.`);
+      }
+    }
+  }
+
+  const dispositions = validateDispositions(ledger);
+  errors.push(...dispositions.errors);
+  blockers.push(...dispositions.blockers);
+  const uniqueBlockers = [...new Map(blockers.map(blocker => [JSON.stringify(blocker), blocker])).values()];
+  return {
+    valid: errors.length === 0,
+    blocked: errors.length > 0 || uniqueBlockers.length > 0,
+    closeout_status: errors.length > 0 ? 'invalid' : uniqueBlockers.length > 0 ? 'blocked' : 'ready',
+    errors,
+    blockers: uniqueBlockers,
   };
 }
 
@@ -356,20 +507,22 @@ export function collectLiveInventory({ repoRoot = DEFAULT_ROOT, ledger = null } 
 
 export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = true } = {}) {
   const live = collectLiveInventory({ repoRoot });
+  let previousLedger = null;
   let priorLedgerExclusion = null;
   const closeoutRelativePath = SELF_ARTIFACTS[0];
   const closeoutAbsolutePath = path.join(repoRoot, closeoutRelativePath);
   try {
-    const previous = JSON.parse(fs.readFileSync(closeoutAbsolutePath, 'utf8'));
-    if (previous?.schema_version === 1
-      && previous?.repository === REPOSITORY
-      && previous?.evidence_artifacts?.worktree_path === repoRoot
-      && previous?.evidence_artifacts?.paths?.includes(closeoutRelativePath)) {
+    previousLedger = JSON.parse(fs.readFileSync(closeoutAbsolutePath, 'utf8'));
+    if (previousLedger?.schema_version === 1
+      && previousLedger?.repository === REPOSITORY
+      && previousLedger?.evidence_artifacts?.worktree_path === repoRoot
+      && previousLedger?.evidence_artifacts?.paths?.includes(closeoutRelativePath)) {
       priorLedgerExclusion = { path: closeoutRelativePath, sha256: sha256(fs.readFileSync(closeoutAbsolutePath)) };
     }
   } catch {
     // An absent or malformed prior artifact is not trusted or silently excluded.
   }
+  const previousWorktrees = new Map((previousLedger?.worktrees ?? []).map(row => [row.path, row]));
   const rows = live.pull_requests.map(pullRequest => {
     let files = { endpoint: `repos/${REPOSITORY}/pulls/${pullRequest.number}/files?per_page=100`, status: 'failed', files: [] };
     if (includeChangedFiles && live.source_status.pull_requests.status === 'complete') {
@@ -380,19 +533,39 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
       }
     }
     const releasePlease = /^chore\(main\): release /.test(pullRequest.title ?? '') && pullRequest.head_ref === 'release-please--branches--main';
+    const previous = (previousLedger?.pull_requests ?? []).find(row => JSON.stringify([row.number, row.title, row.base_ref, row.base_sha, row.head_ref, row.head_sha, row.url])
+      === JSON.stringify([pullRequest.number, pullRequest.title, pullRequest.base_ref, pullRequest.base_sha, pullRequest.head_ref, pullRequest.head_sha, pullRequest.url]));
+    const sameChangedFiles = previous?.files_read?.status === 'complete'
+      && files.status === 'complete'
+      && equalList(
+        sortRows(previous.changed_files ?? [], file => `${file.path}\0${file.status}`).map(file => `${file.path}\0${file.status}`),
+        sortRows(files.files, file => `${file.path}\0${file.status}`).map(file => `${file.path}\0${file.status}`),
+      );
     return {
       ...pullRequest,
       files_read: { status: files.status, endpoint: files.endpoint },
       changed_files: files.files,
       is_release_please_candidate: releasePlease,
-      disposition: null,
+      disposition: sameChangedFiles ? previous.disposition ?? null : null,
     };
   });
   const worktrees = live.worktrees.map(worktree => ({
     ...worktree,
     dirty_paths: worktree.dirty_paths
       .filter(dirty => !(worktree.path === repoRoot && priorLedgerExclusion?.path === dirty.path))
-      .map(dirty => ({ ...dirty, preservation: null })),
+      .map(({ preservation: _preservation, ...dirty }) => dirty),
+    inherited_dirty_paths: (() => {
+      const previous = previousWorktrees.get(worktree.path);
+      const prior = previous?.inherited_dirty_paths ?? previous?.dirty_paths ?? [];
+      const rowsByIdentity = new Map(prior.map(dirty => [dirtyKey(dirty), structuredClone(dirty)]));
+      for (const current of worktree.dirty_paths) {
+        if (worktree.path === repoRoot && priorLedgerExclusion?.path === current.path) continue;
+        const priorRow = rowsByIdentity.get(dirtyKey(current));
+        if (priorRow?.preservation) rowsByIdentity.set(dirtyKey(current), { ...current, preservation: priorRow.preservation });
+        else if (!priorRow) rowsByIdentity.set(dirtyKey(current), { ...current, preservation: null });
+      }
+      return sortRows([...rowsByIdentity.values()], dirtyKey);
+    })(),
   }));
   const rootWorktree = worktrees.find(row => row.path === repoRoot);
   const selfArtifactCollisions = rootWorktree?.dirty_paths.filter(row => SELF_ARTIFACTS.includes(row.path)) ?? [];
@@ -407,7 +580,7 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
       worktree_path: repoRoot,
       anchor_head_sha: rootWorktree?.head_sha ?? null,
       paths: SELF_ARTIFACTS,
-      reason: 'The ledger, summary and scoped GSD state/roadmap updates are self-evidencing phase outputs; exclude only these exact paths from inherited dirty-path identity and permit only commits touching these paths after the captured anchor.',
+      reason: 'The closeout ledger, scoped phase evidence, validator and scoped GSD state/roadmap updates are self-evidencing phase outputs; permit only commits touching these exact paths after the captured anchor.',
       previously_generated_outputs_excluded: priorLedgerExclusion ? [priorLedgerExclusion] : [],
       collisions: selfArtifactCollisions.map(row => ({ path: row.path, status: row.status, sha256: row.sha256 })),
     },
@@ -431,7 +604,7 @@ function parseArgs(args) {
     else if (args[index] === '--ledger') result.ledgerPath = args[++index];
     else throw new Error(`Unknown argument: ${args[index]}`);
   }
-  if (!result.mode || !result.ledgerPath) throw new Error('Usage: validate-closeout.mjs --ledger <path> --mode capture|inventory|dispositions');
+  if (!result.mode || !result.ledgerPath) throw new Error('Usage: validate-closeout.mjs --ledger <path> --mode capture|inventory|dispositions|preservation');
   return result;
 }
 
@@ -479,14 +652,17 @@ async function main() {
         blocker_examples: dispositionResult.blockers.slice(0, 8),
       },
     }
+      : args.mode === 'preservation' ? validatePreservation(ledger, live, { repoRoot: DEFAULT_ROOT })
       : null;
   if (!result) {
-    console.error('Unsupported mode; use capture, inventory or dispositions.');
+    console.error('Unsupported mode; use capture, inventory, dispositions or preservation.');
     process.exitCode = 2;
     return;
   }
   console.log(JSON.stringify(result, null, 2));
-  const valid = args.mode === 'inventory' ? result.valid : result.inventory.valid && result.dispositions.valid;
+  const valid = args.mode === 'inventory' ? result.valid
+    : args.mode === 'preservation' ? result.valid && !result.blocked
+      : result.inventory.valid && result.dispositions.valid;
   process.exitCode = valid ? 0 : 1;
 }
 
