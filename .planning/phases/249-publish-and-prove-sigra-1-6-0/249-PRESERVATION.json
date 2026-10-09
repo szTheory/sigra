@@ -2,14 +2,15 @@
   "schema_version": 1,
   "phase": 249,
   "plan": "08",
-  "created_at": "2026-10-09T17:48:38.843Z",
+  "created_at": "2026-10-09T18:23:54Z",
   "repository": "szTheory/sigra",
   "capture": {
-    "observed_at": "2026-10-09T17:47:48.453Z",
-    "anchor_head_sha": "803b307766357502254d7b004749bbb7090e4965",
+    "observed_at": "2026-10-09T18:20:45.573Z",
+    "anchor_head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
     "inventory_status": "complete",
     "worktrees": 5,
     "current_dirty_paths": 1,
+    "source_dirty_paths_after_preservation": 0,
     "open_pull_requests": 14,
     "changed_file_reads_failed": []
   },
@@ -3754,6 +3755,49 @@
         "source_head_unchanged": true,
         "source_index_unchanged": true
       }
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+      "status": " M",
+      "original_path": null,
+      "content_state": "regular-file",
+      "sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
+      "preservation": {
+        "schema_version": 1,
+        "state": "preserved",
+        "owner": "Sigra maintainers: test/CI maintenance follow-up; historical individual author is unknown",
+        "target": "refs/phase-249-preservation/phase-233-bounded-scaffold-discovery",
+        "action": "Preserve the exact file under a local scoped Phase 249 ref, then clean only this path; exclude it from the v1.6.0 promotion candidate and track it as a separate maintenance follow-up.",
+        "reason": "The diff only bounds first-party scaffold-test discovery and avoids recursive test/example _build and deps trees. Phase 233 context and the contract test establish test ownership; Phase 249 exact-source validation shows v1.6.0 passed full CI without this edit. The broad Phase 244 failure is not attributed to this diff. Preserve without claiming its edge cases are independently proven.",
+        "source_record": "Complete live capture 2026-10-09T18:20:45.573Z; branch phase-244-playwright-measurement; source HEAD c5d2895db68ad4f11babf85a0df4c30a3ddc6802; status  M; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
+        "worktree_path": "/Users/jon/projects/sigra",
+        "source_head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
+        "source_status": " M",
+        "source_path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+        "source_content_state": "regular-file",
+        "source_sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
+        "ref": "refs/phase-249-preservation/phase-233-bounded-scaffold-discovery",
+        "object_sha": "fca3772b0dc546f954cd28c4122e72c29ddd6a05",
+        "ref_created": true,
+        "paths": [
+          {
+            "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+            "status": " M",
+            "content_state": "regular-file",
+            "sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4"
+          }
+        ],
+        "source_clean_after_readback": true,
+        "source_head_unchanged": true,
+        "source_index_unchanged": true,
+        "source": "Complete live capture 2026-10-09T18:20:45.573Z; branch phase-244-playwright-measurement; source HEAD c5d2895db68ad4f11babf85a0df4c30a3ddc6802; status  M; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4"
+      },
+      "release_disposition": {
+        "category": "separate-follow-up",
+        "owner": "Sigra maintainers",
+        "reason": "Test-discovery maintenance; the edit was not in the exact Sigra 1.6.0 source that passed full CI and is excluded from the promotion candidate."
+      }
     }
   ],
   "blocked_paths": [
@@ -3786,48 +3830,33 @@
         "source_index_unchanged": true,
         "source": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148."
       }
-    },
-    {
-      "worktree_path": "/Users/jon/projects/sigra",
-      "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
-      "status": " M",
-      "original_path": null,
-      "content_state": "regular-file",
-      "sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
-      "preservation": {
-        "schema_version": 1,
-        "state": "blocked",
-        "owner": "Unresolved baseline-fix owner",
-        "target": "/Users/jon/projects/sigra/test/sigra/planning/phase_233_library_economics_contract_test.exs",
-        "action": "Leave this exact source path and current bytes/status untouched until its owner and release disposition are established.",
-        "reason": "Phase 249 REPO-STATE.md classifies dependency-off/static-contract edits as plausibly useful but says ownership and release inclusion are not established. Plan 249 requires a narrow ownership decision; no preservation ref or source cleanup was attempted.",
-        "source_record": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
-        "worktree_path": "/Users/jon/projects/sigra",
-        "source_head_sha": "bc3e9d2d9c6b848f5848570963a1db72cd70deaf",
-        "source_status": " M",
-        "source_path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
-        "source_content_state": "regular-file",
-        "source_sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
-        "ref": null,
-        "object_sha": null,
-        "paths": [],
-        "source_clean_after_readback": false,
-        "source_head_unchanged": true,
-        "source_index_unchanged": true,
-        "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4"
-      }
     }
   ],
   "notes": [
-    "All path refs were read back and checked for a direct source-head parent, exact one-path diff, byte hash, and clean source path before the proof was recorded.",
-    "The current release ledger is itself an exact capture output; it will be committed as a separately verified evidence transition.",
-    "No ambiguous dependency-off/static-contract path was cleaned.",
-    "Updated the dep-off restore script and its two exact regression contracts from blocked to preserved based on the matching pending 2026-09-16 todo; local refs only, with no release-candidate inclusion.",
-    "The Phase 233 contract-test traversal edit remains blocked because no task record establishes its owner or intended disposition."
+    "Initial complete inventory observed five worktrees, 14 open PRs, and no failed changed-file reads.",
+    "The Phase 233 scaffold-discovery edit is now preserved at refs/phase-249-preservation/phase-233-bounded-scaffold-discovery and classified as a separate test/CI maintenance follow-up; it is excluded from the 1.6.0 candidate.",
+    "All preserved bytes are pinned under local scoped refs. The sole remaining blocked identity is the unavailable historical HANDOFF.json revision recorded below.",
+    "The handoff recovery audit scanned 22,400 of 68,152 Git objects and 74,345 regular files across the repository and registered worktrees; no exact match or Git LFS object store was found.",
+    "Preservation mode remains blocked; Plan 249-09 candidate assembly must not start until exact historical handoff bytes are recoverable."
   ],
   "supersedes": {
-    "ref": "refs/phase-249-preservation/plan-08-preservation-record",
-    "commit_sha": "846a0bc14d7999918ef936ad3e4d2a10d8b9ede2",
-    "sha256": "7f8a931a46d8d9507c7bbac0be5bffda2035f21e043bdf9d7246210862b83060"
-  }
+    "ref": "refs/phase-249-preservation/plan-08-preservation-record-v2",
+    "commit_sha": "24507c745ebc1e00c254e8e3ab8ea127de49e028",
+    "sha256": "c9859407de4bae3c1183a2e37c8c437fc484ff715766bf66a7bb6ca62f9d076f"
+  },
+  "revision": 3,
+  "recovery_audit": {
+    "target_path": ".planning/HANDOFF.json",
+    "target_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+    "checked_at": "2026-10-09T18:23:54Z",
+    "result": "not_found",
+    "git_objects_scanned": 22400,
+    "git_objects_total": 68152,
+    "regular_files_scanned": 74345,
+    "file_scope": "repository root and all registered worktrees",
+    "git_lfs_object_store_present": false,
+    "disposition": "Keep the historical bytes blocked. The current handoff and base-commit version have different hashes and do not prove recovery.",
+    "policy": "Do not waive or mark missing preservation evidence as passed."
+  },
+  "preservation_record_ref": "refs/phase-249-preservation/plan-08-preservation-record-v3"
 }

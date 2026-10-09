@@ -4,13 +4,13 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 249-09 (first remaining gap plan; preservation precondition blocked)
+current_plan: 249-09 (first remaining gap plan; gated by unavailable historical HANDOFF bytes)
 status: blocked
-stopped_at: Plan 249-08 complete; Plan 249-09 is gated by two preservation decisions
-last_updated: "2026-10-09T18:02:32.234Z"
+stopped_at: Plan 249-08 complete; Plan 249-09 is gated by one unrecoverable historical HANDOFF identity
+last_updated: "2026-10-09T18:23:54.000Z"
 last_activity: 2026-10-09
-last_activity_desc: Plan 249-08 completed with 47/47 tests; local object scan confirmed the historical handoff bytes are unavailable
-state_head: 085c69f18
+last_activity_desc: Phase 233 was assigned to a separate maintenance follow-up and preserved; the historical handoff identity remains blocked
+state_head: e2204d1c0
 progress:
   total_phases: 4
   completed_phases: 2
@@ -32,11 +32,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-09 is gated
-Current Plan: 249-09 (blocked by the Plan 08 preservation precondition)
+Current Plan: 249-09 (blocked by the Plan 08 preservation precondition; one historical HANDOFF identity remains unrecoverable)
 Total Plans in Phase: 12
 Plans executed: 8 of 12
-Status: Blocked pending two preservation decisions
-Last activity: 2026-10-09 — Plan 249-08 completed; Plan 249-09 cannot create a candidate until preservation mode passes
+Status: Blocked by one historical preservation identity; no loss waiver is permitted
+Last activity: 2026-10-09 — Phase 233 maintenance was separately classified and preserved; Plan 249-09 cannot create a candidate until preservation mode passes
 
 Progress: [█████░░░░░] 50%
 
@@ -819,15 +819,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-09T15:27:55Z
-Stopped at: Plan 249-08 complete; Plan 249-09 gated by the exact blockers below
+Last session: 2026-10-09T18:23:54Z
+Stopped at: Plan 249-08 complete; Plan 249-09 gated by the unavailable historical HANDOFF bytes
 Resume file: None
 
 ## Operator Next Steps
 
-- **Plan 249-08 is complete; Phase 249 verification is not.** Its current capture covers five worktrees and 14 open PRs. Of 103 inherited identities, 101 have exact preservation refs and two remain blocked. The preservation gate does not pass, and no Plan 249-09 candidate was created.
-- **Blockers:** `test/sigra/planning/phase_233_library_economics_contract_test.exs` (SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) needs an owner and destination/disposition. The old `.planning/HANDOFF.json` revision (SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148`) was not found in reachable or 4,709 scanned unreachable Git blobs; provide a recoverable source or explicitly approve a scoped exception and update the proof contract before resuming.
-- **Next GSD command after those decisions:** `$gsd-execute-phase 249 --gaps-only`. Do not mark REL-02 complete until preservation mode passes and the remaining protected-main promotion and terminal-closeout evidence is proven.
+- **Plan 249-08 implementation is complete; Phase 249 verification is not.** The Phase 233 scaffold-discovery edit is preserved at `refs/phase-249-preservation/phase-233-bounded-scaffold-discovery` (source SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) as a separate Sigra test/CI maintenance follow-up, excluded from the 1.6.0 candidate. The latest complete inventory observed five worktrees and 14 open PRs. Of 103 inherited identities, 102 have exact preservation refs; the sole remaining blocker is the historical `.planning/HANDOFF.json` revision.
+- **Remaining blocker:** historical `.planning/HANDOFF.json` SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` was not found in 22,400 Git objects or 74,345 regular files across the repository and registered worktrees. The current and base-commit handoff bytes differ. Missing evidence must not be waived or marked passed; keep the gate blocked unless an external backup supplies bytes matching that exact hash.
+- **Next GSD command when the exact bytes are recoverable:** `$gsd-execute-phase 249 --gaps-only`. Do not create a release candidate or mark REL-02 complete until preservation mode passes and the protected-main promotion and terminal-closeout evidence is proven.
 
 ## Performance Metrics
 

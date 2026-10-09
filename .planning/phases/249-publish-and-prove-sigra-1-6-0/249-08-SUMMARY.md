@@ -98,8 +98,8 @@ status: complete
 ## Accomplishments
 
 - Added a two-stage preservation helper that pins and verifies exact path bytes before cleaning only the selected tracked path; expanded validator fixtures for missing refs, races, changed bytes, later evidence files, and raw worktree status.
-- Refreshed the complete inventory across five worktrees and 14 open PRs. The current record has 103 inherited identities: 101 safely preserved under scoped refs and two blocked; one currently dirty source path remains.
-- Materialized the v2 preservation record on the repository path and retained both unresolved identities without claiming a clean closeout.
+- Refreshed the complete inventory across five worktrees and 14 open PRs. The original v2 record contained 103 inherited identities: 101 preserved and two blocked. The post-plan disposition below supersedes those counts: 102 preserved, one blocked, and no current source path left dirty.
+- Materialized the v2 preservation record for the original Plan 08 completion boundary. A post-plan v3 decision record below resolves one inherited path and keeps the historical handoff loss blocked.
 
 ## Task Commits
 
@@ -116,17 +116,17 @@ status: complete
 ## Decisions Made
 
 - Preserve paths only when phase, task, or matching TODO evidence establishes their owner and destination; do not include inherited changes in the release candidate.
-- Keep the Phase 233 contract test blocked until its owner and intended destination are known.
+- Classify the Phase 233 contract-test traversal edit as a separate Sigra test/CI maintenance follow-up, preserve its exact bytes locally, and exclude it from the 1.6.0 release candidate.
 - Keep the unavailable historical `.planning/HANDOFF.json` revision blocked; the current handoff does not prove recovery of the historical bytes.
 
 ## Deviations from Plan
 
 - The plan’s TDD annotations requested a separate failing-test commit. The existing implementation commits added tests with their corresponding changes; no RED commit was produced, and no retrospective RED claim is made. Project `tdd_mode` is false, and the final regression suite passes.
-- The preservation task completed its designed blocked outcome. The two remaining identities were not cleaned or promoted, as required by the plan’s acceptance criteria.
+- The preservation task completed its designed blocked outcome. At Plan 08 completion, two identities remained unresolved; the Phase 233 ownership decision later resolved one without changing the original Plan 08 result. The historical handoff identity remains blocked.
 
 ## Issues Encountered
 
-- Preservation mode remains blocked by the exact two identities listed above. Inventory mode is complete; the phase-level REL-02 closeout is not verified.
+- Preservation mode remains blocked by one exact historical handoff identity. Inventory mode is complete; the phase-level REL-02 closeout is not verified.
 
 ## User Setup Required
 
@@ -134,7 +134,13 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 
-Plan 249-09 is gated by its explicit Plan 08 precondition: preservation mode must pass before a candidate can be created. Resolve or explicitly disposition the two blockers, then resume with `$gsd-execute-phase 249 --gaps-only`. No candidate, push, PR, or merge was created during this plan.
+Plan 249-09 is gated by its explicit Plan 08 precondition: preservation mode must pass before a candidate can be created. Resume with `$gsd-execute-phase 249 --gaps-only` only if the exact historical handoff bytes become recoverable and the refreshed preservation gate passes. No candidate, push, PR, or merge was created during this plan.
+
+## Post-Plan-08 disposition (2026-10-09)
+
+- **Phase 233 test-discovery edit:** assigned to Sigra maintainers as a separate test/CI maintenance follow-up, not release scope. Its exact source bytes (SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) were read back from `refs/phase-249-preservation/phase-233-bounded-scaffold-discovery` (object `fca3772b0dc546f954cd28c4122e72c29ddd6a05`), then only that source path was cleaned. Phase 249's exact 1.6.0 source validation passed full CI without the edit, so it is excluded from the candidate. The edit has no dedicated hostile-tree regression fixture; preservation does not claim otherwise.
+- **Historical handoff:** the exact former `.planning/HANDOFF.json` bytes (SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148`) were not found after scanning 22,400 Git objects and 74,345 regular files across the repository and registered worktrees. No Git LFS object store exists. Keep this missing evidence blocked and do not waive it; Plan 249-09 remains gated.
+- **Standing verification default:** deterministic seam tests, CI evidence where recurring value justifies it, and no repeat human UAT are already recorded in `AGENTS.md`, `.planning/METHODOLOGY.md`, and the linked `.planning/VERIFICATION-POLICY.md`. Keep that policy as the single source of truth rather than duplicating it.
 
 ---
 *Phase: 249-publish-and-prove-sigra-1-6-0*

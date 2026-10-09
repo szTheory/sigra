@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-10-09T18:02:32.234Z",
+  "timestamp": "2026-10-09T18:23:54.000Z",
   "phase": "249",
   "phase_name": "Publish and Prove Sigra 1.6.0",
   "plan": "09",
   "task": 0,
   "total_tasks": 2,
-  "status": "Plan 249-08 complete; Plan 249-09 gated by preservation mode",
+  "status": "Plan 249-08 complete; Plan 249-09 remains gated by one unrecoverable historical handoff identity",
   "completed_tasks": [
     {
       "id": "249-08",
       "name": "Preserve inherited work under verified, recoverable refs",
-      "status": "Complete. 47/47 tests pass; 101 of 103 inherited identities have exact preservation refs; two remain explicitly blocked.",
+      "status": "Complete. 47/47 tests pass; 102 of 103 inherited identities have exact preservation refs; the Phase 233 test is a separate maintenance follow-up, and one historical handoff identity remains blocked.",
       "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-SUMMARY.md"
     }
   ],
@@ -38,24 +38,16 @@
   ],
   "blockers": [
     {
-      "id": "PRES-233",
-      "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
-      "sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
-      "status": " M",
-      "decision_needed": "Identify the owner and intended destination/disposition. The path must remain untouched until that is known."
-    },
-    {
       "id": "PRES-HANDOFF",
       "path": ".planning/HANDOFF.json",
       "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
       "status": " M (historical captured revision)",
-      "decision_needed": "Provide a recoverable source copy, or explicitly authorize a scoped loss exception and update the preservation proof contract. An exception alone does not pass the current gate."
+      "decision_needed": "No exact copy was found in the repository, registered worktrees, or Git objects. Keep this identity blocked; resume only if an external backup/editor history supplies bytes matching the recorded SHA-256. No loss waiver or pass substitution."
     }
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    "Decide the owner and destination/disposition for the Phase 233 contract-test change.",
-    "Provide a recoverable source for the historical handoff bytes, or authorize an explicit scoped-loss exception that will require a proof-contract update."
+    "If available, provide an external backup/editor-history copy of the historical .planning/HANDOFF.json bytes so its SHA-256 can be verified; otherwise this gate remains blocked."
   ],
   "decisions": [
     {
@@ -65,11 +57,17 @@
     {
       "decision": "Keep inherited work outside the release candidate.",
       "rationale": "Plan 08 preserved exact paths under local refs; preservation is not release inclusion."
+    },
+    {
+      "decision": "Classify the Phase 233 scaffold-discovery edit as a separate test/CI maintenance follow-up, not 1.6.0 release scope.",
+      "rationale": "The bounded change has a clear test-maintenance owner, and exact-source Plan 05 evidence proves 1.6.0 passed full CI without it; its exact bytes are preserved under a scoped local ref."
+    },
+    {
+      "decision": "Do not waive the unavailable historical HANDOFF.json identity.",
+      "rationale": "AGENTS.md forbids waiving missing evidence. The scoped loss is not recoverable from the checked project-local sources, so Plan 249-09 remains gated."
     }
   ],
-  "uncommitted_files": [
-    "test/sigra/planning/phase_233_library_economics_contract_test.exs"
-  ],
-  "next_action": "Resolve the Phase 233 ownership/destination and historical handoff source-or-exception decisions. Preserve or disposition them under an explicit tested contract, refresh and rerun validate-closeout.mjs --mode preservation, then continue with $gsd-execute-phase 249 --gaps-only only if the gate passes.",
-  "context_notes": "Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v2 (commit 24507c745ebc1e00c254e8e3ab8ea127de49e028). Its complete capture observed 5 worktrees, 14 open PRs, and no failed changed-file reads. Inventory mode passes; preservation mode is blocked by preservation_source_drift for the old historical HANDOFF.json bytes plus the two exact blockers listed above. A read-only scan checked all 4,709 unreachable Git blobs; none matches the historical handoff SHA-256. The current Phase 233 source path remains untouched. Plan 08 tests pass 47/47. No candidate, push, PR, or merge was created. Phase-level REL-02 remains unverified until promotion and terminal closeout evidence pass."
+  "uncommitted_files": [],
+  "next_action": "Keep Plan 249-09 gated while the exact historical HANDOFF.json bytes are unavailable. If an external copy is recovered, verify its SHA-256 against 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148, refresh preservation evidence, and run $gsd-execute-phase 249 --gaps-only only if preservation mode passes.",
+  "context_notes": "Fresh capture 2026-10-09T18:20:45.573Z observed five worktrees, 14 open PRs, and no failed changed-file reads. Phase 233 source is preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery (commit fca3772b0dc546f954cd28c4122e72c29ddd6a05; source SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4) as separate test/CI maintenance and excluded from the release candidate. The only blocker is old .planning/HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148: audit scanned 22,400 Git blobs and 74,345 regular files across the repository/worktrees with no match; current/base handoff versions differ. Inventory is complete; preservation fails closed on that historical loss. No candidate, push, PR, or merge was created. Plan 249-08 implementation is complete; Phase 249 REL-02 verification remains incomplete."
 }

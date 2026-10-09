@@ -26,8 +26,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 249 --gaps-only",
-    "label": "Resume Phase 249 after preservation decisions and gate update if needed",
-    "reason": "Plan 249-08 is complete. Plan 249-09 must not create a candidate until preservation mode passes. The Phase 233 contract-test change needs an owner and destination. The captured historical HANDOFF.json bytes are absent from reachable and 4,709 scanned unreachable Git blobs; a scoped loss exception requires explicit authorization and an updated proof contract, while a source copy would permit exact recovery."
+    "label": "Resume Phase 249 only if the historical handoff bytes become recoverable",
+    "reason": "The Phase 233 test-discovery change is preserved under a scoped local ref as a separate maintenance follow-up and excluded from the release candidate. The only remaining blocker is historical HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148, absent from 22,400 Git objects and 74,345 regular files across the repository and registered worktrees. Missing evidence cannot be waived; Plan 249-09 must not create a candidate until preservation mode passes."
   },
-  "updated_at": "2026-10-09T18:02:32.234Z"
+  "updated_at": "2026-10-09T18:23:54.000Z"
 }
