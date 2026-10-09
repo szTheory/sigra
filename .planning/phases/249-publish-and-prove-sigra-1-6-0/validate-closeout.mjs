@@ -14,6 +14,9 @@ const DEFAULT_ROOT = path.resolve(MODULE_DIR, '../../..');
 const SELF_ARTIFACTS = [
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json',
   '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-04-SUMMARY.md',
+  '.planning/STATE.md',
+  '.planning/state.json',
+  '.planning/ROADMAP.md',
 ];
 
 function run(command, args, cwd, maxBuffer = 64 * 1024 * 1024) {
@@ -194,6 +197,7 @@ export function validateInventory(ledger, live) {
   const errors = [];
   const add = (code, message) => errors.push({ code, message });
   if (ledger?.repository !== REPOSITORY || live?.repository !== REPOSITORY) add('repository_mismatch', 'Both snapshots must identify szTheory/sigra.');
+  if (ledger?.inventory_status !== 'complete') add('ledger_inventory_not_complete', 'A blocked or partial captured inventory cannot pass live validation.');
   for (const source of ['worktrees', 'pull_requests']) {
     for (const snapshotName of ['ledger', 'live']) {
       const status = snapshotName === 'ledger' ? ledger?.source_status?.[source] : live?.source_status?.[source];
@@ -223,6 +227,7 @@ export function validateInventory(ledger, live) {
   const liveByPath = new Map(liveWorktrees.map(row => [row.path, row]));
   if (!equalList([...ledgerByPath.keys()].sort(), [...liveByPath.keys()].sort())) add('worktree_population_mismatch', 'The exact registered worktree path set differs from the live set.');
   const evidence = ledger?.evidence_artifacts ?? {};
+  if (Array.isArray(evidence.collisions) && evidence.collisions.length > 0) add('evidence_artifact_collision', 'A phase output path was already dirty before capture and must be resolved explicitly.');
   if (evidence.worktree_path && (!Array.isArray(evidence.paths) || evidence.paths.length === 0 || !SHA.test(evidence.anchor_head_sha ?? ''))) {
     add('evidence_artifact_anchor_invalid', 'Self-evidencing outputs need one declared worktree, full captured anchor HEAD and exact path allowlist.');
   }
@@ -386,7 +391,7 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
       worktree_path: repoRoot,
       anchor_head_sha: rootWorktree?.head_sha ?? null,
       paths: SELF_ARTIFACTS,
-      reason: 'The ledger and its summary are self-evidencing phase outputs; exclude only these exact paths from inherited dirty-path identity and permit only commits touching these paths after the captured anchor.',
+      reason: 'The ledger, summary and scoped GSD state/roadmap updates are self-evidencing phase outputs; exclude only these exact paths from inherited dirty-path identity and permit only commits touching these paths after the captured anchor.',
       collisions: selfArtifactCollisions.map(row => ({ path: row.path, status: row.status, sha256: row.sha256 })),
     },
     worktrees,
@@ -397,6 +402,7 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
       'The clean-closeout claim remains blocked until Plan 05 verifies durable preservation for every inherited dirty path.',
       ...(selfArtifactCollisions.length ? ['A phase output path was already dirty before capture; inventory is blocked until its ownership is resolved.'] : []),
     ],
+    capture_completed_at: new Date().toISOString(),
   };
   return sortLedger(ledger);
 }
@@ -443,8 +449,19 @@ async function main() {
   }
   const live = collectLiveInventory({ repoRoot: DEFAULT_ROOT, ledger });
   const inventory = validateInventory(ledger, live);
+  const dispositionResult = validateDispositions(ledger);
   const result = args.mode === 'inventory' ? inventory
-    : args.mode === 'dispositions' ? { inventory, dispositions: validateDispositions(ledger) }
+    : args.mode === 'dispositions' ? {
+      inventory,
+      dispositions: {
+        valid: dispositionResult.valid,
+        blocked: dispositionResult.blocked,
+        closeout_status: dispositionResult.closeout_status,
+        errors: dispositionResult.errors,
+        blocker_count: dispositionResult.blockers.length,
+        blocker_examples: dispositionResult.blockers.slice(0, 8),
+      },
+    }
       : null;
   if (!result) {
     console.error('Unsupported mode; use capture, inventory or dispositions.');
