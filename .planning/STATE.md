@@ -4,18 +4,18 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 3
+current_plan: 7
 status: executing
-stopped_at: Completed 249-02-PLAN.md
-last_updated: "2026-10-09T13:21:23.448Z"
+stopped_at: Completed 249-04-PLAN.md
+last_updated: "2026-10-09T13:39:00.000Z"
 last_activity: 2026-10-09
-last_activity_desc: Phase 249 execution started
-state_head: 0028ac34e33e6bbc66e5419ceea6e201f8e93b63
+last_activity_desc: Plan 249-04 inventory validated; preservation blockers recorded
+state_head: 496f24c2f7c6ef1955d59c82cf925e4c7c37c9d6
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 26
-  completed_plans: 20
+  completed_plans: 21
   percent: 50
 ---
 
@@ -32,13 +32,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 249 (Publish and Prove Sigra 1.6.0) — EXECUTING
-Current Plan: 3
+Current Plan: 7 (next eligible plan in Wave 2)
 Total Plans in Phase: 7
-Plan: 3 of 7
+Plans completed: 3 of 7 (43%)
 Status: Ready to execute
-Last activity: 2026-10-09 — Phase 249 execution started
+Last activity: 2026-10-09 — Plan 249-04 inventory validated; preservation blockers recorded
 
-Progress: [█████░░░░░] 50%
+Progress: [████░░░░░░] 43%
 
 ### v1.49 phase map
 

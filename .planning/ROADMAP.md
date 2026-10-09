@@ -141,7 +141,7 @@ Plans:
   2. Required CI is green for the final protected-main release commit; the committed artifact-derived receipt identifies the immutable 1.6.0 package-source SHA and matching source CI, while final-main SHA and CI are recorded separately.
   3. Every local worktree is clean and every PR still open at closeout has a recorded disposition.
 
-**Plans**: 2/7 plans executed
+**Plans**: 3/7 plans executed
 
 Plans:
 
@@ -150,7 +150,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [x] 249-02-PLAN.md — Regenerate the complete ExDoc index and require build-then-compare in CI.
-- [ ] 249-04-PLAN.md — Inventory and disposition every current open PR and worktree change set.
+- [x] 249-04-PLAN.md — Inventory and disposition every current open PR and worktree change set.
 - [ ] 249-07-PLAN.md — Expand exact-source proof mismatch and hostile-artifact fixtures.
 
 **Wave 3** *(blocked on Plan 02)*
@@ -171,8 +171,8 @@ Plans:
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | In Progress | - |
-| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 2/7 | In Progress | - |
+| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 3/7 | In Progress | - |
 
 ### Next
 
-**Next: execute Phase 249.** Its seven plans passed the independent plan checker, and `init.execute-phase 249` reports all seven runnable with no prerequisite blocker. Phase 249 will prove the already-published 1.6.0 release, finish the approved documentation drift automation, and close out repository work safely. Phase 248's historical 13/18 verification report and hosted manual dry-run/failure/cancellation evidence remain separate verification maintenance; the stale report alone does not block this forward route.
+**Next: execute Phase 249.** Plan 249-07 is the next eligible Wave 2 plan; after Wave 2, continue with Plan 249-03, then Plans 05 and 06. The live inventory is complete, but Plan 05 must still verify durable preservation for the 95 dirty paths before any clean-closeout claim. Phase 248's historical 13/18 verification report and hosted manual dry-run/failure/cancellation evidence remain separate verification maintenance; the stale report alone does not block this forward route.
