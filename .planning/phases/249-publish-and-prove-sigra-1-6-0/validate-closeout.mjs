@@ -164,7 +164,7 @@ function liveChangedFiles(repoRoot, number) {
   return { endpoint, status: 'complete', files: sortRows(rows, row => `${row.path}\0${row.status}`) };
 }
 
-function evidenceTransition(repoRoot, anchorSha, currentSha, allowedPaths) {
+export function evidenceTransition(repoRoot, anchorSha, currentSha, allowedPaths) {
   if (anchorSha === currentSha) return { valid: true, changed_paths: [] };
   let ancestor = false;
   try {
@@ -176,7 +176,7 @@ function evidenceTransition(repoRoot, anchorSha, currentSha, allowedPaths) {
   const changed = run('git', ['-C', repoRoot, 'diff', '--name-only', '-z', `${anchorSha}..${currentSha}`], repoRoot).toString('utf8')
     .split('\0').filter(Boolean);
   const allowed = new Set(allowedPaths);
-  return { valid: ancestor === undefined && changed.every(relativePath => allowed.has(relativePath)), changed_paths: sortRows(changed, value => value) };
+  return { valid: ancestor && changed.every(relativePath => allowed.has(relativePath)), changed_paths: sortRows(changed, value => value) };
 }
 
 export function sortLedger(ledger) {
