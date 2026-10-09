@@ -53,7 +53,7 @@
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
         "source_commit": "11e493b92a1c152dbbbb639df731acb2831647cf",
-        "artifact_identity_sha256": "18ef0fca64daee3109e175c869a3ef76c0930e2cf1951e0d8095684150bc2812",
+        "artifact_identity_sha256": "fb2c2a4c18e7a11812947dffd15c5a9aa88107d5288f4af42de0295902fc7585",
         "capture_boundary": {
           "captured_at": "2026-10-09T21:57:12.655Z",
           "worktree_path": "/Users/jon/projects/sigra",
@@ -260,7 +260,60 @@
           "original_path": null,
           "content_state": "regular-file",
           "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc",
-          "preservation": null
+          "preservation": {
+            "schema_version": 1,
+            "state": "preserved",
+            "owner": "Phase 249 Plan 12 closeout outputs",
+            "target": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "action": "Retain the exact captured bytes under refs/phase-249-preservation/phase249-plan12-local-outputs; the source worktree is clean after the verified evidence commit.",
+            "reason": "These five Phase 249 outputs were captured as exact dirty paths, then committed together on the local execution branch. The scoped preservation ref resolves to that commit, and every blob was read back and matched to the captured SHA-256.",
+            "source_record": "Capture 2026-10-09T21:53:53.812Z; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; status  M; SHA-256 cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc",
+            "worktree_path": "/Users/jon/projects/sigra",
+            "source_head_sha": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
+            "source_status": " M",
+            "source_path": ".planning/METHODOLOGY.md",
+            "source_content_state": "regular-file",
+            "source_sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc",
+            "ref": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "object_sha": "11e493b92a1c152dbbbb639df731acb2831647cf",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": ".planning/METHODOLOGY.md",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+                "status": "??",
+                "content_state": "regular-file",
+                "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3"
+              }
+            ],
+            "source_clean_after_readback": true,
+            "source_head_unchanged": true,
+            "source_index_unchanged": true,
+            "source": "Clean-boundary capture 2026-10-09T21:53:53.812Z; branch phase-244-playwright-measurement; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; exact bytes committed in 11e493b92a1c152dbbbb639df731acb2831647cf and verified from refs/phase-249-preservation/phase249-plan12-local-outputs."
+          }
         },
         {
           "path": ".planning/debug/plan-245-37-admission.md",
@@ -1415,7 +1468,60 @@
           "original_path": null,
           "content_state": "regular-file",
           "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07",
-          "preservation": null
+          "preservation": {
+            "schema_version": 1,
+            "state": "preserved",
+            "owner": "Phase 249 Plan 12 closeout outputs",
+            "target": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "action": "Retain the exact captured bytes under refs/phase-249-preservation/phase249-plan12-local-outputs; the source worktree is clean after the verified evidence commit.",
+            "reason": "These five Phase 249 outputs were captured as exact dirty paths, then committed together on the local execution branch. The scoped preservation ref resolves to that commit, and every blob was read back and matched to the captured SHA-256.",
+            "source_record": "Capture 2026-10-09T21:53:53.812Z; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; status ??; SHA-256 2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07",
+            "worktree_path": "/Users/jon/projects/sigra",
+            "source_head_sha": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
+            "source_status": "??",
+            "source_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+            "source_content_state": "regular-file",
+            "source_sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07",
+            "ref": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "object_sha": "11e493b92a1c152dbbbb639df731acb2831647cf",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": ".planning/METHODOLOGY.md",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+                "status": "??",
+                "content_state": "regular-file",
+                "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3"
+              }
+            ],
+            "source_clean_after_readback": true,
+            "source_head_unchanged": true,
+            "source_index_unchanged": true,
+            "source": "Clean-boundary capture 2026-10-09T21:53:53.812Z; branch phase-244-playwright-measurement; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; exact bytes committed in 11e493b92a1c152dbbbb639df731acb2831647cf and verified from refs/phase-249-preservation/phase249-plan12-local-outputs."
+          }
         },
         {
           "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
@@ -1534,7 +1640,60 @@
           "original_path": null,
           "content_state": "regular-file",
           "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23",
-          "preservation": null
+          "preservation": {
+            "schema_version": 1,
+            "state": "preserved",
+            "owner": "Phase 249 Plan 12 closeout outputs",
+            "target": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "action": "Retain the exact captured bytes under refs/phase-249-preservation/phase249-plan12-local-outputs; the source worktree is clean after the verified evidence commit.",
+            "reason": "These five Phase 249 outputs were captured as exact dirty paths, then committed together on the local execution branch. The scoped preservation ref resolves to that commit, and every blob was read back and matched to the captured SHA-256.",
+            "source_record": "Capture 2026-10-09T21:53:53.812Z; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; status  M; SHA-256 080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23",
+            "worktree_path": "/Users/jon/projects/sigra",
+            "source_head_sha": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
+            "source_status": " M",
+            "source_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+            "source_content_state": "regular-file",
+            "source_sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23",
+            "ref": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "object_sha": "11e493b92a1c152dbbbb639df731acb2831647cf",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": ".planning/METHODOLOGY.md",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+                "status": "??",
+                "content_state": "regular-file",
+                "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3"
+              }
+            ],
+            "source_clean_after_readback": true,
+            "source_head_unchanged": true,
+            "source_index_unchanged": true,
+            "source": "Clean-boundary capture 2026-10-09T21:53:53.812Z; branch phase-244-playwright-measurement; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; exact bytes committed in 11e493b92a1c152dbbbb639df731acb2831647cf and verified from refs/phase-249-preservation/phase249-plan12-local-outputs."
+          }
         },
         {
           "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PREFLIGHT.json",
@@ -1616,7 +1775,60 @@
           "original_path": null,
           "content_state": "regular-file",
           "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102",
-          "preservation": null
+          "preservation": {
+            "schema_version": 1,
+            "state": "preserved",
+            "owner": "Phase 249 Plan 12 closeout outputs",
+            "target": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "action": "Retain the exact captured bytes under refs/phase-249-preservation/phase249-plan12-local-outputs; the source worktree is clean after the verified evidence commit.",
+            "reason": "These five Phase 249 outputs were captured as exact dirty paths, then committed together on the local execution branch. The scoped preservation ref resolves to that commit, and every blob was read back and matched to the captured SHA-256.",
+            "source_record": "Capture 2026-10-09T21:53:53.812Z; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; status  M; SHA-256 1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102",
+            "worktree_path": "/Users/jon/projects/sigra",
+            "source_head_sha": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
+            "source_status": " M",
+            "source_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+            "source_content_state": "regular-file",
+            "source_sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102",
+            "ref": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "object_sha": "11e493b92a1c152dbbbb639df731acb2831647cf",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": ".planning/METHODOLOGY.md",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+                "status": "??",
+                "content_state": "regular-file",
+                "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3"
+              }
+            ],
+            "source_clean_after_readback": true,
+            "source_head_unchanged": true,
+            "source_index_unchanged": true,
+            "source": "Clean-boundary capture 2026-10-09T21:53:53.812Z; branch phase-244-playwright-measurement; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; exact bytes committed in 11e493b92a1c152dbbbb639df731acb2831647cf and verified from refs/phase-249-preservation/phase249-plan12-local-outputs."
+          }
         },
         {
           "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
@@ -1624,7 +1836,60 @@
           "original_path": null,
           "content_state": "regular-file",
           "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3",
-          "preservation": null
+          "preservation": {
+            "schema_version": 1,
+            "state": "preserved",
+            "owner": "Phase 249 Plan 12 closeout outputs",
+            "target": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "action": "Retain the exact captured bytes under refs/phase-249-preservation/phase249-plan12-local-outputs; the source worktree is clean after the verified evidence commit.",
+            "reason": "These five Phase 249 outputs were captured as exact dirty paths, then committed together on the local execution branch. The scoped preservation ref resolves to that commit, and every blob was read back and matched to the captured SHA-256.",
+            "source_record": "Capture 2026-10-09T21:53:53.812Z; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; status  M; SHA-256 58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3",
+            "worktree_path": "/Users/jon/projects/sigra",
+            "source_head_sha": "e6a8fe00151834d91f48bb36da3755aa48ebc4d3",
+            "source_status": " M",
+            "source_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+            "source_content_state": "regular-file",
+            "source_sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3",
+            "ref": "refs/phase-249-preservation/phase249-plan12-local-outputs",
+            "object_sha": "11e493b92a1c152dbbbb639df731acb2831647cf",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": ".planning/METHODOLOGY.md",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "cfdc85d7663d0e3f5f50764164634b1d5681ccc6093d976a3d99c6f12008c0bc"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+                "status": "??",
+                "content_state": "regular-file",
+                "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "080c415c26e381cc50663c4ca43634a186dcfd43313d49ff5f743537957a8d23"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "1228793febcdc7c939f63ef02a805f5cb758ee0560b02a8ceedbdd31b3c3a102"
+              },
+              {
+                "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "58511235e23172d9bfb6cac4048441fdd5efad0aef4fbd33d39d33924ce6fab3"
+              }
+            ],
+            "source_clean_after_readback": true,
+            "source_head_unchanged": true,
+            "source_index_unchanged": true,
+            "source": "Clean-boundary capture 2026-10-09T21:53:53.812Z; branch phase-244-playwright-measurement; source HEAD e6a8fe00151834d91f48bb36da3755aa48ebc4d3; exact bytes committed in 11e493b92a1c152dbbbb639df731acb2831647cf and verified from refs/phase-249-preservation/phase249-plan12-local-outputs."
+          }
         },
         {
           "path": ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/260923-uqh-PLAN.md",
