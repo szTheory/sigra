@@ -125,6 +125,13 @@ jq '.source_event="schedule"' "$INPUT" > "$TMP/bad-event.json"
 run_receipt "$TMP/bad-event.json" "$TMP/bad-event-out.json"
 if [[ "$RC" -ne 0 ]]; then pass "unsupported source event rejected"; else fail "unsupported event accepted"; fi
 
+echo "Test G2: a historical quoted release start timestamp is normalized in the receipt"
+jq '.release_run.started_at="\"2026-10-08T10:00:00Z\""' "$INPUT" > "$TMP/legacy-time.json"
+run_receipt "$TMP/legacy-time.json" "$TMP/legacy-time-receipt.json"
+if [[ "$RC" -eq 0 ]] && jq -e '.release_started_at == "2026-10-08T10:00:00Z"' "$TMP/legacy-time-receipt.json" >/dev/null; then
+  pass "legacy wrapper quotes are removed from the persisted receipt timestamp"
+else fail "legacy release timestamp was not normalized: rc=$RC $OUT"; fi
+
 echo "Test H: duplicate updates are idempotent and preserve prior stage evidence"
 INPUT="$(new_input push success pass published)"
 jq '.stages={release:{verdict:"created"}, gate:{verdict:"pass",run_id:"23456"}}' "$INPUT" > "$TMP/first.json"
