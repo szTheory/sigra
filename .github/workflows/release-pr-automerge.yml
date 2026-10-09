@@ -75,8 +75,8 @@ jobs:
           jq '[.jobs[] | select(.name == "ci-gate") | {name, conclusion}]' \
             "$work_dir/run-with-jobs.json" > "$work_dir/gate-jobs.json"
 
-          cp .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json \
-            "$work_dir/ledger.json"
+          cp .planning/phases/248-exact-source-release-gate/248-AUTOMERGE-CLAIMS.json \
+            "$work_dir/claims.json"
 
           capture_candidate() {
             local suffix="$1"
@@ -94,6 +94,20 @@ jobs:
             gh api "repos/${REPOSITORY}/contents/CHANGELOG.md?ref=${head_sha}" \
               --jq .content | base64 --decode > "$work_dir/CHANGELOG-${suffix}.md"
 
+            local source_blobs="$work_dir/source-blobs-${suffix}.json"
+            printf '{}' > "$source_blobs"
+            while IFS= read -r path; do
+              local blob_sha
+              blob_sha="$(gh api "repos/${REPOSITORY}/contents/${path}?ref=${head_sha}" --jq .sha)"
+              [[ "$blob_sha" =~ ^[0-9a-f]{40}$ ]] || {
+                echo "release preflight: approved source blob is missing or malformed: ${path}" >&2
+                return 1
+              }
+              jq --arg path "$path" --arg sha "$blob_sha" \
+                '. + {($path): $sha}' "$source_blobs" > "$source_blobs.tmp"
+              mv "$source_blobs.tmp" "$source_blobs"
+            done < <(jq -r '.approved_source_blobs | keys[]' "$work_dir/claims.json")
+
             bash scripts/ci/release-candidate-preflight.sh \
               --repository "$REPOSITORY" \
               --event-run "$work_dir/event-run.json" \
@@ -101,7 +115,8 @@ jobs:
               --pull-requests "$work_dir/pull-requests-${suffix}.json" \
               --gate-jobs "$work_dir/gate-jobs.json" \
               --changelog "$work_dir/CHANGELOG-${suffix}.md" \
-              --ledger "$work_dir/ledger.json"
+              --claims "$work_dir/claims.json" \
+              --source-blobs "$source_blobs"
           }
 
           candidate="$(capture_candidate initial)"

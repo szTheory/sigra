@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "source_ledger": {
+    "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+    "sha256": "3f7bf44eed60773dac78b4f35ab4f1833843d6db2feccf27269d801cb2bac657",
+    "captured_at": "2026-10-06T23:19:49.461Z",
+    "validated_at": "2026-10-08T19:29:07.458Z",
+    "validated_candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+    "selected_source_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+    "source_ci_run_id": 37819712610,
+    "hex_dry_run_run_id": 37824714823
+  },
+  "approved_source_blobs": {
+    "lib/sigra/branding.ex": "6539bbffa23c0b5006cf75463dc01c575b982259",
+    "lib/sigra/branding/contrast.ex": "8aee2eb6ee16d192939afef77694b7e9a0b0f317",
+    "lib/sigra/integrations/chimeway.ex": "28830c92db4f9083b667f890ddd1e2fcee5845ad",
+    "priv/templates/sigra.install/core/confirmation_live.ex": "812844b7678b5027382fed9ae5963d5a52fdf00c",
+    "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex": "41382fe62638013bca639c612a82d13e046cb435",
+    "test/sigra/branding_test.exs": "fd704611edb7054b9865ea774f449986634caa55",
+    "test/sigra/integrations/chimeway_test.exs": "4ebcc0418786edf542462f2f571cedac05b85403"
+  },
+  "claim_sources": [
+    {
+      "claim": "Generated Phoenix hosts support confirmation by email link or displayed code without changing an existing session.",
+      "source": "priv/templates/sigra.install/core/confirmation_live.ex and Phase246 generated-host code",
+      "evidence": "Phase246 exact-source required CI run 37676348766 attempt 2; selected-main CI run 37686980115 attempt 2",
+      "source_paths": [
+        "priv/templates/sigra.install/core/confirmation_live.ex"
+      ]
+    },
+    {
+      "claim": "Generated confirmation retries handle missing or malformed links safely and clear stale error feedback.",
+      "source": "priv/templates/sigra.install/core/confirmation_live.ex at tested source 90ec16f and promoted main 590eb4e",
+      "evidence": "four approved source blobs match; Phase246 CI 37676348766 and selected-main CI 37686980115 passed",
+      "source_paths": [
+        "priv/templates/sigra.install/core/confirmation_live.ex"
+      ]
+    },
+    {
+      "claim": "Branding profiles can use separate dark logos and contrast-derived dark accents.",
+      "source": "lib/sigra/branding.ex, lib/sigra/branding/contrast.ex, test/sigra/branding_test.exs",
+      "evidence": "selected-main CI run 37686980115 attempt 2 passed",
+      "source_paths": [
+        "lib/sigra/branding.ex",
+        "lib/sigra/branding/contrast.ex",
+        "test/sigra/branding_test.exs"
+      ]
+    },
+    {
+      "claim": "Chimeway magic-link handling decodes tokens before lookup and uses opaque recipient references.",
+      "source": "lib/sigra/integrations/chimeway.ex and test/sigra/integrations/chimeway_test.exs",
+      "evidence": "selected-main CI run 37686980115 attempt 2 passed",
+      "source_paths": [
+        "lib/sigra/integrations/chimeway.ex",
+        "test/sigra/integrations/chimeway_test.exs"
+      ]
+    },
+    {
+      "claim": "Previously generated host files remain host-owned and need selective adoption for confirmation changes.",
+      "source": "priv/templates/sigra.install/core/confirmation_live.ex and installed host fixture",
+      "evidence": "Phase246 generated-host install smoke and Playwright required CI run 37676348766 attempt 2 passed",
+      "source_paths": [
+        "priv/templates/sigra.install/core/confirmation_live.ex",
+        "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex"
+      ]
+    }
+  ]
+}
