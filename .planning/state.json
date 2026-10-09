@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 249 of 4 · 50% · executing"
+    "command": "/gsd:execute-phase 249 --gaps-only",
+    "label": "Execute Phase 249 verification gap closure",
+    "reason": "Plans 08–12 are verified and ready; REL-02 remains open until protected-main promotion and inherited-work preservation are proven"
   },
-  "updated_at": "2026-10-09T14:14:01.739Z"
+  "updated_at": "2026-10-09T17:13:33Z"
 }

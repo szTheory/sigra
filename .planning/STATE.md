@@ -4,17 +4,17 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 5 (next eligible plan in Wave 4)
+current_plan: 249-08 (first of five gap-closure plans)
 status: executing
-stopped_at: Completed 249-03-PLAN.md
-last_updated: "2026-10-09T14:15:08.346Z"
+stopped_at: Phase 249 gap-closure planning complete; Plan 249-08 is next
+last_updated: "2026-10-09T17:13:04.293Z"
 last_activity: 2026-10-09
-last_activity_desc: Plan 249-03 candidate docs refresh verified; Plan 249-05 preservation and promotion is next
-state_head: 08f929d7a4bf951337ecab471c3e1cd942dd0086
+last_activity_desc: Gap-closure plans 08–12 passed independent verification; execute Plan 249-08 next
+state_head: 7041b4f4e89d84fbd3cc4e6a229506e711d6925f
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 26
+  total_plans: 31
   completed_plans: 23
   percent: 50
 ---
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 249 (Publish and Prove Sigra 1.6.0) — EXECUTING
-Current Plan: 5 (next eligible plan in Wave 4)
-Total Plans in Phase: 7
-Plans completed: 5 of 7
+Phase: 249 (Publish and Prove Sigra 1.6.0) — READY TO EXECUTE
+Current Plan: 249-08 (first of five gap-closure plans)
+Total Plans in Phase: 12
+Plans executed: 7 of 12
 Status: Ready to execute
-Last activity: 2026-10-09 — Plan 249-07 identity and hostile-artifact checks passed
+Last activity: 2026-10-09 — Gap-closure plans 08–12 passed independent verification; execute Plan 249-08 next
 
 Progress: [█████░░░░░] 50%
 
@@ -819,14 +819,14 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-09T14:14:07.962Z
-Stopped at: Completed 249-03-PLAN.md
+Last session: 2026-10-09T15:27:55Z
+Stopped at: Phase 249 gap-closure planning complete; Plan 249-08 is next
 Resume file: None
 
 ## Operator Next Steps
 
-- **Phase 249 Plan 02 is complete.** The full generated 1.6.0 ExDoc index is tracked, and required CI compares it after a warning-free docs build, including on docs-only PRs. Plans 249-04 and 249-07 are ready in Wave 2; Plan 249-03 follows them in Wave 3. Refresh live main, PR, and worktree identities in Plan 04 before any promotion. The user also approved automatic Release Please candidate repair in Plan 03.
-- **Next GSD command: `$gsd-execute-phase 249`.** Continue the remaining plans in dependency order. Phase 248's historical 13/18 report and hosted manual-dry-run/failure/cancellation evidence remain separate verification maintenance unless fresh Phase 249 readiness reports a prerequisite blocker.
+- **Phase 249 plan execution is complete (7/7), but phase verification is not.** REL-01 passed. REL-02 remains blocked because protected `main` lacks the receipt-bearing promotion and 95 inherited dirty paths lack verified preservation refs and approved destinations. See `249-VERIFICATION.md`, `249-FINAL-ACCEPTANCE.json`, and `249-CLOSEOUT.json` in the Phase 249 directory.
+- **Next GSD command: `$gsd-plan-phase 249 --gaps`.** Create targeted gap-closure plans from the verification report; then execute them with `$gsd-execute-phase 249 --gaps-only`. Do not mark Phase 249 complete until the verifier passes.
 
 ## Performance Metrics
 

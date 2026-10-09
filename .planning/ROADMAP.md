@@ -141,7 +141,7 @@ Plans:
   2. Required CI is green for the final protected-main release commit; the committed artifact-derived receipt identifies the immutable 1.6.0 package-source SHA and matching source CI, while final-main SHA and CI are recorded separately.
   3. Every local worktree is clean and every PR still open at closeout has a recorded disposition.
 
-**Plans**: 5/7 plans executed
+**Plans**: 7/12 plans executed
 
 Plans:
 
@@ -157,10 +157,25 @@ Plans:
 - [x] 249-03-PLAN.md — Refresh the fixed Release Please candidate automatically with scoped write authority.
 
 **Wave 4** *(blocked on Plans 03 and 04)*
-- [ ] 249-05-PLAN.md — Preserve inherited work and promote the scoped release change through protected review.
+- [x] 249-05-PLAN.md — Preserve inherited work and promote the scoped release change through protected review.
 
 **Wave 5** *(blocked on Plan 05)*
-- [ ] 249-06-PLAN.md — Prove the final protected-main head and finish public and repository closeout acceptance.
+- [x] 249-06-PLAN.md — Prove the final protected-main head and finish public and repository closeout acceptance.
+
+**Wave 6** *(blocked on Plans 04–06; prerequisites complete)*
+- [ ] 249-08-PLAN.md — Preserve inherited work under verified, recoverable refs.
+
+**Wave 7** *(blocked on Plan 08)*
+- [ ] 249-09-PLAN.md — Assemble the source-bound receipt and required documentation gate.
+
+**Wave 8** *(blocked on Plan 09)*
+- [ ] 249-10-PLAN.md — Complete and review the scoped promotion candidate.
+
+**Wave 9** *(blocked on Plan 10)*
+- [ ] 249-11-PLAN.md — Promote the exact reviewed candidate through protected auto-merge.
+
+**Wave 10** *(blocked on Plan 11)*
+- [ ] 249-12-PLAN.md — Verify final-main evidence and terminal repository cleanliness.
 
 ### Progress
 
@@ -171,8 +186,8 @@ Plans:
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | In Progress | - |
-| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 5/7 | In Progress | - |
+| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 7/12 | In Progress | - |
 
 ### Next
 
-**Next: execute Phase 249.** Wave 2 is complete; Plan 249-03 is next, followed by Plans 05 and 06. Plan 05 must still verify durable preservation for the 95 inherited dirty paths before any clean-closeout claim. Phase 248's historical 13/18 verification report and hosted manual dry-run/failure/cancellation evidence remain separate verification maintenance; the stale report alone does not block this forward route.
+**Next: execute Phase 249 gap closure.** Plans 08–12 passed independent plan verification. REL-02 remains unverified until the receipt-bearing promotion reaches protected `main`, inherited work has verified preservation refs and approved destinations, and final-main CI plus terminal cleanliness are proven. Run `$gsd-execute-phase 249 --gaps-only`; do not mark the phase complete until verification passes. Full diagnostics are in `249-VERIFICATION.md`.
