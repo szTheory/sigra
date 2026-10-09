@@ -83,7 +83,9 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
     assert workflow =~
              "permissions:\n  actions: read\n  checks: read\n  contents: read\n  deployments: read\n  issues: read\n  pull-requests: read"
 
-    assert workflow =~ ~r/^    permissions:\n      actions: read\n      contents: read\n      pull-requests: read$/m
+    assert workflow =~
+             ~r/^    permissions:\n      actions: read\n      contents: read\n      pull-requests: read$/m
+
     refute workflow =~ ~r/^  (actions|contents|issues|pull-requests): write$/m
 
     assert workflow =~ "release_created: ${{ steps.release.outputs.release_created }}"
