@@ -1,5 +1,7 @@
 defmodule Sigra.Account.DeletionTest do
-  use ExUnit.Case, async: true
+  # These tests temporarily register a dummy process under the global Oban name.
+  # Keep this module synchronous so that guard assertions cannot race with that registration.
+  use ExUnit.Case, async: false
 
   import Mox
 
