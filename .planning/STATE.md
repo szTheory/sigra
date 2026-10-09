@@ -4,12 +4,12 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 249-09 (first remaining gap plan; gated by unavailable historical HANDOFF bytes)
-status: blocked
-stopped_at: Plan 249-08 complete; Plan 249-09 is gated by one unrecoverable historical HANDOFF identity
-last_updated: "2026-10-09T19:20:44.000Z"
+current_plan: 249-09 (first remaining gap plan; revalidating preservation under exact accepted-loss exception)
+status: in_progress
+stopped_at: Plan 249-08 complete; revalidating Plan 249-09 precondition under one exact user-authorized accepted-loss exception
+last_updated: "2026-10-09T19:29:01.000Z"
 last_activity: 2026-10-09
-last_activity_desc: GitHub branch, tag, PR-ref and local-object audits found no copy of the historical handoff bytes; blocker remains fail-closed
+last_activity_desc: Recorded the exact handoff loss and write-ahead preservation lesson; Plan 249-09 candidate remains gated on live preservation validation
 state_head: e1d5f050e
 progress:
   total_phases: 4
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-09 is gated
-Current Plan: 249-09 (blocked by the Plan 08 preservation precondition; one historical HANDOFF identity remains unrecoverable)
+Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-09 precondition is being revalidated
+Current Plan: 249-09 (proceed only on exact accepted-with-recorded-loss status, no other blockers, and clean live worktrees)
 Total Plans in Phase: 12
 Plans executed: 8 of 12
-Status: Blocked by one historical preservation identity; no loss waiver is permitted
-Last activity: 2026-10-09 — Phase 233 maintenance was separately classified and preserved; Plan 249-09 cannot create a candidate until preservation mode passes
+Status: In progress; one exact historical loss is user-authorized and recorded transparently; all other preservation requirements remain strict
+Last activity: 2026-10-09 — Added the accepted-loss record and write-ahead preservation controls; Plan 249-09 candidate still requires a clean live gate result
 
 Progress: [█████░░░░░] 50%
 
@@ -820,14 +820,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-10-09T18:23:54Z
-Stopped at: Plan 249-08 complete; Plan 249-09 gated by the unavailable historical HANDOFF bytes
+Stopped at: Plan 249-08 complete; Plan 249-09 preservation gate being revalidated under the exact accepted-loss exception
 Resume file: None
 
 ## Operator Next Steps
 
 - **Plan 249-08 implementation is complete; Phase 249 verification is not.** The Phase 233 scaffold-discovery edit is preserved at `refs/phase-249-preservation/phase-233-bounded-scaffold-discovery` (source SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) as a separate Sigra test/CI maintenance follow-up, excluded from the 1.6.0 candidate. The latest complete inventory observed five worktrees and 14 open PRs. Of 103 inherited identities, 102 have exact preservation refs; the sole remaining blocker is the historical `.planning/HANDOFF.json` revision.
-- **Remaining blocker:** historical `.planning/HANDOFF.json` SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` was not found in 22,410 local Git blobs, 18,847 GitHub-mirror blobs across 65 branches, 14 tags, 300 PR heads and 13 PR merge refs, or 74,345 regular files across the repository and registered worktrees. The current and base-commit handoff bytes differ; no relevant Actions artifact metadata or Git LFS object store was found. Missing evidence must not be waived or marked passed; keep the gate blocked. No user-held copy is available; reopen only if new external evidence appears with bytes matching that exact hash.
-- **Next GSD command when the exact bytes are recoverable:** `$gsd-execute-phase 249 --gaps-only`. Do not create a release candidate or mark REL-02 complete until preservation mode passes and the protected-main promotion and terminal-closeout evidence is proven.
+- **Historical loss:** `.planning/HANDOFF.json` SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` was not found in 22,410 local Git blobs, 18,847 GitHub-mirror blobs across 65 branches, 14 tags, 300 PR heads and 13 PR merge refs, or 74,345 regular files. The user accepted this exact loss; it remains unrecovered, is not claimed preserved, and is excluded from the candidate. All other missing evidence still blocks.
+- **Prevention:** the exact replacing write/tool is not provable from retained records. The process gap was recording the hash without first pinning the bytes. `AGENTS.md`, `.planning/METHODOLOGY.md`, and closeout tests now require exact write-ahead preservation before dirty planning files are rewritten.
+- **Next action:** re-run the live Plan 08 preservation validator. Continue `$gsd-execute-phase 249 --gaps-only` only if it returns zero errors/blockers with `accepted-with-recorded-loss` for exactly this identity, preserves every other inherited path, and verifies all live worktrees are clean; then continue protected-main promotion and terminal closeout.
 
 ## Performance Metrics
 

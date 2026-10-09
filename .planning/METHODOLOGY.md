@@ -23,6 +23,10 @@ Before a plan depends on an immutable baseline, exact object identities, an exte
 
 Historical negative claims cannot be reconstructed by starting a recorder after the interval. If no independently trusted source covers the full requested window, keep the claim unknown and resolve the scope or acceptance contract before creating implementation or gap-closure plans. Do not spend repeated plans probing for evidence that could not have been recorded retroactively.
 
+## Planning Artifact Write-Ahead Preservation
+
+Treat durable planning state as user work. Before a GSD operation rewrites or cleans an already-dirty `.planning/` path—including `HANDOFF.json`, `STATE.md`, `state.json`, closeout ledgers, plans, and evidence—commit it or create a path-scoped immutable preservation ref and verify the exact path, status, and bytes by read-back. A recorded hash is an identity, not a backup. If the prior bytes cannot be read back from the preservation target, do not perform the overwrite; capture the blocker in a separate clean artifact. After preservation, recheck the source path and hash before writing its replacement, and carry the preservation reference forward through later inventory refreshes.
+
 At closeout, list execution commit IDs only when `git cat-file` resolves them and their integration branch or containing ref is recorded. Mark a requirement complete only when its complete acceptance evidence passes; a valid blocked audit can complete the bounded audit attempt while leaving the parent requirement open.
 
 ## Decisive Defaulting

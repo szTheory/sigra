@@ -3800,53 +3800,22 @@
       }
     }
   ],
-  "blocked_paths": [
-    {
-      "worktree_path": "/Users/jon/projects/sigra",
-      "path": ".planning/HANDOFF.json",
-      "status": " M",
-      "original_path": null,
-      "content_state": "regular-file",
-      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
-      "preservation": {
-        "schema_version": 1,
-        "state": "blocked",
-        "owner": "Historical Phase 249 GSD handoff revision; exact former bytes are unavailable",
-        "target": "/Users/jon/projects/sigra/.planning/HANDOFF.json",
-        "action": "Record the historical loss precisely; do not claim it is recoverable from the current handoff ref.",
-        "reason": "The captured SHA-256 is no longer present in the source path, no path-scoped ref resolves to those bytes, and no reachable commit contains that exact file hash. This pre-existing handoff revision was superseded before Plan 08 preservation; the current handoff bytes are preserved separately. The historical bytes remain an explicit blocker.",
-        "source_record": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148.",
-        "worktree_path": "/Users/jon/projects/sigra",
-        "source_head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
-        "source_status": " M",
-        "source_path": ".planning/HANDOFF.json",
-        "source_content_state": "regular-file",
-        "source_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
-        "ref": null,
-        "object_sha": null,
-        "paths": [],
-        "source_clean_after_readback": false,
-        "source_head_unchanged": true,
-        "source_index_unchanged": true,
-        "source": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148."
-      }
-    }
-  ],
+  "blocked_paths": [],
   "notes": [
     "Initial complete inventory observed five worktrees, 14 open PRs, and no failed changed-file reads.",
     "The Phase 233 scaffold-discovery edit is now preserved at refs/phase-249-preservation/phase-233-bounded-scaffold-discovery and classified as a separate test/CI maintenance follow-up; it is excluded from the 1.6.0 candidate.",
-    "All preserved bytes are pinned under local scoped refs. The sole remaining blocked identity is the unavailable historical HANDOFF.json revision recorded below.",
     "The handoff recovery audit scanned 22,400 of 68,152 Git objects and 74,345 regular files across the repository and registered worktrees; no exact match or Git LFS object store was found.",
-    "Preservation mode remains blocked; Plan 249-09 candidate assembly must not start until exact historical handoff bytes are recoverable.",
     "Follow-up recovery audit 2026-10-09 searched all 22,410 local Git blobs (68,190 objects), all 18,847 blobs in the GitHub mirror (61,009 objects across branch/tag/PR-head/PR-merge refs), and 74,345 regular files; the target SHA-256 was absent.",
-    "GitHub Actions artifact metadata had no handoff/planning/preservation/Phase 249 artifact-name match; no artifact contents were downloaded."
+    "GitHub Actions artifact metadata had no handoff/planning/preservation/Phase 249 artifact-name match; no artifact contents were downloaded.",
+    "The historical HANDOFF.json bytes remain unrecovered. On 2026-10-09 the user accepted this exact loss so Phase 249 can continue; the loss is not described as preserved and is excluded from the release candidate.",
+    "Recovery audit facts remain immutable at revision 4; this revision adds a scoped disposition and prevention controls without changing the audit result."
   ],
   "supersedes": {
-    "ref": "refs/phase-249-preservation/plan-08-preservation-record-v3",
-    "commit_sha": "c6519bc11c7bf2e9378dd1003a1dc0e947d2594e",
-    "sha256": "7d9a2a1312d5fb93de3f19d6f7add7cf109e8d8df00c5acbc14a326036f10385"
+    "ref": "refs/phase-249-preservation/plan-08-preservation-record-v4",
+    "commit_sha": "96581c2b555a11b50b6efece9c25a5b1f8e0e456",
+    "sha256": "b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3"
   },
-  "revision": 4,
+  "revision": 5,
   "recovery_audit": {
     "target_path": ".planning/HANDOFF.json",
     "target_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
@@ -3888,5 +3857,85 @@
     "git_lfs_object_store_present": false,
     "disposition": "Exact bytes were not found in the local Git object database, any advertised GitHub branch/tag/PR ref, registered local worktree files, or relevant artifact metadata. Keep the historical identity blocked; do not waive or mark missing evidence as passed."
   },
-  "preservation_record_ref": "refs/phase-249-preservation/plan-08-preservation-record-v4"
+  "preservation_record_ref": "refs/phase-249-preservation/plan-08-preservation-record-v5",
+  "accepted_loss_paths": [
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/HANDOFF.json",
+      "status": " M",
+      "original_path": null,
+      "content_state": "regular-file",
+      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+      "preservation": {
+        "schema_version": 1,
+        "state": "accepted-loss",
+        "owner": "User-authorized exception for one unrecoverable historical handoff revision",
+        "target": "No recovery target exists; the old bytes remain unrecovered.",
+        "action": "Continue only under the exact recorded accepted-loss exception; do not claim that the old bytes were preserved.",
+        "reason": "The pinned recovery audit found no copy of the exact bytes. The user accepted this one loss so Phase 249 can continue.",
+        "source_record": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148.",
+        "worktree_path": "/Users/jon/projects/sigra",
+        "source_head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
+        "source_status": " M",
+        "source_path": ".planning/HANDOFF.json",
+        "source_content_state": "regular-file",
+        "source_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+        "ref": null,
+        "object_sha": null,
+        "paths": [],
+        "source_clean_after_readback": false,
+        "source_head_unchanged": true,
+        "source_index_unchanged": true,
+        "source": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148."
+      },
+      "recovery_finding": {
+        "schema_version": 1,
+        "state": "blocked",
+        "owner": "Historical Phase 249 GSD handoff revision; exact former bytes are unavailable",
+        "target": "/Users/jon/projects/sigra/.planning/HANDOFF.json",
+        "action": "Record the historical loss precisely; do not claim it is recoverable from the current handoff ref.",
+        "reason": "The captured SHA-256 is no longer present in the source path, no path-scoped ref resolves to those bytes, and no reachable commit contains that exact file hash. This pre-existing handoff revision was superseded before Plan 08 preservation; the current handoff bytes are preserved separately. The historical bytes remain an explicit blocker.",
+        "source_record": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148.",
+        "worktree_path": "/Users/jon/projects/sigra",
+        "source_head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
+        "source_status": " M",
+        "source_path": ".planning/HANDOFF.json",
+        "source_content_state": "regular-file",
+        "source_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+        "ref": null,
+        "object_sha": null,
+        "paths": [],
+        "source_clean_after_readback": false,
+        "source_head_unchanged": true,
+        "source_index_unchanged": true,
+        "source": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148."
+      },
+      "disposition": {
+        "state": "accepted-loss",
+        "authorized_by": "user",
+        "authorized_at": "2026-10-09",
+        "authorization": "accept reality and move on accordingly",
+        "scope": "This exact historical .planning/HANDOFF.json path/status/SHA-256 identity only.",
+        "bytes_recovered": false,
+        "bytes_preserved": false,
+        "candidate_inclusion": false,
+        "audit_record_ref": "refs/phase-249-preservation/plan-08-preservation-record-v4",
+        "audit_record_commit_sha": "96581c2b555a11b50b6efece9c25a5b1f8e0e456",
+        "audit_record_sha256": "b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3"
+      }
+    }
+  ],
+  "loss_prevention": {
+    "diagnosis": "The preserved record proves the historical handoff hash was inventoried at 2026-10-09T13:37:04.730Z and its bytes were unavailable by the Plan 08 preservation boundary. The retained evidence does not identify the exact write or tool that replaced those bytes. The process gap is that inventory recorded an identity hash but no durable blob, while preservation happened later instead of being a required pre-write step.",
+    "controls": [
+      "Before rewriting or cleaning any already-dirty .planning path, commit or path-preserve the exact path/status/bytes under an immutable scoped ref and verify read-back.",
+      "Keep inventory hashes as identity evidence only; never treat a hash as a backup.",
+      "Surface dirty planning files in planning_mutation_guards and stop if their exact bytes cannot be made recoverable.",
+      "Carry validated, user-authorized loss exceptions across inventory refreshes without relabeling them as preserved."
+    ],
+    "regression_tests": [
+      "validate-closeout.test.mjs: a dirty handoff is listed as a preserve-before-rewrite guard and capture leaves bytes untouched.",
+      "validate-closeout.test.mjs: accepted loss is allowed only for the exact recorded hash, user authorization, and pinned audit; it fails if the source path is dirty or the identity changes."
+    ]
+  }
 }

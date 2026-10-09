@@ -63,6 +63,55 @@ function fixture() {
   return { ledger, live };
 }
 
+function acceptedHandoffLossFixture() {
+  const { ledger, live } = fixture();
+  const worktreePath = '/Users/jon/projects/sigra';
+  const historical = {
+    path: '.planning/HANDOFF.json',
+    status: ' M',
+    content_state: 'regular-file',
+    sha256: '00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148',
+    preservation: {
+      schema_version: 1,
+      state: 'accepted-loss',
+      owner: 'Historical Phase 249 GSD handoff revision; exact former bytes were not recovered',
+      target: 'accepted-loss exception for this exact historical identity',
+      action: 'Record the user-authorized loss without claiming byte recovery; preserve every other inherited path.',
+      reason: 'The recovery audit found no copy of these bytes. The user accepted this exact loss so Phase 249 can continue.',
+      source: 'Prior live inventory at 2026-10-09T13:37:04.730Z; source HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0.',
+      source_head_sha: '978a83f9822d907a8ac5f1b6f422d622ebc969e0',
+    },
+  };
+  ledger.worktrees[0].path = worktreePath;
+  ledger.worktrees[0].inherited_dirty_paths = [historical];
+  ledger.worktrees[0].dirty_paths = [];
+  live.worktrees[0].path = worktreePath;
+  live.worktrees[0].dirty_paths = [];
+  ledger.accepted_loss_exceptions = [{
+    schema_version: 1,
+    disposition: 'accepted-loss',
+    worktree_path: worktreePath,
+    path: '.planning/HANDOFF.json',
+    status: ' M',
+    sha256: historical.sha256,
+    source_head_sha: '978a83f9822d907a8ac5f1b6f422d622ebc969e0',
+    authorized_by: 'user',
+    authorized_at: '2026-10-09',
+    authorization: 'accept reality and move on accordingly',
+    scope: 'This exact historical .planning/HANDOFF.json revision only; every other missing or unverified path remains blocked.',
+    reason: 'The historical bytes were not recovered after the recorded local, GitHub, worktree-file and artifact-metadata audit. The user accepted this exact loss so Phase 249 can continue; no claim is made that the bytes were preserved.',
+    audit_record: {
+      path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json',
+      revision: 4,
+      ref: 'refs/phase-249-preservation/plan-08-preservation-record-v4',
+      commit_sha: '96581c2b555a11b50b6efece9c25a5b1f8e0e456',
+      sha256: 'b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3',
+      target_sha256: historical.sha256,
+    },
+  }];
+  return { ledger, live, historical };
+}
+
 function captureFixture(t) {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-closeout-capture-'));
   const bin = path.join(repo, 'bin');
@@ -211,6 +260,45 @@ test('a newly appearing dirty path remains blocked after preservation', t => {
   const result = invoke('validatePreservation', ledger, live, { repoRoot: repo });
   assert.equal(result.valid, false);
   assert.ok(result.errors.some(error => error.code === 'preservation_new_dirty_path'));
+});
+
+test('the exact user-authorized historical handoff loss is explicit and remains labeled', t => {
+  const { repo } = preservedFixture(t);
+  const { ledger, live } = acceptedHandoffLossFixture();
+  const disposition = invoke('validateDispositions', ledger);
+  assert.equal(disposition.valid, true, JSON.stringify(disposition.errors));
+  assert.equal(disposition.blocked, false);
+  assert.equal(disposition.closeout_status, 'accepted-with-recorded-loss');
+  assert.equal(disposition.accepted_losses.length, 1);
+  const preservation = invoke('validatePreservation', ledger, live, { repoRoot: repo });
+  assert.equal(preservation.valid, true, JSON.stringify(preservation.errors));
+  assert.equal(preservation.blocked, false);
+  assert.equal(preservation.closeout_status, 'accepted-with-recorded-loss');
+  assert.equal(preservation.accepted_losses[0].sha256, '00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148');
+});
+
+test('the accepted historical handoff loss fails closed if authorization or identity changes', () => {
+  const { ledger: missingAuthorization } = acceptedHandoffLossFixture();
+  delete missingAuthorization.accepted_loss_exceptions[0].authorized_by;
+  const missingResult = invoke('validateDispositions', missingAuthorization);
+  assert.equal(missingResult.valid, false);
+  assert.ok(missingResult.errors.some(error => error.code === 'accepted_loss_authorization_invalid'));
+
+  const { ledger: wrongIdentity } = acceptedHandoffLossFixture();
+  wrongIdentity.worktrees[0].inherited_dirty_paths[0].sha256 = digest('f');
+  const identityResult = invoke('validateDispositions', wrongIdentity);
+  assert.equal(identityResult.valid, false);
+  assert.ok(identityResult.errors.some(error => error.code === 'accepted_loss_authorization_invalid'));
+});
+
+test('the accepted-loss exception cannot hide a currently dirty source path', t => {
+  const { repo } = preservedFixture(t);
+  const { ledger, live, historical } = acceptedHandoffLossFixture();
+  live.worktrees[0].dirty_paths = [{ path: historical.path, status: historical.status, content_state: historical.content_state, sha256: historical.sha256 }];
+  const result = invoke('validatePreservation', ledger, live, { repoRoot: repo });
+  assert.equal(result.valid, false);
+  assert.equal(result.blocked, true);
+  assert.ok(result.errors.some(error => error.code === 'accepted_loss_source_path_dirty'));
 });
 
 test('later phase outputs cannot hide behind names, prefixes, or a legacy path allowlist', () => {
@@ -762,6 +850,28 @@ test('a pre-dirty closeout output is recorded as inherited collision and never e
   assert.equal(ledger.evidence_artifacts.collisions[0].path, closeoutPath);
   assert.ok(root.dirty_paths.some(row => row.path === closeoutPath));
   assert.deepEqual(fs.readFileSync(path.join(repo, closeoutPath)), currentBytes);
+});
+
+test('a dirty handoff is surfaced as a preserve-before-rewrite guard and capture leaves its bytes untouched', t => {
+  const { repo, ghPath } = captureFixture(t);
+  const handoffPath = '.planning/HANDOFF.json';
+  const handoffBytes = Buffer.from('{"prior":"must remain recoverable"}\n');
+  fs.writeFileSync(path.join(repo, handoffPath), handoffBytes);
+  const ledger = withGhStub(ghPath, () => invoke('captureLedger', { repoRoot: repo }));
+  assert.deepEqual(ledger.planning_mutation_guards, [{
+    path: handoffPath,
+    status: '??',
+    sha256: createHash('sha256').update(handoffBytes).digest('hex'),
+    before_rewrite: 'Preserve or commit these exact bytes before any update or cleanup; stop if read-back cannot be proven.',
+  }]);
+  assert.deepEqual(fs.readFileSync(path.join(repo, handoffPath)), handoffBytes);
+});
+
+test('a validated accepted-loss record survives a refreshed read-only inventory', t => {
+  const { repo, ghPath } = captureFixture(t);
+  const { ledger: prior } = acceptedHandoffLossFixture();
+  const refreshed = withGhStub(ghPath, () => invoke('captureLedger', { repoRoot: repo, previousLedgerInput: prior }));
+  assert.deepEqual(refreshed.accepted_loss_exceptions, prior.accepted_loss_exceptions);
 });
 
 test('each dirty path needs an explicit preservation decision and exact hash', () => {

@@ -3,7 +3,7 @@
   "repository": "szTheory/sigra",
   "observed_at": "2026-10-09T19:22:54.492Z",
   "inventory_status": "complete",
-  "closeout_status": "blocked-until-dispositions-and-preservation",
+  "closeout_status": "accepted-with-recorded-loss",
   "source_status": {
     "worktrees": {
       "status": "complete",
@@ -171,11 +171,11 @@
           "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
           "preservation": {
             "schema_version": 1,
-            "state": "blocked",
-            "owner": "Historical Phase 249 GSD handoff revision; exact former bytes are unavailable",
-            "target": "/Users/jon/projects/sigra/.planning/HANDOFF.json",
-            "action": "Record the historical loss precisely; do not claim it is recoverable from the current handoff ref.",
-            "reason": "The captured SHA-256 is no longer present in the source path, no path-scoped ref resolves to those bytes, and no reachable commit contains that exact file hash. This pre-existing handoff revision was superseded before Plan 08 preservation; the current handoff bytes are preserved separately. The historical bytes remain an explicit blocker.",
+            "state": "accepted-loss",
+            "owner": "User-authorized exception for one unrecoverable historical Phase 249 handoff revision",
+            "target": "No recovery target exists; the old bytes were not recovered.",
+            "action": "Proceed with Phase 249 under an exact, user-authorized accepted-loss disposition. Do not claim byte preservation or include inherited work in the release candidate.",
+            "reason": "The pinned recovery audit found no copy of these bytes. The user accepted this exact historical loss so Phase 249 can continue; every other inherited identity remains subject to exact preservation and all live worktrees must be clean.",
             "source_record": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148.",
             "worktree_path": "/Users/jon/projects/sigra",
             "source_head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
@@ -189,7 +189,7 @@
             "source_clean_after_readback": false,
             "source_head_unchanged": true,
             "source_index_unchanged": true,
-            "source": "prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148."
+            "source": "Prior live inventory at 2026-10-09T13:37:04.730Z; branch phase-244-playwright-measurement; source HEAD 978a83f9822d907a8ac5f1b6f422d622ebc969e0; status  M; SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148."
           }
         },
         {
@@ -9920,7 +9920,33 @@
   "notes": [
     "This is a live read-only inventory. No worktree, file, or PR was modified by capture.",
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
-    "The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty."
+    "The historical .planning/HANDOFF.json identity is unrecovered and separately recorded as one user-authorized accepted loss; it is not claimed as preserved.",
+    "All other inherited dirty paths must have exact preservation proofs, and every live worktree must remain clean."
   ],
-  "capture_completed_at": "2026-10-09T19:23:11.549Z"
+  "capture_completed_at": "2026-10-09T19:23:11.549Z",
+  "accepted_loss_exceptions": [
+    {
+      "schema_version": 1,
+      "disposition": "accepted-loss",
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/HANDOFF.json",
+      "status": " M",
+      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+      "source_head_sha": "978a83f9822d907a8ac5f1b6f422d622ebc969e0",
+      "authorized_by": "user",
+      "authorized_at": "2026-10-09",
+      "authorization": "accept reality and move on accordingly",
+      "scope": "This exact historical .planning/HANDOFF.json revision only; every other missing or unverified path remains blocked.",
+      "reason": "The historical bytes were not recovered after the recorded local, GitHub, worktree-file and artifact-metadata audit. The user accepted this exact loss so Phase 249 can continue; no claim is made that the bytes were preserved.",
+      "audit_record": {
+        "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json",
+        "revision": 4,
+        "ref": "refs/phase-249-preservation/plan-08-preservation-record-v4",
+        "commit_sha": "96581c2b555a11b50b6efece9c25a5b1f8e0e456",
+        "sha256": "b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3",
+        "target_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148"
+      }
+    }
+  ],
+  "dispositions_updated_at": "2026-10-09T19:29:01.000Z"
 }

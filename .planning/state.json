@@ -26,8 +26,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 249 --gaps-only",
-    "label": "Resume Phase 249 only if the historical handoff bytes become recoverable",
-    "reason": "The Phase 233 test-discovery change is preserved under a scoped local ref as a separate maintenance follow-up and excluded from the release candidate. The only blocker is historical HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148, absent from all 22,410 local Git blobs, 18,847 blobs in the GitHub mirror across branch/tag/PR-head/PR-merge refs, and 74,345 repository/worktree files. No user-held copy is available. Missing evidence cannot be waived; Plan 249-09 must not create a candidate."
+    "label": "Continue Plan 249-09 after exact accepted-loss preservation validation",
+    "reason": "The user accepted only the exact historical HANDOFF.json loss after exhaustive recovery searches. The bytes remain unrecovered and are not described as preserved. Continue candidate assembly only if live preservation validation has zero errors and blockers, every other inherited path is exactly preserved, and all live worktrees are clean. The write-ahead preservation lesson and regression guards are recorded in AGENTS.md, .planning/METHODOLOGY.md, and Phase 249 artifacts."
   },
-  "updated_at": "2026-10-09T19:20:44.000Z"
+  "updated_at": "2026-10-09T19:29:01.000Z"
 }

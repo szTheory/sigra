@@ -14,7 +14,7 @@ requires:
     provides: "Closeout validator and final acceptance contract"
 provides:
   - "Path-scoped recoverable refs for every safely owned inherited change"
-  - "A current preservation record and strict closeout inventory with explicit blockers"
+  - "A current preservation record and strict closeout inventory with one explicit, user-authorized historical-loss disposition"
 affects: [249-09, 249-10, 249-11, 249-12, REL-02]
 
 # Actuals
@@ -134,12 +134,14 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 
-Plan 249-09 is gated by its explicit Plan 08 precondition: preservation mode must pass before a candidate can be created. Resume with `$gsd-execute-phase 249 --gaps-only` only if the exact historical handoff bytes become recoverable and the refreshed preservation gate passes. No candidate, push, PR, or merge was created during this plan.
+Plan 249-09 may start only after the refreshed preservation validator returns zero errors and blockers with `accepted-with-recorded-loss` for the one exact user-authorized historical handoff identity, all other inherited paths exactly preserved, and all live worktrees clean. No candidate, push, PR, or merge was created during Plan 08.
 
 ## Post-Plan-08 disposition (2026-10-09)
 
 - **Phase 233 test-discovery edit:** assigned to Sigra maintainers as a separate test/CI maintenance follow-up, not release scope. Its exact source bytes (SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) were read back from `refs/phase-249-preservation/phase-233-bounded-scaffold-discovery` (object `fca3772b0dc546f954cd28c4122e72c29ddd6a05`), then only that source path was cleaned. Phase 249's exact 1.6.0 source validation passed full CI without the edit, so it is excluded from the candidate. The edit has no dedicated hostile-tree regression fixture; preservation does not claim otherwise.
-- **Historical handoff:** the exact former `.planning/HANDOFF.json` bytes (SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148`) were not found after scanning 22,400 Git objects and 74,345 regular files across the repository and registered worktrees. No Git LFS object store exists. Keep this missing evidence blocked and do not waive it; Plan 249-09 remains gated.
+- **Historical handoff:** the exact former `.planning/HANDOFF.json` bytes (SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148`) were not found after the recorded local/GitHub/worktree/artifact audit. On 2026-10-09 the user accepted only this exact loss so Phase 249 can continue. The bytes remain unrecovered, are not called preserved, and are excluded from the release candidate; every other missing identity remains blocked.
+- **Prevention lesson:** the exact write/tool that replaced the handoff is not recoverable from retained evidence. The process gap is clear: the hash was recorded before the bytes were pinned, so subsequent planning-state writes could supersede the source. Repository guidance now requires write-ahead preservation of dirty `.planning/` files, and the closeout inventory reports `planning_mutation_guards`; deterministic tests assert the guard and the exact exception scope.
+- **Refreshed closeout evidence:** 49/49 closeout-validator tests pass. The current ledger records 102 exactly preserved inherited identities plus one explicit accepted loss; the live preservation command still must verify the current worktree boundary before Plan 09 creates a candidate.
 - **Standing verification default:** deterministic seam tests, CI evidence where recurring value justifies it, and no repeat human UAT are already recorded in `AGENTS.md`, `.planning/METHODOLOGY.md`, and the linked `.planning/VERIFICATION-POLICY.md`. Keep that policy as the single source of truth rather than duplicating it.
 
 ---

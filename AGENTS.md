@@ -16,6 +16,12 @@ Key constraints:
 - Retry transient failures once and automatically diagnose and repair deterministic failures. Never waive, auto-approve, or mark missing evidence as passed; block with durable diagnostics when a requirement cannot be proven automatically.
 - Do not use automation-first verification as authority to start unrelated phases or expand product scope.
 
+## Planning artifact write-ahead preservation
+
+- Before rewriting or cleaning any `.planning/` path that is already dirty at the task's capture boundary, first commit it or preserve its exact path/status/bytes under a durable scoped ref and verify read-back. Inventory hashes alone are not recovery copies.
+- Treat `.planning/HANDOFF.json`, `.planning/STATE.md`, `.planning/state.json`, closeout ledgers, and phase evidence as write-ahead state: never refresh or replace a dirty revision until its prior bytes are recoverable. If preservation cannot be proven, stop the mutation and record the blocker separately.
+- After a scoped preservation, re-read source status and content hash before writing the replacement. Keep the prior ref and exact identity in the phase record so recovery survives later handoff refreshes.
+
 ## GSD forward routing
 
 At every GSD stopping point, report the exact next command and distinguish completed

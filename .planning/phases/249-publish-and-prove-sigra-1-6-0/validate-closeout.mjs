@@ -6,12 +6,25 @@ import { fileURLToPath } from 'node:url';
 
 const REPOSITORY = 'szTheory/sigra';
 const DISPOSITIONS = new Set(['release-blocking', 'release-relevant', 'separate-follow-up']);
-const PRESERVATION_STATES = new Set(['blocked', 'preserve-in-place', 'preserved']);
+const PRESERVATION_STATES = new Set(['accepted-loss', 'blocked', 'preserve-in-place', 'preserved']);
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(MODULE_DIR, '../../..');
 const CLOSEOUT_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json';
+const ACCEPTED_HANDOFF_LOSS = Object.freeze({
+  path: '.planning/HANDOFF.json',
+  status: ' M',
+  sha256: '00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148',
+  source_head_sha: '978a83f9822d907a8ac5f1b6f422d622ebc969e0',
+  authorization: 'accept reality and move on accordingly',
+  authorized_at: '2026-10-09',
+  audit_record_path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json',
+  audit_record_revision: 4,
+  audit_record_ref: 'refs/phase-249-preservation/plan-08-preservation-record-v4',
+  audit_record_commit_sha: '96581c2b555a11b50b6efece9c25a5b1f8e0e456',
+  audit_record_sha256: 'b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3',
+});
 
 function run(command, args, cwd, maxBuffer = 64 * 1024 * 1024) {
   return execFileSync(command, args, { cwd, encoding: 'buffer', maxBuffer });
@@ -395,10 +408,51 @@ export function validateInventory(ledger, live) {
 export function validateDispositions(ledger) {
   const errors = [];
   const blockers = [];
+  const accepted_losses = [];
   const add = (code, message) => errors.push({ code, message });
   if (!Array.isArray(ledger?.worktrees) || !Array.isArray(ledger?.pull_requests)) {
     add('ledger_arrays_missing', 'The ledger must contain worktrees and pull_requests arrays.');
-    return { valid: false, blocked: true, closeout_status: 'blocked', errors, blockers };
+    return { valid: false, blocked: true, closeout_status: 'blocked', errors, blockers, accepted_losses };
+  }
+  const acceptedRows = ledger.worktrees.flatMap(worktree => (worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? [])
+    .filter(dirty => dirty.preservation?.state === 'accepted-loss')
+    .map(dirty => ({ worktree, dirty })));
+  const exceptions = ledger.accepted_loss_exceptions ?? [];
+  if (!Array.isArray(exceptions)) {
+    add('accepted_loss_exception_invalid', 'accepted_loss_exceptions must be an array.');
+  } else if (acceptedRows.length !== exceptions.length || acceptedRows.length > 1) {
+    add('accepted_loss_exception_scope_mismatch', 'Every accepted-loss row must have exactly one matching user authorization; this closeout permits only the recorded historical HANDOFF identity.');
+  }
+  const exception = Array.isArray(exceptions) && exceptions.length === 1 ? exceptions[0] : null;
+  const exceptionAudit = exception?.audit_record;
+  const exceptionIsExact = acceptedRows.length === 1
+    && acceptedRows[0].dirty.path === ACCEPTED_HANDOFF_LOSS.path
+    && acceptedRows[0].dirty.status === ACCEPTED_HANDOFF_LOSS.status
+    && acceptedRows[0].dirty.sha256 === ACCEPTED_HANDOFF_LOSS.sha256
+    && exception?.schema_version === 1
+    && exception?.disposition === 'accepted-loss'
+    && exception?.worktree_path === acceptedRows[0].worktree.path
+    && exception?.path === ACCEPTED_HANDOFF_LOSS.path
+    && exception?.status === ACCEPTED_HANDOFF_LOSS.status
+    && exception?.sha256 === ACCEPTED_HANDOFF_LOSS.sha256
+    && exception?.source_head_sha === ACCEPTED_HANDOFF_LOSS.source_head_sha
+    && acceptedRows[0].dirty.preservation?.source_head_sha === ACCEPTED_HANDOFF_LOSS.source_head_sha
+    && exception?.authorized_by === 'user'
+    && exception?.authorized_at === ACCEPTED_HANDOFF_LOSS.authorized_at
+    && exception?.authorization === ACCEPTED_HANDOFF_LOSS.authorization
+    && exception?.scope === 'This exact historical .planning/HANDOFF.json revision only; every other missing or unverified path remains blocked.'
+    && exception?.reason === 'The historical bytes were not recovered after the recorded local, GitHub, worktree-file and artifact-metadata audit. The user accepted this exact loss so Phase 249 can continue; no claim is made that the bytes were preserved.'
+    && exceptionAudit?.path === ACCEPTED_HANDOFF_LOSS.audit_record_path
+    && exceptionAudit?.revision === ACCEPTED_HANDOFF_LOSS.audit_record_revision
+    && exceptionAudit?.ref === ACCEPTED_HANDOFF_LOSS.audit_record_ref
+    && exceptionAudit?.commit_sha === ACCEPTED_HANDOFF_LOSS.audit_record_commit_sha
+    && exceptionAudit?.sha256 === ACCEPTED_HANDOFF_LOSS.audit_record_sha256
+    && exceptionAudit?.target_sha256 === ACCEPTED_HANDOFF_LOSS.sha256;
+  if (acceptedRows.length > 0 && !exceptionIsExact) {
+    add('accepted_loss_authorization_invalid', 'The accepted-loss disposition does not match the one exact user-authorized historical handoff identity and its pinned recovery audit.');
+  }
+  if (Array.isArray(exceptions) && exceptions.length > 0 && acceptedRows.length === 0) {
+    add('accepted_loss_exception_orphaned', 'An accepted-loss authorization has no matching inherited dirty-path row.');
   }
   for (const worktree of ledger.worktrees) {
     for (const dirty of worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? []) {
@@ -410,7 +464,13 @@ export function validateDispositions(ledger) {
         add('dirty_preservation_incomplete', `Dirty path ${worktree.path}:${dirty.path} lacks a complete preservation decision or blocker.`);
         continue;
       }
-      if (record.state !== 'preserved') blockers.push({ worktree_path: worktree.path, path: dirty.path, state: record.state, reason: record.reason });
+      if (record.state === 'accepted-loss') {
+        if (exceptionIsExact && dirty.path === ACCEPTED_HANDOFF_LOSS.path && dirty.status === ACCEPTED_HANDOFF_LOSS.status && dirty.sha256 === ACCEPTED_HANDOFF_LOSS.sha256) {
+          accepted_losses.push({ worktree_path: worktree.path, path: dirty.path, status: dirty.status, sha256: dirty.sha256, state: record.state, reason: record.reason });
+        }
+      } else if (record.state !== 'preserved') {
+        blockers.push({ worktree_path: worktree.path, path: dirty.path, state: record.state, reason: record.reason });
+      }
     }
   }
   for (const pullRequest of ledger.pull_requests) {
@@ -432,9 +492,10 @@ export function validateDispositions(ledger) {
   return {
     valid: errors.length === 0,
     blocked: blockers.length > 0,
-    closeout_status: blockers.length ? 'blocked' : 'ready',
+    closeout_status: errors.length > 0 ? 'invalid' : blockers.length ? 'blocked' : accepted_losses.length ? 'accepted-with-recorded-loss' : 'ready',
     errors,
     blockers,
+    accepted_losses,
   };
 }
 
@@ -462,6 +523,7 @@ function recoveredBlobHashes(repoRoot, commitSha, relativePath) {
 export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } = {}) {
   const errors = [];
   const blockers = [];
+  const accepted_losses = [];
   const add = (code, message) => errors.push({ code, message });
   const inventory = validateInventory(ledger, live);
   for (const error of inventory.errors) {
@@ -469,7 +531,7 @@ export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } =
   }
   if (!Array.isArray(ledger?.worktrees) || !Array.isArray(live?.worktrees)) {
     add('preservation_worktrees_missing', 'Complete ledger and live worktree arrays are required.');
-    return { valid: false, blocked: true, closeout_status: 'invalid', errors, blockers };
+    return { valid: false, blocked: true, closeout_status: 'invalid', errors, blockers, accepted_losses };
   }
 
   const liveByPath = new Map(live.worktrees.map(worktree => [worktree.path, worktree]));
@@ -508,6 +570,12 @@ export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } =
           add('preservation_ref_reused', `Preservation ref ${record.ref} is assigned to different objects or source worktrees.`);
         }
         preservationGroups.set(record.ref, group);
+      } else if (record.state === 'accepted-loss') {
+        if (currentAtPath) {
+          add('accepted_loss_source_path_dirty', `Accepted-loss source path ${worktree.path}:${dirty.path} is still dirty; only the historical identity may be absent.`);
+        } else if (dirty.path === ACCEPTED_HANDOFF_LOSS.path && dirty.status === ACCEPTED_HANDOFF_LOSS.status && dirty.sha256 === ACCEPTED_HANDOFF_LOSS.sha256) {
+          accepted_losses.push({ worktree_path: worktree.path, path: dirty.path, status: dirty.status, sha256: dirty.sha256, state: record.state, reason: record.reason });
+        }
       } else {
         if (!currentExact) add('preservation_source_drift', `Unpreserved path ${worktree.path}:${dirty.path} no longer matches its captured bytes/status.`);
         blockers.push({ worktree_path: worktree.path, path: dirty.path, state: record.state, reason: record.reason });
@@ -560,12 +628,17 @@ export function validatePreservation(ledger, live, { repoRoot = DEFAULT_ROOT } =
   errors.push(...dispositions.errors);
   blockers.push(...dispositions.blockers);
   const uniqueBlockers = [...new Map(blockers.map(blocker => [JSON.stringify(blocker), blocker])).values()];
+  const acceptedLossRows = [...new Map([...accepted_losses, ...dispositions.accepted_losses]
+    .map(row => [JSON.stringify(row), row])).values()];
+  const valid = errors.length === 0;
+  const blocked = errors.length > 0 || uniqueBlockers.length > 0;
   return {
-    valid: errors.length === 0,
-    blocked: errors.length > 0 || uniqueBlockers.length > 0,
-    closeout_status: errors.length > 0 ? 'invalid' : uniqueBlockers.length > 0 ? 'blocked' : 'ready',
+    valid,
+    blocked,
+    closeout_status: errors.length > 0 ? 'invalid' : uniqueBlockers.length > 0 ? 'blocked' : acceptedLossRows.length > 0 ? 'accepted-with-recorded-loss' : 'ready',
     errors,
     blockers: uniqueBlockers,
+    accepted_losses: acceptedLossRows,
   };
 }
 
@@ -801,8 +874,19 @@ export function validateFinalAcceptance(proof) {
     inventory: { valid: inventory.valid, worktrees: proof?.live_inventory?.worktrees?.length ?? 0, pull_requests: proof?.live_inventory?.pull_requests?.length ?? 0 },
     post_merge: mainProof,
     public_release: publicResult,
-    preservation: { valid: preservation.valid, blocked: preservation.blocked, closeout_status: preservation.closeout_status, blocker_count: preservation.blockers.length },
-    dispositions: { valid: dispositions.valid, blocked: dispositions.blocked, blocker_count: dispositions.blockers.length },
+    preservation: {
+      valid: preservation.valid,
+      blocked: preservation.blocked,
+      closeout_status: preservation.closeout_status,
+      blocker_count: preservation.blockers.length,
+      accepted_losses: preservation.accepted_losses,
+    },
+    dispositions: {
+      valid: dispositions.valid,
+      blocked: dispositions.blocked,
+      blocker_count: dispositions.blockers.length,
+      accepted_losses: dispositions.accepted_losses,
+    },
   };
 }
 
@@ -921,6 +1005,15 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
     schema_version: 1,
     repository: REPOSITORY,
     observed_at: live.observed_at,
+    accepted_loss_exceptions: structuredClone(previousLedger?.accepted_loss_exceptions ?? []),
+    planning_mutation_guards: (rootWorktree?.dirty_paths ?? [])
+      .filter(row => row.path.startsWith('.planning/') && row.path !== CLOSEOUT_PATH)
+      .map(row => ({
+        path: row.path,
+        status: row.status,
+        sha256: row.sha256,
+        before_rewrite: 'Preserve or commit these exact bytes before any update or cleanup; stop if read-back cannot be proven.',
+      })),
     inventory_status: live.source_status.worktrees.status === 'complete'
       && live.source_status.pull_requests.status === 'complete'
       && changedFileReadsComplete
@@ -939,7 +1032,8 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
     notes: [
       'This is a live read-only inventory. No worktree, file, or PR was modified by capture.',
       'Content is represented by SHA-256 identities; file contents are not copied into this ledger.',
-      'The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty.',
+      'Before rewriting any dirty .planning path, preserve or commit its exact captured bytes and verify read-back; the capture lists these paths in planning_mutation_guards.',
+      'The clean-closeout claim remains blocked until every inherited dirty path is either exactly preserved or covered by an explicit validated user-authorized loss exception and all live worktree statuses are empty.',
       ...(outputCollisions.length ? ['The closeout output path was already dirty at the capture boundary; it remains an inherited path and cannot be overwritten by this capture.'] : []),
       ...(!changedFileReadsComplete ? ['At least one open PR changed-file read is incomplete; the inventory is blocked.'] : []),
     ],
@@ -1329,7 +1423,7 @@ async function main() {
             // An unavailable local verification record is recorded as a blocker below.
           }
           const unresolved = ledger.worktrees.flatMap(worktree => (worktree.inherited_dirty_paths ?? worktree.dirty_paths ?? [])
-            .filter(dirty => dirty.preservation?.state !== 'preserved')
+            .filter(dirty => !['preserved', 'accepted-loss'].includes(dirty.preservation?.state))
             .map(dirty => ({ worktree_path: worktree.path, path: dirty.path, status: dirty.status, sha256: dirty.sha256 })));
           const blockers = [];
           if (!receipt) blockers.push({ code: 'release_receipt_missing', reason: 'The immutable 1.6.0 artifact-derived release receipt could not be read.' });
@@ -1337,7 +1431,7 @@ async function main() {
           if (!preservationResult.valid || preservationResult.blocked) {
             blockers.push({
               code: 'preservation_blocked',
-              reason: `${preservationResult.blockers.length} inherited dirty paths lack approved ownership and verified durable preservation refs; see the exact path/status/hash rows in 249-CLOSEOUT.json.`,
+              reason: `${preservationResult.blockers.length} inherited paths remain blocked; see the exact path/status/hash rows in 249-CLOSEOUT.json.`,
               closeout_ledger_sha256: sha256(fs.readFileSync(ledgerPath)),
               unresolved_path_count: unresolved.length,
             });
@@ -1370,6 +1464,7 @@ async function main() {
               preservation_status: preservationResult.closeout_status,
               unresolved_path_count: unresolved.length,
               unresolved_paths: unresolved,
+              accepted_losses: preservationResult.accepted_losses,
             },
             blockers,
           };

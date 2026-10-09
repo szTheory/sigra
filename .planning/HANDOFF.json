@@ -5,12 +5,12 @@
   "plan": "09",
   "task": 0,
   "total_tasks": 2,
-  "status": "Plan 249-08 complete; Plan 249-09 remains gated by one unrecoverable historical handoff identity",
+  "status": "Plan 249-08 complete; the exact historical handoff loss is user-authorized and recorded; revalidating the preservation gate before Plan 249-09 candidate assembly",
   "completed_tasks": [
     {
       "id": "249-08",
       "name": "Preserve inherited work under verified, recoverable refs",
-      "status": "Complete. 47/47 tests pass; 102 of 103 inherited identities have exact preservation refs; the Phase 233 test is a separate maintenance follow-up, and one historical handoff identity remains blocked.",
+      "status": "Complete. 49/49 closeout validator tests pass; 102 inherited identities have exact preservation refs and the sole historical HANDOFF identity is recorded as an explicit user-authorized accepted loss, not as recovered or preserved.",
       "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-SUMMARY.md"
     }
   ],
@@ -18,7 +18,7 @@
     {
       "id": "249-09",
       "name": "Assemble the source-bound receipt and required documentation gate",
-      "status": "Blocked by its Plan 08 precondition: preservation mode must pass before candidate creation."
+      "status": "Ready for live gate revalidation; candidate assembly starts only if the exact accepted-loss status is returned with no other blockers and all worktrees clean."
     },
     {
       "id": "249-10",
@@ -36,16 +36,7 @@
       "status": "Waiting on Plan 11."
     }
   ],
-  "blockers": [
-    {
-      "id": "PRES-HANDOFF",
-      "path": ".planning/HANDOFF.json",
-      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
-      "status": " M (historical captured revision)",
-      "decision_needed": "Exhaustive local Git and advertised GitHub ref searches found no matching bytes, and the user has no separate copy. Keep this historical identity blocked; do not waive or retry the same search absent new external evidence.",
-      "reason": "The exact SHA-256 was absent from 22,410 local Git blobs, 18,847 blobs across 405 GitHub mirror refs (65 branches, 14 tags, 300 PR heads and 13 PR merge refs), and 74,345 regular files across the repository and registered worktrees. No Git LFS object store or relevant named Actions artifact was found."
-    }
-  ],
+  "blockers": [],
   "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
@@ -62,11 +53,16 @@
       "rationale": "The bounded change has a clear test-maintenance owner, and exact-source Plan 05 evidence proves 1.6.0 passed full CI without it; its exact bytes are preserved under a scoped local ref."
     },
     {
-      "decision": "Do not waive the unavailable historical HANDOFF.json identity.",
-      "rationale": "AGENTS.md forbids waiving missing evidence. The scoped loss is not recoverable from the checked project-local sources, so Plan 249-09 remains gated."
+      "decision": "Accept only the exact historical HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148 as unrecovered loss.",
+      "rationale": "The user authorized continuation after exhaustive local/GitHub/worktree/artifact searches. The exact bytes are not claimed as preserved and remain outside the candidate."
+    },
+    {
+      "decision": "Write-ahead preserve dirty planning artifacts before refreshing them.",
+      "rationale": "A digest without a durable byte copy allowed a later handoff update to supersede the captured identity. The new project rule requires exact path/status/byte preservation and read-back before any rewrite or cleanup."
     }
   ],
   "uncommitted_files": [],
-  "next_action": "No further local/GitHub search is pending. Keep Plan 249-09 gated and do not create a candidate. Reopen this blocker only if new external evidence appears and first verify that the supplied bytes match SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148; then refresh preservation evidence and run $gsd-execute-phase 249 --gaps-only only if the gate passes.",
-  "context_notes": "Fresh capture 2026-10-09T18:20:45.573Z observed five worktrees, 14 open PRs, and no failed changed-file reads. Phase 233 source is preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery (commit fca3772b0dc546f954cd28c4122e72c29ddd6a05; source SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4) as separate test/CI maintenance and excluded from the release candidate. The only blocker is old .planning/HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148: audit scanned 22,400 Git blobs and 74,345 regular files across the repository/worktrees with no match; current/base handoff versions differ. Inventory is complete; preservation fails closed on that historical loss. No candidate, push, PR, or merge was created. Plan 249-08 implementation is complete; Phase 249 REL-02 verification remains incomplete. Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v4 (commit 96581c2b555a11b50b6efece9c25a5b1f8e0e456; SHA-256 b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3). Follow-up audit 2026-10-09 searched all current local Git objects/blobs and all 405 GitHub mirror refs (branch, tag, PR-head and PR-merge), plus 74,345 registered-worktree files; no target hash match. GitHub artifact metadata had no handoff/planning/preservation/Phase 249 name match. No user-held copy is available, so there is no manual decision/action pending; retain the fail-closed blocker. The audit results are in 249-PRESERVATION.json revision 4."
+  "next_action": "Run node .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs --ledger .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json --mode preservation. Continue Plan 249-09 only if there are zero errors and blockers, the result is accepted-with-recorded-loss for exactly the authorized handoff identity, all other inherited changes are preserved, and all live worktrees are clean. Then assemble the candidate from committed Phase 249 provenance in an isolated clean worktree.",
+  "context_notes": "Fresh capture 2026-10-09T18:20:45.573Z observed five worktrees, 14 open PRs, and no failed changed-file reads. Phase 233 source is preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery (commit fca3772b0dc546f954cd28c4122e72c29ddd6a05; source SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4) as separate test/CI maintenance and excluded from the release candidate. The only blocker is old .planning/HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148: audit scanned 22,400 Git blobs and 74,345 regular files across the repository/worktrees with no match; current/base handoff versions differ. Inventory is complete; preservation fails closed on that historical loss. No candidate, push, PR, or merge was created. Plan 249-08 implementation is complete; Phase 249 REL-02 verification remains incomplete. Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v4 (commit 96581c2b555a11b50b6efece9c25a5b1f8e0e456; SHA-256 b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3). Follow-up audit 2026-10-09 searched all current local Git objects/blobs and all 405 GitHub mirror refs (branch, tag, PR-head and PR-merge), plus 74,345 registered-worktree files; no target hash match. GitHub artifact metadata had no handoff/planning/preservation/Phase 249 name match. No user-held copy is available, so there is no manual decision/action pending; retain the fail-closed blocker. The audit results are in 249-PRESERVATION.json revision 4.\n\nRoot-cause limit: retained evidence proves the old handoff revision was inventoried and later unavailable, but does not identify the exact write/tool that replaced it. Prevention controls are in AGENTS.md, .planning/METHODOLOGY.md, the closeout ledger's planning_mutation_guards, and validate-closeout tests. Current preservation record revision 5 supersedes v4 while retaining the immutable recovery audit.",
+  "last_updated": "2026-10-09T19:29:01.000Z"
 }
