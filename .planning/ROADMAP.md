@@ -141,7 +141,7 @@ Plans:
   2. Required CI is green for the final protected-main release commit; the committed artifact-derived receipt identifies the immutable 1.6.0 package-source SHA and matching source CI, while final-main SHA and CI are recorded separately.
   3. Every local worktree is clean and every PR still open at closeout has a recorded disposition.
 
-**Plans**: 4/7 plans executed
+**Plans**: 5/7 plans executed
 
 Plans:
 
@@ -154,7 +154,7 @@ Plans:
 - [x] 249-07-PLAN.md — Expand exact-source proof mismatch and hostile-artifact fixtures.
 
 **Wave 3** *(ready; Plan 02 prerequisite complete)*
-- [ ] 249-03-PLAN.md — Refresh the fixed Release Please candidate automatically with scoped write authority.
+- [x] 249-03-PLAN.md — Refresh the fixed Release Please candidate automatically with scoped write authority.
 
 **Wave 4** *(blocked on Plans 03 and 04)*
 - [ ] 249-05-PLAN.md — Preserve inherited work and promote the scoped release change through protected review.
@@ -171,7 +171,7 @@ Plans:
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | In Progress | - |
-| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 4/7 | In Progress | - |
+| 249. Publish and Prove Sigra 1.6.0 | v1.49 | 5/7 | In Progress | - |
 
 ### Next
 

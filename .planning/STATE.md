@@ -4,18 +4,18 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 3
+current_plan: 5 (next eligible plan in Wave 4)
 status: executing
-stopped_at: Completed 249-07-PLAN.md
-last_updated: "2026-10-09T13:56:00.000Z"
+stopped_at: Completed 249-03-PLAN.md
+last_updated: "2026-10-09T14:15:08.346Z"
 last_activity: 2026-10-09
-last_activity_desc: Plan 249-07 release-proof mismatch and hostile-artifact matrix passed
-state_head: 8407b867f9edf2e7ddc8f70aae5ab0485bc3f4d4
+last_activity_desc: Plan 249-03 candidate docs refresh verified; Plan 249-05 preservation and promotion is next
+state_head: 08f929d7a4bf951337ecab471c3e1cd942dd0086
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 26
-  completed_plans: 22
+  completed_plans: 23
   percent: 50
 ---
 
@@ -32,13 +32,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 249 (Publish and Prove Sigra 1.6.0) — EXECUTING
-Current Plan: 3 (next eligible plan in Wave 3)
+Current Plan: 5 (next eligible plan in Wave 4)
 Total Plans in Phase: 7
-Plans completed: 4 of 7 (57%)
+Plans completed: 5 of 7
 Status: Ready to execute
 Last activity: 2026-10-09 — Plan 249-07 identity and hostile-artifact checks passed
 
-Progress: [██████░░░░] 57%
+Progress: [█████░░░░░] 50%
 
 ### v1.49 phase map
 
@@ -597,6 +597,10 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 248]: Missing or mismatched tag resolution remains diagnostic cancellation evidence, never publication success.
 - [Phase 249]: Compare the complete generated doc/llms.txt bytes against the Git index after ExDoc builds. — This validates the committed candidate artifact without rewriting tracked output and catches title or navigation drift.
 - [Phase 249]: Run library_tests_dep_off and its index check on docs-only pull requests. — The required drift gate must execute for the exact change class that can make the generated index stale; ci-gate continues to require the lane.
+- [Phase 249]: Capture one same-repository pending Release Please PR on the fixed branch and require its full identity to remain stable across reads. — A two-read identity check prevents an ambiguous or advancing candidate from reaching docs generation or writeback.
+- [Phase 249]: Keep candidate documentation builds outside the release-automation environment with persisted checkout credentials disabled. — Candidate Mix and documentation code is untrusted, so it must never run with release write authority.
+- [Phase 249]: Give the release token only to the final writer step; reject artifacts outside the single UTF-8 doc/llms.txt path or above 5 MB. — The downloaded artifact is data at a privilege boundary; a fixed path, regular-file validation, UTF-8 check, and size cap bound the writer input.
+- [Phase 249]: Use a non-force push and require ordinary CI registration for the exact new SHA; leave merge decisions to the existing exact-head workflow. — The event-capable token triggers the required push workflow while the existing merger retains sole merge authority.
 
 ### Pending Todos
 
@@ -815,8 +819,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-09T13:20:35.051Z
-Stopped at: Completed 249-02-PLAN.md
+Last session: 2026-10-09T14:14:07.962Z
+Stopped at: Completed 249-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -1049,3 +1053,4 @@ Resume file: None
 | Phase 248 P05 | 32min | 2 tasks | 4 files |
 | Phase 249 P01 | 16 min | 1 tasks | 4 files |
 | Phase 249 P2 | 13min | 2 tasks | 7 files |
+| Phase 249 P03 | 16min | 2 tasks | 6 files |
