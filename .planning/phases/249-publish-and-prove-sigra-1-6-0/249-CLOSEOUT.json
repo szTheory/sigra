@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T21:10:05.591Z",
+  "observed_at": "2026-10-09T21:11:04.706Z",
   "accepted_loss_exceptions": [
     {
       "schema_version": 1,
@@ -35,31 +35,31 @@
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 6,
-      "observed_at": "2026-10-09T21:10:05.591Z"
+      "observed_at": "2026-10-09T21:11:04.706Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
       "count": 14,
-      "observed_at": "2026-10-09T21:10:05.591Z"
+      "observed_at": "2026-10-09T21:11:04.706Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "b2cc9afdd387d00dc6211fe547be060458f38319",
+    "anchor_head_sha": "4cc4ff1d6fb0fa76a83ab5eb016fa3dcc30b9099",
     "output_provenance": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
-        "source_commit": "b2cc9afdd387d00dc6211fe547be060458f38319",
-        "artifact_identity_sha256": "fb89abc2db44b8f77ee93af3d909824236e6c5310f0f53463ca21891a2ae6d16",
+        "source_commit": "4cc4ff1d6fb0fa76a83ab5eb016fa3dcc30b9099",
+        "artifact_identity_sha256": "7c9f4470b243b0a95403a483eac9d2f90b7042d074fbccebdd8dda9c98d4d92e",
         "capture_boundary": {
-          "captured_at": "2026-10-09T21:10:05.591Z",
+          "captured_at": "2026-10-09T21:11:04.706Z",
           "worktree_path": "/Users/jon/projects/sigra",
-          "source_head_sha": "b2cc9afdd387d00dc6211fe547be060458f38319",
+          "source_head_sha": "4cc4ff1d6fb0fa76a83ab5eb016fa3dcc30b9099",
           "source_path_status": "clean",
-          "source_path_sha256": "e46d50cad9746834d24965ad03de762f6badcda47a985f91d20a45099ffb73f2"
+          "source_path_sha256": "5dc1b8b4c62723ba6630d86769294d02da074ccf3e52fdf42dfa5c795facdbfa"
         }
       }
     ],
@@ -70,7 +70,7 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "b2cc9afdd387d00dc6211fe547be060458f38319",
+      "head_sha": "4cc4ff1d6fb0fa76a83ab5eb016fa3dcc30b9099",
       "detached": false,
       "locked": false,
       "prunable": false,
@@ -9959,5 +9959,5 @@
     "Before rewriting any dirty .planning path, preserve or commit its exact captured bytes and verify read-back; the capture lists these paths in planning_mutation_guards.",
     "The clean-closeout claim remains blocked until every inherited dirty path is either exactly preserved or covered by an explicit validated user-authorized loss exception and all live worktree statuses are empty."
   ],
-  "capture_completed_at": "2026-10-09T21:10:19.122Z"
+  "capture_completed_at": "2026-10-09T21:11:18.644Z"
 }
