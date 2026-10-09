@@ -23,6 +23,23 @@ done
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 jq -e 'type == "object"' "$INPUT" >/dev/null 2>&1 || fail "input must be a JSON object"
 
+# Re-runs retain their original workflow definition. Normalize the one legacy
+# quoted start timestamp at this checked-out receipt boundary so an old run can
+# be repaired by rerunning only its receipt job.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+NORMALIZED_INPUT=""
+cleanup_normalized_input() {
+  [[ -z "$NORMALIZED_INPUT" ]] || rm -f "$NORMALIZED_INPUT"
+}
+trap cleanup_normalized_input EXIT
+RAW_RELEASE_STARTED_AT="$(jq -r '.release_run.started_at // empty' "$INPUT" 2>/dev/null || true)"
+if [[ ${#RAW_RELEASE_STARTED_AT} -ge 2 && ${RAW_RELEASE_STARTED_AT:0:1} == '"' && ${RAW_RELEASE_STARTED_AT: -1} == '"' ]]; then
+  NORMALIZED_RELEASE_STARTED_AT="$(bash "$SCRIPT_DIR/normalize-release-timestamp.sh" "$RAW_RELEASE_STARTED_AT")" || fail "release start timestamp is invalid"
+  NORMALIZED_INPUT="$(mktemp)"
+  jq --arg started_at "$NORMALIZED_RELEASE_STARTED_AT" '.release_run.started_at = $started_at' "$INPUT" > "$NORMALIZED_INPUT" || fail "could not normalize the historical release start timestamp"
+  INPUT="$NORMALIZED_INPUT"
+fi
+
 # Diagnostic text is deliberately limited to contract section names rather than
 # arbitrary values. This makes runner-side receipt mismatches actionable without
 # persisting runner output or accidentally interpolated credentials.
@@ -132,7 +149,7 @@ OUTPUT_DIR="$(dirname "$OUTPUT")"
 mkdir -p "$OUTPUT_DIR"
 TEMP_OUTPUT="$(mktemp "${OUTPUT}.tmp.XXXXXX")"
 PREVIOUS_FILE=""
-trap 'rm -f "$TEMP_OUTPUT" "$PREVIOUS_FILE"' EXIT
+trap 'rm -f "$TEMP_OUTPUT" "$PREVIOUS_FILE" "$NORMALIZED_INPUT"' EXIT
 PREVIOUS_FILE="$(mktemp "${OUTPUT}.previous.XXXXXX")"
 if [[ -f "$OUTPUT" ]]; then cp "$OUTPUT" "$PREVIOUS_FILE"; else printf '{}\n' > "$PREVIOUS_FILE"; fi
 
@@ -164,7 +181,7 @@ jq -n --arg recorded_at "$RECORDED_AT" --slurpfile input "$INPUT" \
 ' > "$TEMP_OUTPUT" || fail "could not encode receipt JSON"
 jq -e . "$TEMP_OUTPUT" >/dev/null || { sed -n '1,80p' "$TEMP_OUTPUT" >&2; fail "encoded receipt is not valid JSON"; }
 mv -f "$TEMP_OUTPUT" "$OUTPUT"
-rm -f "$PREVIOUS_FILE"
+rm -f "$PREVIOUS_FILE" "$NORMALIZED_INPUT"
 trap - EXIT
 TERMINAL_VERDICT="$(jq -r '.terminal_verdict' "$OUTPUT")"
 echo "release-receipt: recorded ${RUN_ID} (${TERMINAL_VERDICT})"
