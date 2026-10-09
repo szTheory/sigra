@@ -234,6 +234,20 @@ ARTIFACT_MEMBERS="$(unzip -Z1 "$TMP/artifact.zip" 2>"$TMP/unzip-error.log" || tr
 if [[ "$ARTIFACT_MEMBERS" != "release-result.json" ]]; then
   block_and_finish release_artifact '{"expected_member_only":false}'
 fi
+if ! unzip -Z -v "$TMP/artifact.zip" 2>"$TMP/unzip-error.log" | awk '
+  /Unix file attributes/ {
+    saw_unix_mode = 1
+    mode = $0
+    sub(/^.*:[[:space:]]*/, "", mode)
+    if (substr(mode, 1, 1) != "-") non_regular = 1
+  }
+  END { if (saw_unix_mode && non_regular) print "non-regular" }
+' > "$TMP/archive-member-type.txt"; then
+  block_and_finish release_artifact '{"archive_metadata_available":false}'
+fi
+if [[ -s "$TMP/archive-member-type.txt" ]]; then
+  block_and_finish release_artifact '{"release_result_regular_file":false}'
+fi
 if ! unzip -p "$TMP/artifact.zip" release-result.json > "$TMP/release-result.json" 2>"$TMP/unzip-error.log" || \
   ! jq -e . "$TMP/release-result.json" >/dev/null 2>&1; then
   block_and_finish release_artifact '{"expected_json_member_valid":false}'
