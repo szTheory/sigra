@@ -75,20 +75,26 @@ defmodule Sigra.Planning.Phase234ActionPinningContractTest do
            ) == []
   end
 
-  test "privileged Release Please boundaries remain byte-stable around the pin" do
+  test "Release Please uses read-only GITHUB_TOKEN permissions and a dedicated write credential" do
     workflow = File.read!(@release_please_path)
 
     assert workflow =~ "on:\n  push:\n    branches:\n      - main\n  workflow_dispatch:"
 
     assert workflow =~
-             "permissions:\n  actions: write\n  contents: write\n  issues: write\n  pull-requests: write"
+             "permissions:\n  actions: read\n  checks: read\n  contents: read\n  deployments: read\n  issues: read\n  pull-requests: read"
+
+    assert workflow =~
+             ~r/^    permissions:\n      actions: read\n      contents: read\n      pull-requests: read$/m
+
+    refute workflow =~ ~r/^  (actions|contents|issues|pull-requests): write$/m
 
     assert workflow =~ "release_created: ${{ steps.release.outputs.release_created }}"
     assert workflow =~ "tag_name: ${{ steps.release.outputs.tag_name }}"
     assert workflow =~ "version: ${{ steps.release.outputs.version }}"
     assert workflow =~ "sha: ${{ steps.release.outputs.sha }}"
     assert workflow =~ "if: ${{ steps.release-preflight.outputs.should_run == 'true' }}"
-    assert workflow =~ "token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}"
+    assert workflow =~ "token: ${{ secrets.RELEASE_PLEASE_TOKEN }}"
+    refute workflow =~ "secrets.RELEASE_PLEASE_TOKEN || github.token"
   end
 
   defp production_inventory do

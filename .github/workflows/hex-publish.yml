@@ -2,7 +2,7 @@
 # automation did not run or needs a one-off retry. Default path is **Release Please**
 # (`.github/workflows/release-please.yml`) on merge of the Release PR.
 #
-# Requires repository secret: HEX_API_KEY (Actions secrets).
+# Hex credentials are held in the main-restricted `hex-publish` environment.
 
 name: Hex publish (manual recovery)
 
@@ -27,13 +27,31 @@ permissions:
   contents: read
 
 concurrency:
-  group: hex-publish-${{ inputs.tag }}
+  group: hex-publish-${{ github.run_id }}-${{ github.run_attempt }}
   cancel-in-progress: false
 
 jobs:
   publish:
     name: Publish to Hex.pm
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+    environment: hex-publish
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      source_sha: ${{ steps.capture-recovery-result.outputs.source_sha }}
+      release_started_at: ${{ steps.workflow-start.outputs.started_at }}
+      release_completed_at: ${{ steps.capture-recovery-result.outputs.release_completed_at }}
+      gate_verdict: ${{ steps.capture-recovery-result.outputs.gate_verdict }}
+      gate_started_at: ${{ steps.capture-recovery-result.outputs.gate_started_at }}
+      gate_completed_at: ${{ steps.capture-recovery-result.outputs.gate_completed_at }}
+      terminal_verdict: ${{ steps.capture-recovery-result.outputs.terminal_verdict }}
+      failure_stage: ${{ steps.capture-recovery-result.outputs.failure_stage }}
+      diagnostic: ${{ steps.capture-recovery-result.outputs.diagnostic }}
+      publish_outcome: ${{ steps.capture-recovery-result.outputs.publish_outcome }}
+      publish_started_at: ${{ steps.capture-recovery-result.outputs.publish_started_at }}
+      publish_completed_at: ${{ steps.capture-recovery-result.outputs.publish_completed_at }}
     services:
       postgres:
         image: postgres:15
@@ -46,11 +64,19 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
+      - name: Mark manual recovery start
+        id: workflow-start
+        run: echo "started_at=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")" >> "$GITHUB_OUTPUT"
+
       - name: Validate manual release inputs
+        id: validate-inputs
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_VERSION: ${{ inputs.release_version }}
         run: |
           set -euo pipefail
-          input_ref="${{ inputs.tag }}"
-          input_version="${{ inputs.release_version }}"
+          input_ref="$INPUT_TAG"
+          input_version="$INPUT_VERSION"
           expected_tag="v${input_version}"
           if [[ ! "$input_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
             echo "Invalid inputs.release_version: '$input_version'"
@@ -70,15 +96,43 @@ jobs:
           fi
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        id: trusted-checkout
+        with:
+          ref: main
+          path: _trusted-release
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        id: source-checkout
         with:
           ref: ${{ inputs.tag }}
           fetch-depth: 0
 
-      - name: Verify manual ref provenance
+      # Resolve the requested source before the credential preflight so ordinary
+      # missing-secret failures can still retain a source-bound terminal receipt.
+      # Candidate code is not executed until after the trusted preflight succeeds.
+      - name: Verify credential environments and required Hex credentials
+        id: credential-preflight
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          HEX_DRY_RUN_API_KEY_PRESENT: ${{ secrets.HEX_DRY_RUN_API_KEY != '' }}
+          HEX_API_KEY_PRESENT: ${{ secrets.HEX_API_KEY != '' }}
         run: |
           set -euo pipefail
-          input_ref="${{ inputs.tag }}"
-          input_version="${{ inputs.release_version }}"
+          bash "$GITHUB_WORKSPACE/_trusted-release/scripts/ci/release-environment-preflight.sh" \
+            --repository "$REPOSITORY" \
+            --require-hex-dry-run-key "$HEX_DRY_RUN_API_KEY_PRESENT" \
+            --require-hex-publish-key "$HEX_API_KEY_PRESENT"
+
+      - name: Verify manual ref provenance
+        id: provenance
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_VERSION: ${{ inputs.release_version }}
+        run: |
+          set -euo pipefail
+          input_ref="$INPUT_TAG"
+          input_version="$INPUT_VERSION"
           expected_tag="v${input_version}"
 
           git fetch --force --tags origin
@@ -105,21 +159,29 @@ jobs:
           key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
 
       - name: Install Hex + Rebar
+        id: install-hex
         run: |
           mix local.hex --force
           mix local.rebar --force
 
       # Matches library_tests in ci.yml: InstallFixture shells out to mix phx.new.
       - name: Install phx_new archive
+        id: install-phx-new
         run: mix archive.install --force hex phx_new 1.8.8
 
       - name: Verify release version in mix.exs
-        run: grep -nF "@version \"${{ inputs.release_version }}\"" mix.exs
+        id: verify-version
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: grep -nF "@version \"$RELEASE_VERSION\"" mix.exs
 
       - name: Verify release version in release-please-manifest
+        id: verify-manifest
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           set -euo pipefail
-          expected_version="${{ inputs.release_version }}"
+          expected_version="$RELEASE_VERSION"
           actual_version="$(grep -oE '"\."\s*:\s*"[^"]+"' .release-please-manifest.json | sed -E 's/.*"([^"]+)"$/\1/')"
           if [ -z "$actual_version" ]; then
             echo "Unable to read version from .release-please-manifest.json"
@@ -132,16 +194,20 @@ jobs:
           echo "manifest/version truth verified: $actual_version"
 
       - name: Verify docs source_ref follows version
+        id: verify-docs-source
         run: |
           grep -n 'source_ref: "v#{@version}"' mix.exs
 
       - name: Fetch library deps
+        id: fetch-deps
         run: mix deps.get
 
       - name: Compile (warnings as errors)
+        id: compile
         run: mix compile --warnings-as-errors
 
       - name: Run library tests
+        id: tests
         env:
           MIX_ENV: test
           PGUSER: postgres
@@ -150,9 +216,11 @@ jobs:
         run: mix test
 
       - name: Check docs build cleanly
+        id: docs
         run: mix docs --warnings-as-errors
 
       - name: Inspect packaged files
+        id: package-inspection
         run: |
           set -euo pipefail
           mix hex.build --unpack --output sigra-hex-inspect
@@ -168,25 +236,30 @@ jobs:
       - name: Skip if version already on Hex
         id: idempotency
         if: ${{ inputs.dry_run != true }}
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
-          if mix hex.info sigra "${{ inputs.release_version }}" 2>/dev/null | grep -q "Released:"; then
-            echo "Version ${{ inputs.release_version }} of sigra already on Hex - skipping publish."
+          if mix hex.info sigra "$RELEASE_VERSION" 2>/dev/null | grep -q "Released:"; then
+            echo "Version $RELEASE_VERSION of sigra already on Hex - skipping publish."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Dry run Hex publish
+        id: dry-run
         if: ${{ inputs.dry_run == true || steps.idempotency.outputs.skip != 'true' }}
         env:
-          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+          HEX_API_KEY: ${{ secrets.HEX_DRY_RUN_API_KEY }}
         run: mix hex.publish --dry-run --yes
 
       - name: Publish to Hex
+        id: publish
         if: ${{ inputs.dry_run != true && steps.idempotency.outputs.skip != 'true' }}
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
         run: mix hex.publish --yes
 
       - name: Verify version on Hex.pm
+        id: verify-hex-version
         if: ${{ inputs.dry_run != true }}
         env:
           VERSION: ${{ inputs.release_version }}
@@ -204,12 +277,15 @@ jobs:
           exit 1
 
       - name: Verify HexDocs source links after publish
+        id: verify-hexdocs
         if: ${{ inputs.dry_run != true }}
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           scripts/ci/release-post-publish-verify.sh \
             --package sigra \
-            --version "${{ inputs.release_version }}" \
-            --tag "v${{ inputs.release_version }}" \
+            --version "$RELEASE_VERSION" \
+            --tag "v$RELEASE_VERSION" \
             --evidence-file release-post-publish-evidence.json
 
       - name: Upload release post-publish evidence
@@ -219,4 +295,209 @@ jobs:
           name: release-post-publish-evidence-${{ inputs.release_version }}
           path: release-post-publish-evidence.json
           if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Capture manual recovery outcome
+        id: capture-recovery-result
+        if: always()
+        env:
+          JOB_RESULT: ${{ job.status }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          PREFLIGHT_OUTCOME: ${{ steps.credential-preflight.outcome }}
+          SOURCE_CHECKOUT_OUTCOME: ${{ steps.source-checkout.outcome }}
+          VALIDATE_INPUTS_OUTCOME: ${{ steps.validate-inputs.outcome }}
+          PROVENANCE_OUTCOME: ${{ steps.provenance.outcome }}
+          INSTALL_HEX_OUTCOME: ${{ steps.install-hex.outcome }}
+          INSTALL_ARCHIVE_OUTCOME: ${{ steps.install-phx-new.outcome }}
+          VERSION_OUTCOME: ${{ steps.verify-version.outcome }}
+          MANIFEST_OUTCOME: ${{ steps.verify-manifest.outcome }}
+          DOCS_SOURCE_OUTCOME: ${{ steps.verify-docs-source.outcome }}
+          DEPS_OUTCOME: ${{ steps.fetch-deps.outcome }}
+          COMPILE_OUTCOME: ${{ steps.compile.outcome }}
+          TESTS_OUTCOME: ${{ steps.tests.outcome }}
+          DOCS_OUTCOME: ${{ steps.docs.outcome }}
+          INSPECTION_OUTCOME: ${{ steps.package-inspection.outcome }}
+          IDEMPOTENCY_SKIP: ${{ steps.idempotency.outputs.skip }}
+          DRY_RUN_OUTCOME: ${{ steps.dry-run.outcome }}
+          PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
+          POST_PUBLISH_OUTCOME: ${{ steps.verify-hex-version.outcome }}
+          HEXDOCS_OUTCOME: ${{ steps.verify-hexdocs.outcome }}
+          GATE_STARTED_AT: ${{ steps.workflow-start.outputs.started_at }}
+          RELEASE_TAG_INPUT: ${{ inputs.tag }}
+          RELEASE_VERSION_INPUT: ${{ inputs.release_version }}
+        run: |
+          set -euo pipefail
+          SOURCE_SHA=""
+          if [[ "$SOURCE_CHECKOUT_OUTCOME" == "success" ]]; then
+            SOURCE_SHA="$(git rev-parse HEAD 2>/dev/null || true)"
+          fi
+          GATE_COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          PUBLISH_COMPLETED_AT="$GATE_COMPLETED_AT"
+          PUBLISH_STARTED_AT="$GATE_COMPLETED_AT"
+          GATE_VERDICT="pass"
+          TERMINAL_VERDICT="success"
+          PUBLISH_RESULT="not_run"
+          FAILURE_STAGE=""
+          DIAGNOSTIC=""
+          if [[ -z "$SOURCE_SHA" || "$VALIDATE_INPUTS_OUTCOME" != "success" || "$PREFLIGHT_OUTCOME" != "success" || "$PROVENANCE_OUTCOME" != "success" || "$INSTALL_HEX_OUTCOME" != "success" || \
+                "$INSTALL_ARCHIVE_OUTCOME" != "success" || "$VERSION_OUTCOME" != "success" || \
+                "$MANIFEST_OUTCOME" != "success" || "$DOCS_SOURCE_OUTCOME" != "success" || \
+                "$DEPS_OUTCOME" != "success" || "$COMPILE_OUTCOME" != "success" || \
+                "$TESTS_OUTCOME" != "success" || "$DOCS_OUTCOME" != "success" || "$INSPECTION_OUTCOME" != "success" ]]; then
+            GATE_VERDICT="fail"
+            TERMINAL_VERDICT="failure"
+            FAILURE_STAGE="manual-validation"
+            DIAGNOSTIC="manual_source_validation_failed"
+            if [[ "$PREFLIGHT_OUTCOME" != "success" ]]; then DIAGNOSTIC="credential_preflight_failed"; fi
+          elif [[ "$DRY_RUN" == "true" ]]; then
+            if [[ "$DRY_RUN_OUTCOME" == "success" && "$JOB_RESULT" == "success" ]]; then
+              PUBLISH_RESULT="dry_run"
+            else
+              PUBLISH_RESULT="failed"
+              TERMINAL_VERDICT="failure"
+              FAILURE_STAGE="publish-hex"
+              DIAGNOSTIC="hex_dry_run_failed"
+            fi
+          elif [[ "$IDEMPOTENCY_SKIP" == "true" ]]; then
+            PUBLISH_RESULT="already_published"
+            if [[ "$POST_PUBLISH_OUTCOME" != "success" || "$HEXDOCS_OUTCOME" != "success" || "$JOB_RESULT" != "success" ]]; then
+              TERMINAL_VERDICT="failure"
+              FAILURE_STAGE="post-publish-verify"
+              DIAGNOSTIC="post_publish_verification_failed"
+            fi
+          elif [[ "$PUBLISH_OUTCOME" == "success" ]]; then
+            PUBLISH_RESULT="published"
+            if [[ "$POST_PUBLISH_OUTCOME" != "success" || "$HEXDOCS_OUTCOME" != "success" || "$JOB_RESULT" != "success" ]]; then
+              TERMINAL_VERDICT="failure"
+              FAILURE_STAGE="post-publish-verify"
+              DIAGNOSTIC="post_publish_verification_failed"
+            fi
+          else
+            PUBLISH_RESULT="failed"
+            TERMINAL_VERDICT="failure"
+            FAILURE_STAGE="publish-hex"
+            DIAGNOSTIC="hex_publish_failed"
+          fi
+          RELEASE_COMPLETED_AT="$GATE_COMPLETED_AT"
+          {
+            echo "source_sha=${SOURCE_SHA}"
+            echo "gate_verdict=${GATE_VERDICT}"
+            echo "gate_started_at=${GATE_STARTED_AT}"
+            echo "gate_completed_at=${GATE_COMPLETED_AT}"
+            echo "terminal_verdict=${TERMINAL_VERDICT}"
+            echo "failure_stage=${FAILURE_STAGE}"
+            echo "diagnostic=${DIAGNOSTIC}"
+            echo "publish_outcome=${PUBLISH_RESULT}"
+            echo "publish_started_at=${PUBLISH_STARTED_AT}"
+            echo "publish_completed_at=${PUBLISH_COMPLETED_AT}"
+            echo "release_completed_at=${RELEASE_COMPLETED_AT}"
+          } >> "$GITHUB_OUTPUT"
+
+  record-recovery-result:
+    name: Record manual recovery result
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: publish
+    if: always()
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Build and validate manual recovery receipt
+        env:
+          RELEASE_RUN_ID: ${{ github.run_id }}
+          RELEASE_ATTEMPT: ${{ github.run_attempt }}
+          RELEASE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/hex-publish.yml
+          SOURCE_EVENT: ${{ github.event_name }}
+          SOURCE_VERSION: ${{ inputs.release_version }}
+          SOURCE_TAG: v${{ inputs.release_version }}
+          SOURCE_SHA_OUTPUT: ${{ needs.publish.outputs.source_sha }}
+          RELEASE_STARTED_AT: ${{ needs.publish.outputs.release_started_at }}
+          RELEASE_COMPLETED_AT: ${{ needs.publish.outputs.release_completed_at }}
+          GATE_VERDICT: ${{ needs.publish.outputs.gate_verdict }}
+          GATE_STARTED_AT: ${{ needs.publish.outputs.gate_started_at }}
+          GATE_COMPLETED_AT: ${{ needs.publish.outputs.gate_completed_at }}
+          TERMINAL_VERDICT: ${{ needs.publish.outputs.terminal_verdict }}
+          FAILURE_STAGE: ${{ needs.publish.outputs.failure_stage }}
+          DIAGNOSTIC: ${{ needs.publish.outputs.diagnostic }}
+          PUBLISH_OUTCOME: ${{ needs.publish.outputs.publish_outcome }}
+          PUBLISH_STARTED_AT: ${{ needs.publish.outputs.publish_started_at }}
+          PUBLISH_COMPLETED_AT: ${{ needs.publish.outputs.publish_completed_at }}
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="$SOURCE_SHA_OUTPUT"
+          RELEASE_STARTED_AT="${RELEASE_STARTED_AT:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}"
+          RELEASE_COMPLETED_AT="${RELEASE_COMPLETED_AT:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}"
+          RECEIPT_STARTED_AT="$RELEASE_STARTED_AT"
+          if [[ -z "$SOURCE_SHA" ]]; then
+            # The publish job may fail before checking out the candidate (for
+            # example, invalid inputs or a checkout outage). Resolve only the
+            # exact version tag from this trusted-main checkout for a failed
+            # recovery receipt; never turn the fallback into a passing result.
+            if [[ "$SOURCE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+              if git fetch --no-tags origin "refs/tags/${SOURCE_TAG}:refs/tags/${SOURCE_TAG}" >/dev/null 2>&1; then
+                SOURCE_SHA="$(git rev-list -n 1 "$SOURCE_TAG" 2>/dev/null || true)"
+              fi
+            fi
+            if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              # There is no truthful canonical receipt without a full source
+              # SHA. Retain a bounded rejection record instead of inventing
+              # success or persisting raw user input.
+              jq -n \
+                --arg run_id "$RELEASE_RUN_ID" \
+                --arg run_url "$RELEASE_RUN_URL" \
+                --arg workflow "$WORKFLOW_NAME" \
+                --arg event "$SOURCE_EVENT" \
+                --arg recorded_at "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+                '{schema_version:1,record_type:"release_input_rejection",release_run:{id:$run_id,url:$run_url,workflow_name:$workflow},source_event:$event,source_identity_resolved:false,terminal_verdict:"failure",failure:{stage:"manual-validation",diagnostic:"source_identity_unavailable"},recorded_at:$recorded_at}' \
+                > release-result.json
+              exit 0
+            fi
+            GATE_VERDICT="fail"
+            TERMINAL_VERDICT="failure"
+            FAILURE_STAGE="manual-validation"
+            DIAGNOSTIC="manual_source_validation_failed"
+            PUBLISH_OUTCOME="not_run"
+            RELEASE_STARTED_AT="$RECEIPT_STARTED_AT"
+            RELEASE_COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            GATE_STARTED_AT="$RECEIPT_STARTED_AT"
+            GATE_COMPLETED_AT="$RELEASE_COMPLETED_AT"
+            PUBLISH_STARTED_AT="null"
+            PUBLISH_COMPLETED_AT="null"
+          fi
+          GATE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          FAILURE_JSON="null"
+          if [[ "$TERMINAL_VERDICT" == "failure" ]]; then
+            FAILURE_JSON="$(jq -cn --arg stage "$FAILURE_STAGE" --arg diagnostic "$DIAGNOSTIC" '{stage:$stage,diagnostic:$diagnostic}')"
+          fi
+          jq -n \
+            --arg release_id "$RELEASE_RUN_ID" --argjson attempt "$RELEASE_ATTEMPT" \
+            --arg release_url "$RELEASE_RUN_URL" --arg workflow "$WORKFLOW_NAME" --arg workflow_url "$WORKFLOW_URL" \
+            --arg event "$SOURCE_EVENT" --arg version "$SOURCE_VERSION" --arg tag "$SOURCE_TAG" --arg sha "$SOURCE_SHA" \
+            --arg release_started "$RELEASE_STARTED_AT" --arg release_completed "$RELEASE_COMPLETED_AT" \
+            --arg gate_id "$RELEASE_RUN_ID" --arg gate_url "$GATE_URL" --arg gate_verdict "$GATE_VERDICT" \
+            --arg gate_started "$GATE_STARTED_AT" --arg gate_completed "$GATE_COMPLETED_AT" \
+            --arg publish_outcome "$PUBLISH_OUTCOME" --arg publish_started "$PUBLISH_STARTED_AT" --arg publish_completed "$PUBLISH_COMPLETED_AT" \
+            --arg terminal "$TERMINAL_VERDICT" --argjson failure "$FAILURE_JSON" \
+            '{schema_version:1,
+              release_run:{id:$release_id,attempt:$attempt,url:$release_url,workflow_name:$workflow,workflow_url:$workflow_url,started_at:$release_started,completed_at:$release_completed},
+              source_event:$event,source:{version:$version,tag:$tag,sha:$sha},
+              gate:{run_id:$gate_id,url:$gate_url,verdict:$gate_verdict,attempts:1,started_at:$gate_started,completed_at:$gate_completed},
+              publish:{outcome:$publish_outcome,started_at:$publish_started,completed_at:$publish_completed},
+              terminal_verdict:$terminal,failure:$failure,observer_run:null,
+              stages:{manual_validation:{verdict:$gate_verdict},publish:{outcome:$publish_outcome}}}' \
+            > release-result-input.json
+          bash scripts/ci/release-receipt.sh --input release-result-input.json --output release-result.json
+
+      - name: Upload manual recovery receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-result-${{ inputs.release_version }}-${{ github.run_id }}
+          path: release-result.json
+          if-no-files-found: error
           retention-days: 90

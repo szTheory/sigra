@@ -22,7 +22,7 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
     assert ci =~ ~r/^  workflow_dispatch:$/m
     assert ci =~ ~r/release-ref evidence path/i
     assert ci =~ ~s(gh workflow run "CI" --ref v1.0.0)
-    assert ci =~ ~r/^  push:\n    branches: \[main\]/m
+    assert ci =~ ~r/^  push:\n    branches: \[main, release-please--branches--main\]/m
     assert ci =~ ~r/^  pull_request:\n    branches: \[main\]/m
 
     for job_id <-

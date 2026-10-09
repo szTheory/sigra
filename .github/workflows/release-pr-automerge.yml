@@ -1,0 +1,140 @@
+name: Release PR auto-merge
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [release-please--branches--main]
+
+permissions:
+  actions: read
+  checks: read
+  contents: read
+  deployments: read
+  pull-requests: read
+
+concurrency:
+  group: release-pr-automerge-${{ github.event.workflow_run.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  guarded-merge:
+    name: Guarded Release Please merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'release-please--branches--main'
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      deployments: read
+      pull-requests: read
+    environment: release-automation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Verify credential environments and release token presence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_PLEASE_TOKEN_PRESENT: ${{ secrets.RELEASE_PLEASE_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          bash scripts/ci/release-environment-preflight.sh \
+            --repository "$REPOSITORY" \
+            --require-release-token "$RELEASE_PLEASE_TOKEN_PRESENT"
+
+      - name: Validate exact CI run and current Release Please PR
+        id: preflight
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          EVENT_PATH: ${{ github.event_path }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          work_dir="$(mktemp -d)"
+          trap 'rm -rf "$work_dir"' EXIT
+
+          jq '{repository:.repository.full_name, workflow_name:.workflow_run.name,
+            run_id:.workflow_run.id, event:.workflow_run.event,
+            head_branch:.workflow_run.head_branch, head_sha:.workflow_run.head_sha,
+            conclusion:.workflow_run.conclusion}' "$EVENT_PATH" > "$work_dir/event-run.json"
+
+          gh run view "$SOURCE_RUN_ID" --repo "$REPOSITORY" \
+            --json databaseId,event,headBranch,headSha,conclusion,workflowName,url,jobs \
+            > "$work_dir/run-with-jobs.json"
+          jq --arg repository "$REPOSITORY" \
+            '{repository:$repository, workflowName, databaseId, event, headBranch, headSha, conclusion, url}' \
+            "$work_dir/run-with-jobs.json" > "$work_dir/queried-run.json"
+          jq '[.jobs[] | select(.name == "ci-gate") | {name, conclusion}]' \
+            "$work_dir/run-with-jobs.json" > "$work_dir/gate-jobs.json"
+
+          cp .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json \
+            "$work_dir/ledger.json"
+
+          capture_candidate() {
+            local suffix="$1"
+            gh pr list --repo "$REPOSITORY" --state open --base main \
+              --head release-please--branches--main \
+              --json number,state,title,baseRefName,headRefName,headRefOid,headRepository,labels,url \
+              > "$work_dir/pull-requests-${suffix}.json"
+
+            local head_sha
+            head_sha="$(jq -r '.[0].headRefOid // empty' "$work_dir/pull-requests-${suffix}.json")"
+            [[ "$head_sha" =~ ^[0-9a-f]{40}$ ]] || {
+              echo "release preflight: candidate head is missing or malformed" >&2
+              return 1
+            }
+            gh api "repos/${REPOSITORY}/contents/CHANGELOG.md?ref=${head_sha}" \
+              --jq .content | base64 --decode > "$work_dir/CHANGELOG-${suffix}.md"
+
+            bash scripts/ci/release-candidate-preflight.sh \
+              --repository "$REPOSITORY" \
+              --event-run "$work_dir/event-run.json" \
+              --queried-run "$work_dir/queried-run.json" \
+              --pull-requests "$work_dir/pull-requests-${suffix}.json" \
+              --gate-jobs "$work_dir/gate-jobs.json" \
+              --changelog "$work_dir/CHANGELOG-${suffix}.md" \
+              --ledger "$work_dir/ledger.json"
+          }
+
+          candidate="$(capture_candidate initial)"
+
+          # Close the time-of-check/time-of-use window with fresh API reads.
+          gh run view "$SOURCE_RUN_ID" --repo "$REPOSITORY" \
+            --json databaseId,event,headBranch,headSha,conclusion,workflowName,url,jobs \
+            > "$work_dir/final-run-with-jobs.json"
+          jq --arg repository "$REPOSITORY" \
+            '{repository:$repository, workflowName, databaseId, event, headBranch, headSha, conclusion, url}' \
+            "$work_dir/final-run-with-jobs.json" > "$work_dir/final-queried-run.json"
+          jq '[.jobs[] | select(.name == "ci-gate") | {name, conclusion}]' \
+            "$work_dir/final-run-with-jobs.json" > "$work_dir/final-gate-jobs.json"
+          cp "$work_dir/final-queried-run.json" "$work_dir/queried-run.json"
+          cp "$work_dir/final-gate-jobs.json" "$work_dir/gate-jobs.json"
+          final_candidate="$(capture_candidate final)"
+          [[ "$candidate" == "$final_candidate" ]] || {
+            echo "release preflight: candidate or source CI state changed during validation" >&2
+            exit 1
+          }
+          echo "Fresh final-state recheck passed."
+
+          echo "pr_number=$(jq -r '.pr_number' <<<"$candidate")" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$(jq -r '.head_sha' <<<"$candidate")" >> "$GITHUB_OUTPUT"
+
+      - name: Squash merge the exact validated head
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.preflight.outputs.pr_number }}
+          PR_HEAD_SHA: ${{ steps.preflight.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          [[ -n "$GH_TOKEN" ]] || { echo "RELEASE_PLEASE_TOKEN is unavailable" >&2; exit 1; }
+          gh pr merge "$PR_NUMBER" --repo "$REPOSITORY" --squash \
+            --match-head-commit "$PR_HEAD_SHA"
