@@ -4,19 +4,19 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: 249-12 (verify final-main evidence and seal terminal worktree proof)
+current_plan: v1.49 milestone audit
 status: in_progress
-stopped_at: Plan 249-11 complete; Plan 249-12 implementation and terminal-seal tests are complete, with the final evidence replay remaining
-last_updated: "2026-10-09T22:19:40.000Z"
+stopped_at: Phase 249 complete; Phase 250 does not exist in the roadmap, so v1.49 milestone audit is next
+last_updated: "2026-10-09T22:31:00.000Z"
 last_activity: 2026-10-09
-last_activity_desc: Plan 249-12 added automated terminal sealing and passed all 60 closeout tests; final inventory, acceptance, and ref-only seal remain
+last_activity_desc: Phase 249 terminal acceptance passed with six clean registered worktrees; final state and route are recorded before replaying the seal
 state_head: 2782099bb
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 31
-  completed_plans: 28
-  percent: 75
+  completed_plans: 29
+  percent: 100
 ---
 
 # Project State
@@ -27,18 +27,18 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 249 — Publish and Prove Sigra 1.6.0
+**Current focus:** v1.49 milestone audit after Phase 249 closeout
 
 ## Current Position
 
-Phase: 249 (Publish and Prove Sigra 1.6.0) — IN PROGRESS; Plan 249-11 complete
-Current Plan: 249-12 (refresh final proof, validate all open PRs/worktrees, and seal terminal evidence)
+Phase: 249 (Publish and Prove Sigra 1.6.0) — COMPLETE
+Current Plan: None; v1.49 milestone audit is next
 Total Plans in Phase: 12
-Plans executed: 11 of 12
-Status: In progress; final-main CI and public 1.6.0 proof pass; the historical loss is recorded as accepted loss; final closeout seal is pending
-Last activity: 2026-10-09 — Plan 249-12 terminal-seal code and tests pass; refresh live closeout evidence and run the final ref-only seal
+Plans executed: 12 of 12
+Status: Complete; package-source, public release, exact protected-main CI, current PR inventory, preservation disposition, and terminal clean-worktree evidence pass
+Last activity: 2026-10-09 — terminal evidence binds the canonical passing acceptance to two empty raw-status reads across all six registered worktrees
 
-Progress: [███████░░░] 75%
+Progress: [██████████] 100%
 
 ### v1.49 phase map
 
@@ -820,16 +820,16 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 ## Session Continuity
 
 Last session: 2026-10-09T18:23:54Z
-Stopped at: Plan 249-12 implementation complete; final live acceptance replay and ref-only terminal seal remain
+Stopped at: Phase 249 complete; v1.49 milestone audit is next
 Resume file: None
 
 ## Operator Next Steps
 
-- **Plan 249-11 is complete; Plan 249-12 implementation and tests are complete, while final terminal verification remains.** Protected main `3c7d713f290c93de3b9fd54be7ece31d71f32787` has exact-head successful CI run `37993629114`, `ci-gate` job `114036565274`; public Sigra 1.6.0 proof resolves package source `9e80cb78d6374b1ed4074d5fef6b613fee879dca`. The closeout inventory last recorded six worktrees and 14 open PRs; refresh both before final acceptance.
+- **Phase 249 is complete.** Protected main `3c7d713f290c93de3b9fd54be7ece31d71f32787` has exact-head successful CI run `37993629114`, `ci-gate` job `114036565274`; public Sigra 1.6.0 proof resolves package source `9e80cb78d6374b1ed4074d5fef6b613fee879dca`. Final acceptance records six worktrees, 14 open PRs with dispositions, zero dirty paths, and no validation errors. Terminal commit `fea3be36362194af3c401613567c14eb39a96197` on `refs/heads/evidence/phase-249-final-acceptance` binds canonical commit `4cc96a6036ac9d869b78cf7d7dd1e2ad4530520a` and verifies two empty raw-status reads for all six worktrees.
 - **Historical loss:** `.planning/HANDOFF.json` SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` was not found in 22,410 local Git blobs, 18,847 GitHub-mirror blobs across 65 branches, 14 tags, 300 PR heads and 13 PR merge refs, or 74,345 regular files. The user accepted this exact loss; it remains unrecovered, is not claimed preserved, and is excluded from the candidate. All other missing evidence still blocks.
 - **Prevention:** the exact replacing write/tool is not provable from retained records. The process gap was recording the hash without first pinning the bytes. `AGENTS.md`, `.planning/METHODOLOGY.md`, and closeout tests now require exact write-ahead preservation before dirty planning files are rewritten.
 - **Automated prevention:** `METHODOLOGY.md` now requires terminal evidence design and failure tests before multi-step release closeout, with all summaries committed before recapturing the final inventory. The validator performs a ref-only checkpoint/seal and byte-for-byte raw status reread; do not write further artifacts after it passes.
-- **Next command:** after committing all current tracked outputs, capture and commit a fresh closeout ledger, then run preservation, final acceptance, and terminal seal. The scoped terminal ref is `refs/heads/evidence/phase-249-final-acceptance`; its record binds canonical acceptance bytes and commit identity to all registered worktrees.
+- **Next GSD command:** `$gsd-audit-milestone` for v1.49. Readiness query `init.plan-phase 250` found no Phase 250 in the roadmap. Keep the historical handoff revision labeled as accepted loss, not recovered. These state and roadmap updates are included in the final terminal evidence replay.
 
 ## Performance Metrics
 

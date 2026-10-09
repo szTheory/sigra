@@ -21,20 +21,20 @@
     {
       "number": "249",
       "name": "Publish and Prove Sigra 1.6.0",
-      "status": "in_progress"
+      "status": "complete"
     }
   ],
   "next": {
-    "command": "node .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs --ledger .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json --mode capture",
-    "label": "Capture the final complete PR/worktree ledger after all tracked plan outputs are committed",
-    "reason": "Plan 249-12 implementation, state, summary, and prevention guidance are committed before this capture. Commit the resulting ledger as its exact evidence-only transition, then run preservation and final acceptance into ignored task-local output and seal the canonical bytes on the scoped evidence ref."
+    "command": "$gsd-audit-milestone",
+    "label": "Audit v1.49 release milestone against requirements and end-to-end evidence",
+    "reason": "All four roadmap phases are complete. The Phase 249 terminal acceptance is machine-verified; init.plan-phase 250 reported no next phase, so the milestone audit is the forward GSD route before archival."
   },
-  "updated_at": "2026-10-09T22:19:40.000Z",
+  "updated_at": "2026-10-09T22:31:00.000Z",
   "progress": {
     "total_phases": 4,
-    "completed_phases": 3,
+    "completed_phases": 4,
     "total_plans": 31,
-    "completed_plans": 28,
-    "percent": 75
+    "completed_plans": 29,
+    "percent": 100
   }
 }
