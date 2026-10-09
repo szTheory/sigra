@@ -7,10 +7,10 @@ current_phase_name: Publish and Prove Sigra 1.6.0
 current_plan: 249-09 (first remaining gap plan; preservation precondition blocked)
 status: blocked
 stopped_at: Plan 249-08 complete; Plan 249-09 is gated by two preservation decisions
-last_updated: "2026-10-09T17:56:55.365Z"
+last_updated: "2026-10-09T18:02:32.234Z"
 last_activity: 2026-10-09
-last_activity_desc: Plan 249-08 completed with 47/47 tests; Plan 249-09 awaits two preservation decisions
-state_head: b1f5e522d2c66aa90aaeec86ba1e5852f9281b4d
+last_activity_desc: Plan 249-08 completed with 47/47 tests; local object scan confirmed the historical handoff bytes are unavailable
+state_head: 085c69f18
 progress:
   total_phases: 4
   completed_phases: 2
@@ -826,7 +826,7 @@ Resume file: None
 ## Operator Next Steps
 
 - **Plan 249-08 is complete; Phase 249 verification is not.** Its current capture covers five worktrees and 14 open PRs. Of 103 inherited identities, 101 have exact preservation refs and two remain blocked. The preservation gate does not pass, and no Plan 249-09 candidate was created.
-- **Blockers:** `test/sigra/planning/phase_233_library_economics_contract_test.exs` (SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) needs an owner and destination/disposition; the old `.planning/HANDOFF.json` revision (SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148`) has no recoverable source and needs acceptance as superseded or a source copy.
+- **Blockers:** `test/sigra/planning/phase_233_library_economics_contract_test.exs` (SHA-256 `02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4`) needs an owner and destination/disposition. The old `.planning/HANDOFF.json` revision (SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148`) was not found in reachable or 4,709 scanned unreachable Git blobs; provide a recoverable source or explicitly approve a scoped exception and update the proof contract before resuming.
 - **Next GSD command after those decisions:** `$gsd-execute-phase 249 --gaps-only`. Do not mark REL-02 complete until preservation mode passes and the remaining protected-main promotion and terminal-closeout evidence is proven.
 
 ## Performance Metrics

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-09T17:56:55.366Z",
+  "timestamp": "2026-10-09T18:02:32.234Z",
   "phase": "249",
   "phase_name": "Publish and Prove Sigra 1.6.0",
   "plan": "09",
@@ -49,13 +49,13 @@
       "path": ".planning/HANDOFF.json",
       "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
       "status": " M (historical captured revision)",
-      "decision_needed": "Accept this revision as superseded and unrecoverable with the current handoff authoritative, or provide a recoverable source for the captured bytes."
+      "decision_needed": "Provide a recoverable source copy, or explicitly authorize a scoped loss exception and update the preservation proof contract. An exception alone does not pass the current gate."
     }
   ],
   "async_jobs": [],
   "human_actions_pending": [
     "Decide the owner and destination/disposition for the Phase 233 contract-test change.",
-    "Accept the old handoff revision as superseded/unrecoverable or provide a source copy."
+    "Provide a recoverable source for the historical handoff bytes, or authorize an explicit scoped-loss exception that will require a proof-contract update."
   ],
   "decisions": [
     {
@@ -70,6 +70,6 @@
   "uncommitted_files": [
     "test/sigra/planning/phase_233_library_economics_contract_test.exs"
   ],
-  "next_action": "Resolve both preservation decisions, refresh and rerun validate-closeout.mjs --mode preservation, then continue with $gsd-execute-phase 249 --gaps-only only if the gate passes.",
-  "context_notes": "Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v2 (commit 24507c745ebc1e00c254e8e3ab8ea127de49e028). Its complete capture observed 5 worktrees, 14 open PRs, and no failed changed-file reads. Inventory mode is complete; preservation mode remains blocked by the two exact identities above and reports no clean-state pass. The Phase 233 source path remains untouched. No candidate, push, PR, or merge was created. Phase-level REL-02 remains unverified until promotion and terminal closeout evidence pass."
+  "next_action": "Resolve the Phase 233 ownership/destination and historical handoff source-or-exception decisions. Preserve or disposition them under an explicit tested contract, refresh and rerun validate-closeout.mjs --mode preservation, then continue with $gsd-execute-phase 249 --gaps-only only if the gate passes.",
+  "context_notes": "Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v2 (commit 24507c745ebc1e00c254e8e3ab8ea127de49e028). Its complete capture observed 5 worktrees, 14 open PRs, and no failed changed-file reads. Inventory mode passes; preservation mode is blocked by preservation_source_drift for the old historical HANDOFF.json bytes plus the two exact blockers listed above. A read-only scan checked all 4,709 unreachable Git blobs; none matches the historical handoff SHA-256. The current Phase 233 source path remains untouched. Plan 08 tests pass 47/47. No candidate, push, PR, or merge was created. Phase-level REL-02 remains unverified until promotion and terminal closeout evidence pass."
 }

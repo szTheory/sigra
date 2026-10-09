@@ -26,8 +26,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 249 --gaps-only",
-    "label": "Resume Phase 249 gap closure after preservation decisions",
-    "reason": "Plan 249-08 is complete. Plan 249-09 must not create a candidate until preservation mode passes. Two blockers need disposition: the Phase 233 contract-test change has no established owner or destination, and the captured historical HANDOFF.json bytes are unavailable. After resolution, rerun the preservation gate and resume gap-only execution."
+    "label": "Resume Phase 249 after preservation decisions and gate update if needed",
+    "reason": "Plan 249-08 is complete. Plan 249-09 must not create a candidate until preservation mode passes. The Phase 233 contract-test change needs an owner and destination. The captured historical HANDOFF.json bytes are absent from reachable and 4,709 scanned unreachable Git blobs; a scoped loss exception requires explicit authorization and an updated proof contract, while a source copy would permit exact recovery."
   },
-  "updated_at": "2026-10-09T17:56:55.365Z"
+  "updated_at": "2026-10-09T18:02:32.234Z"
 }
