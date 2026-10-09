@@ -554,6 +554,163 @@ export function validatePromotion(promotion, constraints = {}) {
   return { valid: errors.length === 0, blocked: errors.length > 0, closeout_status: errors.length ? 'blocked' : 'ready', errors };
 }
 
+const RECEIPT_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json';
+const PROMOTION_PATH = '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PROMOTION.json';
+const MAIN_CI_WORKFLOW = '.github/workflows/ci.yml';
+
+function promotionDetails(record) {
+  if (record && Object.hasOwn(record, 'promotion')) return { record, promotion: record.promotion, verdict: record.verdict };
+  return { record, promotion: record, verdict: record?.verdict };
+}
+
+export function validatePostMerge(promotionRecord, expectedReceipt, liveMain, constraints = {}) {
+  const errors = [];
+  const add = (code, message) => errors.push({ code, message });
+  const { record, promotion, verdict } = promotionDetails(promotionRecord);
+  const receiptPath = constraints.receipt_path ?? RECEIPT_PATH;
+  if (!record || verdict !== 'promoted' || !promotion || promotion.merge?.merged !== true || !SHA.test(promotion.merge?.merge_sha ?? '')) {
+    add('promotion_not_merged', 'The scoped promotion record does not contain a verified protected-main merge.');
+  }
+  if (record?.pr && (!Number.isInteger(record.pr.number) || !record.pr.url?.startsWith('https://github.com/szTheory/sigra/pull/'))) {
+    add('promotion_pr_identity_invalid', 'The promotion PR identity is not a canonical Sigra pull request.');
+  }
+  if (verdict === 'promoted' && (!record?.pr || promotion?.review?.result !== 'approved' || promotion.review.commit_sha !== promotion.head_sha)) {
+    add('promotion_review_missing', 'The exact merged promotion candidate lacks a matching PR and approved review identity.');
+  }
+  if (liveMain?.source_status === 'failed' || !SHA.test(liveMain?.current_main_sha ?? '')) {
+    add('final_main_identity_missing', 'The current protected-main SHA could not be read as a full commit identity.');
+  }
+  if (liveMain?.current_main_sha_after && liveMain.current_main_sha_after !== liveMain.current_main_sha) {
+    add('final_main_advanced', 'Protected main advanced during proof capture; refresh all evidence on the new head.');
+  }
+  if (verdict === 'promoted' && liveMain?.promotion_merge_on_main !== true) {
+    add('promotion_merge_not_on_main', 'The recorded promotion merge is not proven to be an ancestor of the current protected-main head.');
+  }
+
+  const receipt = liveMain?.receipt;
+  if (!receipt || receipt.exists !== true || !receipt.value) {
+    add('final_main_receipt_missing', 'The sanitized release receipt is absent from current protected main.');
+  } else {
+    if (receipt.path !== receiptPath || (record?.release_receipt?.path && record.release_receipt.path !== receiptPath)) {
+      add('final_main_receipt_path_mismatch', 'Protected main does not expose the receipt at its canonical Phase 249 path.');
+    }
+    if (!SHA.test(receipt.blob_sha ?? '') || (constraints.receipt_blob_sha && receipt.blob_sha !== constraints.receipt_blob_sha)) {
+      add('final_main_receipt_blob_mismatch', 'The protected-main receipt blob differs from the immutable committed receipt.');
+    }
+    if (!DIGEST.test(receipt.sha256 ?? '') || (constraints.receipt_sha256 && receipt.sha256 !== constraints.receipt_sha256)) {
+      add('final_main_receipt_hash_mismatch', 'The protected-main receipt bytes differ from the immutable committed receipt.');
+    }
+    if (!expectedReceipt || !sameJson(receipt.value, expectedReceipt)) {
+      add('final_main_receipt_identity_mismatch', 'The protected-main receipt changed the immutable package-source, artifact or public release identity.');
+    }
+    if (receipt.value?.package_source_sha === liveMain?.current_main_sha) {
+      add('final_main_source_identity_conflated', 'The later protected-main SHA must remain separate from the immutable package-source SHA.');
+    }
+  }
+  const promotionReceipt = promotion?.release_receipt ?? record?.release_receipt;
+  if (promotionReceipt && expectedReceipt && (promotionReceipt.version !== expectedReceipt.version
+    || promotionReceipt.package_source_sha !== expectedReceipt.package_source_sha
+    || !sameJson(promotionReceipt.package_source_ci, expectedReceipt.package_source_ci)
+    || (constraints.receipt_sha256 && promotionReceipt.sha256 !== constraints.receipt_sha256))) {
+    add('promotion_receipt_identity_mismatch', 'The scoped promotion record does not preserve the immutable receipt identity.');
+  }
+
+  const ci = liveMain?.ci;
+  if (ci && ci.head_sha !== liveMain?.current_main_sha) {
+    add('final_main_ci_head_mismatch', 'The ordinary CI run head SHA differs from the current protected-main SHA.');
+  }
+  if (!ci || ci.workflow !== MAIN_CI_WORKFLOW || ci.status !== 'completed' || ci.conclusion !== 'success'
+    || !/^\d+$/.test(String(ci.run_id ?? ''))
+    || !Number.isInteger(ci.attempt) || ci.attempt < 1 || typeof ci.url !== 'string') {
+    add('final_main_ci_invalid', 'A completed successful ordinary CI run on the current protected-main SHA is missing.');
+  }
+  const gate = ci?.ci_gate;
+  if (gate && gate.head_sha !== liveMain?.current_main_sha) {
+    add('final_main_ci_gate_head_mismatch', 'The ci-gate job head SHA differs from the current protected-main SHA.');
+  }
+  if (!gate || gate.name !== 'ci-gate' || gate.status !== 'completed' || gate.conclusion !== 'success'
+    || !/^\d+$/.test(String(gate.job_id ?? '')) || typeof gate.url !== 'string') {
+    add('final_main_ci_gate_invalid', 'A completed successful ci-gate job on the exact current protected-main SHA is missing.');
+  }
+  return {
+    valid: errors.length === 0,
+    blocked: errors.length > 0,
+    verdict: errors.length === 0 ? 'passed' : 'blocked',
+    final_main_sha: liveMain?.current_main_sha ?? null,
+    receipt_path: receiptPath,
+    receipt_blob_sha: receipt?.blob_sha ?? null,
+    receipt_sha256: receipt?.sha256 ?? null,
+    ci: ci ? { workflow: ci.workflow, run_id: ci.run_id, attempt: ci.attempt, url: ci.url, head_sha: ci.head_sha, conclusion: ci.conclusion,
+      ci_gate: gate ? { job_id: gate.job_id, url: gate.url, head_sha: gate.head_sha, conclusion: gate.conclusion } : null } : null,
+    errors,
+  };
+}
+
+export function validatePublicIdentity(receipt, publicProof) {
+  const errors = [];
+  const add = (code, message) => errors.push({ code, message });
+  if (!receipt || !publicProof || publicProof.verdict !== 'passed') {
+    add('public_proof_incomplete', 'A live passing public-release proof is required for final acceptance.');
+  } else {
+    if (publicProof.package !== receipt.package || publicProof.version !== receipt.version || publicProof.tag !== receipt.tag
+      || publicProof.package_source_sha !== receipt.package_source_sha
+      || !sameJson(publicProof.package_source_ci, receipt.package_source_ci)) {
+      add('public_source_identity_mismatch', 'The live tag, package or source CI identity differs from the immutable receipt.');
+    }
+    if (!sameJson(publicProof.hex, receipt.hex) || publicProof.versioned_docs_url !== receipt.versioned_docs_url
+      || !sameJson(publicProof.source_reference, receipt.source_reference)) {
+      add('public_source_identity_mismatch', 'The live Hex, versioned docs or resolving source destination differs from the immutable receipt.');
+    }
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+export function validateFinalAcceptance(proof) {
+  const errors = [];
+  const blockers = [];
+  const add = (code, message) => errors.push({ code, message });
+  const mainProof = validatePostMerge(proof?.promotion, proof?.receipt, proof?.live_main, {
+    receipt_path: proof?.receipt_path ?? RECEIPT_PATH,
+    receipt_sha256: proof?.receipt_sha256,
+    receipt_blob_sha: proof?.receipt_blob_sha,
+  });
+  errors.push(...mainProof.errors);
+  if (proof?.live_main_sha && proof.live_main?.current_main_sha !== proof.live_main_sha) {
+    add('final_main_advanced', 'The independently refreshed protected-main SHA differs from the captured exact-head proof.');
+  }
+  if (!proof?.main_proof) {
+    add('final_main_proof_missing', 'The durable post-merge protected-main evidence artifact is required for final acceptance.');
+  } else if (proof.main_proof.verdict !== mainProof.verdict
+    || proof.main_proof.protected_main_sha !== mainProof.final_main_sha
+    || proof.main_proof.receipt_blob_sha !== mainProof.receipt_blob_sha) {
+    add('final_main_proof_stale', 'The durable post-merge proof differs from the revalidated live source identities.');
+  }
+  const publicResult = validatePublicIdentity(proof?.receipt, proof?.public_proof);
+  errors.push(...publicResult.errors);
+
+  const inventory = validateInventory(proof?.ledger, proof?.live_inventory);
+  errors.push(...inventory.errors);
+  const preservation = validatePreservation(proof?.ledger, proof?.live_inventory, { repoRoot: proof?.repo_root ?? DEFAULT_ROOT });
+  errors.push(...preservation.errors);
+  blockers.push(...preservation.blockers);
+  const dispositions = validateDispositions(proof?.ledger);
+  errors.push(...dispositions.errors);
+  blockers.push(...dispositions.blockers);
+  const uniqueBlockers = [...new Map(blockers.map(blocker => [JSON.stringify(blocker), blocker])).values()];
+  return {
+    valid: errors.length === 0 && uniqueBlockers.length === 0,
+    blocked: errors.length > 0 || uniqueBlockers.length > 0,
+    verdict: errors.length === 0 && uniqueBlockers.length === 0 ? 'passed' : 'blocked',
+    errors,
+    blockers: uniqueBlockers,
+    inventory: { valid: inventory.valid, worktrees: proof?.live_inventory?.worktrees?.length ?? 0, pull_requests: proof?.live_inventory?.pull_requests?.length ?? 0 },
+    post_merge: mainProof,
+    public_release: publicResult,
+    preservation: { valid: preservation.valid, blocked: preservation.blocked, closeout_status: preservation.closeout_status, blocker_count: preservation.blockers.length },
+    dispositions: { valid: dispositions.valid, blocked: dispositions.blocked, blocker_count: dispositions.blockers.length },
+  };
+}
+
 export function collectLiveInventory({ repoRoot = DEFAULT_ROOT, ledger = null } = {}) {
   const observedAt = new Date().toISOString();
   let worktrees = [];
@@ -688,16 +845,189 @@ export function captureLedger({ repoRoot = DEFAULT_ROOT, includeChangedFiles = t
   return sortLedger(ledger);
 }
 
+function githubJson(repoRoot, endpoint) {
+  try {
+    const bytes = run('gh', ['api', endpoint], repoRoot);
+    return { ok: true, value: JSON.parse(bytes.toString('utf8')) };
+  } catch (error) {
+    const stderr = Buffer.isBuffer(error.stderr) ? error.stderr.toString('utf8') : '';
+    const status = stderr.match(/HTTP (\d{3})/i)?.[1] ?? null;
+    return { ok: false, status, rate_limited: status === '403' || status === '429' };
+  }
+}
+
+function readLocalPromotion(repoRoot) {
+  const ref = 'evidence/phase-249-promotion';
+  try {
+    const commit = runText('git', ['rev-parse', '--verify', `${ref}^{commit}`], repoRoot);
+    const bytes = run('git', ['show', `${ref}:${PROMOTION_PATH}`], repoRoot);
+    return { ref, commit_sha: commit, sha256: sha256(bytes), value: JSON.parse(bytes.toString('utf8')) };
+  } catch {
+    return { ref, commit_sha: null, sha256: null, value: null };
+  }
+}
+
+function localReceipt(repoRoot) {
+  try {
+    const bytes = fs.readFileSync(path.join(repoRoot, RECEIPT_PATH));
+    const blobSha = execFileSync('git', ['hash-object', '--stdin'], { cwd: repoRoot, input: bytes, encoding: 'utf8' }).trim();
+    return {
+      value: JSON.parse(bytes.toString('utf8')),
+      sha256: sha256(bytes),
+      blob_sha: blobSha,
+    };
+  } catch {
+    return { value: null, sha256: null, blob_sha: null };
+  }
+}
+
+function readProtectedMainProof(repoRoot, promotion) {
+  const rate = githubJson(repoRoot, 'rate_limit');
+  const remaining = Number(rate.value?.resources?.core?.remaining);
+  if (!rate.ok || !Number.isInteger(remaining) || remaining <= 250) {
+    return {
+      source_status: 'failed',
+      rate_limit: { status: rate.status, core_remaining: Number.isInteger(remaining) ? remaining : null },
+      current_main_sha: null,
+      current_main_sha_after: null,
+      promotion_merge_on_main: false,
+      receipt: { path: RECEIPT_PATH, exists: false },
+      ci: null,
+    };
+  }
+
+  const promotionBits = promotionDetails(promotion?.value);
+  let latest = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const mainResponse = githubJson(repoRoot, `repos/${REPOSITORY}/commits/main`);
+    if (!mainResponse.ok || !SHA.test(mainResponse.value?.sha ?? '')) {
+      return { source_status: mainResponse.rate_limited ? 'rate_limited' : 'failed', current_main_sha: null, current_main_sha_after: null, promotion_merge_on_main: false, receipt: { path: RECEIPT_PATH, exists: false }, ci: null };
+    }
+    const currentMainSha = mainResponse.value.sha;
+    const proof = {
+      observed_at: new Date().toISOString(),
+      source_status: 'complete',
+      current_main_sha: currentMainSha,
+      current_main_sha_after: null,
+      promotion_merge_on_main: false,
+      receipt: { path: RECEIPT_PATH, exists: false },
+      ci: null,
+    };
+
+    const mergeSha = promotionBits.promotion?.merge?.merge_sha;
+    if (promotionBits.verdict === 'promoted' && SHA.test(mergeSha ?? '')) {
+      if (mergeSha === currentMainSha) proof.promotion_merge_on_main = true;
+      else {
+        const comparison = githubJson(repoRoot, `repos/${REPOSITORY}/compare/${mergeSha}...${currentMainSha}`);
+        if (comparison.rate_limited) {
+          proof.source_status = 'rate_limited';
+          break;
+        }
+        proof.promotion_merge_on_main = comparison.ok && ['ahead', 'identical'].includes(comparison.value?.status);
+      }
+    }
+
+    const receiptResponse = githubJson(repoRoot, `repos/${REPOSITORY}/contents/${RECEIPT_PATH}?ref=${currentMainSha}`);
+    if (receiptResponse.ok) {
+      const encoded = String(receiptResponse.value.content ?? '').replace(/\s/g, '');
+      try {
+        const bytes = Buffer.from(encoded, 'base64');
+        const value = JSON.parse(bytes.toString('utf8'));
+        proof.receipt = {
+          path: receiptResponse.value.path,
+          exists: true,
+          blob_sha: receiptResponse.value.sha,
+          sha256: sha256(bytes),
+          value,
+        };
+      } catch {
+        proof.receipt = { path: receiptResponse.value.path ?? RECEIPT_PATH, exists: true, blob_sha: receiptResponse.value.sha ?? null, sha256: null, value: null, content_status: 'invalid' };
+      }
+    } else if (receiptResponse.rate_limited) {
+      proof.source_status = 'rate_limited';
+      break;
+    } else if (receiptResponse.status !== '404') {
+      proof.receipt.read_status = 'failed';
+    }
+
+    const runsResponse = githubJson(repoRoot, `repos/${REPOSITORY}/actions/runs?head_sha=${currentMainSha}&per_page=100`);
+    if (runsResponse.ok) {
+      const candidates = (runsResponse.value.workflow_runs ?? []).filter(run => run.path === MAIN_CI_WORKFLOW && run.head_sha === currentMainSha);
+      candidates.sort((left, right) => (right.run_number ?? 0) - (left.run_number ?? 0));
+      const run = candidates[0];
+      if (run) {
+        const attemptNumber = Number(run.run_attempt);
+        const ci = {
+          workflow: run.path,
+          status: run.status,
+          conclusion: run.conclusion,
+          head_sha: run.head_sha,
+          run_id: String(run.id),
+          attempt: attemptNumber,
+          url: run.html_url,
+          ci_gate: null,
+        };
+        if (run.status === 'completed' && Number.isInteger(attemptNumber) && attemptNumber > 0) {
+          const jobsResponse = githubJson(repoRoot, `repos/${REPOSITORY}/actions/runs/${run.id}/attempts/${attemptNumber}/jobs?per_page=100`);
+          if (jobsResponse.ok) {
+            const gates = (jobsResponse.value.jobs ?? []).filter(job => job.name === 'ci-gate' && job.head_sha === currentMainSha
+              && job.run_attempt === attemptNumber && job.status === 'completed');
+            if (gates.length === 1) {
+              const gate = gates[0];
+              ci.ci_gate = { name: gate.name, job_id: String(gate.id), status: gate.status, conclusion: gate.conclusion, head_sha: gate.head_sha, url: gate.html_url };
+            }
+          } else if (jobsResponse.rate_limited) {
+            proof.source_status = 'rate_limited';
+            break;
+          }
+        }
+        proof.ci = ci;
+      }
+    } else if (runsResponse.rate_limited) {
+      proof.source_status = 'rate_limited';
+      break;
+    }
+
+    const afterResponse = githubJson(repoRoot, `repos/${REPOSITORY}/commits/main`);
+    if (!afterResponse.ok || !SHA.test(afterResponse.value?.sha ?? '')) {
+      proof.source_status = afterResponse.rate_limited ? 'rate_limited' : 'failed';
+      latest = proof;
+      break;
+    }
+    proof.current_main_sha_after = afterResponse.value.sha;
+    latest = proof;
+    if (proof.current_main_sha_after === currentMainSha) return proof;
+  }
+  if (latest) return latest;
+  return { source_status: 'failed', current_main_sha: null, current_main_sha_after: null, promotion_merge_on_main: false, receipt: { path: RECEIPT_PATH, exists: false }, ci: null };
+}
+
+function writeJsonArtifact(repoRoot, outputPath, value) {
+  const absolutePath = path.resolve(repoRoot, outputPath);
+  const relativePath = path.relative(repoRoot, absolutePath);
+  if (relativePath === '..' || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) {
+    throw new Error('Evidence output must stay inside the repository.');
+  }
+  fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
+  const temporaryPath = `${absolutePath}.tmp-${process.pid}`;
+  fs.writeFileSync(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
+  fs.renameSync(temporaryPath, absolutePath);
+  return absolutePath;
+}
+
 function parseArgs(args) {
-  const result = { mode: null, ledgerPath: null, outputPath: null };
+  const result = { mode: null, ledgerPath: null, outputPath: null, publicProofPath: null, mainProofPath: null };
   for (let index = 0; index < args.length; index += 1) {
     if (args[index] === '--mode') result.mode = args[++index];
     else if (args[index] === '--ledger') result.ledgerPath = args[++index];
     else if (args[index] === '--output') result.outputPath = args[++index];
+    else if (args[index] === '--public-proof') result.publicProofPath = args[++index];
+    else if (args[index] === '--main-proof') result.mainProofPath = args[++index];
     else throw new Error(`Unknown argument: ${args[index]}`);
   }
-  if (!result.mode || !result.ledgerPath) throw new Error('Usage: validate-closeout.mjs --ledger <path> --mode capture|inventory|dispositions|preservation|promotion [--output <path>]');
-  if (result.mode === 'promotion' && !result.outputPath) throw new Error('Promotion mode requires --output <path>.');
+  if (!result.mode || !result.ledgerPath) throw new Error('Usage: validate-closeout.mjs --ledger <path> --mode capture|inventory|dispositions|preservation|promotion|post-merge|final [--public-proof <path>] [--main-proof <path>] [--output <path>]');
+  if (['promotion', 'post-merge', 'final'].includes(result.mode) && !result.outputPath) throw new Error(`${result.mode} mode requires --output <path>.`);
+  if (result.mode === 'final' && (!result.publicProofPath || !result.mainProofPath)) throw new Error('Final mode requires --public-proof and --main-proof paths.');
   return result;
 }
 
@@ -728,6 +1058,119 @@ async function main() {
   } catch {
     console.error(JSON.stringify({ valid: false, code: 'ledger_read_failed', path: ledgerPath }));
     process.exitCode = 1;
+    return;
+  }
+  if (args.mode === 'post-merge') {
+    const promotion = readLocalPromotion(DEFAULT_ROOT);
+    const receipt = localReceipt(DEFAULT_ROOT);
+    const liveMain = readProtectedMainProof(DEFAULT_ROOT, promotion);
+    const validation = validatePostMerge(promotion.value, receipt.value, liveMain, {
+      receipt_path: RECEIPT_PATH,
+      receipt_sha256: receipt.sha256,
+      receipt_blob_sha: receipt.blob_sha,
+    });
+    const record = {
+      schema_version: 1,
+      phase: 249,
+      plan: '06',
+      repository: REPOSITORY,
+      recorded_at: new Date().toISOString(),
+      promotion: {
+        ref: promotion.ref,
+        commit_sha: promotion.commit_sha,
+        sha256: promotion.sha256,
+        verdict: promotion.value?.verdict ?? 'missing',
+        pr: promotion.value?.promotion?.pr ?? null,
+        merge: promotion.value?.promotion?.merge ?? null,
+      },
+      protected_main_sha: liveMain.current_main_sha,
+      receipt_path: RECEIPT_PATH,
+      receipt_blob_sha: liveMain.receipt?.blob_sha ?? null,
+      receipt_sha256: liveMain.receipt?.sha256 ?? null,
+      package_source_sha: receipt.value?.package_source_sha ?? null,
+      package_source_ci: receipt.value?.package_source_ci ?? null,
+      ci: validation.ci,
+      live_main: liveMain,
+      verdict: validation.verdict,
+      errors: validation.errors,
+    };
+    writeJsonArtifact(DEFAULT_ROOT, args.outputPath, record);
+    console.log(JSON.stringify({ verdict: record.verdict, protected_main_sha: record.protected_main_sha, receipt_present: liveMain.receipt?.exists === true, ci_gate: validation.ci?.ci_gate?.conclusion ?? null, errors: validation.errors }, null, 2));
+    process.exitCode = validation.valid ? 0 : 1;
+    return;
+  }
+  if (args.mode === 'final') {
+    let publicProof = null;
+    let mainProof = null;
+    try { publicProof = JSON.parse(fs.readFileSync(path.resolve(DEFAULT_ROOT, args.publicProofPath), 'utf8')); } catch { /* Missing/invalid proof is a recorded blocker. */ }
+    try { mainProof = JSON.parse(fs.readFileSync(path.resolve(DEFAULT_ROOT, args.mainProofPath), 'utf8')); } catch { /* Missing/invalid proof is a recorded blocker. */ }
+    const promotion = readLocalPromotion(DEFAULT_ROOT);
+    const receipt = localReceipt(DEFAULT_ROOT);
+    const liveInventory = collectLiveInventory({ repoRoot: DEFAULT_ROOT, ledger });
+    const rate = githubJson(DEFAULT_ROOT, 'rate_limit');
+    const coreRemaining = Number(rate.value?.resources?.core?.remaining);
+    let liveMainSha = null;
+    if (rate.ok && Number.isInteger(coreRemaining) && coreRemaining > 250) {
+      const mainResponse = githubJson(DEFAULT_ROOT, `repos/${REPOSITORY}/commits/main`);
+      if (mainResponse.ok && SHA.test(mainResponse.value?.sha ?? '')) liveMainSha = mainResponse.value.sha;
+    }
+    const proof = {
+      receipt: receipt.value,
+      receipt_sha256: receipt.sha256,
+      receipt_blob_sha: receipt.blob_sha,
+      promotion: promotion.value,
+      live_main: mainProof?.live_main ?? null,
+      main_proof: mainProof,
+      live_main_sha: liveMainSha,
+      public_proof: publicProof,
+      ledger,
+      live_inventory: liveInventory,
+      repo_root: DEFAULT_ROOT,
+    };
+    const validation = validateFinalAcceptance(proof);
+    const inventoryFingerprint = sha256(Buffer.from(JSON.stringify({
+      worktrees: liveInventory.worktrees,
+      pull_requests: liveInventory.pull_requests,
+      source_status: liveInventory.source_status,
+    })));
+    const record = {
+      schema_version: 1,
+      phase: 249,
+      plan: '06',
+      repository: REPOSITORY,
+      recorded_at: new Date().toISOString(),
+      package_source_sha: receipt.value?.package_source_sha ?? null,
+      package_source_ci: receipt.value?.package_source_ci ?? null,
+      final_main_sha: validation.post_merge.final_main_sha,
+      final_main_ci: validation.post_merge.ci,
+      receipt: {
+        path: RECEIPT_PATH,
+        blob_sha: validation.post_merge.receipt_blob_sha,
+        sha256: validation.post_merge.receipt_sha256,
+      },
+      public_release: publicProof ? {
+        verdict: publicProof.verdict ?? 'blocked',
+        hex_url: publicProof.hex?.package_url ?? receipt.value?.hex?.package_url ?? null,
+        versioned_docs_url: publicProof.versioned_docs_url ?? receipt.value?.versioned_docs_url ?? null,
+        source_href: publicProof.source_reference?.href ?? receipt.value?.source_reference?.href ?? null,
+        source_commit_sha: publicProof.source_reference?.resolved_commit_sha ?? receipt.value?.source_reference?.resolved_commit_sha ?? null,
+      } : { verdict: 'blocked', reason: 'Public release proof could not be read.' },
+      closeout_ledger_sha256: sha256(fs.readFileSync(ledgerPath)),
+      inventory_fingerprint_sha256: inventoryFingerprint,
+      inventory: {
+        worktree_count: liveInventory.worktrees.length,
+        pull_request_count: liveInventory.pull_requests.length,
+        dirty_path_count: liveInventory.worktrees.reduce((sum, row) => sum + row.dirty_paths.length, 0),
+        worktree_read_status: liveInventory.source_status.worktrees.status,
+        pull_request_read_status: liveInventory.source_status.pull_requests.status,
+      },
+      verdict: validation.verdict,
+      errors: validation.errors,
+      blockers: validation.blockers,
+    };
+    writeJsonArtifact(DEFAULT_ROOT, args.outputPath, record);
+    console.log(JSON.stringify({ verdict: record.verdict, final_main_sha: record.final_main_sha, public_release: record.public_release.verdict, inventory: record.inventory, errors: validation.errors, blocker_count: validation.blockers.length }, null, 2));
+    process.exitCode = validation.valid ? 0 : 1;
     return;
   }
   const live = collectLiveInventory({ repoRoot: DEFAULT_ROOT, ledger });
@@ -829,7 +1272,7 @@ async function main() {
         })()
       : null;
   if (!result) {
-    console.error('Unsupported mode; use capture, inventory, dispositions, preservation or promotion.');
+    console.error('Unsupported mode; use capture, inventory, dispositions, preservation, promotion, post-merge or final.');
     process.exitCode = 2;
     return;
   }

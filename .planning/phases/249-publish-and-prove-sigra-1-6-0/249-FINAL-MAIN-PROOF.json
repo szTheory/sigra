@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "phase": 249,
+  "plan": "06",
+  "repository": "szTheory/sigra",
+  "recorded_at": "2026-10-09T14:51:18.370Z",
+  "promotion": {
+    "ref": "evidence/phase-249-promotion",
+    "commit_sha": "3a4b31d7c0794b2343f285ee82961c287ce83e69",
+    "sha256": "ee458a0964d6191c93418c38e9864918bc92904b12380443843676087dd6204f",
+    "verdict": "blocked",
+    "pr": null,
+    "merge": null
+  },
+  "protected_main_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+  "receipt_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+  "receipt_blob_sha": null,
+  "receipt_sha256": null,
+  "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+  "package_source_ci": {
+    "run_id": "37875238741",
+    "attempt": 2,
+    "head_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "url": "https://github.com/szTheory/sigra/actions/runs/37875238741",
+    "workflow": ".github/workflows/ci.yml",
+    "ci_gate_job_id": "113654406257",
+    "ci_gate_conclusion": "success",
+    "ci_gate_url": "https://github.com/szTheory/sigra/actions/runs/37875238741/job/113654406257"
+  },
+  "ci": {
+    "workflow": ".github/workflows/ci.yml",
+    "run_id": "37885162032",
+    "attempt": 1,
+    "url": "https://github.com/szTheory/sigra/actions/runs/37885162032",
+    "head_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+    "conclusion": "success",
+    "ci_gate": {
+      "job_id": "113675089364",
+      "url": "https://github.com/szTheory/sigra/actions/runs/37885162032/job/113675089364",
+      "head_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+      "conclusion": "success"
+    }
+  },
+  "live_main": {
+    "observed_at": "2026-10-09T14:51:13.139Z",
+    "source_status": "complete",
+    "current_main_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+    "current_main_sha_after": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+    "promotion_merge_on_main": false,
+    "receipt": {
+      "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+      "exists": false
+    },
+    "ci": {
+      "workflow": ".github/workflows/ci.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+      "run_id": "37885162032",
+      "attempt": 1,
+      "url": "https://github.com/szTheory/sigra/actions/runs/37885162032",
+      "ci_gate": {
+        "name": "ci-gate",
+        "job_id": "113675089364",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+        "url": "https://github.com/szTheory/sigra/actions/runs/37885162032/job/113675089364"
+      }
+    }
+  },
+  "verdict": "blocked",
+  "errors": [
+    {
+      "code": "promotion_not_merged",
+      "message": "The scoped promotion record does not contain a verified protected-main merge."
+    },
+    {
+      "code": "final_main_receipt_missing",
+      "message": "The sanitized release receipt is absent from current protected main."
+    }
+  ]
+}
