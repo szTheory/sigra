@@ -1,3 +1,40 @@
+---
+phase: 249-publish-and-prove-sigra-1-6-0
+plan: 12
+subsystem: release
+tags: [release, evidence, ci, closeout]
+provides:
+  - Exact final-main receipt and CI evidence separate from immutable package-source identity.
+  - Canonical public-release acceptance and a ref-only raw-status terminal seal.
+affects: [release-closeout, v1.49-milestone-audit]
+key-files:
+  created: [.planning/phases/249-publish-and-prove-sigra-1-6-0/249-12-SUMMARY.md]
+  modified: [.planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs, .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs, .planning/METHODOLOGY.md]
+key-decisions:
+  - "Run the terminal seal as the final repository mutation; keep the canonical acceptance and terminal record on the scoped ref."
+  - "Preserve the historical handoff loss as an explicit accepted-loss identity without claiming its bytes were recovered."
+requirements-completed: [REL-02]
+coverage:
+  - id: D1
+    description: The final protected-main release commit contains the exact receipt and has successful CI and ci-gate on its exact SHA.
+    requirement: REL-02
+    verification:
+      - kind: other
+        ref: "249-FINAL-MAIN-PROOF.json: 3c7d713f290c93de3b9fd54be7ece31d71f32787, run 37993629114, job 114036565274"
+        status: pass
+    human_judgment: false
+  - id: D2
+    description: Every open PR is dispositioned and every registered worktree remains clean after the terminal ref write.
+    requirement: REL-02
+    verification:
+      - kind: other
+        ref: "249-TERMINAL-STATUS.json on refs/heads/evidence/phase-249-final-acceptance: 14 PRs and six byte-empty raw status records with matching reread"
+        status: pass
+    human_judgment: false
+status: complete
+completed: 2026-10-09
+---
+
 # Plan 249-12: Final Main and Terminal Closeout
 
 Plan 249-12 closes the release proof for the protected-main commit and adds an automated, ref-only terminal seal for the complete worktree set. The final ledger and acceptance are refreshed only after this summary and the implementation are committed; the terminal record on `refs/heads/evidence/phase-249-final-acceptance` is the final cleanliness authority.

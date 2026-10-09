@@ -115,6 +115,25 @@ fetch_url() {
   HTTP_EFFECTIVE_URL="${meta#*$'\n'}"
   [[ "$HTTP_STATUS" =~ ^[0-9]{3}$ && -n "$HTTP_EFFECTIVE_URL" ]]
 }
+trusted_service_destination() {
+  local url="$1" service_domain="$2" expected_path="$3" alternate_path="${4-}"
+  node -e '
+    const [raw, domain, ...paths] = process.argv.slice(1);
+    try {
+      const url = new URL(raw);
+      const authority = raw.match(/^https:\/\/([^/?#]*)/i)?.[1];
+      const host = url.hostname.toLowerCase();
+      const trustedHost = host === domain || host.endsWith(`.${domain}`);
+      if (url.protocol !== "https:" || !trustedHost || !authority || authority.includes("@") ||
+          url.username || url.password || url.port !== "" || /[?#]/.test(raw) ||
+          !paths.includes(url.pathname)) {
+        process.exit(1);
+      }
+    } catch {
+      process.exit(1);
+    }
+  ' "$url" "$service_domain" "$expected_path" "$alternate_path" 2>/dev/null
+}
 
 # Check auth and quota before any sequence of GitHub API reads. Never persist CLI output.
 if ! gh auth status >/dev/null 2>&1; then
@@ -310,7 +329,9 @@ CI_GATE_JOB_ID="$(jq -r '.[0].id|tostring' <<<"$CI_GATE_JOBS")"
 CI_GATE_URL="$(jq -r '.[0].html_url // empty' <<<"$CI_GATE_JOBS")"
 record_check package_source_ci pass "$(jq -cn --arg id "$CI_RUN_ID" --argjson attempt "$CI_ATTEMPT" --arg sha "$SOURCE_SHA" --arg url "$CI_RUN_URL" --arg job "$CI_GATE_JOB_ID" --arg job_url "$CI_GATE_URL" '{run_id:$id,attempt:$attempt,head_sha:$sha,workflow:".github/workflows/ci.yml",conclusion:"success",ci_gate_job_id:$job,ci_gate_conclusion:"success",ci_gate_url:$job_url,url:$url}')"
 
-if ! fetch_url "$HEX_API_URL" "$TMP/hex-release.json" || ! jq -e --arg version "$VERSION" \
+if ! fetch_url "$HEX_API_URL" "$TMP/hex-release.json" || [[ "$HTTP_STATUS" != 200 ]] || \
+  ! trusted_service_destination "$HTTP_EFFECTIVE_URL" hex.pm "/api/packages/${PACKAGE}/releases/${VERSION}" || \
+  ! jq -e --arg version "$VERSION" \
   '.version==$version and (.checksum|type)=="string" and (.checksum|test("^[0-9a-f]{64}$")) and (.html_url|type)=="string"' \
   "$TMP/hex-release.json" >/dev/null 2>&1; then
   block_and_finish hex_release '{"exact_version_available":false}'
@@ -318,13 +339,11 @@ fi
 HEX_CHECKSUM="$(jq -r '.checksum' "$TMP/hex-release.json")"
 record_check hex_release pass "$(jq -cn --arg version "$VERSION" --arg url "$HEX_URL" --arg api "$HEX_API_URL" --arg checksum "$HEX_CHECKSUM" '{package:"sigra",version:$version,url:$url,api_url:$api,checksum:$checksum}')"
 
-if ! fetch_url "$DOCS_URL" "$TMP/docs.html" || [[ "$HTTP_STATUS" != 200 ]]; then
+if ! fetch_url "$DOCS_URL" "$TMP/docs.html" || [[ "$HTTP_STATUS" != 200 ]] || \
+  ! trusted_service_destination "$HTTP_EFFECTIVE_URL" hexdocs.pm "/${VERSION}/Sigra.html" "/${PACKAGE}/${VERSION}/Sigra.html"; then
   block_and_finish versioned_hexdocs '{"http_status":"unavailable"}'
 fi
 DOCS_EFFECTIVE_URL="$HTTP_EFFECTIVE_URL"
-if ! [[ "$DOCS_EFFECTIVE_URL" =~ ^https://[A-Za-z0-9.-]*hexdocs\.pm/${VERSION}/ ]]; then
-  block_and_finish versioned_hexdocs '{"versioned_destination":false}'
-fi
 record_check versioned_hexdocs pass "$(jq -cn --arg version "$VERSION" --arg requested "$DOCS_URL" --arg effective "$DOCS_EFFECTIVE_URL" --arg status "$HTTP_STATUS" '{version:$version,requested_url:$requested,effective_url:$effective,http_status:($status|tonumber)}')"
 
 SOURCE_HREF="$(node -e '

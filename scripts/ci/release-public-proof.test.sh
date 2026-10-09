@@ -196,6 +196,16 @@ case "$url" in
     hex_version="1.6.0"
     [[ "$proof_case" != hex-wrong-version ]] || hex_version="1.5.9"
     jq -n --arg checksum "$FIXTURE_CHECKSUM" --arg version "$hex_version" '{version:$version,html_url:("https://hex.pm/packages/sigra/"+$version),checksum:$checksum}' > "$output"
+    case "$proof_case" in
+      hex-redirect-lookalike-prefix) effective="https://attackerhex.pm/api/packages/sigra/releases/1.6.0" ;;
+      hex-redirect-lookalike-suffix) effective="https://hex.pm.attacker.example/api/packages/sigra/releases/1.6.0" ;;
+      hex-redirect-credentials) effective="https://hex.pm@attacker.example/api/packages/sigra/releases/1.6.0" ;;
+      hex-redirect-empty-userinfo) effective="https://@hex.pm/api/packages/sigra/releases/1.6.0" ;;
+      hex-redirect-port) effective="https://hex.pm:8443/api/packages/sigra/releases/1.6.0" ;;
+      hex-redirect-path) effective="https://hex.pm/api/packages/other/releases/1.6.0" ;;
+      hex-redirect-empty-query) effective="https://hex.pm/api/packages/sigra/releases/1.6.0?" ;;
+      hex-redirect-empty-fragment) effective="https://hex.pm/api/packages/sigra/releases/1.6.0#" ;;
+    esac
     ;;
   https://hexdocs.pm/sigra/1.6.0/Sigra.html)
     [[ "$proof_case" != docs-unavailable ]] || exit 22
@@ -205,6 +215,16 @@ case "$url" in
     printf '<html><a href="%s">View Source</a></html>\n' "$source_href" > "$output"
     effective="https://sigra.hexdocs.pm/1.6.0/Sigra.html"
     [[ "$proof_case" != docs-wrong-version ]] || effective="https://sigra.hexdocs.pm/1.5.9/Sigra.html"
+    case "$proof_case" in
+      docs-redirect-lookalike-prefix) effective="https://attackerhexdocs.pm/1.6.0/Sigra.html" ;;
+      docs-redirect-lookalike-suffix) effective="https://hexdocs.pm.attacker.example/1.6.0/Sigra.html" ;;
+      docs-redirect-credentials) effective="https://hexdocs.pm@attacker.example/1.6.0/Sigra.html" ;;
+      docs-redirect-empty-userinfo) effective="https://@sigra.hexdocs.pm/1.6.0/Sigra.html" ;;
+      docs-redirect-port) effective="https://hexdocs.pm:8443/1.6.0/Sigra.html" ;;
+      docs-redirect-path) effective="https://sigra.hexdocs.pm/1.6.0/Other.html" ;;
+      docs-redirect-empty-query) effective="https://sigra.hexdocs.pm/1.6.0/Sigra.html?" ;;
+      docs-redirect-empty-fragment) effective="https://sigra.hexdocs.pm/1.6.0/Sigra.html#" ;;
+    esac
     ;;
   https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex\#L1)
     : > "$output"
@@ -463,8 +483,24 @@ assert_blocked_case ci-gate-failed package_source_ci
 assert_blocked_case source-ci-missing package_source_ci --missing-source-ci
 assert_blocked_case hex-unavailable hex_release
 assert_blocked_case hex-wrong-version hex_release
+assert_blocked_case hex-redirect-lookalike-prefix hex_release
+assert_blocked_case hex-redirect-lookalike-suffix hex_release
+assert_blocked_case hex-redirect-credentials hex_release
+assert_blocked_case hex-redirect-empty-userinfo hex_release
+assert_blocked_case hex-redirect-port hex_release
+assert_blocked_case hex-redirect-path hex_release
+assert_blocked_case hex-redirect-empty-query hex_release
+assert_blocked_case hex-redirect-empty-fragment hex_release
 assert_blocked_case docs-unavailable versioned_hexdocs
 assert_blocked_case docs-wrong-version versioned_hexdocs
+assert_blocked_case docs-redirect-lookalike-prefix versioned_hexdocs
+assert_blocked_case docs-redirect-lookalike-suffix versioned_hexdocs
+assert_blocked_case docs-redirect-credentials versioned_hexdocs
+assert_blocked_case docs-redirect-empty-userinfo versioned_hexdocs
+assert_blocked_case docs-redirect-port versioned_hexdocs
+assert_blocked_case docs-redirect-path versioned_hexdocs
+assert_blocked_case docs-redirect-empty-query versioned_hexdocs
+assert_blocked_case docs-redirect-empty-fragment versioned_hexdocs
 assert_blocked_case source-href-wrong-tag rendered_source_reference
 assert_blocked_case source-redirect-wrong-tag rendered_source_reference
 assert_blocked_case source-redirect-wrong-commit rendered_source_reference

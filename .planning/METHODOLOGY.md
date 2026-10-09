@@ -24,6 +24,10 @@ The terminal seal should use compare-and-swap ref updates without checking out t
 
 Run the terminal proof as the final repository mutation. If a later state, handoff, summary, or evidence edit is needed, commit it first, refresh the inventory and acceptance evidence, and replay the seal rather than reporting from an older terminal record.
 
+Before calling a phase complete, query `init.execute-phase` and require every plan to have a committed summary. Record blocked attempts when they happen, including the exact blocker and recoverable evidence; when later work resolves the goal, record that downstream disposition without rewriting the original attempt as green. Run the phase's code-review, security, Nyquist, and prior-phase regression gates before final acceptance. Commit their reports and any resulting repairs, then refresh and replay release acceptance and the terminal seal so those gates are inside the final evidence boundary.
+
+For proofs that follow HTTP redirects, parse the effective URL and allow only HTTPS destinations on the exact trusted domain or a dot-delimited subdomain, with the expected endpoint path. Reject user-info, non-default ports, queries, and fragments by checking both parsed components and raw delimiter presence; add fixtures for lookalike hosts and empty delimiters.
+
 ## GSD Milestone Tags
 
 GSD milestone identifiers such as `v1.48` are planning labels, not Hex releases. Keep
