@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T18:02:47.189Z",
+  "observed_at": "2026-10-09T18:20:45.573Z",
   "inventory_status": "complete",
   "closeout_status": "blocked-until-dispositions-and-preservation",
   "source_status": {
@@ -10,31 +10,31 @@
       "pagination_complete": true,
       "method": "git worktree list --porcelain -z and per-worktree git status --porcelain=v1 -z -uall",
       "count": 5,
-      "observed_at": "2026-10-09T18:02:47.189Z"
+      "observed_at": "2026-10-09T18:20:45.573Z"
     },
     "pull_requests": {
       "status": "complete",
       "pagination_complete": true,
       "method": "gh api --paginate --slurp repos/szTheory/sigra/pulls?state=open&per_page=100",
       "count": 14,
-      "observed_at": "2026-10-09T18:02:47.189Z"
+      "observed_at": "2026-10-09T18:20:45.573Z"
     }
   },
   "evidence_artifacts": {
     "worktree_path": "/Users/jon/projects/sigra",
-    "anchor_head_sha": "bac8e7bd64f0a294d9ee0ffd6bbdc9d8bd2bcffc",
+    "anchor_head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
     "output_provenance": [
       {
         "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
         "producer": "node validate-closeout.mjs --mode capture",
-        "source_commit": "bac8e7bd64f0a294d9ee0ffd6bbdc9d8bd2bcffc",
-        "artifact_identity_sha256": "ed8d3052b346204267b79467c231d768ed945956f564396ec1c0c7e0377a8a9c",
+        "source_commit": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
+        "artifact_identity_sha256": "0eaa26c9d148625167dd72d7f912324b65fecb30de27e1d76e18cee5c7120027",
         "capture_boundary": {
-          "captured_at": "2026-10-09T18:02:47.189Z",
+          "captured_at": "2026-10-09T18:20:45.573Z",
           "worktree_path": "/Users/jon/projects/sigra",
-          "source_head_sha": "bac8e7bd64f0a294d9ee0ffd6bbdc9d8bd2bcffc",
+          "source_head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
           "source_path_status": "clean",
-          "source_path_sha256": "72fae6353ceb09711345aa1b7ad756ddb0ecba34ad7df20cb6218d87ac205293"
+          "source_path_sha256": "4de48ecbce0dbd922c66260d9ccf777bc6b18ed903bc0ae6d42c0091f1032318"
         }
       }
     ],
@@ -45,7 +45,7 @@
     {
       "path": "/Users/jon/projects/sigra",
       "branch": "phase-244-playwright-measurement",
-      "head_sha": "bac8e7bd64f0a294d9ee0ffd6bbdc9d8bd2bcffc",
+      "head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
       "detached": false,
       "locked": false,
       "prunable": false,
@@ -3538,25 +3538,37 @@
           "sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
           "preservation": {
             "schema_version": 1,
-            "state": "blocked",
-            "owner": "Unresolved baseline-fix owner",
-            "target": "/Users/jon/projects/sigra/test/sigra/planning/phase_233_library_economics_contract_test.exs",
-            "action": "Leave this exact source path and current bytes/status untouched until its owner and release disposition are established.",
-            "reason": "Phase 249 REPO-STATE.md classifies dependency-off/static-contract edits as plausibly useful but says ownership and release inclusion are not established. Plan 249 requires a narrow ownership decision; no preservation ref or source cleanup was attempted.",
-            "source_record": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
+            "state": "preserved",
+            "owner": "Sigra maintainers: test/CI maintenance follow-up; historical individual author is unknown",
+            "target": "refs/phase-249-preservation/phase-233-bounded-scaffold-discovery",
+            "action": "Preserve the exact file under a local scoped Phase 249 ref, then clean only this path; exclude it from the v1.6.0 promotion candidate and track it as a separate maintenance follow-up.",
+            "reason": "The diff only bounds first-party scaffold-test discovery and avoids recursive test/example _build and deps trees. Phase 233 context and the contract test establish test ownership; Phase 249 exact-source validation shows v1.6.0 passed full CI without this edit. The broad Phase 244 failure is not attributed to this diff. Preserve without claiming its edge cases are independently proven.",
+            "source_record": "Complete live capture 2026-10-09T18:20:45.573Z; branch phase-244-playwright-measurement; source HEAD c5d2895db68ad4f11babf85a0df4c30a3ddc6802; status  M; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
             "worktree_path": "/Users/jon/projects/sigra",
-            "source_head_sha": "bc3e9d2d9c6b848f5848570963a1db72cd70deaf",
+            "source_head_sha": "c5d2895db68ad4f11babf85a0df4c30a3ddc6802",
             "source_status": " M",
             "source_path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
             "source_content_state": "regular-file",
             "source_sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4",
-            "ref": null,
-            "object_sha": null,
-            "paths": [],
-            "source_clean_after_readback": false,
+            "ref": "refs/phase-249-preservation/phase-233-bounded-scaffold-discovery",
+            "object_sha": "fca3772b0dc546f954cd28c4122e72c29ddd6a05",
+            "ref_created": true,
+            "paths": [
+              {
+                "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+                "status": " M",
+                "content_state": "regular-file",
+                "sha256": "02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4"
+              }
+            ],
+            "source_clean_after_readback": true,
             "source_head_unchanged": true,
-            "source_index_unchanged": true,
-            "source": "capture 2026-10-09T17:31:57.565Z; branch phase-244-playwright-measurement; HEAD bc3e9d2d9c6b848f5848570963a1db72cd70deaf; status  M; SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4"
+            "source_index_unchanged": true
+          },
+          "release_disposition": {
+            "category": "separate-follow-up",
+            "owner": "Sigra maintainers",
+            "reason": "Test-discovery maintenance; it was not part of the exact 1.6.0 source that passed full CI and is excluded from the promotion candidate."
           }
         }
       ]
@@ -9915,15 +9927,8 @@
   "notes": [
     "This is a live read-only inventory. No worktree, file, or PR was modified by capture.",
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
-    "The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty."
+    "The clean-closeout claim remains blocked until every inherited dirty path has a verified preservation ref and all worktree statuses are empty.",
+    "Phase 233 scaffold-discovery edit was preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery as a separate test/CI maintenance follow-up; it is excluded from the 1.6.0 candidate."
   ],
-  "capture_completed_at": "2026-10-09T18:03:09.770Z",
-  "preservation_evidence": {
-    "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json",
-    "ref": "refs/phase-249-preservation/plan-08-preservation-record-v2",
-    "commit_sha": "24507c745ebc1e00c254e8e3ab8ea127de49e028",
-    "sha256": "c9859407de4bae3c1183a2e37c8c437fc484ff715766bf66a7bb6ca62f9d076f",
-    "source_head_sha": "803b307766357502254d7b004749bbb7090e4965",
-    "verified": true
-  }
+  "capture_completed_at": "2026-10-09T18:20:59.785Z"
 }
