@@ -6,11 +6,11 @@ current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 1
 status: executing
-stopped_at: Blocked 250-01 Task 3 pending default-branch rollout authority and readable Actions evidence
-last_updated: "2026-10-10T12:25:55.132Z"
+stopped_at: Blocked 250-01 Task 3 after single controller run failed shallow ancestry preflight
+last_updated: "2026-10-10T13:16:46.211Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 250 execution started
-state_head: 1d7f2843d9760e17f7ba75c5240a2a056f7b91b4
+state_head: eebf552f4be57721f7d90a3d219cadc7ad788c63
 progress:
   total_phases: 5
   completed_phases: 4
@@ -632,6 +632,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 247 Plan 05 checkpoint history: after evidence PR #289 merged, Release Please changed PR #224 from fixed candidate 563f411bc2659bb9ac1652d552ce58ffb0c876b1 to 166ba84d7a25369f052aed3bded9ac68f376b6b5; this was superseded by a later Release Please head.
 - Phase 247 Plan 05 current blocker: PR #224 is open at head 77dd1126436a9e83c04283433e5f60c71ee98287 on base/main e3883b72fb1df5ad6356ef10dbde408f18bbc3be. Its 1.6.0 CHANGELOG section is raw generated history with internal phase IDs and no curated adopter summary (D-03); README still routes existing adopters to upgrading-to-v1.0.md and guides/introduction/upgrading-to-v1.6.md is absent at the exact head (D-05/D-06). Exact-head CI run 37713178478 is watched only by the parent. Do not retarget the fixed-source workflow, inspect credential metadata, dispatch Hex workflow, create tags, publish, or merge PR #224. See `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md`.
 - 250-01 Task 3 is blocked: canary workflow is not visible on main, so Actions identity/permissions/retention and hosted receipt retrieval are unproven; default-branch rollout and dispatch remain unauthorized. See .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json and 250-CANARY-PROOF.json.
+- Phase 250-01 Task 3 is blocked after the single authorized controller run 38054862873 failed before any canary source dispatch: the controller checkout was shallow and its local ancestry check could not see the preflight target 04e7a13dbd9394b453c132d2a168ce6642c98e37. GitHub compare confirms current main 5059581954960548c7fe5c4811b7a7f81dd16aa3 is a direct descendant. Durable diagnostic: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json committed as eebf552f4; controller artifact 11670154191 SHA256 ecbe27bc7d736cde8bef48bf78105256d293653bdda5fb85746597a15e762889. A code fix and new explicit authorization are required before another controller dispatch; no second dispatch is authorized.
 
 ### Roadmap Evolution
 
@@ -827,9 +828,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T12:25:55.035Z
-Stopped at: Blocked 250-01 Task 3 pending default-branch rollout authority and readable Actions evidence
-Resume file: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md
+Last session: 2026-10-10T13:16:46.121Z
+Stopped at: Blocked 250-01 Task 3 after single controller run failed shallow ancestry preflight
+Resume file: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json
 
 ## Operator Next Steps
 
