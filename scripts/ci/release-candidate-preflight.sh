@@ -13,6 +13,7 @@ SOURCE_BLOBS=""
 SOURCE_BLOBS_VERIFIED=false
 SOURCE_LEDGER_SHA=""
 APPROVED_CANDIDATE_SHA=""
+CLAIM_VERSION=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -101,6 +102,19 @@ if [[ -n "$CHANGELOG" ]]; then
   ' "$CHANGELOG")"
   [[ -n "$VERSION_SECTION" ]] || fail "the ${VERSION} changelog section is empty"
 
+  CLAIM_VERSION="$(jq -r '.claim_release_version // empty' "$CLAIMS")"
+  [[ "$CLAIM_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
+    || fail "Phase 247 source-claim manifest has no valid claim_release_version"
+  CLAIM_VERSION_HEADING_COUNT="$(grep -F -c "## [${CLAIM_VERSION}]" "$CHANGELOG" || true)"
+  [[ "$CLAIM_VERSION_HEADING_COUNT" -eq 1 ]] \
+    || fail "CHANGELOG must contain exactly one claim release section for ${CLAIM_VERSION}"
+  CLAIM_VERSION_SECTION="$(awk -v heading="## [${CLAIM_VERSION}]" '
+    index($0, heading) == 1 { active=1; next }
+    active && /^## / { exit }
+    active { print }
+  ' "$CHANGELOG")"
+  [[ -n "$CLAIM_VERSION_SECTION" ]] || fail "the ${CLAIM_VERSION} claim release section is empty"
+
   UNRELEASED_NOTES="$(awk '
     /^## Unreleased$/ { active=1; next }
     active && /^## / { exit }
@@ -119,6 +133,7 @@ if [[ -n "$CHANGELOG" ]]; then
     . as $manifest
     | ($manifest.schema_version == 1
       and $manifest.source_ledger.path == ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json"
+      and ($manifest.claim_release_version | type == "string" and test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))
       and ($manifest.source_ledger.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
       and ($manifest.source_ledger.validated_candidate_sha | type == "string" and test("^[0-9a-f]{40}$"))
       and ($manifest.source_ledger.selected_source_sha | type == "string" and test("^[0-9a-f]{40}$"))
@@ -169,7 +184,7 @@ if [[ -n "$CHANGELOG" ]]; then
     /^[[:space:]]*[-*+][[:space:]]+/ { flush(); sub(/^[[:space:]]*[-*+][[:space:]]+/, ""); block=$0; flush(); next }
     { if (block != "") block=block " " $0; else block=$0 }
     END { flush() }
-  ' <<<"$VERSION_SECTION" | sed -E 's/\[([^]]+)\]\([^)]*\)/\1/g')"
+  ' <<<"$CLAIM_VERSION_SECTION" | sed -E 's/\[([^]]+)\]\([^)]*\)/\1/g')"
   BLOCK_TOKEN_SETS=()
   while IFS= read -r BLOCK; do
     BLOCK_TOKEN_SETS+=("$(normalize_tokens "$BLOCK")")
@@ -186,7 +201,7 @@ if [[ -n "$CHANGELOG" ]]; then
       (( MATCHED_TOKENS > BEST_MATCH )) && BEST_MATCH=$MATCHED_TOKENS || true
     done
     (( BEST_MATCH >= 3 && BEST_MATCH * 100 >= TOTAL_TOKENS * 40 )) \
-      || fail "source-backed adopter summary is absent from the ${VERSION} section: ${CLAIM}"
+      || fail "source-backed adopter summary is absent from the claims release section ${CLAIM_VERSION}: ${CLAIM}"
   done < <(jq -c '.claim_sources[]' "$CLAIMS")
 fi
 
@@ -194,7 +209,8 @@ jq -cn --arg repository "$REPOSITORY" --argjson pr_number "$PR_NUMBER" \
   --arg head_sha "$PR_HEAD_SHA" --arg title "$PR_TITLE" --arg pr_url "$PR_URL" \
   --arg version "$VERSION" --arg run_id "$(jq -r '.databaseId' "$QUERIED_RUN")" \
   --arg run_url "$(jq -r '.url' "$QUERIED_RUN")" \
+  --arg claim_release_version "$CLAIM_VERSION" \
   --arg source_ledger_sha "$SOURCE_LEDGER_SHA" \
   --arg approved_candidate_sha "$APPROVED_CANDIDATE_SHA" \
   --argjson source_blobs_verified "$SOURCE_BLOBS_VERIFIED" \
-  '{verdict:"PASS", repository:$repository, pr_number:$pr_number, head_sha:$head_sha, title:$title, version:$version, pr_url:$pr_url, run_id:($run_id|tonumber), run_url:$run_url, source_ledger_sha:(if $source_ledger_sha == "" then null else $source_ledger_sha end), approved_candidate_sha:(if $approved_candidate_sha == "" then null else $approved_candidate_sha end), source_blobs_verified:$source_blobs_verified}'
+  '{verdict:"PASS", repository:$repository, pr_number:$pr_number, head_sha:$head_sha, title:$title, version:$version, claim_release_version:(if $claim_release_version == "" then null else $claim_release_version end), pr_url:$pr_url, run_id:($run_id|tonumber), run_url:$run_url, source_ledger_sha:(if $source_ledger_sha == "" then null else $source_ledger_sha end), approved_candidate_sha:(if $approved_candidate_sha == "" then null else $approved_candidate_sha end), source_blobs_verified:$source_blobs_verified}'

@@ -64,6 +64,7 @@ MD
     "source_ci_run_id":111,
     "hex_dry_run_run_id":222
   },
+  "claim_release_version":"1.6.0",
   "approved_source_blobs":{
     "priv/templates/sigra.install/core/confirmation_live.ex":"1111111111111111111111111111111111111111",
     "lib/sigra/branding.ex":"2222222222222222222222222222222222222222",
@@ -162,7 +163,7 @@ if [[ "$RC" -ne 0 ]]; then pass "multiple open release candidates are rejected";
 echo "Test H: valid 1.6.0 changelog and Phase 247 source-claim manifest -> PASS"
 write_valid_fixtures
 run_content_preflight
-if [[ "$RC" -eq 0 ]] && jq -e --arg approved "$APPROVED_SHA" '.verdict == "PASS" and .version == "1.6.0" and .source_blobs_verified == true and .approved_candidate_sha == $approved and (.source_ledger_sha | test("^[0-9a-f]{64}$"))' >/dev/null 2>&1 <<<"$OUT"; then
+if [[ "$RC" -eq 0 ]] && jq -e --arg approved "$APPROVED_SHA" '.verdict == "PASS" and .version == "1.6.0" and .claim_release_version == "1.6.0" and .source_blobs_verified == true and .approved_candidate_sha == $approved and (.source_ledger_sha | test("^[0-9a-f]{64}$"))' >/dev/null 2>&1 <<<"$OUT"; then
   pass "versioned candidate content and approved source-blob manifest are accepted and reported"
 else
   fail "valid candidate content rejected (rc=$RC): $OUT"
@@ -176,6 +177,27 @@ if [[ "$RC" -eq 0 ]] && jq -e '.verdict == "PASS" and .source_blobs_verified == 
   pass "repository changelog source-backed summaries satisfy the actual candidate-content gate"
 else
   fail "repository changelog does not satisfy the candidate-content gate (rc=$RC): $OUT"
+fi
+
+echo "Test H3: current 1.7.0 release validates source claims in their published 1.6.0 section -> PASS"
+write_valid_fixtures
+jq '.[0].title = "chore(main): release 1.7.0"' "$TMP/prs.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/prs.json"
+awk '
+  /^## \[1\.6\.0\]/ {
+    print "## [1.7.0] (2026-10-10)"
+    print ""
+    print "### Bug Fixes"
+    print ""
+    print "- Release automation now verifies exact source CI before merging."
+    print ""
+  }
+  { print }
+' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+run_content_preflight
+if [[ "$RC" -eq 0 ]] && jq -e '.verdict == "PASS" and .version == "1.7.0" and .claim_release_version == "1.6.0" and .source_blobs_verified == true' >/dev/null 2>&1 <<<"$OUT"; then
+  pass "new release notes stay scoped while previously published source claims remain verified"
+else
+  fail "1.7.0 candidate was rejected despite its 1.6.0 claim section (rc=$RC): $OUT"
 fi
 
 echo "Test I: candidate note stranded under Unreleased -> rejected"
@@ -203,7 +225,7 @@ awk '1; index($0, "## [1.6.0]") == 1 { print ""; print "## [1.6.0] (duplicate)" 
 run_content_preflight
 if [[ "$RC" -ne 0 ]]; then pass "duplicate titled version section is rejected"; else fail "duplicate version section accepted"; fi
 
-echo "Test L: each source-backed adopter summary absent from version section -> rejected"
+echo "Test L: each source-backed adopter summary absent from its claim release section -> rejected"
 write_valid_fixtures
 awk '!/Generated Phoenix hosts let users confirm accounts/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing generated-confirmation source summary is rejected"
@@ -225,6 +247,14 @@ write_valid_fixtures
 jq '.source_ledger.sha256 = "invalid"' "$TMP/claims.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/claims.json"
 run_content_preflight
 if [[ "$RC" -ne 0 ]]; then pass "malformed source-ledger provenance digest is rejected"; else fail "malformed source-ledger digest accepted"; fi
+write_valid_fixtures
+jq 'del(.claim_release_version)' "$TMP/claims.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/claims.json"
+run_content_preflight
+if [[ "$RC" -ne 0 ]] && grep -Fq 'no valid claim_release_version' <<<"$OUT"; then pass "missing claim release version is rejected"; else fail "missing claim release version accepted: $OUT"; fi
+write_valid_fixtures
+jq '.claim_release_version = "1.5.9"' "$TMP/claims.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/claims.json"
+run_content_preflight
+if [[ "$RC" -ne 0 ]] && grep -Fq 'exactly one claim release section for 1.5.9' <<<"$OUT"; then pass "claim version without one exact changelog section is rejected"; else fail "claim version without section accepted: $OUT"; fi
 write_valid_fixtures
 jq --arg path "lib/sigra/branding.ex" --arg sha "$OTHER_SHA" '.[$path] = $sha' "$TMP/source-blobs.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/source-blobs.json"
 run_content_preflight
