@@ -1,0 +1,571 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-10T16:04:41.433Z",
+  "repository": "szTheory/sigra",
+  "source": {
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "historical_release_main_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+    "current_protected_main_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+    "historical_is_ancestor": true
+  },
+  "evidence_ref": {
+    "name": "refs/heads/evidence/phase-249-final-acceptance",
+    "commit_sha": "65f1ca4c851d62415ed656509cb068dc3acbab15",
+    "acceptance_commit_sha": "4a692d389262eb154c27e7ac4146abc75ac5038a",
+    "acceptance_blob_sha": "4bbd07d77d721e14f93c98e43f4fa6ef143a5519",
+    "acceptance_sha256": "4fc253169460969f7569c55f42ebfe45160959ad23e2036cfe0ef2730a46b714",
+    "acceptance_json_base64": "ewogICJzY2hlbWFfdmVyc2lvbiI6IDEsCiAgInBoYXNlIjogMjQ5LAogICJwbGFuIjogIjA2IiwKICAicmVwb3NpdG9yeSI6ICJzelRoZW9yeS9zaWdyYSIsCiAgInJlY29yZGVkX2F0IjogIjIwMjYtMTAtMTBUMDA6MDE6MDUuMDQzWiIsCiAgInBhY2thZ2Vfc291cmNlX3NoYSI6ICI5ZTgwY2I3OGQ2Mzc0YjFlZDQwNzRkNWZlZjZiNjEzZmVlODc5ZGNhIiwKICAicGFja2FnZV9zb3VyY2VfY2kiOiB7CiAgICAicnVuX2lkIjogIjM3ODc1MjM4NzQxIiwKICAgICJhdHRlbXB0IjogMiwKICAgICJoZWFkX3NoYSI6ICI5ZTgwY2I3OGQ2Mzc0YjFlZDQwNzRkNWZlZjZiNjEzZmVlODc5ZGNhIiwKICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL3N6VGhlb3J5L3NpZ3JhL2FjdGlvbnMvcnVucy8zNzg3NTIzODc0MSIsCiAgICAid29ya2Zsb3ciOiAiLmdpdGh1Yi93b3JrZmxvd3MvY2kueW1sIiwKICAgICJjaV9nYXRlX2pvYl9pZCI6ICIxMTM2NTQ0MDYyNTciLAogICAgImNpX2dhdGVfY29uY2x1c2lvbiI6ICJzdWNjZXNzIiwKICAgICJjaV9nYXRlX3VybCI6ICJodHRwczovL2dpdGh1Yi5jb20vc3pUaGVvcnkvc2lncmEvYWN0aW9ucy9ydW5zLzM3ODc1MjM4NzQxL2pvYi8xMTM2NTQ0MDYyNTciCiAgfSwKICAiZmluYWxfbWFpbl9zaGEiOiAiMDgzMDBhZjE3NDBmZWE4Yjc3ZDU5MjhhMTgyNjg4YWNiZjEwM2VkYyIsCiAgImZpbmFsX21haW5fY2kiOiB7CiAgICAid29ya2Zsb3ciOiAiLmdpdGh1Yi93b3JrZmxvd3MvY2kueW1sIiwKICAgICJydW5faWQiOiAiMzgwMDM1NzMzOTEiLAogICAgImF0dGVtcHQiOiAxLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vc3pUaGVvcnkvc2lncmEvYWN0aW9ucy9ydW5zLzM4MDAzNTczMzkxIiwKICAgICJoZWFkX3NoYSI6ICIwODMwMGFmMTc0MGZlYThiNzdkNTkyOGExODI2ODhhY2JmMTAzZWRjIiwKICAgICJjb25jbHVzaW9uIjogInN1Y2Nlc3MiLAogICAgImNpX2dhdGUiOiB7CiAgICAgICJqb2JfaWQiOiAiMTE0MDY5MTc5NTYwIiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vc3pUaGVvcnkvc2lncmEvYWN0aW9ucy9ydW5zLzM4MDAzNTczMzkxL2pvYi8xMTQwNjkxNzk1NjAiLAogICAgICAiaGVhZF9zaGEiOiAiMDgzMDBhZjE3NDBmZWE4Yjc3ZDU5MjhhMTgyNjg4YWNiZjEwM2VkYyIsCiAgICAgICJjb25jbHVzaW9uIjogInN1Y2Nlc3MiCiAgICB9CiAgfSwKICAicmVjZWlwdCI6IHsKICAgICJwYXRoIjogIi5wbGFubmluZy9waGFzZXMvMjQ5LXB1Ymxpc2gtYW5kLXByb3ZlLXNpZ3JhLTEtNi0wLzI0OS1SRUxFQVNFLVJFQ0VJUFQuanNvbiIsCiAgICAiYmxvYl9zaGEiOiAiMDQzMTlhNDg5NDQyZGU1YWM4MGE4MGE5OTJkZjU5Mjc5NzNkNDlhYSIsCiAgICAic2hhMjU2IjogImMxYTU4ZjZhMzY2NTYxOTQzODdiMDAwNmRhYzlhYWI0NDdkOGY0NDVjY2U5YjA2MGRjZmI2MzhiYTZjNGZmZjUiCiAgfSwKICAicHVibGljX3JlbGVhc2UiOiB7CiAgICAidmVyZGljdCI6ICJwYXNzZWQiLAogICAgImhleF91cmwiOiAiaHR0cHM6Ly9oZXgucG0vcGFja2FnZXMvc2lncmEvMS42LjAiLAogICAgInZlcnNpb25lZF9kb2NzX3VybCI6ICJodHRwczovL3NpZ3JhLmhleGRvY3MucG0vMS42LjAvU2lncmEuaHRtbCIsCiAgICAic291cmNlX2hyZWYiOiAiaHR0cHM6Ly9naXRodWIuY29tL3N6dGhlb3J5L3NpZ3JhL2Jsb2IvdjEuNi4wL2xpYi9zaWdyYS5leCNMMSIsCiAgICAic291cmNlX2NvbW1pdF9zaGEiOiAiOWU4MGNiNzhkNjM3NGIxZWQ0MDc0ZDVmZWY2YjYxM2ZlZTg3OWRjYSIKICB9LAogICJjbG9zZW91dF9sZWRnZXJfc2hhMjU2IjogIjVjMzg0NjA3YTVkNjk1MTYzMzE4MzcwODRiZjA3N2ViMDliYzI0N2FjODFiMzZiZGQ4MjJkMjUyMWExNjYzZWUiLAogICJpbnZlbnRvcnlfZmluZ2VycHJpbnRfc2hhMjU2IjogImFjOTYyMzRiY2ExM2ZjNjNhNDg2N2E5YzZjMjQyYzY1NDA5Y2ZjMjM4Y2U5ZWM2MTc5M2EzNWNmZDBlY2I0OGMiLAogICJpbnZlbnRvcnkiOiB7CiAgICAid29ya3RyZWVfY291bnQiOiA2LAogICAgInB1bGxfcmVxdWVzdF9jb3VudCI6IDE0LAogICAgImRpcnR5X3BhdGhfY291bnQiOiAwLAogICAgIndvcmt0cmVlX3JlYWRfc3RhdHVzIjogImNvbXBsZXRlIiwKICAgICJwdWxsX3JlcXVlc3RfcmVhZF9zdGF0dXMiOiAiY29tcGxldGUiCiAgfSwKICAidmVyZGljdCI6ICJwYXNzZWQiLAogICJlcnJvcnMiOiBbXSwKICAiYmxvY2tlcnMiOiBbXQp9Cg==",
+    "acceptance": {
+      "schema_version": 1,
+      "phase": 249,
+      "plan": "06",
+      "repository": "szTheory/sigra",
+      "recorded_at": "2026-10-10T00:01:05.043Z",
+      "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+      "package_source_ci": {
+        "run_id": "37875238741",
+        "attempt": 2,
+        "head_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "url": "https://github.com/szTheory/sigra/actions/runs/37875238741",
+        "workflow": ".github/workflows/ci.yml",
+        "ci_gate_job_id": "113654406257",
+        "ci_gate_conclusion": "success",
+        "ci_gate_url": "https://github.com/szTheory/sigra/actions/runs/37875238741/job/113654406257"
+      },
+      "final_main_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+      "final_main_ci": {
+        "workflow": ".github/workflows/ci.yml",
+        "run_id": "38003573391",
+        "attempt": 1,
+        "url": "https://github.com/szTheory/sigra/actions/runs/38003573391",
+        "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+        "conclusion": "success",
+        "ci_gate": {
+          "job_id": "114069179560",
+          "url": "https://github.com/szTheory/sigra/actions/runs/38003573391/job/114069179560",
+          "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+          "conclusion": "success"
+        }
+      },
+      "receipt": {
+        "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+        "blob_sha": "04319a489442de5ac80a80a992df5927973d49aa",
+        "sha256": "c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5"
+      },
+      "public_release": {
+        "verdict": "passed",
+        "hex_url": "https://hex.pm/packages/sigra/1.6.0",
+        "versioned_docs_url": "https://sigra.hexdocs.pm/1.6.0/Sigra.html",
+        "source_href": "https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1",
+        "source_commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+      },
+      "closeout_ledger_sha256": "5c384607a5d69516331837084bf077eb09bc247ac81b36bdd822d2521a1663ee",
+      "inventory_fingerprint_sha256": "ac96234bca13fc63a4867a9c6c242c65409cfc238ce9ec61793a35cfd0ecb48c",
+      "inventory": {
+        "worktree_count": 6,
+        "pull_request_count": 14,
+        "dirty_path_count": 0,
+        "worktree_read_status": "complete",
+        "pull_request_read_status": "complete"
+      },
+      "verdict": "passed",
+      "errors": [],
+      "blockers": []
+    },
+    "terminal_commit_sha": "65f1ca4c851d62415ed656509cb068dc3acbab15",
+    "terminal_blob_sha": "b42563cbc389156ea355950fb598efeb0e979a54",
+    "terminal_sha256": "d563bf8a5515b4eccbccaeb661c078ddd3a22fa1101857a8c3cda67e326bb5e7",
+    "terminal_json_base64": "ewogICJzY2hlbWFfdmVyc2lvbiI6IDEsCiAgInBoYXNlIjogMjQ5LAogICJwbGFuIjogIjEyIiwKICAicmVwb3NpdG9yeSI6ICJzelRoZW9yeS9zaWdyYSIsCiAgInJlY29yZGVkX2F0IjogIjIwMjYtMTAtMTBUMDA6MDI6NTEuNDcwWiIsCiAgInZlcmRpY3QiOiAicGFzc2VkIiwKICAiY2Fub25pY2FsX2FjY2VwdGFuY2UiOiB7CiAgICAicGF0aCI6ICIucGxhbm5pbmcvcGhhc2VzLzI0OS1wdWJsaXNoLWFuZC1wcm92ZS1zaWdyYS0xLTYtMC8yNDktRklOQUwtQUNDRVBUQU5DRS5qc29uIiwKICAgICJibG9iX3NoYSI6ICI0YmJkMDdkNzdkNzIxZTE0ZjkzYzk4ZTQzZjRmYTZlZjE0M2E1NTE5IiwKICAgICJjb21taXRfc2hhIjogIjRhNjkyZDM4OTI2MmViMTU0YzI3ZTdhYzQxNDZhYmM3NWFjNTAzOGEiLAogICAgInNoYTI1NiI6ICI0ZmMyNTMxNjk0NjA5NjlmNzU2OWM1NWY0MmViZmU0NTE2MDk1OWFkMjNlMjAzNmNmZTBlZjI3MzBhNDZiNzE0IiwKICAgICJ2ZXJkaWN0IjogInBhc3NlZCIKICB9LAogICJmaW5hbF92YWxpZGF0aW9uIjogewogICAgInZlcmRpY3QiOiAicGFzc2VkIiwKICAgICJwYWNrYWdlX3NvdXJjZV9zaGEiOiAiOWU4MGNiNzhkNjM3NGIxZWQ0MDc0ZDVmZWY2YjYxM2ZlZTg3OWRjYSIsCiAgICAicGFja2FnZV9zb3VyY2VfY2kiOiB7CiAgICAgICJydW5faWQiOiAiMzc4NzUyMzg3NDEiLAogICAgICAiYXR0ZW1wdCI6IDIsCiAgICAgICJoZWFkX3NoYSI6ICI5ZTgwY2I3OGQ2Mzc0YjFlZDQwNzRkNWZlZjZiNjEzZmVlODc5ZGNhIiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vc3pUaGVvcnkvc2lncmEvYWN0aW9ucy9ydW5zLzM3ODc1MjM4NzQxIiwKICAgICAgIndvcmtmbG93IjogIi5naXRodWIvd29ya2Zsb3dzL2NpLnltbCIsCiAgICAgICJjaV9nYXRlX2pvYl9pZCI6ICIxMTM2NTQ0MDYyNTciLAogICAgICAiY2lfZ2F0ZV9jb25jbHVzaW9uIjogInN1Y2Nlc3MiLAogICAgICAiY2lfZ2F0ZV91cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL3N6VGhlb3J5L3NpZ3JhL2FjdGlvbnMvcnVucy8zNzg3NTIzODc0MS9qb2IvMTEzNjU0NDA2MjU3IgogICAgfSwKICAgICJmaW5hbF9tYWluX3NoYSI6ICIwODMwMGFmMTc0MGZlYThiNzdkNTkyOGExODI2ODhhY2JmMTAzZWRjIiwKICAgICJmaW5hbF9tYWluX2NpIjogewogICAgICAid29ya2Zsb3ciOiAiLmdpdGh1Yi93b3JrZmxvd3MvY2kueW1sIiwKICAgICAgInJ1bl9pZCI6ICIzODAwMzU3MzM5MSIsCiAgICAgICJhdHRlbXB0IjogMSwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vc3pUaGVvcnkvc2lncmEvYWN0aW9ucy9ydW5zLzM4MDAzNTczMzkxIiwKICAgICAgImhlYWRfc2hhIjogIjA4MzAwYWYxNzQwZmVhOGI3N2Q1OTI4YTE4MjY4OGFjYmYxMDNlZGMiLAogICAgICAiY29uY2x1c2lvbiI6ICJzdWNjZXNzIiwKICAgICAgImNpX2dhdGUiOiB7CiAgICAgICAgImpvYl9pZCI6ICIxMTQwNjkxNzk1NjAiLAogICAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL3N6VGhlb3J5L3NpZ3JhL2FjdGlvbnMvcnVucy8zODAwMzU3MzM5MS9qb2IvMTE0MDY5MTc5NTYwIiwKICAgICAgICAiaGVhZF9zaGEiOiAiMDgzMDBhZjE3NDBmZWE4Yjc3ZDU5MjhhMTgyNjg4YWNiZjEwM2VkYyIsCiAgICAgICAgImNvbmNsdXNpb24iOiAic3VjY2VzcyIKICAgICAgfQogICAgfSwKICAgICJyZWNlaXB0IjogewogICAgICAicGF0aCI6ICIucGxhbm5pbmcvcGhhc2VzLzI0OS1wdWJsaXNoLWFuZC1wcm92ZS1zaWdyYS0xLTYtMC8yNDktUkVMRUFTRS1SRUNFSVBULmpzb24iLAogICAgICAiYmxvYl9zaGEiOiAiMDQzMTlhNDg5NDQyZGU1YWM4MGE4MGE5OTJkZjU5Mjc5NzNkNDlhYSIsCiAgICAgICJzaGEyNTYiOiAiYzFhNThmNmEzNjY1NjE5NDM4N2IwMDA2ZGFjOWFhYjQ0N2Q4ZjQ0NWNjZTliMDYwZGNmYjYzOGJhNmM0ZmZmNSIKICAgIH0sCiAgICAicHVibGljX3JlbGVhc2UiOiB7CiAgICAgICJ2ZXJkaWN0IjogInBhc3NlZCIsCiAgICAgICJoZXhfdXJsIjogImh0dHBzOi8vaGV4LnBtL3BhY2thZ2VzL3NpZ3JhLzEuNi4wIiwKICAgICAgInZlcnNpb25lZF9kb2NzX3VybCI6ICJodHRwczovL3NpZ3JhLmhleGRvY3MucG0vMS42LjAvU2lncmEuaHRtbCIsCiAgICAgICJzb3VyY2VfaHJlZiI6ICJodHRwczovL2dpdGh1Yi5jb20vc3p0aGVvcnkvc2lncmEvYmxvYi92MS42LjAvbGliL3NpZ3JhLmV4I0wxIiwKICAgICAgInNvdXJjZV9jb21taXRfc2hhIjogIjllODBjYjc4ZDYzNzRiMWVkNDA3NGQ1ZmVmNmI2MTNmZWU4NzlkY2EiCiAgICB9LAogICAgImludmVudG9yeSI6IHsKICAgICAgIndvcmt0cmVlX2NvdW50IjogNiwKICAgICAgInB1bGxfcmVxdWVzdF9jb3VudCI6IDE0LAogICAgICAiZGlydHlfcGF0aF9jb3VudCI6IDAsCiAgICAgICJ3b3JrdHJlZV9yZWFkX3N0YXR1cyI6ICJjb21wbGV0ZSIsCiAgICAgICJwdWxsX3JlcXVlc3RfcmVhZF9zdGF0dXMiOiAiY29tcGxldGUiCiAgICB9LAogICAgImVycm9ycyI6IFtdLAogICAgImJsb2NrZXJzIjogW10sCiAgICAiY2xvc2VvdXRfbGVkZ2VyX3NoYTI1NiI6ICI1YzM4NDYwN2E1ZDY5NTE2MzMxODM3MDg0YmYwNzdlYjA5YmMyNDdhYzgxYjM2YmRkODIyZDI1MjFhMTY2M2VlIiwKICAgICJpbnZlbnRvcnlfZmluZ2VycHJpbnRfc2hhMjU2IjogImFjOTYyMzRiY2ExM2ZjNjNhNDg2N2E5YzZjMjQyYzY1NDA5Y2ZjMjM4Y2U5ZWM2MTc5M2EzNWNmZDBlY2I0OGMiCiAgfSwKICAiZmluYWxfdmFsaWRhdGlvbl9zaGEyNTYiOiAiYzFkM2U5ZmJhNmNjNzhkZTVlMDY2YmJjYmU3MzU5ZDlkMWVmYTkzMDUzMWMzNDAzYmEzYjg4NjgyYjNjNTIyNiIsCiAgImV2aWRlbmNlX2NvbW1pdHMiOiB7CiAgICAicGhhc2VfZXZpZGVuY2VfY29tbWl0X3NoYSI6ICIxNzdjMzYxMjI5YjZmNzdjYmI4MDA4MDkwMzBhYjExNDE1NjQzNDlkIiwKICAgICJzdW1tYXJ5X2NvbW1pdF9zaGEiOiAiZWIyOTZhYzFjY2FkYWI0NzFkYTI2MjkwZWM5ZWRiNmE1MTQwMGUwYiIKICB9LAogICJwb3N0X3JlZl93cml0ZV9zdGF0dXMiOiB7CiAgICAicGF0aHMiOiBbCiAgICAgICIvVXNlcnMvam9uL3Byb2plY3RzL3NpZ3JhIiwKICAgICAgIi9Vc2Vycy9qb24vcHJvamVjdHMvc2lncmEvdG1wL3BoYXNlLTI0Ny1jYW5kaWRhdGUiLAogICAgICAiL3ByaXZhdGUvdG1wL3NpZ3JhLXBoYXNlLTI0Ni0wMy1jaSIsCiAgICAgICIvcHJpdmF0ZS90bXAvc2lncmEtcGhhc2UtMjQ5LTA5LWNhbmRpZGF0ZSIsCiAgICAgICIvcHJpdmF0ZS90bXAvc2lncmEtcGhhc2UyNDYtc2NvcGVkLXByb21vdGlvbiIsCiAgICAgICIvcHJpdmF0ZS90bXAvc2lncmEtcGhhc2UyNDYtdmVyaWZpY2F0aW9uIgogICAgXSwKICAgICJ3b3JrdHJlZXMiOiBbCiAgICAgIHsKICAgICAgICAicGF0aCI6ICIvVXNlcnMvam9uL3Byb2plY3RzL3NpZ3JhIiwKICAgICAgICAicmF3X3N0YXR1c19iYXNlNjQiOiAiIiwKICAgICAgICAicmF3X3N0YXR1c19zaGEyNTYiOiAiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsCiAgICAgICAgInJhd19zdGF0dXNfYnl0ZXMiOiAwLAogICAgICAgICJjbGVhbiI6IHRydWUKICAgICAgfSwKICAgICAgewogICAgICAgICJwYXRoIjogIi9Vc2Vycy9qb24vcHJvamVjdHMvc2lncmEvdG1wL3BoYXNlLTI0Ny1jYW5kaWRhdGUiLAogICAgICAgICJyYXdfc3RhdHVzX2Jhc2U2NCI6ICIiLAogICAgICAgICJyYXdfc3RhdHVzX3NoYTI1NiI6ICJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwKICAgICAgICAicmF3X3N0YXR1c19ieXRlcyI6IDAsCiAgICAgICAgImNsZWFuIjogdHJ1ZQogICAgICB9LAogICAgICB7CiAgICAgICAgInBhdGgiOiAiL3ByaXZhdGUvdG1wL3NpZ3JhLXBoYXNlLTI0Ni0wMy1jaSIsCiAgICAgICAgInJhd19zdGF0dXNfYmFzZTY0IjogIiIsCiAgICAgICAgInJhd19zdGF0dXNfc2hhMjU2IjogImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLAogICAgICAgICJyYXdfc3RhdHVzX2J5dGVzIjogMCwKICAgICAgICAiY2xlYW4iOiB0cnVlCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAicGF0aCI6ICIvcHJpdmF0ZS90bXAvc2lncmEtcGhhc2UtMjQ5LTA5LWNhbmRpZGF0ZSIsCiAgICAgICAgInJhd19zdGF0dXNfYmFzZTY0IjogIiIsCiAgICAgICAgInJhd19zdGF0dXNfc2hhMjU2IjogImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLAogICAgICAgICJyYXdfc3RhdHVzX2J5dGVzIjogMCwKICAgICAgICAiY2xlYW4iOiB0cnVlCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAicGF0aCI6ICIvcHJpdmF0ZS90bXAvc2lncmEtcGhhc2UyNDYtc2NvcGVkLXByb21vdGlvbiIsCiAgICAgICAgInJhd19zdGF0dXNfYmFzZTY0IjogIiIsCiAgICAgICAgInJhd19zdGF0dXNfc2hhMjU2IjogImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLAogICAgICAgICJyYXdfc3RhdHVzX2J5dGVzIjogMCwKICAgICAgICAiY2xlYW4iOiB0cnVlCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAicGF0aCI6ICIvcHJpdmF0ZS90bXAvc2lncmEtcGhhc2UyNDYtdmVyaWZpY2F0aW9uIiwKICAgICAgICAicmF3X3N0YXR1c19iYXNlNjQiOiAiIiwKICAgICAgICAicmF3X3N0YXR1c19zaGEyNTYiOiAiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsCiAgICAgICAgInJhd19zdGF0dXNfYnl0ZXMiOiAwLAogICAgICAgICJjbGVhbiI6IHRydWUKICAgICAgfQogICAgXQogIH0KfQo=",
+    "terminal": {
+      "schema_version": 1,
+      "phase": 249,
+      "plan": "12",
+      "repository": "szTheory/sigra",
+      "recorded_at": "2026-10-10T00:02:51.470Z",
+      "verdict": "passed",
+      "canonical_acceptance": {
+        "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json",
+        "blob_sha": "4bbd07d77d721e14f93c98e43f4fa6ef143a5519",
+        "commit_sha": "4a692d389262eb154c27e7ac4146abc75ac5038a",
+        "sha256": "4fc253169460969f7569c55f42ebfe45160959ad23e2036cfe0ef2730a46b714",
+        "verdict": "passed"
+      },
+      "final_validation": {
+        "verdict": "passed",
+        "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "package_source_ci": {
+          "run_id": "37875238741",
+          "attempt": 2,
+          "head_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+          "url": "https://github.com/szTheory/sigra/actions/runs/37875238741",
+          "workflow": ".github/workflows/ci.yml",
+          "ci_gate_job_id": "113654406257",
+          "ci_gate_conclusion": "success",
+          "ci_gate_url": "https://github.com/szTheory/sigra/actions/runs/37875238741/job/113654406257"
+        },
+        "final_main_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+        "final_main_ci": {
+          "workflow": ".github/workflows/ci.yml",
+          "run_id": "38003573391",
+          "attempt": 1,
+          "url": "https://github.com/szTheory/sigra/actions/runs/38003573391",
+          "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+          "conclusion": "success",
+          "ci_gate": {
+            "job_id": "114069179560",
+            "url": "https://github.com/szTheory/sigra/actions/runs/38003573391/job/114069179560",
+            "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+            "conclusion": "success"
+          }
+        },
+        "receipt": {
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+          "blob_sha": "04319a489442de5ac80a80a992df5927973d49aa",
+          "sha256": "c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5"
+        },
+        "public_release": {
+          "verdict": "passed",
+          "hex_url": "https://hex.pm/packages/sigra/1.6.0",
+          "versioned_docs_url": "https://sigra.hexdocs.pm/1.6.0/Sigra.html",
+          "source_href": "https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1",
+          "source_commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+        },
+        "inventory": {
+          "worktree_count": 6,
+          "pull_request_count": 14,
+          "dirty_path_count": 0,
+          "worktree_read_status": "complete",
+          "pull_request_read_status": "complete"
+        },
+        "errors": [],
+        "blockers": [],
+        "closeout_ledger_sha256": "5c384607a5d69516331837084bf077eb09bc247ac81b36bdd822d2521a1663ee",
+        "inventory_fingerprint_sha256": "ac96234bca13fc63a4867a9c6c242c65409cfc238ce9ec61793a35cfd0ecb48c"
+      },
+      "final_validation_sha256": "c1d3e9fba6cc78de5e066bbcbe7359d9d1efa930531c3403ba3b88682b3c5226",
+      "evidence_commits": {
+        "phase_evidence_commit_sha": "177c361229b6f77cbb800809030ab1141564349d",
+        "summary_commit_sha": "eb296ac1ccadab471da26290ec9edb6a51400e0b"
+      },
+      "post_ref_write_status": {
+        "paths": [
+          "/Users/jon/projects/sigra",
+          "/Users/jon/projects/sigra/tmp/phase-247-candidate",
+          "/private/tmp/sigra-phase-246-03-ci",
+          "/private/tmp/sigra-phase-249-09-candidate",
+          "/private/tmp/sigra-phase246-scoped-promotion",
+          "/private/tmp/sigra-phase246-verification"
+        ],
+        "worktrees": [
+          {
+            "path": "/Users/jon/projects/sigra",
+            "raw_status_base64": "",
+            "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_status_bytes": 0,
+            "clean": true
+          },
+          {
+            "path": "/Users/jon/projects/sigra/tmp/phase-247-candidate",
+            "raw_status_base64": "",
+            "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_status_bytes": 0,
+            "clean": true
+          },
+          {
+            "path": "/private/tmp/sigra-phase-246-03-ci",
+            "raw_status_base64": "",
+            "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_status_bytes": 0,
+            "clean": true
+          },
+          {
+            "path": "/private/tmp/sigra-phase-249-09-candidate",
+            "raw_status_base64": "",
+            "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_status_bytes": 0,
+            "clean": true
+          },
+          {
+            "path": "/private/tmp/sigra-phase246-scoped-promotion",
+            "raw_status_base64": "",
+            "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_status_bytes": 0,
+            "clean": true
+          },
+          {
+            "path": "/private/tmp/sigra-phase246-verification",
+            "raw_status_base64": "",
+            "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_status_bytes": 0,
+            "clean": true
+          }
+        ]
+      }
+    }
+  },
+  "receipt": {
+    "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "blob_sha": "04319a489442de5ac80a80a992df5927973d49aa",
+    "sha256": "c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5",
+    "current_blob_sha": "04319a489442de5ac80a80a992df5927973d49aa"
+  },
+  "public_release": {
+    "verdict": "passed",
+    "version": "1.6.0",
+    "tag": "v1.6.0",
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "checksum": "e71dd35586011fbb387b4215e86d883ba2c3312f0e4a390ed107552affb75997",
+    "expected_checksum": "e71dd35586011fbb387b4215e86d883ba2c3312f0e4a390ed107552affb75997",
+    "hex_url": "https://hex.pm/packages/sigra/1.6.0",
+    "versioned_docs_url": "https://sigra.hexdocs.pm/1.6.0/Sigra.html",
+    "versioned_docs_status": "200 https://sigra.hexdocs.pm/1.6.0/Sigra.html",
+    "source_url": "https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1",
+    "source_status": "200 https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1",
+    "source_blob_sha": "44c054f1f737062ecdb62257a701acde21dc6214"
+  },
+  "historical_ci": {
+    "job": {
+      "name": "ci-gate"
+    }
+  },
+  "current_ci": {
+    "run_id": 38061391571,
+    "attempt": 1,
+    "head_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+    "path": ".github/workflows/ci.yml",
+    "event": "push",
+    "branch": "main",
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38061391571",
+    "job": {
+      "id": 114241911167,
+      "name": "ci-gate",
+      "head_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+      "conclusion": "success",
+      "attempt": 1,
+      "url": "https://github.com/szTheory/sigra/actions/runs/38061391571/job/114241911167"
+    }
+  },
+  "inventory": {
+    "worktrees": [
+      {
+        "path": "/private/tmp/sigra-phase-246-03-ci",
+        "branch": "gsd/phase-246-generated-confirmation-recovery-ci",
+        "head_sha": "2232272d77a4ebfccafe43ddec877bf3ad6195a7",
+        "detached": false,
+        "locked": false,
+        "prunable": false,
+        "read_status": "complete",
+        "raw_status_base64": "",
+        "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_status_bytes": 0,
+        "clean": true
+      },
+      {
+        "path": "/private/tmp/sigra-phase-249-09-candidate",
+        "branch": "gsd/phase-249-09-candidate",
+        "head_sha": "4e631d895caa1e02108e05ed9d68069990ca305f",
+        "detached": false,
+        "locked": false,
+        "prunable": false,
+        "read_status": "complete",
+        "raw_status_base64": "",
+        "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_status_bytes": 0,
+        "clean": true
+      },
+      {
+        "path": "/private/tmp/sigra-phase246-scoped-promotion",
+        "branch": "agent-247-01-phase246-promotion",
+        "head_sha": "8be994fc9de5c4afe5ee3cb706c0aa348dd5abd5",
+        "detached": false,
+        "locked": false,
+        "prunable": false,
+        "read_status": "complete",
+        "raw_status_base64": "",
+        "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_status_bytes": 0,
+        "clean": true
+      },
+      {
+        "path": "/private/tmp/sigra-phase246-verification",
+        "branch": "gsd/phase-246-confirmation-guard",
+        "head_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+        "detached": false,
+        "locked": false,
+        "prunable": false,
+        "read_status": "complete",
+        "raw_status_base64": "",
+        "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_status_bytes": 0,
+        "clean": true
+      },
+      {
+        "path": "/private/tmp/sigra-phase250-current-main",
+        "branch": null,
+        "head_sha": "5059581954960548c7fe5c4811b7a7f81dd16aa3",
+        "detached": true,
+        "locked": false,
+        "prunable": false,
+        "read_status": "complete",
+        "raw_status_base64": "",
+        "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_status_bytes": 0,
+        "clean": true
+      },
+      {
+        "path": "/Users/jon/projects/sigra",
+        "branch": "phase-244-playwright-measurement",
+        "head_sha": "7f772eafbc34d10e4eedded711ab998d92743f3f",
+        "detached": false,
+        "locked": false,
+        "prunable": false,
+        "read_status": "complete",
+        "raw_status_base64": "",
+        "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_status_bytes": 0,
+        "clean": true
+      },
+      {
+        "path": "/Users/jon/projects/sigra/tmp/phase-247-candidate",
+        "branch": "agent-phase247-plan02",
+        "head_sha": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "detached": false,
+        "locked": false,
+        "prunable": false,
+        "read_status": "complete",
+        "raw_status_base64": "",
+        "raw_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_status_bytes": 0,
+        "clean": true
+      }
+    ],
+    "pull_requests": [
+      {
+        "number": 219,
+        "title": "Phase 248: provision pinned Android proof lane",
+        "base_ref": "main",
+        "base_sha": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+        "head_ref": "gsd/238-generated-auth-runtime-proof-evidence",
+        "head_sha": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+        "url": "https://github.com/szTheory/sigra/pull/219",
+        "disposition": "release-relevant",
+        "disposition_identity_match": true,
+        "prior_base_sha": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+        "prior_head_sha": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3"
+      },
+      {
+        "number": 266,
+        "title": "Phase 241 exact final-head evidence",
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "head_ref": "evidence/phase-241-final-head-cd1e7e1252da",
+        "head_sha": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+        "url": "https://github.com/szTheory/sigra/pull/266",
+        "disposition": "separate-follow-up",
+        "disposition_identity_match": true,
+        "prior_base_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "prior_head_sha": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6"
+      },
+      {
+        "number": 267,
+        "title": "deps: bump dialyxir from 1.4.7 to 1.4.8",
+        "base_ref": "main",
+        "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "head_ref": "dependabot/hex/dialyxir-1.4.8",
+        "head_sha": "4a49825fff9e8796a881f708325422ca05e74b86",
+        "url": "https://github.com/szTheory/sigra/pull/267",
+        "disposition": "separate-follow-up",
+        "disposition_identity_match": true,
+        "prior_base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "prior_head_sha": "4a49825fff9e8796a881f708325422ca05e74b86"
+      },
+      {
+        "number": 268,
+        "title": "deps: bump @playwright/test from 1.59.1 to 1.63.0 in /test/example/priv/playwright",
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "head_ref": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+        "head_sha": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+        "url": "https://github.com/szTheory/sigra/pull/268",
+        "disposition": "separate-follow-up",
+        "disposition_identity_match": true,
+        "prior_base_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "prior_head_sha": "fcb165adbd4c9d8cc0f09eef1091334495a4700f"
+      },
+      {
+        "number": 269,
+        "title": "deps: bump stream_data from 1.3.0 to 1.4.0",
+        "base_ref": "main",
+        "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "head_ref": "dependabot/hex/stream_data-1.4.0",
+        "head_sha": "e7e85791f87ae1dce9742fbcfff7ad5eee8026d4",
+        "url": "https://github.com/szTheory/sigra/pull/269",
+        "disposition": "separate-follow-up",
+        "disposition_identity_match": true,
+        "prior_base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "prior_head_sha": "e7e85791f87ae1dce9742fbcfff7ad5eee8026d4"
+      },
+      {
+        "number": 271,
+        "title": "deps: bump zod from 4.5.4 to 4.6.5 in /test/example/priv/playwright",
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "head_ref": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+        "head_sha": "8bb65f8f78d726318dad6c81361009dada8b917c",
+        "url": "https://github.com/szTheory/sigra/pull/271",
+        "disposition": "separate-follow-up",
+        "disposition_identity_match": true,
+        "prior_base_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "prior_head_sha": "8bb65f8f78d726318dad6c81361009dada8b917c"
+      },
+      {
+        "number": 272,
+        "title": "deps: bump mox from 1.2.0 to 1.3.2",
+        "base_ref": "main",
+        "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "head_ref": "dependabot/hex/mox-1.3.2",
+        "head_sha": "d1ce01b90058c835feaf6ddc2a730fbc94071b34",
+        "url": "https://github.com/szTheory/sigra/pull/272",
+        "disposition": "separate-follow-up",
+        "disposition_identity_match": true,
+        "prior_base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "prior_head_sha": "d1ce01b90058c835feaf6ddc2a730fbc94071b34"
+      },
+      {
+        "number": 273,
+        "title": "deps: bump @simplewebauthn/browser from 13.3.0 to 14.0.0 in /test/example/priv/playwright",
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "head_ref": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+        "head_sha": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+        "url": "https://github.com/szTheory/sigra/pull/273",
+        "disposition": "separate-follow-up",
+        "disposition_identity_match": true,
+        "prior_base_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+        "prior_head_sha": "e8c028591ccd806180f0ea048ad5278028fc7c0f"
+      },
+      {
+        "number": 274,
+        "title": "deps: bump threadline from 0.9.0 to 0.12.0",
+        "base_ref": "main",
+        "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "head_ref": "dependabot/hex/threadline-0.10.1",
+        "head_sha": "707f1d0733cd39ce3510cf74a3ede0fead9cd0a6",
+        "url": "https://github.com/szTheory/sigra/pull/274",
+        "disposition": "separate-follow-up",
+        "disposition_identity_match": true,
+        "prior_base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "prior_head_sha": "707f1d0733cd39ce3510cf74a3ede0fead9cd0a6"
+      },
+      {
+        "number": 275,
+        "title": "deps: bump ex_doc from 0.40.3 to 0.40.4",
+        "base_ref": "main",
+        "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "head_ref": "dependabot/hex/ex_doc-0.40.4",
+        "head_sha": "2e9467662373ee3321c5d6dfb63b13cca76b6e6b",
+        "url": "https://github.com/szTheory/sigra/pull/275",
+        "disposition": "release-relevant",
+        "disposition_identity_match": true,
+        "prior_base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "prior_head_sha": "2e9467662373ee3321c5d6dfb63b13cca76b6e6b"
+      },
+      {
+        "number": 283,
+        "title": "Phase 244 evidence: paired Playwright measurement",
+        "base_ref": "main",
+        "base_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+        "head_ref": "phase-244/measurement",
+        "head_sha": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+        "url": "https://github.com/szTheory/sigra/pull/283",
+        "disposition": "release-relevant",
+        "disposition_identity_match": true,
+        "prior_base_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+        "prior_head_sha": "f62e252648db66706cf27c3e37241fcd7b78a3de"
+      },
+      {
+        "number": 302,
+        "title": "chore(main): release 1.7.0",
+        "base_ref": "main",
+        "base_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+        "head_ref": "release-please--branches--main",
+        "head_sha": "0d7fe76c630708074699b9d9065a7732d6c6099b",
+        "url": "https://github.com/szTheory/sigra/pull/302",
+        "disposition": null,
+        "disposition_identity_match": false,
+        "prior_base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+        "prior_head_sha": "048f137e146c684b32ca7f40d4885271cf921a7c"
+      },
+      {
+        "number": 306,
+        "title": "ci: bump actions/upload-artifact from 4.6.2 to 7.0.2",
+        "base_ref": "main",
+        "base_sha": "c13bedb392d653871df45e4a12c7007470dae6d8",
+        "head_ref": "dependabot/github_actions/actions/upload-artifact-7.0.2",
+        "head_sha": "b890358c19e14abcbb33dcfc98f932e7bb56e6e7",
+        "url": "https://github.com/szTheory/sigra/pull/306",
+        "disposition": null,
+        "disposition_identity_match": false,
+        "prior_base_sha": null,
+        "prior_head_sha": null
+      },
+      {
+        "number": 307,
+        "title": "ci: bump actions/setup-node from 7.0.0 to 7.1.0",
+        "base_ref": "main",
+        "base_sha": "c13bedb392d653871df45e4a12c7007470dae6d8",
+        "head_ref": "dependabot/github_actions/actions/setup-node-7.1.0",
+        "head_sha": "b5a97cbd29ba51e95cd6cd95160b59e131d7ba86",
+        "url": "https://github.com/szTheory/sigra/pull/307",
+        "disposition": null,
+        "disposition_identity_match": false,
+        "prior_base_sha": null,
+        "prior_head_sha": null
+      },
+      {
+        "number": 308,
+        "title": "ci: bump actions/download-artifact from 5.0.0 to 8.0.2",
+        "base_ref": "main",
+        "base_sha": "c13bedb392d653871df45e4a12c7007470dae6d8",
+        "head_ref": "dependabot/github_actions/actions/download-artifact-8.0.2",
+        "head_sha": "a689fed0b7cd3711b6cf310922d964c67586b7e9",
+        "url": "https://github.com/szTheory/sigra/pull/308",
+        "disposition": null,
+        "disposition_identity_match": false,
+        "prior_base_sha": null,
+        "prior_head_sha": null
+      },
+      {
+        "number": 309,
+        "title": "deps: bump @anthropic-ai/sdk from 0.123.0 to 0.131.0 in /test/example/priv/playwright",
+        "base_ref": "main",
+        "base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+        "head_ref": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.131.0",
+        "head_sha": "143f73f03f4b5bd3412d50d00a8f2ffa3ccdd728",
+        "url": "https://github.com/szTheory/sigra/pull/309",
+        "disposition": null,
+        "disposition_identity_match": false,
+        "prior_base_sha": null,
+        "prior_head_sha": null
+      }
+    ],
+    "worktrees_read_status": "complete",
+    "pull_requests_read_status": "complete"
+  },
+  "accepted_loss": {
+    "path": ".planning/HANDOFF.json",
+    "status": " M",
+    "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+    "authorization": "accept reality and move on accordingly",
+    "authorized_by": "user",
+    "authorized_at": "2026-10-09",
+    "audit_record_ref": "refs/phase-249-preservation/plan-08-preservation-record-v4",
+    "audit_record_commit_sha": "96581c2b555a11b50b6efece9c25a5b1f8e0e456",
+    "audit_record_sha256": "b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3",
+    "bytes_recovered": false,
+    "bytes_preserved": false
+  }
+}
