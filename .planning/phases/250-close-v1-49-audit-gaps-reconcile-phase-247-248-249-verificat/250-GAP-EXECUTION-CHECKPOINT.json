@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T22:41:48Z",
-  "status": "plan_250_07_consumed_failed_needs_parser_repair_and_new_packet",
+  "captured_at": "2026-10-10T22:44:23Z",
+  "status": "plan_250_07_repair_pr_322_ci_in_progress",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
   "source_head": "d32128f55300cef3cab5ad3c4e3851f06490eaee",
@@ -47,7 +47,7 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "controller_failed_observer_input_mode_collision_repair_required",
+    "status": "observer_parser_repair_pr_322_exact_head_ci_queued",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
       "sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
@@ -244,7 +244,7 @@
       "new_canary_dispatch_attempted": false
     },
     "controller_retry_dispatched_after_failed_packet": false,
-    "next_action": "Await explicit approval of packet v4 SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; then recheck live main SHA and preflight age before any one controller dispatch.",
+    "next_action": "Monitor only CI run 38092530129 with one 60-second watcher; squash-merge PR #322 if required checks are green; prepare a new authority packet before any canary retry.",
     "post_merge_main_ci": {
       "run_id": 38089444484,
       "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
@@ -306,9 +306,17 @@
     "retry_authorized_after_v4": false,
     "run_evidence": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json",
-      "sha256": "ed6eb89d8ed7ff9fedf99a89469b485291307e1c69a75f05dd53719ae29f3300",
+      "sha256": "9205e582fa147220e1499053cd6dfe8991b7ef3621d9bfd9e2f8145b82a015cd",
       "controller_proof_file_sha256": "0beba757f438bab3199ee3693b5e567b35fe60d3ba550c8d156686e7bf4a9a88",
       "failure_receipt_sha256": "5992024878742a638b5ad715b824c62ad6135744277346d45b766baee24ca9dd"
+    },
+    "repair_evidence": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
+      "sha256": "b75d2b885b64c37d77702f23bb4e23d23d21b0a9d4911defe32b61c98e297092",
+      "pr": 322,
+      "head_sha": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
+      "ci_run_id": 38092530129,
+      "ci_status": "queued"
     }
   },
   "plan_250_08": {

@@ -34,13 +34,14 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Repair the deterministic observer input-mode collision, then request fresh authority before another hosted canary run",
-    "reason": "Packet v4 was consumed by controller run 38091955379, which produced the failure receipt and canceled the exact child but the one observer run failed before receipt upload. Deterministic cause: release-observer.sh treats the always-set GITHUB_EVENT_PATH as a second source in explicit --source-run-id mode. Repair and CI are next; no further controller run without a new approved packet. Plan 250-08 remains blocked.",
+    "label": "Verify and merge the deterministic observer parser repair, then prepare fresh canary authority",
+    "reason": "PR #322 repairs the ambient EVENT_PATH collision and its focused tests pass locally. Exact-head CI run 38092530129 is queued. User authorized squash merge if CI is green. The consumed v4 packet cannot be reused; any next controller run requires a new packet and explicit approval.",
     "blocked_by": [
-      "250-07-observer-parser-repair-and-fresh-authority",
+      "250-07-repair-pr-ci-322",
+      "250-07-fresh-authority-after-repair",
       "250-08-no-eligible-tuple"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
   },
-  "updated_at": "2026-10-10T22:41:48Z"
+  "updated_at": "2026-10-10T22:44:23Z"
 }

@@ -157,5 +157,13 @@
     "retry_or_second_controller_dispatched": false,
     "further_controller_authority_consumed": true
   },
-  "next_requirement": "Repair code and CI, merge only if authorized delivery workflow CI is green; prepare a fresh digest-bound authority packet and request explicit approval before any further controller dispatch."
+  "next_requirement": "Repair code and CI, merge only if authorized delivery workflow CI is green; prepare a fresh digest-bound authority packet and request explicit approval before any further controller dispatch.",
+  "repair": {
+    "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
+    "evidence_sha256": "b75d2b885b64c37d77702f23bb4e23d23d21b0a9d4911defe32b61c98e297092",
+    "pr": 322,
+    "head_sha": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
+    "ci_run_id": 38092530129,
+    "ci_status": "queued"
+  }
 }
