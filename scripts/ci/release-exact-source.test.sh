@@ -52,9 +52,14 @@ if (cd "$REPO" && RELEASE_TAG=v1.0.0 RELEASE_SHA="$SOURCE_SHA" bash "$SCRIPT" >"
   exit 1
 fi
 
-TAG_CHECKOUT_LINE="$(grep -nF 'ref: ${{ needs.release-please.outputs.tag_name }}' "$WORKFLOW" | head -1 | cut -d: -f1)"
-SOURCE_CHECK_LINE="$(grep -nF 'bash scripts/ci/release-exact-source.sh' "$WORKFLOW" | head -1 | cut -d: -f1)"
-BEAM_SETUP_LINE="$(grep -nF 'uses: erlef/setup-beam@' "$WORKFLOW" | head -1 | cut -d: -f1)"
+PUBLISH_JOB="$(awk '
+  /^  publish-hex:$/ { in_job = 1; next }
+  in_job && /^  [a-zA-Z_][a-zA-Z0-9_-]*:[[:space:]]*$/ { exit }
+  in_job { print }
+' "$WORKFLOW")"
+TAG_CHECKOUT_LINE="$(grep -nF 'ref: ${{ needs.release-please.outputs.tag_name }}' <<<"$PUBLISH_JOB" | head -1 | cut -d: -f1)"
+SOURCE_CHECK_LINE="$(grep -nF 'bash scripts/ci/release-exact-source.sh' <<<"$PUBLISH_JOB" | head -1 | cut -d: -f1)"
+BEAM_SETUP_LINE="$(grep -nF 'uses: erlef/setup-beam@' <<<"$PUBLISH_JOB" | head -1 | cut -d: -f1)"
 if [[ -z "$TAG_CHECKOUT_LINE" || -z "$SOURCE_CHECK_LINE" || -z "$BEAM_SETUP_LINE" ]] \
   || ! (( TAG_CHECKOUT_LINE < SOURCE_CHECK_LINE && SOURCE_CHECK_LINE < BEAM_SETUP_LINE )); then
   echo 'FAIL: exact-source assertion must follow tag checkout and precede Beam/package setup' >&2
