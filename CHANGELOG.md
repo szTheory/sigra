@@ -19,6 +19,31 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+## [1.7.0](https://github.com/szTheory/sigra/compare/v1.6.0...v1.7.0) (2026-10-10)
+
+
+### Features
+
+* **249:** prove the Sigra 1.6.0 release ([#304](https://github.com/szTheory/sigra/issues/304)) ([3c7d713](https://github.com/szTheory/sigra/commit/3c7d713f290c93de3b9fd54be7ece31d71f32787))
+
+
+### Bug Fixes
+
+* **248:** retry release PR head propagation ([#324](https://github.com/szTheory/sigra/issues/324)) ([6c9fb8a](https://github.com/szTheory/sigra/commit/6c9fb8a7623b1f35b8259489f9384b2bde3198d0))
+* **248:** scope adopter claims to source release ([#323](https://github.com/szTheory/sigra/issues/323)) ([369001a](https://github.com/szTheory/sigra/commit/369001aed6147e6f3d96003d1efb183b3fbec181))
+* **250-01:** bind preflight to verified source snapshot ([04e7a13](https://github.com/szTheory/sigra/commit/04e7a13dbd9394b453c132d2a168ce6642c98e37))
+* **250:** recover exact canary dispatch receipts ([#317](https://github.com/szTheory/sigra/issues/317)) ([6b2bd9e](https://github.com/szTheory/sigra/commit/6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5))
+* **ci:** accept fresh canary preflight input ([#319](https://github.com/szTheory/sigra/issues/319)) ([33fccd8](https://github.com/szTheory/sigra/commit/33fccd8b3afe8ad093a0e379578fdc29c8a44e95))
+* **ci:** allow safe canary proof metadata ([b95bb44](https://github.com/szTheory/sigra/commit/b95bb44b6a780837d33e0309136d24bd459bbe5e))
+* **ci:** bind canary receipts to exact source identity ([#318](https://github.com/szTheory/sigra/issues/318)) ([34f7fd8](https://github.com/szTheory/sigra/commit/34f7fd8e47c4b356ef97656f3213a2e749017f2a))
+* **ci:** dispatch exact canary cancellation observer ([1b42093](https://github.com/szTheory/sigra/commit/1b420936e5135727f4a1b6dfcfd9c3d1ca050a04))
+* **ci:** explicitly dispatch canary cancellation observer ([#321](https://github.com/szTheory/sigra/issues/321)) ([1b42093](https://github.com/szTheory/sigra/commit/1b420936e5135727f4a1b6dfcfd9c3d1ca050a04))
+* **ci:** ignore ambient event file in source-id observer ([#322](https://github.com/szTheory/sigra/issues/322)) ([e0c66d6](https://github.com/szTheory/sigra/commit/e0c66d61211ddb461c049ca6422350308b420126))
+* **ci:** preserve canary preflight ancestry ([c13bedb](https://github.com/szTheory/sigra/commit/c13bedb392d653871df45e4a12c7007470dae6d8))
+* **ci:** report release receipt contract failures ([#301](https://github.com/szTheory/sigra/issues/301)) ([a05589a](https://github.com/szTheory/sigra/commit/a05589ae35613dc4652fdfa3e57df287c653de8e))
+* **ci:** validate dynamic canary run names ([#320](https://github.com/szTheory/sigra/issues/320)) ([9cb1c48](https://github.com/szTheory/sigra/commit/9cb1c48ec233d909784b4070a2e6ecd795522291))
+* **release:** validate public proof redirect hosts ([#305](https://github.com/szTheory/sigra/issues/305)) ([08300af](https://github.com/szTheory/sigra/commit/08300af1740fea8b77d5928a182688acbf103edc))
+
 ## [1.6.0](https://github.com/szTheory/sigra/compare/v1.5.0...v1.6.0) (2026-10-09)
 
 
