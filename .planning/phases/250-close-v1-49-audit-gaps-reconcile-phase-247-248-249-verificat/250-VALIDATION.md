@@ -92,3 +92,31 @@ No manual-only verification is used. Local fixture and checker coverage is compl
 | Gaps found | 4 |
 | Resolved | 8 |
 | Escalated | 4 |
+
+## Gap-closure plan mappings — 250-06 through 250-12
+
+These rows extend the original twelve-task map; none is execution evidence yet. Plans 06–12 carry `gap_closure: true`, so `--gaps-only` selects them without repeating completed Plans 01–05. Each plan task has its own `<automated>` command immediately followed by `<fails_when>`; the commands below are a compact execution index, not a waiver. The six source gaps and eleven spec-less edge rows are mapped in `250-GAP-PLAN-COVERAGE.md`.
+
+| Task | Wave | Original owner requirement | Threat | Automated gate from plan | Planning status |
+|---|---:|---|---|---|---|
+| 250-06-01 failure-path tracer | 2 | AUTO-02 | T-250-17/18 | `bash scripts/ci/release-canary.test.sh` | PLANNED; historical hosted proof blocked |
+| 250-06-02 safe cancellation and scoped rollout | 2 | AUTO-02 | T-250-17/18 | `bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml` | PLANNED; no new dispatch authorized here |
+| 250-07-01 exact preflight/authority packet | 3 | AUTO-01/02 | T-250-19/20 | `bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-canary.sh --self-test && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml` | PLANNED; read-only |
+| 250-07-02 bounded hosted decision | 3 | AUTO-02 | T-250-19 | `jq -e '.repository == "szTheory/sigra" and .dispatch_attempted == false and .credential_values_recorded == false' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json` | PLANNED; explicit new authority required |
+| 250-07-03 hosted pair and Phase 248 | 3 | AUTO-01/02 | T-250-19/20 | Hosted proof validation, owner `--check-report`, and `jq` asserting AUTO-01/02 satisfied with zero snapshot blockers | PLANNED; real hosted artifacts required for task completion |
+| 250-08-01 tuple packet | 3 | READY-01/02 | T-250-21/22 | Both owner fixture suites and `jq` requiring at least one eligible tuple with retrievable exact-candidate browser source | PLANNED; parent run 37800067568/job/artifact and matching dry-run 37803817504 are acquisition targets; child run is supplemental only |
+| 250-08-02 exact tuple decision | 3 | READY-01/02 | T-250-21 | Verifier fixtures and `jq` requiring approved packet-bound eligible exact tuple | PLANNED; no approval before a fully grounded route |
+| 250-09-01 approved source join | 4 | READY-01 | T-250-23 | Verifier fixtures and `jq` requiring same-candidate CI/browser/dry-run identities and passing results in approval record | PLANNED; exact-candidate historical source required |
+| 250-09-02 READY dispositions/ledger | 4 | READY-01/02 | T-250-23/24 | Owner validator fixtures and final `validate-release-readiness.mjs --stage final` | PLANNED; both READY joins required |
+| 250-09-03 READY owner report | 4 | READY-01/02 | T-250-23/24 | `verify-247-readiness.mjs --check-report` and `jq` asserting passed, READY-01/02 satisfied and zero reconciliation blockers | PLANNED; integrity-valid blocked report cannot pass |
+| 250-10-01 public/current diagnostic | 4 | REL-01/02 | T-250-25/26 | `bash scripts/ci/release-public-proof.test.sh && node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs` | PLANNED; prior source HTTP 503 remains blocked |
+| 250-10-02 mobile admin-eval repair | 4 | REL-02 | T-250-26 | Focused five mobile cases; `SIGRA_EXAMPLE_URL=http://localhost:4011 bash scripts/ci/admin-eval-harness.sh` with DB/example LiveView ready; `phase-250-main-ci-gate.sh` requiring exact protected-main workflow attempt and all applicable jobs successful | PLANNED; full harness and whole workflow required |
+| 250-10-03 REL dispositions/report | 4 | REL-01/02 | T-250-25/26/27 | Owner fixtures, fresh `--check-report`, and evaluated REL-01/02 satisfied with zero blockers | PLANNED; five PRs and whole CI must close |
+| 250-11-01 READY summary reconciliation | 5 | READY-01/02 | T-250-28/29 | `jq` requiring both READY owner verdicts satisfied/zero blockers, then traceability source check | PLANNED; passing READY owner required |
+| 250-11-02 AUTO/requirements reconciliation | 5 | all six | T-250-28/29 | Traceability fixtures, `jq` requiring AUTO-01/02 and REL-01/02 satisfied/zero blockers, then source check | PLANNED; all owner passes required before marker promotion |
+| 250-11-03 Mix TAP wrapper | 5 | all six validation | T-250-29 | `node --test scripts/ci/phase-250-contract.tap.test.mjs` | PLANNED; exact-lock wrapper pass required, current mismatch interrupts |
+| 250-12-01 early REL summaries | 6 | REL-01/02 | T-250-30/31 | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs` | PLANNED; no false historical completion |
+| 250-12-02 terminal REL summaries/validation | 6 | REL-01/02 | T-250-30/31 | Source audit `jq` gate requiring passed, 9/9, zero blockers/orphans/contradictions | PLANNED; every source must pass before audit write |
+| 250-12-03 final strict audit | 6 | all six | T-250-30/31 | `--check-audit` JSON must be valid, passed, 9/9, zero blockers/errors; fresh `--check-sources` must also be passed, 9/9, zero blockers/orphans/contradictions | PLANNED; integrity-valid 5/9 is explicitly a failing completion gate |
+
+All hosted checks remain unexecuted during planning. The current `nyquist_compliant: false` and `wave_0_complete: false` markers remain unchanged. The controller authorization and candidate-tuple decision are execution-time authority gates, not manual test substitutes. Their absence keeps AUTO-02/READY-01/02 unsatisfied and interrupts dependent execution. An integrity-valid owner report or audit with unsatisfied requirements cannot complete a task. The final audit is the last mutation and must be source-derived passed 9/9 with zero blockers before phase verification can claim completion.

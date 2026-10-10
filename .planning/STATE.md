@@ -4,21 +4,21 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 5
-status: blocked
-stopped_at: Phase 250 verification gaps_found; 5/5 plan summaries complete; next $gsd-plan-phase 250 --gaps
-last_updated: "2026-10-10T18:15:09Z"
+current_plan: 6
+status: ready
+stopped_at: Phase 250 gap planning passed; 7 closure plans ready; next $gsd-execute-phase 250 --gaps-only
+last_updated: "2026-10-10T18:59:23Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250 verified 8/14 must-haves; audit 5/9; gap planning is next
-state_head: 94bb68d4f98ddf36e7220d4c3a607d166a9003ef
+last_activity_desc: Phase 250 gap plans 06-12 passed independent checker; implementation and phase verification remain pending
+state_head: 792218bd6b21281f44d4207e45a4e55958cc847b
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 36
+  total_plans: 43
   completed_plans: 30
   percent: 80
 verification_status: gaps_found
-next_command: "$gsd-plan-phase 250 --gaps"
+next_command: "$gsd-execute-phase 250 --gaps-only"
 ---
 
 # Project State
@@ -33,12 +33,12 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — VERIFICATION GAPS FOUND
-Current Plan: 5
-Total Plans in Phase: 5
-Plans executed: 5 of 5 (summaries and authorized implementation/reporting complete)
-Status: Goal verification completed with gaps_found; phase and milestone remain incomplete
-Last activity: 2026-10-10 — 8/14 must-haves verified; strict milestone audit remains 5/9
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — READY TO EXECUTE GAP PLANS
+Current Plan: 6
+Total Plans in Phase: 12
+Plans executed: 5 of 12 (original 01–05 summarized; new 06–12 not executed)
+Status: Gap planning passed; implementation and phase verification remain incomplete
+Last activity: 2026-10-10 — Seven closure plans passed independent plan checking; phase verification remains 8/14 and strict audit 5/9
 
 Progress: [████████░░] 80% (historical roadmap execution progress; not acceptance completion)
 
@@ -48,7 +48,9 @@ The goal-based report is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-
 
 READY evidence still lacks an approved consistent candidate tuple and complete fresh dispositions. AUTO-02 lacks both hosted failure and cancellation receipt artifacts. REL-02 lacks a passing current-main workflow and matching dispositions for PRs #302, #306, #307, #308, and #309. The Phase 249 freshness check and its one retry returned HTTP 503 for the source URL, while package/checksum, docs and tag still matched. The Mix TAP wrapper remains blocked by the Phoenix lock mismatch; its seven underlying ExUnit contracts passed standalone. Fresh regression evidence is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json`: 43 Phase 250 tests, 88 prior validator/preservation tests, and the release shell suites pass. Neither unavailable check is waived.
 
-**Next command:** `$gsd-plan-phase 250 --gaps`. The verification owner returns this route. `init.plan-phase 250` confirms plans, context and research are present; roadmap analysis finds no phase after 250, and `init.plan-phase 251` reports `phase_found: false`. Historical stale verification is separate maintenance and does not determine this route. The user's one-retry canary authorization is consumed; another dispatch/cancellation requires fresh explicit authorization and a fresh committed preflight. Keep v1.49 unarchived and the exact historical HANDOFF loss labeled accepted-with-recorded-loss, never recovered or preserved.
+**Next command:** `$gsd-execute-phase 250 --gaps-only`. Gap plans 250-06 through 250-12 passed the independent checker after one revision; all six requirements and ten locked decisions are covered. `init.execute-phase 250` reports exactly seven incomplete/runnable plans and no prerequisite or threat-ID blocker. The five original plans remain implementation/reporting complete; the 8/14 verifier and 5/9 audit are unchanged and do not prove closure. No later roadmap phase is defined.
+
+Planning evidence: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json`. The initial dirty draft was preserved and read-back verified at `refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z` (commit `15c1afd319f7d59012cd9173195e0833b8135c77`), with exact path/status/hash/blob identities in the evidence record. Plans 250-07 and 250-08 prepare concrete authority packets before requesting a new bounded canary and exact candidate tuple approval during execution. Planning grants neither authority. Keep v1.49 unarchived and historical HANDOFF loss accepted-with-recorded-loss.
 
 ### v1.49 phase map
 
@@ -844,13 +846,13 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T18:15:09Z
-Stopped at: Phase 250 verified gaps_found; 5/5 summaries complete; next $gsd-plan-phase 250 --gaps
+Last session: 2026-10-10T18:59:23Z
+Stopped at: Phase 250 gap planning passed; 7 closure plans ready; next $gsd-execute-phase 250 --gaps-only
 Resume file: .planning/HANDOFF.json
 
 ## Operator Next Steps
 
-- **Next GSD command:** `$gsd-plan-phase 250 --gaps`. Readiness was checked for Phase 250; no Phase 251 exists. Plan only the six structured verification gaps, then execute and re-verify them. Phase 250 and v1.49 remain incomplete.
+- **Next GSD command:** `$gsd-execute-phase 250 --gaps-only`. Seven gap plans 06–12 are ready and independently checked; five original summaries remain complete. Execute the closure work, then re-verify. Phase 250 and v1.49 remain incomplete; no Phase 251 is defined.
 - **Evidence:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md`, `.planning/v1.49-MILESTONE-AUDIT.md`, and `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json` distinguish passing local controls from missing live proof. No requirement rows were promoted. Historical Phase 249 acceptance remains at `refs/heads/evidence/phase-249-final-acceptance`; it does not prove current-main CI or current dispositions.
 - **Authorization and preservation:** No further canary dispatch/cancellation is authorized. Historical HANDOFF SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` remains the single accepted loss; its bytes were neither recovered nor preserved. Existing prevention controls and exact preservation references remain binding.
 

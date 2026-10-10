@@ -29,15 +29,18 @@
       "status": "in_progress",
       "verification_status": "gaps_found",
       "plans_executed": 5,
-      "plans_total": 5,
+      "plans_total": 12,
       "verification_report": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md",
-      "requirements_satisfied": "5/9"
+      "requirements_satisfied": "5/9",
+      "planning_status": "passed",
+      "gap_plans_ready": 7,
+      "planning_evidence": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json"
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 250 --gaps",
-    "label": "Plan Phase 250 verification gaps",
-    "reason": "5/5 summaries complete; goal verification gaps_found (8/14), audit 5/9; no Phase 251 defined."
+    "command": "$gsd-execute-phase 250 --gaps-only",
+    "label": "Execute Phase 250 gap closure plans",
+    "reason": "Plans06\u201312 passed independent checker and deterministic gates; original01\u201305 complete; phase verification8/14 and audit5/9 remain unresolved."
   },
-  "updated_at": "2026-10-10T18:15:09Z"
+  "updated_at": "2026-10-10T18:59:23Z"
 }
