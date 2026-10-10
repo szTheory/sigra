@@ -33,9 +33,7 @@ EVENT_WORKFLOW_ID="$(jq -er '.workflow_run.workflow_id | select(type == "number"
 [[ "$EVENT_REPOSITORY" == "$GITHUB_REPOSITORY" ]] || fail "event repository does not match observer repository"
 
 SOURCE_RUN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${EVENT_RUN_ID}" 2>/dev/null)" || fail "authoritative source run query failed"
-WORKFLOW="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/release-please.yml" 2>/dev/null)" || fail "authoritative Release Please workflow query failed"
 jq -e 'type == "object"' <<<"$SOURCE_RUN" >/dev/null 2>&1 || fail "authoritative source run is not an object"
-jq -e 'type == "object"' <<<"$WORKFLOW" >/dev/null 2>&1 || fail "authoritative workflow is not an object"
 
 API_REPOSITORY="$(jq -er '.repository.full_name | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source repository is missing"
 API_RUN_ID="$(jq -er '.id | select(type == "number" and floor == . and . > 0) | tostring' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source run ID is malformed"
@@ -50,9 +48,70 @@ API_URL="$(jq -er '.html_url | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev
 API_ATTEMPT="$(jq -er '.run_attempt | select(type == "number" and floor == . and . > 0)' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source attempt is malformed"
 API_STARTED="$(jq -er '.run_started_at | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source start time is missing"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORK_DIR="$(mktemp -d)"
+trap 'rm -rf "$WORK_DIR"' EXIT
+case "$API_WORKFLOW_PATH" in
+  .github/workflows/release-please.yml|.github/workflows/release-please.yml@main)
+    WORKFLOW="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/release-please.yml" 2>/dev/null)" || fail "authoritative Release Please workflow query failed"
+    ;;
+  .github/workflows/release-receipt-canary.yml|.github/workflows/release-receipt-canary.yml@main)
+    WORKFLOW="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/release-receipt-canary.yml" 2>/dev/null)" || fail "authoritative canary workflow query failed"
+    ;;
+  *) fail "unsupported source workflow path" ;;
+esac
+jq -e 'type == "object"' <<<"$WORKFLOW" >/dev/null 2>&1 || fail "authoritative workflow is not an object"
+
 WORKFLOW_ID="$(jq -er '.id | select(type == "number" and floor == . and . > 0)' <<<"$WORKFLOW" 2>/dev/null)" || fail "Release Please workflow ID is malformed"
 WORKFLOW_NAME="$(jq -er '.name | select(type == "string")' <<<"$WORKFLOW" 2>/dev/null)" || fail "Release Please workflow name is missing"
 WORKFLOW_PATH="$(jq -er '.path | select(type == "string")' <<<"$WORKFLOW" 2>/dev/null)" || fail "Release Please workflow path is missing"
+
+if [[ "$API_WORKFLOW_PATH" == .github/workflows/release-receipt-canary.yml* ]]; then
+  [[ "$API_REPOSITORY" == "$GITHUB_REPOSITORY" ]] || fail "authoritative canary repository mismatch"
+  [[ "$API_RUN_ID" == "$EVENT_RUN_ID" ]] || fail "authoritative canary run ID mismatch"
+  [[ "$API_SHA" == "$EVENT_SHA" ]] || fail "authoritative canary SHA mismatch"
+  [[ "$API_EVENT" == workflow_dispatch && "$EVENT_EVENT" == workflow_dispatch ]] || fail "canary event is not workflow_dispatch"
+  [[ "$API_BRANCH" == main ]] || fail "canary source run did not target main"
+  [[ "$API_CONCLUSION" == cancelled ]] || fail "canary source run was not cancelled"
+  [[ "$API_WORKFLOW_NAME" == "Release Receipt Canary" && "$WORKFLOW_NAME" == "Release Receipt Canary" ]] || fail "canary workflow name mismatch"
+  [[ "$API_WORKFLOW_PATH" =~ ^\.github/workflows/release-receipt-canary\.yml(@main)?$ && "$WORKFLOW_PATH" == .github/workflows/release-receipt-canary.yml ]] || fail "canary workflow path mismatch"
+  [[ "$API_WORKFLOW_ID" == "$WORKFLOW_ID" && "$EVENT_WORKFLOW_ID" == "$API_WORKFLOW_ID" ]] || fail "canary workflow ID mismatch"
+
+  DISPLAY_TITLE="$(jq -er '.display_title | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "canary display title is missing"
+  [[ "$DISPLAY_TITLE" =~ ^release-receipt-canary-cancellation-([a-f0-9-]{16,64})$ ]] || fail "canary probe identity is malformed"
+  PROBE_ID="${BASH_REMATCH[1]}"
+  [[ "$API_STARTED" =~ ^([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})(\.[0-9]+)?Z$ ]] || fail "canary source start timestamp is malformed"
+  SOURCE_STARTED="${BASH_REMATCH[1]}Z"
+  SOURCE_OBSERVED="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  [[ "$API_URL" =~ ^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+$ ]] || fail "canary source URL is malformed"
+
+  OBSERVER_RUN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" 2>/dev/null)" || fail "authoritative observer run query failed"
+  OBSERVER_WORKFLOW="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/release-run-observer.yml" 2>/dev/null)" || fail "authoritative observer workflow query failed"
+  OBSERVER_ATTEMPT="$(jq -er '.run_attempt | select(type == "number" and floor == . and . >= 1)' <<<"$OBSERVER_RUN" 2>/dev/null)" || fail "observer attempt is malformed"
+  OBSERVER_WORKFLOW_ID="$(jq -er '.id | select(type == "number" and floor == . and . > 0)' <<<"$OBSERVER_WORKFLOW" 2>/dev/null)" || fail "observer workflow ID is malformed"
+  OBSERVER_STARTED_RAW="$(jq -er '.run_started_at | select(type == "string")' <<<"$OBSERVER_RUN" 2>/dev/null)" || fail "observer start time is missing"
+  [[ "$OBSERVER_STARTED_RAW" =~ ^([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})(\.[0-9]+)?Z$ ]] || fail "observer start timestamp is malformed"
+  OBSERVER_STARTED="${BASH_REMATCH[1]}Z"
+  OBSERVER_COMPLETED="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  OBSERVER_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+  jq -n --arg probe_id "$PROBE_ID" --arg sha "$API_SHA" --arg repository "$GITHUB_REPOSITORY" --arg source_started "$SOURCE_STARTED" \
+    --arg source_observed "$SOURCE_OBSERVED" --arg source_url "$API_URL" --arg source_id "$API_RUN_ID" \
+    --argjson source_attempt "$API_ATTEMPT" --argjson source_workflow_id "$API_WORKFLOW_ID" \
+    --arg observer_id "$GITHUB_RUN_ID" --arg observer_url "$OBSERVER_URL" \
+    --arg observer_started "$OBSERVER_STARTED" --arg observer_observed "$OBSERVER_COMPLETED" \
+    --argjson observer_attempt "$OBSERVER_ATTEMPT" --argjson observer_workflow_id "$OBSERVER_WORKFLOW_ID" \
+    '{schema_version:1,receipt_kind:"canary",canary:{probe_id:$probe_id,scenario:"cancellation"},
+      source_event:"workflow_dispatch",source:{repository:$repository,ref:"refs/heads/main",sha:$sha},
+      source_run:{id:$source_id,attempt:$source_attempt,workflow_id:$source_workflow_id,
+        workflow_name:"Release Receipt Canary",workflow_path:".github/workflows/release-receipt-canary.yml",
+        url:$source_url,started_at:$source_started,observed_at:$source_observed},
+      terminal_verdict:"cancelled",observer_run:{id:$observer_id,attempt:$observer_attempt,
+        workflow_id:$observer_workflow_id,url:$observer_url,started_at:$observer_started,
+        observed_at:$observer_observed}}' > "$WORK_DIR/canary-receipt-input.json" || fail "could not construct canary cancellation receipt"
+  bash "$SCRIPT_DIR/release-receipt.sh" --mode canary --expected-workflow-id "$WORKFLOW_ID" --input "$WORK_DIR/canary-receipt-input.json" --output "$OUTPUT_PATH"
+  echo "release-observer: recorded canary cancellation source run ${EVENT_RUN_ID}"
+  exit 0
+fi
 
 [[ "$API_REPOSITORY" == "$GITHUB_REPOSITORY" ]] || fail "authoritative source repository mismatch"
 [[ "$API_RUN_ID" == "$EVENT_RUN_ID" ]] || fail "authoritative source run ID mismatch"
@@ -72,9 +131,6 @@ OBSERVER_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RU
 [[ "$OBSERVER_URL" =~ $RUN_URL_RE ]] || fail "observer run URL is malformed"
 [[ "$GITHUB_RUN_ID" != "$EVENT_RUN_ID" ]] || fail "observer and source run IDs must differ"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORK_DIR="$(mktemp -d)"
-trap 'rm -rf "$WORK_DIR"' EXIT
 MANIFEST_CONTENT="$(gh api "repos/${GITHUB_REPOSITORY}/contents/.release-please-manifest.json?ref=${API_SHA}" --jq .content 2>/dev/null)" || fail "source release manifest query failed"
 printf '%s' "$MANIFEST_CONTENT" | jq -Rs 'gsub("\\s"; "") | @base64d | fromjson' > "$WORK_DIR/manifest.json" 2>/dev/null || fail "source release manifest is not valid base64 JSON"
 jq -e 'type == "object"' "$WORK_DIR/manifest.json" >/dev/null 2>&1 || fail "source release manifest is not a JSON object"
