@@ -1,9 +1,7 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { audit } from './verify-v149-traceability.mjs';
+import { audit, checkAudit } from './verify-v149-traceability.mjs';
 
 const repoRoot = path.resolve('.');
 
@@ -24,18 +22,13 @@ test('second audit run is deterministic apart from capture time', () => {
 });
 
 test('owner source identity changes are reported against their requirement rows', () => {
-  const scratch = mkdtempSync(path.join(os.tmpdir(), 'v149-trace-'));
-  try {
-    const result = audit(repoRoot, {
-      overrides: {
-        '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md':
-          (source) => source.replace('current_protected_main_sha":"6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5', 'current_protected_main_sha":"deadbeef'),
-      },
-    });
-    assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /identity/i.test(row.message)));
-  } finally {
-    rmSync(scratch, { recursive: true, force: true });
-  }
+  const result = audit(repoRoot, {
+    overrides: {
+      '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md':
+        (source) => source.replace('current_protected_main_sha":"6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5', 'current_protected_main_sha":"deadbeef'),
+    },
+  });
+  assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /identity/i.test(row.message)));
 });
 
 test('accepted historical handoff loss must remain explicitly unrecovered', () => {
@@ -46,4 +39,31 @@ test('accepted historical handoff loss must remain explicitly unrecovered', () =
     },
   });
   assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /accepted-loss|recovered|preserved/i.test(row.message)));
+});
+
+test('missing hosted failure/cancellation proof remains an AUTO-02 blocker', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json': null,
+    },
+  });
+  assert.ok(result.blockers.some((row) => row.id === 'AUTO-02' && /canary|artifact/i.test(row.message)));
+});
+
+test('a Phase 250 summary cannot claim original owner requirements', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-SUMMARY.md':
+        (source) => source.replace('requirements-completed: []', 'requirements-completed: [REL-02]'),
+    },
+  });
+  assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /phase 250|owner/i.test(row.message)));
+});
+
+test('a hand-edited 8/9 or passed audit cannot override computed source gaps', () => {
+  const result = checkAudit(repoRoot, '.planning/v1.49-MILESTONE-AUDIT.md', {
+    '.planning/v1.49-MILESTONE-AUDIT.md': (source) => source.replace('status: gaps_found', 'status: passed').replace('requirements: 3/9', 'requirements: 8/9'),
+  });
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((message) => /status does not match/i.test(message)));
 });
