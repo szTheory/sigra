@@ -150,23 +150,38 @@ export function reportIdentity(snapshot, evaluation) {
     worktree_count: snapshot.inventory?.worktrees?.length ?? null,
     pull_request_count: snapshot.inventory?.pull_requests?.length ?? null,
     accepted_loss_sha256: snapshot.accepted_loss?.sha256 ?? null,
+    historical_report_sha256: snapshot.historical_report?.sha256 ?? null,
   };
 }
 
 export function checkReport(report, snapshot, evaluation = evaluateSnapshot(snapshot)) {
   const errors = [];
-  const match = report.match(/<!-- phase249-evidence ([^\n]+) -->/);
+  const historicalBytes = Buffer.from(snapshot.historical_report?.raw_bytes_base64 ?? '', 'base64');
+  if (historicalBytes.toString('base64') !== snapshot.historical_report?.raw_bytes_base64
+    || hash(historicalBytes) !== snapshot.historical_report?.raw_bytes_sha256
+    || hash(Buffer.from(historicalBytes.toString('utf8').trimEnd())) !== snapshot.historical_report?.sha256) errors.push('historical_report_snapshot_invalid');
+  const historyMarker = '\n<details>\n<summary>Historical Phase 249 report preserved verbatim</summary>\n\n`````markdown\n';
+  const historyStart = report.indexOf(historyMarker);
+  const closeMarker = '\n`````\n</details>';
+  if (historyStart < 0) errors.push('historical_report_missing');
+  else {
+    const bodyStart = historyStart + historyMarker.length;
+    const bodyEnd = report.indexOf(closeMarker, bodyStart);
+    if (bodyEnd < 0 || hash(Buffer.from(report.slice(bodyStart, bodyEnd).trimEnd())) !== snapshot.historical_report?.sha256) errors.push('historical_report_identity_mismatch');
+  }
+  const currentReport = historyStart < 0 ? report : report.slice(0, historyStart);
+  const match = currentReport.match(/<!-- phase249-evidence ([^\n]+) -->/);
   if (!match) return ['report_evidence_identity_missing'];
   let embedded;
   try { embedded = JSON.parse(match[1]); } catch { return ['report_evidence_identity_invalid']; }
   if (JSON.stringify(embedded) !== JSON.stringify(reportIdentity(snapshot, evaluation))) errors.push('report_source_identity_mismatch');
-  const headerStatus = report.match(/^status: ([^\n]+)$/m)?.[1];
+  const headerStatus = currentReport.match(/^status: ([^\n]+)$/m)?.[1];
   const expectedStatus = Object.values(evaluation.requirements).every(row => row.status === 'satisfied') ? 'passed' : 'gaps_found';
   const expectedRequirements = Object.fromEntries(Object.entries(evaluation.requirements).map(([key, value]) => [key, value.status]));
   if (JSON.stringify(embedded.requirements) !== JSON.stringify(expectedRequirements)
-    || headerStatus !== expectedStatus || !report.includes(`**Status:** ${expectedStatus}`)) errors.push('report_requirement_mismatch');
-  if (/historical bytes (?:were )?(?:recovered|preserved)/i.test(report)) errors.push('report_misstates_accepted_loss');
-  if (!report.includes('accepted-with-recorded-loss') || !report.includes(snapshot.accepted_loss?.authorization ?? '')) errors.push('report_accepted_loss_exception_missing');
+    || headerStatus !== expectedStatus || !currentReport.includes(`**Status:** ${expectedStatus}`)) errors.push('report_requirement_mismatch');
+  if (/historical bytes (?:were )?(?:recovered|preserved)/i.test(currentReport)) errors.push('report_misstates_accepted_loss');
+  if (!currentReport.includes('accepted-with-recorded-loss') || !currentReport.includes(snapshot.accepted_loss?.authorization ?? '')) errors.push('report_accepted_loss_exception_missing');
   return errors;
 }
 
@@ -205,6 +220,7 @@ function capturePullRequests() {
       number: pr.number, title: pr.title, base_ref: pr.base?.ref, base_sha: pr.base?.sha,
       head_ref: pr.head?.ref, head_sha: pr.head?.sha, url: pr.html_url,
       disposition: identityMatches ? priorRow?.disposition?.category ?? null : null,
+      disposition_reason: identityMatches ? priorRow?.disposition?.reason ?? null : null,
       disposition_identity_match: identityMatches,
       prior_base_sha: priorRow?.base_sha ?? null, prior_head_sha: priorRow?.head_sha ?? null,
     };
@@ -267,6 +283,7 @@ export function captureSnapshot() {
   try { execFileSync('git', ['merge-base', '--is-ancestor', HISTORICAL_MAIN, main], { cwd: ROOT, stdio: 'ignore' }); ancestor = true; } catch {}
   const publicRelease = publicProof(receipt);
   const historicalCi = historicalMainCi(acceptance.value);
+  const historicalReportBytes = fs.readFileSync(`${ROOT}/${OWNER_DIR}/249-VERIFICATION.md`);
   const currentInventory = { worktrees: captureWorktrees(), pull_requests: capturePullRequests(), worktrees_read_status: 'complete', pull_requests_read_status: 'complete' };
   if (currentInventory.worktrees.some(row => row.read_status !== 'complete')) currentInventory.worktrees_read_status = 'failed';
   return {
@@ -279,6 +296,7 @@ export function captureSnapshot() {
     historical_ci: historicalCi,
     current_ci: currentCi,
     inventory: currentInventory,
+    historical_report: { path: `${OWNER_DIR}/249-VERIFICATION.md`, sha256: hash(Buffer.from(historicalReportBytes.toString('utf8').trimEnd())), raw_bytes_sha256: hash(historicalReportBytes), raw_bytes_base64: historicalReportBytes.toString('base64'), captured_at: new Date().toISOString() },
     accepted_loss: loss ? { ...ACCEPTED_LOSS, bytes_recovered: loss.disposition?.bytes_recovered ?? false, bytes_preserved: loss.disposition?.bytes_preserved ?? false } : null,
   };
 }
@@ -287,6 +305,8 @@ function renderReport(snapshot) {
   const evaluation = evaluateSnapshot(snapshot);
   const identity = reportIdentity(snapshot, evaluation);
   const status = Object.values(evaluation.requirements).every(row => row.status === 'satisfied') ? 'passed' : 'gaps_found';
+  const historical = Buffer.from(snapshot.historical_report?.raw_bytes_base64 ?? '', 'base64');
+  const historicalText = historical.toString('utf8');
   const lines = [
     '---', 'phase: 249-publish-and-prove-sigra-1-6-0', `verified: ${snapshot.captured_at}`, `status: ${status}`,
     `source_snapshot: ${PHASE_DIR}/250-249-SOURCE-SNAPSHOT.json`, 'owner_requirements: [REL-01, REL-02]', '---', '',
@@ -301,6 +321,9 @@ function renderReport(snapshot) {
     '', '## Current blockers', '', ...(evaluation.blockers.length ? evaluation.blockers.map(row => `- ${row}`) : ['- None.']), '',
     '## Historical verification context', '',
     'The earlier `gaps_found` report records the state before the later terminal acceptance ref and current post-canary main. Its historical observations remain unchanged; this report uses the new immutable acceptance identity and freshly observed current PR/worktree state.', '',
+    '<details>', '<summary>Historical Phase 249 report preserved verbatim</summary>', '', '`````markdown',
+    historicalText.endsWith('\n') ? historicalText.slice(0, -1) : historicalText,
+    '`````', '</details>', '',
   ];
   return lines.join('\n');
 }

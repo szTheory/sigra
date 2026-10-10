@@ -26,6 +26,7 @@ function snapshot() {
     post_ref_write_status: { paths: ['/repo'], worktrees: [{ path: '/repo', raw_status_base64: '', raw_status_sha256: hash(Buffer.alloc(0)), raw_status_bytes: 0, clean: true }] },
   };
   const terminalBytes = Buffer.from(JSON.stringify(terminal));
+  const historicalReportBytes = Buffer.from('# Old report\nstatus: gaps_found\n');
   return {
     schema_version: 1, captured_at: '2026-10-10T16:00:00Z', repository: 'szTheory/sigra',
     source: { package_source_sha: packageSha, historical_release_main_sha: historicalMain, current_protected_main_sha: currentMain, historical_is_ancestor: true },
@@ -36,6 +37,7 @@ function snapshot() {
     current_ci: { run_id: 38061391571, attempt: 1, workflow_path: '.github/workflows/ci.yml', event: 'push', branch: 'main', head_sha: currentMain, conclusion: 'failure', job: { id: 114241911167, name: 'ci-gate', head_sha: currentMain, conclusion: 'success', attempt: 1 } },
     inventory: { worktrees_read_status: 'complete', pull_requests_read_status: 'complete', worktrees: [{ path: '/repo', branch: 'main', head_sha: currentMain, raw_status_base64: '', raw_status_sha256: hash(Buffer.alloc(0)), raw_status_bytes: 0, clean: true }], pull_requests: [{ number: 302, base_sha: currentMain, head_sha: '1'.repeat(40), disposition: 'separate-follow-up', disposition_identity_match: true }] },
     accepted_loss: { path: '.planning/HANDOFF.json', status: ' M', sha256: '00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148', authorization: 'accept reality and move on accordingly', authorized_by: 'user', authorized_at: '2026-10-09', audit_record_ref: 'refs/phase-249-preservation/plan-08-preservation-record-v4', audit_record_commit_sha: '96581c2b555a11b50b6efece9c25a5b1f8e0e456', audit_record_sha256: 'b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3', bytes_recovered: false, bytes_preserved: false },
+    historical_report: { path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md', sha256: hash(Buffer.from(historicalReportBytes.toString('utf8').trimEnd())), raw_bytes_sha256: hash(historicalReportBytes), raw_bytes_base64: historicalReportBytes.toString('base64'), captured_at: '2026-10-10T15:59:00Z' },
   };
 }
 
@@ -88,7 +90,14 @@ test('rejects terminal digest drift and a disposition copied from stale PR ident
 test('checks the report against requirement verdicts and complete captured identities', () => {
   const current = snapshot();
   const evaluation = evaluateSnapshot(current);
-  const report = `---\nstatus: passed\n---\n# Phase 249 Verification\n\n**Status:** passed\n\n<!-- phase249-evidence ${JSON.stringify(reportIdentity(current, evaluation))} -->\n\nThe historical path is accepted-with-recorded-loss: ${current.accepted_loss.authorization}.\n`;
+  const report = [
+    '---', 'status: passed', '---', '# Phase 249 Verification', '', '**Status:** passed', '',
+    `<!-- phase249-evidence ${JSON.stringify(reportIdentity(current, evaluation))} -->`, '',
+    `The historical path is accepted-with-recorded-loss: ${current.accepted_loss.authorization}.`, '',
+    '<details>', '<summary>Historical Phase 249 report preserved verbatim</summary>', '', '`````markdown',
+    Buffer.from(current.historical_report.raw_bytes_base64, 'base64').toString('utf8').trimEnd(),
+    '`````', '</details>', '',
+  ].join('\n');
   assert.deepEqual(checkReport(report, current, evaluation), []);
   assert.ok(checkReport(report.replace('38061391571', '1'), current, evaluation).includes('report_source_identity_mismatch'));
   assert.ok(checkReport(report.replace('"REL-02":"satisfied"', '"REL-02":"unsatisfied"'), current, evaluation).includes('report_requirement_mismatch'));
