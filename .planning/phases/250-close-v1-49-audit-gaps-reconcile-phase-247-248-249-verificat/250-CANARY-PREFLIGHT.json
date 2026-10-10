@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "ready",
+  "captured_at": "2026-10-10T13:05:42Z",
+  "repository": "szTheory/sigra",
+  "default_branch": "main",
+  "target_sha": "04e7a13dbd9394b453c132d2a168ce6642c98e37",
+  "actions_enabled": true,
+  "artifact_retention_days": 90,
+  "artifact_retention_maximum_days": 90,
+  "required_retention_days": 30,
+  "workflows": {
+    "canary": {
+      "id": 380517407,
+      "path": ".github/workflows/release-receipt-canary.yml"
+    },
+    "controller": {
+      "id": 380517406,
+      "path": ".github/workflows/release-receipt-canary-controller.yml"
+    },
+    "observer": {
+      "id": 379162190,
+      "path": ".github/workflows/release-run-observer.yml"
+    }
+  },
+  "default_workflow_permissions": "read",
+  "controller_authority": "actions:write; contents:read",
+  "source_authority": "actions:read; contents:read",
+  "observer_authority": "actions:read; contents:read",
+  "credential_values_recorded": false,
+  "dispatch_attempted": false,
+  "supersedes": {
+    "status": "blocked",
+    "commit": "869b4caaa",
+    "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+    "preflight_sha256": "2a7e68e1963aec7f0cff29d5ff1722f5117d48c6cbdc5571273f5b2f03d94696",
+    "proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+    "proof_sha256": "aacd8fea5f36fe7bb94317aa730fc0c4f160e4c55c59283206d71ceb99e826f9",
+    "dispatch_attempted": false,
+    "credential_values_recorded": false
+  }
+}
