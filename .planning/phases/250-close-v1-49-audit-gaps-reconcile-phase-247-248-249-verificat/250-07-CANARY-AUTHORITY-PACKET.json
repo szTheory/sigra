@@ -136,10 +136,10 @@
   },
   "approval": {
     "required": true,
-    "approved": false,
-    "approved_at": null,
-    "approved_packet_sha256": null,
-    "user_reply_verbatim": null,
+    "approved": true,
+    "approved_at": "2026-10-10T22:31:25Z",
+    "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+    "user_reply_verbatim": "yes i authorize u to do that work",
     "scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04, using the exact digest-bound fresh preflight; one controlled failure canary; cancellation only of its exact self-owned waiting canary child; then exactly one read-only observer workflow_dispatch (workflow 379162190) with source_run_id set to that canceled child; maximum 35 minutes; no retry, no release, no publish. Immediately before dispatch, verify live main still equals 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04."
   },
   "decision": {
@@ -154,14 +154,15 @@
         "meaning": "Keep AUTO-02 blocked; do not dispatch or cancel any run."
       }
     ],
-    "status": "awaiting_user_decision",
+    "status": "approved",
     "dispatch_attempted": false,
     "canary_child_dispatch_attempted": false,
     "cancellation_attempted": false,
     "observer_dispatch_attempted": false,
     "credential_values_recorded": false,
     "silence_is_approval": false,
-    "retry_authorized": false
+    "retry_authorized": false,
+    "user_reply_verbatim": "yes i authorize u to do that work"
   },
   "post_approval_preflight_refresh": {
     "allowed_without_new_decision": true,
@@ -204,7 +205,7 @@
       "payload_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
       "status": "superseded_before_dispatch"
     },
-    "latest_user_reply_applies_to_packet_v4": false
+    "latest_user_reply_applies_to_packet_v4": true
   },
   "separate_automation_observation": {
     "release_please_run_id": 38089444492,
