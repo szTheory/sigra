@@ -288,7 +288,14 @@ export function audit(root = process.cwd(), options = {}) {
     schemaVersion: 1,
     capturedAt: new Date().toISOString(),
     status: satisfied === requirementList.length && deduped.length === 0 ? 'passed' : 'gaps_found',
-    score: { requirements: `${satisfied}/${requirementList.length}`, phases: '1/5', integration: '8/9', flows: '3/4' },
+    score: { requirements: `${satisfied}/${requirementList.length}`, phases: '1/5', integration: '3/5', flows: '1/4' },
+    nyquist: {
+      compliantPhases: [246, 247, 249],
+      partialPhases: [248],
+      notValidatedPhases: [],
+      missingPhases: [250],
+      overall: 'partial',
+    },
     requirements: requirementList,
     owners,
     sourceIdentities,
@@ -318,17 +325,51 @@ scores:
   phases: ${result.score.phases}
   integration: ${result.score.integration}
   flows: ${result.score.flows}
+nyquist:
+  compliant_phases: [${result.nyquist.compliantPhases.join(', ')}]
+  partial_phases: [${result.nyquist.partialPhases.join(', ')}]
+  not_validated_phases: [${result.nyquist.notValidatedPhases.join(', ')}]
+  missing_phases: [${result.nyquist.missingPhases.join(', ')}]
+  overall: "${result.nyquist.overall}"
 gaps:
   requirements:
 ${requirementsYaml}
   integration:
+    - requirement: "CONF-01/02/03"
+      status: "complete"
+      evidence: "All three confirmation requirements are source-verified."
+    - requirement: "READY-01/02"
+      status: "blocked"
+      evidence: "Phase 247 remains gaps_found because approval, exact tuple, dry-run and fresh disposition joins are incomplete."
+    - requirement: "AUTO-01"
+      status: "partial"
+      evidence: "The release wiring is evidenced, while credential-scope proof remains unresolved."
     - requirement: "AUTO-02"
-      status: "partial"
-      evidence: "Receipt writer and observer are locally tested; hosted failure and cancellation artifacts are not validated."
+      status: "blocked"
+      evidence: "Hosted failure and cancellation artifacts are absent; the canary proof remains blocked."
+    - requirement: "REL-01"
+      status: "complete"
+      evidence: "The evidence-ref release path is connected and source-verified."
+    - requirement: "REL-02"
+      status: "blocked"
+      evidence: "The current-main workflow failed despite a successful ci-gate, and five PR dispositions remain missing."
+  integration_review:
+    wiring: "3/5 downstream release handoffs evidenced"
+    gaps: "2/5 broken at the evidence/acceptance join"
+    source: "Read-only cross-phase integration checker"
   flows:
-    - name: "Hosted failure and cancellation receipt retrieval"
-      status: "partial"
-      evidence: "The captured canary is blocked and contains no validated terminal artifacts."
+    - name: "Confirmation requirements to owner verification"
+      status: "complete"
+      evidence: "CONF-01/02/03 have consistent source verification."
+    - name: "Phase 247 readiness tuple and dispositions"
+      status: "blocked"
+      evidence: "Candidate approval, exact tuple, dry-run and inherited dispositions do not join."
+    - name: "Phase 248 hosted terminal receipt retrieval"
+      status: "blocked"
+      evidence: "Failure and cancellation artifacts are not validated."
+    - name: "Phase 249 current-main release and PR reconciliation"
+      status: "blocked"
+      evidence: "Current-main workflow failure and five missing PR dispositions remain."
 tech_debt:
   - phase: "247"
     items: ["Candidate approval, tuple joins, exact-head source receipt, and fresh disposition evidence remain incomplete."]
@@ -372,11 +413,11 @@ ${blockerRows || 'None.'}
 
 ## Integration and End-to-End Flows
 
-The existing integration audit establishes 8/9 requirement paths wired. AUTO-02 remains partial because the hosted failure/cancellation artifacts are absent. No new release, canary, publish, merge, or workflow dispatch was performed for this audit.
+The read-only integration review finds 3/5 downstream release handoffs evidenced, with 2/5 broken at the evidence/acceptance join. CONF-01/02/03 and REL-01 are wired; READY-01/02 and AUTO-02 remain blocked, AUTO-01 is partial, and REL-02 is blocked by current-main CI and missing dispositions. No new release, canary, publish, merge, or workflow dispatch was performed for this audit.
 
 ## Nyquist Coverage
 
-Phase 246 compliant; Phase 247 compliant; Phase 248 partial; Phase 249 compliant. Overall: partial because the Phase 248 hosted receipt proof is missing.
+Phase 246 compliant; Phase 247 compliant; Phase 248 partial; Phase 249 compliant; Phase 250 missing validation evidence. Overall: partial.
 
 ## Route
 

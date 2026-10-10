@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import test from 'node:test';
-import { audit, checkAudit } from './verify-v149-traceability.mjs';
+import { audit, checkAudit, renderAudit } from './verify-v149-traceability.mjs';
 
 const repoRoot = path.resolve('.');
 
@@ -10,9 +10,22 @@ test('strict matrix keeps all nine milestone requirements and preserves known ga
   assert.equal(result.status, 'gaps_found');
   assert.equal(result.requirements.length, 9);
   assert.equal(result.score.requirements, '3/9');
+  assert.equal(result.score.integration, '3/5');
+  assert.equal(result.score.flows, '1/4');
+  assert.deepEqual(result.nyquist.missingPhases, [250]);
+  assert.equal(result.nyquist.overall, 'partial');
   assert.ok(result.blockers.some(({ id }) => id === 'READY-01'));
   assert.ok(result.blockers.some(({ id }) => id === 'AUTO-02'));
   assert.ok(result.blockers.some(({ id }) => id === 'REL-02'));
+});
+
+test('generated audit reports integration review and Nyquist gaps from source state', () => {
+  const result = audit(repoRoot);
+  const report = renderAudit(result);
+  assert.match(report, /integration: 3\/5/);
+  assert.match(report, /2\/5 broken at the evidence\/acceptance join/);
+  assert.match(report, /missing_phases: \[250\]/);
+  assert.match(report, /status: "blocked"/);
 });
 
 test('second audit run is deterministic apart from capture time', () => {
