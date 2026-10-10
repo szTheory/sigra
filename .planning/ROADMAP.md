@@ -188,7 +188,7 @@ Plans:
   3. Phase 249 canonical verification reconciles to the passing final acceptance, current-main CI, public release proof, clean inventory, and the explicitly accepted historical HANDOFF loss.
   4. Requirements traceability and the v1.49 audit agree across phase verification, summary frontmatter, and requirements mapping; the audit passes with no orphaned requirements.
 
-**Plans**: 5/5 plans executed (discussion and planning pending)
+**Plans**: 5/5 plans summarized; authorized implementation/reporting complete; verification gaps_found (8/14)
 - [x] 250-01-PLAN.md
 - [x] 250-02-PLAN.md
 - [x] 250-03-PLAN.md
@@ -209,8 +209,8 @@ Plans:
 
 ### Next
 
-The milestone audit remains `gaps_found` (3/9 requirements satisfied). All five Phase 250 plans have summaries. Plan 05 preserves READY-01/02, AUTO-02, and REL-02 as blockers, along with owner-summary contradictions; the one-retry authorization is consumed. Phase 250 plan reporting is complete, while phase verification and milestone closure remain incomplete.
+The strict milestone audit remains `gaps_found` (5/9 requirements satisfied; 31 blockers; zero orphaned rows). All five Phase 250 plans have summaries. Goal-based verification at `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md` is `gaps_found` (8/14 must-haves); READY-01/02, AUTO-02, and REL-02 remain unsatisfied. Nine review findings have verified fixes and security has zero open threats. Passing local tests do not close the missing live evidence.
 
-**Next command:** Parent orchestrator invokes `gsd-verifier` for Phase 250 goal-backward verification.
+**Next command:** `$gsd-plan-phase 250 --gaps`. The verification owner returns this route; Phase 250 context and research are present. Roadmap analysis finds no phase after 250, and `init.plan-phase 251` reports no such phase. Phase 250 and v1.49 remain incomplete and unarchived.
 
-Do not repeat `$gsd-validate-phase 248` until new hosted failure/cancellation artifacts exist. The passing Phase 249 acceptance remains at `refs/heads/evidence/phase-249-final-acceptance`, commit `65f1ca4c851d62415ed656509cb068dc3acbab15`; the checked-in acceptance JSON is an older blocked snapshot.
+Do not dispatch or cancel another canary without fresh explicit authorization and a fresh committed preflight: the one-retry authorization is consumed. Do not repeat `$gsd-validate-phase 248` until new hosted terminal artifacts exist. Preserve the historical Phase 249 acceptance at `refs/heads/evidence/phase-249-final-acceptance`; its evidence does not prove current-main CI or current PR dispositions. The public source freshness check remains blocked by HTTP 503 after one retry; the Mix wrapper remains dependency-blocked, with standalone contracts passing.

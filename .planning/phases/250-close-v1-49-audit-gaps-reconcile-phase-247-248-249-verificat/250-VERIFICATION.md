@@ -7,6 +7,7 @@ covered_files:
   - .github/workflows/release-receipt-canary-controller.yml
   - .github/workflows/release-receipt-canary.yml
   - .github/workflows/release-run-observer.yml
+  - .planning/REQUIREMENTS.md
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-SUMMARY.md
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-PLAN.md
@@ -38,6 +39,9 @@ covered_files:
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs
+  - .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md
+  - .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md
+  - .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md
   - .planning/v1.49-MILESTONE-AUDIT.md
   - scripts/ci/release-canary.sh
   - scripts/ci/release-canary.test.sh
@@ -85,12 +89,12 @@ gaps:
       - "Successful current-main workflow evidence and exact current dispositions for PRs #302, #306, #307, #308, and #309."
   - truth: "The v1.49 audit and traceability records agree across owner reports, summary frontmatter, and REQUIREMENTS.md, and pass with 9/9 satisfied and no orphaned requirements."
     status: failed
-    reason: "All nine requirements are mapped once and there are zero orphaned rows, but only 5/9 are satisfied and the strict audit reports `gaps_found` with 31 blockers. It also detects contradictory summary completion claims and unchecked requirement rows for owner reports marked satisfied."
+    reason: "All nine requirements are mapped once and there are zero orphaned rows, but only 5/9 are satisfied and the strict audit reports `gaps_found` with 31 blockers. It also detects contradictory summary completion claims and two unchecked requirement rows (AUTO-01 and REL-01) whose owner reports are marked satisfied."
     artifacts:
       - path: ".planning/v1.49-MILESTONE-AUDIT.md"
         issue: "The auditable outcome is 5/9 with 31 blockers, not a passing 9/9 closeout."
       - path: ".planning/REQUIREMENTS.md"
-        issue: "The nine requirement rows remain unchecked; the mapping is complete but status records do not fully reconcile with owner report markers and summaries."
+        issue: "The six original release requirement rows (READY/AUTO/REL) remain unchecked; CONF-01/02/03 are checked and complete. AUTO-01 and REL-01 have satisfied owner verdicts but remain unchecked in REQUIREMENTS.md."
     missing:
       - "Resolve the four unsatisfied original owner requirements and reconcile summary/requirement markers without asserting completion ahead of source evidence."
   - truth: "The Phase 250 controller retrieves both receipts by exact source/artifact identity and rejects wrong run, workflow, event/ref, attempt, SHA, outcome, timestamps, namespace, digest, or credential-shaped data."
@@ -127,7 +131,7 @@ gaps:
 | 1 | Phase 247 has an independent verification proving READY-01 and READY-02 against the exact candidate, readiness ledger, and disposition evidence. | ✗ FAILED | The independent report is source-bound and accurately `gaps_found`, but READY-01/02 are unsatisfied. The proposed child candidate has pending authorization, the authenticated dry-run and saved readiness refer to a different SHA, the PR is closed at another head, the referenced standalone Playwright evidence is missing, and fresh dispositions are incomplete. |
 | 2 | Phase 248 canonical verification reflects current protected-environment and successful exact-source evidence; a canary with no publish credentials creates, retains, retrieves, and validates source-bound hosted failure and cancellation receipts. | ✗ FAILED | The owner report supports AUTO-01: protected environment metadata and exact tag/source/CI/success-receipt identities agree. The full criterion fails because the hosted proof is blocked before failure artifact upload; cancellation was not dispatched and neither receipt was retrieved. |
 | 3 | Phase 249 canonical verification reconciles to passing final acceptance, current-main CI, public release proof, clean inventory, and the explicitly accepted historical HANDOFF loss. | ✗ FAILED | REL-01's captured Hex version/checksum, docs, tag, source SHA, and historical acceptance evidence agree; the loss is accurately labeled accepted-with-recorded-loss. REL-02 is unsatisfied because the current-main workflow failed and five PRs lack current dispositions. The fresh report check also failed twice because the source URL returned HTTP 503. |
-| 4 | Requirements traceability and the v1.49 audit agree across phase verification, summary frontmatter, and requirements mapping; the audit passes with no orphaned requirements. | ✗ FAILED | Mapping is 9/9 with zero orphans, but satisfaction is 5/9 and the audit is `gaps_found` with 31 blockers. The traceability checker reports contradictory summary claims and unchecked requirement rows. |
+| 4 | Requirements traceability and the v1.49 audit agree across phase verification, summary frontmatter, and requirements mapping; the audit passes with no orphaned requirements. | ✗ FAILED | Mapping is 9/9 with zero orphans, but satisfaction is 5/9 and the audit is `gaps_found` with 31 blockers. The traceability checker reports contradictory summary completion claims; six original release requirement rows remain unchecked, including AUTO-01 and REL-01 despite their satisfied owner verdicts. CONF-01/02/03 are checked and complete. |
 | 5 | The controller retrieves both canary receipts by exact producer/artifact identity and rejects mismatched identities, outcomes, digests, and credential-shaped fields. | ✗ FAILED | The local 34-case canary suite and verifier fixtures cover strict rejection paths, but no hosted receipt reached retrieval; actual hosted delivery and identity validation remain unproven. |
 | 6 | The canary has no Hex secret, publishing environment, or release/tag/PR authority; production receipt validation rejects canary envelopes. | ✓ VERIFIED | Source workflows are manually inspected: the source has no publish environment or release authority; the controller is `workflow_dispatch` with `actions: write` and `contents: read`; the observer is read-only. `release-receipt.sh` separates canary and production modes and rejects canary envelopes in production. Regression evidence records local canary/receipt/observer suites passing. |
 | 7 | Local contracts pass before the single on-demand hosted proof, with no recurring schedule required. | ✗ FAILED | Local suites pass and the workflows are on-demand, but the one authorized controller proof is blocked and has no validated receipt pair. |
@@ -213,7 +217,7 @@ Phase 250 plans name the original requirement IDs for verification; ownership re
 | REL-01 | 250-04 | Published 1.6.0, versioned docs, checksum, and source reference agree | ✓ SATISFIED in captured owner evidence | Hex version/checksum, tag/source SHA, docs, and acceptance record agree; fresh source URL check currently returns 503. |
 | REL-02 | 250-04 | Current protected-main CI, receipt, clean worktrees, and all PR dispositions | ✗ BLOCKED | Overall current-main run failed and five open PRs have no matching disposition. |
 
-Across all v1 requirements, `REQUIREMENTS.md` maps 9/9 exactly once and the strict audit finds zero orphaned rows; 5/9 are satisfied (CONF-01/02/03, AUTO-01, REL-01). READY-01, READY-02, AUTO-02, and REL-02 remain unsatisfied. Summary frontmatter contains claims contradicted by the canonical owner reports, while satisfied owner markers remain unchecked in REQUIREMENTS.md; therefore the traceability criterion does not pass.
+Across all v1 requirements, `REQUIREMENTS.md` maps 9/9 exactly once and the strict audit finds zero orphaned rows; 5/9 are satisfied (CONF-01/02/03, AUTO-01, REL-01). READY-01, READY-02, AUTO-02, and REL-02 remain unsatisfied. CONF-01/02/03 are checked and complete; the six original release requirement rows (READY/AUTO/REL) remain unchecked, including AUTO-01 and REL-01 despite satisfied owner markers. Summary frontmatter also contains claims contradicted by the canonical owner reports; therefore the traceability criterion does not pass.
 
 ### Test Quality Audit
 

@@ -5,18 +5,20 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 5
-status: verifying
-stopped_at: Completed 250-05-PLAN.md; strict milestone audit remains gaps_found pending phase verifier
-last_updated: "2026-10-10T16:38:09.747Z"
+status: blocked
+stopped_at: Phase 250 verification gaps_found; 5/5 plan summaries complete; next $gsd-plan-phase 250 --gaps
+last_updated: "2026-10-10T18:15:09Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250 Plan 05 reporting complete; parent-run phase verification remains
-state_head: f56ff277715319829dc743442e0b9b9edcc2742e
+last_activity_desc: Phase 250 verified 8/14 must-haves; audit 5/9; gap planning is next
+state_head: 94bb68d4f98ddf36e7220d4c3a607d166a9003ef
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 36
   completed_plans: 30
   percent: 80
+verification_status: gaps_found
+next_command: "$gsd-plan-phase 250 --gaps"
 ---
 
 # Project State
@@ -31,18 +33,22 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — VERIFYING
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — VERIFICATION GAPS FOUND
 Current Plan: 5
 Total Plans in Phase: 5
-Plans executed: 5 of 5
-Status: Plan reporting complete; phase verification pending
-Last activity: 2026-10-10 — Plan 05 recorded a blocked strict milestone audit; parent-run phase verification is next
+Plans executed: 5 of 5 (summaries and authorized implementation/reporting complete)
+Status: Goal verification completed with gaps_found; phase and milestone remain incomplete
+Last activity: 2026-10-10 — 8/14 must-haves verified; strict milestone audit remains 5/9
 
-Progress: [████████░░] 80%
+Progress: [████████░░] 80% (historical roadmap execution progress; not acceptance completion)
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task; Plan 02 is complete with READY-01/02 still unsatisfied. Its canonical reconciliation is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json`, and the Phase 247 owner report is `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`. Plan 03 refreshed the Phase 248 owner report and captured source-bound evidence in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`: AUTO-01 is satisfied; AUTO-02 remains unsatisfied because the authorized canary proof is blocked and neither hosted terminal artifact is available. Plan 04 refreshed the Phase 249 owner report and captured `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json`: REL-01 is satisfied; REL-02 remains unsatisfied because current-main CI failed at the workflow level and five open PR identities lack matching dispositions. Plan 05 completed the no-promotion reconciliation and strict traceability reporting. The user's one-retry authorization for the canary is consumed. Do not dispatch or cancel another run without fresh explicit authorization. Phase 250 plan reporting is complete; strict milestone closure and phase verification remain pending.
+The goal-based report is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md` (`gaps_found`, 8/14 must-haves). All five Phase 250 plans have summaries, all nine code-review findings have verified fixes, and the ASVS L1 security re-audit has zero open threats. The strict audit at `.planning/v1.49-MILESTONE-AUDIT.md` records 5/9 satisfied requirements, 31 blockers, and zero orphaned rows. CONF-01/02/03, AUTO-01, and REL-01 have owner evidence; READY-01/02, AUTO-02, and REL-02 remain unsatisfied. Original requirement ownership and rows are unchanged; Phase 250 summaries claim no implementation requirements.
+
+READY evidence still lacks an approved consistent candidate tuple and complete fresh dispositions. AUTO-02 lacks both hosted failure and cancellation receipt artifacts. REL-02 lacks a passing current-main workflow and matching dispositions for PRs #302, #306, #307, #308, and #309. The Phase 249 freshness check and its one retry returned HTTP 503 for the source URL, while package/checksum, docs and tag still matched. The Mix TAP wrapper remains blocked by the Phoenix lock mismatch; its seven underlying ExUnit contracts passed standalone. Fresh regression evidence is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json`: 43 Phase 250 tests, 88 prior validator/preservation tests, and the release shell suites pass. Neither unavailable check is waived.
+
+**Next command:** `$gsd-plan-phase 250 --gaps`. The verification owner returns this route. `init.plan-phase 250` confirms plans, context and research are present; roadmap analysis finds no phase after 250, and `init.plan-phase 251` reports `phase_found: false`. Historical stale verification is separate maintenance and does not determine this route. The user's one-retry canary authorization is consumed; another dispatch/cancellation requires fresh explicit authorization and a fresh committed preflight. Keep v1.49 unarchived and the exact historical HANDOFF loss labeled accepted-with-recorded-loss, never recovered or preserved.
 
 ### v1.49 phase map
 
@@ -99,7 +105,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 246 is complete: exact source `90ec16f72a71d33224c0816ad77762e2e7262c76` passed required run [37676348766](https://github.com/szTheory/sigra/actions/runs/37676348766), and phase verification passed 10/10. Earlier local CI failures remain historical diagnostics only.
 - Phase 247 Plan 01 is complete. Its refreshed ledger preserves the original entry snapshot, records scoped PR #288 promotion, and validates the clean candidate worktree at protected main `590eb4ed3323db11dd74326cbee00c9c7973e529`; exact main CI run [37686980115](https://github.com/szTheory/sigra/actions/runs/37686980115) passed on attempt 2.
 - The earlier example `mix precommit` `/dev/mailbox` warning remains a readiness item to check against the selected candidate in Plan 04; it did not fail the selected main's required CI gate.
-- Phase 248 release implementation and environment-secret setup are operationally complete; Sigra 1.6.0 has a successful hosted publish receipt. The validation audit now records all 11 local checks and Wave 0 complete; Nyquist remains partial until hosted failure/cancellation receipts are proven. Do not repeat `$gsd-validate-phase 248` without new hosted evidence. The exact next command is `$gsd-audit-milestone`; Phase 250 readiness was checked and no such roadmap phase exists. Keep v1.49 unarchived, and plan a safe non-publishing canary with no publish credentials for AUTO-02.
+- Phase 248 has protected-environment and exact-source success evidence for AUTO-01. AUTO-02 remains unsatisfied because hosted failure/cancellation receipts are absent. Phase 250 now has all five summaries and a gaps_found verifier; use the current gap-planning route above. Do not repeat `$gsd-validate-phase 248` without new hosted evidence.
 
 ## Accumulated Context
 
@@ -838,17 +844,15 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T16:38:09.689Z
-Stopped at: Completed 250-05-PLAN.md; strict milestone audit remains gaps_found pending phase verifier
-Resume file: None
+Last session: 2026-10-10T18:15:09Z
+Stopped at: Phase 250 verified gaps_found; 5/5 summaries complete; next $gsd-plan-phase 250 --gaps
+Resume file: .planning/HANDOFF.json
 
 ## Operator Next Steps
 
-- **Phase 249 is complete.** Protected main `3c7d713f290c93de3b9fd54be7ece31d71f32787` has exact-head successful CI run `37993629114`, `ci-gate` job `114036565274`; public Sigra 1.6.0 proof resolves package source `9e80cb78d6374b1ed4074d5fef6b613fee879dca`. Final acceptance records six worktrees, 14 open PRs with dispositions, zero dirty paths, and no validation errors. Terminal commit `fea3be36362194af3c401613567c14eb39a96197` on `refs/heads/evidence/phase-249-final-acceptance` binds canonical commit `4cc96a6036ac9d869b78cf7d7dd1e2ad4530520a` and verifies two empty raw-status reads for all six worktrees.
-- **Historical loss:** `.planning/HANDOFF.json` SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` was not found in 22,410 local Git blobs, 18,847 GitHub-mirror blobs across 65 branches, 14 tags, 300 PR heads and 13 PR merge refs, or 74,345 regular files. The user accepted this exact loss; it remains unrecovered, is not claimed preserved, and is excluded from the candidate. All other missing evidence still blocks.
-- **Prevention:** the exact replacing write/tool is not provable from retained records. The process gap was recording the hash without first pinning the bytes. `AGENTS.md`, `.planning/METHODOLOGY.md`, and closeout tests now require exact write-ahead preservation before dirty planning files are rewritten.
-- **Automated prevention:** `METHODOLOGY.md` now requires terminal evidence design and failure tests before multi-step release closeout, with all summaries committed before recapturing the final inventory. The validator performs a ref-only checkpoint/seal and byte-for-byte raw status reread; do not write further artifacts after it passes.
-- **Next GSD command:** `$gsd-audit-milestone` for v1.49. Readiness query `init.plan-phase 250` found no Phase 250 in the roadmap. Keep the historical handoff revision labeled as accepted loss, not recovered. The Phase 249 final terminal evidence remains historical; this later validation and milestone reconciliation is tracked in the current planning state.
+- **Next GSD command:** `$gsd-plan-phase 250 --gaps`. Readiness was checked for Phase 250; no Phase 251 exists. Plan only the six structured verification gaps, then execute and re-verify them. Phase 250 and v1.49 remain incomplete.
+- **Evidence:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md`, `.planning/v1.49-MILESTONE-AUDIT.md`, and `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json` distinguish passing local controls from missing live proof. No requirement rows were promoted. Historical Phase 249 acceptance remains at `refs/heads/evidence/phase-249-final-acceptance`; it does not prove current-main CI or current dispositions.
+- **Authorization and preservation:** No further canary dispatch/cancellation is authorized. Historical HANDOFF SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` remains the single accepted loss; its bytes were neither recovered nor preserved. Existing prevention controls and exact preservation references remain binding.
 
 ## Performance Metrics
 

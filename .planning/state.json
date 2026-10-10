@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 — RELEASE-1.6.0",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -26,13 +26,18 @@
     {
       "number": "250",
       "name": "Close v1.49 audit gaps",
-      "status": "in_progress"
+      "status": "in_progress",
+      "verification_status": "gaps_found",
+      "plans_executed": 5,
+      "plans_total": 5,
+      "verification_report": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md",
+      "requirements_satisfied": "5/9"
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step (verify)",
-    "reason": "Phase 250 of 5 · 80% · ready to verify"
+    "command": "$gsd-plan-phase 250 --gaps",
+    "label": "Plan Phase 250 verification gaps",
+    "reason": "5/5 summaries complete; goal verification gaps_found (8/14), audit 5/9; no Phase 251 defined."
   },
-  "updated_at": "2026-10-10T16:38:09.167Z"
+  "updated_at": "2026-10-10T18:15:09Z"
 }
