@@ -191,7 +191,8 @@ function collectOwnerSources(root, blockers, overrides = {}) {
         if (parsed.accepted_loss_sha256 !== acceptedLoss.sha256 || acceptedLoss.bytes_recovered !== false || acceptedLoss.bytes_preserved !== false) {
           add(blockers, 'REL-02', 'Accepted historical HANDOFF loss identity is changed or incorrectly described as recovered/preserved.', { expectedSha256: acceptedLoss.sha256, reportSha256: parsed.accepted_loss_sha256, bytesRecovered: acceptedLoss.bytes_recovered, bytesPreserved: acceptedLoss.bytes_preserved });
         }
-        if (!/accepted-with-recorded-loss/.test(reportText ?? '') || !/not recovered/i.test(reportText ?? '') || !/not preserved/i.test(reportText ?? '') || /\b(?:was|were|is|are|has been|have been)\s+(?!not\b)(?:recovered|preserved)\b/i.test(reportText ?? '')) {
+        const lossSection = reportText?.match(/^## Accepted historical loss\s*\n([\s\S]*?)(?=^## |\s*$)/m)?.[1] ?? '';
+        if (!/accepted-with-recorded-loss/.test(lossSection) || !/not recovered/i.test(lossSection) || !/not preserved/i.test(lossSection) || /\b(?:was|were|is|are|has been|have been)\s+(?!not\b)(?:recovered|preserved)\b/i.test(lossSection)) {
           add(blockers, 'REL-02', 'Phase 249 report does not preserve the accepted-loss wording that the historical bytes remain unrecovered and unpreserved.');
         }
         const currentCi = snapshot.current_ci ?? {};
@@ -202,6 +203,24 @@ function collectOwnerSources(root, blockers, overrides = {}) {
           if ([302, 306, 307, 308, 309].includes(pr.number) && (!pr.disposition || pr.disposition_identity_match !== true)) {
             add(blockers, 'REL-02', `Open PR #${pr.number} has no disposition matching its captured base/head identity.`, { baseSha: pr.base_sha, headSha: pr.head_sha });
           }
+        }
+        const livePath = `${CLOSE_DIR}/250-05-CURRENT-INVENTORY.json`;
+        const live = readJson(root, livePath, blockers, overrides);
+        if (live) {
+          const capturedIds = (snapshot.inventory?.pull_requests ?? []).map((pr) => pr.number).sort((a, b) => a - b);
+          const liveIds = [...(live.pull_requests?.open_ids ?? [])].sort((a, b) => a - b);
+          if (live.main?.sha !== currentSha) add(blockers, 'REL-02', 'Fresh GitHub main observation differs from the Phase 249 current-main snapshot.', { snapshot: currentSha, live: live.main?.sha });
+          if (live.current_main_ci?.head_sha !== live.main?.sha || live.current_main_ci?.conclusion !== 'success' || live.current_main_ci?.ci_gate_conclusion !== 'success') {
+            add(blockers, 'REL-02', 'Fresh current-main CI workflow is not successful on the exact observed main SHA (the ci-gate job result is recorded separately).', { runId: live.current_main_ci?.run_id, headSha: live.current_main_ci?.head_sha, mainSha: live.main?.sha, workflowConclusion: live.current_main_ci?.conclusion, ciGateConclusion: live.current_main_ci?.ci_gate_conclusion });
+          }
+          if (live.pull_requests?.read_status !== 'complete' || live.pull_requests?.open_count !== liveIds.length || live.pull_requests?.open_count !== capturedIds.length || JSON.stringify(liveIds) !== JSON.stringify(capturedIds)) {
+            add(blockers, 'REL-02', 'Fresh pull-request inventory is incomplete or differs from the Phase 249 captured population.', { snapshotCount: capturedIds.length, liveCount: live.pull_requests?.open_count, snapshotIds: capturedIds, liveIds });
+          }
+          for (const pr of live.pull_requests?.unresolved ?? []) {
+            if (!pr.disposition) add(blockers, 'REL-02', `Fresh open PR #${pr.number} has no disposition at its current base/head identity.`, { baseSha: pr.base_sha, headSha: pr.head_sha });
+          }
+          report.liveInventory = { path: livePath, capturedAt: live.captured_at, mainSha: live.main?.sha, ciRunId: live.current_main_ci?.run_id, ciConclusion: live.current_main_ci?.conclusion, ciGateConclusion: live.current_main_ci?.ci_gate_conclusion, openPrCount: live.pull_requests?.open_count, unresolvedPrs: (live.pull_requests?.unresolved ?? []).map(({ number, base_sha, head_sha }) => ({ number, base_sha, head_sha })) };
+          sourceIdentities.push({ phase, path: livePath, ...report.liveInventory });
         }
         report.sourceSnapshot = snapshotPath;
         report.snapshotCapturedAt = snapshot.captured_at ?? null;

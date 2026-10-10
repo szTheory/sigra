@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-10T16:32:41Z",
+  "repository": "szTheory/sigra",
+  "source": "read-only GitHub API metadata",
+  "main": {
+    "sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+    "committed_at": "2026-10-10T14:53:10Z"
+  },
+  "current_main_ci": {
+    "run_id": 38061391571,
+    "attempt": 1,
+    "workflow": "CI",
+    "workflow_path": ".github/workflows/ci.yml",
+    "event": "push",
+    "branch": "main",
+    "head_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38061391571",
+    "ci_gate_job_id": 114241911167,
+    "ci_gate_conclusion": "success"
+  },
+  "pull_requests": {
+    "read_status": "complete",
+    "open_count": 16,
+    "open_ids": [219, 266, 267, 268, 269, 271, 272, 273, 274, 275, 283, 302, 306, 307, 308, 309],
+    "unresolved": [
+      { "number": 302, "base_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5", "head_sha": "0d7fe76c630708074699b9d9065a7732d6c6099b", "disposition": null },
+      { "number": 306, "base_sha": "c13bedb392d653871df45e4a12c7007470dae6d8", "head_sha": "b890358c19e14abcbb33dcfc98f932e7bb56e6e7", "disposition": null },
+      { "number": 307, "base_sha": "c13bedb392d653871df45e4a12c7007470dae6d8", "head_sha": "b5a97cbd29ba51e95cd6cd95160b59e131d7ba86", "disposition": null },
+      { "number": 308, "base_sha": "c13bedb392d653871df45e4a12c7007470dae6d8", "head_sha": "a689fed0b7cd3711b6cf310922d964c67586b7e9", "disposition": null },
+      { "number": 309, "base_sha": "08300af1740fea8b77d5928a182688acbf103edc", "head_sha": "143f73f03f4b5bd3412d50d00a8f2ffa3ccdd728", "disposition": null }
+    ]
+  }
+}

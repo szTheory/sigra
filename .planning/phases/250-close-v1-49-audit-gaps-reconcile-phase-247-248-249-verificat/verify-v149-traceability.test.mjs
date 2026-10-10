@@ -50,6 +50,16 @@ test('missing hosted failure/cancellation proof remains an AUTO-02 blocker', () 
   assert.ok(result.blockers.some((row) => row.id === 'AUTO-02' && /canary|artifact/i.test(row.message)));
 });
 
+test('fresh current-main and open-PR inventory is bound to the owner snapshot', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-CURRENT-INVENTORY.json':
+        (source) => source.replace('6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5', 'deadbeef'),
+    },
+  });
+  assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /fresh GitHub main observation/i.test(row.message)));
+});
+
 test('a Phase 250 summary cannot claim original owner requirements', () => {
   const result = audit(repoRoot, {
     overrides: {
