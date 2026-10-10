@@ -34,7 +34,7 @@ key-decisions:
 patterns-established:
   - "Mutable current-main and repository inventory evidence is freshly re-read during report validation and compared by identity."
   - "Historical release main and immutable package source remain separate identities from current protected main."
-requirements-completed: [REL-01]
+requirements-completed: []
 duration: 37m
 completed: 2026-10-10
 status: complete
