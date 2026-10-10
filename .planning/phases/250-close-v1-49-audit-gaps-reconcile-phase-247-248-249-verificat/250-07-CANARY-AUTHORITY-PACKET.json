@@ -131,11 +131,27 @@
         "meaning": "Keep AUTO-02 blocked and do not dispatch or cancel any run."
       }
     ],
-    "status": "pending",
+    "status": "approved",
     "dispatch_attempted": false,
     "canary_child_dispatch_attempted": false,
     "cancellation_attempted": false,
     "credential_values_recorded": false,
-    "silence_is_approval": false
+    "silence_is_approval": false,
+    "approved_at": "2026-10-10T20:25:58Z",
+    "source": "explicit user reply to exact replacement-packet question",
+    "user_reply": "yes i approve",
+    "approved_packet_sha256": "e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b",
+    "approved_scope": {
+      "controller_workflow_id": 380517406,
+      "main_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+      "preflight_json_sha256": "a1103cac88a2e4e08140cdecda8dba5cb84f3cd967a8665588cbf8ae6a51aaeb",
+      "one_controller_dispatch": true,
+      "exact_self_owned_waiting_canary_child_cancellation_only": true,
+      "maximum_duration_minutes": 35,
+      "no_retry": true,
+      "no_publish": true,
+      "same_source_timestamp_and_payload_digest_refresh_only_if_over_900_seconds": true
+    },
+    "authorization_record_commit_before_approval": "c0a4d3b30515f6c31c1b721a15b20c910c7c175a"
   }
 }
