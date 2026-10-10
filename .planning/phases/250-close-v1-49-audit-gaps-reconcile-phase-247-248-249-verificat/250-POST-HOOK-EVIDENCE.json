@@ -1,0 +1,75 @@
+{
+  "phase": 250,
+  "captured_at": "2026-10-10",
+  "baseline_head": "e1b582f1111d4f2c48166cc7f34b501dec56fb42",
+  "hooks": {
+    "nyquist_validation": {
+      "active": true,
+      "report": "250-VALIDATION.md",
+      "nyquist_compliant": false,
+      "wave_0_complete": false,
+      "local_canary_fixtures": "32 passed",
+      "local_receipt_fixtures": "15 passed",
+      "local_observer_fixtures": "22 passed",
+      "root_combined_verifier_suite": "32/32",
+      "unresolved_external_evidence": [
+        "250-01-03: hosted failure artifact missing; cancellation was not dispatched; authorized retry consumed",
+        "250-05-01: READY-01/02, AUTO-02 and REL-02 remain unsatisfied",
+        "250-05-03: strict audit correctly reports gaps_found at 5/9"
+      ],
+      "plan_tasks": {
+        "250-01-01": "pass",
+        "250-01-02": "pass",
+        "250-01-03": "blocked",
+        "250-02-01": "pass",
+        "250-02-02": "pass",
+        "250-03-01": "pass",
+        "250-03-02": "pass",
+        "250-04-01": "pass",
+        "250-04-02": "pass",
+        "250-05-01": "blocked",
+        "250-05-02": "pass",
+        "250-05-03": "blocked"
+      }
+    },
+    "security": {
+      "active": true,
+      "report": "250-SECURITY.md",
+      "asvs_level": 1,
+      "authored_threats": 16,
+      "accepted_low_risk": "T-250-SC",
+      "status": "blocked",
+      "threats_open": 3,
+      "open_threats": ["T-250-06", "T-250-09", "T-250-14"],
+      "reason": "Source review found missing READY blocker propagation/exact-head CI validation, incompatible current controller proof schema, and trust in embedded owner requirement markers."
+    },
+    "ui_review": {
+      "active": true,
+      "report": "250-UI-REVIEW.md",
+      "status": "not_applicable",
+      "safety_gate": {"frontend": false, "hasUiFiles": false, "hasUiSpec": false, "block": false},
+      "visual_scores": null
+    },
+    "code_review": {
+      "active": true,
+      "depth": "standard",
+      "report": "250-REVIEW.md",
+      "disposition": "250-REVIEW-DISPOSITION.md",
+      "files_reviewed": 18,
+      "findings": {"blocker": 6, "warning": 2, "info": 0, "total": 8},
+      "all_findings_open": true,
+      "evaluation_scope_initial_files": 10,
+      "broader_review_files": 18,
+      "tests_run_by_reviewer": false
+    }
+  },
+  "owner_requirement_verdicts": {
+    "AUTO-01": "satisfied",
+    "AUTO-02": "unsatisfied",
+    "READY-01": "unsatisfied",
+    "READY-02": "unsatisfied",
+    "REL-01": "satisfied",
+    "REL-02": "unsatisfied"
+  },
+  "scope_note": "No phase completion, release publish, canary dispatch/cancel, source mutation, or requirements update is authorized by this hook record."
+}
