@@ -196,6 +196,7 @@ run_preflight() {
     --argjson controller_id "$(jq -r '.id' <<<"$controller")" \
     --argjson observer_id "$(jq -r '.id' <<<"$observer")" \
     '{schema_version:1,status:"ready",captured_at:$captured,repository:$repo,default_branch:"main",target_sha:$main_sha,
+      actions_enabled:true,
       artifact_retention_days:$retention,artifact_retention_maximum_days:$retention_maximum,required_retention_days:30,
       workflows:{canary:{id:$canary_id,path:".github/workflows/release-receipt-canary.yml"},
         controller:{id:$controller_id,path:".github/workflows/release-receipt-canary-controller.yml"},
@@ -217,7 +218,10 @@ validate_committed_preflight() {
     (.target_sha | type == "string" and test("^[0-9a-f]{40}$")) and
     (.artifact_retention_days | type == "number" and . >= 30) and
     (.artifact_retention_maximum_days | type == "number" and . >= 30) and
-    .default_workflow_permissions == "read" and .dispatch_attempted == false and .credential_values_recorded == false' \
+    .actions_enabled == true and .default_workflow_permissions == "read" and
+    .controller_authority == "actions:write; contents:read" and
+    .source_authority == "actions:read; contents:read" and .observer_authority == "actions:read; contents:read" and
+    .dispatch_attempted == false and .credential_values_recorded == false' \
     "$preflight" >/dev/null 2>&1 || { write_blocked_preflight committed_preflight_invalid; return 1; }
   captured="$(jq -er '.captured_at | select(type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"))' "$preflight")" || { write_blocked_preflight committed_preflight_timestamp_invalid; return 1; }
   captured_epoch="$(date -u -j -f '%Y-%m-%dT%H:%M:%SZ' "$captured" '+%s' 2>/dev/null || date -u -d "$captured" '+%s' 2>/dev/null)" || { write_blocked_preflight committed_preflight_timestamp_invalid; return 1; }
@@ -234,7 +238,24 @@ validate_committed_preflight() {
   [[ "$(jq -r '.id' <<<"$observer")" == "$(jq -r '.workflows.observer.id' "$preflight")" && "$(jq -r '.path' <<<"$observer")" == .github/workflows/release-run-observer.yml && "$(jq -r '.name' <<<"$observer")" == 'Release Run Observer' ]] || { write_blocked_preflight observer_identity_changed; return 1; }
   main_sha="$(gh api "repos/${REPOSITORY}/commits/main" --jq .sha 2>/dev/null)" || { write_blocked_preflight default_branch_sha_unavailable; return 1; }
   current_sha="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null)" || { write_blocked_preflight controller_checkout_sha_unavailable; return 1; }
-  [[ "$main_sha" == "$(jq -r '.target_sha' "$preflight")" && "$current_sha" == "$main_sha" ]] || { write_blocked_preflight default_branch_sha_changed_after_preflight; return 1; }
+  [[ "$current_sha" == "$main_sha" ]] || { write_blocked_preflight controller_checkout_not_current_main; return 1; }
+  local target_sha file target_blob current_blob
+  target_sha="$(jq -r '.target_sha' "$preflight")"
+  git -C "$ROOT" merge-base --is-ancestor "$target_sha" "$current_sha" 2>/dev/null || { write_blocked_preflight default_branch_rewound_after_preflight; return 1; }
+  for file in \
+    .github/workflows/release-receipt-canary.yml \
+    .github/workflows/release-receipt-canary-controller.yml \
+    .github/workflows/release-run-observer.yml \
+    scripts/ci/release-canary.sh \
+    scripts/ci/release-canary.test.sh \
+    scripts/ci/release-observer.sh \
+    scripts/ci/release-receipt.sh \
+    test/sigra/planning/phase_248_release_observer_contract_test.exs \
+    test/sigra/planning/phase_250_canary_contract_test.exs; do
+    target_blob="$(git -C "$ROOT" rev-parse "${target_sha}:${file}" 2>/dev/null)" || { write_blocked_preflight preflight_source_blob_unavailable; return 1; }
+    current_blob="$(git -C "$ROOT" rev-parse "${current_sha}:${file}" 2>/dev/null)" || { write_blocked_preflight current_source_blob_unavailable; return 1; }
+    [[ "$target_blob" == "$current_blob" ]] || { write_blocked_preflight canary_source_changed_after_preflight; return 1; }
+  done
 }
 
 find_exact_run() {
