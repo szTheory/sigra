@@ -34,13 +34,13 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Monitor the single authorized Plan 250-07 controller run",
-    "reason": "Controller run 38087516844 is active for the one approved dispatch on main 9cb1c48. No retry. Plan 250-08 remains blocked.",
+    "label": "Repair the observer evidence path before preparing new canary authority",
+    "reason": "The one authorized run 38087516844 produced no exact observer run or cancellation receipt; AUTO-02 remains unsatisfied. No retry is authorized. Plan 250-08 remains blocked.",
     "blocked_by": [
-      "250-07-single-controller-run-in-progress",
+      "250-07-observer-run-missing",
       "250-08-no-eligible-tuple"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
   },
-  "updated_at": "2026-10-10T21:25:12Z"
+  "updated_at": "2026-10-10T21:42:25Z"
 }
