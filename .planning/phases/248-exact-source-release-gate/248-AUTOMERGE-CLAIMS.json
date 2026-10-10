@@ -10,6 +10,7 @@
     "source_ci_run_id": 37819712610,
     "hex_dry_run_run_id": 37824714823
   },
+  "claim_release_version": "1.6.0",
   "approved_source_blobs": {
     "lib/sigra/branding.ex": "6539bbffa23c0b5006cf75463dc01c575b982259",
     "lib/sigra/branding/contrast.ex": "8aee2eb6ee16d192939afef77694b7e9a0b0f317",
