@@ -4,13 +4,13 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 1
+current_plan: 2
 status: executing
-stopped_at: Awaiting renewed approval for one second controller dispatch after exact-head fixes merged
-last_updated: "2026-10-10T14:10:46Z"
+stopped_at: Completed 250-01-PLAN.md with hosted proof blocked; continue with Plans 02/03
+last_updated: "2026-10-10T15:02:28.431Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250-01 Task 3 recovery; fixes are merged and the next controller dispatch requires fresh authorization
-state_head: c8f4758e4
+last_activity_desc: Plan 250-01 complete as evidence reporting; the single retry is consumed and AUTO-02 remains unsatisfied
+state_head: 554950811e1c445c9e9979a18c8259a45fee72f2
 progress:
   total_phases: 5
   completed_phases: 4
@@ -32,17 +32,17 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
-Current Plan: 1
+Current Plan: 2
 Total Plans in Phase: 5
-Plans executed: 0 of 5
-Status: Executing Phase 250; 250-01 Task 3 is blocked at the renewed-authorization gate
-Last activity: 2026-10-10 — shallow-checkout and proof-validator fixes merged; waiting for explicit authorization
+Plans executed: 1 of 5
+Status: Plan 01 complete with a truthful blocked proof; Plan 02 is ready and Plan 03 is unblocked by Plan 01
+Last activity: 2026-10-10 — controller run 38059620443 failed before receipt upload; PR #317 fixes passed exact-head CI run 38060050307
 
 Progress: [████████░░] 80%
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Phase 250 has five plans covering owner-verifier reconciliation, a no-publish hosted canary, and the strict audit. The independent plan checker passed all 12 task mappings. `init.execute-phase 250` reports all five plans runnable because Plan 01 has no SUMMARY yet; its Task 3 is blocked at the renewed-authorization gate. The single approved controller dispatch was consumed by run 38054862873, which failed before child probes because checkout history was shallow. PR #313 fixed the checkout and PR #314 fixed a proof-validator metadata contradiction; both exact-head CI runs passed and both PRs merged. PR #315 committed a fresh preflight and the sanitized blocked proof; its exact-head CI passed and it merged. That preflight was captured at 2026-10-10T13:53:41Z and validated against main, but its 15-minute freshness window has expired. Do not dispatch again until the user explicitly authorizes one retry and a fresh preflight is captured/committed. After authorization, resume only Task 3 with `$gsd-execute-phase 250`. Phase implementation and verification remain incomplete; AUTO-02 is unsatisfied, and v1.49 stays unarchived until its audit passes.
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task. Its canonical blocked proof is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json`; the exact controller record is `250-CANARY-CONTROLLER-PROOF-38059620443.json`. Authorized controller run 38059620443 launched source run 38059634695; the controlled failure step worked but the receipt builder lost `SCENARIO=failure`, so no failure artifact uploaded and no cancellation was dispatched. Exact-title run correlation also exposed a one-shot eventual-consistency race. PR #317 merged fixes (source c570e0449, main merge 6b2bd9e8), and exact-head CI run 38060050307 passed. The user's one-retry authorization is consumed. Do not dispatch or cancel another run without fresh explicit authorization. AUTO-02 remains unsatisfied and owned by Phase 248. Continue with Plan 02; Plan 03 is also unblocked by Plan 01. Phase 250 and v1.49 remain incomplete.
 
 ### v1.49 phase map
 
@@ -606,6 +606,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 249]: Keep candidate documentation builds outside the release-automation environment with persisted checkout credentials disabled. — Candidate Mix and documentation code is untrusted, so it must never run with release write authority.
 - [Phase 249]: Give the release token only to the final writer step; reject artifacts outside the single UTF-8 doc/llms.txt path or above 5 MB. — The downloaded artifact is data at a privilege boundary; a fixed path, regular-file validation, UTF-8 check, and size cap bound the writer input.
 - [Phase 249]: Use a non-force push and require ordinary CI registration for the exact new SHA; leave merge decisions to the existing exact-head workflow. — The event-capable token triggers the required push workflow while the existing merger retains sole merge authority.
+- [Phase 250]: Keep AUTO-02 unsatisfied after the one authorized retry failed to upload its failure receipt; require new explicit approval before any further dispatch.
 
 ### Pending Todos
 
@@ -830,9 +831,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T13:16:46.121Z
-Stopped at: Blocked 250-01 Task 3 after single controller run failed shallow ancestry preflight
-Resume file: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json
+Last session: 2026-10-10T15:02:28.368Z
+Stopped at: Completed 250-01-PLAN.md with hosted proof blocked; continue with Plans 02/03
+Resume file: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-SUMMARY.md
 
 ## Operator Next Steps
 
@@ -1068,3 +1069,4 @@ Resume file: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248
 | Phase 249 P01 | 16 min | 1 tasks | 4 files |
 | Phase 249 P2 | 13min | 2 tasks | 7 files |
 | Phase 249 P03 | 16min | 2 tasks | 6 files |
+| Phase 250 P01 | 2h 42m | 3 tasks | 20 files |
