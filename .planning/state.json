@@ -34,13 +34,13 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Resume Plan 250-07 after current-main packet v3 authority",
-    "reason": "Phase 250 remains partial: 6/12 plans summarized; Plan 07 awaits an explicit decision on the fresh packet bound to main 9cb1c48; Plan 08 has no eligible tuple.",
+    "label": "Dispatch the single explicitly authorized Plan 250-07 canary run",
+    "reason": "Reviewed packet 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68 approved one bounded dispatch; its allowed same-source preflight refresh is bound in effective packet f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960 on main 9cb1c48ec233d909784b4070a2e6ecd795522291. Plan 250-08 remains blocked.",
     "blocked_by": [
-      "250-07-current-main-authority-v3",
+      "250-07-single-authorized-controller-run",
       "250-08-no-eligible-tuple"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
   },
-  "updated_at": "2026-10-10T21:11:45Z"
+  "updated_at": "2026-10-10T21:23:39Z"
 }

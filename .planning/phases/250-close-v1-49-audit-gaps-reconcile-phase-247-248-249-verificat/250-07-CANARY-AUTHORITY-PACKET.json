@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "packet_id": "250-07-canary-authority-v3",
-  "status": "ready_for_explicit_decision",
+  "status": "approved_pending_single_dispatch",
   "repository": "szTheory/sigra",
   "created_at": "2026-10-10T21:05:58Z",
   "source": {
@@ -28,7 +28,7 @@
   "preflight": {
     "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
     "status": "ready",
-    "captured_at": "2026-10-10T21:05:58Z",
+    "captured_at": "2026-10-10T21:21:47Z",
     "target_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
     "actions_enabled": true,
     "artifact_retention_days": 90,
@@ -40,7 +40,7 @@
     "credential_values_recorded": false,
     "dispatch_attempted": false,
     "compact_payload_bytes": 825,
-    "compact_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864"
+    "compact_payload_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e"
   },
   "controller": {
     "workflow_id": 380517406,
@@ -49,8 +49,8 @@
     "ref": "refs/heads/main",
     "event": "workflow_dispatch",
     "inputs": {
-      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-10T21:05:58Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"9cb1c48ec233d909784b4070a2e6ecd795522291\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
-      "preflight_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864"
+      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-10T21:21:47Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"9cb1c48ec233d909784b4070a2e6ecd795522291\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
+      "preflight_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e"
     },
     "timeout_minutes": 35,
     "permissions": "actions:write; contents:read"
@@ -135,7 +135,16 @@
       "reason": "The reply names the earlier packet/source; packet v2 authority was consumed by the failed controller run, and neither binds current main 9cb1c48."
     }
   },
-  "approval": null,
+  "approval": {
+    "approved": true,
+    "approved_at": "2026-10-10T21:21:22Z",
+    "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
+    "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+    "preflight_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864",
+    "user_reply_verbatim": "yes i authorize and if CI green u can squash merge it too",
+    "authorized_scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at 9cb1c48ec233d909784b4070a2e6ecd795522291; one controlled failure canary and cancellation only of its exact self-owned waiting child; maximum 35 minutes; no retry; same-source preflight timestamp/digest refresh only if older than 900 seconds at dispatch.",
+    "additional_instruction": "User also authorized squash merge if CI is green. PR #320 is already squash-merged to the authorized main SHA with CI run 38084430351 successful; no additional open repair PR is pending."
+  },
   "decision": {
     "question": "Authorize exactly one no-publish controller workflow_dispatch using this packet on refs/heads/main at SHA 9cb1c48ec233d909784b4070a2e6ecd795522291, including cancellation only of its exact self-owned waiting canary child, with a 35-minute maximum and no retry? If preflight age exceeds 900 seconds at dispatch, may the read-only preflight be refreshed only on the same main SHA with all fields other than captured_at and the derived payload byte count/digests unchanged?",
     "options": [
@@ -148,11 +157,14 @@
         "meaning": "Keep AUTO-02 blocked and do not dispatch or cancel any run."
       }
     ],
-    "status": "awaiting_explicit_decision",
+    "status": "authorized",
     "dispatch_attempted": false,
     "canary_child_dispatch_attempted": false,
     "cancellation_attempted": false,
     "credential_values_recorded": false,
-    "silence_is_approval": false
+    "silence_is_approval": false,
+    "approved_at": "2026-10-10T21:21:22Z",
+    "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
+    "user_reply_verbatim": "yes i authorize and if CI green u can squash merge it too"
   }
 }

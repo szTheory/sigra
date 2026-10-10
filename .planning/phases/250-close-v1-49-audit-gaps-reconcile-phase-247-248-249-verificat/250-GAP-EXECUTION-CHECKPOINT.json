@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T21:11:45Z",
-  "status": "awaiting_current_main_authority",
+  "captured_at": "2026-10-10T21:23:39Z",
+  "status": "authorized_controller_dispatch_pending",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
   "source_head": "d9637d7a13b490e404020cae728a70f002806437",
@@ -47,24 +47,26 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "task_1_ready_task_2_awaiting_explicit_authority_v3",
+    "status": "task_1_ready_task_2_authorized_single_dispatch_pending",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
-      "bytes": 9435,
-      "git_blob": "d38c3162fe9ec4bb59dec497ae48eade0ce0e891",
+      "sha256": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
+      "bytes": 10660,
+      "git_blob": "dd4260fc1f5fd153be6861e256e4f4d518d85529",
       "packet_id": "250-07-canary-authority-v3",
       "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
-      "status": "ready_for_explicit_decision"
+      "status": "approved_pending_single_dispatch",
+      "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
+      "approval_recorded_at": "2026-10-10T21:21:22Z"
     },
     "preflight": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
-      "sha256": "e5f77ef68e214054beb1966e39e34f9900ab86bf46fae205cca11b5ff84684e6",
+      "sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
       "bytes": 979,
-      "git_blob": "1c23f84f85e382214f7415205ea545b7445fd4f7",
-      "captured_at": "2026-10-10T21:05:58Z",
+      "git_blob": "1c5b5b9ba43de6c0029f4c2162a7cb719ad62496",
+      "captured_at": "2026-10-10T21:21:47Z",
       "target_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
-      "payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864",
+      "payload_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e",
       "status": "ready"
     },
     "superseded_packet_v1": {
@@ -90,7 +92,7 @@
       "main_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
       "merge_commit": "9cb1c48ec233d909784b4070a2e6ecd795522291"
     },
-    "latest_reply_applies_to_current_packet": false,
+    "latest_reply_applies_to_current_packet": true,
     "controller_dispatch_attempted": true,
     "new_controller_dispatch_attempted_after_repair": false,
     "source_dispatch_attempted": true,
@@ -100,13 +102,33 @@
     "auto_02": "unsatisfied_pending_fresh_authority_and_two_validated_hosted_receipts",
     "authority_history": {
       "current_packet_v3": {
-        "packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
+        "packet_sha256": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
         "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
-        "preflight_file_sha256": "e5f77ef68e214054beb1966e39e34f9900ab86bf46fae205cca11b5ff84684e6",
-        "preflight_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864",
-        "decision_status": "awaiting_explicit_decision"
+        "preflight_file_sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
+        "preflight_payload_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e",
+        "decision_status": "authorized_pending_single_dispatch",
+        "approved_at": "2026-10-10T21:21:22Z",
+        "user_reply_verbatim": "yes i authorize and if CI green u can squash merge it too",
+        "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
+        "approved_preflight_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864",
+        "preflight_captured_at": "2026-10-10T21:21:47Z"
       },
       "latest_reply_applies_to_current_packet": false
+    },
+    "authorization": {
+      "approved": true,
+      "approved_at": "2026-10-10T21:21:22Z",
+      "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
+      "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+      "preflight_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864",
+      "user_reply_verbatim": "yes i authorize and if CI green u can squash merge it too",
+      "authorized_scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at 9cb1c48ec233d909784b4070a2e6ecd795522291; one controlled failure canary and cancellation only of its exact self-owned waiting child; maximum 35 minutes; no retry; same-source preflight timestamp/digest refresh only if older than 900 seconds at dispatch.",
+      "additional_instruction": "User also authorized squash merge if CI is green. PR #320 is already squash-merged to the authorized main SHA with CI run 38084430351 successful; no additional open repair PR is pending.",
+      "scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at 9cb1c48ec233d909784b4070a2e6ecd795522291; one controlled failure canary and cancellation only of its exact self-owned waiting child; maximum 35 minutes; no retry; same-source preflight timestamp/digest refresh only if older than 900 seconds at dispatch.",
+      "approved_preflight_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864",
+      "effective_packet_sha256": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
+      "refreshed_preflight_payload_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e",
+      "preflight_file_sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539"
     }
   },
   "plan_250_08": {
@@ -207,7 +229,7 @@
     "next_roadmap_phase": null,
     "incomplete_count": 6,
     "threat_id_duplicate_count": 0,
-    "pending_action": "Review and explicitly authorize packet 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68 for one bounded current-main canary controller run; only then resume Plan 250-07 Task 3. Do not repeat Plan 250-08 without new eligible-source evidence.",
+    "pending_action": "Dispatch exactly one user-approved controller run using effective packet f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960; approval bound to reviewed packet 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68 plus authorized same-source timestamp refresh. No retry. Plan 250-08 remains blocked.",
     "next_command": "$gsd-execute-phase 250 --gaps-only"
   },
   "prior_write_ahead_revisions": [
