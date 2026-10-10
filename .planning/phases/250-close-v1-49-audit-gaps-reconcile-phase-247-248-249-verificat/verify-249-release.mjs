@@ -225,7 +225,9 @@ function publicProof(receipt) {
   const release = JSON.parse(apiBytes);
   const docs = runText('curl', ['-sSL', '--max-time', '30', '-o', '/dev/null', '-w', '%{http_code} %{url_effective}', 'https://sigra.hexdocs.pm/1.6.0/Sigra.html']);
   const sourceStatus = runText('curl', ['-sSL', '--max-time', '30', '-o', '/dev/null', '-w', '%{http_code} %{url_effective}', receipt.source_reference.href]);
-  const tagSha = git('rev-parse', 'v1.6.0^{commit}');
+  const tagRef = ghJson(`repos/${REPOSITORY}/git/ref/tags/v1.6.0`);
+  let tagSha = tagRef.object?.sha ?? null;
+  if (tagRef.object?.type === 'tag') tagSha = ghJson(`repos/${REPOSITORY}/git/tags/${tagSha}`).object?.sha ?? null;
   const apiChecksum = release.checksum ?? release?.docs?.checksum ?? null;
   const isPass = release.version === '1.6.0' && apiChecksum === receipt.hex.checksum && tagSha === PACKAGE_SOURCE
     && docs.startsWith('200 ') && sourceStatus.startsWith('200 ') && receipt.source_reference.resolved_commit_sha === PACKAGE_SOURCE;
