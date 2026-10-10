@@ -5,12 +5,12 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: blocked_observer_missing
-stopped_at: Authorized controller run 38087516844 failed because exact cancellation observer run was not found; no retry is authorized; 250-08 remains blocked
-last_updated: "2026-10-10T21:42:37Z"
+status: observer_repair_merged_waiting_for_post_merge_ci_and_new_authority
+stopped_at: PR #321 observer-dispatch repair merged at 1b420936; post-merge CI 38089444484 is in progress; a fresh packet and explicit approval are required before any new canary
+last_updated: "2026-10-10T21:56:49Z"
 last_activity: 2026-10-10
-last_activity_desc: Authorized controller run 38087516844 failed at observer discovery; exact failure and cancellation evidence recorded; AUTO-02 remains unsatisfied
-state_head: d9637d7a13b490e404020cae728a70f002806437
+last_activity_desc: PR #321 repaired exact-source observer dispatch and merged at 1b420936; post-merge CI 38089444484 is running; AUTO-02 remains unsatisfied pending a fresh approved canary
+state_head: 91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5
 progress:
   total_phases: 5
   completed_phases: 4
@@ -36,9 +36,9 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — OBSERVER RECEIPT BLOCKED
 Current Plan: 7
 Total Plans in Phase: 12
-Plans executed: 6 of 12 summarized (01–06); Plan 07 Task 1 refreshed and its identity repair merged; the authorized controller run failed at observer discovery; no retry is authorized; Plan 08 blocked; 09–12 await dependencies
+Plans executed: 6 of 12 summarized (01–06); Plan 07 remains incomplete after the approved run failed at observer discovery; PR #321 observer-dispatch repair is merged and exact-main CI is pending; Plan 08 remains blocked; 09–12 await dependencies
 Status: Partial implementation delivered; phase verification incomplete
-Last activity: 2026-10-10 — PR #320 identity repair merged after required CI; current-main packet v3 approved for one bounded run
+Last activity: 2026-10-10 — PR #321 observer-dispatch repair merged at 1b420936 after PR CI 38088968210 passed; exact-main CI 38089444484 is in progress
 
 Progress: [███████░░░] 72% (31/43 summaries; not acceptance completion)
 
@@ -1096,3 +1096,5 @@ Resume file: None
 | Phase 250 P04 | 37m | 2 tasks | 6 files |
 | Phase 250 P05 | 18m | 3 tasks | 7 files |
 | Phase 250 P06 | 4h25m | 2 tasks | 4 files |
+
+Plan 250-07 observer-delivery repair: the evidence supports GitHub token-trigger suppression as the cause of the missing workflow_run observer. PR #321 added an explicit observer workflow_dispatch bound to the exact canceled canary source, with authoritative source metadata validation and exact observer receipt correlation. It merged at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; PR CI run 38088968210 passed. Post-merge CI run 38089444484 is still in progress on that exact SHA. Release Please run 38089444492 has its Hex publish and release-CI-gate jobs skipped; only a read-only release-candidate docs build is in progress. The prior packet remains consumed, no new canary has been dispatched, and AUTO-02 is still unsatisfied. See `250-07-OBSERVER-DISPATCH-REPAIR.json`.

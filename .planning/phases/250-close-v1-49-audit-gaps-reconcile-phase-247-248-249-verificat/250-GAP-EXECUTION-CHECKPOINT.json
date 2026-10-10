@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T21:42:25Z",
-  "status": "plan_250_07_blocked_after_authorized_attempt",
+  "captured_at": "2026-10-10T21:56:49Z",
+  "status": "plan_250_07_repair_merged_post_merge_ci_pending_fresh_authority_required",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
-  "source_head": "d9637d7a13b490e404020cae728a70f002806437",
+  "source_head": "91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5",
   "capture_boundary": {
     "head": "6e58b17a559fa7b7094aea9136c094ef570fc35b",
     "planning_dirty_paths": []
@@ -47,7 +47,7 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "blocked_observer_missing_after_single_authorized_attempt",
+    "status": "observer_dispatch_repair_merged_waiting_for_post_merge_ci_and_fresh_authority",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
       "sha256": "b6193b07b13f703b33c275824ec2a30bf1d5b5532fa4bf810b7fd9527ac8b09f",
@@ -92,14 +92,14 @@
       "main_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
       "merge_commit": "9cb1c48ec233d909784b4070a2e6ecd795522291"
     },
-    "latest_reply_applies_to_current_packet": true,
+    "latest_reply_applies_to_current_packet": false,
     "controller_dispatch_attempted": true,
     "new_controller_dispatch_attempted_after_repair": true,
     "source_dispatch_attempted": true,
     "cancellation_attempted": true,
     "observer_dispatch_attempted": false,
     "retry_authorized": false,
-    "auto_02": "unsatisfied_missing_exact_cancellation_observer_receipt_no_retry_authorized",
+    "auto_02": "unsatisfied_until_new_explicitly_authorized_run_produces_exact_cancellation_observer_receipt",
     "authority_history": {
       "current_packet_v3": {
         "packet_sha256": "b6193b07b13f703b33c275824ec2a30bf1d5b5532fa4bf810b7fd9527ac8b09f",
@@ -212,7 +212,30 @@
     },
     "result_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38087516844.json",
     "controller_proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PROOF-38087516844.json",
-    "failure_receipt_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-FAILURE-RECEIPT-38087529909.json"
+    "failure_receipt_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-FAILURE-RECEIPT-38087529909.json",
+    "observer_dispatch_repair": {
+      "recorded_at": "2026-10-10T21:56:49Z",
+      "cause": "The controller-triggered canary cancellation used GITHUB_TOKEN; GitHub suppresses most follow-on workflow events for that token, so the workflow_run observer did not start. This is the diagnosed cause consistent with the exact run inventory.",
+      "repair": "The controller now explicitly dispatches the read-only observer for the exact canceled canary source run. The observer independently fetches Actions metadata and accepts only the exact canceled canary identity; the controller validates the exact observer run and receipt.",
+      "pr": 321,
+      "pr_url": "https://github.com/szTheory/sigra/pull/321",
+      "pr_head_sha": "5fc3b2f30528526d9342713d3d04f2eaf489ea6d",
+      "pr_ci_run_id": 38088968210,
+      "pr_ci_conclusion": "success",
+      "merge_commit": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "main_sha_at_recording": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "post_merge_ci_run_id": 38089444484,
+      "post_merge_ci_status_at_recording": "in_progress",
+      "release_please_run_id": 38089444492,
+      "release_please_publish_job": "skipped",
+      "release_please_ci_gate_job": "skipped",
+      "release_please_docs_build_status_at_recording": "in_progress",
+      "controller_retry_dispatched": false,
+      "new_canary_packet_status": "not_prepared_pending_post_merge_ci_and_fresh_preflight",
+      "approval_required_before_new_controller_dispatch": true
+    },
+    "controller_retry_dispatched_after_failed_packet": false,
+    "next_action": "Wait for exact-merge CI 38089444484; if green, create and commit a fresh main-bound preflight and packet, then request explicit approval before any controller dispatch."
   },
   "plan_250_08": {
     "status": "blocked_no_eligible_tuple",
@@ -476,5 +499,6 @@
         "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/250-GAP-EXECUTION-CHECKPOINT.json"
       }
     ]
-  }
+  },
+  "next_command": "$gsd-execute-phase 250 --gaps-only"
 }
