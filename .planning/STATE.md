@@ -4,19 +4,19 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 3
+current_plan: 4
 status: executing
-stopped_at: Completed 250-02-PLAN.md
-last_updated: "2026-10-10T15:25:31.842Z"
+stopped_at: Completed 250-03-PLAN.md
+last_updated: "2026-10-10T15:43:06.055Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 250 Plan 02 completed; Plan 03 is next
-state_head: bf9096f22f03deaa2066df894803352c042d62bd
+state_head: 5a8912569cbaddd9a96c62ff544f21ac364987ab
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 36
-  completed_plans: 27
-  percent: 75
+  completed_plans: 28
+  percent: 78
 ---
 
 # Project State
@@ -32,17 +32,17 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
-Current Plan: 3
+Current Plan: 4
 Total Plans in Phase: 5
-Plans executed: 2 of 5
+Plans executed: 3 of 5
 Status: Ready to execute
-Last activity: 2026-10-10 — Phase 250 Plan 02 completed; Plan 03 is next
+Last activity: 2026-10-10 — Phase 250 Plan 03 completed; Plan 04 is next
 
-Progress: [████████░░] 75%
+Progress: [████████░░] 78%
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task; Plan 02 is complete with READY-01/02 still unsatisfied. Its canonical reconciliation is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json`, and the Phase 247 owner report is `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`. The live read-only capture found PR #224 closed at a different head/base and main advanced; the proposal authorization remains pending, the saved dry-run is parent-bound, and current disposition evidence is incomplete. Plan 03 is listed as runnable by `init.execute-phase 250`. The user's one-retry authorization for the canary is consumed. Do not dispatch or cancel another run without fresh explicit authorization. AUTO-02 remains unsatisfied and owned by Phase 248. Phase 250 and v1.49 remain incomplete.
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task; Plan 02 is complete with READY-01/02 still unsatisfied. Its canonical reconciliation is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json`, and the Phase 247 owner report is `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`. Plan 03 refreshed the Phase 248 owner report and captured source-bound evidence in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`: AUTO-01 is satisfied; AUTO-02 remains unsatisfied because the authorized canary proof is blocked and neither hosted terminal artifact is available. The user's one-retry authorization for the canary is consumed. Do not dispatch or cancel another run without fresh explicit authorization. Phase 250 and v1.49 remain incomplete; Plan 04 is next.
 
 ### v1.49 phase map
 
@@ -609,6 +609,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 250]: Keep AUTO-02 unsatisfied after the one authorized retry failed to upload its failure receipt; require new explicit approval before any further dispatch.
 - [Phase 250]: Do not select a candidate from recency or the pending proposal; preserve proposal, saved-readiness, and live tuples independently.
 - [Phase 250]: Keep READY-01 and READY-02 unsatisfied until one approved tuple joins exact-source CI, matching dry-run, and complete fresh dispositions.
+- [Phase 250]: AUTO-01 is satisfied from current protected-environment scope and exact-source success evidence.
+- [Phase 250]: AUTO-02 remains unsatisfied until both hosted failure and cancellation artifacts are retrieved and validated.
 
 ### Pending Todos
 
@@ -834,8 +836,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T15:25:04.989Z
-Stopped at: Completed 250-02-PLAN.md
+Last session: 2026-10-10T15:43:06.003Z
+Stopped at: Completed 250-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -1074,3 +1076,4 @@ Resume file: None
 | Phase 249 P03 | 16min | 2 tasks | 6 files |
 | Phase 250 P01 | 2h 42m | 3 tasks | 20 files |
 | Phase 250 P02 | 14min | 2 tasks | 5 files |
+| Phase 250 P03 | 12min | 2 tasks | 6 files |
