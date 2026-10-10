@@ -240,6 +240,40 @@ test_generated_index_is_only_pushed_file_and_fresh_ci_is_recorded() {
   cleanup_fixture
 }
 
+test_writer_retries_stale_post_push_candidate_read() {
+  new_fixture writer-post-push-propagation
+  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
+  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
+      --identity-file "$identity" --github-output "$output" >/dev/null; then
+    cleanup_fixture
+    fail "candidate capture should pass before post-push propagation check"
+    return 1
+  fi
+  printf 'fresh generated index\n' > "$BUILD_REPO/doc/llms.txt"
+  if ! bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
+      --output-dir "$artifact" >/dev/null; then
+    cleanup_fixture
+    fail "candidate artifact should package before post-push propagation check"
+    return 1
+  fi
+  jq --arg sha "$CANDIDATE_SHA" '.[0].headRefOid = $sha' "$FAKE_PR_FILE" \
+    > "$FAKE_GH_FIXTURES/pull-requests-5.json"
+  if ! GH_TOKEN='test-token' bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
+      --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
+      --summary-file "$FIXTURE/summary.md" >/dev/null; then
+    cleanup_fixture
+    fail "writer should re-read a stale post-push PR head until GitHub reports the writer SHA"
+    return 1
+  fi
+  assert_eq "refreshed" "$(grep -F 'status=refreshed' "$output" | cut -d= -f2)" \
+    "writer completes after the candidate head becomes visible" || { cleanup_fixture; return 1; }
+  assert_eq "6" "$(cat "$FAKE_GH_COUNTER")" \
+    "writer performs one bounded re-read after the stale post-push response" || { cleanup_fixture; return 1; }
+  assert_eq "doc/llms.txt" "$("$REAL_GIT" -C "$WRITER_REPO" show --pretty=format: --name-only HEAD | sed '/^$/d')" \
+    "retry still pushes only the generated docs index" || { cleanup_fixture; return 1; }
+  cleanup_fixture
+}
+
 test_capture_rejects_candidate_advanced_between_reads() {
   new_fixture capture-race
   local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt"
@@ -577,6 +611,7 @@ if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "no-candidate" ]]; then
 fi
 if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "writer" ]]; then
   run_test 'writes only doc/llms.txt and records ordinary CI for the new head' test_generated_index_is_only_pushed_file_and_fresh_ci_is_recorded
+  run_test 'retries a stale post-push candidate read until the writer SHA is visible' test_writer_retries_stale_post_push_candidate_read
 fi
 if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "candidate-race" ]]; then
   run_test 'rejects a candidate SHA that changes between selection reads' test_capture_rejects_candidate_advanced_between_reads
