@@ -1,95 +1,40 @@
 ---
 phase: 248-exact-source-release-gate
-verified: 2026-10-08T23:51:24Z
+verified: 2026-10-10T15:39:30.493Z
 status: gaps_found
-score: 13/18 must-haves verified
-covered_files:
-  - .github/workflows/ci.yml
-  - .github/workflows/hex-publish.yml
-  - .github/workflows/release-please.yml
-  - .github/workflows/release-pr-automerge.yml
-  - .github/workflows/release-run-observer.yml
-  - .planning/phases/248-exact-source-release-gate/248-01-PLAN.md
-  - .planning/phases/248-exact-source-release-gate/248-01-SUMMARY.md
-  - .planning/phases/248-exact-source-release-gate/248-02-PLAN.md
-  - .planning/phases/248-exact-source-release-gate/248-02-SUMMARY.md
-  - .planning/phases/248-exact-source-release-gate/248-03-PLAN.md
-  - .planning/phases/248-exact-source-release-gate/248-03-SUMMARY.md
-  - .planning/phases/248-exact-source-release-gate/248-04-PLAN.md
-  - .planning/phases/248-exact-source-release-gate/248-04-SUMMARY.md
-  - .planning/phases/248-exact-source-release-gate/248-05-PLAN.md
-  - .planning/phases/248-exact-source-release-gate/248-05-SUMMARY.md
-  - .planning/phases/248-exact-source-release-gate/248-REVIEW-DISPOSITION.md
-  - .planning/phases/248-exact-source-release-gate/248-REVIEW-FIX.md
-  - .planning/phases/248-exact-source-release-gate/248-REVIEW.md
-  - .planning/phases/248-exact-source-release-gate/248-SECURITY.md
-  - .planning/phases/248-exact-source-release-gate/248-USER-SETUP.md
-  - lib/sigra/install/features/core.ex
-  - scripts/ci/release-candidate-preflight.sh
-  - scripts/ci/release-candidate-preflight.test.sh
-  - scripts/ci/release-environment-preflight.sh
-  - scripts/ci/release-environment-preflight.test.sh
-  - scripts/ci/release-exact-source.sh
-  - scripts/ci/release-exact-source.test.sh
-  - scripts/ci/release-observer.sh
-  - scripts/ci/release-observer.test.sh
-  - scripts/ci/release-receipt.sh
-  - scripts/ci/release-receipt.test.sh
-  - scripts/ci/wait-for-ci-gate.sh
-  - scripts/ci/wait-for-ci-gate.test.sh
-  - test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/components/sigra_auth_components.ex
-  - test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex
-  - test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex
-  - test/sigra/planning/phase_146_release_validation_test.exs
-  - test/sigra/planning/phase_222_release_lane_hardening_test.exs
-  - test/sigra/planning/phase_234_action_pinning_contract_test.exs
-  - test/sigra/planning/phase_248_release_gate_contract_test.exs
-  - test/sigra/planning/phase_248_release_observer_contract_test.exs
-covered_digest: "v3:sha256:04e0682c957d17a7ca2f39aec2c580f7504417ee73de719aec3d2c2e8db21246"
-behavior_unverified: 2
-overrides_applied: 0
-decision_coverage:
-  honored: 13
-  total: 13
-  not_honored: []
-gaps:
-  - truth: "Required release credentials are present only in the intended main-restricted environments, and the live preflight proves their environment-level scope."
-    status: failed
-    reason: "The environment-level copies of RELEASE_PLEASE_TOKEN and HEX_API_KEY are absent while repository-level copies remain. The workflows reduce secrets.NAME to a boolean and pass it to a helper that checks branch policy but never enumerates environment secret names. Because repository and environment secrets share the secrets context, the repository copies can make that boolean true without proving the required environment copy exists."
-    artifacts:
-      - path: ".github/workflows/release-please.yml"
-        issue: "The release job passes secrets.RELEASE_PLEASE_TOKEN != '' as a scope-blind boolean."
-      - path: ".github/workflows/release-pr-automerge.yml"
-        issue: "The merge job uses the same scope-blind credential-presence check."
-      - path: ".github/workflows/hex-publish.yml"
-        issue: "The recovery job passes scope-blind dry-run and publish credential booleans."
-      - path: "scripts/ci/release-environment-preflight.sh"
-        issue: "The helper validates boolean presence and main-only branch policies, but does not verify environment-level secret names."
-    missing:
-      - "Add RELEASE_PLEASE_TOKEN to release-automation and HEX_API_KEY to hex-publish from the secure source of truth."
-      - "After verifying those environment names, remove their repository-level copies so the intended scope is the only available source."
-      - "Make the live preflight validate environment-level secret names or otherwise enforce the documented removal of repository-level copies; a secrets-context boolean alone is insufficient evidence of scope."
-deferred:
-  - truth: "A real successful Sigra 1.6.0 release produces a retrievable receipt tied to the gated source, package, documentation, and CI run."
-    addressed_in: "Phase 249"
-    evidence: "Phase 249 success criteria 1–2 require the published 1.6.0 source and a committed receipt identifying the exact source, tag, package, documentation, and CI run."
-behavior_unverified_items:
-  - truth: "The manual dry_run recovery route completes validation and dry-run without reaching publication."
-    test: "After credential-scope setup is corrected, dispatch hex-publish from main with dry_run=true and retrieve its result artifact."
-    expected: "Validation and the authenticated dry-run complete; the publish step is skipped and the receipt reports dry_run rather than published."
-    why_human: "The local test asserts workflow conditions and receipt behavior, but no GitHub Actions run has exercised its expression evaluation or Hex integration."
-  - truth: "GitHub retains machine-readable success, failure, and cancellation receipts that maintainers can retrieve."
-    test: "After credential-scope setup is corrected, inspect retained artifacts from a successful run, an ordinary failed gate or publish run, and a cancelled Release Please run."
-    expected: "Each artifact contains the validated source and run identity, verdict, URLs, attempts, timestamps, and the appropriate failure or cancellation details."
-    why_human: "The helper and contract tests pass locally, but the GitHub workflow event triggers, artifact upload, retention, and retrieval have not been exercised against a hosted run."
+source_snapshot: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json
+owner_requirements: [AUTO-01, AUTO-02]
 ---
 
 # Phase 248: Exact-Source Release Gate Verification Report
 
 **Phase Goal:** Maintainers can prove the existing release lane evaluated the exact source that it will publish and can diagnose every result.
-**Verified:** 2026-10-08T23:51:24Z
+**Verified:** 2026-10-10T15:39:30.493Z
 **Status:** gaps_found
-**Re-verification:** No — initial verification; no prior Phase 248 VERIFICATION.md existed.
+**Re-verification:** Yes — refreshed from recorded source IDs and current protected-environment metadata.
+
+<!-- phase248-evidence {"requirements":{"AUTO-01":"satisfied","AUTO-02":"unsatisfied"},"tag":"v1.6.0","source_sha":"9e80cb78d6374b1ed4074d5fef6b613fee879dca","release_run_id":37875238705,"ci_run_id":37875238741,"ci_gate_job_id":113654406257,"failure_run_id":38059634695,"cancellation_run_id":null,"failure_artifact_id":null,"cancellation_artifact_id":null} -->
+
+## Current Evidence Boundary
+
+- **AUTO-01: satisfied.** Environment names and main-only policy metadata were independently queried; repository-level secret names were absent. The live name-only preflight passed. Tag v1.6.0 resolves to 9e80cb78d6374b1ed4074d5fef6b613fee879dca; Release Please run 37875238705 attempt 3 and ci-gate job 113654406257 in CI run 37875238741 were checked against that exact source. The retained success artifact is 11594782728 (release-result-1.6.0-37875238705); retrieval and receipt identity validation passed.
+- **AUTO-02: unsatisfied.** The authorized hosted canary proof is blocked (failure_probe_dispatch_could_not_be_uniquely_correlated). Failure source run 38059634695 conclusion: failure; matching failure artifact: none. Cancellation source run: not dispatched; observer artifact: none. The blocked proof has no validated failure or cancellation receipt, so a success receipt cannot satisfy AUTO-02.
+
+## Current Blockers
+
+- AUTO-02: hosted canary proof is blocked; a blocked proof cannot establish terminal receipts
+- AUTO-02: controller run identity or conclusion mismatch
+- AUTO-02: controller proof does not contain a validated failure receipt
+- AUTO-02: failure artifact is missing, expired, or has a malformed digest
+- AUTO-02: cancellation source run is missing or mismatched
+- AUTO-02: cancellation observer identity or conclusion mismatch
+- AUTO-02: observer cancellation artifact is missing, expired, or has a malformed digest
+- AUTO-02: retrieved failure receipt identity or digest validation mismatch
+- AUTO-02: retrieved cancellation receipt identity or digest validation mismatch
+
+## Historical verification (2026-10-08)
+
+The earlier `gaps_found` result remains the historical record: protected environment names were absent then, and hosted failure/cancellation artifact retrieval had not been observed. Current environment metadata closes the environment-name/policy gap; the canary run remains blocked and does not close the hosted terminal-receipt gap.
 
 ## Goal Achievement
 
