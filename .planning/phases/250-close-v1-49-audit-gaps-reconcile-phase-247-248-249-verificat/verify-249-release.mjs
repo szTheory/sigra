@@ -92,16 +92,20 @@ export function evaluateSnapshot(snapshot) {
     || !DIGEST.test(publicProof?.checksum ?? '')) add(rel01, 'live public Hex/docs/tag/source/checksum proof does not join package source 9e80cb…');
   if (receipt?.package_source_sha !== PACKAGE_SOURCE || receipt?.blob_sha !== snapshot?.evidence_ref?.acceptance?.receipt?.blob_sha
     || receipt?.sha256 !== snapshot?.evidence_ref?.acceptance?.receipt?.sha256) add(rel01, 'release receipt source or historical acceptance identity mismatch');
-  if (snapshot?.historical_ci?.head_sha !== HISTORICAL_MAIN || snapshot?.historical_ci?.job?.head_sha !== HISTORICAL_MAIN
-    || snapshot?.historical_ci?.job?.name !== 'ci-gate' || snapshot?.historical_ci?.job?.conclusion !== 'success'
-    || snapshot?.historical_ci?.job?.attempt !== snapshot?.historical_ci?.attempt) add(rel01, 'historical exact-head ci-gate run/job/attempt is missing or mismatched');
+  if (snapshot?.historical_ci?.run_id !== snapshot?.evidence_ref?.acceptance?.final_main_ci?.run_id
+    || snapshot?.historical_ci?.attempt !== snapshot?.evidence_ref?.acceptance?.final_main_ci?.attempt
+    || snapshot?.historical_ci?.workflow_path !== '.github/workflows/ci.yml'
+    || snapshot?.historical_ci?.head_sha !== HISTORICAL_MAIN || snapshot?.historical_ci?.job?.id !== Number(snapshot?.evidence_ref?.acceptance?.final_main_ci?.ci_gate?.job_id)
+    || snapshot?.historical_ci?.job?.head_sha !== HISTORICAL_MAIN || snapshot?.historical_ci?.job?.name !== 'ci-gate'
+    || snapshot?.historical_ci?.job?.conclusion !== 'success' || snapshot?.historical_ci?.job?.attempt !== snapshot?.historical_ci?.attempt) add(rel01, 'historical exact-head ci-gate run/job/attempt is missing or mismatched');
 
   const rel02 = [];
   const currentSha = source?.current_protected_main_sha;
   if (!SHA.test(currentSha ?? '') || currentSha === HISTORICAL_MAIN || currentSha === PACKAGE_SOURCE) add(rel02, 'fresh protected main SHA is missing or conflated with historical source/main');
   if (source?.historical_is_ancestor !== true || snapshot?.evidence_ref?.acceptance?.final_main_sha !== HISTORICAL_MAIN) add(rel02, 'historical release main is not proven as the accepted ancestor of current protected main');
   const ci = snapshot?.current_ci;
-  if (ci?.head_sha !== currentSha || ci?.job?.head_sha !== currentSha || ci?.job?.name !== 'ci-gate'
+  if (ci?.workflow_path !== '.github/workflows/ci.yml' || ci?.event !== 'push' || ci?.branch !== 'main'
+    || ci?.head_sha !== currentSha || ci?.job?.head_sha !== currentSha || ci?.job?.name !== 'ci-gate'
     || ci?.job?.conclusion !== 'success' || ci?.job?.attempt !== ci?.attempt || !Number.isInteger(ci?.run_id)
     || !Number.isInteger(ci?.job?.id)) add(rel02, 'current ci-gate run/job/attempt is absent, stale, or unsuccessful for the exact current main SHA');
   if (receipt?.current_blob_sha !== receipt?.blob_sha || receipt?.blob_sha !== snapshot?.evidence_ref?.acceptance?.receipt?.blob_sha) add(rel02, 'current main release receipt blob differs from the accepted immutable receipt');
@@ -220,6 +224,16 @@ function currentMainCi(mainSha) {
     job: job ? { id: job.id, name: job.name, head_sha: job.head_sha, conclusion: job.conclusion, attempt: job.run_attempt, url: job.html_url } : null };
 }
 
+function historicalMainCi(acceptance) {
+  const stored = acceptance.final_main_ci;
+  const run = ghJson(`repos/${REPOSITORY}/actions/runs/${stored.run_id}`);
+  const attempt = stored.attempt;
+  const jobs = ghJson(`repos/${REPOSITORY}/actions/runs/${stored.run_id}/attempts/${attempt}/jobs?per_page=100`);
+  const job = (jobs.jobs ?? []).find(item => item.name === 'ci-gate' && item.id === Number(stored.ci_gate?.job_id));
+  return { run_id: run.id, attempt: run.run_attempt, head_sha: run.head_sha, workflow_path: run.path, conclusion: run.conclusion, url: run.html_url,
+    job: job ? { id: job.id, name: job.name, head_sha: job.head_sha, conclusion: job.conclusion, attempt: job.run_attempt, url: job.html_url } : null };
+}
+
 function publicProof(receipt) {
   const apiBytes = runText('curl', ['-fsSL', '--max-time', '30', 'https://hex.pm/api/packages/sigra/releases/1.6.0']);
   const release = JSON.parse(apiBytes);
@@ -252,7 +266,7 @@ export function captureSnapshot() {
   let ancestor = false;
   try { execFileSync('git', ['merge-base', '--is-ancestor', HISTORICAL_MAIN, main], { cwd: ROOT, stdio: 'ignore' }); ancestor = true; } catch {}
   const publicRelease = publicProof(receipt);
-  const historical = JSON.parse(fs.readFileSync(`${ROOT}/${OWNER_DIR}/249-FINAL-MAIN-PROOF.json`, 'utf8'));
+  const historicalCi = historicalMainCi(acceptance.value);
   const currentInventory = { worktrees: captureWorktrees(), pull_requests: capturePullRequests(), worktrees_read_status: 'complete', pull_requests_read_status: 'complete' };
   if (currentInventory.worktrees.some(row => row.read_status !== 'complete')) currentInventory.worktrees_read_status = 'failed';
   return {
@@ -262,8 +276,7 @@ export function captureSnapshot() {
       terminal_commit_sha: terminalCommit, terminal_blob_sha: terminal.blob_sha, terminal_sha256: terminal.sha256, terminal_json_base64: terminal.bytes.toString('base64'), terminal: terminal.value },
     receipt: { path: RECEIPT_PATH, package_source_sha: receipt.package_source_sha, blob_sha: git('rev-parse', `${HISTORICAL_MAIN}:${RECEIPT_PATH}`), sha256: hash(run('git', ['show', `${HISTORICAL_MAIN}:${RECEIPT_PATH}`])), current_blob_sha: currentReceipt },
     public_release: publicRelease,
-    historical_ci: { run_id: historical.final_main_ci?.run_id, attempt: historical.final_main_ci?.attempt, head_sha: historical.final_main_ci?.head_sha,
-      conclusion: historical.final_main_ci?.conclusion, job: { id: historical.final_main_ci?.ci_gate?.job_id, name: 'ci-gate', head_sha: historical.final_main_ci?.ci_gate?.head_sha, conclusion: historical.final_main_ci?.ci_gate?.conclusion, attempt: historical.final_main_ci?.attempt } },
+    historical_ci: historicalCi,
     current_ci: currentCi,
     inventory: currentInventory,
     accepted_loss: loss ? { ...ACCEPTED_LOSS, bytes_recovered: loss.disposition?.bytes_recovered ?? false, bytes_preserved: loss.disposition?.bytes_preserved ?? false } : null,

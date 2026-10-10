@@ -14,7 +14,7 @@ function snapshot() {
     verdict: 'passed', recorded_at: '2026-10-10T00:01:05Z', package_source_sha: packageSha,
     final_main_sha: historicalMain, errors: [],
     public_release: { verdict: 'passed', source_commit_sha: packageSha },
-    final_main_ci: { head_sha: historicalMain, conclusion: 'success', ci_gate: { head_sha: historicalMain, conclusion: 'success' } },
+    final_main_ci: { run_id: 38003573391, attempt: 1, workflow: '.github/workflows/ci.yml', head_sha: historicalMain, conclusion: 'success', ci_gate: { job_id: 114069179560, head_sha: historicalMain, conclusion: 'success' } },
     receipt: { blob_sha: 'receipt-blob', sha256: digest('a') },
     inventory: { worktree_count: 1, pull_request_count: 1, dirty_path_count: 0, worktree_read_status: 'complete', pull_request_read_status: 'complete' },
   };
@@ -32,8 +32,8 @@ function snapshot() {
     evidence_ref: { name: 'refs/heads/evidence/phase-249-final-acceptance', commit_sha: 'f'.repeat(40), acceptance_commit_sha: 'a'.repeat(40), acceptance_blob_sha: 'a'.repeat(40), acceptance_sha256: hash(acceptanceBytes), acceptance_json_base64: acceptanceBytes.toString('base64'), terminal_commit_sha: 'f'.repeat(40), terminal_blob_sha: '2'.repeat(40), terminal_sha256: hash(terminalBytes), terminal_json_base64: terminalBytes.toString('base64'), acceptance, terminal },
     receipt: { path: 'receipt.json', package_source_sha: packageSha, blob_sha: 'receipt-blob', sha256: digest('a'), current_blob_sha: 'receipt-blob' },
     public_release: { verdict: 'passed', version: '1.6.0', tag: 'v1.6.0', package_source_sha: packageSha, versioned_docs_url: 'https://sigra.hexdocs.pm/1.6.0/Sigra.html', source_url: 'https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1', checksum: digest('f') },
-    historical_ci: { run_id: 38003573391, attempt: 1, head_sha: historicalMain, conclusion: 'success', job: { id: 114069179560, name: 'ci-gate', head_sha: historicalMain, conclusion: 'success', attempt: 1 } },
-    current_ci: { run_id: 38061391571, attempt: 1, head_sha: currentMain, conclusion: 'failure', job: { id: 114241911167, name: 'ci-gate', head_sha: currentMain, conclusion: 'success', attempt: 1 } },
+    historical_ci: { run_id: 38003573391, attempt: 1, workflow_path: '.github/workflows/ci.yml', head_sha: historicalMain, conclusion: 'success', job: { id: 114069179560, name: 'ci-gate', head_sha: historicalMain, conclusion: 'success', attempt: 1 } },
+    current_ci: { run_id: 38061391571, attempt: 1, workflow_path: '.github/workflows/ci.yml', event: 'push', branch: 'main', head_sha: currentMain, conclusion: 'failure', job: { id: 114241911167, name: 'ci-gate', head_sha: currentMain, conclusion: 'success', attempt: 1 } },
     inventory: { worktrees_read_status: 'complete', pull_requests_read_status: 'complete', worktrees: [{ path: '/repo', branch: 'main', head_sha: currentMain, raw_status_base64: '', raw_status_sha256: hash(Buffer.alloc(0)), raw_status_bytes: 0, clean: true }], pull_requests: [{ number: 302, base_sha: currentMain, head_sha: '1'.repeat(40), disposition: 'separate-follow-up', disposition_identity_match: true }] },
     accepted_loss: { path: '.planning/HANDOFF.json', status: ' M', sha256: '00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148', authorization: 'accept reality and move on accordingly', authorized_by: 'user', authorized_at: '2026-10-09', audit_record_ref: 'refs/phase-249-preservation/plan-08-preservation-record-v4', audit_record_commit_sha: '96581c2b555a11b50b6efece9c25a5b1f8e0e456', audit_record_sha256: 'b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3', bytes_recovered: false, bytes_preserved: false },
   };
