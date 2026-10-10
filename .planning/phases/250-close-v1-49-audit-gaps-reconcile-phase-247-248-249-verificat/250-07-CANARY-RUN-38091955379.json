@@ -160,10 +160,14 @@
   "next_requirement": "Repair code and CI, merge only if authorized delivery workflow CI is green; prepare a fresh digest-bound authority packet and request explicit approval before any further controller dispatch.",
   "repair": {
     "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
-    "evidence_sha256": "b75d2b885b64c37d77702f23bb4e23d23d21b0a9d4911defe32b61c98e297092",
+    "evidence_sha256": "18e55e10a5e3bb29f18072dfc2fa96f84bdce0adc83af3aa8442302025d732d0",
     "pr": 322,
     "head_sha": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
     "ci_run_id": 38092530129,
-    "ci_status": "queued"
+    "ci_status": "queued",
+    "merge_commit": "e0c66d61211ddb461c049ca6422350308b420126",
+    "merged_at": "2026-10-10T22:52:36Z",
+    "main_ci_run_id": 38093033532,
+    "main_ci_status": "in_progress"
   }
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T22:44:23Z",
-  "status": "plan_250_07_repair_pr_322_ci_in_progress",
+  "captured_at": "2026-10-10T22:53:04Z",
+  "status": "plan_250_07_parser_repair_merged_main_ci_in_progress",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
   "source_head": "d32128f55300cef3cab5ad3c4e3851f06490eaee",
@@ -47,7 +47,7 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "observer_parser_repair_pr_322_exact_head_ci_queued",
+    "status": "observer_parser_repair_pr_322_merged_waiting_main_ci",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
       "sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
@@ -244,13 +244,14 @@
       "new_canary_dispatch_attempted": false
     },
     "controller_retry_dispatched_after_failed_packet": false,
-    "next_action": "Monitor only CI run 38092530129 with one 60-second watcher; squash-merge PR #322 if required checks are green; prepare a new authority packet before any canary retry.",
+    "next_action": "Wait for exact-main CI and automatic Release Please runs. If main CI succeeds and main remains stable, prepare fresh packet bound to e0c66d61211ddb461c049ca6422350308b420126 and request explicit new authority. Do not reuse consumed v4.",
     "post_merge_main_ci": {
-      "run_id": 38089444484,
-      "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
-      "conclusion": "success",
-      "ci_gate_job_id": 114323952266,
-      "admin_eval_job_id": 114322689399
+      "run_id": 38093033532,
+      "status": "in_progress",
+      "head_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "watcher_session_id": 32468,
+      "watcher_count": 1,
+      "interval_seconds": 60
     },
     "authority_packet_v3_preserved": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-consumed.json",
@@ -306,17 +307,26 @@
     "retry_authorized_after_v4": false,
     "run_evidence": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json",
-      "sha256": "9205e582fa147220e1499053cd6dfe8991b7ef3621d9bfd9e2f8145b82a015cd",
+      "sha256": "80c83aaf5be91f76e7be4dcd535134621acaac6d9b946bc1e6b3d515802b0474",
       "controller_proof_file_sha256": "0beba757f438bab3199ee3693b5e567b35fe60d3ba550c8d156686e7bf4a9a88",
       "failure_receipt_sha256": "5992024878742a638b5ad715b824c62ad6135744277346d45b766baee24ca9dd"
     },
     "repair_evidence": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
-      "sha256": "b75d2b885b64c37d77702f23bb4e23d23d21b0a9d4911defe32b61c98e297092",
+      "sha256": "18e55e10a5e3bb29f18072dfc2fa96f84bdce0adc83af3aa8442302025d732d0",
       "pr": 322,
       "head_sha": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
       "ci_run_id": 38092530129,
-      "ci_status": "queued"
+      "ci_status": "queued",
+      "status": "merged",
+      "merge_commit": "e0c66d61211ddb461c049ca6422350308b420126"
+    },
+    "automatic_release_please": {
+      "run_id": 38093033505,
+      "status": "in_progress",
+      "watcher_session_id": 91065,
+      "watcher_count": 1,
+      "interval_seconds": 60
     }
   },
   "plan_250_08": {

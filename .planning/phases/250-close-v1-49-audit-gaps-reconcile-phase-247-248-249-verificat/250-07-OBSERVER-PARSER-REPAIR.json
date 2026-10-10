@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "recorded_at": "2026-10-10T22:44:23Z",
-  "status": "pr_ci_in_progress",
+  "status": "merged_waiting_exact_main_ci",
   "cause": "deterministic_input_mode_collision",
   "failure_run_id": 38091955379,
   "source_main_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
@@ -29,7 +29,9 @@
     "url": "https://github.com/szTheory/sigra/pull/322",
     "base_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
     "head_sha": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
-    "state": "open"
+    "state": "merged",
+    "merge_commit": "e0c66d61211ddb461c049ca6422350308b420126",
+    "merged_at": "2026-10-10T22:52:36Z"
   },
   "exact_head_ci": {
     "run_id": 38092530129,
@@ -45,5 +47,32 @@
     "actionlint": "passed"
   },
   "merge_instruction": "User previously authorized squash merge if CI is green; merge only after all required PR checks pass.",
-  "next_step": "Monitor exact-head CI run 38092530129 with one 60-second watcher. If green, squash merge PR #322; then prepare a fresh packet and request explicit authority before any further canary controller dispatch."
+  "next_step": "Monitor exact-head CI run 38092530129 with one 60-second watcher. If green, squash merge PR #322; then prepare a fresh packet and request explicit authority before any further canary controller dispatch.",
+  "post_merge_main_ci": {
+    "run_id": 38093033532,
+    "workflow": "CI",
+    "status": "in_progress",
+    "head_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38093033532"
+  },
+  "release_please_run": {
+    "run_id": 38093033505,
+    "status": "in_progress",
+    "head_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+    "publish_not_dispatched_manually": true
+  },
+  "watchers": [
+    {
+      "run_id": 38093033532,
+      "interval_seconds": 60,
+      "count": 1,
+      "session_id": 32468
+    },
+    {
+      "run_id": 38093033505,
+      "interval_seconds": 60,
+      "count": 1,
+      "session_id": 91065
+    }
+  ]
 }
