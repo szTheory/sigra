@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T16:07:28.903Z",
+  "captured_at": "2026-10-10T16:08:31.072Z",
   "repository": "szTheory/sigra",
   "source": {
     "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
@@ -244,7 +244,7 @@
     "run_id": 38061391571,
     "attempt": 1,
     "head_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
-    "path": ".github/workflows/ci.yml",
+    "workflow_path": ".github/workflows/ci.yml",
     "event": "push",
     "branch": "main",
     "status": "completed",
@@ -329,7 +329,7 @@
       {
         "path": "/Users/jon/projects/sigra",
         "branch": "phase-244-playwright-measurement",
-        "head_sha": "d09ed17db1c9a98a0f0a12cec76c295befedbdb6",
+        "head_sha": "354c6e90b98a9a417038152d039731a29881181f",
         "detached": false,
         "locked": false,
         "prunable": false,
