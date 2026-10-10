@@ -34,15 +34,15 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
 Current Plan: 5
 Total Plans in Phase: 5
-Plans executed: 3 of 5
+Plans executed: 4 of 5
 Status: Ready to execute
-Last activity: 2026-10-10 — Phase 250 Plan 03 completed; Plan 04 is next
+Last activity: 2026-10-10 — Phase 250 Plan 04 completed; Plan 05 is next
 
 Progress: [████████░░] 80%
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task; Plan 02 is complete with READY-01/02 still unsatisfied. Its canonical reconciliation is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json`, and the Phase 247 owner report is `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`. Plan 03 refreshed the Phase 248 owner report and captured source-bound evidence in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`: AUTO-01 is satisfied; AUTO-02 remains unsatisfied because the authorized canary proof is blocked and neither hosted terminal artifact is available. The user's one-retry authorization for the canary is consumed. Do not dispatch or cancel another run without fresh explicit authorization. Phase 250 and v1.49 remain incomplete; Plan 04 is next.
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task; Plan 02 is complete with READY-01/02 still unsatisfied. Its canonical reconciliation is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json`, and the Phase 247 owner report is `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`. Plan 03 refreshed the Phase 248 owner report and captured source-bound evidence in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`: AUTO-01 is satisfied; AUTO-02 remains unsatisfied because the authorized canary proof is blocked and neither hosted terminal artifact is available. Plan 04 refreshed the Phase 249 owner report and captured `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json`: REL-01 is satisfied; REL-02 remains unsatisfied because current-main CI failed at the workflow level and five open PR identities lack matching dispositions. The user's one-retry authorization for the canary is consumed. Do not dispatch or cancel another run without fresh explicit authorization. Phase 250 and v1.49 remain incomplete; Plan 05 is next.
 
 ### v1.49 phase map
 

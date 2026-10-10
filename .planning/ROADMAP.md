@@ -209,7 +209,7 @@ Plans:
 
 ### Next
 
-The milestone audit remains `gaps_found` (3/9 requirements satisfied). Phase 250 Plans 01–02 are complete as evidence tasks; Plans 03–05 remain. Plan 02's canonical Phase 247 verifier records READY-01/02 as unsatisfied against the captured live identities. `init.execute-phase 250` reports Plan 03 as runnable with no prerequisite blocker.
+The milestone audit remains `gaps_found` (3/9 requirements satisfied). Phase 250 Plans 01–04 are complete as evidence/reporting tasks. Plan 04's Phase 249 owner report records REL-01 satisfied and REL-02 unsatisfied against the exact current-main workflow failure and five live PR identity mismatches; Plan 03 still records AUTO-02 unsatisfied because its authorized canary retry produced no required terminal artifacts. The one-retry authorization is consumed. `init.execute-phase 250` reports Plan 05 as runnable with no prerequisite blocker.
 
 **Next command:** `$gsd-execute-phase 250`
 
