@@ -1,11 +1,11 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** Sigra 1.6.0 is published and the v1.49 audit found verification/evidence gaps; keep the milestone open pending one focused closure phase. The package target is 1.6.0 from the existing Release Please PR #224; v1.49 is the GSD milestone number.
+**Status:** Sigra 1.6.0 is published; Phase 250 is the focused v1.49 verification/evidence closure phase. The package target is 1.6.0 from the existing Release Please PR #224; v1.49 is the GSD milestone number.
 
 ## Milestones
 
-- 🚧 **v1.49 RELEASE-1.6.0** — Phases 246–249; ship Sigra 1.6.0 from reviewed, exactly tested source with adopter guidance and durable public evidence.
+- 🚧 **v1.49 RELEASE-1.6.0** — Phases 246–250; ship Sigra 1.6.0 from reviewed, exactly tested source with adopter guidance and durable public evidence.
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
 - ✅ **v1.46 ADOPTER-EXPERIENCE** — Phases 224-229 (shipped 2026-07-27 · `override_closeout`, 15/15 requirements, 8 audit findings deferred) · full detail in milestones/v1.46-ROADMAP.md
@@ -177,9 +177,21 @@ Plans:
 **Wave 10** *(blocked on Plan 11)*
 - [x] 249-12-PLAN.md — Verify final-main evidence and terminal repository cleanliness.
 
+#### Phase 250: Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts
+
+**Goal**: Reconcile missing and stale v1.49 phase verifications, prove hosted failure/cancellation receipt delivery with a safe non-publishing canary, and close the milestone audit with a consistent 9/9 requirements record.
+**Depends on**: Phase 249
+**Requirements**: READY-01, READY-02, AUTO-01, AUTO-02, REL-01, REL-02 (verification closure; original traceability assignments remain unchanged)
+**Success Criteria**:
+  1. Phase 247 has an independent verification proving READY-01 and READY-02 against the exact candidate, readiness ledger, and disposition evidence.
+  2. Phase 248 canonical verification reflects the current protected-environment and successful exact-source evidence; a canary with no publish credentials creates, retains, retrieves, and validates source-bound hosted failure and cancellation receipts.
+  3. Phase 249 canonical verification reconciles to the passing final acceptance, current-main CI, public release proof, clean inventory, and the explicitly accepted historical HANDOFF loss.
+  4. Requirements traceability and the v1.49 audit agree across phase verification, summary frontmatter, and requirements mapping; the audit passes with no orphaned requirements.
+**Plans**: 0 plans (discussion and planning pending)
+
 ### Progress
 
-**Execution Order:** 246 → 247 → 248 → 249
+**Execution Order:** 246 → 247 → 248 → 249 → 250
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -187,19 +199,12 @@ Plans:
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
+| 250. Close v1.49 audit gaps | v1.49 | 0/0 | Pending | — |
 
 ### Next
 
-**Audit result:** v1.49 milestone audit is `gaps_found` (3/9 requirements satisfied). The release and confirmation flows are wired; Phase 247 verification is missing, Phase 248 hosted failure/cancellation receipts remain unproven and its canonical verifier needs reconciliation, and Phase 249's canonical verifier predates the passing final-acceptance seal. Keep v1.49 unarchived. Phase 250 does not exist yet.
+The milestone audit found `gaps_found` (3/9 requirements satisfied). Phase 250 is now added to reconcile Phase 247/248/249 verification and prove hosted AUTO-02 terminal receipts through a safe non-publishing canary. Phase 250 readiness reports no plan or context and no prerequisite blocker.
 
-**Next command:** insert one focused closure phase, then discuss, plan, execute, and rerun the audit:
+**Next command:** `$gsd-discuss-phase 250`
 
-```text
-$gsd-phase --insert 250 "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-$gsd-discuss-phase 250
-$gsd-plan-phase 250
-$gsd-execute-phase 250
-$gsd-audit-milestone
-```
-
-The passing Phase 249 acceptance is at `refs/heads/evidence/phase-249-final-acceptance`, commit `65f1ca4c851d62415ed656509cb068dc3acbab15`; the current checkout's acceptance JSON remains an older blocked snapshot. Do not repeat `$gsd-validate-phase 248` until new hosted failure/cancellation artifacts exist.
+Do not repeat `$gsd-validate-phase 248` until new hosted failure/cancellation artifacts exist. The passing Phase 249 acceptance remains at `refs/heads/evidence/phase-249-final-acceptance`, commit `65f1ca4c851d62415ed656509cb068dc3acbab15`; the checked-in acceptance JSON is an older blocked snapshot.

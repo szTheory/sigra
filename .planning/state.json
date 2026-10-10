@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "milestone": "v1.49 — RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -22,19 +22,17 @@
       "number": "249",
       "name": "Publish and Prove Sigra 1.6.0",
       "status": "complete"
+    },
+    {
+      "number": "250",
+      "name": "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts",
+      "status": "pending"
     }
   ],
   "next": {
-    "command": "$gsd-phase --insert 250 \"Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts\"",
-    "label": "Insert one focused v1.49 audit-gap closure phase",
-    "reason": "The v1.49 audit is gaps_found (3/9 requirements satisfied). Phase 247 verification is missing; Phase 248 still lacks hosted failure/cancellation receipt retrieval and needs canonical verifier reconciliation; Phase 249 has a passing final-acceptance ref but a stale canonical verifier. The exact acceptance ref and evidence are recorded in .planning/v1.49-MILESTONE-AUDIT.md. init.plan-phase 250 returned phase_found=false, so insert the closure phase before discussing/planning it. Keep the milestone unarchived."
+    "command": "$gsd-discuss-phase 250",
+    "label": "Discuss Phase 250 audit-gap closure",
+    "reason": "Phase 250 is added at the end of v1.49. init.plan-phase 250 reports Pending, no plans, no context, and no prerequisite blocker. The audit findings and evidence references are in .planning/v1.49-MILESTONE-AUDIT.md."
   },
-  "updated_at": "2026-10-10T01:24:10Z",
-  "progress": {
-    "total_phases": 4,
-    "completed_phases": 4,
-    "total_plans": 31,
-    "completed_plans": 29,
-    "percent": 100
-  }
+  "updated_at": "2026-10-10T01:27:15Z"
 }

@@ -2,21 +2,21 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-current_phase: 249
-current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: v1.49 milestone audit — gaps_found
+current_phase: 250
+current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
+current_plan: Phase 250 discussion
 status: in_progress
-stopped_at: v1.49 milestone audit complete with gaps_found; insert focused Phase 250 closure next
-last_updated: "2026-10-10T01:24:10Z"
+stopped_at: Phase 250 added; discuss-phase is next (no context or plan exists)
+last_updated: "2026-10-10T01:27:15Z"
 last_activity: 2026-10-10
-last_activity_desc: v1.49 audit found 3/9 requirements satisfied; phase verification reconciliation and hosted AUTO-02 canary remain
+last_activity_desc: Phase 250 added; readiness is clear and discussion is next
 state_head: 2782099bb
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 4
   total_plans: 31
   completed_plans: 29
-  percent: 100
+  percent: 80
 ---
 
 # Project State
@@ -27,22 +27,22 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** close the v1.49 audit gaps; do not archive yet
+**Current focus:** Phase 250 discussion and planning; keep v1.49 unarchived until its audit passes
 
 ## Current Position
 
-Phase: 249 (Publish and Prove Sigra 1.6.0) — COMPLETE
-Current Plan: None; audit is complete with gaps_found; insert one focused Phase 250 closure phase
-Total Plans in Phase: 12
-Plans executed: 12 of 12
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — PENDING
+Current Plan: No plan yet; run `$gsd-discuss-phase 250`
+Total Plans in Phase: 0
+Plans executed: 0 of 0
 Status: Phase implementation is complete, but milestone verification is not. Audit score is 3/9; Phase 247 verification is missing, Phase 248 hosted failure/cancellation receipt proof and verifier reconciliation remain, and Phase 249 verification predates its passing final-acceptance seal.
-Last activity: 2026-10-10 — milestone audit found no broken implementation flows; a safe non-publishing canary is required for AUTO-02.
+Last activity: 2026-10-10 — Phase 250 added after the v1.49 audit; readiness has no prerequisite blocker.
 
-Progress: [██████████] 100%
+Progress: [████████░░] 80%
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Phase 250 is absent. Insert one closure phase to reconcile missing/stale phase verifications and prove hosted failure/cancellation receipts, then rerun `$gsd-audit-milestone`. Do not repeat `$gsd-validate-phase 248` until new hosted terminal artifacts exist.
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Phase 250 is now added to reconcile missing/stale phase verifications and prove hosted failure/cancellation receipts. `init.plan-phase 250` reports a pending phase with no context or plan and no prerequisite blocker. Next: `$gsd-discuss-phase 250`.
 
 ### v1.49 phase map
 
@@ -52,6 +52,7 @@ The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requ
 | 247 | Release candidate and repository readiness | READY-01..02 |
 | 248 | Exact-source release gate | AUTO-01..02 |
 | 249 | Publish and prove Sigra 1.6.0 | REL-01..02 |
+| 250 | v1.49 audit gap closure | READY-01..02, AUTO-01..02, REL-01..02 |
 
 The package target is the existing Release Please PR #224 proposing 1.6.0; the GSD milestone remains v1.49. Phase 245's historical evidence gaps, Hex 1.20.0 resolver ranking, and remaining SEED-011 findings are deferred outside this roadmap. Phase 246 planning readiness was checked on 2026-10-06: three plans are runnable, all nine locked decisions and all three phase requirements are covered, and there is no prerequisite blocker. Phase 245's stale historical verification remains separate from this forward route.
 
@@ -632,6 +633,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 247 Plan 05 current blocker: PR #224 is open at head 77dd1126436a9e83c04283433e5f60c71ee98287 on base/main e3883b72fb1df5ad6356ef10dbde408f18bbc3be. Its 1.6.0 CHANGELOG section is raw generated history with internal phase IDs and no curated adopter summary (D-03); README still routes existing adopters to upgrading-to-v1.0.md and guides/introduction/upgrading-to-v1.6.md is absent at the exact head (D-05/D-06). Exact-head CI run 37713178478 is watched only by the parent. Do not retarget the fixed-source workflow, inspect credential metadata, dispatch Hex workflow, create tags, publish, or merge PR #224. See `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md`.
 
 ### Roadmap Evolution
+
+- Phase 250 added 2026-10-10 after Phase 249: Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts. This closure phase reconciles the missing/stale phase verifiers and proves hosted release failure/cancellation receipts; next run `$gsd-discuss-phase 250`.
 
 - v1.49 RELEASE-1.6.0 roadmap created 2026-10-06: 4 phases (246–249), 9/9 requirements mapped. Phase 246 closes SEED-011 generated confirmation findings A/B/D; Phase 247 readies the existing 1.6.0 candidate and clean source; Phase 248 proves and hardens the exact-source release gate; Phase 249 publishes and checks Hex, versioned HexDocs, protected-main CI, PR dispositions, and clean worktrees. The user delegated the package-version decision to the existing Release Please PR #224; this is a package 1.6.0 release under GSD milestone v1.49.
 - Phase 208.1 inserted after Phase 208: v1.42 CI-Gate Remediation: fix ~15 never-CI-validated admin Playwright failures blocking the backlog ship + Phase 208 completion (URGENT)
