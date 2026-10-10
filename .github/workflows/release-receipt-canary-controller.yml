@@ -1,0 +1,40 @@
+name: Release Receipt Canary Controller
+run-name: release-receipt-canary-controller-${{ github.run_id }}-${{ github.run_attempt }}
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: release-receipt-canary-controller-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  prove-terminal-receipts:
+    name: Prove isolated failure and cancellation receipts
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Read-only preflight and exact-run orchestration
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/ci/release-canary.sh --run --proof "$RUNNER_TEMP/release-canary-proof.json"
+
+      - name: Upload sanitized controller proof
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-canary-controller-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-canary-proof.json
+          if-no-files-found: error
+          retention-days: 30
