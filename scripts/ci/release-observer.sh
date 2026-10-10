@@ -4,19 +4,21 @@
 set -euo pipefail
 
 EVENT_FILE="${EVENT_PATH:-}"
+SOURCE_RUN_ID_INPUT=""
 OUTPUT_PATH="release-cancellation.json"
 fail() { echo "release-observer: FAIL: $*" >&2; exit 1; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --event) [[ $# -ge 2 ]] || fail "--event requires a path"; EVENT_FILE="$2"; shift 2 ;;
+    --source-run-id) [[ $# -ge 2 ]] || fail "--source-run-id requires an ID"; SOURCE_RUN_ID_INPUT="$2"; shift 2 ;;
     --output) [[ $# -ge 2 ]] || fail "--output requires a path"; OUTPUT_PATH="$2"; shift 2 ;;
-    -h|--help) echo "Usage: release-observer.sh --event <workflow_run-event.json> [--output <receipt.json>]"; exit 0 ;;
+    -h|--help) echo "Usage: release-observer.sh (--event <workflow_run-event.json> | --source-run-id <cancelled-canary-run-id>) [--output <receipt.json>]"; exit 0 ;;
     *) fail "unknown argument: $1" ;;
   esac
 done
 
-[[ -n "$EVENT_FILE" && -f "$EVENT_FILE" ]] || fail "workflow_run event file is required"
+[[ -z "$EVENT_FILE" || -z "$SOURCE_RUN_ID_INPUT" ]] || fail "choose exactly one event source"
 [[ -n "${GITHUB_REPOSITORY:-}" && "$GITHUB_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || fail "observer repository identity is missing or malformed"
 [[ -n "${GITHUB_RUN_ID:-}" && "$GITHUB_RUN_ID" =~ ^[1-9][0-9]*$ ]] || fail "observer run ID is missing or malformed"
 [[ -n "${GITHUB_RUN_ATTEMPT:-}" && "$GITHUB_RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "observer run attempt is missing or malformed"
@@ -24,6 +26,21 @@ done
 [[ -n "${GH_TOKEN:-}" ]] || fail "GitHub API token is unavailable"
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 command -v gh >/dev/null 2>&1 || fail "gh is required"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORK_DIR="$(mktemp -d)"
+trap 'rm -rf "$WORK_DIR"' EXIT
+
+SOURCE_RUN=""
+if [[ -n "$SOURCE_RUN_ID_INPUT" ]]; then
+  [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || fail "source-run-id mode requires workflow_dispatch"
+  [[ "$SOURCE_RUN_ID_INPUT" =~ ^[1-9][0-9]*$ ]] || fail "source run ID is malformed"
+  SOURCE_RUN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID_INPUT}" 2>/dev/null)" || fail "authoritative source run query failed"
+  jq -e --argjson id "$SOURCE_RUN_ID_INPUT" '.id == $id and type == "object"' <<<"$SOURCE_RUN" >/dev/null 2>&1 || fail "source run ID does not match authoritative Actions metadata"
+  EVENT_FILE="$WORK_DIR/source-run-event.json"
+  jq -n --arg repository "$GITHUB_REPOSITORY" --argjson run "$SOURCE_RUN" \
+    '{repository:{full_name:$repository},workflow_run:{id:$run.id,head_sha:$run.head_sha,event:$run.event,workflow_id:$run.workflow_id}}' > "$EVENT_FILE" || fail "could not construct authoritative source context"
+fi
+[[ -n "$EVENT_FILE" && -f "$EVENT_FILE" ]] || fail "workflow_run event file is required"
 
 EVENT_RUN_ID="$(jq -er '.workflow_run.id | select(type == "number" and floor == . and . > 0) | tostring' "$EVENT_FILE" 2>/dev/null)" || fail "event source run ID is malformed"
 EVENT_SHA="$(jq -er '.workflow_run.head_sha | select(type == "string" and test("^[0-9a-f]{40}$"))' "$EVENT_FILE" 2>/dev/null)" || fail "event source SHA is malformed"
@@ -32,7 +49,9 @@ EVENT_EVENT="$(jq -er '.workflow_run.event | select(type == "string")' "$EVENT_F
 EVENT_WORKFLOW_ID="$(jq -er '.workflow_run.workflow_id | select(type == "number" and floor == . and . > 0)' "$EVENT_FILE" 2>/dev/null)" || fail "event source workflow ID is malformed"
 [[ "$EVENT_REPOSITORY" == "$GITHUB_REPOSITORY" ]] || fail "event repository does not match observer repository"
 
-SOURCE_RUN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${EVENT_RUN_ID}" 2>/dev/null)" || fail "authoritative source run query failed"
+if [[ -z "$SOURCE_RUN" ]]; then
+  SOURCE_RUN="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${EVENT_RUN_ID}" 2>/dev/null)" || fail "authoritative source run query failed"
+fi
 jq -e 'type == "object"' <<<"$SOURCE_RUN" >/dev/null 2>&1 || fail "authoritative source run is not an object"
 
 API_REPOSITORY="$(jq -er '.repository.full_name | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source repository is missing"
@@ -48,9 +67,6 @@ API_URL="$(jq -er '.html_url | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev
 API_ATTEMPT="$(jq -er '.run_attempt | select(type == "number" and floor == . and . > 0)' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source attempt is malformed"
 API_STARTED="$(jq -er '.run_started_at | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source start time is missing"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORK_DIR="$(mktemp -d)"
-trap 'rm -rf "$WORK_DIR"' EXIT
 case "$API_WORKFLOW_PATH" in
   .github/workflows/release-please.yml|.github/workflows/release-please.yml@main)
     WORKFLOW="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/release-please.yml" 2>/dev/null)" || fail "authoritative Release Please workflow query failed"

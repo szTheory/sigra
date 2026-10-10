@@ -1,26 +1,35 @@
 name: Release Run Observer
 
-run-name: release-observer-${{ github.event.workflow_run.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+run-name: release-observer-${{ inputs.source_run_id || github.event.workflow_run.id }}-${{ github.run_id }}-${{ github.run_attempt }}
 
 on:
   workflow_run:
     workflows: ["Release Please", "Release Receipt Canary"]
     types: [completed]
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Exact cancelled canary source run to observe
+        required: true
+        type: string
 
 permissions:
   actions: read
   contents: read
 
 concurrency:
-  group: release-run-observer-${{ github.event.workflow_run.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+  group: release-run-observer-${{ inputs.source_run_id || github.event.workflow_run.id }}-${{ github.run_id }}-${{ github.run_attempt }}
   cancel-in-progress: false
 
 jobs:
   record-cancellation:
     name: Record cancelled release or canary run
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'cancelled' && (github.event.workflow.name == 'Release Please' || github.event.workflow.name == 'Release Receipt Canary') }}
+    if: >-
+      ${{ (github.event_name == 'workflow_dispatch' && inputs.source_run_id != '') ||
+          (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'cancelled' &&
+           (github.event.workflow.name == 'Release Please' || github.event.workflow.name == 'Release Receipt Canary')) }}
     permissions:
       actions: read
       contents: read
@@ -33,12 +42,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           EVENT_PATH: ${{ github.event_path }}
-        run: bash scripts/ci/release-observer.sh --event "$EVENT_PATH" --output release-cancellation.json
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            bash scripts/ci/release-observer.sh --source-run-id "$SOURCE_RUN_ID" --output release-cancellation.json
+          else
+            bash scripts/ci/release-observer.sh --event "$EVENT_PATH" --output release-cancellation.json
+          fi
 
       - name: Upload cancellation receipt
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ github.event.workflow.name == 'Release Receipt Canary' && format('release-canary-cancellation-{0}-{1}', github.event.workflow_run.id, github.event.workflow_run.run_attempt) || format('release-cancellation-{0}', github.event.workflow_run.id) }}
+          name: ${{ inputs.source_run_id && format('release-canary-cancellation-{0}-{1}', inputs.source_run_id, github.run_attempt) || (github.event.workflow.name == 'Release Receipt Canary' && format('release-canary-cancellation-{0}-{1}', github.event.workflow_run.id, github.event.workflow_run.run_attempt) || format('release-cancellation-{0}', github.event.workflow_run.id)) }}
           path: release-cancellation.json
           if-no-files-found: error
           retention-days: 90

@@ -27,6 +27,15 @@ case "$endpoint" in
   "repos/${GITHUB_REPOSITORY}/actions/workflows/release-please.yml")
     cat "$TEST_WORKFLOW_JSON"
     ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/release-receipt-canary.yml")
+    cat "$TEST_CANARY_WORKFLOW_JSON"
+    ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/release-run-observer.yml")
+    jq -n '{id:2026,name:"Release Run Observer",path:".github/workflows/release-run-observer.yml",state:"active"}'
+    ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/98123")
+    jq -n '{id:98123,run_attempt:1,workflow_id:2026,path:".github/workflows/release-run-observer.yml",event:"workflow_dispatch",head_branch:"main",head_sha:"2222222222222222222222222222222222222222",status:"in_progress",conclusion:null,run_started_at:"2026-10-10T10:02:00Z",html_url:"https://github.com/szTheory/sigra/actions/runs/98123"}'
+    ;;
   "repos/${GITHUB_REPOSITORY}/contents/.release-please-manifest.json?ref=${TEST_SOURCE_SHA}")
     if [[ "${TEST_MANIFEST_MISSING:-false}" == true ]]; then exit 1; fi
     base64 < "$TEST_MANIFEST_JSON" | tr -d '\n'
@@ -63,6 +72,29 @@ write_fixtures() {
     TEST_SOURCE_TAG="v1.6.0" TEST_RUN_JSON="$TMP_DIR/fixture/run.json" \
     TEST_WORKFLOW_JSON="$TMP_DIR/fixture/workflow.json" \
     TEST_MANIFEST_JSON="$TMP_DIR/fixture/manifest.json" TEST_TAG_SHA="$SOURCE_SHA"
+}
+
+write_canary_fixtures() {
+  local probe="0123456789abcdef0123456789abcdef" run_id=74124
+  jq -n --arg sha "$SOURCE_SHA" --arg probe "$probe" \
+    --arg url "https://github.com/${REPOSITORY}/actions/runs/${run_id}" \
+    '{id:74124,name:"Release Receipt Canary",workflow_id:2025,path:".github/workflows/release-receipt-canary.yml@main",
+      display_title:("release-receipt-canary-cancellation-"+$probe),event:"workflow_dispatch",head_branch:"main",head_sha:$sha,
+      conclusion:"cancelled",run_attempt:1,run_started_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z",
+      html_url:$url,repository:{full_name:"szTheory/sigra"}}' > "$TMP_DIR/fixture/canary-run.json"
+  jq -n '{id:2025,name:"Release Receipt Canary",path:".github/workflows/release-receipt-canary.yml",state:"active"}' > "$TMP_DIR/fixture/canary-workflow.json"
+  export TEST_SOURCE_RUN_ID="$run_id" TEST_SOURCE_SHA="$SOURCE_SHA" \
+    TEST_RUN_JSON="$TMP_DIR/fixture/canary-run.json" TEST_CANARY_WORKFLOW_JSON="$TMP_DIR/fixture/canary-workflow.json"
+}
+
+run_dispatched_observer() {
+  local output="$1"
+  GITHUB_REPOSITORY="$REPOSITORY" GITHUB_RUN_ID="$OBSERVER_RUN_ID" GITHUB_RUN_ATTEMPT=1 \
+    GITHUB_EVENT_NAME=workflow_dispatch GITHUB_SERVER_URL=https://github.com GH_TOKEN=fixture-token \
+    TEST_SOURCE_RUN_ID="$TEST_SOURCE_RUN_ID" TEST_SOURCE_SHA="$TEST_SOURCE_SHA" TEST_RUN_JSON="$TEST_RUN_JSON" \
+    TEST_CANARY_WORKFLOW_JSON="$TEST_CANARY_WORKFLOW_JSON" PATH="$TMP_DIR/bin:$PATH" \
+    bash "$ROOT_DIR/scripts/ci/release-observer.sh" --source-run-id "$TEST_SOURCE_RUN_ID" \
+      --output "$output" > "$TMP_DIR/stdout" 2> "$TMP_DIR/stderr"
 }
 
 run_observer() {
@@ -104,6 +136,23 @@ for event in push workflow_dispatch; do
     pass "$event cancellation is source-linked and preserves source_event"
   else cat "$TMP_DIR/stderr" >&2; fail "$event cancellation receipt missing or malformed"; fi
 done
+
+echo "Test A2: explicit workflow_dispatch observes only an exact cancelled canary source"
+write_canary_fixtures
+output="$TMP_DIR/manual-canary.json"
+if run_dispatched_observer "$output" && jq -e --arg sha "$SOURCE_SHA" \
+  '.receipt_kind == "canary" and .scenario == "cancellation" and .probe_id == "0123456789abcdef0123456789abcdef" and
+   .source_run_id == "74124" and .source_run_attempt == 1 and .source_workflow_id == 2025 and
+   .source_sha == $sha and .observer_run.id == "98123"' "$output" >/dev/null; then
+  pass "workflow_dispatch re-queries and records an exact cancelled canary"
+else cat "$TMP_DIR/stderr" >&2; fail "manual canary cancellation receipt missing or malformed"; fi
+jq '.conclusion="failure"' "$TEST_RUN_JSON" > "$TMP_DIR/fixture/canary-failed.json"
+TEST_RUN_JSON="$TMP_DIR/fixture/canary-failed.json" export TEST_RUN_JSON
+if run_dispatched_observer "$TMP_DIR/manual-canary-failure.json"; then
+  fail "manual dispatch accepted a non-cancelled canary source"
+elif [[ -e "$TMP_DIR/manual-canary-failure.json" ]]; then
+  fail "rejected manual dispatch left a receipt behind"
+else pass "manual dispatch rejects a non-cancelled canary without a receipt"; fi
 
 echo "Test B: source run must be an authoritative cancelled Release Please run on main"
 write_fixtures pull_request

@@ -437,13 +437,21 @@ cancel_exact_canary_run() {
 wait_for_observer() {
   local source_id="$1" observer_workflow_id="$2" listing matches elapsed=0
   while (( elapsed <= 600 )); do
-    listing="$(gh api "repos/${REPOSITORY}/actions/workflows/${observer_workflow_id}/runs?branch=main&event=workflow_run&per_page=100")" || return 1
+    listing="$(gh api "repos/${REPOSITORY}/actions/workflows/${observer_workflow_id}/runs?branch=main&event=workflow_dispatch&per_page=100")" || return 1
     matches="$(jq -r --arg prefix "release-observer-${source_id}-" '[.workflow_runs[]? | select(.display_title | startswith($prefix))] | if length == 1 then .[0].id else empty end' <<<"$listing")"
     if [[ "$matches" =~ ^[1-9][0-9]*$ ]]; then printf '%s' "$matches"; return 0; fi
     sleep 60
     elapsed=$((elapsed + 60))
   done
   return 1
+}
+
+dispatch_observer() {
+  local source_id="$1" observer_workflow_id="$2"
+  [[ "$source_id" =~ ^[1-9][0-9]*$ && "$observer_workflow_id" =~ ^[1-9][0-9]*$ ]] || return 1
+  gh api --method POST "repos/${REPOSITORY}/actions/workflows/${observer_workflow_id}/dispatches" \
+    -f ref=main -f "inputs[source_run_id]=${source_id}" >/dev/null || return 1
+  wait_for_observer "$source_id" "$observer_workflow_id"
 }
 
 run_controller() {
@@ -482,10 +490,10 @@ run_controller() {
   cancel_run="$(run_metadata "$cancel_id")" || fail "cancellation run summary unavailable"
   [[ "$(jq -r '.id | tostring' <<<"$cancel_run")" == "$cancel_id" && "$(jq -r '.workflow_id | tostring' <<<"$cancel_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$cancel_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.name' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.event' <<<"$cancel_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$cancel_run")" == main && "$(jq -r '.head_sha' <<<"$cancel_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$cancel_run")" == 1 && "$(jq -r '.display_title' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.conclusion' <<<"$cancel_run")" == cancelled ]] || fail "cancellation run exact identity or expected conclusion mismatch"
 
-  observer_id="$(wait_for_observer "$cancel_id" "$observer_wf_id")" || fail "exact cancellation observer run was not found"
+  observer_id="$(dispatch_observer "$cancel_id" "$observer_wf_id")" || fail "exact cancellation observer dispatch or run lookup failed"
   watch_run "$observer_id"
   observer_run="$(run_metadata "$observer_id")" || fail "observer run summary unavailable"
-  [[ "$(jq -r '.id | tostring' <<<"$observer_run")" == "$observer_id" && "$(jq -r '.workflow_id | tostring' <<<"$observer_run")" == "$observer_wf_id" && "$(jq -r '.path' <<<"$observer_run")" == .github/workflows/release-run-observer.yml && "$(jq -r '.event' <<<"$observer_run")" == workflow_run && "$(jq -r '.head_branch' <<<"$observer_run")" == main && "$(jq -r '.conclusion' <<<"$observer_run")" == success ]] || fail "observer run exact identity or conclusion mismatch"
+  [[ "$(jq -r '.id | tostring' <<<"$observer_run")" == "$observer_id" && "$(jq -r '.workflow_id | tostring' <<<"$observer_run")" == "$observer_wf_id" && "$(jq -r '.path' <<<"$observer_run")" == .github/workflows/release-run-observer.yml && "$(jq -r '.event' <<<"$observer_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$observer_run")" == main && "$(jq -r '.conclusion' <<<"$observer_run")" == success ]] || fail "observer run exact identity or conclusion mismatch"
   expected_cancel_name="${expected_cancel_name}${cancel_id}-1"
   cancel_artifact="$(get_unique_artifact "$observer_id" "$expected_cancel_name")" || fail "observer cancellation artifact absent or ambiguous"
 
@@ -588,7 +596,7 @@ case "$MODE" in
       (.source_failure.sha | test("^[0-9a-f]{40}$")) and .source_failure.sha == .source_cancellation.sha and
       .source_cancellation.observer_run_id == .source_cancellation.receipt.observer_run.id and
       .source_cancellation.observer_workflow_path == ".github/workflows/release-run-observer.yml" and
-      .source_cancellation.observer_event == "workflow_run" and .source_cancellation.observer_ref == "refs/heads/main" and
+      .source_cancellation.observer_event == "workflow_dispatch" and .source_cancellation.observer_ref == "refs/heads/main" and
       .source_cancellation.observer_conclusion == "success" and
       (.source_failure.artifact.id | type == "number" and . > 0) and
       (.source_cancellation.artifact.id | type == "number" and . > 0) and

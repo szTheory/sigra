@@ -363,7 +363,7 @@ jq -n --slurpfile failure "$TMP/failure.json" --slurpfile cancellation "$TMP/can
       event:"workflow_dispatch",ref:"refs/heads/main",sha:$sha,conclusion:"cancelled",created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z",
       artifact:{id:902,name:"release-canary-cancellation-74124-1",digest:"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",expires_at:"2026-11-09T10:00:00Z"},
       observer_run_id:"34567",observer_attempt:1,observer_workflow_id:2025,observer_workflow_path:".github/workflows/release-run-observer.yml",
-      observer_event:"workflow_run",observer_ref:"refs/heads/main",observer_conclusion:"success",receipt:$cancellation[0]},
+      observer_event:"workflow_dispatch",observer_ref:"refs/heads/main",observer_conclusion:"success",receipt:$cancellation[0]},
     retrieval:{failure_zip_sha256:"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",cancellation_zip_sha256:"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}' > "$TMP/proof.json"
 if bash "$CANARY" --validate-proof "$TMP/proof.json" >/dev/null; then pass "exact identities, safe credential metadata, and downloaded artifact digests validate"; else fail "valid exact proof with real preflight metadata was rejected"; fi
 jq '.preflight.credentials={HEX_API_KEY:"must-not-be-recorded"}' "$TMP/proof.json" > "$TMP/proof-with-credential-key.json"
@@ -488,8 +488,13 @@ case "$endpoint" in
     digest="$(shasum -a 256 "$FLOW/failure.zip" | awk '{print $1}')"
     probe="$(cat "$FLOW/failure-probe")"
     jq -n --arg probe "$probe" --arg digest "sha256:$digest" '{artifacts:[{id:901,name:("release-canary-failure-74125-1-"+$probe),expired:false,workflow_run:{id:74125},digest:$digest,expires_at:"2026-11-09T10:00:00Z"}]}' ;;
-  "repos/${GITHUB_REPOSITORY}/actions/workflows/2026/runs?branch=main&event=workflow_run&per_page=100") jq -n '{workflow_runs:[{id:34567,display_title:"release-observer-74126-34567-1"}]}' ;;
-  "repos/${GITHUB_REPOSITORY}/actions/runs/34567") jq -n '{id:34567,run_attempt:1,workflow_id:2026,path:".github/workflows/release-run-observer.yml",event:"workflow_run",head_branch:"main",head_sha:"0000000000000000000000000000000000000000",status:"completed",conclusion:"success",created_at:"2026-10-10T10:02:00Z",updated_at:"2026-10-10T10:03:00Z"}' ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/2026/dispatches")
+    source_id=""
+    for arg in "$@"; do case "$arg" in inputs\[source_run_id\]=*) source_id="${arg#*=}" ;; esac; done
+    [[ "$source_id" == 74126 ]] || exit 2
+    exit 0 ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/2026/runs?branch=main&event=workflow_dispatch&per_page=100") jq -n '{workflow_runs:[{id:34567,display_title:"release-observer-74126-34567-1"}]}' ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/34567") jq -n '{id:34567,run_attempt:1,workflow_id:2026,path:".github/workflows/release-run-observer.yml",event:"workflow_dispatch",head_branch:"main",head_sha:"0000000000000000000000000000000000000000",status:"completed",conclusion:"success",created_at:"2026-10-10T10:02:00Z",updated_at:"2026-10-10T10:03:00Z"}' ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/34567/artifacts")
     if [[ ! -f "$FLOW/cancellation.zip" ]]; then
       cancel_probe="$(cat "$FLOW/probe")"
@@ -525,8 +530,10 @@ if CANARY_PREFLIGHT_FILE="$FLOW/runner-preflight.json" GITHUB_REPOSITORY=szTheor
       .source_failure.receipt.terminal_verdict == "failure" and .source_cancellation.receipt.terminal_verdict == "cancelled" and
       .retrieval.failure_zip_sha256 == (.source_failure.artifact.digest | sub("^sha256:";"")) and
       .retrieval.cancellation_zip_sha256 == (.source_cancellation.artifact.digest | sub("^sha256:";""))' "$FLOW/proof.json" >/dev/null && \
-     [[ "$(wc -l < "$FLOW/watch.log" | tr -d ' ')" == 3 ]]; then
-    pass "204 dispatch, eventual exact-source correlation, paired receipts, artifact ZIP digests, and retrieved JSON validate end to end"
+     [[ "$(wc -l < "$FLOW/watch.log" | tr -d ' ')" == 3 ]] && \
+     rg -F "repos/${GITHUB_REPOSITORY}/actions/workflows/2026/dispatches" "$FLOW/api.log" >/dev/null && \
+     rg -F 'inputs[source_run_id]=74126' "$FLOW/api.log" >/dev/null; then
+    pass "exact failure/cancel receipts validate after a source-ID-bound workflow_dispatch observer and artifact retrieval"
   else
     fail "controller proof omitted exact receipt and retrieval evidence"
   fi

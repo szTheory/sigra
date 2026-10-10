@@ -19,6 +19,9 @@ defmodule Sigra.Planning.Phase248ReleaseObserverContractTest do
     observer = job!(workflow, "record-cancellation")
 
     assert workflow =~ "workflow_run:"
+    assert workflow =~ "workflow_dispatch:"
+    assert workflow =~ "source_run_id:"
+    assert workflow =~ "--source-run-id"
     assert workflow =~ "workflows: [\"Release Please\", \"Release Receipt Canary\"]"
     assert workflow =~ "types: [completed]"
     assert workflow =~ "branches: [main]"
