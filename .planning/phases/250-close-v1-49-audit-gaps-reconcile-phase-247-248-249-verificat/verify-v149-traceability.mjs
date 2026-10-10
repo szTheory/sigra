@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { evaluateSnapshot as evaluate248, checkReport as check248Report } from './verify-248-release.mjs';
+import { evaluateSnapshot as evaluate249, checkReport as check249Report } from './verify-249-release.mjs';
 
 const OWNER_PHASE = {
   'CONF-01': '246', 'CONF-02': '246', 'CONF-03': '246',
@@ -117,6 +119,7 @@ function collectOwnerSources(root, blockers, overrides = {}) {
     const status = reportText ? reportStatus(reportText) : 'missing';
     const report = { phase, path: reportPath, status, reportSha256: reportText === null ? null : sha256(reportText) };
     let parsed = null;
+    let recomputedRequirements = null;
 
     if (phase === '247') {
       const markerPath = reportText?.match(/<!-- reconciliation:\s*([^\s]+)\s*-->/)?.[1];
@@ -156,6 +159,18 @@ function collectOwnerSources(root, blockers, overrides = {}) {
           cancellationArtifactId: parsed.cancellation_artifact_id ?? null,
         };
         if (snapshot) {
+          const evaluation = evaluate248(snapshot);
+          recomputedRequirements = evaluation.requirements;
+          for (const error of check248Report(reportText ?? '', snapshot, evaluation)) {
+            for (const id of Object.keys(OWNER_PHASE).filter((requirementId) => OWNER_PHASE[requirementId] === phase)) {
+              add(blockers, id, `Phase 248 report fails its recomputed source check: ${error}.`, snapshotPath);
+            }
+          }
+          for (const [id, expected] of Object.entries(recomputedRequirements)) {
+            const embedded = parsed?.requirements?.[id];
+            const embeddedStatus = typeof embedded === 'string' ? embedded.toLowerCase() : embedded?.status?.toLowerCase();
+            if (embeddedStatus !== expected.status) add(blockers, id, `Phase 248 embedded requirement verdict ${embeddedStatus ?? 'missing'} differs from recomputed source verdict ${expected.status}.`, snapshotPath);
+          }
           const exactSource = snapshot.tag?.target_sha;
           if (parsed.source_sha !== exactSource) add(blockers, 'AUTO-01', 'Phase 248 report source SHA differs from captured tag source.', { report: parsed.source_sha, snapshot: exactSource });
           const proofPath = `${CLOSE_DIR}/250-CANARY-PROOF.json`;
@@ -183,6 +198,18 @@ function collectOwnerSources(root, blockers, overrides = {}) {
       parsed = htmlJson(reportText ?? '', 'phase249-evidence');
       if (!parsed) add(blockers, 'REL-01', 'Phase 249 report has no parseable source-evidence identity.');
       else if (snapshot) {
+        const evaluation = evaluate249(snapshot);
+        recomputedRequirements = evaluation.requirements;
+        for (const error of check249Report(reportText ?? '', snapshot, evaluation)) {
+          for (const id of Object.keys(OWNER_PHASE).filter((requirementId) => OWNER_PHASE[requirementId] === phase)) {
+            add(blockers, id, `Phase 249 report fails its recomputed source check: ${error}.`, snapshotPath);
+          }
+        }
+        for (const [id, expected] of Object.entries(recomputedRequirements)) {
+          const embedded = parsed?.requirements?.[id];
+          const embeddedStatus = typeof embedded === 'string' ? embedded.toLowerCase() : embedded?.status?.toLowerCase();
+          if (embeddedStatus !== expected.status) add(blockers, id, `Phase 249 embedded requirement verdict ${embeddedStatus ?? 'missing'} differs from recomputed source verdict ${expected.status}.`, snapshotPath);
+        }
         const evidence = snapshot.evidence_ref ?? {};
         const acceptedLoss = snapshot.accepted_loss ?? {};
         const currentSha = snapshot.source?.current_protected_main_sha;
@@ -230,7 +257,7 @@ function collectOwnerSources(root, blockers, overrides = {}) {
       }
     }
 
-    report.requirements = Object.keys(OWNER_PHASE).filter((id) => OWNER_PHASE[id] === phase).map((id) => ({ id, status: reportRequirementStatus(phase, id, reportText, parsed) }));
+    report.requirements = Object.keys(OWNER_PHASE).filter((id) => OWNER_PHASE[id] === phase).map((id) => ({ id, status: recomputedRequirements?.[id]?.status ?? reportRequirementStatus(phase, id, reportText, parsed) }));
     owners[phase] = report;
     if (status === 'missing') {
       for (const [id, owner] of Object.entries(OWNER_PHASE)) if (owner === phase) add(blockers, id, `Owner Phase ${phase} verification report is missing; requirement is orphaned.`, reportPath);

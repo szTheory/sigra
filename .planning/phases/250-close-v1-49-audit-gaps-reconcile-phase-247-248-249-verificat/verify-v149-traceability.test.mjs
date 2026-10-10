@@ -49,6 +49,17 @@ test('owner source identity changes are reported against their requirement rows'
   assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /identity/i.test(row.message)));
 });
 
+test('forged owner requirement markers are checked against recomputed snapshot verdicts', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      '.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md': (source) => source.replace('"AUTO-02":"unsatisfied"', '"AUTO-02":"satisfied"'),
+      '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md': (source) => source.replace('"REL-02":"unsatisfied"', '"REL-02":"satisfied"'),
+    },
+  });
+  assert.ok(result.blockers.some((row) => row.id === 'AUTO-02' && /report_requirement_mismatch|embedded.*verdict/i.test(row.message)));
+  assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /report_requirement_mismatch|embedded.*verdict/i.test(row.message)));
+});
+
 test('accepted historical handoff loss must remain explicitly unrecovered', () => {
   const result = audit(repoRoot, {
     overrides: {
