@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "phase_250_07_write_ahead_preservation",
+  "captured_at": "2026-10-10T21:08:16Z",
+  "capture_head": "0604c3167d9af23f539e7943049a72b5953252c6",
+  "purpose": "Preserve the exact dirty v3 draft and tracker/checkpoint revisions before refreshing the preflight payload and current-main authority packet.",
+  "clean_committed_v2_revisions": [
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "status_at_capture": "clean_committed_at_capture_head",
+      "sha256": "6eae864e8c9dd5afcda4f7ed9c5e29cecc32185f9833626e62fe9d5d4877f9d1",
+      "bytes": 9735,
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-33fccd8.json",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+      "status_at_capture": "clean_committed_at_capture_head",
+      "sha256": "b2f0de837a735f809207291be98510cbed85051f9f9fa8156f17479cb0ebcc7b",
+      "bytes": 979,
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-SUPERSEDED-33fccd8.json",
+      "readback_verified": true
+    }
+  ],
+  "dirty_draft_revisions": [
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "status_at_capture": "modified_uncommitted",
+      "sha256": "66c3a16f769f3a8de2499969a1fe3eeaa30914e7c082cc999681a043fa658e3f",
+      "bytes": 9435,
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-prerefresh.json",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+      "status_at_capture": "modified_uncommitted",
+      "sha256": "4b4e6532a2b0fa53b49317c194d88f6812ea4b00e2b00a06b9c0be40da948bf8",
+      "bytes": 979,
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-SUPERSEDED-9cb1c48-prerefresh.json",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status_at_capture": "modified_uncommitted_since_0604c3167",
+      "sha256": "c2907b7d4a91c6949fd2f4e91b92be2137369dd78b9f78e69697675f08c1a937",
+      "bytes": 157674,
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/STATE.md",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status_at_capture": "modified_uncommitted_since_0604c3167",
+      "sha256": "6160188004f420235d2b8e6a6aaf543117c2502d685a27f9019902aa28f44dd5",
+      "bytes": 1366,
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/state.json",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status_at_capture": "modified_uncommitted_since_0604c3167",
+      "sha256": "c3517aa5ce006afa2424da7692a22550433173e609b0800db713336c009232b5",
+      "bytes": 40567,
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/HANDOFF.json",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json",
+      "status_at_capture": "modified_uncommitted_since_0604c3167",
+      "sha256": "e33ccd88fa0df4eba452e193d0dfe90166db201db53d943417da1edc8a07b8ef",
+      "bytes": 12666,
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/250-GAP-EXECUTION-CHECKPOINT.json",
+      "readback_verified": true
+    }
+  ],
+  "verified_at": "2026-10-10T21:08:16Z"
+}
