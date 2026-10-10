@@ -185,7 +185,7 @@ jobs:
             --identity-file "$identity_file" \
             --output-dir "$RUNNER_TEMP/release-docs-artifact"
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v4.6.2
         with:
           name: release-docs-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/release-docs-artifact
@@ -529,7 +529,7 @@ jobs:
 
       - name: Upload release post-publish evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: release-post-publish-evidence-${{ needs.release-please.outputs.version }}
           path: release-post-publish-evidence.json
@@ -666,7 +666,7 @@ jobs:
 
       - name: Upload terminal release receipt
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-result-${{ needs.release-please.outputs.version }}-${{ github.run_id }}
           path: release-result.json
