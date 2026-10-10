@@ -7,16 +7,16 @@ current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verific
 current_plan: No plan yet; run $gsd-plan-phase 250
 status: in_progress
 stopped_at: Phase 250 context gathered (assumptions mode)
-last_updated: "2026-10-10T01:53:59.133Z"
+last_updated: "2026-10-10T12:08:00.596Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 250 context is complete; plan the audit-gap closure
-state_head: ce65b583e65e9d5c8594821dd15617ae4298ae48
+state_head: e54749ef51771d42b264c4801d3a4e951a2f1c52
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 31
+  total_plans: 36
   completed_plans: 29
-  percent: 80
+  percent: 69
 ---
 
 # Project State
@@ -31,14 +31,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — PENDING
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — READY TO EXECUTE
 Current Plan: No plan yet; run $gsd-plan-phase 250
-Total Plans in Phase: 0
+Total Plans in Phase: 5
 Plans executed: 0 of 0
 Status: Phase implementation is complete, but milestone verification is not. Audit score is 3/9; Phase 247 verification is missing, Phase 248 hosted failure/cancellation receipt proof and verifier reconciliation remain, and Phase 249 verification predates its passing final-acceptance seal.
 Last activity: 2026-10-10 — Phase 250 context is complete; planning is the next step.
 
-Progress: [████████░░] 80%
+Progress: [███████░░░] 69%
 
 ### v1.49 audit route
 

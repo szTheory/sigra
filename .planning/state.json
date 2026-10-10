@@ -30,9 +30,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 250",
-    "label": "Plan Phase 250 audit-gap closure",
-    "reason": "Phase 250 is pending; context is complete, no plans exist, and init.plan-phase 250 reports no prerequisite blocker."
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 250 of 5 · 69% · executing"
   },
-  "updated_at": "2026-10-10T01:54:36.701Z"
+  "updated_at": "2026-10-10T12:08:00.619Z"
 }
