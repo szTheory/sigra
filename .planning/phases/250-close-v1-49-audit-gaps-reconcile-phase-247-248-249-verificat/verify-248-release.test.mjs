@@ -1,12 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateSnapshot, checkReport } from './verify-248-release.mjs';
+import { evaluateSnapshot, checkReport, normalizeControllerProof } from './verify-248-release.mjs';
 
 const sourceSha = '9e80cb78d6374b1ed4074d5fef6b613fee879dca';
 const canarySha = 'a7e1c8c25db17412c895b20e0f5c0cee45594d30';
 const digest = (letter) => `sha256:${letter.repeat(64)}`;
 
 function snapshot() {
+  const failureReceipt = { receipt_kind: 'canary', canary: { scenario: 'failure', probe_id: 'a'.repeat(32) }, terminal_verdict: 'failure', source_run_id: 38059634695, source_run_attempt: 1, source_workflow_id: 380517407, source_workflow_path: '.github/workflows/release-receipt-canary.yml', source_event: 'workflow_dispatch', source_ref: 'refs/heads/main', source_sha: canarySha, source_repository: 'szTheory/sigra' };
+  const cancellationReceipt = { receipt_kind: 'canary', canary: { scenario: 'cancellation', probe_id: 'b'.repeat(32) }, terminal_verdict: 'cancelled', source_run_id: 38059640000, source_run_attempt: 1, source_workflow_id: 380517407, source_workflow_path: '.github/workflows/release-receipt-canary.yml', source_event: 'workflow_dispatch', source_ref: 'refs/heads/main', source_sha: canarySha, source_repository: 'szTheory/sigra', observer_run: { id: '38059640100', attempt: 1, workflow_id: 379162190, url: 'https://github.com/szTheory/sigra/actions/runs/38059640100' } };
   return {
     schema_version: 1,
     captured_at: '2026-10-10T15:00:00Z',
@@ -24,11 +26,13 @@ function snapshot() {
     canary: {
       source_sha: canarySha,
       proof_status: 'passed', proof_sha256: 'c'.repeat(64),
-      controller: { expected_id: 38059620000, expected_attempt: 1, run: { id: 38059620000, attempt: 1, workflow_path: '.github/workflows/release-receipt-canary-controller.yml', head_sha: canarySha, conclusion: 'success' }, artifact: { id: 11671884954, run_id: 38059620000, digest: digest('2'), expired: false, retrieved: { status: 'passed' } }, proof_file_sha256: '3'.repeat(64), expected_proof_sha256: '3'.repeat(64), local_proof_file_sha256: '3'.repeat(64) },
-      controller_proof: { status: 'passed', source_failure_receipts: 1, credential_values_recorded: false },
+      controller: { expected_id: 38059620000, expected_attempt: 1, expected_workflow_id: 380517406, expected_artifact_id: 11671884954, run: { id: 38059620000, attempt: 1, workflow_id: 380517406, event: 'workflow_dispatch', branch: 'main', workflow_path: '.github/workflows/release-receipt-canary-controller.yml', head_sha: canarySha, conclusion: 'success' }, artifact: { id: 11671884954, name: 'release-canary-controller-38059620000-1', run_id: 38059620000, digest: digest('2'), expired: false, retrieved: { status: 'passed' } }, proof_file_sha256: '3'.repeat(64), expected_proof_sha256: '3'.repeat(64), local_proof_file_sha256: '3'.repeat(64) },
+      controller_proof: { status: 'passed', source_failure_receipts: 1, source_cancellation_receipts: 1, credential_values_recorded: false,
+        source_failure: { run_id: 38059634695, attempt: 1, workflow_id: 380517407, workflow_path: '.github/workflows/release-receipt-canary.yml', event: 'workflow_dispatch', ref: 'refs/heads/main', sha: canarySha, conclusion: 'failure', artifact: { id: 11671884955, name: 'release-canary-failure-38059634695-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', digest: digest('d'), expires_at: '2026-11-01T00:00:00Z' }, receipt: failureReceipt },
+        source_cancellation: { run_id: 38059640000, attempt: 1, workflow_id: 380517407, workflow_path: '.github/workflows/release-receipt-canary.yml', event: 'workflow_dispatch', ref: 'refs/heads/main', sha: canarySha, conclusion: 'cancelled', artifact: { id: 11671884956, name: 'release-canary-cancellation-38059640000-1', digest: digest('f'), expires_at: '2026-11-01T00:00:00Z' }, observer_run_id: '38059640100', observer_attempt: 1, observer_workflow_id: 379162190, observer_workflow_path: '.github/workflows/release-run-observer.yml', observer_event: 'workflow_run', observer_ref: 'refs/heads/main', observer_conclusion: 'success', receipt: cancellationReceipt } },
       credential_values_recorded: false,
-      failure: { expected_id: 38059634695, expected_attempt: 1, run: { id: 38059634695, attempt: 1, workflow_path: '.github/workflows/release-receipt-canary.yml', head_sha: canarySha, conclusion: 'failure' }, artifacts: [{ status: 'validated', id: 11671884955, name: 'release-canary-failure-38059634695-1', digest: digest('d'), run_id: 38059634695, expired: false }], artifact_retrieved: { status: 'passed', sha256: 'e'.repeat(64), receipt: { scenario: 'failure', source_run_id: 38059634695, source_attempt: 1, source_sha: canarySha, verdict: 'failure' } } },
-      cancellation: { expected_id: 38059640000, run: { id: 38059640000, attempt: 1, workflow_path: '.github/workflows/release-receipt-canary.yml', head_sha: canarySha, conclusion: 'cancelled' }, observer: { run_id: 38059640100, workflow_path: '.github/workflows/release-run-observer.yml', event_source_run_id: 38059640000, source_sha: canarySha, conclusion: 'success' }, artifacts: [{ id: 11671884956, name: 'release-canary-cancellation-38059640000-1', digest: digest('f'), run_id: 38059640100, expired: false }], artifact_retrieved: { status: 'passed', sha256: '1'.repeat(64), receipt: { scenario: 'cancellation', source_run_id: 38059640000, source_attempt: 1, source_sha: canarySha, observer_run_id: 38059640100, verdict: 'cancelled' } } },
+      failure: { expected_id: 38059634695, expected_attempt: 1, run: { id: 38059634695, attempt: 1, workflow_id: 380517407, workflow_path: '.github/workflows/release-receipt-canary.yml', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'failure' }, artifacts: [{ status: 'validated', id: 11671884955, name: 'release-canary-failure-38059634695-1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', digest: digest('d'), run_id: 38059634695, expired: false }], artifact_retrieved: { status: 'passed', sha256: 'e'.repeat(64), receipt: failureReceipt } },
+      cancellation: { expected_id: 38059640000, run: { id: 38059640000, attempt: 1, workflow_id: 380517407, workflow_path: '.github/workflows/release-receipt-canary.yml', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'cancelled' }, observer: { run_id: '38059640100', attempt: 1, workflow_id: 379162190, workflow_path: '.github/workflows/release-run-observer.yml', event: 'workflow_run', ref: 'refs/heads/main', event_source_run_id: 38059640000, source_sha: canarySha, conclusion: 'success' }, artifacts: [{ id: 11671884956, name: 'release-canary-cancellation-38059640000-1', digest: digest('f'), run_id: 38059640100, expired: false }], artifact_retrieved: { status: 'passed', sha256: '1'.repeat(64), receipt: cancellationReceipt } },
     },
   };
 }
@@ -37,6 +41,22 @@ test('accepts only exact source, scope and terminal-artifact identities', () => 
   const result = evaluateSnapshot(snapshot());
   assert.equal(result.requirements['AUTO-01'].status, 'satisfied');
   assert.equal(result.requirements['AUTO-02'].status, 'satisfied');
+});
+
+test('normalizes the controller producer schema without rewriting its pass or run_id fields', () => {
+  const current = snapshot();
+  const producer = { schema_version: 1, status: 'pass', credential_values_recorded: false,
+    source_failure: current.canary.controller_proof.source_failure,
+    source_cancellation: current.canary.controller_proof.source_cancellation,
+    retrieval: { failure_zip_sha256: 'd'.repeat(64), cancellation_zip_sha256: 'f'.repeat(64) } };
+  const normalized = normalizeControllerProof(producer);
+  assert.equal(normalized.status, 'passed');
+  assert.equal(normalized.source_failure.run_id, 38059634695);
+  assert.equal(normalized.source_cancellation.receipt.terminal_verdict, 'cancelled');
+  assert.equal(normalized.source_failure_receipts, 1);
+  assert.equal(normalized.source_cancellation_receipts, 1);
+  const invalid = normalizeControllerProof({ ...producer, source_cancellation: { ...producer.source_cancellation, conclusion: 'success' } });
+  assert.equal(invalid.status, 'blocked');
 });
 
 test('keeps AUTO-02 unsatisfied when the recorded failure attempt has no artifact', () => {
@@ -74,10 +94,20 @@ test('rejects an artifact whose ID, digest, run owner, or receipt identity chang
   current.canary.failure.artifacts[0].id = 99;
   current.canary.failure.artifacts[0].run_id = 7;
   current.canary.failure.artifacts[0].digest = digest('0');
-  current.canary.cancellation.artifact_retrieved.receipt.observer_run_id = 9;
+  current.canary.cancellation.artifact_retrieved.receipt.observer_run.id = '9';
   const result = evaluateSnapshot(current);
   assert.equal(result.requirements['AUTO-02'].status, 'unsatisfied');
   assert.ok(result.requirements['AUTO-02'].blockers.length >= 2);
+});
+
+test('rejects contradictory terminal source outcome and observer attempt identity', () => {
+  const current = snapshot();
+  current.canary.controller_proof.source_failure.conclusion = 'success';
+  current.canary.controller_proof.source_cancellation.observer_attempt = 2;
+  const result = evaluateSnapshot(current);
+  assert.equal(result.requirements['AUTO-02'].status, 'unsatisfied');
+  assert.ok(result.requirements['AUTO-02'].blockers.some((item) => item.includes('failure')));
+  assert.ok(result.requirements['AUTO-02'].blockers.some((item) => item.includes('observer')));
 });
 
 test('fails closed when the success artifact identity or canary source SHA changes', () => {

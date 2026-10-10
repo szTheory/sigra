@@ -73,7 +73,7 @@ function downloadArtifact(artifactId, expected) {
 function runMetadata(id) {
   const run = ghJson(`repos/szTheory/sigra/actions/runs/${id}`);
   return {
-    id: run.id, attempt: run.run_attempt, workflow_id: run.workflow_id, workflow_path: run.path,
+    id: run.id, attempt: run.run_attempt, workflow_id: run.workflow_id, workflow_path: run.path?.replace(/@.*$/, ''),
     event: run.event, branch: run.head_branch, head_sha: run.head_sha,
     status: run.status, conclusion: run.conclusion, created_at: run.created_at, updated_at: run.updated_at,
   };
@@ -89,6 +89,44 @@ function artifactMetadata(id) {
 
 function onlyNames(values) {
   return Array.isArray(values) ? [...new Set(values.filter((value) => typeof value === 'string'))].sort() : [];
+}
+
+export function normalizeControllerProof(proof) {
+  const failure = proof?.source_failure ?? null;
+  const cancellation = proof?.source_cancellation ?? null;
+  const sourceMatchesReceipt = (record) => record?.receipt?.source_event === record?.event
+    && record?.receipt?.source_ref === record?.ref && record?.receipt?.source_sha === record?.sha
+    && record?.receipt?.source_workflow_id === record?.workflow_id
+    && record?.receipt?.source_workflow_path === record?.workflow_path?.replace(/@.*$/, '');
+  const valid = proof?.schema_version === 1 && proof.status === 'pass'
+    && failure?.conclusion === 'failure' && failure?.receipt?.terminal_verdict === 'failure'
+    && failure.receipt.receipt_kind === 'canary' && String(failure.receipt.source_run_id) === String(failure.run_id)
+    && failure.receipt.source_run_attempt === failure.attempt
+    && cancellation?.conclusion === 'cancelled' && cancellation?.receipt?.terminal_verdict === 'cancelled'
+    && cancellation.receipt.receipt_kind === 'canary' && String(cancellation.receipt.source_run_id) === String(cancellation.run_id)
+    && cancellation.receipt.source_run_attempt === cancellation.attempt
+    && sourceMatchesReceipt(failure) && sourceMatchesReceipt(cancellation)
+    && String(cancellation.observer_run_id) === String(cancellation.receipt.observer_run?.id)
+    && cancellation.observer_attempt === cancellation.receipt.observer_run?.attempt
+    && cancellation.observer_workflow_id === cancellation.receipt.observer_run?.workflow_id
+    && proof.credential_values_recorded === false;
+  return {
+    status: valid ? 'passed' : 'blocked',
+    source_failure_receipts: failure?.receipt ? 1 : 0,
+    source_cancellation_receipts: cancellation?.receipt ? 1 : 0,
+    credential_values_recorded: proof?.credential_values_recorded ?? null,
+    source_failure: failure ? { run_id: failure.run_id, attempt: failure.attempt, workflow_id: failure.workflow_id,
+      workflow_path: failure.workflow_path, event: failure.event, ref: failure.ref, sha: failure.sha,
+      conclusion: failure.conclusion, artifact: failure.artifact, receipt: failure.receipt } : null,
+    source_cancellation: cancellation ? { run_id: cancellation.run_id, attempt: cancellation.attempt,
+      workflow_id: cancellation.workflow_id, workflow_path: cancellation.workflow_path, event: cancellation.event,
+      ref: cancellation.ref, sha: cancellation.sha, conclusion: cancellation.conclusion, artifact: cancellation.artifact,
+      observer_run_id: cancellation.observer_run_id, observer_attempt: cancellation.observer_attempt,
+      observer_workflow_id: cancellation.observer_workflow_id, observer_workflow_path: cancellation.observer_workflow_path,
+      observer_event: cancellation.observer_event, observer_ref: cancellation.observer_ref,
+      observer_conclusion: cancellation.observer_conclusion, receipt: cancellation.receipt } : null,
+    retrieval: proof?.retrieval ?? null,
+  };
 }
 
 function captureSnapshot() {
@@ -130,15 +168,20 @@ function captureSnapshot() {
     '--require-hex-dry-run-key', String(hexPublish.includes('HEX_DRY_RUN_API_KEY')),
     '--require-hex-publish-key', String(hexPublish.includes('HEX_API_KEY'))]);
   const controller = runMetadata(proof.controller_run.id);
-  const sourceFailure = runMetadata(proof.source_failure.id);
   const controllerArtifact = artifactMetadata(proof.controller_run.artifact.id);
   const controllerArtifactDownload = downloadArtifact(proof.controller_run.artifact.id, {
     receipt_name: 'release-canary-proof.json',
-    map_receipt: (receipt) => ({ status: receipt.status, receipts: receipt.receipts?.length ?? 0, credential_values_recorded: receipt.credential_values_recorded ?? null }),
+    map_receipt: (receipt) => receipt,
   });
-  const sourceFailureArtifacts = ghJson(`repos/szTheory/sigra/actions/runs/${proof.source_failure.id}/artifacts?per_page=100`).artifacts ?? [];
+  const producerProof = normalizeControllerProof(controllerArtifactDownload.retrieval.receipt);
+  const failureRunId = producerProof.source_failure?.run_id ?? proof.source_failure?.id;
+  const cancellationRunId = producerProof.source_cancellation?.run_id ?? proof.source_cancellation?.run_id;
+  const observerRunId = producerProof.source_cancellation?.observer_run_id ?? null;
+  const sourceFailureArtifacts = failureRunId ? (ghJson(`repos/szTheory/sigra/actions/runs/${failureRunId}/artifacts?per_page=100`).artifacts ?? []) : [];
+  const sourceFailure = failureRunId ? runMetadata(failureRunId) : null;
   const controllerLocalSha = sha256(readFileSync(CONTROLLER_PROOF_PATH));
-  const sourceCancellation = proof.source_cancellation?.run_id ? runMetadata(proof.source_cancellation.run_id) : null;
+  const sourceCancellation = cancellationRunId ? runMetadata(cancellationRunId) : null;
+  const observer = observerRunId ? runMetadata(observerRunId) : null;
   const cancellationArtifacts = sourceCancellation
     ? (ghJson(`repos/szTheory/sigra/actions/runs/${sourceCancellation.id}/artifacts?per_page=100`).artifacts ?? []).map((item) => ({ id: item.id, name: item.name, digest: item.digest, expired: item.expired, run_id: item.workflow_run?.id ?? null }))
     : [];
@@ -159,10 +202,11 @@ function captureSnapshot() {
       proof_captured_at: proof.captured_at,
       proof_reason: proof.reason,
       source_sha: proof.source_failure.sha,
-      controller: { expected_id: proof.controller_run.id, expected_attempt: proof.controller_run.attempt, run: controller, artifact: { ...controllerArtifact, retrieved: controllerArtifactDownload.retrieval }, proof_file_sha256: controllerArtifactDownload.retrieval.sha256, expected_proof_sha256: proof.controller_run.artifact.proof_sha256, local_proof_file_sha256: controllerLocalSha },
-      failure: { expected_id: proof.source_failure.id, expected_attempt: proof.source_failure.attempt, run: sourceFailure, controlled_failure_step_conclusion: proof.source_failure.controlled_failure_step_conclusion, receipt_job_conclusion: proof.source_failure.receipt_job_conclusion, artifacts: sourceFailureArtifacts.map((item) => ({ id: item.id, name: item.name, digest: item.digest, expired: item.expired, run_id: item.workflow_run?.id ?? null })) },
-      cancellation: { expected_id: proof.source_cancellation?.run_id ?? null, run: sourceCancellation, proof_dispatch_attempted: proof.source_cancellation?.dispatch_attempted ?? false, proof_reason: proof.source_cancellation?.reason ?? null, artifacts: cancellationArtifacts },
-      controller_proof: { status: controllerArtifactDownload.retrieval.receipt?.status ?? null, source_failure_receipts: controllerArtifactDownload.retrieval.receipt?.receipts ?? 0, credential_values_recorded: controllerArtifactDownload.retrieval.receipt?.credential_values_recorded ?? null },
+      controller: { expected_id: proof.controller_run.id, expected_attempt: proof.controller_run.attempt, expected_workflow_id: proof.controller_run.workflow_id, expected_artifact_id: proof.controller_run.artifact.id, run: controller, artifact: { ...controllerArtifact, retrieved: controllerArtifactDownload.retrieval }, proof_file_sha256: controllerArtifactDownload.retrieval.sha256, expected_proof_sha256: proof.controller_run.artifact.proof_sha256, local_proof_file_sha256: controllerLocalSha },
+      failure: { expected_id: failureRunId ?? null, expected_attempt: producerProof.source_failure?.attempt ?? proof.source_failure?.attempt ?? null, run: sourceFailure, controlled_failure_step_conclusion: proof.source_failure?.controlled_failure_step_conclusion ?? null, receipt_job_conclusion: proof.source_failure?.receipt_job_conclusion ?? null, artifacts: sourceFailureArtifacts.map((item) => ({ id: item.id, name: item.name, digest: item.digest, expired: item.expired, run_id: item.workflow_run?.id ?? null })) },
+      cancellation: { expected_id: cancellationRunId ?? null, run: sourceCancellation, proof_dispatch_attempted: proof.source_cancellation?.dispatch_attempted ?? Boolean(producerProof.source_cancellation), proof_reason: proof.source_cancellation?.reason ?? null, artifacts: cancellationArtifacts,
+        observer: observer ? { run_id: observer.id, attempt: observer.attempt, workflow_id: observer.workflow_id, workflow_path: observer.workflow_path?.replace(/@.*$/, ''), event: observer.event, ref: `refs/heads/${observer.branch}`, source_sha: producerProof.source_cancellation?.sha, conclusion: observer.conclusion, event_source_run_id: cancellationRunId } : null },
+      controller_proof: producerProof,
       credential_values_recorded: proof.credential_values_recorded ?? null,
     },
   };
@@ -214,21 +258,29 @@ function evaluateSnapshot(snapshot) {
   if (canary?.credential_values_recorded !== false || canary?.controller_proof?.credential_values_recorded !== false) auto02.push('canary evidence does not establish that credential values were excluded');
   if (canary?.controller?.run?.id !== canary?.controller?.expected_id || canary?.controller?.run?.attempt !== canary?.controller?.expected_attempt || canary?.controller?.run?.conclusion !== 'success' || canary?.controller?.run?.workflow_path !== '.github/workflows/release-receipt-canary-controller.yml' || canary?.controller?.run?.head_sha !== canary?.source_sha) auto02.push('controller run identity or conclusion mismatch');
   const controllerArtifact = canary?.controller?.artifact;
-  if (controllerArtifact?.id !== 11671884954 || controllerArtifact?.run_id !== canary?.controller?.expected_id || controllerArtifact?.expired !== false || !/^sha256:[a-f0-9]{64}$/.test(text(controllerArtifact?.digest)) || controllerArtifact?.retrieved?.status !== 'passed' || canary?.controller?.proof_file_sha256 !== canary?.controller?.expected_proof_sha256 || canary?.controller?.local_proof_file_sha256 !== canary?.controller?.expected_proof_sha256) auto02.push('controller proof artifact identity, digest, or retrieval validation mismatch');
-  if (canary?.controller_proof?.status !== 'passed' || canary?.controller_proof?.source_failure_receipts !== 1) auto02.push('controller proof does not contain a validated failure receipt');
+  if (canary?.controller?.run?.event !== 'workflow_dispatch' || canary?.controller?.run?.branch !== 'main' || canary?.controller?.run?.workflow_id !== canary?.controller?.expected_workflow_id) auto02.push('controller run event, branch, or workflow ID mismatch');
+  if (!Number.isInteger(controllerArtifact?.id) || controllerArtifact?.id !== canary?.controller?.expected_artifact_id || controllerArtifact?.run_id !== canary?.controller?.expected_id || controllerArtifact?.name !== `release-canary-controller-${canary?.controller?.expected_id}-${canary?.controller?.expected_attempt}` || controllerArtifact?.expired !== false || !/^sha256:[a-f0-9]{64}$/.test(text(controllerArtifact?.digest)) || controllerArtifact?.retrieved?.status !== 'passed' || canary?.controller?.proof_file_sha256 !== canary?.controller?.expected_proof_sha256 || canary?.controller?.local_proof_file_sha256 !== canary?.controller?.expected_proof_sha256) auto02.push('controller proof artifact identity, digest, or retrieval validation mismatch');
+  if (canary?.controller_proof?.status !== 'passed' || canary?.controller_proof?.source_failure_receipts !== 1 || canary?.controller_proof?.source_cancellation_receipts !== 1) auto02.push('controller proof does not contain both validated producer receipts');
+  const producerFailure = canary?.controller_proof?.source_failure;
+  const producerCancellation = canary?.controller_proof?.source_cancellation;
   const failure = canary?.failure;
   if (!failure?.run || failure.run.id !== failure.expected_id || failure.run.attempt !== failure.expected_attempt || failure.run.workflow_path !== '.github/workflows/release-receipt-canary.yml' || failure.run.head_sha !== canary.source_sha || failure.run.conclusion !== 'failure') auto02.push('failure canary run identity or controlled failure conclusion mismatch');
+  if (String(producerFailure?.run_id ?? '') !== String(failure?.expected_id ?? '') || producerFailure?.attempt !== failure?.expected_attempt || producerFailure?.workflow_id !== failure?.run?.workflow_id || producerFailure?.workflow_path !== failure?.run?.workflow_path || producerFailure?.event !== failure?.run?.event || producerFailure?.ref !== `refs/heads/${failure?.run?.branch}` || producerFailure?.sha !== canary?.source_sha || producerFailure?.conclusion !== 'failure') auto02.push('controller producer failure record does not join the authoritative run metadata');
   const failureArtifacts = Array.isArray(failure?.artifacts) ? failure.artifacts : [];
-  const failureArtifact = failureArtifacts.find((item) => item.run_id === failure?.expected_id && item.name === `release-canary-failure-${failure.expected_id}-${failure.expected_attempt}`);
+  const failureProbe = producerFailure?.receipt?.canary?.probe_id;
+  const failureArtifact = failureArtifacts.find((item) => String(item.run_id) === String(failure?.expected_id) && item.name === `release-canary-failure-${failure.expected_id}-${failure.expected_attempt}-${failureProbe}`);
   if (!failureArtifact || failureArtifact.expired !== false || !/^sha256:[a-f0-9]{64}$/.test(text(failureArtifact.digest))) auto02.push('failure artifact is missing, expired, or has a malformed digest');
   const cancellation = canary?.cancellation;
   if (!cancellation?.run || cancellation.run.id !== cancellation.expected_id || cancellation.run.workflow_path !== '.github/workflows/release-receipt-canary.yml' || cancellation.run.head_sha !== canary.source_sha || cancellation.run.conclusion !== 'cancelled') auto02.push('cancellation source run is missing or mismatched');
+  if (String(producerCancellation?.run_id ?? '') !== String(cancellation?.expected_id ?? '') || producerCancellation?.attempt !== cancellation?.run?.attempt || producerCancellation?.workflow_id !== cancellation?.run?.workflow_id || producerCancellation?.workflow_path !== cancellation?.run?.workflow_path || producerCancellation?.event !== cancellation?.run?.event || producerCancellation?.ref !== `refs/heads/${cancellation?.run?.branch}` || producerCancellation?.sha !== canary?.source_sha || producerCancellation?.conclusion !== 'cancelled') auto02.push('controller producer cancellation record does not join the authoritative run metadata');
   if (cancellation?.observer?.workflow_path !== '.github/workflows/release-run-observer.yml' || cancellation.observer.event_source_run_id !== cancellation.expected_id || cancellation.observer.source_sha !== canary.source_sha || cancellation.observer.conclusion !== 'success') auto02.push('cancellation observer identity or conclusion mismatch');
+  if (String(producerCancellation?.observer_run_id ?? '') !== String(cancellation?.observer?.run_id ?? '') || producerCancellation?.observer_attempt !== cancellation?.observer?.attempt || producerCancellation?.observer_workflow_id !== cancellation?.observer?.workflow_id || producerCancellation?.observer_workflow_path !== cancellation?.observer?.workflow_path || producerCancellation?.observer_event !== cancellation?.observer?.event || producerCancellation?.observer_ref !== cancellation?.observer?.ref || producerCancellation?.observer_conclusion !== cancellation?.observer?.conclusion) auto02.push('producer observer identity fields do not join the authoritative observer run metadata');
+  if (String(producerCancellation?.receipt?.observer_run?.id ?? '') !== String(producerCancellation?.observer_run_id ?? '') || producerCancellation?.receipt?.observer_run?.attempt !== producerCancellation?.observer_attempt || producerCancellation?.receipt?.observer_run?.workflow_id !== producerCancellation?.observer_workflow_id) auto02.push('embedded cancellation receipt observer identity mismatch');
   const cancellationArtifacts = Array.isArray(cancellation?.artifacts) ? cancellation.artifacts : [];
-  const cancellationArtifact = cancellationArtifacts.find((item) => item.run_id === cancellation?.observer?.run_id && item.name === `release-canary-cancellation-${cancellation.expected_id}-${cancellation.run?.attempt}`);
+  const cancellationArtifact = cancellationArtifacts.find((item) => String(item.run_id) === String(cancellation?.observer?.run_id) && item.name === `release-canary-cancellation-${cancellation.expected_id}-${cancellation.run?.attempt}`);
   if (!cancellationArtifact || cancellationArtifact.expired !== false || !/^sha256:[a-f0-9]{64}$/.test(text(cancellationArtifact.digest))) auto02.push('observer cancellation artifact is missing, expired, or has a malformed digest');
-  if (failure?.artifact_retrieved?.status !== 'passed' || !/^[a-f0-9]{64}$/.test(text(failure?.artifact_retrieved?.sha256)) || failure?.artifact_retrieved?.receipt?.source_run_id !== failure?.expected_id || failure?.artifact_retrieved?.receipt?.source_sha !== canary?.source_sha || failure?.artifact_retrieved?.receipt?.scenario !== 'failure' || failure?.artifact_retrieved?.receipt?.verdict !== 'failure') auto02.push('retrieved failure receipt identity or digest validation mismatch');
-  if (cancellation?.artifact_retrieved?.status !== 'passed' || !/^[a-f0-9]{64}$/.test(text(cancellation?.artifact_retrieved?.sha256)) || cancellation?.artifact_retrieved?.receipt?.source_run_id !== cancellation?.expected_id || cancellation?.artifact_retrieved?.receipt?.source_sha !== canary?.source_sha || cancellation?.artifact_retrieved?.receipt?.scenario !== 'cancellation' || cancellation?.artifact_retrieved?.receipt?.observer_run_id !== cancellation?.observer?.run_id || cancellation?.artifact_retrieved?.receipt?.verdict !== 'cancelled') auto02.push('retrieved cancellation receipt identity or digest validation mismatch');
+  if (failure?.artifact_retrieved?.status !== 'passed' || !/^[a-f0-9]{64}$/.test(text(failure?.artifact_retrieved?.sha256)) || String(failure?.artifact_retrieved?.receipt?.source_run_id ?? '') !== String(failure?.expected_id ?? '') || failure?.artifact_retrieved?.receipt?.source_run_attempt !== failure?.expected_attempt || failure?.artifact_retrieved?.receipt?.source_workflow_id !== failure?.run?.workflow_id || failure?.artifact_retrieved?.receipt?.source_workflow_path !== '.github/workflows/release-receipt-canary.yml' || failure?.artifact_retrieved?.receipt?.source_sha !== canary?.source_sha || failure?.artifact_retrieved?.receipt?.canary?.scenario !== 'failure' || failure?.artifact_retrieved?.receipt?.terminal_verdict !== 'failure') auto02.push('retrieved failure receipt identity or digest validation mismatch');
+  if (cancellation?.artifact_retrieved?.status !== 'passed' || !/^[a-f0-9]{64}$/.test(text(cancellation?.artifact_retrieved?.sha256)) || String(cancellation?.artifact_retrieved?.receipt?.source_run_id ?? '') !== String(cancellation?.expected_id ?? '') || cancellation?.artifact_retrieved?.receipt?.source_run_attempt !== cancellation?.run?.attempt || cancellation?.artifact_retrieved?.receipt?.source_workflow_id !== cancellation?.run?.workflow_id || cancellation?.artifact_retrieved?.receipt?.source_workflow_path !== '.github/workflows/release-receipt-canary.yml' || cancellation?.artifact_retrieved?.receipt?.source_sha !== canary?.source_sha || cancellation?.artifact_retrieved?.receipt?.canary?.scenario !== 'cancellation' || String(cancellation?.artifact_retrieved?.receipt?.observer_run?.id ?? '') !== String(cancellation?.observer?.run_id ?? '') || cancellation?.artifact_retrieved?.receipt?.observer_run?.attempt !== cancellation?.observer?.attempt || cancellation?.artifact_retrieved?.receipt?.observer_run?.workflow_id !== cancellation?.observer?.workflow_id || cancellation?.artifact_retrieved?.receipt?.terminal_verdict !== 'cancelled') auto02.push('retrieved cancellation receipt identity or digest validation mismatch');
   auto02.push(...validateSuccess(snapshot).map((item) => `established success path: ${item}`));
 
   const requirements = {
