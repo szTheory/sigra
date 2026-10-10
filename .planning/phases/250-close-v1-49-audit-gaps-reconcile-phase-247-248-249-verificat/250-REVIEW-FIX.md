@@ -1,10 +1,10 @@
 ---
 phase: "250"
-fixed_at: "2026-10-10T17:20:08Z"
+fixed_at: "2026-10-10T17:31:12Z"
 review_path: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW.md
-iteration: 2
-findings_in_scope: 3
-fixed: 3
+iteration: 3
+findings_in_scope: 1
+fixed: 1
 skipped: 0
 status: all_fixed
 verification_location: main_checkout
@@ -12,9 +12,9 @@ verification_location: main_checkout
 
 # Phase 250: Code Review Fix Report
 
-**Fixed at:** 2026-10-10T17:20:08Z
+**Fixed at:** 2026-10-10T17:31:12Z
 **Source review:** `250-REVIEW.md`  
-**Iteration:** 2 (recheck fixes; iteration 1 remains recorded below)
+**Iteration:** 3 (recheck 2 fix; iterations 1 and 2 remain recorded below)
 
 **Iteration 1 summary:**
 - Findings in scope: 8
@@ -112,12 +112,28 @@ Focused capture suites passed from the main checkout: readiness 14/14 and Phase 
 
 The stored Phase 250 source snapshots and canonical owner reports remain untouched because they require new hosted evidence, including the already-consumed canary authorization. The source audit remains blocked by genuine missing evidence; no requirement or acceptance status was promoted.
 
+## Iteration 3: Producer-Shape Recheck Fix
+
+**Finding:** CR-01 — Phase 248 terminal receipt validation expected a nested `canary.*` receipt that the producer does not emit.
+**Disposition:** Fixed.
+**Files modified:** `verify-248-release.mjs`, `verify-248-release.test.mjs`
+**Commit:** `d9c74aac0`
+**Applied fix:** Capture, normalization, and evaluation now read the producer's actual top-level `probe_id` and `scenario`. Receipt identity is checked against source run metadata and its display title, controller proof, downloaded bytes, and source artifact listing. Producer artifact ID/name/digest/expiry must also match the captured authoritative listing. No alternate nested receipt schema is accepted.
+**Automated evidence:** The test invokes `scripts/ci/release-receipt.sh --mode canary` with local failure and cancellation inputs, parses its serialized output, and passes those receipts through the capture helper, full snapshot evaluator, Phase 248 report check, and traceability recomputation. The positive path passes; missing and incorrect top-level probe/scenario values are rejected for both outcomes.
+**Tests:** Phase 248 release suite 10/10 and traceability suite 10/10 passed. Syntax checks and `git diff --check` passed. No hosted probe, workflow dispatch, publication, or network fixture ran.
+
+The stored snapshots and owner reports remain unchanged. The read-only audit and source evidence remain blocked by missing hosted proof; no acceptance or original-owner requirement was promoted.
+
+## Iteration 3 Verification
+
+Focused Phase 248 release and traceability suites passed from the main checkout (10/10 each). `node --check` passed for the changed verifier and test. The actual receipt producer ran only against temporary local fixtures; no hosted canary, workflow dispatch, release, publication, or network fixture was run.
+
 Focused regression suites passed from the main checkout: readiness 12/12, Phase 248 release 9/9, Phase 249 release 9/9, traceability 10/10, and canary shell 34/34. JavaScript syntax checks for the changed verifiers and `bash -n` for the canary script passed. No hosted probe, workflow dispatch, release, publication, or network fixture was run.
 
 The stored Phase 250 source snapshots and canonical owner reports were not refreshed: doing so would require new hosted evidence, including the already-consumed canary authorization. The current source audit was recomputed read-only and remains `gaps_found` at 5/9. `READY-01`, `READY-02`, `AUTO-02`, and `REL-02` remain blocked by absent or incomplete source proof. No owner requirement or acceptance status was promoted.
 
 ---
 
-_Fixed: 2026-10-10T17:20:08Z_
+_Fixed: 2026-10-10T17:31:12Z_
 _Fixer: the agent (gsd-code-fixer)_  
-_Iteration: 2_
+_Iteration: 3_
