@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 let evaluateEvidence;
@@ -14,6 +15,12 @@ const tuple = {
   reviewedBaseSha: 'd135cbce343947499a0810736c500ef5f1cb5c32',
   mainSha: 'a494f3ee3878da93aab4f70712ffddeefd77a802',
 };
+const ci = {
+  run_id: 37800067568, run_attempt: 1, head_sha: tuple.candidateSha,
+  workflow_path: '.github/workflows/ci.yml', conclusion: 'success',
+  job: { id: 113389612910, name: 'ci-gate', head_sha: tuple.candidateSha, run_attempt: 1, conclusion: 'success' },
+};
+const authoritativeCi = { id: ci.run_id, run_attempt: 1, head_sha: tuple.candidateSha, path: '.github/workflows/ci.yml', conclusion: 'success', job: ci.job };
 
 const blockedApprovalInput = {
   proposal: {
@@ -83,6 +90,84 @@ test('duplicate dispositions and missing preservation identities fail closed', a
   assert.equal(result.status, 'blocked');
   assert.ok(result.blockers.includes('pr_disposition_ids_invalid'));
   assert.ok(result.blockers.includes('pr_population_mismatch'));
+});
+
+test('READY requirement verdicts include every blocker relevant to their predicates', async () => {
+  const { evaluateEvidence } = await import('./verify-247-readiness.mjs');
+  const input = {
+    proposal: { ...blockedApprovalInput.proposal, authorization_status: 'approved', stale_artifacts: [{ path: '247-CANDIDATE-DIFF-BASELINE.json', bound_candidate_sha: tuple.candidateSha }], ci: { run_id: ci.run_id, attempt: ci.run_attempt, head_sha: tuple.candidateSha } },
+    authorization: { immutable: true, tuple },
+    readiness: { final_validation: { checked: { source_sha: tuple.candidateSha, pr_base_sha: tuple.reviewedBaseSha, live_main_sha: tuple.mainSha } } },
+    dryRunReceipt: { verdict: 'passed', dry_run_outcome: 'success', requested_sha: tuple.candidateSha, checked_out_sha: tuple.candidateSha, reviewed_base_sha: tuple.reviewedBaseSha, live_base_sha: tuple.mainSha },
+    live: { pullRequest: { state: 'OPEN', headSha: tuple.candidateSha, baseSha: tuple.reviewedBaseSha }, main: { sha: tuple.mainSha }, openPullRequestNumbers: [], openPullRequestDispositions: [], inheritedWork: { observed: true, observedIds: [], dispositions: [] } },
+    objects: { [tuple.candidateSha]: true, [tuple.reviewedBaseSha]: true },
+    remoteSourceObjects: { candidate: { available: true, sourceBlobs: [{ path: 'mix.exs', matches: false }] } },
+    exactHeadCiReceipt: ci, authoritativeCi,
+  };
+  const result = evaluateEvidence(input);
+  assert.equal(result.blockers.some((blocker) => blocker.id === 'candidate_source_blobs_unverified'), true);
+  assert.equal(result.requirementVerdicts['READY-01'], 'unsatisfied');
+});
+
+test('inherited work is joined by exact observed IDs and decision rows', async () => {
+  const { evaluateEvidence } = await import('./verify-247-readiness.mjs');
+  const result = evaluateEvidence({
+    ...blockedApprovalInput,
+    live: { ...blockedApprovalInput.live, openPullRequestNumbers: [], openPullRequestDispositions: [], inheritedWork: { observed: true, observedIds: ['work-a'], dispositions: [] } },
+  });
+  assert.equal(result.requirementVerdicts['READY-02'], 'unsatisfied');
+  assert.ok(result.blockers.some((blocker) => blocker.id === 'fresh_inherited_dispositions_incomplete'));
+});
+
+test('valid exact-head CI joins pass, while stale receipt and authoritative metadata fail', async () => {
+  const { evaluateEvidence } = await import('./verify-247-readiness.mjs');
+  const input = {
+    proposal: { ...blockedApprovalInput.proposal, authorization_status: 'approved', stale_artifacts: [{ path: '247-CANDIDATE-DIFF-BASELINE.json', bound_candidate_sha: tuple.candidateSha }], ci: { run_id: ci.run_id, attempt: ci.run_attempt, head_sha: tuple.candidateSha } },
+    authorization: { immutable: true, tuple },
+    readiness: { final_validation: { checked: { source_sha: tuple.candidateSha, pr_base_sha: tuple.reviewedBaseSha, live_main_sha: tuple.mainSha } } },
+    dryRunReceipt: { verdict: 'passed', dry_run_outcome: 'success', requested_sha: tuple.candidateSha, checked_out_sha: tuple.candidateSha, reviewed_base_sha: tuple.reviewedBaseSha, live_base_sha: tuple.mainSha },
+    live: { pullRequest: { state: 'OPEN', headSha: tuple.candidateSha, baseSha: tuple.reviewedBaseSha }, main: { sha: tuple.mainSha }, openPullRequestNumbers: [], openPullRequestDispositions: [], inheritedWork: { observed: true, observedIds: [], dispositions: [] } },
+    objects: { [tuple.candidateSha]: true, [tuple.reviewedBaseSha]: true },
+    remoteSourceObjects: { candidate: { available: true, sourceBlobs: [{ path: 'mix.exs', matches: true }] } },
+    exactHeadCiReceipt: ci, authoritativeCi,
+  };
+  const valid = evaluateEvidence(input);
+  assert.equal(valid.checks.find((row) => row.id === 'readiness_and_ci').status, 'passed');
+  assert.equal(valid.requirementVerdicts['READY-01'], 'satisfied');
+  const stale = evaluateEvidence({ ...input, exactHeadCiReceipt: { ...ci, run_attempt: 2 } });
+  assert.ok(stale.blockers.some((row) => row.id === 'exact_head_ci_receipt_mismatch'));
+  assert.equal(stale.requirementVerdicts['READY-01'], 'unsatisfied');
+  const wrongRun = evaluateEvidence({ ...input, authoritativeCi: { ...authoritativeCi, head_sha: 'f'.repeat(40) } });
+  assert.ok(wrongRun.blockers.some((row) => row.id === 'exact_head_ci_authoritative_run_mismatch'));
+});
+
+test('preservation refs need a resolvable commit and matching record bytes', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { execFileSync } = await import('node:child_process');
+  const { createHash } = await import('node:crypto');
+  const { joinPopulation } = await import('./verify-247-readiness.mjs');
+  const root = mkdtempSync(join(tmpdir(), 'readiness-preservation-'));
+  try {
+    execFileSync('git', ['init', '-q', root]);
+    execFileSync('git', ['-C', root, 'config', 'user.email', 'fixture@example.invalid']);
+    execFileSync('git', ['-C', root, 'config', 'user.name', 'Fixture']);
+    mkdirSync(join(root, 'records'));
+    const bytes = Buffer.from(`${JSON.stringify({ id: '224', decision: 'retain' })}\n`);
+    writeFileSync(join(root, 'records/224.json'), bytes);
+    execFileSync('git', ['-C', root, 'add', 'records/224.json']);
+    execFileSync('git', ['-C', root, 'commit', '-qm', 'preserve record']);
+    const commit = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    execFileSync('git', ['-C', root, 'update-ref', 'refs/heads/preservation/224', commit]);
+    const exactReference = { ref: 'refs/heads/preservation/224', commit_sha: commit, record_path: 'records/224.json', record_sha256: createHash('sha256').update(bytes).digest('hex'), decision: 'retain' };
+    const valid = joinPopulation({ observedIds: [224], dispositions: [{ id: 224, decision: 'retain', preservation_ref: exactReference }], label: 'pr', root });
+    assert.equal(valid.status, 'passed');
+    const missing = joinPopulation({ observedIds: [224], dispositions: [{ id: 224, decision: 'retain', preservation_ref: null }], label: 'pr', root });
+    assert.equal(missing.status, 'blocked');
+    const changed = joinPopulation({ observedIds: [224], dispositions: [{ id: 224, decision: 'retain', preservation_ref: { ...exactReference, record_sha256: '0'.repeat(64) } }], label: 'pr', root });
+    assert.equal(changed.status, 'blocked');
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 test('reconciliation identity rows and blockers are deterministically ordered', async () => {
