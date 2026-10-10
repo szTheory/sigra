@@ -89,7 +89,9 @@ defmodule Sigra.Planning.Phase250CanaryContractTest do
   test "cancellation and receipt pairing require matching source SHA and attempt" do
     script = read!("scripts/ci/release-canary.sh")
 
-    assert script =~ "cancel_exact_canary_run \"$cancel_id\" \"$canary_wf_id\" \"$cancel_probe\" \"$sha\""
+    assert script =~
+             "cancel_exact_canary_run \"$cancel_id\" \"$canary_wf_id\" \"$cancel_probe\" \"$sha\""
+
     assert script =~ "\"$(jq -r '.head_sha' <<<\"$run\")\" == \"$expected_sha\""
     assert script =~ "\"$(jq -r '.run_attempt' <<<\"$run\")\" == 1"
     assert script =~ "source_run_attempt \"$failure\""
