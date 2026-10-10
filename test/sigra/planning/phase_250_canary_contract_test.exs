@@ -72,8 +72,13 @@ defmodule Sigra.Planning.Phase250CanaryContractTest do
   test "trusted observer allowlists canary identity while retaining production checks" do
     workflow = read!(".github/workflows/release-run-observer.yml")
     observer = read!("scripts/ci/release-observer.sh")
+    canary = read!("scripts/ci/release-canary.sh")
 
     assert workflow =~ "workflows: [\"Release Please\", \"Release Receipt Canary\"]"
+    assert workflow =~ "workflow_dispatch:"
+    assert workflow =~ "source_run_id:"
+    assert canary =~ "inputs[source_run_id]"
+    assert observer =~ "--source-run-id"
     assert workflow =~ "github.event.workflow.name == 'Release Receipt Canary'"
     assert workflow =~ "release-canary-cancellation-"
     assert observer =~ "release-receipt-canary.yml"
