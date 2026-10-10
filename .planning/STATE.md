@@ -5,9 +5,9 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: authorized_execution
-stopped_at: Packet v3 explicitly approved; dispatching the single bounded controller run on main 9cb1c48; 250-08 remains blocked
-last_updated: "2026-10-10T21:23:39Z"
+status: controller_in_progress
+stopped_at: Authorized controller run 38087516844 is in progress on main 9cb1c48; 250-08 remains blocked
+last_updated: "2026-10-10T21:25:12Z"
 last_activity: 2026-10-10
 last_activity_desc: User approved packet v3 for one bounded controller run; PR #320 already squash-merged with green CI
 state_head: d9637d7a13b490e404020cae728a70f002806437
@@ -36,7 +36,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — AUTHORIZED CURRENT-MAIN CANARY RUN
 Current Plan: 7
 Total Plans in Phase: 12
-Plans executed: 6 of 12 summarized (01–06); Plan 07 Task 1 refreshed and its identity repair merged, current-main canary authorized and dispatch pending; Plan 08 blocked; 09–12 await dependencies
+Plans executed: 6 of 12 summarized (01–06); Plan 07 Task 1 refreshed and its identity repair merged; one authorized controller run is in progress; Plan 08 blocked; 09–12 await dependencies
 Status: Partial implementation delivered; phase verification incomplete
 Last activity: 2026-10-10 — PR #320 identity repair merged after required CI; current-main packet v3 approved for one bounded run
 
@@ -54,7 +54,7 @@ Plan 250-08 remains durably blocked: .planning/phases/250-close-v1-49-audit-gaps
 
 The latest Phase 250 verifier remains gaps_found at 8/14 and the strict audit remains 5/9 with 31 blockers; neither was rerun after these scoped repairs. Six plan summaries establish partial implementation completion, not completed phase verification. Requirements and original ownership are unchanged. Keep v1.49 unarchived.
 
-Next action: dispatch the single approved Plan 250-07 controller run with the packet’s exact inputs; do not retry. After this attempt, resume with $gsd-execute-phase 250 --gaps-only if incomplete plans remain. init.execute-phase 250 earlier reported six incomplete plans and no duplicate threat IDs. No later roadmap phase is defined.
+Controller run 38087516844 is active for the one approved Plan 250-07 dispatch; follow the single watcher and do not retry. After it completes, resume with $gsd-execute-phase 250 --gaps-only if incomplete plans remain. init.execute-phase 250 earlier reported six incomplete plans and no duplicate threat IDs. No later roadmap phase is defined.
 
 Execution evidence: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json; Plan 06 summary, Plan 07 preflight/identity repair evidence, superseded packet copies, and current packet contain exact source, CI, hash, authority and preservation identities. The initial dirty gap-planning draft remains recoverable at refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z, commit 15c1afd319f7d59012cd9173195e0833b8135c77. Earlier STATE/HANDOFF revisions are recorded in the checkpoint; historical HANDOFF loss remains accepted-with-recorded-loss.
 

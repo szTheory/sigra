@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T21:23:39Z",
-  "status": "authorized_controller_dispatch_pending",
+  "captured_at": "2026-10-10T21:25:12Z",
+  "status": "authorized_controller_run_in_progress",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
   "source_head": "d9637d7a13b490e404020cae728a70f002806437",
@@ -47,15 +47,15 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "task_1_ready_task_2_authorized_single_dispatch_pending",
+    "status": "controller_run_in_progress_after_single_authorized_dispatch",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "sha256": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
-      "bytes": 10660,
-      "git_blob": "dd4260fc1f5fd153be6861e256e4f4d518d85529",
+      "sha256": "060c8144d1de077e81855beb9e1a128570673a1be354e9d5fde83a72d7275a93",
+      "bytes": 11557,
+      "git_blob": "7d97570bcd6538bd6ac9e099f0be7688de15572b",
       "packet_id": "250-07-canary-authority-v3",
       "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
-      "status": "approved_pending_single_dispatch",
+      "status": "dispatched_running",
       "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
       "approval_recorded_at": "2026-10-10T21:21:22Z"
     },
@@ -94,7 +94,7 @@
     },
     "latest_reply_applies_to_current_packet": true,
     "controller_dispatch_attempted": true,
-    "new_controller_dispatch_attempted_after_repair": false,
+    "new_controller_dispatch_attempted_after_repair": true,
     "source_dispatch_attempted": true,
     "cancellation_attempted": false,
     "observer_dispatch_attempted": false,
@@ -102,16 +102,20 @@
     "auto_02": "unsatisfied_pending_fresh_authority_and_two_validated_hosted_receipts",
     "authority_history": {
       "current_packet_v3": {
-        "packet_sha256": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
+        "packet_sha256": "060c8144d1de077e81855beb9e1a128570673a1be354e9d5fde83a72d7275a93",
         "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
         "preflight_file_sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
         "preflight_payload_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e",
-        "decision_status": "authorized_pending_single_dispatch",
+        "decision_status": "dispatched_running",
         "approved_at": "2026-10-10T21:21:22Z",
         "user_reply_verbatim": "yes i authorize and if CI green u can squash merge it too",
         "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
         "approved_preflight_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864",
-        "preflight_captured_at": "2026-10-10T21:21:47Z"
+        "preflight_captured_at": "2026-10-10T21:21:47Z",
+        "effective_packet_sha256_at_dispatch": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
+        "controller_run_id": 38087516844,
+        "controller_run_attempt": 1,
+        "dispatched_at": "2026-10-10T21:24:43Z"
       },
       "latest_reply_applies_to_current_packet": false
     },
@@ -128,7 +132,23 @@
       "approved_preflight_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864",
       "effective_packet_sha256": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
       "refreshed_preflight_payload_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e",
-      "preflight_file_sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539"
+      "preflight_file_sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
+      "effective_packet_sha256_at_dispatch": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
+      "post_dispatch_packet_sha256": "060c8144d1de077e81855beb9e1a128570673a1be354e9d5fde83a72d7275a93"
+    },
+    "controller_run": {
+      "id": 38087516844,
+      "attempt": 1,
+      "workflow_id": 380517406,
+      "workflow_path": ".github/workflows/release-receipt-canary-controller.yml",
+      "event": "workflow_dispatch",
+      "ref": "refs/heads/main",
+      "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+      "created_at": "2026-10-10T21:24:43Z",
+      "url": "https://github.com/szTheory/sigra/actions/runs/38087516844",
+      "initial_status": "in_progress",
+      "dispatched_at": "2026-10-10T21:24:43Z",
+      "authorization_packet_sha256_at_dispatch": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960"
     }
   },
   "plan_250_08": {
@@ -229,7 +249,7 @@
     "next_roadmap_phase": null,
     "incomplete_count": 6,
     "threat_id_duplicate_count": 0,
-    "pending_action": "Dispatch exactly one user-approved controller run using effective packet f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960; approval bound to reviewed packet 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68 plus authorized same-source timestamp refresh. No retry. Plan 250-08 remains blocked.",
+    "pending_action": "Wait for controller run 38087516844 through the single active watcher. No retry. Validate only exact artifacts and cancellation scope produced by this controller.",
     "next_command": "$gsd-execute-phase 250 --gaps-only"
   },
   "prior_write_ahead_revisions": [
