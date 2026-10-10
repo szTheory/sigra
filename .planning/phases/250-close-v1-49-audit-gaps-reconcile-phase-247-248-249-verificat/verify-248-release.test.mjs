@@ -57,6 +57,8 @@ test('normalizes the controller producer schema without rewriting its pass or ru
   assert.equal(normalized.source_cancellation_receipts, 1);
   const invalid = normalizeControllerProof({ ...producer, source_cancellation: { ...producer.source_cancellation, conclusion: 'success' } });
   assert.equal(invalid.status, 'blocked');
+  const sourceIdentityDrift = normalizeControllerProof({ ...producer, source_failure: { ...producer.source_failure, ref: 'refs/heads/other' } });
+  assert.equal(sourceIdentityDrift.status, 'blocked');
 });
 
 test('keeps AUTO-02 unsatisfied when the recorded failure attempt has no artifact', () => {
