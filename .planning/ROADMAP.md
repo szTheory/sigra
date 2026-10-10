@@ -197,7 +197,7 @@ Plans:
 - [x] 250-02-PLAN.md
 - [x] 250-03-PLAN.md
 - [x] 250-04-PLAN.md
-- [ ] 250-06-PLAN.md — Repair and prove the canary failure/cancellation tracer locally.
+- [x] 250-06-PLAN.md — Repair and prove the canary failure/cancellation tracer locally.
 
 **Wave 3** *(gap execution follows Plan06; exact authority checkpoints)*
 - [x] 250-05-PLAN.md
@@ -226,7 +226,7 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
-| 250. Close v1.49 audit gaps | v1.49 | 5/12 | Gap plans ready; verification incomplete | — |
+| 250. Close v1.49 audit gaps | v1.49 | 6/12 | Gap plans ready; verification incomplete | — |
 
 ### Next
 

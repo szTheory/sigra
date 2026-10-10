@@ -6,17 +6,17 @@ current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 1
 status: executing
-stopped_at: Phase 250 gap planning passed; 7 closure plans ready; next $gsd-execute-phase 250 --gaps-only
-last_updated: "2026-10-10T19:08:58.166Z"
+stopped_at: Completed 250-06-PLAN.md; parent owns remaining Phase 250 gap plans and final verification route
+last_updated: "2026-10-10T19:49:01.294Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 250 execution started
-state_head: 6e58b17a559fa7b7094aea9136c094ef570fc35b
+state_head: ce0688aa0d5e78c827370bfecb655da936a5f0ec
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 43
-  completed_plans: 30
-  percent: 70
+  completed_plans: 31
+  percent: 72
 verification_status: gaps_found
 next_command: $gsd-execute-phase 250 --gaps-only
 ---
@@ -40,7 +40,7 @@ Plans executed: 5 of 12 (original 01–05 summarized; new 06–12 not executed)
 Status: Executing Phase 250
 Last activity: 2026-10-10 — Phase 250 execution started
 
-Progress: [███████░░░] 70% (historical roadmap execution progress; not acceptance completion)
+Progress: [███████░░░] 72% (historical roadmap execution progress; not acceptance completion)
 
 ### v1.49 audit route
 
@@ -621,6 +621,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 250]: AUTO-02 remains unsatisfied until both hosted failure and cancellation artifacts are retrieved and validated.
 - [Phase 250]: Plan 04 keeps REL-01 public release proof separate from REL-02 current-main and inventory proof; current workflow failure and stale PR identities leave REL-02 unsatisfied.
 - [Phase 250]: The historical HANDOFF loss remains accepted-with-recorded-loss under the exact user authorization; those bytes were neither recovered nor preserved.
+- [Phase 250]: Keep the historical blocked canary attempts as blocked evidence; no hosted canary dispatch or cancellation was authorized for this plan.
+- [Phase 250]: Deliver only the reviewed repair through PR #318 and verify the merged source blobs against the successful exact-head CI run.
 
 ### Pending Todos
 
@@ -846,9 +848,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T18:59:23Z
-Stopped at: Phase 250 gap planning passed; 7 closure plans ready; next $gsd-execute-phase 250 --gaps-only
-Resume file: .planning/HANDOFF.json
+Last session: 2026-10-10T19:49:01.247Z
+Stopped at: Completed 250-06-PLAN.md; parent owns remaining Phase 250 gap plans and final verification route
+Resume file: None
 
 ## Operator Next Steps
 
@@ -1087,3 +1089,4 @@ Resume file: .planning/HANDOFF.json
 | Phase 250 P03 | 12min | 2 tasks | 6 files |
 | Phase 250 P04 | 37m | 2 tasks | 6 files |
 | Phase 250 P05 | 18m | 3 tasks | 7 files |
+| Phase 250 P06 | 4h25m | 2 tasks | 4 files |
