@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T22:35:10Z",
+  "captured_at": "2026-10-10T22:35:48Z",
   "status": "plan_250_07_controller_dispatch_accepted_run_id_lookup_pending",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
@@ -47,10 +47,10 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "controller_run_38091955379_in_progress",
+    "status": "controller_run_38091955379_watcher_active",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "sha256": "4621426c104588e71c52c80d4d42be9f85d30fd8b3b113906ad88ac88eca39ff",
+      "sha256": "564c840261c2baf3a1ab222a761fdabc2cd96b97eb7cc92c8ea2f4c7c8cffc00",
       "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
       "packet_id": "250-07-canary-authority-v4",
       "source_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
@@ -279,8 +279,10 @@
     "watcher": {
       "run_id": 38091955379,
       "interval_seconds": 60,
-      "started": false,
-      "watcher_count": 0,
+      "started": true,
+      "started_at": "2026-10-10T22:35:48Z",
+      "watcher_count": 1,
+      "session_id": 71992,
       "deadline_at": "2026-10-10T23:09:49Z"
     }
   },

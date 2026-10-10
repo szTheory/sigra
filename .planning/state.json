@@ -35,12 +35,12 @@
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
     "label": "Run the single approved Plan 250-07 canary controller action and continue eligible gaps",
-    "reason": "The single authorized packet v4 controller dispatch was accepted and exact run 38091955379 (workflow 380517406, main SHA 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04, attempt 1) is in progress. Use one watcher at 60-second intervals; no retries or publish. Plan 250-08 remains blocked with zero eligible tuples.",
+    "reason": "One watcher (60-second interval) is active for exact controller run 38091955379; run deadline is 2026-10-10T23:09:49Z. No retry or publish is authorized.",
     "blocked_by": [
       "250-07-controller-outcome",
       "250-08-no-eligible-tuple"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
   },
-  "updated_at": "2026-10-10T22:35:10Z"
+  "updated_at": "2026-10-10T22:35:48Z"
 }

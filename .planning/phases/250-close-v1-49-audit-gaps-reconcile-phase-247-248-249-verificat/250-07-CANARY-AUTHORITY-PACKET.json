@@ -96,7 +96,10 @@
     "run_url": "https://github.com/szTheory/sigra/actions/runs/38091955379",
     "run_created_at": "2026-10-10T22:34:49Z",
     "run_attempt": 1,
-    "run_status_at_lookup": "in_progress"
+    "run_status_at_lookup": "in_progress",
+    "watcher_started_at": "2026-10-10T22:35:48Z",
+    "watcher_interval_seconds": 60,
+    "watcher_count": 1
   },
   "trusted_workflows": {
     "canary_source": {
