@@ -477,8 +477,13 @@ case "$MODE" in
     ;;
   validate-proof)
     [[ -n "$PROOF" && -f "$PROOF" ]] || fail "proof JSON file is required"
-    jq -e 'type == "object" and .schema_version == 1 and .status == "pass" and
-      .preflight.status == "ready" and .source_failure.receipt.receipt_kind == "canary" and
+    jq -e 'def no_credential_keys:
+      [.. | objects | to_entries[] |
+        select((.key | test("(token|secret|credential|api.?key)";"i")) and
+          (.key != "credential_values_recorded" or .value != false))] | length == 0;
+      type == "object" and .schema_version == 1 and .status == "pass" and
+      .credential_values_recorded == false and .preflight.status == "ready" and
+      .preflight.credential_values_recorded == false and .source_failure.receipt.receipt_kind == "canary" and
       .source_failure.receipt.terminal_verdict == "failure" and .source_cancellation.receipt.receipt_kind == "canary" and
       .source_cancellation.receipt.terminal_verdict == "cancelled" and .source_failure.run_id != .source_cancellation.run_id and
       .source_failure.run_id == .source_failure.receipt.source_run_id and
@@ -509,7 +514,7 @@ case "$MODE" in
       (.source_cancellation.created_at | type == "string") and (.source_cancellation.updated_at | type == "string") and
       .retrieval.failure_zip_sha256 == (.source_failure.artifact.digest | sub("^sha256:";"")) and
       .retrieval.cancellation_zip_sha256 == (.source_cancellation.artifact.digest | sub("^sha256:";"")) and
-      ([.. | objects | keys[]? | select(test("(token|secret|credential|api.?key)";"i"))] | length == 0)' "$PROOF" >/dev/null || fail "proof is blocked, incomplete, misbound, or contains credential-shaped keys"
+      no_credential_keys' "$PROOF" >/dev/null || fail "proof is blocked, incomplete, misbound, or contains credential-shaped keys"
     echo "release-canary: proof PASS"
     ;;
   write-failure) write_failure_receipt ;;

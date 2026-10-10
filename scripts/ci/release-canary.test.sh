@@ -183,7 +183,7 @@ FAIL_PROBE="$(jq -r '.probe_id' "$TMP/failure.json")"
 CANCEL_PROBE="$(jq -r '.probe_id' "$TMP/cancellation.json")"
 jq -n --slurpfile failure "$TMP/failure.json" --slurpfile cancellation "$TMP/cancellation.json" \
   --arg sha "$SHA" --arg fail_probe "$FAIL_PROBE" --arg cancel_probe "$CANCEL_PROBE" \
-  '{schema_version:1,status:"pass",preflight:{status:"ready"},
+  '{schema_version:1,status:"pass",preflight:{status:"ready",credential_values_recorded:false},credential_values_recorded:false,
     source_failure:{run_id:"74123",attempt:1,workflow_id:2024,workflow_path:".github/workflows/release-receipt-canary.yml@main",
       event:"workflow_dispatch",ref:"refs/heads/main",sha:$sha,conclusion:"failure",created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z",
       artifact:{id:901,name:("release-canary-failure-74123-1-"+$fail_probe),digest:"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",expires_at:"2026-11-09T10:00:00Z"},receipt:$failure[0]},
@@ -193,7 +193,11 @@ jq -n --slurpfile failure "$TMP/failure.json" --slurpfile cancellation "$TMP/can
       observer_run_id:"34567",observer_attempt:1,observer_workflow_id:2025,observer_workflow_path:".github/workflows/release-run-observer.yml",
       observer_event:"workflow_run",observer_ref:"refs/heads/main",observer_conclusion:"success",receipt:$cancellation[0]},
     retrieval:{failure_zip_sha256:"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",cancellation_zip_sha256:"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}' > "$TMP/proof.json"
-if bash "$CANARY" --validate-proof "$TMP/proof.json" >/dev/null; then pass "exact identities and downloaded artifact digests validate"; else fail "valid exact proof was rejected"; fi
+if bash "$CANARY" --validate-proof "$TMP/proof.json" >/dev/null; then pass "exact identities, safe credential metadata, and downloaded artifact digests validate"; else fail "valid exact proof with real preflight metadata was rejected"; fi
+jq '.preflight.credentials={HEX_API_KEY:"must-not-be-recorded"}' "$TMP/proof.json" > "$TMP/proof-with-credential-key.json"
+if bash "$CANARY" --validate-proof "$TMP/proof-with-credential-key.json" >/dev/null 2>&1; then fail "credential-shaped preflight fields were accepted"; else pass "credential-shaped preflight fields remain rejected"; fi
+jq '.credential_values_recorded=true' "$TMP/proof.json" > "$TMP/proof-with-recorded-credentials.json"
+if bash "$CANARY" --validate-proof "$TMP/proof-with-recorded-credentials.json" >/dev/null 2>&1; then fail "proof marked as recording credential values was accepted"; else pass "proof marked as recording credential values is rejected"; fi
 jq '.source_failure.artifact.digest="sha256:bad"' "$TMP/proof.json" > "$TMP/bad-digest.json"
 if bash "$CANARY" --validate-proof "$TMP/bad-digest.json" >/dev/null 2>&1; then fail "malformed artifact digest was accepted"; else pass "malformed or mismatched artifact digest rejected"; fi
 jq '.source_failure.artifact.id=0' "$TMP/proof.json" > "$TMP/bad-artifact-id.json"
