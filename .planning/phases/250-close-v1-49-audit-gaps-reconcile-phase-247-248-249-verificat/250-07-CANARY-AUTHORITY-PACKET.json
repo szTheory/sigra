@@ -46,10 +46,10 @@
     "mix_wrapper": "not run locally; exact-head CI and post-merge main CI passed"
   },
   "preflight": {
-    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936.json",
-    "sha256": "c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e",
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
+    "sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
     "status": "ready",
-    "captured_at": "2026-10-10T22:25:47Z",
+    "captured_at": "2026-10-10T22:31:59Z",
     "target_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
     "actions_enabled": true,
     "artifact_retention_days": 90,
@@ -76,7 +76,7 @@
     "credential_values_recorded": false,
     "dispatch_attempted": false,
     "compact_payload_bytes": 825,
-    "compact_payload_sha256": "cbaef01e342ee3636992c21489e75f9fe2b1bb64b21c7d1aa15724dcd7647366"
+    "compact_payload_sha256": "5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89"
   },
   "controller": {
     "workflow_id": 380517406,
@@ -85,8 +85,8 @@
     "ref": "refs/heads/main",
     "event": "workflow_dispatch",
     "inputs": {
-      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-10T22:25:47Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"1b420936e5135727f4a1b6dfcfd9c3d1ca050a04\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
-      "preflight_sha256": "cbaef01e342ee3636992c21489e75f9fe2b1bb64b21c7d1aa15724dcd7647366"
+      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-10T22:31:59Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"1b420936e5135727f4a1b6dfcfd9c3d1ca050a04\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
+      "preflight_sha256": "5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89"
     },
     "timeout_minutes": 35,
     "permissions": "actions:write; contents:read"
@@ -175,7 +175,12 @@
       "preflight.compact_payload_sha256"
     ],
     "fields_that_must_remain_identical": "Repository/main SHA, all workflow IDs/paths, actions enabled state, artifact retention, permission metadata, and all nine source/helper blob IDs.",
-    "on_any_other_drift": "Stop before dispatch; construct and request approval for a new packet bound to the changed tuple."
+    "on_any_other_drift": "Stop before dispatch; construct and request approval for a new packet bound to the changed tuple.",
+    "executed_at": "2026-10-10T22:31:59Z",
+    "previous_preflight_sha256": "c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e",
+    "refreshed_preflight_sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
+    "result": "ready; all fields except captured_at matched; bound main SHA unchanged",
+    "trigger": "User-authorized pre-dispatch read-only refresh."
   },
   "prior_authority_history": {
     "packet_v3": {
