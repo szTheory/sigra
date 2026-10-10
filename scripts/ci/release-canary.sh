@@ -43,6 +43,7 @@ Usage:
   release-canary.sh --cancel-canary-run <run-id> --workflow-id <id>
   release-canary.sh --validate-pair --failure-receipt <json> --cancellation-receipt <json>
   release-canary.sh --preflight --output <preflight.json>
+  release-canary.sh --validate-preflight --output <validated-preflight.json>
   release-canary.sh --run --proof <proof.json>
 USAGE
 }
@@ -56,6 +57,7 @@ while [[ $# -gt 0 ]]; do
     --cancel-canary-run) MODE=cancel-canary; [[ $# -ge 2 ]] || { usage; exit 2; }; PROOF="$2"; shift 2 ;;
     --validate-pair) MODE=validate-pair; shift ;;
     --preflight) MODE=preflight; shift ;;
+    --validate-preflight) MODE=validate-preflight; shift ;;
     --run) MODE=run; shift ;;
     --output) [[ $# -ge 2 ]] || { usage; exit 2; }; OUTPUT="$2"; shift 2 ;;
     --proof) [[ $# -ge 2 ]] || { usage; exit 2; }; PROOF="$2"; shift 2 ;;
@@ -169,32 +171,91 @@ run_preflight() {
   [[ -n "$OUTPUT" ]] || fail "preflight output path is required"
   command -v gh >/dev/null 2>&1 || { write_blocked_preflight gh_unavailable; return 0; }
   [[ "$REPOSITORY" == szTheory/sigra ]] || { write_blocked_preflight repository_identity_mismatch; return 0; }
-  local repo workflow source controller observer workflow_perms actions_perms retention captured
+  local repo workflow source controller observer workflow_perms actions_perms retention_policy retention retention_maximum captured main_sha
   repo="$(gh api "repos/${REPOSITORY}" 2>/dev/null)" || { write_blocked_preflight repository_metadata_unavailable; return 0; }
   workflow="$(gh api "repos/${REPOSITORY}/actions/workflows/release-receipt-canary.yml" 2>/dev/null)" || { write_blocked_preflight canary_workflow_not_visible; return 0; }
   controller="$(gh api "repos/${REPOSITORY}/actions/workflows/release-receipt-canary-controller.yml" 2>/dev/null)" || { write_blocked_preflight controller_workflow_not_visible; return 0; }
   observer="$(gh api "repos/${REPOSITORY}/actions/workflows/release-run-observer.yml" 2>/dev/null)" || { write_blocked_preflight observer_workflow_not_visible; return 0; }
   workflow_perms="$(gh api "repos/${REPOSITORY}/actions/permissions/workflow" 2>/dev/null)" || { write_blocked_preflight workflow_permissions_unreadable; return 0; }
   actions_perms="$(gh api "repos/${REPOSITORY}/actions/permissions" 2>/dev/null)" || { write_blocked_preflight actions_settings_unreadable; return 0; }
-  retention="$(jq -er '.artifact_and_log_retention_days | select(type == "number" and . >= 30)' <<<"$actions_perms" 2>/dev/null)" || { write_blocked_preflight artifact_retention_below_30_days_or_unreadable; return 0; }
+  retention_policy="$(gh api "repos/${REPOSITORY}/actions/permissions/artifact-and-log-retention" 2>/dev/null)" || { write_blocked_preflight artifact_retention_unreadable; return 0; }
+  retention="$(jq -er '.days | select(type == "number" and . >= 30)' <<<"$retention_policy" 2>/dev/null)" || { write_blocked_preflight artifact_retention_below_30_days_or_unreadable; return 0; }
+  retention_maximum="$(jq -er '.maximum_allowed_days | select(type == "number" and . >= 30)' <<<"$retention_policy" 2>/dev/null)" || { write_blocked_preflight artifact_retention_maximum_unreadable; return 0; }
   [[ "$(jq -r '.default_branch // empty' <<<"$repo")" == main ]] || { write_blocked_preflight default_branch_not_main; return 0; }
+  [[ "$(jq -r '.enabled // false' <<<"$actions_perms")" == true ]] || { write_blocked_preflight actions_disabled; return 0; }
   [[ "$(jq -r '.name // empty' <<<"$workflow")" == "Release Receipt Canary" && "$(jq -r '.path // empty' <<<"$workflow")" == .github/workflows/release-receipt-canary.yml ]] || { write_blocked_preflight canary_identity_mismatch; return 0; }
   [[ "$(jq -r '.name // empty' <<<"$controller")" == "Release Receipt Canary Controller" && "$(jq -r '.path // empty' <<<"$controller")" == .github/workflows/release-receipt-canary-controller.yml ]] || { write_blocked_preflight controller_identity_mismatch; return 0; }
   [[ "$(jq -r '.name // empty' <<<"$observer")" == "Release Run Observer" && "$(jq -r '.path // empty' <<<"$observer")" == .github/workflows/release-run-observer.yml ]] || { write_blocked_preflight observer_identity_mismatch; return 0; }
   [[ "$(jq -r '.default_workflow_permissions // empty' <<<"$workflow_perms")" == read ]] || { write_blocked_preflight default_workflow_permissions_not_read; return 0; }
+  main_sha="$(gh api "repos/${REPOSITORY}/commits/main" --jq .sha 2>/dev/null)" || { write_blocked_preflight default_branch_sha_unavailable; return 0; }
+  [[ "$main_sha" =~ ^[0-9a-f]{40}$ ]] || { write_blocked_preflight default_branch_sha_malformed; return 0; }
   captured="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-  jq -n --arg captured "$captured" --arg repo "$REPOSITORY" --argjson retention "$retention" \
+  jq -n --arg captured "$captured" --arg repo "$REPOSITORY" --arg main_sha "$main_sha" --argjson retention "$retention" \
+    --argjson retention_maximum "$retention_maximum" \
     --argjson canary_id "$(jq -r '.id' <<<"$workflow")" \
     --argjson controller_id "$(jq -r '.id' <<<"$controller")" \
     --argjson observer_id "$(jq -r '.id' <<<"$observer")" \
-    '{schema_version:1,status:"ready",captured_at:$captured,repository:$repo,default_branch:"main",
-      artifact_retention_days:$retention,required_retention_days:30,
+    '{schema_version:1,status:"ready",captured_at:$captured,repository:$repo,default_branch:"main",target_sha:$main_sha,
+      actions_enabled:true,
+      artifact_retention_days:$retention,artifact_retention_maximum_days:$retention_maximum,required_retention_days:30,
       workflows:{canary:{id:$canary_id,path:".github/workflows/release-receipt-canary.yml"},
         controller:{id:$controller_id,path:".github/workflows/release-receipt-canary-controller.yml"},
         observer:{id:$observer_id,path:".github/workflows/release-run-observer.yml"}},
       default_workflow_permissions:"read",controller_authority:"actions:write; contents:read",
       source_authority:"actions:read; contents:read",observer_authority:"actions:read; contents:read",
       credential_values_recorded:false,dispatch_attempted:false}' | safe_write_json "$OUTPUT"
+}
+
+validate_committed_preflight() {
+  local source_path="${CANARY_PREFLIGHT_FILE:-$ROOT/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json}"
+  local target_path="$1" preflight captured captured_epoch now age repo canary controller observer main_sha current_sha
+  OUTPUT="$target_path"
+  [[ -f "$source_path" ]] || { write_blocked_preflight committed_preflight_missing; return 1; }
+  cp "$source_path" "$target_path"
+  preflight="$target_path"
+  jq -e 'type == "object" and .schema_version == 1 and .status == "ready" and
+    .repository == "szTheory/sigra" and .default_branch == "main" and
+    (.target_sha | type == "string" and test("^[0-9a-f]{40}$")) and
+    (.artifact_retention_days | type == "number" and . >= 30) and
+    (.artifact_retention_maximum_days | type == "number" and . >= 30) and
+    .actions_enabled == true and .default_workflow_permissions == "read" and
+    .controller_authority == "actions:write; contents:read" and
+    .source_authority == "actions:read; contents:read" and .observer_authority == "actions:read; contents:read" and
+    .dispatch_attempted == false and .credential_values_recorded == false' \
+    "$preflight" >/dev/null 2>&1 || { write_blocked_preflight committed_preflight_invalid; return 1; }
+  captured="$(jq -er '.captured_at | select(type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"))' "$preflight")" || { write_blocked_preflight committed_preflight_timestamp_invalid; return 1; }
+  captured_epoch="$(date -u -j -f '%Y-%m-%dT%H:%M:%SZ' "$captured" '+%s' 2>/dev/null || date -u -d "$captured" '+%s' 2>/dev/null)" || { write_blocked_preflight committed_preflight_timestamp_invalid; return 1; }
+  now="$(date -u '+%s')"; age=$((now - captured_epoch))
+  (( age >= 0 && age <= 900 )) || { write_blocked_preflight committed_preflight_stale; return 1; }
+
+  repo="$(gh api "repos/${REPOSITORY}" 2>/dev/null)" || { write_blocked_preflight repository_metadata_unavailable; return 1; }
+  [[ "$(jq -r '.default_branch // empty' <<<"$repo")" == main ]] || { write_blocked_preflight default_branch_not_main; return 1; }
+  canary="$(gh api "repos/${REPOSITORY}/actions/workflows/release-receipt-canary.yml" 2>/dev/null)" || { write_blocked_preflight canary_workflow_not_visible; return 1; }
+  controller="$(gh api "repos/${REPOSITORY}/actions/workflows/release-receipt-canary-controller.yml" 2>/dev/null)" || { write_blocked_preflight controller_workflow_not_visible; return 1; }
+  observer="$(gh api "repos/${REPOSITORY}/actions/workflows/release-run-observer.yml" 2>/dev/null)" || { write_blocked_preflight observer_workflow_not_visible; return 1; }
+  [[ "$(jq -r '.id' <<<"$canary")" == "$(jq -r '.workflows.canary.id' "$preflight")" && "$(jq -r '.path' <<<"$canary")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.name' <<<"$canary")" == 'Release Receipt Canary' ]] || { write_blocked_preflight canary_identity_changed; return 1; }
+  [[ "$(jq -r '.id' <<<"$controller")" == "$(jq -r '.workflows.controller.id' "$preflight")" && "$(jq -r '.path' <<<"$controller")" == .github/workflows/release-receipt-canary-controller.yml && "$(jq -r '.name' <<<"$controller")" == 'Release Receipt Canary Controller' ]] || { write_blocked_preflight controller_identity_changed; return 1; }
+  [[ "$(jq -r '.id' <<<"$observer")" == "$(jq -r '.workflows.observer.id' "$preflight")" && "$(jq -r '.path' <<<"$observer")" == .github/workflows/release-run-observer.yml && "$(jq -r '.name' <<<"$observer")" == 'Release Run Observer' ]] || { write_blocked_preflight observer_identity_changed; return 1; }
+  main_sha="$(gh api "repos/${REPOSITORY}/commits/main" --jq .sha 2>/dev/null)" || { write_blocked_preflight default_branch_sha_unavailable; return 1; }
+  current_sha="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null)" || { write_blocked_preflight controller_checkout_sha_unavailable; return 1; }
+  [[ "$current_sha" == "$main_sha" ]] || { write_blocked_preflight controller_checkout_not_current_main; return 1; }
+  local target_sha file target_blob current_blob
+  target_sha="$(jq -r '.target_sha' "$preflight")"
+  git -C "$ROOT" merge-base --is-ancestor "$target_sha" "$current_sha" 2>/dev/null || { write_blocked_preflight default_branch_rewound_after_preflight; return 1; }
+  for file in \
+    .github/workflows/release-receipt-canary.yml \
+    .github/workflows/release-receipt-canary-controller.yml \
+    .github/workflows/release-run-observer.yml \
+    scripts/ci/release-canary.sh \
+    scripts/ci/release-canary.test.sh \
+    scripts/ci/release-observer.sh \
+    scripts/ci/release-receipt.sh \
+    test/sigra/planning/phase_248_release_observer_contract_test.exs \
+    test/sigra/planning/phase_250_canary_contract_test.exs; do
+    target_blob="$(git -C "$ROOT" rev-parse "${target_sha}:${file}" 2>/dev/null)" || { write_blocked_preflight preflight_source_blob_unavailable; return 1; }
+    current_blob="$(git -C "$ROOT" rev-parse "${current_sha}:${file}" 2>/dev/null)" || { write_blocked_preflight current_source_blob_unavailable; return 1; }
+    [[ "$target_blob" == "$current_blob" ]] || { write_blocked_preflight canary_source_changed_after_preflight; return 1; }
+  done
 }
 
 find_exact_run() {
@@ -305,8 +366,7 @@ run_controller() {
   local proof_dir preflight_path rate core_remaining canary_wf_id observer_wf_id
   proof_dir="$(dirname "$PROOF")"; mkdir -p "$proof_dir"
   preflight_path="${proof_dir}/250-CANARY-PREFLIGHT.json"
-  OUTPUT="$preflight_path" run_preflight
-  [[ "$(jq -r '.status // "blocked"' "$preflight_path")" == ready ]] || fail "read-only Actions preflight is blocked"
+  validate_committed_preflight "$preflight_path" || fail "fresh committed read-only Actions preflight is blocked"
   rate="$(gh api rate_limit)" || fail "GitHub rate-limit preflight unavailable"
   core_remaining="$(jq -er '.resources.core.remaining | select(type == "number")' <<<"$rate")" || fail "GitHub core rate budget unavailable"
   (( core_remaining > 250 )) || fail "GitHub core rate budget is at or below the 250-request stop threshold"
@@ -417,8 +477,13 @@ case "$MODE" in
     ;;
   validate-proof)
     [[ -n "$PROOF" && -f "$PROOF" ]] || fail "proof JSON file is required"
-    jq -e 'type == "object" and .schema_version == 1 and .status == "pass" and
-      .preflight.status == "ready" and .source_failure.receipt.receipt_kind == "canary" and
+    jq -e 'def no_credential_keys:
+      [.. | objects | to_entries[] |
+        select((.key | test("(token|secret|credential|api.?key)";"i")) and
+          (.key != "credential_values_recorded" or .value != false))] | length == 0;
+      type == "object" and .schema_version == 1 and .status == "pass" and
+      .credential_values_recorded == false and .preflight.status == "ready" and
+      .preflight.credential_values_recorded == false and .source_failure.receipt.receipt_kind == "canary" and
       .source_failure.receipt.terminal_verdict == "failure" and .source_cancellation.receipt.receipt_kind == "canary" and
       .source_cancellation.receipt.terminal_verdict == "cancelled" and .source_failure.run_id != .source_cancellation.run_id and
       .source_failure.run_id == .source_failure.receipt.source_run_id and
@@ -449,13 +514,18 @@ case "$MODE" in
       (.source_cancellation.created_at | type == "string") and (.source_cancellation.updated_at | type == "string") and
       .retrieval.failure_zip_sha256 == (.source_failure.artifact.digest | sub("^sha256:";"")) and
       .retrieval.cancellation_zip_sha256 == (.source_cancellation.artifact.digest | sub("^sha256:";"")) and
-      ([.. | objects | keys[]? | select(test("(token|secret|credential|api.?key)";"i"))] | length == 0)' "$PROOF" >/dev/null || fail "proof is blocked, incomplete, misbound, or contains credential-shaped keys"
+      no_credential_keys' "$PROOF" >/dev/null || fail "proof is blocked, incomplete, misbound, or contains credential-shaped keys"
     echo "release-canary: proof PASS"
     ;;
   write-failure) write_failure_receipt ;;
   preflight)
     run_preflight
     [[ "$(jq -r '.status' "$OUTPUT")" == ready ]] || exit 1
+    ;;
+  validate-preflight)
+    [[ -n "$OUTPUT" ]] || fail "validated preflight output path is required"
+    validate_committed_preflight "$OUTPUT" || fail "committed Actions preflight is not fresh or source-bound"
+    echo "release-canary: preflight PASS"
     ;;
   run)
     [[ -n "$PROOF" ]] || fail "controller proof output path is required"

@@ -24,6 +24,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
+          # The preflight proves the recorded SHA is an ancestor of current main.
+          fetch-depth: 0
 
       - name: Read-only preflight and exact-run orchestration
         env:
