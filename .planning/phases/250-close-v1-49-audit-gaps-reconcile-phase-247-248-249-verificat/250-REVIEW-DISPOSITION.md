@@ -5,7 +5,7 @@ titles: json
 findings:
   - id: CR-01
     severity: critical
-    disposition: fixed
+    disposition: open
     commits: [13d11e69a, 27ddb4ea1, 866dfd735]
     tests: [verify-248-release.test.mjs]
     title: "Phase 248 cannot accept the current canary controller proof"
@@ -57,11 +57,12 @@ findings:
     commits: [da7d33053, e806ccf07]
     tests: [verify-247-readiness.test.mjs]
     title: "Malformed exact-head CI JSON can still crash evidence capture"
-open: 0
-fixed: 9
+open: 1
+fixed: 8
 total: 9
 fix_report: 250-REVIEW-FIX.md
 recheck_report: 250-REVIEW-RECHECK.md
+recheck_report_iteration_2: 250-REVIEW-RECHECK-2.md
 recorded: "2026-10-10"
 ---
 
@@ -69,7 +70,7 @@ recorded: "2026-10-10"
 
 | Finding | Severity | Disposition | Source |
 |---------|----------|-------------|--------|
-| CR-01 | critical | fixed | `866dfd735`; `verify-248-release.test.mjs` capture-path coverage |
+| CR-01 | critical | open | Iteration 2 recheck: actual producer receipt uses top-level `probe_id`/`scenario`; Phase 248 helper/evaluator expect `canary.*`; see `250-REVIEW-RECHECK-2.md` |
 | CR-02 | critical | fixed | `da7d33053`; `verify-247-readiness.test.mjs` |
 | CR-03 | critical | fixed | `e806ccf07`; `verify-247-readiness.test.mjs` proposal-first capture-path coverage |
 | CR-04 | critical | fixed | `da7d33053`; `verify-247-readiness.test.mjs` |
@@ -81,4 +82,4 @@ recorded: "2026-10-10"
 
 Dispositions: `open` (recorded, not yet triaged), `fixed`, `skipped`, `deferred`.
 
-Iteration 2 fixes the three capture defects identified in `250-REVIEW-RECHECK.md`. The recheck remains unchanged as historical evidence. The stored source-evidence gaps and missing hosted canary artifacts remain separate evidence blockers; no acceptance status was promoted from those missing artifacts.
+Iteration 2 fixes the Phase 247 CI identity and malformed-input defects. The Phase 248 terminal artifact capture remains open because the producer's top-level receipt fields do not match the helper/evaluator's nested `canary.*` fields; see `250-REVIEW-RECHECK-2.md`. The stored source-evidence gaps and missing hosted canary artifacts remain separate evidence blockers; no acceptance status was promoted from those missing artifacts.
