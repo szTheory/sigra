@@ -26,13 +26,13 @@
     {
       "number": "250",
       "name": "Close v1.49 audit gaps",
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
   "next": {
     "command": "/gsd:progress --next",
     "label": "Advance to the next step",
-    "reason": "Phase 250 of 5 · 80% · executing"
+    "reason": "Phase 250 of 5 · 75% · executing"
   },
-  "updated_at": "2026-10-10T15:23:26.306Z"
+  "updated_at": "2026-10-10T15:26:27.368Z"
 }

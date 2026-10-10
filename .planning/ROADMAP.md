@@ -205,12 +205,12 @@ Plans:
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
-| 250. Close v1.49 audit gaps | v1.49 | 2/5 | Pending | — |
+| 250. Close v1.49 audit gaps | v1.49 | 2/5 | In Progress | — |
 
 ### Next
 
-The milestone audit found `gaps_found` (3/9 requirements satisfied). Phase 250 is now added to reconcile Phase 247/248/249 verification and prove hosted AUTO-02 terminal receipts through a safe non-publishing canary. Phase 250 readiness reports no plan or context and no prerequisite blocker.
+The milestone audit remains `gaps_found` (3/9 requirements satisfied). Phase 250 Plans 01–02 are complete as evidence tasks; Plans 03–05 remain. Plan 02's canonical Phase 247 verifier records READY-01/02 as unsatisfied against the captured live identities. `init.execute-phase 250` reports Plan 03 as runnable with no prerequisite blocker.
 
-**Next command:** `$gsd-discuss-phase 250`
+**Next command:** `$gsd-execute-phase 250`
 
 Do not repeat `$gsd-validate-phase 248` until new hosted failure/cancellation artifacts exist. The passing Phase 249 acceptance remains at `refs/heads/evidence/phase-249-final-acceptance`, commit `65f1ca4c851d62415ed656509cb068dc3acbab15`; the checked-in acceptance JSON is an older blocked snapshot.

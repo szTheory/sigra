@@ -7,16 +7,16 @@ current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verific
 current_plan: 3
 status: executing
 stopped_at: Completed 250-02-PLAN.md
-last_updated: "2026-10-10T15:23:27.676Z"
+last_updated: "2026-10-10T15:25:31.842Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250 execution started
-state_head: 667dc0cc93a5abd7af294e94911fb7001d0ff23b
+last_activity_desc: Phase 250 Plan 02 completed; Plan 03 is next
+state_head: bf9096f22f03deaa2066df894803352c042d62bd
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 36
-  completed_plans: 29
-  percent: 80
+  completed_plans: 27
+  percent: 75
 ---
 
 # Project State
@@ -34,15 +34,15 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
 Current Plan: 3
 Total Plans in Phase: 5
-Plans executed: 1 of 5
+Plans executed: 2 of 5
 Status: Ready to execute
-Last activity: 2026-10-10 — Phase 250 execution started
+Last activity: 2026-10-10 — Phase 250 Plan 02 completed; Plan 03 is next
 
-Progress: [████████░░] 80%
+Progress: [████████░░] 75%
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task. Its canonical blocked proof is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json`; the exact controller record is `250-CANARY-CONTROLLER-PROOF-38059620443.json`. Authorized controller run 38059620443 launched source run 38059634695; the controlled failure step worked but the receipt builder lost `SCENARIO=failure`, so no failure artifact uploaded and no cancellation was dispatched. Exact-title run correlation also exposed a one-shot eventual-consistency race. PR #317 merged fixes (source c570e0449, main merge 6b2bd9e8), and exact-head CI run 38060050307 passed. The user's one-retry authorization is consumed. Do not dispatch or cancel another run without fresh explicit authorization. AUTO-02 remains unsatisfied and owned by Phase 248. Continue with Plan 02; Plan 03 is also unblocked by Plan 01. Phase 250 and v1.49 remain incomplete.
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task; Plan 02 is complete with READY-01/02 still unsatisfied. Its canonical reconciliation is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json`, and the Phase 247 owner report is `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`. The live read-only capture found PR #224 closed at a different head/base and main advanced; the proposal authorization remains pending, the saved dry-run is parent-bound, and current disposition evidence is incomplete. Plan 03 is listed as runnable by `init.execute-phase 250`. The user's one-retry authorization for the canary is consumed. Do not dispatch or cancel another run without fresh explicit authorization. AUTO-02 remains unsatisfied and owned by Phase 248. Phase 250 and v1.49 remain incomplete.
 
 ### v1.49 phase map
 
@@ -638,6 +638,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 250-01 Task 3 is blocked after the single authorized controller run 38054862873 failed before any canary source dispatch: the controller checkout was shallow and its local ancestry check could not see the preflight target 04e7a13dbd9394b453c132d2a168ce6642c98e37. GitHub compare confirms current main 5059581954960548c7fe5c4811b7a7f81dd16aa3 is a direct descendant. Durable diagnostic: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json committed as eebf552f4; controller artifact 11670154191 SHA256 ecbe27bc7d736cde8bef48bf78105256d293653bdda5fb85746597a15e762889. A code fix and new explicit authorization are required before another controller dispatch; no second dispatch is authorized.
 
 Phase 250-01 recovery update 2026-10-10T14:10:46Z: PR #313 merged commit c13bedb392d653871df45e4a12c7007470dae6d8 after exact-head CI run 38055794383 passed; it sets `fetch-depth: 0` only on the manually dispatched controller, preserving the ancestry and source-blob checks. PR #314 merged commit b95bb44b6a780837d33e0309136d24bd459bbe5e after exact-head CI run 38056811805 passed; it permits only the exact `credential_values_recorded: false` proof metadata while rejecting credential-shaped fields and true flags. PR #315 merged commit f606ac15d3beaaf87a285e908674ebadff2866f3 after exact-head CI run 38057655905 passed; it records the fresh live Actions snapshot and exact first blocked proof. Current main is f606ac15d3beaaf87a285e908674ebadff2866f3. Live preflight was ready at capture (Actions enabled, default workflow permission read, 90-day retention, controller authority `actions:write; contents:read`) and source validation passed against current main; it expired at 2026-10-10T14:08:41Z, so recapture before any retry. The prior controller dispatched zero canary source or observer runs. One new controller dispatch requires fresh explicit user authorization. The current local canary sources are synced to main at c8f4758e4 and `scripts/ci/release-canary.test.sh` passes 30/30. The prior planning bytes are preserved and read-verified under `refs/codex/preservations/phase-250-checkpoint-20261010` at commit `1b4df4b4d204bc905d438839887a409e56a81bd0`; manifest: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CHECKPOINT-PRESERVATION.json`. Next after authorization: `$gsd-execute-phase 250` at Task 3 only; no plan summary or phase verification exists yet.
+- Phase 247 READY-01/02 remain unsatisfied: authorization pending, live PR/main and readiness tuples diverged, the dry-run is parent-bound, and fresh dispositions are incomplete. See .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json.
 
 ### Roadmap Evolution
 
@@ -833,7 +834,7 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T15:23:27.606Z
+Last session: 2026-10-10T15:25:04.989Z
 Stopped at: Completed 250-02-PLAN.md
 Resume file: None
 

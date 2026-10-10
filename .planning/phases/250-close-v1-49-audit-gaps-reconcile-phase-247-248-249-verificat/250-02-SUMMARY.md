@@ -55,7 +55,7 @@ coverage:
     human_judgment: false
 decisions:
   - "No evidence rebind was performed because the only recorded authorization remains pending."
-duration: 14min
+duration: 18min
 completed: 2026-10-10
 status: complete
 plan_head_before: 41f6f8c00c5eda29e96fb9099841a30b670d6fd6
@@ -69,9 +69,9 @@ commits: 4
 
 ## Performance
 
-- **Duration:** 14 min
+- **Duration:** 18 min
 - **Started:** 2026-10-10T15:08:41Z
-- **Completed:** 2026-10-10T15:22:30Z
+- **Completed:** 2026-10-10T15:26:27Z
 - **Tasks:** 2
 - **Files modified:** 5
 
