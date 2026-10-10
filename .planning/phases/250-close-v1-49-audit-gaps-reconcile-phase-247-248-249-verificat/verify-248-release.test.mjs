@@ -1,18 +1,42 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { evaluateSnapshot, checkReport, normalizeControllerProof, captureCanaryTerminalReceipts, downloadArtifact } from './verify-248-release.mjs';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { evaluateSnapshot, checkReport, normalizeControllerProof, captureCanaryTerminalReceipts, downloadArtifact, reportIdentity } from './verify-248-release.mjs';
+import { audit } from './verify-v149-traceability.mjs';
 
 const sourceSha = '9e80cb78d6374b1ed4074d5fef6b613fee879dca';
 const canarySha = 'a7e1c8c25db17412c895b20e0f5c0cee45594d30';
 const digest = (letter) => `sha256:${letter.repeat(64)}`;
 
+function produceCanaryReceipt({ id, scenario, probeId, startedAt, observedAt, observerRun = null }) {
+  const directory = mkdtempSync(join(tmpdir(), 'sigra-receipt-producer-'));
+  const inputPath = join(directory, 'input.json');
+  const outputPath = join(directory, 'canary-receipt.json');
+  const sourceRun = { id: String(id), attempt: 1, workflow_id: 380517407,
+    workflow_name: 'Release Receipt Canary', workflow_path: '.github/workflows/release-receipt-canary.yml',
+    url: `https://github.com/szTheory/sigra/actions/runs/${id}`, started_at: startedAt, observed_at: observedAt };
+  const input = { schema_version: 1, receipt_kind: 'canary', canary: { probe_id: probeId, scenario },
+    source_event: 'workflow_dispatch', source: { repository: 'szTheory/sigra', ref: 'refs/heads/main', sha: canarySha },
+    source_run: sourceRun, terminal_verdict: scenario === 'failure' ? 'failure' : 'cancelled', observer_run: observerRun };
+  writeFileSync(inputPath, JSON.stringify(input));
+  try {
+    const result = spawnSync('bash', ['scripts/ci/release-receipt.sh', '--mode', 'canary', '--input', inputPath,
+      '--output', outputPath, '--expected-workflow-id', String(sourceRun.workflow_id)], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    return JSON.parse(readFileSync(outputPath, 'utf8'));
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+}
+
 function captureTerminalFixtures(failureReceipt, cancellationReceipt, mutate = (value) => value, invalidJsonId = null) {
-  const failureRun = { id: 38059634695, attempt: 1, workflow_id: 380517407, workflow_name: 'Release Receipt Canary', workflow_path: '.github/workflows/release-receipt-canary.yml', url: 'https://github.com/szTheory/sigra/actions/runs/38059634695', started_at: '2026-10-10T10:00:00Z', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'failure' };
-  const cancellationRun = { id: 38059640000, attempt: 1, workflow_id: 380517407, workflow_name: 'Release Receipt Canary', workflow_path: '.github/workflows/release-receipt-canary.yml', url: 'https://github.com/szTheory/sigra/actions/runs/38059640000', started_at: '2026-10-10T10:00:00Z', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'cancelled' };
-  const observerRun = { id: 38059640100, attempt: 1, workflow_id: 379162190, workflow_path: '.github/workflows/release-run-observer.yml', url: 'https://github.com/szTheory/sigra/actions/runs/38059640100', started_at: '2026-10-10T10:01:00Z', event: 'workflow_run', branch: 'main', head_sha: canarySha, conclusion: 'success' };
-  const failureArtifact = { id: 11671884955, name: `release-canary-failure-${failureRun.id}-${failureRun.attempt}-${failureReceipt.canary.probe_id}`, digest: '', expired: false, workflow_run: { id: failureRun.id } };
-  const cancellationArtifact = { id: 11671884956, name: `release-canary-cancellation-${cancellationRun.id}-${cancellationRun.attempt}`, digest: '', expired: false, workflow_run: { id: observerRun.id } };
+  const failureRun = { id: 38059634695, attempt: 1, workflow_id: 380517407, workflow_name: 'Release Receipt Canary', workflow_path: '.github/workflows/release-receipt-canary.yml', display_title: 'release-receipt-canary-failure-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', url: 'https://github.com/szTheory/sigra/actions/runs/38059634695', started_at: '2026-10-10T10:00:00Z', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'failure' };
+  const cancellationRun = { id: 38059640000, attempt: 1, workflow_id: 380517407, workflow_name: 'Release Receipt Canary', workflow_path: '.github/workflows/release-receipt-canary.yml', display_title: 'release-receipt-canary-cancellation-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', url: 'https://github.com/szTheory/sigra/actions/runs/38059640000', started_at: '2026-10-10T10:00:00Z', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'cancelled' };
+  const observerRun = { id: 38059640100, attempt: 1, workflow_id: 379162190, workflow_name: 'Release Run Observer', workflow_path: '.github/workflows/release-run-observer.yml', url: 'https://github.com/szTheory/sigra/actions/runs/38059640100', started_at: '2026-10-10T10:01:00Z', event: 'workflow_run', branch: 'main', head_sha: canarySha, conclusion: 'success' };
+  const failureArtifact = { id: 11671884955, name: `release-canary-failure-${failureRun.id}-${failureRun.attempt}-${failureReceipt.probe_id}`, digest: '', expired: false, expires_at: '2026-11-01T00:00:00Z', workflow_run: { id: failureRun.id } };
+  const cancellationArtifact = { id: 11671884956, name: `release-canary-cancellation-${cancellationRun.id}-${cancellationRun.attempt}`, digest: '', expired: false, expires_at: '2026-11-01T00:00:00Z', workflow_run: { id: observerRun.id } };
   const producerProof = {
     source_failure: { run_id: failureRun.id, attempt: failureRun.attempt, workflow_id: failureRun.workflow_id, artifact: failureArtifact, receipt: failureReceipt },
     source_cancellation: { run_id: cancellationRun.id, attempt: cancellationRun.attempt, workflow_id: cancellationRun.workflow_id,
@@ -45,8 +69,9 @@ function captureTerminalFixtures(failureReceipt, cancellationReceipt, mutate = (
 }
 
 function snapshot() {
-  const failureReceipt = { receipt_kind: 'canary', canary: { scenario: 'failure', probe_id: 'a'.repeat(32) }, terminal_verdict: 'failure', source_run_id: 38059634695, source_run_attempt: 1, source_workflow_id: 380517407, source_workflow_name: 'Release Receipt Canary', source_workflow_path: '.github/workflows/release-receipt-canary.yml', source_run_url: 'https://github.com/szTheory/sigra/actions/runs/38059634695', source_started_at: '2026-10-10T10:00:00Z', source_observed_at: '2026-10-10T10:01:00Z', recorded_at: '2026-10-10T10:01:00Z', source_event: 'workflow_dispatch', source_ref: 'refs/heads/main', source_sha: canarySha, source_repository: 'szTheory/sigra' };
-  const cancellationReceipt = { receipt_kind: 'canary', canary: { scenario: 'cancellation', probe_id: 'b'.repeat(32) }, terminal_verdict: 'cancelled', source_run_id: 38059640000, source_run_attempt: 1, source_workflow_id: 380517407, source_workflow_name: 'Release Receipt Canary', source_workflow_path: '.github/workflows/release-receipt-canary.yml', source_run_url: 'https://github.com/szTheory/sigra/actions/runs/38059640000', source_started_at: '2026-10-10T10:00:00Z', source_observed_at: '2026-10-10T10:01:00Z', recorded_at: '2026-10-10T10:01:00Z', source_event: 'workflow_dispatch', source_ref: 'refs/heads/main', source_sha: canarySha, source_repository: 'szTheory/sigra', observer_run: { id: '38059640100', attempt: 1, workflow_id: 379162190, url: 'https://github.com/szTheory/sigra/actions/runs/38059640100', started_at: '2026-10-10T10:01:00Z', observed_at: '2026-10-10T10:02:00Z' } };
+  const failureReceipt = produceCanaryReceipt({ id: 38059634695, scenario: 'failure', probeId: 'a'.repeat(32), startedAt: '2026-10-10T10:00:00Z', observedAt: '2026-10-10T10:01:00Z' });
+  const cancellationReceipt = produceCanaryReceipt({ id: 38059640000, scenario: 'cancellation', probeId: 'b'.repeat(32), startedAt: '2026-10-10T10:00:00Z', observedAt: '2026-10-10T10:01:00Z',
+    observerRun: { id: '38059640100', attempt: 1, workflow_id: 379162190, url: 'https://github.com/szTheory/sigra/actions/runs/38059640100', started_at: '2026-10-10T10:01:00Z', observed_at: '2026-10-10T10:02:00Z' } });
   const capturedReceipts = captureTerminalFixtures(failureReceipt, cancellationReceipt);
   return {
     schema_version: 1,
@@ -70,16 +95,33 @@ function snapshot() {
         source_failure: { run_id: 38059634695, attempt: 1, workflow_id: 380517407, workflow_path: '.github/workflows/release-receipt-canary.yml', event: 'workflow_dispatch', ref: 'refs/heads/main', sha: canarySha, conclusion: 'failure', artifact: { id: 11671884955, name: capturedReceipts.failureArtifactRetrieved.artifact_name, digest: capturedReceipts.failureArtifactRetrieved.artifact_digest, expires_at: '2026-11-01T00:00:00Z' }, receipt: failureReceipt },
         source_cancellation: { run_id: 38059640000, attempt: 1, workflow_id: 380517407, workflow_path: '.github/workflows/release-receipt-canary.yml', event: 'workflow_dispatch', ref: 'refs/heads/main', sha: canarySha, conclusion: 'cancelled', artifact: { id: 11671884956, name: capturedReceipts.cancellationArtifactRetrieved.artifact_name, digest: capturedReceipts.cancellationArtifactRetrieved.artifact_digest, expires_at: '2026-11-01T00:00:00Z' }, observer_run_id: '38059640100', observer_attempt: 1, observer_workflow_id: 379162190, observer_workflow_path: '.github/workflows/release-run-observer.yml', observer_event: 'workflow_run', observer_ref: 'refs/heads/main', observer_conclusion: 'success', receipt: cancellationReceipt } },
       credential_values_recorded: false,
-      failure: { expected_id: 38059634695, expected_attempt: 1, run: { id: 38059634695, attempt: 1, workflow_id: 380517407, workflow_path: '.github/workflows/release-receipt-canary.yml', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'failure' }, artifacts: [{ status: 'validated', id: 11671884955, name: capturedReceipts.failureArtifactRetrieved.artifact_name, digest: capturedReceipts.failureArtifactRetrieved.artifact_digest, run_id: 38059634695, expired: false }], artifact_retrieved: capturedReceipts.failureArtifactRetrieved },
-      cancellation: { expected_id: 38059640000, run: { id: 38059640000, attempt: 1, workflow_id: 380517407, workflow_path: '.github/workflows/release-receipt-canary.yml', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'cancelled' }, observer: { run_id: '38059640100', attempt: 1, workflow_id: 379162190, workflow_path: '.github/workflows/release-run-observer.yml', event: 'workflow_run', ref: 'refs/heads/main', event_source_run_id: 38059640000, source_sha: canarySha, conclusion: 'success' }, artifacts: [{ id: 11671884956, name: capturedReceipts.cancellationArtifactRetrieved.artifact_name, digest: capturedReceipts.cancellationArtifactRetrieved.artifact_digest, run_id: 38059640100, expired: false }], artifact_retrieved: capturedReceipts.cancellationArtifactRetrieved },
+      failure: { expected_id: 38059634695, expected_attempt: 1, run: { id: 38059634695, attempt: 1, workflow_id: 380517407, workflow_name: 'Release Receipt Canary', workflow_path: '.github/workflows/release-receipt-canary.yml', display_title: 'release-receipt-canary-failure-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', url: 'https://github.com/szTheory/sigra/actions/runs/38059634695', started_at: '2026-10-10T10:00:00Z', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'failure' }, artifacts: [{ status: 'validated', id: 11671884955, name: capturedReceipts.failureArtifactRetrieved.artifact_name, digest: capturedReceipts.failureArtifactRetrieved.artifact_digest, run_id: 38059634695, expired: false, expires_at: '2026-11-01T00:00:00Z' }], artifact_retrieved: capturedReceipts.failureArtifactRetrieved },
+      cancellation: { expected_id: 38059640000, run: { id: 38059640000, attempt: 1, workflow_id: 380517407, workflow_name: 'Release Receipt Canary', workflow_path: '.github/workflows/release-receipt-canary.yml', display_title: 'release-receipt-canary-cancellation-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', url: 'https://github.com/szTheory/sigra/actions/runs/38059640000', started_at: '2026-10-10T10:00:00Z', event: 'workflow_dispatch', branch: 'main', head_sha: canarySha, conclusion: 'cancelled' }, observer: { run_id: '38059640100', attempt: 1, workflow_id: 379162190, workflow_path: '.github/workflows/release-run-observer.yml', url: 'https://github.com/szTheory/sigra/actions/runs/38059640100', started_at: '2026-10-10T10:01:00Z', event: 'workflow_run', ref: 'refs/heads/main', event_source_run_id: 38059640000, source_sha: canarySha, conclusion: 'success' }, artifacts: [{ id: 11671884956, name: capturedReceipts.cancellationArtifactRetrieved.artifact_name, digest: capturedReceipts.cancellationArtifactRetrieved.artifact_digest, run_id: 38059640100, expired: false, expires_at: '2026-11-01T00:00:00Z' }], artifact_retrieved: capturedReceipts.cancellationArtifactRetrieved },
     },
   };
 }
 
 test('accepts only exact source, scope and terminal-artifact identities', () => {
-  const result = evaluateSnapshot(snapshot());
+  const current = snapshot();
+  assert.equal(Object.hasOwn(current.canary.failure.artifact_retrieved.receipt, 'canary'), false);
+  assert.equal(current.canary.failure.artifact_retrieved.receipt.probe_id, 'a'.repeat(32));
+  assert.equal(current.canary.failure.artifact_retrieved.receipt.scenario, 'failure');
+  assert.equal(Object.hasOwn(current.canary.cancellation.artifact_retrieved.receipt, 'canary'), false);
+  assert.equal(current.canary.cancellation.artifact_retrieved.receipt.probe_id, 'b'.repeat(32));
+  assert.equal(current.canary.cancellation.artifact_retrieved.receipt.scenario, 'cancellation');
+  const result = evaluateSnapshot(current);
   assert.equal(result.requirements['AUTO-01'].status, 'satisfied');
   assert.equal(result.requirements['AUTO-02'].status, 'satisfied');
+  const report = `# Phase 248 Verification\n\n<!-- phase248-evidence ${JSON.stringify(reportIdentity({ ...current, requirements: result.requirements }))} -->\n\nHistorical verification (2026-10-08): gaps_found.\n`;
+  assert.deepEqual(checkReport(report, current, result), []);
+
+  const ownerReport = `---\nphase: 248-exact-source-release-gate\nstatus: gaps_found\nowner_requirements: [AUTO-01, AUTO-02]\n---\n\n<!-- phase248-evidence ${JSON.stringify(reportIdentity({ ...current, requirements: result.requirements }))} -->\n\nHistorical verification (2026-10-08): gaps_found.\n`;
+  const traceability = audit(process.cwd(), { overrides: {
+    '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json': JSON.stringify({ ...current, requirements: result.requirements }),
+    '.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md': ownerReport,
+  } });
+  assert.equal(traceability.owners['248'].requirements.find(({ id }) => id === 'AUTO-02').status, 'satisfied');
+  assert.equal(traceability.blockers.some(({ id, message }) => id === 'AUTO-02' && message.includes('Phase 248 report fails its recomputed source check')), false);
 });
 
 test('capture joins both downloaded terminal receipts to producer proof and authoritative artifact metadata', () => {
@@ -109,6 +151,15 @@ test('capture joins both downloaded terminal receipts to producer proof and auth
   assert.equal(wrongArtifactOwner.cancellationArtifactRetrieved.status, 'blocked');
   const malformedDownloadedReceipt = captureTerminalFixtures(failureReceipt, cancellationReceipt, (downloaded) => downloaded, 11671884955);
   assert.equal(malformedDownloadedReceipt.failureArtifactRetrieved.status, 'blocked');
+
+  assert.equal(captureTerminalFixtures({ ...failureReceipt, probe_id: undefined }, cancellationReceipt).failureArtifactRetrieved.status, 'blocked');
+  assert.equal(captureTerminalFixtures({ ...failureReceipt, probe_id: 'c'.repeat(32) }, cancellationReceipt).failureArtifactRetrieved.status, 'blocked');
+  assert.equal(captureTerminalFixtures({ ...failureReceipt, scenario: undefined }, cancellationReceipt).failureArtifactRetrieved.status, 'blocked');
+  assert.equal(captureTerminalFixtures({ ...failureReceipt, scenario: 'cancellation' }, cancellationReceipt).failureArtifactRetrieved.status, 'blocked');
+  assert.equal(captureTerminalFixtures(failureReceipt, { ...cancellationReceipt, probe_id: undefined }).cancellationArtifactRetrieved.status, 'blocked');
+  assert.equal(captureTerminalFixtures(failureReceipt, { ...cancellationReceipt, probe_id: 'd'.repeat(32) }).cancellationArtifactRetrieved.status, 'blocked');
+  assert.equal(captureTerminalFixtures(failureReceipt, { ...cancellationReceipt, scenario: undefined }).cancellationArtifactRetrieved.status, 'blocked');
+  assert.equal(captureTerminalFixtures(failureReceipt, { ...cancellationReceipt, scenario: 'failure' }).cancellationArtifactRetrieved.status, 'blocked');
 });
 
 test('normalizes the controller producer schema without rewriting its pass or run_id fields', () => {

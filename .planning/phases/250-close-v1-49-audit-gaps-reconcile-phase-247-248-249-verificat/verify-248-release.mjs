@@ -19,6 +19,7 @@ const SUCCESS = {
 const text = (value) => typeof value === 'string' ? value : '';
 const sha256 = (data) => createHash('sha256').update(data).digest('hex');
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const validProbeId = (value) => typeof value === 'string' && /^[a-f0-9-]{16,64}$/.test(value);
 const req = (status, blockers) => ({ status: blockers.length ? 'unsatisfied' : status, blockers });
 const canonicalize = (value) => Array.isArray(value) ? value.map(canonicalize)
   : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize(value[key])])) : value;
@@ -79,7 +80,7 @@ function runMetadata(id) {
   const run = ghJson(`repos/szTheory/sigra/actions/runs/${id}`);
   return {
     id: run.id, attempt: run.run_attempt, workflow_id: run.workflow_id, workflow_name: run.name, workflow_path: run.path?.replace(/@.*$/, ''),
-    event: run.event, branch: run.head_branch, head_sha: run.head_sha,
+    display_title: run.display_title, event: run.event, branch: run.head_branch, head_sha: run.head_sha,
     url: run.html_url, started_at: run.run_started_at, status: run.status, conclusion: run.conclusion, created_at: run.created_at, updated_at: run.updated_at,
   };
 }
@@ -99,21 +100,35 @@ function onlyNames(values) {
 export function normalizeControllerProof(proof) {
   const failure = proof?.source_failure ?? null;
   const cancellation = proof?.source_cancellation ?? null;
-  const sourceMatchesReceipt = (record) => record?.receipt?.source_event === record?.event
+  const sourceMatchesReceipt = (record, scenario, verdict) => record?.receipt?.schema_version === 1
+    && record?.receipt?.receipt_kind === 'canary' && validProbeId(record?.receipt?.probe_id)
+    && record?.receipt?.scenario === scenario && record?.receipt?.terminal_verdict === verdict
+    && record?.receipt?.source_repository === 'szTheory/sigra'
+    && String(record?.receipt?.source_run_id ?? '') === String(record?.run_id ?? '')
+    && record?.receipt?.source_run_attempt === record?.attempt
+    && record?.receipt?.source_event === record?.event
     && record?.receipt?.source_ref === record?.ref && record?.receipt?.source_sha === record?.sha
     && record?.receipt?.source_workflow_id === record?.workflow_id
-    && record?.receipt?.source_workflow_path === record?.workflow_path?.replace(/@.*$/, '');
+    && record?.receipt?.source_workflow_path === record?.workflow_path?.replace(/@.*$/, '')
+    && record?.receipt?.source_workflow_name === 'Release Receipt Canary'
+    && record?.receipt?.source_run_url === `https://github.com/szTheory/sigra/actions/runs/${record?.run_id}`
+    && validTimestamp(record?.receipt?.source_started_at) && validTimestamp(record?.receipt?.source_observed_at)
+    && validTimestamp(record?.receipt?.recorded_at);
   const valid = proof?.schema_version === 1 && proof.status === 'pass'
     && failure?.conclusion === 'failure' && failure?.receipt?.terminal_verdict === 'failure'
-    && failure.receipt.receipt_kind === 'canary' && String(failure.receipt.source_run_id) === String(failure.run_id)
-    && failure.receipt.source_run_attempt === failure.attempt
     && cancellation?.conclusion === 'cancelled' && cancellation?.receipt?.terminal_verdict === 'cancelled'
-    && cancellation.receipt.receipt_kind === 'canary' && String(cancellation.receipt.source_run_id) === String(cancellation.run_id)
-    && cancellation.receipt.source_run_attempt === cancellation.attempt
-    && sourceMatchesReceipt(failure) && sourceMatchesReceipt(cancellation)
+    && sourceMatchesReceipt(failure, 'failure', 'failure') && failure.receipt.observer_run === null
+    && sourceMatchesReceipt(cancellation, 'cancellation', 'cancelled')
+    && failure.receipt.probe_id !== cancellation.receipt.probe_id
+    && cancellation.receipt.observer_run && typeof cancellation.receipt.observer_run === 'object'
     && String(cancellation.observer_run_id) === String(cancellation.receipt.observer_run?.id)
     && cancellation.observer_attempt === cancellation.receipt.observer_run?.attempt
     && cancellation.observer_workflow_id === cancellation.receipt.observer_run?.workflow_id
+    && /^https:\/\/github\.com\/szTheory\/sigra\/actions\/runs\/[1-9][0-9]*$/.test(text(cancellation.receipt.observer_run?.url))
+    && validTimestamp(cancellation.receipt.observer_run?.started_at)
+    && validTimestamp(cancellation.receipt.observer_run?.observed_at)
+    && cancellation.receipt.observer_run.url === `https://github.com/szTheory/sigra/actions/runs/${cancellation.receipt.observer_run.id}`
+    && validTimestamp(failure.receipt.source_started_at) && validTimestamp(cancellation.receipt.source_started_at)
     && proof.credential_values_recorded === false;
   return {
     status: valid ? 'passed' : 'blocked',
@@ -138,7 +153,7 @@ export function captureCanaryTerminalReceipts({ producerProof, failureRun, cance
   const captureOne = ({ key, run, ownerRun, artifacts, receiptName, scenario, conclusion }) => {
     const record = producerProof?.[key];
     const expected = record?.artifact;
-    const probe = record?.receipt?.canary?.probe_id;
+    const probe = record?.receipt?.probe_id;
     const expectedName = key === 'source_failure'
       ? `release-canary-failure-${run?.id}-${run?.attempt}-${probe}`
       : `release-canary-cancellation-${run?.id}-${run?.attempt}`;
@@ -149,6 +164,7 @@ export function captureCanaryTerminalReceipts({ producerProof, failureRun, cance
     const listedOwner = listed.workflow_run?.id ?? listed.run_id;
     const expectedOwner = ownerRun.id;
     if (listed.expired !== false || listedOwner !== expectedOwner || listed.digest !== expected.digest
+      || listed.expires_at !== expected.expires_at
       || expected.name !== expectedName || !/^sha256:[a-f0-9]{64}$/.test(text(expected.digest))) {
       return { status: 'blocked', reason: 'terminal_artifact_metadata_mismatch', receipt: null };
     }
@@ -164,11 +180,14 @@ export function captureCanaryTerminalReceipts({ producerProof, failureRun, cance
     const receipt = retrieval?.receipt;
     const sourceRef = run.branch ? `refs/heads/${run.branch}` : null;
     const downloadedMatches = metadata?.id === expected.id && metadata?.name === expectedName
-      && metadata?.digest === expected.digest && metadata?.expired === false && downloadedOwner === expectedOwner;
+      && metadata?.digest === expected.digest && metadata?.expired === false
+      && metadata?.expires_at === expected.expires_at && downloadedOwner === expectedOwner;
     const sameAsProducer = canonicalJson(receipt) === canonicalJson(record.receipt);
     const receiptMatches = retrieval?.status === 'passed' && /^[a-f0-9]{64}$/.test(text(retrieval.sha256))
-      && receipt?.receipt_kind === 'canary' && receipt?.source_repository === 'szTheory/sigra'
-      && receipt?.canary?.scenario === scenario && receipt?.terminal_verdict === conclusion
+      && receipt?.schema_version === 1 && receipt?.receipt_kind === 'canary'
+      && validProbeId(receipt?.probe_id) && receipt?.scenario === scenario && receipt?.terminal_verdict === conclusion
+      && run.display_title === `release-receipt-canary-${scenario}-${receipt.probe_id}`
+      && receipt?.source_repository === 'szTheory/sigra'
       && String(receipt?.source_run_id ?? '') === String(run.id) && receipt?.source_run_attempt === run.attempt
       && receipt?.source_workflow_id === run.workflow_id && receipt?.source_workflow_path === run.workflow_path
       && receipt?.source_workflow_name === run.workflow_name && receipt?.source_run_url === run.url
@@ -251,8 +270,8 @@ function captureSnapshot() {
   const terminalReceiptCaptures = captureCanaryTerminalReceipts({ producerProof,
     failureRun: sourceFailure, cancellationRun: sourceCancellation, observerRun: observer,
     failureArtifacts: sourceFailureArtifactRecords, cancellationArtifacts: cancellationArtifactRecords });
-  const sourceFailureArtifacts = sourceFailureArtifactRecords.map((item) => ({ id: item.id, name: item.name, digest: item.digest, expired: item.expired, run_id: item.workflow_run?.id ?? null }));
-  const cancellationArtifacts = cancellationArtifactRecords.map((item) => ({ id: item.id, name: item.name, digest: item.digest, expired: item.expired, run_id: item.workflow_run?.id ?? null }));
+  const sourceFailureArtifacts = sourceFailureArtifactRecords.map((item) => ({ id: item.id, name: item.name, digest: item.digest, expired: item.expired, expires_at: item.expires_at, run_id: item.workflow_run?.id ?? null }));
+  const cancellationArtifacts = cancellationArtifactRecords.map((item) => ({ id: item.id, name: item.name, digest: item.digest, expired: item.expired, expires_at: item.expires_at, run_id: item.workflow_run?.id ?? null }));
   const snapshot = {
     schema_version: 1,
     captured_at: new Date().toISOString(),
@@ -333,21 +352,39 @@ function evaluateSnapshot(snapshot) {
   const producerFailure = canary?.controller_proof?.source_failure;
   const producerCancellation = canary?.controller_proof?.source_cancellation;
   const failure = canary?.failure;
+  const cancellation = canary?.cancellation;
   if (!failure?.run || failure.run.id !== failure.expected_id || failure.run.attempt !== failure.expected_attempt || failure.run.workflow_path !== '.github/workflows/release-receipt-canary.yml' || failure.run.head_sha !== canary.source_sha || failure.run.conclusion !== 'failure') auto02.push('failure canary run identity or controlled failure conclusion mismatch');
   if (String(producerFailure?.run_id ?? '') !== String(failure?.expected_id ?? '') || producerFailure?.attempt !== failure?.expected_attempt || producerFailure?.workflow_id !== failure?.run?.workflow_id || producerFailure?.workflow_path !== failure?.run?.workflow_path || producerFailure?.event !== failure?.run?.event || producerFailure?.ref !== `refs/heads/${failure?.run?.branch}` || producerFailure?.sha !== canary?.source_sha || producerFailure?.conclusion !== 'failure') auto02.push('controller producer failure record does not join the authoritative run metadata');
   const failureArtifacts = Array.isArray(failure?.artifacts) ? failure.artifacts : [];
-  const failureProbe = producerFailure?.receipt?.canary?.probe_id;
+  const failureProbe = producerFailure?.receipt?.probe_id;
+  if (!validProbeId(failureProbe) || producerFailure?.receipt?.schema_version !== 1
+    || producerFailure?.receipt?.receipt_kind !== 'canary' || producerFailure?.receipt?.scenario !== 'failure'
+    || producerFailure?.receipt?.terminal_verdict !== 'failure'
+    || failure?.run?.display_title !== `release-receipt-canary-failure-${failureProbe}`) auto02.push('producer failure receipt has an invalid canary identity');
+  const cancellationProbe = producerCancellation?.receipt?.probe_id;
+  if (!validProbeId(cancellationProbe) || cancellationProbe === failureProbe
+    || producerCancellation?.receipt?.schema_version !== 1 || producerCancellation?.receipt?.receipt_kind !== 'canary'
+    || producerCancellation?.receipt?.scenario !== 'cancellation'
+    || producerCancellation?.receipt?.terminal_verdict !== 'cancelled'
+    || cancellation?.run?.display_title !== `release-receipt-canary-cancellation-${cancellationProbe}`) auto02.push('producer cancellation receipt has an invalid canary identity');
   const failureArtifact = failureArtifacts.find((item) => String(item.run_id) === String(failure?.expected_id) && item.name === `release-canary-failure-${failure.expected_id}-${failure.expected_attempt}-${failureProbe}`);
   if (!failureArtifact || failureArtifact.expired !== false || !/^sha256:[a-f0-9]{64}$/.test(text(failureArtifact.digest))) auto02.push('failure artifact is missing, expired, or has a malformed digest');
-  const cancellation = canary?.cancellation;
+  if (producerFailure?.artifact?.id !== failureArtifact?.id || producerFailure?.artifact?.name !== failureArtifact?.name
+    || producerFailure?.artifact?.digest !== failureArtifact?.digest || producerFailure?.artifact?.expires_at !== failureArtifact?.expires_at) auto02.push('producer failure artifact does not join the authoritative artifact listing');
   if (!cancellation?.run || cancellation.run.id !== cancellation.expected_id || cancellation.run.workflow_path !== '.github/workflows/release-receipt-canary.yml' || cancellation.run.head_sha !== canary.source_sha || cancellation.run.conclusion !== 'cancelled') auto02.push('cancellation source run is missing or mismatched');
   if (String(producerCancellation?.run_id ?? '') !== String(cancellation?.expected_id ?? '') || producerCancellation?.attempt !== cancellation?.run?.attempt || producerCancellation?.workflow_id !== cancellation?.run?.workflow_id || producerCancellation?.workflow_path !== cancellation?.run?.workflow_path || producerCancellation?.event !== cancellation?.run?.event || producerCancellation?.ref !== `refs/heads/${cancellation?.run?.branch}` || producerCancellation?.sha !== canary?.source_sha || producerCancellation?.conclusion !== 'cancelled') auto02.push('controller producer cancellation record does not join the authoritative run metadata');
   if (cancellation?.observer?.workflow_path !== '.github/workflows/release-run-observer.yml' || cancellation.observer.event_source_run_id !== cancellation.expected_id || cancellation.observer.source_sha !== canary.source_sha || cancellation.observer.conclusion !== 'success') auto02.push('cancellation observer identity or conclusion mismatch');
   if (String(producerCancellation?.observer_run_id ?? '') !== String(cancellation?.observer?.run_id ?? '') || producerCancellation?.observer_attempt !== cancellation?.observer?.attempt || producerCancellation?.observer_workflow_id !== cancellation?.observer?.workflow_id || producerCancellation?.observer_workflow_path !== cancellation?.observer?.workflow_path || producerCancellation?.observer_event !== cancellation?.observer?.event || producerCancellation?.observer_ref !== cancellation?.observer?.ref || producerCancellation?.observer_conclusion !== cancellation?.observer?.conclusion) auto02.push('producer observer identity fields do not join the authoritative observer run metadata');
   if (String(producerCancellation?.receipt?.observer_run?.id ?? '') !== String(producerCancellation?.observer_run_id ?? '') || producerCancellation?.receipt?.observer_run?.attempt !== producerCancellation?.observer_attempt || producerCancellation?.receipt?.observer_run?.workflow_id !== producerCancellation?.observer_workflow_id) auto02.push('embedded cancellation receipt observer identity mismatch');
+  if (producerFailure?.receipt?.observer_run !== null) auto02.push('failure receipt unexpectedly contains an observer run');
+  if (String(producerFailure?.receipt?.source_run_id ?? '') !== String(producerFailure?.run_id ?? '') || producerFailure?.receipt?.source_run_attempt !== producerFailure?.attempt
+    || String(producerCancellation?.receipt?.source_run_id ?? '') !== String(producerCancellation?.run_id ?? '') || producerCancellation?.receipt?.source_run_attempt !== producerCancellation?.attempt
+    || producerFailure?.receipt?.source_repository !== 'szTheory/sigra' || producerCancellation?.receipt?.source_repository !== 'szTheory/sigra') auto02.push('producer receipt source identity fields do not join their run records');
   const cancellationArtifacts = Array.isArray(cancellation?.artifacts) ? cancellation.artifacts : [];
   const cancellationArtifact = cancellationArtifacts.find((item) => String(item.run_id) === String(cancellation?.observer?.run_id) && item.name === `release-canary-cancellation-${cancellation.expected_id}-${cancellation.run?.attempt}`);
   if (!cancellationArtifact || cancellationArtifact.expired !== false || !/^sha256:[a-f0-9]{64}$/.test(text(cancellationArtifact.digest))) auto02.push('observer cancellation artifact is missing, expired, or has a malformed digest');
+  if (producerCancellation?.artifact?.id !== cancellationArtifact?.id || producerCancellation?.artifact?.name !== cancellationArtifact?.name
+    || producerCancellation?.artifact?.digest !== cancellationArtifact?.digest || producerCancellation?.artifact?.expires_at !== cancellationArtifact?.expires_at) auto02.push('producer cancellation artifact does not join the authoritative artifact listing');
   const failureRetrieved = failure?.artifact_retrieved;
   if (failureRetrieved?.status !== 'passed' || !/^[a-f0-9]{64}$/.test(text(failureRetrieved?.sha256))
     || failureRetrieved?.artifact_id !== failureArtifact?.id || failureRetrieved?.artifact_name !== failureArtifact?.name
@@ -359,7 +396,15 @@ function evaluateSnapshot(snapshot) {
     || failureRetrieved?.receipt?.source_event !== failure?.run?.event
     || failureRetrieved?.receipt?.source_ref !== `refs/heads/${failure?.run?.branch}`
     || failureRetrieved?.receipt?.source_sha !== canary?.source_sha
-    || failureRetrieved?.receipt?.canary?.scenario !== 'failure' || failureRetrieved?.receipt?.terminal_verdict !== 'failure') auto02.push('retrieved failure receipt identity or digest validation mismatch');
+    || canonicalJson(failureRetrieved?.receipt) !== canonicalJson(producerFailure?.receipt)
+    || failureRetrieved?.receipt?.schema_version !== 1 || failureRetrieved?.receipt?.receipt_kind !== 'canary'
+    || !validProbeId(failureRetrieved?.receipt?.probe_id) || failureRetrieved?.receipt?.scenario !== 'failure'
+    || failureRetrieved?.receipt?.source_repository !== 'szTheory/sigra'
+    || failureRetrieved?.receipt?.source_workflow_name !== failure?.run?.workflow_name
+    || failureRetrieved?.receipt?.source_run_url !== failure?.run?.url
+    || wholeSecond(failureRetrieved?.receipt?.source_started_at) !== wholeSecond(failure?.run?.started_at)
+    || !validTimestamp(failureRetrieved?.receipt?.source_observed_at) || !validTimestamp(failureRetrieved?.receipt?.recorded_at)
+    || failureRetrieved?.receipt?.observer_run !== null || failureRetrieved?.receipt?.terminal_verdict !== 'failure') auto02.push('retrieved failure receipt identity or digest validation mismatch');
   const cancellationRetrieved = cancellation?.artifact_retrieved;
   if (cancellationRetrieved?.status !== 'passed' || !/^[a-f0-9]{64}$/.test(text(cancellationRetrieved?.sha256))
     || cancellationRetrieved?.artifact_id !== cancellationArtifact?.id || cancellationRetrieved?.artifact_name !== cancellationArtifact?.name
@@ -371,10 +416,20 @@ function evaluateSnapshot(snapshot) {
     || cancellationRetrieved?.receipt?.source_event !== cancellation?.run?.event
     || cancellationRetrieved?.receipt?.source_ref !== `refs/heads/${cancellation?.run?.branch}`
     || cancellationRetrieved?.receipt?.source_sha !== canary?.source_sha
-    || cancellationRetrieved?.receipt?.canary?.scenario !== 'cancellation'
+    || canonicalJson(cancellationRetrieved?.receipt) !== canonicalJson(producerCancellation?.receipt)
+    || cancellationRetrieved?.receipt?.schema_version !== 1 || cancellationRetrieved?.receipt?.receipt_kind !== 'canary'
+    || !validProbeId(cancellationRetrieved?.receipt?.probe_id) || cancellationRetrieved?.receipt?.scenario !== 'cancellation'
+    || cancellationRetrieved?.receipt?.source_repository !== 'szTheory/sigra'
+    || cancellationRetrieved?.receipt?.source_workflow_name !== cancellation?.run?.workflow_name
+    || cancellationRetrieved?.receipt?.source_run_url !== cancellation?.run?.url
+    || wholeSecond(cancellationRetrieved?.receipt?.source_started_at) !== wholeSecond(cancellation?.run?.started_at)
+    || !validTimestamp(cancellationRetrieved?.receipt?.source_observed_at) || !validTimestamp(cancellationRetrieved?.receipt?.recorded_at)
     || String(cancellationRetrieved?.receipt?.observer_run?.id ?? '') !== String(cancellation?.observer?.run_id ?? '')
     || cancellationRetrieved?.receipt?.observer_run?.attempt !== cancellation?.observer?.attempt
     || cancellationRetrieved?.receipt?.observer_run?.workflow_id !== cancellation?.observer?.workflow_id
+    || cancellationRetrieved?.receipt?.observer_run?.url !== cancellation?.observer?.url
+    || wholeSecond(cancellationRetrieved?.receipt?.observer_run?.started_at) !== wholeSecond(cancellation?.observer?.started_at)
+    || !validTimestamp(cancellationRetrieved?.receipt?.observer_run?.observed_at)
     || cancellationRetrieved?.receipt?.terminal_verdict !== 'cancelled') auto02.push('retrieved cancellation receipt identity or digest validation mismatch');
   auto02.push(...validateSuccess(snapshot).map((item) => `established success path: ${item}`));
 
