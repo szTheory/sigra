@@ -188,9 +188,9 @@ Plans:
   3. Phase 249 canonical verification reconciles to the passing final acceptance, current-main CI, public release proof, clean inventory, and the explicitly accepted historical HANDOFF loss.
   4. Requirements traceability and the v1.49 audit agree across phase verification, summary frontmatter, and requirements mapping; the audit passes with no orphaned requirements.
 
-**Plans**: 1/5 plans executed (discussion and planning pending)
+**Plans**: 2/5 plans executed (discussion and planning pending)
 - [x] 250-01-PLAN.md
-- [ ] 250-02-PLAN.md
+- [x] 250-02-PLAN.md
 - [ ] 250-03-PLAN.md
 - [ ] 250-04-PLAN.md
 - [ ] 250-05-PLAN.md
@@ -205,7 +205,7 @@ Plans:
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
-| 250. Close v1.49 audit gaps | v1.49 | 1/5 | Pending | — |
+| 250. Close v1.49 audit gaps | v1.49 | 2/5 | Pending | — |
 
 ### Next
 

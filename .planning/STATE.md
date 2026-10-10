@@ -4,13 +4,13 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 1
+current_plan: 3
 status: executing
-stopped_at: Completed 250-01-PLAN.md with hosted proof blocked; continue with Plans 02/03
-last_updated: "2026-10-10T15:08:41.923Z"
+stopped_at: Completed 250-02-PLAN.md
+last_updated: "2026-10-10T15:23:27.676Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 250 execution started
-state_head: 12ffe5d7356bcbd1094f03ab8fd4d34098c06a7c
+state_head: 667dc0cc93a5abd7af294e94911fb7001d0ff23b
 progress:
   total_phases: 5
   completed_phases: 4
@@ -32,10 +32,10 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
-Current Plan: 1
+Current Plan: 3
 Total Plans in Phase: 5
 Plans executed: 1 of 5
-Status: Executing Phase 250
+Status: Ready to execute
 Last activity: 2026-10-10 — Phase 250 execution started
 
 Progress: [████████░░] 80%
@@ -607,6 +607,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 249]: Give the release token only to the final writer step; reject artifacts outside the single UTF-8 doc/llms.txt path or above 5 MB. — The downloaded artifact is data at a privilege boundary; a fixed path, regular-file validation, UTF-8 check, and size cap bound the writer input.
 - [Phase 249]: Use a non-force push and require ordinary CI registration for the exact new SHA; leave merge decisions to the existing exact-head workflow. — The event-capable token triggers the required push workflow while the existing merger retains sole merge authority.
 - [Phase 250]: Keep AUTO-02 unsatisfied after the one authorized retry failed to upload its failure receipt; require new explicit approval before any further dispatch.
+- [Phase 250]: Do not select a candidate from recency or the pending proposal; preserve proposal, saved-readiness, and live tuples independently.
+- [Phase 250]: Keep READY-01 and READY-02 unsatisfied until one approved tuple joins exact-source CI, matching dry-run, and complete fresh dispositions.
 
 ### Pending Todos
 
@@ -831,9 +833,9 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T15:02:28.368Z
-Stopped at: Completed 250-01-PLAN.md with hosted proof blocked; continue with Plans 02/03
-Resume file: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-SUMMARY.md
+Last session: 2026-10-10T15:23:27.606Z
+Stopped at: Completed 250-02-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
@@ -1070,3 +1072,4 @@ Resume file: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248
 | Phase 249 P2 | 13min | 2 tasks | 7 files |
 | Phase 249 P03 | 16min | 2 tasks | 6 files |
 | Phase 250 P01 | 2h 42m | 3 tasks | 20 files |
+| Phase 250 P02 | 14min | 2 tasks | 5 files |
