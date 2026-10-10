@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "milestone": "v1.49 — RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -26,21 +26,13 @@
     {
       "number": "250",
       "name": "Close v1.49 audit gaps",
-      "status": "in_progress",
-      "verification_status": "gaps_found",
-      "plans_executed": 5,
-      "plans_total": 12,
-      "verification_report": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md",
-      "requirements_satisfied": "5/9",
-      "planning_status": "passed",
-      "gap_plans_ready": 7,
-      "planning_evidence": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json"
+      "status": "pending"
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Execute Phase 250 gap closure plans",
-    "reason": "Plans06\u201312 passed independent checker and deterministic gates; original01\u201305 complete; phase verification8/14 and audit5/9 remain unresolved."
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 250 of 5 · 70% · executing"
   },
-  "updated_at": "2026-10-10T18:59:23Z"
+  "updated_at": "2026-10-10T19:08:58.186Z"
 }

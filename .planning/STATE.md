@@ -4,21 +4,21 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 6
-status: ready
+current_plan: 1
+status: executing
 stopped_at: Phase 250 gap planning passed; 7 closure plans ready; next $gsd-execute-phase 250 --gaps-only
-last_updated: "2026-10-10T18:59:23Z"
+last_updated: "2026-10-10T19:08:58.166Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250 gap plans 06-12 passed independent checker; implementation and phase verification remain pending
-state_head: 792218bd6b21281f44d4207e45a4e55958cc847b
+last_activity_desc: Phase 250 execution started
+state_head: 6e58b17a559fa7b7094aea9136c094ef570fc35b
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 43
   completed_plans: 30
-  percent: 80
+  percent: 70
 verification_status: gaps_found
-next_command: "$gsd-execute-phase 250 --gaps-only"
+next_command: $gsd-execute-phase 250 --gaps-only
 ---
 
 # Project State
@@ -33,14 +33,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — READY TO EXECUTE GAP PLANS
-Current Plan: 6
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
+Current Plan: 1
 Total Plans in Phase: 12
 Plans executed: 5 of 12 (original 01–05 summarized; new 06–12 not executed)
-Status: Gap planning passed; implementation and phase verification remain incomplete
-Last activity: 2026-10-10 — Seven closure plans passed independent plan checking; phase verification remains 8/14 and strict audit 5/9
+Status: Executing Phase 250
+Last activity: 2026-10-10 — Phase 250 execution started
 
-Progress: [████████░░] 80% (historical roadmap execution progress; not acceptance completion)
+Progress: [███████░░░] 70% (historical roadmap execution progress; not acceptance completion)
 
 ### v1.49 audit route
 
