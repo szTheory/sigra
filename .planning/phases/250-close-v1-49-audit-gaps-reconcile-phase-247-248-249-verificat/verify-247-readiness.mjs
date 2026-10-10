@@ -38,6 +38,15 @@ function sameTuple(a, b) {
   return Boolean(a && b && a.candidateSha === b.candidateSha && a.reviewedBaseSha === b.reviewedBaseSha && a.mainSha === b.mainSha);
 }
 
+export function resolveExactHeadCiIdentity(proposal, readiness) {
+  const saved = readiness?.candidate?.review_check_state?.updated_head_ci ?? {};
+  return {
+    run_id: proposal?.ci?.run_id ?? saved.run_id ?? null,
+    attempt: proposal?.ci?.attempt ?? saved.attempt ?? null,
+    head_sha: proposal?.ci?.head_sha ?? saved.head_sha ?? proposal?.candidate_sha ?? null,
+  };
+}
+
 function orderedUnique(values) {
   return [...new Set(values)].sort((a, b) => a.localeCompare(b));
 }
@@ -110,7 +119,7 @@ function exactHeadCiErrors(receipt, authoritative, expected) {
   return errors;
 }
 
-export function evaluateEvidence({ proposal, authorization, readiness, dryRunReceipt, live, liveAfter, objects = {}, remoteSourceObjects = {}, exactHeadCiReceipt = null, authoritativeCi = null }) {
+export function evaluateEvidence({ proposal, authorization, readiness, dryRunReceipt, live, liveAfter, objects = {}, remoteSourceObjects = {}, exactHeadCiReceipt = null, authoritativeCi = null, exactHeadCiDiagnostic = null }) {
   const proposalTuple = {
     candidateSha: proposal?.candidate_sha ?? null,
     reviewedBaseSha: proposal?.reviewed_base_sha ?? null,
@@ -143,11 +152,7 @@ export function evaluateEvidence({ proposal, authorization, readiness, dryRunRec
   if (dryRunReceipt?.verdict !== 'passed' || dryRunReceipt?.dry_run_outcome !== 'success' || dryRunReceipt?.requested_sha !== proposalTuple.candidateSha || dryRunReceipt?.checked_out_sha !== proposalTuple.candidateSha || dryRunReceipt?.reviewed_base_sha !== proposalTuple.reviewedBaseSha || dryRunReceipt?.live_base_sha !== proposalTuple.mainSha) {
     blockers.push({ id: 'dry_run_tuple_mismatch', message: 'The existing authenticated dry-run receipt does not prove the proposed tuple.', identities: { requestedSha: dryRunReceipt?.requested_sha ?? null, checkedOutSha: dryRunReceipt?.checked_out_sha ?? null, reviewedBaseSha: dryRunReceipt?.reviewed_base_sha ?? null, liveBaseSha: dryRunReceipt?.live_base_sha ?? null, runId: dryRunReceipt?.run_id ?? null, attempt: dryRunReceipt?.run_attempt ?? null } });
   }
-  const ciExpected = {
-    run_id: proposal?.ci?.run_id ?? readiness?.candidate?.review_check_state?.updated_head_ci?.run_id ?? null,
-    attempt: proposal?.ci?.attempt ?? readiness?.candidate?.review_check_state?.updated_head_ci?.attempt ?? null,
-    head_sha: proposal?.ci?.head_sha ?? readiness?.candidate?.review_check_state?.updated_head_ci?.head_sha ?? proposalTuple.candidateSha,
-  };
+  const ciExpected = resolveExactHeadCiIdentity(proposal, readiness);
   const ciErrors = exactHeadCiErrors(exactHeadCiReceipt, authoritativeCi, ciExpected);
   for (const id of ciErrors) blockers.push({ id, message: 'Exact-head CI receipt does not match the referenced authoritative workflow run and ci-gate job metadata.', identities: ciExpected });
   const population = joinPopulation({
@@ -165,13 +170,14 @@ export function evaluateEvidence({ proposal, authorization, readiness, dryRunRec
   }
   const sourceEvidence = {
     exactHeadCi: {
-      proposalRunId: proposal?.ci?.run_id ?? readiness?.candidate?.review_check_state?.updated_head_ci?.run_id ?? null,
-      proposalAttempt: proposal?.ci?.attempt ?? readiness?.candidate?.review_check_state?.updated_head_ci?.attempt ?? null,
-      proposalHeadSha: proposal?.ci?.head_sha ?? readiness?.candidate?.review_check_state?.updated_head_ci?.head_sha ?? null,
+      proposalRunId: ciExpected.run_id,
+      proposalAttempt: ciExpected.attempt,
+      proposalHeadSha: ciExpected.head_sha,
       standaloneReceiptPath: path.relative(repoRoot, playrightPath),
       standaloneReceiptPresent: existsSync(playrightPath),
       receiptStatus: ciErrors.length ? 'blocked' : 'passed',
       authoritativeRunId: authoritativeCi?.id ?? null,
+      captureDiagnostic: exactHeadCiDiagnostic,
     },
     candidateSourceAudit: {
       version: proposal?.candidate_source_audit?.version ?? null,
@@ -224,19 +230,33 @@ function ghJson(endpoint) {
   return JSON.parse(execFileSync('gh', ['api', endpoint], { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
 }
 
-function captureExactHeadCi(readiness) {
-  const expected = readiness?.candidate?.review_check_state?.updated_head_ci;
-  if (!expected?.run_id || !existsSync(playrightPath)) return { receipt: null, authoritative: null };
+export function captureExactHeadCi(proposal, readiness, {
+  receiptPath = playrightPath,
+  exists = existsSync,
+  readReceipt = readJson,
+  ghJson: query = ghJson,
+} = {}) {
+  const expected = resolveExactHeadCiIdentity(proposal, readiness);
+  if (!expected.run_id || !exists(receiptPath)) return { expected, receipt: null, authoritative: null, diagnostic: null };
+  let receipt;
   try {
-    const run = ghJson(`repos/szTheory/sigra/actions/runs/${expected.run_id}`);
-    const jobs = ghJson(`repos/szTheory/sigra/actions/runs/${expected.run_id}/jobs`).jobs ?? [];
+    receipt = readReceipt(receiptPath);
+  } catch {
+    return { expected, receipt: null, authoritative: null, diagnostic: 'exact_head_ci_receipt_invalid' };
+  }
+  try {
+    const run = query(`repos/szTheory/sigra/actions/runs/${expected.run_id}`);
+    const jobs = query(`repos/szTheory/sigra/actions/runs/${expected.run_id}/jobs?per_page=100`).jobs ?? [];
     const job = jobs.find((row) => row.name === 'ci-gate' && row.run_attempt === expected.attempt) ?? null;
-    return {
-      receipt: readJson(playrightPath),
-      authoritative: { id: run.id, run_attempt: run.run_attempt, head_sha: run.head_sha, path: run.path?.replace(/@.*$/, ''), conclusion: run.conclusion,
-        job: job ? { id: job.id, name: job.name, head_sha: job.head_sha, run_attempt: job.run_attempt, conclusion: job.conclusion } : null },
-    };
-  } catch { return { receipt: existsSync(playrightPath) ? readJson(playrightPath) : null, authoritative: null }; }
+    const authoritative = { id: run.id, run_attempt: run.run_attempt, head_sha: run.head_sha, path: run.path?.replace(/@.*$/, ''), conclusion: run.conclusion,
+      job: job ? { id: job.id, name: job.name, head_sha: job.head_sha, run_attempt: job.run_attempt, conclusion: job.conclusion } : null };
+    const identityMatches = authoritative.id === expected.run_id && authoritative.run_attempt === expected.attempt
+      && authoritative.head_sha === expected.head_sha && authoritative.path === '.github/workflows/ci.yml';
+    return { expected, receipt, authoritative: identityMatches ? authoritative : null,
+      diagnostic: identityMatches ? null : 'exact_head_ci_authoritative_identity_mismatch' };
+  } catch {
+    return { expected, receipt, authoritative: null, diagnostic: 'exact_head_ci_authoritative_unavailable' };
+  }
 }
 
 function captureRemoteCommit(sha, expectedBlobs = {}) {
@@ -285,7 +305,7 @@ export function captureEvidence({ capturedAt = new Date().toISOString(), live = 
   const readiness = readJson(readinessPath);
   const dryRunReceipt = readJson(dryRunPath);
   const auth = existsSync(approvalPath) ? readJson(approvalPath) : null;
-  const exactHeadCi = captureExactHeadCi(readiness);
+  const exactHeadCi = captureExactHeadCi(proposal, readiness);
   const objectShas = [proposal.candidate_sha, proposal.candidate_ancestry?.parent_sha, readiness.final_validation?.checked?.source_sha, proposal.reviewed_base_sha, proposal.main_sha, live.main.sha, live.pullRequest.headSha].filter(Boolean);
   const localObjects = Object.fromEntries([...new Set(objectShas)].map((sha) => [sha, objectAvailable(sha)]));
   const candidateRemote = captureRemoteCommit(proposal.candidate_sha, proposal.candidate_source_audit?.candidate_source_blobs ?? {});
@@ -293,7 +313,7 @@ export function captureEvidence({ capturedAt = new Date().toISOString(), live = 
   const remoteObjects = { [candidateRemote.sha]: candidateRemote.available, [readinessRemote.sha]: readinessRemote.available };
   const objects = Object.fromEntries([...new Set(objectShas)].map((sha) => [sha, localObjects[sha] || remoteObjects[sha] === true]));
   const liveAfter = captureLive();
-  const evaluation = evaluateEvidence({ proposal, authorization: auth, readiness, dryRunReceipt, live, liveAfter, objects, remoteSourceObjects: { candidate: candidateRemote, readiness: readinessRemote }, exactHeadCiReceipt: exactHeadCi.receipt, authoritativeCi: exactHeadCi.authoritative });
+  const evaluation = evaluateEvidence({ proposal, authorization: auth, readiness, dryRunReceipt, live, liveAfter, objects, remoteSourceObjects: { candidate: candidateRemote, readiness: readinessRemote }, exactHeadCiReceipt: exactHeadCi.receipt, authoritativeCi: exactHeadCi.authoritative, exactHeadCiDiagnostic: exactHeadCi.diagnostic });
   const evidenceFiles = [proposalPath, readinessPath, dryRunPath, validationPath, path.join(phase247, '247-05-SUMMARY.md'), path.join(phase247, '247-08-SUMMARY.md'), path.join(phase247, '247-CANDIDATE-DIFF-BASELINE.json')];
   const result = {
     schema_version: 1,

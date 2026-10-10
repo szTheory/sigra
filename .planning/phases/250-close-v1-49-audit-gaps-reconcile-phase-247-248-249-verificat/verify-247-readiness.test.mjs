@@ -141,6 +141,57 @@ test('valid exact-head CI joins pass, while stale receipt and authoritative meta
   assert.ok(wrongRun.blockers.some((row) => row.id === 'exact_head_ci_authoritative_run_mismatch'));
 });
 
+test('capture queries the proposal CI identity instead of stale saved-readiness CI', async () => {
+  const { captureExactHeadCi, evaluateEvidence } = await import('./verify-247-readiness.mjs');
+  const proposalCi = { run_id: 37819712610, attempt: 3, head_sha: tuple.candidateSha };
+  const proposal = { ...blockedApprovalInput.proposal, authorization_status: 'approved', ci: proposalCi,
+    stale_artifacts: [{ path: '247-CANDIDATE-DIFF-BASELINE.json', bound_candidate_sha: tuple.candidateSha }] };
+  const readiness = { candidate: { review_check_state: { updated_head_ci: ci } },
+    final_validation: { checked: { source_sha: tuple.candidateSha, pr_base_sha: tuple.reviewedBaseSha, live_main_sha: tuple.mainSha } } };
+  const receipt = { ...ci, run_id: proposalCi.run_id, run_attempt: proposalCi.attempt, head_sha: proposalCi.head_sha,
+    job: { ...ci.job, id: 12345, run_attempt: proposalCi.attempt } };
+  const run = { id: proposalCi.run_id, run_attempt: proposalCi.attempt, head_sha: proposalCi.head_sha,
+    path: '.github/workflows/ci.yml@main', conclusion: 'success' };
+  const job = { id: 12345, name: 'ci-gate', head_sha: proposalCi.head_sha, run_attempt: proposalCi.attempt, conclusion: 'success' };
+  const endpoints = [];
+  const captured = captureExactHeadCi(proposal, readiness, {
+    exists: () => true,
+    readReceipt: () => receipt,
+    ghJson: (endpoint) => { endpoints.push(endpoint); return endpoint.endsWith('/jobs?per_page=100') ? { jobs: [job] } : run; },
+  });
+  assert.equal(captured.expected.run_id, proposalCi.run_id);
+  assert.deepEqual(endpoints, [
+    `repos/szTheory/sigra/actions/runs/${proposalCi.run_id}`,
+    `repos/szTheory/sigra/actions/runs/${proposalCi.run_id}/jobs?per_page=100`,
+  ]);
+  const evaluated = evaluateEvidence({ proposal, authorization: { immutable: true, tuple }, readiness,
+    dryRunReceipt: { verdict: 'passed', dry_run_outcome: 'success', requested_sha: tuple.candidateSha, checked_out_sha: tuple.candidateSha, reviewed_base_sha: tuple.reviewedBaseSha, live_base_sha: tuple.mainSha },
+    live: { pullRequest: { state: 'OPEN', headSha: tuple.candidateSha, baseSha: tuple.reviewedBaseSha }, main: { sha: tuple.mainSha }, openPullRequestNumbers: [], openPullRequestDispositions: [], inheritedWork: { observed: true, observedIds: [], dispositions: [] } },
+    objects: { [tuple.candidateSha]: true }, remoteSourceObjects: { candidate: { available: true, sourceBlobs: [{ path: 'mix.exs', matches: true }] } },
+    exactHeadCiReceipt: captured.receipt, authoritativeCi: captured.authoritative });
+  assert.equal(evaluated.blockers.some((item) => item.id.startsWith('exact_head_ci_')), false);
+  const staleAuthority = captureExactHeadCi(proposal, readiness, {
+    exists: () => true, readReceipt: () => receipt,
+    ghJson: (endpoint) => endpoint.endsWith('/jobs?per_page=100') ? { jobs: [job] } : { ...run, head_sha: 'f'.repeat(40) },
+  });
+  assert.equal(staleAuthority.authoritative, null);
+  assert.equal(staleAuthority.diagnostic, 'exact_head_ci_authoritative_identity_mismatch');
+});
+
+test('malformed exact-head CI receipt is parsed once and returns a bounded blocking diagnostic', async () => {
+  const { captureExactHeadCi } = await import('./verify-247-readiness.mjs');
+  let reads = 0;
+  const captured = captureExactHeadCi({ ci: ci }, {}, {
+    exists: () => true,
+    readReceipt: () => { reads += 1; throw new SyntaxError('sensitive raw input text'); },
+    ghJson: () => assert.fail('metadata lookup must not run after receipt parse failure'),
+  });
+  assert.equal(reads, 1);
+  assert.equal(captured.receipt, null);
+  assert.equal(captured.authoritative, null);
+  assert.equal(captured.diagnostic, 'exact_head_ci_receipt_invalid');
+});
+
 test('preservation refs need a resolvable commit and matching record bytes', async () => {
   const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
