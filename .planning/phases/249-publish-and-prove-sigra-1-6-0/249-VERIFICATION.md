@@ -1,5 +1,48 @@
 ---
 phase: 249-publish-and-prove-sigra-1-6-0
+verified: 2026-10-10T16:11:31.257Z
+status: gaps_found
+source_snapshot: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json
+owner_requirements: [REL-01, REL-02]
+---
+
+# Phase 249: Publish and Prove Sigra 1.6.0 Verification Report
+
+**Phase Goal:** Adopters can install documented Sigra 1.6.0, and maintainers can trace it to the exact gated source while finishing in a clean repository state.
+**Verified:** 2026-10-10T16:11:31.257Z
+**Status:** gaps_found
+**Re-verification:** Yes — independently joined the terminal acceptance ref and fresh public/main/inventory evidence.
+
+<!-- phase249-evidence {"requirements":{"REL-01":"satisfied","REL-02":"unsatisfied"},"package_source_sha":"9e80cb78d6374b1ed4074d5fef6b613fee879dca","historical_release_main_sha":"08300af1740fea8b77d5928a182688acbf103edc","current_protected_main_sha":"6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5","evidence_ref":"refs/heads/evidence/phase-249-final-acceptance","evidence_ref_commit":"65f1ca4c851d62415ed656509cb068dc3acbab15","evidence_acceptance_blob":"4bbd07d77d721e14f93c98e43f4fa6ef143a5519","evidence_terminal_blob":"b42563cbc389156ea355950fb598efeb0e979a54","historical_ci_run_id":38003573391,"historical_ci_job_id":114069179560,"current_ci_run_id":38061391571,"current_ci_job_id":114241911167,"receipt_blob_sha":"04319a489442de5ac80a80a992df5927973d49aa","worktree_count":7,"pull_request_count":16,"accepted_loss_sha256":"00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148","historical_report_sha256":"864d5d71244451736e66eb1d45363f46b8c36b23d95fc02b15d69948965b5681"} -->
+
+## Current Evidence Boundary
+
+- **REL-01: satisfied.** Hex 1.6.0, versioned docs, source URL, checksum, and tag resolve to package source `9e80cb78d6374b1ed4074d5fef6b613fee879dca`. Historical acceptance is `refs/heads/evidence/phase-249-final-acceptance` at 65f1ca4c851d62415ed656509cb068dc3acbab15; its acceptance blob 4bbd07d77d721e14f93c98e43f4fa6ef143a5519 and passing terminal record validate against historical release main 08300af1740fea8b77d5928a182688acbf103edc. Exact historical ci-gate: run 38003573391, attempt 1, job 114069179560.
+- **REL-02: unsatisfied.** Current protected main 6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5 is recorded separately. Its exact ci-gate is run 38061391571, attempt 1, job 114241911167 (success); the containing CI run concluded failure. The current receipt blob is 04319a489442de5ac80a80a992df5927973d49aa. Fresh inventory has 7 registered worktrees and 16 open PRs.
+
+## Accepted historical loss
+
+The exact historical `.planning/HANDOFF.json` revision is accepted-with-recorded-loss under the user's authorization dated 2026-10-09: “accept reality and move on accordingly.” Its identity is SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148`; those historical bytes were not recovered and were not preserved.
+
+## Current blockers
+
+- REL-02: current CI workflow run concluded failure for the exact current main SHA
+- REL-02: open PR #302 has no disposition matching its current base/head identity
+- REL-02: open PR #306 has no disposition matching its current base/head identity
+- REL-02: open PR #307 has no disposition matching its current base/head identity
+- REL-02: open PR #308 has no disposition matching its current base/head identity
+- REL-02: open PR #309 has no disposition matching its current base/head identity
+
+## Historical verification context
+
+The earlier `gaps_found` report records the state before the later terminal acceptance ref and current post-canary main. Its historical observations remain unchanged; this report uses the new immutable acceptance identity and freshly observed current PR/worktree state.
+
+<details>
+<summary>Historical Phase 249 report preserved verbatim</summary>
+
+`````markdown
+---
+phase: 249-publish-and-prove-sigra-1-6-0
 verified: 2026-10-09T23:56:36Z
 status: gaps_found
 score: 35/40 must-haves verified
@@ -243,3 +286,5 @@ The former stale-inventory and PR #302 identity findings are closed by a refresh
 
 _Verified: 2026-10-09T23:56:36Z_
 _Verifier: the agent (gsd-verifier)_
+`````
+</details>

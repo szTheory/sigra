@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { evaluateSnapshot, checkReport, reportIdentity } from './verify-249-release.mjs';
+import { evaluateSnapshot, checkReport, reportIdentity, freshnessErrors } from './verify-249-release.mjs';
 
 const packageSha = '9e80cb78d6374b1ed4074d5fef6b613fee879dca';
 const historicalMain = '08300af1740fea8b77d5928a182688acbf103edc';
@@ -34,8 +34,8 @@ function snapshot() {
     receipt: { path: 'receipt.json', package_source_sha: packageSha, blob_sha: 'receipt-blob', sha256: digest('a'), current_blob_sha: 'receipt-blob' },
     public_release: { verdict: 'passed', version: '1.6.0', tag: 'v1.6.0', package_source_sha: packageSha, versioned_docs_url: 'https://sigra.hexdocs.pm/1.6.0/Sigra.html', source_url: 'https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1', checksum: digest('f') },
     historical_ci: { run_id: 38003573391, attempt: 1, workflow_path: '.github/workflows/ci.yml', head_sha: historicalMain, conclusion: 'success', job: { id: 114069179560, name: 'ci-gate', head_sha: historicalMain, conclusion: 'success', attempt: 1 } },
-    current_ci: { run_id: 38061391571, attempt: 1, workflow_path: '.github/workflows/ci.yml', event: 'push', branch: 'main', head_sha: currentMain, conclusion: 'failure', job: { id: 114241911167, name: 'ci-gate', head_sha: currentMain, conclusion: 'success', attempt: 1 } },
-    inventory: { worktrees_read_status: 'complete', pull_requests_read_status: 'complete', worktrees: [{ path: '/repo', branch: 'main', head_sha: currentMain, raw_status_base64: '', raw_status_sha256: hash(Buffer.alloc(0)), raw_status_bytes: 0, clean: true }], pull_requests: [{ number: 302, base_sha: currentMain, head_sha: '1'.repeat(40), disposition: 'separate-follow-up', disposition_identity_match: true }] },
+    current_ci: { run_id: 38061391571, attempt: 1, workflow_path: '.github/workflows/ci.yml', event: 'push', branch: 'main', head_sha: currentMain, conclusion: 'success', job: { id: 114241911167, name: 'ci-gate', head_sha: currentMain, conclusion: 'success', attempt: 1 } },
+    inventory: { worktrees_read_status: 'complete', pull_requests_read_status: 'complete', worktrees: [{ path: '/repo', branch: 'main', head_sha: currentMain, read_status: 'complete', raw_status_base64: '', raw_status_sha256: hash(Buffer.alloc(0)), raw_status_bytes: 0, clean: true }], pull_requests: [{ number: 302, base_sha: currentMain, head_sha: '1'.repeat(40), disposition: 'separate-follow-up', disposition_identity_match: true }] },
     accepted_loss: { path: '.planning/HANDOFF.json', status: ' M', sha256: '00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148', authorization: 'accept reality and move on accordingly', authorized_by: 'user', authorized_at: '2026-10-09', audit_record_ref: 'refs/phase-249-preservation/plan-08-preservation-record-v4', audit_record_commit_sha: '96581c2b555a11b50b6efece9c25a5b1f8e0e456', audit_record_sha256: 'b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3', bytes_recovered: false, bytes_preserved: false },
     historical_report: { path: '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md', sha256: hash(Buffer.from(historicalReportBytes.toString('utf8').trimEnd())), raw_bytes_sha256: hash(historicalReportBytes), raw_bytes_base64: historicalReportBytes.toString('base64'), captured_at: '2026-10-10T15:59:00Z' },
   };
@@ -85,6 +85,29 @@ test('rejects terminal digest drift and a disposition copied from stale PR ident
   assert.equal(result.requirements['REL-01'].status, 'unsatisfied');
   assert.equal(result.requirements['REL-02'].status, 'unsatisfied');
   assert.ok(result.requirements['REL-02'].blockers.some(item => item.includes('matching its current base/head identity')));
+});
+
+test('blocks REL-02 when the exact current-main CI run fails despite a successful ci-gate job', () => {
+  const current = snapshot();
+  current.current_ci.conclusion = 'failure';
+  const result = evaluateSnapshot(current);
+  assert.equal(result.requirements['REL-02'].status, 'unsatisfied');
+  assert.ok(result.requirements['REL-02'].blockers.some(item => item.includes('current CI workflow run concluded failure')));
+});
+
+test('requires current source identities and raw inventories to remain unchanged at report check', () => {
+  const captured = snapshot();
+  assert.deepEqual(freshnessErrors(captured, snapshot()), []);
+  const current = snapshot();
+  current.inventory.pull_requests[0].head_sha = '2'.repeat(40);
+  current.inventory.worktrees[0].raw_status_base64 = 'IHgg';
+  current.inventory.worktrees[0].raw_status_bytes = 3;
+  current.inventory.worktrees[0].raw_status_sha256 = hash(Buffer.from(' x '));
+  current.inventory.worktrees[0].clean = false;
+  const errors = freshnessErrors(captured, current);
+  assert.ok(errors.includes('open PR population, exact tuple, or disposition changed since capture'));
+  assert.ok(errors.includes('registered worktree population or raw porcelain status changed since capture'));
+  assert.ok(errors.includes('fresh raw worktree capture is dirty or incomplete'));
 });
 
 test('checks the report against requirement verdicts and complete captured identities', () => {

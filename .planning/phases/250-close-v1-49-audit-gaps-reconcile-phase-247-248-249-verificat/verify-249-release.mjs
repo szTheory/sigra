@@ -106,8 +106,9 @@ export function evaluateSnapshot(snapshot) {
   const ci = snapshot?.current_ci;
   if (ci?.workflow_path !== '.github/workflows/ci.yml' || ci?.event !== 'push' || ci?.branch !== 'main'
     || ci?.head_sha !== currentSha || ci?.job?.head_sha !== currentSha || ci?.job?.name !== 'ci-gate'
-    || ci?.job?.conclusion !== 'success' || ci?.job?.attempt !== ci?.attempt || !Number.isInteger(ci?.run_id)
-    || !Number.isInteger(ci?.job?.id)) add(rel02, 'current ci-gate run/job/attempt is absent, stale, or unsuccessful for the exact current main SHA');
+    || ci?.job?.attempt !== ci?.attempt || !Number.isInteger(ci?.run_id) || !Number.isInteger(ci?.job?.id)) add(rel02, 'current ci-gate run/job/attempt identity is absent or stale for the exact current main SHA');
+  if (ci?.conclusion !== 'success') add(rel02, `current CI workflow run concluded ${ci?.conclusion ?? 'unknown'} for the exact current main SHA`);
+  if (ci?.job?.conclusion !== 'success') add(rel02, `current ci-gate job concluded ${ci?.job?.conclusion ?? 'unknown'} for the exact current main SHA`);
   if (receipt?.current_blob_sha !== receipt?.blob_sha || receipt?.blob_sha !== snapshot?.evidence_ref?.acceptance?.receipt?.blob_sha) add(rel02, 'current main release receipt blob differs from the accepted immutable receipt');
   const inventory = snapshot?.inventory;
   if (inventory?.worktrees_read_status !== 'complete' || !Array.isArray(inventory?.worktrees) || inventory.worktrees.length === 0) add(rel02, 'registered worktree raw-status capture is missing or incomplete');
@@ -182,6 +183,32 @@ export function checkReport(report, snapshot, evaluation = evaluateSnapshot(snap
     || headerStatus !== expectedStatus || !currentReport.includes(`**Status:** ${expectedStatus}`)) errors.push('report_requirement_mismatch');
   if (/historical bytes (?:were )?(?:recovered|preserved)/i.test(currentReport)) errors.push('report_misstates_accepted_loss');
   if (!currentReport.includes('accepted-with-recorded-loss') || !currentReport.includes(snapshot.accepted_loss?.authorization ?? '')) errors.push('report_accepted_loss_exception_missing');
+  return errors;
+}
+
+export function freshnessErrors(captured, current) {
+  const errors = [];
+  for (const [label, left, right] of [
+    ['protected main', captured.source?.current_protected_main_sha, current.source?.current_protected_main_sha],
+    ['package source', captured.source?.package_source_sha, current.source?.package_source_sha],
+    ['historical release main', captured.source?.historical_release_main_sha, current.source?.historical_release_main_sha],
+    ['acceptance ref', captured.evidence_ref?.commit_sha, current.evidence_ref?.commit_sha],
+    ['acceptance blob', captured.evidence_ref?.acceptance_blob_sha, current.evidence_ref?.acceptance_blob_sha],
+    ['terminal blob', captured.evidence_ref?.terminal_blob_sha, current.evidence_ref?.terminal_blob_sha],
+    ['receipt blob', captured.receipt?.current_blob_sha, current.receipt?.current_blob_sha],
+  ]) if (left !== right) errors.push(`source identity changed since capture: ${label}`);
+  const ciIdentity = value => [value?.run_id, value?.attempt, value?.workflow_path, value?.event, value?.branch, value?.head_sha, value?.conclusion,
+    value?.job?.id, value?.job?.name, value?.job?.head_sha, value?.job?.conclusion, value?.job?.attempt];
+  if (JSON.stringify(ciIdentity(captured.current_ci)) !== JSON.stringify(ciIdentity(current.current_ci))) errors.push('current exact-main CI identity changed since capture');
+  const worktrees = value => (value?.inventory?.worktrees ?? []).map(row => [row.path, row.branch, row.detached, row.read_status, row.raw_status_base64, row.raw_status_sha256, row.raw_status_bytes, row.clean]).sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+  if (JSON.stringify(worktrees(captured)) !== JSON.stringify(worktrees(current))) errors.push('registered worktree population or raw porcelain status changed since capture');
+  if ((current.inventory?.worktrees ?? []).some(row => !row.clean || row.read_status !== 'complete')) errors.push('fresh raw worktree capture is dirty or incomplete');
+  const prs = value => (value?.inventory?.pull_requests ?? []).map(row => [row.number, row.base_ref, row.base_sha, row.head_ref, row.head_sha, row.disposition, row.disposition_identity_match]).sort((a, b) => a[0] - b[0]);
+  if (JSON.stringify(prs(captured)) !== JSON.stringify(prs(current))) errors.push('open PR population, exact tuple, or disposition changed since capture');
+  if (current.inventory?.pull_requests_read_status !== 'complete') errors.push('fresh open PR query is incomplete');
+  if (JSON.stringify([captured.receipt?.blob_sha, captured.receipt?.sha256]) !== JSON.stringify([current.receipt?.blob_sha, current.receipt?.sha256])) errors.push('accepted release receipt identity changed since capture');
+  if (JSON.stringify([captured.public_release?.version, captured.public_release?.tag, captured.public_release?.package_source_sha, captured.public_release?.checksum, captured.public_release?.verdict])
+    !== JSON.stringify([current.public_release?.version, current.public_release?.tag, current.public_release?.package_source_sha, current.public_release?.checksum, current.public_release?.verdict])) errors.push('public release identity changed since capture');
   return errors;
 }
 
@@ -315,7 +342,7 @@ function renderReport(snapshot) {
     `**Verified:** ${snapshot.captured_at}`, `**Status:** ${status}`, '**Re-verification:** Yes — independently joined the terminal acceptance ref and fresh public/main/inventory evidence.', '',
     `<!-- phase249-evidence ${JSON.stringify(identity)} -->`, '', '## Current Evidence Boundary', '',
     `- **REL-01: ${evaluation.requirements['REL-01'].status}.** Hex 1.6.0, versioned docs, source URL, checksum, and tag resolve to package source \`${snapshot.source.package_source_sha}\`. Historical acceptance is \`${snapshot.evidence_ref.name}\` at ${snapshot.evidence_ref.commit_sha}; its acceptance blob ${snapshot.evidence_ref.acceptance_blob_sha} and passing terminal record validate against historical release main ${snapshot.source.historical_release_main_sha}. Exact historical ci-gate: run ${snapshot.historical_ci.run_id}, attempt ${snapshot.historical_ci.attempt}, job ${snapshot.historical_ci.job?.id}.`,
-    `- **REL-02: ${evaluation.requirements['REL-02'].status}.** Current protected main ${snapshot.source.current_protected_main_sha} is recorded separately. Its exact ci-gate is run ${snapshot.current_ci?.run_id ?? 'missing'}, attempt ${snapshot.current_ci?.attempt ?? 'missing'}, job ${snapshot.current_ci?.job?.id ?? 'missing'}; current receipt blob is ${snapshot.receipt.current_blob_sha}. Fresh inventory has ${snapshot.inventory.worktrees.length} registered worktrees and ${snapshot.inventory.pull_requests.length} open PRs.`,
+    `- **REL-02: ${evaluation.requirements['REL-02'].status}.** Current protected main ${snapshot.source.current_protected_main_sha} is recorded separately. Its exact ci-gate is run ${snapshot.current_ci?.run_id ?? 'missing'}, attempt ${snapshot.current_ci?.attempt ?? 'missing'}, job ${snapshot.current_ci?.job?.id ?? 'missing'} (${snapshot.current_ci?.job?.conclusion ?? 'missing'}); the containing CI run concluded ${snapshot.current_ci?.conclusion ?? 'missing'}. The current receipt blob is ${snapshot.receipt.current_blob_sha}. Fresh inventory has ${snapshot.inventory.worktrees.length} registered worktrees and ${snapshot.inventory.pull_requests.length} open PRs.`,
     '', '## Accepted historical loss', '',
     `The exact historical \`${snapshot.accepted_loss.path}\` revision is accepted-with-recorded-loss under the user's authorization dated ${snapshot.accepted_loss.authorized_at}: “${snapshot.accepted_loss.authorization}.” Its identity is SHA-256 \`${snapshot.accepted_loss.sha256}\`; those historical bytes were not recovered and were not preserved.`,
     '', '## Current blockers', '', ...(evaluation.blockers.length ? evaluation.blockers.map(row => `- ${row}`) : ['- None.']), '',
@@ -341,13 +368,14 @@ function main() {
   const snapshot = JSON.parse(fs.readFileSync(`${ROOT}/${SNAPSHOT_PATH}`, 'utf8'));
   if (args[0] === '--write-report') {
     const target = args[1];
-    fs.writeFileSync(`${ROOT}/${target}`, `${renderReport(snapshot)}\n`);
+    fs.writeFileSync(`${ROOT}/${target}`, renderReport(snapshot));
     console.log(JSON.stringify({ report: target, requirements: evaluateSnapshot(snapshot).requirements }, null, 2));
     return;
   }
   if (args[0] === '--check-report') {
     const target = args[1];
-    const errors = checkReport(fs.readFileSync(`${ROOT}/${target}`, 'utf8'), snapshot);
+    const fresh = captureSnapshot();
+    const errors = [...checkReport(fs.readFileSync(`${ROOT}/${target}`, 'utf8'), snapshot), ...freshnessErrors(snapshot, fresh)];
     if (errors.length) { console.error(JSON.stringify({ status: 'fail', errors })); process.exitCode = 1; return; }
     console.log(JSON.stringify({ status: 'pass', requirements: evaluateSnapshot(snapshot).requirements }));
     return;
