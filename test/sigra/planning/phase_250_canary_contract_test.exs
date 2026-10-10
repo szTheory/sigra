@@ -27,6 +27,7 @@ defmodule Sigra.Planning.Phase250CanaryContractTest do
 
     assert workflow =~ "actions: write"
     assert workflow =~ "contents: read"
+    assert workflow =~ "fetch-depth: 0"
     assert workflow =~ "--run --proof"
     assert script =~ "find_exact_run"
     assert script =~ "wait_for_cancellation_stage \"$cancel_id\""
