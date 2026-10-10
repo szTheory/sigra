@@ -101,6 +101,14 @@ set -euo pipefail
 endpoint="${2:-}"
 [[ "$endpoint" == --method ]] && endpoint="${4:-}"
 case "$endpoint" in
+  "repos/${GITHUB_REPOSITORY}") cat "$TEST_REPO_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/release-receipt-canary.yml") cat "$TEST_CANARY_WORKFLOW_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/release-receipt-canary-controller.yml") cat "$TEST_CONTROLLER_WORKFLOW_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/release-run-observer.yml") cat "$TEST_OBSERVER_WORKFLOW_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/permissions/workflow") cat "$TEST_WORKFLOW_PERMS_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/permissions") cat "$TEST_ACTIONS_PERMS_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/permissions/artifact-and-log-retention") cat "$TEST_RETENTION_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/commits/main") jq -r .sha "$TEST_MAIN_COMMIT_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/workflows/2024/runs?branch=main&event=workflow_dispatch&per_page=100") cat "$TEST_RUNS_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74124") cat "$TEST_RUN_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74124/jobs") cat "$TEST_JOBS_JSON" ;;
@@ -110,6 +118,35 @@ esac
 GH
 chmod +x "$TMP/bin/gh"
 export GITHUB_REPOSITORY=szTheory/sigra PATH="$TMP/bin:$PATH" CANCEL_LOG="$TMP/cancel.log"
+
+echo "Test D0: preflight reads authoritative retention and records an immutable main identity"
+jq -n '{default_branch:"main"}' > "$TMP/repo.json"
+jq -n '{id:2024,name:"Release Receipt Canary",path:".github/workflows/release-receipt-canary.yml"}' > "$TMP/canary-workflow.json"
+jq -n '{id:2025,name:"Release Receipt Canary Controller",path:".github/workflows/release-receipt-canary-controller.yml"}' > "$TMP/controller-workflow.json"
+jq -n '{id:2026,name:"Release Run Observer",path:".github/workflows/release-run-observer.yml"}' > "$TMP/observer-workflow.json"
+jq -n '{default_workflow_permissions:"read"}' > "$TMP/workflow-perms.json"
+jq -n '{enabled:true}' > "$TMP/actions-perms.json"
+jq -n '{days:90,maximum_allowed_days:90}' > "$TMP/retention.json"
+jq -n --arg sha "$(git -C "$ROOT" rev-parse HEAD)" '{sha:$sha}' > "$TMP/main-commit.json"
+export TEST_REPO_JSON="$TMP/repo.json" TEST_CANARY_WORKFLOW_JSON="$TMP/canary-workflow.json"
+export TEST_CONTROLLER_WORKFLOW_JSON="$TMP/controller-workflow.json" TEST_OBSERVER_WORKFLOW_JSON="$TMP/observer-workflow.json"
+export TEST_WORKFLOW_PERMS_JSON="$TMP/workflow-perms.json" TEST_ACTIONS_PERMS_JSON="$TMP/actions-perms.json"
+export TEST_RETENTION_JSON="$TMP/retention.json" TEST_MAIN_COMMIT_JSON="$TMP/main-commit.json"
+if bash "$CANARY" --preflight --output "$TMP/ready-preflight.json" && \
+   jq -e '.status == "ready" and .artifact_retention_days == 90 and .artifact_retention_maximum_days == 90 and (.target_sha | type == "string") and .workflows.canary.id == 2024' "$TMP/ready-preflight.json" >/dev/null && \
+   CANARY_PREFLIGHT_FILE="$TMP/ready-preflight.json" bash "$CANARY" --validate-preflight --output "$TMP/validated-preflight.json"; then
+  pass "retention and exact workflow identities are captured before dispatch"
+else fail "fresh read-only preflight failed to capture repository settings"; fi
+jq '.captured_at="2000-01-01T00:00:00Z"' "$TMP/ready-preflight.json" > "$TMP/stale-preflight.json"
+if CANARY_PREFLIGHT_FILE="$TMP/stale-preflight.json" bash "$CANARY" --validate-preflight --output "$TMP/stale-preflight-output.json" >/dev/null 2>&1 || \
+   jq -e '.status == "blocked" and .reason == "committed_preflight_stale" and .dispatch_attempted == false' "$TMP/stale-preflight-output.json" >/dev/null; then
+  pass "stale preflight blocks dispatch"
+else fail "stale preflight was accepted"; fi
+jq -n '{days:29,maximum_allowed_days:90}' > "$TMP/retention-low.json"
+if TEST_RETENTION_JSON="$TMP/retention-low.json" bash "$CANARY" --preflight --output "$TMP/blocked-preflight.json" >/dev/null 2>&1 || \
+   jq -e '.status == "blocked" and .dispatch_attempted == false and .reason == "artifact_retention_below_30_days_or_unreadable"' "$TMP/blocked-preflight.json" >/dev/null; then
+  pass "insufficient retention blocks preflight without dispatch"
+else fail "insufficient artifact retention did not fail closed"; fi
 
 jq -n '{workflow_runs:[{id:74123,display_title:"release-receipt-canary-failure-0123456789abcdef"}]}' > "$TMP/one-run.json"
 if TEST_RUNS_JSON="$TMP/one-run.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef | grep -qx 74123; then
