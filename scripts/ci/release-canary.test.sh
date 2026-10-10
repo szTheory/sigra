@@ -109,14 +109,39 @@ case "$endpoint" in
   "repos/${GITHUB_REPOSITORY}/actions/permissions") cat "$TEST_ACTIONS_PERMS_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/permissions/artifact-and-log-retention") cat "$TEST_RETENTION_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/commits/main") jq -r .sha "$TEST_MAIN_COMMIT_JSON" ;;
-  "repos/${GITHUB_REPOSITORY}/actions/workflows/2024/runs?branch=main&event=workflow_dispatch&per_page=100") cat "$TEST_RUNS_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/2024/runs?branch=main&event=workflow_dispatch&per_page=100")
+    if [[ -n "${TEST_RUNS_SEQUENCE_DIR:-}" ]]; then
+      count_file="${TEST_RUNS_COUNTER:?}"
+      count=0
+      [[ ! -f "$count_file" ]] || count="$(cat "$count_file")"
+      count=$((count + 1))
+      printf '%s\n' "$count" > "$count_file"
+      cat "${TEST_RUNS_SEQUENCE_DIR}/${count}.json"
+    else
+      if [[ -n "${TEST_RUNS_COUNTER:-}" ]]; then
+        count=0
+        [[ ! -f "$TEST_RUNS_COUNTER" ]] || count="$(cat "$TEST_RUNS_COUNTER")"
+        count=$((count + 1))
+        printf '%s\n' "$count" > "$TEST_RUNS_COUNTER"
+      fi
+      cat "$TEST_RUNS_JSON"
+    fi
+    ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/74125") cat "$TEST_SOURCE_RUN_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/74125/jobs") cat "$TEST_SOURCE_JOBS_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74124") cat "$TEST_RUN_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74124/jobs") cat "$TEST_JOBS_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74124/cancel") printf '%s\n' "$endpoint" >> "$CANCEL_LOG" ;;
   *) exit 2 ;;
 esac
 GH
+cat > "$TMP/bin/sleep" <<'SLEEP'
+#!/usr/bin/env bash
+# Keep bounded polling deterministic and fast in the fixture suite.
+exit 0
+SLEEP
 chmod +x "$TMP/bin/gh"
+chmod +x "$TMP/bin/sleep"
 export GITHUB_REPOSITORY=szTheory/sigra PATH="$TMP/bin:$PATH" CANCEL_LOG="$TMP/cancel.log"
 
 echo "Test D0: preflight reads authoritative retention and records an immutable main identity"
@@ -148,18 +173,44 @@ if TEST_RETENTION_JSON="$TMP/retention-low.json" bash "$CANARY" --preflight --ou
   pass "insufficient retention blocks preflight without dispatch"
 else fail "insufficient artifact retention did not fail closed"; fi
 
+echo "Test D1: the failure receipt builder preserves the workflow scenario environment"
+jq -n '{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",
+  display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",
+  head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1,run_started_at:"2026-10-10T10:00:00Z"}' > "$TMP/source-run.json"
+jq -n '{jobs:[{steps:[{name:"Controlled failure before release operations",conclusion:"failure"}]}]}' > "$TMP/source-jobs.json"
+export TEST_SOURCE_RUN_JSON="$TMP/source-run.json" TEST_SOURCE_JOBS_JSON="$TMP/source-jobs.json"
+if SCENARIO=failure PROBE_ID=0123456789abcdef GITHUB_RUN_ID=74125 GITHUB_EVENT_NAME=workflow_dispatch \
+   GITHUB_REF=refs/heads/main GH_TOKEN=fixture-token bash "$CANARY" --write-failure-receipt --output "$TMP/source-receipt.json" >/dev/null && \
+   jq -e '.scenario == "failure" and .terminal_verdict == "failure" and .source_run_id == "74125"' "$TMP/source-receipt.json" >/dev/null; then
+  pass "workflow-provided failure scenario reaches the sanitized receipt"
+else fail "workflow-provided failure scenario was lost before receipt validation"; fi
+
 jq -n '{workflow_runs:[{id:74123,display_title:"release-receipt-canary-failure-0123456789abcdef"}]}' > "$TMP/one-run.json"
 if TEST_RUNS_JSON="$TMP/one-run.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef | grep -qx 74123; then
   pass "one exact probe title resolves to its single run ID"
 else fail "single exact probe title did not resolve"; fi
+mkdir -p "$TMP/delayed-runs"
+jq -n '{workflow_runs:[]}' > "$TMP/delayed-runs/1.json"
+cp "$TMP/one-run.json" "$TMP/delayed-runs/2.json"
+if TEST_RUNS_SEQUENCE_DIR="$TMP/delayed-runs" TEST_RUNS_COUNTER="$TMP/delayed-run-count" \
+   bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef | grep -qx 74123 && \
+   [[ "$(cat "$TMP/delayed-run-count")" == 2 ]]; then
+  pass "delayed exact probe visibility is correlated by bounded polling"
+else fail "delayed exact probe visibility was not retried"; fi
 jq -n '{workflow_runs:[]}' > "$TMP/no-runs.json"
-if TEST_RUNS_JSON="$TMP/no-runs.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef >/dev/null 2>&1; then
+if TEST_RUNS_JSON="$TMP/no-runs.json" TEST_RUNS_COUNTER="$TMP/empty-run-count" \
+   bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef >/dev/null 2>&1; then
   fail "zero probe matches were accepted"
-else pass "zero probe matches fail closed"; fi
+elif [[ "$(cat "$TMP/empty-run-count")" == 11 ]]; then
+  pass "zero probe matches fail closed after the bounded lookup window"
+else fail "zero probe matches did not stop at the bounded lookup limit"; fi
 jq -n '{workflow_runs:[{id:74123,display_title:"release-receipt-canary-failure-0123456789abcdef"},{id:74125,display_title:"release-receipt-canary-failure-0123456789abcdef"}]}' > "$TMP/two-runs.json"
-if TEST_RUNS_JSON="$TMP/two-runs.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef >/dev/null 2>&1; then
+if TEST_RUNS_JSON="$TMP/two-runs.json" TEST_RUNS_COUNTER="$TMP/ambiguous-run-count" \
+   bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef >/dev/null 2>&1; then
   fail "two matching probe runs were accepted"
-else pass "ambiguous probe matches fail closed"; fi
+elif [[ "$(cat "$TMP/ambiguous-run-count")" == 1 ]]; then
+  pass "ambiguous probe matches fail closed without retrying";
+else fail "ambiguous probe lookup did not stop immediately"; fi
 
 jq -n '{id:74124,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:"release-receipt-canary-cancellation-abcdef0123456789",event:"workflow_dispatch",head_branch:"main",status:"in_progress"}' > "$TMP/canary-run.json"
 jq -n '{jobs:[{steps:[{name:"Bounded cancellation wait",status:"in_progress"}]}]}' > "$TMP/waiting-jobs.json"
