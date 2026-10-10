@@ -4,19 +4,19 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 4
+current_plan: 5
 status: executing
-stopped_at: Completed 250-03-PLAN.md
-last_updated: "2026-10-10T15:43:06.055Z"
+stopped_at: Completed 250-04-PLAN.md
+last_updated: "2026-10-10T16:22:02.026Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 250 Plan 02 completed; Plan 03 is next
-state_head: 5a8912569cbaddd9a96c62ff544f21ac364987ab
+state_head: f6c67c61494503b535718247682551334dc91f96
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 36
-  completed_plans: 28
-  percent: 78
+  completed_plans: 29
+  percent: 80
 ---
 
 # Project State
@@ -32,13 +32,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
-Current Plan: 4
+Current Plan: 5
 Total Plans in Phase: 5
 Plans executed: 3 of 5
 Status: Ready to execute
 Last activity: 2026-10-10 — Phase 250 Plan 03 completed; Plan 04 is next
 
-Progress: [████████░░] 78%
+Progress: [████████░░] 80%
 
 ### v1.49 audit route
 
@@ -611,6 +611,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - [Phase 250]: Keep READY-01 and READY-02 unsatisfied until one approved tuple joins exact-source CI, matching dry-run, and complete fresh dispositions.
 - [Phase 250]: AUTO-01 is satisfied from current protected-environment scope and exact-source success evidence.
 - [Phase 250]: AUTO-02 remains unsatisfied until both hosted failure and cancellation artifacts are retrieved and validated.
+- [Phase 250]: Plan 04 keeps REL-01 public release proof separate from REL-02 current-main and inventory proof; current workflow failure and stale PR identities leave REL-02 unsatisfied.
+- [Phase 250]: The historical HANDOFF loss remains accepted-with-recorded-loss under the exact user authorization; those bytes were neither recovered nor preserved.
 
 ### Pending Todos
 
@@ -836,8 +838,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T15:43:06.003Z
-Stopped at: Completed 250-03-PLAN.md
+Last session: 2026-10-10T16:22:01.742Z
+Stopped at: Completed 250-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
@@ -1077,3 +1079,4 @@ Resume file: None
 | Phase 250 P01 | 2h 42m | 3 tasks | 20 files |
 | Phase 250 P02 | 14min | 2 tasks | 5 files |
 | Phase 250 P03 | 12min | 2 tasks | 6 files |
+| Phase 250 P04 | 37m | 2 tasks | 6 files |
