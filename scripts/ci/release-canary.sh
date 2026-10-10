@@ -12,7 +12,7 @@ OUTPUT=""
 PROOF=""
 MODE=""
 WORKFLOW_ID=""
-SCENARIO=""
+SCENARIO="${SCENARIO:-}"
 FAILURE_RECEIPT=""
 CANCELLATION_RECEIPT=""
 
@@ -259,11 +259,23 @@ validate_committed_preflight() {
 }
 
 find_exact_run() {
-  local workflow_id="$1" title="$2" response matches
-  response="$(gh api "repos/${REPOSITORY}/actions/workflows/${workflow_id}/runs?branch=main&event=workflow_dispatch&per_page=100")" || return 1
-  matches="$(jq -r --arg title "$title" '[.workflow_runs[]? | select(.display_title == $title)] | if length == 1 then .[0].id else empty end' <<<"$response")"
-  [[ "$matches" =~ ^[1-9][0-9]*$ ]] || return 1
-  printf '%s' "$matches"
+  local workflow_id="$1" title="$2" response matches count elapsed=0
+  while (( elapsed <= 600 )); do
+    response="$(gh api "repos/${REPOSITORY}/actions/workflows/${workflow_id}/runs?branch=main&event=workflow_dispatch&per_page=100")" || return 1
+    count="$(jq -er --arg title "$title" '[.workflow_runs[]? | select(.display_title == $title)] | length' <<<"$response")" || return 1
+    if (( count == 1 )); then
+      matches="$(jq -er --arg title "$title" '[.workflow_runs[]? | select(.display_title == $title)][0].id | select(type == "number" and floor == . and . > 0)' <<<"$response")" || return 1
+      printf '%s' "$matches"
+      return 0
+    fi
+    # A repeated exact title is ambiguous and must fail immediately. Zero matches
+    # can be GitHub's short dispatch-indexing delay, so poll for at most 10 minutes.
+    (( count == 0 )) || return 1
+    (( elapsed < 600 )) || return 1
+    sleep 60
+    elapsed=$((elapsed + 60))
+  done
+  return 1
 }
 
 dispatch_probe() {

@@ -1,38 +1,37 @@
 {
   "schema_version": 1,
   "status": "blocked",
-  "captured_at": "2026-10-10T13:13:42Z",
-  "reason": "controller_checkout_shallow_history_prevented_preflight_ancestor_check",
-  "controller_dispatch_attempted": true,
-  "dispatch_attempted": false,
-  "child_canary_dispatch_attempted": false,
+  "captured_at": "2026-10-10T14:27:05Z",
+  "reason": "failure_probe_dispatch_could_not_be_uniquely_correlated",
+  "dispatch_attempted": true,
   "controller_run": {
-    "id": 38054862873,
+    "id": 38059620443,
     "attempt": 1,
     "workflow_id": 380517406,
     "workflow_name": "Release Receipt Canary Controller",
     "workflow_path": ".github/workflows/release-receipt-canary-controller.yml",
     "event": "workflow_dispatch",
     "ref": "refs/heads/main",
-    "sha": "5059581954960548c7fe5c4811b7a7f81dd16aa3",
+    "sha": "a7e1c8c25db17412c895b20e0f5c0cee45594d30",
     "conclusion": "failure",
-    "created_at": "2026-10-10T13:12:56Z",
-    "url": "https://github.com/szTheory/sigra/actions/runs/38054862873",
+    "created_at": "2026-10-10T14:26:38Z",
+    "updated_at": "2026-10-10T14:26:57Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38059620443",
     "artifact": {
-      "id": 11670154191,
-      "name": "release-canary-controller-38054862873-1",
-      "digest": "sha256:ecbe27bc7d736cde8bef48bf78105256d293653bdda5fb85746597a15e762889",
-      "proof_sha256": "63886b4d90b32a4c8c4d1a3baa89ce45a5c6513bff2085c25c4af4c685204809",
-      "expires_at": "2026-11-09T13:13:43Z"
+      "id": 11671884954,
+      "name": "release-canary-controller-38059620443-1",
+      "digest": "sha256:cdf974e2454e31d14ee2b79b9a600b47968399a78a318218cf86cbb174b82bc9",
+      "proof_sha256": "bcd1292967c87c2ecef0095cabbcfd41f0027a1f2e9d88638ed9f70e364684b2",
+      "expires_at": "2026-11-09T14:26:53Z"
     }
   },
   "preflight_snapshot": {
     "schema_version": 1,
     "status": "ready",
-    "captured_at": "2026-10-10T13:05:42Z",
+    "captured_at": "2026-10-10T14:19:15Z",
     "repository": "szTheory/sigra",
     "default_branch": "main",
-    "target_sha": "04e7a13dbd9394b453c132d2a168ce6642c98e37",
+    "target_sha": "f606ac15d3beaaf87a285e908674ebadff2866f3",
     "actions_enabled": true,
     "artifact_retention_days": 90,
     "artifact_retention_maximum_days": 90,
@@ -56,76 +55,107 @@
     "source_authority": "actions:read; contents:read",
     "observer_authority": "actions:read; contents:read",
     "credential_values_recorded": false,
+    "dispatch_attempted": false
+  },
+  "child_canary_dispatch_attempted": true,
+  "source_failure": {
+    "id": 38059634695,
+    "attempt": 1,
+    "workflow_id": 380517407,
+    "workflow_name": "Release Receipt Canary",
+    "workflow_path": ".github/workflows/release-receipt-canary.yml",
+    "event": "workflow_dispatch",
+    "ref": "refs/heads/main",
+    "sha": "a7e1c8c25db17412c895b20e0f5c0cee45594d30",
+    "display_title": "release-receipt-canary-failure-915c50bbc3c06777902ef00edbf9d44f",
+    "conclusion": "failure",
+    "created_at": "2026-10-10T14:26:52Z",
+    "updated_at": "2026-10-10T14:27:05Z",
+    "controlled_failure_step_conclusion": "failure",
+    "receipt_job_conclusion": "failure",
+    "receipt_builder_error": "source failure receipt requires the failure scenario",
+    "receipt_artifact": {
+      "status": "not_uploaded",
+      "artifact_count": 0
+    }
+  },
+  "source_cancellation": {
     "dispatch_attempted": false,
-    "supersedes": {
-      "status": "blocked",
-      "commit": "869b4caaa",
-      "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
-      "preflight_sha256": "2a7e68e1963aec7f0cff29d5ff1722f5117d48c6cbdc5571273f5b2f03d94696",
-      "proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
-      "proof_sha256": "aacd8fea5f36fe7bb94317aa730fc0c4f160e4c55c59283206d71ceb99e826f9",
-      "dispatch_attempted": false,
-      "credential_values_recorded": false
-    }
+    "run_id": null,
+    "artifact": null,
+    "reason": "controller stopped after it could not correlate the failure probe"
   },
-  "runtime_preflight": {
-    "status": "blocked",
-    "emitted_reason": "default_branch_rewound_after_preflight",
-    "explanation": "GitHub compare confirms the preflight target is an ancestor of current main; the controller checkout could not resolve that ancestor during its local merge-base check.",
-    "compare": {
-      "status": "ahead",
-      "ahead_by": 1,
-      "behind_by": 0,
-      "merge_base": "04e7a13dbd9394b453c132d2a168ce6642c98e37"
-    }
-  },
-  "controller_proof_artifact": {
+  "controller_proof": {
     "schema_version": 1,
     "status": "blocked",
-    "captured_at": "2026-10-10T13:13:42Z",
+    "captured_at": "2026-10-10T14:26:53Z",
     "preflight": {
       "schema_version": 1,
-      "status": "blocked",
-      "captured_at": "2026-10-10T13:13:42Z",
+      "status": "ready",
+      "captured_at": "2026-10-10T14:19:15Z",
       "repository": "szTheory/sigra",
-      "target_ref": "refs/heads/main",
+      "default_branch": "main",
+      "target_sha": "f606ac15d3beaaf87a285e908674ebadff2866f3",
+      "actions_enabled": true,
+      "artifact_retention_days": 90,
+      "artifact_retention_maximum_days": 90,
+      "required_retention_days": 30,
       "workflows": {
         "canary": {
-          "id": null,
+          "id": 380517407,
           "path": ".github/workflows/release-receipt-canary.yml"
         },
         "controller": {
-          "id": null,
+          "id": 380517406,
           "path": ".github/workflows/release-receipt-canary-controller.yml"
         },
         "observer": {
-          "id": null,
+          "id": 379162190,
           "path": ".github/workflows/release-run-observer.yml"
         }
       },
-      "reason": "default_branch_rewound_after_preflight",
-      "dispatch_attempted": false,
-      "credential_values_recorded": false
+      "default_workflow_permissions": "read",
+      "controller_authority": "actions:write; contents:read",
+      "source_authority": "actions:read; contents:read",
+      "observer_authority": "actions:read; contents:read",
+      "credential_values_recorded": false,
+      "dispatch_attempted": false
     },
-    "reason": "fresh_committed_read_only_actions_preflight_is_blocked",
-    "dispatch_attempted": false,
+    "reason": "failure_probe_dispatch_could_not_be_uniquely_correlated",
+    "dispatch_attempted": true,
     "receipts": [],
     "credential_values_recorded": false
   },
-  "receipts": [],
-  "prior_blocked_evidence": {
-    "status": "blocked",
-    "commit": "db74d0db381f2c583a074d6f4695bffb4f15ce45",
-    "proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
-    "proof_sha256": "aacd8fea5f36fe7bb94317aa730fc0c4f160e4c55c59283206d71ceb99e826f9",
-    "dispatch_attempted": false,
-    "credential_values_recorded": false
+  "controller_proof_file": "250-CANARY-CONTROLLER-PROOF-38059620443.json",
+  "diagnosis": {
+    "root_causes": [
+      {
+        "cause": "failure scenario environment overwritten by CLI default",
+        "confidence": "confirmed",
+        "evidence": "The Actions log shows SCENARIO=failure. Before the fix, release-canary.sh assigned SCENARIO empty before write_failure_receipt checked it, causing the receipt builder to reject the workflow-provided value."
+      },
+      {
+        "cause": "eventual consistency during exact run correlation",
+        "confidence": "strong inference",
+        "evidence": "The controller made one exact-title workflow-runs query and failed when it returned no unique match. The source run was created at 14:26:52Z; after controller failure, the unique exact-title run was visible as 38059634695."
+      }
+    ],
+    "resolution": "Preserve the workflow-provided SCENARIO value and poll exact-title run lookup every 60 seconds for at most 10 minutes; fail immediately on ambiguity or API errors."
+  },
+  "previous_blocked_attempt": {
+    "controller_run_id": 38054862873,
+    "proof_file": "250-CANARY-PROOF-ATTEMPT-38054862873.json",
+    "proof_sha256": "5d80dd349b3e7c5b42c40a64d9e133daa8819536f59f5e1e9315caf1ec356348",
+    "previous_main_commit": "f606ac15d3beaaf87a285e908674ebadff2866f3"
   },
   "credential_values_recorded": false,
-  "credential_shaped_data_detected": false,
-  "credential_scan": {
-    "controller_artifact_matches": 0,
-    "failed_log_token_patterns": 0,
-    "masked_markers": 1
+  "local_verification": {
+    "canary_contracts": {
+      "status": "pass",
+      "passed": 32,
+      "failed": 0
+    },
+    "shell_syntax": "pass",
+    "diff_check": "pass"
   }
 }

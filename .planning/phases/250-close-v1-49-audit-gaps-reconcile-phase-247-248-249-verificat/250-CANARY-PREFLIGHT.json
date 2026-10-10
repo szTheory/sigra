@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "status": "ready",
-  "captured_at": "2026-10-10T13:53:41Z",
+  "captured_at": "2026-10-10T14:19:15Z",
   "repository": "szTheory/sigra",
   "default_branch": "main",
-  "target_sha": "b95bb44b6a780837d33e0309136d24bd459bbe5e",
+  "target_sha": "f606ac15d3beaaf87a285e908674ebadff2866f3",
   "actions_enabled": true,
   "artifact_retention_days": 90,
   "artifact_retention_maximum_days": 90,
@@ -28,26 +28,5 @@
   "source_authority": "actions:read; contents:read",
   "observer_authority": "actions:read; contents:read",
   "credential_values_recorded": false,
-  "dispatch_attempted": false,
-  "supersedes": {
-    "status": "ready",
-    "commit": "5059581954960548c7fe5c4811b7a7f81dd16aa3",
-    "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
-    "preflight_sha256": "e44c1face9a736a616ebacf1c038619f1809c4c423e8e0b2030105481e8626bc",
-    "previous_supersedes": null
-  },
-  "previous_controller_attempt": {
-    "status": "blocked",
-    "proof_commit": "eebf552f4be57721f7d90a3d219cadc7ad788c63",
-    "proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
-    "proof_file_sha256": "5d80dd349b3e7c5b42c40a64d9e133daa8819536f59f5e1e9315caf1ec356348",
-    "controller_run_id": 38054862873,
-    "controller_run_attempt": 1,
-    "controller_run_sha": "5059581954960548c7fe5c4811b7a7f81dd16aa3",
-    "controller_artifact_id": 11670154191,
-    "controller_artifact_digest": "sha256:ecbe27bc7d736cde8bef48bf78105256d293653bdda5fb85746597a15e762889",
-    "controller_proof_sha256": "63886b4d90b32a4c8c4d1a3baa89ce45a5c6513bff2085c25c4af4c685204809",
-    "controller_dispatch_attempted": true,
-    "canary_dispatch_attempted": false
-  }
+  "dispatch_attempted": false
 }
