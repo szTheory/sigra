@@ -13,6 +13,7 @@ PROOF=""
 MODE=""
 WORKFLOW_ID=""
 EXPECTED_SHA=""
+EXPECTED_SHA256=""
 SCENARIO="${SCENARIO:-}"
 FAILURE_RECEIPT=""
 CANCELLATION_RECEIPT=""
@@ -45,6 +46,7 @@ Usage:
   release-canary.sh --validate-pair --failure-receipt <json> --cancellation-receipt <json>
   release-canary.sh --preflight --output <preflight.json>
   release-canary.sh --validate-preflight --output <validated-preflight.json>
+  release-canary.sh --prepare-preflight-input --output <runner-temp.json> --expected-sha256 <sha256>
   release-canary.sh --run --proof <proof.json>
 USAGE
 }
@@ -59,11 +61,13 @@ while [[ $# -gt 0 ]]; do
     --validate-pair) MODE=validate-pair; shift ;;
     --preflight) MODE=preflight; shift ;;
     --validate-preflight) MODE=validate-preflight; shift ;;
+    --prepare-preflight-input) MODE=prepare-preflight-input; shift ;;
     --run) MODE=run; shift ;;
     --output) [[ $# -ge 2 ]] || { usage; exit 2; }; OUTPUT="$2"; shift 2 ;;
     --proof) [[ $# -ge 2 ]] || { usage; exit 2; }; PROOF="$2"; shift 2 ;;
     --workflow-id) [[ $# -ge 2 ]] || { usage; exit 2; }; WORKFLOW_ID="$2"; shift 2 ;;
     --expected-sha) [[ $# -ge 2 ]] || { usage; exit 2; }; EXPECTED_SHA="$2"; shift 2 ;;
+    --expected-sha256) [[ $# -ge 2 ]] || { usage; exit 2; }; EXPECTED_SHA256="$2"; shift 2 ;;
     --scenario) [[ $# -ge 2 ]] || { usage; exit 2; }; SCENARIO="$2"; shift 2 ;;
     --probe-id) [[ $# -ge 2 ]] || { usage; exit 2; }; PROBE_ID="$2"; shift 2 ;;
     --failure-receipt) [[ $# -ge 2 ]] || { usage; exit 2; }; FAILURE_RECEIPT="$2"; shift 2 ;;
@@ -259,6 +263,43 @@ validate_committed_preflight() {
     current_blob="$(git -C "$ROOT" rev-parse "${current_sha}:${file}" 2>/dev/null)" || { write_blocked_preflight current_source_blob_unavailable; return 1; }
     [[ "$target_blob" == "$current_blob" ]] || { write_blocked_preflight canary_source_changed_after_preflight; return 1; }
   done
+}
+
+prepare_preflight_input() {
+  local payload="${CANARY_PREFLIGHT_JSON:-}" supplied_digest="${CANARY_PREFLIGHT_SHA256:-}"
+  local actual_digest byte_count tmp written_digest
+  [[ -n "$OUTPUT" && -n "${RUNNER_TEMP:-}" && "$OUTPUT" == "$RUNNER_TEMP/"* ]] || fail "preflight input output must be under RUNNER_TEMP"
+  [[ -n "$payload" && "${#payload}" -le 32768 ]] || fail "preflight input is empty or exceeds the 32768-byte limit"
+  [[ "$supplied_digest" =~ ^[0-9a-f]{64}$ && "$EXPECTED_SHA256" == "$supplied_digest" ]] || fail "preflight input digest is malformed or inconsistent"
+  byte_count="$(LC_ALL=C printf '%s' "$payload" | wc -c | tr -d ' ')"
+  (( byte_count > 0 && byte_count <= 32768 )) || fail "preflight input is empty or exceeds the 32768-byte limit"
+  actual_digest="$(printf '%s' "$payload" | (sha256sum 2>/dev/null || shasum -a 256) | awk '{print $1}')"
+  [[ "$actual_digest" == "$supplied_digest" ]] || fail "preflight input digest mismatch"
+  printf '%s' "$payload" | jq -es '
+    def no_credential_keys:
+      [.. | objects | to_entries[] |
+        select((.key | test("(token|secret|credential|api.?key)";"i")) and
+          (.key != "credential_values_recorded" or .value != false))] | length == 0;
+    length == 1 and (.[0] | type == "object" and .schema_version == 1 and .status == "ready" and
+      .repository == "szTheory/sigra" and .default_branch == "main" and
+      (.target_sha | type == "string" and test("^[0-9a-f]{40}$")) and
+      (.captured_at | type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")) and
+      (.workflows.canary.id | type == "number" and floor == . and . > 0) and
+      .workflows.canary.path == ".github/workflows/release-receipt-canary.yml" and
+      (.workflows.controller.id | type == "number" and floor == . and . > 0) and
+      .workflows.controller.path == ".github/workflows/release-receipt-canary-controller.yml" and
+      (.workflows.observer.id | type == "number" and floor == . and . > 0) and
+      .workflows.observer.path == ".github/workflows/release-run-observer.yml" and
+      .credential_values_recorded == false and .dispatch_attempted == false and no_credential_keys)
+  ' >/dev/null 2>&1 || fail "preflight input is malformed, mismatched, or contains credential-shaped fields"
+  mkdir -p "$(dirname "$OUTPUT")"
+  umask 077
+  tmp="$(mktemp "${OUTPUT}.tmp.XXXXXX")"
+  printf '%s' "$payload" > "$tmp"
+  written_digest="$( (sha256sum "$tmp" 2>/dev/null || shasum -a 256 "$tmp") | awk '{print $1}')"
+  [[ "$written_digest" == "$supplied_digest" ]] || { rm -f "$tmp"; fail "preflight input changed while writing"; }
+  mv "$tmp" "$OUTPUT"
+  echo "release-canary: preflight input accepted"
 }
 
 validate_exact_run_identity() {
@@ -569,6 +610,9 @@ case "$MODE" in
     [[ -n "$OUTPUT" ]] || fail "validated preflight output path is required"
     validate_committed_preflight "$OUTPUT" || fail "committed Actions preflight is not fresh or source-bound"
     echo "release-canary: preflight PASS"
+    ;;
+  prepare-preflight-input)
+    prepare_preflight_input
     ;;
   run)
     [[ -n "$PROOF" ]] || fail "controller proof output path is required"
