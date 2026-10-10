@@ -38,6 +38,22 @@ defmodule Sigra.Planning.Phase250CanaryContractTest do
     refute workflow =~ ~r/(RELEASE_PLEASE_TOKEN|HEX_API_KEY|environment:)/
   end
 
+  test "controller accepts only digest-bound preflight data and delegates freshness checks" do
+    workflow = read!(".github/workflows/release-receipt-canary-controller.yml")
+    script = read!("scripts/ci/release-canary.sh")
+
+    assert workflow =~ "preflight_json:"
+    assert workflow =~ "preflight_sha256:"
+    assert workflow =~ "CANARY_PREFLIGHT_JSON: ${{ inputs.preflight_json }}"
+    assert workflow =~ "CANARY_PREFLIGHT_SHA256: ${{ inputs.preflight_sha256 }}"
+    assert workflow =~ "--prepare-preflight-input"
+    assert workflow =~ "CANARY_PREFLIGHT_FILE=\"$RUNNER_TEMP/release-canary-preflight.json\""
+    assert script =~ "prepare_preflight_input"
+    assert script =~ "no_credential_keys"
+    assert script =~ "committed_preflight_stale"
+    refute workflow =~ ~r/\$\(\$\{\{\s*inputs\.preflight_json/
+  end
+
   test "receipt validator separates canary identity from production receipts" do
     receipt = read!("scripts/ci/release-receipt.sh")
     canary = read!("scripts/ci/release-canary.sh")
