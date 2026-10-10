@@ -11,6 +11,10 @@ PROBE_ID="${PROBE_ID:-}"
 OUTPUT=""
 PROOF=""
 MODE=""
+WORKFLOW_ID=""
+SCENARIO=""
+FAILURE_RECEIPT=""
+CANCELLATION_RECEIPT=""
 
 fail() {
   echo "release-canary: FAIL: $*" >&2
@@ -35,6 +39,9 @@ Usage:
   release-canary.sh --self-test
   release-canary.sh --validate-proof <proof.json>
   release-canary.sh --write-failure-receipt --output <receipt.json>
+  release-canary.sh --resolve-run --workflow-id <id> --scenario <failure|cancellation> --probe-id <id>
+  release-canary.sh --cancel-canary-run <run-id> --workflow-id <id>
+  release-canary.sh --validate-pair --failure-receipt <json> --cancellation-receipt <json>
   release-canary.sh --preflight --output <preflight.json>
   release-canary.sh --run --proof <proof.json>
 USAGE
@@ -45,10 +52,18 @@ while [[ $# -gt 0 ]]; do
     --self-test) MODE=self-test; shift ;;
     --validate-proof) MODE=validate-proof; [[ $# -ge 2 ]] || { usage; exit 2; }; PROOF="$2"; shift 2 ;;
     --write-failure-receipt) MODE=write-failure; shift ;;
+    --resolve-run) MODE=resolve-run; shift ;;
+    --cancel-canary-run) MODE=cancel-canary; [[ $# -ge 2 ]] || { usage; exit 2; }; PROOF="$2"; shift 2 ;;
+    --validate-pair) MODE=validate-pair; shift ;;
     --preflight) MODE=preflight; shift ;;
     --run) MODE=run; shift ;;
     --output) [[ $# -ge 2 ]] || { usage; exit 2; }; OUTPUT="$2"; shift 2 ;;
     --proof) [[ $# -ge 2 ]] || { usage; exit 2; }; PROOF="$2"; shift 2 ;;
+    --workflow-id) [[ $# -ge 2 ]] || { usage; exit 2; }; WORKFLOW_ID="$2"; shift 2 ;;
+    --scenario) [[ $# -ge 2 ]] || { usage; exit 2; }; SCENARIO="$2"; shift 2 ;;
+    --probe-id) [[ $# -ge 2 ]] || { usage; exit 2; }; PROBE_ID="$2"; shift 2 ;;
+    --failure-receipt) [[ $# -ge 2 ]] || { usage; exit 2; }; FAILURE_RECEIPT="$2"; shift 2 ;;
+    --cancellation-receipt) [[ $# -ge 2 ]] || { usage; exit 2; }; CANCELLATION_RECEIPT="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) fail "unknown argument" ;;
   esac
@@ -68,16 +83,26 @@ valid_probe_id() { [[ "$1" =~ ^[a-f0-9-]{16,64}$ ]]; }
 
 validate_receipt_pair() {
   local failure="$1" cancellation="$2"
-  jq -e 'type == "object" and .receipt_kind == "canary" and .scenario == "failure" and
+  jq -e 'def timestamp: type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$");
+    type == "object" and .receipt_kind == "canary" and .scenario == "failure" and
     .terminal_verdict == "failure" and .source_ref == "refs/heads/main" and
-    (.source_run_id | type == "string") and (.source_run_attempt | type == "number") and
+    (.source_repository == "szTheory/sigra") and (.source_run_id | type == "string") and (.source_run_attempt | type == "number" and . >= 1) and
     (.source_sha | test("^[0-9a-f]{40}$")) and (.probe_id | test("^[a-f0-9-]{16,64}$")) and
+    .source_event == "workflow_dispatch" and .source_workflow_name == "Release Receipt Canary" and
+    .source_workflow_path == ".github/workflows/release-receipt-canary.yml" and
+    (.source_started_at | timestamp) and (.source_observed_at | timestamp) and
     ([.. | objects | keys[]? | select(test("(token|secret|credential|api.?key)";"i"))] | length == 0)' "$failure" >/dev/null 2>&1 || return 1
-  jq -e 'type == "object" and .receipt_kind == "canary" and .scenario == "cancellation" and
+  jq -e 'def timestamp: type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$");
+    type == "object" and .receipt_kind == "canary" and .scenario == "cancellation" and
     .terminal_verdict == "cancelled" and .source_ref == "refs/heads/main" and
-    (.source_run_id | type == "string") and (.source_run_attempt | type == "number") and
+    (.source_repository == "szTheory/sigra") and (.source_run_id | type == "string") and (.source_run_attempt | type == "number" and . >= 1) and
     (.source_sha | test("^[0-9a-f]{40}$")) and (.probe_id | test("^[a-f0-9-]{16,64}$")) and
-    (.observer_run.id | type == "string") and
+    .source_event == "workflow_dispatch" and .source_workflow_name == "Release Receipt Canary" and
+    .source_workflow_path == ".github/workflows/release-receipt-canary.yml" and
+    (.source_started_at | timestamp) and (.source_observed_at | timestamp) and
+    (.observer_run.id | type == "string") and (.observer_run.attempt | type == "number" and . >= 1) and
+    (.observer_run.workflow_id | type == "number" and . > 0) and
+    (.observer_run.started_at | timestamp) and (.observer_run.observed_at | timestamp) and
     ([.. | objects | keys[]? | select(test("(token|secret|credential|api.?key)";"i"))] | length == 0)' "$cancellation" >/dev/null 2>&1 || return 1
   [[ "$(jq -r .probe_id "$failure")" != "$(jq -r .probe_id "$cancellation")" ]] || return 1
   [[ "$(jq -r .source_run_id "$failure")" != "$(jq -r .source_run_id "$cancellation")" ]] || return 1
@@ -91,9 +116,10 @@ write_failure_receipt() {
   [[ "${SCENARIO:-}" == failure ]] || fail "source failure receipt requires the failure scenario"
   [[ -n "${GH_TOKEN:-}" ]] || fail "Actions read token is unavailable"
   [[ -n "$OUTPUT" ]] || fail "output path is required"
-  local run workflow jobs id attempt sha branch event name path start observed title step_failure
+  local run workflow jobs id attempt sha branch event name path start observed title step_failure workflow_id
   run="$(gh api "repos/${REPOSITORY}/actions/runs/${GITHUB_RUN_ID}")" || fail "authoritative source run query failed"
   workflow="$(gh api "repos/${REPOSITORY}/actions/workflows/release-receipt-canary.yml")" || fail "authoritative canary workflow query failed"
+  workflow_id="$(jq -er '.id | select(type == "number" and floor == . and . > 0)' <<<"$workflow")" || fail "canary workflow ID malformed"
   jobs="$(gh api "repos/${REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs")" || fail "source job identity query failed"
   id="$(jq -er '.id | numbers' <<<"$run")" || fail "source run ID unavailable"
   attempt="$(jq -er '.run_attempt | select(type == "number" and . >= 1 and floor == .)' <<<"$run")" || fail "source attempt unavailable"
@@ -111,17 +137,17 @@ write_failure_receipt() {
   observed="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   step_failure="$(jq -r '[.jobs[]?.steps[]? | select(.name == "Controlled failure before release operations") | .conclusion == "failure"] | any' <<<"$jobs")"
   [[ "$step_failure" == true ]] || fail "controlled failure step is not authoritatively failed"
-  jq -n --arg probe "$PROBE_ID" --arg id "$GITHUB_RUN_ID" --arg sha "$sha" \
+  jq -n --arg probe "$PROBE_ID" --arg id "$GITHUB_RUN_ID" --arg sha "$sha" --arg repository "$REPOSITORY" \
     --arg start "$start" --arg observed "$observed" \
     --arg run_url "https://github.com/${REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
-    --argjson attempt "$attempt" --argjson workflow_id "$(jq -er '.workflow_id | numbers' <<<"$run")" \
+    --argjson attempt "$attempt" --argjson workflow_id "$workflow_id" \
     '{schema_version:1,receipt_kind:"canary",canary:{probe_id:$probe,scenario:"failure"},
-      source_event:"workflow_dispatch",source:{ref:"refs/heads/main",sha:$sha},
+      source_event:"workflow_dispatch",source:{repository:$repository,ref:"refs/heads/main",sha:$sha},
       source_run:{id:$id,attempt:$attempt,workflow_id:$workflow_id,
         workflow_name:"Release Receipt Canary",workflow_path:".github/workflows/release-receipt-canary.yml",
         url:$run_url,started_at:$start,observed_at:$observed},terminal_verdict:"failure",observer_run:null}' \
     > "${OUTPUT}.input"
-  bash "$RECEIPT_HELPER" --mode canary --input "${OUTPUT}.input" --output "$OUTPUT"
+  bash "$RECEIPT_HELPER" --mode canary --expected-workflow-id "$workflow_id" --input "${OUTPUT}.input" --output "$OUTPUT"
   rm -f "${OUTPUT}.input"
 }
 
@@ -131,6 +157,10 @@ write_blocked_preflight() {
   captured="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   jq -n --arg captured "$captured" --arg repository "$REPOSITORY" --arg reason "$reason" \
     '{schema_version:1,status:"blocked",captured_at:$captured,repository:$repository,
+      target_ref:"refs/heads/main",workflows:{
+        canary:{id:null,path:".github/workflows/release-receipt-canary.yml"},
+        controller:{id:null,path:".github/workflows/release-receipt-canary-controller.yml"},
+        observer:{id:null,path:".github/workflows/release-run-observer.yml"}},
       reason:$reason,dispatch_attempted:false,credential_values_recorded:false}' | safe_write_json "$OUTPUT"
   echo "release-canary: preflight blocked (${reason})" >&2
 }
@@ -138,7 +168,6 @@ write_blocked_preflight() {
 run_preflight() {
   [[ -n "$OUTPUT" ]] || fail "preflight output path is required"
   command -v gh >/dev/null 2>&1 || { write_blocked_preflight gh_unavailable; return 0; }
-  [[ -n "${GH_TOKEN:-}" ]] || { write_blocked_preflight actions_token_unavailable; return 0; }
   [[ "$REPOSITORY" == szTheory/sigra ]] || { write_blocked_preflight repository_identity_mismatch; return 0; }
   local repo workflow source controller observer workflow_perms actions_perms retention captured
   repo="$(gh api "repos/${REPOSITORY}" 2>/dev/null)" || { write_blocked_preflight repository_metadata_unavailable; return 0; }
@@ -241,6 +270,24 @@ wait_for_cancellation_stage() {
   return 1
 }
 
+cancel_exact_canary_run() {
+  local id="$1" expected_workflow_id="$2" expected_probe_id="$3" run jobs
+  [[ "$id" =~ ^[1-9][0-9]*$ && "$expected_workflow_id" =~ ^[1-9][0-9]*$ ]] || return 1
+  valid_probe_id "$expected_probe_id" || return 1
+  run="$(run_metadata "$id")" || return 1
+  [[ "$(jq -r '.id | tostring' <<<"$run")" == "$id" &&
+     "$(jq -r '.workflow_id | tostring' <<<"$run")" == "$expected_workflow_id" &&
+     "$(jq -r '.path | sub("@main$";"")' <<<"$run")" == .github/workflows/release-receipt-canary.yml &&
+     "$(jq -r '.name' <<<"$run")" == "Release Receipt Canary" &&
+     "$(jq -r '.event' <<<"$run")" == workflow_dispatch &&
+     "$(jq -r '.head_branch' <<<"$run")" == main &&
+     "$(jq -r '.display_title' <<<"$run")" == "release-receipt-canary-cancellation-${expected_probe_id}" &&
+     "$(jq -r '.status' <<<"$run")" == in_progress ]] || return 1
+  jobs="$(run_jobs "$id")" || return 1
+  jq -e '[.jobs[]?.steps[]? | select(.name == "Bounded cancellation wait" and .status == "in_progress")] | length == 1' <<<"$jobs" >/dev/null || return 1
+  gh api --method POST "repos/${REPOSITORY}/actions/runs/${id}/cancel" >/dev/null
+}
+
 wait_for_observer() {
   local source_id="$1" observer_workflow_id="$2" listing matches elapsed=0
   while (( elapsed <= 600 )); do
@@ -277,7 +324,7 @@ run_controller() {
   failure_id="$(dispatch_probe failure "$failure_probe" "$canary_wf_id")" || fail "failure probe dispatch could not be uniquely correlated"
   watch_run "$failure_id"
   failure_run="$(run_metadata "$failure_id")" || fail "failure run summary unavailable"
-  [[ "$(jq -r '.id | tostring' <<<"$failure_run")" == "$failure_id" && "$(jq -r '.workflow_id | tostring' <<<"$failure_run")" == "$canary_wf_id" && "$(jq -r '.path' <<<"$failure_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.event' <<<"$failure_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$failure_run")" == main && "$(jq -r '.head_sha' <<<"$failure_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$failure_run")" == 1 && "$(jq -r '.conclusion' <<<"$failure_run")" == failure ]] || fail "failure run exact identity or expected conclusion mismatch"
+  [[ "$(jq -r '.id | tostring' <<<"$failure_run")" == "$failure_id" && "$(jq -r '.workflow_id | tostring' <<<"$failure_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$failure_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.event' <<<"$failure_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$failure_run")" == main && "$(jq -r '.head_sha' <<<"$failure_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$failure_run")" == 1 && "$(jq -r '.display_title' <<<"$failure_run")" == "release-receipt-canary-failure-${failure_probe}" && "$(jq -r '.conclusion' <<<"$failure_run")" == failure ]] || fail "failure run exact identity or expected conclusion mismatch"
   expected_failure_name="${expected_failure_name}${failure_id}-1-${failure_probe}"
   failure_artifact="$(get_unique_artifact "$failure_id" "$expected_failure_name")" || fail "failure receipt artifact absent or ambiguous"
 
@@ -285,11 +332,10 @@ run_controller() {
   [[ "$cancel_id" != "$failure_id" ]] || fail "probe runs unexpectedly share one run ID"
   wait_for_cancellation_stage "$cancel_id" || fail "exact cancellation probe did not reach its bounded wait stage"
   # Re-query the authoritative run and exact wait step immediately before cancel.
-  wait_for_cancellation_stage "$cancel_id" || fail "cancellation probe left the approved wait stage"
-  gh api --method POST "repos/${REPOSITORY}/actions/runs/${cancel_id}/cancel" >/dev/null || fail "ordinary exact-run cancellation request failed"
+  cancel_exact_canary_run "$cancel_id" "$canary_wf_id" "$cancel_probe" || fail "ordinary exact-run cancellation request failed"
   watch_run "$cancel_id"
   cancel_run="$(run_metadata "$cancel_id")" || fail "cancellation run summary unavailable"
-  [[ "$(jq -r '.id | tostring' <<<"$cancel_run")" == "$cancel_id" && "$(jq -r '.workflow_id | tostring' <<<"$cancel_run")" == "$canary_wf_id" && "$(jq -r '.path' <<<"$cancel_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.event' <<<"$cancel_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$cancel_run")" == main && "$(jq -r '.head_sha' <<<"$cancel_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$cancel_run")" == 1 && "$(jq -r '.conclusion' <<<"$cancel_run")" == cancelled ]] || fail "cancellation run exact identity or expected conclusion mismatch"
+  [[ "$(jq -r '.id | tostring' <<<"$cancel_run")" == "$cancel_id" && "$(jq -r '.workflow_id | tostring' <<<"$cancel_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$cancel_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.event' <<<"$cancel_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$cancel_run")" == main && "$(jq -r '.head_sha' <<<"$cancel_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$cancel_run")" == 1 && "$(jq -r '.display_title' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.conclusion' <<<"$cancel_run")" == cancelled ]] || fail "cancellation run exact identity or expected conclusion mismatch"
 
   observer_id="$(wait_for_observer "$cancel_id" "$observer_wf_id")" || fail "exact cancellation observer run was not found"
   watch_run "$observer_id"
@@ -337,14 +383,34 @@ run_controller() {
 }
 
 case "$MODE" in
+  resolve-run)
+    [[ "$WORKFLOW_ID" =~ ^[1-9][0-9]*$ ]] || fail "workflow ID is malformed"
+    [[ "$SCENARIO" == failure || "$SCENARIO" == cancellation ]] || fail "scenario is invalid"
+    valid_probe_id "$PROBE_ID" || fail "probe ID is malformed"
+    exact_title="release-receipt-canary-${SCENARIO}-${PROBE_ID}"
+    exact_run="$(find_exact_run "$WORKFLOW_ID" "$exact_title")" || fail "probe run match is zero or ambiguous"
+    printf '%s\n' "$exact_run"
+    ;;
+  cancel-canary)
+    [[ "$PROOF" =~ ^[1-9][0-9]*$ ]] || fail "run ID is malformed"
+    [[ "$WORKFLOW_ID" =~ ^[1-9][0-9]*$ ]] || fail "workflow ID is malformed"
+    valid_probe_id "$PROBE_ID" || fail "probe ID is malformed"
+    cancel_exact_canary_run "$PROOF" "$WORKFLOW_ID" "$PROBE_ID" || fail "refusing to cancel a non-canary or non-waiting run"
+    echo "release-canary: cancelled exact canary run ${PROOF}"
+    ;;
+  validate-pair)
+    [[ -n "$FAILURE_RECEIPT" && -f "$FAILURE_RECEIPT" && -n "$CANCELLATION_RECEIPT" && -f "$CANCELLATION_RECEIPT" ]] || fail "both receipt files are required"
+    validate_receipt_pair "$FAILURE_RECEIPT" "$CANCELLATION_RECEIPT" || fail "receipt pair identity or outcome mismatch"
+    echo "release-canary: receipt pair PASS"
+    ;;
   self-test)
     command -v jq >/dev/null 2>&1 || fail "jq is required"
     tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
     probe_a=0123456789abcdef; probe_b=abcdef0123456789; sha=0123456789abcdef0123456789abcdef01234567
-    jq -n --arg probe "$probe_a" --arg sha "$sha" '{schema_version:1,receipt_kind:"canary",canary:{probe_id:$probe,scenario:"failure"},source_event:"workflow_dispatch",source:{ref:"refs/heads/main",sha:$sha},source_run:{id:"1001",attempt:1,workflow_id:10,workflow_name:"Release Receipt Canary",workflow_path:".github/workflows/release-receipt-canary.yml",url:"https://github.com/szTheory/sigra/actions/runs/1001",started_at:"2026-10-10T00:00:00Z",observed_at:"2026-10-10T00:01:00Z"},terminal_verdict:"failure",observer_run:null}' > "$tmp/failure-input.json"
-    jq -n --arg probe "$probe_b" --arg sha "$sha" '{schema_version:1,receipt_kind:"canary",canary:{probe_id:$probe,scenario:"cancellation"},source_event:"workflow_dispatch",source:{ref:"refs/heads/main",sha:$sha},source_run:{id:"1002",attempt:1,workflow_id:10,workflow_name:"Release Receipt Canary",workflow_path:".github/workflows/release-receipt-canary.yml",url:"https://github.com/szTheory/sigra/actions/runs/1002",started_at:"2026-10-10T00:00:00Z",observed_at:"2026-10-10T00:01:00Z"},terminal_verdict:"cancelled",observer_run:{id:"1003",attempt:1,workflow_id:11,url:"https://github.com/szTheory/sigra/actions/runs/1003",started_at:"2026-10-10T00:01:00Z",observed_at:"2026-10-10T00:02:00Z"}}' > "$tmp/cancellation-input.json"
-    bash "$RECEIPT_HELPER" --mode canary --input "$tmp/failure-input.json" --output "$tmp/failure.json" >/dev/null
-    bash "$RECEIPT_HELPER" --mode canary --input "$tmp/cancellation-input.json" --output "$tmp/cancellation.json" >/dev/null
+    jq -n --arg probe "$probe_a" --arg sha "$sha" '{schema_version:1,receipt_kind:"canary",canary:{probe_id:$probe,scenario:"failure"},source_event:"workflow_dispatch",source:{repository:"szTheory/sigra",ref:"refs/heads/main",sha:$sha},source_run:{id:"1001",attempt:1,workflow_id:10,workflow_name:"Release Receipt Canary",workflow_path:".github/workflows/release-receipt-canary.yml",url:"https://github.com/szTheory/sigra/actions/runs/1001",started_at:"2026-10-10T00:00:00Z",observed_at:"2026-10-10T00:01:00Z"},terminal_verdict:"failure",observer_run:null}' > "$tmp/failure-input.json"
+    jq -n --arg probe "$probe_b" --arg sha "$sha" '{schema_version:1,receipt_kind:"canary",canary:{probe_id:$probe,scenario:"cancellation"},source_event:"workflow_dispatch",source:{repository:"szTheory/sigra",ref:"refs/heads/main",sha:$sha},source_run:{id:"1002",attempt:1,workflow_id:10,workflow_name:"Release Receipt Canary",workflow_path:".github/workflows/release-receipt-canary.yml",url:"https://github.com/szTheory/sigra/actions/runs/1002",started_at:"2026-10-10T00:00:00Z",observed_at:"2026-10-10T00:01:00Z"},terminal_verdict:"cancelled",observer_run:{id:"1003",attempt:1,workflow_id:11,url:"https://github.com/szTheory/sigra/actions/runs/1003",started_at:"2026-10-10T00:01:00Z",observed_at:"2026-10-10T00:02:00Z"}}' > "$tmp/cancellation-input.json"
+    bash "$RECEIPT_HELPER" --mode canary --expected-workflow-id 10 --input "$tmp/failure-input.json" --output "$tmp/failure.json" >/dev/null
+    bash "$RECEIPT_HELPER" --mode canary --expected-workflow-id 10 --input "$tmp/cancellation-input.json" --output "$tmp/cancellation.json" >/dev/null
     validate_receipt_pair "$tmp/failure.json" "$tmp/cancellation.json" || fail "local dual-outcome contract failed"
     if bash "$RECEIPT_HELPER" --input "$tmp/failure-input.json" --output "$tmp/production-rejected.json" >/dev/null 2>&1; then fail "production mode accepted a canary envelope"; fi
     echo "release-canary: self-test PASS"
@@ -359,6 +425,8 @@ case "$MODE" in
       .source_cancellation.run_id == .source_cancellation.receipt.source_run_id and
       .source_failure.attempt == .source_failure.receipt.source_run_attempt and
       .source_cancellation.attempt == .source_cancellation.receipt.source_run_attempt and
+      .source_failure.receipt.source_repository == "szTheory/sigra" and
+      .source_cancellation.receipt.source_repository == "szTheory/sigra" and
       .source_failure.workflow_id == .source_failure.receipt.source_workflow_id and
       .source_cancellation.workflow_id == .source_cancellation.receipt.source_workflow_id and
       (.source_failure.workflow_path | sub("@main$";"")) == .source_failure.receipt.source_workflow_path and
@@ -374,7 +442,13 @@ case "$MODE" in
       (.source_cancellation.artifact.id | type == "number" and . > 0) and
       (.source_failure.artifact.digest | test("^sha256:[0-9a-f]{64}$")) and
       (.source_cancellation.artifact.digest | test("^sha256:[0-9a-f]{64}$")) and
+      .source_failure.artifact.name == ("release-canary-failure-" + .source_failure.run_id + "-" + (.source_failure.attempt|tostring) + "-" + .source_failure.receipt.probe_id) and
+      .source_cancellation.artifact.name == ("release-canary-cancellation-" + .source_cancellation.run_id + "-" + (.source_cancellation.attempt|tostring)) and
       (.source_failure.artifact.expires_at | type == "string") and (.source_cancellation.artifact.expires_at | type == "string") and
+      (.source_failure.created_at | type == "string") and (.source_failure.updated_at | type == "string") and
+      (.source_cancellation.created_at | type == "string") and (.source_cancellation.updated_at | type == "string") and
+      .retrieval.failure_zip_sha256 == (.source_failure.artifact.digest | sub("^sha256:";"")) and
+      .retrieval.cancellation_zip_sha256 == (.source_cancellation.artifact.digest | sub("^sha256:";"")) and
       ([.. | objects | keys[]? | select(test("(token|secret|credential|api.?key)";"i"))] | length == 0)' "$PROOF" >/dev/null || fail "proof is blocked, incomplete, misbound, or contains credential-shaped keys"
     echo "release-canary: proof PASS"
     ;;

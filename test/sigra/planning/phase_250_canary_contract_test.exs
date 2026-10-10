@@ -30,7 +30,7 @@ defmodule Sigra.Planning.Phase250CanaryContractTest do
     assert workflow =~ "--run --proof"
     assert script =~ "find_exact_run"
     assert script =~ "wait_for_cancellation_stage \"$cancel_id\""
-    assert script =~ "actions/runs/${cancel_id}/cancel"
+    assert script =~ "actions/runs/${id}/cancel"
     assert script =~ "--interval 60 --exit-status"
     refute script =~ "gh run cancel --force"
     refute script =~ "actions/runs/latest/cancel"

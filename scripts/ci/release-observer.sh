@@ -94,21 +94,21 @@ if [[ "$API_WORKFLOW_PATH" == .github/workflows/release-receipt-canary.yml* ]]; 
   OBSERVER_STARTED="${BASH_REMATCH[1]}Z"
   OBSERVER_COMPLETED="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   OBSERVER_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-  jq -n --arg probe_id "$PROBE_ID" --arg sha "$API_SHA" --arg source_started "$SOURCE_STARTED" \
+  jq -n --arg probe_id "$PROBE_ID" --arg sha "$API_SHA" --arg repository "$GITHUB_REPOSITORY" --arg source_started "$SOURCE_STARTED" \
     --arg source_observed "$SOURCE_OBSERVED" --arg source_url "$API_URL" --arg source_id "$API_RUN_ID" \
     --argjson source_attempt "$API_ATTEMPT" --argjson source_workflow_id "$API_WORKFLOW_ID" \
     --arg observer_id "$GITHUB_RUN_ID" --arg observer_url "$OBSERVER_URL" \
     --arg observer_started "$OBSERVER_STARTED" --arg observer_observed "$OBSERVER_COMPLETED" \
     --argjson observer_attempt "$OBSERVER_ATTEMPT" --argjson observer_workflow_id "$OBSERVER_WORKFLOW_ID" \
     '{schema_version:1,receipt_kind:"canary",canary:{probe_id:$probe_id,scenario:"cancellation"},
-      source_event:"workflow_dispatch",source:{ref:"refs/heads/main",sha:$sha},
+      source_event:"workflow_dispatch",source:{repository:$repository,ref:"refs/heads/main",sha:$sha},
       source_run:{id:$source_id,attempt:$source_attempt,workflow_id:$source_workflow_id,
         workflow_name:"Release Receipt Canary",workflow_path:".github/workflows/release-receipt-canary.yml",
         url:$source_url,started_at:$source_started,observed_at:$source_observed},
       terminal_verdict:"cancelled",observer_run:{id:$observer_id,attempt:$observer_attempt,
         workflow_id:$observer_workflow_id,url:$observer_url,started_at:$observer_started,
         observed_at:$observer_observed}}' > "$WORK_DIR/canary-receipt-input.json" || fail "could not construct canary cancellation receipt"
-  bash "$SCRIPT_DIR/release-receipt.sh" --mode canary --input "$WORK_DIR/canary-receipt-input.json" --output "$OUTPUT_PATH"
+  bash "$SCRIPT_DIR/release-receipt.sh" --mode canary --expected-workflow-id "$WORKFLOW_ID" --input "$WORK_DIR/canary-receipt-input.json" --output "$OUTPUT_PATH"
   echo "release-observer: recorded canary cancellation source run ${EVENT_RUN_ID}"
   exit 0
 fi

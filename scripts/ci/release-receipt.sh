@@ -5,6 +5,7 @@ set -euo pipefail
 INPUT=""
 OUTPUT=""
 MODE="production"
+EXPECTED_WORKFLOW_ID=""
 usage() {
   echo "Usage: release-receipt.sh [--mode production|canary] --input <receipt-input.json> --output <receipt.json>" >&2
 }
@@ -15,6 +16,7 @@ while [[ $# -gt 0 ]]; do
     --input) [[ $# -ge 2 ]] || { usage; exit 2; }; INPUT="$2"; shift 2;;
     --output) [[ $# -ge 2 ]] || { usage; exit 2; }; OUTPUT="$2"; shift 2;;
     --mode) [[ $# -ge 2 ]] || { usage; exit 2; }; MODE="$2"; shift 2;;
+    --expected-workflow-id) [[ $# -ge 2 ]] || { usage; exit 2; }; EXPECTED_WORKFLOW_ID="$2"; shift 2;;
     -h|--help) usage; exit 0;;
     *) echo "release-receipt: FAIL: unknown argument: $1" >&2; usage; exit 2;;
   esac
@@ -27,7 +29,8 @@ command -v jq >/dev/null 2>&1 || fail "jq is required"
 jq -e 'type == "object"' "$INPUT" >/dev/null 2>&1 || fail "input must be a JSON object"
 
 if [[ "$MODE" == canary ]]; then
-  if ! jq -e '
+  [[ "$EXPECTED_WORKFLOW_ID" =~ ^[1-9][0-9]*$ ]] || fail "canary mode requires the authoritative workflow ID"
+  if ! jq -e --argjson expected_workflow_id "$EXPECTED_WORKFLOW_ID" '
     def safe_id: type == "string" and test("^[1-9][0-9]*$");
     def timestamp: type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$");
     def no_credential_keys:
@@ -37,11 +40,15 @@ if [[ "$MODE" == canary ]]; then
     (.canary.probe_id | type == "string" and test("^[a-f0-9-]{16,64}$")) and
     (.canary.scenario == "failure" or .canary.scenario == "cancellation") and
     (.source_event == "workflow_dispatch") and (.source | type == "object") and
+    (.source.repository == "szTheory/sigra") and
+    ((has("publish") or has("gate") or has("release")) | not) and
+    ((.source | has("version") or has("tag")) | not) and
     (.source.ref == "refs/heads/main") and
     (.source.sha | type == "string" and test("^[0-9a-f]{40}$")) and
     (.source_run | type == "object") and (.source_run.id | safe_id) and
     (.source_run.attempt | type == "number" and floor == . and . >= 1) and
     (.source_run.workflow_id | type == "number" and floor == . and . > 0) and
+    (.source_run.workflow_id == $expected_workflow_id) and
     (.source_run.workflow_path == ".github/workflows/release-receipt-canary.yml") and
     (.source_run.workflow_name == "Release Receipt Canary") and
     (.source_run.url | type == "string" and test("^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+$")) and
@@ -74,7 +81,8 @@ if [[ "$MODE" == canary ]]; then
   jq -n --arg recorded_at "$RECORDED_AT" --slurpfile input "$INPUT" '
     ($input[0]) as $r |
     {schema_version:1, receipt_kind:"canary", probe_id:$r.canary.probe_id,
-     scenario:$r.canary.scenario, source_event:$r.source_event, source_ref:$r.source.ref,
+     scenario:$r.canary.scenario, source_event:$r.source_event,
+     source_repository:$r.source.repository, source_ref:$r.source.ref,
      source_sha:$r.source.sha, source_run_id:$r.source_run.id,
      source_run_attempt:$r.source_run.attempt, source_run_url:$r.source_run.url,
      source_workflow_id:$r.source_run.workflow_id,
