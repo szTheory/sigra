@@ -176,6 +176,11 @@ if TEST_RETENTION_JSON="$TMP/retention-low.json" bash "$CANARY" --preflight --ou
    jq -e '.status == "blocked" and .dispatch_attempted == false and .reason == "artifact_retention_below_30_days_or_unreadable"' "$TMP/blocked-preflight.json" >/dev/null; then
   pass "insufficient retention blocks preflight without dispatch"
 else fail "insufficient artifact retention did not fail closed"; fi
+jq '.name="unexpected workflow object name"' "$TMP/canary-workflow.json" > "$TMP/wrong-static-canary-workflow.json"
+if TEST_CANARY_WORKFLOW_JSON="$TMP/wrong-static-canary-workflow.json" bash "$CANARY" --preflight --output "$TMP/wrong-static-canary-preflight.json" >/dev/null 2>&1 || \
+   jq -e '.status == "blocked" and .reason == "canary_identity_mismatch" and .dispatch_attempted == false' "$TMP/wrong-static-canary-preflight.json" >/dev/null; then
+  pass "static workflow object name remains an exact preflight identity"
+else fail "wrong static workflow object name passed preflight"; fi
 
 echo "Test D0b: runner-supplied preflight is bounded, digest-bound, and still source-validated"
 PREFLIGHT_PAYLOAD="$(cat "$TMP/ready-preflight.json")"
@@ -266,7 +271,7 @@ if RUNNER_TEMP="$TMP" CANARY_PREFLIGHT_JSON='{"schema_version":' CANARY_PREFLIGH
 else pass "malformed preflight JSON rejected before persistence"; fi
 
 echo "Test D1: the failure receipt builder preserves the workflow scenario environment"
-jq -n '{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",
+jq -n '{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"release-receipt-canary-failure-0123456789abcdef",
   display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",
   head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1,run_started_at:"2026-10-10T10:00:00Z"}' > "$TMP/source-run.json"
 jq -n '{jobs:[{steps:[{name:"Controlled failure before release operations",conclusion:"failure"}]}]}' > "$TMP/source-jobs.json"
@@ -277,7 +282,7 @@ if SCENARIO= PROBE_ID=0123456789abcdef GITHUB_RUN_ID=74125 GITHUB_EVENT_NAME=wor
   pass "workflow-provided failure scenario reaches the sanitized receipt"
 else fail "workflow-provided failure scenario was lost before receipt validation"; fi
 
-jq -n '{workflow_runs:[{id:74123,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1}]}' > "$TMP/one-run.json"
+jq -n '{workflow_runs:[{id:74123,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"release-receipt-canary-failure-0123456789abcdef",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1}]}' > "$TMP/one-run.json"
 if TEST_RUNS_JSON="$TMP/one-run.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef --expected-sha 0123456789abcdef0123456789abcdef01234567 | grep -qx 74123; then
   pass "one exact probe title and source identity resolve to its single run ID"
 else fail "single exact probe title did not resolve"; fi
@@ -296,7 +301,7 @@ if TEST_RUNS_JSON="$TMP/no-runs.json" TEST_RUNS_COUNTER="$TMP/empty-run-count" \
 elif [[ "$(cat "$TMP/empty-run-count")" == 11 ]]; then
   pass "zero probe matches fail closed after the bounded lookup window"
 else fail "zero probe matches did not stop at the bounded lookup limit"; fi
-jq -n '{workflow_runs:[{id:74123,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1},{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1}]}' > "$TMP/two-runs.json"
+jq -n '{workflow_runs:[{id:74123,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"release-receipt-canary-failure-0123456789abcdef",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1},{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"release-receipt-canary-failure-0123456789abcdef",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1}]}' > "$TMP/two-runs.json"
 if TEST_RUNS_JSON="$TMP/two-runs.json" TEST_RUNS_COUNTER="$TMP/ambiguous-run-count" \
    bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef --expected-sha 0123456789abcdef0123456789abcdef01234567 >/dev/null 2>&1; then
   fail "two matching probe runs were accepted"
@@ -304,23 +309,24 @@ elif [[ "$(cat "$TMP/ambiguous-run-count")" == 1 ]]; then
   pass "ambiguous probe matches fail closed without retrying";
 else fail "ambiguous probe lookup did not stop immediately"; fi
 
-jq -n '{workflow_runs:[{id:74123,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"ffffffffffffffffffffffffffffffffffffffff",run_attempt:1}]}' > "$TMP/wrong-source-run.json"
+jq -n '{workflow_runs:[{id:74123,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"release-receipt-canary-failure-0123456789abcdef",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"ffffffffffffffffffffffffffffffffffffffff",run_attempt:1}]}' > "$TMP/wrong-source-run.json"
 if TEST_RUNS_JSON="$TMP/wrong-source-run.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef --expected-sha 0123456789abcdef0123456789abcdef01234567 >/dev/null 2>&1; then
   fail "matching title with a different source SHA was accepted"
 else pass "exact-title run with a mismatched source SHA is rejected"; fi
 
-jq -n '{id:74124,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:"release-receipt-canary-cancellation-abcdef0123456789",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1,status:"in_progress"}' > "$TMP/canary-run.json"
+jq -n '{id:74124,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"release-receipt-canary-cancellation-abcdef0123456789",display_title:"release-receipt-canary-cancellation-abcdef0123456789",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1,status:"in_progress"}' > "$TMP/canary-run.json"
 jq -n '{jobs:[{steps:[{name:"Bounded cancellation wait",status:"in_progress"}]}]}' > "$TMP/waiting-jobs.json"
 TEST_RUN_JSON="$TMP/canary-run.json" TEST_JOBS_JSON="$TMP/waiting-jobs.json" bash "$CANARY" --cancel-canary-run 74124 --workflow-id 2024 --probe-id abcdef0123456789 --expected-sha 0123456789abcdef0123456789abcdef01234567 >/dev/null
 if [[ "$(cat "$CANCEL_LOG")" == "repos/${GITHUB_REPOSITORY}/actions/runs/74124/cancel" ]]; then
   pass "controller cancels only the exact authorized run at the wait stage"
 else fail "controller sent cancellation to another run"; fi
 : > "$CANCEL_LOG"
-for mutation in workflow_id path name event branch sha attempt status title; do
+for mutation in workflow_id path name run_name event branch sha attempt status title; do
   jq --arg mutation "$mutation" '
     if $mutation == "workflow_id" then .workflow_id=999
     elif $mutation == "path" then .path=".github/workflows/release-please.yml@main"
     elif $mutation == "name" then .name="Release Please"
+    elif $mutation == "run_name" then .name="release-receipt-canary-cancellation-wrong-probe"
     elif $mutation == "event" then .event="push"
     elif $mutation == "branch" then .head_branch="release/1.6.0"
     elif $mutation == "sha" then .head_sha="ffffffffffffffffffffffffffffffffffffffff"
@@ -449,7 +455,7 @@ case "$endpoint" in
     if [[ "$current_scenario" == failure && "$query_count" == 1 ]]; then jq -n '{workflow_runs:[]}'; else
       id=74125; [[ "$current_scenario" != cancellation ]] || id=74126
       jq -n --arg probe "$current_probe" --arg sha "$FLOW_SHA" --arg scenario "$current_scenario" --argjson id "$id" \
-        '{workflow_runs:[{id:$id,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",
+        '{workflow_runs:[{id:$id,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:("release-receipt-canary-"+$scenario+"-"+$probe),
           display_title:("release-receipt-canary-"+$scenario+"-"+$probe),event:"workflow_dispatch",head_branch:"main",head_sha:$sha,run_attempt:1}]}'
     fi ;;
   "repos/${GITHUB_REPOSITORY}/actions/workflows/2024/dispatches")
@@ -462,13 +468,13 @@ case "$endpoint" in
   "repos/${GITHUB_REPOSITORY}/actions/runs/74125")
     if [[ -f "$FLOW/source-run.json" ]]; then cat "$FLOW/source-run.json"; else
       probe="$(cat "$FLOW/failure-probe")"
-      jq -n --arg probe "$probe" --arg sha "$FLOW_SHA" '{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:("release-receipt-canary-failure-"+$probe),event:"workflow_dispatch",head_branch:"main",head_sha:$sha,run_attempt:1,run_started_at:"2026-10-10T10:00:00Z",status:"completed",conclusion:"failure",created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z"}'; fi ;;
+      jq -n --arg probe "$probe" --arg sha "$FLOW_SHA" '{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:("release-receipt-canary-failure-"+$probe),display_title:("release-receipt-canary-failure-"+$probe),event:"workflow_dispatch",head_branch:"main",head_sha:$sha,run_attempt:1,run_started_at:"2026-10-10T10:00:00Z",status:"completed",conclusion:"failure",created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z"}'; fi ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74125/jobs") cat "$FLOW/source-jobs.json" ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74126")
     probe="$(cat "$FLOW/probe")"
     if [[ -f "$FLOW/cancelled" ]]; then status=completed; conclusion=cancelled; else status=in_progress; conclusion=null; fi
     jq -n --arg probe "$probe" --arg sha "$FLOW_SHA" --arg status "$status" --arg conclusion "$conclusion" \
-      '{id:74126,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:("release-receipt-canary-cancellation-"+$probe),event:"workflow_dispatch",head_branch:"main",head_sha:$sha,run_attempt:1,run_started_at:"2026-10-10T10:00:00Z",status:$status,conclusion:(if $conclusion == "null" then null else $conclusion end),created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z"}' > "$FLOW/cancel-run.json"
+      '{id:74126,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:("release-receipt-canary-cancellation-"+$probe),display_title:("release-receipt-canary-cancellation-"+$probe),event:"workflow_dispatch",head_branch:"main",head_sha:$sha,run_attempt:1,run_started_at:"2026-10-10T10:00:00Z",status:$status,conclusion:(if $conclusion == "null" then null else $conclusion end),created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z"}' > "$FLOW/cancel-run.json"
     cat "$FLOW/cancel-run.json" ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74126/jobs") jq -n '{jobs:[{steps:[{name:"Bounded cancellation wait",status:"in_progress"}]}]}' > "$FLOW/cancel-jobs.json"; cat "$FLOW/cancel-jobs.json" ;;
   "repos/${GITHUB_REPOSITORY}/actions/runs/74126/cancel") touch "$FLOW/cancelled" ;;
