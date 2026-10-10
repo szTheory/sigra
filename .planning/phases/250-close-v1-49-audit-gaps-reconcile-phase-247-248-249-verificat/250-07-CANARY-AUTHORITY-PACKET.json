@@ -50,7 +50,10 @@
       "path": ".github/workflows/release-receipt-canary.yml",
       "name": "Release Receipt Canary",
       "permissions": "actions:read; contents:read",
-      "scenarios": ["failure", "cancellation"]
+      "scenarios": [
+        "failure",
+        "cancellation"
+      ]
     },
     "trusted_observer": {
       "id": 379162190,
@@ -116,9 +119,23 @@
         "meaning": "Keep AUTO-02 blocked; perform no new dispatch or cancellation."
       }
     ],
-    "status": "pending",
+    "status": "approved",
     "dispatch_attempted": false,
     "credential_values_recorded": false,
-    "silence_is_approval": false
+    "silence_is_approval": false,
+    "packet_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
+    "approved_at": "2026-10-10T20:01:52.244341+00:00",
+    "source": "explicit user reply to exact packet-bound question",
+    "user_reply": "Authorize this bounded run",
+    "approved_scope": {
+      "controller_workflow_id": 380517406,
+      "dispatches": 1,
+      "main_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+      "ref": "refs/heads/main",
+      "cancel_only_exact_self_owned_waiting_canary_child": true,
+      "maximum_duration_minutes": 35,
+      "additional_controller_retry_authorized": false
+    },
+    "prior_packet_recovery_commit": "52146cf001247d3a25ce1ca293bcedcc7d901278"
   }
 }
