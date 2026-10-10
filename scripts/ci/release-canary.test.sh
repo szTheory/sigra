@@ -187,7 +187,7 @@ else fail "workflow-provided failure scenario was lost before receipt validation
 
 jq -n '{workflow_runs:[{id:74123,display_title:"release-receipt-canary-failure-0123456789abcdef"}]}' > "$TMP/one-run.json"
 if TEST_RUNS_JSON="$TMP/one-run.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef | grep -qx 74123; then
-  pass "one exact probe title resolves to its single run ID"
+  pass "one exact probe title and source identity resolve to its single run ID"
 else fail "single exact probe title did not resolve"; fi
 mkdir -p "$TMP/delayed-runs"
 jq -n '{workflow_runs:[]}' > "$TMP/delayed-runs/1.json"
@@ -211,6 +211,11 @@ if TEST_RUNS_JSON="$TMP/two-runs.json" TEST_RUNS_COUNTER="$TMP/ambiguous-run-cou
 elif [[ "$(cat "$TMP/ambiguous-run-count")" == 1 ]]; then
   pass "ambiguous probe matches fail closed without retrying";
 else fail "ambiguous probe lookup did not stop immediately"; fi
+
+jq -n '{workflow_runs:[{id:74123,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",head_sha:"ffffffffffffffffffffffffffffffffffffffff",run_attempt:1}]}' > "$TMP/wrong-source-run.json"
+if TEST_RUNS_JSON="$TMP/wrong-source-run.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef >/dev/null 2>&1; then
+  fail "matching title with a different source SHA was accepted"
+else pass "exact-title run with a mismatched source SHA is rejected"; fi
 
 jq -n '{id:74124,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",display_title:"release-receipt-canary-cancellation-abcdef0123456789",event:"workflow_dispatch",head_branch:"main",status:"in_progress"}' > "$TMP/canary-run.json"
 jq -n '{jobs:[{steps:[{name:"Bounded cancellation wait",status:"in_progress"}]}]}' > "$TMP/waiting-jobs.json"
