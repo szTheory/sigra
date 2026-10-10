@@ -1,6 +1,6 @@
 ---
 phase: 248-exact-source-release-gate
-verified: 2026-10-10T15:39:30.493Z
+verified: 2026-10-10T20:31:32.908Z
 status: gaps_found
 source_snapshot: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json
 owner_requirements: [AUTO-01, AUTO-02]
@@ -9,25 +9,31 @@ owner_requirements: [AUTO-01, AUTO-02]
 # Phase 248: Exact-Source Release Gate Verification Report
 
 **Phase Goal:** Maintainers can prove the existing release lane evaluated the exact source that it will publish and can diagnose every result.
-**Verified:** 2026-10-10T15:39:30.493Z
+**Verified:** 2026-10-10T20:31:32.908Z
 **Status:** gaps_found
 **Re-verification:** Yes — refreshed from recorded source IDs and current protected-environment metadata.
 
-<!-- phase248-evidence {"requirements":{"AUTO-01":"satisfied","AUTO-02":"unsatisfied"},"tag":"v1.6.0","source_sha":"9e80cb78d6374b1ed4074d5fef6b613fee879dca","release_run_id":37875238705,"ci_run_id":37875238741,"ci_gate_job_id":113654406257,"failure_run_id":38059634695,"cancellation_run_id":null,"failure_artifact_id":null,"cancellation_artifact_id":null} -->
+<!-- phase248-evidence {"requirements":{"AUTO-01":"satisfied","AUTO-02":"unsatisfied"},"tag":"v1.6.0","source_sha":"9e80cb78d6374b1ed4074d5fef6b613fee879dca","release_run_id":37875238705,"ci_run_id":37875238741,"ci_gate_job_id":113654406257,"failure_run_id":38083779742,"cancellation_run_id":null,"failure_artifact_id":null,"cancellation_artifact_id":null} -->
 
 ## Current Evidence Boundary
 
 - **AUTO-01: satisfied.** Environment names and main-only policy metadata were independently queried; repository-level secret names were absent. The live name-only preflight passed. Tag v1.6.0 resolves to 9e80cb78d6374b1ed4074d5fef6b613fee879dca; Release Please run 37875238705 attempt 3 and ci-gate job 113654406257 in CI run 37875238741 were checked against that exact source. The retained success artifact is 11594782728 (release-result-1.6.0-37875238705); retrieval and receipt identity validation passed.
-- **AUTO-02: unsatisfied.** The authorized hosted canary proof is blocked (failure_probe_dispatch_could_not_be_uniquely_correlated). Failure source run 38059634695 conclusion: failure; matching failure artifact: none. Cancellation source run: not dispatched; observer artifact: none. The blocked proof has no validated failure or cancellation receipt, so a success receipt cannot satisfy AUTO-02.
+- **AUTO-02: unsatisfied.** The authorized hosted canary proof is blocked (failure_source_workflow_name_mismatch_deterministic_no_receipt). Failure source run 38083779742 conclusion: failure; matching failure artifact: none. Cancellation source run: not dispatched; observer artifact: none. The blocked proof has no validated failure or cancellation receipt, so a success receipt cannot satisfy AUTO-02.
 
 ## Current Blockers
 
 - AUTO-02: hosted canary proof is blocked; a blocked proof cannot establish terminal receipts
 - AUTO-02: controller run identity or conclusion mismatch
-- AUTO-02: controller proof does not contain a validated failure receipt
+- AUTO-02: controller proof does not contain both validated producer receipts
+- AUTO-02: controller producer failure record does not join the authoritative run metadata
+- AUTO-02: producer failure receipt has an invalid canary identity
+- AUTO-02: producer cancellation receipt has an invalid canary identity
 - AUTO-02: failure artifact is missing, expired, or has a malformed digest
 - AUTO-02: cancellation source run is missing or mismatched
+- AUTO-02: controller producer cancellation record does not join the authoritative run metadata
 - AUTO-02: cancellation observer identity or conclusion mismatch
+- AUTO-02: failure receipt unexpectedly contains an observer run
+- AUTO-02: producer receipt source identity fields do not join their run records
 - AUTO-02: observer cancellation artifact is missing, expired, or has a malformed digest
 - AUTO-02: retrieved failure receipt identity or digest validation mismatch
 - AUTO-02: retrieved cancellation receipt identity or digest validation mismatch

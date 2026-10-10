@@ -9,7 +9,6 @@ const ROOT = process.cwd();
 const PHASE_DIR = '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat';
 const SNAPSHOT_PATH = join(ROOT, PHASE_DIR, '250-248-SOURCE-SNAPSHOT.json');
 const PROOF_PATH = join(ROOT, PHASE_DIR, '250-CANARY-PROOF.json');
-const CONTROLLER_PROOF_PATH = join(ROOT, PHASE_DIR, '250-CANARY-CONTROLLER-PROOF-38059620443.json');
 const SUCCESS = {
   tag: 'v1.6.0', sourceSha: '9e80cb78d6374b1ed4074d5fef6b613fee879dca',
   releaseRunId: 37875238705, releaseAttempt: 3, ciRunId: 37875238741, ciAttempt: 2,
@@ -261,7 +260,8 @@ function captureSnapshot() {
   const observerRunId = producerProof.source_cancellation?.observer_run_id ?? null;
   const sourceFailureArtifactRecords = failureRunId ? (ghJson(`repos/szTheory/sigra/actions/runs/${failureRunId}/artifacts?per_page=100`).artifacts ?? []) : [];
   const sourceFailure = failureRunId ? runMetadata(failureRunId) : null;
-  const controllerLocalSha = sha256(readFileSync(CONTROLLER_PROOF_PATH));
+  const controllerProofPath = join(ROOT, PHASE_DIR, proof.controller_proof_file);
+  const controllerLocalSha = sha256(readFileSync(controllerProofPath));
   const sourceCancellation = cancellationRunId ? runMetadata(cancellationRunId) : null;
   const observer = observerRunId ? runMetadata(observerRunId) : null;
   const cancellationArtifactRecords = observer
