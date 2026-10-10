@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-10T20:23:43Z",
+  "status": "awaiting_exact_source_authority",
+  "phase": 250,
+  "invocation": "$gsd-execute-phase 250 --gaps-only",
+  "source_head": "d0bc8f81c9e5e275bdcd8f33dc6159699e87e3b0",
+  "capture_boundary": {
+    "head": "6e58b17a559fa7b7094aea9136c094ef570fc35b",
+    "planning_dirty_paths": []
+  },
+  "completed_plans": [
+    "250-01",
+    "250-02",
+    "250-03",
+    "250-04",
+    "250-05",
+    "250-06"
+  ],
+  "incomplete_plans": [
+    "250-07",
+    "250-08",
+    "250-09",
+    "250-10",
+    "250-11",
+    "250-12"
+  ],
+  "plan_250_06": {
+    "status": "complete",
+    "summary": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-SUMMARY.md",
+      "sha256": "14a201ddc4818b2790dda9b742d2e5630f9191c1fe080f5310074e7bd8d09f64",
+      "bytes": 6321,
+      "git_blob": "c0df9f0e5a433cc0980a1645587e3cd87b9ede29"
+    },
+    "pr": 318,
+    "exact_head_ci_run_id": 38080575187,
+    "ci_conclusion": "success",
+    "main_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "tests": {
+      "canary": 45,
+      "receipt": 15,
+      "observer": 22,
+      "standalone_exunit": 7,
+      "actionlint": "passed"
+    },
+    "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
+  },
+  "plan_250_07": {
+    "status": "task_1_complete_replacement_authority_pending",
+    "authority_packet": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "sha256": "e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b",
+      "bytes": 8868,
+      "git_blob": "921f1640dea9ab200211b1e13e8a920fe2c85af7"
+    },
+    "preflight": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+      "sha256": "b2f0de837a735f809207291be98510cbed85051f9f9fa8156f17479cb0ebcc7b",
+      "bytes": 979,
+      "git_blob": "58a8887cdad838a9ffc057c6e7af281c97e94795"
+    },
+    "repair": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-DELIVERY-REPAIR.json",
+      "sha256": "7e49884aef122cdcb0f37d8d38bd992ad04559695d322d255394fa745f0d07d6",
+      "bytes": 3267,
+      "git_blob": "56b9a8d20c3757c3c78f81ad7e35269a0cc3d387"
+    },
+    "repair_pr": 319,
+    "exact_head_ci_run_id": 38082645367,
+    "ci_conclusion": "success",
+    "main_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "old_authorization": "unused_not_consumed_bound_to_prior_main",
+    "replacement_authorization": "pending",
+    "controller_dispatch_attempted": false,
+    "source_dispatch_attempted": false,
+    "cancellation_attempted": false,
+    "retry_authorized": false
+  },
+  "plan_250_08": {
+    "status": "blocked_no_eligible_tuple",
+    "packet": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+      "sha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660",
+      "bytes": 18697,
+      "git_blob": "e47cba9a254c0cb28287d91943f3848299b176b1"
+    },
+    "eligible_tuples": 0,
+    "blockers": [
+      {
+        "id": "parent_browser_source_predicate_mismatch",
+        "message": "The parent exact-head artifact is retrievable and passes 3 mobile organization tests, but it ran the pre-fix organizations spec blob c1b7f52fbd263d801351f0c82e472f0262284b73. Plan 247-09 requires the corrected source blob 030317814796f8265fc738cab05d80f344ceaa10 and explicitly says d76 evidence cannot restore READY-01."
+      },
+      {
+        "id": "child_dry_run_and_readiness_missing",
+        "message": "Child CI 37819712610 provides supplemental corrected mobile-browser evidence, while the only authenticated dry-run and saved readiness ledger are both bound to the parent d76 tuple."
+      },
+      {
+        "id": "later_tuple_evidence_missing",
+        "message": "Later closed PR #224 head 64071b81a131fcfe4068a91d4814da478f13b084 has its own successful CI identities but no matching dry-run, readiness ledger, or recovered browser artifact."
+      },
+      {
+        "id": "ready_02_fresh_population_join_missing",
+        "message": "Current open PR population has 16 entries versus the saved readiness population of 14; no fresh complete dispositions or inherited-work preservation identities are present."
+      },
+      {
+        "id": "no_complete_ready_route",
+        "message": "No immutable candidate/base/main tuple has every required source-bound READY-01 join. Do not ask for exact-tuple approval from this packet."
+      }
+    ],
+    "verification": {
+      "verify_247_readiness_tests": {
+        "status": "passed",
+        "passed": 14,
+        "failed": 0
+      },
+      "validate_release_readiness_tests": {
+        "status": "passed",
+        "passed": 25,
+        "failed": 0
+      },
+      "eligible_tuple_gate": {
+        "status": "blocked_expected",
+        "eligible_tuples": 0,
+        "reason": "No tuple passed all exact joins."
+      }
+    }
+  },
+  "blocked_dependents": {
+    "250-09": [
+      "250-08"
+    ],
+    "250-10": [
+      "250-07"
+    ],
+    "250-11": [
+      "250-07",
+      "250-09",
+      "250-10"
+    ],
+    "250-12": [
+      "250-11"
+    ]
+  },
+  "wave_2_gates": {
+    "schema_drift": {
+      "exit_code": 0,
+      "block": false
+    },
+    "codebase_drift": {
+      "exit_code": 0,
+      "block": false,
+      "skipped": "no-structure-md"
+    },
+    "ui_safety": {
+      "exit_code": 0,
+      "frontend": false,
+      "block": false
+    },
+    "build_and_test_evidence": "Scoped shell/actionlint/standalone contracts and required exact-head protected CI; no second full local Mix run because unchanged dependency blocker."
+  },
+  "phase_verification": {
+    "status": "incomplete",
+    "latest_report_status": "gaps_found",
+    "latest_report_score": "8/14",
+    "latest_audit_requirements": "5/9",
+    "new_phase_verification_executed": false,
+    "milestone_archived": false
+  },
+  "forward_readiness": {
+    "checked_with": [
+      "query roadmap.analyze",
+      "query init.execute-phase 250"
+    ],
+    "next_roadmap_phase": null,
+    "incomplete_count": 6,
+    "threat_id_duplicate_count": 0,
+    "pending_action": "Explicit replacement packet approval, then resume Plan 250-07 Task 3; do not repeat Plan 250-08 absent new eligible source evidence.",
+    "next_command": "$gsd-execute-phase 250 --gaps-only"
+  },
+  "prior_write_ahead_revisions": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean_committed",
+      "commit": "d0bc8f81c9e5e275bdcd8f33dc6159699e87e3b0",
+      "git_blob": "6b338ea2c87f18cfc5938d61dc5ddd1aa0f47a2d",
+      "sha256": "4b590ec3962dfe1d04e4d2799e715b6d4858f11fdab991831dabc4f136375f88",
+      "bytes": 156135,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean_committed",
+      "commit": "d0bc8f81c9e5e275bdcd8f33dc6159699e87e3b0",
+      "git_blob": "ccab2ec0aa15f7d4c05afd7286582c9b1de0842d",
+      "sha256": "065be83430e27819d6b4d76f29a03ed97fc7adfa7950238a3ae78882d8bee1aa",
+      "bytes": 851,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean_committed",
+      "commit": "d0bc8f81c9e5e275bdcd8f33dc6159699e87e3b0",
+      "git_blob": "6f8bfbad3f1478cde7c7dcd449f9247021e97ac9",
+      "sha256": "68cf6bc69b3ada8a8e3d170bf49f6d15406686fb0037599336c44db09f6a3b75",
+      "bytes": 36750,
+      "readback_verified": true
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 — RELEASE-1.6.0",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -26,13 +26,21 @@
     {
       "number": "250",
       "name": "Close v1.49 audit gaps",
-      "status": "pending"
+      "status": "in_progress",
+      "verification_status": "gaps_found",
+      "completed_plans": 6,
+      "total_plans": 12
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 250 of 5 · 70% · executing"
+    "command": "$gsd-execute-phase 250 --gaps-only",
+    "label": "Resume exact-source canary after replacement approval",
+    "reason": "Phase 250 partial: 6/12 complete; replacement authority pending; candidate evidence blocked",
+    "blocked_by": [
+      "250-07-replacement-authority",
+      "250-08-no-eligible-tuple"
+    ],
+    "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
   },
-  "updated_at": "2026-10-10T19:08:58.186Z"
+  "updated_at": "2026-10-10T20:23:43Z"
 }
