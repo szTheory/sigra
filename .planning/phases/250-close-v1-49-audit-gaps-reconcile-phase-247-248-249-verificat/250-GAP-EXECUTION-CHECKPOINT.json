@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T21:56:49Z",
-  "status": "plan_250_07_repair_merged_post_merge_ci_pending_fresh_authority_required",
+  "captured_at": "2026-10-10T22:26:43Z",
+  "status": "plan_250_07_packet_v4_awaiting_explicit_authority",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
-  "source_head": "91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5",
+  "source_head": "d32128f55300cef3cab5ad3c4e3851f06490eaee",
   "capture_boundary": {
     "head": "6e58b17a559fa7b7094aea9136c094ef570fc35b",
     "planning_dirty_paths": []
@@ -47,26 +47,22 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "observer_dispatch_repair_merged_waiting_for_post_merge_ci_and_fresh_authority",
+    "status": "observer_repair_merged_ci_green_fresh_packet_v4_awaiting_authority",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "sha256": "b6193b07b13f703b33c275824ec2a30bf1d5b5532fa4bf810b7fd9527ac8b09f",
-      "bytes": 14654,
-      "git_blob": "2cbead6224f9eddd89eaebcd0ef917a4c27f9120",
-      "packet_id": "250-07-canary-authority-v3",
-      "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
-      "status": "blocked_observer_run_missing",
-      "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
-      "approval_recorded_at": "2026-10-10T21:21:22Z"
+      "sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+      "bytes": 12647,
+      "packet_id": "250-07-canary-authority-v4",
+      "source_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "status": "awaiting_user_decision"
     },
     "preflight": {
-      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
-      "sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
-      "bytes": 979,
-      "git_blob": "1c5b5b9ba43de6c0029f4c2162a7cb719ad62496",
-      "captured_at": "2026-10-10T21:21:47Z",
-      "target_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
-      "payload_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e",
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936.json",
+      "sha256": "c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e",
+      "captured_at": "2026-10-10T22:25:47Z",
+      "target_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "payload_sha256": "cbaef01e342ee3636992c21489e75f9fe2b1bb64b21c7d1aa15724dcd7647366",
+      "payload_bytes": 825,
       "status": "ready"
     },
     "superseded_packet_v1": {
@@ -99,7 +95,7 @@
     "cancellation_attempted": true,
     "observer_dispatch_attempted": false,
     "retry_authorized": false,
-    "auto_02": "unsatisfied_until_new_explicitly_authorized_run_produces_exact_cancellation_observer_receipt",
+    "auto_02": "unsatisfied_pending_fresh_packet_approval_and_exact_observer_receipt",
     "authority_history": {
       "current_packet_v3": {
         "packet_sha256": "b6193b07b13f703b33c275824ec2a30bf1d5b5532fa4bf810b7fd9527ac8b09f",
@@ -214,7 +210,8 @@
     "controller_proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PROOF-38087516844.json",
     "failure_receipt_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-FAILURE-RECEIPT-38087529909.json",
     "observer_dispatch_repair": {
-      "recorded_at": "2026-10-10T21:56:49Z",
+      "schema_version": 1,
+      "recorded_at": "2026-10-10T22:28:52Z",
       "cause": "The controller-triggered canary cancellation used GITHUB_TOKEN; GitHub suppresses most follow-on workflow events for that token, so the workflow_run observer did not start. This is the diagnosed cause consistent with the exact run inventory.",
       "repair": "The controller now explicitly dispatches the read-only observer for the exact canceled canary source run. The observer independently fetches Actions metadata and accepts only the exact canceled canary identity; the controller validates the exact observer run and receipt.",
       "pr": 321,
@@ -225,17 +222,52 @@
       "merge_commit": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
       "main_sha_at_recording": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
       "post_merge_ci_run_id": 38089444484,
-      "post_merge_ci_status_at_recording": "in_progress",
+      "post_merge_ci_status_at_recording": "completed",
       "release_please_run_id": 38089444492,
       "release_please_publish_job": "skipped",
       "release_please_ci_gate_job": "skipped",
       "release_please_docs_build_status_at_recording": "in_progress",
       "controller_retry_dispatched": false,
-      "new_canary_packet_status": "not_prepared_pending_post_merge_ci_and_fresh_preflight",
-      "approval_required_before_new_controller_dispatch": true
+      "new_canary_packet_status": "awaiting_user_decision",
+      "approval_required_before_new_controller_dispatch": true,
+      "post_merge_ci_conclusion": "success",
+      "post_merge_ci_gate_job_id": 114323952266,
+      "post_merge_admin_eval_job_id": 114322689399,
+      "post_merge_admin_eval_conclusion": "success",
+      "release_please_status": "completed",
+      "release_please_conclusion": "failure",
+      "release_please_job_results": {
+        "release_please": "success",
+        "build_release_candidate_docs": "success",
+        "write_exact_generated_index_and_confirm_fresh_ci": "failure",
+        "publish_to_hex": "skipped",
+        "verify_ci_green_on_release_sha": "skipped"
+      },
+      "release_please_failure_observation": "The workflow pushed generated index commit 4015070bca0be1411a5cfb27faed53a0413a088b to open release PR #302, then failed with post-push candidate does not point at the new writer SHA. A subsequent read reports PR #302 head exactly equals that writer SHA. No package publish occurred.",
+      "release_pr_number": 302,
+      "release_pr_state": "open",
+      "release_pr_head_sha_after_run": "4015070bca0be1411a5cfb27faed53a0413a088b",
+      "release_publish_occurred": false,
+      "new_canary_packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "new_canary_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+      "new_canary_dispatch_attempted": false
     },
     "controller_retry_dispatched_after_failed_packet": false,
-    "next_action": "Wait for exact-merge CI 38089444484; if green, create and commit a fresh main-bound preflight and packet, then request explicit approval before any controller dispatch."
+    "next_action": "Await explicit approval of packet v4 SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; then recheck live main SHA and preflight age before any one controller dispatch.",
+    "post_merge_main_ci": {
+      "run_id": 38089444484,
+      "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "conclusion": "success",
+      "ci_gate_job_id": 114323952266,
+      "admin_eval_job_id": 114322689399
+    },
+    "authority_packet_v3_preserved": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-consumed.json",
+      "sha256": "c4e909c889d63ffe359a741a6194e8c5ace6738120e693be2d7c3e48157e2ab7",
+      "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+      "status": "consumed_failed_no_observer"
+    },
+    "v4_controller_dispatch_attempted": false
   },
   "plan_250_08": {
     "status": "blocked_no_eligible_tuple",
@@ -500,5 +532,15 @@
       }
     ]
   },
-  "next_command": "$gsd-execute-phase 250 --gaps-only"
+  "next_command": "$gsd-execute-phase 250 --gaps-only",
+  "separate_automation_observation": {
+    "release_please_run_id": 38089444492,
+    "conclusion": "failure",
+    "publish_to_hex_job": "skipped",
+    "verify_ci_green_job": "skipped",
+    "release_pr": 302,
+    "release_pr_head_after_run": "4015070bca0be1411a5cfb27faed53a0413a088b",
+    "failed_step": "post-push candidate identity assertion after the generated index was pushed; current PR metadata reports the writer SHA as head",
+    "affects_main_source_sha": false
+  }
 }
