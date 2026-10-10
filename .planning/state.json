@@ -30,9 +30,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 250 of 5 · 80% · executing"
+    "command": "$gsd-execute-phase 250",
+    "label": "Resume Phase 250 Plan 01 Task 3",
+    "reason": "Plan 01 remains incomplete at the second-controller-dispatch authorization gate. The first authorized controller run failed before child probes. PRs #313-#315 merged with exact-head CI; refresh and commit the preflight because the 13:53 snapshot has expired, then resume only after explicit user authorization."
   },
-  "updated_at": "2026-10-10T12:12:01.360Z"
+  "updated_at": "2026-10-10T14:10:46Z"
 }

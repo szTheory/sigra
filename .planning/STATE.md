@@ -6,11 +6,11 @@ current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 1
 status: executing
-stopped_at: Blocked 250-01 Task 3 after single controller run failed shallow ancestry preflight
-last_updated: "2026-10-10T13:16:46.211Z"
+stopped_at: Awaiting renewed approval for one second controller dispatch after exact-head fixes merged
+last_updated: "2026-10-10T14:10:46Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250 execution started
-state_head: eebf552f4be57721f7d90a3d219cadc7ad788c63
+last_activity_desc: Phase 250-01 Task 3 recovery; fixes are merged and the next controller dispatch requires fresh authorization
+state_head: c8f4758e4
 progress:
   total_phases: 5
   completed_phases: 4
@@ -35,14 +35,14 @@ Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and
 Current Plan: 1
 Total Plans in Phase: 5
 Plans executed: 0 of 5
-Status: Executing Phase 250
-Last activity: 2026-10-10 — Phase 250 execution started
+Status: Executing Phase 250; 250-01 Task 3 is blocked at the renewed-authorization gate
+Last activity: 2026-10-10 — shallow-checkout and proof-validator fixes merged; waiting for explicit authorization
 
 Progress: [████████░░] 80%
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Phase 250 has five plans covering owner-verifier reconciliation, a no-publish hosted canary, and the strict audit. The independent plan checker passed all 12 task mappings and found no material plan issues; `init.execute-phase 250` reports all five plans runnable with no prerequisite blocker. Next: `$gsd-execute-phase 250`. Implementation and phase verification remain incomplete. Phase 247's exact candidate approval and live Actions settings remain fail-closed execution gates; v1.49 stays unarchived until its audit passes.
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Phase 250 has five plans covering owner-verifier reconciliation, a no-publish hosted canary, and the strict audit. The independent plan checker passed all 12 task mappings. `init.execute-phase 250` reports all five plans runnable because Plan 01 has no SUMMARY yet; its Task 3 is blocked at the renewed-authorization gate. The single approved controller dispatch was consumed by run 38054862873, which failed before child probes because checkout history was shallow. PR #313 fixed the checkout and PR #314 fixed a proof-validator metadata contradiction; both exact-head CI runs passed and both PRs merged. PR #315 committed a fresh preflight and the sanitized blocked proof; its exact-head CI passed and it merged. That preflight was captured at 2026-10-10T13:53:41Z and validated against main, but its 15-minute freshness window has expired. Do not dispatch again until the user explicitly authorizes one retry and a fresh preflight is captured/committed. After authorization, resume only Task 3 with `$gsd-execute-phase 250`. Phase implementation and verification remain incomplete; AUTO-02 is unsatisfied, and v1.49 stays unarchived until its audit passes.
 
 ### v1.49 phase map
 
@@ -633,6 +633,8 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 247 Plan 05 current blocker: PR #224 is open at head 77dd1126436a9e83c04283433e5f60c71ee98287 on base/main e3883b72fb1df5ad6356ef10dbde408f18bbc3be. Its 1.6.0 CHANGELOG section is raw generated history with internal phase IDs and no curated adopter summary (D-03); README still routes existing adopters to upgrading-to-v1.0.md and guides/introduction/upgrading-to-v1.6.md is absent at the exact head (D-05/D-06). Exact-head CI run 37713178478 is watched only by the parent. Do not retarget the fixed-source workflow, inspect credential metadata, dispatch Hex workflow, create tags, publish, or merge PR #224. See `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md`.
 - 250-01 Task 3 is blocked: canary workflow is not visible on main, so Actions identity/permissions/retention and hosted receipt retrieval are unproven; default-branch rollout and dispatch remain unauthorized. See .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json and 250-CANARY-PROOF.json.
 - Phase 250-01 Task 3 is blocked after the single authorized controller run 38054862873 failed before any canary source dispatch: the controller checkout was shallow and its local ancestry check could not see the preflight target 04e7a13dbd9394b453c132d2a168ce6642c98e37. GitHub compare confirms current main 5059581954960548c7fe5c4811b7a7f81dd16aa3 is a direct descendant. Durable diagnostic: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json committed as eebf552f4; controller artifact 11670154191 SHA256 ecbe27bc7d736cde8bef48bf78105256d293653bdda5fb85746597a15e762889. A code fix and new explicit authorization are required before another controller dispatch; no second dispatch is authorized.
+
+Phase 250-01 recovery update 2026-10-10T14:10:46Z: PR #313 merged commit c13bedb392d653871df45e4a12c7007470dae6d8 after exact-head CI run 38055794383 passed; it sets `fetch-depth: 0` only on the manually dispatched controller, preserving the ancestry and source-blob checks. PR #314 merged commit b95bb44b6a780837d33e0309136d24bd459bbe5e after exact-head CI run 38056811805 passed; it permits only the exact `credential_values_recorded: false` proof metadata while rejecting credential-shaped fields and true flags. PR #315 merged commit f606ac15d3beaaf87a285e908674ebadff2866f3 after exact-head CI run 38057655905 passed; it records the fresh live Actions snapshot and exact first blocked proof. Current main is f606ac15d3beaaf87a285e908674ebadff2866f3. Live preflight was ready at capture (Actions enabled, default workflow permission read, 90-day retention, controller authority `actions:write; contents:read`) and source validation passed against current main; it expired at 2026-10-10T14:08:41Z, so recapture before any retry. The prior controller dispatched zero canary source or observer runs. One new controller dispatch requires fresh explicit user authorization. The current local canary sources are synced to main at c8f4758e4 and `scripts/ci/release-canary.test.sh` passes 30/30. The prior planning bytes are preserved and read-verified under `refs/codex/preservations/phase-250-checkpoint-20261010` at commit `1b4df4b4d204bc905d438839887a409e56a81bd0`; manifest: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CHECKPOINT-PRESERVATION.json`. Next after authorization: `$gsd-execute-phase 250` at Task 3 only; no plan summary or phase verification exists yet.
 
 ### Roadmap Evolution
 
