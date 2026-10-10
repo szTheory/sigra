@@ -278,10 +278,16 @@ function historicalMainCi(acceptance) {
 }
 
 function publicProof(receipt) {
+  const sourceCheck = validateSourceReference(receipt.source_reference);
+  if (!sourceCheck.valid) return { verdict: 'blocked', version: null, tag: 'v1.6.0', package_source_sha: null,
+    checksum: null, expected_checksum: receipt.hex?.checksum ?? null, hex_url: receipt.hex?.package_url ?? null,
+    versioned_docs_url: 'https://sigra.hexdocs.pm/1.6.0/Sigra.html', versioned_docs_status: 'not_requested',
+    source_url: receipt.source_reference?.href ?? null, source_status: 'not_requested',
+    source_blob_sha: receipt.source_reference?.content_blob_sha ?? null, source_url_validation: sourceCheck.reason };
   const apiBytes = runText('curl', ['-fsSL', '--max-time', '30', 'https://hex.pm/api/packages/sigra/releases/1.6.0']);
   const release = JSON.parse(apiBytes);
   const docs = runText('curl', ['-sSL', '--max-time', '30', '-o', '/dev/null', '-w', '%{http_code} %{url_effective}', 'https://sigra.hexdocs.pm/1.6.0/Sigra.html']);
-  const sourceStatus = runText('curl', ['-sSL', '--max-time', '30', '-o', '/dev/null', '-w', '%{http_code} %{url_effective}', receipt.source_reference.href]);
+  const sourceStatus = runText('curl', ['-sSL', '--max-time', '30', '--max-redirs', '0', '-o', '/dev/null', '-w', '%{http_code} %{url_effective}', '--', sourceCheck.href]);
   const tagRef = ghJson(`repos/${REPOSITORY}/git/ref/tags/v1.6.0`);
   let tagSha = tagRef.object?.sha ?? null;
   if (tagRef.object?.type === 'tag') tagSha = ghJson(`repos/${REPOSITORY}/git/tags/${tagSha}`).object?.sha ?? null;
@@ -292,6 +298,22 @@ function publicProof(receipt) {
     checksum: apiChecksum, expected_checksum: receipt.hex.checksum, hex_url: receipt.hex.package_url,
     versioned_docs_url: 'https://sigra.hexdocs.pm/1.6.0/Sigra.html', versioned_docs_status: docs,
     source_url: receipt.source_reference.href, source_status: sourceStatus, source_blob_sha: receipt.source_reference.content_blob_sha };
+}
+
+export function validateSourceReference(reference) {
+  const sourcePath = reference?.path;
+  const href = reference?.href;
+  if (typeof sourcePath !== 'string' || !/^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)*$/.test(sourcePath)
+    || sourcePath.split('/').some((part) => part === '.' || part === '..')) return { valid: false, reason: 'source_path_invalid' };
+  if (typeof href !== 'string' || href.includes('%') || href.includes('\\') || href.includes('?')) return { valid: false, reason: 'source_url_invalid' };
+  let parsed;
+  try { parsed = new URL(href); } catch { return { valid: false, reason: 'source_url_invalid' }; }
+  const canonical = `https://github.com/szTheory/sigra/blob/v1.6.0/${sourcePath}`;
+  const allowedHash = parsed.hash === '' || /^#L[1-9][0-9]*(?:-L[1-9][0-9]*)?$/.test(parsed.hash);
+  if (parsed.protocol !== 'https:' || parsed.hostname !== 'github.com' || parsed.username || parsed.password || parsed.port
+    || parsed.search || !allowedHash || parsed.pathname !== `/szTheory/sigra/blob/v1.6.0/${sourcePath}`
+    || href !== `${canonical}${parsed.hash}`) return { valid: false, reason: 'source_url_not_canonical' };
+  return { valid: true, href };
 }
 
 export function captureSnapshot() {

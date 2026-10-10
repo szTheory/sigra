@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { evaluateSnapshot, checkReport, reportIdentity, freshnessErrors } from './verify-249-release.mjs';
+import { evaluateSnapshot, checkReport, reportIdentity, freshnessErrors, validateSourceReference } from './verify-249-release.mjs';
 
 const packageSha = '9e80cb78d6374b1ed4074d5fef6b613fee879dca';
 const historicalMain = '08300af1740fea8b77d5928a182688acbf103edc';
@@ -45,6 +45,20 @@ test('joins public release and terminal acceptance while keeping all three SHAs 
   const result = evaluateSnapshot(snapshot());
   assert.equal(result.requirements['REL-01'].status, 'satisfied', JSON.stringify(result.requirements['REL-01'].blockers));
   assert.equal(result.requirements['REL-02'].status, 'satisfied', JSON.stringify(result.requirements['REL-02'].blockers));
+});
+
+test('source reference accepts only the canonical HTTPS GitHub source path', () => {
+  const valid = { href: 'https://github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex#L1', path: 'lib/sigra.ex' };
+  assert.deepEqual(validateSourceReference(valid), { valid: true, href: valid.href });
+  for (const href of [
+    'http://github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex',
+    'https://user@github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex',
+    'https://github.com:8443/szTheory/sigra/blob/v1.6.0/lib/sigra.ex',
+    'https://evil.example/szTheory/sigra/blob/v1.6.0/lib/sigra.ex',
+    'https://github.com/szTheory/sigra/blob/v1.6.0/lib/%252e%252e/secrets',
+    'https://github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex?next=https://evil.example',
+  ]) assert.equal(validateSourceReference({ ...valid, href }).valid, false, href);
+  assert.equal(validateSourceReference({ ...valid, path: '../secret' }).valid, false);
 });
 
 test('blocks REL-01 when public source or evidence-ref acceptance identity drifts', () => {
