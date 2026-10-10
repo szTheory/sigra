@@ -65,7 +65,17 @@ export function joinPopulation({ observedIds, dispositions, label }) {
   };
 }
 
-export function evaluateEvidence({ proposal, authorization, readiness, dryRunReceipt, live, objects = {}, remoteSourceObjects = {} }) {
+export function liveSnapshotStable(before, after) {
+  return Boolean(before && after
+    && before.pullRequest?.number === after.pullRequest?.number
+    && before.pullRequest?.state === after.pullRequest?.state
+    && before.pullRequest?.headSha === after.pullRequest?.headSha
+    && before.pullRequest?.baseSha === after.pullRequest?.baseSha
+    && before.main?.sha === after.main?.sha
+    && JSON.stringify(orderedUnique((before.openPullRequestNumbers ?? []).map(String))) === JSON.stringify(orderedUnique((after.openPullRequestNumbers ?? []).map(String))));
+}
+
+export function evaluateEvidence({ proposal, authorization, readiness, dryRunReceipt, live, liveAfter, objects = {}, remoteSourceObjects = {} }) {
   const proposalTuple = {
     candidateSha: proposal?.candidate_sha ?? null,
     reviewedBaseSha: proposal?.reviewed_base_sha ?? null,
@@ -94,6 +104,7 @@ export function evaluateEvidence({ proposal, authorization, readiness, dryRunRec
   if (!oldBaseline || oldBaseline.bound_candidate_sha !== proposalTuple.candidateSha) blockers.push({ id: 'candidate_diff_digest_missing', message: 'No raw-diff digest and byte count are bound to the proposed child candidate.', identities: { candidateSha: proposalTuple.candidateSha, availableBaselineCandidateSha: oldBaseline?.bound_candidate_sha ?? null } });
   if (!sameTuple(readinessTuple, proposalTuple)) blockers.push({ id: 'readiness_tuple_mismatch', message: 'The saved readiness ledger is bound to a different candidate/base/main tuple.', identities: { proposal: proposalTuple, readiness: readinessTuple } });
   if (!sameTuple(liveTuple, proposalTuple) || live?.pullRequest?.state !== 'OPEN') blockers.push({ id: 'live_candidate_tuple_changed', message: 'The current pull request state or candidate/base/main refs differ from the proposed tuple.', identities: { proposal: proposalTuple, live: liveTuple, prState: live?.pullRequest?.state ?? null } });
+  if (liveAfter && !liveSnapshotStable(live, liveAfter)) blockers.push({ id: 'live_refs_changed_during_capture', message: 'PR #224, main, or the open-PR population changed while evidence was being captured.', identities: { before: liveTuple, after: { candidateSha: liveAfter.pullRequest?.headSha ?? null, reviewedBaseSha: liveAfter.pullRequest?.baseSha ?? null, mainSha: liveAfter.main?.sha ?? null } } });
   if (dryRunReceipt?.verdict !== 'passed' || dryRunReceipt?.dry_run_outcome !== 'success' || dryRunReceipt?.requested_sha !== proposalTuple.candidateSha || dryRunReceipt?.checked_out_sha !== proposalTuple.candidateSha || dryRunReceipt?.reviewed_base_sha !== proposalTuple.reviewedBaseSha || dryRunReceipt?.live_base_sha !== proposalTuple.mainSha) {
     blockers.push({ id: 'dry_run_tuple_mismatch', message: 'The existing authenticated dry-run receipt does not prove the proposed tuple.', identities: { requestedSha: dryRunReceipt?.requested_sha ?? null, checkedOutSha: dryRunReceipt?.checked_out_sha ?? null, reviewedBaseSha: dryRunReceipt?.reviewed_base_sha ?? null, liveBaseSha: dryRunReceipt?.live_base_sha ?? null, runId: dryRunReceipt?.run_id ?? null, attempt: dryRunReceipt?.run_attempt ?? null } });
   }
@@ -118,6 +129,13 @@ export function evaluateEvidence({ proposal, authorization, readiness, dryRunRec
       version: proposal?.candidate_source_audit?.version ?? null,
       sourceRef: proposal?.candidate_source_audit?.source_ref ?? null,
       expectedBlobs: proposal?.candidate_source_audit?.candidate_source_blobs ?? {},
+    },
+    historicalPlan05: {
+      summaryPath: '.planning/phases/247-release-candidate-and-repository-readiness/247-05-SUMMARY.md',
+      requirementsCompletedClaim: ['READY-01'],
+      independentVerificationPending: true,
+      checkpointArtifactPath: '.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md',
+      checkpointArtifactPresent: existsSync(path.join(phase247, '247-05-CHECKPOINT.md')),
     },
     previousDryRun: { runId: dryRunReceipt?.run_id ?? null, attempt: dryRunReceipt?.run_attempt ?? null, candidateSha: dryRunReceipt?.requested_sha ?? null, verdict: dryRunReceipt?.verdict ?? null },
     oldReadiness: { candidateSha: readinessTuple.candidateSha, reviewedBaseSha: readinessTuple.reviewedBaseSha, mainSha: readinessTuple.mainSha, checkedAt: readiness?.final_validation?.checked_at ?? null },
@@ -208,8 +226,9 @@ export function captureEvidence({ capturedAt = new Date().toISOString(), live = 
   const readinessRemote = captureRemoteCommit(readiness.final_validation?.checked?.source_sha, Object.fromEntries(Object.keys(proposal.candidate_source_audit?.candidate_source_blobs ?? {}).map((file) => [file, null])));
   const remoteObjects = { [candidateRemote.sha]: candidateRemote.available, [readinessRemote.sha]: readinessRemote.available };
   const objects = Object.fromEntries([...new Set(objectShas)].map((sha) => [sha, localObjects[sha] || remoteObjects[sha] === true]));
-  const evaluation = evaluateEvidence({ proposal, authorization: auth, readiness, dryRunReceipt, live, objects, remoteSourceObjects: { candidate: candidateRemote, readiness: readinessRemote } });
-  const evidenceFiles = [proposalPath, readinessPath, dryRunPath, validationPath, path.join(phase247, '247-CANDIDATE-DIFF-BASELINE.json')];
+  const liveAfter = captureLive();
+  const evaluation = evaluateEvidence({ proposal, authorization: auth, readiness, dryRunReceipt, live, liveAfter, objects, remoteSourceObjects: { candidate: candidateRemote, readiness: readinessRemote } });
+  const evidenceFiles = [proposalPath, readinessPath, dryRunPath, validationPath, path.join(phase247, '247-05-SUMMARY.md'), path.join(phase247, '247-08-SUMMARY.md'), path.join(phase247, '247-CANDIDATE-DIFF-BASELINE.json')];
   const result = {
     schema_version: 1,
     repository: 'szTheory/sigra',
@@ -223,6 +242,7 @@ export function captureEvidence({ capturedAt = new Date().toISOString(), live = 
       current_main: live.main,
       current_pr_224: live.pullRequest,
       current_open_pull_requests: { count: live.openPullRequestCount, numbers: live.openPullRequestNumbers },
+      live_after_capture: { main: liveAfter.main, pullRequest: liveAfter.pullRequest, openPullRequestNumbers: liveAfter.openPullRequestNumbers },
       object_availability: Object.fromEntries(Object.entries(objects).sort(([a], [b]) => a.localeCompare(b))),
       local_object_availability: Object.fromEntries(Object.entries(localObjects).sort(([a], [b]) => a.localeCompare(b))),
       remote_source_objects: [candidateRemote, readinessRemote].sort((a, b) => String(a.sha).localeCompare(String(b.sha))),
@@ -230,6 +250,7 @@ export function captureEvidence({ capturedAt = new Date().toISOString(), live = 
       approval_present: Boolean(auth),
       approval_status: proposal.authorization_status,
       evidence_files: evidenceFiles.map(artifactIdentity).sort((a, b) => a.path.localeCompare(b.path)),
+      verifier_artifacts: [artifactIdentity(path.join(here, 'verify-247-readiness.mjs')), artifactIdentity(path.join(here, 'verify-247-readiness.test.mjs'))].sort((a, b) => a.path.localeCompare(b.path)),
     },
     candidate_tuples: {
       proposal: evaluation.proposalTuple,
@@ -260,14 +281,17 @@ export function checkReport(markdown, reconciliation) {
   const claimedDigest = markdown.match(/reconciliation-sha256: ([a-f0-9]{64})/)?.[1];
   const verdictsMatch = markdown.includes(`| READY-01 | ${reconciliation.requirement_verdicts['READY-01']} |`) && markdown.includes(`| READY-02 | ${reconciliation.requirement_verdicts['READY-02']} |`);
   const blockersMatch = reconciliation.blockers.every((item) => markdown.includes(`| ${item.id} |`));
+  const identities = [reconciliation.captured_at, reconciliation.source_capture.current_pr_224?.headSha, reconciliation.source_capture.current_pr_224?.baseSha, reconciliation.source_capture.current_main?.sha, reconciliation.candidate_tuples.proposal?.candidateSha, reconciliation.candidate_tuples.proposal?.reviewedBaseSha, reconciliation.candidate_tuples.proposal?.mainSha, reconciliation.evidence.exactHeadCi?.proposalRunId, reconciliation.evidence.exactHeadCi?.proposalAttempt, reconciliation.evidence.previousDryRun?.runId, reconciliation.evidence.previousDryRun?.attempt].filter((value) => value !== null && value !== undefined).map(String);
+  const identitiesMatch = identities.every((identity) => markdown.includes(identity));
   const noPhase250Ownership = !/Phase 250 (?:owns|implements|satisfies) READY-0[12]/i.test(markdown);
-  return { valid: expectedDigest === claimedDigest && verdictsMatch && blockersMatch && noPhase250Ownership, expectedDigest, claimedDigest, verdictsMatch, blockersMatch, noPhase250Ownership };
+  return { valid: expectedDigest === claimedDigest && verdictsMatch && blockersMatch && identitiesMatch && noPhase250Ownership, expectedDigest, claimedDigest, verdictsMatch, blockersMatch, identitiesMatch, noPhase250Ownership };
 }
 
 function writeCapture() {
   const reconciliation = captureEvidence();
   writeFileSync(reconciliationPath, `${JSON.stringify(reconciliation, null, 2)}\n`);
-  writeFileSync(reportPath, buildReport(reconciliation));
+  const report = buildReport(reconciliation).replace('\n## Evidence References\n', "\nPlan 247-05's summary claims READY-01 operational completion through Plans 06–08 and records that independent Phase 247 verification remained pending. This is preserved as historical narrative, not promoted to an independent requirement verdict. Its referenced checkpoint artifact is absent from the captured source set. The input hashes for Plan 247-05 and Plan 247-08 summaries are included in the reconciliation.\n\n## Evidence References\n");
+  writeFileSync(reportPath, report);
   process.stdout.write(`${JSON.stringify({ status: reconciliation.status, report: path.relative(repoRoot, reportPath), reconciliation: path.relative(repoRoot, reconciliationPath), blockers: reconciliation.blockers.map((x) => x.id) }, null, 2)}\n`);
 }
 

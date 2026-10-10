@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 let evaluateEvidence;
 try {
@@ -95,4 +96,34 @@ test('reconciliation identity rows and blockers are deterministically ordered', 
   assert.deepEqual(first.identityRows.map((row) => row.kind), [...first.identityRows.map((row) => row.kind)].sort());
   assert.deepEqual(first.blockers.map((row) => row.id), [...first.blockers.map((row) => row.id)].sort());
   assert.deepEqual(first, second);
+});
+
+test('a concurrent PR or main move invalidates the captured live snapshot', async () => {
+  const { liveSnapshotStable } = await import('./verify-247-readiness.mjs');
+  const before = {
+    pullRequest: { number: 224, state: 'OPEN', headSha: 'candidate-a', baseSha: 'base-a' },
+    main: { sha: 'main-a' },
+    openPullRequestNumbers: [266, 224],
+  };
+  assert.equal(liveSnapshotStable(before, { ...before, openPullRequestNumbers: [224, 266] }), true);
+  assert.equal(liveSnapshotStable(before, { ...before, main: { sha: 'main-b' } }), false);
+});
+
+test('candidate source blob drift blocks the tuple even when the commit object exists', async () => {
+  const { evaluateEvidence } = await import('./verify-247-readiness.mjs');
+  const result = evaluateEvidence({
+    ...blockedApprovalInput,
+    objects: { [tuple.candidateSha]: true },
+    remoteSourceObjects: { candidate: { available: true, sourceBlobs: [{ path: 'mix.exs', matches: false }] } },
+  });
+  assert.ok(result.blockers.some((blocker) => blocker.id === 'candidate_source_blobs_unverified'));
+});
+
+test('canonical report validation requires captured time and exact tuple/run identities', async () => {
+  const { checkReport } = await import('./verify-247-readiness.mjs');
+  const reconciliation = JSON.parse(readFileSync(new URL('./250-247-RECONCILIATION.json', import.meta.url), 'utf8'));
+  const report = readFileSync(new URL('../247-release-candidate-and-repository-readiness/247-VERIFICATION.md', import.meta.url), 'utf8');
+  assert.equal(checkReport(report, reconciliation).valid, true);
+  const missingIdentity = report.replace(`- **Captured at:** ${reconciliation.captured_at}\n`, '');
+  assert.equal(checkReport(missingIdentity, reconciliation).identitiesMatch, false);
 });

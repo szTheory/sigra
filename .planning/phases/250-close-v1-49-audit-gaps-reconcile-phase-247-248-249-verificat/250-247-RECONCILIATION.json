@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "captured_at": "2026-10-10T15:14:21.014Z",
+  "captured_at": "2026-10-10T15:21:37.067Z",
   "status": "blocked",
   "source_capture": {
     "repo_root": "/Users/jon/projects/sigra",
     "branch": "phase-244-playwright-measurement",
-    "checkout_head": "c98f68afbab76ebf0f6e2858003c6970b6c27813",
+    "checkout_head": "94304462ed7e6c855c3d30e11a30e5763037b2ab",
     "checkout_clean": false,
     "current_main": {
       "sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
@@ -24,6 +24,39 @@
     "current_open_pull_requests": {
       "count": 16,
       "numbers": [
+        219,
+        266,
+        267,
+        268,
+        269,
+        271,
+        272,
+        273,
+        274,
+        275,
+        283,
+        302,
+        306,
+        307,
+        308,
+        309
+      ]
+    },
+    "live_after_capture": {
+      "main": {
+        "sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+        "treeSha": "82df4044d176a862051bb18c0e09265f2c07d3fb"
+      },
+      "pullRequest": {
+        "number": 224,
+        "state": "closed",
+        "headSha": "64071b81a131fcfe4068a91d4814da478f13b084",
+        "headRef": "release-please--branches--main",
+        "baseSha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756",
+        "baseRef": "main",
+        "updatedAt": "2026-10-09T02:35:03Z"
+      },
+      "openPullRequestNumbers": [
         219,
         266,
         267,
@@ -157,6 +190,18 @@
     "approval_status": "pending",
     "evidence_files": [
       {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-SUMMARY.md",
+        "sha256": "be5452f2082381711ed27918367a3aec9290c316afe6d0daecb65e42c4879c2d",
+        "bytes": 6257,
+        "gitBlob": "f6971ff97561696e54764cd2ad2d224ddebe19d7"
+      },
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md",
+        "sha256": "bd5feb644bfa38a305329f0abcdc063a556f783f0be1f7d19ad22ee7d3984e98",
+        "bytes": 8499,
+        "gitBlob": "93484e2b12fa7b38a464e9a2a32fac66189c3510"
+      },
+      {
         "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json",
         "sha256": "980ba5e413efc7ad0b594a44771af2b3f15bac2fdcabfa88aa3db4bf1bcc9452",
         "bytes": 10364,
@@ -185,6 +230,20 @@
         "sha256": "2912eda576c523ecb8f18224a5908dfc67c0f9bb4f749e8ec88936c252017f47",
         "bytes": 8182,
         "gitBlob": "ac4868e1998464ac676dfbf1b83b2c8891ba32b5"
+      }
+    ],
+    "verifier_artifacts": [
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs",
+        "sha256": "023230ef2155743341ebf4c4f70ab8f22bd8433c30ad70afe75add0da8c91840",
+        "bytes": 26660,
+        "gitBlob": "152bb4de5e67814e49749054967cfed7b7107347"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+        "sha256": "1988cac3423424f7158dbbb9e043cb3ab69f679d9673a24aab36f48aa7e4d0a7",
+        "bytes": 6223,
+        "gitBlob": "0159481f3c923c99e3e1901e70c7ffc30a5e98da"
       }
     ]
   },
@@ -225,6 +284,15 @@
         "mix.exs": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
         "test/example/priv/playwright/tests/organizations.spec.ts": "030317814796f8265fc738cab05d80f344ceaa10"
       }
+    },
+    "historicalPlan05": {
+      "summaryPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-SUMMARY.md",
+      "requirementsCompletedClaim": [
+        "READY-01"
+      ],
+      "independentVerificationPending": true,
+      "checkpointArtifactPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md",
+      "checkpointArtifactPresent": false
     },
     "previousDryRun": {
       "runId": "37803817504",
@@ -311,7 +379,7 @@
       "id": "fresh_inherited_dispositions_missing",
       "message": "A fresh inherited-work population with complete dispositions and preservation identities is absent.",
       "identities": {
-        "checkoutHead": "c98f68afbab76ebf0f6e2858003c6970b6c27813",
+        "checkoutHead": "94304462ed7e6c855c3d30e11a30e5763037b2ab",
         "recordedObservation": "c84350abe58bb3a733e1d7db4cebc4de1919e035"
       }
     },
