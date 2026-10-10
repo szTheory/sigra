@@ -125,7 +125,7 @@ write_failure_receipt() {
   [[ "${SCENARIO:-}" == failure ]] || fail "source failure receipt requires the failure scenario"
   [[ -n "${GH_TOKEN:-}" ]] || fail "Actions read token is unavailable"
   [[ -n "$OUTPUT" ]] || fail "output path is required"
-  local run workflow jobs id attempt sha branch event name path start observed title step_failure workflow_id
+  local run workflow jobs id attempt sha branch event workflow_name workflow_path run_name path start observed title step_failure workflow_id
   run="$(gh api "repos/${REPOSITORY}/actions/runs/${GITHUB_RUN_ID}")" || fail "authoritative source run query failed"
   workflow="$(gh api "repos/${REPOSITORY}/actions/workflows/release-receipt-canary.yml")" || fail "authoritative canary workflow query failed"
   workflow_id="$(jq -er '.id | select(type == "number" and floor == . and . > 0)' <<<"$workflow")" || fail "canary workflow ID malformed"
@@ -135,13 +135,16 @@ write_failure_receipt() {
   sha="$(jq -er '.head_sha | select(type == "string" and test("^[0-9a-f]{40}$"))' <<<"$run")" || fail "source SHA malformed"
   branch="$(jq -er '.head_branch' <<<"$run")" || fail "source branch unavailable"
   event="$(jq -er '.event' <<<"$run")" || fail "source event unavailable"
-  name="$(jq -er '.name' <<<"$run")" || fail "source workflow name unavailable"
+  workflow_name="$(jq -er '.name' <<<"$workflow")" || fail "source workflow name unavailable"
+  workflow_path="$(jq -er '.path' <<<"$workflow")" || fail "source workflow path unavailable"
+  run_name="$(jq -er '.name' <<<"$run")" || fail "source run name unavailable"
   path="$(jq -er '.path' <<<"$run")" || fail "source workflow path unavailable"
   title="$(jq -er '.display_title' <<<"$run")" || fail "source title unavailable"
   [[ "$id" == "$GITHUB_RUN_ID" && "$branch" == main && "$event" == workflow_dispatch ]] || fail "source run identity mismatch"
-  [[ "$name" == "Release Receipt Canary" && "$path" =~ ^\.github/workflows/release-receipt-canary\.yml(@main)?$ ]] || fail "source workflow identity mismatch"
+  [[ "$workflow_name" == "Release Receipt Canary" && "$workflow_path" == .github/workflows/release-receipt-canary.yml ]] || fail "source workflow metadata identity mismatch"
+  [[ "$path" =~ ^\.github/workflows/release-receipt-canary\.yml(@main)?$ ]] || fail "source workflow path mismatch"
   [[ "$(jq -er '.id | numbers' <<<"$workflow")" == "$(jq -er '.workflow_id | numbers' <<<"$run")" ]] || fail "source workflow ID mismatch"
-  [[ "$title" == "release-receipt-canary-failure-${PROBE_ID}" ]] || fail "source probe title mismatch"
+  [[ "$run_name" == "release-receipt-canary-failure-${PROBE_ID}" && "$title" == "$run_name" ]] || fail "source run-name or probe title mismatch"
   start="$(jq -er '.run_started_at' <<<"$run" | sed -E 's/\.[0-9]+Z$/Z/')"
   observed="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   step_failure="$(jq -r '[.jobs[]?.steps[]? | select(.name == "Controlled failure before release operations") | .conclusion == "failure"] | any' <<<"$jobs")"
@@ -308,7 +311,7 @@ validate_exact_run_identity() {
     (.id | type == "number" and floor == . and . > 0) and
     .workflow_id == $workflow_id and
     (.path | type == "string") and (.path | sub("@.*$"; "")) == ".github/workflows/release-receipt-canary.yml" and
-    .name == "Release Receipt Canary" and .display_title == $title and
+    .name == $title and .display_title == $title and
     .event == "workflow_dispatch" and .head_branch == "main" and .head_sha == $sha and
     .run_attempt == 1
   ' <<<"$run_json" >/dev/null 2>&1
@@ -419,7 +422,7 @@ cancel_exact_canary_run() {
   [[ "$(jq -r '.id | tostring' <<<"$run")" == "$id" &&
      "$(jq -r '.workflow_id | tostring' <<<"$run")" == "$expected_workflow_id" &&
      "$(jq -r '.path | sub("@main$";"")' <<<"$run")" == .github/workflows/release-receipt-canary.yml &&
-     "$(jq -r '.name' <<<"$run")" == "Release Receipt Canary" &&
+     "$(jq -r '.name' <<<"$run")" == "release-receipt-canary-cancellation-${expected_probe_id}" &&
      "$(jq -r '.event' <<<"$run")" == workflow_dispatch &&
      "$(jq -r '.head_branch' <<<"$run")" == main &&
      "$(jq -r '.head_sha' <<<"$run")" == "$expected_sha" &&
@@ -466,7 +469,7 @@ run_controller() {
   failure_id="$(dispatch_probe failure "$failure_probe" "$canary_wf_id" "$sha")" || fail "failure probe dispatch correlation failed (zero, ambiguous, or mismatched source identity)"
   watch_run "$failure_id"
   failure_run="$(run_metadata "$failure_id")" || fail "failure run summary unavailable"
-  [[ "$(jq -r '.id | tostring' <<<"$failure_run")" == "$failure_id" && "$(jq -r '.workflow_id | tostring' <<<"$failure_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$failure_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.event' <<<"$failure_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$failure_run")" == main && "$(jq -r '.head_sha' <<<"$failure_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$failure_run")" == 1 && "$(jq -r '.display_title' <<<"$failure_run")" == "release-receipt-canary-failure-${failure_probe}" && "$(jq -r '.conclusion' <<<"$failure_run")" == failure ]] || fail "failure run exact identity or expected conclusion mismatch"
+  [[ "$(jq -r '.id | tostring' <<<"$failure_run")" == "$failure_id" && "$(jq -r '.workflow_id | tostring' <<<"$failure_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$failure_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.name' <<<"$failure_run")" == "release-receipt-canary-failure-${failure_probe}" && "$(jq -r '.event' <<<"$failure_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$failure_run")" == main && "$(jq -r '.head_sha' <<<"$failure_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$failure_run")" == 1 && "$(jq -r '.display_title' <<<"$failure_run")" == "release-receipt-canary-failure-${failure_probe}" && "$(jq -r '.conclusion' <<<"$failure_run")" == failure ]] || fail "failure run exact identity or expected conclusion mismatch"
   expected_failure_name="${expected_failure_name}${failure_id}-1-${failure_probe}"
   failure_artifact="$(get_unique_artifact "$failure_id" "$expected_failure_name")" || fail "failure receipt artifact absent or ambiguous"
 
@@ -477,7 +480,7 @@ run_controller() {
   cancel_exact_canary_run "$cancel_id" "$canary_wf_id" "$cancel_probe" "$sha" || fail "ordinary exact-run cancellation request failed"
   watch_run "$cancel_id"
   cancel_run="$(run_metadata "$cancel_id")" || fail "cancellation run summary unavailable"
-  [[ "$(jq -r '.id | tostring' <<<"$cancel_run")" == "$cancel_id" && "$(jq -r '.workflow_id | tostring' <<<"$cancel_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$cancel_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.event' <<<"$cancel_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$cancel_run")" == main && "$(jq -r '.head_sha' <<<"$cancel_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$cancel_run")" == 1 && "$(jq -r '.display_title' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.conclusion' <<<"$cancel_run")" == cancelled ]] || fail "cancellation run exact identity or expected conclusion mismatch"
+  [[ "$(jq -r '.id | tostring' <<<"$cancel_run")" == "$cancel_id" && "$(jq -r '.workflow_id | tostring' <<<"$cancel_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$cancel_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.name' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.event' <<<"$cancel_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$cancel_run")" == main && "$(jq -r '.head_sha' <<<"$cancel_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$cancel_run")" == 1 && "$(jq -r '.display_title' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.conclusion' <<<"$cancel_run")" == cancelled ]] || fail "cancellation run exact identity or expected conclusion mismatch"
 
   observer_id="$(wait_for_observer "$cancel_id" "$observer_wf_id")" || fail "exact cancellation observer run was not found"
   watch_run "$observer_id"
