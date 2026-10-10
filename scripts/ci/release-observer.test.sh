@@ -89,8 +89,11 @@ write_canary_fixtures() {
 
 run_dispatched_observer() {
   local output="$1"
+  jq -n --arg source_run_id "$TEST_SOURCE_RUN_ID" '{inputs:{source_run_id:$source_run_id}}' \
+    > "$TMP_DIR/fixture/implicit-dispatch-event.json"
   GITHUB_REPOSITORY="$REPOSITORY" GITHUB_RUN_ID="$OBSERVER_RUN_ID" GITHUB_RUN_ATTEMPT=1 \
     GITHUB_EVENT_NAME=workflow_dispatch GITHUB_SERVER_URL=https://github.com GH_TOKEN=fixture-token \
+    EVENT_PATH="$TMP_DIR/fixture/implicit-dispatch-event.json" \
     TEST_SOURCE_RUN_ID="$TEST_SOURCE_RUN_ID" TEST_SOURCE_SHA="$TEST_SOURCE_SHA" TEST_RUN_JSON="$TEST_RUN_JSON" \
     TEST_CANARY_WORKFLOW_JSON="$TEST_CANARY_WORKFLOW_JSON" PATH="$TMP_DIR/bin:$PATH" \
     bash "$ROOT_DIR/scripts/ci/release-observer.sh" --source-run-id "$TEST_SOURCE_RUN_ID" \
@@ -137,7 +140,7 @@ for event in push workflow_dispatch; do
   else cat "$TMP_DIR/stderr" >&2; fail "$event cancellation receipt missing or malformed"; fi
 done
 
-echo "Test A2: explicit workflow_dispatch observes only an exact cancelled canary source"
+echo "Test A2: explicit workflow_dispatch ignores the ambient event file and observes only its exact cancelled canary source"
 write_canary_fixtures
 output="$TMP_DIR/manual-canary.json"
 if run_dispatched_observer "$output" && jq -e --arg sha "$SOURCE_SHA" \

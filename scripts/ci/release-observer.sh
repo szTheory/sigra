@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Correlate one completed workflow_run event to the authoritative source run and
-# persist a cancellation receipt without checking out or executing source code.
+# Correlate one completed workflow_run event or explicitly selected source run
+# to authoritative metadata and persist a receipt without executing source code.
 set -euo pipefail
 
-EVENT_FILE="${EVENT_PATH:-}"
+EVENT_FILE=""
 SOURCE_RUN_ID_INPUT=""
 OUTPUT_PATH="release-cancellation.json"
 fail() { echo "release-observer: FAIL: $*" >&2; exit 1; }
