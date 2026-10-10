@@ -67,4 +67,34 @@ defmodule Sigra.Planning.Phase250CanaryContractTest do
     refute observer =~ "download-artifact"
     refute observer =~ "git checkout"
   end
+
+  test "failure receipt receives the selected scenario as an explicit input" do
+    workflow = read!(".github/workflows/release-receipt-canary.yml")
+
+    assert workflow =~ "--write-failure-receipt --scenario '${{ inputs.scenario }}'"
+    refute workflow =~ "SCENARIO: ${{ inputs.scenario }}"
+  end
+
+  test "dispatch correlation binds the unique title to the full source identity" do
+    script = read!("scripts/ci/release-canary.sh")
+
+    assert script =~ "validate_exact_run_identity"
+    assert script =~ "--expected-sha"
+    assert script =~ ".workflow_id == $workflow_id"
+    assert script =~ ".head_sha == $sha"
+    assert script =~ ".run_attempt == 1"
+    assert script =~ "exact-title run is ambiguous"
+  end
+
+  test "cancellation and receipt pairing require matching source SHA and attempt" do
+    script = read!("scripts/ci/release-canary.sh")
+
+    assert script =~
+             "cancel_exact_canary_run \"$cancel_id\" \"$canary_wf_id\" \"$cancel_probe\" \"$sha\""
+
+    assert script =~ "\"$(jq -r '.head_sha' <<<\"$run\")\" == \"$expected_sha\""
+    assert script =~ "\"$(jq -r '.run_attempt' <<<\"$run\")\" == 1"
+    assert script =~ "source_run_attempt \"$failure\""
+    assert script =~ "source_run_attempt \"$cancellation\""
+  end
 end
