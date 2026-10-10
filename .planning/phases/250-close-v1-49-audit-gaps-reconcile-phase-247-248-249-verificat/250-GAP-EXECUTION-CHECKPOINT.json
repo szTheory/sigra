@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T22:35:48Z",
-  "status": "plan_250_07_controller_dispatch_accepted_run_id_lookup_pending",
+  "captured_at": "2026-10-10T22:41:48Z",
+  "status": "plan_250_07_consumed_failed_needs_parser_repair_and_new_packet",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
   "source_head": "d32128f55300cef3cab5ad3c4e3851f06490eaee",
@@ -47,14 +47,14 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "controller_run_38091955379_watcher_active",
+    "status": "controller_failed_observer_input_mode_collision_repair_required",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "sha256": "564c840261c2baf3a1ab222a761fdabc2cd96b97eb7cc92c8ea2f4c7c8cffc00",
+      "sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
       "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
       "packet_id": "250-07-canary-authority-v4",
       "source_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
-      "status": "approved_dispatch_in_progress"
+      "status": "approved_once_consumed_failed"
     },
     "preflight": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
@@ -95,7 +95,7 @@
     "cancellation_attempted": true,
     "observer_dispatch_attempted": false,
     "retry_authorized": false,
-    "auto_02": "unsatisfied_pending_controller_and_exact_observer_receipts",
+    "auto_02": "unsatisfied_observer_cancellation_receipt_missing_after_single_authorized_failure",
     "authority_history": {
       "current_packet_v3": {
         "packet_sha256": "b6193b07b13f703b33c275824ec2a30bf1d5b5532fa4bf810b7fd9527ac8b09f",
@@ -283,7 +283,32 @@
       "started_at": "2026-10-10T22:35:48Z",
       "watcher_count": 1,
       "session_id": 71992,
-      "deadline_at": "2026-10-10T23:09:49Z"
+      "deadline_at": "2026-10-10T23:09:49Z",
+      "completed_at": "2026-10-10T22:39:19Z",
+      "conclusion": "failure"
+    },
+    "controller_run_after_v4": {
+      "run_id": 38091955379,
+      "attempt": 1,
+      "conclusion": "failure",
+      "job_id": 114330022988,
+      "completed_at": "2026-10-10T22:39:20Z",
+      "failure_reason": "observer_run_exact_identity_or_conclusion_mismatch",
+      "url": "https://github.com/szTheory/sigra/actions/runs/38091955379"
+    },
+    "source_failure_run_after_v4": 38091969722,
+    "source_cancellation_run_after_v4": 38092036734,
+    "observer_run_after_v4": 38092165376,
+    "observer_failure_message": "release-observer: FAIL: choose exactly one event source",
+    "observer_receipt_uploaded_after_v4": false,
+    "controller_proof_status_after_v4": "blocked",
+    "authority_consumed_after_v4": true,
+    "retry_authorized_after_v4": false,
+    "run_evidence": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json",
+      "sha256": "ed6eb89d8ed7ff9fedf99a89469b485291307e1c69a75f05dd53719ae29f3300",
+      "controller_proof_file_sha256": "0beba757f438bab3199ee3693b5e567b35fe60d3ba550c8d156686e7bf4a9a88",
+      "failure_receipt_sha256": "5992024878742a638b5ad715b824c62ad6135744277346d45b766baee24ca9dd"
     }
   },
   "plan_250_08": {

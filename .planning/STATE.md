@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: packet_v4_controller_run_38091955379_watched
-stopped_at: packet v4 controller run 38091955379 is in progress; one 60-second watcher is active in session 71992; no retry authorized
+status: packet_v4_consumed_failed_parser_repair_required
+stopped_at: controller run 38091955379 failed at observer input-mode validation; evidence .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json SHA-256 ed6eb89d8ed7ff9fedf99a89469b485291307e1c69a75f05dd53719ae29f3300; packet authority consumed; no retry authorized
 last_updated: "2026-10-10T22:35:10Z"
 last_activity: 2026-10-10
-last_activity_desc: User approved packet v4 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; fresh preflight 9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9 matches main 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; controller run 38091955379 is in progress on the authorized main SHA; one 60-second watcher is active in session 71992; AUTO-02 remains unsatisfied
+last_activity_desc: User approved packet v4 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; fresh preflight 9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9 matches main 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; controller run 38091955379 produced a valid failure receipt and exact child cancellation, but observer run 38092165376 failed before receipt upload; parser repair and fresh authority are required; AUTO-02 remains unsatisfied
 state_head: 91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5
 progress:
   total_phases: 5
@@ -38,7 +38,7 @@ Current Plan: 7
 Total Plans in Phase: 12
 Plans executed: 6 of 12 summarized (01–06); Plan 07 remains incomplete pending a newly approved hosted receipt run; PR #321 observer-dispatch repair is merged and exact-main CI is green; Plan 08 remains blocked; 09–12 await dependencies
 Status: Partial implementation delivered; phase verification incomplete
-Last activity: 2026-10-10 — User approved packet v4 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; refreshed preflight is committed; exact controller run 38091955379 is in progress
+Last activity: 2026-10-10 — User approved packet v4 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; controller run 38091955379 failed after observer dispatch. Machine-readable evidence: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json (SHA-256 ed6eb89d8ed7ff9fedf99a89469b485291307e1c69a75f05dd53719ae29f3300). The workflow produced the failure receipt, canceled only exact child 38092036734, then observer run 38092165376 failed with "choose exactly one event source" before uploading a cancellation receipt. Packet v4 is consumed; repair and fresh explicit authority are required before another run.
 
 Progress: [███████░░░] 72% (31/43 summaries; not acceptance completion)
 

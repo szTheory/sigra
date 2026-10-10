@@ -96,10 +96,81 @@
     "run_url": "https://github.com/szTheory/sigra/actions/runs/38091955379",
     "run_created_at": "2026-10-10T22:34:49Z",
     "run_attempt": 1,
-    "run_status_at_lookup": "in_progress",
+    "run_status_at_lookup": "completed",
     "watcher_started_at": "2026-10-10T22:35:48Z",
     "watcher_interval_seconds": 60,
-    "watcher_count": 1
+    "watcher_count": 1,
+    "conclusion": "failure",
+    "completed_at": "2026-10-10T22:39:20Z",
+    "job_id": 114330022988,
+    "job_conclusion": "failure",
+    "failure_reason": "observer_run_exact_identity_or_conclusion_mismatch",
+    "source_failure_run_id": 38091969722,
+    "source_cancellation_run_id": 38092036734,
+    "observer_run_id": 38092165376,
+    "observer_run_conclusion": "failure",
+    "cancellation_receipt_uploaded": false,
+    "receipts_validated": false,
+    "authority_consumed": true,
+    "retry_authorized": false,
+    "proof_artifact": {
+      "id": 11684009530,
+      "name": "release-canary-controller-38091955379-1",
+      "digest": "sha256:b6c470e28ebf5931ed288a977214eb433cf6083bb7f644813c17a43d2bd70f52",
+      "size_bytes": 665,
+      "file_sha256": "0beba757f438bab3199ee3693b5e567b35fe60d3ba550c8d156686e7bf4a9a88",
+      "proof_status": "blocked",
+      "expires_at": "2026-11-09T22:39:15Z"
+    },
+    "failure_source_artifact": {
+      "id": 11684631747,
+      "name": "release-canary-failure-38091969722-1-3bac6a2da566a72f489b64e45b08b745",
+      "digest": "sha256:b933d137e03e6382825b1d90f2201269cab1b6f850ffc660354859c54b625f3d",
+      "receipt_sha256": "5992024878742a638b5ad715b824c62ad6135744277346d45b766baee24ca9dd",
+      "expires_at": "2026-11-09T22:35:19Z"
+    },
+    "observer_failure": {
+      "run_id": 38092165376,
+      "attempt": 1,
+      "workflow_id": 379162190,
+      "event": "workflow_dispatch",
+      "head_branch": "main",
+      "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "conclusion": "failure",
+      "job_id": 114330650788,
+      "failed_step": "Validate source run and write cancellation receipt",
+      "error": "release-observer: FAIL: choose exactly one event source",
+      "cancellation_receipt_uploaded": false
+    },
+    "canary_child_runs": [
+      {
+        "run_id": 38091969722,
+        "attempt": 1,
+        "scenario": "failure",
+        "workflow_id": 380517407,
+        "event": "workflow_dispatch",
+        "head_branch": "main",
+        "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+        "conclusion": "failure",
+        "probe_id": "3bac6a2da566a72f489b64e45b08b745",
+        "receipt_uploaded": true,
+        "job_id": 114330085937
+      },
+      {
+        "run_id": 38092036734,
+        "attempt": 1,
+        "scenario": "cancellation",
+        "workflow_id": 380517407,
+        "event": "workflow_dispatch",
+        "head_branch": "main",
+        "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+        "conclusion": "cancelled",
+        "probe_id": "0093eb759dc7183d3285af94e611131a",
+        "exact_owned_cancellation": true,
+        "receipt_uploaded": false,
+        "job_id": 114330268203
+      }
+    ]
   },
   "trusted_workflows": {
     "canary_source": {
@@ -164,7 +235,7 @@
         "meaning": "Keep AUTO-02 blocked; do not dispatch or cancel any run."
       }
     ],
-    "status": "controller_dispatched_in_progress",
+    "status": "consumed_failed_observer_input_conflict",
     "dispatch_attempted": true,
     "canary_child_dispatch_attempted": false,
     "cancellation_attempted": false,
@@ -194,7 +265,14 @@
       "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
       "display_title": "release-receipt-canary-controller-38091955379-1",
       "status": "in_progress"
-    }
+    },
+    "authority_consumed": true,
+    "controller_conclusion": "failure",
+    "failure_reason": "observer_run_exact_identity_or_conclusion_mismatch",
+    "source_failure_run_id": 38091969722,
+    "source_cancellation_run_id": 38092036734,
+    "observer_run_id": 38092165376,
+    "failure_observer_error": "release-observer: FAIL: choose exactly one event source"
   },
   "post_approval_preflight_refresh": {
     "allowed_without_new_decision": true,
@@ -211,8 +289,9 @@
     "executed_at": "2026-10-10T22:31:59Z",
     "previous_preflight_sha256": "c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e",
     "refreshed_preflight_sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
-    "result": "ready; all fields except captured_at matched; bound main SHA unchanged",
-    "trigger": "User-authorized pre-dispatch read-only refresh."
+    "result": "same-source preflight refreshed; one authorized controller attempt consumed; observer dispatched but failed before cancellation receipt upload",
+    "trigger": "User-authorized pre-dispatch read-only refresh.",
+    "latest_controller_run_id": 38091955379
   },
   "prior_authority_history": {
     "packet_v3": {
