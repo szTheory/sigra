@@ -133,7 +133,7 @@ export TEST_CONTROLLER_WORKFLOW_JSON="$TMP/controller-workflow.json" TEST_OBSERV
 export TEST_WORKFLOW_PERMS_JSON="$TMP/workflow-perms.json" TEST_ACTIONS_PERMS_JSON="$TMP/actions-perms.json"
 export TEST_RETENTION_JSON="$TMP/retention.json" TEST_MAIN_COMMIT_JSON="$TMP/main-commit.json"
 if bash "$CANARY" --preflight --output "$TMP/ready-preflight.json" && \
-   jq -e '.status == "ready" and .artifact_retention_days == 90 and .artifact_retention_maximum_days == 90 and (.target_sha | type == "string") and .workflows.canary.id == 2024' "$TMP/ready-preflight.json" >/dev/null && \
+   jq -e '.status == "ready" and .actions_enabled == true and .artifact_retention_days == 90 and .artifact_retention_maximum_days == 90 and (.target_sha | type == "string") and .default_workflow_permissions == "read" and .controller_authority == "actions:write; contents:read" and .source_authority == "actions:read; contents:read" and .observer_authority == "actions:read; contents:read" and .workflows.canary.id == 2024' "$TMP/ready-preflight.json" >/dev/null && \
    CANARY_PREFLIGHT_FILE="$TMP/ready-preflight.json" bash "$CANARY" --validate-preflight --output "$TMP/validated-preflight.json"; then
   pass "retention and exact workflow identities are captured before dispatch"
 else fail "fresh read-only preflight failed to capture repository settings"; fi
