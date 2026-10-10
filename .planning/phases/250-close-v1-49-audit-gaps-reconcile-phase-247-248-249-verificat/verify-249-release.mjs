@@ -28,7 +28,6 @@ const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 
 function hash(bytes) { return createHash('sha256').update(bytes).digest('hex'); }
-function jsonBytes(value) { return Buffer.from(JSON.stringify(value)); }
 function run(command, args, options = {}) {
   return execFileSync(command, args, { cwd: ROOT, encoding: 'buffer', maxBuffer: 32 * 1024 * 1024, ...options });
 }
@@ -61,7 +60,8 @@ function validAcceptance(snapshot) {
     || canonical?.verdict !== 'passed') add(blockers, 'terminal canonical acceptance commit/blob/digest identity mismatch');
   if (!SHA.test(ref?.acceptance_commit_sha ?? '') || !SHA.test(ref?.terminal_commit_sha ?? '')
     || !SHA.test(ref?.terminal_blob_sha ?? '') || !DIGEST.test(ref?.terminal_sha256 ?? '')
-    || hash(jsonBytes(terminal ?? null)) !== ref?.terminal_sha256) add(blockers, 'terminal record digest or commit/blob identity is missing or mismatched');
+    || Buffer.from(ref?.terminal_json_base64 ?? '', 'base64').toString('base64') !== ref?.terminal_json_base64
+    || hash(Buffer.from(ref?.terminal_json_base64 ?? '', 'base64')) !== ref?.terminal_sha256) add(blockers, 'terminal record digest or commit/blob identity is missing or mismatched');
   const validation = terminal ? validateTerminalStatusRecord(terminal, {
     canonical_blob_sha: ref?.acceptance_blob_sha,
     canonical_commit_sha: ref?.acceptance_commit_sha,
@@ -121,7 +121,7 @@ export function evaluateSnapshot(snapshot) {
     const key = `${pr.number}:${pr.base_sha}:${pr.head_sha}`;
     if (!Number.isInteger(pr.number) || !SHA.test(pr.base_sha ?? '') || !SHA.test(pr.head_sha ?? '') || seen.has(pr.number)) add(rel02, `open PR identity is malformed or duplicated: #${pr.number ?? '?'}`);
     seen.add(pr.number);
-    if (!['release-blocking', 'release-relevant', 'separate-follow-up'].includes(pr.disposition)) add(rel02, `open PR #${pr.number} has no disposition matching its current base/head identity`);
+    if (pr.disposition_identity_match !== true || !['release-blocking', 'release-relevant', 'separate-follow-up'].includes(pr.disposition)) add(rel02, `open PR #${pr.number} has no disposition matching its current base/head identity`);
   }
   if (!snapshot?.captured_at || Number.isNaN(Date.parse(snapshot.captured_at))) add(rel02, 'source snapshot capture timestamp is missing or invalid');
   const requirements = { 'REL-01': requirement(rel01), 'REL-02': requirement(rel02) };

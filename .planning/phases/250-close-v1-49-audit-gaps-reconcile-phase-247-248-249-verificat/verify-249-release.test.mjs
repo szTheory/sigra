@@ -34,7 +34,7 @@ function snapshot() {
     public_release: { verdict: 'passed', version: '1.6.0', tag: 'v1.6.0', package_source_sha: packageSha, versioned_docs_url: 'https://sigra.hexdocs.pm/1.6.0/Sigra.html', source_url: 'https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1', checksum: digest('f') },
     historical_ci: { run_id: 38003573391, attempt: 1, head_sha: historicalMain, conclusion: 'success', job: { id: 114069179560, name: 'ci-gate', head_sha: historicalMain, conclusion: 'success', attempt: 1 } },
     current_ci: { run_id: 38061391571, attempt: 1, head_sha: currentMain, conclusion: 'failure', job: { id: 114241911167, name: 'ci-gate', head_sha: currentMain, conclusion: 'success', attempt: 1 } },
-    inventory: { worktrees_read_status: 'complete', pull_requests_read_status: 'complete', worktrees: [{ path: '/repo', branch: 'main', head_sha: currentMain, raw_status_base64: '', raw_status_sha256: hash(Buffer.alloc(0)), raw_status_bytes: 0, clean: true }], pull_requests: [{ number: 302, base_sha: currentMain, head_sha: '1'.repeat(40), disposition: 'separate-follow-up' }] },
+    inventory: { worktrees_read_status: 'complete', pull_requests_read_status: 'complete', worktrees: [{ path: '/repo', branch: 'main', head_sha: currentMain, raw_status_base64: '', raw_status_sha256: hash(Buffer.alloc(0)), raw_status_bytes: 0, clean: true }], pull_requests: [{ number: 302, base_sha: currentMain, head_sha: '1'.repeat(40), disposition: 'separate-follow-up', disposition_identity_match: true }] },
     accepted_loss: { path: '.planning/HANDOFF.json', status: ' M', sha256: '00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148', authorization: 'accept reality and move on accordingly', authorized_by: 'user', authorized_at: '2026-10-09', audit_record_ref: 'refs/phase-249-preservation/plan-08-preservation-record-v4', audit_record_commit_sha: '96581c2b555a11b50b6efece9c25a5b1f8e0e456', audit_record_sha256: 'b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3', bytes_recovered: false, bytes_preserved: false },
   };
 }
@@ -73,6 +73,16 @@ test('rejects a historical acceptance ref that points at a different main identi
   const result = evaluateSnapshot(current);
   assert.equal(result.requirements['REL-01'].status, 'unsatisfied');
   assert.equal(result.requirements['REL-02'].status, 'unsatisfied');
+});
+
+test('rejects terminal digest drift and a disposition copied from stale PR identities', () => {
+  const current = snapshot();
+  current.evidence_ref.terminal_json_base64 = Buffer.from('stale terminal').toString('base64');
+  current.inventory.pull_requests[0].disposition_identity_match = false;
+  const result = evaluateSnapshot(current);
+  assert.equal(result.requirements['REL-01'].status, 'unsatisfied');
+  assert.equal(result.requirements['REL-02'].status, 'unsatisfied');
+  assert.ok(result.requirements['REL-02'].blockers.some(item => item.includes('matching its current base/head identity')));
 });
 
 test('checks the report against requirement verdicts and complete captured identities', () => {
