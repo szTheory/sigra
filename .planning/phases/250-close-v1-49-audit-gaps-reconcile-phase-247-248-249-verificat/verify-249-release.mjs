@@ -92,7 +92,7 @@ export function evaluateSnapshot(snapshot) {
     || !DIGEST.test(publicProof?.checksum ?? '')) add(rel01, 'live public Hex/docs/tag/source/checksum proof does not join package source 9e80cb…');
   if (receipt?.package_source_sha !== PACKAGE_SOURCE || receipt?.blob_sha !== snapshot?.evidence_ref?.acceptance?.receipt?.blob_sha
     || receipt?.sha256 !== snapshot?.evidence_ref?.acceptance?.receipt?.sha256) add(rel01, 'release receipt source or historical acceptance identity mismatch');
-  if (snapshot?.historical_ci?.run_id !== snapshot?.evidence_ref?.acceptance?.final_main_ci?.run_id
+  if (snapshot?.historical_ci?.run_id !== Number(snapshot?.evidence_ref?.acceptance?.final_main_ci?.run_id)
     || snapshot?.historical_ci?.attempt !== snapshot?.evidence_ref?.acceptance?.final_main_ci?.attempt
     || snapshot?.historical_ci?.workflow_path !== '.github/workflows/ci.yml'
     || snapshot?.historical_ci?.head_sha !== HISTORICAL_MAIN || snapshot?.historical_ci?.job?.id !== Number(snapshot?.evidence_ref?.acceptance?.final_main_ci?.ci_gate?.job_id)
@@ -220,7 +220,7 @@ function currentMainCi(mainSha) {
   const attempt = run.run_attempt;
   const jobsResponse = ghJson(`repos/${REPOSITORY}/actions/runs/${run.id}/attempts/${attempt}/jobs?per_page=100`);
   const job = (jobsResponse.jobs ?? []).find(item => item.name === 'ci-gate' && item.head_sha === mainSha && item.run_attempt === attempt);
-  return { run_id: run.id, attempt, head_sha: run.head_sha, path: run.path, event: run.event, branch: run.head_branch, status: run.status, conclusion: run.conclusion, url: run.html_url,
+  return { run_id: run.id, attempt, head_sha: run.head_sha, workflow_path: run.path, event: run.event, branch: run.head_branch, status: run.status, conclusion: run.conclusion, url: run.html_url,
     job: job ? { id: job.id, name: job.name, head_sha: job.head_sha, conclusion: job.conclusion, attempt: job.run_attempt, url: job.html_url } : null };
 }
 

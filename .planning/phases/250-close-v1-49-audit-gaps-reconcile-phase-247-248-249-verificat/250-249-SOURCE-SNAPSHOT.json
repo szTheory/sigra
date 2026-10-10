@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T16:04:41.433Z",
+  "captured_at": "2026-10-10T16:07:28.903Z",
   "repository": "szTheory/sigra",
   "source": {
     "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
@@ -225,8 +225,19 @@
     "source_blob_sha": "44c054f1f737062ecdb62257a701acde21dc6214"
   },
   "historical_ci": {
+    "run_id": 38003573391,
+    "attempt": 1,
+    "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+    "workflow_path": ".github/workflows/ci.yml",
+    "conclusion": "success",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38003573391",
     "job": {
-      "name": "ci-gate"
+      "id": 114069179560,
+      "name": "ci-gate",
+      "head_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+      "conclusion": "success",
+      "attempt": 1,
+      "url": "https://github.com/szTheory/sigra/actions/runs/38003573391/job/114069179560"
     }
   },
   "current_ci": {
@@ -318,7 +329,7 @@
       {
         "path": "/Users/jon/projects/sigra",
         "branch": "phase-244-playwright-measurement",
-        "head_sha": "7f772eafbc34d10e4eedded711ab998d92743f3f",
+        "head_sha": "d09ed17db1c9a98a0f0a12cec76c295befedbdb6",
         "detached": false,
         "locked": false,
         "prunable": false,
