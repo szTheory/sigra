@@ -162,7 +162,12 @@
     "credential_values_recorded": false,
     "silence_is_approval": false,
     "retry_authorized": false,
-    "user_reply_verbatim": "yes i authorize u to do that work"
+    "user_reply_verbatim": "yes i authorize u to do that work",
+    "dispatch_intent_recorded": true,
+    "dispatch_intent_recorded_at": "2026-10-10T22:33:37Z",
+    "dispatch_request_sha256": "b03c35c3203706679bdac9cbc1e72c74a7ac5cf826718b40b1a5a869d99738e1",
+    "dispatch_requested_ref": "main",
+    "dispatch_request_workflow_id": 380517406
   },
   "post_approval_preflight_refresh": {
     "allowed_without_new_decision": true,

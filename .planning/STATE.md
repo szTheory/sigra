@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: packet_v4_awaiting_explicit_canary_authority
-stopped_at: exact-main CI 38089444484 passed; packet v4 SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922 is committed and awaits explicit approval; no new canary dispatched
-last_updated: "2026-10-10T22:26:43Z"
+status: packet_v4_authorized_dispatch_in_progress
+stopped_at: user approved packet v4 SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; same-source preflight refreshed and committed; dispatch intent recorded at 2026-10-10T22:33:37Z; HTTP request not yet submitted
+last_updated: "2026-10-10T22:33:37Z"
 last_activity: 2026-10-10
-last_activity_desc: PR #321 observer-dispatch repair and post-merge CI run 38089444484 both passed on 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; packet v4 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922 awaits explicit approval; AUTO-02 remains unsatisfied
+last_activity_desc: User approved packet v4 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; fresh preflight 9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9 matches main 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; one controller dispatch intent is recorded, request not yet submitted; AUTO-02 remains unsatisfied
 state_head: 91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5
 progress:
   total_phases: 5
@@ -38,7 +38,7 @@ Current Plan: 7
 Total Plans in Phase: 12
 Plans executed: 6 of 12 summarized (01–06); Plan 07 remains incomplete pending a newly approved hosted receipt run; PR #321 observer-dispatch repair is merged and exact-main CI is green; Plan 08 remains blocked; 09–12 await dependencies
 Status: Partial implementation delivered; phase verification incomplete
-Last activity: 2026-10-10 — PR #321 merged at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; PR CI 38088968210 and exact-main CI 38089444484 passed; packet v4 awaits explicit approval
+Last activity: 2026-10-10 — User approved packet v4 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; refreshed preflight is ready and dispatch intent is committed
 
 Progress: [███████░░░] 72% (31/43 summaries; not acceptance completion)
 
@@ -1097,4 +1097,4 @@ Resume file: None
 | Phase 250 P05 | 18m | 3 tasks | 7 files |
 | Phase 250 P06 | 4h25m | 2 tasks | 4 files |
 
-Plan 250-07 observer-delivery repair: the missing `workflow_run` observer was consistent with GitHub suppressing workflow events caused by `GITHUB_TOKEN`; PR #321 added an explicit observer `workflow_dispatch` bound to the exact canceled canary source and authoritative metadata/receipt checks. PR #321 merged at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; PR CI 38088968210 and exact-main CI 38089444484 passed, including ci-gate and admin eval. Fresh preflight `250-CANARY-PREFLIGHT-1b420936.json` is ready on that SHA (file SHA-256 c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e; compact payload SHA-256 cbaef01e342ee3636992c21489e75f9fe2b1bb64b21c7d1aa15724dcd7647366). Packet v4 SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922 is committed and awaits explicit approval; v3 remains preserved and consumed. No new canary has been dispatched, and AUTO-02 remains unsatisfied. Separate Release Please run 38089444492 failed its post-push candidate identity assertion after writing generated docs commit 4015070b to open PR #302; both Hex publish and release CI gate jobs were skipped, and no release was published. See `250-07-OBSERVER-DISPATCH-REPAIR.json`.
+Plan 250-07 observer-delivery repair: the missing `workflow_run` observer was consistent with GitHub suppressing workflow events caused by `GITHUB_TOKEN`; PR #321 added an explicit observer `workflow_dispatch` bound to the exact canceled canary source and authoritative metadata/receipt checks. PR #321 merged at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; PR CI 38088968210 and exact-main CI 38089444484 passed, including ci-gate and admin eval. Fresh preflight `250-CANARY-PREFLIGHT-1b420936.json` is ready on that SHA (file SHA-256 c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e; compact payload SHA-256 cbaef01e342ee3636992c21489e75f9fe2b1bb64b21c7d1aa15724dcd7647366). Packet v4 reviewed SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922 was explicitly approved at 2026-10-10T22:31:25Z and the approval is recorded. A same-source preflight refresh at 2026-10-10T22:31:59Z is committed (file SHA-256 9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9; payload SHA-256 5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89). One controller dispatch intent is committed; the HTTP request has not yet been submitted. V3 remains preserved and consumed; AUTO-02 remains unsatisfied. Separate Release Please run 38089444492 failed its post-push candidate identity assertion after writing generated docs commit 4015070b to open PR #302; both Hex publish and release CI gate jobs were skipped, and no release was published. See `250-07-OBSERVER-DISPATCH-REPAIR.json`.

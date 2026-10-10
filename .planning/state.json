@@ -34,13 +34,13 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Review and authorize the exact fresh Plan 250-07 canary packet",
-    "reason": "PR #321 observer-dispatch repair is merged at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; exact-main CI run 38089444484 passed, including ci-gate and admin-eval. Fresh packet v4 is committed pending explicit approval (SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922). The consumed v3 approval does not authorize v4. Plan 250-08 remains blocked with zero eligible tuples.",
+    "label": "Run the single approved Plan 250-07 canary controller action and continue eligible gaps",
+    "reason": "User approved packet v4 SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922; approval and same-source refreshed preflight are committed. One controller dispatch intent is recorded for main 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; the HTTP request has not yet been submitted. Plan 250-08 remains blocked with zero eligible tuples.",
     "blocked_by": [
-      "250-07-packet-v4-awaiting-explicit-approval",
+      "250-07-controller-outcome",
       "250-08-no-eligible-tuple"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
   },
-  "updated_at": "2026-10-10T22:26:43Z"
+  "updated_at": "2026-10-10T22:33:37Z"
 }
