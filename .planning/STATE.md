@@ -7,9 +7,9 @@ current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verific
 current_plan: 7
 status: parser_repair_merged_main_ci_in_progress
 stopped_at: controller run 38091955379 failed at observer input-mode validation; evidence .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json SHA-256 ed6eb89d8ed7ff9fedf99a89469b485291307e1c69a75f05dd53719ae29f3300; packet authority consumed; no retry authorized
-last_updated: "2026-10-10T22:53:04Z"
+last_updated: "2026-10-10T22:55:14Z"
 last_activity: 2026-10-10
-last_activity_desc: PR #322 parser repair merged at e0c66d61211ddb461c049ca6422350308b420126 after exact-head CI 38092530129 passed; exact-main CI 38093033532 and automatic Release Please 38093033505 are active. Controller 38091955379 produced a valid failure receipt and exact child cancellation, but observer 38092165376 failed before receipt upload due to ambient EVENT_PATH colliding with --source-run-id. The consumed v4 packet cannot authorize another run. PR #322 fixes the parser and adds a regression test; focused local gates pass and exact-head CI 38092530129 is queued. AUTO-02 remains unsatisfied.
+last_activity_desc: PR #322 parser repair merged at e0c66d61211ddb461c049ca6422350308b420126 after exact-head CI 38092530129 passed; main CI 38093033532 is in progress. Release Please run 38093033505 failed after pushing generated-index commit d4ff8ca to PR #302; release verification and publish jobs were skipped. Controller 38091955379 produced a valid failure receipt and exact child cancellation, but observer 38092165376 failed before receipt upload due to ambient EVENT_PATH colliding with --source-run-id. The consumed v4 packet cannot authorize another run. PR #322 fixes the parser and adds a regression test; exact-head CI 38092530129 passed and the change was squash-merged to main. AUTO-02 remains unsatisfied.
 state_head: 91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5
 progress:
   total_phases: 5

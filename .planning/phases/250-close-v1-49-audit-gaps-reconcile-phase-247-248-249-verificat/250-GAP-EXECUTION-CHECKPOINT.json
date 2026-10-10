@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T22:53:04Z",
+  "captured_at": "2026-10-10T22:55:14Z",
   "status": "plan_250_07_parser_repair_merged_main_ci_in_progress",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
@@ -244,7 +244,7 @@
       "new_canary_dispatch_attempted": false
     },
     "controller_retry_dispatched_after_failed_packet": false,
-    "next_action": "Wait for exact-main CI and automatic Release Please runs. If main CI succeeds and main remains stable, prepare fresh packet bound to e0c66d61211ddb461c049ca6422350308b420126 and request explicit new authority. Do not reuse consumed v4.",
+    "next_action": "Continue the one main CI watcher for run 38093033532. On success and stable main, prepare a fresh packet bound to the merged repair SHA; request a new explicit decision before any controller dispatch. Record Release Please failure separately; do not repair or rerun it under the canary packet.",
     "post_merge_main_ci": {
       "run_id": 38093033532,
       "status": "in_progress",
@@ -313,7 +313,7 @@
     },
     "repair_evidence": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
-      "sha256": "18e55e10a5e3bb29f18072dfc2fa96f84bdce0adc83af3aa8442302025d732d0",
+      "sha256": "9e56c17c0aeb9167a947b8bfbaa20874a275830cce32342d3c825a82ab978676",
       "pr": 322,
       "head_sha": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
       "ci_run_id": 38092530129,
@@ -323,10 +323,18 @@
     },
     "automatic_release_please": {
       "run_id": 38093033505,
-      "status": "in_progress",
+      "status": "completed",
+      "conclusion": "failure",
+      "completed_at": "2026-10-10T22:55:14Z",
+      "failed_step": "Apply the generated index and prove exact-head CI registration",
+      "release_pr": 302,
+      "release_pr_head_sha": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086",
+      "publish_to_hex": "skipped",
+      "verify_ci_green_on_release_sha": "skipped",
+      "release_published": false,
+      "affects_main_source_sha": false,
       "watcher_session_id": 91065,
-      "watcher_count": 1,
-      "interval_seconds": 60
+      "watcher_count": 1
     }
   },
   "plan_250_08": {
@@ -594,13 +602,13 @@
   },
   "next_command": "$gsd-execute-phase 250 --gaps-only",
   "separate_automation_observation": {
-    "release_please_run_id": 38089444492,
+    "release_please_run_id": 38093033505,
     "conclusion": "failure",
+    "release_pr": 302,
+    "release_pr_head_sha": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086",
     "publish_to_hex_job": "skipped",
     "verify_ci_green_job": "skipped",
-    "release_pr": 302,
-    "release_pr_head_after_run": "4015070bca0be1411a5cfb27faed53a0413a088b",
-    "failed_step": "post-push candidate identity assertion after the generated index was pushed; current PR metadata reports the writer SHA as head",
+    "release_published": false,
     "affects_main_source_sha": false
   }
 }

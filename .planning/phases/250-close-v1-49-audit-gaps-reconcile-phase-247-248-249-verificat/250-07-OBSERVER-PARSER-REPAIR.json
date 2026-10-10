@@ -57,9 +57,23 @@
   },
   "release_please_run": {
     "run_id": 38093033505,
-    "status": "in_progress",
-    "head_sha": "e0c66d61211ddb461c049ca6422350308b420126",
-    "publish_not_dispatched_manually": true
+    "status": "completed",
+    "conclusion": "failure",
+    "completed_at": "2026-10-10T22:55:14Z",
+    "failed_step": "Apply the generated index and prove exact-head CI registration",
+    "failure": "refresh-release-docs: FAIL: post-push candidate does not point at the new writer SHA",
+    "release_pr": 302,
+    "release_pr_url": "https://github.com/szTheory/sigra/pull/302",
+    "release_pr_state": "open",
+    "release_pr_base_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+    "release_pr_head_sha": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086",
+    "generated_index_commit": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086",
+    "publish_to_hex": "skipped",
+    "verify_ci_green_on_release_sha": "skipped",
+    "release_published": false,
+    "affects_main_source_sha": false,
+    "watcher_session_id": 91065,
+    "watcher_count": 1
   },
   "watchers": [
     {
