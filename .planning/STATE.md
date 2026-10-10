@@ -5,17 +5,17 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 5
-status: executing
-stopped_at: Completed 250-04-PLAN.md
-last_updated: "2026-10-10T16:22:02.026Z"
+status: verifying
+stopped_at: Completed 250-05-PLAN.md; strict milestone audit remains gaps_found pending phase verifier
+last_updated: "2026-10-10T16:38:09.747Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250 Plan 02 completed; Plan 03 is next
-state_head: f6c67c61494503b535718247682551334dc91f96
+last_activity_desc: Phase 250 Plan 05 reporting complete; parent-run phase verification remains
+state_head: f56ff277715319829dc743442e0b9b9edcc2742e
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 36
-  completed_plans: 29
+  completed_plans: 30
   percent: 80
 ---
 
@@ -31,18 +31,18 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — VERIFYING
 Current Plan: 5
 Total Plans in Phase: 5
-Plans executed: 4 of 5
-Status: Ready to execute
-Last activity: 2026-10-10 — Phase 250 Plan 04 completed; Plan 05 is next
+Plans executed: 5 of 5
+Status: Plan reporting complete; phase verification pending
+Last activity: 2026-10-10 — Plan 05 recorded a blocked strict milestone audit; parent-run phase verification is next
 
 Progress: [████████░░] 80%
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task; Plan 02 is complete with READY-01/02 still unsatisfied. Its canonical reconciliation is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json`, and the Phase 247 owner report is `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`. Plan 03 refreshed the Phase 248 owner report and captured source-bound evidence in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`: AUTO-01 is satisfied; AUTO-02 remains unsatisfied because the authorized canary proof is blocked and neither hosted terminal artifact is available. Plan 04 refreshed the Phase 249 owner report and captured `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json`: REL-01 is satisfied; REL-02 remains unsatisfied because current-main CI failed at the workflow level and five open PR identities lack matching dispositions. The user's one-retry authorization for the canary is consumed. Do not dispatch or cancel another run without fresh explicit authorization. Phase 250 and v1.49 remain incomplete; Plan 05 is next.
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Plan 01 is complete as an evidence/reporting task; Plan 02 is complete with READY-01/02 still unsatisfied. Its canonical reconciliation is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json`, and the Phase 247 owner report is `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`. Plan 03 refreshed the Phase 248 owner report and captured source-bound evidence in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`: AUTO-01 is satisfied; AUTO-02 remains unsatisfied because the authorized canary proof is blocked and neither hosted terminal artifact is available. Plan 04 refreshed the Phase 249 owner report and captured `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json`: REL-01 is satisfied; REL-02 remains unsatisfied because current-main CI failed at the workflow level and five open PR identities lack matching dispositions. Plan 05 completed the no-promotion reconciliation and strict traceability reporting. The user's one-retry authorization for the canary is consumed. Do not dispatch or cancel another run without fresh explicit authorization. Phase 250 plan reporting is complete; strict milestone closure and phase verification remain pending.
 
 ### v1.49 phase map
 
@@ -838,8 +838,8 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T16:22:01.742Z
-Stopped at: Completed 250-04-PLAN.md
+Last session: 2026-10-10T16:38:09.689Z
+Stopped at: Completed 250-05-PLAN.md; strict milestone audit remains gaps_found pending phase verifier
 Resume file: None
 
 ## Operator Next Steps
@@ -1080,3 +1080,4 @@ Resume file: None
 | Phase 250 P02 | 14min | 2 tasks | 5 files |
 | Phase 250 P03 | 12min | 2 tasks | 6 files |
 | Phase 250 P04 | 37m | 2 tasks | 6 files |
+| Phase 250 P05 | 18m | 3 tasks | 7 files |

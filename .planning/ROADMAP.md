@@ -188,12 +188,12 @@ Plans:
   3. Phase 249 canonical verification reconciles to the passing final acceptance, current-main CI, public release proof, clean inventory, and the explicitly accepted historical HANDOFF loss.
   4. Requirements traceability and the v1.49 audit agree across phase verification, summary frontmatter, and requirements mapping; the audit passes with no orphaned requirements.
 
-**Plans**: 4/5 plans executed (discussion and planning pending)
+**Plans**: 5/5 plans executed (discussion and planning pending)
 - [x] 250-01-PLAN.md
 - [x] 250-02-PLAN.md
 - [x] 250-03-PLAN.md
 - [x] 250-04-PLAN.md
-- [ ] 250-05-PLAN.md
+- [x] 250-05-PLAN.md
 
 ### Progress
 
@@ -205,12 +205,12 @@ Plans:
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
-| 250. Close v1.49 audit gaps | v1.49 | 4/5 | In Progress | — |
+| 250. Close v1.49 audit gaps | v1.49 | 5/5 | In Progress | — |
 
 ### Next
 
-The milestone audit remains `gaps_found` (3/9 requirements satisfied). Phase 250 Plans 01–04 are complete as evidence/reporting tasks. Plan 04's Phase 249 owner report records REL-01 satisfied and REL-02 unsatisfied against the exact current-main workflow failure and five live PR identity mismatches; Plan 03 still records AUTO-02 unsatisfied because its authorized canary retry produced no required terminal artifacts. The one-retry authorization is consumed. `init.execute-phase 250` reports Plan 05 as runnable with no prerequisite blocker.
+The milestone audit remains `gaps_found` (3/9 requirements satisfied). All five Phase 250 plans have summaries. Plan 05 preserves READY-01/02, AUTO-02, and REL-02 as blockers, along with owner-summary contradictions; the one-retry authorization is consumed. Phase 250 plan reporting is complete, while phase verification and milestone closure remain incomplete.
 
-**Next command:** `$gsd-execute-phase 250`
+**Next command:** Parent orchestrator invokes `gsd-verifier` for Phase 250 goal-backward verification.
 
 Do not repeat `$gsd-validate-phase 248` until new hosted failure/cancellation artifacts exist. The passing Phase 249 acceptance remains at `refs/heads/evidence/phase-249-final-acceptance`, commit `65f1ca4c851d62415ed656509cb068dc3acbab15`; the checked-in acceptance JSON is an older blocked snapshot.
