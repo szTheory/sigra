@@ -4,8 +4,9 @@ set -euo pipefail
 
 INPUT=""
 OUTPUT=""
+MODE="production"
 usage() {
-  echo "Usage: release-receipt.sh --input <receipt-input.json> --output <receipt.json>" >&2
+  echo "Usage: release-receipt.sh [--mode production|canary] --input <receipt-input.json> --output <receipt.json>" >&2
 }
 fail() { echo "release-receipt: FAIL: $*" >&2; exit 1; }
 
@@ -13,6 +14,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --input) [[ $# -ge 2 ]] || { usage; exit 2; }; INPUT="$2"; shift 2;;
     --output) [[ $# -ge 2 ]] || { usage; exit 2; }; OUTPUT="$2"; shift 2;;
+    --mode) [[ $# -ge 2 ]] || { usage; exit 2; }; MODE="$2"; shift 2;;
     -h|--help) usage; exit 0;;
     *) echo "release-receipt: FAIL: unknown argument: $1" >&2; usage; exit 2;;
   esac
@@ -20,8 +22,78 @@ done
 
 [[ -n "$INPUT" && -f "$INPUT" ]] || fail "input JSON file is required"
 [[ -n "$OUTPUT" ]] || fail "output path is required"
+[[ "$MODE" == production || "$MODE" == canary ]] || fail "unsupported receipt mode"
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 jq -e 'type == "object"' "$INPUT" >/dev/null 2>&1 || fail "input must be a JSON object"
+
+if [[ "$MODE" == canary ]]; then
+  if ! jq -e '
+    def safe_id: type == "string" and test("^[1-9][0-9]*$");
+    def timestamp: type == "string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$");
+    def no_credential_keys:
+      [.. | objects | keys[]? | select(test("(token|secret|credential|api.?key)"; "i"))] | length == 0;
+    type == "object" and .schema_version == 1 and .receipt_kind == "canary" and
+    no_credential_keys and (.canary | type == "object") and
+    (.canary.probe_id | type == "string" and test("^[a-f0-9-]{16,64}$")) and
+    (.canary.scenario == "failure" or .canary.scenario == "cancellation") and
+    (.source_event == "workflow_dispatch") and (.source | type == "object") and
+    (.source.ref == "refs/heads/main") and
+    (.source.sha | type == "string" and test("^[0-9a-f]{40}$")) and
+    (.source_run | type == "object") and (.source_run.id | safe_id) and
+    (.source_run.attempt | type == "number" and floor == . and . >= 1) and
+    (.source_run.workflow_id | type == "number" and floor == . and . > 0) and
+    (.source_run.workflow_path == ".github/workflows/release-receipt-canary.yml") and
+    (.source_run.workflow_name == "Release Receipt Canary") and
+    (.source_run.url | type == "string" and test("^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+$")) and
+    (.source_run.started_at | timestamp) and (.source_run.observed_at | timestamp) and
+    ((.canary.scenario == "failure" and .terminal_verdict == "failure" and (.observer_run == null)) or
+     (.canary.scenario == "cancellation" and .terminal_verdict == "cancelled" and
+      (.observer_run | type == "object") and (.observer_run.id | safe_id) and
+      (.observer_run.attempt | type == "number" and floor == . and . >= 1) and
+      (.observer_run.workflow_id | type == "number" and floor == . and . > 0) and
+      (.observer_run.url | type == "string" and test("^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+$")) and
+      (.observer_run.started_at | timestamp) and (.observer_run.observed_at | timestamp)))
+  ' "$INPUT" >/dev/null 2>&1; then
+    fail "input does not satisfy the canary receipt contract"
+  fi
+
+  RUN_ID="$(jq -r '.source_run.id' "$INPUT")"
+  if [[ -e "$OUTPUT" ]]; then
+    jq -e --arg id "$RUN_ID" --slurpfile input "$INPUT" '
+      .receipt_kind == "canary" and .source_run_id == $id and
+      .source_sha == $input[0].source.sha and .probe_id == $input[0].canary.probe_id and
+      .scenario == $input[0].canary.scenario
+    ' "$OUTPUT" >/dev/null 2>&1 || fail "existing receipt belongs to a different canary identity"
+  fi
+
+  RECORDED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  OUTPUT_DIR="$(dirname "$OUTPUT")"
+  mkdir -p "$OUTPUT_DIR"
+  TEMP_OUTPUT="$(mktemp "${OUTPUT}.tmp.XXXXXX")"
+  trap 'rm -f "$TEMP_OUTPUT"' EXIT
+  jq -n --arg recorded_at "$RECORDED_AT" --slurpfile input "$INPUT" '
+    ($input[0]) as $r |
+    {schema_version:1, receipt_kind:"canary", probe_id:$r.canary.probe_id,
+     scenario:$r.canary.scenario, source_event:$r.source_event, source_ref:$r.source.ref,
+     source_sha:$r.source.sha, source_run_id:$r.source_run.id,
+     source_run_attempt:$r.source_run.attempt, source_run_url:$r.source_run.url,
+     source_workflow_id:$r.source_run.workflow_id,
+     source_workflow_name:$r.source_run.workflow_name,
+     source_workflow_path:$r.source_run.workflow_path,
+     source_started_at:$r.source_run.started_at,
+     source_observed_at:$r.source_run.observed_at,
+     terminal_verdict:$r.terminal_verdict, observer_run:$r.observer_run,
+     recorded_at:$recorded_at}
+  ' > "$TEMP_OUTPUT" || fail "could not encode canary receipt JSON"
+  jq -e . "$TEMP_OUTPUT" >/dev/null || fail "encoded canary receipt is not valid JSON"
+  mv -f "$TEMP_OUTPUT" "$OUTPUT"
+  trap - EXIT
+  echo "release-receipt: recorded canary ${RUN_ID} (${MODE})"
+  exit 0
+fi
+
+# The production receipt path is deliberately closed to canary-only identity.
+jq -e '(.receipt_kind == "canary") or has("canary") or (.source.ref? == "refs/heads/main" and has("source_run"))' "$INPUT" >/dev/null 2>&1 && fail "canary receipt identity is not accepted in production mode"
 
 # Diagnostic text is deliberately an enum-like code rather than arbitrary logs.
 # This prevents runner output or accidentally interpolated credentials from being

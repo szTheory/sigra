@@ -1,0 +1,72 @@
+name: Release Receipt Canary
+run-name: release-receipt-canary-${{ inputs.scenario }}-${{ inputs.probe_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: Non-publishing terminal receipt scenario
+        type: choice
+        required: true
+        options: [failure, cancellation]
+      probe_id:
+        description: Unique lowercase hexadecimal/hyphen correlation ID
+        type: string
+        required: true
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: release-receipt-canary-${{ inputs.probe_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  controlled-probe:
+    name: Controlled ${{ inputs.scenario }} probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      actions: read
+      contents: none
+    steps:
+      - name: Controlled failure before release operations
+        if: ${{ inputs.scenario == 'failure' }}
+        run: |
+          echo 'Controlled release receipt canary failure.' >&2
+          exit 1
+
+      - name: Bounded cancellation wait
+        if: ${{ inputs.scenario == 'cancellation' }}
+        timeout-minutes: 10
+        run: sleep 600
+
+  record-failure:
+    name: Record controlled failure receipt
+    needs: controlled-probe
+    if: ${{ always() && inputs.scenario == 'failure' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Validate source identity and build sanitized failure receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBE_ID: ${{ inputs.probe_id }}
+          SCENARIO: ${{ inputs.scenario }}
+        run: bash scripts/ci/release-canary.sh --write-failure-receipt --output canary-receipt.json
+
+      - name: Upload unique canary failure receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-canary-failure-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.probe_id }}
+          path: canary-receipt.json
+          if-no-files-found: error
+          retention-days: 30

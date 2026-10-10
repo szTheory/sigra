@@ -1,8 +1,10 @@
 name: Release Run Observer
 
+run-name: release-observer-${{ github.event.workflow_run.id }}-${{ github.run_id }}-${{ github.run_attempt }}
+
 on:
   workflow_run:
-    workflows: ["Release Please"]
+    workflows: ["Release Please", "Release Receipt Canary"]
     types: [completed]
     branches: [main]
 
@@ -16,9 +18,9 @@ concurrency:
 
 jobs:
   record-cancellation:
-    name: Record cancelled Release Please run
+    name: Record cancelled release or canary run
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'cancelled' }}
+    if: ${{ github.event.workflow_run.conclusion == 'cancelled' && (github.event.workflow.name == 'Release Please' || github.event.workflow.name == 'Release Receipt Canary') }}
     permissions:
       actions: read
       contents: read
@@ -36,7 +38,7 @@ jobs:
       - name: Upload cancellation receipt
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: release-cancellation-${{ github.event.workflow_run.id }}
+          name: ${{ github.event.workflow.name == 'Release Receipt Canary' && format('release-canary-cancellation-{0}-{1}', github.event.workflow_run.id, github.event.workflow_run.run_attempt) || format('release-cancellation-{0}', github.event.workflow_run.id) }}
           path: release-cancellation.json
           if-no-files-found: error
           retention-days: 90
