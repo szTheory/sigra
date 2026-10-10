@@ -89,7 +89,9 @@
       "preflight_sha256": "5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89"
     },
     "timeout_minutes": 35,
-    "permissions": "actions:write; contents:read"
+    "permissions": "actions:write; contents:read",
+    "dispatch_attempted": true,
+    "dispatch_http_status": 204
   },
   "trusted_workflows": {
     "canary_source": {
@@ -155,7 +157,7 @@
       }
     ],
     "status": "approved",
-    "dispatch_attempted": false,
+    "dispatch_attempted": true,
     "canary_child_dispatch_attempted": false,
     "cancellation_attempted": false,
     "observer_dispatch_attempted": false,
@@ -167,7 +169,10 @@
     "dispatch_intent_recorded_at": "2026-10-10T22:33:37Z",
     "dispatch_request_sha256": "b03c35c3203706679bdac9cbc1e72c74a7ac5cf826718b40b1a5a869d99738e1",
     "dispatch_requested_ref": "main",
-    "dispatch_request_workflow_id": 380517406
+    "dispatch_request_workflow_id": 380517406,
+    "dispatch_attempted_at": "2026-10-10T22:34:49Z",
+    "dispatch_http_status": 204,
+    "dispatch_result": "accepted; exact run ID lookup pending"
   },
   "post_approval_preflight_refresh": {
     "allowed_without_new_decision": true,

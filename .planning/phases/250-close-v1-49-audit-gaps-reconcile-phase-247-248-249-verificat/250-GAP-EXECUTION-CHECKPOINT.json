@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T22:33:37Z",
-  "status": "plan_250_07_authorized_dispatch_intent_recorded",
+  "captured_at": "2026-10-10T22:34:49Z",
+  "status": "plan_250_07_controller_dispatch_accepted_run_id_lookup_pending",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
   "source_head": "d32128f55300cef3cab5ad3c4e3851f06490eaee",
@@ -47,14 +47,14 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "user_approved_packet_v4_preflight_refreshed_dispatch_intent_recorded",
+    "status": "approved_v4_controller_dispatch_accepted_run_id_lookup_pending",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "sha256": "c536af5f4f8b93c32357803cd32b99afacf75983bf8c1e49b9a6dfaf86b26f84",
+      "sha256": "6a2e1ad7998ab86784b2623762e91d585a2db3d760a28bc6019ac0e8488d6bfa",
       "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
       "packet_id": "250-07-canary-authority-v4",
       "source_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
-      "status": "approved_dispatch_intent_recorded"
+      "status": "approved_dispatch_accepted"
     },
     "preflight": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
@@ -264,9 +264,13 @@
       "workflow_id": 380517406,
       "ref": "main",
       "request_sha256": "b03c35c3203706679bdac9cbc1e72c74a7ac5cf826718b40b1a5a869d99738e1",
-      "http_request_submitted": false
+      "http_request_submitted": true,
+      "http_response_status": 204,
+      "submitted_at": "2026-10-10T22:34:49Z",
+      "run_id_lookup": "pending; no watcher started yet"
     },
-    "controller_dispatch_attempted_after_v4": false
+    "controller_dispatch_attempted_after_v4": true,
+    "controller_run_id_after_v4": null
   },
   "plan_250_08": {
     "status": "blocked_no_eligible_tuple",
