@@ -4,13 +4,13 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: Phase 250 discussion
+current_plan: No plan yet; run $gsd-plan-phase 250
 status: in_progress
 stopped_at: Phase 250 context gathered (assumptions mode)
-last_updated: "2026-10-10T01:51:27.811Z"
+last_updated: "2026-10-10T01:53:59.133Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250 added; readiness is clear and discussion is next
-state_head: f9d7ab7cfdc3bd01ec30578f1fc7aa7b4c251138
+last_activity_desc: Phase 250 context is complete; plan the audit-gap closure
+state_head: ce65b583e65e9d5c8594821dd15617ae4298ae48
 progress:
   total_phases: 5
   completed_phases: 4
@@ -27,22 +27,22 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 250 discussion and planning; keep v1.49 unarchived until its audit passes
+**Current focus:** Phase 250 planning; keep v1.49 unarchived until its audit passes
 
 ## Current Position
 
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — PENDING
-Current Plan: No plan yet; run `$gsd-discuss-phase 250`
+Current Plan: No plan yet; run $gsd-plan-phase 250
 Total Plans in Phase: 0
 Plans executed: 0 of 0
 Status: Phase implementation is complete, but milestone verification is not. Audit score is 3/9; Phase 247 verification is missing, Phase 248 hosted failure/cancellation receipt proof and verifier reconciliation remain, and Phase 249 verification predates its passing final-acceptance seal.
-Last activity: 2026-10-10 — Phase 250 added after the v1.49 audit; readiness has no prerequisite blocker.
+Last activity: 2026-10-10 — Phase 250 context is complete; planning is the next step.
 
 Progress: [████████░░] 80%
 
 ### v1.49 audit route
 
-The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Phase 250 is now added to reconcile missing/stale phase verifications and prove hosted failure/cancellation receipts. `init.plan-phase 250` reports a pending phase with no context or plan and no prerequisite blocker. Next: `$gsd-discuss-phase 250`.
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Phase 250 context now captures the stale verifier reconciliation, Phase 247 identity conflict, and safe hosted failure/cancellation canary. `init.plan-phase 250` reports a pending phase with complete context, no plans, and no prerequisite blocker. Next: `$gsd-plan-phase 250`.
 
 ### v1.49 phase map
 

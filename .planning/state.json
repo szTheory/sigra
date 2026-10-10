@@ -25,14 +25,14 @@
     },
     {
       "number": "250",
-      "name": "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts",
+      "name": "Close v1.49 audit gaps",
       "status": "pending"
     }
   ],
   "next": {
-    "command": "$gsd-discuss-phase 250",
-    "label": "Discuss Phase 250 audit-gap closure",
-    "reason": "Phase 250 is added at the end of v1.49. init.plan-phase 250 reports Pending, no plans, no context, and no prerequisite blocker. The audit findings and evidence references are in .planning/v1.49-MILESTONE-AUDIT.md."
+    "command": "$gsd-plan-phase 250",
+    "label": "Plan Phase 250 audit-gap closure",
+    "reason": "Phase 250 is pending; context is complete, no plans exist, and init.plan-phase 250 reports no prerequisite blocker."
   },
-  "updated_at": "2026-10-10T01:27:15Z"
+  "updated_at": "2026-10-10T01:54:36.701Z"
 }
