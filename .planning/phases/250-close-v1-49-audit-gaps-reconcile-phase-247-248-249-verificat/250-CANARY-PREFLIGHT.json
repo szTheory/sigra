@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "status": "ready",
-  "captured_at": "2026-10-10T20:03:14Z",
+  "captured_at": "2026-10-10T20:20:35Z",
   "repository": "szTheory/sigra",
   "default_branch": "main",
-  "target_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+  "target_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
   "actions_enabled": true,
   "artifact_retention_days": 90,
   "artifact_retention_maximum_days": 90,
