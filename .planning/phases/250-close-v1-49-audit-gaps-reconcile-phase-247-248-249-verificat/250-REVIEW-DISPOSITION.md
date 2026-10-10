@@ -5,7 +5,7 @@ titles: json
 findings:
   - id: CR-01
     severity: critical
-    disposition: fixed
+    disposition: open
     commits: [13d11e69a, 27ddb4ea1]
     tests: [verify-248-release.test.mjs]
     title: "Phase 248 cannot accept the current canary controller proof"
@@ -17,7 +17,7 @@ findings:
     title: "READY verdicts omit required evidence blockers"
   - id: CR-03
     severity: critical
-    disposition: fixed
+    disposition: open
     commits: [da7d33053]
     tests: [verify-247-readiness.test.mjs]
     title: "Exact-head CI is accepted on file existence alone"
@@ -51,10 +51,17 @@ findings:
     commits: [abc187698]
     tests: [verify-249-release.test.mjs]
     title: "The release verifier makes a network request to an unvalidated receipt URL"
-open: 0
-fixed: 8
-total: 8
+  - id: WR-03
+    severity: warning
+    disposition: open
+    commits: [da7d33053]
+    tests: [verify-247-readiness.test.mjs]
+    title: "Malformed exact-head CI JSON can still crash evidence capture"
+open: 3
+fixed: 6
+total: 9
 fix_report: 250-REVIEW-FIX.md
+recheck_report: 250-REVIEW-RECHECK.md
 recorded: "2026-10-10"
 ---
 
@@ -62,13 +69,16 @@ recorded: "2026-10-10"
 
 | Finding | Severity | Disposition | Source |
 |---------|----------|-------------|--------|
-| CR-01 | critical | fixed | `13d11e69a`, `27ddb4ea1`; `verify-248-release.test.mjs` |
+| CR-01 | critical | open | Recheck: Phase 248 capture omits retrieval fields required by its evaluator; see `250-REVIEW-RECHECK.md` |
 | CR-02 | critical | fixed | `da7d33053`; `verify-247-readiness.test.mjs` |
-| CR-03 | critical | fixed | `da7d33053`; `verify-247-readiness.test.mjs` |
+| CR-03 | critical | open | Recheck: capture queries readiness CI while evaluation requires proposal CI; see `250-REVIEW-RECHECK.md` |
 | CR-04 | critical | fixed | `da7d33053`; `verify-247-readiness.test.mjs` |
 | CR-05 | critical | fixed | `698f5d6cc`; `verify-v149-traceability.test.mjs` |
 | CR-06 | critical | fixed | `da7d33053`; `verify-247-readiness.test.mjs` |
 | WR-01 | warning | fixed | `b300f227c`; `release-canary.test.sh` |
 | WR-02 | warning | fixed | `abc187698`; `verify-249-release.test.mjs` |
+| WR-03 | warning | open | Recheck: malformed exact-head receipt JSON escapes the fallback and crashes capture; see `250-REVIEW-RECHECK.md` |
 
 Dispositions: `open` (recorded, not yet triaged), `fixed`, `skipped`, `deferred`.
+
+Independent recheck found two original blockers remain in executable capture paths and one additional error-handling defect. The stored source-evidence gaps and missing canary artifacts remain separate evidence blockers.
