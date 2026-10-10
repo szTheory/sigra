@@ -30,9 +30,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 250",
-    "label": "Execute Phase 250 audit-gap closure",
-    "reason": "Five plans passed independent review; implementation and phase verification remain outstanding."
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 250 of 5 · 80% · executing"
   },
-  "updated_at": "2026-10-10T12:09:15.315Z"
+  "updated_at": "2026-10-10T12:12:01.360Z"
 }

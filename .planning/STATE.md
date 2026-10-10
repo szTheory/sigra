@@ -4,19 +4,19 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: Five plans passed independent review; run $gsd-execute-phase 250
-status: in_progress
+current_plan: 1
+status: executing
 stopped_at: Phase 250 planning complete; five plans passed independent review
-last_updated: "2026-10-10T12:08:00.596Z"
+last_updated: "2026-10-10T12:12:01.335Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 250 plans passed independent review; execution is next
-state_head: e54749ef51771d42b264c4801d3a4e951a2f1c52
+last_activity_desc: Phase 250 execution started
+state_head: a54999db678350f7df05dd66e6e59ab12ea63720
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 36
   completed_plans: 29
-  percent: 69
+  percent: 80
 ---
 
 # Project State
@@ -27,18 +27,18 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Execute Phase 250; keep v1.49 unarchived until its audit passes
+**Current focus:** Phase 250 — Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — READY TO EXECUTE
-Current Plan: Five validated plans; run $gsd-execute-phase 250
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
+Current Plan: 1
 Total Plans in Phase: 5
 Plans executed: 0 of 5
-Status: Phase implementation is complete, but milestone verification is not. Audit score is 3/9; Phase 247 verification is missing, Phase 248 hosted failure/cancellation receipt proof and verifier reconciliation remain, and Phase 249 verification predates its passing final-acceptance seal.
-Last activity: 2026-10-10 — Phase 250 plans passed independent review; implementation and phase verification remain.
+Status: Executing Phase 250
+Last activity: 2026-10-10 — Phase 250 execution started
 
-Progress: [███████░░░] 69%
+Progress: [████████░░] 80%
 
 ### v1.49 audit route
 
