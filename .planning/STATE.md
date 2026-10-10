@@ -7,10 +7,10 @@ current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verific
 current_plan: 1
 status: executing
 stopped_at: Phase 250 planning complete; five plans passed independent review
-last_updated: "2026-10-10T12:12:01.335Z"
+last_updated: "2026-10-10T12:25:41.561Z"
 last_activity: 2026-10-10
 last_activity_desc: Phase 250 execution started
-state_head: a54999db678350f7df05dd66e6e59ab12ea63720
+state_head: 869b4caaa2b448c448e58e8eff02672bca7b3123
 progress:
   total_phases: 5
   completed_phases: 4
@@ -631,6 +631,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 247 Plan 04: final readiness remains blocked because mix hex.publish --dry-run --yes cannot run without the candidate locked dependencies; dependency installation is prohibited for this task.
 - Phase 247 Plan 05 checkpoint history: after evidence PR #289 merged, Release Please changed PR #224 from fixed candidate 563f411bc2659bb9ac1652d552ce58ffb0c876b1 to 166ba84d7a25369f052aed3bded9ac68f376b6b5; this was superseded by a later Release Please head.
 - Phase 247 Plan 05 current blocker: PR #224 is open at head 77dd1126436a9e83c04283433e5f60c71ee98287 on base/main e3883b72fb1df5ad6356ef10dbde408f18bbc3be. Its 1.6.0 CHANGELOG section is raw generated history with internal phase IDs and no curated adopter summary (D-03); README still routes existing adopters to upgrading-to-v1.0.md and guides/introduction/upgrading-to-v1.6.md is absent at the exact head (D-05/D-06). Exact-head CI run 37713178478 is watched only by the parent. Do not retarget the fixed-source workflow, inspect credential metadata, dispatch Hex workflow, create tags, publish, or merge PR #224. See `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md`.
+- 250-01 Task 3 is blocked: canary workflow is not visible on main, so Actions identity/permissions/retention and hosted receipt retrieval are unproven; default-branch rollout and dispatch remain unauthorized. See .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json and 250-CANARY-PROOF.json.
 
 ### Roadmap Evolution
 
