@@ -41,7 +41,7 @@ Usage:
   release-canary.sh --validate-proof <proof.json>
   release-canary.sh --write-failure-receipt --output <receipt.json>
   release-canary.sh --resolve-run --workflow-id <id> --scenario <failure|cancellation> --probe-id <id>
-  release-canary.sh --cancel-canary-run <run-id> --workflow-id <id>
+  release-canary.sh --cancel-canary-run <run-id> --workflow-id <id> --expected-sha <sha>
   release-canary.sh --validate-pair --failure-receipt <json> --cancellation-receipt <json>
   release-canary.sh --preflight --output <preflight.json>
   release-canary.sh --validate-preflight --output <validated-preflight.json>
@@ -111,6 +111,7 @@ validate_receipt_pair() {
   [[ "$(jq -r .probe_id "$failure")" != "$(jq -r .probe_id "$cancellation")" ]] || return 1
   [[ "$(jq -r .source_run_id "$failure")" != "$(jq -r .source_run_id "$cancellation")" ]] || return 1
   [[ "$(jq -r .source_sha "$failure")" == "$(jq -r .source_sha "$cancellation")" ]] || return 1
+  [[ "$(jq -r .source_run_attempt "$failure")" == "$(jq -r .source_run_attempt "$cancellation")" ]] || return 1
 }
 
 write_failure_receipt() {
@@ -369,9 +370,10 @@ wait_for_cancellation_stage() {
 }
 
 cancel_exact_canary_run() {
-  local id="$1" expected_workflow_id="$2" expected_probe_id="$3" run jobs
+  local id="$1" expected_workflow_id="$2" expected_probe_id="$3" expected_sha="$4" run jobs
   [[ "$id" =~ ^[1-9][0-9]*$ && "$expected_workflow_id" =~ ^[1-9][0-9]*$ ]] || return 1
   valid_probe_id "$expected_probe_id" || return 1
+  [[ "$expected_sha" =~ ^[0-9a-f]{40}$ ]] || return 1
   run="$(run_metadata "$id")" || return 1
   [[ "$(jq -r '.id | tostring' <<<"$run")" == "$id" &&
      "$(jq -r '.workflow_id | tostring' <<<"$run")" == "$expected_workflow_id" &&
@@ -379,6 +381,8 @@ cancel_exact_canary_run() {
      "$(jq -r '.name' <<<"$run")" == "Release Receipt Canary" &&
      "$(jq -r '.event' <<<"$run")" == workflow_dispatch &&
      "$(jq -r '.head_branch' <<<"$run")" == main &&
+     "$(jq -r '.head_sha' <<<"$run")" == "$expected_sha" &&
+     "$(jq -r '.run_attempt' <<<"$run")" == 1 &&
      "$(jq -r '.display_title' <<<"$run")" == "release-receipt-canary-cancellation-${expected_probe_id}" &&
      "$(jq -r '.status' <<<"$run")" == in_progress ]] || return 1
   jobs="$(run_jobs "$id")" || return 1
@@ -429,7 +433,7 @@ run_controller() {
   [[ "$cancel_id" != "$failure_id" ]] || fail "probe runs unexpectedly share one run ID"
   wait_for_cancellation_stage "$cancel_id" || fail "exact cancellation probe did not reach its bounded wait stage"
   # Re-query the authoritative run and exact wait step immediately before cancel.
-  cancel_exact_canary_run "$cancel_id" "$canary_wf_id" "$cancel_probe" || fail "ordinary exact-run cancellation request failed"
+  cancel_exact_canary_run "$cancel_id" "$canary_wf_id" "$cancel_probe" "$sha" || fail "ordinary exact-run cancellation request failed"
   watch_run "$cancel_id"
   cancel_run="$(run_metadata "$cancel_id")" || fail "cancellation run summary unavailable"
   [[ "$(jq -r '.id | tostring' <<<"$cancel_run")" == "$cancel_id" && "$(jq -r '.workflow_id | tostring' <<<"$cancel_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$cancel_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.event' <<<"$cancel_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$cancel_run")" == main && "$(jq -r '.head_sha' <<<"$cancel_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$cancel_run")" == 1 && "$(jq -r '.display_title' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.conclusion' <<<"$cancel_run")" == cancelled ]] || fail "cancellation run exact identity or expected conclusion mismatch"
@@ -493,7 +497,8 @@ case "$MODE" in
     [[ "$PROOF" =~ ^[1-9][0-9]*$ ]] || fail "run ID is malformed"
     [[ "$WORKFLOW_ID" =~ ^[1-9][0-9]*$ ]] || fail "workflow ID is malformed"
     valid_probe_id "$PROBE_ID" || fail "probe ID is malformed"
-    cancel_exact_canary_run "$PROOF" "$WORKFLOW_ID" "$PROBE_ID" || fail "refusing to cancel a non-canary or non-waiting run"
+    [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]] || fail "expected source SHA is malformed"
+    cancel_exact_canary_run "$PROOF" "$WORKFLOW_ID" "$PROBE_ID" "$EXPECTED_SHA" || fail "refusing to cancel a non-canary or non-waiting run"
     echo "release-canary: cancelled exact canary run ${PROOF}"
     ;;
   validate-pair)
