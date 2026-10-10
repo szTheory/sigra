@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.49 RELEASE-1.6.0 phase work is complete; milestone audit remains before archival. The package target is 1.6.0 from the existing Release Please PR #224; v1.49 is the GSD milestone number.
+**Status:** Sigra 1.6.0 is published and the v1.49 audit found verification/evidence gaps; keep the milestone open pending one focused closure phase. The package target is 1.6.0 from the existing Release Please PR #224; v1.49 is the GSD milestone number.
 
 ## Milestones
 
@@ -190,4 +190,16 @@ Plans:
 
 ### Next
 
-**Next: run `$gsd-audit-milestone` for v1.49 after the final Phase 249 terminal replay.** Phase 249 release evidence now joins the published 1.6.0 source to protected main `08300af1740fea8b77d5928a182688acbf103edc` and successful exact-main CI run `38003573391` (ci-gate job `114069179560`). The refreshed live inventory contains six clean worktrees and 14 source-dispositioned open PRs; preservation passes with only the previously user-authorized, unrecovered historical HANDOFF loss. The verifier-reported inventory mismatch was a stale snapshot; the final acceptance is closed only by recapturing and sealing after all report/state commits. `init.plan-phase 250` returned `phase_found=false`.
+**Audit result:** v1.49 milestone audit is `gaps_found` (3/9 requirements satisfied). The release and confirmation flows are wired; Phase 247 verification is missing, Phase 248 hosted failure/cancellation receipts remain unproven and its canonical verifier needs reconciliation, and Phase 249's canonical verifier predates the passing final-acceptance seal. Keep v1.49 unarchived. Phase 250 does not exist yet.
+
+**Next command:** insert one focused closure phase, then discuss, plan, execute, and rerun the audit:
+
+```text
+$gsd-phase --insert 250 "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
+$gsd-discuss-phase 250
+$gsd-plan-phase 250
+$gsd-execute-phase 250
+$gsd-audit-milestone
+```
+
+The passing Phase 249 acceptance is at `refs/heads/evidence/phase-249-final-acceptance`, commit `65f1ca4c851d62415ed656509cb068dc3acbab15`; the current checkout's acceptance JSON remains an older blocked snapshot. Do not repeat `$gsd-validate-phase 248` until new hosted failure/cancellation artifacts exist.

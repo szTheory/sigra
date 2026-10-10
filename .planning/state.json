@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 — RELEASE-1.6.0",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -25,11 +25,11 @@
     }
   ],
   "next": {
-    "command": "$gsd-audit-milestone",
-    "label": "Rerun the v1.49 milestone audit with refreshed Phase 248 validation evidence",
-    "reason": "Phase 248 Nyquist validation now records 11 passing local checks, complete Wave 0, current protected-environment setup, exact-head CI, and the successful published receipt. Hosted failure/cancellation receipts remain unproven, the canonical Phase 248 verifier is stale, Phase 247 lacks a verifier, and Phase 249 verification predates its final acceptance. Phase 250 is absent from the roadmap. Keep v1.49 unarchived; the milestone audit is the next GSD step, and a safe non-publishing hosted canary is the recommended AUTO-02 follow-up."
+    "command": "$gsd-phase --insert 250 \"Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts\"",
+    "label": "Insert one focused v1.49 audit-gap closure phase",
+    "reason": "The v1.49 audit is gaps_found (3/9 requirements satisfied). Phase 247 verification is missing; Phase 248 still lacks hosted failure/cancellation receipt retrieval and needs canonical verifier reconciliation; Phase 249 has a passing final-acceptance ref but a stale canonical verifier. The exact acceptance ref and evidence are recorded in .planning/v1.49-MILESTONE-AUDIT.md. init.plan-phase 250 returned phase_found=false, so insert the closure phase before discussing/planning it. Keep the milestone unarchived."
   },
-  "updated_at": "2026-10-10T01:15:48Z",
+  "updated_at": "2026-10-10T01:24:10Z",
   "progress": {
     "total_phases": 4,
     "completed_phases": 4,

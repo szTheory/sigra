@@ -4,12 +4,12 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
-current_plan: v1.49 milestone audit
+current_plan: v1.49 milestone audit — gaps_found
 status: in_progress
-stopped_at: Phase 248 Nyquist validation refreshed; v1.49 milestone audit is next (Phase 250 does not exist)
-last_updated: "2026-10-10T01:15:48Z"
+stopped_at: v1.49 milestone audit complete with gaps_found; insert focused Phase 250 closure next
+last_updated: "2026-10-10T01:24:10Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 248 Wave 0 and 11 local validation checks pass; hosted failure/cancellation receipts remain unproven
+last_activity_desc: v1.49 audit found 3/9 requirements satisfied; phase verification reconciliation and hosted AUTO-02 canary remain
 state_head: 2782099bb
 progress:
   total_phases: 4
@@ -27,18 +27,22 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.49 milestone audit after Phase 248 validation refresh
+**Current focus:** close the v1.49 audit gaps; do not archive yet
 
 ## Current Position
 
 Phase: 249 (Publish and Prove Sigra 1.6.0) — COMPLETE
-Current Plan: None; rerun the v1.49 milestone audit with refreshed Phase 248 validation evidence
+Current Plan: None; audit is complete with gaps_found; insert one focused Phase 250 closure phase
 Total Plans in Phase: 12
 Plans executed: 12 of 12
-Status: Phase implementation is complete. Phase 248 validation is refreshed with 11 passing local checks and Wave 0 complete; Nyquist remains partial because hosted failure/cancellation receipts are unproven. Phase 247 verification is missing and Phase 248/249 canonical verifications need reconciliation before milestone closeout.
-Last activity: 2026-10-10 — the hosted success path and environment setup remain proven; a safe non-publishing canary is the recommended follow-up for AUTO-02.
+Status: Phase implementation is complete, but milestone verification is not. Audit score is 3/9; Phase 247 verification is missing, Phase 248 hosted failure/cancellation receipt proof and verifier reconciliation remain, and Phase 249 verification predates its passing final-acceptance seal.
+Last activity: 2026-10-10 — milestone audit found no broken implementation flows; a safe non-publishing canary is required for AUTO-02.
 
 Progress: [██████████] 100%
+
+### v1.49 audit route
+
+The audit report is `.planning/v1.49-MILESTONE-AUDIT.md` (`gaps_found`, 3/9 requirements). Phase 250 is absent. Insert one closure phase to reconcile missing/stale phase verifications and prove hosted failure/cancellation receipts, then rerun `$gsd-audit-milestone`. Do not repeat `$gsd-validate-phase 248` until new hosted terminal artifacts exist.
 
 ### v1.49 phase map
 
