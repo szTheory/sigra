@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "captured_at": "2026-10-10T14:26:53Z",
+  "preflight": {
+    "schema_version": 1,
+    "status": "ready",
+    "captured_at": "2026-10-10T14:19:15Z",
+    "repository": "szTheory/sigra",
+    "default_branch": "main",
+    "target_sha": "f606ac15d3beaaf87a285e908674ebadff2866f3",
+    "actions_enabled": true,
+    "artifact_retention_days": 90,
+    "artifact_retention_maximum_days": 90,
+    "required_retention_days": 30,
+    "workflows": {
+      "canary": {
+        "id": 380517407,
+        "path": ".github/workflows/release-receipt-canary.yml"
+      },
+      "controller": {
+        "id": 380517406,
+        "path": ".github/workflows/release-receipt-canary-controller.yml"
+      },
+      "observer": {
+        "id": 379162190,
+        "path": ".github/workflows/release-run-observer.yml"
+      }
+    },
+    "default_workflow_permissions": "read",
+    "controller_authority": "actions:write; contents:read",
+    "source_authority": "actions:read; contents:read",
+    "observer_authority": "actions:read; contents:read",
+    "credential_values_recorded": false,
+    "dispatch_attempted": false
+  },
+  "reason": "failure_probe_dispatch_could_not_be_uniquely_correlated",
+  "dispatch_attempted": true,
+  "receipts": [],
+  "credential_values_recorded": false
+}

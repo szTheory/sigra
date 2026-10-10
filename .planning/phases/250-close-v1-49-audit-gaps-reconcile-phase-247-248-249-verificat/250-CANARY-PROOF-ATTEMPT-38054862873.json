@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "captured_at": "2026-10-10T13:13:42Z",
+  "reason": "controller_checkout_shallow_history_prevented_preflight_ancestor_check",
+  "controller_dispatch_attempted": true,
+  "dispatch_attempted": false,
+  "child_canary_dispatch_attempted": false,
+  "controller_run": {
+    "id": 38054862873,
+    "attempt": 1,
+    "workflow_id": 380517406,
+    "workflow_name": "Release Receipt Canary Controller",
+    "workflow_path": ".github/workflows/release-receipt-canary-controller.yml",
+    "event": "workflow_dispatch",
+    "ref": "refs/heads/main",
+    "sha": "5059581954960548c7fe5c4811b7a7f81dd16aa3",
+    "conclusion": "failure",
+    "created_at": "2026-10-10T13:12:56Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38054862873",
+    "artifact": {
+      "id": 11670154191,
+      "name": "release-canary-controller-38054862873-1",
+      "digest": "sha256:ecbe27bc7d736cde8bef48bf78105256d293653bdda5fb85746597a15e762889",
+      "proof_sha256": "63886b4d90b32a4c8c4d1a3baa89ce45a5c6513bff2085c25c4af4c685204809",
+      "expires_at": "2026-11-09T13:13:43Z"
+    }
+  },
+  "preflight_snapshot": {
+    "schema_version": 1,
+    "status": "ready",
+    "captured_at": "2026-10-10T13:05:42Z",
+    "repository": "szTheory/sigra",
+    "default_branch": "main",
+    "target_sha": "04e7a13dbd9394b453c132d2a168ce6642c98e37",
+    "actions_enabled": true,
+    "artifact_retention_days": 90,
+    "artifact_retention_maximum_days": 90,
+    "required_retention_days": 30,
+    "workflows": {
+      "canary": {
+        "id": 380517407,
+        "path": ".github/workflows/release-receipt-canary.yml"
+      },
+      "controller": {
+        "id": 380517406,
+        "path": ".github/workflows/release-receipt-canary-controller.yml"
+      },
+      "observer": {
+        "id": 379162190,
+        "path": ".github/workflows/release-run-observer.yml"
+      }
+    },
+    "default_workflow_permissions": "read",
+    "controller_authority": "actions:write; contents:read",
+    "source_authority": "actions:read; contents:read",
+    "observer_authority": "actions:read; contents:read",
+    "credential_values_recorded": false,
+    "dispatch_attempted": false,
+    "supersedes": {
+      "status": "blocked",
+      "commit": "869b4caaa",
+      "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+      "preflight_sha256": "2a7e68e1963aec7f0cff29d5ff1722f5117d48c6cbdc5571273f5b2f03d94696",
+      "proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+      "proof_sha256": "aacd8fea5f36fe7bb94317aa730fc0c4f160e4c55c59283206d71ceb99e826f9",
+      "dispatch_attempted": false,
+      "credential_values_recorded": false
+    }
+  },
+  "runtime_preflight": {
+    "status": "blocked",
+    "emitted_reason": "default_branch_rewound_after_preflight",
+    "explanation": "GitHub compare confirms the preflight target is an ancestor of current main; the controller checkout could not resolve that ancestor during its local merge-base check.",
+    "compare": {
+      "status": "ahead",
+      "ahead_by": 1,
+      "behind_by": 0,
+      "merge_base": "04e7a13dbd9394b453c132d2a168ce6642c98e37"
+    }
+  },
+  "controller_proof_artifact": {
+    "schema_version": 1,
+    "status": "blocked",
+    "captured_at": "2026-10-10T13:13:42Z",
+    "preflight": {
+      "schema_version": 1,
+      "status": "blocked",
+      "captured_at": "2026-10-10T13:13:42Z",
+      "repository": "szTheory/sigra",
+      "target_ref": "refs/heads/main",
+      "workflows": {
+        "canary": {
+          "id": null,
+          "path": ".github/workflows/release-receipt-canary.yml"
+        },
+        "controller": {
+          "id": null,
+          "path": ".github/workflows/release-receipt-canary-controller.yml"
+        },
+        "observer": {
+          "id": null,
+          "path": ".github/workflows/release-run-observer.yml"
+        }
+      },
+      "reason": "default_branch_rewound_after_preflight",
+      "dispatch_attempted": false,
+      "credential_values_recorded": false
+    },
+    "reason": "fresh_committed_read_only_actions_preflight_is_blocked",
+    "dispatch_attempted": false,
+    "receipts": [],
+    "credential_values_recorded": false
+  },
+  "receipts": [],
+  "prior_blocked_evidence": {
+    "status": "blocked",
+    "commit": "db74d0db381f2c583a074d6f4695bffb4f15ce45",
+    "proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+    "proof_sha256": "aacd8fea5f36fe7bb94317aa730fc0c4f160e4c55c59283206d71ceb99e826f9",
+    "dispatch_attempted": false,
+    "credential_values_recorded": false
+  },
+  "credential_values_recorded": false,
+  "credential_shaped_data_detected": false,
+  "credential_scan": {
+    "controller_artifact_matches": 0,
+    "failed_log_token_patterns": 0,
+    "masked_markers": 1
+  }
+}
