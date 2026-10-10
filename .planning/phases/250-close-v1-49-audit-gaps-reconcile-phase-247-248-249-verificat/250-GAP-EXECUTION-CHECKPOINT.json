@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T22:34:49Z",
+  "captured_at": "2026-10-10T22:35:10Z",
   "status": "plan_250_07_controller_dispatch_accepted_run_id_lookup_pending",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
@@ -47,14 +47,14 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "approved_v4_controller_dispatch_accepted_run_id_lookup_pending",
+    "status": "controller_run_38091955379_in_progress",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "sha256": "6a2e1ad7998ab86784b2623762e91d585a2db3d760a28bc6019ac0e8488d6bfa",
+      "sha256": "4621426c104588e71c52c80d4d42be9f85d30fd8b3b113906ad88ac88eca39ff",
       "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
       "packet_id": "250-07-canary-authority-v4",
       "source_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
-      "status": "approved_dispatch_accepted"
+      "status": "approved_dispatch_in_progress"
     },
     "preflight": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
@@ -267,10 +267,22 @@
       "http_request_submitted": true,
       "http_response_status": 204,
       "submitted_at": "2026-10-10T22:34:49Z",
-      "run_id_lookup": "pending; no watcher started yet"
+      "run_id_lookup": "pending; no watcher started yet",
+      "run_id": 38091955379,
+      "run_url": "https://github.com/szTheory/sigra/actions/runs/38091955379",
+      "run_created_at": "2026-10-10T22:34:49Z",
+      "run_status_at_lookup": "in_progress"
     },
     "controller_dispatch_attempted_after_v4": true,
-    "controller_run_id_after_v4": null
+    "controller_run_id_after_v4": 38091955379,
+    "controller_run_url_after_v4": "https://github.com/szTheory/sigra/actions/runs/38091955379",
+    "watcher": {
+      "run_id": 38091955379,
+      "interval_seconds": 60,
+      "started": false,
+      "watcher_count": 0,
+      "deadline_at": "2026-10-10T23:09:49Z"
+    }
   },
   "plan_250_08": {
     "status": "blocked_no_eligible_tuple",
