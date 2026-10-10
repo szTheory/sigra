@@ -9,8 +9,12 @@
     "child_run_id": "38083779742",
     "source_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
     "reason": "failure_probe_dispatch_correlation_failed_zero_ambiguous_or_mismatched_source_identity",
-    "approval_packet_source_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
-    "approval_packet_stale_and_consumed": true
+    "consumed_packet_source_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "consumed_packet_document_sha256": "e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b",
+    "stale_earlier_packet_source_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "stale_earlier_packet_payload_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
+    "stale_earlier_authority_dispatched": false,
+    "replacement_authority_consumed": true
   },
   "repair": {
     "workflow_run_name_pattern": "release-receipt-canary-${scenario}-${probe_id}",

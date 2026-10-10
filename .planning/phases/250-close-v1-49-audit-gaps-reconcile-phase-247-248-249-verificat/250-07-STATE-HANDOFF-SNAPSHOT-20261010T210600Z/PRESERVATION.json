@@ -3,7 +3,7 @@
   "kind": "phase_250_07_write_ahead_preservation",
   "captured_at": "2026-10-10T21:08:16Z",
   "capture_head": "0604c3167d9af23f539e7943049a72b5953252c6",
-  "purpose": "Preserve the exact dirty v3 draft and tracker/checkpoint revisions before refreshing the preflight payload and current-main authority packet.",
+  "purpose": "Preserve the exact approved-but-superseded packet and preflight, the v3 draft packet/preflight before its same-source timestamp refresh, and the dirty STATE/HANDOFF/checkpoint revision before updating its pointers to the refreshed packet.",
   "clean_committed_v2_revisions": [
     {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
@@ -29,7 +29,8 @@
       "sha256": "66c3a16f769f3a8de2499969a1fe3eeaa30914e7c082cc999681a043fa658e3f",
       "bytes": 9435,
       "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-prerefresh.json",
-      "readback_verified": true
+      "readback_verified": true,
+      "capture_window": "2026-10-10T21:05:21Z to 2026-10-10T21:05:58Z; copied and read back before the fresh preflight replaced these bytes"
     },
     {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
@@ -37,7 +38,8 @@
       "sha256": "4b4e6532a2b0fa53b49317c194d88f6812ea4b00e2b00a06b9c0be40da948bf8",
       "bytes": 979,
       "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-SUPERSEDED-9cb1c48-prerefresh.json",
-      "readback_verified": true
+      "readback_verified": true,
+      "capture_window": "2026-10-10T21:05:21Z to 2026-10-10T21:05:58Z; copied and read back before the fresh preflight replaced these bytes"
     },
     {
       "path": ".planning/STATE.md",

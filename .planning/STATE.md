@@ -6,11 +6,11 @@ current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
 status: awaiting_decision
-stopped_at: Plan 250-06 delivered; 250-07 replacement authority pending after preflight delivery repair; 250-08 blocked with no eligible tuple
-last_updated: "2026-10-10T20:23:43Z"
+stopped_at: Plan 250-07 Task 1 re-prepared on main 9cb1c48; awaiting explicit decision on packet v3; 250-08 remains blocked
+last_updated: "2026-10-10T21:11:45Z"
 last_activity: 2026-10-10
-last_activity_desc: Canary repair and preflight delivery repair merged; exact-source replacement authority pending; candidate evidence blocked
-state_head: d0bc8f81c9e5e275bdcd8f33dc6159699e87e3b0
+last_activity_desc: Source identity repair merged as PR #320; fresh main-bound packet v3 prepared; awaiting explicit authority
+state_head: d9637d7a13b490e404020cae728a70f002806437
 progress:
   total_phases: 5
   completed_phases: 4
@@ -33,28 +33,30 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — AWAITING EXACT-SOURCE DECISION
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — AWAITING CURRENT-MAIN AUTHORITY
 Current Plan: 7
 Total Plans in Phase: 12
-Plans executed: 6 of 12 (01–06 summarized; 07 Task 1 prepared, 08 blocked; 09–12 await dependencies)
+Plans executed: 6 of 12 summarized (01–06); Plan 07 Task 1 refreshed and its identity repair merged, decision pending; Plan 08 blocked; 09–12 await dependencies
 Status: Partial implementation delivered; phase verification incomplete
-Last activity: 2026-10-10 — PRs #318 and #319 merged after exact-head CI; replacement canary authority packet pending
+Last activity: 2026-10-10 — PR #320 identity repair merged after required CI; current-main packet v3 pending explicit authority
 
 Progress: [███████░░░] 72% (31/43 summaries; not acceptance completion)
 
 ### v1.49 audit route
 
-Plan 250-06 is complete: PR #318 merged the dispatch/scenario/cancellation repair at main `34f7fd8e47c4b356ef97656f3213a2e749017f2a`, with exact-head CI run `38080575187` passing. The scoped Plan 250-07 preflight delivery repair is complete: PR #319 merged at main `33fccd8b3afe8ad093a0e379578fdc29c8a44e95`, with CI run `38082645367` passing. Its controller now accepts digest-bound preflight data and retains the 900-second freshness and exact source checks. No controller/canary dispatch or cancellation has occurred. The local Mix wrapper remains blocked by ignored dependency/lock drift; standalone contracts and protected CI pass.
+Plan 250-06 is complete: PR #318 merged the dispatch/scenario/cancellation repair at main 34f7fd8e47c4b356ef97656f3213a2e749017f2a, with exact-head CI run 38080575187 passing. The scoped preflight-delivery repair PR #319 merged at 33fccd8b3afe8ad093a0e379578fdc29c8a44e95, with CI run 38082645367 passing. A replacement packet for that source was approved and its authority was consumed by controller run 38083752867; child 38083779742 failed source receipt identity validation because GitHub reports the dynamic workflow run-name. No cancellation, observer, or publish occurred.
 
-Plan 250-07 awaits approval of `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b`). The previous explicit approval for main `34f7fd8e` remains unused and cannot authorize changed main `33fccd8b`. The replacement permits one no-publish controller run and its exact self-owned waiting-child cancellation, maximum 35 minutes, no retry. Same-source timestamp refresh may change only captured_at and the resulting payload digest.
+The scoped source identity repair is complete: PR #320 merged to protected main 9cb1c48ec233d909784b4070a2e6ecd795522291, and exact-head CI run 38084430351 passed including ci-gate. The helper now validates the exact dynamic scenario/probe run name while preserving static workflow-object identity and every other source/run gate. Local canary (59), receipt (16), observer (22), standalone ExUnit (8), and actionlint checks passed. The standard Mix wrapper remains blocked by the existing Phoenix dependency-lock mismatch; dependencies were not changed.
 
-Plan 250-08 is durably blocked: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json` has zero eligible tuples. The parent browser artifact is recoverable but used the rejected old spec; the corrected child has no own authenticated dry-run/readiness record. The later PR head also lacks the necessary joins, and current PR dispositions are incomplete. No tuple approval is requested. Plan 250-09 cannot run without a new proved route; do not repeat identical recovery work.
+Plan 250-07 Task 1 now has fresh read-only preflight 2026-10-10T21:05:58Z bound to main 9cb1c48ec233d909784b4070a2e6ecd795522291; the preflight file SHA-256 is e5f77ef68e214054beb1966e39e34f9900ab86bf46fae205cca11b5ff84684e6, and its compact controller payload SHA-256 is 785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864. The canonical packet .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json (SHA-256 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68) is ready for an explicit decision. The earlier packet payload 10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69 was approved for main 34f7fd8e47c4b356ef97656f3213a2e749017f2a but superseded before dispatch. The separate packet e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b for 33fccd8b was approved and consumed by run 38083752867. The latest reply tied to the earlier packet does not authorize a run against current main 9cb1c48. No controller dispatch, child cancellation, or observer dispatch has occurred after the consumed failed run.
 
-The latest Phase 250 verifier remains `gaps_found` at 8/14 and the strict audit remains 5/9 with 31 blockers; both predate these repairs. Six plan summaries establish partial implementation completion, not completed phase verification. Requirements and original ownership are unchanged. Keep v1.49 unarchived.
+Plan 250-08 remains durably blocked: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json has zero eligible tuples. The parent browser artifact is recoverable but used the rejected old spec; the corrected child has no own authenticated dry-run/readiness record. The later PR head also lacks the necessary joins, and current PR dispositions are incomplete. No tuple approval is requested. Plan 250-09 cannot run without a newly proved route; do not repeat identical recovery work.
 
-**Next command:** `$gsd-execute-phase 250 --gaps-only` after explicit replacement packet approval; resume Plan 250-07 Task 3 from the committed checkpoint. `init.execute-phase 250` reports six incomplete plans and no duplicate threat IDs. Roadmap inspection confirms no phase after 250 is defined. READY gap replanning remains separate if no eligible historical source can be proved.
+The latest Phase 250 verifier remains gaps_found at 8/14 and the strict audit remains 5/9 with 31 blockers; neither was rerun after these scoped repairs. Six plan summaries establish partial implementation completion, not completed phase verification. Requirements and original ownership are unchanged. Keep v1.49 unarchived.
 
-Execution evidence: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json`; Plan 06 summary and Plan 07 repair proof contain exact commits/CI/blob identities. The initial dirty gap-planning draft remains recoverable at `refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z`, commit `15c1afd319f7d59012cd9173195e0833b8135c77`. Prior STATE/HANDOFF identities are recorded in the execution checkpoint. Historical HANDOFF loss remains accepted-with-recorded-loss.
+Next command: $gsd-execute-phase 250 --gaps-only after explicit authorization of the exact v3 packet; resume Plan 250-07 Task 3 only if the decision authorizes this source and bounded action. init.execute-phase 250 earlier reported six incomplete plans and no duplicate threat IDs. No later roadmap phase is defined.
+
+Execution evidence: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json; Plan 06 summary, Plan 07 preflight/identity repair evidence, superseded packet copies, and current packet contain exact source, CI, hash, authority and preservation identities. The initial dirty gap-planning draft remains recoverable at refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z, commit 15c1afd319f7d59012cd9173195e0833b8135c77. Earlier STATE/HANDOFF revisions are recorded in the checkpoint; historical HANDOFF loss remains accepted-with-recorded-loss.
 
 ### v1.49 phase map
 

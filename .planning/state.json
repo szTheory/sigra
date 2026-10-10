@@ -34,13 +34,13 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Resume exact-source canary after replacement approval",
-    "reason": "Phase 250 partial: 6/12 complete; replacement authority pending; candidate evidence blocked",
+    "label": "Resume Plan 250-07 after current-main packet v3 authority",
+    "reason": "Phase 250 remains partial: 6/12 plans summarized; Plan 07 awaits an explicit decision on the fresh packet bound to main 9cb1c48; Plan 08 has no eligible tuple.",
     "blocked_by": [
-      "250-07-replacement-authority",
+      "250-07-current-main-authority-v3",
       "250-08-no-eligible-tuple"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
   },
-  "updated_at": "2026-10-10T20:23:43Z"
+  "updated_at": "2026-10-10T21:11:45Z"
 }

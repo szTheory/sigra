@@ -1,23 +1,24 @@
 {
   "schema_version": 1,
-  "packet_id": "250-07-canary-authority-v2",
+  "packet_id": "250-07-canary-authority-v3",
   "status": "ready_for_explicit_decision",
   "repository": "szTheory/sigra",
-  "created_at": "2026-10-10T20:20:35Z",
+  "created_at": "2026-10-10T21:05:58Z",
   "source": {
     "default_branch": "main",
-    "main_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
-    "repair_pr": 319,
-    "repair_pr_head": "2965fc27a5e65954fe54b39f0be45ffcb856e9da",
-    "repair_ci_run_id": 38082645367,
+    "main_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+    "repair_pr": 320,
+    "repair_pr_head": "7131f835c74573e24bac44137446ddd84a58c294",
+    "repair_ci_run_id": 38084430351,
     "repair_ci_conclusion": "success",
-    "repair_commit": "4ca467d9fd95159e4df45e140535ad0a0eaab6e5",
+    "repair_ci_gate": "success",
+    "repair_merge_commit": "9cb1c48ec233d909784b4070a2e6ecd795522291",
     "blobs_on_authorized_main": {
       ".github/workflows/release-receipt-canary.yml": "04b3ad78954f075615b3535cf330bf74c11814a9",
       ".github/workflows/release-receipt-canary-controller.yml": "56f8f86fa1f2343a40106a743f99f9bbdcb2c2b1",
       ".github/workflows/release-run-observer.yml": "a639b620223b97ddb0982fcb9cd3c4463b4b3084",
-      "scripts/ci/release-canary.sh": "6a96988de51febbe06ccba9d83c6b32e66605c98",
-      "scripts/ci/release-canary.test.sh": "fa08d151735b1842a2ee744cf8e2740197826e56",
+      "scripts/ci/release-canary.sh": "856ca65af2678b07936585ff0a2a2361ff673e01",
+      "scripts/ci/release-canary.test.sh": "8405e3ae9533bbb16cd9642d3f6a4d7be53bf8f4",
       "scripts/ci/release-observer.sh": "17e7b6444b0d3ca9b59a9a77094eaa08a1ccdcfd",
       "scripts/ci/release-receipt.sh": "6781863befcc7e1da491edd7d08592dfbc694fe6",
       "test/sigra/planning/phase_248_release_observer_contract_test.exs": "a8f51c533969b9e5065b615166938d26257bbf94",
@@ -27,8 +28,8 @@
   "preflight": {
     "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
     "status": "ready",
-    "captured_at": "2026-10-10T20:20:35Z",
-    "target_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "captured_at": "2026-10-10T21:05:58Z",
+    "target_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
     "actions_enabled": true,
     "artifact_retention_days": 90,
     "artifact_retention_maximum_days": 90,
@@ -39,7 +40,7 @@
     "credential_values_recorded": false,
     "dispatch_attempted": false,
     "compact_payload_bytes": 825,
-    "compact_payload_sha256": "a1103cac88a2e4e08140cdecda8dba5cb84f3cd967a8665588cbf8ae6a51aaeb"
+    "compact_payload_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864"
   },
   "controller": {
     "workflow_id": 380517406,
@@ -48,14 +49,9 @@
     "ref": "refs/heads/main",
     "event": "workflow_dispatch",
     "inputs": {
-      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-10T20:20:35Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"33fccd8b3afe8ad093a0e379578fdc29c8a44e95\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
-      "preflight_sha256": "a1103cac88a2e4e08140cdecda8dba5cb84f3cd967a8665588cbf8ae6a51aaeb"
+      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-10T21:05:58Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"9cb1c48ec233d909784b4070a2e6ecd795522291\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
+      "preflight_sha256": "785ae9ee96f0155bd4e9606970fd14d728b21779bb96e1fbc7539de415775864"
     },
-    "digest_rule": "SHA-256 over the exact UTF-8 bytes of preflight_json, without a trailing newline; this digest is for jq -c output as recorded above.",
-    "runner_input_limit_bytes": 32768,
-    "runner_preflight_path": "RUNNER_TEMP/release-canary-preflight.json",
-    "shared_live_validator_preserved": true,
-    "source_code_execution_from_input": false,
     "timeout_minutes": 35,
     "permissions": "actions:write; contents:read"
   },
@@ -63,7 +59,8 @@
     "canary_source": {
       "id": 380517407,
       "path": ".github/workflows/release-receipt-canary.yml",
-      "permissions": "actions:read; contents:read"
+      "permissions": "actions:read; contents:read",
+      "run_name_pattern": "release-receipt-canary-${scenario}-${probe_id}"
     },
     "observer": {
       "id": 379162190,
@@ -76,8 +73,9 @@
     "controller_dispatches": 1,
     "controlled_failure_source_runs": 1,
     "exact_owned_cancellation_source_runs": 1,
-    "cancellation_scope": "Cancel only the exact waiting canary source run dispatched by this controller after matching workflow ID/path/name, workflow_dispatch event, refs/heads/main, authorized source SHA, attempt, unique probe ID/title, and waiting status. Never cancel the controller, a production release, or any other run.",
+    "cancellation_scope": "Cancel only the exact waiting canary source run dispatched by this controller after matching workflow ID/path/name, workflow_dispatch event, refs/heads/main, authorized source SHA, attempt, unique probe ID and dynamic run name/title, and waiting status. Never cancel the controller, a production release, or any other run.",
     "additional_controller_retry_authorized": false,
+    "maximum_duration_minutes": 35,
     "artifact_name_patterns": [
       "release-canary-failure-<source-run-id>-<attempt>-<probe-id>",
       "release-canary-cancellation-<cancelled-source-run-id>-<attempt>"
@@ -88,70 +86,73 @@
   },
   "post_approval_preflight_refresh": {
     "allowed_without_new_decision": true,
-    "condition": "Recapture only the read-only preflight against this same authorized main SHA if the current captured_at would be more than 900 seconds old when dispatching.",
+    "condition": "If this captured_at would be more than 900 seconds old at dispatch time, recapture the read-only preflight only against the exact same main SHA 9cb1c48ec233d909784b4070a2e6ecd795522291.",
     "fields_that_may_change": [
       "preflight.captured_at",
       "controller.inputs.preflight_json",
       "controller.inputs.preflight_sha256",
+      "preflight.compact_payload_bytes",
       "preflight.compact_payload_sha256"
     ],
-    "fields_that_must_remain_identical": "Every other preflight field, the repository/main SHA, all nine source/helper blobs, workflow IDs/paths, permissions, retention, and all bounded-action constraints.",
+    "fields_that_must_remain_identical": "Every other preflight field, repository/main SHA, all nine source/helper blobs, workflow IDs/paths, permissions, retention and bounded-action constraints.",
     "on_any_other_drift": "Stop before dispatch; prepare a new packet and obtain explicit authorization for the changed tuple."
   },
-  "prior_authority_history": {
-    "prior_authorization_status": "unused_not_consumed",
-    "prior_authorized_main_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
-    "prior_packet_payload_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
-    "prior_approved_packet_document_sha256": "8364a247f6d614752d49fee295565bf183115189e3bb29ae3d13663bc7c2b697",
-    "prior_approved_packet_commit": "27a5cb0dcc9a54fd6f1c9c66b38dbb2586c9c4c7",
-    "prior_approved_packet_blob": "05befbd81c9b7a9d68c9e3ffdb14d52126c9315b",
-    "prior_blocker_commit": "66225507d5a85aed2575f130a7fe89d5e6636224",
-    "prior_blocker_blob": "22656e91806c7ea9487f9a9ce7400d7f57ad1676",
-    "prior_blocker_sha256": "2f3155691e5444acb8e8cd7e773962045d0e109f303bd95ee79c0adcc22b5ad5",
-    "source_change_reason": "The scoped controller preflight-delivery repair merged after the old approval; its required digest-bound inputs and source SHA differ from the old packet.",
-    "repair_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-DELIVERY-REPAIR.md"
-  },
   "local_verification": {
-    "preflight_command": "bash scripts/ci/release-canary.sh --preflight --output /tmp/250-CANARY-PREFLIGHT.json",
-    "preflight_status": "ready; target SHA equals protected main",
-    "workflow_input_digest_check": "pass; SHA-256 over jq -c bytes with no newline",
-    "repair_ci_run_id": 38082645367,
-    "repair_ci_conclusion": "success; ci-gate passed",
-    "no_ci_repoll_performed": true
+    "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-REPAIR.json",
+    "canary_tests": "59 passed, 0 failed",
+    "receipt_tests": "16 passed, 0 failed",
+    "observer_tests": "22 passed, 0 failed",
+    "standalone_contract_exunit": "8 tests, 0 failures",
+    "actionlint": "passed",
+    "protected_ci_run_id": 38084430351,
+    "protected_ci_conclusion": "success",
+    "standard_mix_test": "blocked by existing Phoenix dependency-lock mismatch; no dependencies fetched or changed"
   },
+  "prior_authority_history": {
+    "packet_v1": {
+      "source_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+      "payload_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
+      "approval_received": true,
+      "status": "superseded_before_dispatch_when_PR_319_changed_main_to_33fccd8b; no controller dispatch used this authorization",
+      "original_packet_commit": "27a5cb0dcc9a54fd6f1c9c66b38dbb2586c9c4c7"
+    },
+    "packet_v2": {
+      "source_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+      "packet_document_sha256": "e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b",
+      "preflight_payload_sha256": "a1103cac88a2e4e08140cdecda8dba5cb84f3cd967a8665588cbf8ae6a51aaeb",
+      "approval_received_at": "2026-10-10T20:25:58Z",
+      "authority_consumed": true,
+      "controller_run_id": 38083752867,
+      "controller_conclusion": "failure",
+      "child_run_id": 38083779742,
+      "child_result": "failed source receipt identity validation because GitHub reports the dynamic run-name; no artifact, cancellation, observer, or publish occurred"
+    },
+    "latest_reply": {
+      "user_reply": "yes i approve",
+      "reply_packet_payload_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
+      "reply_source_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+      "applies_to_current_packet_v3": false,
+      "reason": "The reply names the earlier packet/source; packet v2 authority was consumed by the failed controller run, and neither binds current main 9cb1c48."
+    }
+  },
+  "approval": null,
   "decision": {
-    "question": "Authorize the one controller run on main 33fccd8b3afe8ad093a0e379578fdc29c8a44e95 using this digest-bound preflight, including cancellation only of its exact self-owned waiting canary child? If the preflight becomes older than 900 seconds, may I refresh only captured_at and the resulting preflight_json/digest on this same main SHA while preserving every other preflight field and all nine source blobs?",
+    "question": "Authorize exactly one no-publish controller workflow_dispatch using this packet on refs/heads/main at SHA 9cb1c48ec233d909784b4070a2e6ecd795522291, including cancellation only of its exact self-owned waiting canary child, with a 35-minute maximum and no retry? If preflight age exceeds 900 seconds at dispatch, may the read-only preflight be refreshed only on the same main SHA with all fields other than captured_at and the derived payload byte count/digests unchanged?",
     "options": [
       {
         "id": "authorize",
-        "meaning": "Authorize exactly one dispatch with the recorded payload or the narrowly defined same-source timestamp/digest refresh; no further controller attempt."
+        "meaning": "Authorize exactly the named one-run bounded action and the narrowly scoped same-source preflight timestamp/digest refresh only."
       },
       {
         "id": "decline",
         "meaning": "Keep AUTO-02 blocked and do not dispatch or cancel any run."
       }
     ],
-    "status": "approved",
+    "status": "awaiting_explicit_decision",
     "dispatch_attempted": false,
     "canary_child_dispatch_attempted": false,
     "cancellation_attempted": false,
     "credential_values_recorded": false,
-    "silence_is_approval": false,
-    "approved_at": "2026-10-10T20:25:58Z",
-    "source": "explicit user reply to exact replacement-packet question",
-    "user_reply": "yes i approve",
-    "approved_packet_sha256": "e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b",
-    "approved_scope": {
-      "controller_workflow_id": 380517406,
-      "main_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
-      "preflight_json_sha256": "a1103cac88a2e4e08140cdecda8dba5cb84f3cd967a8665588cbf8ae6a51aaeb",
-      "one_controller_dispatch": true,
-      "exact_self_owned_waiting_canary_child_cancellation_only": true,
-      "maximum_duration_minutes": 35,
-      "no_retry": true,
-      "no_publish": true,
-      "same_source_timestamp_and_payload_digest_refresh_only_if_over_900_seconds": true
-    },
-    "authorization_record_commit_before_approval": "c0a4d3b30515f6c31c1b721a15b20c910c7c175a"
+    "silence_is_approval": false
   }
 }
