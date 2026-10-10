@@ -34,14 +34,13 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Verify parser repair on main and prepare a fresh canary authority packet",
-    "reason": "PR #322 parser repair merged at e0c66d61211ddb461c049ca6422350308b420126; main CI 38093033532 remains in progress. Automatic Release Please run 38093033505 failed after pushing generated-index commit d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086 to PR #302; release verification and Hex publication were skipped, with no release. That is separate from canary proof and does not change main. Packet v4 remains consumed; a fresh packet and explicit approval are required before any new canary.",
+    "label": "Await decision for the repaired Plan 250-07 canary run",
+    "reason": "PR #322 fixes the observer source-id input collision and is merged at e0c66d61211ddb461c049ca6422350308b420126. Exact-head CI 38092530129 and exact-main CI 38093033532 are green, including ci-gate and admin eval. V5 approval record and fresh read-only preflight are committed; v4 authority is consumed and no v5 dispatch has occurred. Release Please run 38093033505 failed separately after pushing generated-index commit d4ff8ca to PR #302; publish jobs were skipped and no release was made.",
     "blocked_by": [
-      "250-07-exact-main-ci-38093033532",
-      "250-07-fresh-authority-after-repair",
+      "250-07-v5-explicit-authority",
       "250-08-no-eligible-tuple"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
   },
-  "updated_at": "2026-10-10T22:55:14Z"
+  "updated_at": "2026-10-10T23:12:24Z"
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "recorded_at": "2026-10-10T22:44:23Z",
-  "status": "merged_waiting_exact_main_ci",
+  "recorded_at": "2026-10-10T23:12:24Z",
+  "status": "merged_main_ci_green_waiting_fresh_canary_authority",
   "cause": "deterministic_input_mode_collision",
   "failure_run_id": 38091955379,
   "source_main_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
@@ -36,7 +36,8 @@
   "exact_head_ci": {
     "run_id": 38092530129,
     "workflow": "CI",
-    "status": "queued",
+    "status": "completed",
+    "conclusion": "success",
     "started_at": "2026-10-10T22:44:15Z"
   },
   "local_checks": {
@@ -47,13 +48,18 @@
     "actionlint": "passed"
   },
   "merge_instruction": "User previously authorized squash merge if CI is green; merge only after all required PR checks pass.",
-  "next_step": "Monitor exact-head CI run 38092530129 with one 60-second watcher. If green, squash merge PR #322; then prepare a fresh packet and request explicit authority before any further canary controller dispatch.",
+  "next_step": "Fresh read-only preflight and v5 approval record are prepared and committed. Await a new explicit user decision before any controller dispatch; the v4 authority is consumed.",
   "post_merge_main_ci": {
     "run_id": 38093033532,
     "workflow": "CI",
-    "status": "in_progress",
+    "status": "completed",
+    "conclusion": "success",
     "head_sha": "e0c66d61211ddb461c049ca6422350308b420126",
-    "url": "https://github.com/szTheory/sigra/actions/runs/38093033532"
+    "completed_at": "2026-10-10T23:08:38Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38093033532",
+    "ci_gate_job_id": 114334543957,
+    "admin_eval_job_id": 114333203375,
+    "all_jobs_passed": true
   },
   "release_please_run": {
     "run_id": 38093033505,

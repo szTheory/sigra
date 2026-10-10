@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T22:55:14Z",
-  "status": "plan_250_07_parser_repair_merged_main_ci_in_progress",
+  "captured_at": "2026-10-10T23:12:24Z",
+  "status": "plan_250_07_waiting_for_explicit_v5_authority",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
   "source_head": "d32128f55300cef3cab5ad3c4e3851f06490eaee",
@@ -47,21 +47,21 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "observer_parser_repair_pr_322_merged_waiting_main_ci",
+    "status": "waiting_for_explicit_v5_authority_after_green_main_ci",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
-      "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
-      "packet_id": "250-07-canary-authority-v4",
-      "source_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
-      "status": "approved_once_consumed_failed"
+      "sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
+      "packet_id": "250-07-canary-authority-v5",
+      "source_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "status": "awaiting_user_decision",
+      "approved_packet_sha256": null
     },
     "preflight": {
-      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
-      "sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
-      "captured_at": "2026-10-10T22:31:59Z",
-      "target_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
-      "payload_sha256": "5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89",
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-e0c66d6-refresh-20261010T230919Z.json",
+      "sha256": "96c92236157ba4eb99fdc5f0f37ecd97a4033f02d7accbbabf3623109247630c",
+      "captured_at": "2026-10-10T23:09:19Z",
+      "target_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "payload_sha256": "1072c30b1b81ee48e145b435fd1609f42d04621f20b678d72c81e0c6a9bb19d1",
       "payload_bytes": 825,
       "status": "ready"
     },
@@ -88,14 +88,14 @@
       "main_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
       "merge_commit": "9cb1c48ec233d909784b4070a2e6ecd795522291"
     },
-    "latest_reply_applies_to_current_packet": true,
+    "latest_reply_applies_to_current_packet": false,
     "controller_dispatch_attempted": true,
     "new_controller_dispatch_attempted_after_repair": true,
     "source_dispatch_attempted": true,
     "cancellation_attempted": true,
     "observer_dispatch_attempted": false,
     "retry_authorized": false,
-    "auto_02": "unsatisfied_observer_cancellation_receipt_missing_after_single_authorized_failure",
+    "auto_02": "unsatisfied_observer_cancellation_receipt_missing_after_v4_failure; v5 authority pending",
     "authority_history": {
       "current_packet_v3": {
         "packet_sha256": "b6193b07b13f703b33c275824ec2a30bf1d5b5532fa4bf810b7fd9527ac8b09f",
@@ -117,15 +117,25 @@
         "observer_run_found": false,
         "retry_authorized": false
       },
-      "latest_reply_applies_to_current_packet": false
+      "latest_reply_applies_to_current_packet": false,
+      "packet_v4": {
+        "approved": true,
+        "approved_at": "2026-10-10T22:31:25Z",
+        "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+        "effective_packet_sha256": "c536af5f4f8b93c32357803cd32b99afacf75983bf8c1e49b9a6dfaf86b26f84",
+        "user_reply_verbatim": "yes i authorize u to do that work",
+        "scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04, using the exact digest-bound fresh preflight; one controlled failure canary; cancellation only of its exact self-owned waiting canary child; then exactly one read-only observer workflow_dispatch (workflow 379162190) with source_run_id set to that canceled child; maximum 35 minutes; no retry, no release, no publish. Immediately before dispatch, verify live main still equals 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04."
+      }
     },
     "authorization": {
-      "approved": true,
-      "approved_at": "2026-10-10T22:31:25Z",
-      "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
-      "effective_packet_sha256": "c536af5f4f8b93c32357803cd32b99afacf75983bf8c1e49b9a6dfaf86b26f84",
-      "user_reply_verbatim": "yes i authorize u to do that work",
-      "scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04, using the exact digest-bound fresh preflight; one controlled failure canary; cancellation only of its exact self-owned waiting canary child; then exactly one read-only observer workflow_dispatch (workflow 379162190) with source_run_id set to that canceled child; maximum 35 minutes; no retry, no release, no publish. Immediately before dispatch, verify live main still equals 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04."
+      "approved": false,
+      "required": true,
+      "decision_status": "awaiting_user_decision",
+      "packet_id": "250-07-canary-authority-v5",
+      "packet_sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
+      "source_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "user_reply_verbatim": null,
+      "dispatch_attempted": false
     },
     "controller_run": {
       "id": 38087516844,
@@ -244,14 +254,16 @@
       "new_canary_dispatch_attempted": false
     },
     "controller_retry_dispatched_after_failed_packet": false,
-    "next_action": "Continue the one main CI watcher for run 38093033532. On success and stable main, prepare a fresh packet bound to the merged repair SHA; request a new explicit decision before any controller dispatch. Record Release Please failure separately; do not repair or rerun it under the canary packet.",
+    "next_action": "Await a decision on v5 packet b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287; if approved, refresh read-only preflight only if needed and main remains e0c66d61211ddb461c049ca6422350308b420126, then execute only the exact bounded controller action.",
     "post_merge_main_ci": {
       "run_id": 38093033532,
-      "status": "in_progress",
+      "status": "completed",
+      "conclusion": "success",
       "head_sha": "e0c66d61211ddb461c049ca6422350308b420126",
-      "watcher_session_id": 32468,
-      "watcher_count": 1,
-      "interval_seconds": 60
+      "url": "https://github.com/szTheory/sigra/actions/runs/38093033532",
+      "ci_gate_job_id": 114334543957,
+      "admin_eval_job_id": 114333203375,
+      "all_jobs_passed": true
     },
     "authority_packet_v3_preserved": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-consumed.json",
@@ -335,7 +347,28 @@
       "affects_main_source_sha": false,
       "watcher_session_id": 91065,
       "watcher_count": 1
-    }
+    },
+    "prior_authority_v4": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-v4-consumed.json",
+      "packet_sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
+      "packet_id": "250-07-canary-authority-v4",
+      "source_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+      "controller_run_id": 38091955379,
+      "controller_conclusion": "failure",
+      "failure_reason": "observer_run_exact_identity_or_conclusion_mismatch",
+      "source_failure_run_id": 38091969722,
+      "source_cancellation_run_id": 38092036734,
+      "observer_run_id": 38092165376,
+      "observer_failure": "release-observer: FAIL: choose exactly one event source",
+      "root_cause": "GitHub sets EVENT_PATH for workflow_dispatch while the controller also passed --source-run-id; the observer treated both event sources as supplied and exited before writing the cancellation receipt.",
+      "authority_consumed": true,
+      "retry_authorized": false,
+      "preservation_sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
+      "preservation_commit": "a842ca320"
+    },
+    "v5_controller_dispatch_attempted": false,
+    "v5_retry_authorized": false
   },
   "plan_250_08": {
     "status": "blocked_no_eligible_tuple",
@@ -598,7 +631,17 @@
         "bytes": 12666,
         "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/250-GAP-EXECUTION-CHECKPOINT.json"
       }
-    ]
+    ],
+    "packet_v4_copy": {
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-v4-consumed.json",
+      "preserved_sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
+      "preserved_bytes": 17904,
+      "copy_readback_verified": true,
+      "preservation_commit": "a842ca320",
+      "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-e0c66d6-refresh-20261010T230919Z.json",
+      "preflight_sha256": "96c92236157ba4eb99fdc5f0f37ecd97a4033f02d7accbbabf3623109247630c",
+      "preflight_copy_readback_verified": true
+    }
   },
   "next_command": "$gsd-execute-phase 250 --gaps-only",
   "separate_automation_observation": {
@@ -610,5 +653,6 @@
     "verify_ci_green_job": "skipped",
     "release_published": false,
     "affects_main_source_sha": false
-  }
+  },
+  "next_action": "Await a decision on v5 packet b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287; if approved, refresh read-only preflight only if needed and main remains e0c66d61211ddb461c049ca6422350308b420126, then execute only the exact bounded controller action."
 }

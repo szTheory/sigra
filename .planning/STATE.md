@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: parser_repair_merged_main_ci_in_progress
-stopped_at: controller run 38091955379 failed at observer input-mode validation; evidence .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json SHA-256 ed6eb89d8ed7ff9fedf99a89469b485291307e1c69a75f05dd53719ae29f3300; packet authority consumed; no retry authorized
-last_updated: "2026-10-10T22:55:14Z"
+status: awaiting_user_authority_for_canary_v5
+stopped_at: v5 canary authority record is ready; await an explicit decision before any new workflow dispatch
+last_updated: "2026-10-10T23:12:24Z"
 last_activity: 2026-10-10
-last_activity_desc: PR #322 parser repair merged at e0c66d61211ddb461c049ca6422350308b420126 after exact-head CI 38092530129 passed; main CI 38093033532 is in progress. Release Please run 38093033505 failed after pushing generated-index commit d4ff8ca to PR #302; release verification and publish jobs were skipped. Controller 38091955379 produced a valid failure receipt and exact child cancellation, but observer 38092165376 failed before receipt upload due to ambient EVENT_PATH colliding with --source-run-id. The consumed v4 packet cannot authorize another run. PR #322 fixes the parser and adds a regression test; exact-head CI 38092530129 passed and the change was squash-merged to main. AUTO-02 remains unsatisfied.
+last_activity_desc: PR #322 parser repair merged at e0c66d61211ddb461c049ca6422350308b420126; exact-head CI 38092530129 and exact-main CI 38093033532 are green. Fresh read-only preflight and v5 authority record are committed. Packet v4 remains consumed after controller 38091955379 failed at observer 38092165376 before cancellation receipt upload; no v5 dispatch has occurred.
 state_head: 91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5
 progress:
   total_phases: 5
@@ -33,14 +33,16 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — OBSERVER RECEIPT BLOCKED
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — AWAITING NEW CANARY DECISION
 Current Plan: 7
 Total Plans in Phase: 12
-Plans executed: 6 of 12 summarized (01–06); PR #322 parser repair is merged after green exact-head CI; exact-main CI and Release Please are running; Plan 07 remains incomplete pending fresh packet and explicit authority; Plan 08 remains blocked; 09–12 await dependencies
+Plans executed: 6 of 12 summarized (01–06); Plan 07 repair is merged and green, and its fresh v5 authority record awaits an explicit decision; Plan 08 remains blocked; 09–12 await dependencies
 Status: Partial implementation delivered; phase verification incomplete
-Last activity: 2026-10-10 — Packet v4 was consumed by controller run 38091955379; evidence is in 250-07-CANARY-RUN-38091955379.json. PR #322 (head 1f098052d3d4caf7d676749eacfb0a23b2df4ae5) fixes the ambient EVENT_PATH parser collision and was squash-merged at e0c66d61211ddb461c049ca6422350308b420126 after green exact-head CI run 38092530129. Main CI 38093033532 and Release Please 38093033505 are in progress; any further canary controller requires a fresh packet and explicit authority.
+Last activity: 2026-10-10 — PR #322 parser repair merged at e0c66d61211ddb461c049ca6422350308b420126; exact-head CI 38092530129 and exact-main CI 38093033532 are green. V5 authority record and fresh preflight are committed; packet v4 is consumed and no new controller dispatch has occurred.
 
 Progress: [███████░░░] 72% (31/43 summaries; not acceptance completion)
+
+Plan 250-07 resume boundary: approval record `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (v5, SHA-256 b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287) is awaiting the user’s explicit decision. Its fresh preflight targets main `e0c66d61211ddb461c049ca6422350308b420126`; local contracts, exact-head CI 38092530129, and exact-main CI 38093033532 pass. The consumed v4 run 38091955379 is retained separately; no new canary has been dispatched.
 
 ### v1.49 audit route
 
