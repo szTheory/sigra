@@ -3,6 +3,15 @@ run-name: release-receipt-canary-controller-${{ github.run_id }}-${{ github.run_
 
 on:
   workflow_dispatch:
+    inputs:
+      preflight_json:
+        description: Exact sanitized ready preflight JSON captured for the authorized main SHA
+        required: true
+        type: string
+      preflight_sha256:
+        description: Lowercase SHA-256 digest of the exact preflight_json input
+        required: true
+        type: string
 
 permissions:
   actions: write
@@ -27,10 +36,21 @@ jobs:
           # The preflight proves the recorded SHA is an ancestor of current main.
           fetch-depth: 0
 
+      - name: Validate digest-bound preflight input
+        env:
+          CANARY_PREFLIGHT_JSON: ${{ inputs.preflight_json }}
+          CANARY_PREFLIGHT_SHA256: ${{ inputs.preflight_sha256 }}
+        run: >-
+          bash scripts/ci/release-canary.sh --prepare-preflight-input
+          --output "$RUNNER_TEMP/release-canary-preflight.json"
+          --expected-sha256 "$CANARY_PREFLIGHT_SHA256"
+
       - name: Read-only preflight and exact-run orchestration
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash scripts/ci/release-canary.sh --run --proof "$RUNNER_TEMP/release-canary-proof.json"
+        run: >-
+          CANARY_PREFLIGHT_FILE="$RUNNER_TEMP/release-canary-preflight.json"
+          bash scripts/ci/release-canary.sh --run --proof "$RUNNER_TEMP/release-canary-proof.json"
 
       - name: Upload sanitized controller proof
         if: ${{ always() }}
