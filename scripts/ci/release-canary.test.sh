@@ -314,6 +314,11 @@ if TEST_RUNS_JSON="$TMP/wrong-source-run.json" bash "$CANARY" --resolve-run --wo
   fail "matching title with a different source SHA was accepted"
 else pass "exact-title run with a mismatched source SHA is rejected"; fi
 
+jq '.workflow_runs[0].name="release-receipt-canary-failure-wrong-probe"' "$TMP/one-run.json" > "$TMP/wrong-run-name.json"
+if TEST_RUNS_JSON="$TMP/wrong-run-name.json" bash "$CANARY" --resolve-run --workflow-id 2024 --scenario failure --probe-id 0123456789abcdef --expected-sha 0123456789abcdef0123456789abcdef01234567 >/dev/null 2>&1; then
+  fail "matching display title with a different source run name was accepted"
+else pass "exact probe title with a mismatched dynamic run name is rejected"; fi
+
 jq -n '{id:74124,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"release-receipt-canary-cancellation-abcdef0123456789",display_title:"release-receipt-canary-cancellation-abcdef0123456789",event:"workflow_dispatch",head_branch:"main",head_sha:"0123456789abcdef0123456789abcdef01234567",run_attempt:1,status:"in_progress"}' > "$TMP/canary-run.json"
 jq -n '{jobs:[{steps:[{name:"Bounded cancellation wait",status:"in_progress"}]}]}' > "$TMP/waiting-jobs.json"
 TEST_RUN_JSON="$TMP/canary-run.json" TEST_JOBS_JSON="$TMP/waiting-jobs.json" bash "$CANARY" --cancel-canary-run 74124 --workflow-id 2024 --probe-id abcdef0123456789 --expected-sha 0123456789abcdef0123456789abcdef01234567 >/dev/null
@@ -408,7 +413,7 @@ if [[ "${1:-}" == run ]]; then
   [[ "$run_id" == 74125 ]] || exit 0
   probe="$(cat "$FLOW/failure-probe")"
   jq -n --arg probe "$probe" --arg sha "$FLOW_SHA" \
-    '{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",
+    '{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:("release-receipt-canary-failure-"+$probe),
       display_title:("release-receipt-canary-failure-"+$probe),event:"workflow_dispatch",head_branch:"main",head_sha:$sha,
       run_attempt:1,run_started_at:"2026-10-10T10:00:00Z",status:"completed",conclusion:"failure",
       created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z"}' > "$FLOW/source-run.json"
