@@ -1,36 +1,37 @@
-# Phase 248: User Setup Required
+# Phase 248: Protected Environment Setup Evidence
 
-**Generated:** 2026-10-08  
+**Generated:** 2026-10-10
 **Phase:** 248-exact-source-release-gate  
-**Status:** Incomplete
+**Status:** Complete
 
-The environment branch policies are already configured to allow only `main`, with admin bypass disabled. `HEX_DRY_RUN_API_KEY` is present in `hex-publish`. These two existing secret values cannot be retrieved from GitHub, so add them from the secure source of truth before removing the repository-level copies.
+GitHub now has the required secret names in their intended environments, both deployment policies allow only `main`, and the repository has no repository-level secrets. The live preflight passes. Secret values were never read or recorded.
 
 ## Environment Variables
 
 | Status | Variable | Source | Add to |
 |--------|----------|--------|--------|
-| [ ] | `RELEASE_PLEASE_TOKEN` | Existing value in your secure secret store; GitHub does not reveal saved secret values | GitHub repository Settings → Environments → `release-automation` → Environment secrets |
-| [ ] | `HEX_API_KEY` | Existing write-capable value in your secure secret store; GitHub does not reveal saved secret values | GitHub repository Settings → Environments → `hex-publish` → Environment secrets |
+| [x] | `RELEASE_PLEASE_TOKEN` | Name confirmed in the protected environment; value not read | `release-automation` |
+| [x] | `HEX_API_KEY` | Name confirmed in the protected environment; value not read | `hex-publish` |
+| [x] | `HEX_DRY_RUN_API_KEY` | Name confirmed in the protected environment; value not read | `hex-publish` |
 
 ## Dashboard Configuration
 
-- [ ] Add `RELEASE_PLEASE_TOKEN` to the `release-automation` environment from the secure source of truth.
-- [ ] Add `HEX_API_KEY` to the `hex-publish` environment from the secure source of truth.
-- [ ] After both target names are confirmed, remove the corresponding repository-level secret copies. Keep the environment copies.
+- [x] Confirm `RELEASE_PLEASE_TOKEN` is present in `release-automation`.
+- [x] Confirm `HEX_API_KEY` and `HEX_DRY_RUN_API_KEY` are present in `hex-publish`.
+- [x] Confirm the repository-level secret list is empty.
 
 The environments already use a selected-branch deployment policy containing exactly `main`; admin bypass is disabled. `hex-publish` already contains `HEX_DRY_RUN_API_KEY`. Do not replace or expose those values during this setup.
 
 ## Verification
 
-After adding the secrets, verify only their names:
+Verified by listing secret names only and running:
 
 ```bash
 gh secret list --repo szTheory/sigra --env release-automation --json name --jq 'map(.name)'
 gh secret list --repo szTheory/sigra --env hex-publish --json name --jq 'map(.name)'
 ```
 
-Expected results include `RELEASE_PLEASE_TOKEN` under `release-automation`, and both `HEX_DRY_RUN_API_KEY` and `HEX_API_KEY` under `hex-publish`. The live preflight can then confirm the policies and required secret-name booleans:
+Observed results included `RELEASE_PLEASE_TOKEN` under `release-automation`, both `HEX_DRY_RUN_API_KEY` and `HEX_API_KEY` under `hex-publish`, no repository-level secrets, and both environments restricted to `main`. The preflight returned `release-environment-preflight: PASS`.
 
 ```bash
 bash scripts/ci/release-environment-preflight.sh \
@@ -40,8 +41,8 @@ bash scripts/ci/release-environment-preflight.sh \
   --require-hex-publish-key true
 ```
 
-Expected result: both environments report `main`, followed by `release-environment-preflight: PASS`.
+The check is repeatable and safe: it prints environment names and policy results only, never secret values.
 
 ---
 
-**Once all items complete:** Mark status as "Complete" at top of file.
+**Completed:** 2026-10-10. The protected-environment setup is proven; hosted failure/cancellation receipt evidence remains a separate AUTO-02 verification gap.

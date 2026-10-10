@@ -3,7 +3,7 @@ phase: "248"
 slug: "exact-source-release-gate"
 status: validated
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: "2026-10-07"
 ---
 
@@ -25,7 +25,7 @@ created: "2026-10-07"
 
 - **After every task commit:** Run the hermetic test for each changed script and the focused workflow contract test; run `git diff --check`.
 - **After every plan wave:** Run all Phase 248 fixture tests and `actionlint` on every changed workflow.
-- **Before `$gsd-verify-work`:** Run the full relevant test suite, `actionlint`, the exact-source gate against its immutable tag/SHA, and deterministic receipt/cancellation fixture checks. Preserve machine-readable run receipts; missing live evidence remains blocked.
+- **Before final phase verification:** Run the full relevant test suite, `actionlint`, the exact-source gate against its immutable tag/SHA, and deterministic receipt/cancellation fixture checks. Retrieve machine-readable hosted receipts from the non-publishing canary; missing terminal evidence remains open.
 - **Max feedback latency:** Not measured; keep local fixture checks focused and record observed durations.
 
 ## Per-Task Verification Map
@@ -53,14 +53,20 @@ Each newly introduced fixture test is the first source created in its task and i
 - [x] Add `scripts/ci/release-environment-preflight.test.sh` fixtures for exact `main` deployment policy, missing environment policy, extra branch policy, and broader branch policy rejection.
 - [x] Add `scripts/ci/release-receipt.test.sh` fixtures for success, stage failures, dry-run, cancellation, malformed identity, retry idempotency, and notifier failure.
 - [x] Add `test/sigra/planning/phase_248_release_gate_contract_test.exs` and `test/sigra/planning/phase_248_release_observer_contract_test.exs` plus `actionlint` coverage for permissions, required release token, exact-main environment attachment and policy preflight, boolean-only secret-name presence, main-only manual Release Please evaluation, exact-head event flow, non-cancelling concurrency, Hex key scope, trusted observer validation for push and workflow_dispatch cancellations on main, source_event preservation, and pinned actions.
-- [ ] Confirm through a real Actions run that push-triggered ci-gate reports the exact Release Please PR head SHA; no PR synthetic merge SHA is accepted.
+- [x] Confirm through a real Actions run that push-triggered ci-gate reports the exact Release Please PR head SHA; no PR synthetic merge SHA is accepted. Run `37881153003` (`push`, branch `release-please--branches--main`) reports head `a0eedb0e7e5c72b03cdf6c5c1730ed2878cb08c0` and successful `ci-gate`; this matches the Release Please candidate head recorded in `249-PREFLIGHT.json`.
+
+## Hosted Evidence Confirmed 2026-10-10
+
+- **Environment setup:** `release-automation` contains `RELEASE_PLEASE_TOKEN`; `hex-publish` contains `HEX_API_KEY` and `HEX_DRY_RUN_API_KEY`; no repository-level secrets are configured. `release-environment-preflight.sh` reports both environment deployment policies as exactly `main`. Secret values were never read.
+- **Exact-head candidate gate:** push run `37881153003` on `release-please--branches--main` reports head SHA `a0eedb0e7e5c72b03cdf6c5c1730ed2878cb08c0`; its `ci-gate` job succeeded. The SHA matches the candidate head recorded in Phase 249's preflight evidence.
+- **Published-source gate and receipt:** release run `37875238705`, attempt 3, and CI run `37875238741`, attempt 2, both identify source SHA `9e80cb78d6374b1ed4074d5fef6b613fee879dca`; the `ci-gate` succeeded. Artifact `release-result-1.6.0-37875238705` (artifact ID `11594782728`) was retrieved and its JSON records the gate as pass and publish outcome as published. The artifact is retained until 2027-01-07. Phase 249's committed release receipt preserves this identity.
+- **Remaining hosted probe:** no eligible terminal failed or cancelled Release Please run with a retained release receipt was found. Failed main-branch runs `37993629242` and `38003573382` have only documentation artifacts; no cancelled Release Please run appeared in the 100-run query. Cancelled candidate `ci.yml` runs are not evidence for the Release Please `workflow_run` observer.
 
 ## Manual-Only Verifications
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| Create `release-automation` with only `RELEASE_PLEASE_TOKEN` and `hex-publish` with only `HEX_DRY_RUN_API_KEY` plus `HEX_API_KEY`; configure each environment's selected-branch deployment policy to exactly `main`, move the existing repository-level tokens into those environments, remove their repository-level copies, and require no human reviewer approval. | AUTO-01 | Environment creation, secret migration, and deployment branch policy are one-time GitHub repository settings. Secret values remain unavailable to the test harness and must not be read or emitted. | The authorized maintainer performs this setup once. The release workflow then checks each required secret name using a boolean-only comparison and checks both live environment policies; actual Hex authentication is proven by the immutable-source dry-run. No per-release approval is part of the setup. |
-| Prove the deployed exact-head `ci-gate` path and retrieve terminal success, failure, and cancellation artifacts from real GitHub Actions runs. | AUTO-01, AUTO-02 | Hermetic fixtures prove the policy and receipt contracts, but cannot prove GitHub's live event payloads, environment-secret resolution, or artifact retention. Phase 248 intentionally does not merge the 1.6.0 candidate or publish it; Phase 249 is the release evidence run. | After the environment secrets are transferred, Phase 249 should exercise the exact candidate source gate and retrieve the 90-day artifacts. Do not merge, tag, or publish solely to close this validation row. |
+| Verify hosted failure and cancellation receipt delivery. | AUTO-02 | Local fixtures prove the receipt contract, but no eligible hosted failure/cancellation run exists to prove event delivery, retention, retrieval, and source-run binding. No operator action or production release interruption is required; close this with an automated non-publishing canary. | Add a canary workflow with no publish credentials. Exercise failure and cancellation through the same observer/artifact path, retrieve each artifact in CI, and validate its terminal outcome, source run identity, schema, and retention. Never use or interrupt the production publish lane for this probe. |
 
 **Baseline note:** The required default `actionlint` command reports six pre-existing embedded ShellCheck warnings in the inherited `ci.yml`; the same warnings reproduce against committed baseline. Workflow syntax passes with `actionlint -shellcheck=0`, and the other four release workflows pass default `actionlint`. The inherited `ci.yml` was preserved.
 
@@ -68,12 +74,12 @@ Each newly introduced fixture test is the first source created in its task and i
 
 - [x] Every final plan task has an automated `<verify>` or an explicit external-secret prerequisite.
 - [x] Sampling continuity: no three consecutive tasks without automated verification.
-- [x] All Wave 0 fixture validators are present and green; live Actions edge probes remain outstanding.
+- [x] All Wave 0 fixture validators are present and green; the live exact-head candidate gate and retained release-success receipt are verified.
 - [x] No watch-mode flags.
 - [ ] Record feedback latency from execution evidence; do not claim a bound before measurement.
-- [ ] Set `nyquist_compliant: true` only after the live exact-head gate and retained success/failure/cancellation artifacts are proven.
+- [ ] Set `nyquist_compliant: true` only after retained success, failure, and cancellation artifacts from eligible hosted release runs are proven.
 
-**Approval:** pending — automated coverage audited; remote edge probes and the one-time secret transfers are still open.
+**Validation result:** partial — all 11 local task checks pass and environment setup, exact-head gating, and release success are proven; hosted failure/cancellation receipt retrieval remains open. No maintainer setup or live release action is requested. Close the gap through an automated non-publishing canary.
 
 ## Validation Audit 2026-10-08
 
@@ -92,3 +98,14 @@ Each newly introduced fixture test is the first source created in its task and i
 | Resolved | 11 |
 | Escalated | 0 |
 | External prerequisites pending | 2 |
+
+## Validation Audit 2026-10-10
+
+| Metric | Count |
+|---|---|
+| Gaps found | 1 |
+| Resolved | 2 |
+| Escalated | 1 |
+| Hosted probes closed | 2 |
+| Hosted probes remaining | 1 |
+| Local automated checks | 11 |

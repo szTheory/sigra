@@ -26,10 +26,10 @@
   ],
   "next": {
     "command": "$gsd-audit-milestone",
-    "label": "Audit v1.49 release milestone against requirements and end-to-end evidence",
-    "reason": "All Phase 249 plans and release proofs are complete. Refreshed protected main 08300af1740fea8b77d5928a182688acbf103edc has exact-head CI run 38003573391 with ci-gate job 114069179560; current inventory is six clean worktrees and 14 dispositioned open PRs. The terminal record is sequenced as the final repository mutation after the committed report/state boundary. init.plan-phase 250 returned phase_found=false, so milestone audit is the next GSD route."
+    "label": "Rerun the v1.49 milestone audit with refreshed Phase 248 validation evidence",
+    "reason": "Phase 248 Nyquist validation now records 11 passing local checks, complete Wave 0, current protected-environment setup, exact-head CI, and the successful published receipt. Hosted failure/cancellation receipts remain unproven, the canonical Phase 248 verifier is stale, Phase 247 lacks a verifier, and Phase 249 verification predates its final acceptance. Phase 250 is absent from the roadmap. Keep v1.49 unarchived; the milestone audit is the next GSD step, and a safe non-publishing hosted canary is the recommended AUTO-02 follow-up."
   },
-  "updated_at": "2026-10-09T23:55:08Z",
+  "updated_at": "2026-10-10T01:15:48Z",
   "progress": {
     "total_phases": 4,
     "completed_phases": 4,

@@ -10,11 +10,15 @@ Prefer checks that run automatically on every relevant change when they provide 
 
 Treat human verification as the last resort: use it only for outcomes that cannot be established reliably by automation, such as subjective judgment or an unavailable external authority. When a human checkpoint remains necessary, state the exact uncertainty and preserve machine-readable evidence for every other criterion. Do not ask the operator to repeat checks already established by reproducible automated evidence.
 
+When a requirement depends on hosted event delivery or artifact retention for success, failure, and cancellation, plan a safe non-publishing canary before implementation and verify all terminal outcomes there. Hermetic fixtures prove local contracts, not hosted trigger expressions, artifact upload, retention, or retrieval. Do not leave failure/cancellation proof until milestone closeout and wait for a natural production incident, and never manufacture it by interrupting a real release. Give the canary no publish credentials, bind each artifact to the source run, and have CI retrieve and validate the retained receipt.
+
 ## Validation Source Identity
 
 Bind every build, generated-artifact comparison, and CI claim to the exact source identity it tested. Before interpreting a result, record the checkout's commit SHA, branch or trusted ref, product version, dirty/clean state, and language/runtime toolchain. Refresh the trusted target ref before using it as a baseline; a stale local tracking ref is not authoritative.
 
 When the active GSD worktree predates the candidate or release under test, treat version and generated-file mismatches there as a checkout-scope diagnostic, not a product failure. Preserve the first result, then reproduce the relevant check in an isolated clean checkout of the exact candidate or trusted target SHA using the supported CI toolchain. Keep both identities and outcomes in the validation record. Do not label the product gate blocked, request human UAT, or change product code until the exact-source reproduction establishes a real failure. Run change-specific checks on the exact PR head and use its hosted exact-head CI as the merge gate.
+
+A phase verification is a snapshot of its named source and evidence boundary, not a timeless verdict. Record the verification's source/evidence commit or immutable evidence-ref identity and capture time. If external setup, required credentials, hosted run results, final acceptance, or other verification inputs change afterward, mark the report stale and rerun the narrow affected verification before milestone audit. A later passing receipt may establish the product outcome, but must not be silently substituted into an older report; update the verification with a link to the newer proof, preserving its historical result when useful. Automate a stale-evidence check that compares verifier inputs with the current authoritative evidence refs so milestone audit routes directly to re-verification instead of repeating already-completed work.
 
 ## External Mutations And Evidence Writes
 

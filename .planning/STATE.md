@@ -6,10 +6,10 @@ current_phase: 249
 current_phase_name: Publish and Prove Sigra 1.6.0
 current_plan: v1.49 milestone audit
 status: in_progress
-stopped_at: Phase 249 closeout; terminal sealing is the final repository mutation before the v1.49 milestone audit (Phase 250 does not exist)
-last_updated: "2026-10-09T23:55:08Z"
-last_activity: 2026-10-09
-last_activity_desc: Refreshed 6-worktree/14-PR inventory, exact-main acceptance, and interim terminal seal passed; replay after final state and verification commits remains
+stopped_at: Phase 248 Nyquist validation refreshed; v1.49 milestone audit is next (Phase 250 does not exist)
+last_updated: "2026-10-10T01:15:48Z"
+last_activity: 2026-10-10
+last_activity_desc: Phase 248 Wave 0 and 11 local validation checks pass; hosted failure/cancellation receipts remain unproven
 state_head: 2782099bb
 progress:
   total_phases: 4
@@ -27,16 +27,16 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.49 milestone audit after Phase 249 closeout
+**Current focus:** v1.49 milestone audit after Phase 248 validation refresh
 
 ## Current Position
 
 Phase: 249 (Publish and Prove Sigra 1.6.0) — COMPLETE
-Current Plan: None; v1.49 milestone audit is next
+Current Plan: None; rerun the v1.49 milestone audit with refreshed Phase 248 validation evidence
 Total Plans in Phase: 12
 Plans executed: 12 of 12
-Status: Phase execution is complete; refreshed package-source, public release, exact-main CI, current inventory, preservation, and terminal evidence are closed by the post-state/report terminal seal.
-Last activity: 2026-10-09 — final terminal evidence is sequenced after all state/report commits and binds the passing acceptance to two empty raw-status reads across all six registered worktrees
+Status: Phase implementation is complete. Phase 248 validation is refreshed with 11 passing local checks and Wave 0 complete; Nyquist remains partial because hosted failure/cancellation receipts are unproven. Phase 247 verification is missing and Phase 248/249 canonical verifications need reconciliation before milestone closeout.
+Last activity: 2026-10-10 — the hosted success path and environment setup remain proven; a safe non-publishing canary is the recommended follow-up for AUTO-02.
 
 Progress: [██████████] 100%
 
@@ -94,7 +94,7 @@ The package target is the existing Release Please PR #224 proposing 1.6.0; the G
 - Phase 246 is complete: exact source `90ec16f72a71d33224c0816ad77762e2e7262c76` passed required run [37676348766](https://github.com/szTheory/sigra/actions/runs/37676348766), and phase verification passed 10/10. Earlier local CI failures remain historical diagnostics only.
 - Phase 247 Plan 01 is complete. Its refreshed ledger preserves the original entry snapshot, records scoped PR #288 promotion, and validates the clean candidate worktree at protected main `590eb4ed3323db11dd74326cbee00c9c7973e529`; exact main CI run [37686980115](https://github.com/szTheory/sigra/actions/runs/37686980115) passed on attempt 2.
 - The earlier example `mix precommit` `/dev/mailbox` warning remains a readiness item to check against the selected candidate in Plan 04; it did not fail the selected main's required CI gate.
-- Phase 248 release implementation and environment-secret setup are operationally complete; Sigra 1.6.0 has a successful hosted publish receipt. Its historical 13/18 verification report still lacks hosted manual dry-run and failure/cancellation proof. Keep those as separate verification maintenance unless fresh GSD readiness reports a prerequisite blocker for the current forward phase.
+- Phase 248 release implementation and environment-secret setup are operationally complete; Sigra 1.6.0 has a successful hosted publish receipt. The validation audit now records all 11 local checks and Wave 0 complete; Nyquist remains partial until hosted failure/cancellation receipts are proven. Do not repeat `$gsd-validate-phase 248` without new hosted evidence. The exact next command is `$gsd-audit-milestone`; Phase 250 readiness was checked and no such roadmap phase exists. Keep v1.49 unarchived, and plan a safe non-publishing canary with no publish credentials for AUTO-02.
 
 ## Accumulated Context
 
@@ -829,7 +829,7 @@ Resume file: None
 - **Historical loss:** `.planning/HANDOFF.json` SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` was not found in 22,410 local Git blobs, 18,847 GitHub-mirror blobs across 65 branches, 14 tags, 300 PR heads and 13 PR merge refs, or 74,345 regular files. The user accepted this exact loss; it remains unrecovered, is not claimed preserved, and is excluded from the candidate. All other missing evidence still blocks.
 - **Prevention:** the exact replacing write/tool is not provable from retained records. The process gap was recording the hash without first pinning the bytes. `AGENTS.md`, `.planning/METHODOLOGY.md`, and closeout tests now require exact write-ahead preservation before dirty planning files are rewritten.
 - **Automated prevention:** `METHODOLOGY.md` now requires terminal evidence design and failure tests before multi-step release closeout, with all summaries committed before recapturing the final inventory. The validator performs a ref-only checkpoint/seal and byte-for-byte raw status reread; do not write further artifacts after it passes.
-- **Next GSD command:** `$gsd-audit-milestone` for v1.49. Readiness query `init.plan-phase 250` found no Phase 250 in the roadmap. Keep the historical handoff revision labeled as accepted loss, not recovered. These state and roadmap updates are included in the final terminal evidence replay.
+- **Next GSD command:** `$gsd-audit-milestone` for v1.49. Readiness query `init.plan-phase 250` found no Phase 250 in the roadmap. Keep the historical handoff revision labeled as accepted loss, not recovered. The Phase 249 final terminal evidence remains historical; this later validation and milestone reconciliation is tracked in the current planning state.
 
 ## Performance Metrics
 
