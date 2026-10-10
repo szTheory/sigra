@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "captured_at": "2026-10-10T12:25:17Z",
+  "preflight": {
+    "schema_version": 1,
+    "status": "blocked",
+    "captured_at": "2026-10-10T12:25:01Z",
+    "repository": "szTheory/sigra",
+    "target_ref": "refs/heads/main",
+    "workflows": {
+      "canary": {
+        "id": null,
+        "path": ".github/workflows/release-receipt-canary.yml"
+      },
+      "controller": {
+        "id": null,
+        "path": ".github/workflows/release-receipt-canary-controller.yml"
+      },
+      "observer": {
+        "id": null,
+        "path": ".github/workflows/release-run-observer.yml"
+      }
+    },
+    "reason": "canary_workflow_not_visible",
+    "dispatch_attempted": false,
+    "credential_values_recorded": false
+  },
+  "reason": "canary_workflow_not_visible_on_main; rollout and dispatch require authority outside this sequential task",
+  "dispatch_attempted": false,
+  "receipts": [],
+  "credential_values_recorded": false
+}
