@@ -4,13 +4,13 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 2
+current_plan: 1
 status: executing
 stopped_at: Completed 250-01-PLAN.md with hosted proof blocked; continue with Plans 02/03
-last_updated: "2026-10-10T15:02:28.431Z"
+last_updated: "2026-10-10T15:08:41.923Z"
 last_activity: 2026-10-10
-last_activity_desc: Plan 250-01 complete as evidence reporting; the single retry is consumed and AUTO-02 remains unsatisfied
-state_head: 554950811e1c445c9e9979a18c8259a45fee72f2
+last_activity_desc: Phase 250 execution started
+state_head: 12ffe5d7356bcbd1094f03ab8fd4d34098c06a7c
 progress:
   total_phases: 5
   completed_phases: 4
@@ -32,11 +32,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 ## Current Position
 
 Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — EXECUTING
-Current Plan: 2
+Current Plan: 1
 Total Plans in Phase: 5
 Plans executed: 1 of 5
-Status: Plan 01 complete with a truthful blocked proof; Plan 02 is ready and Plan 03 is unblocked by Plan 01
-Last activity: 2026-10-10 — controller run 38059620443 failed before receipt upload; PR #317 fixes passed exact-head CI run 38060050307
+Status: Executing Phase 250
+Last activity: 2026-10-10 — Phase 250 execution started
 
 Progress: [████████░░] 80%
 
