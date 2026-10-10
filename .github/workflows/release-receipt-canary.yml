@@ -60,8 +60,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PROBE_ID: ${{ inputs.probe_id }}
-          SCENARIO: ${{ inputs.scenario }}
-        run: bash scripts/ci/release-canary.sh --write-failure-receipt --output canary-receipt.json
+        run: bash scripts/ci/release-canary.sh --write-failure-receipt --scenario '${{ inputs.scenario }}' --output canary-receipt.json
 
       - name: Upload unique canary failure receipt
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
