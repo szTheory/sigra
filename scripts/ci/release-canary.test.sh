@@ -177,6 +177,50 @@ if TEST_RETENTION_JSON="$TMP/retention-low.json" bash "$CANARY" --preflight --ou
   pass "insufficient retention blocks preflight without dispatch"
 else fail "insufficient artifact retention did not fail closed"; fi
 
+echo "Test D0b: runner-supplied preflight is bounded, digest-bound, and still source-validated"
+PREFLIGHT_BYTES="$(wc -c < "$TMP/ready-preflight.json" | tr -d ' ')"
+PREFLIGHT_SHA="$(shasum -a 256 "$TMP/ready-preflight.json" | awk '{print $1}')"
+if CANARY_PREFLIGHT_JSON="$(cat "$TMP/ready-preflight.json")" CANARY_PREFLIGHT_SHA256="$PREFLIGHT_SHA" \
+   bash "$CANARY" --prepare-preflight-input --output "$TMP/runner-preflight.json" --expected-sha "$PREFLIGHT_SHA" >/dev/null 2>&1 && \
+   [[ "$(wc -c < "$TMP/runner-preflight.json" | tr -d ' ')" == "$PREFLIGHT_BYTES" ]] && \
+   CANARY_PREFLIGHT_FILE="$TMP/runner-preflight.json" bash "$CANARY" --validate-preflight --output "$TMP/runner-validated-preflight.json" >/dev/null 2>&1; then
+  pass "fresh supplied preflight reaches shared freshness, workflow, and source-blob validation"
+else fail "fresh supplied preflight did not reach shared exact-source validation"; fi
+
+if CANARY_PREFLIGHT_JSON="$(cat "$TMP/ready-preflight.json")" CANARY_PREFLIGHT_SHA256="$(printf '%064d' 0)" \
+   bash "$CANARY" --prepare-preflight-input --output "$TMP/wrong-digest-preflight.json" --expected-sha "$(printf '%064d' 0)" >/dev/null 2>&1 || \
+   [[ -e "$TMP/wrong-digest-preflight.json" ]]; then
+  fail "preflight input with a mismatched expected digest was persisted"
+else pass "mismatched preflight digest rejected before persistence"; fi
+jq '.captured_at="2000-01-01T00:00:00Z"' "$TMP/ready-preflight.json" > "$TMP/runner-stale-preflight.json"
+RUNNER_STALE_SHA="$(shasum -a 256 "$TMP/runner-stale-preflight.json" | awk '{print $1}')"
+if CANARY_PREFLIGHT_JSON="$(cat "$TMP/runner-stale-preflight.json")" CANARY_PREFLIGHT_SHA256="$RUNNER_STALE_SHA" \
+   bash "$CANARY" --prepare-preflight-input --output "$TMP/runner-stale-preflight-copy.json" --expected-sha "$RUNNER_STALE_SHA" >/dev/null 2>&1 && \
+   CANARY_PREFLIGHT_FILE="$TMP/runner-stale-preflight-copy.json" bash "$CANARY" --validate-preflight --output "$TMP/runner-stale-blocked.json" >/dev/null 2>&1; then
+  fail "a digest-correct but stale supplied preflight passed validation"
+elif jq -e '.status == "blocked" and .reason == "committed_preflight_stale" and .dispatch_attempted == false' "$TMP/runner-stale-blocked.json" >/dev/null 2>&1; then
+  pass "stale supplied preflight remains blocked by the shared 900-second gate"
+else fail "stale supplied preflight did not fail with a durable stale reason"; fi
+jq '.repository="other/repo"' "$TMP/ready-preflight.json" > "$TMP/runner-wrong-repo.json"
+RUNNER_WRONG_REPO_SHA="$(shasum -a 256 "$TMP/runner-wrong-repo.json" | awk '{print $1}')"
+if CANARY_PREFLIGHT_JSON="$(cat "$TMP/runner-wrong-repo.json")" CANARY_PREFLIGHT_SHA256="$RUNNER_WRONG_REPO_SHA" \
+   bash "$CANARY" --prepare-preflight-input --output "$TMP/runner-wrong-repo-copy.json" --expected-sha "$RUNNER_WRONG_REPO_SHA" >/dev/null 2>&1 && \
+   CANARY_PREFLIGHT_FILE="$TMP/runner-wrong-repo-copy.json" bash "$CANARY" --validate-preflight --output "$TMP/runner-wrong-repo-blocked.json" >/dev/null 2>&1; then
+  fail "wrong-repository preflight passed validation"
+else pass "wrong-repository preflight rejected"; fi
+jq '.api_key="never persist credential-shaped keys"' "$TMP/ready-preflight.json" > "$TMP/runner-secret-key.json"
+RUNNER_SECRET_KEY_SHA="$(shasum -a 256 "$TMP/runner-secret-key.json" | awk '{print $1}')"
+if CANARY_PREFLIGHT_JSON="$(cat "$TMP/runner-secret-key.json")" CANARY_PREFLIGHT_SHA256="$RUNNER_SECRET_KEY_SHA" \
+   bash "$CANARY" --prepare-preflight-input --output "$TMP/runner-secret-key-copy.json" --expected-sha "$RUNNER_SECRET_KEY_SHA" >/dev/null 2>&1 || \
+   [[ -e "$TMP/runner-secret-key-copy.json" ]]; then
+  fail "secret-shaped preflight field was persisted"
+else pass "secret-shaped preflight field rejected before persistence"; fi
+if CANARY_PREFLIGHT_JSON='{"schema_version":' CANARY_PREFLIGHT_SHA256="$(printf '%064d' 0)" \
+   bash "$CANARY" --prepare-preflight-input --output "$TMP/malformed-preflight.json" --expected-sha "$(printf '%064d' 0)" >/dev/null 2>&1 || \
+   [[ -e "$TMP/malformed-preflight.json" ]]; then
+  fail "malformed preflight JSON was persisted"
+else pass "malformed preflight JSON rejected before persistence"; fi
+
 echo "Test D1: the failure receipt builder preserves the workflow scenario environment"
 jq -n '{id:74125,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",name:"Release Receipt Canary",
   display_title:"release-receipt-canary-failure-0123456789abcdef",event:"workflow_dispatch",head_branch:"main",
