@@ -101,6 +101,15 @@ set -euo pipefail
 endpoint="${2:-}"
 [[ "$endpoint" == --method ]] && endpoint="${4:-}"
 case "$endpoint" in
+  "repos/${GITHUB_REPOSITORY}/actions/runs/74123")
+    if [[ -n "${TEST_PROOF_FAILURE_RUN_JSON:-}" ]]; then cat "$TEST_PROOF_FAILURE_RUN_JSON"; else cat "$TEST_SOURCE_RUN_JSON"; fi ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/74124")
+    if [[ -n "${TEST_PROOF_STALE_CANCELLATION:-}" ]]; then cat "$TEST_PROOF_STALE_CANCELLATION";
+    elif [[ -n "${TEST_PROOF_CANCELLATION_RUN_JSON:-}" ]]; then cat "$TEST_PROOF_CANCELLATION_RUN_JSON";
+    else cat "$TEST_RUN_JSON"; fi ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/34567") cat "$TEST_PROOF_OBSERVER_RUN_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/74123/artifacts") cat "$TEST_PROOF_FAILURE_ARTIFACTS_JSON" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/34567/artifacts") cat "$TEST_PROOF_CANCELLATION_ARTIFACTS_JSON" ;;
   "repos/${GITHUB_REPOSITORY}") cat "$TEST_REPO_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/workflows/release-receipt-canary.yml") cat "$TEST_CANARY_WORKFLOW_JSON" ;;
   "repos/${GITHUB_REPOSITORY}/actions/workflows/release-receipt-canary-controller.yml") cat "$TEST_CONTROLLER_WORKFLOW_JSON" ;;
@@ -244,7 +253,19 @@ jq -n --slurpfile failure "$TMP/failure.json" --slurpfile cancellation "$TMP/can
       observer_run_id:"34567",observer_attempt:1,observer_workflow_id:2025,observer_workflow_path:".github/workflows/release-run-observer.yml",
       observer_event:"workflow_run",observer_ref:"refs/heads/main",observer_conclusion:"success",receipt:$cancellation[0]},
     retrieval:{failure_zip_sha256:"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",cancellation_zip_sha256:"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}' > "$TMP/proof.json"
+jq -n --arg sha "$SHA" '{id:74123,run_attempt:1,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",event:"workflow_dispatch",head_branch:"main",head_sha:$sha,conclusion:"failure",created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z"}' > "$TMP/proof-failure-run.json"
+jq -n --arg sha "$SHA" '{id:74124,run_attempt:1,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",event:"workflow_dispatch",head_branch:"main",head_sha:$sha,conclusion:"cancelled",created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z"}' > "$TMP/proof-cancellation-run.json"
+jq -n --arg sha "$SHA" '{id:34567,run_attempt:1,workflow_id:2025,path:".github/workflows/release-run-observer.yml@main",event:"workflow_run",head_branch:"main",head_sha:$sha,conclusion:"success"}' > "$TMP/proof-observer-run.json"
+jq -n --arg name "release-canary-failure-74123-1-$FAIL_PROBE" '{artifacts:[{id:901,name:$name,expired:false,workflow_run:{id:74123},digest:"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",expires_at:"2026-11-09T10:00:00Z"}]}' > "$TMP/proof-failure-artifacts.json"
+jq -n '{artifacts:[{id:902,name:"release-canary-cancellation-74124-1",expired:false,workflow_run:{id:34567},digest:"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",expires_at:"2026-11-09T10:00:00Z"}]}' > "$TMP/proof-cancellation-artifacts.json"
+export TEST_PROOF_FAILURE_RUN_JSON="$TMP/proof-failure-run.json" TEST_PROOF_CANCELLATION_RUN_JSON="$TMP/proof-cancellation-run.json"
+export TEST_PROOF_OBSERVER_RUN_JSON="$TMP/proof-observer-run.json" TEST_PROOF_FAILURE_ARTIFACTS_JSON="$TMP/proof-failure-artifacts.json"
+export TEST_PROOF_CANCELLATION_ARTIFACTS_JSON="$TMP/proof-cancellation-artifacts.json"
 if bash "$CANARY" --validate-proof "$TMP/proof.json" >/dev/null; then pass "exact identities, safe credential metadata, and downloaded artifact digests validate"; else fail "valid exact proof with real preflight metadata was rejected"; fi
+if TEST_PROOF_STALE_CANCELLATION="$TMP/stale-cancellation-run.json" bash "$CANARY" --validate-proof "$TMP/proof.json" >/dev/null 2>&1; then fail "proof passed after authoritative cancellation conclusion changed"; else pass "proof re-queries authoritative source conclusions and fails closed on drift"; fi
+jq '.source_cancellation.receipt.observer_run.attempt=2' "$TMP/proof.json" > "$TMP/wrong-observer-attempt.json"
+if bash "$CANARY" --validate-proof "$TMP/wrong-observer-attempt.json" >/dev/null 2>&1; then fail "observer receipt attempt mismatch was accepted"; else pass "observer run attempt must agree across proof and receipt"; fi
+jq -n --arg sha "$SHA" '{id:74124,run_attempt:1,workflow_id:2024,path:".github/workflows/release-receipt-canary.yml@main",event:"workflow_dispatch",head_branch:"main",head_sha:$sha,conclusion:"success",created_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z"}' > "$TMP/stale-cancellation-run.json"
 jq '.preflight.credentials={HEX_API_KEY:"must-not-be-recorded"}' "$TMP/proof.json" > "$TMP/proof-with-credential-key.json"
 if bash "$CANARY" --validate-proof "$TMP/proof-with-credential-key.json" >/dev/null 2>&1; then fail "credential-shaped preflight fields were accepted"; else pass "credential-shaped preflight fields remain rejected"; fi
 jq '.credential_values_recorded=true' "$TMP/proof.json" > "$TMP/proof-with-recorded-credentials.json"

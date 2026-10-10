@@ -527,6 +527,55 @@ case "$MODE" in
       .retrieval.failure_zip_sha256 == (.source_failure.artifact.digest | sub("^sha256:";"")) and
       .retrieval.cancellation_zip_sha256 == (.source_cancellation.artifact.digest | sub("^sha256:";"")) and
       no_credential_keys' "$PROOF" >/dev/null || fail "proof is blocked, incomplete, misbound, or contains credential-shaped keys"
+    # A saved JSON proof is not authoritative by itself. Re-query the exact
+    # run and artifact records so changed conclusions, attempts, or artifact
+    # bindings cannot be hidden by editing the captured file.
+    verify_run_record() {
+      local proof_path="$1" role="$2" record run_id live
+      record=".${role}"
+      run_id="$(jq -er "${record}.run_id | select(type == \"string\" and test(\"^[1-9][0-9]*$\"))" "$proof_path")" || return 1
+      live="$(run_metadata "$run_id")" || return 1
+      jq -e --argjson live "$live" --arg path "$record" '
+        (getpath(($path|ltrimstr(".")|split(".")))) as $captured |
+        ($live.id|tostring) == $captured.run_id and
+        $live.run_attempt == $captured.attempt and
+        ($live.workflow_id|tostring) == ($captured.workflow_id|tostring) and
+        ($live.path|sub("@main$";"")) == ($captured.workflow_path|sub("@main$";"")) and
+        $live.event == $captured.event and $live.head_branch == "main" and
+        ("refs/heads/" + $live.head_branch) == $captured.ref and
+        $live.head_sha == $captured.sha and $live.conclusion == $captured.conclusion and
+        $live.created_at == $captured.created_at and $live.updated_at == $captured.updated_at
+      ' "$proof_path" >/dev/null || return 1
+      return 0
+    }
+    verify_artifact_record() {
+      local proof_path="$1" record_path="$2" owner_id="$3" listing
+      listing="$(gh api "repos/${REPOSITORY}/actions/runs/${owner_id}/artifacts")" || return 1
+      jq -e --arg path "$record_path" --argjson owner "$owner_id" --argjson listing "$listing" '
+        (getpath(($path|ltrimstr(".")|split(".")))) as $captured |
+        [$listing.artifacts[]? | select(.id == $captured.id and .name == $captured.name and
+          .expired == false and .workflow_run.id == $owner and .digest == $captured.digest and
+          .expires_at == $captured.expires_at)] | length == 1
+      ' "$proof_path" >/dev/null
+    }
+    verify_run_record "$PROOF" source_failure || fail "failure run no longer matches authoritative Actions metadata"
+    verify_run_record "$PROOF" source_cancellation || fail "cancellation run no longer matches authoritative Actions metadata"
+    observer_id="$(jq -er '.source_cancellation.observer_run_id | select(type == "string" and test("^[1-9][0-9]*$"))' "$PROOF")" || fail "observer run identity is malformed"
+    observer_live="$(run_metadata "$observer_id")" || fail "observer run metadata is unavailable"
+    jq -e --argjson live "$observer_live" '
+      .source_cancellation as $c | $c.receipt.observer_run as $r |
+      ($live.id|tostring) == $c.observer_run_id and
+      $live.run_attempt == $c.observer_attempt and
+      ($live.workflow_id|tostring) == ($c.observer_workflow_id|tostring) and
+      ($live.path|sub("@main$";"")) == $c.observer_workflow_path and
+      $live.event == $c.observer_event and $live.event == "workflow_run" and
+      ("refs/heads/" + $live.head_branch) == $c.observer_ref and
+      $live.head_branch == "main" and $live.conclusion == $c.observer_conclusion and
+      ($r.id|tostring) == ($live.id|tostring) and $r.attempt == $live.run_attempt and
+      ($r.workflow_id|tostring) == ($live.workflow_id|tostring)
+    ' "$PROOF" >/dev/null || fail "observer run no longer matches authoritative Actions metadata"
+    verify_artifact_record "$PROOF" .source_failure.artifact "$(jq -r '.source_failure.run_id' "$PROOF")" || fail "failure artifact no longer matches authoritative Actions metadata"
+    verify_artifact_record "$PROOF" .source_cancellation.artifact "$observer_id" || fail "cancellation artifact no longer matches authoritative observer metadata"
     echo "release-canary: proof PASS"
     ;;
   write-failure) write_failure_receipt ;;
