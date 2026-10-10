@@ -99,8 +99,9 @@ function requirementRows(requirementsText) {
 function reportRequirementStatus(phase, id, text, parsed) {
   if (!text) return 'missing';
   const overall = reportStatus(text);
-  if (phase === '248' && parsed?.requirements?.[id]?.status) return parsed.requirements[id].status;
-  if (phase === '249' && parsed?.requirements?.[id]?.status) return parsed.requirements[id].status;
+  const specific = parsed?.requirements?.[id];
+  if (typeof specific === 'string') return specific.toLowerCase();
+  if (specific?.status) return specific.status.toLowerCase();
   const table = text.match(new RegExp(`^\\|\\s*${id}\\s*\\|\\s*([^|]+)\\|`, 'm'))?.[1]?.trim().toLowerCase();
   if (table === 'satisfied' || table === 'unsatisfied' || table === 'partial') return table;
   if (overall === 'passed') return 'satisfied';
@@ -236,7 +237,7 @@ function collectOwnerSources(root, blockers, overrides = {}) {
     }
     if (status !== 'passed') {
       for (const requirement of report.requirements) {
-        add(blockers, requirement.id, `Canonical owner Phase ${phase} verifier is ${status}; strict milestone status remains unsatisfied.`, { report: reportPath, reportSha256: report.reportSha256 });
+        if (requirement.status !== 'satisfied') add(blockers, requirement.id, `Canonical owner Phase ${phase} verifier is ${status}; requirement verdict is ${requirement.status}.`, { report: reportPath, reportSha256: report.reportSha256 });
       }
     }
   }
@@ -258,10 +259,11 @@ export function audit(root = process.cwd(), options = {}) {
     const wrongOwners = allClaims.filter((claim) => claim.phase !== phase);
     if (!row) add(blockers, id, 'Requirement is absent from the original milestone traceability table.');
     if (wrongOwners.length) add(blockers, id, `Requirement is claimed outside original owner Phase ${phase}, including Phase 250.`, wrongOwners.map(({ file }) => file));
-    const verificationStatus = owner?.status ?? 'missing';
-    const status = verificationStatus === 'passed' && ownerReport?.status === 'satisfied' ? 'satisfied' : verificationStatus === 'missing' ? 'orphaned' : 'unsatisfied';
-    if (verificationStatus !== 'passed' && allClaims.length) {
-      add(blockers, id, `Summary frontmatter claims ${id} although owner Phase ${phase} verification is ${verificationStatus}; plan completion does not satisfy the milestone requirement.`, allClaims.map(({ file }) => file));
+    const ownerStatus = owner?.status ?? 'missing';
+    const verificationStatus = ownerReport?.status ?? ownerStatus;
+    const status = verificationStatus === 'satisfied' ? 'satisfied' : ownerStatus === 'missing' ? 'orphaned' : 'unsatisfied';
+    if (verificationStatus !== 'satisfied' && allClaims.length) {
+      add(blockers, id, `Summary frontmatter claims ${id} although owner Phase ${phase} requirement verdict is ${verificationStatus} (overall report: ${ownerStatus}); plan completion does not satisfy the milestone requirement.`, allClaims.map(({ file }) => file));
     }
     if (status === 'satisfied' && row && !row.checked) add(blockers, id, 'Verification is passing but REQUIREMENTS.md remains unchecked; traceability needs reconciliation.', { phase });
     return {
@@ -271,9 +273,10 @@ export function audit(root = process.cwd(), options = {}) {
       traceability: row?.checked ? 'complete' : 'open',
       status,
       verification_status: verificationStatus,
+      owner_report_status: ownerStatus,
       claimed_by_plans: [...new Set(allClaims.filter((claim) => claim.phase === phase).map((claim) => path.basename(claim.file, '-SUMMARY.md')))],
       completed_by_plans: [...new Set(allClaims.filter((claim) => claim.phase === phase).map((claim) => path.basename(claim.file, '-SUMMARY.md')))],
-      evidence: status === 'satisfied' ? `Canonical Phase ${phase} verification passed and requirement status is satisfied.` : `Canonical Phase ${phase} verification ${verificationStatus}; see named source blockers.`,
+      evidence: status === 'satisfied' ? `Canonical Phase ${phase} requirement-level verdict is satisfied; overall report status is ${ownerStatus}.` : `Canonical Phase ${phase} requirement-level verdict is ${verificationStatus}; overall report status is ${ownerStatus}; see named source blockers.`,
     };
   });
 
@@ -310,7 +313,7 @@ export function renderAudit(result) {
     `    - id: "${row.id}"`, `      status: "${row.status}"`, `      phase: "${row.phase}"`,
     `      claimed_by_plans: [${row.claimed_by_plans.map((value) => `"${value}"`).join(', ')}]`,
     `      completed_by_plans: [${row.completed_by_plans.map((value) => `"${value}"`).join(', ')}]`,
-    `      verification_status: "${row.verification_status}"`, `      evidence: "${row.evidence.replaceAll('"', "'")}"`,
+    `      verification_status: "${row.verification_status}"`, `      owner_report_status: "${row.owner_report_status}"`, `      evidence: "${row.evidence.replaceAll('"', "'")}"`,
   ].join('\n')).join('\n');
   const blockerYaml = result.blockers.map((row) => `  - id: "${row.id}"\n    message: "${row.message.replaceAll('"', "'")}"${row.identity === undefined ? '' : `\n    identity: "${JSON.stringify(row.identity).replaceAll('"', "'")}"`}`).join('\n');
   const requirementRowsMd = result.requirements.map((row) => `| ${row.id} | ${row.phase} | ${row.traceability} | ${row.verification_status} | **${row.status}** | ${row.evidence} |`).join('\n');

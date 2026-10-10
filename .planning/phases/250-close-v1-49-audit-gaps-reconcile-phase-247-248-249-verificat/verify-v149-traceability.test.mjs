@@ -9,11 +9,14 @@ test('strict matrix keeps all nine milestone requirements and preserves known ga
   const result = audit(repoRoot);
   assert.equal(result.status, 'gaps_found');
   assert.equal(result.requirements.length, 9);
-  assert.equal(result.score.requirements, '3/9');
+  assert.equal(result.score.requirements, '5/9');
   assert.equal(result.score.integration, '3/5');
   assert.equal(result.score.flows, '1/4');
   assert.deepEqual(result.nyquist.missingPhases, [250]);
   assert.equal(result.nyquist.overall, 'partial');
+  assert.equal(result.requirements.find(({ id }) => id === 'AUTO-01')?.status, 'satisfied');
+  assert.equal(result.requirements.find(({ id }) => id === 'REL-01')?.status, 'satisfied');
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
   assert.ok(result.blockers.some(({ id }) => id === 'READY-01'));
   assert.ok(result.blockers.some(({ id }) => id === 'AUTO-02'));
   assert.ok(result.blockers.some(({ id }) => id === 'REL-02'));
@@ -22,6 +25,8 @@ test('strict matrix keeps all nine milestone requirements and preserves known ga
 test('generated audit reports integration review and Nyquist gaps from source state', () => {
   const result = audit(repoRoot);
   const report = renderAudit(result);
+  assert.match(report, /requirements: 5\/9/);
+  assert.match(report, /owner_report_status: "gaps_found"/);
   assert.match(report, /integration: 3\/5/);
   assert.match(report, /2\/5 broken at the evidence\/acceptance join/);
   assert.match(report, /missing_phases: \[250\]/);
@@ -85,7 +90,7 @@ test('a Phase 250 summary cannot claim original owner requirements', () => {
 
 test('a hand-edited 8/9 or passed audit cannot override computed source gaps', () => {
   const result = checkAudit(repoRoot, '.planning/v1.49-MILESTONE-AUDIT.md', {
-    '.planning/v1.49-MILESTONE-AUDIT.md': (source) => source.replace('status: gaps_found', 'status: passed').replace('requirements: 3/9', 'requirements: 8/9'),
+    '.planning/v1.49-MILESTONE-AUDIT.md': (source) => source.replace('status: gaps_found', 'status: passed').replace('requirements: 5/9', 'requirements: 8/9'),
   });
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((message) => /status does not match/i.test(message)));
