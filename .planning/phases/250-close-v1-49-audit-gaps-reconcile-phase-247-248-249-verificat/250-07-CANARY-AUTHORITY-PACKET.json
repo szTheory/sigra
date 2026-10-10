@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "packet_id": "250-07-canary-authority",
+  "status": "ready_for_explicit_decision",
+  "repository": "szTheory/sigra",
+  "created_at": "2026-10-10T19:50:50Z",
+  "source": {
+    "default_branch": "main",
+    "main_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "repair_pr": 318,
+    "reviewed_pr_head": "06ba5a6563533c0c45258f518246d20ed9c5512c",
+    "exact_head_ci_run_id": 38080575187,
+    "exact_head_ci_conclusion": "success",
+    "blobs_on_main": {
+      "scripts/ci/release-canary.sh": "932aac4cc3cdc1fb33d7628c825015a828cdf7d6",
+      "scripts/ci/release-canary.test.sh": "387e19e30c543bfdb841fd48e6a235c9f8b5a625",
+      ".github/workflows/release-receipt-canary.yml": "04b3ad78954f075615b3535cf330bf74c11814a9",
+      ".github/workflows/release-receipt-canary-controller.yml": "434b1f172cb67fade65c4ba676b755e584d25317",
+      ".github/workflows/release-run-observer.yml": "a639b620223b97ddb0982fcb9cd3c4463b4b3084",
+      "scripts/ci/release-observer.sh": "17e7b6444b0d3ca9b59a9a77094eaa08a1ccdcfd",
+      "scripts/ci/release-receipt.sh": "6781863befcc7e1da491edd7d08592dfbc694fe6",
+      "test/sigra/planning/phase_248_release_observer_contract_test.exs": "a8f51c533969b9e5065b615166938d26257bbf94",
+      "test/sigra/planning/phase_250_canary_contract_test.exs": "79466affca14af04fede10e9d14f5a9d14a1cad1"
+    }
+  },
+  "preflight": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+    "sha256": "0b830d3f9fb366fd7f7b2a932537b1fc73ad038dd395c6074e53cb9278382dc9",
+    "captured_at": "2026-10-10T19:50:50Z",
+    "status": "ready",
+    "actions_enabled": true,
+    "artifact_retention_days": 90,
+    "default_workflow_permissions": "read",
+    "credential_values_recorded": false,
+    "dispatch_attempted": false,
+    "refresh_rule": "Recapture after authorization if more than 15 minutes old; dispatch only from a fresh committed packet/preflight on current main."
+  },
+  "workflows": {
+    "controller": {
+      "id": 380517406,
+      "path": ".github/workflows/release-receipt-canary-controller.yml",
+      "name": "Release Receipt Canary Controller",
+      "event": "workflow_dispatch",
+      "ref": "refs/heads/main",
+      "permissions": "actions:write; contents:read",
+      "timeout_minutes": 35
+    },
+    "canary_source": {
+      "id": 380517407,
+      "path": ".github/workflows/release-receipt-canary.yml",
+      "name": "Release Receipt Canary",
+      "permissions": "actions:read; contents:read",
+      "scenarios": ["failure", "cancellation"]
+    },
+    "trusted_observer": {
+      "id": 379162190,
+      "path": ".github/workflows/release-run-observer.yml",
+      "name": "Release Run Observer",
+      "permissions": "actions:read; contents:read",
+      "trigger": "workflow_run",
+      "allowed_source": "Release Receipt Canary completed on main"
+    }
+  },
+  "bounded_action": {
+    "dispatches": 1,
+    "controller_workflow_id": 380517406,
+    "ref": "refs/heads/main",
+    "controlled_failure_runs": 1,
+    "exact_run_cancellation_probes": 1,
+    "cancellation_scope": "Only the exact waiting canary source run ID dispatched by this controller, after matching source workflow ID/path/name, workflow_dispatch event, main ref, source SHA, attempt, unique probe ID/title, and waiting status. No controller, production release, or other run may be cancelled.",
+    "controller_maximum_duration_minutes": 35,
+    "artifact_names": [
+      "release-canary-failure-<source-run-id>-<attempt>-<probe-id>",
+      "release-canary-cancellation-<cancelled-source-run-id>-<attempt>"
+    ],
+    "additional_controller_artifact": "release-canary-controller-<controller-run-id>-<attempt>",
+    "retrieval_and_validation": "bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json; exact run/artifact IDs and ZIP SHA-256 digests are re-queried and checked before owner-report refresh.",
+    "no_publish_boundary": "No Release Please or production publish workflow/job, Hex credential, publishing environment, tag creation, PR merge, or non-canary cancellation."
+  },
+  "prior_consumed_attempts": [
+    {
+      "controller_run_id": 38054862873,
+      "proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-ATTEMPT-38054862873.json",
+      "outcome": "blocked; no valid paired terminal receipts"
+    },
+    {
+      "controller_run_id": 38059620443,
+      "source_failure_run_id": 38059634695,
+      "proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+      "outcome": "blocked after failure receipt construction; cancellation was not dispatched"
+    }
+  ],
+  "local_verification": {
+    "command_results": {
+      "bash scripts/ci/release-canary.test.sh": "pass; 45 passed, 0 failed",
+      "bash scripts/ci/release-canary.sh --self-test": "pass",
+      "actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml": "pass"
+    }
+  },
+  "prior_preflight_recovery": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+    "previous_git_blob": "c3c3c955e7bdc14eb4d89a4921de97f20be56ee7",
+    "previous_commit": "40968809e3f2628b50bf2e4935f0e5142c6630cc",
+    "recovery_reference": "commit:40968809e3f2628b50bf2e4935f0e5142c6630cc:path:.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+    "new_preflight_sha256": "0b830d3f9fb366fd7f7b2a932537b1fc73ad038dd395c6074e53cb9278382dc9"
+  },
+  "decision": {
+    "question": "Permit this one new no-publish canary controller run, including its exact self-owned cancellation probe?",
+    "options": [
+      {
+        "id": "authorize",
+        "meaning": "Authorize exactly the bounded action above."
+      },
+      {
+        "id": "decline",
+        "meaning": "Keep AUTO-02 blocked; perform no new dispatch or cancellation."
+      }
+    ],
+    "status": "pending",
+    "dispatch_attempted": false,
+    "credential_values_recorded": false,
+    "silence_is_approval": false
+  }
+}
