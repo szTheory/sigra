@@ -111,8 +111,11 @@ function validateSnapshot(snapshot, observed) {
   if (new Set(prNumbers).size !== prNumbers.length) add('duplicate_pull_request_number', 'Open PR numbers must be unique.');
   if (prNumbers.some((number, index) => index > 0 && prNumbers[index - 1] > number)) add('pull_request_order_invalid', 'PR records must sort by number.');
   for (const row of pullRequests) {
-    if (!/^[0-9a-f]{40}$/.test(row?.head_sha ?? '') || typeof row?.base !== 'string' || !row.base.trim()) add('pull_request_identity_invalid', `PR #${row?.number ?? '(missing number)'} needs its head SHA and base.`);
-    if (Object.hasOwn(row ?? {}, 'base_sha') && !/^[0-9a-f]{40}$/.test(row.base_sha ?? '')) add('pull_request_base_sha_invalid', `PR #${row?.number ?? '(missing number)'} needs a full base SHA.`);
+    if (row?.repository !== repository || !/^[0-9a-f]{40}$/.test(row?.head_sha ?? '')
+      || typeof row?.base !== 'string' || !row.base.trim()) {
+      add('pull_request_identity_invalid', `PR #${row?.number ?? '(missing number)'} needs repository, head SHA, and base ref.`);
+    }
+    if (!/^[0-9a-f]{40}$/.test(row?.base_sha ?? '')) add('pull_request_base_sha_invalid', `PR #${row?.number ?? '(missing number)'} needs a full base SHA.`);
     if (!Array.isArray(row?.changed_files)) add('pull_request_files_not_array', `PR #${row?.number ?? '(missing number)'} must record changed files as an array.`);
     if (!DISPOSITIONS.has(row?.disposition)) add('pull_request_disposition_invalid', `PR #${row?.number ?? '(missing number)'} has no valid release disposition.`);
     if (![row?.reason, row?.source, row?.preservation_location].every(value => typeof value === 'string' && value.trim())) {
@@ -122,10 +125,10 @@ function validateSnapshot(snapshot, observed) {
 
   const entry = snapshot?.source ?? {};
   const observedPulls = Array.isArray(observed?.pull_requests) ? observed.pull_requests : [];
-  const recordedPullKeys = pullRequests.map(row => `${row.number}:${row.head_sha}:${row.base}:${row.base_sha ?? ''}`);
-  const currentPullKeys = observedPulls.map(row => `${row.number}:${row.head_sha}:${row.base}:${row.base_sha ?? ''}`);
+  const recordedPullKeys = pullRequests.map(pullRequestIdentityKey);
+  const currentPullKeys = observedPulls.map(pullRequestIdentityKey);
   if (!sameSet(prNumbers, observedPulls.map(row => row.number))) add('pull_request_population_mismatch', 'The live open PR number set differs from the immutable entry snapshot.');
-  if (!sameSet(recordedPullKeys, currentPullKeys)) add('pull_request_identity_mismatch', 'A live PR head or base differs from its immutable entry identity.');
+  if (!sameSet(recordedPullKeys, currentPullKeys)) add('pull_request_identity_mismatch', 'A live PR repository, number, head, base ref, or base SHA differs from its immutable entry identity.');
   if (entry.trusted_main_sha !== observed?.trusted_main_sha) add('trusted_main_identity_mismatch', 'Live main no longer matches the trusted main SHA in the entry snapshot.');
   if (entry.merge_base_sha !== observed?.merge_base_sha) add('merge_base_identity_mismatch', 'The actual merge base differs from the immutable entry snapshot.');
   if (entry.inherited_checkout?.head_sha !== observed?.inherited_head_sha) add('inherited_head_identity_mismatch', 'The inherited HEAD differs from the immutable entry snapshot.');
@@ -155,7 +158,7 @@ function runGh(args, cwd = process.cwd()) {
 function observeOpenPullRequests() {
   const pages = JSON.parse(runGh(['api', '--paginate', '--slurp', `repos/${repository}/pulls?state=open&per_page=100`]));
   if (!Array.isArray(pages) || pages.some(page => !Array.isArray(page))) throw new Error('GitHub did not return complete paginated open-PR arrays.');
-  return pages.flat().map(row => ({ number: row.number, head_sha: row.head?.sha, base: row.base?.ref, base_sha: row.base?.sha }))
+  return pages.flat().map(row => ({ repository, number: row.number, head_sha: row.head?.sha, base: row.base?.ref, base_sha: row.base?.sha }))
     .sort((a, b) => a.number - b.number);
 }
 
@@ -463,6 +466,7 @@ function validateFinalReadiness(final, observed) {
   const identity = rows => rows.map(pullRequestIdentityKey).sort();
   if (new Set(identity(inventoryPrs)).size !== inventoryPrs.length) add('final_duplicate_pr_key', 'Final PR inventory contains duplicate complete identity keys.');
   const prNumbers = inventoryPrs.map(row => row.number);
+  if (new Set(prNumbers).size !== prNumbers.length) add('final_pr_number_conflict', 'Final inventory contains multiple distinct identities for the same PR number.');
   if (prNumbers.some((number, index) => index > 0 && prNumbers[index - 1] > number)) add('final_pr_order_invalid', 'Final PR inventory must sort by number.');
   if (JSON.stringify(identity(inventoryPrs)) !== JSON.stringify(identity(livePrs))) {
     const inventoryNumbers = inventoryPrs.map(row => row.number).sort((a, b) => a - b);

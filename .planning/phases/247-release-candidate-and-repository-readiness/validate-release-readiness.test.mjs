@@ -699,6 +699,8 @@ test('requires unique complete PR identities and stable numeric ordering in snap
   const conflict = snapshotWithPullRequests([nine]);
   conflict.observed.pull_requests = [{ ...conflict.observed.pull_requests[0], base_sha: changedBase.base_sha }];
   assert.ok(validateSnapshot(conflict.snapshot, conflict.observed).errors.some(error => error.code === 'pull_request_identity_mismatch'));
+  const adjacentConflict = snapshotWithPullRequests([nine, changedBase]);
+  assert.ok(validateSnapshot(adjacentConflict.snapshot, adjacentConflict.observed).errors.some(error => error.code === 'duplicate_pull_request_number'));
 
   for (const missingBaseSha of [
     (() => { const row = { ...nine }; delete row.base_sha; return row; })(),
@@ -707,6 +709,8 @@ test('requires unique complete PR identities and stable numeric ordering in snap
     const incomplete = snapshotWithPullRequests([missingBaseSha]);
     assert.ok(validateSnapshot(incomplete.snapshot, incomplete.observed).errors.some(error => error.code === 'pull_request_base_sha_invalid'));
   }
+  const missingRepository = snapshotWithPullRequests([{ ...nine, repository: null }]);
+  assert.ok(validateSnapshot(missingRepository.snapshot, missingRepository.observed).errors.some(error => error.code === 'pull_request_identity_invalid'));
 });
 
 test('final inventory sorts PRs numerically and rejects duplicate or null identities', () => {
@@ -732,7 +736,17 @@ test('final inventory sorts PRs numerically and rejects duplicate or null identi
     live: { ...observed.live, open_pull_requests: [nine, ten, { ...nine }] } };
   assert.ok(validateFinalReadiness(final, duplicate).errors.some(error => error.code === 'final_duplicate_pr_key'));
 
+  const changedNine = inventoryPullRequest(9, { base_sha: 'c'.repeat(40) });
+  const sameNumberConflict = { ...observed,
+    inventory: { ...sorted, pull_requests: [nine, changedNine] },
+    live: { ...observed.live, open_pull_requests: [nine, changedNine] },
+  };
+  assert.ok(validateFinalReadiness(final, sameNumberConflict).errors.some(error => error.code === 'final_pr_number_conflict'));
+
   const nullBase = { ...observed, inventory: { ...sorted, pull_requests: [{ ...nine, base_sha: null }] },
     live: { ...observed.live, open_pull_requests: [{ ...nine, base_sha: null }] } };
   assert.ok(validateFinalReadiness(final, nullBase).errors.some(error => error.code === 'final_pr_identity_invalid'));
+  const missingRepository = { ...observed, inventory: { ...sorted, pull_requests: [{ ...nine, repository: null }] },
+    live: { ...observed.live, open_pull_requests: [{ ...nine, repository: null }] } };
+  assert.ok(validateFinalReadiness(final, missingRepository).errors.some(error => error.code === 'final_pr_identity_invalid'));
 });
