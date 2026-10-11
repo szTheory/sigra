@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 let evaluateEvidence;
+let bindPhase251PackageSourceEvidence;
 try {
-  ({ evaluateEvidence } = await import('./verify-247-readiness.mjs'));
+  ({ evaluateEvidence, bindPhase251PackageSourceEvidence } = await import('./verify-247-readiness.mjs'));
 } catch {
   // Keep the RED run assertion-shaped until the planned verifier exists.
 }
@@ -356,6 +358,20 @@ const phase251CheckNames = [
   'adopter_shipped_changes', 'adopter_compatibility', 'generated_host_action',
   'version_requirement', 'update_check_path',
 ];
+function immutablePackageSource(identity, commitSha, path) {
+  let bytes;
+  let gitBlobOid;
+  try {
+    bytes = execFileSync('git', ['show', `${commitSha}:${path}`], { stdio: ['ignore', 'pipe', 'ignore'] });
+    gitBlobOid = execFileSync('git', ['rev-parse', `${commitSha}:${path}`], { encoding: 'utf8' }).trim();
+  } catch {
+    return { source_identity: identity, commit_sha: commitSha, path, read_status: 'missing',
+      trust_status: 'trusted_exact_commit_404', http_status: 404 };
+  }
+  return { source_identity: identity, commit_sha: commitSha, path, read_status: 'readable',
+    trust_status: 'trusted_exact_api_blob_match', git_blob_oid: gitBlobOid, api_blob_oid: gitBlobOid,
+    sha256: createHash('sha256').update(bytes).digest('hex'), api_sha256: createHash('sha256').update(bytes).digest('hex') };
+}
 const phase251ReadyFeasibilityFixture = {
   status: 'ready',
   requirements: {
@@ -376,24 +392,8 @@ const phase251ReadyFeasibilityFixture = {
         commit_sha: phase251PublishedSha,
       },
       sources: [
-        ...phase251CandidatePaths.map((path) => ({
-          source_identity: phase251CandidateIdentity,
-          commit_sha: phase251CandidateSha,
-          path,
-          read_status: 'readable',
-          trust_status: 'trusted_exact_api_blob_match',
-          git_blob_oid: 'a'.repeat(40),
-          sha256: 'b'.repeat(64),
-        })),
-        ...phase251PublishedPaths.map((path) => ({
-          source_identity: phase251PublishedIdentity,
-          commit_sha: phase251PublishedSha,
-          path,
-          read_status: 'readable',
-          trust_status: 'trusted_exact_api_blob_match',
-          git_blob_oid: 'c'.repeat(40),
-          sha256: 'd'.repeat(64),
-        })),
+        ...phase251CandidatePaths.map((path) => immutablePackageSource(phase251CandidateIdentity, phase251CandidateSha, path)),
+        ...phase251PublishedPaths.map((path) => immutablePackageSource(phase251PublishedIdentity, phase251PublishedSha, path)),
       ],
       package_adopter: {
         acceptance_satisfied: true,
@@ -423,19 +423,11 @@ function bindPackageCheckEvidence(input, requirements) {
   adopter.sources = ready01.sources;
   for (const [name, requiredSources] of Object.entries(requirements)) {
     const check = adopter.checks[name];
-    check.result = 'pass';
     check.source_identity = requiredSources.map((required) => required.identity).join(' + ');
-    check.evidence_detail = `Fixture assertions for ${name} are bound to immutable sources.`;
-    check.finding_detail = `No finding: ${name} assertions match.`;
-    check.source_refs = requiredSources.map((required) => structuredClone(ready01.sources.find((source) => source.source_identity === required.identity
-      && source.commit_sha === required.commit_sha && source.path === required.path)));
-    check.source_assertions = requiredSources.flatMap((required) => required.assertions.map((id) => {
-      const source = ready01.sources.find((item) => item.source_identity === required.identity
-        && item.commit_sha === required.commit_sha && item.path === required.path);
-      return { id, result: 'pass', expected: true, actual: true, source_identity: required.identity,
-        commit_sha: required.commit_sha, path: required.path, git_blob_oid: source.git_blob_oid, sha256: source.sha256 };
-    }));
+    check.evidence_detail = `Fixture source bytes are read from their immutable commits for ${name}.`;
+    check.finding_detail = `No finding: ${name} source predicates were evaluated.`;
   }
+  bindPhase251PackageSourceEvidence(input);
 }
 
 function bindExactApprovalEvidence(ready01) {
@@ -541,8 +533,25 @@ test('a correct exact-tag source record and its digest-bound assertion can pass'
   bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
 
   const result = evaluatePhase251Feasibility(input);
-  assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, true);
-  assert.equal(result.requirements.READY01.verdict, 'satisfied');
+  assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+  assert.equal(result.requirements.READY01.package_adopter.checks.published_tag_guide.result, 'mismatch');
+  assert.equal(result.requirements.READY01.package_adopter.checks.readme_guide_link.result, 'mismatch');
+  assert.equal(result.requirements.READY01.verdict, 'unsatisfied');
+});
+
+test('a forged passing README check cannot replace absent immutable source bytes', async () => {
+  const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
+  const input = structuredClone(phase251ReadyFeasibilityFixture);
+  bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
+  const check = input.requirements.READY01.package_adopter.checks.readme_guide_link;
+  check.result = 'pass';
+  check.finding_detail = 'No finding: forged result label.';
+  check.source_assertions = check.source_assertions.map((assertion) => ({ ...assertion, result: 'pass', actual: true }));
+
+  const result = evaluatePhase251Feasibility(input);
+  assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+  assert.equal(result.requirements.READY01.package_adopter.checks.readme_guide_link.result, 'pass');
+  assert.ok(result.requirements.READY01.findings.includes('package_check_source_assertions_invalid:readme_guide_link'));
 });
 
 test('a generic approval flag cannot replace an exact contemporaneous approval tuple', async () => {
