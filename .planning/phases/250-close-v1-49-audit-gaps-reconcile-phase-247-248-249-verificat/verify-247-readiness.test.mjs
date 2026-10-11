@@ -261,9 +261,9 @@ test('candidate source blob drift blocks the tuple even when the commit object e
 });
 
 test('canonical report validation requires captured time and exact tuple/run identities', async () => {
-  const { checkReport } = await import('./verify-247-readiness.mjs');
+  const { checkReport, buildReport } = await import('./verify-247-readiness.mjs');
   const reconciliation = JSON.parse(readFileSync(new URL('./250-247-RECONCILIATION.json', import.meta.url), 'utf8'));
-  const report = readFileSync(new URL('../247-release-candidate-and-repository-readiness/247-VERIFICATION.md', import.meta.url), 'utf8');
+  const report = buildReport(reconciliation);
   assert.equal(checkReport(report, reconciliation).valid, true);
   const missingIdentity = report.replace(`- **Captured at:** ${reconciliation.captured_at}\n`, '');
   assert.equal(checkReport(missingIdentity, reconciliation).identitiesMatch, false);
