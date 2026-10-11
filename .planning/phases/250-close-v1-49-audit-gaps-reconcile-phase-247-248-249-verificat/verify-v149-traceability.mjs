@@ -401,28 +401,51 @@ function exactStringSet(actual, expected) {
     && actual.every((value) => expected.includes(value));
 }
 
+function stableJson(value) {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
 const preservationRecordCache = new Set();
 
-function preservationRecordsMatch(root, references, observedIds) {
+function preservationRecordsMatch(root, references, observedIds, dispositions, dirtyItems) {
   if (!Array.isArray(references) || !exactStringSet(references.map((row) => row?.id), observedIds)) return false;
+  if (!Array.isArray(dispositions) || !exactStringSet(dispositions.map((row) => row?.id), observedIds)) return false;
   if (!references.every((row) => typeof row.ref === 'string' && typeof row.commitSha === 'string'
     && /^[a-f0-9]{40}$/.test(row.commitSha) && typeof row.recordPath === 'string'
     && /^records\/[A-Za-z0-9._/-]+\.json$/.test(row.recordPath)
     && typeof row.recordSha256 === 'string' && /^[a-f0-9]{64}$/.test(row.recordSha256))) return false;
 
-  const cacheKey = `${root}\0${sha256(JSON.stringify(references))}`;
+  const dispositionById = new Map(dispositions.map((row) => [row.id, row]));
+  const dirtyById = new Map((Array.isArray(dirtyItems) ? dirtyItems : []).map((row) => [row.id, row]));
+  const cacheKey = `${root}\0${sha256(JSON.stringify({ references, dispositions, dirtyItems }))}`;
   if (preservationRecordCache.has(cacheKey)) return true;
 
-  const input = references.map(({ commitSha, recordPath }) => `${commitSha}:${recordPath}`).join('\n') + '\n';
+  const resolvedReferences = [];
+  for (const reference of references) {
+    let resolved;
+    try {
+      resolved = execFileSync('git', ['rev-parse', '--verify', `${reference.ref}^{commit}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    } catch { return false; }
+    if (resolved !== reference.commitSha) return false;
+    resolvedReferences.push({ ...reference, resolvedCommit: resolved });
+  }
+  const input = resolvedReferences.map(({ resolvedCommit, recordPath }) => `${resolvedCommit}:${recordPath}`).join('\n') + '\n';
   let output;
   try {
     output = execFileSync('git', ['cat-file', '--batch'], { cwd: root, input, encoding: null, maxBuffer: 64 * 1024 * 1024, stdio: ['pipe', 'pipe', 'ignore'] });
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 
   let offset = 0;
-  for (const reference of references) {
+  for (const reference of resolvedReferences) {
+    const disposition = dispositionById.get(reference.id);
+    const dirtyItem = dirtyById.get(reference.id);
+    if (!disposition || typeof disposition.decision !== 'string' || !disposition.decision
+      || typeof disposition.reason !== 'string' || !disposition.reason
+      || !disposition.source || typeof disposition.source !== 'object') return false;
     const headerEnd = output.indexOf(0x0a, offset);
     if (headerEnd < 0) return false;
     const header = output.toString('utf8', offset, headerEnd).split(' ');
@@ -432,15 +455,32 @@ function preservationRecordsMatch(root, references, observedIds) {
     const contentEnd = contentStart + size;
     if (contentEnd >= output.length || output[contentEnd] !== 0x0a) return false;
     const content = output.subarray(contentStart, contentEnd);
+    offset = contentEnd + 1;
     if (sha256(content) !== reference.recordSha256) return false;
     let record;
     try { record = JSON.parse(content.toString('utf8')); } catch { return false; }
-    if (record?.id !== reference.id) return false;
-    offset = contentEnd + 1;
+    if (record?.id !== reference.id || record.decision !== disposition.decision
+      || record.reason !== disposition.reason
+      || stableJson(record.source) !== stableJson(disposition.source)
+      || (record.source_byte_sha256 ?? null) !== (dirtyItem?.source_byte_sha256 ?? null)
+      || !record.captured_source || record.captured_source.id !== disposition.id
+      || (disposition.source.worktree_path
+        ? (record.captured_source.kind !== 'dirty_path'
+          || record.captured_source.worktree_path !== disposition.source.worktree_path
+          || record.captured_source.worktree_head_sha !== disposition.source.head_sha
+          || record.captured_source.status !== disposition.source.status
+          || record.captured_source.path !== disposition.source.path
+          || (record.captured_source.source_byte_sha256 ?? null) !== (dirtyItem?.source_byte_sha256 ?? null)
+          || record.captured_source.worktree_branch !== dirtyItem?.worktree_branch
+          || (record.captured_source.original_path ?? null) !== (dirtyItem?.original_path ?? null))
+        : disposition.source.path
+          ? (record.captured_source.kind !== 'committed_path' || record.captured_source.source_commit_sha !== disposition.source.commit_sha
+            || record.captured_source.path !== disposition.source.path)
+          : (record.captured_source.kind !== 'commit' || record.captured_source.commit_sha !== disposition.source.commit_sha))) return false;
   }
-  const matched = offset === output.length;
-  if (matched) preservationRecordCache.add(cacheKey);
-  return matched;
+  if (offset !== output.length) return false;
+  preservationRecordCache.add(cacheKey);
+  return true;
 }
 
 function readyOwnerEvidenceRows(text) {
@@ -599,6 +639,39 @@ function phase251Ready02Complete(root, packet, feasibility) {
   const preservationRefs = Array.isArray(inheritedJoin?.preservationRefs) ? inheritedJoin.preservationRefs : [];
   const inheritedCount = Number(inherited?.commit_count ?? 0) + Number(inherited?.path_count ?? 0);
   const sourceInventory = packet?.source_capture?.local_inherited_work;
+  const identityRows = sourceInventory?.inherited_commit_shas;
+  const pathRows = sourceInventory?.inherited_paths;
+  const dirtyRows = sourceInventory?.inherited_dirty_entries;
+  const sourceDispositions = sourceInventory?.inherited_dispositions;
+  const worktreeRows = inherited?.worktrees;
+  const expectedInheritedIds = () => {
+    if (![identityRows, pathRows, dirtyRows, sourceDispositions, worktreeRows].every(Array.isArray)) return null;
+    if (identityRows.some((sha) => typeof sha !== 'string' || !/^[a-f0-9]{40}$/.test(sha))
+      || pathRows.some((sourcePath) => typeof sourcePath !== 'string' || !sourcePath)
+      || dirtyRows.some((row) => !row || typeof row.id !== 'string' || !row.id)
+      || sourceDispositions.some((row) => !row || typeof row.id !== 'string' || !row.id)) return null;
+    const statusRows = [];
+    for (const worktree of worktreeRows) {
+      if (!worktree || typeof worktree.path !== 'string' || !worktree.path
+        || typeof worktree.head_sha !== 'string' || !/^[a-f0-9]{40}$/.test(worktree.head_sha)
+        || !Array.isArray(worktree.status_entries)) return null;
+      for (const entry of worktree.status_entries) {
+        if (!entry || typeof entry.status !== 'string' || !entry.status
+          || typeof entry.path !== 'string' || !entry.path
+          || entry.source_byte_readable !== true || !/^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? '')) return null;
+        statusRows.push({ ...entry, worktree_path: worktree.path, worktree_head_sha: worktree.head_sha });
+      }
+    }
+    const statusIds = statusRows.map((entry) => `dirty:${entry.worktree_path}:${entry.worktree_head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`);
+    const dirtyIds = dirtyRows.map((row) => row.id);
+    const expectedDirtyIds = statusRows.map((entry) => `dirty:${entry.worktree_path}:${entry.worktree_head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`);
+    if (!exactStringSet(dirtyIds, expectedDirtyIds)) return null;
+    const expected = [...identityRows.map((sha) => `commit:${sha}`), ...pathRows.map((sourcePath) => `path:${sourcePath}`), ...statusIds];
+    if (new Set(expected).size !== expected.length) return null;
+    if (!exactStringSet(sourceDispositions.map((row) => row.id), expected)) return null;
+    return expected;
+  };
+  const expectedIds = expectedInheritedIds();
   const completeWorktrees = (inventory) => Array.isArray(inventory?.raw_status)
     && inventory.raw_status.every((entry) => typeof entry?.path === 'string'
       && entry.source_byte_readable === true && /^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? ''))
@@ -627,10 +700,12 @@ function phase251Ready02Complete(root, packet, feasibility) {
     && Array.isArray(prJoin?.blockers) && prJoin.blockers.length === 0;
   const inheritedMatches = sourceInventoryComplete
     && inheritedInventoryComplete
+    && expectedIds !== null
+    && exactStringSet(inheritedObserved, expectedIds)
     && inheritedJoin?.status === 'passed'
     && Array.isArray(inheritedJoin?.blockers) && inheritedJoin.blockers.length === 0
-    && exactStringSet(inheritedDispositions, inheritedObserved)
-    && (inheritedCount === 0 ? preservationRefs.length === 0 : preservationRecordsMatch(root, preservationRefs, inheritedObserved));
+    && exactStringSet(inheritedDispositions, expectedIds)
+    && (inheritedCount === 0 ? preservationRefs.length === 0 : preservationRecordsMatch(root, preservationRefs, expectedIds, sourceDispositions, dirtyRows));
   const historicalInventoryNote = 'Prior inventory is historical; Task 3 must capture a fresh complete open-PR and inherited-work inventory before dispositions.';
   const findingsAreHistoricalOnly = Array.isArray(ready?.findings)
     && ready.findings.every((finding) => finding === historicalInventoryNote);
