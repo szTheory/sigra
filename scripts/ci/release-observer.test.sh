@@ -24,8 +24,20 @@ case "$endpoint" in
   "repos/${GITHUB_REPOSITORY}/actions/runs/${TEST_SOURCE_RUN_ID}")
     cat "$TEST_RUN_JSON"
     ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/${TEST_CANARY_SOURCE_RUN_ID:-unset}")
+    cat "$TEST_CANARY_RUN_JSON"
+    ;;
+  "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}")
+    cat "$TEST_OBSERVER_RUN_JSON"
+    ;;
   "repos/${GITHUB_REPOSITORY}/actions/workflows/release-please.yml")
     cat "$TEST_WORKFLOW_JSON"
+    ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/release-receipt-canary.yml")
+    cat "$TEST_CANARY_WORKFLOW_JSON"
+    ;;
+  "repos/${GITHUB_REPOSITORY}/actions/workflows/release-run-observer.yml")
+    cat "$TEST_OBSERVER_WORKFLOW_JSON"
     ;;
   "repos/${GITHUB_REPOSITORY}/contents/.release-please-manifest.json?ref=${TEST_SOURCE_SHA}")
     if [[ "${TEST_MANIFEST_MISSING:-false}" == true ]]; then exit 1; fi
@@ -73,6 +85,11 @@ run_observer() {
     TEST_SOURCE_TAG="$TEST_SOURCE_TAG" TEST_RUN_JSON="$TEST_RUN_JSON" \
     TEST_WORKFLOW_JSON="$TEST_WORKFLOW_JSON" TEST_MANIFEST_JSON="$TEST_MANIFEST_JSON" \
     TEST_TAG_SHA="${TEST_TAG_SHA-$SOURCE_SHA}" TEST_MANIFEST_MISSING="${TEST_MANIFEST_MISSING:-false}" \
+    TEST_CANARY_SOURCE_RUN_ID="${TEST_CANARY_SOURCE_RUN_ID:-unset}" \
+    TEST_CANARY_RUN_JSON="${TEST_CANARY_RUN_JSON:-}" \
+    TEST_CANARY_WORKFLOW_JSON="${TEST_CANARY_WORKFLOW_JSON:-}" \
+    TEST_OBSERVER_RUN_JSON="${TEST_OBSERVER_RUN_JSON:-}" \
+    TEST_OBSERVER_WORKFLOW_JSON="${TEST_OBSERVER_WORKFLOW_JSON:-}" \
     EVENT_PATH="$TMP_DIR/fixture/event.json" OUTPUT_PATH="$output" \
     PATH="$TMP_DIR/bin:$PATH" bash "$ROOT_DIR/scripts/ci/release-observer.sh" \
       --event "$TMP_DIR/fixture/event.json" --output "$output" > "$TMP_DIR/stdout" 2> "$TMP_DIR/stderr"
@@ -113,8 +130,8 @@ expect_rejected non-main-source-branch
 write_fixtures push main success
 expect_rejected non-cancelled-source-run
 write_fixtures push
-jq '.name="Unexpected workflow"' "$TMP_DIR/fixture/run.json" > "$TMP_DIR/run-mutated.json" && mv "$TMP_DIR/run-mutated.json" "$TMP_DIR/fixture/run.json"
-expect_rejected wrong-source-workflow-name
+jq '.name="Unexpected workflow"' "$TMP_DIR/fixture/workflow.json" > "$TMP_DIR/workflow-mutated.json" && mv "$TMP_DIR/workflow-mutated.json" "$TMP_DIR/fixture/workflow.json"
+expect_rejected wrong-authoritative-workflow-name
 write_fixtures push
 jq '.path=".github/workflows/other.yml@main"' "$TMP_DIR/fixture/run.json" > "$TMP_DIR/run-mutated.json" && mv "$TMP_DIR/run-mutated.json" "$TMP_DIR/fixture/run.json"
 expect_rejected wrong-source-workflow-path
@@ -185,6 +202,50 @@ if run_observer "$output" && cp "$output" "$TMP_DIR/repeated-before.json" && run
   jq -e --slurpfile before "$TMP_DIR/repeated-before.json" '.release_run_id == $before[0].release_run_id and .source_sha == $before[0].source_sha and .source_event == $before[0].source_event and .terminal_verdict == $before[0].terminal_verdict and .observer_run.id == $before[0].observer_run.id' "$output" >/dev/null; then
   pass "duplicate delivery keeps the same terminal identity and source event"
 else fail "duplicate delivery changed cancellation identity"; fi
+
+echo "Test F: canary run titles are dynamic; workflow identity comes from workflow metadata"
+mkdir -p "$TMP_DIR/canary-fixture"
+CANARY_SOURCE_RUN_ID=74124
+CANARY_PROBE_ID=90ce59a45440406631d927e636e94eb6
+CANARY_OBSERVER_RUN_ID="$OBSERVER_RUN_ID"
+jq -n --arg repository "$REPOSITORY" --arg sha "$SOURCE_SHA" \
+  --argjson id "$CANARY_SOURCE_RUN_ID" --argjson workflow_id 380517407 \
+  '{repository:{full_name:$repository},workflow_run:{id:$id,event:"workflow_dispatch",head_sha:$sha,workflow_id:$workflow_id}}' \
+  > "$TMP_DIR/canary-fixture/event.json"
+jq -n --arg repository "$REPOSITORY" --arg sha "$SOURCE_SHA" \
+  --arg probe "$CANARY_PROBE_ID" --arg url "https://github.com/${REPOSITORY}/actions/runs/${CANARY_SOURCE_RUN_ID}" \
+  --argjson id "$CANARY_SOURCE_RUN_ID" --argjson workflow_id 380517407 \
+  '{id:$id,name:("release-receipt-canary-cancellation-"+$probe),display_title:("release-receipt-canary-cancellation-"+$probe),workflow_id:$workflow_id,path:".github/workflows/release-receipt-canary.yml@main",event:"workflow_dispatch",head_branch:"main",head_sha:$sha,conclusion:"cancelled",run_attempt:1,run_started_at:"2026-10-11T11:18:34Z",html_url:$url,repository:{full_name:$repository}}' \
+  > "$TMP_DIR/canary-fixture/run.json"
+jq -n '{id:380517407,name:"Release Receipt Canary",path:".github/workflows/release-receipt-canary.yml",state:"active"}' \
+  > "$TMP_DIR/canary-fixture/workflow.json"
+jq -n --argjson id "$CANARY_OBSERVER_RUN_ID" \
+  '{id:$id,run_attempt:1,run_started_at:"2026-10-11T11:20:41Z"}' \
+  > "$TMP_DIR/canary-fixture/observer-run.json"
+jq -n '{id:379162190,name:"Release Run Observer",path:".github/workflows/release-run-observer.yml",state:"active"}' \
+  > "$TMP_DIR/canary-fixture/observer-workflow.json"
+jq -n --arg sha "$SOURCE_SHA" --arg probe "$CANARY_PROBE_ID" \
+  --argjson source_id "$CANARY_SOURCE_RUN_ID" --argjson observer_id "$CANARY_OBSERVER_RUN_ID" \
+  '{sha:$sha,probe:$probe,source_id:$source_id,observer_id:$observer_id}' \
+  > "$TMP_DIR/canary-fixture/identity.json"
+export TEST_CANARY_SOURCE_RUN_ID="$CANARY_SOURCE_RUN_ID" \
+  TEST_CANARY_RUN_JSON="$TMP_DIR/canary-fixture/run.json" \
+  TEST_CANARY_WORKFLOW_JSON="$TMP_DIR/canary-fixture/workflow.json" \
+  TEST_OBSERVER_RUN_JSON="$TMP_DIR/canary-fixture/observer-run.json" \
+  TEST_OBSERVER_WORKFLOW_JSON="$TMP_DIR/canary-fixture/observer-workflow.json"
+GITHUB_REPOSITORY="$REPOSITORY" GITHUB_RUN_ID="$CANARY_OBSERVER_RUN_ID" \
+  GITHUB_RUN_ATTEMPT=1 GITHUB_SERVER_URL=https://github.com GH_TOKEN=fixture-token \
+  PATH="$TMP_DIR/bin:$PATH" bash "$ROOT_DIR/scripts/ci/release-observer.sh" \
+    --event "$TMP_DIR/canary-fixture/event.json" --output "$TMP_DIR/canary-receipt.json" \
+    > "$TMP_DIR/canary-stdout" 2> "$TMP_DIR/canary-stderr"
+if jq -e --slurpfile id "$TMP_DIR/canary-fixture/identity.json" \
+  '.receipt_kind == "canary" and .scenario == "cancellation" and
+   .source_run_id == ($id[0].source_id|tostring) and .source_sha == $id[0].sha and
+   .probe_id == $id[0].probe and .source_workflow_name == "Release Receipt Canary" and
+   .source_workflow_id == 380517407 and .terminal_verdict == "cancelled" and
+   .observer_run.id == ($id[0].observer_id|tostring)' "$TMP_DIR/canary-receipt.json" >/dev/null; then
+  pass "dynamic canary run title is accepted while static workflow metadata stays exact"
+else cat "$TMP_DIR/canary-stderr" >&2; fail "canary cancellation receipt rejected a dynamic run title"; fi
 
 echo "Results: ${PASS} passed, ${FAIL} failed"
 if [[ "$FAIL" -gt 0 ]]; then exit 1; fi

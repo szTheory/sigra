@@ -42,7 +42,6 @@ API_EVENT="$(jq -er '.event | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/
 API_BRANCH="$(jq -er '.head_branch | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source branch is missing"
 API_CONCLUSION="$(jq -er '.conclusion | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source conclusion is missing"
 API_WORKFLOW_ID="$(jq -er '.workflow_id | select(type == "number" and floor == . and . > 0)' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source workflow ID is malformed"
-API_WORKFLOW_NAME="$(jq -er '.name | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source workflow name is missing"
 API_WORKFLOW_PATH="$(jq -er '.path | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source workflow path is missing"
 API_URL="$(jq -er '.html_url | select(type == "string")' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source run URL is missing"
 API_ATTEMPT="$(jq -er '.run_attempt | select(type == "number" and floor == . and . > 0)' <<<"$SOURCE_RUN" 2>/dev/null)" || fail "authoritative source attempt is malformed"
@@ -65,6 +64,7 @@ jq -e 'type == "object"' <<<"$WORKFLOW" >/dev/null 2>&1 || fail "authoritative w
 WORKFLOW_ID="$(jq -er '.id | select(type == "number" and floor == . and . > 0)' <<<"$WORKFLOW" 2>/dev/null)" || fail "Release Please workflow ID is malformed"
 WORKFLOW_NAME="$(jq -er '.name | select(type == "string")' <<<"$WORKFLOW" 2>/dev/null)" || fail "Release Please workflow name is missing"
 WORKFLOW_PATH="$(jq -er '.path | select(type == "string")' <<<"$WORKFLOW" 2>/dev/null)" || fail "Release Please workflow path is missing"
+API_WORKFLOW_NAME="$WORKFLOW_NAME"
 
 if [[ "$API_WORKFLOW_PATH" == .github/workflows/release-receipt-canary.yml* ]]; then
   [[ "$API_REPOSITORY" == "$GITHUB_REPOSITORY" ]] || fail "authoritative canary repository mismatch"
