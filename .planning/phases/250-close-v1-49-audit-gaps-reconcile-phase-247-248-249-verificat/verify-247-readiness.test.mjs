@@ -436,6 +436,99 @@ test('a correct exact-tag source record and its digest-bound assertion can pass'
   assert.equal(result.requirements.READY01.verdict, 'satisfied');
 });
 
+test('secondary-worktree dirty paths stay in the READY-02 disposition and preservation join', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { execFileSync } = await import('node:child_process');
+  const { createHash } = await import('node:crypto');
+  const { localInheritedSnapshot, buildPhase251Packet } = await import('./verify-247-readiness.mjs');
+  assert.equal(typeof localInheritedSnapshot, 'function');
+  assert.equal(typeof buildPhase251Packet, 'function');
+
+  const root = mkdtempSync(join(tmpdir(), 'readiness-secondary-worktree-'));
+  const secondary = join(tmpdir(), `readiness-secondary-${process.pid}-${Date.now()}`);
+  try {
+    execFileSync('git', ['init', '-q', root]);
+    execFileSync('git', ['-C', root, 'config', 'user.email', 'fixture@example.invalid']);
+    execFileSync('git', ['-C', root, 'config', 'user.name', 'Fixture']);
+    writeFileSync(join(root, 'tracked.txt'), 'base\n');
+    execFileSync('git', ['-C', root, 'add', 'tracked.txt']);
+    execFileSync('git', ['-C', root, 'commit', '-qm', 'fixture base']);
+    const base = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    execFileSync('git', ['-C', root, 'worktree', 'add', '-qb', 'secondary', secondary, base]);
+    const dirtyBytes = Buffer.from('secondary-only\n');
+    writeFileSync(join(secondary, 'secondary-only.txt'), dirtyBytes);
+
+    const local = localInheritedSnapshot(base, root);
+    const dirty = local.worktrees.find((row) => row.path === secondary)?.status_entries ?? [];
+    assert.deepEqual(dirty.map((row) => ({ path: row.path, status: row.status, source_byte_sha256: row.source_byte_sha256 })), [
+      { path: 'secondary-only.txt', status: '??', source_byte_sha256: createHash('sha256').update(dirtyBytes).digest('hex') },
+    ]);
+
+    const packetInput = (dispositions) => {
+      const localWithDispositions = { ...local, inherited_dispositions: dispositions };
+      const before = { open_pull_requests: [], pagination: { complete: true } };
+      const after = { open_pull_requests: [], pagination: { complete: true } };
+      const evaluated = { requirements: {
+        READY01: { capture_allowed: true, verdict: 'authorization_pending', blockers: [], findings: [], package_adopter: { acceptance_satisfied: false } },
+        READY02: { capture_allowed: true, verdict: 'unsatisfied', blockers: [], findings: [] },
+      } };
+      return buildPhase251Packet({}, evaluated, before, after, localWithDispositions, [], { root });
+    };
+    const dirtyIdentity = `dirty:${secondary}:${local.worktrees.find((row) => row.path === secondary).head_sha}:??:secondary-only.txt:${createHash('sha256').update(dirtyBytes).digest('hex')}`;
+    const missing = packetInput([]);
+    assert.equal(missing.requirements.READY02.verdict, 'unsatisfied');
+    assert.ok(missing.requirements.READY02.inherited_work.disposition_join.blockers.includes('inherited_work_population_mismatch'));
+
+    mkdirSync(join(root, 'preservation'), { recursive: true });
+    const recordBytes = Buffer.from(`${JSON.stringify({ id: dirtyIdentity, decision: 'separate-follow-up', source_byte_sha256: createHash('sha256').update(dirtyBytes).digest('hex') })}\n`);
+    writeFileSync(join(root, 'preservation/secondary.json'), recordBytes);
+    execFileSync('git', ['-C', root, 'add', 'preservation/secondary.json']);
+    execFileSync('git', ['-C', root, 'commit', '-qm', 'preserve secondary worktree item']);
+    const commit = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    execFileSync('git', ['-C', root, 'update-ref', 'refs/heads/preservation/secondary', commit]);
+    const preservationRef = { ref: 'refs/heads/preservation/secondary', commit_sha: commit, record_path: 'preservation/secondary.json', record_sha256: createHash('sha256').update(recordBytes).digest('hex') };
+    const disposition = { id: dirtyIdentity, decision: 'separate-follow-up', preservation_ref: preservationRef };
+    const valid = packetInput([disposition]);
+    assert.equal(valid.requirements.READY02.verdict, 'satisfied');
+    assert.equal(valid.requirements.READY02.inherited_work.disposition_join.status, 'passed');
+
+    const wrongBytes = packetInput([{ ...disposition, preservation_ref: { ...preservationRef, record_sha256: '0'.repeat(64) } }]);
+    assert.equal(wrongBytes.requirements.READY02.verdict, 'unsatisfied');
+    assert.equal(wrongBytes.requirements.READY02.inherited_work.disposition_join.status, 'blocked');
+  } finally {
+    try { execFileSync('git', ['-C', root, 'worktree', 'remove', '--force', secondary]); } catch {}
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('clean secondary worktrees do not create phantom dirty inherited items', async () => {
+  const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { execFileSync } = await import('node:child_process');
+  const { localInheritedSnapshot } = await import('./verify-247-readiness.mjs');
+  const root = mkdtempSync(join(tmpdir(), 'readiness-clean-worktree-'));
+  const secondary = join(tmpdir(), `readiness-clean-${process.pid}-${Date.now()}`);
+  try {
+    execFileSync('git', ['init', '-q', root]);
+    execFileSync('git', ['-C', root, 'config', 'user.email', 'fixture@example.invalid']);
+    execFileSync('git', ['-C', root, 'config', 'user.name', 'Fixture']);
+    writeFileSync(join(root, 'tracked.txt'), 'base\n');
+    execFileSync('git', ['-C', root, 'add', 'tracked.txt']);
+    execFileSync('git', ['-C', root, 'commit', '-qm', 'fixture base']);
+    const base = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    execFileSync('git', ['-C', root, 'worktree', 'add', '-qb', 'secondary', secondary, base]);
+    const local = localInheritedSnapshot(base, root);
+    assert.ok(local.worktrees.every((row) => row.status_entries.length === 0));
+    assert.deepEqual(local.inherited_dirty_entries, []);
+  } finally {
+    try { execFileSync('git', ['-C', root, 'worktree', 'remove', '--force', secondary]); } catch {}
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('package checks reject wrong path, commit, blob, digest, and assertion identity', async () => {
   const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
   for (const mutate of [
