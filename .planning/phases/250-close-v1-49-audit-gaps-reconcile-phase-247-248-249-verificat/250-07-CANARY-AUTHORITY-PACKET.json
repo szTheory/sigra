@@ -2,7 +2,7 @@
   "schema_version": 1,
   "packet_id": "250-07-canary-authority-v7",
   "created_at": "2026-10-11T03:40:34Z",
-  "status": "approved_pending_dispatch",
+  "status": "dispatched_pending_validation",
   "repository": "szTheory/sigra",
   "objective": "Prove the repaired read-only observer receipt path with one bounded no-publish canary controller run on the exact current main source.",
   "source": {
@@ -189,13 +189,16 @@
       }
     ],
     "status": "authorized",
-    "dispatch_attempted": false,
+    "dispatch_attempted": true,
     "credential_values_recorded": false,
     "silence_is_approval": false,
     "choice": "authorize",
     "authorized_at": "2026-10-11T11:11:18Z",
     "authorized_packet_sha256": "6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c",
-    "user_reply_verbatim": "yeah go for it maybe u can also in future optimize ci/cd that's a long run"
+    "user_reply_verbatim": "yeah go for it maybe u can also in future optimize ci/cd that's a long run",
+    "dispatched_at": "2026-10-11T11:17:16Z",
+    "controller_run_id": 38135003478,
+    "dispatch_packet_sha256": "5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237"
   },
   "prior_authority_history": {
     "packet_v3": {
