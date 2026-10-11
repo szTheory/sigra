@@ -156,15 +156,22 @@ async function registerUser(page: Page, email: string, password: string) {
   // phx-connected + Space Grotesk ready after each goto.
   await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
   await waitForLiveViewReady(page);
-  await page.fill('input[name="user[email]"]', email);
-  await page.fill('input[name="user[password]"]', password);
+  await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);
+  await page.getByLabel('Password', { exact: true }).fill(password);
   await Promise.all([
-    // Lowered from 30_000 → 10_000 so a stuck first-nav fails fast into its
-    // Playwright retry instead of hanging ~16 min on a fixed per-test timeout (D-09).
-    page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 10_000 }),
+    // Registration redirects to the signed-in LiveView. Waiting for the full
+    // `load` event here hangs on mobile WebKit after the URL has already moved;
+    // DOM readiness plus the LiveView gate below proves the destination is usable.
+    page.waitForURL((url) => !url.pathname.endsWith('/users/register'), {
+      timeout: 10_000,
+      waitUntil: 'domcontentloaded',
+    }),
     page.getByRole('button', { name: /Create an account/ }).click(),
   ]);
   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
+  // Check the short-lived success flash before waiting on web fonts; LiveView
+  // readiness is still required before the caller navigates into the admin UI.
+  await waitForLiveViewReady(page);
 }
 
 let registrationSequence = 0;
