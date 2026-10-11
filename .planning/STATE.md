@@ -4,14 +4,14 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 status: ready_to_execute
 stopped_at: Phase 251 gap planning verified; Plans 03–07 pending, phase verification remains gaps_found
-last_updated: "2026-10-11T22:02:08.898025Z"
-state_head: 6781a48afe37f68d7be094ff52a305e52e4adf07
+last_updated: "2026-10-11T22:06:53.961Z"
+state_head: d587634200e34e150a5793b2707f759d6332e01d
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 47
   completed_plans: 42
-  percent: 89
+  percent: 83
 last_activity: 2026-10-11
 verification_status: gaps_found
 next_command: $gsd-execute-phase 251 --gaps-only
@@ -19,7 +19,7 @@ resume_command: $gsd-execute-phase 251 --gaps-only
 current_phase_name: Close READY-01 and READY-02 release readiness gaps
 current_phase: 251
 current_plan: 03
-last_activity_desc: "Phase 251 gap planning passed independent review: five new plans (03\u201307), 12 pending tasks in four remaining waves. Plans 01/02 are complete. Latest phase verification remains gaps_found (2/4), READY-01/02 remain unsatisfied, and the strict v1.49 audit remains 7/9 and incomplete. Next: $gsd-execute-phase 251 --gaps-only"
+last_activity_desc: "Phase 251 gap planning passed independent review: five new plans (03–07), 12 pending tasks in four remaining waves. Plans 01/02 are complete. Latest phase verification remains gaps_found (2/4), READY-01/02 remain unsatisfied, and the strict v1.49 audit remains 7/9 and incomplete. Next: $gsd-execute-phase 251 --gaps-only"
 ---
 
 # Project State
