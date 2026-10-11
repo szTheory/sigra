@@ -657,3 +657,82 @@ test('final inventory invalidates disposition when any captured PR identity comp
       `${field} must fail final readiness: ${JSON.stringify(result.errors)}`);
   }
 });
+
+function inventoryPullRequest(number, overrides = {}) {
+  const row = {
+    repository: 'szTheory/sigra',
+    number,
+    head_sha: number.toString(16).padStart(40, '0'),
+    base: 'main',
+    base_sha: 'b'.repeat(40),
+    changed_files: [],
+    disposition: 'separate-follow-up',
+    reason: `Preserved PR #${number}.`,
+    source: `GitHub PR #${number}`,
+    preservation_location: `GitHub PR #${number}`,
+  };
+  const complete = { ...row, ...overrides };
+  complete.disposition_identity = dispositionIdentity(complete);
+  return complete;
+}
+
+function snapshotWithPullRequests(rows) {
+  const snapshot = emptySnapshot();
+  snapshot.pull_requests = rows;
+  const observed = emptyObservation();
+  observed.pull_requests = rows.map(({ repository, number, head_sha, base, base_sha }) => ({ repository, number, head_sha, base, base_sha }));
+  return { snapshot, observed };
+}
+
+test('requires unique complete PR identities and stable numeric ordering in snapshots', () => {
+  const nine = inventoryPullRequest(9);
+  const ten = inventoryPullRequest(10);
+  assert.equal(validateSnapshot(...Object.values(snapshotWithPullRequests([nine, ten]))).valid, true);
+
+  const reversed = snapshotWithPullRequests([ten, nine]);
+  assert.ok(validateSnapshot(reversed.snapshot, reversed.observed).errors.some(error => error.code === 'pull_request_order_invalid'));
+
+  const duplicate = snapshotWithPullRequests([nine, { ...nine }]);
+  assert.ok(validateSnapshot(duplicate.snapshot, duplicate.observed).errors.some(error => error.code === 'duplicate_pull_request_number'));
+
+  const changedBase = inventoryPullRequest(9, { base_sha: 'c'.repeat(40) });
+  const conflict = snapshotWithPullRequests([nine]);
+  conflict.observed.pull_requests = [{ ...conflict.observed.pull_requests[0], base_sha: changedBase.base_sha }];
+  assert.ok(validateSnapshot(conflict.snapshot, conflict.observed).errors.some(error => error.code === 'pull_request_identity_mismatch'));
+
+  for (const missingBaseSha of [
+    (() => { const row = { ...nine }; delete row.base_sha; return row; })(),
+    { ...nine, base_sha: null },
+  ]) {
+    const incomplete = snapshotWithPullRequests([missingBaseSha]);
+    assert.ok(validateSnapshot(incomplete.snapshot, incomplete.observed).errors.some(error => error.code === 'pull_request_base_sha_invalid'));
+  }
+});
+
+test('final inventory sorts PRs numerically and rejects duplicate or null identities', () => {
+  const nine = inventoryPullRequest(9);
+  const ten = inventoryPullRequest(10);
+  const saved = emptySnapshot();
+  const snapshot = { entry_snapshot: saved, current_snapshot: { ...emptySnapshot(), pull_requests: [nine, ten] } };
+  const inventoryObservation = {
+    repo_root: '/repo', branch: 'release-work', trusted_main_sha: 'a'.repeat(40),
+    local_origin_main_sha: 'a'.repeat(40), merge_base_sha: 'b'.repeat(40),
+    inherited_head_sha: 'c'.repeat(40), commit_shas: [], committed_paths: [], dirty_paths: [],
+  };
+  const sorted = finalInventory(snapshot, inventoryObservation, [ten, nine]);
+  assert.deepEqual(sorted.pull_requests.map(row => row.number), [9, 10]);
+
+  const { final, observed } = finalReadinessFixture();
+  final.observed_at = sorted.captured_at;
+  observed.inventory = sorted;
+  observed.live.open_pull_requests = [nine, ten];
+  assert.deepEqual(validateFinalReadiness(final, observed), { valid: true, errors: [] });
+
+  const duplicate = { ...observed, inventory: { ...sorted, pull_requests: [...sorted.pull_requests, { ...nine }] },
+    live: { ...observed.live, open_pull_requests: [nine, ten, { ...nine }] } };
+  assert.ok(validateFinalReadiness(final, duplicate).errors.some(error => error.code === 'final_duplicate_pr_key'));
+
+  const nullBase = { ...observed, inventory: { ...sorted, pull_requests: [{ ...nine, base_sha: null }] },
+    live: { ...observed.live, open_pull_requests: [{ ...nine, base_sha: null }] } };
+  assert.ok(validateFinalReadiness(final, nullBase).errors.some(error => error.code === 'final_pr_identity_invalid'));
+});
