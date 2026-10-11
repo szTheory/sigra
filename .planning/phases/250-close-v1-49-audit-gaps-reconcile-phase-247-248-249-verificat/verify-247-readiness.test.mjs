@@ -347,6 +347,28 @@ const expectedPackageAcceptanceFixtureNames = [
   'adopterShippedChangesIncomplete', 'adopterCompatibilityIncomplete', 'generatedHostActionMissing',
   'versionRequirementMissing', 'updateCheckPathIncomplete',
 ];
+
+function bindPackageCheckEvidence(input, requirements) {
+  const ready01 = input.requirements.READY01;
+  const adopter = ready01.package_adopter;
+  adopter.sources = ready01.sources;
+  for (const [name, requiredSources] of Object.entries(requirements)) {
+    const check = adopter.checks[name];
+    check.result = 'pass';
+    check.source_identity = requiredSources.map((required) => required.identity).join(' + ');
+    check.evidence_detail = `Fixture assertions for ${name} are bound to immutable sources.`;
+    check.finding_detail = `No finding: ${name} assertions match.`;
+    check.source_refs = requiredSources.map((required) => structuredClone(ready01.sources.find((source) => source.source_identity === required.identity
+      && source.commit_sha === required.commit_sha && source.path === required.path)));
+    check.source_assertions = requiredSources.flatMap((required) => required.assertions.map((id) => {
+      const source = ready01.sources.find((item) => item.source_identity === required.identity
+        && item.commit_sha === required.commit_sha && item.path === required.path);
+      return { id, result: 'pass', expected: true, actual: true, source_identity: required.identity,
+        commit_sha: required.commit_sha, path: required.path, git_blob_oid: source.git_blob_oid, sha256: source.sha256 };
+    }));
+  }
+}
+
 const packageAcceptanceFixtures = expectedPackageAcceptanceFixtureNames.map((name) => ({ name }));
 const executedPackageAcceptanceFixtureNames = [];
 
@@ -385,26 +407,55 @@ test('package acceptance fixture registry is exact and unique', () => {
 });
 
 test('a published-guide pass cannot cite candidate guide bytes', async () => {
-  const { evaluatePhase251Feasibility } = await import('./verify-247-readiness.mjs');
+  const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
   const input = structuredClone(phase251ReadyFeasibilityFixture);
+  bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
   const ready01 = input.requirements.READY01;
   ready01.approval_event = 'found';
   const check = ready01.package_adopter.checks.published_tag_guide;
-  check.result = 'pass';
-  check.source_identity = phase251PublishedIdentity;
-  check.evidence_detail = 'Published guide is present.';
-  check.finding_detail = 'No finding: published guide is current.';
-  check.source_refs = [{
-    source_identity: phase251CandidateIdentity,
-    commit_sha: phase251CandidateSha,
-    path: 'guides/introduction/upgrading-to-v1.6.md',
-    git_blob_oid: 'a'.repeat(40),
-    sha256: 'b'.repeat(64),
-  }];
+  check.source_refs[0] = structuredClone(ready01.sources.find((source) => source.source_identity === phase251CandidateIdentity
+    && source.path === 'guides/introduction/upgrading-to-v1.6.md'));
 
   const result = evaluatePhase251Feasibility(input);
   assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
   assert.notEqual(result.requirements.READY01.verdict, 'satisfied');
+});
+
+test('a correct exact-tag source record and its digest-bound assertion can pass', async () => {
+  const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
+  const input = structuredClone(phase251ReadyFeasibilityFixture);
+  const ready01 = input.requirements.READY01;
+  ready01.approval_event = 'found';
+  const guide = ready01.sources.find((source) => source.source_identity === phase251PublishedIdentity
+    && source.path === 'guides/introduction/upgrading-to-v1.6.md');
+  Object.assign(guide, { read_status: 'readable', trust_status: 'trusted_exact_api_blob_match', git_blob_oid: 'e'.repeat(40), sha256: 'f'.repeat(64) });
+  bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
+
+  const result = evaluatePhase251Feasibility(input);
+  assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, true);
+  assert.equal(result.requirements.READY01.verdict, 'satisfied');
+});
+
+test('package checks reject wrong path, commit, blob, digest, and assertion identity', async () => {
+  const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
+  for (const mutate of [
+    (check) => { check.source_refs[0].path = 'README.md'; },
+    (check) => { check.source_refs[0].commit_sha = 'f'.repeat(40); },
+    (check) => { check.source_refs[0].git_blob_oid = 'f'.repeat(40); },
+    (check) => { check.source_refs[0].sha256 = '0'.repeat(64); },
+    (check) => { check.source_assertions[0].id = 'unrelated_assertion'; },
+  ]) {
+    const input = structuredClone(phase251ReadyFeasibilityFixture);
+    const ready01 = input.requirements.READY01;
+    ready01.approval_event = 'found';
+    const guide = ready01.sources.find((source) => source.source_identity === phase251PublishedIdentity
+      && source.path === 'guides/introduction/upgrading-to-v1.6.md');
+    Object.assign(guide, { read_status: 'readable', trust_status: 'trusted_exact_api_blob_match', git_blob_oid: 'e'.repeat(40), sha256: 'f'.repeat(64) });
+    bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
+    mutate(ready01.package_adopter.checks.published_tag_guide);
+    const result = evaluatePhase251Feasibility(input);
+    assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+  }
 });
 
 for (const fixture of packageAcceptanceFixtures) {

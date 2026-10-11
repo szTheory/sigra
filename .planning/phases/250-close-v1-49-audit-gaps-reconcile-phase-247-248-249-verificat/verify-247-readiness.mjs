@@ -76,6 +76,31 @@ const phase251PackageCheckNames = [
   'version_requirement', 'update_check_path',
 ];
 
+const candidateIdentity = `candidate:${phase251CandidateTuple.candidate_sha}`;
+const publishedIdentity = `published_tag:${phase251PublishedSource.tag}:${phase251PublishedSource.commit_sha}`;
+const candidateSource = (sourcePath, assertions) => ({ identity: candidateIdentity, commit_sha: phase251CandidateTuple.candidate_sha, path: sourcePath, assertions });
+const publishedSource = (sourcePath, assertions) => ({ identity: publishedIdentity, commit_sha: phase251PublishedSource.commit_sha, path: sourcePath, assertions });
+
+// Each assertion is a stable, check-specific claim against an immutable source record.
+// The source_ref repeats the complete source identity so downstream audits can join it
+// without trusting the free-form evidence_detail/finding_detail strings.
+export const phase251PackageCheckRequirements = {
+  package_version: [candidateSource('mix.exs', ['candidate_version_1_6_0']), publishedSource('mix.exs', ['published_version_1_6_0'])],
+  package_metadata: [candidateSource('mix.exs', ['candidate_package_metadata_sigra_1_6_0']), publishedSource('mix.exs', ['published_package_metadata_sigra_1_6_0'])],
+  release_manifest: [candidateSource('.release-please-manifest.json', ['manifest_version_1_6_0'])],
+  release_config: [candidateSource('release-please-config.json', ['release_config_elixir_changelog'])],
+  changelog: [candidateSource('CHANGELOG.md', ['candidate_changelog_1_6_0']), publishedSource('CHANGELOG.md', ['published_changelog_1_6_0'])],
+  tag_target: [publishedSource('mix.exs', ['tag_v1_6_0_targets_published_commit'])],
+  hexdocs_source_reference: [publishedSource('mix.exs', ['hexdocs_uses_version_source_ref']), publishedSource('lib/sigra.ex', ['published_module_source'])],
+  published_tag_guide: [publishedSource('guides/introduction/upgrading-to-v1.6.md', ['published_guide_present'])],
+  readme_guide_link: [candidateSource('README.md', ['candidate_readme_guide_link']), publishedSource('README.md', ['published_readme_guide_link'])],
+  adopter_shipped_changes: [candidateSource('guides/introduction/upgrading-to-v1.6.md', ['guide_shipped_changes']), candidateSource('test/example/priv/playwright/tests/organizations.spec.ts', ['generated_host_regression_coverage'])],
+  adopter_compatibility: [candidateSource('guides/introduction/upgrading-to-v1.6.md', ['guide_compatibility_constraints'])],
+  generated_host_action: [candidateSource('guides/introduction/upgrading-to-v1.6.md', ['guide_host_actions']), candidateSource('test/example/priv/playwright/tests/organizations.spec.ts', ['host_action_test_coverage'])],
+  version_requirement: [candidateSource('guides/introduction/upgrading-to-v1.6.md', ['guide_version_requirement']), candidateSource('mix.exs', ['candidate_package_version_requirement'])],
+  update_check_path: [candidateSource('guides/introduction/upgrading-to-v1.6.md', ['guide_update_and_check_steps']), candidateSource('README.md', ['readme_points_to_upgrade_guide'])],
+};
+
 function trustedReadableSource(source) {
   return source?.read_status === 'readable'
     && typeof source.trust_status === 'string'
@@ -103,7 +128,7 @@ function phase251SliceSourceBlockers(requirementName, requirement) {
   return [...new Set(blockers)].sort();
 }
 
-function namedPackageCheckFailure(packageAdopter) {
+function namedPackageCheckFailure(packageAdopter, sourceRecords = packageAdopter?.sources ?? []) {
   if (!packageAdopter?.checks || typeof packageAdopter.checks !== 'object') return ['package_adopter_checks_missing'];
   return phase251PackageCheckNames.flatMap((name) => {
     const check = packageAdopter.checks[name];
@@ -111,7 +136,39 @@ function namedPackageCheckFailure(packageAdopter) {
     if (check.result !== 'pass') return [`package_check_${check.result}:${name}`];
     if (![check.source_identity, check.evidence_detail, check.finding_detail].every((value) => typeof value === 'string' && value.trim())
       || !check.finding_detail.startsWith('No finding:')) return [`package_check_evidence_incomplete:${name}`];
-    return [];
+    const requirements = phase251PackageCheckRequirements[name] ?? [];
+    const refs = check.source_refs;
+    const assertions = check.source_assertions;
+    const key = (ref) => `${ref?.identity ?? ref?.source_identity}:${ref?.commit_sha}:${ref?.path}`;
+    const expectedKeys = requirements.map(key).sort();
+    const actualKeys = Array.isArray(refs) ? refs.map(key).sort() : [];
+    const sourceMap = new Map(sourceRecords.map((source) => [key(source), source]));
+    const refFailures = !requirements.length || !Array.isArray(refs)
+      || refs.length !== requirements.length || new Set(actualKeys).size !== actualKeys.length
+      || JSON.stringify(actualKeys) !== JSON.stringify(expectedKeys)
+      || requirements.some((required) => {
+        const source = sourceMap.get(key(required));
+        const ref = refs.find((item) => key(item) === key(required));
+        return !trustedReadableSource(source) || !trustedReadableSource(ref)
+          || source.git_blob_oid !== ref.git_blob_oid || source.sha256 !== ref.sha256;
+      });
+    if (refFailures) return [`package_check_source_refs_invalid:${name}`];
+
+    const expectedAssertions = requirements.flatMap((required) => required.assertions.map((id) => ({
+      id, identity: required.identity, commit_sha: required.commit_sha, path: required.path,
+      source: sourceMap.get(key(required)),
+    }))).sort((a, b) => a.id.localeCompare(b.id));
+    const actualAssertions = Array.isArray(assertions) ? assertions : [];
+    const assertionFailures = actualAssertions.length !== expectedAssertions.length
+      || new Set(actualAssertions.map((item) => item?.id)).size !== actualAssertions.length
+        || expectedAssertions.some((expected) => {
+        const actual = actualAssertions.find((item) => item?.id === expected.id);
+        const source = expected.source;
+          return !actual || actual.result !== 'pass' || actual.expected !== true || actual.actual !== true
+          || actual.source_identity !== expected.identity || actual.commit_sha !== expected.commit_sha
+          || actual.path !== expected.path || actual.git_blob_oid !== source.git_blob_oid || actual.sha256 !== source.sha256;
+      });
+    return assertionFailures ? [`package_check_source_assertions_invalid:${name}`] : [];
   });
 }
 
@@ -143,7 +200,7 @@ export function evaluatePhase251Feasibility(feasibility) {
   const published = ready01.published_release_source ?? {};
   if (published.tag !== phase251PublishedSource.tag || published.tag_ref !== phase251PublishedSource.tag_ref
     || published.commit_sha !== phase251PublishedSource.commit_sha) findings.push('published_tag_identity_mismatch');
-  const packageFailures = namedPackageCheckFailure(ready01.package_adopter);
+  const packageFailures = namedPackageCheckFailure(ready01.package_adopter, ready01.sources);
   findings.push(...packageFailures);
   if (ready01.history_complete !== true) findings.push('approval_history_incomplete');
   if (ready01.approval_event !== 'found') findings.push(ready01.approval_event === 'absent' ? 'authorization_pending' : 'approval_event_not_searchable');
