@@ -263,3 +263,159 @@ test('canonical report validation requires captured time and exact tuple/run ide
   const missingIdentity = report.replace(`- **Captured at:** ${reconciliation.captured_at}\n`, '');
   assert.equal(checkReport(missingIdentity, reconciliation).identitiesMatch, false);
 });
+
+const phase251CandidateSha = '0e773d3614a242e4fbcdd34c418ecb8a307703d6';
+const phase251PublishedSha = '9e80cb78d6374b1ed4074d5fef6b613fee879dca';
+const phase251CandidateIdentity = 'candidate:' + phase251CandidateSha;
+const phase251PublishedIdentity = 'published_tag:v1.6.0:' + phase251PublishedSha;
+const phase251CandidatePaths = [
+  '.release-please-manifest.json', 'release-please-config.json', 'mix.exs', 'CHANGELOG.md',
+  'README.md', 'guides/introduction/upgrading-to-v1.6.md',
+  'test/example/priv/playwright/tests/organizations.spec.ts',
+];
+const phase251PublishedPaths = [
+  'mix.exs', 'CHANGELOG.md', 'README.md', 'guides/introduction/upgrading-to-v1.6.md', 'lib/sigra.ex',
+];
+const phase251CheckNames = [
+  'package_version', 'package_metadata', 'release_manifest', 'release_config', 'changelog',
+  'tag_target', 'hexdocs_source_reference', 'published_tag_guide', 'readme_guide_link',
+  'adopter_shipped_changes', 'adopter_compatibility', 'generated_host_action',
+  'version_requirement', 'update_check_path',
+];
+const phase251ReadyFeasibilityFixture = {
+  status: 'ready',
+  requirements: {
+    READY01: {
+      source_feasibility: 'ready',
+      capture_allowed: true,
+      verdict: 'authorization_pending',
+      history_complete: true,
+      approval_event: 'absent',
+      candidate_tuple: {
+        candidate_sha: phase251CandidateSha,
+        reviewed_base_sha: tuple.reviewedBaseSha,
+        protected_main_sha: tuple.mainSha,
+      },
+      published_release_source: {
+        tag: 'v1.6.0',
+        tag_ref: 'refs/tags/v1.6.0',
+        commit_sha: phase251PublishedSha,
+      },
+      sources: [
+        ...phase251CandidatePaths.map((path) => ({
+          source_identity: phase251CandidateIdentity,
+          commit_sha: phase251CandidateSha,
+          path,
+          read_status: 'readable',
+          trust_status: 'trusted_exact_api_blob_match',
+        })),
+        ...phase251PublishedPaths.map((path) => ({
+          source_identity: phase251PublishedIdentity,
+          commit_sha: phase251PublishedSha,
+          path,
+          read_status: 'readable',
+          trust_status: 'trusted_exact_api_blob_match',
+        })),
+      ],
+      package_adopter: {
+        acceptance_satisfied: true,
+        checks: Object.fromEntries(phase251CheckNames.map((name) => [name, { result: 'pass' }])),
+      },
+    },
+    READY02: { source_feasibility: 'ready', capture_allowed: true, verdict: 'unsatisfied' },
+  },
+};
+const expectedPackageAcceptanceFixtureNames = [
+  'candidateShaMismatch', 'publishedTagShaMismatch', 'packageMetadataMissing', 'packageMetadataMismatch',
+  'manifestMissing', 'manifestMismatch', 'releaseConfigMissing', 'releaseConfigMismatch',
+  'changelogMissing', 'changelogMismatch', 'tagTargetMismatch', 'hexdocsSourceRefMismatch',
+  'publishedTagGuideAbsent', 'candidateAdopterPathAbsent', 'readmeGuideLinkMismatch',
+  'adopterShippedChangesIncomplete', 'adopterCompatibilityIncomplete', 'generatedHostActionMissing',
+  'versionRequirementMissing', 'updateCheckPathIncomplete',
+];
+const packageAcceptanceFixtures = expectedPackageAcceptanceFixtureNames.map((name) => ({ name }));
+const executedPackageAcceptanceFixtureNames = [];
+
+function applyPackageAcceptanceFixture(input, name) {
+  const aliases = {
+    packageMetadataMissing: 'package_metadata', packageMetadataMismatch: 'package_metadata',
+    manifestMissing: 'release_manifest', manifestMismatch: 'release_manifest',
+    releaseConfigMissing: 'release_config', releaseConfigMismatch: 'release_config',
+    changelogMissing: 'changelog', changelogMismatch: 'changelog', tagTargetMismatch: 'tag_target',
+    hexdocsSourceRefMismatch: 'hexdocs_source_reference', publishedTagGuideAbsent: 'published_tag_guide',
+    candidateAdopterPathAbsent: 'adopter_shipped_changes', readmeGuideLinkMismatch: 'readme_guide_link',
+    adopterShippedChangesIncomplete: 'adopter_shipped_changes',
+    adopterCompatibilityIncomplete: 'adopter_compatibility', generatedHostActionMissing: 'generated_host_action',
+    versionRequirementMissing: 'version_requirement', updateCheckPathIncomplete: 'update_check_path',
+  };
+  if (name === 'candidateShaMismatch') input.requirements.READY01.candidate_tuple.candidate_sha = 'f'.repeat(40);
+  else if (name === 'publishedTagShaMismatch') input.requirements.READY01.published_release_source.commit_sha = 'e'.repeat(40);
+  else if (name === 'publishedTagGuideAbsent') {
+    const source = input.requirements.READY01.sources.find((item) => item.source_identity === phase251PublishedIdentity && item.path === 'guides/introduction/upgrading-to-v1.6.md');
+    Object.assign(source, { read_status: 'missing', trust_status: 'trusted_exact_commit_404', http_status: 404 });
+  }
+  if (aliases[name]) {
+    input.requirements.READY01.package_adopter.checks[aliases[name]] = {
+      result: name.endsWith('Missing') || name.endsWith('Absent') ? 'missing' : 'mismatch',
+    };
+  }
+}
+
+test('package acceptance fixture registry is exact and unique', () => {
+  assert.equal(packageAcceptanceFixtures.length, 20);
+  assert.equal(new Set(packageAcceptanceFixtures.map((fixture) => fixture.name)).size, 20);
+  assert.deepEqual(
+    [...packageAcceptanceFixtures.map((fixture) => fixture.name)].sort(),
+    [...expectedPackageAcceptanceFixtureNames].sort(),
+  );
+});
+
+for (const fixture of packageAcceptanceFixtures) {
+  test('Phase 251 package acceptance fixture ' + fixture.name, async () => {
+    executedPackageAcceptanceFixtureNames.push(fixture.name);
+    const { evaluatePhase251Feasibility } = await import('./verify-247-readiness.mjs');
+    assert.equal(typeof evaluatePhase251Feasibility, 'function');
+    const input = structuredClone(phase251ReadyFeasibilityFixture);
+    applyPackageAcceptanceFixture(input, fixture.name);
+    const result = evaluatePhase251Feasibility(input);
+    assert.equal(result.requirements.READY01.source_feasibility, 'ready');
+    assert.equal(result.requirements.READY01.capture_allowed, true);
+    assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+    assert.notEqual(result.requirements.READY01.verdict, 'satisfied');
+    assert.equal(result.requirements.READY02.source_feasibility, 'ready');
+    assert.equal(result.requirements.READY02.capture_allowed, true);
+    if (fixture.name === 'publishedTagGuideAbsent') {
+      assert.equal(result.requirements.READY01.package_adopter.checks.published_tag_guide.result, 'missing');
+      assert.ok(result.requirements.READY01.package_adopter.sources.some((source) => source.source_identity === phase251PublishedIdentity
+        && source.path === 'guides/introduction/upgrading-to-v1.6.md'
+        && source.read_status === 'missing'
+        && source.trust_status === 'trusted_exact_commit_404'
+        && source.http_status === 404));
+    }
+  });
+}
+
+test.after('all package acceptance fixtures execute exactly once', () => {
+  assert.deepEqual(
+    [...executedPackageAcceptanceFixtureNames].sort(),
+    [...expectedPackageAcceptanceFixtureNames].sort(),
+  );
+});
+
+test('an unreadable READY-01 source blocks only READY-01 capture', async () => {
+  const { evaluatePhase251Feasibility } = await import('./verify-247-readiness.mjs');
+  assert.equal(typeof evaluatePhase251Feasibility, 'function');
+  const input = structuredClone(phase251ReadyFeasibilityFixture);
+  input.requirements.READY01.sources.push({
+    source_identity: phase251CandidateIdentity,
+    commit_sha: phase251CandidateSha,
+    path: 'mix.exs',
+    read_status: 'unreadable',
+    trust_status: 'untrusted',
+  });
+  const result = evaluatePhase251Feasibility(input);
+  assert.equal(result.requirements.READY01.source_feasibility, 'blocked');
+  assert.equal(result.requirements.READY01.capture_allowed, false);
+  assert.equal(result.requirements.READY02.source_feasibility, 'ready');
+  assert.equal(result.requirements.READY02.capture_allowed, true);
+});
