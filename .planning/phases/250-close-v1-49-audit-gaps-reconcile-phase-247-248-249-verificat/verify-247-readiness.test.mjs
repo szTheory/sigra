@@ -384,6 +384,29 @@ test('package acceptance fixture registry is exact and unique', () => {
   );
 });
 
+test('a published-guide pass cannot cite candidate guide bytes', async () => {
+  const { evaluatePhase251Feasibility } = await import('./verify-247-readiness.mjs');
+  const input = structuredClone(phase251ReadyFeasibilityFixture);
+  const ready01 = input.requirements.READY01;
+  ready01.approval_event = 'found';
+  const check = ready01.package_adopter.checks.published_tag_guide;
+  check.result = 'pass';
+  check.source_identity = phase251PublishedIdentity;
+  check.evidence_detail = 'Published guide is present.';
+  check.finding_detail = 'No finding: published guide is current.';
+  check.source_refs = [{
+    source_identity: phase251CandidateIdentity,
+    commit_sha: phase251CandidateSha,
+    path: 'guides/introduction/upgrading-to-v1.6.md',
+    git_blob_oid: 'a'.repeat(40),
+    sha256: 'b'.repeat(64),
+  }];
+
+  const result = evaluatePhase251Feasibility(input);
+  assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+  assert.notEqual(result.requirements.READY01.verdict, 'satisfied');
+});
+
 for (const fixture of packageAcceptanceFixtures) {
   test('Phase 251 package acceptance fixture ' + fixture.name, async () => {
     executedPackageAcceptanceFixtureNames.push(fixture.name);
