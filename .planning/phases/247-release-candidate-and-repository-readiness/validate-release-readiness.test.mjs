@@ -491,9 +491,27 @@ test('rejects stale, unauthenticated, or mismatched safe dry-run receipts', () =
   }
 });
 
-test('rejects the recorded historical dry-run receipt for the repaired Playwright candidate', () => {
+test('keeps the recovered dry-run receipt bound to the repaired candidate and baseline', () => {
   const candidateResult = JSON.parse(readFileSync(new URL('./247-09-PLAYWRIGHT-RESULT.json', import.meta.url), 'utf8'));
-  const historicalReceipt = JSON.parse(readFileSync(new URL('./247-HEX-DRY-RUN-RECEIPT.json', import.meta.url), 'utf8'));
+  const baseline = JSON.parse(readFileSync(new URL('./247-CANDIDATE-DIFF-BASELINE.json', import.meta.url), 'utf8'));
+  const receipt = JSON.parse(readFileSync(new URL('./247-HEX-DRY-RUN-RECEIPT.json', import.meta.url), 'utf8'));
+  assert.equal(receipt.run_id, '37824714823');
+  assert.equal(receipt.requested_sha, candidateResult.candidate_sha);
+  assert.equal(receipt.checked_out_sha, candidateResult.candidate_sha);
+  assert.equal(receipt.reviewed_base_sha, baseline.reviewed_base_sha);
+  assert.equal(receipt.live_base_sha, receipt.evidence_merge_sha);
+  assert.equal(receipt.evidence_pr_number, 297);
+  assert.equal(receipt.manifest_blob_id, '12daf4f704bbc2d4aa136d0ef678e64abce38aeb');
+  assert.equal(receipt.diff_sha256, baseline.diff_sha256);
+  assert.equal(receipt.diff_bytes, baseline.diff_bytes);
+  assert.equal(receipt.credential_present, true);
+  assert.equal(receipt.hex_release_before_http_status, 404);
+  assert.equal(receipt.hex_release_after_http_status, 404);
+});
+
+test('rejects the preserved historical dry-run receipt for the repaired Playwright candidate', () => {
+  const candidateResult = JSON.parse(readFileSync(new URL('./247-09-PLAYWRIGHT-RESULT.json', import.meta.url), 'utf8'));
+  const historicalReceipt = JSON.parse(readFileSync(new URL('./247-STALE-HEX-DRY-RUN-RECEIPT.fixture.json', import.meta.url), 'utf8'));
   assert.notEqual(candidateResult.candidate_sha, historicalReceipt.checked_out_sha);
 
   const { final, observed } = finalReadinessFixture();
