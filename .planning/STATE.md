@@ -1,25 +1,25 @@
 ---
 gsd_state_version: "1.0"
 milestone: v1.49
-milestone_name: "RELEASE-1.6.0"
-current_phase: 250
-current_phase_name: "Close v1.49 audit gaps with recorded READY exceptions"
-current_plan: null
+milestone_name: RELEASE-1.6.0
 status: milestone_audit_gaps_found
-stopped_at: "Phase 247 Nyquist validation is canonical but partial; continue with Phase 248 validation"
-last_updated: "2026-10-11T17:52:13Z"
-last_activity: "2026-10-11"
-last_activity_desc: "Reconciled Phase 247 Nyquist coverage and recovered its exact-source dry-run receipt; READY-01/02 remain unsatisfied."
-state_head: de98e975e
+last_updated: "2026-10-11T18:25:37.682Z"
+state_head: 1ca75b31de0ce3c1a2f83a398e01187f2397f4f5
 progress:
-  total_phases: 5
-  completed_phases: 3
-  total_plans: 44
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 40
   completed_plans: 41
-  percent: 93
+  percent: 83
+last_activity: 2026-10-11
 verification_status: gaps_found
-next_command: "$gsd-validate-phase 248"
-resume_command: "$gsd-validate-phase 248"
+next_command: $gsd-validate-phase 248
+resume_command: $gsd-validate-phase 248
+current_phase: 250
+current_phase_name: Close v1.49 audit gaps with recorded READY exceptions
+current_plan: null
+stopped_at: Phase 247 Nyquist validation is canonical but partial; continue with Phase 248 validation
+last_activity_desc: Reconciled Phase 247 Nyquist coverage and recovered its exact-source dry-run receipt; READY-01/02 remain unsatisfied.
 ---
 
 # Project State
@@ -51,3 +51,9 @@ Phase 247 implementation is complete, but its independent verification remains `
 $gsd-phase --insert 251 "Close gaps: READY-01 and READY-02 — complete release readiness evidence"
 
 Then run $gsd-discuss-phase 251, $gsd-plan-phase 251, and $gsd-execute-phase 251 in sequence. Keep the user's CI/CD runtime and reliability optimization request separate until v1.49 gap routing is complete.
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 251 added: Close READY-01 and READY-02 release readiness gaps

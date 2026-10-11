@@ -239,3 +239,13 @@ Phase 250 is complete under the narrowly amended closeout contract. The generate
 **Immediate GSD command:** `$gsd-audit-milestone v1.49`. `init.plan-phase 251` reports that Phase 251 is not defined, so the next GSD step is the milestone audit. The user’s longer-term CI/CD runtime and reliability optimization request remains queued after that audit as separate work.
 
 The Phase 250 acceptance amendment does not change owner verdicts or authorize a canary, publish, merge, or release action. Keep READY-01/02 unchecked; the accepted exception applies only to this phase closeout. Historical Phase 247 evidence is recorded in `250-247-TUPLE-DECISION-PACKET.json` and `250-247-RECONCILIATION.json`.
+
+### Phase 251: Close READY-01 and READY-02 release readiness gaps
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 250
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 251 to break down)

@@ -26,36 +26,13 @@
     {
       "number": "250",
       "name": "Close v1.49 audit gaps",
-      "status": "complete_with_accepted_exceptions",
-      "verification_status": "passed_with_accepted_exceptions",
-      "completed_plans": 9,
-      "total_plans": 13,
-      "summaries_present": 10,
-      "halted_plans": 0,
-      "blocked_plans": 0,
-      "runnable_plans": 0,
-      "current_plan": null,
-      "latest_completed_plan": "250-13",
-      "latest_completed_plan_summary": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-SUMMARY.md",
-      "latest_owner_report": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
-      "latest_source_snapshot": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
-      "accepted_exceptions": [
-        "READY-01",
-        "READY-02"
-      ],
-      "milestone_status": "incomplete_unarchived"
+      "status": "complete"
     }
   ],
   "next": {
-    "command": "$gsd-validate-phase 248",
-    "label": "Validate Phase 248's partial Nyquist coverage",
-    "reason": "Phase 247 validation is canonical but partial: 27/27 readiness tests pass and the exact-source dry-run receipt is recovered, while the local validator pins PR 296 and the receipt identifies PR 297. Approval and final source/inventory joins also remain unresolved. Phase 248 exists with plans, context, research, and verification artifacts; validate it next. If READY-01/02 remain unsatisfied after both validations, insert Phase 251.",
-    "blocked_by": [],
-    "next_roadmap_phase": null,
-    "phase251_readiness": "init.plan-phase 251 returned phase_found=false",
-    "after_validation_if_ready_gaps_remain": "$gsd-phase --insert 251 \"Close gaps: READY-01 and READY-02 — complete release readiness evidence\"",
-    "future_follow_up": "CI/CD runtime and reliability optimization after v1.49",
-    "after_phase247_validation": "$gsd-validate-phase 248"
+    "command": "/gsd:progress",
+    "label": "Show progress",
+    "reason": "Unsure of state — showing progress"
   },
-  "updated_at": "2026-10-11T17:52:13Z"
+  "updated_at": "2026-10-11T18:25:20.633Z"
 }
