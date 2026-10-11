@@ -25,7 +25,7 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
   const feasibility = JSON.parse(readFileSync(path.join(repoRoot, phase251FeasibilityPath), 'utf8'));
 
   const ready01Verdict = ready01 ? 'satisfied' : packet.requirement_verdicts['READY-01'];
-  const ready02Verdict = ready02 ? 'satisfied' : packet.requirement_verdicts['READY-02'];
+  const ready02Verdict = ready02 ? 'satisfied' : 'unsatisfied';
   packet.requirement_verdicts = { 'READY-01': ready01Verdict, 'READY-02': ready02Verdict };
 
   const first = packet.requirements.READY01;
@@ -88,24 +88,11 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
 
   const second = packet.requirements.READY02;
   if (ready02) {
-    second.source_feasibility = 'ready';
-    second.capture_allowed = true;
-    second.verdict = 'satisfied';
-    second.blockers = [];
-    second.findings = [];
-    second.open_pr_population.stable = true;
-    second.open_pr_population.complete = true;
-    second.open_pr_population.disposition_join = {
-      ...second.open_pr_population.disposition_join,
-      status: 'passed',
-      dispositionIds: [...second.open_pr_population.disposition_join.observedIds],
-      blockers: [],
-    };
-    second.inherited_work.disposition_join = { status: 'passed', blockers: [] };
-    packet.source_capture.local_inherited_work.inventory_complete = true;
-    packet.blockers = packet.blockers.filter((blocker) => !/local_inherited|open_pr/.test(blocker));
-    feasibility.requirements.READY02.source_feasibility = 'ready';
-    feasibility.requirements.READY02.capture_allowed = true;
+    // Keep the complete current proof intact; audit() rechecks every source row and preserved blob.
+    assert.equal(second.verdict, 'satisfied');
+  } else {
+    second.verdict = 'unsatisfied';
+    second.blockers = ['Fixture records READY-02 as unproven.'];
   }
 
   const feasibilityText = `${JSON.stringify(feasibility, null, 2)}\n`;
@@ -119,7 +106,9 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
     .replace(/^\| READY-02 \|[^\n]*$/m, verdictRow('READY-02', ready02Verdict, ready02 ? 'complete fresh inventory and preservation joins' : 'local_inherited_commit_base_unavailable; PR dispositions incomplete'));
   const traceability = readFileSync(path.join(repoRoot, '.planning/REQUIREMENTS.md'), 'utf8')
     .replace(/^- \[[ xX]\] \*\*READY-01\*\*:/m, `- [${ready01 ? 'x' : ' '}] **READY-01**:`)
-    .replace(/^- \[[ xX]\] \*\*READY-02\*\*:/m, `- [${ready02 ? 'x' : ' '}] **READY-02**:`);
+    .replace(/^- \[[ xX]\] \*\*READY-02\*\*:/m, `- [${ready02 ? 'x' : ' '}] **READY-02**:`)
+    .replace(/^\| READY-01 \|.*$/m, `| READY-01 | Phase 247 | ${ready01 ? 'Complete; Phase 247 owner verdict satisfied' : 'Unsatisfied; current Phase 251 owner evidence'} | ${phase247ReportPath} | ${phase251PacketPath} | ${packetHash} |`)
+    .replace(/^\| READY-02 \|.*$/m, `| READY-02 | Phase 247 | ${ready02 ? 'Complete; Phase 247 owner verdict satisfied' : 'Unsatisfied; current Phase 251 owner evidence'} | ${phase247ReportPath} | ${phase251PacketPath} | ${packetHash} |`);
 
   return {
     packet,
@@ -147,7 +136,7 @@ test('historical Phase 250 amendment resolves the original owner report from its
   ]);
 });
 
-test('source-derived readiness fixtures score 7/9, 8/9, and 9/9 without stale milestone prose', () => {
+test('ownerDerivedSevenEightNine requires complete Phase 247 evidence for every counted READY item', () => {
   const cases = [
     { ready01: false, ready02: false, score: '7/9', passedReady: 0 },
     { ready01: true, ready02: false, score: '8/9', passedReady: 1 },
@@ -165,6 +154,36 @@ test('source-derived readiness fixtures score 7/9, 8/9, and 9/9 without stale mi
     assert.match(rendered, new RegExp(`strict milestone status is \\*\\*${fixture.score === '9/9' ? 'passed' : 'gaps_found'}\\*\\* at \\*\\*${fixture.score.replace('/', '\\/')} requirements`));
     if (fixture.score !== '7/9') assert.doesNotMatch(rendered, /7\/9/);
   }
+});
+
+test('phase250ExceptionNotReadyPass cannot increase current READY counts', () => {
+  const evidence = ownerEvidenceFixture({ ready01: false, ready02: false });
+  const tracePath = '.planning/REQUIREMENTS.md';
+  evidence.overrides[tracePath] = evidence.overrides[tracePath]
+    .replace(/^- \[ \] \*\*READY-01\*\*:/m, '- [x] **READY-01**:')
+    .replace(/^- \[ \] \*\*READY-02\*\*:/m, '- [x] **READY-02**:');
+  const result = audit(repoRoot, { overrides: evidence.overrides });
+  assert.equal(result.score.requirements, '7/9');
+  assert.ok(result.historicalExceptions.every(({ scope }) => scope === 'Phase 250 closeout only'));
+  assert.deepEqual(result.requirements.filter(({ id }) => id.startsWith('READY-')).map(({ status }) => status), ['unsatisfied', 'unsatisfied']);
+});
+
+test('ownerReportReferenceRequired rejects READY evidence rows that omit the canonical owner report', () => {
+  const evidence = ownerEvidenceFixture({ ready02: true });
+  const requirementPath = '.planning/REQUIREMENTS.md';
+  const traceability = evidence.overrides[requirementPath];
+  const table = traceability.replace(
+    '| Requirement | Phase | Status |',
+    '| Requirement | Phase | Status | Owner Report | Current Packet | Packet SHA-256 |',
+  ).replace(
+    '| READY-02 | Phase 247 | Unsatisfied; current Phase 251 packet |',
+    `| READY-02 | Phase 247 | Unsatisfied; current Phase 251 packet | ${phase247ReportPath} | ${phase251PacketPath} | ${sha256(evidence.packetText)} |`,
+  );
+  evidence.overrides[requirementPath] = table.replace(phase247ReportPath, '.planning/phases/250/250-VERIFICATION.md');
+
+  const result = audit(repoRoot, { overrides: evidence.overrides });
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+  assert.ok(result.blockers.some(({ id, message }) => id === 'READY-02' && /owner report reference/i.test(message)));
 });
 
 test('independent audit rejects a satisfied READY-01 row whose guide ref points to candidate bytes', () => {
