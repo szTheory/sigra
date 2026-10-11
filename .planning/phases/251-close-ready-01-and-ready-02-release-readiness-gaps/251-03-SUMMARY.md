@@ -31,7 +31,7 @@ key-files:
 key-decisions:
   - "Record disposition_identity separately so later reconciliation cannot make an old disposition appear current by overwriting row identity fields."
   - "Treat multiple distinct identities for one PR number as a conflict, even when the full identity keys differ."
-requirements-completed: [READY-02]
+requirements-completed: []
 coverage:
   - id: D1
     description: "Final PR disposition evidence is invalidated when repository, head, base ref, or base SHA changes, and final readiness checks the captured identity against the live row."
