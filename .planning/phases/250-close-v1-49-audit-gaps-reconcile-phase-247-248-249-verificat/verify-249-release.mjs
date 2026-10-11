@@ -102,7 +102,15 @@ export function evaluateSnapshot(snapshot) {
   const rel02 = [];
   const currentSha = source?.current_protected_main_sha;
   if (!SHA.test(currentSha ?? '') || currentSha === HISTORICAL_MAIN || currentSha === PACKAGE_SOURCE) add(rel02, 'fresh protected main SHA is missing or conflated with historical source/main');
-  if (source?.historical_is_ancestor !== true || snapshot?.evidence_ref?.acceptance?.final_main_sha !== HISTORICAL_MAIN) add(rel02, 'historical release main is not proven as the accepted ancestor of current protected main');
+  const ancestry = source?.historical_ancestor_evidence;
+  if (source?.historical_is_ancestor !== true || snapshot?.evidence_ref?.acceptance?.final_main_sha !== HISTORICAL_MAIN
+    || ancestry?.provider !== 'GitHub Compare API' || ancestry?.verdict !== 'passed'
+    || ancestry?.base_sha !== HISTORICAL_MAIN || ancestry?.head_sha !== currentSha
+    || ancestry?.merge_base_sha !== HISTORICAL_MAIN || ancestry?.behind_by !== 0
+    || !['ahead', 'identical'].includes(ancestry?.status)
+    || !['base_commit', 'merge_base_commit', 'status', 'ahead_by', 'behind_by', 'url'].every(key => ancestry?.response_keys?.includes(key))
+    || !Number.isInteger(ancestry?.ahead_by) || Number.isNaN(Date.parse(ancestry?.observed_at ?? ''))
+    || ancestry?.url !== `https://api.github.com/repos/${REPOSITORY}/compare/${HISTORICAL_MAIN}...${currentSha}`) add(rel02, 'historical release main is not proven by exact source-bound compare evidence as the accepted ancestor of current protected main');
   const ci = snapshot?.current_ci;
   if (ci?.workflow_path !== '.github/workflows/ci.yml' || ci?.event !== 'push' || ci?.branch !== 'main'
     || ci?.head_sha !== currentSha || ci?.job?.head_sha !== currentSha || ci?.job?.name !== 'ci-gate'
@@ -300,6 +308,15 @@ function publicProof(receipt) {
     source_url: receipt.source_reference.href, source_status: sourceStatus, source_blob_sha: receipt.source_reference.content_blob_sha };
 }
 
+export function validateHistoricalAncestorComparison(comparison, expectedBase, expectedHead) {
+  return comparison?.url === `https://api.github.com/repos/${REPOSITORY}/compare/${expectedBase}...${expectedHead}`
+    && comparison?.base_commit?.sha === expectedBase
+    && comparison?.merge_base_commit?.sha === expectedBase
+    && Number.isInteger(comparison?.behind_by) && comparison.behind_by === 0
+    && Number.isInteger(comparison?.ahead_by) && comparison.ahead_by >= 0
+    && ['ahead', 'identical'].includes(comparison?.status);
+}
+
 export function validateSourceReference(reference) {
   const sourcePath = reference?.path;
   const href = reference?.href;
@@ -308,11 +325,16 @@ export function validateSourceReference(reference) {
   if (typeof href !== 'string' || href.includes('%') || href.includes('\\') || href.includes('?')) return { valid: false, reason: 'source_url_invalid' };
   let parsed;
   try { parsed = new URL(href); } catch { return { valid: false, reason: 'source_url_invalid' }; }
-  const canonical = `https://github.com/szTheory/sigra/blob/v1.6.0/${sourcePath}`;
+  const expectedPath = `/szTheory/sigra/blob/v1.6.0/${sourcePath}`;
+  const actualParts = parsed.pathname.split('/');
+  const expectedParts = expectedPath.split('/');
+  const repositoryPathMatches = actualParts[1]?.toLowerCase() === 'sztheory'
+    && actualParts[2]?.toLowerCase() === 'sigra'
+    && actualParts.slice(3).join('/') === expectedParts.slice(3).join('/');
   const allowedHash = parsed.hash === '' || /^#L[1-9][0-9]*(?:-L[1-9][0-9]*)?$/.test(parsed.hash);
   if (parsed.protocol !== 'https:' || parsed.hostname !== 'github.com' || parsed.username || parsed.password || parsed.port
-    || parsed.search || !allowedHash || parsed.pathname !== `/szTheory/sigra/blob/v1.6.0/${sourcePath}`
-    || href !== `${canonical}${parsed.hash}`) return { valid: false, reason: 'source_url_not_canonical' };
+    || parsed.search || !allowedHash || !repositoryPathMatches
+    || href !== `https://github.com/${parsed.pathname.slice(1)}${parsed.hash}`) return { valid: false, reason: 'source_url_not_canonical' };
   return { valid: true, href };
 }
 
@@ -328,8 +350,17 @@ export function captureSnapshot() {
   const main = ghJson(`repos/${REPOSITORY}/commits/main`).sha;
   const currentCi = currentMainCi(main);
   const currentReceipt = ghJson(`repos/${REPOSITORY}/contents/${RECEIPT_PATH}?ref=${main}`).sha;
-  let ancestor = false;
-  try { execFileSync('git', ['merge-base', '--is-ancestor', HISTORICAL_MAIN, main], { cwd: ROOT, stdio: 'ignore' }); ancestor = true; } catch {}
+  const compareUrl = `https://api.github.com/repos/${REPOSITORY}/compare/${HISTORICAL_MAIN}...${main}`;
+  const comparison = ghJson(`repos/${REPOSITORY}/compare/${HISTORICAL_MAIN}...${main}`);
+  const ancestorObservedAt = new Date().toISOString();
+  const ancestor = validateHistoricalAncestorComparison(comparison, HISTORICAL_MAIN, main);
+  const ancestorEvidence = {
+    provider: 'GitHub Compare API', url: compareUrl, observed_at: ancestorObservedAt,
+    status: comparison.status ?? null, ahead_by: comparison.ahead_by ?? null, behind_by: comparison.behind_by ?? null,
+    response_keys: Object.keys(comparison).sort(),
+    base_sha: comparison.base_commit?.sha ?? null, head_sha: main,
+    merge_base_sha: comparison.merge_base_commit?.sha ?? null, verdict: ancestor ? 'passed' : 'blocked',
+  };
   const publicRelease = publicProof(receipt);
   const historicalCi = historicalMainCi(acceptance.value);
   const historicalReportBytes = fs.readFileSync(`${ROOT}/${OWNER_DIR}/249-VERIFICATION.md`);
@@ -337,7 +368,7 @@ export function captureSnapshot() {
   if (currentInventory.worktrees.some(row => row.read_status !== 'complete')) currentInventory.worktrees_read_status = 'failed';
   return {
     schema_version: 1, captured_at: new Date().toISOString(), repository: REPOSITORY,
-    source: { package_source_sha: receipt.package_source_sha, historical_release_main_sha: HISTORICAL_MAIN, current_protected_main_sha: main, historical_is_ancestor: ancestor },
+    source: { package_source_sha: receipt.package_source_sha, historical_release_main_sha: HISTORICAL_MAIN, current_protected_main_sha: main, historical_is_ancestor: ancestor, historical_ancestor_evidence: ancestorEvidence },
     evidence_ref: { name: EVIDENCE_REF, commit_sha: evidenceCommit, acceptance_commit_sha: acceptanceCommit, acceptance_blob_sha: acceptance.blob_sha, acceptance_sha256: acceptance.sha256, acceptance_json_base64: acceptance.bytes.toString('base64'), acceptance: acceptance.value,
       terminal_commit_sha: terminalCommit, terminal_blob_sha: terminal.blob_sha, terminal_sha256: terminal.sha256, terminal_json_base64: terminal.bytes.toString('base64'), terminal: terminal.value },
     receipt: { path: RECEIPT_PATH, package_source_sha: receipt.package_source_sha, blob_sha: git('rev-parse', `${HISTORICAL_MAIN}:${RECEIPT_PATH}`), sha256: hash(run('git', ['show', `${HISTORICAL_MAIN}:${RECEIPT_PATH}`])), current_blob_sha: currentReceipt },

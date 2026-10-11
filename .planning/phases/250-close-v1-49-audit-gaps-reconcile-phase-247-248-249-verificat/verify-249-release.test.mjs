@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { evaluateSnapshot, checkReport, reportIdentity, freshnessErrors, validateSourceReference } from './verify-249-release.mjs';
+import { evaluateSnapshot, checkReport, reportIdentity, freshnessErrors, validateSourceReference, validateHistoricalAncestorComparison } from './verify-249-release.mjs';
 
 const packageSha = '9e80cb78d6374b1ed4074d5fef6b613fee879dca';
 const historicalMain = '08300af1740fea8b77d5928a182688acbf103edc';
@@ -29,7 +29,15 @@ function snapshot() {
   const historicalReportBytes = Buffer.from('# Old report\nstatus: gaps_found\n');
   return {
     schema_version: 1, captured_at: '2026-10-10T16:00:00Z', repository: 'szTheory/sigra',
-    source: { package_source_sha: packageSha, historical_release_main_sha: historicalMain, current_protected_main_sha: currentMain, historical_is_ancestor: true },
+    source: {
+      package_source_sha: packageSha, historical_release_main_sha: historicalMain, current_protected_main_sha: currentMain, historical_is_ancestor: true,
+      historical_ancestor_evidence: {
+        provider: 'GitHub Compare API', url: `https://api.github.com/repos/szTheory/sigra/compare/${historicalMain}...${currentMain}`,
+        observed_at: '2026-10-10T16:00:00Z', status: 'ahead', ahead_by: 1, behind_by: 0,
+        response_keys: ['ahead_by', 'base_commit', 'behind_by', 'merge_base_commit', 'status', 'url'],
+        base_sha: historicalMain, head_sha: currentMain, merge_base_sha: historicalMain, verdict: 'passed',
+      },
+    },
     evidence_ref: { name: 'refs/heads/evidence/phase-249-final-acceptance', commit_sha: 'f'.repeat(40), acceptance_commit_sha: 'a'.repeat(40), acceptance_blob_sha: 'a'.repeat(40), acceptance_sha256: hash(acceptanceBytes), acceptance_json_base64: acceptanceBytes.toString('base64'), terminal_commit_sha: 'f'.repeat(40), terminal_blob_sha: '2'.repeat(40), terminal_sha256: hash(terminalBytes), terminal_json_base64: terminalBytes.toString('base64'), acceptance, terminal },
     receipt: { path: 'receipt.json', package_source_sha: packageSha, blob_sha: 'receipt-blob', sha256: digest('a'), current_blob_sha: 'receipt-blob' },
     public_release: { verdict: 'passed', version: '1.6.0', tag: 'v1.6.0', package_source_sha: packageSha, versioned_docs_url: 'https://sigra.hexdocs.pm/1.6.0/Sigra.html', source_url: 'https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1', checksum: digest('f') },
@@ -50,6 +58,10 @@ test('joins public release and terminal acceptance while keeping all three SHAs 
 test('source reference accepts only the canonical HTTPS GitHub source path', () => {
   const valid = { href: 'https://github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex#L1', path: 'lib/sigra.ex' };
   assert.deepEqual(validateSourceReference(valid), { valid: true, href: valid.href });
+  const lowercaseRepoPath = 'https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1';
+  assert.deepEqual(validateSourceReference({ ...valid, href: lowercaseRepoPath }), { valid: true, href: lowercaseRepoPath });
+  const uppercaseRepoPath = 'https://github.com/SZTHEORY/SIGRA/blob/v1.6.0/lib/sigra.ex#L1';
+  assert.deepEqual(validateSourceReference({ ...valid, href: uppercaseRepoPath }), { valid: true, href: uppercaseRepoPath });
   for (const href of [
     'http://github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex',
     'https://user@github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex',
@@ -57,8 +69,29 @@ test('source reference accepts only the canonical HTTPS GitHub source path', () 
     'https://evil.example/szTheory/sigra/blob/v1.6.0/lib/sigra.ex',
     'https://github.com/szTheory/sigra/blob/v1.6.0/lib/%252e%252e/secrets',
     'https://github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex?next=https://evil.example',
+    'https://github.com/sztheory/sigra-fork/blob/v1.6.0/lib/sigra.ex#L1',
+    'https://github.com/sztheory/sigra/blob/V1.6.0/lib/sigra.ex#L1',
+    'https://github.com/sztheory/sigra/blob/v1.6.0/lib/Sigra.ex#L1',
   ]) assert.equal(validateSourceReference({ ...valid, href }).valid, false, href);
   assert.equal(validateSourceReference({ ...valid, path: '../secret' }).valid, false);
+});
+
+test('accepts only a source-bound GitHub compare proof of historical ancestry', () => {
+  const ahead = {
+    url: `https://api.github.com/repos/szTheory/sigra/compare/${historicalMain}...${currentMain}`,
+    status: 'ahead', ahead_by: 22, behind_by: 0,
+    base_commit: { sha: historicalMain }, merge_base_commit: { sha: historicalMain },
+    commits: [{ sha: currentMain }],
+  };
+  assert.equal(validateHistoricalAncestorComparison(ahead, historicalMain, currentMain), true);
+  assert.equal(validateHistoricalAncestorComparison({ ...ahead, status: 'identical', ahead_by: 0 }, historicalMain, currentMain), true);
+  for (const changed of [
+    { ...ahead, behind_by: 1 },
+    { ...ahead, status: 'diverged' },
+    { ...ahead, url: `https://api.github.com/repos/szTheory/sigra/compare/${historicalMain}...${historicalMain}` },
+    { ...ahead, base_commit: { sha: currentMain } },
+    { ...ahead, merge_base_commit: { sha: currentMain } },
+  ]) assert.equal(validateHistoricalAncestorComparison(changed, historicalMain, currentMain), false);
 });
 
 test('blocks REL-01 when public source or evidence-ref acceptance identity drifts', () => {
@@ -89,6 +122,14 @@ test('rejects a historical acceptance ref that points at a different main identi
   const result = evaluateSnapshot(current);
   assert.equal(result.requirements['REL-01'].status, 'unsatisfied');
   assert.equal(result.requirements['REL-02'].status, 'unsatisfied');
+});
+
+test('blocks REL-02 when compare evidence does not bind exact historical and current SHAs', () => {
+  const current = snapshot();
+  current.source.historical_ancestor_evidence.merge_base_sha = currentMain;
+  const result = evaluateSnapshot(current);
+  assert.equal(result.requirements['REL-02'].status, 'unsatisfied');
+  assert.ok(result.requirements['REL-02'].blockers.some(item => item.includes('exact source-bound compare evidence')));
 });
 
 test('rejects terminal digest drift and a disposition copied from stale PR identities', () => {
