@@ -709,9 +709,9 @@
   "ci_release_please_status": "in_progress",
   "current": "Phase 250 verified; v1.49 milestone audit pending.",
   "immediate_action": "Run the v1.49 milestone audit; Phase 251 is not defined.",
-  "updated_at": "2026-10-11T16:46:10Z",
+  "updated_at": "2026-10-11T16:50:13Z",
   "phase_250_closeout": {
-    "recorded_at": "2026-10-11T16:46:10Z",
+    "recorded_at": "2026-10-11T16:50:13Z",
     "status": "passed_amended_phase_only_contract",
     "plan": "250-13",
     "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-SUMMARY.md",
@@ -755,11 +755,14 @@
         }
       },
       "phase249": {
-        "pending_clean_worktree_check": true,
+        "valid": true,
+        "owner_status": "passed",
         "requirements": {
           "REL-01": "satisfied",
           "REL-02": "satisfied"
-        }
+        },
+        "blockers": [],
+        "checked_after_clean_commit": true
       }
     },
     "route": {
@@ -773,6 +776,8 @@
       "publish": false,
       "release": false,
       "merge": false
-    }
+    },
+    "closeout_commit": "371637da42fb11b05b7cba206d60d6333af5658c",
+    "clean_worktree_after_commit": true
   }
 }
