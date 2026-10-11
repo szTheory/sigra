@@ -4,21 +4,21 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 7
-status: blocked_on_fresh_canary_authority_and_ready_tuple
-stopped_at: Phase 250-07 packet v5 is stale against current main; no packet-specific canary authority or dispatch; Plan 250-08 has zero eligible tuples
-last_updated: "2026-10-11T02:16:11Z"
+current_plan: 8
+status: blocked_on_new_source_evidence_for_halted_gap_plans
+stopped_at: Plans 250-07 and 250-08 are halted; v5 canary packet is stale and unapproved, tuple packet has zero eligible routes, and Plans 09-12 are dependency-blocked
+last_updated: "2026-10-11T02:26:56Z"
 last_activity: 2026-10-11
-last_activity_desc: Phase 247 route records were restored from exact preservation refs; its 11 plans now have 11 summaries and the Plan 09 exact-head CI receipt is present. Phase 250 remains active at Plan 07: v5 is stale against current main, a fresh packet needs packet-specific approval before dispatch, and Plan 08 has zero eligible tuples. Separate PR #302 v1.7.0 release remains complete.
+last_activity_desc: Manually reconciled the existing Plan 250-07/08 commits as halted summaries. GSD reports zero runnable gap plans; verification remains gaps_found and routes to replanning Phase 250 gaps. No new Actions dispatch, cancellation, CI run, release, or publish occurred. Separate PR #302 v1.7.0 release remains complete.
 state_head: 80e7a42e425b6f05bb28b7372780a034b2624efa
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 43
-  completed_plans: 37
-  percent: 86
+  completed_plans: 39
+  percent: 91
 verification_status: gaps_found
-next_command: "$gsd-execute-phase 250 --gaps-only"
+next_command: "$gsd-plan-phase 250 --gaps"
 ---
 
 # Project State
@@ -33,16 +33,16 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — BLOCKED ON NEW CANARY AUTHORITY AND READY TUPLE
-Current Plan: 7
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — ACTIVE, GAP PLANS HALTED ON MISSING EVIDENCE
+Current Plan: 8 (last manually summarized; no gap plan is currently runnable)
 Total Plans in Phase: 12
-Plans executed: 6 of 12 summarized (01–06); Plan 07 has no new packet-specific canary authority and its v5 packet source is stale after main advanced to ff96768; Plan 08 has zero eligible tuples; 09–12 remain blocked by dependencies
+Plans summarized: 8 of 12 (01–06 complete; 07–08 halted); Plans 09–12 are blocked by those halted evidence gaps
 Status: Partial implementation delivered; phase verification incomplete
-Last activity: 2026-10-11 — PR #302 squash-merged by the guarded workflow at ff96768 after green release-SHA CI 38097941299; Release Please run 38097941302 published v1.7.0 to GitHub Releases and Hex. This separate 1.7.0 release does not close the v1.49/1.6.0 Phase 249 verdict. No Phase 250 canary was dispatched.
+Last activity: 2026-10-11 — Plans 250-07 and 250-08 were manually reconciled as halted; no new hosted action occurred. PR #302 remains separately squash-merged and v1.7.0 published; it does not close the v1.49/1.6.0 Phase 249 verdict.
 
-Progress: [█████████░] 86% (37/43 summary records; includes one checkpointed plan and is not acceptance completion)
+Progress: [█████████░] 91% (39/43 summary records; includes halted/checkpointed plans and is not acceptance completion)
 
-Plan 250-07 resume boundary: v5 packet SHA-256 `b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287` targets main `e0c66d61211ddb461c049ca6422350308b420126` and is stale now that main is `ff96768bc2843ef1a89926d238690b1145bfd514`. The user authorized green-CI merge and release; no new packet-specific canary authorization or dispatch was given. Do not dispatch from v5. A future attempt requires a fresh current-main packet and explicit authorization for the no-publish controller/cancellation scope. Previous consumed runs remain historical. Phase 250-08 has zero eligible tuple routes; do not request tuple approval.
+Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found 30 and 1 existing plan-scoped commits, respectively, with no summaries or async-job manifests. Plan 250-07 is halted: packet v5 SHA-256 `b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287` targets `e0c66d61211ddb461c049ca6422350308b420126`, now stale against recorded main `ff96768bc2843ef1a89926d238690b1145bfd514`; that packet has no approval and was not dispatched. A future canary needs a fresh current-main packet and explicit packet-specific approval. Plan 250-08 is halted: its tuple packet SHA-256 `8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660` has zero eligible tuples, so no approval was requested. Full commit, packet, and pre-write hash provenance is in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
 
 ### v1.49 audit route
 
@@ -52,15 +52,15 @@ The scoped source identity repair is complete: PR #320 merged to protected main 
 
 Plan 250-07 Task 1 has same-source read-only preflight refreshed at 2026-10-10T21:21:47Z on main 9cb1c48ec233d909784b4070a2e6ecd795522291; preflight file SHA-256 9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539, compact controller payload SHA-256 a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e (825 bytes). The user approved the reviewed packet SHA-256 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68 at 2026-10-10T21:21:22Z. Its explicitly allowed same-source timestamp/digest refresh is recorded in the effective packet SHA-256 f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960; source identity and all other preflight fields are unchanged. The one no-publish controller dispatch completed and its authority is consumed. It produced a schema-valid failure receipt and exact canary cancellation, but no observer run or cancellation receipt; AUTO-02 remains unsatisfied. No retry or publish is authorized. PR #320 is already squash-merged with green CI run 38084430351. Earlier packet v1 for main 34f7fd8 was superseded before dispatch, and packet v2 for 33fccd8 was consumed by failed run 38083752867.
 
-Plan 250-08 remains durably blocked: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json` has zero eligible tuples. The parent browser artifact is recoverable but used the rejected old spec; the corrected child has no own authenticated dry-run/readiness record. The later PR head also lacks the necessary joins, and current PR dispositions are incomplete. No tuple approval is requested. Plan 250-09 cannot run without a newly proved route; do not repeat identical recovery work.
+Plan 250-08 remains halted on its durable zero-eligible-tuple packet. The parent browser artifact is recoverable but used the rejected old spec; the corrected child has no own authenticated dry-run/readiness record. The later PR head also lacks the necessary joins, and current PR dispositions are incomplete. No tuple approval was requested. Plan 250-09 remains blocked until a new immutable route proves the required joins; do not repeat identical recovery work.
 
 Separate release observation: Sigra 1.7.0 is published at GitHub Releases and Hex. Evidence is in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json` (squash merge ff96768; release-commit CI 38097941299 green; Release Please run 38097941302 and Hex publish job 114351805835 successful). This is separate from the v1.49 Phase 249 target and does not change its owner verification.
 
-The latest Phase 250 verifier remains gaps_found at 8/14 and the strict audit remains 5/9 with 31 blockers; neither was rerun after these scoped repairs. Six plan summaries establish partial implementation completion, not completed phase verification. Run-specific blocked evidence is in .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38087516844.json. Requirements and original ownership are unchanged. Keep v1.49 unarchived.
+The latest Phase 250 verifier remains gaps_found at 8/14 and the strict audit remains 5/9 with 31 blockers; neither was rerun after these scoped repairs. Six plans are complete and two are halted; plan summaries do not establish completed phase verification. Run-specific blocked evidence includes `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json`. Requirements and original ownership are unchanged. Keep v1.49 unarchived.
 
 Controller run 38087516844 failed at exact_cancellation_observer_run_was_not_found. Failure receipt and exact source cancellation are recorded, but AUTO-02 remains unsatisfied and the single-run authority is consumed. Diagnose/fix the observer path; any further hosted run requires a fresh explicit packet decision. init.execute-phase 250 earlier reported six incomplete plans and no duplicate threat IDs. No later roadmap phase is defined.
 
-Execution evidence: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json; Plan 06 summary, Plan 07 preflight/identity repair evidence, superseded packet copies, and current packet contain exact source, CI, hash, authority and preservation identities. The initial dirty gap-planning draft remains recoverable at refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z, commit 15c1afd319f7d59012cd9173195e0833b8135c77. Earlier STATE/HANDOFF revisions are recorded in the checkpoint; historical HANDOFF loss remains accepted-with-recorded-loss.
+Execution evidence: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json`; the Plan 07/08 halted summaries and `250-SAFE-RESUME-RECONCILIATION.json` preserve exact plan commits, packet identities, and pre-write hashes. The initial dirty gap-planning draft remains recoverable at refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z, commit 15c1afd319f7d59012cd9173195e0833b8135c77. Earlier STATE/HANDOFF revisions are recorded in the checkpoint; historical HANDOFF loss remains accepted-with-recorded-loss.
 
 ### v1.49 phase map
 

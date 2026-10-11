@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-10-11T02:16:11Z",
-  "phase": "250",
+  "timestamp": "2026-10-11T02:26:56Z",
+  "phase": "Phase 250 remains active: Plans 250-07 and 250-08 were manually reconciled as halted; no runnable gap plan remains.",
   "phase_name": "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts",
-  "plan": "Plan 250-07 Task 1 is complete; the prior v5 packet is stale against current main. Phase 247 summary and browser-CI routing records have been restored. Plan 250-08 remains blocked with zero eligible tuples.",
-  "task": "Resume with $gsd-execute-phase 250 --gaps-only. Refresh the preflight and prepare a new current-main packet; stop before any controller dispatch until that exact packet receives explicit approval.",
+  "plan": "250-07/08 manual safe-resume closeout",
+  "task": "Run $gsd-plan-phase 250 --gaps. Use the existing context and plan only for new source-bound evidence or changed identities; do not reuse the stale v5 canary packet or request tuple approval from the zero-eligible packet.",
   "total_tasks": 19,
-  "status": "Authorized release PR #302 was guarded squash-merged after green CI at ff96768; release-commit CI and Release Please run 38097941299/38097941302 succeeded, publishing v1.7.0 to GitHub Releases and Hex. This is separate from the v1.49/1.6.0 milestone. Phase 250 remains incomplete at Plans 07/08.",
+  "status": "Authorized PR #302 remains squash-merged and v1.7.0 remains published; this is separate from v1.49. Plans 250-07 and 250-08 are manually summarized as halted, no requirements were completed by the closeout, and the Phase 250 verifier still reports gaps_found. No GSD gap plan is runnable until new source-bound evidence is planned.",
   "completed_tasks": [
     {
       "id": "249-08",
@@ -146,14 +146,18 @@
     {
       "id": "250-07",
       "name": "Execute 250-07-PLAN.md",
-      "status": "Parser repair merged; main CI 38093033532 in progress. Release Please run 38093033505 failed on generated-index assertion; publish jobs skipped and no release occurred. Fresh canary packet/approval still required.",
+      "status": "halted: v5 packet SHA-256 b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287 targets e0c66d61211ddb461c049ca6422350308b420126 and is stale against recorded main ff96768bc2843ef1a89926d238690b1145bfd514; no current packet approval or dispatch.",
       "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
       "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
-      "packet_sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
+      "packet_id": "250-07-canary-authority-v5",
+      "packet_sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
+      "packet_source_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "packet_status": "awaiting_user_decision; stale against recorded main ff96768bc2843ef1a89926d238690b1145bfd514",
+      "superseded_v4_packet_sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
       "repair_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
       "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
       "preflight_sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
-      "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+      "previous_consumed_approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
       "dispatch_request_sha256": "b03c35c3203706679bdac9cbc1e72c74a7ac5cf826718b40b1a5a869d99738e1",
       "dispatch_http_status": 204,
       "controller_run_id": 38091955379,
@@ -164,37 +168,41 @@
       "repair_evidence_sha256": "9e56c17c0aeb9167a947b8bfbaa20874a275830cce32342d3c825a82ab978676",
       "main_ci_run_id": 38093033532,
       "release_please_run_id": 38093033505,
-      "release_please_pr_head_sha": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086"
+      "release_please_pr_head_sha": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md",
+      "recovery_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json"
     },
     {
       "id": "250-08",
       "name": "Execute 250-08-PLAN.md",
-      "status": "blocked; zero eligible tuples; no approval checkpoint",
+      "status": "halted: tuple packet has zero eligible tuples; decision status not_asked_no_eligible_tuple; approval was not requested.",
       "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-PLAN.md",
-      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json"
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-SUMMARY.md",
+      "recovery_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json"
     },
     {
       "id": "250-09",
       "name": "Execute 250-09-PLAN.md",
-      "status": "blocked by 250-08; do not start without proved eligible source route",
+      "status": "blocked by halted 250-08 until a complete immutable READY tuple route exists",
       "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-09-PLAN.md"
     },
     {
       "id": "250-10",
       "name": "Execute 250-10-PLAN.md",
-      "status": "awaits completed 250-07",
+      "status": "blocked by halted 250-07 until fresh current-main canary evidence is authorized and proved",
       "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-PLAN.md"
     },
     {
       "id": "250-11",
       "name": "Execute 250-11-PLAN.md",
-      "status": "awaits 250-07, 250-09 and 250-10",
+      "status": "blocked by 250-07/09/10 dependencies",
       "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-11-PLAN.md"
     },
     {
       "id": "250-12",
       "name": "Execute 250-12-PLAN.md",
-      "status": "awaits 250-11",
+      "status": "blocked by 250-11; strict audit remains last",
       "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-12-PLAN.md"
     },
     {
@@ -564,12 +572,32 @@
     "merge_method": "squash"
   },
   "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
-  "next_command": "$gsd-execute-phase 250 --gaps-only",
+  "next_command": "$gsd-plan-phase 250 --gaps",
   "route_reconciliation": {
     "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
     "phase_247_summaries": "11 plans / 11 summaries after byte-exact restoration and evidence-backed Plan 09 summary reconstruction",
     "phase_247_verification": "GSD reports missing; do not route backward because Phase 250 execute readiness has no prerequisite blocker and its reconciliation plans own the remaining audit.",
     "phase_246_stale_verification": "separate historical maintenance; Phase 250 readiness reports no prerequisite blocker",
     "phase_247_summary_validation": "Four restored/reconstructed summaries pass the current summary check; Plan 06 flags a historical key file absent from this checkout and Plan 11 returns self_check=failed. Both source summaries remain byte-exact and the diagnostics are recorded in the reconciliation JSON."
+  },
+  "safe_resume_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
+  "manual_reconciliation": {
+    "recorded_at": "2026-10-11T02:26:19Z",
+    "halted_plans": [
+      "250-07",
+      "250-08"
+    ],
+    "completed_phase_250_plans": [
+      "250-01",
+      "250-02",
+      "250-03",
+      "250-04",
+      "250-05",
+      "250-06"
+    ],
+    "runnable_gap_plans": [],
+    "phase_verification": "gaps_found",
+    "requirements_completed": [],
+    "external_actions_during_closeout": []
   }
 }

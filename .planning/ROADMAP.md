@@ -188,7 +188,7 @@ Plans:
   3. Phase 249 canonical verification reconciles to the passing final acceptance, current-main CI, public release proof, clean inventory, and the explicitly accepted historical HANDOFF loss.
   4. Requirements traceability and the v1.49 audit agree across phase verification, summary frontmatter, and requirements mapping; the audit passes with no orphaned requirements.
 
-**Plans**: 5/12 summarized; seven gap plans ready; independent plan checking passed; phase verification remains gaps_found (8/14)
+**Plans**: 6/12 complete; Plans 07–08 have truthful halted summaries; Plans 09–12 are blocked by their evidence dependencies; phase verification remains gaps_found (8/14)
 
 **Wave 1** *(original implementation complete)*
 - [x] 250-01-PLAN.md
@@ -201,18 +201,18 @@ Plans:
 
 **Wave 3** *(gap execution follows Plan06; exact authority checkpoints)*
 - [x] 250-05-PLAN.md
-- [ ] 250-07-PLAN.md — Authorize a new bounded hosted proof and verify both terminal receipts.
-- [ ] 250-08-PLAN.md — Recover exact-candidate evidence, then request an eligible tuple approval.
+- [ ] 250-07-PLAN.md — HALTED: the v5 packet became stale before packet-specific approval; refresh against current main and obtain new authority before any dispatch.
+- [ ] 250-08-PLAN.md — HALTED: the committed packet has zero eligible tuples; do not request approval until a complete immutable route is proved.
 
 **Wave 4** *(blocked on the relevant Wave3 proof/decision)*
-- [ ] 250-09-PLAN.md — Pass independent READY verification on authentic tuple and disposition joins.
-- [ ] 250-10-PLAN.md — Repair whole-main CI and refresh public-source and complete REL evidence.
+- [ ] 250-09-PLAN.md — BLOCKED by halted Plan 08; pass READY verification only after a complete tuple and disposition joins are proved.
+- [ ] 250-10-PLAN.md — BLOCKED by halted Plan 07; repair whole-main CI and refresh public-source/REL evidence after the canary route is renewed.
 
 **Wave 5** *(blocked on Plans07,09,10)*
-- [ ] 250-11-PLAN.md — Reconcile owner summary/requirement markers and restore the declared Mix wrapper.
+- [ ] 250-11-PLAN.md — BLOCKED by Plans 07, 09, and 10; reconcile owner summaries/requirements and the declared Mix wrapper afterward.
 
 **Wave 6** *(blocked on Plan11; strict audit last)*
-- [ ] 250-12-PLAN.md — Reconcile terminal summaries and require source-derived9/9 with zero blockers.
+- [ ] 250-12-PLAN.md — BLOCKED by Plan 11; require source-derived 9/9 and zero blockers last.
 
 Cross-cutting constraints: original requirement ownership stays with247/248/249; no new authority is inferred from planning; missing evidence interrupts execution and never completes a plan; preserve exact dirty planning bytes before replacement.
 
@@ -226,12 +226,12 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
-| 250. Close v1.49 audit gaps | v1.49 | 6/12 | Gap plans ready; verification incomplete | — |
+| 250. Close v1.49 audit gaps | v1.49 | 6/12 | Two gap plans halted; four dependency-blocked; verification incomplete | — |
 
 ### Next
 
-The strict milestone audit remains `gaps_found` (5/9 requirements satisfied; 31 blockers; zero orphaned rows). All five Phase 250 plans have summaries. Goal-based verification at `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md` is `gaps_found` (8/14 must-haves); READY-01/02, AUTO-02, and REL-02 remain unsatisfied. Nine review findings have verified fixes and security has zero open threats. Passing local tests do not close the missing live evidence.
+The strict milestone audit remains `gaps_found` (5/9 requirements satisfied; 31 blockers; zero orphaned rows). Phase 250 has eight summary records: six complete plans and two halted plans. Goal-based verification at `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md` is `gaps_found` (8/14 must-haves); READY-01/02, AUTO-02, and REL-02 remain unsatisfied. Nine review findings have verified fixes and security has zero open threats. Passing local tests do not close the missing live evidence.
 
-**Next command:** `$gsd-execute-phase 250 --gaps-only`. Seven gap plans06–12 passed independent plan checking and all coverage gates; `init.execute-phase 250` reports seven runnable plans and no prerequisite blocker. The original five summaries remain complete. Phase250 verification and v1.49 acceptance remain incomplete and unarchived; no later phase is defined. Planning evidence: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json`.
+**Next command:** `$gsd-plan-phase 250 --gaps`. After the manual safe-resume reconciliation, `init.execute-phase 250` reports zero runnable plans: 250-07/08 are halted and 250-09–12 are blocked by them. `verification status` explicitly routes to gap replanning, and `init.plan-phase 250` confirms the existing Phase 250 context and research are available. Create only replacement plans that address changed source identities or genuinely new evidence; do not replay the old packet or zero-eligible tuple work. Phase 250 verification and v1.49 acceptance remain incomplete and unarchived; no later phase is defined. Planning evidence remains in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json` and `250-SAFE-RESUME-RECONCILIATION.json`.
 
 Do not dispatch or cancel another canary without fresh explicit authorization and a fresh committed preflight: the one-retry authorization is consumed. Do not repeat `$gsd-validate-phase 248` until new hosted terminal artifacts exist. Preserve the historical Phase 249 acceptance at `refs/heads/evidence/phase-249-final-acceptance`; its evidence does not prove current-main CI or current PR dispositions. The public source freshness check remains blocked by HTTP 503 after one retry; the Mix wrapper remains dependency-blocked, with standalone contracts passing.

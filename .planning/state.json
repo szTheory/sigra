@@ -28,22 +28,22 @@
       "name": "Close v1.49 audit gaps",
       "status": "in_progress",
       "verification_status": "gaps_found",
-      "completed_plans": 6,
+      "completed_plans": 8,
       "total_plans": 12
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Continue Phase 250 gaps-only: refresh the stale canary packet against current main, then pause for packet-specific authority before dispatch.",
-    "reason": "Phase 247 plan summaries and the exact Plan 09 browser CI receipt have been restored from scoped preservation refs. Phase 250 remains incomplete at Plan 07; the previously approved packet was superseded before dispatch when main advanced, so a fresh packet and explicit approval are required. Plan 250-08 has zero eligible tuples.",
+    "command": "$gsd-plan-phase 250 --gaps",
+    "label": "Replan the remaining Phase 250 evidence gaps after the two safe-resume halts",
+    "reason": "GSD verification status routes to gap planning. init.plan-phase confirms Phase 250 context/research exist, while init.execute-phase reports zero runnable gap plans: 250-07 and 250-08 are halted and 250-09 through 250-12 are dependency-blocked. Replan only for changed source identities or genuinely new evidence; do not repeat the stale packet or zero-eligible tuple packet.",
     "blocked_by": [
-      "250-07-fresh-main-bound-packet-and-explicit-canary-authority",
-      "250-08-no-eligible-tuple",
-      "250-09-through-250-12-upstream-dependencies"
+      "250-07-stale-main-bound-v5-packet-and-no-current-packet-approval",
+      "250-08-zero-eligible-exact-source-tuples",
+      "250-09-through-250-12-depend-on-halted-plans"
     ],
-    "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json",
+    "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
     "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
     "route_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json"
   },
-  "updated_at": "2026-10-11T02:16:11Z"
+  "updated_at": "2026-10-11T02:26:56Z"
 }
