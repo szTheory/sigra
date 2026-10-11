@@ -175,7 +175,7 @@ export function checkReport(report, snapshot, evaluation = evaluateSnapshot(snap
   if (historyStart < 0) errors.push('historical_report_missing');
   else {
     const bodyStart = historyStart + historyMarker.length;
-    const bodyEnd = report.indexOf(closeMarker, bodyStart);
+    const bodyEnd = report.lastIndexOf(closeMarker);
     if (bodyEnd < 0 || hash(Buffer.from(report.slice(bodyStart, bodyEnd).trimEnd())) !== snapshot.historical_report?.sha256) errors.push('historical_report_identity_mismatch');
   }
   const currentReport = historyStart < 0 ? report : report.slice(0, historyStart);
@@ -381,7 +381,7 @@ export function captureSnapshot() {
   };
 }
 
-function renderReport(snapshot) {
+export function renderReport(snapshot) {
   const evaluation = evaluateSnapshot(snapshot);
   const identity = reportIdentity(snapshot, evaluation);
   const status = Object.values(evaluation.requirements).every(row => row.status === 'satisfied') ? 'passed' : 'gaps_found';

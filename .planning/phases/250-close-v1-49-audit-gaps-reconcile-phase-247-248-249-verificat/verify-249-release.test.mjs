@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { evaluateSnapshot, checkReport, reportIdentity, freshnessErrors, validateSourceReference, validateHistoricalAncestorComparison } from './verify-249-release.mjs';
+import { evaluateSnapshot, checkReport, reportIdentity, freshnessErrors, validateSourceReference, validateHistoricalAncestorComparison, renderReport } from './verify-249-release.mjs';
 
 const packageSha = '9e80cb78d6374b1ed4074d5fef6b613fee879dca';
 const historicalMain = '08300af1740fea8b77d5928a182688acbf103edc';
@@ -179,4 +179,16 @@ test('checks the report against requirement verdicts and complete captured ident
   assert.deepEqual(checkReport(report, current, evaluation), []);
   assert.ok(checkReport(report.replace('38061391571', '1'), current, evaluation).includes('report_source_identity_mismatch'));
   assert.ok(checkReport(report.replace('"REL-02":"satisfied"', '"REL-02":"unsatisfied"'), current, evaluation).includes('report_requirement_mismatch'));
+});
+
+test('checks nested historical details without truncating the preserved report', () => {
+  const current = snapshot();
+  const historicalText = 'Legacy report with a nested details block.\n<details>\n<summary>Earlier report</summary>\n\n`````\ninner\n`````\n</details>\n\nTrailing history remains included.';
+  const historicalBytes = Buffer.from(historicalText);
+  current.historical_report = {
+    path: '.planning/phases/249/249-VERIFICATION.md',
+    raw_bytes_base64: historicalBytes.toString('base64'), raw_bytes_sha256: hash(historicalBytes),
+    sha256: hash(Buffer.from(historicalText.trimEnd())), captured_at: '2026-10-10T16:00:00Z',
+  };
+  assert.deepEqual(checkReport(renderReport(current), current), []);
 });
