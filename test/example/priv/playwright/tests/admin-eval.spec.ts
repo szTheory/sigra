@@ -21,7 +21,7 @@
  */
 
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, type Page, type TestInfo } from '@playwright/test';
+import { test, expect, type Page, type Request, type Response, type TestInfo } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
@@ -158,17 +158,70 @@ async function registerUser(page: Page, email: string, password: string) {
   await waitForLiveViewReady(page);
   await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
-  await Promise.all([
-    // Registration redirects to the signed-in LiveView. Waiting for the full
-    // `load` event here hangs on mobile WebKit after the URL has already moved;
-    // DOM readiness plus the LiveView gate below proves the destination is usable.
-    page.waitForURL((url) => !url.pathname.endsWith('/users/register'), {
-      timeout: 10_000,
-      waitUntil: 'domcontentloaded',
-    }),
-    page.getByRole('button', { name: /Create an account/ }).click(),
-  ]);
+  let registrationRequest: { method: string; path: string } | null = null;
+  let registrationPost: { path: string; status: number; redirectPath: string | null } | null = null;
+  let registrationRequestFailure: string | null = null;
+  const captureRegistrationRequest = (request: Request) => {
+    const requestUrl = new URL(request.url());
+    if (request.method() === 'POST' && requestUrl.pathname === '/users/log_in') {
+      registrationRequest = { method: request.method(), path: requestUrl.pathname };
+    }
+  };
+  const captureRegistrationRequestFailure = (request: Request) => {
+    const requestUrl = new URL(request.url());
+    if (request.method() === 'POST' && requestUrl.pathname === '/users/log_in') {
+      registrationRequestFailure = request.failure()?.errorText ?? 'request failed without a browser error';
+    }
+  };
+  const captureRegistrationPost = (response: Response) => {
+    const request = response.request();
+    const responseUrl = new URL(response.url());
+    if (request.method() !== 'POST' || responseUrl.pathname !== '/users/log_in') return;
+    const location = response.headers()['location'];
+    registrationPost = {
+      path: responseUrl.pathname,
+      status: response.status(),
+      redirectPath: location ? new URL(location, response.url()).pathname : null,
+    };
+  };
+  page.on('request', captureRegistrationRequest);
+  page.on('requestfailed', captureRegistrationRequestFailure);
+  page.on('response', captureRegistrationPost);
+  try {
+    await Promise.all([
+      page.waitForURL((url) => !url.pathname.endsWith('/users/register'), {
+        timeout: 10_000,
+        waitUntil: 'domcontentloaded',
+      }),
+      page.getByRole('button', { name: /Create an account/ }).click(),
+    ]);
+  } catch (error) {
+    const pageState = await page.evaluate(() => {
+      const form = document.querySelector<HTMLFormElement>('#registration_form');
+      const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+      return {
+        finalUrl: location.href,
+        liveViewConnected: Boolean(document.querySelector('[data-phx-session].phx-connected')),
+        formPresent: Boolean(form),
+        formAction: form?.getAttribute('action') ?? null,
+        triggerSubmit: form?.getAttribute('phx-trigger-action') ?? null,
+        submitDisabled: submit?.disabled ?? null,
+        validationSummary: form?.querySelector('[role="alert"], .alert')?.textContent?.trim().slice(0, 240) ?? null,
+      };
+    }).catch((stateError: unknown) => ({ stateCaptureError: String(stateError) }));
+    page.off('request', captureRegistrationRequest);
+    page.off('requestfailed', captureRegistrationRequestFailure);
+    page.off('response', captureRegistrationPost);
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`${message}; registration diagnostics=${JSON.stringify({ registrationRequest, registrationPost, registrationRequestFailure, pageState })}`);
+  }
+  page.off('request', captureRegistrationRequest);
+  page.off('requestfailed', captureRegistrationRequestFailure);
+  page.off('response', captureRegistrationPost);
+  // The success flash proves the server accepted registration; validation
+  // responses retain a different alert and fail this assertion.
   await expect(page.getByRole('alert')).toContainText('Account created successfully!');
+  await expect(page).not.toHaveURL(/\/users\/register(?:\?.*)?$/);
   // Check the short-lived success flash before waiting on web fonts; LiveView
   // readiness is still required before the caller navigates into the admin UI.
   await waitForLiveViewReady(page);

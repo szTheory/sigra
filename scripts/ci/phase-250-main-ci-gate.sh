@@ -99,12 +99,20 @@ cases = sorted(set(re.findall(
     r"\d+\) \[(admin-eval(?:-mobile|-dark)?)\].*?render bundle: (board-mg-\d+)/(?:populated|zero|loading|error)",
     raw,
 )))
+failed_test_titles = sorted(set(re.findall(r"^\d+\) \[admin-eval(?:-mobile|-dark)?\].+$", raw, re.M)))
+registration_diagnostics = []
+for encoded in re.findall(r"registration diagnostics=(\{[^\r\n]*\})", raw):
+    try:
+        value = json.loads(encoded)
+    except json.JSONDecodeError:
+        continue
+    registration_diagnostics.append(value)
 Path(sys.argv[2]).write_text(json.dumps({"failure_classes": classes, "failed_render_cases": [
     {"project": project, "cell": cell} for project, cell in cases
-]}, separators=(",", ":")), encoding="utf-8")
+], "failed_test_titles": failed_test_titles, "registration_diagnostics": registration_diagnostics}, separators=(",", ":")), encoding="utf-8")
 PY
   else
-    printf '%s\n' '{"failure_classes":["terminal workflow failed; failed-job log unavailable"],"failed_render_cases":[]}' > "$TMP_DIR/failure-evidence.json"
+    printf '%s\n' '{"failure_classes":["terminal workflow failed; failed-job log unavailable"],"failed_render_cases":[],"failed_test_titles":[],"registration_diagnostics":[]}' > "$TMP_DIR/failure-evidence.json"
   fi
   jq -n --arg expected_sha "$EXPECTED_SHA" --arg run_sha "$RUN_SHA" --arg main_sha "$MAIN_SHA" \
     --argjson expected_attempt "$EXPECTED_ATTEMPT" --argjson run_attempt "$RUN_ATTEMPT" \
@@ -119,11 +127,13 @@ PY
   local_summary="$(jq -c --argjson failed_jobs "$BAD_JOBS" --argjson ci_gate "$CI_JOB" --argjson admin_eval "$ADMIN_JOB" \
     --argjson failure_evidence "$FAILURE_EVIDENCE" \
     '. + {failed_jobs:$failed_jobs,ci_gate:$ci_gate,admin_eval:$admin_eval,failure_evidence:$failure_evidence}' "$TMP_DIR/summary.json")"
-  local temp="${RECORD}.tmp.$$"
+  temp="${RECORD}.tmp.$$"
   jq --argjson summary "$local_summary" --arg url "$(jq -r '.html_url // ""' "$TMP_DIR/run.json")" \
     '.current_main_ci += {status:$summary.status, overall_conclusion:$summary.conclusion, url:$url,
       failed_jobs:$summary.failed_jobs, ci_gate:$summary.ci_gate, admin_eval:$summary.admin_eval,
       failure_classes:$summary.failure_evidence.failure_classes, failed_render_cases:$summary.failure_evidence.failed_render_cases,
+      failed_test_titles:$summary.failure_evidence.failed_test_titles,
+      registration_diagnostics:$summary.failure_evidence.registration_diagnostics,
       verdict:"failed", diagnostic:"terminal exact-main workflow did not pass"}' "$RECORD" > "$temp"
   jq -e . "$temp" >/dev/null && mv "$temp" "$RECORD"
   echo "phase-250-main-ci-gate: BLOCKED: run/ref identity or terminal workflow conclusion failed: $local_summary" >&2
