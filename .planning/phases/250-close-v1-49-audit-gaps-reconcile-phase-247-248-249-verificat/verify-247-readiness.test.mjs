@@ -505,6 +505,25 @@ test('a correct exact-tag source record and its digest-bound assertion can pass'
   assert.equal(result.requirements.READY01.verdict, 'satisfied');
 });
 
+test('a generic approval flag cannot replace an exact contemporaneous approval tuple', async () => {
+  const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
+  const input = structuredClone(phase251ReadyFeasibilityFixture);
+  const ready01 = input.requirements.READY01;
+  bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
+  ready01.approval_event = 'found';
+  ready01.history_complete = true;
+  ready01.time_window = {
+    start: '2026-10-08T17:41:43Z',
+    end: '2026-10-09T00:56:51Z',
+    complete: true,
+  };
+
+  const result = evaluatePhase251Feasibility(input);
+  assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+  assert.equal(result.requirements.READY01.verdict, 'authorization_pending');
+  assert.ok(result.requirements.READY01.findings.includes('authorization_pending'));
+});
+
 test('secondary-worktree dirty paths stay in the READY-02 disposition and preservation join', async () => {
   const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
