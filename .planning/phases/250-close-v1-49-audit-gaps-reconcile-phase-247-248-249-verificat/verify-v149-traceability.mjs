@@ -410,6 +410,7 @@ function stableJson(value) {
 }
 
 const preservationRecordCache = new Set();
+const preservationRefResolutionCache = new Map();
 
 function preservationRecordsMatch(root, references, observedIds, dispositions, dirtyItems) {
   if (!Array.isArray(references) || !exactStringSet(references.map((row) => row?.id), observedIds)) return false;
@@ -426,10 +427,13 @@ function preservationRecordsMatch(root, references, observedIds, dispositions, d
 
   const resolvedReferences = [];
   for (const reference of references) {
-    let resolved;
-    try {
-      resolved = execFileSync('git', ['rev-parse', '--verify', `${reference.ref}^{commit}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-    } catch { return false; }
+    const refKey = `${root}\0${reference.ref}`;
+    let resolved = preservationRefResolutionCache.get(refKey);
+    if (resolved === undefined) {
+      try { resolved = execFileSync('git', ['rev-parse', '--verify', `${reference.ref}^{commit}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); }
+      catch { resolved = null; }
+      preservationRefResolutionCache.set(refKey, resolved);
+    }
     if (resolved !== reference.commitSha) return false;
     resolvedReferences.push({ ...reference, resolvedCommit: resolved });
   }
@@ -443,9 +447,14 @@ function preservationRecordsMatch(root, references, observedIds, dispositions, d
   for (const reference of resolvedReferences) {
     const disposition = dispositionById.get(reference.id);
     const dirtyItem = dirtyById.get(reference.id);
+    const expectedReference = disposition?.preservation_ref;
     if (!disposition || typeof disposition.decision !== 'string' || !disposition.decision
       || typeof disposition.reason !== 'string' || !disposition.reason
-      || !disposition.source || typeof disposition.source !== 'object') return false;
+      || !disposition.source || typeof disposition.source !== 'object'
+      || reference.ref !== expectedReference?.ref
+      || reference.commitSha !== expectedReference?.commit_sha
+      || reference.recordPath !== expectedReference?.record_path
+      || reference.recordSha256 !== expectedReference?.record_sha256) return false;
     const headerEnd = output.indexOf(0x0a, offset);
     if (headerEnd < 0) return false;
     const header = output.toString('utf8', offset, headerEnd).split(' ');
@@ -509,7 +518,54 @@ function validateReadyOwnerEvidenceRows(text, owner, blockers) {
   return rows;
 }
 
-function phase251Ready01Complete(packet, feasibility) {
+const phase251PackageBytesCache = new Map();
+
+function phase251ExactPackageBytes(root, source) {
+  if (!source || typeof source.commit_sha !== 'string' || typeof source.path !== 'string'
+    || source.read_status !== 'readable' || source.trust_status !== 'trusted_exact_api_blob_match') return null;
+  const cacheKey = `${root}\0${source.commit_sha}\0${source.path}\0${source.git_blob_oid}\0${source.sha256}`;
+  if (phase251PackageBytesCache.has(cacheKey)) return phase251PackageBytesCache.get(cacheKey);
+  try {
+    const blobOid = execFileSync('git', ['rev-parse', `${source.commit_sha}:${source.path}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const bytes = execFileSync('git', ['show', `${source.commit_sha}:${source.path}`], { cwd: root, encoding: 'buffer', maxBuffer: 16 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+    const verified = blobOid === source.git_blob_oid && blobOid === source.api_blob_oid
+      && sha256(bytes) === source.sha256 && source.sha256 === source.api_sha256 ? bytes : null;
+    phase251PackageBytesCache.set(cacheKey, verified);
+    return verified;
+  } catch { phase251PackageBytesCache.set(cacheKey, null); return null; }
+}
+
+function phase251AuditAssertion(root, id, bytes, source) {
+  if (!bytes?.length) return false;
+  const text = bytes.toString('utf8');
+  const hasGuide = /# Upgrade to Sigra v1\.6\.0/.test(text);
+  const readmeLink = /\[[^\]]+\]\(guides\/introduction\/upgrading-to-v1\.6\.md(?:#[^)]*)?\)/i.test(text);
+  const versionedMix = /@version\s+"1\.6\.0"/.test(text) && /version:\s*@version/.test(text);
+  switch (id) {
+    case 'candidate_version_1_6_0': case 'published_version_1_6_0': return versionedMix;
+    case 'candidate_package_metadata_sigra_1_6_0': case 'published_package_metadata_sigra_1_6_0': return versionedMix && /app:\s*:sigra/.test(text);
+    case 'manifest_version_1_6_0': try { return JSON.parse(text)['.'] === '1.6.0'; } catch { return false; }
+    case 'release_config_elixir_changelog': try { const config = JSON.parse(text); return config['release-type'] === 'elixir' && config.packages?.['.']?.['changelog-path'] === 'CHANGELOG.md'; } catch { return false; }
+    case 'candidate_changelog_1_6_0': case 'published_changelog_1_6_0': return /^## \[1\.6\.0\]/m.test(text);
+    case 'tag_v1_6_0_targets_published_commit': {
+      try { return versionedMix && execFileSync('git', ['rev-parse', '--verify', 'refs/tags/v1.6.0^{commit}'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() === source.commit_sha; } catch { return false; }
+    }
+    case 'hexdocs_uses_version_source_ref': return versionedMix && /source_ref:\s*"v#\{@version\}"/.test(text);
+    case 'published_module_source': return /^defmodule Sigra/m.test(text) && /@moduledoc/.test(text);
+    case 'published_guide_present': return hasGuide;
+    case 'candidate_readme_guide_link': case 'published_readme_guide_link': case 'readme_points_to_upgrade_guide': return readmeLink;
+    case 'guide_shipped_changes': return hasGuide && /pasted six-digit codes/i.test(text) && /retry after an invalid code/i.test(text);
+    case 'generated_host_regression_coverage': return /test\(['"`].*(?:organization|confirmation)/i.test(text) && /expect\(/.test(text);
+    case 'guide_compatibility_constraints': return /Elixir `~> 1\.18`/.test(text) && /Phoenix `~> 1\.8`/.test(text) && /Phoenix LiveView `~> 1\.1`/.test(text);
+    case 'guide_host_actions': return /mix deps\.update sigra/.test(text) && /selectively adopt/i.test(text) && /mix sigra\.install/.test(text);
+    case 'host_action_test_coverage': return /test\(['"`].*organizations UX/i.test(text) && /await expect\(/.test(text);
+    case 'guide_version_requirement': return /~> 1\.6\.0/.test(text);
+    case 'guide_update_and_check_steps': return /mix deps\.update sigra/.test(text) && /mix deps\.tree/.test(text) && /host checks/i.test(text);
+    default: return false;
+  }
+}
+
+function phase251Ready01Complete(root, packet, feasibility) {
   const ready = packet?.requirements?.READY01;
   const feasible = feasibility?.requirements?.READY01;
   const checks = ready?.package_adopter?.checks;
@@ -557,6 +613,7 @@ function phase251Ready01Complete(packet, feasibility) {
     && source.git_blob_oid === source.api_blob_oid
     && typeof source.sha256 === 'string'
     && source.sha256 === source.api_sha256
+    && phase251ExactPackageBytes(root, source) !== null
   );
   const sourceIdentity = (identity, commitSha, sourcePath) => sources?.some((source) =>
     source.source_identity === identity
@@ -590,7 +647,8 @@ function phase251Ready01Complete(packet, feasibility) {
     const refsMatch = expected.every((item) => {
       const ref = check.source_refs.find((candidate) => candidate.source_identity === item.identity
         && candidate.commit_sha === item.commitSha && candidate.path === item.sourcePath);
-      return item.source.trust_status === 'trusted_exact_api_blob_match'
+      return phase251ExactPackageBytes(root, item.source) !== null
+        && item.source.trust_status === 'trusted_exact_api_blob_match'
         && item.source.read_status === 'readable'
         && item.source.git_blob_oid === item.source.api_blob_oid
         && item.source.sha256 === item.source.api_sha256
@@ -598,7 +656,10 @@ function phase251Ready01Complete(packet, feasibility) {
     });
     const assertionsMatch = expected.every((item) => {
       const assertion = check.source_assertions.find((candidate) => candidate?.id === item.assertion);
-      return assertion?.result === 'pass' && assertion.expected === true && assertion.actual === true
+      const bytes = phase251ExactPackageBytes(root, item.source);
+      const actual = bytes ? phase251AuditAssertion(root, item.assertion, bytes, item.source) : null;
+      return assertion?.result === (actual === true ? 'pass' : actual === null ? 'unreadable' : 'mismatch')
+        && assertion.expected === true && assertion.actual === actual
         && assertion.source_identity === item.identity && assertion.commit_sha === item.commitSha
         && assertion.path === item.sourcePath && assertion.git_blob_oid === item.source.git_blob_oid
         && assertion.sha256 === item.source.sha256;
@@ -663,9 +724,22 @@ function phase251Ready02Complete(root, packet, feasibility) {
       }
     }
     const statusIds = statusRows.map((entry) => `dirty:${entry.worktree_path}:${entry.worktree_head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`);
+    const capturedStatusRows = [];
+    if (!Array.isArray(sourceInventory?.worktrees)) return null;
+    for (const worktree of sourceInventory.worktrees) {
+      if (!worktree || typeof worktree.path !== 'string' || !worktree.path
+        || typeof worktree.head_sha !== 'string' || !/^[a-f0-9]{40}$/.test(worktree.head_sha)
+        || !Array.isArray(worktree.status_entries)) return null;
+      for (const entry of worktree.status_entries) {
+        if (!entry || typeof entry.status !== 'string' || !entry.status
+          || typeof entry.path !== 'string' || !entry.path
+          || entry.source_byte_readable !== true || !/^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? '')) return null;
+        capturedStatusRows.push(`dirty:${worktree.path}:${worktree.head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`);
+      }
+    }
     const dirtyIds = dirtyRows.map((row) => row.id);
     const expectedDirtyIds = statusRows.map((entry) => `dirty:${entry.worktree_path}:${entry.worktree_head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`);
-    if (!exactStringSet(dirtyIds, expectedDirtyIds)) return null;
+    if (!exactStringSet(capturedStatusRows, statusIds) || !exactStringSet(dirtyIds, expectedDirtyIds)) return null;
     const expected = [...identityRows.map((sha) => `commit:${sha}`), ...pathRows.map((sourcePath) => `path:${sourcePath}`), ...statusIds];
     if (new Set(expected).size !== expected.length) return null;
     if (!exactStringSet(sourceDispositions.map((row) => row.id), expected)) return null;
@@ -787,7 +861,7 @@ function collectOwnerSources(root, blockers, overrides = {}) {
               if (!rowBound) add(blockers, id, 'Phase 247 owner table verdict differs from the exact Phase 251 packet verdict.', { tableVerdict, packetVerdict });
               if (feasibility.status !== 'ready' && normalizedPacket === 'satisfied') add(blockers, id, 'Phase 251 claims a pass while its complete evidence-feasibility record is not ready.', { feasibilityStatus: feasibility.status });
               const complete = id === 'READY-01'
-                ? phase251Ready01Complete(parsed, feasibility)
+                ? phase251Ready01Complete(root, parsed, feasibility)
                 : phase251Ready02Complete(root, parsed, feasibility);
               if (normalizedPacket === 'satisfied' && !complete) add(blockers, id, 'Phase 251 reports a pass without complete source-bound package check refs/assertions, exact tuple approval, and inventory joins.', PHASE251_PACKET_PATH);
               const currentStatus = normalizedPacket === 'satisfied' && complete && rowBound && nestedConsistent ? 'satisfied' : 'unsatisfied';

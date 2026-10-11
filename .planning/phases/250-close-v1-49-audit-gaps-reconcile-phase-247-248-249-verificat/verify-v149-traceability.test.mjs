@@ -49,7 +49,7 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
         const source = first.package_adopter.sources.find((item) => item.source_identity === required.identity
           && item.commit_sha === required.commit_sha && item.path === required.path);
         let bytes = null;
-        try { bytes = execFileSync('git', ['show', `${source.commit_sha}:${source.path}`]); } catch { /* exact 404 remains missing */ }
+        try { bytes = execFileSync('git', ['show', `${source.commit_sha}:${source.path}`], { stdio: ['ignore', 'pipe', 'ignore'] }); } catch { /* exact 404 remains missing */ }
         const actual = bytes ? evaluatePhase251PackageAssertion(id, bytes, source) : false;
         return { id, result: !bytes ? 'missing' : actual ? 'pass' : 'mismatch', expected: true, actual, source_identity: required.identity,
           commit_sha: required.commit_sha, path: required.path, git_blob_oid: source.git_blob_oid, sha256: source.sha256 };
@@ -137,9 +137,9 @@ test('historical Phase 250 amendment resolves the original owner report from its
 test('ownerDerivedSevenEightNine requires complete Phase 247 evidence for every counted READY item', () => {
   const cases = [
     { ready01: false, ready02: false, score: '7/9', passedReady: 0 },
-    { ready01: true, ready02: false, score: '8/9', passedReady: 1 },
+    { ready01: true, ready02: false, score: '7/9', passedReady: 0 },
     { ready01: false, ready02: true, score: '8/9', passedReady: 1 },
-    { ready01: true, ready02: true, score: '9/9', passedReady: 2 },
+    { ready01: true, ready02: true, score: '8/9', passedReady: 1 },
   ];
   for (const fixture of cases) {
     const evidence = ownerEvidenceFixture(fixture);
@@ -203,10 +203,10 @@ test('independent audit rejects a satisfied READY-01 row whose guide ref points 
   assert.ok(result.blockers.some(({ id, message }) => id === 'READY-01' && /source-bound|package check|guide/i.test(message)));
 });
 
-test('independent audit accepts complete path-bound check evidence when READY-01 alone passes', () => {
+test('independent audit rejects claimed READY-01 pass when exact source predicates fail', () => {
   const evidence = ownerEvidenceFixture({ ready01: true });
   const result = audit(repoRoot, { overrides: evidence.overrides });
-  assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'satisfied');
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
   assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
 });
 
@@ -244,7 +244,6 @@ test('independent audit reads exact source bytes before accepting forged README 
     /^\|\s*READY-0[12]\s*\|/.test(line) ? line.replace(/[a-f0-9]{64}(?=\s*\|$)/, packetHash) : line).join('\n');
 
   const result = audit(repoRoot, { overrides: evidence.overrides });
-  console.log('CR05 target', JSON.stringify(result.blockers.filter(({ id }) => id === 'READY-01')));
   assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
 });
 
@@ -270,6 +269,26 @@ test('independent audit rejects a coherently omitted captured worktree status id
 
   const result = audit(repoRoot, { overrides: evidence.overrides });
   assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied', JSON.stringify(result.blockers.filter(({ id }) => id === 'READY-02')));
+
+  for (const mutate of [
+    (packet) => { packet.requirements.READY02.inherited_work.disposition_join.preservationRefs[0].commitSha = 'f'.repeat(40); },
+    (packet) => { packet.source_capture.local_inherited_work.inherited_dispositions[0].decision = 'release-relevant'; },
+    (packet) => { packet.source_capture.local_inherited_work.inherited_dispositions[0].reason = 'altered preserved decision reason'; },
+    (packet) => { packet.source_capture.local_inherited_work.inherited_dispositions[0].source.commit_sha = 'f'.repeat(40); },
+  ]) {
+    const changed = ownerEvidenceFixture({ ready02: true });
+    const priorHash = sha256(changed.packetText);
+    mutate(changed.packet);
+    changed.packetText = `${JSON.stringify(changed.packet, null, 2)}\n`;
+    const changedHash = sha256(changed.packetText);
+    changed.overrides[phase251PacketPath] = changed.packetText;
+    changed.report = changed.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${changedHash}`);
+    changed.overrides[phase247ReportPath] = changed.report;
+    changed.overrides['.planning/REQUIREMENTS.md'] = changed.overrides['.planning/REQUIREMENTS.md'].replaceAll(priorHash, changedHash)
+      .split('\n').map((line) => /^\|\s*READY-0[12]\s*\|/.test(line) ? line.replace(/[a-f0-9]{64}(?=\s*\|$)/, changedHash) : line).join('\n');
+    const changedResult = audit(repoRoot, { overrides: changed.overrides });
+    assert.equal(changedResult.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+  }
 });
 
 test('independent audit rejects nonexistent preservation refs and altered decision provenance', () => {
