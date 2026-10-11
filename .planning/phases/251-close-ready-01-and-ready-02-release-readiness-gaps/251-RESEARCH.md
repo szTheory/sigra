@@ -168,14 +168,14 @@ For READY-02, make `observedIds` represent the full identity key, including each
 
 ## Open Questions
 
-1. **Can the contemporaneous exact-source approval artifact be recovered?**
+1. **Can the contemporaneous exact-source approval artifact be recovered? (RESOLVED for planning; factual result is execution-time.)**
    - What we know: the captured owner report says approval was pending and no immutable approval was present; the Phase 251 context forbids substituting current scope authorization. [VERIFIED: .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md:11,29-40; .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md:18-20]
    - What's unclear: whether an authoritative historical approval record exists outside the checked-in evidence.
-   - Recommendation: search only approved read-only evidence sources during execution; if unavailable, retain `authorization_pending` and leave READY-01 unsatisfied.
-2. **Will current open PR identities and local inherited checkout populations be stable during capture?**
+   - Planning resolution: no planning decision depends on the artifact existing now. During execution, search only authoritative read-only historical sources and bind any recovered approval to the complete exact tuple; if unavailable or mismatched, retain `authorization_pending` and leave READY-01 unsatisfied. Do not request or accept a new approval.
+2. **Will current open PR identities and local inherited checkout populations be stable during capture? (RESOLVED for planning; factual result is execution-time.)**
    - What we know: the captured historical inventory differs from its stored population, and the current verifier's generic stability check does not compare every PR head/base. [VERIFIED: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json; .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs:93-100,279-295]
    - What's unclear: current execution-time population and preservation refs.
-   - Recommendation: capture complete identities twice and block on any movement or incomplete API/local observation.
+   - Planning resolution: execution must capture complete PR and inherited-work identities before and after preparation, including PR number/head/base, and require exact population equality and preservation read-back. API/local read failure, cap ambiguity, identity movement, or unreadable preservation remains a named READY-02 blocker; no manual assumption can fill the gap.
 
 ## Environment Availability
 
