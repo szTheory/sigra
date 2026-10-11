@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 7
+open_count: 8
 waived_count: 0
 fixed_count: 1
-total_count: 8
-last_updated: 2026-10-08T16:04:05.483Z
+total_count: 9
+last_updated: 2026-10-11T23:08:18.790Z
 ---
 
 # Broken Windows Ledger
@@ -23,6 +23,7 @@ last_updated: 2026-10-08T16:04:05.483Z
 | 6 | 245 | unrun-verify | .planning/phases/245-branch-prune-local-and-remote/245-24-PLAN.md |  | Task 2 current-contract/admission verifier was not run because Task 1 D-06 preflight blocked on unreadable live origin/gh-pages object. | open |  | 2026-10-01T11:42:24.708Z |  |
 | 7 | 245 | unrun-verify | .planning/phases/245-branch-prune-local-and-remote/245-24-PLAN.md |  | Task 3 after-stage/post-state verifier was not run because Task 1 D-06 preflight blocked before contract and ref operation. | open |  | 2026-10-01T11:42:24.793Z |  |
 | 8 | 247 | unrun-verify | .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs |  | Plan 08 final readiness validator passed: valid=true with exact-source CI 37800067568 and authenticated dry-run 37803817504; PR #224 remains open and unpublished. | fixed |  | 2026-10-08T03:27:53Z | 2026-10-08T16:04:05.483Z |
+| 9 | 251 | deviation | .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs | 361 | Updated Nyquist expectations after marking all 12 Phase 251 validation rows proven; regenerated audit from current validation state. | open |  | 2026-10-11T23:08:18.790Z |  |
 
 ````json
 [
@@ -123,6 +124,19 @@ last_updated: 2026-10-08T16:04:05.483Z
     "reason": "",
     "recorded_at": "2026-10-08T03:27:53Z",
     "resolved_at": "2026-10-08T16:04:05.483Z",
+    "milestone": "v1.49"
+  },
+  {
+    "id": 9,
+    "kind": "deviation",
+    "phase": "251",
+    "file": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+    "line": 361,
+    "description": "Updated Nyquist expectations after marking all 12 Phase 251 validation rows proven; regenerated audit from current validation state.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-10-11T23:08:18.790Z",
+    "resolved_at": null,
     "milestone": "v1.49"
   }
 ]
