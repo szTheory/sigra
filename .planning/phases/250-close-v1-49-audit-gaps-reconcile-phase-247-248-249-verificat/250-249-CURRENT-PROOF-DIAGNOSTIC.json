@@ -57,12 +57,66 @@
     "log_handling": "failure log inspected from the cached run archive; only sanitized timeout class retained"
   },
   "current_main_ci": {
-    "status": "awaiting_repair",
-    "prior_run_id": 38139851334,
-    "prior_attempt": 1,
-    "prior_head_sha": "58fe634eccf0058f2217017bb8aeda4a83e6ce21",
-    "verdict": "failed_pre_change",
-    "diagnostic": "Pre-change run is negative evidence only; final REL-02 requires successful overall CI on exact repaired protected main SHA."
+    "run_id": 38141796613,
+    "attempt": 1,
+    "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+    "event": "push",
+    "branch": "main",
+    "workflow_path": ".github/workflows/ci.yml",
+    "status": "completed",
+    "overall_conclusion": "failure",
+    "verdict": "failed",
+    "observed_at": "2026-10-11T13:05:42Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38141796613",
+    "ci_gate": [
+      {
+        "id": 114478863717,
+        "name": "ci-gate",
+        "conclusion": "success",
+        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+        "run_attempt": 1
+      }
+    ],
+    "admin_eval": [
+      {
+        "id": 114476996331,
+        "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
+        "conclusion": "failure",
+        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+        "run_attempt": 1
+      }
+    ],
+    "failed_jobs": [
+      {
+        "id": 114476996331,
+        "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
+        "conclusion": "failure",
+        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+        "run_attempt": 1
+      }
+    ],
+    "failure_classes": [
+      "admin-eval registration redirect timed out waiting for navigation"
+    ],
+    "failed_render_cases": [
+      {
+        "project": "admin-eval-mobile",
+        "cell": "board-mg-3"
+      },
+      {
+        "project": "admin-eval-mobile",
+        "cell": "board-mg-7"
+      }
+    ],
+    "failure_log_retrievals": 1,
+    "failure_log_retrieved_at": "2026-10-11T13:22:00Z",
+    "diagnostic": "exact protected-main workflow failed: admin-eval registration redirect timed out; terminal failure log sanitized after recorder bug was fixed",
+    "failed_test_titles": [
+      "[admin-eval-mobile] tests/admin-eval.spec.ts:389:11 render bundle: board-mg-3/populated",
+      "[admin-eval-mobile] tests/admin-eval.spec.ts:389:11 render bundle: board-mg-7/populated",
+      "[admin-eval-mobile] tests/admin-eval.spec.ts:414:9 render bundle: board-summary_chip/default",
+      "[admin-eval-mobile] tests/admin-eval.spec.ts:432:7 probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes"
+    ]
   },
   "historical_source_url_failures": [
     {
@@ -124,5 +178,466 @@
       "status": "blocked_local_dependency_lock",
       "reason": "stale phoenix dependency lock; no dependency install attempted"
     }
+  },
+  "delivery": {
+    "pull_request": 329,
+    "pr_head_sha": "1421a2cac2737332d3d9f1b82a804c424e23874a",
+    "pr_ci_run_id": 38141334301,
+    "pr_ci_conclusion": "success",
+    "merge_commit": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+    "merged_at": "2026-10-11T13:05:27Z"
+  },
+  "pre_task3_worktree_observation": {
+    "observed_at": "2026-10-11T13:07:00Z",
+    "source": "git worktree list --porcelain and git status --porcelain=v1 -z -uall",
+    "worktrees": [
+      {
+        "path": "/Users/jon/projects/sigra",
+        "branch": "phase-244-playwright-measurement",
+        "head": "a61804c8ec6805dd89e2aeca632ee48edb8f7f4c",
+        "prunable": false,
+        "read_status": "complete",
+        "status_clean": false,
+        "status_bytes": 7784,
+        "files": [
+          {
+            "status": " M",
+            "path": ".planning/HANDOFF.json",
+            "sha256": "62cbbaef8d87ade6fae9bd88ec0c2cd91a273f769eaf43f96c13383ec88b445c"
+          },
+          {
+            "status": " M",
+            "path": ".planning/STATE.md",
+            "sha256": "15343f4d400683fa2353e14af0a67aa161f3899a4e8a7ada4ae390f2b4f789a7"
+          },
+          {
+            "status": " M",
+            "path": ".planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+            "sha256": "7274e9017ba6e46d5f919d4acc478698b344f21caf1203975f7574c7acde06ad"
+          },
+          {
+            "status": " M",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md",
+            "sha256": "71afd153ae2efcd065bddbe14024ee3e8c01121cd05c99510ad011cb5f3dee76"
+          },
+          {
+            "status": " M",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+            "sha256": "87e5681a5ae24a3cce32ef4d0a7e8e3e14c66b07ee871762f68bab2e789ea223"
+          },
+          {
+            "status": " M",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json",
+            "sha256": "0e1a3cfc7248c9aeb7e00803357a1c805846e10f1e4603a280f3b856d621cb95"
+          },
+          {
+            "status": " M",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+            "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953"
+          },
+          {
+            "status": " M",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+            "sha256": "6eb5fb2e373d2bca6efd3dc9161793e4a3ca0f260bfcf4f6a208aa3c40952289"
+          },
+          {
+            "status": " M",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs",
+            "sha256": "0d7552f481fc70377546b11221b79849c95999a41d2568ebecf0165d96aca59e"
+          },
+          {
+            "status": " M",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs",
+            "sha256": "2d3db1429ebbc00713f29e891ea6f4c09fda2b7e0fd454ea5f970c9ee0c33206"
+          },
+          {
+            "status": " M",
+            "path": ".planning/state.json",
+            "sha256": "b829d1a3a22cbf79535606fed478ac3273ba83f2e543bed501f187f221e01e14"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/cancellation-11702216188.zip",
+            "sha256": "57d3d1667a61483edbe85182fee995697fdb3c502de2c5f97ab464cc24529707"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/cancellation-receipt-38137614523.json",
+            "sha256": "ed5adb5ac6d1b0a0b12cf7a328c8789d9b99951badeb0aabd71e1791ea7840c3"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/controller-11702305814.zip",
+            "sha256": "c6a0381a4663e38a3f60fa431dd50194767620bfe56ca17cf34dbfdaf6565526"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/controller-proof-38137539834.json",
+            "sha256": "31845ad8407aef21d304525c7fb6c93a8d707d53ee117cbff980c69010277508"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/failure-11701436633.zip",
+            "sha256": "94cc44aaa38388e89bb4790e504328ff70c0a163d90ed6301be7a8e912c5565e"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/failure-receipt-38137550871.json",
+            "sha256": "d3c09829c42dd4dbe55a10e16a1a75432cdf04e7077afd0b6948f1283dd28d6d"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-ARTIFACT-RETRIEVAL-38137539834.json",
+            "sha256": "10f35836f8233a0258bfe29f5d95ba8a8acd60efd746af4999c97eb932d2d8be"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORIZATION-DECISION-v8.json",
+            "sha256": "3929673c2fae1f9d783ce00c15ec1229646576c165d125f70c9d3bbe5f562c8b"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-PREPARATION-v8.json",
+            "sha256": "4d66cc1bd52ae218bde0f8a41f1bf78e0beccf545a13837b6ec6edaed5f7aad2"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-REQUEST-v8.json",
+            "sha256": "cda7e0eb2b3ee9851f4101d78d6d4160e44aa28d076d6cb070b4db7271383f6d"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-SUBMISSION-v8.json",
+            "sha256": "086732400ae9a77273198970558b44755aa9cd3d55d48337e8b68650b6b96e45"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T115503Z.json",
+            "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-PRESERVATION-20261011T115340Z.json",
+            "sha256": "2de1f2d305b1824ea9ab2185ba6a76e55efeb0ef7c6ac0c8caffdbc1b089b679"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATED-84ebcea-20261011T115503Z.json",
+            "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATION-BLOCKED-20261011T115340Z.json",
+            "sha256": "9d430ec500a36d792f1506863dfaaf4895863445431ad511e68be672f6407508"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38137539834-IN_PROGRESS-OBSERVATION.json",
+            "sha256": "8dde48953b0a55a35132cde9d35d25b44872c8caee0f254238747fd1b246936c"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38137539834.json",
+            "sha256": "8dde48953b0a55a35132cde9d35d25b44872c8caee0f254238747fd1b246936c"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-TERMINAL-38137539834.json",
+            "sha256": "f5baa9779222ef66e48c2ba13e090885d8f0b0405e0f7a3cda3a4cf219af537c"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-PRESERVATION-20261011.json",
+            "sha256": "311fc0cc5e60531ce4d03fc16e58691c595b8f5e785ceedf3831fbf19ff36a35"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PROOF-HISTORY-PRESERVATION-20261011.json",
+            "sha256": "16bf586d70696431b80b198a5db7fb18d6e9d6bbbddb9051079c451f1ff3b644"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY-HALTED-HISTORICAL-20261011.md",
+            "sha256": "067372f8fa8fbf25098a1b276db01750763a7f0b95a22e70c6af253a1efcc074"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY-HISTORY-20261011.json",
+            "sha256": "e0fa55bc4219fe2730bf5219280e3322799b8294fe9d067c20ecfef723dc1038"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-HISTORICAL-9cb1c48-20261010.json",
+            "sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-38137539834.json",
+            "sha256": "a3ee9f4604c071788a69d2b97db49c52f616cec6cec4a65472241ae3b086f27c"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-BLOCKED-38083752867-HISTORICAL.json",
+            "sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/HANDOFF.json",
+            "sha256": "4d9b65552689e9318a619a56c2bd03da3d503c80b070106560ff4047af5f4692"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/STATE.md",
+            "sha256": "db9c0dab9531f6993c3f3382bc0b69c838773a953b2792c2caf5023a9772acde"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+            "sha256": "0d4f94d5899946476b63a264f8ee474a3b0e5fd2a09b0a0dc04c1b6f59e45801"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+            "sha256": "1b497dcd95cd0dd9691e29924be1b0627b5982466f771648ed79c97ffce4d464"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+            "sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs",
+            "sha256": "259a61d6c22c390cff6aea64424bf0cc9379f4ba9a42bc23b03555732cce0800"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs",
+            "sha256": "1e6969f18a24725af3b80be73a3297ecb2a9b85f4b1dfc229a2d91cdaa6eb9a1"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/state.json",
+            "sha256": "a7205906ec762d57c67b8c3018510405695833a3edbde68c9e313a201faf35d0"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/REF.json",
+            "sha256": "1e8a0a1d90641aa6fe84c9006a7ea89347bda9c50a8a2cc6a9ccc4788bb2e97c"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-plan07-summary-refresh-20261011T123646Z/REF.json",
+            "sha256": "6ed043e8119d703837e9d0002e1b3cbdb01b250ea3e0c3f9bd11c8a107c7166e"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-plan07-summary-refresh-20261011T123646Z/files/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md",
+            "sha256": "f59f3117e2e7493c0ba337aabe14bf78097a271999733256277e07f2cb948b72"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-plan10-dispatch-20261011T122730Z/REF.json",
+            "sha256": "00d2852525d93027bde4a2fd07427f5ccb27cc6d5aa2e0d727749027e3cd5047"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-plan10-dispatch-20261011T122730Z/files/.planning/HANDOFF.json",
+            "sha256": "096353c850514ecb46adb0b439021c4b5a0e7bf60593c118f2f1d44a161d4d75"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-plan10-dispatch-20261011T122730Z/files/.planning/STATE.md",
+            "sha256": "b44b2372474b31d013c3f3069d12441358aff7de68195c2962d7828b716b682f"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-plan10-dispatch-20261011T122730Z/files/.planning/state.json",
+            "sha256": "d9d8e4ef9ae98b2139e643343a6e94a554b5ef1702f1214b6b9ae5442d144554"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-recapture-snapshot-20261011T121844Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+            "sha256": "f7811ed510fea32418491016f6bfadcbff90e9feb43def0544fda86c2188359e"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-recapture-snapshot-20261011T121844Z/REF.json",
+            "sha256": "c2f4644406d78db80114d5d7de69640054fa721fec8a8e2f5d562e8877aa3171"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-recapture-snapshot-20261011T121922Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+            "sha256": "92c237ba658bdeebd89a8338e480644c9be09ba52d883140b780ce75c371b4e8"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-recapture-snapshot-20261011T121922Z/REF.json",
+            "sha256": "eeb30b420585baa2225786dafdf876b3cc86103d1e6683e43cc4cbb90a090951"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-route-correction-20261011T122537Z/.planning/HANDOFF.json",
+            "sha256": "4320d67eebb3bd66ce422b781d9c153213b16d21546ce4fd281faaf34e96cadf"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-route-correction-20261011T122537Z/.planning/STATE.md",
+            "sha256": "b44b2372474b31d013c3f3069d12441358aff7de68195c2962d7828b716b682f"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-route-correction-20261011T122537Z/.planning/state.json",
+            "sha256": "29daf38a7845b66a0bb5979ac5f0e9a11f5c0515f392e1795f81d1e18fb10a52"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-pre-route-correction-20261011T122537Z/REF.json",
+            "sha256": "de5638434afee5a9e3b751f183c1b2fd088932beb30730d6c0190b527d7e90cb"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-v8-pre-dispatch-20261011T115739Z/AUTHORIZATION-DECISION-v8.escaped-original.json",
+            "sha256": "94e5eb344dc483005e3aee339e455761eff365fdb31f2e10f748396474600836"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-v8-pre-dispatch-20261011T115739Z/HANDOFF.json.before-record-fix",
+            "sha256": "3e3e7e8a6cfe5b4805fc8cd8ea0e8bcdae0fa222d77f4ba629389677619b4969"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-v8-pre-dispatch-20261011T115739Z/REF.json",
+            "sha256": "e23fcc1f2968df7ee0862b021df18dc09af4e5798b9652ad38d2f272344ef2e3"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-v8-pre-dispatch-20261011T115739Z/state.json.before-record-fix",
+            "sha256": "38cfc2a9cf8617de42034f8ab6e3b83d090da6cc5da504fd6b6239ee107f5a09"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-v8-pre-dispatch-state-20261011T115832Z/HANDOFF.json",
+            "sha256": "4be8ae5eea11e4230597fa9a1b55ab8c66d42513360cfdb7d1383fafc7da3ccc"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-v8-pre-dispatch-state-20261011T115832Z/REF.json",
+            "sha256": "ed3c1d8acf550623f7ce59c9d6fc2398668cc63dbc3de838a180a0df8b96b150"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-v8-pre-dispatch-state-20261011T115832Z/STATE.md",
+            "sha256": "824210d817050fdbf4eee5d23c4c267a92fe3ce7c6afb1242e54c7e0337ae24d"
+          },
+          {
+            "status": "??",
+            "path": ".planning/recovery/phase-250-v8-pre-dispatch-state-20261011T115832Z/state.json",
+            "sha256": "d21074e3e80efaaf12ef14e1663623f7a49726facd07d7cbab674aaa8b9a5965"
+          }
+        ]
+      },
+      {
+        "path": "/private/tmp/sigra-250-07-observer-source-id-mode-fix",
+        "branch": "codex/250-07-observer-source-id-mode-fix",
+        "head": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
+        "prunable": false,
+        "read_status": "complete",
+        "status_clean": true,
+        "status_bytes": 0,
+        "files": []
+      },
+      {
+        "path": "/private/tmp/sigra-250-canary-observer-dispatch",
+        "branch": "fix/250-canary-observer-dispatch",
+        "head": "5fc3b2f30528526d9342713d3d04f2eaf489ea6d",
+        "prunable": false,
+        "read_status": "complete",
+        "status_clean": true,
+        "status_bytes": 0,
+        "files": []
+      },
+      {
+        "path": "/private/tmp/sigra-main-preflight-20261011",
+        "branch": "fix/release-canary-artifact-download",
+        "head": "c9d48ac196fe6dbd5041668f56eb87840764c520",
+        "prunable": false,
+        "read_status": "complete",
+        "status_clean": false,
+        "status_bytes": 440,
+        "files": [
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T115503Z.json",
+            "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-IMMEDIATE-VALIDATION-20261011T115503Z.json",
+            "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953"
+          },
+          {
+            "status": "??",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATED-84ebcea-20261011T115503Z.json",
+            "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953"
+          }
+        ]
+      },
+      {
+        "path": "/private/tmp/sigra-phase-246-03-ci",
+        "branch": "gsd/phase-246-generated-confirmation-recovery-ci",
+        "head": "2232272d77a4ebfccafe43ddec877bf3ad6195a7",
+        "prunable": true,
+        "read_status": "failed",
+        "status_error": "worktree directory is missing",
+        "files": []
+      },
+      {
+        "path": "/private/tmp/sigra-phase-249-09-candidate",
+        "branch": "gsd/phase-249-09-candidate",
+        "head": "4e631d895caa1e02108e05ed9d68069990ca305f",
+        "prunable": true,
+        "read_status": "failed",
+        "status_error": "worktree directory is missing",
+        "files": []
+      },
+      {
+        "path": "/private/tmp/sigra-phase246-scoped-promotion",
+        "branch": "agent-247-01-phase246-promotion",
+        "head": "8be994fc9de5c4afe5ee3cb706c0aa348dd5abd5",
+        "prunable": true,
+        "read_status": "failed",
+        "status_error": "worktree directory is missing",
+        "files": []
+      },
+      {
+        "path": "/private/tmp/sigra-phase246-verification",
+        "branch": "gsd/phase-246-confirmation-guard",
+        "head": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+        "prunable": true,
+        "read_status": "failed",
+        "status_error": "worktree directory is missing",
+        "files": []
+      },
+      {
+        "path": "/private/tmp/sigra-phase250-current-main",
+        "branch": "(detached)",
+        "head": "5059581954960548c7fe5c4811b7a7f81dd16aa3",
+        "prunable": true,
+        "read_status": "failed",
+        "status_error": "worktree directory is missing",
+        "files": []
+      },
+      {
+        "path": "/Users/jon/projects/sigra/tmp/phase-247-candidate",
+        "branch": "agent-phase247-plan02",
+        "head": "563f411bc2659bb9ac1652d552ce58ffb0c876b1",
+        "prunable": false,
+        "read_status": "complete",
+        "status_clean": true,
+        "status_bytes": 0,
+        "files": []
+      }
+    ]
   }
 }
