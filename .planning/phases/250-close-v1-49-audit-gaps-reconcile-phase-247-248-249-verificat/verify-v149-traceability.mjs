@@ -16,6 +16,7 @@ const OWNER_DIR = {
   '248': '248-exact-source-release-gate',
   '249': '249-publish-and-prove-sigra-1-6-0',
 };
+const MILESTONE_PHASES = [246, 247, 248, 249, 250, 251];
 const TRACE_PATH = '.planning/REQUIREMENTS.md';
 const CLOSE_DIR = '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat';
 const AUDIT_PATH = '.planning/v1.49-MILESTONE-AUDIT.md';
@@ -221,6 +222,59 @@ function scanSummaryClaims(root, overrides = {}) {
     }
   }
   return claims;
+}
+
+function discoverNyquist(root, overrides = {}) {
+  const phasesRoot = path.join(root, '.planning/phases');
+  const compliantPhases = [];
+  const partialPhases = [];
+  const notValidatedPhases = [];
+  const missingPhases = [];
+  const rows = [];
+
+  for (const phase of MILESTONE_PHASES) {
+    const directory = readdirSync(phasesRoot, { withFileTypes: true })
+      .find((entry) => entry.isDirectory() && entry.name.startsWith(`${phase}-`));
+    if (!directory) {
+      missingPhases.push(phase);
+      rows.push({ phase, status: 'missing', path: null, sha256: null });
+      continue;
+    }
+
+    const validationPath = `.planning/phases/${directory.name}/${phase}-VALIDATION.md`;
+    const text = readSource(root, validationPath, overrides);
+    if (text === null) {
+      missingPhases.push(phase);
+      rows.push({ phase, status: 'missing', path: validationPath, sha256: null });
+      continue;
+    }
+
+    const frontmatter = text.match(/^---\s*\n([\s\S]*?)\n---/m)?.[1] ?? '';
+    const status = frontmatter.match(/^status:\s*([^\s#]+)/m)?.[1]?.toLowerCase() ?? 'draft';
+    const nyquist = frontmatter.match(/^nyquist_compliant:\s*(true|false)\s*$/mi)?.[1]?.toLowerCase();
+    const waveZero = frontmatter.match(/^wave_0_complete:\s*(true|false)\s*$/mi)?.[1]?.toLowerCase();
+    let classification;
+    if (status !== 'validated') {
+      classification = 'not_validated';
+      notValidatedPhases.push(phase);
+    } else if (nyquist === 'true' && waveZero === 'true') {
+      classification = 'compliant';
+      compliantPhases.push(phase);
+    } else {
+      classification = 'partial';
+      partialPhases.push(phase);
+    }
+    rows.push({ phase, status: classification, path: validationPath, sha256: sha256(text) });
+  }
+
+  return {
+    compliantPhases,
+    partialPhases,
+    notValidatedPhases,
+    missingPhases,
+    overall: partialPhases.length || notValidatedPhases.length || missingPhases.length ? 'partial' : 'compliant',
+    rows,
+  };
 }
 
 function requirementRows(requirementsText) {
@@ -515,14 +569,8 @@ export function audit(root = process.cwd(), options = {}) {
     acceptanceAmendment: amendment.valid ? { path: ACCEPTANCE_PATH, sha256: amendment.hash } : null,
     acceptedExceptionCount: acceptedExceptions.length,
     unacceptedBlockerCount: unacceptedBlockers.length,
-    score: { requirements: `${satisfied}/${requirementList.length}`, phases: '4/5', integration: '4/5', flows: '3/4' },
-    nyquist: {
-      compliantPhases: [246, 247, 249, 250],
-      partialPhases: [248],
-      notValidatedPhases: [],
-      missingPhases: [],
-      overall: 'partial',
-    },
+    score: { requirements: `${satisfied}/${requirementList.length}`, phases: '4/6', integration: '4/5', flows: '3/4' },
+    nyquist: discoverNyquist(root, options.overrides),
     requirements: requirementList,
     owners,
     sourceIdentities,
@@ -535,6 +583,7 @@ export function audit(root = process.cwd(), options = {}) {
 }
 
 export function renderAudit(result) {
+  const gsdStatus = result.status === 'accepted_exceptions' ? 'gaps_found' : result.status;
   const acceptedIdsYaml = result.acceptedExceptions.map(({ id }) => id).join(', ');
   const requirementsYaml = result.requirements.map((row) => [
     `    - id: "${row.id}"`, `      status: "${row.status}"`, `      acceptance_status: "${row.acceptance_status}"`, `      phase: "${row.phase}"`,
@@ -549,7 +598,8 @@ export function renderAudit(result) {
   return `---
 milestone: v1.49
 audited: ${result.capturedAt}
-status: ${result.status}
+status: ${gsdStatus}
+source_audit_status: ${result.status}
 milestone_status: ${result.milestoneStatus}
 acceptance_amendment_sha256: ${result.acceptanceAmendment?.sha256 ?? 'missing'}
 accepted_exception_count: ${result.acceptedExceptionCount}
@@ -620,7 +670,7 @@ contradiction_count: ${result.contradictions.length}
 
 ## Outcome
 
-The strict audit status is **${result.status}** at **${result.score.requirements} requirements**. Phase 247 remains gaps_found; READY-01/02 remain owner-unsatisfied and are accepted exceptions only for Phase 250. AUTO-01/02 and REL-01/02 are source-verified by their original owner reports. The milestone remains incomplete and unarchived.
+The strict milestone status is **${gsdStatus}** at **${result.score.requirements} requirements**. Phase 247 remains gaps_found; READY-01/02 remain owner-unsatisfied and are accepted exceptions only for Phase 250. AUTO-01/02 and REL-01/02 are source-verified by their original owner reports. The milestone remains incomplete and unarchived.
 
 ## Requirements Coverage
 
@@ -652,11 +702,12 @@ Four of five handoff groups are source-verified. The remaining readiness group i
 
 ## Nyquist Coverage
 
-Phase 246, 247, and 249 compliant; Phase 248 partial; Phase 250 validation remains pending until Plan 13's deterministic gates finish. Overall: partial.
+${result.nyquist.rows.map((row) => `- Phase ${row.phase}: **${row.status.replaceAll('_', ' ')}**${row.path ? ` — \`${row.path}\`${row.sha256 ? ` (SHA-256 ${row.sha256})` : ''}` : ''}`).join('\n')}
+Overall: ${result.nyquist.overall}.
 
 ## Route
 
-Keep v1.49 unarchived. Phase 250 may complete against its amended phase-only acceptance after all deterministic gates pass; milestone verification remains incomplete at 7/9. Revisit READY-01/02 only if new matching evidence or a new acceptance decision changes their status.
+Keep v1.49 unarchived. Phase 250 may complete against its amended phase-only acceptance after all deterministic gates pass; milestone verification remains incomplete at 7/9. Phase 251 is the forward closure phase for READY-01/02. Its readiness check found no context or plan, so continue with \`$gsd-discuss-phase 251\`, then plan and execute it after the context is saved. Keep the original owner requirements unsatisfied unless new matching evidence proves them.
 `;
 }
 
@@ -668,7 +719,10 @@ export function checkAudit(root, auditPath = AUDIT_PATH, overrides = {}) {
   const frontmatter = actual.match(/^---\s*\n([\s\S]*?)\n---/m)?.[1] ?? '';
   if (!/^milestone:\s*v1\.49$/m.test(frontmatter) || !/^audited:\s*\S+/m.test(frontmatter)) errors.push('Audit is missing v1.49 generated frontmatter.');
   const recordedStatus = frontmatter.match(/^status:\s*([\w-]+)/m)?.[1];
-  if (recordedStatus !== expected.status) errors.push(`Audit status does not match computed ${expected.status}.`);
+  const expectedGsdStatus = expected.status === 'accepted_exceptions' ? 'gaps_found' : expected.status;
+  if (recordedStatus !== expectedGsdStatus) errors.push(`Audit status does not match computed GSD status ${expectedGsdStatus}.`);
+  const recordedSourceStatus = frontmatter.match(/^source_audit_status:\s*([\w-]+)/m)?.[1];
+  if (recordedSourceStatus !== expected.status) errors.push(`Audit source status does not match computed ${expected.status}.`);
   const recordedScore = frontmatter.match(/^  requirements:\s*(\d+\/\d+)$/m)?.[1];
   const recordedMilestoneStatus = frontmatter.match(/^milestone_status:\s*([\w-]+)/m)?.[1];
   if (recordedMilestoneStatus !== expected.milestoneStatus) errors.push('Audit milestone status does not match the computed incomplete/complete result.');

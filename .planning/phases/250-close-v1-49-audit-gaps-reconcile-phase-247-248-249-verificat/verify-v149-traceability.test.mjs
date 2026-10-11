@@ -13,7 +13,7 @@ test('strict matrix keeps READY unsatisfied while accepting exactly two phase-on
   assert.equal(result.milestoneStatus, 'incomplete');
   assert.equal(result.requirements.length, 9);
   assert.equal(result.score.requirements, '7/9');
-  assert.equal(result.score.phases, '4/5');
+  assert.equal(result.score.phases, '4/6');
   assert.equal(result.score.integration, '4/5');
   assert.equal(result.score.flows, '3/4');
   assert.equal(result.acceptedExceptionCount, 2);
@@ -42,22 +42,41 @@ test('strict matrix keeps READY unsatisfied while accepting exactly two phase-on
 
 test('generated audit identifies the two exceptions and never claims milestone completion', () => {
   const report = renderAudit(audit(repoRoot));
-  assert.match(report, /^status: accepted_exceptions$/m);
+  assert.match(report, /^status: gaps_found$/m);
+  assert.match(report, /^source_audit_status: accepted_exceptions$/m);
   assert.match(report, /^milestone_status: incomplete$/m);
   assert.match(report, /^  requirements: 7\/9$/m);
   assert.match(report, /^accepted_exception_count: 2$/m);
   assert.match(report, /^accepted_exception_ids: \[READY-01, READY-02\]$/m);
   assert.match(report, /^unaccepted_blocker_count: 0$/m);
   assert.match(report, /acceptance_status: "accepted_exception"/);
+  assert.match(report, /strict milestone status is \*\*gaps_found\*\*/);
   assert.match(report, /READY-01 and READY-02 remain unsatisfied in Phase 247/);
   assert.doesNotMatch(report, /^status: passed$/m);
   assert.doesNotMatch(report, /9\/9/);
 });
 
-test('the validated Phase 250 Nyquist marker is reflected in audit coverage', () => {
+test('audit discovers current Nyquist classifications from every v1.49 phase record', () => {
   const result = audit(repoRoot);
-  assert.deepEqual(result.nyquist.compliantPhases, [246, 247, 249, 250]);
-  assert.deepEqual(result.nyquist.missingPhases, []);
+  assert.deepEqual(result.nyquist.compliantPhases, [246, 248, 249, 250]);
+  assert.deepEqual(result.nyquist.partialPhases, [247]);
+  assert.deepEqual(result.nyquist.notValidatedPhases, []);
+  assert.deepEqual(result.nyquist.missingPhases, [251]);
+  assert.equal(result.nyquist.overall, 'partial');
+  assert.match(renderAudit(result), /Phase 248: \*\*compliant\*\*/);
+  assert.match(renderAudit(result), /Phase 247: \*\*partial\*\*/);
+  assert.match(renderAudit(result), /Phase 251: \*\*missing\*\*/);
+});
+
+test('Nyquist classification changes when a current validation record changes', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      '.planning/phases/248-exact-source-release-gate/248-VALIDATION.md': (source) =>
+        source.replace('nyquist_compliant: true', 'nyquist_compliant: false'),
+    },
+  });
+  assert.deepEqual(result.nyquist.compliantPhases, [246, 249, 250]);
+  assert.deepEqual(result.nyquist.partialPhases, [247, 248]);
 });
 
 test('second audit run is deterministic apart from capture time', () => {
@@ -197,7 +216,8 @@ test('a Phase 250 summary cannot claim original owner requirements', () => {
 test('a hand-edited passed or 9/9 audit cannot override computed accepted exceptions', () => {
   const sourceAudit = renderAudit(audit(repoRoot));
   const forgedAudit = sourceAudit
-    .replace('status: accepted_exceptions', 'status: passed')
+    .replace('status: gaps_found', 'status: passed')
+    .replace('milestone_status: incomplete', 'milestone_status: passed')
     .replace('requirements: 7/9', 'requirements: 9/9');
   const checked = checkAudit(repoRoot, '.planning/v1.49-MILESTONE-AUDIT.md', {
     '.planning/v1.49-MILESTONE-AUDIT.md': forgedAudit,
