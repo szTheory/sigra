@@ -49,7 +49,7 @@
   "next": {
     "command": "$gsd-validate-phase 248",
     "label": "Validate Phase 248's partial Nyquist coverage",
-    "reason": "Phase 247 validation is canonical but partial: 27/27 readiness tests pass and the exact-source dry-run receipt is recovered, while approval and final source/inventory joins remain unresolved. Phase 248 exists with plans, context, research, and verification artifacts; validate it next. If READY-01/02 remain unsatisfied after both validations, insert Phase 251.",
+    "reason": "Phase 247 validation is canonical but partial: 27/27 readiness tests pass and the exact-source dry-run receipt is recovered, while the local validator pins PR 296 and the receipt identifies PR 297. Approval and final source/inventory joins also remain unresolved. Phase 248 exists with plans, context, research, and verification artifacts; validate it next. If READY-01/02 remain unsatisfied after both validations, insert Phase 251.",
     "blocked_by": [],
     "next_roadmap_phase": null,
     "phase251_readiness": "init.plan-phase 251 returned phase_found=false",
@@ -57,5 +57,5 @@
     "future_follow_up": "CI/CD runtime and reliability optimization after v1.49",
     "after_phase247_validation": "$gsd-validate-phase 248"
   },
-  "updated_at": "2026-10-11T17:49:28Z"
+  "updated_at": "2026-10-11T17:52:13Z"
 }

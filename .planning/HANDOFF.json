@@ -709,7 +709,7 @@
     "immediate_gsd_command": "$gsd-validate-phase 248",
     "immediate_action": "Validate Phase 248's partial coverage next. Then insert Phase 251 for READY-01/02 if they remain unsatisfied.",
     "resume_command": "$gsd-validate-phase 248",
-    "resume_when": "Phase 247 validation report, recovered source-bound receipt/baseline, and tests are saved; remaining blockers are approval and final source/inventory joins.",
+    "resume_when": "Phase 247 validation report, recovered source-bound receipt/baseline, and tests are saved; remaining blockers are the PR 296/297 validator mismatch, approval, and final source/inventory joins.",
     "next_roadmap_phase": null,
     "phase251_readiness": "init.plan-phase 251 returned phase_found=false",
     "after_phase247_validation": "$gsd-validate-phase 248",
@@ -737,8 +737,8 @@
   "ci_release_please_run_id": 38139851336,
   "ci_release_please_status": "in_progress",
   "current": "Milestone audit complete: 7/9 requirements satisfied; READY-01/02 remain unsatisfied.",
-  "immediate_action": "Run $gsd-validate-phase 248 next. Phase 247 is validated partial; the recovered dry-run run does not resolve missing approval or final source/inventory joins.",
-  "updated_at": "2026-10-11T17:49:28Z",
+  "immediate_action": "Run $gsd-validate-phase 248 next. Phase 247 is validated partial; its validator pin, approval, and final source/inventory joins remain unresolved.",
+  "updated_at": "2026-10-11T17:52:13Z",
   "phase_250_closeout": {
     "recorded_at": "2026-10-11T16:50:13Z",
     "status": "passed_amended_phase_only_contract",
@@ -829,7 +829,8 @@
     "manifest_blob_id": "12daf4f704bbc2d4aa136d0ef678e64abce38aeb",
     "remaining_blockers": [
       "No retained immutable approval for the exact Plan 10 candidate/base/main tuple.",
-      "The final readiness ledger and independent Phase 247 report still do not join to the recovered receipt and current inventory."
+      "The final readiness ledger and independent Phase 247 report still do not join to the recovered receipt and current inventory.",
+      "The local final-readiness validator pins evidence PR 296 while the recovered source-bound receipt identifies PR 297."
     ],
     "next_command": "$gsd-validate-phase 248"
   }

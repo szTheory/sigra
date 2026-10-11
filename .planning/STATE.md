@@ -7,10 +7,10 @@ current_phase_name: "Close v1.49 audit gaps with recorded READY exceptions"
 current_plan: null
 status: milestone_audit_gaps_found
 stopped_at: "Phase 247 Nyquist validation is canonical but partial; continue with Phase 248 validation"
-last_updated: "2026-10-11T17:49:28Z"
+last_updated: "2026-10-11T17:52:13Z"
 last_activity: "2026-10-11"
-last_activity_desc: "Reconciled Phase 247 Nyquist coverage; recovered the exact-source dry-run receipt, with READY-01/02 still unsatisfied."
-state_head: 1bf251070
+last_activity_desc: "Reconciled Phase 247 Nyquist coverage and recovered its exact-source dry-run receipt; READY-01/02 remain unsatisfied."
+state_head: de98e975e
 progress:
   total_phases: 5
   completed_phases: 3
@@ -30,7 +30,7 @@ Phase 250 passed under its amended phase-only contract. The strict GSD v1.49 mil
 
 The cross-phase checker verified 8 of 10 expected connections. The confirmation journey, exact-source gate, publication proof, hosted failure/cancellation receipt retrieval, and current-main closeout are wired. The Phase 247 candidate tuple and fresh inventory/preservation joins remain the two broken readiness handoffs.
 
-Phase 247 now has canonical validation status `validated` with `nyquist_compliant: false`. All 11 plans are mapped; 27 readiness tests pass, and three of the seven newly mapped plan groups are resolved. Four groups remain partial or escalated because the exact approval and final source/inventory joins are incomplete. The recovered run `37824714823` receipt and baseline match candidate `0e773d36`, but the final readiness ledger still embeds the older `d76d7f23` tuple. Phase 248 is also validated but `nyquist_compliant: false`. Phase 251 is not defined.
+Phase 247 now has canonical validation status `validated` with `nyquist_compliant: false`. All 11 plans are mapped; 27 readiness tests pass, and three of the seven newly mapped plan groups are resolved. Four groups remain partial or escalated: the exact approval and final source/inventory joins are incomplete, and the local readiness validator pins evidence PR #296 while the recovered receipt names PR #297. The recovered run `37824714823` receipt and baseline match candidate `0e773d36`, but the final readiness ledger still embeds the older `d76d7f23` tuple. Phase 248 is also validated but `nyquist_compliant: false`. Phase 251 is not defined.
 
 ## Verified evidence
 
@@ -46,7 +46,7 @@ Phase 247 now has canonical validation status `validated` with `nyquist_complian
 
 $gsd-validate-phase 248
 
-Phase 247 implementation is complete, but its independent verification remains `gaps_found` and its Nyquist status is partial. Re-running Phase 247 without a new approval record and refreshed final source/inventory evidence would repeat the same result. Phase 248 exists and has plans, context, research, and verification artifacts; continue with its partial-coverage audit. If READY-01/02 remain unsatisfied after both validations, insert one Phase 251 for their shared release-readiness evidence gap:
+Phase 247 implementation is complete, but its independent verification remains `gaps_found` and its Nyquist status is partial. Re-running Phase 247 without the exact approval record, validator-pin repair, and refreshed final source/inventory evidence would repeat the same result. Phase 248 exists and has plans, context, research, and verification artifacts; continue with its partial-coverage audit. If READY-01/02 remain unsatisfied after both validations, insert one Phase 251 for their shared release-readiness evidence gap:
 
 $gsd-phase --insert 251 "Close gaps: READY-01 and READY-02 — complete release readiness evidence"
 
