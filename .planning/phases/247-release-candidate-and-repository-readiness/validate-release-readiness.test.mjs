@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { validateSnapshot, validationSnapshot, validateCheckout, validateCandidate, validatePromotionProof, validateFinalReadiness, finalInventory, trustedCheckoutMatchesLiveMain } from './validate-release-readiness.mjs';
 
 test('requires the clean trusted checkout to match exact observed live main', () => {
@@ -488,6 +489,51 @@ test('rejects stale, unauthenticated, or mismatched safe dry-run receipts', () =
     mutate(final.package.publish_dry_run.receipt);
     assert.ok(validateFinalReadiness(final, observed).errors.some(error => error.code === 'final_hex_dry_run_failed'));
   }
+});
+
+test('rejects the recorded historical dry-run receipt for the repaired Playwright candidate', () => {
+  const candidateResult = JSON.parse(readFileSync(new URL('./247-09-PLAYWRIGHT-RESULT.json', import.meta.url), 'utf8'));
+  const historicalReceipt = JSON.parse(readFileSync(new URL('./247-HEX-DRY-RUN-RECEIPT.json', import.meta.url), 'utf8'));
+  assert.notEqual(candidateResult.candidate_sha, historicalReceipt.checked_out_sha);
+
+  const { final, observed } = finalReadinessFixture();
+  const candidateSha = candidateResult.candidate_sha;
+  final.source_sha = candidateSha;
+  final.selected_reviewed_main_sha = historicalReceipt.reviewed_base_sha;
+  final.package.source_sha = candidateSha;
+  final.package.publish_dry_run.receipt = historicalReceipt;
+  final.docs.ci.source_sha = candidateSha;
+  final.source_ci.head_sha = candidateSha;
+  final.claim_sources[0].source_sha = candidateSha;
+  final.review.reviewed_head_sha = candidateSha;
+  final.review.reviewed_base_sha = historicalReceipt.reviewed_base_sha;
+  observed.live.pull_request.head_sha = candidateSha;
+  observed.live.pull_request.base_sha = historicalReceipt.reviewed_base_sha;
+  observed.live.candidate_worktree.head_sha = candidateSha;
+  observed.live.main_sha = historicalReceipt.live_base_sha;
+  observed.live.source_ci_run.head_sha = candidateSha;
+  observed.live.dry_run_run = {
+    run_id: Number(historicalReceipt.run_id),
+    head_sha: historicalReceipt.live_base_sha,
+    event: 'workflow_dispatch',
+    status: 'completed',
+    conclusion: 'success',
+    job_conclusion: 'success',
+  };
+  observed.live.open_pull_requests[0].head_sha = candidateSha;
+  observed.inventory.pull_requests[0].head_sha = candidateSha;
+  observed.live.main_advance = {
+    verified: true,
+    paths: [
+      '.github/workflows/phase-247-hex-dry-run.yml',
+      '.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json',
+      'scripts/ci/phase-247-hex-dry-run.sh',
+      'scripts/ci/phase-247-hex-dry-run.test.sh',
+    ],
+  };
+
+  const result = validateFinalReadiness(final, observed);
+  assert.ok(result.errors.some(error => error.code === 'final_hex_dry_run_failed'));
 });
 
 test('rejects a broken adopter link or claim without final-source CI evidence', () => {
