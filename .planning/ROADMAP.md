@@ -201,7 +201,7 @@ Plans:
 
 **Wave 3** *(gap execution follows Plan06; exact authority checkpoints)*
 - [x] 250-05-PLAN.md
-- [ ] 250-07-PLAN.md — PAUSED at the packet decision: current packet targets main `ff96768bc2843ef1a89926d238690b1145bfd514` (SHA-256 `6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c`); no new test has been authorized or dispatched.
+- [ ] 250-07-PLAN.md — AUTHORIZED for one bounded test on main `ff96768bc2843ef1a89926d238690b1145bfd514`; fresh preflight and approval record are ready; dispatch is pending final live checks.
 - [ ] 250-08-PLAN.md — HALTED: the committed packet has zero eligible tuples; do not request approval until a complete immutable route is proved.
 
 **Wave 4** *(blocked on the relevant Wave3 proof/decision)*
@@ -232,6 +232,6 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 
 Phase 250 remains incomplete: goal verification is `gaps_found` (8/14), the strict audit is 5/9 with 31 blockers, and six plans are complete. The latest gap-planning run created no new plan because Plan 07 already covers the missing hosted test. Current-main CI and local tests pass, but AUTO-02 still needs hosted failure and cancellation records. Plan 08 still has no candidate with all required matching evidence.
 
-**Immediate next action:** decide on `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c`). It describes one 35-minute test-only run with no release, publish, merge, tag, unrelated cancellation, or retry. No hosted run has been started. There is no GSD command while this exact decision is pending. After approval, the next GSD command is `$gsd-execute-phase 250 --gaps-only`. Phase 250 remains incomplete and v1.49 is unarchived; no Phase 251 is defined.
+**Immediate action:** dispatch the one authorized 35-minute test described in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` after final live checks. It permits no release, publish, merge, tag, unrelated cancellation, or retry. After recording the result, continue with `$gsd-execute-phase 250 --gaps-only`. Phase 250 remains incomplete and v1.49 is unarchived; no Phase 251 is defined. The user separately requested a future CI/CD duration and reliability optimization after this phase closes.
 
 Keep Plan 08 halted until a candidate has all of its own matching browser, dry-run, readiness, and disposition evidence. Do not mark missing evidence as passed or reuse an older packet approval. Do not rerun `$gsd-validate-phase 248` until new hosted terminal records exist. Preserve the historical Phase 249 acceptance at `refs/heads/evidence/phase-249-final-acceptance`; it does not prove current-main CI or current PR dispositions. The public-source freshness check previously returned HTTP 503 after one retry, and the Mix wrapper remains blocked by the existing dependency lock mismatch; standalone contract tests passed without waiving either block.

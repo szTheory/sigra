@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: awaiting_explicit_250_07_test_decision
-stopped_at: Plan 250-07 is ready for its exact packet decision; no GitHub test has been started
-last_updated: "2026-10-11T03:45:41Z"
+status: authorized_250_07_test_pending_dispatch
+stopped_at: User authorized the exact packet; same-source preflight refreshed and final dispatch checks are pending
+last_updated: "2026-10-11T11:15:51Z"
 last_activity: 2026-10-11
-last_activity_desc: Fresh current-main source checks and passing local tests were recorded, but they do not include the hosted failure/cancellation receipts Phase 250 requires. The planner found no new plan because Plan 250-07 already covers that test. The exact packet is waiting for an explicit user decision; no hosted action occurred.
+last_activity_desc: Fresh current-main source checks and passing local tests were recorded, but they do not include the hosted failure/cancellation receipts Phase 250 requires. The planner found no new plan because Plan 250-07 already covers that test. The exact packet is authorized; its preflight was refreshed with unchanged source, workflow, permission, and retention identities. No hosted dispatch has occurred yet.
 state_head: 13b4a6d0d306a152d86a8f957949f0b52c4df92a
 progress:
   total_phases: 5
@@ -34,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 — ACTIVE, waiting for the user's decision on the current test packet.
+Phase: 250 — ACTIVE, authorized to run the current test packet, pending final live checks.
 Current Plan: 7 (approval checkpoint; Plans 250-08 to 250-12 remain blocked behind unresolved evidence)
 Total Plans in Phase: 12
 Plans summarized: 8 of 12 (01–06 complete; 07–08 halted; 09–12 dependency-blocked)
@@ -43,11 +43,11 @@ Last activity: 2026-10-11 — Current-main code identity, green CI, and local te
 
 Progress: [█████████░] 91% (39/43 summary records; includes halted/checkpointed plans and is not acceptance completion)
 
-Plain-language explanation: “Source-bound” means the test record must identify the exact code commit and test files that produced it. Older hosted results came from older commits, so they cannot prove what the current code does. The current test packet matches main `ff96768bc2843ef1a89926d238690b1145bfd514`; it asks to run one controlled, non-publishing test, and is awaiting a yes/no decision. It does not authorize a release or merge.
+Plain-language explanation: “Source-bound” means the test record must identify the exact code commit and test files that produced it. Older hosted results came from older commits, so they cannot prove what the current code does. The current test packet matches main `ff96768bc2843ef1a89926d238690b1145bfd514`; it asks to run one controlled, non-publishing test, and is approved for one bounded test only; it does not authorize a release or merge.
 
-The current packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c`). Its preflight and source identity records are linked inside it. AUTO-02 remains incomplete until the hosted test creates and validates both required records. Plan 08 separately remains blocked because no candidate has all required matching readiness evidence.
+The current packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237`). Its preflight and source identity records are linked inside it. AUTO-02 remains incomplete until the hosted test creates and validates both required records. Plan 08 separately remains blocked because no candidate has all required matching readiness evidence.
 
-Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found existing plan-scoped commits without completed summaries. Plan 250-07 is now ready only for the current packet decision; no dispatch has occurred. Plan 250-08 still has zero eligible tuples. Full historical commit, packet, and pre-write hash provenance remains in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
+Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found existing plan-scoped commits without completed summaries. Plan 250-07 is authorized for one bounded run and awaits final live checks before dispatch. Plan 250-08 still has zero eligible tuples. Full historical commit, packet, and pre-write hash provenance remains in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
 
 ### v1.49 audit route
 
@@ -69,11 +69,13 @@ Execution evidence: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase
 
 ### Manual closeout route — 2026-10-11
 
+Write-ahead snapshot for the resumed-turn starting bytes: `.planning/recovery/phase-250-approved-packet-boundary-20261011T111218Z/REF.json` (manifest SHA-256 `387120b1af2f4ad273214fcca07bedc26e79cb7917103463b9afcaaa1c54a452`). It records exact statuses and hashes for HANDOFF, ROADMAP, STATE, packet v7, and the refreshed preflight; each stored file was read back and hash-verified.
+
 The phrase “new immutable source-bound evidence” means a fresh test result tied to the exact commit and helper files that ran it. The current-main files and local tests are now checked, and CI is green at that exact commit; this is new evidence, but it does not include the hosted failure/cancellation receipts needed to close AUTO-02. The planner returned `PLANNING INCONCLUSIVE` because Plan 07 already covers the next test; no new plan is needed.
 
-The earlier packet was for older main `e0c66d61211ddb461c049ca6422350308b420126`. The current packet targets main `ff96768bc2843ef1a89926d238690b1145bfd514` and is awaiting a specific yes/no. It authorizes only one controlled test (one deliberate failure, cancel only that exact test run, then one read-only observer; 35 minutes maximum). No release, publish, merge, tag, unrelated cancellation, or retry is included. No hosted dispatch or cancellation has occurred.
+The earlier packet was for older main `e0c66d61211ddb461c049ca6422350308b420126`. The current packet targets main `ff96768bc2843ef1a89926d238690b1145bfd514` and is authorized for exactly one bounded run. The user authorized this exact packet at 2026-10-11T11:11:18Z; it permits one controlled test (one deliberate failure, cancel only that exact test run, then one read-only observer; 35 minutes maximum). No release, publish, merge, tag, unrelated cancellation, or retry is included. The refreshed same-source preflight and exact starting-file recovery snapshot are recorded; no hosted dispatch or cancellation has occurred yet.
 
-**Immediate next action:** decide on the exact packet linked above. There is no GSD command to run while the packet decision is pending. After an approval, resume with `$gsd-execute-phase 250 --gaps-only`; Phase 250 remains incomplete, Plan 08 remains a separate evidence blocker, and no Phase 251 is defined.
+**Immediate action:** verify main and the nine source-file identities still match the authorized packet, confirm the fresh preflight is under 15 minutes old, check the API rate limit, then dispatch the one authorized controller run. After its result is recorded, resume with `$gsd-execute-phase 250 --gaps-only`; Phase 250 remains incomplete, Plan 08 remains a separate evidence blocker, and no Phase 251 is defined. The user separately requested a long-running CI/CD duration and reliability optimization after Phase 250 closeout; it is not part of this canary.
 
 ### v1.49 phase map
 

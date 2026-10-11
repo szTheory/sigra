@@ -2,7 +2,7 @@
   "schema_version": 1,
   "packet_id": "250-07-canary-authority-v7",
   "created_at": "2026-10-11T03:40:34Z",
-  "status": "awaiting_user_decision",
+  "status": "approved_pending_dispatch",
   "repository": "szTheory/sigra",
   "objective": "Prove the repaired read-only observer receipt path with one bounded no-publish canary controller run on the exact current main source.",
   "source": {
@@ -74,10 +74,10 @@
     "release_receipt_test_failures": 0
   },
   "preflight": {
-    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T034118Z.json",
-    "sha256": "afe2a3f87b373267f4997547c86711d03e2b405e986a251a2cccf030356470e3",
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T111036Z.json",
+    "sha256": "00317a71840eb2d0277d162c1f9dcb00bbe97e29b4dfe3df6a28708fba5cf1d9",
     "status": "ready",
-    "captured_at": "2026-10-11T03:41:30Z",
+    "captured_at": "2026-10-11T11:10:47Z",
     "target_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
     "actions_enabled": true,
     "artifact_retention_days": 90,
@@ -104,7 +104,7 @@
     "credential_values_recorded": false,
     "dispatch_attempted": false,
     "compact_payload_bytes": 825,
-    "compact_payload_sha256": "b2f335a530995f9d6c8c5a01c53bbfc90deb54780ca3e9ca2438aa016997ad58"
+    "compact_payload_sha256": "bb400eee35636f895633debacb1bb9c6ca6c111dd64c30587d20636c3c8698e4"
   },
   "controller": {
     "workflow_id": 380517406,
@@ -113,8 +113,8 @@
     "ref": "refs/heads/main",
     "event": "workflow_dispatch",
     "inputs": {
-      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-11T03:41:30Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"ff96768bc2843ef1a89926d238690b1145bfd514\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
-      "preflight_sha256": "b2f335a530995f9d6c8c5a01c53bbfc90deb54780ca3e9ca2438aa016997ad58"
+      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-11T11:10:47Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"ff96768bc2843ef1a89926d238690b1145bfd514\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
+      "preflight_sha256": "bb400eee35636f895633debacb1bb9c6ca6c111dd64c30587d20636c3c8698e4"
     },
     "timeout_minutes": 35,
     "permissions": "actions:write; contents:read",
@@ -166,14 +166,14 @@
   },
   "approval": {
     "required": true,
-    "approved": false,
-    "decision_status": "awaiting_user_decision",
+    "approved": true,
+    "decision_status": "authorized",
     "previous_packet_authority_cannot_be_reused": true,
     "previous_packet_id": "250-07-canary-authority-v5",
     "previous_packet_status": "stale_not_approved",
-    "approved_packet_sha256": null,
-    "approved_at": null,
-    "user_reply_verbatim": null,
+    "approved_packet_sha256": "6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c",
+    "approved_at": "2026-10-11T11:11:18Z",
+    "user_reply_verbatim": "yeah go for it maybe u can also in future optimize ci/cd that's a long run",
     "scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at ff96768bc2843ef1a89926d238690b1145bfd514, using this packet's digest-bound preflight; one controlled failure canary; cancel only its exact self-owned waiting canary child; then exactly one read-only observer dispatch (workflow 379162190) for that child; maximum 35 minutes; no retries, release, or publish. Immediately before dispatch, verify main and source blobs still match this packet."
   },
   "decision": {
@@ -188,10 +188,14 @@
         "meaning": "Do not start or cancel another run; keep AUTO-02 marked incomplete."
       }
     ],
-    "status": "awaiting_user_decision",
+    "status": "authorized",
     "dispatch_attempted": false,
     "credential_values_recorded": false,
-    "silence_is_approval": false
+    "silence_is_approval": false,
+    "choice": "authorize",
+    "authorized_at": "2026-10-11T11:11:18Z",
+    "authorized_packet_sha256": "6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c",
+    "user_reply_verbatim": "yeah go for it maybe u can also in future optimize ci/cd that's a long run"
   },
   "prior_authority_history": {
     "packet_v3": {
@@ -263,7 +267,8 @@
       "source_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
       "status": "superseded_before_user_decision_for_plain_language_correction",
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v6.json"
-    }
+    },
+    "latest_user_reply_applies_to_packet_v7": true
   },
   "separate_automation_observation": {
     "release_please_run_id": 38093033505,

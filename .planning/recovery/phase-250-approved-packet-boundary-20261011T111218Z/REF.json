@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "snapshot_id": "phase-250-approved-packet-boundary-20261011T111218Z",
+  "captured_at": "2026-10-11T11:15:29Z",
+  "base_head": "54ce548f5c6bf31d5b83c4bff5a47cdb6613ae86",
+  "capture_boundary_note": "Exact Phase 250 authorization/preflight planning-file bytes were copied before further edits in the resumed turn.",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "status_at_capture": " M",
+      "sha256": "b24702938d7f22ed478ac9188196d44a1af40c63a29614bf90bde660c18b21c2",
+      "bytes": 56449,
+      "snapshot_path": ".planning/recovery/phase-250-approved-packet-boundary-20261011T111218Z/.planning/HANDOFF.json"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status_at_capture": " M",
+      "sha256": "e69e3f71e1b87c644fdb6218a0e2337665b1ec217eb45e2fbfdb665d6492d795",
+      "bytes": 18816,
+      "snapshot_path": ".planning/recovery/phase-250-approved-packet-boundary-20261011T111218Z/.planning/ROADMAP.md"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status_at_capture": " M",
+      "sha256": "f42c6540d73cec0469dfe0a9a938478cf2c54efac023c3971f6f60a3d0faadbb",
+      "bytes": 163470,
+      "snapshot_path": ".planning/recovery/phase-250-approved-packet-boundary-20261011T111218Z/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "status_at_capture": " M",
+      "sha256": "5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237",
+      "bytes": 18375,
+      "snapshot_path": ".planning/recovery/phase-250-approved-packet-boundary-20261011T111218Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T111036Z.json",
+      "status_at_capture": "??",
+      "sha256": "00317a71840eb2d0277d162c1f9dcb00bbe97e29b4dfe3df6a28708fba5cf1d9",
+      "bytes": 979,
+      "snapshot_path": ".planning/recovery/phase-250-approved-packet-boundary-20261011T111218Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T111036Z.json"
+    }
+  ]
+}
