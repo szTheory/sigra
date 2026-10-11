@@ -47,13 +47,15 @@
     }
   ],
   "next": {
-    "command": "$gsd-audit-milestone v1.49",
-    "label": "Audit v1.49 milestone completion",
-    "reason": "Phase 250 closeout is complete under its exact amended acceptance. The milestone audit must preserve READY-01/02 as unsatisfied accepted exceptions and keep v1.49 incomplete unless its evidence-based review establishes otherwise.",
+    "command": "$gsd-validate-phase 247",
+    "label": "Reconcile Phase 247's legacy Nyquist status before planning the remaining READY gaps",
+    "reason": "Phase 247's validation file says passed rather than the current canonical validated status; Phase 248 is also partial. The v1.49 audit remains gaps_found at 7/9.",
     "blocked_by": [],
     "next_roadmap_phase": null,
     "phase251_readiness": "init.plan-phase 251 returned phase_found=false",
-    "future_follow_up": "CI/CD runtime and reliability optimization after the milestone audit"
+    "after_validation_if_ready_gaps_remain": "$gsd-phase --insert 251 \"Close gaps: READY-01 and READY-02 — complete release readiness evidence\"",
+    "future_follow_up": "CI/CD runtime and reliability optimization after v1.49",
+    "after_phase247_validation": "$gsd-validate-phase 248"
   },
-  "updated_at": "2026-10-11T16:50:13Z"
+  "updated_at": "2026-10-11T17:07:55Z"
 }
