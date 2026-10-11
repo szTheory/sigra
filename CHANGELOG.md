@@ -19,6 +19,14 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+## [1.7.1](https://github.com/szTheory/sigra/compare/v1.7.0...v1.7.1) (2026-10-11)
+
+
+### Bug Fixes
+
+* **ci:** read observer workflow names from metadata ([#325](https://github.com/szTheory/sigra/issues/325)) ([84ebcea](https://github.com/szTheory/sigra/commit/84ebcea60024c9e8caee405d55cad1c76b0e858a))
+* **ci:** use workflow metadata for observer identity ([84ebcea](https://github.com/szTheory/sigra/commit/84ebcea60024c9e8caee405d55cad1c76b0e858a))
+
 ## [1.7.0](https://github.com/szTheory/sigra/compare/v1.6.0...v1.7.0) (2026-10-10)
 
 
