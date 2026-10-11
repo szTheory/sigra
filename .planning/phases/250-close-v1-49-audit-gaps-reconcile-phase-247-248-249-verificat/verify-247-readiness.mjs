@@ -130,6 +130,57 @@ function trustedReadableSource(source) {
     && /^[a-f0-9]{64}$/.test(source.sha256 ?? '');
 }
 
+function readVerifiedPackageSource(source) {
+  if (!trustedReadableSource(source)) return null;
+  const blob = safeCommand('git', ['rev-parse', `${source.commit_sha}:${source.path}`]);
+  const bytes = safeCommandBytes('git', ['show', `${source.commit_sha}:${source.path}`]);
+  if (!blob.ok || blob.stdout !== source.git_blob_oid || !bytes.ok
+    || sha256(bytes.stdout) !== source.sha256) return null;
+  return bytes.stdout;
+}
+
+export function evaluatePhase251PackageAssertion(id, sourceBytes, source = {}) {
+  if (!Buffer.isBuffer(sourceBytes) || sourceBytes.length === 0) return false;
+  const text = sourceBytes.toString('utf8');
+  const guideHasVersion = /# Upgrade to Sigra v1\.6\.0/.test(text);
+  const readmeHasGuide = /\[[^\]]+\]\(guides\/introduction\/upgrading-to-v1\.6\.md(?:#[^)]*)?\)/i.test(text);
+  const changelogHasVersion = /^## \[1\.6\.0\]/m.test(text);
+  const mixHasVersion = /@version\s+"1\.6\.0"/.test(text) && /version:\s*@version/.test(text);
+  switch (id) {
+    case 'candidate_version_1_6_0':
+    case 'published_version_1_6_0': return mixHasVersion;
+    case 'candidate_package_metadata_sigra_1_6_0':
+    case 'published_package_metadata_sigra_1_6_0': return /app:\s*:sigra/.test(text) && mixHasVersion;
+    case 'manifest_version_1_6_0': {
+      try { return JSON.parse(text)['.'] === '1.6.0'; } catch { return false; }
+    }
+    case 'release_config_elixir_changelog': {
+      try { const cfg = JSON.parse(text); return cfg['release-type'] === 'elixir' && cfg.packages?.['.']?.['changelog-path'] === 'CHANGELOG.md'; } catch { return false; }
+    }
+    case 'candidate_changelog_1_6_0':
+    case 'published_changelog_1_6_0': return changelogHasVersion;
+    case 'tag_v1_6_0_targets_published_commit': {
+      const target = safeCommand('git', ['rev-parse', '--verify', 'refs/tags/v1.6.0^{commit}']);
+      return target.ok && target.stdout === source.commit_sha && mixHasVersion;
+    }
+    case 'hexdocs_uses_version_source_ref': return /source_ref:\s*"v#\{@version\}"/.test(text) && mixHasVersion;
+    case 'published_module_source': return /^defmodule Sigra/m.test(text) && /@moduledoc/.test(text);
+    case 'published_guide_present': return guideHasVersion;
+    case 'candidate_readme_guide_link':
+    case 'readme_points_to_upgrade_guide': return readmeHasGuide;
+    case 'published_readme_guide_link': return readmeHasGuide;
+    case 'guide_shipped_changes': return guideHasVersion && /pasted six-digit codes/i.test(text) && /retry after an invalid code/i.test(text);
+    case 'generated_host_regression_coverage': return /test\(['"`].*(?:organization|confirmation)/i.test(text) && /expect\(/.test(text);
+    case 'guide_compatibility_constraints': return /Elixir `~> 1\.18`/.test(text) && /Phoenix `~> 1\.8`/.test(text) && /Phoenix LiveView `~> 1\.1`/.test(text);
+    case 'guide_host_actions': return /mix deps\.update sigra/.test(text) && /selectively adopt/i.test(text) && /mix sigra\.install/.test(text);
+    case 'host_action_test_coverage': return /test\(['"`].*organizations UX/i.test(text) && /await expect\(/.test(text);
+    case 'guide_version_requirement': return /~> 1\.6\.0/.test(text);
+    case 'guide_update_and_check_steps': return /mix deps\.update sigra/.test(text) && /mix deps\.tree/.test(text) && /host checks/i.test(text);
+    case 'readme_points_to_upgrade_guide': return readmeHasGuide;
+    default: return false;
+  }
+}
+
 function phase251SliceSourceBlockers(requirementName, requirement) {
   const blockers = [];
   if (!requirement || !Array.isArray(requirement.sources)) return [`${requirementName}_sources_missing`];
@@ -180,14 +231,19 @@ function namedPackageCheckFailure(packageAdopter, sourceRecords = packageAdopter
       source: sourceMap.get(key(required)),
     }))).sort((a, b) => a.id.localeCompare(b.id));
     const actualAssertions = Array.isArray(assertions) ? assertions : [];
+    const sourceResults = expectedAssertions.map((expected) => {
+      const bytes = readVerifiedPackageSource(expected.source);
+      return { expected, bytes, actual: bytes ? evaluatePhase251PackageAssertion(expected.id, bytes, expected.source) : null };
+    });
     const assertionFailures = actualAssertions.length !== expectedAssertions.length
       || new Set(actualAssertions.map((item) => item?.id)).size !== actualAssertions.length
         || expectedAssertions.some((expected) => {
         const actual = actualAssertions.find((item) => item?.id === expected.id);
         const source = expected.source;
-          return !source || !actual || !['pass', 'missing', 'mismatch', 'unreadable'].includes(actual.result)
-          || actual.expected !== true || typeof actual.actual !== 'boolean'
-          || (actual.result === 'pass' && actual.actual !== true)
+          const proof = sourceResults.find((item) => item.expected.id === expected.id);
+          return !source || !actual || !proof || !['pass', 'missing', 'mismatch', 'unreadable'].includes(actual.result)
+          || actual.expected !== true || typeof actual.actual !== 'boolean' || proof.actual === null
+          || actual.actual !== proof.actual || (actual.result === 'pass' && proof.actual !== true)
           || (source.read_status === 'missing' && (actual.result !== 'missing' || actual.actual !== false))
           || actual.source_identity !== expected.identity || actual.commit_sha !== expected.commit_sha
           || actual.path !== expected.path || actual.git_blob_oid !== source.git_blob_oid || actual.sha256 !== source.sha256;
@@ -224,13 +280,15 @@ export function bindPhase251PackageSourceEvidence(feasibility) {
     check.source_refs = records;
     check.source_assertions = requirements.flatMap((required) => required.assertions.map((id) => {
       const source = records.find((item) => item.identity === required.identity && item.commit_sha === required.commit_sha && item.path === required.path);
-      const assertionResult = source.read_status === 'missing' ? 'missing'
-        : (check.result === 'pass' || (name === 'readme_guide_link' && id === 'candidate_readme_guide_link') ? 'pass' : check.result);
-      const passed = assertionResult === 'pass';
-      return { id, result: assertionResult, expected: true, actual: passed,
+      const bytes = readVerifiedPackageSource(source);
+      const actual = bytes ? evaluatePhase251PackageAssertion(id, bytes, source) : false;
+      const assertionResult = !bytes && source.read_status === 'missing' ? 'missing' : actual ? 'pass' : 'mismatch';
+      return { id, result: assertionResult, expected: true, actual,
         source_identity: required.identity, commit_sha: required.commit_sha, path: required.path,
         git_blob_oid: source.git_blob_oid, sha256: source.sha256 };
     }));
+    const assertionsPass = check.source_assertions.every((assertion) => assertion.result === 'pass' && assertion.actual === true);
+    check.result = assertionsPass ? 'pass' : check.source_assertions.some((assertion) => assertion.result === 'missing') ? 'missing' : 'mismatch';
   }
   return feasibility;
 }
