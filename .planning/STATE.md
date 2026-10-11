@@ -7,16 +7,16 @@ current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verific
 current_plan: 7
 status: blocked_on_fresh_canary_authority_and_ready_tuple
 stopped_at: Phase 250-07 packet v5 is stale against current main; no packet-specific canary authority or dispatch; Plan 250-08 has zero eligible tuples
-last_updated: "2026-10-11T00:55:51Z"
+last_updated: "2026-10-11T02:16:11Z"
 last_activity: 2026-10-11
-last_activity_desc: Release PR #302 merged after green CI at ff96768bc2843ef1a89926d238690b1145bfd514; CI 38097941299 and Release Please 38097941302 succeeded, publishing v1.7.0 to GitHub Releases and Hex. Phase 250 remains blocked: v5 packet is stale against new main and no new canary dispatch occurred.
-state_head: 91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5
+last_activity_desc: Phase 247 route records were restored from exact preservation refs; its 11 plans now have 11 summaries and the Plan 09 exact-head CI receipt is present. Phase 250 remains active at Plan 07: v5 is stale against current main, a fresh packet needs packet-specific approval before dispatch, and Plan 08 has zero eligible tuples. Separate PR #302 v1.7.0 release remains complete.
+state_head: 80e7a42e425b6f05bb28b7372780a034b2624efa
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 43
-  completed_plans: 31
-  percent: 72
+  completed_plans: 37
+  percent: 86
 verification_status: gaps_found
 next_command: "$gsd-execute-phase 250 --gaps-only"
 ---
@@ -40,7 +40,7 @@ Plans executed: 6 of 12 summarized (01–06); Plan 07 has no new packet-specific
 Status: Partial implementation delivered; phase verification incomplete
 Last activity: 2026-10-11 — PR #302 squash-merged by the guarded workflow at ff96768 after green release-SHA CI 38097941299; Release Please run 38097941302 published v1.7.0 to GitHub Releases and Hex. This separate 1.7.0 release does not close the v1.49/1.6.0 Phase 249 verdict. No Phase 250 canary was dispatched.
 
-Progress: [███████░░░] 72% (31/43 summaries; not acceptance completion)
+Progress: [█████████░] 86% (37/43 summary records; includes one checkpointed plan and is not acceptance completion)
 
 Plan 250-07 resume boundary: v5 packet SHA-256 `b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287` targets main `e0c66d61211ddb461c049ca6422350308b420126` and is stale now that main is `ff96768bc2843ef1a89926d238690b1145bfd514`. The user authorized green-CI merge and release; no new packet-specific canary authorization or dispatch was given. Do not dispatch from v5. A future attempt requires a fresh current-main packet and explicit authorization for the no-publish controller/cancellation scope. Previous consumed runs remain historical. Phase 250-08 has zero eligible tuple routes; do not request tuple approval.
 

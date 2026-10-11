@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "milestone": "v1.49 — RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -34,15 +34,16 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Resume Phase 250 after the fresh canary authority gate is resolved",
-    "reason": "The v1.7.0 release is complete on green release-SHA CI. Phase 250 remains incomplete: v5 canary packet targets old main e0c66d6, current main is ff96768, and the separate Plan 250-08 packet has zero eligible tuples. No new controller dispatch occurred.",
+    "label": "Continue Phase 250 gaps-only: refresh the stale canary packet against current main, then pause for packet-specific authority before dispatch.",
+    "reason": "Phase 247 plan summaries and the exact Plan 09 browser CI receipt have been restored from scoped preservation refs. Phase 250 remains incomplete at Plan 07; the previously approved packet was superseded before dispatch when main advanced, so a fresh packet and explicit approval are required. Plan 250-08 has zero eligible tuples.",
     "blocked_by": [
       "250-07-fresh-main-bound-packet-and-explicit-canary-authority",
       "250-08-no-eligible-tuple",
       "250-09-through-250-12-upstream-dependencies"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json",
-    "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json"
+    "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
+    "route_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json"
   },
-  "updated_at": "2026-10-11T00:55:51Z"
+  "updated_at": "2026-10-11T02:16:11Z"
 }
