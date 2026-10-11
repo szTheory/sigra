@@ -35,9 +35,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:plan-phase 251",
-    "label": "Plan Phase 251",
-    "reason": "Phase 251 context is committed; readiness reports no prerequisite blocker."
+    "command": "/gsd:execute-phase 251",
+    "label": "Execute Phase 251",
+    "reason": "The two revised plans passed independent review with no findings. Begin with the read-only per-requirement feasibility preflight; proceed with every independently capture-ready slice, and stop with only the feasibility JSON if neither slice is ready."
   },
-  "updated_at": "2026-10-11T18:40:10Z"
+  "updated_at": "2026-10-11T20:03:44Z"
 }

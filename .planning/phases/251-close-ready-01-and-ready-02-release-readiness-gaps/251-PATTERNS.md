@@ -4,7 +4,7 @@
 **Files analyzed:** 7 likely implementation/evidence files  
 **Analogs found:** 6 / 7
 
-The phase research recommends extending the Phase 250 readiness evaluator and its tests, adding a distinct Phase 251 evidence packet and execution summary, and refreshing the Phase 247 owner report only from that packet. The possible requirements and milestone audit updates are conditional on the canonical owner verdict changing. This phase must preserve `authorization_pending` and `gaps_found` when proof is absent.
+The phase research recommends extending the Phase 250 readiness evaluator and its tests, adding a distinct Phase 251 evidence packet and `251-EVIDENCE-SUMMARY.md`, and refreshing the Phase 247 owner report only from that packet. The possible requirements and milestone audit updates are conditional on the canonical owner verdict changing. This phase must preserve `authorization_pending` and `gaps_found` when proof is absent.
 
 ## File Classification
 
@@ -13,12 +13,12 @@ The phase research recommends extending the Phase 250 readiness evaluator and it
 | `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs` | utility / verifier | request-response, evidence transform | same file (extend in place) | exact |
 | `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs` | test | transform / contract checks | same file (extend in place) | exact |
 | `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json` (proposed) | evidence record | batch / transform | `250-247-RECONCILIATION.json` schema emitted by verifier | role-match |
-| `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EXECUTION-SUMMARY.md` (proposed) | report | transform | generated Phase 247 verification report | role-match |
+| `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-SUMMARY.md` (planned) | report | transform | generated Phase 247 verification report | role-match |
 | `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md` | owner verification report | transform | generated Phase 247 verification report in `verify-247-readiness.mjs` | exact |
 | `.planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs` and its test | validator / test | batch / transform | same validator and `validate-release-readiness.test.mjs` | exact |
 | `.planning/REQUIREMENTS.md`, `.planning/v1.49-MILESTONE-AUDIT.md` (conditional) | traceability / generated audit | transform | `verify-v149-traceability.mjs` | role-match |
 
-The proposed Phase 251 output names are inferred from the phase boundary and research recommendation; the planner should choose final names while keeping Phase 250 artifacts historical. The requirement and milestone files should only change if Phase 247's full acceptance evidence changes their canonical verdict.
+The Phase 251 output names follow the plans: `251-247-RECONCILIATION.json` and `251-EVIDENCE-SUMMARY.md`, while Phase 250 artifacts remain historical. The requirement and milestone files should only change if Phase 247's full acceptance evidence changes their canonical verdict.
 
 ## Pattern Assignments
 
@@ -116,7 +116,7 @@ Adapt this writer to create the new Phase 251 packet and summary, then point the
 
 The test file uses Node's built-in `node:test` and assertions, imports exported evaluator functions, and builds temporary Git repositories for preservation-reference checks. Follow its table-driven fixture style for missing/mismatched evidence and exact expected blocker IDs. Add regressions for approval binding to CI/readiness/dry-run digests, full PR number/head/base stability before and after capture, and non-overwriting Phase 251 output. Keep deterministic order checks; do not rely on live GitHub calls in unit tests.
 
-### Phase 251 evidence packet and execution summary (proposed)
+### Phase 251 evidence packet and evidence summary (planned)
 
 **Analog:** the packet builder and `buildReport`/`checkReport` pair in `verify-247-readiness.mjs` (lines 318-374), plus the existing `250-247-RECONCILIATION.json` schema.
 
@@ -153,6 +153,12 @@ The audit derives status from original owner reports, rejects claims by the wron
 
 ## Shared Patterns
 
+### READY-01 package and adopter source identity
+
+The preflight and evaluator must keep the historical proposal candidate tuple (`0e773d3614a242e4fbcdd34c418ecb8a307703d6`, reviewed base `d135cbce343947499a0810736c500ef5f1cb5c32`, protected main `a494f3ee3878da93aab4f70712ffddeefd77a802`) separate from the published release identity (`v1.6.0` → `9e80cb78d6374b1ed4074d5fef6b613fee879dca` recorded by `249-RELEASE-RECEIPT.json`). The candidate source paths are `.release-please-manifest.json`, `release-please-config.json`, `mix.exs`, `CHANGELOG.md`, `README.md`, `guides/introduction/upgrading-to-v1.6.md`, and `test/example/priv/playwright/tests/organizations.spec.ts`; published-tag paths are `mix.exs`, `CHANGELOG.md`, `README.md`, `guides/introduction/upgrading-to-v1.6.md`, and `lib/sigra.ex`. Resolve every path at its exact immutable commit through both local Git objects and the trusted remote API. The v1.6 upgrade guide is absent from the active checkout, exists at the exact candidate commit, and is absent at the published tag commit; record the trusted exact-commit 404 as a missing-item finding instead of assuming the candidate file was published. A readable mismatch or missing item leaves READY-01 unsatisfied while a source-ready READY-02 inventory remains independently capturable.
+
+The source-derived packet and report should expose the package/version/manifest/config/changelog/tag/HexDocs join and adopter-note checks: shipped behavior, compatibility, generated-host action or explicit no-action, `{:sigra, "~> 1.6.0"}`, `mix deps.update sigra`, dependency-tree/version verification, and tests. Do not treat separate candidate and published commits as one source tuple or infer an approval event from later authorization.
+
 ### Exact source identity
 
 **Source:** `verify-247-readiness.mjs` lines 122-169, 297-353. Bind each proof to the candidate/base/main tuple and include artifact digests; compare live before/after identities. Do not allow a mixed tuple to satisfy READY-01.
@@ -173,7 +179,7 @@ Before any rewrite of a dirty `.planning/` artifact, preserve its exact path/sta
 
 | File | Role | Data Flow | Reason |
 |------|------|-----------|--------|
-| `251-EXECUTION-SUMMARY.md` as a Phase 251-specific artifact | report | transform | No existing Phase 251 output exists; render from the Phase 251 packet using the Phase 247 generated-report contract. |
+| `251-EVIDENCE-SUMMARY.md` as a Phase 251-specific artifact | report | transform | No existing Phase 251 output exists; render from the Phase 251 packet using the Phase 247 generated-report contract. |
 
 ## Metadata
 

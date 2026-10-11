@@ -231,13 +231,13 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
 | 250. Close v1.49 audit gaps | v1.49 | 9/9 active plans (4 superseded) | Complete under amended phase-only contract; milestone remains incomplete | 2026-10-11 |
-| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 0 plans | Pending planning; context ready | — |
+| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 0/2 | Planned; checker passed; ready to execute | — |
 
 ### Next
 
-Phase 250 is complete under its narrowly amended closeout contract. The current audit records seven source-verified requirements and two accepted but still-unsatisfied READY exceptions; v1.49 remains incomplete and unarchived. Phase 248 validation is now Nyquist-compliant. Phase 247 remains partial and its owner report remains `gaps_found`; do not repeat its validation without new evidence. Phase 251 has a committed context that preserves the original approval and evidence bar.
+Phase 250 is complete under its narrowly amended closeout contract. The current audit records seven source-verified requirements and two accepted but still-unsatisfied READY exceptions; v1.49 remains incomplete and unarchived. Phase 248 validation is now Nyquist-compliant. Phase 247 remains partial and its owner report remains `gaps_found`; do not repeat its validation without new evidence. Phase 251 has a committed context that preserves the original approval and evidence bar. Its two revised plans passed independent review with no findings.
 
-**Immediate GSD command:** `$gsd-plan-phase 251`. `init.plan-phase 251` confirms the phase exists, its context is complete, and there is no prerequisite blocker. Plan the evidence refresh for READY-01/02; keep either requirement unsatisfied if its full original proof cannot be recovered. The user’s longer-term CI/CD runtime and reliability optimization request remains queued after v1.49 as separate work.
+**Immediate GSD command:** `$gsd-execute-phase 251`. The first task is a read-only per-requirement feasibility gate. If neither source slice is capture-ready, stop with only `251-EVIDENCE-FEASIBILITY.json`; otherwise continue each ready slice independently. A missing or mismatched READY-01 package/adopter item or exact historical approval remains unsatisfied but does not block READY-02 when its own sources are ready. READY-01 still requires matching 1.6.0 package metadata, manifest/config, changelog, `v1.6.0` tag, HexDocs source reference, and adopter guidance for shipped changes, compatibility, generated-host action/no-action, and the `~> 1.6.0` update/check path. The user’s longer-term CI/CD runtime and reliability optimization request remains queued after v1.49 as separate work.
 
 The Phase 250 acceptance amendment does not change owner verdicts or authorize a canary, publish, merge, or release action. Keep READY-01/02 unchecked; the accepted exception applies only to this phase closeout. Historical Phase 247 evidence is recorded in `250-247-TUPLE-DECISION-PACKET.json` and `250-247-RECONCILIATION.json`.
 
@@ -249,11 +249,11 @@ The Phase 250 acceptance amendment does not change owner verdicts or authorize a
 **Plans:** 2 plans
 
 **Success Criteria**:
-1. READY-01 is marked satisfied only if one exact candidate/source/base/main tuple joins matching exact-source CI, readiness, authenticated non-publishing dry-run, and contemporaneous approval. If the exact approval or any tuple evidence cannot be recovered, the owner report records the gap and leaves READY-01 unsatisfied.
+1. READY-01 is marked satisfied only if one exact candidate/source/base/main tuple joins matching package version/metadata, release manifest/config, changelog, `v1.6.0` tag, HexDocs source reference, adopter notes for shipped changes/compatibility/generated-host action or no-action/`~> 1.6.0` update and check path, exact-source CI, readiness, authenticated non-publishing dry-run, and contemporaneous approval. If an approval event or any source item is missing or mismatched, the owner report records the gap and leaves READY-01 unsatisfied; this does not gate independent READY-02 inventory capture when its source slice is ready.
 2. READY-02 is marked satisfied only after a fresh inventory accounts for every current open PR and inherited checkout change, each item has an explicit disposition, and each inherited change has a recoverable preservation identity verified by read-back. Missing, unreadable, or incomplete evidence leaves READY-02 unsatisfied.
 3. The Phase 247 owner verification, requirement traceability, and v1.49 milestone audit agree with the evidence. The milestone remains incomplete if either READY requirement remains unsatisfied; Phase 250's exception is not treated as milestone acceptance.
 4. Work uses read-only external observations and deterministic checks. No workflow dispatch, PR merge, package publish, release creation, or candidate mutation occurs in this phase.
 
 Plans:
-- [ ] 251-01-PLAN.md — Capture source-bound READY evidence and refresh the Phase 247 owner verdict.
-- [ ] 251-02-PLAN.md — Reconcile original-owner traceability and the strict milestone audit.
+- [ ] 251-01-PLAN.md — Run the read-only per-requirement source-feasibility preflight, then capture every source-ready evidence slice.
+- [ ] 251-02-PLAN.md — Reconcile original-owner traceability and the strict milestone audit from the source-derived packet and report.
