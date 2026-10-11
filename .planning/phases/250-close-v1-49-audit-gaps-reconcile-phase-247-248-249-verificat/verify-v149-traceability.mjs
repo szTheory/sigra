@@ -392,6 +392,16 @@ function phase251Ready01Complete(packet, feasibility) {
   const approval = ready?.contemporaneous_approval;
   const expectedTuple = feasible?.candidate_tuple;
   const expectedPublished = feasible?.published_release_source?.commit_sha;
+  const packageCheckIds = [
+    'package_version', 'package_metadata', 'release_manifest', 'release_config', 'changelog', 'tag_target',
+    'hexdocs_source_reference', 'published_tag_guide', 'readme_guide_link', 'adopter_shipped_changes',
+    'adopter_compatibility', 'generated_host_action', 'version_requirement', 'update_check_path',
+  ];
+  const candidatePaths = [
+    '.release-please-manifest.json', 'release-please-config.json', 'mix.exs', 'CHANGELOG.md', 'README.md',
+    'guides/introduction/upgrading-to-v1.6.md', 'test/example/priv/playwright/tests/organizations.spec.ts',
+  ];
+  const publishedPaths = ['mix.exs', 'CHANGELOG.md', 'README.md', 'guides/introduction/upgrading-to-v1.6.md', 'lib/sigra.ex'];
   const requiredTupleFields = ['candidate_sha', 'reviewed_base_sha', 'protected_main_sha', 'published_source_sha', 'ci_head_sha', 'readiness_sha256', 'dry_run_sha256'];
   const tupleComplete = tuple && requiredTupleFields.every((field) => typeof tuple[field] === 'string' && tuple[field].length > 0)
     && tuple.candidate_sha === tuple.ci_head_sha
@@ -399,11 +409,18 @@ function phase251Ready01Complete(packet, feasibility) {
     && tuple.reviewed_base_sha === expectedTuple?.reviewed_base_sha
     && tuple.protected_main_sha === expectedTuple?.protected_main_sha
     && tuple.published_source_sha === expectedPublished;
+  const approvalRecord = approval?.record;
   const approvalComplete = approval?.status === 'approved'
     && approval?.contemporaneous === true
     && typeof approval.record_sha256 === 'string'
     && /^[a-f0-9]{64}$/.test(approval.record_sha256)
-    && approval.tuple_sha256 === sha256(JSON.stringify(tuple));
+    && approval.record_sha256 === sha256(JSON.stringify(approvalRecord))
+    && approvalRecord?.decision === 'approved'
+    && typeof approvalRecord?.source_identity === 'string'
+    && approvalRecord.source_identity.length > 0
+    && Number.isFinite(Date.parse(approvalRecord.approved_at))
+    && approvalRecord.tuple_sha256 === sha256(JSON.stringify(tuple))
+    && approval.tuple_sha256 === approvalRecord.tuple_sha256;
   const sources = ready?.package_adopter?.sources;
   const sourceBytesComplete = Array.isArray(sources) && sources.length > 0 && sources.every((source) =>
     typeof source?.source_identity === 'string'
@@ -416,10 +433,20 @@ function phase251Ready01Complete(packet, feasibility) {
     && typeof source.sha256 === 'string'
     && source.sha256 === source.api_sha256
   );
+  const sourceIdentity = (identity, commitSha, sourcePath) => sources?.some((source) =>
+    source.source_identity === identity
+    && source.commit_sha === commitSha
+    && source.path === sourcePath
+    && source.read_status === 'readable'
+    && source.trust_status === 'trusted_exact_api_blob_match'
+  );
+  const exactPackageSourceSet = Array.isArray(ready?.package_adopter?.source_paths)
+    && candidatePaths.every((sourcePath) => ready.package_adopter.source_paths.includes(sourcePath) && sourceIdentity(`candidate:${tuple?.candidate_sha}`, tuple?.candidate_sha, sourcePath))
+    && publishedPaths.every((sourcePath) => ready.package_adopter.source_paths.includes(sourcePath) && sourceIdentity(`published_tag:v1.6.0:${tuple?.published_source_sha}`, tuple?.published_source_sha, sourcePath));
   const packageComplete = ready?.package_adopter?.acceptance_satisfied === true
-    && checks && Object.keys(checks).length > 0
-    && Object.values(checks).every((check) => check?.result === 'pass' && typeof check.evidence_detail === 'string' && check.evidence_detail.length > 0 && /^No finding\b/i.test(check.finding_detail ?? ''))
-    && sourceBytesComplete;
+    && checks && packageCheckIds.every((id) => checks[id]?.result === 'pass' && typeof checks[id].evidence_detail === 'string' && checks[id].evidence_detail.length > 0 && /^No finding\b/i.test(checks[id].finding_detail ?? ''))
+    && sourceBytesComplete
+    && exactPackageSourceSet;
   return feasible?.source_feasibility === 'ready'
     && feasible?.capture_allowed === true
     && ready?.source_feasibility === 'ready'
@@ -449,6 +476,13 @@ function phase251Ready02Complete(packet, feasibility) {
   const preservationRefs = Array.isArray(inheritedJoin?.preservationRefs) ? inheritedJoin.preservationRefs : [];
   const inheritedCount = Number(inherited?.commit_count ?? 0) + Number(inherited?.path_count ?? 0);
   const sourceInventory = packet?.source_capture?.local_inherited_work;
+  const cleanWorktrees = (inventory) => Array.isArray(inventory?.raw_status)
+    && inventory.raw_status.length === 0
+    && Array.isArray(inventory.worktrees)
+    && inventory.worktrees.length > 0
+    && inventory.worktrees.every((worktree) => worktree.status_readable === true && worktree.status_bytes === '' && worktree.status_sha256 === sha256(''));
+  const sourceInventoryClean = sourceInventory?.raw_status_sha256 === sha256('') && cleanWorktrees(sourceInventory);
+  const inheritedInventoryClean = cleanWorktrees(inherited);
   const populationMatches = population?.stable === true
     && population?.complete === true
     && population.before_count === before.length
@@ -459,6 +493,8 @@ function phase251Ready02Complete(packet, feasibility) {
     && prJoin?.status === 'passed'
     && Array.isArray(prJoin?.blockers) && prJoin.blockers.length === 0;
   const inheritedMatches = sourceInventory?.inventory_complete === true
+    && sourceInventoryClean
+    && inheritedInventoryClean
     && inheritedJoin?.status === 'passed'
     && Array.isArray(inheritedJoin?.blockers) && inheritedJoin.blockers.length === 0
     && exactStringSet(inheritedDispositions, inheritedObserved)

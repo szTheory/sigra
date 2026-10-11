@@ -57,11 +57,18 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
       dry_run_sha256: 'b'.repeat(64),
     };
     first.exact_tuple = tuple;
+    const approvalRecord = {
+      decision: 'approved',
+      source_identity: 'review-event:fixture-approval',
+      approved_at: '2026-10-11T19:00:00Z',
+      tuple_sha256: sha256(JSON.stringify(tuple)),
+    };
     first.contemporaneous_approval = {
       status: 'approved',
       contemporaneous: true,
-      record_sha256: 'c'.repeat(64),
-      tuple_sha256: sha256(JSON.stringify(tuple)),
+      record: approvalRecord,
+      record_sha256: sha256(JSON.stringify(approvalRecord)),
+      tuple_sha256: approvalRecord.tuple_sha256,
     };
     feasibility.requirements.READY01.source_feasibility = 'ready';
     feasibility.requirements.READY01.capture_allowed = true;
