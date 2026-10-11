@@ -126,8 +126,10 @@ function trustedReadableSource(source) {
   return source?.read_status === 'readable'
     && typeof source.trust_status === 'string'
     && source.trust_status.startsWith('trusted_')
-    && Boolean(source.git_blob_oid)
-    && /^[a-f0-9]{64}$/.test(source.sha256 ?? '');
+    && /^[a-f0-9]{40}$/.test(source.git_blob_oid ?? '')
+    && source.git_blob_oid === source.api_blob_oid
+    && /^[a-f0-9]{64}$/.test(source.sha256 ?? '')
+    && source.sha256 === source.api_sha256;
 }
 
 function readVerifiedPackageSource(source) {
@@ -176,7 +178,6 @@ export function evaluatePhase251PackageAssertion(id, sourceBytes, source = {}) {
     case 'host_action_test_coverage': return /test\(['"`].*organizations UX/i.test(text) && /await expect\(/.test(text);
     case 'guide_version_requirement': return /~> 1\.6\.0/.test(text);
     case 'guide_update_and_check_steps': return /mix deps\.update sigra/.test(text) && /mix deps\.tree/.test(text) && /host checks/i.test(text);
-    case 'readme_points_to_upgrade_guide': return readmeHasGuide;
     default: return false;
   }
 }
