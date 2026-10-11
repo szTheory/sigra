@@ -19,6 +19,15 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+## [1.7.2](https://github.com/szTheory/sigra/compare/v1.7.1...v1.7.2) (2026-10-11)
+
+
+### Bug Fixes
+
+* **ci:** download canary artifact ZIP from gh api stdout ([#327](https://github.com/szTheory/sigra/issues/327)) ([58fe634](https://github.com/szTheory/sigra/commit/58fe634eccf0058f2217017bb8aeda4a83e6ce21))
+* **ci:** download canary artifacts from gh api stdout ([58fe634](https://github.com/szTheory/sigra/commit/58fe634eccf0058f2217017bb8aeda4a83e6ce21))
+* stabilize admin eval registration readiness ([11895e0](https://github.com/szTheory/sigra/commit/11895e07cac78ddd2311ec42c2b4a00ade68d95b))
+
 ## [1.7.1](https://github.com/szTheory/sigra/compare/v1.7.0...v1.7.1) (2026-10-11)
 
 

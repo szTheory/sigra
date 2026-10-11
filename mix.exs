@@ -1,7 +1,7 @@
 defmodule Sigra.MixProject do
   use Mix.Project
 
-  @version "1.7.1"
+  @version "1.7.2"
   @source_url "https://github.com/sztheory/sigra"
 
   def project do
