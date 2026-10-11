@@ -57,66 +57,241 @@
     "log_handling": "failure log inspected from the cached run archive; only sanitized timeout class retained"
   },
   "current_main_ci": {
-    "run_id": 38141796613,
+    "run_id": 38146312411,
     "attempt": 1,
-    "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+    "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+    "current_main_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
     "event": "push",
     "branch": "main",
     "workflow_path": ".github/workflows/ci.yml",
     "status": "completed",
-    "overall_conclusion": "failure",
-    "verdict": "failed",
-    "observed_at": "2026-10-11T13:05:42Z",
-    "url": "https://github.com/szTheory/sigra/actions/runs/38141796613",
-    "ci_gate": [
+    "overall_conclusion": "success",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38146312411",
+    "admin_eval_job_id": 114490322445,
+    "ci_gate_job_id": 114491782314,
+    "required_jobs": [
       {
-        "id": 114478863717,
-        "name": "ci-gate",
+        "id": 114490306775,
+        "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)",
         "conclusion": "success",
-        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
         "run_attempt": 1
-      }
-    ],
-    "admin_eval": [
-      {
-        "id": 114476996331,
-        "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
-        "conclusion": "failure",
-        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
-        "run_attempt": 1
-      }
-    ],
-    "failed_jobs": [
-      {
-        "id": 114476996331,
-        "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
-        "conclusion": "failure",
-        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
-        "run_attempt": 1
-      }
-    ],
-    "failure_classes": [
-      "admin-eval registration redirect timed out waiting for navigation"
-    ],
-    "failed_render_cases": [
-      {
-        "project": "admin-eval-mobile",
-        "cell": "board-mg-3"
       },
       {
-        "project": "admin-eval-mobile",
-        "cell": "board-mg-7"
+        "id": 114490306817,
+        "name": "Passkeys opt-out smoke",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490306845,
+        "name": "Passkeys manual fallback smoke",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490306901,
+        "name": "Install matrix (flag combinations) (--no-organizations)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490306906,
+        "name": "Release ref guard",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490306909,
+        "name": "Detect docs-only change",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490306919,
+        "name": "Nightly probe (forced-failure self-test)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490306920,
+        "name": "Install matrix (flag combinations) (--no-organizations --no-passkeys)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490306931,
+        "name": "Install matrix (flag combinations)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490306986,
+        "name": "Install matrix (flag combinations) (--no-passkeys)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490322438,
+        "name": "Library tests shard",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490322442,
+        "name": "Generated admin Playwright smoke",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490322445,
+        "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490322475,
+        "name": "Recapture admin-checkpoint baselines (in-CI)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490322488,
+        "name": "Upgrade smoke (published source series -> local candidate)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490322491,
+        "name": "Install golden + idempotency contract (subprocess harness)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490322572,
+        "name": "Recapture admin-design baselines (in-CI)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490332909,
+        "name": "Install smoke (fresh phx.new + sigra.install)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490332933,
+        "name": "Library tests (dep-off \u2014 Threadline absent)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490332939,
+        "name": "Example HTTP smoke (boot + curl critical routes)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490332949,
+        "name": "Example unit smoke (ExUnit + ConnTest)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490332954,
+        "name": "Example Playwright shard (admin_behavior)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490332962,
+        "name": "Example Playwright shard (demo_showcase)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490332974,
+        "name": "Example Playwright shard (design_gallery)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490332978,
+        "name": "Example Playwright shard (non_admin_smoke)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490333035,
+        "name": "Example Playwright shard (admin_checkpoints)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114490604262,
+        "name": "Library tests",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114491765231,
+        "name": "Example Playwright smoke (full lifecycle)",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114491782314,
+        "name": "ci-gate",
+        "conclusion": "success",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
+      },
+      {
+        "id": 114491817212,
+        "name": "Notify on red ci-gate (release-lane-rot)",
+        "conclusion": "skipped",
+        "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+        "run_attempt": 1
       }
     ],
-    "failure_log_retrievals": 1,
-    "failure_log_retrieved_at": "2026-10-11T13:22:00Z",
-    "diagnostic": "exact protected-main workflow failed: admin-eval registration redirect timed out; terminal failure log sanitized after recorder bug was fixed",
-    "failed_test_titles": [
-      "[admin-eval-mobile] tests/admin-eval.spec.ts:389:11 render bundle: board-mg-3/populated",
-      "[admin-eval-mobile] tests/admin-eval.spec.ts:389:11 render bundle: board-mg-7/populated",
-      "[admin-eval-mobile] tests/admin-eval.spec.ts:414:9 render bundle: board-summary_chip/default",
-      "[admin-eval-mobile] tests/admin-eval.spec.ts:432:7 probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes"
-    ]
+    "failed_jobs": [],
+    "skipped_jobs_proven_inapplicable": [
+      {
+        "id": 114491817212,
+        "name": "Notify on red ci-gate (release-lane-rot)",
+        "reason": "success notification is conditional on red ci-gate"
+      }
+    ],
+    "verdict": "passed",
+    "diagnostic": null,
+    "observed_at": "2026-10-11T14:35:49Z"
   },
   "historical_source_url_failures": [
     {
@@ -638,6 +813,68 @@
         "status_bytes": 0,
         "files": []
       }
+    ]
+  },
+  "previous_failed_main_run": {
+    "run_id": 38141796613,
+    "attempt": 1,
+    "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+    "event": "push",
+    "branch": "main",
+    "workflow_path": ".github/workflows/ci.yml",
+    "status": "completed",
+    "overall_conclusion": "failure",
+    "verdict": "failed",
+    "observed_at": "2026-10-11T13:05:42Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38141796613",
+    "ci_gate": [
+      {
+        "id": 114478863717,
+        "name": "ci-gate",
+        "conclusion": "success",
+        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+        "run_attempt": 1
+      }
+    ],
+    "admin_eval": [
+      {
+        "id": 114476996331,
+        "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
+        "conclusion": "failure",
+        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+        "run_attempt": 1
+      }
+    ],
+    "failed_jobs": [
+      {
+        "id": 114476996331,
+        "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
+        "conclusion": "failure",
+        "head_sha": "11895e07cac78ddd2311ec42c2b4a00ade68d95b",
+        "run_attempt": 1
+      }
+    ],
+    "failure_classes": [
+      "admin-eval registration redirect timed out waiting for navigation"
+    ],
+    "failed_render_cases": [
+      {
+        "project": "admin-eval-mobile",
+        "cell": "board-mg-3"
+      },
+      {
+        "project": "admin-eval-mobile",
+        "cell": "board-mg-7"
+      }
+    ],
+    "failure_log_retrievals": 1,
+    "failure_log_retrieved_at": "2026-10-11T13:22:00Z",
+    "diagnostic": "exact protected-main workflow failed: admin-eval registration redirect timed out; terminal failure log sanitized after recorder bug was fixed",
+    "failed_test_titles": [
+      "[admin-eval-mobile] tests/admin-eval.spec.ts:389:11 render bundle: board-mg-3/populated",
+      "[admin-eval-mobile] tests/admin-eval.spec.ts:389:11 render bundle: board-mg-7/populated",
+      "[admin-eval-mobile] tests/admin-eval.spec.ts:414:9 render bundle: board-summary_chip/default",
+      "[admin-eval-mobile] tests/admin-eval.spec.ts:432:7 probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes"
     ]
   }
 }

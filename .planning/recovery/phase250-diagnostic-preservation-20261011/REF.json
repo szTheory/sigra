@@ -1,0 +1,21 @@
+{
+  "purpose": "Durable preservation of the Phase 250 current proof diagnostic before/after update",
+  "source_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json",
+  "preservation_branch_base": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "pre_update": {
+    "working_tree_status": " M",
+    "sha256": "bbc6af06980aa89e332ed0acdf160b8e3b920afbf966659bf35fa9efef552160",
+    "recovery_path": ".planning/recovery/phase250-diagnostic-preservation-20261011/250-249-CURRENT-PROOF-DIAGNOSTIC.pre-update.json"
+  },
+  "current": {
+    "working_tree_status": " M",
+    "sha256": "8944e075e02989700ccb9d0a1fba8b6937df2a74e63bf336214a3599b5fbc066",
+    "recovery_path": ".planning/recovery/phase250-diagnostic-preservation-20261011/250-249-CURRENT-PROOF-DIAGNOSTIC.current.json",
+    "source": "shared checkout read-only copy"
+  },
+  "verification": {
+    "pre_update_bytes_sha256_verified": true,
+    "current_bytes_sha256_verified": true,
+    "remote_readback_pending": true
+  }
+}
