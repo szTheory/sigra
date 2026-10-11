@@ -2,7 +2,7 @@
   "schema_version": 1,
   "record_type": "phase_251_evidence_feasibility",
   "repository": "szTheory/sigra",
-  "captured_at": "2026-10-11T20:18:05Z",
+  "captured_at": "2026-10-11T22:50:16.792Z",
   "status": "ready",
   "active_checkout": {
     "root": "/Users/jon/projects/sigra",
@@ -253,24 +253,38 @@
         "start_boundary": {
           "source_identity": "candidate_commit:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
           "timestamp": "2026-10-08T17:41:43Z",
-          "evidence": "GitHub exact-commit author/committer time"
+          "evidence": "Exact candidate commit author/committer timestamp."
         },
         "end_boundary": {
-          "source_identity": "PR 224 first later head_ref_force_pushed event",
+          "source_identity": "PR 224 timeline",
           "timestamp": "2026-10-09T00:56:51Z",
           "commit_id": "25b2ff428f42af5e0ebf296e440e233bf4344760",
-          "evidence": "complete 46-event timeline"
+          "evidence": "First later head_ref_force_pushed event from the complete 46-event timeline."
         }
       },
       "candidate_tuple": {
         "candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
         "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
-        "protected_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+        "protected_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+        "exact_head_ci": {
+          "run_id": 37819712610,
+          "attempt": 1,
+          "head_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+          "conclusion": "success",
+          "status": "completed",
+          "endpoint": "https://api.github.com/repos/szTheory/sigra/actions/runs/37819712610/attempts/1"
+        }
       },
       "published_release_source": {
         "tag": "v1.6.0",
         "tag_ref": "refs/tags/v1.6.0",
-        "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+        "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+        "api_observation": {
+          "endpoint": "https://api.github.com/repos/szTheory/sigra/git/ref/tags/v1.6.0",
+          "status": 200,
+          "ref": "refs/tags/v1.6.0",
+          "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+        }
       },
       "sources": [
         {
@@ -424,7 +438,13 @@
           "git_blob_oid": "da60a96544dcb1dff301e416930e183e021f0b6e",
           "sha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
           "http_status": 404,
-          "error": "GitHub REST cannot resolve the historical report commit"
+          "error": "No commit found for the ref; local bytes are not independent trusted source.",
+          "local_commit_status": "present",
+          "local_commit_sha": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+          "remote_commit_endpoint": "https://api.github.com/repos/szTheory/sigra/commits/0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+          "remote_commit_http_status": 422,
+          "remote_commit_error": "No commit found for SHA: 0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+          "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md?ref=0e7a2835ebd0d7a1e791ad4dbc73955270108ed1"
         },
         {
           "source_identity": "local_checkout:11766bf0456b7d9d5a4d79f1c0c94b12e61eba94",
@@ -815,6 +835,37 @@
             "api_blob_oid": "44c054f1f737062ecdb62257a701acde21dc6214",
             "api_sha256": "20254ac76f0395731e215b9fc53c001f8ed49ff9b7857495a98f6afee9b560ad",
             "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/lib/sigra.ex?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+          },
+          {
+            "source_identity": "historical_owner_report:0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+            "commit_sha": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+            "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+            "read_status": "readable",
+            "trust_status": "api_commit_unavailable",
+            "git_blob_oid": "da60a96544dcb1dff301e416930e183e021f0b6e",
+            "sha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
+            "http_status": 404,
+            "error": "No commit found for the ref; local bytes are not independent trusted source.",
+            "local_commit_status": "present",
+            "local_commit_sha": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+            "remote_commit_endpoint": "https://api.github.com/repos/szTheory/sigra/commits/0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+            "remote_commit_http_status": 422,
+            "remote_commit_error": "No commit found for SHA: 0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+            "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md?ref=0e7a2835ebd0d7a1e791ad4dbc73955270108ed1"
+          },
+          {
+            "source_identity": "local_checkout:11766bf0456b7d9d5a4d79f1c0c94b12e61eba94",
+            "commit_sha": "11766bf0456b7d9d5a4d79f1c0c94b12e61eba94",
+            "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+            "read_status": "readable",
+            "trust_status": "local_git_object"
+          },
+          {
+            "source_identity": "local_checkout:11766bf0456b7d9d5a4d79f1c0c94b12e61eba94",
+            "commit_sha": "11766bf0456b7d9d5a4d79f1c0c94b12e61eba94",
+            "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+            "read_status": "readable",
+            "trust_status": "local_git_object"
           }
         ],
         "source_paths": [
@@ -832,85 +883,689 @@
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6 + published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
             "evidence_detail": "candidate and published mix.exs @version=1.6.0; Hex receipt package sigra version 1.6.0",
-            "finding_detail": "No finding: candidate and published package versions agree."
+            "finding_detail": "No finding: candidate and published package versions agree.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "mix.exs",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a",
+                "api_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "api_sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/mix.exs?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              },
+              {
+                "identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "mix.exs",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d",
+                "api_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "api_sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/mix.exs?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "candidate_version_1_6_0",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "mix.exs",
+                "git_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a"
+              },
+              {
+                "id": "published_version_1_6_0",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "mix.exs",
+                "git_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d"
+              }
+            ]
           },
           "package_metadata": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6 + published receipt",
             "evidence_detail": "Elixir release config; Hex receipt names sigra 1.6.0",
-            "finding_detail": "No finding: package metadata agrees."
+            "finding_detail": "No finding: package metadata agrees.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "mix.exs",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a",
+                "api_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "api_sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/mix.exs?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              },
+              {
+                "identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "mix.exs",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d",
+                "api_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "api_sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/mix.exs?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "candidate_package_metadata_sigra_1_6_0",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "mix.exs",
+                "git_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a"
+              },
+              {
+                "id": "published_package_metadata_sigra_1_6_0",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "mix.exs",
+                "git_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d"
+              }
+            ]
           },
           "release_manifest": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
             "evidence_detail": "candidate manifest version is 1.6.0",
-            "finding_detail": "No finding: manifest version matches."
+            "finding_detail": "No finding: manifest version matches.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": ".release-please-manifest.json",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+                "sha256": "9634e847fb019540b3697e7dfee647a501f762ec297c1b90676a4981a81e3250",
+                "api_blob_oid": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+                "api_sha256": "9634e847fb019540b3697e7dfee647a501f762ec297c1b90676a4981a81e3250",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/.release-please-manifest.json?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "manifest_version_1_6_0",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": ".release-please-manifest.json",
+                "git_blob_oid": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+                "sha256": "9634e847fb019540b3697e7dfee647a501f762ec297c1b90676a4981a81e3250"
+              }
+            ]
           },
           "release_config": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
             "evidence_detail": "candidate release config uses Elixir and CHANGELOG.md",
-            "finding_detail": "No finding: release config matches."
+            "finding_detail": "No finding: release config matches.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "release-please-config.json",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "ab02576cede579b76b57eee76543c8a65e5d855d",
+                "sha256": "d12bb82a19b161653cb4aa0a555f7d61233849291c21ef01108c50489f050b6a",
+                "api_blob_oid": "ab02576cede579b76b57eee76543c8a65e5d855d",
+                "api_sha256": "d12bb82a19b161653cb4aa0a555f7d61233849291c21ef01108c50489f050b6a",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/release-please-config.json?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "release_config_elixir_changelog",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "release-please-config.json",
+                "git_blob_oid": "ab02576cede579b76b57eee76543c8a65e5d855d",
+                "sha256": "d12bb82a19b161653cb4aa0a555f7d61233849291c21ef01108c50489f050b6a"
+              }
+            ]
           },
           "changelog": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6 + published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
             "evidence_detail": "candidate and published changelogs contain a 1.6.0 section",
-            "finding_detail": "No finding: both source identities include release notes."
+            "finding_detail": "No finding: both source identities include release notes.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "CHANGELOG.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+                "sha256": "7e422dfc6e9d5ef4986386b473716b96ac9608ada621c79e16766cd5658b72f2",
+                "api_blob_oid": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+                "api_sha256": "7e422dfc6e9d5ef4986386b473716b96ac9608ada621c79e16766cd5658b72f2",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/CHANGELOG.md?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              },
+              {
+                "identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "CHANGELOG.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "05f78db47df5639a33f8d075e273de5b045e175e",
+                "sha256": "28e28ee4948d1dd89ab3751c69aecc30d03f1b98e85f4adc5b980c7e19b68023",
+                "api_blob_oid": "05f78db47df5639a33f8d075e273de5b045e175e",
+                "api_sha256": "28e28ee4948d1dd89ab3751c69aecc30d03f1b98e85f4adc5b980c7e19b68023",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/CHANGELOG.md?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "candidate_changelog_1_6_0",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "CHANGELOG.md",
+                "git_blob_oid": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+                "sha256": "7e422dfc6e9d5ef4986386b473716b96ac9608ada621c79e16766cd5658b72f2"
+              },
+              {
+                "id": "published_changelog_1_6_0",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "CHANGELOG.md",
+                "git_blob_oid": "05f78db47df5639a33f8d075e273de5b045e175e",
+                "sha256": "28e28ee4948d1dd89ab3751c69aecc30d03f1b98e85f4adc5b980c7e19b68023"
+              }
+            ]
           },
           "tag_target": {
             "result": "pass",
             "source_identity": "refs/tags/v1.6.0",
             "evidence_detail": "GitHub tag ref resolves to 9e80cb78d6374b1ed4074d5fef6b613fee879dca",
-            "finding_detail": "No finding: tag target matches published source."
+            "finding_detail": "No finding: tag target matches published source.",
+            "source_refs": [
+              {
+                "identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "mix.exs",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d",
+                "api_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "api_sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/mix.exs?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "tag_v1_6_0_targets_published_commit",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "mix.exs",
+                "git_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d"
+              }
+            ]
           },
           "hexdocs_source_reference": {
             "result": "pass",
             "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca + 249-RELEASE-RECEIPT",
             "evidence_detail": "published source_ref is v#{@version}; receipt resolved source commit is 9e80cb78d6374b1ed4074d5fef6b613fee879dca",
-            "finding_detail": "No finding: versioned docs and source reference match."
+            "finding_detail": "No finding: versioned docs and source reference match.",
+            "source_refs": [
+              {
+                "identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "mix.exs",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d",
+                "api_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "api_sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/mix.exs?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+              },
+              {
+                "identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "lib/sigra.ex",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "44c054f1f737062ecdb62257a701acde21dc6214",
+                "sha256": "20254ac76f0395731e215b9fc53c001f8ed49ff9b7857495a98f6afee9b560ad",
+                "api_blob_oid": "44c054f1f737062ecdb62257a701acde21dc6214",
+                "api_sha256": "20254ac76f0395731e215b9fc53c001f8ed49ff9b7857495a98f6afee9b560ad",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/lib/sigra.ex?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "hexdocs_uses_version_source_ref",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "mix.exs",
+                "git_blob_oid": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+                "sha256": "41e4669c82f660de48356b8cccdf44bee6b804498ca2bb0a99d36e9b5bc0720d"
+              },
+              {
+                "id": "published_module_source",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "lib/sigra.ex",
+                "git_blob_oid": "44c054f1f737062ecdb62257a701acde21dc6214",
+                "sha256": "20254ac76f0395731e215b9fc53c001f8ed49ff9b7857495a98f6afee9b560ad"
+              }
+            ]
           },
           "published_tag_guide": {
             "result": "missing",
             "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
             "evidence_detail": "Exact-SHA guide lookup returned trusted HTTP 404",
-            "finding_detail": "missing: published tag has no guides/introduction/upgrading-to-v1.6.md."
+            "finding_detail": "missing: published tag has no guides/introduction/upgrading-to-v1.6.md.",
+            "source_refs": [
+              {
+                "identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "read_status": "missing",
+                "trust_status": "trusted_exact_commit_404",
+                "http_status": 404,
+                "error": "GitHub exact-commit contents API returned 404",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/guides/introduction/upgrading-to-v1.6.md?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "published_guide_present",
+                "result": "missing",
+                "expected": true,
+                "actual": false,
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "guides/introduction/upgrading-to-v1.6.md"
+              }
+            ]
           },
           "readme_guide_link": {
             "result": "mismatch",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6 + published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
             "evidence_detail": "candidate README has guide link; published README omits it",
-            "finding_detail": "mismatch: published README lacks the v1.6 upgrade-guide link."
+            "finding_detail": "mismatch: published README lacks the v1.6 upgrade-guide link.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "README.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+                "sha256": "7efc3f81189609fa89c7b95446e2c1ad195977a24844a16f7c0e8a55cdd28be3",
+                "api_blob_oid": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+                "api_sha256": "7efc3f81189609fa89c7b95446e2c1ad195977a24844a16f7c0e8a55cdd28be3",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/README.md?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              },
+              {
+                "identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "README.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "2e8ed620f770807327d84f6dfbd2017091ee5ba4",
+                "sha256": "1c5c5313acbad8238a299a2334403b7d51193b26c4b7490022b603a04529efbf",
+                "api_blob_oid": "2e8ed620f770807327d84f6dfbd2017091ee5ba4",
+                "api_sha256": "1c5c5313acbad8238a299a2334403b7d51193b26c4b7490022b603a04529efbf",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/README.md?ref=9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "candidate_readme_guide_link",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "README.md",
+                "git_blob_oid": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+                "sha256": "7efc3f81189609fa89c7b95446e2c1ad195977a24844a16f7c0e8a55cdd28be3"
+              },
+              {
+                "id": "published_readme_guide_link",
+                "result": "mismatch",
+                "expected": true,
+                "actual": false,
+                "source_identity": "published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+                "path": "README.md",
+                "git_blob_oid": "2e8ed620f770807327d84f6dfbd2017091ee5ba4",
+                "sha256": "1c5c5313acbad8238a299a2334403b7d51193b26c4b7490022b603a04529efbf"
+              }
+            ]
           },
           "adopter_shipped_changes": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
             "evidence_detail": "candidate guide describes pasted codes, invalid-code retry, expired/already-used links",
-            "finding_detail": "No finding: shipped changes are identified."
+            "finding_detail": "No finding: shipped changes are identified.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "api_sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/guides/introduction/upgrading-to-v1.6.md?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              },
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "test/example/priv/playwright/tests/organizations.spec.ts",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "030317814796f8265fc738cab05d80f344ceaa10",
+                "sha256": "f053a90a449ace849c90c2b2f4a4ecfb791a8103907dc65c59e18cea3cb2b89d",
+                "api_blob_oid": "030317814796f8265fc738cab05d80f344ceaa10",
+                "api_sha256": "f053a90a449ace849c90c2b2f4a4ecfb791a8103907dc65c59e18cea3cb2b89d",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/test/example/priv/playwright/tests/organizations.spec.ts?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "guide_shipped_changes",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e"
+              },
+              {
+                "id": "generated_host_regression_coverage",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "test/example/priv/playwright/tests/organizations.spec.ts",
+                "git_blob_oid": "030317814796f8265fc738cab05d80f344ceaa10",
+                "sha256": "f053a90a449ace849c90c2b2f4a4ecfb791a8103907dc65c59e18cea3cb2b89d"
+              }
+            ]
           },
           "adopter_compatibility": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
             "evidence_detail": "candidate guide has Compatibility section and Elixir/Phoenix/LiveView/Ecto constraints",
-            "finding_detail": "No finding: compatibility is documented."
+            "finding_detail": "No finding: compatibility is documented.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "api_sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/guides/introduction/upgrading-to-v1.6.md?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "guide_compatibility_constraints",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e"
+              }
+            ]
           },
           "generated_host_action": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
             "evidence_detail": "selectively adopt LiveView changes; host files remain owned; no DB migration",
-            "finding_detail": "No finding: action and no-action are explicit."
+            "finding_detail": "No finding: action and no-action are explicit.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "api_sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/guides/introduction/upgrading-to-v1.6.md?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              },
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "test/example/priv/playwright/tests/organizations.spec.ts",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "030317814796f8265fc738cab05d80f344ceaa10",
+                "sha256": "f053a90a449ace849c90c2b2f4a4ecfb791a8103907dc65c59e18cea3cb2b89d",
+                "api_blob_oid": "030317814796f8265fc738cab05d80f344ceaa10",
+                "api_sha256": "f053a90a449ace849c90c2b2f4a4ecfb791a8103907dc65c59e18cea3cb2b89d",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/test/example/priv/playwright/tests/organizations.spec.ts?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "guide_host_actions",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e"
+              },
+              {
+                "id": "host_action_test_coverage",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "test/example/priv/playwright/tests/organizations.spec.ts",
+                "git_blob_oid": "030317814796f8265fc738cab05d80f344ceaa10",
+                "sha256": "f053a90a449ace849c90c2b2f4a4ecfb791a8103907dc65c59e18cea3cb2b89d"
+              }
+            ]
           },
           "version_requirement": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
             "evidence_detail": "candidate guide specifies {:sigra, \"~> 1.6.0\"}",
-            "finding_detail": "No finding: version requirement is explicit."
+            "finding_detail": "No finding: version requirement is explicit.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "api_sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/guides/introduction/upgrading-to-v1.6.md?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              },
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "mix.exs",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a",
+                "api_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "api_sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/mix.exs?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "guide_version_requirement",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e"
+              },
+              {
+                "id": "candidate_package_version_requirement",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "mix.exs",
+                "git_blob_oid": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+                "sha256": "8293b69f198a76c6a33d53e97bedb090fb82a3778ac05bb76646e792d2b4066a"
+              }
+            ]
           },
           "update_check_path": {
             "result": "pass",
             "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
             "evidence_detail": "mix deps.update sigra; mix deps.tree; mix test",
-            "finding_detail": "No finding: update, resolution check, and tests are specified."
+            "finding_detail": "No finding: update, resolution check, and tests are specified.",
+            "source_refs": [
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "api_sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/guides/introduction/upgrading-to-v1.6.md?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              },
+              {
+                "identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "README.md",
+                "read_status": "readable",
+                "trust_status": "trusted_exact_api_blob_match",
+                "git_blob_oid": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+                "sha256": "7efc3f81189609fa89c7b95446e2c1ad195977a24844a16f7c0e8a55cdd28be3",
+                "api_blob_oid": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+                "api_sha256": "7efc3f81189609fa89c7b95446e2c1ad195977a24844a16f7c0e8a55cdd28be3",
+                "api_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/README.md?ref=0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+              }
+            ],
+            "source_assertions": [
+              {
+                "id": "guide_update_and_check_steps",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "guides/introduction/upgrading-to-v1.6.md",
+                "git_blob_oid": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+                "sha256": "175887be25eafe689b8e09be875aa75b98efba87778e98d7d9bee560ab03812e"
+              },
+              {
+                "id": "readme_points_to_upgrade_guide",
+                "result": "pass",
+                "expected": true,
+                "actual": true,
+                "source_identity": "candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "commit_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+                "path": "README.md",
+                "git_blob_oid": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+                "sha256": "7efc3f81189609fa89c7b95446e2c1ad195977a24844a16f7c0e8a55cdd28be3"
+              }
+            ]
           }
         },
         "findings": [
@@ -919,13 +1574,101 @@
         ]
       },
       "blockers": [
-        "Historical owner report commit 0e7a2835ebd0d7a1e791ad4dbc73955270108ed1 is locally readable but GitHub REST returns 404, so this required immutable source cannot be independently trusted."
+        "Historical owner report commit 0e7a2835ebd0d7a1e791ad4dbc73955270108ed1 is locally readable (blob da60a96544dcb1dff301e416930e183e021f0b6e, SHA-256 d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39), but the GitHub commit endpoint returns 422 and exact-ref contents lookup returns 404; local bytes are not independently trusted.",
+        "READY01_preflight_source_blocked"
       ],
       "findings": [
+        "approval_candidate_tuple_mismatch",
+        "approval_dry_run_receipt_mismatch",
+        "approval_event_not_exact_or_contemporaneous",
+        "approval_exact_head_ci_mismatch",
+        "approval_readiness_record_mismatch",
+        "authorization_pending",
         "authorization_pending: complete review/timeline history has zero reviews and no exact-candidate approval.",
+        "historical_owner_source_untrusted",
+        "mismatch: published README omits the guide link.",
         "missing: published tag lacks the v1.6 guide.",
-        "mismatch: published README omits the guide link."
-      ]
+        "package_check_mismatch:readme_guide_link",
+        "package_check_missing:published_tag_guide"
+      ],
+      "historical_owner_source": {
+        "identity": "historical_owner_report:0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+        "source_identity": "historical_owner_report:0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+        "commit_sha": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+        "read_status": "readable",
+        "trust_status": "api_commit_unavailable",
+        "git_blob_oid": "da60a96544dcb1dff301e416930e183e021f0b6e",
+        "sha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
+        "local_commit_status": "present",
+        "remote_commit_http_status": 422,
+        "contents_http_status": 404,
+        "commit_endpoint": "https://api.github.com/repos/szTheory/sigra/commits/0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+        "contents_endpoint": "https://api.github.com/repos/szTheory/sigra/contents/.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md?ref=0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+        "independent_trust": false
+      },
+      "approval_record": null,
+      "approval_history": {
+        "complete": true,
+        "window": {
+          "start": "2026-10-08T17:41:43Z",
+          "end": "2026-10-09T00:56:51Z"
+        },
+        "observed_at": "2026-10-11T22:48:52Z",
+        "reviews": {
+          "endpoint": "https://api.github.com/repos/szTheory/sigra/pulls/224/reviews",
+          "status": 200,
+          "page_count": 1,
+          "item_count": 0,
+          "response_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "events": []
+        },
+        "timeline": {
+          "endpoint": "https://api.github.com/repos/szTheory/sigra/issues/224/timeline",
+          "status": 200,
+          "page_count": 1,
+          "item_count": 46,
+          "response_sha256": "3e3381180adf8a4528af59b94eb01e2d739f6ad7e4d33e28472a6e14ab6f1eab",
+          "interval_events": [
+            {
+              "event": "cross-referenced",
+              "created_at": "2026-10-08T18:11:38Z"
+            }
+          ]
+        },
+        "exact_candidate_approvals": 0,
+        "approval_status": "absent",
+        "evidence_join": {
+          "exact_head_ci": {
+            "endpoint": "https://api.github.com/repos/szTheory/sigra/actions/runs/37819712610/attempts/1",
+            "status": 200,
+            "run_id": 37819712610,
+            "attempt": 1,
+            "head_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+            "conclusion": "success"
+          },
+          "readiness_record": {
+            "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+            "sha256": "7464b4e00c9a3082887ae1ff83c43414b807eda1e653274ca5bad79c1dca0fc8",
+            "candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+            "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+            "protected_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+            "matches_candidate": false
+          },
+          "dry_run_receipt": {
+            "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+            "sha256": "3685c58429e2fddf33b4cffb0aadb39919d6d567ae15f9508abc7d0590ca7cb7",
+            "run_id": "37824714823",
+            "attempt": 1,
+            "candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+            "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+            "protected_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+            "authenticated": true,
+            "publishing": false,
+            "matches_candidate": false
+          }
+        }
+      }
     },
     "READY02": {
       "source_feasibility": "ready",
@@ -1058,5 +1801,28 @@
         "Prior inventory is historical; Task 3 must capture a fresh complete open-PR and inherited-work inventory before dispositions."
       ]
     }
+  },
+  "refresh_source": {
+    "owner_commit_endpoint_status": 422,
+    "owner_contents_endpoint_status": 404,
+    "approval_reviews": 0,
+    "approval_timeline_events": 46,
+    "original_interval": {
+      "start": "2026-10-08T17:41:43Z",
+      "end": "2026-10-09T00:56:51Z",
+      "complete": true,
+      "start_boundary": {
+        "source_identity": "candidate_commit:0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+        "timestamp": "2026-10-08T17:41:43Z",
+        "evidence": "Exact candidate commit author/committer timestamp."
+      },
+      "end_boundary": {
+        "source_identity": "PR 224 timeline",
+        "timestamp": "2026-10-09T00:56:51Z",
+        "commit_id": "25b2ff428f42af5e0ebf296e440e233bf4344760",
+        "evidence": "First later head_ref_force_pushed event from the complete 46-event timeline."
+      }
+    },
+    "task2_updated_at": "2026-10-11T22:50:16.792Z"
   }
 }

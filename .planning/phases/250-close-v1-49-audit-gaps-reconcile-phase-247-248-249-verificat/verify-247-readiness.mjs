@@ -203,6 +203,38 @@ function namedPackageCheckFailure(packageAdopter, sourceRecords = packageAdopter
   });
 }
 
+export function bindPhase251PackageSourceEvidence(feasibility) {
+  const ready01 = feasibility?.requirements?.READY01;
+  const adopter = ready01?.package_adopter;
+  if (!ready01 || !adopter?.checks || !Array.isArray(ready01.sources)) {
+    throw new Error('READY-01 source records or package checks are missing.');
+  }
+  adopter.sources = ready01.sources;
+  for (const [name, requirements] of Object.entries(phase251PackageCheckRequirements)) {
+    const check = adopter.checks[name];
+    if (!check || !['pass', 'missing', 'mismatch', 'unreadable'].includes(check.result)) {
+      throw new Error(`READY-01 package check ${name} has no recognized result.`);
+    }
+    const records = requirements.map((required) => {
+      const source = ready01.sources.find((item) => item.source_identity === required.identity
+        && item.commit_sha === required.commit_sha && item.path === required.path);
+      if (!source) throw new Error(`READY-01 ${name} source record is missing: ${required.identity}:${required.path}`);
+      return { identity: required.identity, ...structuredClone(source) };
+    });
+    check.source_refs = records;
+    check.source_assertions = requirements.flatMap((required) => required.assertions.map((id) => {
+      const source = records.find((item) => item.identity === required.identity && item.commit_sha === required.commit_sha && item.path === required.path);
+      const assertionResult = source.read_status === 'missing' ? 'missing'
+        : (check.result === 'pass' || (name === 'readme_guide_link' && id === 'candidate_readme_guide_link') ? 'pass' : check.result);
+      const passed = assertionResult === 'pass';
+      return { id, result: assertionResult, expected: true, actual: passed,
+        source_identity: required.identity, commit_sha: required.commit_sha, path: required.path,
+        git_blob_oid: source.git_blob_oid, sha256: source.sha256 };
+    }));
+  }
+  return feasibility;
+}
+
 function exactHistoricalApprovalFailure(ready01) {
   const failures = [];
   const history = ready01?.approval_history;
@@ -220,7 +252,8 @@ function exactHistoricalApprovalFailure(ready01) {
     && owner?.read_status === 'readable'
     && typeof owner?.trust_status === 'string' && owner.trust_status.startsWith('trusted_');
   if (!exactOwner) failures.push('historical_owner_source_untrusted');
-  const reviewsComplete = history?.complete === true
+  const reviewsComplete = ready01?.history_complete === true
+    && history?.complete === true
     && history?.reviews?.status === 200
     && Number.isInteger(history?.reviews?.page_count) && history.reviews.page_count > 0
     && Number.isInteger(history?.reviews?.item_count) && Array.isArray(history?.reviews?.events)
@@ -584,14 +617,14 @@ export function buildPhase251Packet(feasibility, evaluated, before, after, local
   };
 }
 
-function buildPhase251Summary(packet) {
+export function buildPhase251Summary(packet) {
   const digest = sha256(`${JSON.stringify(packet, null, 2)}\n`);
   const r1 = packet.requirements.READY01;
   const r2 = packet.requirements.READY02;
   return `# Phase 251 Evidence Summary\n\n- **Packet:** \`.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json\`\n- **Packet capture ID:** \`${packet.capture_id}\`\n- **Packet SHA-256:** \`${digest}\`\n- **Captured at:** ${packet.captured_at}\n- **Candidate tuple:** \`${packet.candidate_tuple.candidate_sha}\` / \`${packet.candidate_tuple.reviewed_base_sha}\` / \`${packet.candidate_tuple.protected_main_sha}\`\n- **Published release:** \`${packet.published_release_source.tag}\` → \`${packet.published_release_source.commit_sha}\`\n\n| Requirement | Verdict | Source ready | Capture allowed |\n|---|---|---|---|\n| READY-01 | ${r1.verdict} | ${r1.source_feasibility} | ${r1.capture_allowed} |\n| READY-02 | ${r2.verdict} | ${r2.source_feasibility} | ${r2.capture_allowed} |\n\n## Findings\n\n${[...r1.findings, ...r1.blockers, ...r2.findings, ...r2.blockers, ...packet.blockers].map((item) => `- ${item}`).join('\n') || '- None recorded.'}\n`;
 }
 
-function buildPhase251OwnerReport(packet) {
+export function buildPhase251OwnerReport(packet) {
   const digest = sha256(`${JSON.stringify(packet, null, 2)}\n`);
   const r1 = packet.requirements.READY01;
   const r2 = packet.requirements.READY02;
