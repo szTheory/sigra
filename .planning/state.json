@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "milestone": "v1.49 — RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -37,23 +37,31 @@
   ],
   "next": {
     "command": null,
-    "label": "No immediate GSD command: Phase 250 gap planning remains inconclusive with zero runnable plans",
-    "reason": "The latest explicit $gsd-plan-phase 250 --gaps run created no distinct plan. Plans 250-07/08 remain halted and Plans 250-09–12 depend on missing external proof. The Phase 250 API coverage matrix now passes its gate (17 capabilities, 12 INTEGRATE, 5 OPT-OUT), but does not satisfy any owner requirement. Wait for new immutable source-bound evidence or an explicit acceptance change; then re-evaluate the changed gaps.",
+    "label": "Await explicit decision on the exact bounded Phase 250 Plan 07 packet v8; no GSD command is runnable now",
+    "reason": "The previous one-run authority was consumed by controller 38135003478. The observer fix is now merged at 84ebcea and CI/local checks pass, but AUTO-02 still lacks the hosted cancellation receipt. Packet v8 is committed and awaits a new exact decision. Plan 08 still has zero eligible READY tuples; Plans 09–12 remain blocked.",
     "blocked_by": [
-      "250-07-stale-main-bound-packet-and-no-current-packet-specific-authority",
-      "250-08-zero-eligible-exact-source-tuples",
-      "250-09-through-250-12-depend-on-halted-plans"
+      "250-07: waiting for new exact packet authorization and hosted cancellation receipt",
+      "250-08: zero eligible exact-source READY tuples",
+      "250-09 through 250-12: dependent on halted Plans 07/08"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
     "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
     "route_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
-    "resume_command": "$gsd-plan-phase 250 --gaps",
-    "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T030026Z.json",
-    "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T023636Z.json",
+    "resume_command": "$gsd-execute-phase 250 --gaps-only",
+    "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T1148Z.json",
+    "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T114545Z.json",
     "next_roadmap_phase": null,
     "coverage_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/COVERAGE.md",
     "coverage_sha256": "f43d19a4a51f7fc4cc84caef5dcccb136eaa6723dfe4d6c255772376c7595224",
-    "coverage_gate": "passed: 17 capabilities, 12 INTEGRATE, 5 OPT-OUT"
+    "coverage_gate": "passed: 17 capabilities, 12 INTEGRATE, 5 OPT-OUT",
+    "packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json",
+    "packet_sha256": "0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628",
+    "packet_source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "preflight_sha256": "044e8b4050b7602e6b39fd7d40764690257278900c3c73ddddc2ffcdc41e9ede",
+    "source_identity_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json",
+    "source_identity_sha256": "de02a0d9cb888214792b52d847755b4615a168e8eb3e0604aa924c70d9b791c3",
+    "planning_outcome_sha256": "49ae2645eacc9fc785c3d3c79d037c40f3bd66fe82f4af6bea10c5c7a538d239",
+    "resume_when": "After explicit authorization and hosted proof, manually close Plan 250-07, then re-run init.execute-phase 250 to determine runnable plans."
   },
-  "updated_at": "2026-10-11T03:00:26Z"
+  "updated_at": "2026-10-11T11:50:21Z"
 }

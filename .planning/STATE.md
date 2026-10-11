@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: halted_250_07_observer_identity_repair
-stopped_at: Controller 38135003478 failed; exact cancellation succeeded but observer 38135205117 failed before receipt upload
-last_updated: "2026-10-11T11:27:59Z"
+status: awaiting_250_07_packet_v8_authorization
+stopped_at: Fresh packet v8 for main 84ebcea awaits an explicit user decision; no new dispatch has occurred
+last_updated: "2026-10-11T11:50:21Z"
 last_activity: 2026-10-11
-last_activity_desc: One authorized controller run completed on exact current main. The failure receipt and exact cancellation are proven; the observer failed before uploading the cancellation receipt. The packet authority is consumed and AUTO-02 remains incomplete. Local repair 3b7a94f8c passes focused shell tests; current-main CI and a new authority decision remain necessary.
+last_activity_desc: PR #325 merged the observer metadata fix to main at 84ebcea60024c9e8caee405d55cad1c76b0e858a. Its CI run 38135909462 passed, and the merged tree matches the tested PR head. Current-main canary (59), observer (24), receipt (16), and actionlint checks pass. Fresh packet v8 is prepared for an explicit decision; AUTO-02 still needs the hosted cancellation receipt.
 state_head: 13b4a6d0d306a152d86a8f957949f0b52c4df92a
 progress:
   total_phases: 5
@@ -34,18 +34,18 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 — ACTIVE, Plan 250-07 is halted after a deterministic observer identity failure; one-run authority is consumed.
-Current Plan: 7 (deterministic observer identity repair; Plans 250-08 to 250-12 remain blocked behind unresolved evidence)
+Phase: 250 — ACTIVE, Plan 250-07 is waiting for a new packet-specific decision after the observer metadata repair merged; the previous one-run authority is consumed.
+Current Plan: 7 (current-main canary receipt proof; Plans 250-08 to 250-12 remain blocked behind unresolved evidence)
 Total Plans in Phase: 12
 Plans summarized: 8 of 12 (01–06 complete; 07–08 halted; 09–12 dependency-blocked)
-Status: Phase verification is incomplete. The planner did not create another plan because Plan 07 already covers the missing hosted test.
-Last activity: 2026-10-11 — The hosted failure receipt and exact child cancellation are recorded; observer 38135205117 failed before producing the cancellation receipt. Local repair 3b7a94f8c passes the focused shell suites; the new source has not reached current main yet.
+Status: Phase verification is incomplete. Gap planning created no new plan because Plan 07 already covers the missing hosted test. `init.execute-phase 250` reports zero runnable plans while Plan 07 is halted and Plan 08 has no eligible tuple.
+Last activity: 2026-10-11 — PR #325 merged the observer metadata fix at main `84ebcea60024c9e8caee405d55cad1c76b0e858a`; CI run 38135909462 passed on a tree identical to the merge. Current-main local checks pass (canary 59, observer 24, receipt 16, actionlint). Fresh packet v8 awaits a new explicit decision; no new dispatch has occurred.
 
 Progress: [█████████░] 91% (39/43 summary records; includes halted/checkpointed plans and is not acceptance completion)
 
-Plain-language explanation: “Source-bound” means the test record must identify the exact code commit and test files that produced it. Older hosted results came from older commits, so they cannot prove what the current code does. The current test packet matches main `ff96768bc2843ef1a89926d238690b1145bfd514`; it was approved for one controlled, non-publishing test and that authority was consumed by run 38135003478. A new run requires a fresh packet and explicit approval.
+Plain-language explanation: “Source-bound” means the test record identifies the exact code commit and test files that produced it. The earlier packet for main `ff96768bc2843ef1a89926d238690b1145bfd514` was approved for one test; that run ended and used up that approval. The new packet is for merged main `84ebcea60024c9e8caee405d55cad1c76b0e858a` and needs a new yes/no before dispatch.
 
-The current packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `208ea69cc0dbd0fd352a9ab298b983c1f3e0985a0910eb8cc9779b61b80d719f`). Its preflight and source identity records are linked inside it. AUTO-02 remains incomplete until the hosted test creates and validates both required records. Plan 08 separately remains blocked because no candidate has all required matching readiness evidence.
+The consumed packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `208ea69cc0dbd0fd352a9ab298b983c1f3e0985a0910eb8cc9779b61b80d719f`); it cannot authorize a retry. The proposed packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json` (SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`) for exact main `84ebcea60024c9e8caee405d55cad1c76b0e858a`. Its read-only preflight and digest-bound controller input both passed validation; the packet awaits a new explicit decision. AUTO-02 remains incomplete until the hosted test creates and validates both required records. Plan 08 separately remains blocked because no candidate has all required matching readiness evidence.
 
 Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found existing plan-scoped commits without completed summaries. Plan 250-07 one-run authority was consumed by controller 38135003478. Failure receipt exists; exact child cancellation succeeded; observer 38135205117 failed before receipt upload. AUTO-02 remains unsatisfied. Plan 250-08 still has zero eligible tuples. Full historical commit, packet, and pre-write hash provenance remains in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
 
@@ -1121,4 +1121,12 @@ Resume file: None
 Plan 250-07 observer-delivery repair: the missing `workflow_run` observer was consistent with GitHub suppressing workflow events caused by `GITHUB_TOKEN`; PR #321 added an explicit observer `workflow_dispatch` bound to the exact canceled canary source and authoritative metadata/receipt checks. PR #321 merged at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; PR CI 38088968210 and exact-main CI 38089444484 passed, including ci-gate and admin eval. Fresh preflight `250-CANARY-PREFLIGHT-1b420936.json` is ready on that SHA (file SHA-256 c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e; compact payload SHA-256 cbaef01e342ee3636992c21489e75f9fe2b1bb64b21c7d1aa15724dcd7647366). Packet v4 reviewed SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922 was explicitly approved at 2026-10-10T22:31:25Z and the approval is recorded. A same-source preflight refresh at 2026-10-10T22:31:59Z is committed (file SHA-256 9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9; payload SHA-256 5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89). The single controller workflow_dispatch returned HTTP 204 at 22:34:49Z. Exact run 38091955379 matches workflow 380517406, workflow_dispatch, main, and authorized SHA; one 60-second watcher is active in session 71992. V3 remains preserved and consumed; AUTO-02 remains unsatisfied. Separate Release Please run 38089444492 failed its post-push candidate identity assertion after writing generated docs commit 4015070b to open PR #302; both Hex publish and release CI gate jobs were skipped, and no release was published. See `250-07-OBSERVER-DISPATCH-REPAIR.json`.
 
 
-Controller run 38135003478 dispatch record: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-38135003478.json`. The run is in progress on the exact approved main SHA; one watcher is used, with no retry.
+Controller run 38135003478 dispatch record: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-38135003478.json`. The run completed as blocked: the failure receipt exists, the exact canary child was canceled, and observer 38135205117 failed before uploading its cancellation receipt. Its one-run authority is consumed.
+
+### Current route after PR #325 — 2026-10-11
+
+PR #325 (`https://github.com/szTheory/sigra/pull/325`) is squash-merged at `84ebcea60024c9e8caee405d55cad1c76b0e858a`. CI run 38135909462 passed, and the merge tree is identical to its tested head. On the exact merged-main worktree, canary tests (59), canary self-test, observer tests (24), receipt tests (16), and actionlint all passed. Read-only preflight is ready for main `84ebcea` with workflow IDs and retention recorded; it contains no credential values.
+
+The new packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json` (SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`). Its preflight is `250-07-CANARY-PREFLIGHT-84ebcea-20261011T114545Z.json` (SHA-256 `044e8b4050b7602e6b39fd7d40764690257278900c3c73ddddc2ffcdc41e9ede`); its source identity record is `250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json` (SHA-256 `de02a0d9cb888214792b52d847755b4615a168e8eb3e0604aa924c70d9b791c3`). Preflight validation passed at 11:50:21Z, and the compact controller input passed digest validation. Packet approval is pending. No new dispatch has occurred, and the prior packet approval cannot be reused.
+
+The GSD planner found no distinct new plan: Plan 250-07 already covers this exact receipt proof, while Plan 250-08 still has zero eligible READY tuples. `init.execute-phase 250` reports zero runnable plans. Immediate next action is the user's yes/no decision on packet v8. If approved, re-check live main and preflight freshness before exactly one controller run with no retries or publishing. After hosted proof, manually reconcile Plan 250-07, then run `init.execute-phase 250` before selecting the next GSD command. The requested CI/CD duration and reliability optimization remains separate follow-up work after Phase 250.
