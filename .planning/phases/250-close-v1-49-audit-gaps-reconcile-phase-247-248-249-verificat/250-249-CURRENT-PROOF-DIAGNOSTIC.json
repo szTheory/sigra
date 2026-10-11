@@ -11,7 +11,8 @@
       "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
       "bytes_recovered": false,
       "bytes_preserved": false
-    }
+    },
+    "source_blob_sha": "44c054f1f737062ecdb62257a701acde21dc6214"
   },
   "public_source": {
     "observed_at": "2026-10-11T12:39:47Z",
@@ -45,26 +46,83 @@
       "conclusion": "failure",
       "failure_class": "registration navigation never left /users/register before Playwright's 10-second waitForURL deadline",
       "test_location": "test/example/priv/playwright/tests/admin-eval.spec.ts:164",
-      "failed_cases": ["board-mg-3", "board-mg-6", "board-mg-7", "board-mg-9", "board-mg-11"]
+      "failed_cases": [
+        "board-mg-3",
+        "board-mg-6",
+        "board-mg-7",
+        "board-mg-9",
+        "board-mg-11"
+      ]
     },
     "log_handling": "failure log inspected from the cached run archive; only sanitized timeout class retained"
   },
   "current_main_ci": {
+    "status": "awaiting_repair",
+    "prior_run_id": 38139851334,
+    "prior_attempt": 1,
+    "prior_head_sha": "58fe634eccf0058f2217017bb8aeda4a83e6ce21",
+    "verdict": "failed_pre_change",
+    "diagnostic": "Pre-change run is negative evidence only; final REL-02 requires successful overall CI on exact repaired protected main SHA."
+  },
+  "historical_source_url_failures": [
+    {
+      "observed_status": 503,
+      "classification": "historical failed freshness check; not promoted to a pass"
+    },
+    {
+      "observed_status": 503,
+      "classification": "historical failed freshness check; not promoted to a pass"
+    }
+  ],
+  "pre_change_main_ci": {
     "run_id": 38139851334,
     "attempt": 1,
     "head_sha": "58fe634eccf0058f2217017bb8aeda4a83e6ce21",
     "event": "push",
     "branch": "main",
     "workflow_path": ".github/workflows/ci.yml",
-    "status": "in_progress",
-    "overall_conclusion": null,
-    "admin_eval_job_id": 114471607886,
-    "ci_gate_job_id": null,
-    "required_jobs": [],
-    "verdict": "pending"
+    "status": "completed",
+    "overall_conclusion": "failure",
+    "ci_gate": {
+      "job_id": 114473663389,
+      "conclusion": "success"
+    },
+    "admin_eval": {
+      "job_id": 114471607886,
+      "conclusion": "failure",
+      "failure_classes": [
+        "admin-eval registration redirect timed out waiting for navigation",
+        "admin-eval registration success alert was absent"
+      ],
+      "failed_render_cases": [
+        {
+          "project": "admin-eval",
+          "cell": "board-mg-9"
+        },
+        {
+          "project": "admin-eval-mobile",
+          "cell": "board-mg-7"
+        }
+      ]
+    },
+    "log_handling": "Failed-job log inspected once after terminal failure; only sanitized classes and case identities retained.",
+    "observed_at": "2026-10-11T12:57:16Z"
   },
-  "historical_source_url_failures": [
-    {"observed_status": 503, "classification": "historical failed freshness check; not promoted to a pass"},
-    {"observed_status": 503, "classification": "historical failed freshness check; not promoted to a pass"}
-  ]
+  "local_validation": {
+    "gate_script_bash_n": "passed",
+    "admin_eval_mobile_test_list": {
+      "status": "passed",
+      "project": "admin-eval-mobile",
+      "test_count": 64
+    },
+    "focused_mobile_cases": {
+      "status": "blocked_local_runtime",
+      "command": "npm --prefix test/example/priv/playwright run test -- tests/admin-eval.spec.ts --project=admin-eval-mobile --grep board-mg-(3|6|7|9|11)",
+      "reason": "locked WebKit executable missing at /Users/jon/Library/Caches/ms-playwright/webkit-2336/pw_run.sh; no further browser installation attempted"
+    },
+    "contract_tap_test": {
+      "status": "blocked_local_dependency_lock",
+      "reason": "stale phoenix dependency lock; no dependency install attempted"
+    }
+  }
 }
