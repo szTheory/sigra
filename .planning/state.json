@@ -36,8 +36,8 @@
   ],
   "next": {
     "command": "/gsd:execute-phase 251",
-    "label": "Execute Phase 251",
-    "reason": "The two revised plans passed independent review with no findings. Begin with the read-only per-requirement feasibility preflight; proceed with every independently capture-ready slice, and stop with only the feasibility JSON if neither slice is ready."
+    "label": "Verify Phase 251",
+    "reason": "Both Phase 251 plans have summaries. init.verify-work 251 reports that the phase verification report is missing and routes here; this command resumes at verification without rerunning summarized plans. READY-01 and READY-02 remain unsatisfied, so the milestone is incomplete."
   },
-  "updated_at": "2026-10-11T20:03:44Z"
+  "updated_at": "2026-10-11T21:09:29.259Z"
 }

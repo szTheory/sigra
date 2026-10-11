@@ -2,15 +2,16 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
+current_plan: null
 status: milestone_audit_gaps_found
-stopped_at: Completed 251-01-PLAN.md; 251-02 remains runnable
-last_updated: "2026-10-11T20:33:27.667Z"
-state_head: 4578fa24e91f6b38c959fd65e4141176fc520734
+stopped_at: Completed 251-02-PLAN.md; Phase 251 plan implementation complete, phase verification pending; READY-01/02 remain unsatisfied
+last_updated: "2026-10-11T21:09:29.259Z"
+state_head: ce4d606f136474efce342e1381052b3f65adc78b
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 42
-  completed_plans: 41
+  completed_plans: 42
   percent: 83
 last_activity: 2026-10-11
 verification_status: gaps_found
@@ -18,19 +19,20 @@ next_command: $gsd-execute-phase 251
 resume_command: $gsd-execute-phase 251
 current_phase: 251
 current_phase_name: Close READY-01 and READY-02 release readiness gaps
-current_plan: null
-last_activity_desc: "Revised Phase 251 Task 1 assertions to require distinct candidate/published-tag records per path and named results for all 14 package/adopter checks, with nonempty identity, evidence, and finding detail for every result. Task 2 specifies the exact 20 mismatch fixtures, set/duplicate/registration/execution assertions, and per-case READY-01 unsatisfied / source-ready READY-02 capture assertions; Task 3 requires the exact two-file test command to pass before live capture. Both plan structures/frontmatter pass, decision coverage is 6/6, command-path checks have zero blockers/warnings, failure-direction checks are ok, and git diff --check is clean. Candidate guide resolves; published-tag guide is absent and remains a READY-01 finding while READY-02 remains independently captureable. The independent plan checker passed both plans with no findings. The exact prewrite STATE bytes are preserved at .planning/recovery/phase251-state-route-prewrite-20261011T195950Z/manifest.json (SHA-256 f48a691eedbfbf64d6154de9265039c0633e3653943b79a82b0d0ccfbd4bc854); the 19:58 planning-file snapshot remains at .planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/manifest.json (SHA-256 9f405dd4bd9da012a5db51ab9040139d205e9067f796501838dd87e968cd6b76). The checker-pass route/state prewrite is recorded at .planning/recovery/phase251-checker-pass-route-prewrite-20261011T200322Z/manifest.json (SHA-256 4d1bb7fdb6e7237b7b060a6e72b5b7d4fa454c844fe637b9906f34449f3ee16)."
+last_activity_desc: "Phase 251 Plans 01 and 02 are summarized; 91/91 deterministic tests pass. Strict audit is gaps_found at 7/9 with READY-01/02 unsatisfied. Current packet SHA-256 36bbf3514b15d50cdf9bbc05062ca2c9a125771ec8c882a757143e59345349df; owner report SHA-256 1b0c66dec55dd8502936a3ff58263b90b2c8647151057e66002644de9d9b9a43; phase verification is pending and init.verify-work routes to $gsd-execute-phase 251. State prewrite manifest .planning/recovery/phase251-plan02-closeout-prewrite-20261011T2108Z/manifest.json SHA-256 9a74ad5d3b1d120e3a90c9d4747a5bd9f63dd3511ec2945fad3d83a196cbefe8."
 ---
 
 # Project State
 
 ## Current position
 
-Phase 250 passed under its amended phase-only contract. The strict GSD v1.49 milestone audit is gaps_found at 7/9: READY-01 and READY-02 remain unsatisfied in the Phase 247 owner report. The milestone is incomplete and unarchived. Phase 250's accepted exceptions do not satisfy the milestone requirements.
+Plans complete: 2 of 2; phase verification remains pending.
+
+Phase 251 Plan 01 and Plan 02 are complete. The Phase 247 owner report is bound to the refreshed Phase 251 packet, the strict v1.49 audit is regenerated, and all 91 required deterministic tests pass. Both READY requirements remain unsatisfied, so the audit is gaps_found at 7/9 and the milestone remains incomplete and unarchived. Phase 250's accepted exceptions remain historical closeout evidence only.
 
 The cross-phase checker verified 8 of 10 expected connections. The confirmation journey, exact-source gate, publication proof, hosted failure/cancellation receipt retrieval, and current-main closeout are wired. The Phase 247 candidate tuple and fresh inventory/preservation joins remain the two broken readiness handoffs.
 
-Phase 247 implementation is recorded complete, but its owner verification remains `gaps_found` and its Nyquist status is partial. READY-01 lacks one approved exact-source tuple; READY-02 lacks a fresh complete disposition and preservation join. Do not repeat Phase 247 validation without new evidence. Phase 248 validation is now `validated` and `nyquist_compliant: true` (commit `1ca75b31d`). Phase 251 has committed context and two revised plans. Its first execution task is a read-only per-requirement feasibility preflight. READY-01 also requires the full original package/adopter bar: matching package metadata, manifest/config, changelog, `v1.6.0` tag, HexDocs source reference, and adopter notes for shipped changes, compatibility, generated-host action/no-action, and the `~> 1.6.0` update/check path. The preflight keeps candidate SHA `0e773d3614a242e4fbcdd34c418ecb8a307703d6` distinct from published tag source `9e80cb78d6374b1ed4074d5fef6b613fee879dca`; the v1.6 guide exists at the exact candidate commit but is absent at the published tag. That missing path leaves READY-01 unsatisfied without blocking a source-ready READY-02 capture. Complete trusted approval history with no exact event leaves READY-01 `authorization_pending`; stop after the feasibility JSON only when neither requirement slice is capture-ready.
+Phase 247 implementation is recorded complete, but its owner verification remains `gaps_found` and its Nyquist status is partial. Do not repeat Phase 247 validation without new evidence. Phase 248 validation is `validated` and `nyquist_compliant: true` (commit `1ca75b31d`). Phase 251's source checks confirm READY-01 lacks a trusted historic owner-report source and exact contemporaneous approval; the published `v1.6.0` tag lacks the upgrade guide and README link. READY-02 still lacks a locally resolvable inherited commit base and complete PR-population, disposition, and preservation joins.
 
 ## Verified evidence
 
@@ -44,6 +46,10 @@ Phase 247 implementation is recorded complete, but its owner verification remain
 - Recovered exact-source dry-run receipt and baseline: .planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json (run 37824714823) and 247-CANDIDATE-DIFF-BASELINE.json (manifest blob 12daf4f704bbc2d4aa136d0ef678e64abce38aeb)
 - Current passing Phase 248/249 owner reports and source snapshots: .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md, .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md, and the corresponding 250-248-SOURCE-SNAPSHOT.json / 250-249-SOURCE-SNAPSHOT.json
 - Phase 250 closeout verification and summary: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md and 250-13-SUMMARY.md
+- Phase 251 Plan 02 summary: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-SUMMARY.md
+- Current Phase 247 owner report: .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md (SHA-256 1b0c66dec55dd8502936a3ff58263b90b2c8647151057e66002644de9d9b9a43)
+- Current Phase 251 packet: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json (SHA-256 36bbf3514b15d50cdf9bbc05062ca2c9a125771ec8c882a757143e59345349df)
+- Current strict milestone audit: .planning/v1.49-MILESTONE-AUDIT.md (SHA-256 ffe761e8f8e8ec10682797cdaa551bfd1266eae0489dbe37d09d6af5ad7dc435)
 - Exact prewrite recovery for the Phase 251 planning revision: .planning/recovery/phase251-plan-revision-prewrite-20261011T1935Z/manifest.json (SHA-256 017587f4d826275833163a4638676cea007db004078ab675b512b3a960ca1cf4; eight planning files read-back verified)
 - Later prewrite snapshot before final plan assertion edits: .planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/manifest.json (SHA-256 634bb548eb8cd9477ef4a8c9281a550611f23cf66e221f33769c0de92489f982; eight planning files read-back verified)
 - Exact write-ahead bytes for Nyquist checker revisions: .planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/manifest.json (SHA-256 95fd8600d50955f8d9f8ca6715e59a7405714eb305acc62100853e3d05c862ee), .planning/recovery/phase251-nyquist-followup-prewrite-20261011T195015Z/manifest.json (SHA-256 56ef6f87eadc084c3f23dfb1248e68c0c79e62e86c85441da3bc3e1b37a64c8b), and .planning/recovery/phase251-nyquist-finalization-prewrite-20261011T195300Z/manifest.json (SHA-256 49b5524b98429a0b6ae333f57d1bfbe2a9414785e855b44b4aef7e84a46d7a43; five files read-back verified).
@@ -52,7 +58,7 @@ Phase 247 implementation is recorded complete, but its owner verification remain
 
 $gsd-execute-phase 251
 
-Phase 251 context and two plans are present. Fresh deterministic checks now pass: both plan structures and frontmatter are valid, decision coverage is 6/6, command-path checks have no blockers/warnings, failure-direction checks are ok, and exact source-path checks found the candidate v1.6 guide while confirming it is absent at the published tag. The independent plan checker passed both plans with no findings. Execute Phase 251 now. Its first task must verify exact baseline/blob identity, trusted sources, the complete evidence window, evidence producers, and independent trust, including candidate package/adopter paths and the separately identified published tag source. A missing/mismatched READY-01 package or approval item leaves READY-01 unsatisfied but does not stop an independently ready READY-02 refresh. Stop after the feasibility JSON only if neither requirement slice is capture-ready. Keep CI/CD runtime and reliability optimization separate until after v1.49. The latest route/index rewrite is protected by .planning/recovery/phase251-route-sync-prewrite-20261011T195317Z/manifest.json (SHA-256 eebc5542449bbbdf7e7b6faef5d73c3b0f7af8434b10e60e7369f13a2a9bb8f3).
+`gsd_run query init.verify-work 251` reports no verification report and routes to `$gsd-execute-phase 251`; that command resumes at the phase verification gate and does not rerun plans that already have summaries. Phase 251's plan implementation is complete, but phase verification and milestone completion are not. `init.plan-phase 252` reports that Phase 252 is not present, pending, and has no context or plans; do not infer a new phase before Phase 251 verification is handled. Keep the separate CI/CD duration and reliability follow-up queued after v1.49.
 
 ## Accumulated Context
 
@@ -62,22 +68,25 @@ Phase 251 context and two plans are present. Fresh deterministic checks now pass
 
 ## Session
 
-**Last session:** 2026-10-11T20:33:25.973Z
-**Stopped at:** Completed 251-01-PLAN.md; 251-02 remains runnable
-**Resume file:** .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md
+**Last session:** 2026-10-11T21:07:22.845Z
+**Stopped at:** Completed 251-02-PLAN.md; Phase 251 plan implementation complete, phase verification pending; READY-01/02 remain unsatisfied
+**Resume file:** .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-SUMMARY.md
 
 ## Performance Metrics
 
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 251 P01 | 12m | 3 tasks | 8 files |
+| Phase 251 P02 | 32m | 2 tasks | 5 files |
 
 ### Blockers
 
-- Phase 251 READY-01 remains unsatisfied: trusted source lookup for the historical owner report returned 404, the full trusted history contains no exact-candidate contemporaneous approval, and the published v1.6.0 tag lacks the required guide path.
-- Phase 251 READY-02 remains unsatisfied: the fresh complete open-PR inventory has 15 items with no exact disposition joins, and the live-main commit is unavailable locally for inherited-change derivation.
+- READY-01 remains unsatisfied: GitHub REST returns 404 for the historical owner report source; complete review history has no exact-candidate contemporaneous approval; and the published `v1.6.0` tag lacks the upgrade guide and README guide link.
+- READY-02 remains unsatisfied: the inherited commit base is unavailable locally, the open-PR population does not match, and current disposition/preservation joins are incomplete.
 
 ## Decisions
 
 - [Phase 251]: Keep READY-01 and READY-02 source feasibility independent; READY-01 failure does not suppress source-ready READY-02 capture.
 - [Phase 251]: Keep both READY requirements unsatisfied until their individual original evidence bars are fully proven; later authorization cannot substitute for historical approval.
+- [Phase 251]: Phase 250 amendment remains historical only; current READY status derives from the Phase 247 owner verdict bound to the Phase 251 packet.
+- [Phase 251]: Keep READY-01 and READY-02 unchecked and the v1.49 milestone incomplete until each original owner acceptance bar is fully evidenced.
