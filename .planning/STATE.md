@@ -4,13 +4,13 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 8
-status: blocked_no_runnable_phase250_gap_plan
-stopped_at: Phase 250 gap planning is inconclusive; Plans 250-07/08 are halted and Plans 250-09–12 are dependency-blocked with no runnable plan
-last_updated: "2026-10-11T03:00:26Z"
+current_plan: 7
+status: awaiting_explicit_250_07_test_decision
+stopped_at: Plan 250-07 is ready for its exact packet decision; no GitHub test has been started
+last_updated: "2026-10-11T03:45:41Z"
 last_activity: 2026-10-11
-last_activity_desc: Latest explicit gap-planning rerun returned PLANNING INCONCLUSIVE and created no PLAN.md. The required API coverage matrix now passes its gate (17 capabilities, 12 integrate, 5 opt-outs). Phase 250 remains blocked with zero runnable plans; no external workflow, CI, merge, or publish action occurred.
-state_head: f56e36cac849c7c7baf974403ca871230a4eda3e
+last_activity_desc: Fresh current-main source checks and passing local tests were recorded, but they do not include the hosted failure/cancellation receipts Phase 250 requires. The planner found no new plan because Plan 250-07 already covers that test. The exact packet is waiting for an explicit user decision; no hosted action occurred.
+state_head: 13b4a6d0d306a152d86a8f957949f0b52c4df92a
 progress:
   total_phases: 5
   completed_phases: 4
@@ -19,7 +19,7 @@ progress:
   percent: 91
 verification_status: gaps_found
 next_command: null
-resume_command: "$gsd-plan-phase 250 --gaps"
+resume_command: "$gsd-execute-phase 250 --gaps-only"
 ---
 
 # Project State
@@ -34,16 +34,20 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — ACTIVE, GAP PLANNING INCONCLUSIVE; NO RUNNABLE PLAN
-Current Plan: 8 (last manually summarized; no gap plan is currently runnable)
+Phase: 250 — ACTIVE, waiting for the user's decision on the current test packet.
+Current Plan: 7 (approval checkpoint; Plans 250-08 to 250-12 remain blocked behind unresolved evidence)
 Total Plans in Phase: 12
-Plans summarized: 8 of 12 (01–06 complete; 07–08 halted); Plans 09–12 are blocked by those halted evidence gaps
-Status: Partial implementation delivered; Plans 07–08 halted, Plans 09–12 blocked; phase verification incomplete
-Last activity: 2026-10-11 — The explicit $gsd-plan-phase 250 --gaps rerun returned PLANNING INCONCLUSIVE with no new plan. The API coverage matrix was added and its gate passed; owner verification gaps remain unchanged. No hosted action occurred.
+Plans summarized: 8 of 12 (01–06 complete; 07–08 halted; 09–12 dependency-blocked)
+Status: Phase verification is incomplete. The planner did not create another plan because Plan 07 already covers the missing hosted test.
+Last activity: 2026-10-11 — Current-main code identity, green CI, and local tests were checked. They prove the code and CI match that commit, but they do not prove the hosted failure and cancellation records.
 
 Progress: [█████████░] 91% (39/43 summary records; includes halted/checkpointed plans and is not acceptance completion)
 
-Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found 30 and 1 existing plan-scoped commits, respectively, with no summaries or async-job manifests. Plan 250-07 is halted: packet v5 SHA-256 `b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287` targets `e0c66d61211ddb461c049ca6422350308b420126`, now stale against recorded main `ff96768bc2843ef1a89926d238690b1145bfd514`; that packet has no approval and was not dispatched. A future canary needs a fresh current-main packet and explicit packet-specific approval. Plan 250-08 is halted: its tuple packet SHA-256 `8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660` has zero eligible tuples, so no approval was requested. Full commit, packet, and pre-write hash provenance is in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
+Plain-language explanation: “Source-bound” means the test record must identify the exact code commit and test files that produced it. Older hosted results came from older commits, so they cannot prove what the current code does. The current test packet matches main `ff96768bc2843ef1a89926d238690b1145bfd514`; it asks to run one controlled, non-publishing test, and is awaiting a yes/no decision. It does not authorize a release or merge.
+
+The current packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c`). Its preflight and source identity records are linked inside it. AUTO-02 remains incomplete until the hosted test creates and validates both required records. Plan 08 separately remains blocked because no candidate has all required matching readiness evidence.
+
+Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found existing plan-scoped commits without completed summaries. Plan 250-07 is now ready only for the current packet decision; no dispatch has occurred. Plan 250-08 still has zero eligible tuples. Full historical commit, packet, and pre-write hash provenance remains in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
 
 ### v1.49 audit route
 
@@ -65,9 +69,11 @@ Execution evidence: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase
 
 ### Manual closeout route — 2026-10-11
 
-`$gsd-plan-phase 250 --gaps` was run and returned `PLANNING INCONCLUSIVE`; do not repeat it without new immutable source-bound evidence or a changed acceptance decision. Current `init.plan-phase 250` confirms context and research exist, while `init.execute-phase 250` reports zero runnable plans. The refreshed workflow preflight at `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T023636Z.json` reports `ready` for main `ff96768bc2843ef1a89926d238690b1145bfd514`, but its source blob identities were not compared, so it is not a canary authority packet. No hosted dispatch, cancellation, CI poll, merge, or publish was performed.
+The phrase “new immutable source-bound evidence” means a fresh test result tied to the exact commit and helper files that ran it. The current-main files and local tests are now checked, and CI is green at that exact commit; this is new evidence, but it does not include the hosted failure/cancellation receipts needed to close AUTO-02. The planner returned `PLANNING INCONCLUSIVE` because Plan 07 already covers the next test; no new plan is needed.
 
-**Immediate next GSD command:** none; no runnable GSD plan exists. **Resume command after new source-bound evidence or an explicit acceptance change:** `$gsd-plan-phase 250 --gaps`. Phase 250 remains incomplete at `gaps_found`; no Phase 251 is defined. The machine-readable outcome is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011.json`.
+The earlier packet was for older main `e0c66d61211ddb461c049ca6422350308b420126`. The current packet targets main `ff96768bc2843ef1a89926d238690b1145bfd514` and is awaiting a specific yes/no. It authorizes only one controlled test (one deliberate failure, cancel only that exact test run, then one read-only observer; 35 minutes maximum). No release, publish, merge, tag, unrelated cancellation, or retry is included. No hosted dispatch or cancellation has occurred.
+
+**Immediate next action:** decide on the exact packet linked above. There is no GSD command to run while the packet decision is pending. After an approval, resume with `$gsd-execute-phase 250 --gaps-only`; Phase 250 remains incomplete, Plan 08 remains a separate evidence blocker, and no Phase 251 is defined.
 
 ### v1.49 phase map
 
