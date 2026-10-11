@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { audit, checkAudit, renderAudit } from './verify-v149-traceability.mjs';
+import { phase251PackageCheckRequirements } from './verify-247-readiness.mjs';
 
 const repoRoot = path.resolve('.');
 const closeDir = '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat';
@@ -46,6 +47,17 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
       source.api_blob_oid = source.git_blob_oid;
       source.sha256 = source.sha256 ?? `${index}`.padStart(64, 'b');
       source.api_sha256 = source.sha256;
+    }
+    for (const [name, requiredSources] of Object.entries(phase251PackageCheckRequirements)) {
+      const check = first.package_adopter.checks[name];
+      check.source_refs = requiredSources.map((required) => structuredClone(first.package_adopter.sources.find((source) =>
+        source.source_identity === required.identity && source.commit_sha === required.commit_sha && source.path === required.path)));
+      check.source_assertions = requiredSources.flatMap((required) => required.assertions.map((id) => {
+        const source = first.package_adopter.sources.find((item) => item.source_identity === required.identity
+          && item.commit_sha === required.commit_sha && item.path === required.path);
+        return { id, result: 'pass', expected: true, actual: true, source_identity: required.identity,
+          commit_sha: required.commit_sha, path: required.path, git_blob_oid: source.git_blob_oid, sha256: source.sha256 };
+      }));
     }
     const tuple = {
       candidate_sha: '0e773d3614a242e4fbcdd34c418ecb8a307703d6',
@@ -153,6 +165,23 @@ test('source-derived readiness fixtures score 7/9, 8/9, and 9/9 without stale mi
     assert.match(rendered, new RegExp(`strict milestone status is \\*\\*${fixture.score === '9/9' ? 'passed' : 'gaps_found'}\\*\\* at \\*\\*${fixture.score.replace('/', '\\/')} requirements`));
     if (fixture.score !== '7/9') assert.doesNotMatch(rendered, /7\/9/);
   }
+});
+
+test('independent audit rejects a satisfied READY-01 row whose guide ref points to candidate bytes', () => {
+  const evidence = ownerEvidenceFixture({ ready01: true });
+  const check = evidence.packet.requirements.READY01.package_adopter.checks.published_tag_guide;
+  check.source_refs[0] = structuredClone(evidence.packet.requirements.READY01.package_adopter.sources.find((source) =>
+    source.source_identity === 'candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6'
+      && source.path === 'guides/introduction/upgrading-to-v1.6.md'));
+  evidence.packetText = `${JSON.stringify(evidence.packet, null, 2)}\n`;
+  const packetHash = sha256(evidence.packetText);
+  evidence.overrides[phase251PacketPath] = evidence.packetText;
+  evidence.report = evidence.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`);
+  evidence.overrides[phase247ReportPath] = evidence.report;
+
+  const result = audit(repoRoot, { overrides: evidence.overrides });
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
+  assert.ok(result.blockers.some(({ id, message }) => id === 'READY-01' && /source-bound|package check|guide/i.test(message)));
 });
 
 test('stale Phase 247 packet binding and wrong-phase ownership cannot satisfy READY', () => {
