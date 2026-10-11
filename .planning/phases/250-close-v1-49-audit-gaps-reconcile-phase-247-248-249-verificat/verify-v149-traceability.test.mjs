@@ -129,10 +129,10 @@ test('historical Phase 250 amendment resolves the original owner report from its
   assert.equal(result.acceptanceAmendment?.historicalSource?.commit, historicalCommit);
   assert.equal(result.acceptanceAmendment?.historicalSource?.ownerReportSha256, 'd34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39');
   assert.equal(result.status, 'gaps_found');
-  assert.equal(result.score.requirements, '7/9');
+  assert.equal(result.score.requirements, '8/9');
   assert.deepEqual(result.requirements.filter(({ id }) => id.startsWith('READY-')).map(({ status, acceptance_status }) => ({ status, acceptance_status })), [
     { status: 'unsatisfied', acceptance_status: 'unaccepted' },
-    { status: 'unsatisfied', acceptance_status: 'unaccepted' },
+    { status: 'satisfied', acceptance_status: 'verified' },
   ]);
 });
 
@@ -157,15 +157,14 @@ test('ownerDerivedSevenEightNine requires complete Phase 247 evidence for every 
 });
 
 test('phase250ExceptionNotReadyPass cannot increase current READY counts', () => {
-  const evidence = ownerEvidenceFixture({ ready01: false, ready02: false });
+  const evidence = ownerEvidenceFixture({ ready01: false, ready02: true });
   const tracePath = '.planning/REQUIREMENTS.md';
   evidence.overrides[tracePath] = evidence.overrides[tracePath]
-    .replace(/^- \[ \] \*\*READY-01\*\*:/m, '- [x] **READY-01**:')
-    .replace(/^- \[ \] \*\*READY-02\*\*:/m, '- [x] **READY-02**:');
+    .replace(/^- \[ \] \*\*READY-01\*\*:/m, '- [x] **READY-01**:');
   const result = audit(repoRoot, { overrides: evidence.overrides });
-  assert.equal(result.score.requirements, '7/9');
+  assert.equal(result.score.requirements, '8/9');
   assert.ok(result.historicalExceptions.every(({ scope }) => scope === 'Phase 250 closeout only'));
-  assert.deepEqual(result.requirements.filter(({ id }) => id.startsWith('READY-')).map(({ status }) => status), ['unsatisfied', 'unsatisfied']);
+  assert.deepEqual(result.requirements.filter(({ id }) => id.startsWith('READY-')).map(({ status }) => status), ['unsatisfied', 'satisfied']);
 });
 
 test('ownerReportReferenceRequired rejects READY evidence rows that omit the canonical owner report', () => {
@@ -179,7 +178,10 @@ test('ownerReportReferenceRequired rejects READY evidence rows that omit the can
     '| READY-02 | Phase 247 | Unsatisfied; current Phase 251 packet |',
     `| READY-02 | Phase 247 | Unsatisfied; current Phase 251 packet | ${phase247ReportPath} | ${phase251PacketPath} | ${sha256(evidence.packetText)} |`,
   );
-  evidence.overrides[requirementPath] = table.replace(phase247ReportPath, '.planning/phases/250/250-VERIFICATION.md');
+  evidence.overrides[requirementPath] = table.replace(
+    /^\| READY-02 \|[^\n]*$/m,
+    (row) => row.replace(phase247ReportPath, '.planning/phases/250/250-VERIFICATION.md'),
+  );
 
   const result = audit(repoRoot, { overrides: evidence.overrides });
   assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
@@ -288,12 +290,12 @@ test('a changed Phase 250 tuple packet is rejected even when current READY evide
   assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.acceptance_status, 'unaccepted');
 });
 
-test('strict matrix keeps READY unsatisfied while preserving two historical phase-only exceptions', () => {
+test('strict matrix keeps READY-01 unsatisfied while READY-02 is source-proven and preserves historical phase-only exceptions', () => {
   const result = audit(repoRoot);
   assert.equal(result.status, 'gaps_found');
   assert.equal(result.milestoneStatus, 'incomplete');
   assert.equal(result.requirements.length, 9);
-  assert.equal(result.score.requirements, '7/9');
+  assert.equal(result.score.requirements, '8/9');
   assert.equal(result.score.phases, '4/6');
   assert.equal(result.score.integration, '4/5');
   assert.equal(result.score.flows, '3/4');
@@ -302,22 +304,27 @@ test('strict matrix keeps READY unsatisfied while preserving two historical phas
   assert.ok(result.unacceptedBlockerCount > 0);
   assert.deepEqual(result.historicalExceptions.map(({ id }) => id), ['READY-01', 'READY-02']);
 
-  for (const id of ['READY-01', 'READY-02']) {
-    const row = result.requirements.find((requirement) => requirement.id === id);
-    assert.equal(row?.status, 'unsatisfied');
-    assert.equal(row?.verification_status, 'unsatisfied');
-    assert.equal(row?.owner_report_status, 'gaps_found');
-    assert.equal(row?.acceptance_status, 'unaccepted');
-    assert.equal(row?.traceability, 'open');
-    assert.equal(row?.historical_phase_250_exception, true);
-  }
+  const ready01 = result.requirements.find(({ id }) => id === 'READY-01');
+  assert.equal(ready01?.status, 'unsatisfied');
+  assert.equal(ready01?.verification_status, 'unsatisfied');
+  assert.equal(ready01?.owner_report_status, 'gaps_found');
+  assert.equal(ready01?.acceptance_status, 'unaccepted');
+  assert.equal(ready01?.traceability, 'open');
+  assert.equal(ready01?.historical_phase_250_exception, true);
+  const ready02 = result.requirements.find(({ id }) => id === 'READY-02');
+  assert.equal(ready02?.status, 'satisfied');
+  assert.equal(ready02?.verification_status, 'satisfied');
+  assert.equal(ready02?.owner_report_status, 'gaps_found');
+  assert.equal(ready02?.acceptance_status, 'verified');
+  assert.equal(ready02?.traceability, 'complete');
+  assert.equal(ready02?.historical_phase_250_exception, true);
 
   assert.equal(result.requirements.find(({ id }) => id === 'AUTO-01')?.status, 'satisfied');
   assert.equal(result.requirements.find(({ id }) => id === 'AUTO-02')?.status, 'satisfied');
   assert.equal(result.requirements.find(({ id }) => id === 'REL-01')?.status, 'satisfied');
   assert.equal(result.requirements.find(({ id }) => id === 'REL-02')?.status, 'satisfied');
   assert.ok(result.sourceBlockers.some(({ id }) => id === 'READY-01'));
-  assert.ok(result.sourceBlockers.some(({ id }) => id === 'READY-02'));
+  assert.ok(!result.sourceBlockers.some(({ id }) => id === 'READY-02'));
 });
 
 test('generated audit separates historical exceptions from current readiness and never claims milestone completion', () => {
@@ -325,7 +332,7 @@ test('generated audit separates historical exceptions from current readiness and
   assert.match(report, /^status: gaps_found$/m);
   assert.match(report, /^source_audit_status: gaps_found$/m);
   assert.match(report, /^milestone_status: incomplete$/m);
-  assert.match(report, /^  requirements: 7\/9$/m);
+  assert.match(report, /^  requirements: 8\/9$/m);
   assert.match(report, /^accepted_exception_count: 0$/m);
   assert.match(report, /^historical_phase_250_exception_count: 2$/m);
   assert.match(report, /^historical_phase_250_exception_ids: \[READY-01, READY-02\]$/m);
@@ -339,14 +346,14 @@ test('generated audit separates historical exceptions from current readiness and
 test('audit checker rejects a READY matrix row that contradicts the current owner verdict', () => {
   const sourceAudit = renderAudit(audit(repoRoot));
   const forgedAudit = sourceAudit.replace(
-    '| READY-02 | 247 | open | unsatisfied | unaccepted | **unsatisfied** |',
-    '| READY-02 | 247 | open | satisfied | verified | **satisfied** |',
+    '| READY-01 | 247 | open | unsatisfied | unaccepted | **unsatisfied** |',
+    '| READY-01 | 247 | open | satisfied | verified | **satisfied** |',
   );
   const checked = checkAudit(repoRoot, '.planning/v1.49-MILESTONE-AUDIT.md', {
     '.planning/v1.49-MILESTONE-AUDIT.md': forgedAudit,
   });
   assert.equal(checked.valid, false);
-  assert.ok(checked.errors.some((message) => /requirement row READY-02 differs/i.test(message)));
+  assert.ok(checked.errors.some((message) => /requirement row READY-01 differs/i.test(message)));
 });
 
 test('audit discovers current Nyquist classifications from every v1.49 phase record', () => {
@@ -465,7 +472,7 @@ test('missing acceptance record cannot turn READY gaps into accepted exceptions'
   assert.equal(result.acceptedExceptionCount, 0);
   assert.ok(result.blockers.some((row) => row.id === 'ACCEPTANCE'));
   assert.ok(result.blockers.some((row) => row.id === 'READY-01'));
-  assert.ok(result.blockers.some((row) => row.id === 'READY-02'));
+  assert.ok(!result.blockers.some((row) => row.id === 'READY-02'));
 });
 
 test('an expanded exception allowlist is rejected', () => {

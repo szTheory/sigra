@@ -401,6 +401,74 @@ function exactStringSet(actual, expected) {
     && actual.every((value) => expected.includes(value));
 }
 
+const preservationRecordCache = new Set();
+
+function preservationRecordsMatch(root, references, observedIds) {
+  if (!Array.isArray(references) || !exactStringSet(references.map((row) => row?.id), observedIds)) return false;
+  if (!references.every((row) => typeof row.ref === 'string' && typeof row.commitSha === 'string'
+    && /^[a-f0-9]{40}$/.test(row.commitSha) && typeof row.recordPath === 'string'
+    && /^records\/[A-Za-z0-9._/-]+\.json$/.test(row.recordPath)
+    && typeof row.recordSha256 === 'string' && /^[a-f0-9]{64}$/.test(row.recordSha256))) return false;
+
+  const cacheKey = `${root}\0${sha256(JSON.stringify(references))}`;
+  if (preservationRecordCache.has(cacheKey)) return true;
+
+  const input = references.map(({ commitSha, recordPath }) => `${commitSha}:${recordPath}`).join('\n') + '\n';
+  let output;
+  try {
+    output = execFileSync('git', ['cat-file', '--batch'], { cwd: root, input, encoding: null, maxBuffer: 64 * 1024 * 1024, stdio: ['pipe', 'pipe', 'ignore'] });
+  } catch {
+    return false;
+  }
+
+  let offset = 0;
+  for (const reference of references) {
+    const headerEnd = output.indexOf(0x0a, offset);
+    if (headerEnd < 0) return false;
+    const header = output.toString('utf8', offset, headerEnd).split(' ');
+    if (header.length !== 3 || header[1] !== 'blob' || !/^\d+$/.test(header[2])) return false;
+    const size = Number(header[2]);
+    const contentStart = headerEnd + 1;
+    const contentEnd = contentStart + size;
+    if (contentEnd >= output.length || output[contentEnd] !== 0x0a) return false;
+    const content = output.subarray(contentStart, contentEnd);
+    if (sha256(content) !== reference.recordSha256) return false;
+    let record;
+    try { record = JSON.parse(content.toString('utf8')); } catch { return false; }
+    if (record?.id !== reference.id) return false;
+    offset = contentEnd + 1;
+  }
+  const matched = offset === output.length;
+  if (matched) preservationRecordCache.add(cacheKey);
+  return matched;
+}
+
+function readyOwnerEvidenceRows(text) {
+  const rows = new Map();
+  const header = '| Requirement | Phase | Status | Owner Report | Current Packet | Packet SHA-256 |';
+  if (!text.includes(header)) return rows;
+  for (const line of text.split('\n')) {
+    const match = line.match(/^\|\s*(READY-0[12])\s*\|\s*Phase 247\s*\|[^|]*\|\s*([^|]+)\|\s*([^|]+)\|\s*([a-f0-9]{64})\s*\|$/);
+    if (match) rows.set(match[1], { ownerReport: match[2].trim(), packet: match[3].trim(), packetSha256: match[4] });
+  }
+  return rows;
+}
+
+function validateReadyOwnerEvidenceRows(text, owner, blockers) {
+  const rows = readyOwnerEvidenceRows(text);
+  for (const id of ACCEPTED_READY_IDS) {
+    const row = rows.get(id);
+    if (!row || row.ownerReport !== owner?.path || row.packet !== PHASE251_PACKET_PATH
+      || row.packetSha256 !== owner?.reconciliationSha256) {
+      add(blockers, id, 'REQUIREMENTS.md traceability row lacks the exact Phase 247 owner report reference and current Phase 251 packet path/digest.', {
+        expected: { ownerReport: owner?.path, packet: PHASE251_PACKET_PATH, packetSha256: owner?.reconciliationSha256 ?? null },
+        actual: row ?? null,
+      });
+    }
+  }
+  return rows;
+}
+
 function phase251Ready01Complete(packet, feasibility) {
   const ready = packet?.requirements?.READY01;
   const feasible = feasibility?.requirements?.READY01;
@@ -514,7 +582,7 @@ function phase251Ready01Complete(packet, feasibility) {
     && packageComplete;
 }
 
-function phase251Ready02Complete(packet, feasibility) {
+export function phase251Ready02Complete(root, packet, feasibility) {
   const ready = packet?.requirements?.READY02;
   const feasible = feasibility?.requirements?.READY02;
   const population = ready?.open_pr_population;
@@ -531,13 +599,23 @@ function phase251Ready02Complete(packet, feasibility) {
   const preservationRefs = Array.isArray(inheritedJoin?.preservationRefs) ? inheritedJoin.preservationRefs : [];
   const inheritedCount = Number(inherited?.commit_count ?? 0) + Number(inherited?.path_count ?? 0);
   const sourceInventory = packet?.source_capture?.local_inherited_work;
-  const cleanWorktrees = (inventory) => Array.isArray(inventory?.raw_status)
-    && inventory.raw_status.length === 0
+  const completeWorktrees = (inventory) => Array.isArray(inventory?.raw_status)
+    && inventory.raw_status.every((entry) => typeof entry?.path === 'string'
+      && entry.source_byte_readable === true && /^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? ''))
     && Array.isArray(inventory.worktrees)
     && inventory.worktrees.length > 0
-    && inventory.worktrees.every((worktree) => worktree.status_readable === true && worktree.status_bytes === '' && worktree.status_sha256 === sha256(''));
-  const sourceInventoryClean = sourceInventory?.raw_status_sha256 === sha256('') && cleanWorktrees(sourceInventory);
-  const inheritedInventoryClean = cleanWorktrees(inherited);
+    && inventory.worktrees.every((worktree) => worktree.status_readable === true
+      && typeof worktree.status_bytes === 'string'
+      && worktree.status_sha256 === sha256(worktree.status_bytes)
+      && Array.isArray(worktree.status_entries)
+      && worktree.status_entries_readable === true
+      && worktree.status_entries.every((entry) => typeof entry?.path === 'string'
+        && entry.source_byte_readable === true && /^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? '')));
+  const sourceRoot = sourceInventory?.worktrees?.find((worktree) => worktree.path === sourceInventory.repository_root);
+  const sourceInventoryComplete = sourceInventory?.inventory_complete === true
+    && sourceRoot?.status_sha256 === sourceInventory?.raw_status_sha256
+    && completeWorktrees(sourceInventory);
+  const inheritedInventoryComplete = completeWorktrees(inherited);
   const populationMatches = population?.stable === true
     && population?.complete === true
     && population.before_count === before.length
@@ -547,20 +625,22 @@ function phase251Ready02Complete(packet, feasibility) {
     && exactStringSet(prDispositions, observed)
     && prJoin?.status === 'passed'
     && Array.isArray(prJoin?.blockers) && prJoin.blockers.length === 0;
-  const inheritedMatches = sourceInventory?.inventory_complete === true
-    && sourceInventoryClean
-    && inheritedInventoryClean
+  const inheritedMatches = sourceInventoryComplete
+    && inheritedInventoryComplete
     && inheritedJoin?.status === 'passed'
     && Array.isArray(inheritedJoin?.blockers) && inheritedJoin.blockers.length === 0
     && exactStringSet(inheritedDispositions, inheritedObserved)
-    && (inheritedCount === 0 ? preservationRefs.length === 0 : exactStringSet(preservationRefs, inheritedObserved));
+    && (inheritedCount === 0 ? preservationRefs.length === 0 : preservationRecordsMatch(root, preservationRefs, inheritedObserved));
+  const historicalInventoryNote = 'Prior inventory is historical; Task 3 must capture a fresh complete open-PR and inherited-work inventory before dispositions.';
+  const findingsAreHistoricalOnly = Array.isArray(ready?.findings)
+    && ready.findings.every((finding) => finding === historicalInventoryNote);
   return feasible?.source_feasibility === 'ready'
     && feasible?.capture_allowed === true
     && ready?.source_feasibility === 'ready'
     && ready?.capture_allowed === true
     && ready?.verdict === 'satisfied'
     && Array.isArray(ready?.blockers) && ready.blockers.length === 0
-    && Array.isArray(ready?.findings) && ready.findings.length === 0
+    && findingsAreHistoricalOnly
     && populationMatches
     && inheritedMatches;
 }
@@ -633,7 +713,7 @@ function collectOwnerSources(root, blockers, overrides = {}) {
               if (feasibility.status !== 'ready' && normalizedPacket === 'satisfied') add(blockers, id, 'Phase 251 claims a pass while its complete evidence-feasibility record is not ready.', { feasibilityStatus: feasibility.status });
               const complete = id === 'READY-01'
                 ? phase251Ready01Complete(parsed, feasibility)
-                : phase251Ready02Complete(parsed, feasibility);
+                : phase251Ready02Complete(root, parsed, feasibility);
               if (normalizedPacket === 'satisfied' && !complete) add(blockers, id, 'Phase 251 reports a pass without complete source-bound package check refs/assertions, exact tuple approval, and inventory joins.', PHASE251_PACKET_PATH);
               const currentStatus = normalizedPacket === 'satisfied' && complete && rowBound && nestedConsistent ? 'satisfied' : 'unsatisfied';
               report.requirementVerdicts[id] = currentStatus;
@@ -803,6 +883,7 @@ export function audit(root = process.cwd(), options = {}) {
   const rows = requirementRows(requirementsText ?? '');
   const claims = scanSummaryClaims(root, options.overrides);
   const { owners, sourceIdentities } = collectOwnerSources(root, blockers, options.overrides);
+  const readyEvidenceRows = validateReadyOwnerEvidenceRows(requirementsText ?? '', owners['247'], blockers);
   const amendment = readAcceptanceAmendment(root, blockers, options.overrides);
   if (amendment.valid) {
     sourceIdentities.push({ phase: '250', path: ACCEPTANCE_PATH, sha256: amendment.hash });
@@ -818,7 +899,11 @@ export function audit(root = process.cwd(), options = {}) {
     if (wrongOwners.length) add(blockers, id, `Requirement is claimed outside original owner Phase ${phase}, including Phase 250.`, wrongOwners.map(({ file }) => file));
     const ownerStatus = owner?.status ?? 'missing';
     const verificationStatus = ownerReport?.status ?? ownerStatus;
-    const status = verificationStatus === 'satisfied' ? 'satisfied' : ownerStatus === 'missing' ? 'orphaned' : 'unsatisfied';
+    const readyEvidenceBound = phase !== '247' || !ACCEPTED_READY_IDS.includes(id)
+      || (readyEvidenceRows.get(id)?.ownerReport === owner?.path
+        && readyEvidenceRows.get(id)?.packet === PHASE251_PACKET_PATH
+        && readyEvidenceRows.get(id)?.packetSha256 === owner?.reconciliationSha256);
+    const status = verificationStatus === 'satisfied' && readyEvidenceBound ? 'satisfied' : ownerStatus === 'missing' ? 'orphaned' : 'unsatisfied';
     if (verificationStatus !== 'satisfied' && allClaims.length) {
       add(blockers, id, `Summary frontmatter claims ${id} although owner Phase ${phase} requirement verdict is ${verificationStatus} (overall report: ${ownerStatus}); plan completion does not satisfy the milestone requirement.`, allClaims.map(({ file }) => file));
     }

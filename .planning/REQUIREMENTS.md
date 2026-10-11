@@ -20,7 +20,7 @@
 ### Release readiness (READY)
 
 - [ ] **READY-01**: The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path. The current Phase 247 owner verdict is `authorization_pending`: no recoverable contemporaneous approval joins the exact candidate/source/CI/readiness/dry-run record; the published tag also lacks the v1.6 guide and its README link.
-- [ ] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work. The current Phase 247 owner verdict remains unsatisfied because the local inherited commit base is unavailable and the fresh PR disposition join is incomplete.
+- [x] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work. The current Phase 247 owner verdict is satisfied: the fresh 15-PR identity set and 2,421 inherited commit/path identities are dispositioned and joined to preservation records with verified read-back.
 
 ### Release automation (AUTO)
 
@@ -58,20 +58,20 @@ Tracked for later milestones; not part of the v1.49 roadmap.
 
 Every v1 requirement maps to exactly one v1.49 phase.
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| CONF-01 | Phase 246 | Complete |
-| CONF-02 | Phase 246 | Complete |
-| CONF-03 | Phase 246 | Complete |
-| READY-01 | Phase 247 | Unsatisfied; current Phase 251 packet |
-| READY-02 | Phase 247 | Unsatisfied; current Phase 251 packet |
-| AUTO-01 | Phase 248 | Complete |
-| AUTO-02 | Phase 248 | Complete |
-| REL-01 | Phase 249 | Complete |
-| REL-02 | Phase 249 | Complete |
+| Requirement | Phase | Status | Owner Report | Current Packet | Packet SHA-256 |
+|-------------|-------|--------|--------------|----------------|----------------|
+| CONF-01 | Phase 246 | Complete | — | — | — |
+| CONF-02 | Phase 246 | Complete | — | — | — |
+| CONF-03 | Phase 246 | Complete | — | — | — |
+| READY-01 | Phase 247 | Unsatisfied; current Phase 251 owner evidence | .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md | .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json | fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140 |
+| READY-02 | Phase 247 | Complete; Phase 247 owner verdict satisfied | .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md | .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json | fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140 |
+| AUTO-01 | Phase 248 | Complete | — | — | — |
+| AUTO-02 | Phase 248 | Complete | — | — | — |
+| REL-01 | Phase 249 | Complete | — | — | — |
+| REL-02 | Phase 249 | Complete | — | — | — |
 
 **Coverage:** 9/9 v1 requirements mapped exactly once; 0 unmapped.
 
 ---
 *Requirements defined: 2026-10-06*
-*Last updated: 2026-10-11; Phase 251 packet `36bbf3514b15d50cdf9bbc05062ca2c9a125771ec8c882a757143e59345349df` leaves READY-01/02 unsatisfied; Phase 250's exception remains historical and phase-only.*
+*Last updated: 2026-10-11; Phase 251 packet `fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140` leaves READY-01 unsatisfied and proves READY-02 satisfied; Phase 250's exception remains historical and phase-only.*
