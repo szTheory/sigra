@@ -70,7 +70,7 @@ The adversarial pass over all six requirements considered forged completion, pub
 
 ## Active hook decisions
 
-- The API-coverage detector examined the existing Phase 250 plans plus the Roadmap section and returned `detected:false`; this phase queries existing GitHub/Hex surfaces for proof rather than introducing an external API integration, so no new `COVERAGE.md` matrix is required.
+- The current API-coverage detector returned `detected:true` from the existing Phase 250 plan scope. `COVERAGE.md` records the complete scoped GitHub Actions/repository and Hex/HexDocs evidence surface, with explicit exclusions for release, publish, secret-value and unowned-run operations. It is a coverage decision, not hosted proof or a new runnable plan.
 - `assumption-delta scan 250 --json` returned `detected:false`; no primary identity model is generalized. The plan still keeps package-source, candidate, current-main and artifact identities separate.
 - No Payload, Prisma, Drizzle, Supabase or TypeORM schema path is in the phase scope; no schema push task applies.
 - Graph context is disabled in this project. Estimate calibration returned factor 1, zero samples and `confidence: low`; all new estimate blocks preserve that measured confidence.
