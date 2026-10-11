@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { audit, checkAudit, renderAudit } from './verify-v149-traceability.mjs';
-import { phase251PackageCheckRequirements } from './verify-247-readiness.mjs';
+import { evaluatePhase251PackageAssertion, phase251PackageCheckRequirements } from './verify-247-readiness.mjs';
 
 const repoRoot = path.resolve('.');
 const closeDir = '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat';
@@ -40,14 +41,6 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
       check.result = 'pass';
       check.finding_detail = 'No finding: complete fixture source evidence.';
     }
-    for (const [index, source] of first.package_adopter.sources.entries()) {
-      source.read_status = 'readable';
-      source.trust_status = 'trusted_exact_api_blob_match';
-      source.git_blob_oid = source.git_blob_oid ?? `${index}`.padStart(40, 'a');
-      source.api_blob_oid = source.git_blob_oid;
-      source.sha256 = source.sha256 ?? `${index}`.padStart(64, 'b');
-      source.api_sha256 = source.sha256;
-    }
     for (const [name, requiredSources] of Object.entries(phase251PackageCheckRequirements)) {
       const check = first.package_adopter.checks[name];
       check.source_refs = requiredSources.map((required) => structuredClone(first.package_adopter.sources.find((source) =>
@@ -55,9 +48,14 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
       check.source_assertions = requiredSources.flatMap((required) => required.assertions.map((id) => {
         const source = first.package_adopter.sources.find((item) => item.source_identity === required.identity
           && item.commit_sha === required.commit_sha && item.path === required.path);
-        return { id, result: 'pass', expected: true, actual: true, source_identity: required.identity,
+        let bytes = null;
+        try { bytes = execFileSync('git', ['show', `${source.commit_sha}:${source.path}`]); } catch { /* exact 404 remains missing */ }
+        const actual = bytes ? evaluatePhase251PackageAssertion(id, bytes, source) : false;
+        return { id, result: !bytes ? 'missing' : actual ? 'pass' : 'mismatch', expected: true, actual, source_identity: required.identity,
           commit_sha: required.commit_sha, path: required.path, git_blob_oid: source.git_blob_oid, sha256: source.sha256 };
       }));
+      check.result = check.source_assertions.every((item) => item.result === 'pass') ? 'pass'
+        : check.source_assertions.some((item) => item.result === 'missing') ? 'missing' : 'mismatch';
     }
     const tuple = {
       candidate_sha: '0e773d3614a242e4fbcdd34c418ecb8a307703d6',
@@ -210,6 +208,44 @@ test('independent audit accepts complete path-bound check evidence when READY-01
   const result = audit(repoRoot, { overrides: evidence.overrides });
   assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'satisfied');
   assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+});
+
+test('independent audit reads exact source bytes before accepting forged README predicates', () => {
+  const evidence = ownerEvidenceFixture({ ready01: true });
+  const priorPacketHash = sha256(evidence.packetText);
+  const ready = evidence.packet.requirements.READY01;
+  for (const [index, source] of ready.package_adopter.sources.entries()) {
+    source.read_status = 'readable';
+    source.trust_status = 'trusted_exact_api_blob_match';
+    source.git_blob_oid = `${index}`.padStart(40, 'a');
+    source.api_blob_oid = source.git_blob_oid;
+    source.sha256 = `${index}`.padStart(64, 'b');
+    source.api_sha256 = source.sha256;
+  }
+  for (const check of Object.values(evidence.packet.requirements.READY01.package_adopter.checks)) {
+    check.result = 'pass';
+    check.finding_detail = 'No finding: forged booleans only.';
+    check.source_refs = check.source_refs.map((ref) => structuredClone(ready.package_adopter.sources.find((source) =>
+      source.source_identity === ref.source_identity && source.commit_sha === ref.commit_sha && source.path === ref.path)));
+    check.source_assertions = check.source_assertions.map((item) => ({ ...item, result: 'pass', expected: true, actual: true }));
+    for (const assertion of check.source_assertions) {
+      const source = ready.package_adopter.sources.find((row) => row.source_identity === assertion.source_identity
+        && row.commit_sha === assertion.commit_sha && row.path === assertion.path);
+      assertion.git_blob_oid = source.git_blob_oid;
+      assertion.sha256 = source.sha256;
+    }
+  }
+  evidence.packetText = `${JSON.stringify(evidence.packet, null, 2)}\n`;
+  const packetHash = sha256(evidence.packetText);
+  evidence.overrides[phase251PacketPath] = evidence.packetText;
+  evidence.report = evidence.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`);
+  evidence.overrides[phase247ReportPath] = evidence.report;
+  evidence.overrides['.planning/REQUIREMENTS.md'] = evidence.overrides['.planning/REQUIREMENTS.md'].replaceAll(priorPacketHash, packetHash).split('\n').map((line) =>
+    /^\|\s*READY-0[12]\s*\|/.test(line) ? line.replace(/[a-f0-9]{64}(?=\s*\|$)/, packetHash) : line).join('\n');
+
+  const result = audit(repoRoot, { overrides: evidence.overrides });
+  console.log('CR05 target', JSON.stringify(result.blockers.filter(({ id }) => id === 'READY-01')));
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
 });
 
 test('independent audit rejects a coherently omitted captured worktree status identity', () => {
