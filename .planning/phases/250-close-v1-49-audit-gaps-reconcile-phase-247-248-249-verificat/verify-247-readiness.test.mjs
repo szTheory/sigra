@@ -461,7 +461,8 @@ test('secondary-worktree dirty paths stay in the READY-02 disposition and preser
     writeFileSync(join(secondary, 'secondary-only.txt'), dirtyBytes);
 
     const local = localInheritedSnapshot(base, root);
-    const dirty = local.worktrees.find((row) => row.path === secondary)?.status_entries ?? [];
+    const secondaryRow = local.worktrees.find((row) => row.branch === 'refs/heads/secondary');
+    const dirty = secondaryRow?.status_entries ?? [];
     assert.deepEqual(dirty.map((row) => ({ path: row.path, status: row.status, source_byte_sha256: row.source_byte_sha256 })), [
       { path: 'secondary-only.txt', status: '??', source_byte_sha256: createHash('sha256').update(dirtyBytes).digest('hex') },
     ]);
@@ -476,7 +477,7 @@ test('secondary-worktree dirty paths stay in the READY-02 disposition and preser
       } };
       return buildPhase251Packet({}, evaluated, before, after, localWithDispositions, [], { root });
     };
-    const dirtyIdentity = `dirty:${secondary}:${local.worktrees.find((row) => row.path === secondary).head_sha}:??:secondary-only.txt:${createHash('sha256').update(dirtyBytes).digest('hex')}`;
+    const dirtyIdentity = `dirty:${secondaryRow.path}:${secondaryRow.head_sha}:??:secondary-only.txt:${createHash('sha256').update(dirtyBytes).digest('hex')}`;
     const missing = packetInput([]);
     assert.equal(missing.requirements.READY02.verdict, 'unsatisfied');
     assert.ok(missing.requirements.READY02.inherited_work.disposition_join.blockers.includes('inherited_work_population_mismatch'));
@@ -488,11 +489,15 @@ test('secondary-worktree dirty paths stay in the READY-02 disposition and preser
     execFileSync('git', ['-C', root, 'commit', '-qm', 'preserve secondary worktree item']);
     const commit = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
     execFileSync('git', ['-C', root, 'update-ref', 'refs/heads/preservation/secondary', commit]);
-    const preservationRef = { ref: 'refs/heads/preservation/secondary', commit_sha: commit, record_path: 'preservation/secondary.json', record_sha256: createHash('sha256').update(recordBytes).digest('hex') };
+    const preservationRef = { ref: 'refs/heads/preservation/secondary', commit_sha: commit, record_path: 'preservation/secondary.json', record_sha256: createHash('sha256').update(recordBytes).digest('hex'), source_byte_sha256: createHash('sha256').update(dirtyBytes).digest('hex') };
     const disposition = { id: dirtyIdentity, decision: 'separate-follow-up', preservation_ref: preservationRef };
     const valid = packetInput([disposition]);
     assert.equal(valid.requirements.READY02.verdict, 'satisfied');
     assert.equal(valid.requirements.READY02.inherited_work.disposition_join.status, 'passed');
+
+    const duplicate = packetInput([disposition, disposition]);
+    assert.equal(duplicate.requirements.READY02.verdict, 'unsatisfied');
+    assert.ok(duplicate.requirements.READY02.inherited_work.disposition_join.blockers.includes('inherited_work_disposition_ids_invalid'));
 
     const wrongBytes = packetInput([{ ...disposition, preservation_ref: { ...preservationRef, record_sha256: '0'.repeat(64) } }]);
     assert.equal(wrongBytes.requirements.READY02.verdict, 'unsatisfied');

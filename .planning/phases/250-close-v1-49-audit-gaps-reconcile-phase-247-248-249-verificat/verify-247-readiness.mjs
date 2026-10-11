@@ -48,6 +48,14 @@ function safeCommand(command, args, cwd = repoRoot) {
   }
 }
 
+function safeCommandBytes(command, args, cwd = repoRoot) {
+  try {
+    return { ok: true, stdout: execFileSync(command, args, { cwd, stdio: ['ignore', 'pipe', 'ignore'] }) };
+  } catch {
+    return { ok: false, stdout: Buffer.alloc(0) };
+  }
+}
+
 function sameTuple(a, b) {
   return Boolean(a && b && a.candidateSha === b.candidateSha && a.reviewedBaseSha === b.reviewedBaseSha && a.mainSha === b.mainSha);
 }
@@ -286,33 +294,80 @@ function readOnlyLiveSnapshot() {
   };
 }
 
-function localInheritedSnapshot(baseSha = null) {
-  const root = safeCommand('git', ['rev-parse', '--show-toplevel']).stdout;
-  const head = safeCommand('git', ['rev-parse', 'HEAD']).stdout;
-  const branch = safeCommand('git', ['branch', '--show-current']).stdout;
-  const statusBytes = safeCommand('git', ['status', '--porcelain=v1', '--untracked-files=all']).stdout;
-  const rawStatus = statusBytes ? statusBytes.split('\n').filter(Boolean).map((line) => ({ status: line.slice(0, 2), path: line.slice(3) })) : [];
-  const worktreeText = safeCommand('git', ['worktree', 'list', '--porcelain']).stdout;
+function statusEntries(statusBytes, worktreePath, headSha) {
+  const entries = [];
+  const parts = Buffer.from(statusBytes).toString('utf8').split('\0');
+  for (let index = 0; index < parts.length; index += 1) {
+    const record = parts[index];
+    if (!record) continue;
+    const status = record.slice(0, 2);
+    const relativePath = record.slice(3);
+    const originalPath = status.includes('R') || status.includes('C') ? (parts[index + 1] ?? null) : null;
+    if (originalPath !== null) index += 1;
+    const absolutePath = path.resolve(worktreePath, relativePath);
+    let sourceBytes = null;
+    try {
+      sourceBytes = readFileSync(absolutePath);
+    } catch {
+      if (headSha && status.includes('D')) {
+        const prior = safeCommandBytes('git', ['show', `${headSha}:${relativePath}`], worktreePath);
+        if (prior.ok) sourceBytes = prior.stdout;
+      }
+    }
+    entries.push({ status, path: relativePath, original_path: originalPath, source_byte_readable: sourceBytes !== null,
+      source_byte_sha256: sourceBytes === null ? null : sha256(sourceBytes) });
+  }
+  return entries.sort((a, b) => a.path.localeCompare(b.path) || a.status.localeCompare(b.status));
+}
+
+export function localInheritedSnapshot(baseSha = null, root = repoRoot) {
+  const repoRootResult = safeCommand('git', ['rev-parse', '--show-toplevel'], root);
+  const actualRoot = repoRootResult.stdout;
+  const head = safeCommand('git', ['rev-parse', 'HEAD'], root).stdout;
+  const branch = safeCommand('git', ['branch', '--show-current'], root).stdout;
+  const statusResult = safeCommandBytes('git', ['status', '--porcelain=v1', '--untracked-files=all', '-z'], root);
+  const statusBytes = statusResult.stdout.toString('utf8');
+  const rawStatus = statusEntries(statusResult.stdout, actualRoot || root, head);
+  const worktreeResult = safeCommand('git', ['worktree', 'list', '--porcelain'], root);
+  const worktreeText = worktreeResult.stdout;
   const worktrees = worktreeText.split(/\n\n/).filter(Boolean).map((block) => {
     const lines = block.split('\n');
     const worktreePath = lines.find((line) => line.startsWith('worktree '))?.slice(9) ?? null;
     const worktreeHead = lines.find((line) => line.startsWith('HEAD '))?.slice(5) ?? null;
     const worktreeBranch = lines.find((line) => line.startsWith('branch '))?.slice(7) ?? null;
-    const status = worktreePath ? safeCommand('git', ['status', '--porcelain=v1', '--untracked-files=all'], worktreePath) : { ok: false, stdout: '' };
+    const status = worktreePath ? safeCommandBytes('git', ['status', '--porcelain=v1', '--untracked-files=all', '-z'], worktreePath) : { ok: false, stdout: Buffer.alloc(0) };
+    const statusText = status.stdout.toString('utf8');
+    const entries = worktreePath ? statusEntries(status.stdout, worktreePath, worktreeHead) : [];
     return { path: worktreePath, head_sha: worktreeHead, branch: worktreeBranch, status_readable: status.ok,
-      status_bytes: status.stdout, status_sha256: sha256(status.stdout) };
+      status_bytes: statusText, status_sha256: sha256(status.stdout), status_entries: entries,
+      status_entries_readable: entries.every((entry) => entry.source_byte_readable) };
   }).sort((a, b) => String(a.path).localeCompare(String(b.path)));
-  const baseAvailable = Boolean(baseSha && safeCommand('git', ['cat-file', '-e', `${baseSha}^{commit}`]).ok);
-  const commits = baseAvailable ? safeCommand('git', ['rev-list', `${baseSha}..HEAD`]).stdout.split('\n').filter(Boolean) : [];
+  const baseAvailable = Boolean(baseSha && safeCommand('git', ['cat-file', '-e', `${baseSha}^{commit}`], root).ok);
+  const commits = baseAvailable ? safeCommand('git', ['rev-list', `${baseSha}..${head}`], root).stdout.split('\n').filter(Boolean) : [];
   const commitPaths = baseAvailable
-    ? [...new Set(safeCommand('git', ['log', '--no-renames', '--format=', '--name-only', `${baseSha}..HEAD`]).stdout.split('\n').filter(Boolean))].sort()
+    ? [...new Set(safeCommand('git', ['log', '--no-renames', '--format=', '--name-only', `${baseSha}..${head}`], root).stdout.split('\n').filter(Boolean))].sort()
     : [];
-  return { repository_root: root, head_sha: head, branch, base_sha: baseSha, inventory_complete: baseAvailable,
+  const inheritedDirtyEntries = worktrees.flatMap((worktree) => worktree.status_entries.map((entry) => ({
+    id: `dirty:${worktree.path}:${worktree.head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256 ?? 'unreadable'}`,
+    kind: 'dirty_path', worktree_path: worktree.path, worktree_head_sha: worktree.head_sha,
+    worktree_branch: worktree.branch, status: entry.status, path: entry.path, original_path: entry.original_path,
+    source_byte_readable: entry.source_byte_readable, source_byte_sha256: entry.source_byte_sha256,
+  })));
+  return { repository_root: actualRoot, head_sha: head, branch, base_sha: baseSha,
+    inventory_complete: baseAvailable && statusResult.ok && worktreeResult.ok && worktrees.every((row) => row.status_readable && row.status_entries_readable),
     raw_status: rawStatus, raw_status_sha256: sha256(statusBytes), worktrees,
-    inherited_commit_shas: commits.sort(), inherited_paths: commitPaths };
+    inherited_commit_shas: commits.sort(), inherited_paths: commitPaths, inherited_dirty_entries: inheritedDirtyEntries };
 }
 
-function buildPhase251Packet(feasibility, evaluated, before, after, local, blockers) {
+function inheritedWorkItems(local) {
+  return [
+    ...local.inherited_commit_shas.map((sha) => ({ id: `commit:${sha}`, kind: 'commit', commit_sha: sha })),
+    ...local.inherited_paths.map((itemPath) => ({ id: `path:${itemPath}`, kind: 'committed_path', path: itemPath, source_commit_sha: local.head_sha })),
+    ...(local.inherited_dirty_entries ?? []),
+  ];
+}
+
+export function buildPhase251Packet(feasibility, evaluated, before, after, local, blockers, { root = local.repository_root ?? repoRoot } = {}) {
   const ready01 = evaluated.requirements.READY01;
   const ready02 = evaluated.requirements.READY02;
   const beforeIds = (before?.open_pull_requests ?? []).map(fullPullRequestIdentity);
@@ -320,9 +375,9 @@ function buildPhase251Packet(feasibility, evaluated, before, after, local, block
   const prStable = Boolean(before?.pagination?.complete && after?.pagination?.complete
     && beforeIds.every(Boolean) && afterIds.every(Boolean)
     && JSON.stringify([...beforeIds].sort()) === JSON.stringify([...afterIds].sort()));
-  const prJoin = joinPopulation({ observedIds: afterIds.filter(Boolean), dispositions: [], label: 'open_pr' });
-  const inheritedIds = [...local.inherited_commit_shas, ...local.raw_status.map((row) => `${row.status}:${row.path}`)];
-  const inheritedJoin = joinPopulation({ observedIds: inheritedIds, dispositions: [], label: 'inherited_work' });
+  const prJoin = joinPopulation({ observedIds: afterIds.filter(Boolean), dispositions: after?.dispositions ?? [], label: 'open_pr', root });
+  const inheritedItems = inheritedWorkItems(local);
+  const inheritedJoin = joinPopulation({ observedIds: inheritedItems, dispositions: local.inherited_dispositions ?? [], label: 'inherited_work', root });
   const ready02Satisfied = ready02.capture_allowed && prStable && prJoin.status === 'passed'
     && inheritedJoin.status === 'passed' && local.inventory_complete && local.worktrees.every((row) => row.status_readable);
   const ready01Satisfied = Boolean(ready01.package_adopter?.acceptance_satisfied);
@@ -459,7 +514,7 @@ export function joinPopulation({ observedIds, dispositions, label, root = repoRo
     return { status: 'blocked', observedIds: [], dispositionIds: [], preservationRefs: [], blockers: [`${label}_population_or_dispositions_missing`] };
   }
   const identity = (value) => value && typeof value === 'object'
-    ? [value.number, value.head_sha ?? value.headSha, value.base_sha ?? value.baseSha, value.base_ref ?? value.baseRef].join(':')
+    ? value.id ?? [value.repository ?? '', value.number, value.head_sha ?? value.headSha, value.base_sha ?? value.baseSha, value.base_ref ?? value.baseRef].join(':')
     : String(value ?? '');
   const observed = orderedUnique(observedIds.map(identity));
   const dispositionIds = dispositions.map((item) => identity(item?.identity ?? item?.id));
@@ -467,7 +522,9 @@ export function joinPopulation({ observedIds, dispositions, label, root = repoRo
   if (dispositionIds.some((id) => !id) || new Set(dispositionIds).size !== dispositionIds.length) blockers.push(`${label}_disposition_ids_invalid`);
   if (JSON.stringify(orderedUnique(dispositionIds)) !== JSON.stringify(observed)) blockers.push(`${label}_population_mismatch`);
   for (const row of dispositions) {
-    if (!row?.decision || !validPreservationReference(row.preservation_ref, identity(row.identity ?? row.id), row.decision, root)) blockers.push(`${label}_disposition_or_preservation_incomplete`);
+    const rowId = identity(row?.identity ?? row?.id);
+    const observedRow = observedIds.find((item) => identity(item) === rowId);
+    if (!row?.decision || !validPreservationReference(row.preservation_ref, rowId, row.decision, root, observedRow?.source_byte_sha256)) blockers.push(`${label}_disposition_or_preservation_incomplete`);
   }
   const rows = [...dispositions].sort((a, b) => identity(a?.identity ?? a?.id).localeCompare(identity(b?.identity ?? b?.id)));
   return {
@@ -479,7 +536,7 @@ export function joinPopulation({ observedIds, dispositions, label, root = repoRo
   };
 }
 
-function validPreservationReference(reference, dispositionId, decision, root) {
+function validPreservationReference(reference, dispositionId, decision, root, expectedSourceByteSha256) {
   if (!reference || typeof reference !== 'object'
     || !/^refs\/(?:heads|tags)\/[A-Za-z0-9._/-]+$/.test(reference.ref ?? '')
     || !/^[0-9a-f]{40}$/.test(reference.commit_sha ?? '')
@@ -491,7 +548,9 @@ function validPreservationReference(reference, dispositionId, decision, root) {
     const bytes = execFileSync('git', ['show', `${reference.ref}:${reference.record_path}`], { cwd: root, encoding: 'buffer', stdio: ['ignore', 'pipe', 'ignore'] });
     if (sha256(bytes) !== reference.record_sha256) return false;
     const record = JSON.parse(bytes.toString('utf8'));
-    return String(record.id) === String(dispositionId) && record.decision === decision;
+    return String(record.id) === String(dispositionId) && record.decision === decision
+      && (!reference.source_byte_sha256 || record.source_byte_sha256 === reference.source_byte_sha256)
+      && (!expectedSourceByteSha256 || record.source_byte_sha256 === expectedSourceByteSha256);
   } catch { return false; }
 }
 
