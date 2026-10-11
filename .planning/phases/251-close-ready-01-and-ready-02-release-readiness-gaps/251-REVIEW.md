@@ -1,56 +1,62 @@
 ---
 phase: 251-close-ready-01-and-ready-02-release-readiness-gaps
-reviewed: 2026-10-11T21:25:51Z
+reviewed: 2026-10-11T23:16:30Z
 depth: standard
 files_reviewed: 6
 files_reviewed_list:
-  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs
-  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs
   - .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs
   - .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs
 findings:
-  critical: 3
+  critical: 4
   warning: 0
   info: 0
-  total: 3
+  total: 4
 status: issues_found
 ---
 
 # Phase 251: Code Review Report
 
-**Reviewed:** 2026-10-11T21:25:51Z  
+**Reviewed:** 2026-10-11T23:16:30Z  
 **Depth:** standard  
 **Files Reviewed:** 6  
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the six readiness and traceability source/test files in the supplied Phase 251 scope. Three blockers can produce or preserve incorrect READY verdicts: final inventory reuses stale PR dispositions after identity changes, READY-01 package checks are not bound to the evidence they claim to evaluate, and READY-02 capture can overlook dirty secondary worktrees.
+Reviewed the six Phase 251 scoped readiness and traceability scripts and tests. Four independently reproducible acceptance bypasses remain: READY-01 package assertions can be synthesized from result labels without checking source bytes, the independent audit trusts those assertion fields and source digests without reading the cited blobs, READY-02 does not join every captured worktree status item into its disposition population, and its preservation check ignores the named ref and decision/source-byte proof. The current READY-01 `authorization_pending` state is a separate historical evidence gap; these findings describe unsafe paths that could accept fabricated future evidence. In-memory audit reproductions still reported READY-02 satisfied at 8/9 after each READY-02 mutation.
 
 ## Critical Issues
 
-### CR-01: [BLOCKER] Final inventory carries old PR dispositions onto changed identities
+### CR-04: [BLOCKER] T-251-11: Package source assertions are generated from the claimed result
 
-**File:** `.planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs:761-764`
-**Issue:** When a live PR already has a saved row, `finalInventory` copies its old disposition and only overwrites `head_sha` and `base`. It leaves `base_sha` and the disposition's evidence untouched. `validateFinalReadiness` then compares inventory to live PRs using only number, head SHA, and base ref, and checks only that disposition fields are nonempty (`:426-432`). A PR can therefore change head or base commit and still inherit a disposition made for its earlier identity; the fresh inventory can pass with stale reasoning and preservation evidence.
-**Fix:** Bind every disposition to the complete captured identity, including `base_sha`, and invalidate or recapture the disposition whenever any identity field changes. Compare full identities in final validation and require the disposition identity to match the live row.
+**File:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs:225-232`  
+**Issue:** `bindPhase251PackageSourceEvidence` creates each assertion's `result` and `actual` from `check.result`; for a readable source, `result: 'pass'` yields `actual: true` without examining the cited bytes. `namedPackageCheckFailure` then validates that these generated fields are internally consistent and path-bound, not that the asserted package, guide, or README condition is present in the source. A check falsely labeled pass can therefore satisfy the owner package gate. A direct in-memory reproduction with a passing README check and source metadata produced a passing `candidate_readme_guide_link` assertion without reading README content.
+**Fix:** Compute each named assertion by parsing the exact source bytes for its predicate. Make source reading return the bytes (or a verified parsed result) and have `namedPackageCheckFailure` reject assertions unless their values are derived from that source content.
 
-### CR-02: [BLOCKER] READY-01 accepts package checks with unbound evidence text
+### CR-05: [BLOCKER] T-251-12: Independent audit trusts fabricated source digests and assertion booleans
 
-**File:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs:106-114`
-**Issue:** `namedPackageCheckFailure` accepts a check when its result is `pass`, its `source_identity` and `evidence_detail` are any nonempty strings, and its finding text begins `No finding:`. It never verifies that the check's identity or evidence points to the source path(s) relevant to that check. Those results directly contribute to `acceptance_satisfied` and the READY-01 verdict (`:153-163`). The independent traceability check has the same gap: it validates generic nonempty evidence text and a `No finding` prefix (`verify-v149-traceability.mjs:446-449`). A fabricated or accidentally mismatched set of “pass” rows can therefore satisfy READY-01 without demonstrating package-version, tag, guide, compatibility, or adopter checks against the claimed files. The test fixture uses the same generic identity/detail for every package check (`verify-247-readiness.test.mjs:331-335`), so it does not guard this boundary.
-**Fix:** Define the expected source identities and paths for each named check, verify each check references those exact records, and derive/check its evidence from the recorded source bytes rather than accepting free-form “No finding” text.
+**File:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs:509-520`  
+**Issue:** `sourceBytesComplete` only checks stored status fields and equality between stored Git/API blob IDs and stored SHA-256 values. The following source-reference and assertion checks at lines 536-567 compare packet fields to each other and require `actual: true`; they never read `commit:path`, compute a blob digest, or evaluate the named predicate. The existing `ownerEvidenceFixture` builds READY-01 source rows with synthetic blob IDs and digests and passing assertions, and the independent audit accepts that fixture as satisfied. A forged packet can claim source bytes that were never present at the named commit and manufacture all named check results.
+**Fix:** For each expected source, read the blob from the exact commit, recompute its Git blob OID and SHA-256, and derive the mapped assertion from those bytes. Reject missing blobs and do not treat packet booleans or API/Git equality claims as content proof.
 
-### CR-03: [BLOCKER] READY-02 can pass while a secondary worktree is dirty
+### CR-06: [BLOCKER] T-251-13: READY-02 does not require every captured worktree item in the join
 
-**File:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs:265-270`
-**Issue:** `localInheritedSnapshot` records status for every worktree, but the READY-02 pass predicate only checks that every worktree status was readable. Its inherited-work join is built from commits and raw status in the current checkout (`:267-270`), so dirty files in another worktree never enter the join and do not prevent `ready02Satisfied` from becoming true. The packet can consequently publish READY-02 as satisfied despite captured secondary-worktree changes; the traceability verifier later rejects such a packet because it requires all worktrees to be clean (`verify-v149-traceability.mjs:475-488`), leaving the owner verdict and its independent audit inconsistent.
-**Fix:** Include every worktree's status entries in the inherited-work population and disposition join, or require every captured worktree to have an empty status before READY-02 can pass.
+**File:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs:602-633`  
+**Issue:** `completeWorktrees` verifies that each listed status entry has a readable source hash, but `inheritedMatches` only compares `inheritedObserved` with `inheritedDispositions` and their preservation references. It never derives the expected dirty-path identities from `source_capture.local_inherited_work.worktrees[*].status_entries` and compares that complete population to the join. Removing the same dirty-path ID from `observedIds`, `dispositionIds`, and `preservationRefs` left those join arrays mutually consistent; the independent audit still reported READY-02 satisfied and 8/9.
+**Fix:** Recompute the inherited-work identity set from every captured worktree's committed and status-entry population, then require exact equality with join observations, dispositions, and preservation references. Reject omitted, added, or duplicate identities.
+
+### CR-07: [BLOCKER] T-251-14: Preservation validation ignores the named ref and record decision
+
+**File:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs:406-443`  
+**Issue:** `preservationRecordsMatch` validates that `ref` is merely a string, then reads `commitSha:recordPath` through `git cat-file --batch`. It does not resolve `ref` to confirm it names `commitSha`, and it checks the stored record's ID but not its disposition decision or captured source-byte digest against the join. Replacing a live preservation ref with `refs/heads/definitely-nonexistent-phase251` still left the in-memory audit at READY-02 satisfied and 8/9 because the commit object remained readable.
+**Fix:** Resolve `ref^{commit}` and require it to equal `commitSha`; read the record through the resolved ref. Compare the record ID, decision, and captured source-byte identity/digest with the corresponding disposition and observed work item before accepting the join.
 
 ---
 
-_Reviewed: 2026-10-11T21:25:51Z_  
+_Reviewed: 2026-10-11T23:16:30Z_  
 _Reviewer: the agent (gsd-code-reviewer)_  
 _Depth: standard_
