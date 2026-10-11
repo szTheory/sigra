@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T23:12:24Z",
-  "status": "plan_250_07_waiting_for_explicit_v5_authority",
+  "captured_at": "2026-10-11T00:55:51Z",
+  "status": "phase_250_gaps_blocked_at_fresh_canary_authority_and_zero_eligible_ready_tuple",
   "phase": 250,
   "invocation": "$gsd-execute-phase 250 --gaps-only",
   "source_head": "d32128f55300cef3cab5ad3c4e3851f06490eaee",
@@ -47,7 +47,7 @@
     "mix_wrapper": "blocked_by_ignored_dependency_lock_mismatch"
   },
   "plan_250_07": {
-    "status": "waiting_for_explicit_v5_authority_after_green_main_ci",
+    "status": "blocked_stale_v5_packet_requires_fresh_source_and_explicit_canary_authority",
     "authority_packet": {
       "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
       "sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
@@ -130,12 +130,15 @@
     "authorization": {
       "approved": false,
       "required": true,
-      "decision_status": "awaiting_user_decision",
+      "decision_status": "no_packet_specific_canary_authority_received",
       "packet_id": "250-07-canary-authority-v5",
       "packet_sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
       "source_sha": "e0c66d61211ddb461c049ca6422350308b420126",
-      "user_reply_verbatim": null,
-      "dispatch_attempted": false
+      "user_reply_verbatim": "approval of what? if ci is green u can merge and release if thats what u mean",
+      "dispatch_attempted": false,
+      "authorized_scope": "Release PR merge after green CI and guarded release publication; no new canary dispatch.",
+      "packet_status": "stale_source",
+      "current_main_sha": "ff96768bc2843ef1a89926d238690b1145bfd514"
     },
     "controller_run": {
       "id": 38087516844,
@@ -468,7 +471,7 @@
     "next_roadmap_phase": null,
     "incomplete_count": 6,
     "threat_id_duplicate_count": 0,
-    "pending_action": "Diagnose and repair the missing workflow_run observer evidence path, merge only after required CI passes, then prepare a fresh current-main packet and obtain new explicit authority before any further controller dispatch.",
+    "pending_action": "Resume $gsd-execute-phase 250 --gaps-only only after the separate canary gate is addressed: v5 packet source e0c66d6 is stale against current main ff96768, and any new controller dispatch needs a fresh main-bound packet plus explicit packet-specific authorization. Plan 250-08 remains blocked with zero eligible tuples; plans 09-12 depend on those blockers. The 1.7.0 release is complete and recorded separately.",
     "next_command": "$gsd-execute-phase 250 --gaps-only"
   },
   "prior_write_ahead_revisions": [
@@ -644,7 +647,8 @@
     }
   },
   "next_command": "$gsd-execute-phase 250 --gaps-only",
-  "separate_automation_observation": {
+  "next_action": "Await a decision on v5 packet b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287; if approved, refresh read-only preflight only if needed and main remains e0c66d61211ddb461c049ca6422350308b420126, then execute only the exact bounded controller action.",
+  "historical_separate_automation_observation_38093033505": {
     "release_please_run_id": 38093033505,
     "conclusion": "failure",
     "release_pr": 302,
@@ -654,5 +658,22 @@
     "release_published": false,
     "affects_main_source_sha": false
   },
-  "next_action": "Await a decision on v5 packet b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287; if approved, refresh read-only preflight only if needed and main remains e0c66d61211ddb461c049ca6422350308b420126, then execute only the exact bounded controller action."
+  "separate_automation_observation": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
+    "status": "completed_separate_v1.7.0_public_release",
+    "release_pr": 302,
+    "merge_commit": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "release_commit_ci_run_id": 38097941299,
+    "release_commit_ci_conclusion": "success",
+    "release_please_run_id": 38097941302,
+    "release_please_conclusion": "success",
+    "hex_publish_job_id": 114351805835,
+    "hex_publish_job_conclusion": "success",
+    "github_release_tag": "v1.7.0",
+    "hex_version": "1.7.0",
+    "does_not_update_phase_249_v149_owner_verdict": true,
+    "merge_method": "squash",
+    "guarded_merge_run_id": 38097921285
+  },
+  "separate_release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json"
 }

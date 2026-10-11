@@ -34,13 +34,15 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 250 --gaps-only",
-    "label": "Await decision for the repaired Plan 250-07 canary run",
-    "reason": "PR #322 fixes the observer source-id input collision and is merged at e0c66d61211ddb461c049ca6422350308b420126. Exact-head CI 38092530129 and exact-main CI 38093033532 are green, including ci-gate and admin eval. V5 approval record and fresh read-only preflight are committed; v4 authority is consumed and no v5 dispatch has occurred. Release Please run 38093033505 failed separately after pushing generated-index commit d4ff8ca to PR #302; publish jobs were skipped and no release was made.",
+    "label": "Resume Phase 250 after the fresh canary authority gate is resolved",
+    "reason": "The v1.7.0 release is complete on green release-SHA CI. Phase 250 remains incomplete: v5 canary packet targets old main e0c66d6, current main is ff96768, and the separate Plan 250-08 packet has zero eligible tuples. No new controller dispatch occurred.",
     "blocked_by": [
-      "250-07-v5-explicit-authority",
-      "250-08-no-eligible-tuple"
+      "250-07-fresh-main-bound-packet-and-explicit-canary-authority",
+      "250-08-no-eligible-tuple",
+      "250-09-through-250-12-upstream-dependencies"
     ],
-    "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json"
+    "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json",
+    "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json"
   },
-  "updated_at": "2026-10-10T23:12:24Z"
+  "updated_at": "2026-10-11T00:55:51Z"
 }
