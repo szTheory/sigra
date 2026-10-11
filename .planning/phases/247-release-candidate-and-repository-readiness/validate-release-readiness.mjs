@@ -36,6 +36,36 @@ function sameSet(left, right) {
   return a.length === left.length && b.length === right.length && a.length === b.length && a.every((value, index) => value === b[index]);
 }
 
+function pullRequestIdentity(row) {
+  return {
+    repository: row?.repository,
+    number: row?.number,
+    head_sha: row?.head_sha,
+    base: row?.base,
+    base_sha: row?.base_sha,
+  };
+}
+
+function samePullRequestIdentity(left, right) {
+  const a = pullRequestIdentity(left);
+  const b = pullRequestIdentity(right);
+  return a.repository === b.repository
+    && a.number === b.number
+    && a.head_sha === b.head_sha
+    && a.base === b.base
+    && a.base_sha === b.base_sha;
+}
+
+function pullRequestIdentityKey(row) {
+  return JSON.stringify([
+    row?.repository,
+    row?.number,
+    row?.head_sha,
+    row?.base,
+    row?.base_sha,
+  ]);
+}
+
 function pathKeys(rows, kind) {
   return rows.filter(row => row.kind === kind).map(row => row.path);
 }
@@ -423,13 +453,29 @@ function validateFinalReadiness(final, observed) {
   if (inventory.captured_at && final.observed_at && inventory.captured_at !== final.observed_at) add('final_inventory_time_mismatch', 'Fresh inventory and final evidence timestamps must match.');
   const inventoryPrs = Array.isArray(inventory.pull_requests) ? inventory.pull_requests : [];
   const livePrs = Array.isArray(live.open_pull_requests) ? live.open_pull_requests : [];
-  const identity = rows => rows.map(row => `${row.number}:${row.head_sha}:${row.base}`).sort();
-  if (new Set(identity(inventoryPrs)).size !== inventoryPrs.length) add('final_duplicate_pr_key', 'Final PR inventory contains duplicate PR identity keys.');
+  for (const row of [...inventoryPrs, ...livePrs]) {
+    if (row?.repository !== repository || !Number.isInteger(row?.number) || row.number < 1
+      || !/^[0-9a-f]{40}$/.test(row?.head_sha ?? '') || typeof row?.base !== 'string' || !row.base.trim()
+      || !/^[0-9a-f]{40}$/.test(row?.base_sha ?? '')) {
+      add('final_pr_identity_invalid', `PR #${row?.number ?? '(unknown)'} needs repository, number, head SHA, base ref, and full base SHA.`);
+    }
+  }
+  const identity = rows => rows.map(pullRequestIdentityKey).sort();
+  if (new Set(identity(inventoryPrs)).size !== inventoryPrs.length) add('final_duplicate_pr_key', 'Final PR inventory contains duplicate complete identity keys.');
   const prNumbers = inventoryPrs.map(row => row.number);
   if (prNumbers.some((number, index) => index > 0 && prNumbers[index - 1] > number)) add('final_pr_order_invalid', 'Final PR inventory must sort by number.');
-  if (JSON.stringify(identity(inventoryPrs)) !== JSON.stringify(identity(livePrs))) add('final_pr_population_mismatch', 'Final PR dispositions do not cover the freshly observed open PR population.');
+  if (JSON.stringify(identity(inventoryPrs)) !== JSON.stringify(identity(livePrs))) {
+    const inventoryNumbers = inventoryPrs.map(row => row.number).sort((a, b) => a - b);
+    const liveNumbers = livePrs.map(row => row.number).sort((a, b) => a - b);
+    if (JSON.stringify(inventoryNumbers) === JSON.stringify(liveNumbers)) {
+      add('final_pr_identity_mismatch', 'A final PR row does not match the freshly observed full identity.');
+    } else {
+      add('final_pr_population_mismatch', 'Final PR dispositions do not cover the freshly observed open PR population.');
+    }
+  }
   for (const row of inventoryPrs) {
     if (!row.disposition || !row.reason || !row.source || !row.preservation_location) add('final_pr_disposition_missing', `Open PR #${row.number ?? '(unknown)'} has no complete disposition.`);
+    if (!samePullRequestIdentity(row.disposition_identity, row)) add('final_pr_disposition_identity_mismatch', `Open PR #${row.number ?? '(unknown)'} disposition is not bound to its complete identity.`);
   }
   const pathKeys = (Array.isArray(inventory.paths) ? inventory.paths : []).map(row => `${row.kind ?? ''}\0${row.path ?? ''}`);
   if (new Set(pathKeys).size !== pathKeys.length) add('final_duplicate_path_key', 'Final path inventory contains duplicate kind/path keys.');
@@ -760,8 +806,11 @@ function finalInventory(snapshot, observed, livePullRequests) {
   });
   const pull_requests = livePullRequests.map(row => {
     const previous = oldPrs.get(row.number);
-    return previous ? { ...previous, head_sha: row.head_sha, base: row.base }
-      : { ...row, disposition: null, reason: null, source: null, preservation_location: null };
+    if (previous && samePullRequestIdentity(previous, row)
+      && samePullRequestIdentity(previous.disposition_identity, row)) {
+      return { ...previous, ...row, disposition_identity: pullRequestIdentity(row) };
+    }
+    return { ...row, disposition: null, reason: null, source: null, preservation_location: null, disposition_identity: null };
   }).sort((a, b) => a.number - b.number);
   return {
     captured_at: new Date().toISOString(), trusted_main_sha: observed.trusted_main_sha,

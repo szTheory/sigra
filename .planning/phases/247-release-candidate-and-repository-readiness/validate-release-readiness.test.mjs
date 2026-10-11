@@ -436,13 +436,15 @@ function finalReadinessFixture() {
       main_advance: { verified: true, paths: [] },
       source_ci_run: { run_id: sourceCiId, attempt: 1, head_sha: sha, conclusion: 'success', docs_step_conclusion: 'success' },
       dry_run_run: { run_id: dryRunId, head_sha: reviewedBase, event: 'workflow_dispatch', status: 'completed', conclusion: 'success', job_conclusion: 'success' },
-      open_pull_requests: [{ number: 224, head_sha: sha, base: 'main' }],
+      open_pull_requests: [{ repository: 'szTheory/sigra', number: 224, head_sha: sha, base: 'main', base_sha: 'b'.repeat(40) }],
     },
     inventory: {
       captured_at: final.observed_at,
       commits: [],
       paths: [],
-      pull_requests: [{ number: 224, head_sha: sha, base: 'main', disposition: 'release-relevant', reason: 'Selected release PR.', source: 'https://github.com/szTheory/sigra/pull/224', preservation_location: 'GitHub PR #224' }],
+      pull_requests: [{ repository: 'szTheory/sigra', number: 224, head_sha: sha, base: 'main', base_sha: 'b'.repeat(40),
+        disposition: 'release-relevant', reason: 'Selected release PR.', source: 'https://github.com/szTheory/sigra/pull/224', preservation_location: 'GitHub PR #224',
+        disposition_identity: { repository: 'szTheory/sigra', number: 224, head_sha: sha, base: 'main', base_sha: 'b'.repeat(40) } }],
       raw_status: [],
     },
   };
@@ -606,10 +608,10 @@ function dispositionIdentity(row) {
   };
 }
 
-function finalInventoryForPullRequest(livePullRequest) {
-  const identity = dispositionIdentity(livePullRequest);
+function finalInventoryForPullRequest(savedPullRequest, livePullRequest = savedPullRequest) {
+  const identity = dispositionIdentity(savedPullRequest);
   const saved = {
-    ...livePullRequest,
+    ...savedPullRequest,
     changed_files: [],
     disposition: 'release-relevant',
     reason: 'Selected release PR.',
@@ -645,7 +647,7 @@ test('final inventory invalidates disposition when any captured PR identity comp
     ['base_sha', 'd'.repeat(40)],
   ]) {
     const changed = { ...baseline, [field]: value };
-    const inventory = finalInventoryForPullRequest(changed);
+    const inventory = finalInventoryForPullRequest(baseline, changed);
     final.observed_at = inventory.captured_at;
     assert.equal(inventory.pull_requests[0].disposition, null, `${field} must clear the old disposition`);
     observed.inventory = inventory;
