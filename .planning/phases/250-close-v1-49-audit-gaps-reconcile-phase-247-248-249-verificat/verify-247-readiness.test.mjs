@@ -438,6 +438,46 @@ function bindPackageCheckEvidence(input, requirements) {
   }
 }
 
+function bindExactApprovalEvidence(ready01) {
+  const exactTuple = {
+    candidate_sha: phase251CandidateSha,
+    reviewed_base_sha: tuple.reviewedBaseSha,
+    protected_main_sha: tuple.mainSha,
+  };
+  const owner = {
+    identity: 'historical_owner_report:0e7a2835ebd0d7a1e791ad4dbc73955270108ed1',
+    commit_sha: '0e7a2835ebd0d7a1e791ad4dbc73955270108ed1',
+    path: '.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md',
+    read_status: 'readable', trust_status: 'trusted_exact_api_blob_match',
+    git_blob_oid: 'da60a96544dcb1dff301e416930e183e021f0b6e',
+    sha256: 'd34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39',
+  };
+  const review = { id: 12345, state: 'APPROVED', submitted_at: '2026-10-08T18:00:00Z', commit_id: phase251CandidateSha };
+  ready01.historical_owner_source = owner;
+  ready01.time_window = { start: '2026-10-08T17:41:43Z', end: '2026-10-09T00:56:51Z', complete: true };
+  ready01.approval_history = {
+    complete: true,
+    window: { start: ready01.time_window.start, end: ready01.time_window.end },
+    reviews: { status: 200, page_count: 1, item_count: 1, response_sha256: 'a'.repeat(64), events: [review] },
+    timeline: { status: 200, page_count: 1, item_count: 1, response_sha256: 'b'.repeat(64), interval_events: [] },
+  };
+  ready01.approval_record = {
+    review_id: review.id, event: review.state, submitted_at: review.submitted_at,
+    owner_report_sha256: owner.sha256,
+    candidate_tuple: exactTuple,
+    exact_head_ci: { run_id: 37819712610, attempt: 1, head_sha: phase251CandidateSha },
+    readiness_record: {
+      path: '.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json',
+      sha256: 'c'.repeat(64), tuple: exactTuple,
+    },
+    dry_run_receipt: {
+      path: '.planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json',
+      sha256: 'd'.repeat(64), tuple: exactTuple, authenticated: true, publishing: false,
+    },
+  };
+  ready01.approval_event = 'found';
+}
+
 const packageAcceptanceFixtures = expectedPackageAcceptanceFixtureNames.map((name) => ({ name }));
 const executedPackageAcceptanceFixtureNames = [];
 
@@ -494,7 +534,7 @@ test('a correct exact-tag source record and its digest-bound assertion can pass'
   const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
   const input = structuredClone(phase251ReadyFeasibilityFixture);
   const ready01 = input.requirements.READY01;
-  ready01.approval_event = 'found';
+  bindExactApprovalEvidence(ready01);
   const guide = ready01.sources.find((source) => source.source_identity === phase251PublishedIdentity
     && source.path === 'guides/introduction/upgrading-to-v1.6.md');
   Object.assign(guide, { read_status: 'readable', trust_status: 'trusted_exact_api_blob_match', git_blob_oid: 'e'.repeat(40), sha256: 'f'.repeat(64) });
@@ -510,18 +550,93 @@ test('a generic approval flag cannot replace an exact contemporaneous approval t
   const input = structuredClone(phase251ReadyFeasibilityFixture);
   const ready01 = input.requirements.READY01;
   bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
-  ready01.approval_event = 'found';
-  ready01.history_complete = true;
-  ready01.time_window = {
-    start: '2026-10-08T17:41:43Z',
-    end: '2026-10-09T00:56:51Z',
-    complete: true,
-  };
+  bindExactApprovalEvidence(ready01);
+  ready01.approval_record.submitted_at = '2026-10-09T01:10:00Z';
+  ready01.approval_history.reviews.events[0].submitted_at = ready01.approval_record.submitted_at;
 
   const result = evaluatePhase251Feasibility(input);
   assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+  assert.equal(result.requirements.READY01.verdict, 'unsatisfied');
+  assert.equal(result.requirements.READY02.verdict, 'unsatisfied');
+  assert.equal(result.requirements.READY02.source_feasibility, 'ready');
+});
+
+test('an exact review cannot satisfy READY-01 when any candidate, CI, readiness, or dry-run identity differs', async () => {
+  const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
+  const mutations = [
+    (approval) => { approval.candidate_tuple.candidate_sha = 'f'.repeat(40); },
+    (approval) => { approval.exact_head_ci.run_id += 1; },
+    (approval) => { approval.readiness_record.sha256 = 'invalid'; },
+    (approval) => { approval.readiness_record.tuple.protected_main_sha = 'f'.repeat(40); },
+    (approval) => { approval.dry_run_receipt.sha256 = 'invalid'; },
+    (approval) => { approval.dry_run_receipt.tuple.reviewed_base_sha = 'f'.repeat(40); },
+    (approval) => { approval.dry_run_receipt.authenticated = false; },
+  ];
+  for (const mutate of mutations) {
+    const input = structuredClone(phase251ReadyFeasibilityFixture);
+    const ready01 = input.requirements.READY01;
+    bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
+    bindExactApprovalEvidence(ready01);
+    mutate(ready01.approval_record);
+    const result = evaluatePhase251Feasibility(input);
+    assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+    assert.equal(result.requirements.READY01.verdict, 'unsatisfied');
+    assert.equal(result.requirements.READY02.verdict, 'unsatisfied');
+  }
+});
+
+test('complete history with no approval stays authorization_pending and preserves READY-02', async () => {
+  const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
+  const input = structuredClone(phase251ReadyFeasibilityFixture);
+  const ready01 = input.requirements.READY01;
+  bindPackageCheckEvidence(input, phase251PackageCheckRequirements);
+  ready01.approval_history = {
+    complete: true,
+    window: { start: '2026-10-08T17:41:43Z', end: '2026-10-09T00:56:51Z' },
+    reviews: { status: 200, page_count: 1, item_count: 0, response_sha256: 'a'.repeat(64), events: [] },
+    timeline: { status: 200, page_count: 1, item_count: 46, response_sha256: 'b'.repeat(64), interval_events: [] },
+  };
+  ready01.time_window = { start: '2026-10-08T17:41:43Z', end: '2026-10-09T00:56:51Z', complete: true };
+  ready01.approval_event = 'absent';
+
+  const result = evaluatePhase251Feasibility(input);
   assert.equal(result.requirements.READY01.verdict, 'authorization_pending');
-  assert.ok(result.requirements.READY01.findings.includes('authorization_pending'));
+  assert.equal(result.requirements.READY01.package_adopter.acceptance_satisfied, false);
+  assert.equal(result.requirements.READY02.verdict, 'unsatisfied');
+  assert.equal(result.requirements.READY02.source_feasibility, 'ready');
+});
+
+test('semantic READY verdicts and blockers are stable when capture timestamps differ', async () => {
+  const { evaluatePhase251Feasibility } = await import('./verify-247-readiness.mjs');
+  const first = structuredClone(phase251ReadyFeasibilityFixture);
+  const second = structuredClone(phase251ReadyFeasibilityFixture);
+  first.captured_at = '2026-10-11T21:00:00Z';
+  second.captured_at = '2026-10-11T22:00:00Z';
+
+  const a = evaluatePhase251Feasibility(first);
+  const b = evaluatePhase251Feasibility(second);
+  for (const key of ['verdict', 'source_feasibility', 'capture_allowed', 'findings', 'blockers']) {
+    assert.deepEqual(a.requirements.READY01[key], b.requirements.READY01[key]);
+    assert.deepEqual(a.requirements.READY02[key], b.requirements.READY02[key]);
+  }
+  assert.equal(a.requirements.READY01.verdict, 'authorization_pending');
+});
+
+test('Phase 251 artifact check rejects a mixed capture ID across packet, summary, and owner report', async () => {
+  const { checkPhase251Artifacts } = await import('./verify-247-readiness.mjs');
+  const packet = {
+    capture_id: 'phase251-0123456789abcdefabcd',
+    candidate_tuple: { candidate_sha: phase251CandidateSha },
+    published_release_source: { commit_sha: phase251PublishedSha },
+    requirement_verdicts: { 'READY-01': 'authorization_pending', 'READY-02': 'unsatisfied' },
+    requirements: { READY01: { verdict: 'authorization_pending' }, READY02: { verdict: 'unsatisfied' } },
+  };
+  const digest = createHash('sha256').update(`${JSON.stringify(packet, null, 2)}\n`).digest('hex');
+  const summary = `- **Packet capture ID:** \`${packet.capture_id}\`\n- **Packet SHA-256:** \`${digest}\``;
+  const owner = `<!-- phase-251-capture-id: ${packet.capture_id} -->\n<!-- phase-251-reconciliation-sha256: ${digest} -->`;
+  assert.equal(checkPhase251Artifacts(packet, summary, owner).valid, true);
+  assert.equal(checkPhase251Artifacts(packet, summary.replace(packet.capture_id, 'phase251-other'), owner).valid, false);
+  assert.equal(checkPhase251Artifacts(packet, summary, owner.replace(packet.capture_id, 'phase251-other')).valid, false);
 });
 
 test('secondary-worktree dirty paths stay in the READY-02 disposition and preservation join', async () => {

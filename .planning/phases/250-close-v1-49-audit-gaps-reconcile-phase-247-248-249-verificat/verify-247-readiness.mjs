@@ -32,6 +32,18 @@ const phase251PublishedSource = {
   tag_ref: 'refs/tags/v1.6.0',
   commit_sha: '9e80cb78d6374b1ed4074d5fef6b613fee879dca',
 };
+const phase251ApprovalWindow = {
+  start: '2026-10-08T17:41:43Z',
+  end: '2026-10-09T00:56:51Z',
+};
+const phase251OwnerReportSource = {
+  identity: 'historical_owner_report:0e7a2835ebd0d7a1e791ad4dbc73955270108ed1',
+  commit_sha: '0e7a2835ebd0d7a1e791ad4dbc73955270108ed1',
+  path: '.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md',
+  git_blob_oid: 'da60a96544dcb1dff301e416930e183e021f0b6e',
+  sha256: 'd34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39',
+};
+const phase251ExactHeadCi = { run_id: 37819712610, attempt: 1, head_sha: phase251CandidateTuple.candidate_sha };
 
 function readJson(file) {
   return JSON.parse(readFileSync(file, 'utf8'));
@@ -142,9 +154,6 @@ function namedPackageCheckFailure(packageAdopter, sourceRecords = packageAdopter
   return phase251PackageCheckNames.flatMap((name) => {
     const check = packageAdopter.checks[name];
     if (!check || !['pass', 'missing', 'mismatch', 'unreadable'].includes(check.result)) return [`package_check_missing:${name}`];
-    if (check.result !== 'pass') return [`package_check_${check.result}:${name}`];
-    if (![check.source_identity, check.evidence_detail, check.finding_detail].every((value) => typeof value === 'string' && value.trim())
-      || !check.finding_detail.startsWith('No finding:')) return [`package_check_evidence_incomplete:${name}`];
     const requirements = phase251PackageCheckRequirements[name] ?? [];
     const refs = check.source_refs;
     const assertions = check.source_assertions;
@@ -152,13 +161,16 @@ function namedPackageCheckFailure(packageAdopter, sourceRecords = packageAdopter
     const expectedKeys = requirements.map(key).sort();
     const actualKeys = Array.isArray(refs) ? refs.map(key).sort() : [];
     const sourceMap = new Map(sourceRecords.map((source) => [key(source), source]));
+    const validSourceForResult = (source) => trustedReadableSource(source)
+      || (check.result !== 'pass' && source?.read_status === 'missing'
+        && source?.trust_status === 'trusted_exact_commit_404' && source?.http_status === 404);
     const refFailures = !requirements.length || !Array.isArray(refs)
       || refs.length !== requirements.length || new Set(actualKeys).size !== actualKeys.length
       || JSON.stringify(actualKeys) !== JSON.stringify(expectedKeys)
       || requirements.some((required) => {
         const source = sourceMap.get(key(required));
         const ref = refs.find((item) => key(item) === key(required));
-        return !trustedReadableSource(source) || !trustedReadableSource(ref)
+        return !validSourceForResult(source) || !validSourceForResult(ref)
           || source.git_blob_oid !== ref.git_blob_oid || source.sha256 !== ref.sha256;
       });
     if (refFailures) return [`package_check_source_refs_invalid:${name}`];
@@ -173,12 +185,79 @@ function namedPackageCheckFailure(packageAdopter, sourceRecords = packageAdopter
         || expectedAssertions.some((expected) => {
         const actual = actualAssertions.find((item) => item?.id === expected.id);
         const source = expected.source;
-          return !actual || actual.result !== 'pass' || actual.expected !== true || actual.actual !== true
+          return !source || !actual || !['pass', 'missing', 'mismatch', 'unreadable'].includes(actual.result)
+          || actual.expected !== true || typeof actual.actual !== 'boolean'
+          || (actual.result === 'pass' && actual.actual !== true)
+          || (source.read_status === 'missing' && (actual.result !== 'missing' || actual.actual !== false))
           || actual.source_identity !== expected.identity || actual.commit_sha !== expected.commit_sha
           || actual.path !== expected.path || actual.git_blob_oid !== source.git_blob_oid || actual.sha256 !== source.sha256;
       });
-    return assertionFailures ? [`package_check_source_assertions_invalid:${name}`] : [];
+    if (assertionFailures) return [`package_check_source_assertions_invalid:${name}`];
+    if (check.result === 'pass' && actualAssertions.some((item) => item.result !== 'pass' || item.actual !== true)) {
+      return [`package_check_source_assertions_invalid:${name}`];
+    }
+    if (check.result !== 'pass') return [`package_check_${check.result}:${name}`];
+    if (![check.source_identity, check.evidence_detail, check.finding_detail].every((value) => typeof value === 'string' && value.trim())
+      || !check.finding_detail.startsWith('No finding:')) return [`package_check_evidence_incomplete:${name}`];
+    return [];
   });
+}
+
+function exactHistoricalApprovalFailure(ready01) {
+  const failures = [];
+  const history = ready01?.approval_history;
+  const owner = ready01?.historical_owner_source;
+  const record = ready01?.approval_record;
+  const timeWindow = ready01?.time_window;
+  const sameTuple = (value) => value?.candidate_sha === phase251CandidateTuple.candidate_sha
+    && value?.reviewed_base_sha === phase251CandidateTuple.reviewed_base_sha
+    && value?.protected_main_sha === phase251CandidateTuple.protected_main_sha;
+  const exactOwner = owner?.identity === phase251OwnerReportSource.identity
+    && owner?.commit_sha === phase251OwnerReportSource.commit_sha
+    && owner?.path === phase251OwnerReportSource.path
+    && owner?.git_blob_oid === phase251OwnerReportSource.git_blob_oid
+    && owner?.sha256 === phase251OwnerReportSource.sha256
+    && owner?.read_status === 'readable'
+    && typeof owner?.trust_status === 'string' && owner.trust_status.startsWith('trusted_');
+  if (!exactOwner) failures.push('historical_owner_source_untrusted');
+  const reviewsComplete = history?.complete === true
+    && history?.reviews?.status === 200
+    && Number.isInteger(history?.reviews?.page_count) && history.reviews.page_count > 0
+    && Number.isInteger(history?.reviews?.item_count) && Array.isArray(history?.reviews?.events)
+    && history.reviews.events.length === history.reviews.item_count
+    && history?.timeline?.status === 200
+    && Number.isInteger(history?.timeline?.page_count) && history.timeline.page_count > 0
+    && Number.isInteger(history?.timeline?.item_count) && Array.isArray(history?.timeline?.interval_events)
+    && /^[a-f0-9]{64}$/.test(history?.reviews?.response_sha256 ?? '')
+    && /^[a-f0-9]{64}$/.test(history?.timeline?.response_sha256 ?? '');
+  const exactWindow = timeWindow?.complete === true
+    && timeWindow.start === phase251ApprovalWindow.start
+    && timeWindow.end === phase251ApprovalWindow.end
+    && history?.window?.start === phase251ApprovalWindow.start
+    && history?.window?.end === phase251ApprovalWindow.end;
+  if (!reviewsComplete || !exactWindow) failures.push('approval_history_incomplete');
+  const eventTime = Date.parse(record?.submitted_at ?? '');
+  const windowStart = Date.parse(phase251ApprovalWindow.start);
+  const windowEnd = Date.parse(phase251ApprovalWindow.end);
+  const review = history?.reviews?.events?.find((item) => String(item?.id) === String(record?.review_id));
+  if (!record || !review || review.state !== 'APPROVED'
+    || review.commit_id !== phase251CandidateTuple.candidate_sha
+    || record.event !== 'APPROVED'
+    || record.submitted_at !== review.submitted_at
+    || !Number.isFinite(eventTime) || eventTime < windowStart || eventTime >= windowEnd
+    || !exactOwner || record.owner_report_sha256 !== owner.sha256) failures.push('approval_event_not_exact_or_contemporaneous');
+  if (!sameTuple(record?.candidate_tuple)) failures.push('approval_candidate_tuple_mismatch');
+  const ci = record?.exact_head_ci;
+  if (ci?.run_id !== phase251ExactHeadCi.run_id || ci?.attempt !== phase251ExactHeadCi.attempt
+    || ci?.head_sha !== phase251ExactHeadCi.head_sha) failures.push('approval_exact_head_ci_mismatch');
+  const readiness = record?.readiness_record;
+  if (readiness?.path !== '.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json'
+    || !/^[a-f0-9]{64}$/.test(readiness?.sha256 ?? '') || !sameTuple(readiness?.tuple)) failures.push('approval_readiness_record_mismatch');
+  const dryRun = record?.dry_run_receipt;
+  if (dryRun?.path !== '.planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json'
+    || !/^[a-f0-9]{64}$/.test(dryRun?.sha256 ?? '') || !sameTuple(dryRun?.tuple)
+    || dryRun?.authenticated !== true || dryRun?.publishing !== false) failures.push('approval_dry_run_receipt_mismatch');
+  return [...new Set(failures)].sort();
 }
 
 /** Evaluate source feasibility independently from each requirement's acceptance verdict. */
@@ -194,8 +273,8 @@ export function evaluatePhase251Feasibility(feasibility) {
   };
   const blockers01 = sourceBlockers('READY01', ready01);
   const blockers02 = sourceBlockers('READY02', ready02);
-  ready01.blockers = [...new Set([...(ready01.blockers ?? []), ...blockers01])];
-  ready02.blockers = [...new Set([...(ready02.blockers ?? []), ...blockers02])];
+  ready01.blockers = [...new Set([...(ready01.blockers ?? []), ...blockers01])].sort();
+  ready02.blockers = [...new Set([...(ready02.blockers ?? []), ...blockers02])].sort();
   ready01.source_feasibility = blockers01.length ? 'blocked' : 'ready';
   ready02.source_feasibility = blockers02.length ? 'blocked' : 'ready';
   ready01.capture_allowed = ready01.source_feasibility === 'ready';
@@ -211,9 +290,13 @@ export function evaluatePhase251Feasibility(feasibility) {
     || published.commit_sha !== phase251PublishedSource.commit_sha) findings.push('published_tag_identity_mismatch');
   const packageFailures = namedPackageCheckFailure(ready01.package_adopter, ready01.sources);
   findings.push(...packageFailures);
-  if (ready01.history_complete !== true) findings.push('approval_history_incomplete');
-  if (ready01.approval_event !== 'found') findings.push(ready01.approval_event === 'absent' ? 'authorization_pending' : 'approval_event_not_searchable');
-  ready01.findings = [...new Set([...(ready01.findings ?? []), ...findings])];
+  const approvalFailures = exactHistoricalApprovalFailure(ready01);
+  findings.push(...approvalFailures);
+  const approvalUnavailable = ready01.approval_event !== 'found'
+    || approvalFailures.includes('historical_owner_source_untrusted')
+    || approvalFailures.includes('approval_history_incomplete');
+  if (approvalUnavailable) findings.push('authorization_pending');
+  ready01.findings = [...new Set([...(ready01.findings ?? []), ...findings])].sort();
   ready01.package_adopter ??= {};
   ready01.package_adopter.sources ??= ready01.sources;
   ready01.package_adopter.acceptance_satisfied = ready01.capture_allowed
@@ -225,11 +308,13 @@ export function evaluatePhase251Feasibility(feasibility) {
     && published.commit_sha === phase251PublishedSource.commit_sha
     && packageFailures.length === 0
     && ready01.history_complete === true
-    && ready01.approval_event === 'found';
-  ready01.verdict = ready01.package_adopter.acceptance_satisfied ? 'satisfied' : (ready01.approval_event === 'absent' ? 'authorization_pending' : 'unsatisfied');
+    && ready01.approval_event === 'found'
+    && approvalFailures.length === 0;
+  ready01.verdict = ready01.package_adopter.acceptance_satisfied ? 'satisfied'
+    : (approvalUnavailable ? 'authorization_pending' : 'unsatisfied');
   ready02.verdict = ready02.capture_allowed && ready02.verdict === 'satisfied' ? 'satisfied' : 'unsatisfied';
   result.status = ready01.capture_allowed || ready02.capture_allowed ? 'ready' : 'blocked';
-  result.blockers = result.status === 'blocked' ? [...ready01.blockers, ...ready02.blockers] : [];
+  result.blockers = result.status === 'blocked' ? [...new Set([...ready01.blockers, ...ready02.blockers])].sort() : [];
   result.requirements.READY01 = ready01;
   result.requirements.READY02 = ready02;
   return result;
@@ -456,15 +541,19 @@ export function buildPhase251Packet(feasibility, evaluated, before, after, local
   const ready02Satisfied = ready02.capture_allowed && prStable && mainStable && prJoin.status === 'passed'
     && inheritedJoin.status === 'passed' && local.inventory_complete && local.worktrees.every((row) => row.status_readable);
   const ready01Satisfied = Boolean(ready01.package_adopter?.acceptance_satisfied);
-  ready01.verdict = ready01Satisfied ? 'satisfied' : (ready01.approval_event === 'absent' ? 'authorization_pending' : 'unsatisfied');
+  ready01.verdict = ready01Satisfied ? 'satisfied' : (ready01.approval_event !== 'found' ? 'authorization_pending' : 'unsatisfied');
   ready02.verdict = ready02Satisfied ? 'satisfied' : 'unsatisfied';
+  const capturedAt = new Date().toISOString();
+  const feasibilitySha = sha256(readFileSync(phase251FeasibilityPath));
+  const captureId = `phase251-${sha256(`${capturedAt}:${feasibilitySha}:${before?.main?.sha ?? ''}:${after?.main?.sha ?? ''}:${local.head_sha ?? ''}:${local.raw_status_sha256 ?? ''}`).slice(0, 20)}`;
   return {
     schema_version: 1,
     phase: 251,
     owner_phase: 247,
     repository: 'szTheory/sigra',
-    captured_at: new Date().toISOString(),
-    source_feasibility: { path: path.relative(repoRoot, phase251FeasibilityPath), sha256: sha256(readFileSync(phase251FeasibilityPath)) },
+    captured_at: capturedAt,
+    capture_id: captureId,
+    source_feasibility: { path: path.relative(repoRoot, phase251FeasibilityPath), sha256: feasibilitySha },
     source_capture: { before, after, stable_open_pr_identity: prStable, stable_main_identity: mainStable, local_inherited_work: local },
     candidate_tuple: ready01.candidate_tuple ?? phase251CandidateTuple,
     published_release_source: ready01.published_release_source ?? phase251PublishedSource,
@@ -472,7 +561,11 @@ export function buildPhase251Packet(feasibility, evaluated, before, after, local
     requirement_verdicts: { 'READY-01': ready01.verdict, 'READY-02': ready02.verdict },
     requirements: {
       READY01: { source_feasibility: ready01.source_feasibility, capture_allowed: ready01.capture_allowed,
-        verdict: ready01.verdict, blockers: ready01.blockers, findings: ready01.findings ?? [], package_adopter: ready01.package_adopter ?? null },
+        verdict: ready01.verdict, blockers: ready01.blockers, findings: ready01.findings ?? [],
+        history_complete: ready01.history_complete, time_window: ready01.time_window ?? null,
+        historical_owner_source: ready01.historical_owner_source ?? null,
+        approval_history: ready01.approval_history ?? null, approval_record: ready01.approval_record ?? null,
+        package_adopter: ready01.package_adopter ?? null },
       READY02: { source_feasibility: ready02.source_feasibility, capture_allowed: ready02.capture_allowed,
         verdict: ready02.verdict, blockers: [...ready02.blockers, ...blockers,
           ...(prStable ? [] : ['open_pr_population_changed_or_incomplete']),
@@ -495,14 +588,14 @@ function buildPhase251Summary(packet) {
   const digest = sha256(`${JSON.stringify(packet, null, 2)}\n`);
   const r1 = packet.requirements.READY01;
   const r2 = packet.requirements.READY02;
-  return `# Phase 251 Evidence Summary\n\n- **Packet:** \`.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json\`\n- **Packet SHA-256:** \`${digest}\`\n- **Captured at:** ${packet.captured_at}\n- **Candidate tuple:** \`${packet.candidate_tuple.candidate_sha}\` / \`${packet.candidate_tuple.reviewed_base_sha}\` / \`${packet.candidate_tuple.protected_main_sha}\`\n- **Published release:** \`${packet.published_release_source.tag}\` → \`${packet.published_release_source.commit_sha}\`\n\n| Requirement | Verdict | Source ready | Capture allowed |\n|---|---|---|---|\n| READY-01 | ${r1.verdict} | ${r1.source_feasibility} | ${r1.capture_allowed} |\n| READY-02 | ${r2.verdict} | ${r2.source_feasibility} | ${r2.capture_allowed} |\n\n## Findings\n\n${[...r1.findings, ...r1.blockers, ...r2.findings, ...r2.blockers, ...packet.blockers].map((item) => `- ${item}`).join('\n') || '- None recorded.'}\n`;
+  return `# Phase 251 Evidence Summary\n\n- **Packet:** \`.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json\`\n- **Packet capture ID:** \`${packet.capture_id}\`\n- **Packet SHA-256:** \`${digest}\`\n- **Captured at:** ${packet.captured_at}\n- **Candidate tuple:** \`${packet.candidate_tuple.candidate_sha}\` / \`${packet.candidate_tuple.reviewed_base_sha}\` / \`${packet.candidate_tuple.protected_main_sha}\`\n- **Published release:** \`${packet.published_release_source.tag}\` → \`${packet.published_release_source.commit_sha}\`\n\n| Requirement | Verdict | Source ready | Capture allowed |\n|---|---|---|---|\n| READY-01 | ${r1.verdict} | ${r1.source_feasibility} | ${r1.capture_allowed} |\n| READY-02 | ${r2.verdict} | ${r2.source_feasibility} | ${r2.capture_allowed} |\n\n## Findings\n\n${[...r1.findings, ...r1.blockers, ...r2.findings, ...r2.blockers, ...packet.blockers].map((item) => `- ${item}`).join('\n') || '- None recorded.'}\n`;
 }
 
 function buildPhase251OwnerReport(packet) {
   const digest = sha256(`${JSON.stringify(packet, null, 2)}\n`);
   const r1 = packet.requirements.READY01;
   const r2 = packet.requirements.READY02;
-  return `# Phase 247 Release Readiness Verification\n\n<!-- phase-251-reconciliation: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json -->\n<!-- phase-251-reconciliation-sha256: ${digest} -->\n\nThis owner report records fresh Phase 251 evidence. Phase 247 remains the owner of READY-01 and READY-02.\n\n- **Captured at:** ${packet.captured_at}\n- **Candidate tuple:** \`${packet.candidate_tuple.candidate_sha}\` / \`${packet.candidate_tuple.reviewed_base_sha}\` / \`${packet.candidate_tuple.protected_main_sha}\`\n- **Published release source:** \`${packet.published_release_source.tag}\` at \`${packet.published_release_source.commit_sha}\`\n\n| Requirement | Verdict | Evidence status |\n|---|---|---|\n| READY-01 | ${r1.verdict} | ${[...r1.blockers, ...r1.findings].join('; ') || 'complete source-bound approval and package evidence'} |\n| READY-02 | ${r2.verdict} | ${[...r2.blockers, ...r2.findings].join('; ') || 'complete live inventory and preservation joins'} |\n\nThe linked packet contains the source identities, captured populations, and blockers. This report does not promote missing or untrusted evidence to a pass.\n`;
+  return `# Phase 247 Release Readiness Verification\n\n<!-- phase-251-reconciliation: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json -->\n<!-- phase-251-capture-id: ${packet.capture_id} -->\n<!-- phase-251-reconciliation-sha256: ${digest} -->\n\nThis owner report records fresh Phase 251 evidence. Phase 247 remains the owner of READY-01 and READY-02.\n\n- **Captured at:** ${packet.captured_at}\n- **Candidate tuple:** \`${packet.candidate_tuple.candidate_sha}\` / \`${packet.candidate_tuple.reviewed_base_sha}\` / \`${packet.candidate_tuple.protected_main_sha}\`\n- **Published release source:** \`${packet.published_release_source.tag}\` at \`${packet.published_release_source.commit_sha}\`\n\n| Requirement | Verdict | Evidence status |\n|---|---|---|\n| READY-01 | ${r1.verdict} | ${[...r1.blockers, ...r1.findings].join('; ') || 'complete source-bound approval and package evidence'} |\n| READY-02 | ${r2.verdict} | ${[...r2.blockers, ...r2.findings].join('; ') || 'complete live inventory and preservation joins'} |\n\nThe linked packet contains the source identities, captured populations, and blockers. This report does not promote missing or untrusted evidence to a pass.\n`;
 }
 
 function verifyCaptureOutputsBeforeRewrite(paths, capturedLocal, localRecords, preservation, root) {
@@ -610,13 +703,22 @@ export function createScopedPreservationRef(records, captureHead, root) {
 export function checkPhase251Artifacts(packet, summary, ownerReport) {
   const bytes = `${JSON.stringify(packet, null, 2)}\n`;
   const digest = sha256(bytes);
+  const summaryCaptureIds = [...summary.matchAll(/\*\*Packet capture ID:\*\* `([^`]+)`/g)].map((match) => match[1]);
+  const ownerCaptureIds = [...ownerReport.matchAll(/<!-- phase-251-capture-id: ([^ ]+) -->/g)].map((match) => match[1]);
+  const captureId = packet.capture_id;
+  const captureIdMatches = /^[a-z0-9-]+$/.test(captureId ?? '')
+    && summaryCaptureIds.length === 1 && ownerCaptureIds.length === 1
+    && summaryCaptureIds[0] === captureId && ownerCaptureIds[0] === captureId;
   return {
-    valid: summary.includes(`Packet SHA-256:** \`${digest}\``)
+    valid: captureIdMatches
+      && summary.includes(`Packet SHA-256:** \`${digest}\``)
       && ownerReport.includes(`phase-251-reconciliation-sha256: ${digest}`)
       && packet.requirement_verdicts?.['READY-01'] === packet.requirements?.READY01?.verdict
       && packet.requirement_verdicts?.['READY-02'] === packet.requirements?.READY02?.verdict
       && packet.candidate_tuple?.candidate_sha !== packet.published_release_source?.commit_sha,
     packet_sha256: digest,
+    capture_id: captureId ?? null,
+    capture_id_matches: captureIdMatches,
     verdicts_match: packet.requirement_verdicts?.['READY-01'] === packet.requirements?.READY01?.verdict
       && packet.requirement_verdicts?.['READY-02'] === packet.requirements?.READY02?.verdict,
   };
