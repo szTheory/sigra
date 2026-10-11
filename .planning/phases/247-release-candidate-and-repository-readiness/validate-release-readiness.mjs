@@ -82,6 +82,7 @@ function validateSnapshot(snapshot, observed) {
   if (prNumbers.some((number, index) => index > 0 && prNumbers[index - 1] > number)) add('pull_request_order_invalid', 'PR records must sort by number.');
   for (const row of pullRequests) {
     if (!/^[0-9a-f]{40}$/.test(row?.head_sha ?? '') || typeof row?.base !== 'string' || !row.base.trim()) add('pull_request_identity_invalid', `PR #${row?.number ?? '(missing number)'} needs its head SHA and base.`);
+    if (Object.hasOwn(row ?? {}, 'base_sha') && !/^[0-9a-f]{40}$/.test(row.base_sha ?? '')) add('pull_request_base_sha_invalid', `PR #${row?.number ?? '(missing number)'} needs a full base SHA.`);
     if (!Array.isArray(row?.changed_files)) add('pull_request_files_not_array', `PR #${row?.number ?? '(missing number)'} must record changed files as an array.`);
     if (!DISPOSITIONS.has(row?.disposition)) add('pull_request_disposition_invalid', `PR #${row?.number ?? '(missing number)'} has no valid release disposition.`);
     if (![row?.reason, row?.source, row?.preservation_location].every(value => typeof value === 'string' && value.trim())) {
@@ -91,8 +92,8 @@ function validateSnapshot(snapshot, observed) {
 
   const entry = snapshot?.source ?? {};
   const observedPulls = Array.isArray(observed?.pull_requests) ? observed.pull_requests : [];
-  const recordedPullKeys = pullRequests.map(row => `${row.number}:${row.head_sha}:${row.base}`);
-  const currentPullKeys = observedPulls.map(row => `${row.number}:${row.head_sha}:${row.base}`);
+  const recordedPullKeys = pullRequests.map(row => `${row.number}:${row.head_sha}:${row.base}:${row.base_sha ?? ''}`);
+  const currentPullKeys = observedPulls.map(row => `${row.number}:${row.head_sha}:${row.base}:${row.base_sha ?? ''}`);
   if (!sameSet(prNumbers, observedPulls.map(row => row.number))) add('pull_request_population_mismatch', 'The live open PR number set differs from the immutable entry snapshot.');
   if (!sameSet(recordedPullKeys, currentPullKeys)) add('pull_request_identity_mismatch', 'A live PR head or base differs from its immutable entry identity.');
   if (entry.trusted_main_sha !== observed?.trusted_main_sha) add('trusted_main_identity_mismatch', 'Live main no longer matches the trusted main SHA in the entry snapshot.');
@@ -119,6 +120,13 @@ function runGit(args, cwd = process.cwd()) {
 
 function runGh(args, cwd = process.cwd()) {
   return execFileSync('gh', args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).trim();
+}
+
+function observeOpenPullRequests() {
+  const pages = JSON.parse(runGh(['api', '--paginate', '--slurp', `repos/${repository}/pulls?state=open&per_page=100`]));
+  if (!Array.isArray(pages) || pages.some(page => !Array.isArray(page))) throw new Error('GitHub did not return complete paginated open-PR arrays.');
+  return pages.flat().map(row => ({ number: row.number, head_sha: row.head?.sha, base: row.base?.ref, base_sha: row.base?.sha }))
+    .sort((a, b) => a.number - b.number);
 }
 
 function trustedCheckoutMatchesLiveMain(headSha, status, liveMainSha) {
@@ -148,9 +156,7 @@ function observe(snapshot) {
     subject: runGit(['show', '-s', '--format=%s', sha]),
     paths: runGit(['diff-tree', '--no-renames', '--no-commit-id', '--name-only', '-r', sha]).split('\n').filter(Boolean).sort(),
   }));
-  const pullRequests = JSON.parse(runGh(['pr', 'list', '--repo', repository, '--state', 'open', '--limit', '1000', '--json', 'number,headRefOid,baseRefName']))
-    .map(row => ({ number: row.number, head_sha: row.headRefOid, base: row.baseRefName }))
-    .sort((a, b) => a.number - b.number);
+  const pullRequests = observeOpenPullRequests();
   return {
     repo_root: repoRoot,
     trusted_main_sha: remoteMain,
@@ -785,8 +791,7 @@ function observeFinalInventory(snapshot) {
     const right = `${b.status}\0${b.path}`;
     return left < right ? -1 : left > right ? 1 : 0;
   });
-  const pullRequests = JSON.parse(runGh(['pr', 'list', '--repo', repository, '--state', 'open', '--limit', '1000', '--json', 'number,headRefOid,baseRefName']))
-    .map(row => ({ number: row.number, head_sha: row.headRefOid, base: row.baseRefName })).sort((a, b) => a.number - b.number);
+  const pullRequests = observeOpenPullRequests();
   return { repo_root: repoRoot, trusted_main_sha: trustedMain, local_origin_main_sha: localMain,
     merge_base_sha: mergeBase, inherited_head_sha: inheritedHead, branch, commit_shas: commitShas, committed_paths: committedPaths,
     dirty_paths: dirtyPaths, pull_requests: pullRequests };
@@ -800,8 +805,7 @@ function observeFinalLive(selection) {
   const remoteHead = runGit(['ls-remote', '--refs', 'origin', `refs/heads/${pr.headRefName}`], candidatePath).split(/\s+/)[0];
   const again = JSON.parse(runGh(['pr', 'view', '224', '--repo', repository, '--json', prFields]));
   const mainAgain = runGh(['api', `repos/${repository}/git/ref/heads/main`, '--jq', '.object.sha']);
-  const openPullRequests = JSON.parse(runGh(['pr', 'list', '--repo', repository, '--state', 'open', '--limit', '1000', '--json', 'number,headRefOid,baseRefName']))
-    .map(row => ({ number: row.number, head_sha: row.headRefOid, base: row.baseRefName })).sort((a, b) => a.number - b.number);
+  const openPullRequests = observeOpenPullRequests();
   return {
     pull_request: { number: pr.number, state: pr.state, url: pr.url, head_sha: pr.headRefOid, base_ref: pr.baseRefName,
       base_sha: pr.baseRefOid, review_decision: pr.reviewDecision, reviews: pr.reviews ?? [], checks: pr.statusCheckRollup ?? [],

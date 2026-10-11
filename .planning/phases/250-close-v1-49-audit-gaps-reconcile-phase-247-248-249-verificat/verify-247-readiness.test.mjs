@@ -235,7 +235,7 @@ test('reconciliation identity rows and blockers are deterministically ordered', 
 });
 
 test('a concurrent PR or main move invalidates the captured live snapshot', async () => {
-  const { liveSnapshotStable } = await import('./verify-247-readiness.mjs');
+  const { liveSnapshotStable, fullPullRequestIdentity } = await import('./verify-247-readiness.mjs');
   const before = {
     pullRequest: { number: 224, state: 'OPEN', headSha: 'candidate-a', baseSha: 'base-a' },
     main: { sha: 'main-a' },
@@ -243,6 +243,11 @@ test('a concurrent PR or main move invalidates the captured live snapshot', asyn
   };
   assert.equal(liveSnapshotStable(before, { ...before, openPullRequestNumbers: [224, 266] }), true);
   assert.equal(liveSnapshotStable(before, { ...before, main: { sha: 'main-b' } }), false);
+  const open = [{ number: 224, head_sha: 'a'.repeat(40), base_sha: 'b'.repeat(40), base_ref: 'main' }];
+  const fullBefore = { ...before, openPullRequestNumbers: [224], openPullRequestIdentities: open, openPullRequestPagination: { complete: true } };
+  assert.equal(fullPullRequestIdentity(open[0]), `224:${'a'.repeat(40)}:${'b'.repeat(40)}:main`);
+  assert.equal(liveSnapshotStable(fullBefore, { ...fullBefore, openPullRequestIdentities: [{ ...open[0], head_sha: 'c'.repeat(40) }] }), false);
+  assert.equal(liveSnapshotStable(fullBefore, { ...fullBefore, openPullRequestPagination: { complete: false } }), false);
 });
 
 test('candidate source blob drift blocks the tuple even when the commit object exists', async () => {
@@ -308,6 +313,8 @@ const phase251ReadyFeasibilityFixture = {
           path,
           read_status: 'readable',
           trust_status: 'trusted_exact_api_blob_match',
+          git_blob_oid: 'a'.repeat(40),
+          sha256: 'b'.repeat(64),
         })),
         ...phase251PublishedPaths.map((path) => ({
           source_identity: phase251PublishedIdentity,
@@ -315,14 +322,21 @@ const phase251ReadyFeasibilityFixture = {
           path,
           read_status: 'readable',
           trust_status: 'trusted_exact_api_blob_match',
+          git_blob_oid: 'c'.repeat(40),
+          sha256: 'd'.repeat(64),
         })),
       ],
       package_adopter: {
         acceptance_satisfied: true,
-        checks: Object.fromEntries(phase251CheckNames.map((name) => [name, { result: 'pass' }])),
+        checks: Object.fromEntries(phase251CheckNames.map((name) => [name, {
+          result: 'pass',
+          source_identity: phase251CandidateIdentity + '+' + phase251PublishedIdentity,
+          evidence_detail: 'fixture binds exact source identities and bytes',
+          finding_detail: 'No finding: fixture has complete source-bound evidence.',
+        }])),
       },
     },
-    READY02: { source_feasibility: 'ready', capture_allowed: true, verdict: 'unsatisfied' },
+    READY02: { source_feasibility: 'ready', capture_allowed: true, verdict: 'unsatisfied', sources: [] },
   },
 };
 const expectedPackageAcceptanceFixtureNames = [
@@ -418,4 +432,41 @@ test('an unreadable READY-01 source blocks only READY-01 capture', async () => {
   assert.equal(result.requirements.READY01.capture_allowed, false);
   assert.equal(result.requirements.READY02.source_feasibility, 'ready');
   assert.equal(result.requirements.READY02.capture_allowed, true);
+});
+
+test('the phase capture gate runs only independently capture-ready requirement slices', async () => {
+  const { runPhase251Capture } = await import('./verify-247-readiness.mjs');
+  const input = structuredClone(phase251ReadyFeasibilityFixture);
+  input.requirements.READY01.sources[0].read_status = 'unreadable';
+  const visited = [];
+  const result = runPhase251Capture(input, (name) => {
+    visited.push(name);
+    return name;
+  });
+  assert.deepEqual(visited, ['READY02']);
+  assert.deepEqual(result.captured, ['READY02']);
+  assert.equal(result.requirements.READY01.capture_allowed, false);
+  assert.equal(result.requirements.READY02.capture_allowed, true);
+});
+
+test('all-slices-blocked preflight does not call a capture writer', async () => {
+  const { runPhase251Capture } = await import('./verify-247-readiness.mjs');
+  const input = structuredClone(phase251ReadyFeasibilityFixture);
+  input.requirements.READY01.sources[0].read_status = 'unreadable';
+  delete input.requirements.READY02.sources;
+  let writes = 0;
+  const result = runPhase251Capture(input, () => { writes += 1; });
+  assert.equal(result.status, 'blocked');
+  assert.deepEqual(result.captured, []);
+  assert.equal(writes, 0);
+});
+
+test('population joins retain full pull-request identity rather than only its number', async () => {
+  const { joinPopulation } = await import('./verify-247-readiness.mjs');
+  const observed = [{ number: 224, head_sha: 'a'.repeat(40), base_sha: 'b'.repeat(40), base_ref: 'main' }];
+  const joined = joinPopulation({ observedIds: observed, dispositions: [{
+    identity: { ...observed[0], head_sha: 'c'.repeat(40) }, decision: 'retain', preservation_ref: null,
+  }], label: 'open_pr' });
+  assert.equal(joined.status, 'blocked');
+  assert.ok(joined.blockers.includes('open_pr_population_mismatch'));
 });

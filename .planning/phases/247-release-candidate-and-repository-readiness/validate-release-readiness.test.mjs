@@ -85,6 +85,17 @@ test('accepts explicitly empty populations when fresh observations are empty', (
   assert.deepEqual(result, { valid: true, errors: [] });
 });
 
+test('compares full open-PR identity including the observed base commit', () => {
+  const snapshot = emptySnapshot();
+  const observed = emptyObservation();
+  const row = { number: 224, head_sha: 'd'.repeat(40), base: 'main', base_sha: 'a'.repeat(40),
+    changed_files: [], disposition: 'release-relevant', reason: 'Selected candidate.', source: 'GitHub PR #224', preservation_location: 'GitHub' };
+  snapshot.pull_requests = [row];
+  observed.pull_requests = [{ ...row, base_sha: 'e'.repeat(40) }];
+  const result = validateSnapshot(snapshot, observed);
+  assert.ok(result.errors.some(error => error.code === 'pull_request_identity_mismatch'));
+});
+
 test('validates the latest additive inventory while preserving the immutable entry snapshot', () => {
   const entry = emptySnapshot();
   const current = emptySnapshot();

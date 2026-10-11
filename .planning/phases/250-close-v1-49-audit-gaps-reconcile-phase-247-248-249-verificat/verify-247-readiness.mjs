@@ -17,6 +17,20 @@ const dryRunPath = path.join(phase247, '247-HEX-DRY-RUN-RECEIPT.json');
 const validationPath = path.join(phase247, '247-VALIDATION.md');
 const playrightPath = path.join(phase247, '247-09-PLAYWRIGHT-RESULT.json');
 const approvalPath = path.join(phase247, '247-CANDIDATE-APPROVAL.json');
+const phase251Dir = path.resolve(here, '../251-close-ready-01-and-ready-02-release-readiness-gaps');
+const phase251FeasibilityPath = path.join(phase251Dir, '251-EVIDENCE-FEASIBILITY.json');
+const phase251ReconciliationPath = path.join(phase251Dir, '251-247-RECONCILIATION.json');
+const phase251SummaryPath = path.join(phase251Dir, '251-EVIDENCE-SUMMARY.md');
+const phase251CandidateTuple = {
+  candidate_sha: '0e773d3614a242e4fbcdd34c418ecb8a307703d6',
+  reviewed_base_sha: 'd135cbce343947499a0810736c500ef5f1cb5c32',
+  protected_main_sha: 'a494f3ee3878da93aab4f70712ffddeefd77a802',
+};
+const phase251PublishedSource = {
+  tag: 'v1.6.0',
+  tag_ref: 'refs/tags/v1.6.0',
+  commit_sha: '9e80cb78d6374b1ed4074d5fef6b613fee879dca',
+};
 
 function readJson(file) {
   return JSON.parse(readFileSync(file, 'utf8'));
@@ -26,9 +40,9 @@ function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function safeCommand(command, args) {
+function safeCommand(command, args, cwd = repoRoot) {
   try {
-    return { ok: true, stdout: execFileSync(command, args, { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() };
+    return { ok: true, stdout: execFileSync(command, args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() };
   } catch {
     return { ok: false, stdout: '' };
   }
@@ -36,6 +50,337 @@ function safeCommand(command, args) {
 
 function sameTuple(a, b) {
   return Boolean(a && b && a.candidateSha === b.candidateSha && a.reviewedBaseSha === b.reviewedBaseSha && a.mainSha === b.mainSha);
+}
+
+const phase251RequiredSources = {
+  READY01: [
+    ['candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6', phase251CandidateTuple.candidate_sha, '.release-please-manifest.json'],
+    ['candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6', phase251CandidateTuple.candidate_sha, 'release-please-config.json'],
+    ['candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6', phase251CandidateTuple.candidate_sha, 'mix.exs'],
+    ['candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6', phase251CandidateTuple.candidate_sha, 'CHANGELOG.md'],
+    ['candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6', phase251CandidateTuple.candidate_sha, 'README.md'],
+    ['candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6', phase251CandidateTuple.candidate_sha, 'guides/introduction/upgrading-to-v1.6.md'],
+    ['candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6', phase251CandidateTuple.candidate_sha, 'test/example/priv/playwright/tests/organizations.spec.ts'],
+    ['published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca', phase251PublishedSource.commit_sha, 'mix.exs'],
+    ['published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca', phase251PublishedSource.commit_sha, 'CHANGELOG.md'],
+    ['published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca', phase251PublishedSource.commit_sha, 'README.md'],
+    ['published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca', phase251PublishedSource.commit_sha, 'guides/introduction/upgrading-to-v1.6.md'],
+    ['published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca', phase251PublishedSource.commit_sha, 'lib/sigra.ex'],
+  ],
+};
+
+const phase251PackageCheckNames = [
+  'package_version', 'package_metadata', 'release_manifest', 'release_config', 'changelog',
+  'tag_target', 'hexdocs_source_reference', 'published_tag_guide', 'readme_guide_link',
+  'adopter_shipped_changes', 'adopter_compatibility', 'generated_host_action',
+  'version_requirement', 'update_check_path',
+];
+
+function trustedReadableSource(source) {
+  return source?.read_status === 'readable'
+    && typeof source.trust_status === 'string'
+    && source.trust_status.startsWith('trusted_')
+    && Boolean(source.git_blob_oid)
+    && /^[a-f0-9]{64}$/.test(source.sha256 ?? '');
+}
+
+function phase251SliceSourceBlockers(requirementName, requirement) {
+  const blockers = [];
+  if (!requirement || !Array.isArray(requirement.sources)) return [`${requirementName}_sources_missing`];
+  const expected = phase251RequiredSources[requirementName] ?? [];
+  for (const [identity, commitSha, sourcePath] of expected) {
+    const source = requirement.sources.find((item) => item?.source_identity === identity && item?.commit_sha === commitSha && item?.path === sourcePath);
+    if (!source) blockers.push(`${requirementName}_source_identity_missing:${identity}:${sourcePath}`);
+    else if (!trustedReadableSource(source) && !(source.read_status === 'missing' && source.trust_status === 'trusted_exact_commit_404')) {
+      blockers.push(`${requirementName}_source_unreadable_or_untrusted:${identity}:${sourcePath}`);
+    }
+  }
+  for (const source of requirement.sources) {
+    if (source?.read_status === 'unreadable' || source?.trust_status === 'untrusted' || source?.trust_status?.startsWith('untrusted_')) {
+      blockers.push(`${requirementName}_source_unreadable_or_untrusted:${source.source_identity ?? 'unknown'}:${source.path ?? 'unknown'}`);
+    }
+  }
+  return [...new Set(blockers)].sort();
+}
+
+function namedPackageCheckFailure(packageAdopter) {
+  if (!packageAdopter?.checks || typeof packageAdopter.checks !== 'object') return ['package_adopter_checks_missing'];
+  return phase251PackageCheckNames.flatMap((name) => {
+    const check = packageAdopter.checks[name];
+    if (!check || !['pass', 'missing', 'mismatch', 'unreadable'].includes(check.result)) return [`package_check_missing:${name}`];
+    if (check.result !== 'pass') return [`package_check_${check.result}:${name}`];
+    if (![check.source_identity, check.evidence_detail, check.finding_detail].every((value) => typeof value === 'string' && value.trim())
+      || !check.finding_detail.startsWith('No finding:')) return [`package_check_evidence_incomplete:${name}`];
+    return [];
+  });
+}
+
+/** Evaluate source feasibility independently from each requirement's acceptance verdict. */
+export function evaluatePhase251Feasibility(feasibility) {
+  const result = structuredClone(feasibility ?? {});
+  result.requirements ??= {};
+  const ready01 = result.requirements.READY01 ?? {};
+  const ready02 = result.requirements.READY02 ?? {};
+  const sourceBlockers = (name, requirement) => {
+    const blockers = phase251SliceSourceBlockers(name, requirement);
+    if (requirement?.source_feasibility === 'blocked' && !blockers.length) blockers.push(`${name}_preflight_source_blocked`);
+    return blockers;
+  };
+  const blockers01 = sourceBlockers('READY01', ready01);
+  const blockers02 = sourceBlockers('READY02', ready02);
+  ready01.blockers = [...new Set([...(ready01.blockers ?? []), ...blockers01])];
+  ready02.blockers = [...new Set([...(ready02.blockers ?? []), ...blockers02])];
+  ready01.source_feasibility = blockers01.length ? 'blocked' : 'ready';
+  ready02.source_feasibility = blockers02.length ? 'blocked' : 'ready';
+  ready01.capture_allowed = ready01.source_feasibility === 'ready';
+  ready02.capture_allowed = ready02.source_feasibility === 'ready';
+
+  const findings = [];
+  const tuple = ready01.candidate_tuple ?? {};
+  if (tuple.candidate_sha !== phase251CandidateTuple.candidate_sha
+    || tuple.reviewed_base_sha !== phase251CandidateTuple.reviewed_base_sha
+    || tuple.protected_main_sha !== phase251CandidateTuple.protected_main_sha) findings.push('candidate_tuple_mismatch');
+  const published = ready01.published_release_source ?? {};
+  if (published.tag !== phase251PublishedSource.tag || published.tag_ref !== phase251PublishedSource.tag_ref
+    || published.commit_sha !== phase251PublishedSource.commit_sha) findings.push('published_tag_identity_mismatch');
+  const packageFailures = namedPackageCheckFailure(ready01.package_adopter);
+  findings.push(...packageFailures);
+  if (ready01.history_complete !== true) findings.push('approval_history_incomplete');
+  if (ready01.approval_event !== 'found') findings.push(ready01.approval_event === 'absent' ? 'authorization_pending' : 'approval_event_not_searchable');
+  ready01.findings = [...new Set([...(ready01.findings ?? []), ...findings])];
+  ready01.package_adopter ??= {};
+  ready01.package_adopter.sources ??= ready01.sources;
+  ready01.package_adopter.acceptance_satisfied = ready01.capture_allowed
+    && tuple.candidate_sha === phase251CandidateTuple.candidate_sha
+    && tuple.reviewed_base_sha === phase251CandidateTuple.reviewed_base_sha
+    && tuple.protected_main_sha === phase251CandidateTuple.protected_main_sha
+    && published.tag === phase251PublishedSource.tag
+    && published.tag_ref === phase251PublishedSource.tag_ref
+    && published.commit_sha === phase251PublishedSource.commit_sha
+    && packageFailures.length === 0
+    && ready01.history_complete === true
+    && ready01.approval_event === 'found';
+  ready01.verdict = ready01.package_adopter.acceptance_satisfied ? 'satisfied' : (ready01.approval_event === 'absent' ? 'authorization_pending' : 'unsatisfied');
+  ready02.verdict = ready02.capture_allowed && ready02.verdict === 'satisfied' ? 'satisfied' : 'unsatisfied';
+  result.status = ready01.capture_allowed || ready02.capture_allowed ? 'ready' : 'blocked';
+  result.blockers = result.status === 'blocked' ? [...ready01.blockers, ...ready02.blockers] : [];
+  result.requirements.READY01 = ready01;
+  result.requirements.READY02 = ready02;
+  return result;
+}
+
+export function runPhase251Capture(feasibility, captureSlice) {
+  const evaluated = evaluatePhase251Feasibility(feasibility);
+  if (evaluated.status === 'blocked') return { status: 'blocked', requirements: evaluated.requirements, blockers: evaluated.blockers, captured: [] };
+  const captured = [];
+  for (const name of ['READY01', 'READY02']) {
+    const requirement = evaluated.requirements[name];
+    if (!requirement.capture_allowed) continue;
+    captured.push(captureSlice(name, requirement));
+  }
+  return { status: 'ready', requirements: evaluated.requirements, captured };
+}
+
+function verifyPhase251PreflightBinding(feasibility) {
+  const blockers = [];
+  if (feasibility?.status !== 'ready') blockers.push('preflight_top_level_not_ready');
+  const sourceHead = feasibility?.active_checkout?.head;
+  if (!/^[a-f0-9]{40}$/.test(sourceHead ?? '')
+    || !safeCommand('git', ['merge-base', '--is-ancestor', sourceHead, 'HEAD']).ok) blockers.push('preflight_checkout_head_not_ancestor');
+  const allowedPaths = new Set([
+    '.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json',
+    '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs',
+    '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs',
+    '.planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs',
+    '.planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs',
+  ]);
+  const commits = safeCommand('git', ['rev-list', '--reverse', `${sourceHead}..HEAD`]).stdout.split('\n').filter(Boolean);
+  for (const commit of commits) {
+    const paths = safeCommand('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit]).stdout.split('\n').filter(Boolean);
+    if (!paths.length || paths.some((file) => !allowedPaths.has(file))) blockers.push(`unexpected_post_preflight_commit:${commit}`);
+  }
+  for (const blob of feasibility?.source_blobs ?? []) {
+    if (blob.read_status === 'missing') continue;
+    const resolved = safeCommand('git', ['rev-parse', `${blob.commit_sha}:${blob.path}`]);
+    if (!resolved.ok || resolved.stdout !== blob.git_blob_oid || !safeCommand('git', ['cat-file', '-e', `${blob.commit_sha}:${blob.path}`]).ok) {
+      blockers.push(`preflight_source_blob_changed:${blob.source_identity}:${blob.path}`);
+    }
+  }
+  return [...new Set(blockers)].sort();
+}
+
+function readOnlyLiveSnapshot() {
+  const pageResult = ghJsonPaginated('repos/szTheory/sigra/pulls?state=open&per_page=100');
+  const identities = pageResult.rows.map((row) => ({
+    number: row.number,
+    head_sha: row.head?.sha ?? null,
+    base_sha: row.base?.sha ?? null,
+    base_ref: row.base?.ref ?? null,
+    state: row.state ?? null,
+  })).sort((a, b) => a.number - b.number);
+  const complete = pageResult.pages.length > 0 && pageResult.pages.every(Array.isArray)
+    && pageResult.rows.every((row) => Boolean(fullPullRequestIdentity(row)));
+  const main = ghJson('repos/szTheory/sigra/commits/main');
+  return {
+    captured_at: new Date().toISOString(),
+    open_pull_requests: identities,
+    pagination: { complete, page_count: pageResult.pages.length, per_page: 100, observed_rows: identities.length },
+    main: { sha: main.sha ?? null, tree_sha: main.commit?.tree?.sha ?? null },
+  };
+}
+
+function localInheritedSnapshot(baseSha = null) {
+  const root = safeCommand('git', ['rev-parse', '--show-toplevel']).stdout;
+  const head = safeCommand('git', ['rev-parse', 'HEAD']).stdout;
+  const branch = safeCommand('git', ['branch', '--show-current']).stdout;
+  const statusBytes = safeCommand('git', ['status', '--porcelain=v1', '--untracked-files=all']).stdout;
+  const rawStatus = statusBytes ? statusBytes.split('\n').filter(Boolean).map((line) => ({ status: line.slice(0, 2), path: line.slice(3) })) : [];
+  const worktreeText = safeCommand('git', ['worktree', 'list', '--porcelain']).stdout;
+  const worktrees = worktreeText.split(/\n\n/).filter(Boolean).map((block) => {
+    const lines = block.split('\n');
+    const worktreePath = lines.find((line) => line.startsWith('worktree '))?.slice(9) ?? null;
+    const worktreeHead = lines.find((line) => line.startsWith('HEAD '))?.slice(5) ?? null;
+    const worktreeBranch = lines.find((line) => line.startsWith('branch '))?.slice(7) ?? null;
+    const status = worktreePath ? safeCommand('git', ['status', '--porcelain=v1', '--untracked-files=all'], worktreePath) : { ok: false, stdout: '' };
+    return { path: worktreePath, head_sha: worktreeHead, branch: worktreeBranch, status_readable: status.ok,
+      status_bytes: status.stdout, status_sha256: sha256(status.stdout) };
+  }).sort((a, b) => String(a.path).localeCompare(String(b.path)));
+  const baseAvailable = Boolean(baseSha && safeCommand('git', ['cat-file', '-e', `${baseSha}^{commit}`]).ok);
+  const commits = baseAvailable ? safeCommand('git', ['rev-list', `${baseSha}..HEAD`]).stdout.split('\n').filter(Boolean) : [];
+  const commitPaths = baseAvailable
+    ? [...new Set(safeCommand('git', ['log', '--no-renames', '--format=', '--name-only', `${baseSha}..HEAD`]).stdout.split('\n').filter(Boolean))].sort()
+    : [];
+  return { repository_root: root, head_sha: head, branch, base_sha: baseSha, inventory_complete: baseAvailable,
+    raw_status: rawStatus, raw_status_sha256: sha256(statusBytes), worktrees,
+    inherited_commit_shas: commits.sort(), inherited_paths: commitPaths };
+}
+
+function buildPhase251Packet(feasibility, evaluated, before, after, local, blockers) {
+  const ready01 = evaluated.requirements.READY01;
+  const ready02 = evaluated.requirements.READY02;
+  const beforeIds = (before?.open_pull_requests ?? []).map(fullPullRequestIdentity);
+  const afterIds = (after?.open_pull_requests ?? []).map(fullPullRequestIdentity);
+  const prStable = Boolean(before?.pagination?.complete && after?.pagination?.complete
+    && beforeIds.every(Boolean) && afterIds.every(Boolean)
+    && JSON.stringify([...beforeIds].sort()) === JSON.stringify([...afterIds].sort()));
+  const prJoin = joinPopulation({ observedIds: afterIds.filter(Boolean), dispositions: [], label: 'open_pr' });
+  const inheritedIds = [...local.inherited_commit_shas, ...local.raw_status.map((row) => `${row.status}:${row.path}`)];
+  const inheritedJoin = joinPopulation({ observedIds: inheritedIds, dispositions: [], label: 'inherited_work' });
+  const ready02Satisfied = ready02.capture_allowed && prStable && prJoin.status === 'passed'
+    && inheritedJoin.status === 'passed' && local.inventory_complete && local.worktrees.every((row) => row.status_readable);
+  const ready01Satisfied = Boolean(ready01.package_adopter?.acceptance_satisfied);
+  ready01.verdict = ready01Satisfied ? 'satisfied' : (ready01.approval_event === 'absent' ? 'authorization_pending' : 'unsatisfied');
+  ready02.verdict = ready02Satisfied ? 'satisfied' : 'unsatisfied';
+  return {
+    schema_version: 1,
+    phase: 251,
+    owner_phase: 247,
+    repository: 'szTheory/sigra',
+    captured_at: new Date().toISOString(),
+    source_feasibility: { path: path.relative(repoRoot, phase251FeasibilityPath), sha256: sha256(readFileSync(phase251FeasibilityPath)) },
+    source_capture: { before, after, stable_open_pr_identity: prStable, local_inherited_work: local },
+    candidate_tuple: ready01.candidate_tuple ?? phase251CandidateTuple,
+    published_release_source: ready01.published_release_source ?? phase251PublishedSource,
+    package_adopter: ready01.package_adopter ?? null,
+    requirement_verdicts: { 'READY-01': ready01.verdict, 'READY-02': ready02.verdict },
+    requirements: {
+      READY01: { source_feasibility: ready01.source_feasibility, capture_allowed: ready01.capture_allowed,
+        verdict: ready01.verdict, blockers: ready01.blockers, findings: ready01.findings ?? [], package_adopter: ready01.package_adopter ?? null },
+      READY02: { source_feasibility: ready02.source_feasibility, capture_allowed: ready02.capture_allowed,
+        verdict: ready02.verdict, blockers: [...ready02.blockers, ...blockers], findings: ready02.findings ?? [],
+        open_pr_population: { before_count: before?.open_pull_requests?.length ?? null, after_count: after?.open_pull_requests?.length ?? null,
+          before: before?.open_pull_requests ?? null, after: after?.open_pull_requests ?? null, stable: prStable,
+          complete: Boolean(before?.pagination?.complete && after?.pagination?.complete), disposition_join: prJoin },
+        inherited_work: { commit_count: local.inherited_commit_shas.length, path_count: local.inherited_paths.length,
+          raw_status: local.raw_status, worktrees: local.worktrees, disposition_join: inheritedJoin } },
+    },
+    blockers: [...blockers, ...(prStable ? [] : ['open_pr_population_changed_or_incomplete']),
+      ...(prJoin.status === 'passed' ? [] : prJoin.blockers), ...(inheritedJoin.status === 'passed' ? [] : inheritedJoin.blockers)],
+  };
+}
+
+function buildPhase251Summary(packet) {
+  const digest = sha256(`${JSON.stringify(packet, null, 2)}\n`);
+  const r1 = packet.requirements.READY01;
+  const r2 = packet.requirements.READY02;
+  return `# Phase 251 Evidence Summary\n\n- **Packet:** \`.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json\`\n- **Packet SHA-256:** \`${digest}\`\n- **Captured at:** ${packet.captured_at}\n- **Candidate tuple:** \`${packet.candidate_tuple.candidate_sha}\` / \`${packet.candidate_tuple.reviewed_base_sha}\` / \`${packet.candidate_tuple.protected_main_sha}\`\n- **Published release:** \`${packet.published_release_source.tag}\` → \`${packet.published_release_source.commit_sha}\`\n\n| Requirement | Verdict | Source ready | Capture allowed |\n|---|---|---|---|\n| READY-01 | ${r1.verdict} | ${r1.source_feasibility} | ${r1.capture_allowed} |\n| READY-02 | ${r2.verdict} | ${r2.source_feasibility} | ${r2.capture_allowed} |\n\n## Findings\n\n${[...r1.findings, ...r1.blockers, ...r2.findings, ...r2.blockers, ...packet.blockers].map((item) => `- ${item}`).join('\n') || '- None recorded.'}\n`;
+}
+
+function buildPhase251OwnerReport(packet) {
+  const digest = sha256(`${JSON.stringify(packet, null, 2)}\n`);
+  const r1 = packet.requirements.READY01;
+  const r2 = packet.requirements.READY02;
+  return `# Phase 247 Release Readiness Verification\n\n<!-- phase-251-reconciliation: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json -->\n<!-- phase-251-reconciliation-sha256: ${digest} -->\n\nThis owner report records fresh Phase 251 evidence. Phase 247 remains the owner of READY-01 and READY-02.\n\n- **Captured at:** ${packet.captured_at}\n- **Candidate tuple:** \`${packet.candidate_tuple.candidate_sha}\` / \`${packet.candidate_tuple.reviewed_base_sha}\` / \`${packet.candidate_tuple.protected_main_sha}\`\n- **Published release source:** \`${packet.published_release_source.tag}\` at \`${packet.published_release_source.commit_sha}\`\n\n| Requirement | Verdict | Evidence status |\n|---|---|---|\n| READY-01 | ${r1.verdict} | ${[...r1.blockers, ...r1.findings].join('; ') || 'complete source-bound approval and package evidence'} |\n| READY-02 | ${r2.verdict} | ${[...r2.blockers, ...r2.findings].join('; ') || 'complete live inventory and preservation joins'} |\n\nThe linked packet contains the source identities, captured populations, and blockers. This report does not promote missing or untrusted evidence to a pass.\n`;
+}
+
+export function checkPhase251Artifacts(packet, summary, ownerReport) {
+  const bytes = `${JSON.stringify(packet, null, 2)}\n`;
+  const digest = sha256(bytes);
+  return {
+    valid: summary.includes(`Packet SHA-256:** \`${digest}\``)
+      && ownerReport.includes(`phase-251-reconciliation-sha256: ${digest}`)
+      && packet.requirement_verdicts?.['READY-01'] === packet.requirements?.READY01?.verdict
+      && packet.requirement_verdicts?.['READY-02'] === packet.requirements?.READY02?.verdict
+      && packet.candidate_tuple?.candidate_sha !== packet.published_release_source?.commit_sha,
+    packet_sha256: digest,
+    verdicts_match: packet.requirement_verdicts?.['READY-01'] === packet.requirements?.READY01?.verdict
+      && packet.requirement_verdicts?.['READY-02'] === packet.requirements?.READY02?.verdict,
+  };
+}
+
+function writePhase251Capture() {
+  const feasibility = readJson(phase251FeasibilityPath);
+  const bindingBlockers = verifyPhase251PreflightBinding(feasibility);
+  const gated = runPhase251Capture(feasibility, (name) => name);
+  if (gated.status === 'blocked') {
+    process.stdout.write(`${JSON.stringify({ status: 'blocked', blockers: [...bindingBlockers, ...(gated.blockers ?? [])], outputs_written: [] }, null, 2)}\n`);
+    process.exitCode = 1;
+    return;
+  }
+  if (bindingBlockers.length) throw new Error(`Preflight source binding failed: ${bindingBlockers.join(', ')}`);
+  const rate = ghJson('rate_limit');
+  const remaining = rate?.resources?.core?.remaining;
+  let liveBefore = null;
+  let liveAfter = null;
+  const captureBlockers = [];
+  let liveCaptureFailure = null;
+  if (!Number.isInteger(remaining) || remaining <= 250) {
+    captureBlockers.push('github_core_rate_limit_at_or_below_250');
+  } else if (gated.captured.includes('READY02')) {
+    try { liveBefore = readOnlyLiveSnapshot(); }
+    catch (error) {
+      liveCaptureFailure = error.message;
+      captureBlockers.push('github_live_population_unavailable');
+    }
+  }
+  const local = localInheritedSnapshot(liveBefore?.main?.sha ?? null);
+  if (!local.inventory_complete) captureBlockers.push('local_inherited_commit_base_unavailable');
+  if (liveBefore && !liveCaptureFailure) {
+    try { liveAfter = readOnlyLiveSnapshot(); }
+    catch (error) {
+      liveCaptureFailure = error.message;
+      captureBlockers.push('github_live_population_recheck_unavailable');
+    }
+    if (liveAfter && (!liveBefore.pagination.complete || !liveAfter.pagination.complete)) captureBlockers.push('open_pr_pagination_incomplete');
+  }
+  const packet = buildPhase251Packet(feasibility, { requirements: gated.requirements }, liveBefore, liveAfter, local, captureBlockers);
+  if (liveCaptureFailure) packet.source_capture.failure = { message: liveCaptureFailure };
+  const jsonBytes = `${JSON.stringify(packet, null, 2)}\n`;
+  const summary = buildPhase251Summary(packet);
+  const report = buildPhase251OwnerReport(packet);
+  writeFileSync(phase251ReconciliationPath, jsonBytes);
+  writeFileSync(phase251SummaryPath, summary);
+  writeFileSync(reportPath, report);
+  process.stdout.write(`${JSON.stringify({ status: packet.requirements.READY02.verdict === 'satisfied' ? 'passed' : 'gaps_found',
+    reconciliation: path.relative(repoRoot, phase251ReconciliationPath), summary: path.relative(repoRoot, phase251SummaryPath), owner_report: path.relative(repoRoot, reportPath),
+    requirement_verdicts: packet.requirement_verdicts, blockers: packet.blockers }, null, 2)}\n`);
+}
+
+function checkPhase251Files() {
+  const packet = readJson(phase251ReconciliationPath);
+  const result = checkPhase251Artifacts(packet, readFileSync(phase251SummaryPath, 'utf8'), readFileSync(reportPath, 'utf8'));
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  if (!result.valid) process.exitCode = 1;
 }
 
 export function resolveExactHeadCiIdentity(proposal, readiness) {
@@ -56,20 +401,23 @@ export function joinPopulation({ observedIds, dispositions, label, root = repoRo
   if (!Array.isArray(observedIds) || !Array.isArray(dispositions)) {
     return { status: 'blocked', observedIds: [], dispositionIds: [], preservationRefs: [], blockers: [`${label}_population_or_dispositions_missing`] };
   }
-  const observed = orderedUnique(observedIds.map(String));
-  const dispositionIds = dispositions.map((item) => String(item?.id ?? ''));
-  if (observedIds.some((id) => !String(id)) || new Set(observedIds.map(String)).size !== observedIds.length) blockers.push(`${label}_observed_ids_invalid`);
+  const identity = (value) => value && typeof value === 'object'
+    ? [value.number, value.head_sha ?? value.headSha, value.base_sha ?? value.baseSha, value.base_ref ?? value.baseRef].join(':')
+    : String(value ?? '');
+  const observed = orderedUnique(observedIds.map(identity));
+  const dispositionIds = dispositions.map((item) => identity(item?.identity ?? item?.id));
+  if (observedIds.some((id) => !identity(id)) || new Set(observedIds.map(identity)).size !== observedIds.length) blockers.push(`${label}_observed_ids_invalid`);
   if (dispositionIds.some((id) => !id) || new Set(dispositionIds).size !== dispositionIds.length) blockers.push(`${label}_disposition_ids_invalid`);
   if (JSON.stringify(orderedUnique(dispositionIds)) !== JSON.stringify(observed)) blockers.push(`${label}_population_mismatch`);
   for (const row of dispositions) {
-    if (!row?.decision || !validPreservationReference(row.preservation_ref, row.id, row.decision, root)) blockers.push(`${label}_disposition_or_preservation_incomplete`);
+    if (!row?.decision || !validPreservationReference(row.preservation_ref, identity(row.identity ?? row.id), row.decision, root)) blockers.push(`${label}_disposition_or_preservation_incomplete`);
   }
-  const rows = [...dispositions].sort((a, b) => String(a?.id ?? '').localeCompare(String(b?.id ?? '')));
+  const rows = [...dispositions].sort((a, b) => identity(a?.identity ?? a?.id).localeCompare(identity(b?.identity ?? b?.id)));
   return {
     status: blockers.length ? 'blocked' : 'passed',
     observedIds: observed,
-    dispositionIds: rows.map((row) => String(row.id)),
-    preservationRefs: rows.map((row) => ({ id: String(row.id), ref: row.preservation_ref?.ref ?? null, commitSha: row.preservation_ref?.commit_sha ?? null, recordPath: row.preservation_ref?.record_path ?? null, recordSha256: row.preservation_ref?.record_sha256 ?? null })),
+    dispositionIds: rows.map((row) => identity(row.identity ?? row.id)),
+    preservationRefs: rows.map((row) => ({ id: identity(row.identity ?? row.id), ref: row.preservation_ref?.ref ?? null, commitSha: row.preservation_ref?.commit_sha ?? null, recordPath: row.preservation_ref?.record_path ?? null, recordSha256: row.preservation_ref?.record_sha256 ?? null })),
     blockers: [...new Set(blockers)].sort(),
   };
 }
@@ -91,13 +439,33 @@ function validPreservationReference(reference, dispositionId, decision, root) {
 }
 
 export function liveSnapshotStable(before, after) {
+  const fullIdentities = (snapshot) => snapshot?.openPullRequestIdentities
+    ? snapshot.openPullRequestIdentities.some((item) => !fullPullRequestIdentity(item))
+      ? 'invalid'
+      : JSON.stringify([...snapshot.openPullRequestIdentities].map(fullPullRequestIdentity).sort())
+    : null;
+  const beforeIdentities = fullIdentities(before);
+  const afterIdentities = fullIdentities(after);
   return Boolean(before && after
     && before.pullRequest?.number === after.pullRequest?.number
     && before.pullRequest?.state === after.pullRequest?.state
     && before.pullRequest?.headSha === after.pullRequest?.headSha
     && before.pullRequest?.baseSha === after.pullRequest?.baseSha
     && before.main?.sha === after.main?.sha
-    && JSON.stringify(orderedUnique((before.openPullRequestNumbers ?? []).map(String))) === JSON.stringify(orderedUnique((after.openPullRequestNumbers ?? []).map(String))));
+    && JSON.stringify(orderedUnique((before.openPullRequestNumbers ?? []).map(String))) === JSON.stringify(orderedUnique((after.openPullRequestNumbers ?? []).map(String)))
+    && beforeIdentities !== 'invalid' && afterIdentities !== 'invalid'
+    && (beforeIdentities === null && afterIdentities === null || beforeIdentities !== null && beforeIdentities === afterIdentities)
+    && (before.openPullRequestPagination?.complete !== false && after.openPullRequestPagination?.complete !== false));
+}
+
+export function fullPullRequestIdentity(item) {
+  const number = Number(item?.number);
+  const headSha = item?.head_sha ?? item?.headSha ?? item?.head?.sha;
+  const baseSha = item?.base_sha ?? item?.baseSha ?? item?.base?.sha;
+  const baseRef = item?.base_ref ?? item?.baseRef ?? item?.base?.ref ?? item?.base;
+  if (!Number.isInteger(number) || number < 1 || !/^[a-f0-9]{40}$/.test(headSha ?? '')
+    || !/^[a-f0-9]{40}$/.test(baseSha ?? '') || typeof baseRef !== 'string' || !baseRef) return null;
+  return `${number}:${headSha}:${baseSha}:${baseRef}`;
 }
 
 function exactHeadCiErrors(receipt, authoritative, expected) {
@@ -230,6 +598,14 @@ function ghJson(endpoint) {
   return JSON.parse(execFileSync('gh', ['api', endpoint], { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
 }
 
+function ghJsonPaginated(endpoint) {
+  const pages = JSON.parse(execFileSync('gh', ['api', '--paginate', '--slurp', endpoint], {
+    cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 32 * 1024 * 1024,
+  }));
+  if (!Array.isArray(pages) || pages.some((page) => !Array.isArray(page))) throw new Error('GitHub pagination did not return complete array pages.');
+  return { pages, rows: pages.flat() };
+}
+
 export function captureExactHeadCi(proposal, readiness, {
   receiptPath = playrightPath,
   exists = existsSync,
@@ -278,7 +654,8 @@ function objectAvailable(sha) {
 
 function captureLive() {
   const pr = ghJson('repos/szTheory/sigra/pulls/224');
-  const openPullRequests = ghJson('repos/szTheory/sigra/pulls?state=open&per_page=100');
+  const openPullRequestPages = ghJsonPaginated('repos/szTheory/sigra/pulls?state=open&per_page=100');
+  const openPullRequests = openPullRequestPages.rows;
   const main = ghJson('repos/szTheory/sigra/commits/main');
   const head = safeCommand('git', ['rev-parse', 'HEAD']).stdout || null;
   const branch = safeCommand('git', ['branch', '--show-current']).stdout || null;
@@ -287,6 +664,16 @@ function captureLive() {
     pullRequest: { number: pr.number, state: pr.state, headSha: pr.head?.sha ?? null, headRef: pr.head?.ref ?? null, baseSha: pr.base?.sha ?? null, baseRef: pr.base?.ref ?? null, updatedAt: pr.updated_at ?? null },
     main: { sha: main.sha ?? null, treeSha: main.commit?.tree?.sha ?? null },
     openPullRequestNumbers: openPullRequests.map((item) => item.number).sort((a, b) => a - b),
+    openPullRequestIdentities: openPullRequests.map((item) => ({
+      number: item.number, head_sha: item.head?.sha ?? null, base_sha: item.base?.sha ?? null,
+      base_ref: item.base?.ref ?? null, state: item.state ?? null,
+    })).sort((a, b) => a.number - b.number),
+    openPullRequestPagination: {
+      complete: openPullRequestPages.pages.length > 0 && openPullRequestPages.pages.every(Array.isArray),
+      page_count: openPullRequestPages.pages.length,
+      per_page: 100,
+      observed_rows: openPullRequests.length,
+    },
     openPullRequestCount: openPullRequests.length,
     openPullRequestDispositions: null,
     inheritedWork: null,
@@ -389,4 +776,16 @@ if (process.argv[2] === '--check-report') {
   if (!result.valid) process.exitCode = 1;
 } else if (process.argv[2] === '--capture') {
   writeCapture();
+} else if (process.argv[2] === '--capture-251') {
+  try { writePhase251Capture(); }
+  catch (error) {
+    process.stderr.write(`${JSON.stringify({ status: 'blocked', error: error.message, outputs_written: [] }, null, 2)}\n`);
+    process.exitCode = 1;
+  }
+} else if (process.argv[2] === '--check-251') {
+  try { checkPhase251Files(); }
+  catch (error) {
+    process.stderr.write(`${JSON.stringify({ valid: false, error: error.message }, null, 2)}\n`);
+    process.exitCode = 1;
+  }
 }
