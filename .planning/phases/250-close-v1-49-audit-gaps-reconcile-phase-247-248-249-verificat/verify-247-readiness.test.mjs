@@ -244,7 +244,7 @@ test('a concurrent PR or main move invalidates the captured live snapshot', asyn
   assert.equal(liveSnapshotStable(before, { ...before, openPullRequestNumbers: [224, 266] }), true);
   assert.equal(liveSnapshotStable(before, { ...before, main: { sha: 'main-b' } }), false);
   const open = [{ number: 224, head_sha: 'a'.repeat(40), base_sha: 'b'.repeat(40), base_ref: 'main' }];
-  const fullBefore = { ...before, openPullRequestNumbers: [224], openPullRequestIdentities: open, openPullRequestPagination: { complete: true } };
+  const fullBefore = { ...before, openPullRequestNumbers: [224], openPullRequestIdentities: open, openPullRequestPagination: { complete: true, page_count: 1, observed_rows: 1 } };
   assert.equal(fullPullRequestIdentity(open[0]), `224:${'a'.repeat(40)}:${'b'.repeat(40)}:main`);
   assert.equal(liveSnapshotStable(fullBefore, { ...fullBefore, openPullRequestIdentities: [{ ...open[0], head_sha: 'c'.repeat(40) }] }), false);
   assert.equal(liveSnapshotStable(fullBefore, { ...fullBefore, openPullRequestPagination: { complete: false } }), false);
@@ -277,10 +277,46 @@ test('paginated PR capture distinguishes complete empty, one-page, 100-plus, dup
   const before = {
     pullRequest: { number: 224, state: 'OPEN', headSha: 'a'.repeat(40), baseSha: 'b'.repeat(40) },
     main: { sha: 'c'.repeat(40) }, openPullRequestNumbers: [1], openPullRequestIdentities: [row(1)],
-    openPullRequestPagination: { complete: true },
+    openPullRequestPagination: { complete: true, page_count: 1, observed_rows: 1 },
   };
   assert.equal(liveSnapshotStable(before, { ...before, openPullRequestIdentities: [row(1, 'd'.repeat(40))] }), false);
   assert.equal(liveSnapshotStable(before, { ...before, openPullRequestPagination: { complete: false } }), false);
+});
+
+test('historical inherited base and head are resolved from the recorded source, never current main', async () => {
+  const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { execFileSync } = await import('node:child_process');
+  const { verifyHistoricalInheritedIdentity } = await import('./verify-247-readiness.mjs');
+  const root = mkdtempSync(join(tmpdir(), 'readiness-historical-base-'));
+  try {
+    execFileSync('git', ['init', '-q', root]);
+    execFileSync('git', ['-C', root, 'config', 'user.email', 'fixture@example.invalid']);
+    execFileSync('git', ['-C', root, 'config', 'user.name', 'Fixture']);
+    writeFileSync(join(root, 'source.txt'), 'base\n');
+    execFileSync('git', ['-C', root, 'add', 'source.txt']);
+    execFileSync('git', ['-C', root, 'commit', '-qm', 'historical base']);
+    const base = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    writeFileSync(join(root, 'source.txt'), 'inherited\n');
+    execFileSync('git', ['-C', root, 'commit', '-qam', 'recorded inherited head']);
+    const inheritedHead = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    writeFileSync(join(root, 'source.txt'), 'current\n');
+    execFileSync('git', ['-C', root, 'commit', '-qam', 'later current checkout']);
+    const currentHead = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    const readiness = { entry_snapshot: { source: { merge_base_sha: base, inherited_checkout: { head_sha: inheritedHead } } } };
+
+    const exact = verifyHistoricalInheritedIdentity(readiness, currentHead, root);
+    assert.equal(exact.base_sha, base);
+    assert.equal(exact.inherited_head_sha, inheritedHead);
+    assert.equal(exact.base_is_ancestor_of_inherited_head, true);
+    assert.equal(exact.inherited_head_is_ancestor_of_current, true);
+    assert.deepEqual(exact.blockers, []);
+    const substituted = verifyHistoricalInheritedIdentity({ entry_snapshot: { source: {
+      merge_base_sha: currentHead, inherited_checkout: { head_sha: inheritedHead },
+    } } }, currentHead, root);
+    assert.ok(substituted.blockers.includes('recorded_inherited_base_relationship_invalid'));
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 test('candidate source blob drift blocks the tuple even when the commit object exists', async () => {
@@ -502,8 +538,8 @@ test('secondary-worktree dirty paths stay in the READY-02 disposition and preser
 
     const packetInput = (dispositions) => {
       const localWithDispositions = { ...local, inherited_dispositions: dispositions };
-      const before = { open_pull_requests: [], pagination: { complete: true } };
-      const after = { open_pull_requests: [], pagination: { complete: true } };
+      const before = { open_pull_requests: [], pagination: { complete: true, page_count: 1, observed_rows: 0 }, main: { sha: 'a'.repeat(40) } };
+      const after = { open_pull_requests: [], pagination: { complete: true, page_count: 1, observed_rows: 0 }, main: { sha: 'a'.repeat(40) } };
       const evaluated = { requirements: {
         READY01: { capture_allowed: true, verdict: 'authorization_pending', blockers: [], findings: [], package_adopter: { acceptance_satisfied: false } },
         READY02: { capture_allowed: true, verdict: 'unsatisfied', blockers: [], findings: [] },

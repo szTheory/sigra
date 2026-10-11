@@ -274,22 +274,58 @@ function verifyPhase251PreflightBinding(feasibility) {
   return [...new Set(blockers)].sort();
 }
 
+export function normalizePaginatedPullRequests(pages) {
+  const errors = [];
+  if (!Array.isArray(pages) || pages.length === 0) errors.push('pages_missing');
+  else if (pages.some((page) => !Array.isArray(page))) errors.push('page_not_array');
+  const sourceRows = Array.isArray(pages) ? pages.flatMap((page) => Array.isArray(page) ? page : []) : [];
+  const rows = sourceRows.map((row) => ({
+    number: row?.number ?? null,
+    head_sha: row?.head_sha ?? row?.head?.sha ?? null,
+    base_sha: row?.base_sha ?? row?.base?.sha ?? null,
+    base_ref: row?.base_ref ?? row?.base?.ref ?? null,
+    state: row?.state ?? null,
+  })).sort((a, b) => Number(a.number) - Number(b.number));
+  const identities = rows.map(fullPullRequestIdentity);
+  if (identities.some((identity) => !identity)) errors.push('identity_missing_or_invalid');
+  const numbers = rows.map((row) => row.number);
+  if (new Set(numbers).size !== numbers.length) errors.push('duplicate_pull_request_number');
+  return {
+    rows,
+    pagination: { complete: errors.length === 0, page_count: Array.isArray(pages) ? pages.length : 0,
+      per_page: 100, observed_rows: sourceRows.length, errors: [...new Set(errors)].sort() },
+  };
+}
+
+export function verifyHistoricalInheritedIdentity(readiness, currentHead, root = repoRoot) {
+  const source = readiness?.entry_snapshot?.source ?? {};
+  const baseSha = source.merge_base_sha ?? null;
+  const inheritedHeadSha = source.inherited_checkout?.head_sha ?? null;
+  const baseObjectAvailable = Boolean(baseSha && safeCommand('git', ['cat-file', '-e', `${baseSha}^{commit}`], root).ok);
+  const inheritedHeadObjectAvailable = Boolean(inheritedHeadSha && safeCommand('git', ['cat-file', '-e', `${inheritedHeadSha}^{commit}`], root).ok);
+  const baseIsAncestor = baseObjectAvailable && inheritedHeadObjectAvailable
+    && safeCommand('git', ['merge-base', '--is-ancestor', baseSha, inheritedHeadSha], root).ok;
+  const inheritedHeadIsAncestor = inheritedHeadObjectAvailable && Boolean(currentHead)
+    && safeCommand('git', ['merge-base', '--is-ancestor', inheritedHeadSha, currentHead], root).ok;
+  const blockers = [];
+  if (!baseObjectAvailable || !inheritedHeadObjectAvailable) blockers.push('local_inherited_commit_base_unavailable');
+  if (baseObjectAvailable && inheritedHeadObjectAvailable && !baseIsAncestor) blockers.push('recorded_inherited_base_relationship_invalid');
+  if (inheritedHeadObjectAvailable && currentHead && !inheritedHeadIsAncestor) blockers.push('recorded_inherited_head_not_ancestor_of_current');
+  return { source_path: '.planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json#entry_snapshot.source',
+    base_sha: baseSha, inherited_head_sha: inheritedHeadSha, current_head_sha: currentHead,
+    base_object_available: baseObjectAvailable, inherited_head_object_available: inheritedHeadObjectAvailable,
+    base_is_ancestor_of_inherited_head: baseIsAncestor, inherited_head_is_ancestor_of_current: inheritedHeadIsAncestor,
+    recovery: baseObjectAvailable && inheritedHeadObjectAvailable ? 'read-back from local Git object database' : 'object unavailable', blockers };
+}
+
 function readOnlyLiveSnapshot() {
   const pageResult = ghJsonPaginated('repos/szTheory/sigra/pulls?state=open&per_page=100');
-  const identities = pageResult.rows.map((row) => ({
-    number: row.number,
-    head_sha: row.head?.sha ?? null,
-    base_sha: row.base?.sha ?? null,
-    base_ref: row.base?.ref ?? null,
-    state: row.state ?? null,
-  })).sort((a, b) => a.number - b.number);
-  const complete = pageResult.pages.length > 0 && pageResult.pages.every(Array.isArray)
-    && pageResult.rows.every((row) => Boolean(fullPullRequestIdentity(row)));
+  const normalized = normalizePaginatedPullRequests(pageResult.pages);
   const main = ghJson('repos/szTheory/sigra/commits/main');
   return {
     captured_at: new Date().toISOString(),
-    open_pull_requests: identities,
-    pagination: { complete, page_count: pageResult.pages.length, per_page: 100, observed_rows: identities.length },
+    open_pull_requests: normalized.rows,
+    pagination: normalized.pagination,
     main: { sha: main.sha ?? null, tree_sha: main.commit?.tree?.sha ?? null },
   };
 }
@@ -372,13 +408,19 @@ export function buildPhase251Packet(feasibility, evaluated, before, after, local
   const ready02 = evaluated.requirements.READY02;
   const beforeIds = (before?.open_pull_requests ?? []).map(fullPullRequestIdentity);
   const afterIds = (after?.open_pull_requests ?? []).map(fullPullRequestIdentity);
-  const prStable = Boolean(before?.pagination?.complete && after?.pagination?.complete
+  const validSnapshot = (snapshot) => Boolean(snapshot?.pagination?.complete === true
+    && Number.isInteger(snapshot.pagination.page_count) && snapshot.pagination.page_count > 0
+    && snapshot.pagination.observed_rows === snapshot.open_pull_requests?.length);
+  const prStable = Boolean(validSnapshot(before) && validSnapshot(after)
     && beforeIds.every(Boolean) && afterIds.every(Boolean)
+    && new Set(before?.open_pull_requests?.map((row) => row.number)).size === before?.open_pull_requests?.length
+    && new Set(after?.open_pull_requests?.map((row) => row.number)).size === after?.open_pull_requests?.length
     && JSON.stringify([...beforeIds].sort()) === JSON.stringify([...afterIds].sort()));
+  const mainStable = Boolean(before?.main?.sha && before.main.sha === after?.main?.sha);
   const prJoin = joinPopulation({ observedIds: afterIds.filter(Boolean), dispositions: after?.dispositions ?? [], label: 'open_pr', root });
   const inheritedItems = inheritedWorkItems(local);
   const inheritedJoin = joinPopulation({ observedIds: inheritedItems, dispositions: local.inherited_dispositions ?? [], label: 'inherited_work', root });
-  const ready02Satisfied = ready02.capture_allowed && prStable && prJoin.status === 'passed'
+  const ready02Satisfied = ready02.capture_allowed && prStable && mainStable && prJoin.status === 'passed'
     && inheritedJoin.status === 'passed' && local.inventory_complete && local.worktrees.every((row) => row.status_readable);
   const ready01Satisfied = Boolean(ready01.package_adopter?.acceptance_satisfied);
   ready01.verdict = ready01Satisfied ? 'satisfied' : (ready01.approval_event === 'absent' ? 'authorization_pending' : 'unsatisfied');
@@ -390,7 +432,7 @@ export function buildPhase251Packet(feasibility, evaluated, before, after, local
     repository: 'szTheory/sigra',
     captured_at: new Date().toISOString(),
     source_feasibility: { path: path.relative(repoRoot, phase251FeasibilityPath), sha256: sha256(readFileSync(phase251FeasibilityPath)) },
-    source_capture: { before, after, stable_open_pr_identity: prStable, local_inherited_work: local },
+    source_capture: { before, after, stable_open_pr_identity: prStable, stable_main_identity: mainStable, local_inherited_work: local },
     candidate_tuple: ready01.candidate_tuple ?? phase251CandidateTuple,
     published_release_source: ready01.published_release_source ?? phase251PublishedSource,
     package_adopter: ready01.package_adopter ?? null,
@@ -399,7 +441,11 @@ export function buildPhase251Packet(feasibility, evaluated, before, after, local
       READY01: { source_feasibility: ready01.source_feasibility, capture_allowed: ready01.capture_allowed,
         verdict: ready01.verdict, blockers: ready01.blockers, findings: ready01.findings ?? [], package_adopter: ready01.package_adopter ?? null },
       READY02: { source_feasibility: ready02.source_feasibility, capture_allowed: ready02.capture_allowed,
-        verdict: ready02.verdict, blockers: [...ready02.blockers, ...blockers], findings: ready02.findings ?? [],
+        verdict: ready02.verdict, blockers: [...ready02.blockers, ...blockers,
+          ...(prStable ? [] : ['open_pr_population_changed_or_incomplete']),
+          ...(mainStable ? [] : ['protected_main_changed_or_unavailable']),
+          ...(prJoin.status === 'passed' ? [] : prJoin.blockers),
+          ...(inheritedJoin.status === 'passed' ? [] : inheritedJoin.blockers)], findings: ready02.findings ?? [],
         open_pr_population: { before_count: before?.open_pull_requests?.length ?? null, after_count: after?.open_pull_requests?.length ?? null,
           before: before?.open_pull_requests ?? null, after: after?.open_pull_requests ?? null, stable: prStable,
           complete: Boolean(before?.pagination?.complete && after?.pagination?.complete), disposition_join: prJoin },
@@ -407,6 +453,7 @@ export function buildPhase251Packet(feasibility, evaluated, before, after, local
           raw_status: local.raw_status, worktrees: local.worktrees, disposition_join: inheritedJoin } },
     },
     blockers: [...blockers, ...(prStable ? [] : ['open_pr_population_changed_or_incomplete']),
+      ...(mainStable ? [] : ['protected_main_changed_or_unavailable']),
       ...(prJoin.status === 'passed' ? [] : prJoin.blockers), ...(inheritedJoin.status === 'passed' ? [] : inheritedJoin.blockers)],
   };
 }
@@ -465,7 +512,12 @@ function writePhase251Capture() {
       captureBlockers.push('github_live_population_unavailable');
     }
   }
-  const local = localInheritedSnapshot(liveBefore?.main?.sha ?? null);
+  const readinessLedger = readJson(readinessPath);
+  const checkoutHead = safeCommand('git', ['rev-parse', 'HEAD']).stdout;
+  const historicalIdentity = verifyHistoricalInheritedIdentity(readinessLedger, checkoutHead);
+  const local = localInheritedSnapshot(historicalIdentity.base_sha);
+  local.historical_identity = historicalIdentity;
+  captureBlockers.push(...historicalIdentity.blockers);
   if (!local.inventory_complete) captureBlockers.push('local_inherited_commit_base_unavailable');
   if (liveBefore && !liveCaptureFailure) {
     try { liveAfter = readOnlyLiveSnapshot(); }
@@ -562,6 +614,15 @@ export function liveSnapshotStable(before, after) {
     : null;
   const beforeIdentities = fullIdentities(before);
   const afterIdentities = fullIdentities(after);
+  const validPopulation = (snapshot) => {
+    if (!Array.isArray(snapshot?.openPullRequestIdentities)) return true;
+    return snapshot.openPullRequestPagination?.complete === true
+      && Number.isInteger(snapshot.openPullRequestPagination.page_count)
+      && snapshot.openPullRequestPagination.page_count > 0
+      && snapshot.openPullRequestPagination.observed_rows === snapshot.openPullRequestIdentities.length
+      && snapshot.openPullRequestIdentities.length === (snapshot.openPullRequestNumbers ?? []).length
+      && new Set(snapshot.openPullRequestIdentities.map((row) => row?.number)).size === snapshot.openPullRequestIdentities.length;
+  };
   return Boolean(before && after
     && before.pullRequest?.number === after.pullRequest?.number
     && before.pullRequest?.state === after.pullRequest?.state
@@ -570,6 +631,7 @@ export function liveSnapshotStable(before, after) {
     && before.main?.sha === after.main?.sha
     && JSON.stringify(orderedUnique((before.openPullRequestNumbers ?? []).map(String))) === JSON.stringify(orderedUnique((after.openPullRequestNumbers ?? []).map(String)))
     && beforeIdentities !== 'invalid' && afterIdentities !== 'invalid'
+    && validPopulation(before) && validPopulation(after)
     && (beforeIdentities === null && afterIdentities === null || beforeIdentities !== null && beforeIdentities === afterIdentities)
     && (before.openPullRequestPagination?.complete !== false && after.openPullRequestPagination?.complete !== false));
 }
