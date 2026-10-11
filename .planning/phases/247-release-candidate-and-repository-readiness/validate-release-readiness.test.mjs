@@ -595,3 +595,63 @@ test('rejects duplicate and omitted live inventory identities while accepting ex
   delete empty.observed.inventory.commits;
   assert.ok(validateFinalReadiness(empty.final, empty.observed).errors.some(error => error.code === 'final_commits_not_array'));
 });
+
+function dispositionIdentity(row) {
+  return {
+    repository: row.repository,
+    number: row.number,
+    head_sha: row.head_sha,
+    base: row.base,
+    base_sha: row.base_sha,
+  };
+}
+
+function finalInventoryForPullRequest(livePullRequest) {
+  const identity = dispositionIdentity(livePullRequest);
+  const saved = {
+    ...livePullRequest,
+    changed_files: [],
+    disposition: 'release-relevant',
+    reason: 'Selected release PR.',
+    source: 'GitHub PR #224',
+    preservation_location: 'GitHub PR #224',
+    disposition_identity: identity,
+  };
+  const empty = emptySnapshot();
+  const snapshot = { entry_snapshot: empty, current_snapshot: { ...emptySnapshot(), pull_requests: [saved] } };
+  const observed = {
+    repo_root: '/repo', branch: 'release-work', trusted_main_sha: 'a'.repeat(40),
+    local_origin_main_sha: 'a'.repeat(40), merge_base_sha: 'b'.repeat(40),
+    inherited_head_sha: 'c'.repeat(40), commit_shas: [], committed_paths: [], dirty_paths: [],
+  };
+  return finalInventory(snapshot, observed, [livePullRequest]);
+}
+
+test('final inventory invalidates disposition when any captured PR identity component changes', () => {
+  const { final, observed } = finalReadinessFixture();
+  const baseline = {
+    repository: 'szTheory/sigra', number: 224, head_sha: final.source_sha,
+    base: 'main', base_sha: 'b'.repeat(40), changed_files: [],
+  };
+  const unchangedInventory = finalInventoryForPullRequest(baseline);
+  final.observed_at = unchangedInventory.captured_at;
+  observed.inventory = unchangedInventory;
+  observed.live.open_pull_requests = [baseline];
+  assert.deepEqual(validateFinalReadiness(final, observed), { valid: true, errors: [] });
+
+  for (const [field, value] of [
+    ['head_sha', 'c'.repeat(40)],
+    ['base', 'release/1.6'],
+    ['base_sha', 'd'.repeat(40)],
+  ]) {
+    const changed = { ...baseline, [field]: value };
+    const inventory = finalInventoryForPullRequest(changed);
+    final.observed_at = inventory.captured_at;
+    assert.equal(inventory.pull_requests[0].disposition, null, `${field} must clear the old disposition`);
+    observed.inventory = inventory;
+    observed.live.open_pull_requests = [changed];
+    const result = validateFinalReadiness(final, observed);
+    assert.ok(result.errors.some(error => /final_pr_(?:disposition_missing|identity_mismatch)/.test(error.code)),
+      `${field} must fail final readiness: ${JSON.stringify(result.errors)}`);
+  }
+});
