@@ -5,12 +5,12 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 8
-status: blocked_on_new_source_evidence_for_halted_gap_plans
-stopped_at: Plans 250-07 and 250-08 are halted; v5 canary packet is stale and unapproved, tuple packet has zero eligible routes, and Plans 09-12 are dependency-blocked
-last_updated: "2026-10-11T02:26:56Z"
+status: blocked_no_runnable_phase250_gap_plan
+stopped_at: Phase 250 gap planning is inconclusive; Plans 250-07/08 are halted and Plans 250-09–12 are dependency-blocked with no runnable plan
+last_updated: "2026-10-11T02:38:42Z"
 last_activity: 2026-10-11
-last_activity_desc: Manually reconciled the existing Plan 250-07/08 commits as halted summaries. GSD reports zero runnable gap plans; verification remains gaps_found and routes to replanning Phase 250 gaps. No new Actions dispatch, cancellation, CI run, release, or publish occurred. Separate PR #302 v1.7.0 release remains complete.
-state_head: 80e7a42e425b6f05bb28b7372780a034b2624efa
+last_activity_desc: Manual closeout remains in force. The gap planner returned inconclusive; current readiness has zero runnable plans. A read-only preflight was retained but is not source-identity proof or dispatch authority. No external workflow or release action occurred.
+state_head: 7883d651e44ed4f8564703ec21e58c1bc91f68b1
 progress:
   total_phases: 5
   completed_phases: 4
@@ -18,7 +18,8 @@ progress:
   completed_plans: 39
   percent: 91
 verification_status: gaps_found
-next_command: "$gsd-plan-phase 250 --gaps"
+next_command: null
+resume_command: "$gsd-plan-phase 250 --gaps"
 ---
 
 # Project State
@@ -33,11 +34,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — ACTIVE, GAP PLANS HALTED ON MISSING EVIDENCE
+Phase: 250 (Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts) — ACTIVE, GAP PLANNING INCONCLUSIVE; NO RUNNABLE PLAN
 Current Plan: 8 (last manually summarized; no gap plan is currently runnable)
 Total Plans in Phase: 12
 Plans summarized: 8 of 12 (01–06 complete; 07–08 halted); Plans 09–12 are blocked by those halted evidence gaps
-Status: Partial implementation delivered; phase verification incomplete
+Status: Partial implementation delivered; Plans 07–08 halted, Plans 09–12 blocked; phase verification incomplete
 Last activity: 2026-10-11 — Plans 250-07 and 250-08 were manually reconciled as halted; no new hosted action occurred. PR #302 remains separately squash-merged and v1.7.0 published; it does not close the v1.49/1.6.0 Phase 249 verdict.
 
 Progress: [█████████░] 91% (39/43 summary records; includes halted/checkpointed plans and is not acceptance completion)
@@ -61,6 +62,12 @@ The latest Phase 250 verifier remains gaps_found at 8/14 and the strict audit re
 Controller run 38087516844 failed at exact_cancellation_observer_run_was_not_found. Failure receipt and exact source cancellation are recorded, but AUTO-02 remains unsatisfied and the single-run authority is consumed. Diagnose/fix the observer path; any further hosted run requires a fresh explicit packet decision. init.execute-phase 250 earlier reported six incomplete plans and no duplicate threat IDs. No later roadmap phase is defined.
 
 Execution evidence: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json`; the Plan 07/08 halted summaries and `250-SAFE-RESUME-RECONCILIATION.json` preserve exact plan commits, packet identities, and pre-write hashes. The initial dirty gap-planning draft remains recoverable at refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z, commit 15c1afd319f7d59012cd9173195e0833b8135c77. Earlier STATE/HANDOFF revisions are recorded in the checkpoint; historical HANDOFF loss remains accepted-with-recorded-loss.
+
+### Manual closeout route — 2026-10-11
+
+`$gsd-plan-phase 250 --gaps` was run and returned `PLANNING INCONCLUSIVE`; do not repeat it without new immutable source-bound evidence or a changed acceptance decision. Current `init.plan-phase 250` confirms context and research exist, while `init.execute-phase 250` reports zero runnable plans. The refreshed workflow preflight at `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T023636Z.json` reports `ready` for main `ff96768bc2843ef1a89926d238690b1145bfd514`, but its source blob identities were not compared, so it is not a canary authority packet. No hosted dispatch, cancellation, CI poll, merge, or publish was performed.
+
+**Immediate next GSD command:** none; no runnable GSD plan exists. **Resume command after new source-bound evidence or an explicit acceptance change:** `$gsd-plan-phase 250 --gaps`. Phase 250 remains incomplete at `gaps_found`; no Phase 251 is defined. The machine-readable outcome is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011.json`.
 
 ### v1.49 phase map
 

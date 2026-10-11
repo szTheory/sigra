@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 — RELEASE-1.6.0",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -28,22 +28,29 @@
       "name": "Close v1.49 audit gaps",
       "status": "in_progress",
       "verification_status": "gaps_found",
-      "completed_plans": 8,
-      "total_plans": 12
+      "completed_plans": 6,
+      "total_plans": 12,
+      "summaries_present": 8,
+      "halted_plans": 2,
+      "blocked_plans": 4
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 250 --gaps",
-    "label": "Replan the remaining Phase 250 evidence gaps after the two safe-resume halts",
-    "reason": "GSD verification status routes to gap planning. init.plan-phase confirms Phase 250 context/research exist, while init.execute-phase reports zero runnable gap plans: 250-07 and 250-08 are halted and 250-09 through 250-12 are dependency-blocked. Replan only for changed source identities or genuinely new evidence; do not repeat the stale packet or zero-eligible tuple packet.",
+    "command": null,
+    "label": "No immediate GSD command: Phase 250 gap planner is inconclusive and no plan is runnable",
+    "reason": "The specific command $gsd-plan-phase 250 --gaps was already run and returned PLANNING INCONCLUSIVE. init.plan-phase confirms context/research; init.execute-phase confirms zero runnable plans. Wait for new immutable source-bound evidence or an explicit acceptance change, then replan only the changed gaps. The read-only ff96768 workflow preflight is not source-blob verification and grants no dispatch authority.",
     "blocked_by": [
-      "250-07-stale-main-bound-v5-packet-and-no-current-packet-approval",
+      "250-07-stale-main-bound-packet-and-no-current-packet-specific-authority",
       "250-08-zero-eligible-exact-source-tuples",
       "250-09-through-250-12-depend-on-halted-plans"
     ],
     "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
     "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
-    "route_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json"
+    "route_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
+    "resume_command": "$gsd-plan-phase 250 --gaps",
+    "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011.json",
+    "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T023636Z.json",
+    "next_roadmap_phase": null
   },
-  "updated_at": "2026-10-11T02:26:56Z"
+  "updated_at": "2026-10-11T02:38:42Z"
 }
