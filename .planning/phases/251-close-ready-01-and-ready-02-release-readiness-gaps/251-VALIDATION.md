@@ -1,9 +1,9 @@
 ---
 phase: "251"
 slug: "close-ready-01-and-ready-02-release-readiness-gaps"
-status: pending
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: "2026-10-11"
 ---
 
@@ -19,7 +19,7 @@ created: "2026-10-11"
 | **Config file** | None |
 | **Quick run command** | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs` |
 | **Full suite command** | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs` |
-| **Estimated runtime** | Under 2 seconds for the current seven-suite Node regression run |
+| **Estimated runtime** | Under 3 seconds for the current three-file Node regression run |
 
 The quick and full commands are local and deterministic. They do not query or mutate GitHub, dispatch workflows, merge, publish, create releases, or change a candidate.
 
@@ -77,44 +77,46 @@ The counts below describe the completed Plan 01–02 audit only; the current gap
 | Plan 01–02 resolved | 0 |
 | Plan 01–02 escalated | 0 |
 
-## Gap-Closure Planning Addendum — Plans 03–07 (pending)
+## Gap-Closure Planning Addendum — Plans 03–07 (validated)
 
-The 91/91 passing Plan 01/02 regression record above is historical. It does not validate the new CR-01/02/03 repairs or new READY evidence. All rows below are pending execution and evidence. The frontmatter now describes full-phase validation; the earlier checked sign-off and zero-gap audit remain explicitly historical.
+The 91/91 passing Plan 01/02 regression record above is historical. It does not validate the new CR-01/02/03 repairs or new READY evidence. The 12 rows below are reconciled against the retained RED records, their named passing regressions, and the current fresh run recorded in `251-07-validation-evidence.json`. The earlier checked sign-off and zero-gap audit remain explicitly historical.
 
 **Wave 0 prerequisite:** Before implementing a repair, add the named unsafe-acceptance fixture and prove it fails against the current code. Preserve that red result in the task summary, then require the same fixture to pass after repair. The inherited Node test infrastructure exists, so no new framework or install is needed. Fixture calls are local and deterministic; live GitHub observations occur only in evidence-capture tasks. `--check-251` must accept truthful unsatisfied packets while rejecting internally inconsistent or forged satisfied packets.
 
 | Task ID | Plan / wave | Requirement | Threat Ref | Required regression cases and evidence | Automated command | Status |
 |---|---|---|---|---|---|---|
-| 251-03-01 | 03 / 3 | READY-02 | T-251-09, T-251-10 | `prBaseShaChangedInvalidatesDisposition`, `prHeadChangedInvalidatesDisposition`, `prBaseRefChangedInvalidatesDisposition`, `prUnchangedIdentityKeepsDisposition` | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` | pending |
-| 251-03-02 | 03 / 3 | READY-02 | T-251-10 | `prEqualIdentityJoinsOnce`, `prDuplicateIdentityRejected`, `prNullBaseShaRejected`, `prNumericOrderingStable` | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` | pending |
-| 251-04-01 | 04 / 3 | READY-01 | T-251-11 | `publishedGuideCannotUseCandidateBlob`, `genericCheckEvidenceRejected`, `wrongCheckPathRejected`, `wrongCheckBlobRejected`, `namedCheckSourceBytesVerified` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs` | pending |
-| 251-04-02 | 04 / 3 | READY-01 | T-251-12 | `traceabilityRejectsForgedPackagePass`, `traceabilityAcceptsTruthfulPublishedGuideGap` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs` | pending |
-| 251-05-01 | 05 / 4 | READY-02 | T-251-13, T-251-14 | `secondaryDirtyWorktreeJoins`, `secondaryDirtyMissingPreservationBlocks`, `wrongBytePreservationRefBlocks`, `cleanSecondaryWorktreeAddsNoItem` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs` | pending |
-| 251-05-02 | 05 / 4 | READY-02 | T-251-15 | `recordedInheritedBaseRequired`, `prPages100And101Complete`, `prEmptyCompleteVsNull`, `prPopulationRaceBlocks`, `prStableOrdering` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` | pending |
-| 251-05-03 | 05 / 4 | READY-02 | T-251-13, T-251-14, T-251-15 | Current packet includes every full PR and inherited identity, one disposition each, scoped ref byte read-back, owner packet digest; unresolved items carry precise blockers | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251` | pending |
-| 251-06-01 | 06 / 5 | READY-01 | T-251-16 | `historicalOwner404NotTrusted`, `noContemporaneousApprovalPending`, `laterApprovalRejected`, `wrongTupleMemberRejected`, `ready02IndependentOfApproval` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs` | pending |
-| 251-06-02 | 06 / 5 | READY-01 | T-251-17, T-251-18 | `publishedGuideTrusted404Blocks`, `publishedReadmeLinkMissingBlocks`, `sameInputSemanticIdempotency`, `interruptedCaptureFailsCheck`, `interleavedCaptureFailsCheck` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251` | pending |
-| 251-07-01 | 07 / 6 | READY-01, READY-02 | T-251-19, T-251-20 | `ownerReportReferenceRequired`, `ownerDerivedSevenEightNine`, `phase250ExceptionNotReadyPass` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources` | pending |
-| 251-07-02 | 07 / 6 | READY-01, READY-02 | T-251-20 | Source-derived READY rows, strict 7/9-or-proven audit, Phase 248/249 unchanged, eight legacy mix failures labeled contextual | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md` | pending |
-| 251-07-03 | 07 / 6 | READY-01, READY-02 | T-251-21 | CR-01/02/03 fixed only with named red/green fixture evidence; unresolved originals leave phase verification gaps_found | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251 && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md` | pending |
+| 251-03-01 | 03 / 3 | READY-02 | T-251-09, T-251-10 | `final inventory invalidates disposition when any captured PR identity component changes` covers changed head, base ref, and base SHA plus unchanged identity | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` — 31/31 pass; RED record `251-03-task1-red-evidence.json` | pass |
+| 251-03-02 | 03 / 3 | READY-02 | T-251-10 | `requires unique complete PR identities and stable numeric ordering in snapshots`; `final inventory sorts PRs numerically and rejects duplicate or null identities` | same validator suite — 31/31 pass; RED record `251-03-task2-red-evidence.json` | pass |
+| 251-04-01 | 04 / 3 | READY-01 | T-251-11 | `a published-guide pass cannot cite candidate guide bytes`; `package checks reject wrong path, commit, blob, digest, and assertion identity` | readiness suite in fresh 114/114 full run; RED record `251-04-task1-red-evidence.json` | pass |
+| 251-04-02 | 04 / 3 | READY-01 | T-251-12 | `independent audit rejects a satisfied READY-01 row whose guide ref points to candidate bytes`; `independent audit rejects each changed READY-01 check source or result identity` | traceability suite in fresh 114/114 full run; RED record `251-04-task2-red-evidence.json` | pass |
+| 251-05-01 | 05 / 4 | READY-02 | T-251-13, T-251-14 | `secondary-worktree dirty paths stay in the READY-02 disposition and preservation join`; `clean secondary worktrees do not create phantom dirty inherited items`; exact preservation read-back regression | readiness suite in fresh 114/114 full run; RED record `251-05-task1-red-evidence.json` | pass |
+| 251-05-02 | 05 / 4 | READY-02 | T-251-15 | `paginated PR capture distinguishes complete empty, one-page, 100-plus, duplicate, null, and reordered sets`; historical-base binding regression | readiness and validator suites in fresh 114/114 full run; RED record `251-05-task2-red-evidence.json` | pass |
+| 251-05-03 | 05 / 4 | READY-02 | T-251-13, T-251-14, T-251-15 | Current packet includes all 15 complete PR identities and 2,421 inherited identities, exact disposition joins and preservation read-backs | readiness and validator suites in fresh 114/114 full run; `--check-251` valid for capture `phase251-939607ff3f17e03b22aa` | pass |
+| 251-06-01 | 06 / 5 | READY-01 | T-251-16 | `complete history with no approval stays authorization_pending and preserves READY-02`; exact candidate/CI/readiness/dry-run tuple mismatch and later approval guards | readiness suite in fresh 114/114 full run; RED record `251-06-task1-red-evidence.json` | pass |
+| 251-06-02 | 06 / 5 | READY-01 | T-251-17, T-251-18 | Exact published-tag guide/README absence, mixed-generation rejection, and semantic capture determinism regression cases | readiness suite and `--check-251` valid for current capture; RED record `251-06-task2-red-evidence.json` | pass |
+| 251-07-01 | 07 / 6 | READY-01, READY-02 | T-251-19, T-251-20 | `ownerReportReferenceRequired`, `ownerDerivedSevenEightNine`, and `phase250ExceptionNotReadyPass` all pass in the fresh traceability suite | traceability suite in fresh 114/114 full run; `251-07-task1-red-evidence.json` passed `RED_EVIDENCE_OK` | pass |
+| 251-07-02 | 07 / 6 | READY-01, READY-02 | T-251-20 | Source-derived owner rows and audit are 8/9 because only READY-02 is proven; historical exceptions stay phase-only and AUTO/REL facts remain source-derived | fresh 114/114 suite; `--check-sources` exits 0; `--check-audit` valid at 8/9 | pass |
+| 251-07-03 | 07 / 6 | READY-01, READY-02 | T-251-21 | CR-01/02/03 each have machine-verified RED evidence and named passing regression; current READY-01 gap remains explicit | fresh 114/114 suite, `--check-251`, `--check-sources`, and `--check-audit` all pass | pass |
 
-Gap-closure validation status: **pending (0/12 new task checks proven)**. Old 91/91 and source/audit passes remain historical only. The new fixture names are required contracts for execution, not claims that the tests currently exist or pass. No broad `mix test` pass is claimed; its eight unchanged legacy failures remain separately recorded diagnostics.
+Gap-closure validation status: **validated (12/12 new task checks proven)**. The prior 91/91 Plan 01/02 result remains historical and is not counted. No broad `mix test` pass is claimed; its eight unchanged legacy failures remain separately recorded diagnostics.
 
 ## Current Gap-Closure Validation Audit
 
 | Metric | Count |
 |---|---:|
 | Plans 03–07 task checks | 12 |
-| Checks proven passing | 0 |
-| Checks not yet proven | 12 |
+| Checks proven passing | 12 |
+| Checks not yet proven | 0 |
 
 ## Current Full-Phase Validation Sign-Off
 
-- [ ] All 12 Plan 03–07 rows have passing command output and referenced task evidence; no pending, failed, or blocked row is counted as proven.
-- [ ] The required red-then-green fixtures, `--check-251`, `--check-sources`, and `--check-audit` have actual passing evidence; the historical 91/91 record does not substitute for these checks.
-- [ ] The current audit counts, row statuses, frontmatter, and sign-off agree. Set `status: validated`, `nyquist_compliant: true`, and `wave_0_complete: true` only after these checks are proven; otherwise retain pending/false and state precise failures.
+- [x] All 12 Plan 03–07 rows have passing command output and referenced task evidence; no pending, failed, or blocked row is counted as proven.
+- [x] The required red-then-green fixtures, `--check-251`, `--check-sources`, and `--check-audit` have actual passing evidence; the historical 91/91 record does not substitute for these checks.
+- [x] The current audit counts, row statuses, frontmatter, and sign-off agree. READY-01 remains unsatisfied and READY-02 is source-proven; the audit is 8/9 and incomplete.
 
-**Current approval:** pending. This validation sign-off concerns test evidence only. The separate Phase 247 owner verdict and Phase 251 verification may still report READY gaps after all tests pass.
+**Current approval:** validated. This validation sign-off concerns test evidence only. Phase 247 still reports READY-01 unsatisfied; Phase 251 verification remains `gaps_found` even though the current test evidence is complete.
+
+**Fresh machine evidence:** `251-07-validation-evidence.json` records the exact full-suite command and count (114 passed, 0 failed/skipped/todo), all three readiness/audit checks, the current packet digest and READY verdicts, and successful machine validation of the retained task RED records.
 
 **Prewrite recovery identity:** The exact previous dirty validation bytes (` M`, SHA-256 `65fa3105a90363cfe00f6e2788e8a08895b2eaa236a1d2fd4ce979cb0ef888a6`) and untracked Plan 07 bytes (`??`, SHA-256 `89143b31589bf03e34132f367d701c5265fe08674a3e9762b5acf3fa497c0b42`) are recoverable from commit `975e3174685fbc7c1a42a94bfa3de864c48fae64` at `.planning/recovery/phase251-gap-checker-prewrite-20261011T215540Z/manifest.json` and its listed backup paths; parent verified committed read-back and the source hash/status before this revision.
 

@@ -358,14 +358,14 @@ test('audit checker rejects a READY matrix row that contradicts the current owne
 
 test('audit discovers current Nyquist classifications from every v1.49 phase record', () => {
   const result = audit(repoRoot);
-  assert.deepEqual(result.nyquist.compliantPhases, [246, 248, 249, 250]);
+  assert.deepEqual(result.nyquist.compliantPhases, [246, 248, 249, 250, 251]);
   assert.deepEqual(result.nyquist.partialPhases, [247]);
-  assert.deepEqual(result.nyquist.notValidatedPhases, [251]);
+  assert.deepEqual(result.nyquist.notValidatedPhases, []);
   assert.deepEqual(result.nyquist.missingPhases, []);
   assert.equal(result.nyquist.overall, 'partial');
   assert.match(renderAudit(result), /Phase 248: \*\*compliant\*\*/);
   assert.match(renderAudit(result), /Phase 247: \*\*partial\*\*/);
-  assert.match(renderAudit(result), /Phase 251: \*\*not validated\*\*/);
+  assert.match(renderAudit(result), /Phase 251: \*\*compliant\*\*/);
 });
 
 test('Nyquist classification changes when a current validation record changes', () => {
@@ -375,7 +375,7 @@ test('Nyquist classification changes when a current validation record changes', 
         source.replace('nyquist_compliant: true', 'nyquist_compliant: false'),
     },
   });
-  assert.deepEqual(result.nyquist.compliantPhases, [246, 249, 250]);
+  assert.deepEqual(result.nyquist.compliantPhases, [246, 249, 250, 251]);
   assert.deepEqual(result.nyquist.partialPhases, [247, 248]);
 });
 

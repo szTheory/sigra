@@ -582,7 +582,7 @@ function phase251Ready01Complete(packet, feasibility) {
     && packageComplete;
 }
 
-export function phase251Ready02Complete(root, packet, feasibility) {
+function phase251Ready02Complete(root, packet, feasibility) {
   const ready = packet?.requirements?.READY02;
   const feasible = feasibility?.requirements?.READY02;
   const population = ready?.open_pr_population;
