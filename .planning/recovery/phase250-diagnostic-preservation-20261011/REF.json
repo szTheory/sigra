@@ -16,6 +16,12 @@
   "verification": {
     "pre_update_bytes_sha256_verified": true,
     "current_bytes_sha256_verified": true,
-    "remote_readback_pending": true
+    "remote_readback_pending": false,
+    "remote_ref": "refs/heads/evidence/phase250-diagnostic-preservation-20261011",
+    "remote_readback_sha256": {
+      "pre_update": "bbc6af06980aa89e332ed0acdf160b8e3b920afbf966659bf35fa9efef552160",
+      "current_copy": "8944e075e02989700ccb9d0a1fba8b6937df2a74e63bf336214a3599b5fbc066",
+      "current_original_path": "8944e075e02989700ccb9d0a1fba8b6937df2a74e63bf336214a3599b5fbc066"
+    }
   }
 }
