@@ -37,8 +37,8 @@
   ],
   "next": {
     "command": null,
-    "label": "No immediate GSD command: Phase 250 gap planner is inconclusive and no plan is runnable",
-    "reason": "The specific command $gsd-plan-phase 250 --gaps was already run and returned PLANNING INCONCLUSIVE. init.plan-phase confirms context/research; init.execute-phase confirms zero runnable plans. Wait for new immutable source-bound evidence or an explicit acceptance change, then replan only the changed gaps. The read-only ff96768 workflow preflight is not source-blob verification and grants no dispatch authority.",
+    "label": "No immediate GSD command: Phase 250 gap planning remains inconclusive with zero runnable plans",
+    "reason": "The latest explicit $gsd-plan-phase 250 --gaps run created no distinct plan. Plans 250-07/08 remain halted and Plans 250-09–12 depend on missing external proof. The Phase 250 API coverage matrix now passes its gate (17 capabilities, 12 INTEGRATE, 5 OPT-OUT), but does not satisfy any owner requirement. Wait for new immutable source-bound evidence or an explicit acceptance change; then re-evaluate the changed gaps.",
     "blocked_by": [
       "250-07-stale-main-bound-packet-and-no-current-packet-specific-authority",
       "250-08-zero-eligible-exact-source-tuples",
@@ -48,9 +48,12 @@
     "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
     "route_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
     "resume_command": "$gsd-plan-phase 250 --gaps",
-    "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011.json",
+    "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T030026Z.json",
     "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T023636Z.json",
-    "next_roadmap_phase": null
+    "next_roadmap_phase": null,
+    "coverage_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/COVERAGE.md",
+    "coverage_sha256": "f43d19a4a51f7fc4cc84caef5dcccb136eaa6723dfe4d6c255772376c7595224",
+    "coverage_gate": "passed: 17 capabilities, 12 INTEGRATE, 5 OPT-OUT"
   },
-  "updated_at": "2026-10-11T02:38:42Z"
+  "updated_at": "2026-10-11T03:00:26Z"
 }
