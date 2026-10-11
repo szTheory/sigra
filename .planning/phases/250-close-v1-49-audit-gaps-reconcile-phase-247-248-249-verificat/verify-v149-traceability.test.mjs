@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { audit, checkAudit, renderAudit } from './verify-v149-traceability.mjs';
@@ -6,6 +8,142 @@ import { audit, checkAudit, renderAudit } from './verify-v149-traceability.mjs';
 const repoRoot = path.resolve('.');
 const closeDir = '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat';
 const acceptancePath = closeDir + '/250-ACCEPTANCE-AMENDMENT.json';
+const phase251Dir = '.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps';
+const phase251PacketPath = phase251Dir + '/251-247-RECONCILIATION.json';
+const phase251FeasibilityPath = phase251Dir + '/251-EVIDENCE-FEASIBILITY.json';
+const phase247ReportPath = '.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md';
+const historicalCommit = '0e7a2835ebd0d7a1e791ad4dbc73955270108ed1';
+
+function sha256(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
+  const packet = JSON.parse(readFileSync(path.join(repoRoot, phase251PacketPath), 'utf8'));
+  const report = readFileSync(path.join(repoRoot, phase247ReportPath), 'utf8');
+
+  const ready01Verdict = ready01 ? 'satisfied' : packet.requirement_verdicts['READY-01'];
+  const ready02Verdict = ready02 ? 'satisfied' : packet.requirement_verdicts['READY-02'];
+  packet.requirement_verdicts = { 'READY-01': ready01Verdict, 'READY-02': ready02Verdict };
+
+  const first = packet.requirements.READY01;
+  if (ready01) {
+    first.source_feasibility = 'ready';
+    first.capture_allowed = true;
+    first.verdict = 'satisfied';
+    first.blockers = [];
+    first.findings = [];
+    first.package_adopter.acceptance_satisfied = true;
+    packet.package_adopter.acceptance_satisfied = true;
+  }
+
+  const second = packet.requirements.READY02;
+  if (ready02) {
+    second.source_feasibility = 'ready';
+    second.capture_allowed = true;
+    second.verdict = 'satisfied';
+    second.blockers = [];
+    second.findings = [];
+    second.open_pr_population.stable = true;
+    second.open_pr_population.complete = true;
+    second.open_pr_population.disposition_join = { status: 'passed', blockers: [] };
+    second.inherited_work.disposition_join = { status: 'passed', blockers: [] };
+    packet.source_capture.local_inherited_work.inventory_complete = true;
+    packet.blockers = [];
+  }
+
+  const packetText = `${JSON.stringify(packet, null, 2)}\n`;
+  const packetHash = sha256(packetText);
+  const verdictRow = (id, verdict, evidence) => `| ${id} | ${verdict} | ${evidence} |`;
+  const updatedReport = report
+    .replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`)
+    .replace(/^\| READY-01 \|[^\n]*$/m, verdictRow('READY-01', ready01Verdict, ready01 ? 'complete exact-source tuple and approval evidence' : 'authorization_pending: historical approval unavailable'))
+    .replace(/^\| READY-02 \|[^\n]*$/m, verdictRow('READY-02', ready02Verdict, ready02 ? 'complete fresh inventory and preservation joins' : 'local_inherited_commit_base_unavailable; PR dispositions incomplete'));
+  const traceability = readFileSync(path.join(repoRoot, '.planning/REQUIREMENTS.md'), 'utf8')
+    .replace(/^- \[[ xX]\] \*\*READY-01\*\*:/m, `- [${ready01 ? 'x' : ' '}] **READY-01**:`)
+    .replace(/^- \[[ xX]\] \*\*READY-02\*\*:/m, `- [${ready02 ? 'x' : ' '}] **READY-02**:`);
+
+  return {
+    packet,
+    packetText,
+    report: updatedReport,
+    traceability,
+    overrides: {
+      [phase251PacketPath]: packetText,
+      [phase247ReportPath]: updatedReport,
+      '.planning/REQUIREMENTS.md': traceability,
+    },
+  };
+}
+
+test('historical Phase 250 amendment resolves the original owner report from its immutable commit', () => {
+  const result = audit(repoRoot);
+  assert.equal(result.acceptanceAmendment?.historicalSource?.commit, historicalCommit);
+  assert.equal(result.acceptanceAmendment?.historicalSource?.ownerReportSha256, 'd34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39');
+  assert.equal(result.status, 'gaps_found');
+  assert.equal(result.score.requirements, '7/9');
+  assert.deepEqual(result.requirements.filter(({ id }) => id.startsWith('READY-')).map(({ status, acceptance_status }) => ({ status, acceptance_status })), [
+    { status: 'unsatisfied', acceptance_status: 'unaccepted' },
+    { status: 'unsatisfied', acceptance_status: 'unaccepted' },
+  ]);
+});
+
+test('source-derived readiness fixtures score 7/9, 8/9, and 9/9 without stale milestone prose', () => {
+  const cases = [
+    { ready01: false, ready02: false, score: '7/9', passedReady: 0 },
+    { ready01: true, ready02: false, score: '8/9', passedReady: 1 },
+    { ready01: false, ready02: true, score: '8/9', passedReady: 1 },
+    { ready01: true, ready02: true, score: '9/9', passedReady: 2 },
+  ];
+  for (const fixture of cases) {
+    const evidence = ownerEvidenceFixture(fixture);
+    const result = audit(repoRoot, { overrides: evidence.overrides });
+    const rendered = renderAudit(result);
+    assert.equal(result.score.requirements, fixture.score);
+    assert.equal(result.requirements.filter(({ id }) => id.startsWith('READY-') && id && result.requirements.find((row) => row.id === id)?.status === 'satisfied').length, fixture.passedReady);
+    assert.equal(result.milestoneStatus, fixture.score === '9/9' ? 'passed' : 'incomplete');
+    assert.match(rendered, new RegExp(`requirements: ${fixture.score.replace('/', '\\/')}`));
+    assert.match(rendered, new RegExp(`strict milestone status is \\*\\*${fixture.score === '9/9' ? 'passed' : 'gaps_found'}\\*\\* at \\*\\*${fixture.score.replace('/', '\\/')} requirements`));
+    if (fixture.score !== '7/9') assert.doesNotMatch(rendered, /7\/9/);
+  }
+});
+
+test('stale Phase 247 packet binding and wrong-phase ownership cannot satisfy READY', () => {
+  const stale = ownerEvidenceFixture({ ready02: true });
+  stale.overrides[phase247ReportPath] = stale.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${'0'.repeat(64)}`);
+  const staleResult = audit(repoRoot, { overrides: stale.overrides });
+  assert.equal(staleResult.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+  assert.ok(staleResult.blockers.some(({ id, message }) => id === 'READY-02' && /packet|reconciliation|digest/i.test(message)));
+
+  const wrongOwner = ownerEvidenceFixture({ ready02: true });
+  wrongOwner.packet.owner_phase = 251;
+  wrongOwner.packetText = `${JSON.stringify(wrongOwner.packet, null, 2)}\n`;
+  const wrongHash = sha256(wrongOwner.packetText);
+  wrongOwner.overrides[phase251PacketPath] = wrongOwner.packetText;
+  wrongOwner.overrides[phase247ReportPath] = wrongOwner.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${wrongHash}`);
+  const wrongOwnerResult = audit(repoRoot, { overrides: wrongOwner.overrides });
+  assert.equal(wrongOwnerResult.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+  assert.ok(wrongOwnerResult.blockers.some(({ id, message }) => id === 'READY-02' && /owner phase/i.test(message)));
+});
+
+test('corrupted historical Phase 250 source bytes block the amendment audit', () => {
+  const historicalPath = `.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`;
+  const result = audit(repoRoot, {
+    overrides: {
+      [`git:${historicalCommit}:${historicalPath}`]: '# altered historical owner report\n',
+    },
+  });
+  assert.equal(result.status, 'gaps_found');
+  assert.ok(result.blockers.some(({ id, message }) => id === 'ACCEPTANCE' && /historical|amendment/i.test(message)));
+});
+
+test('a changed Phase 250 tuple packet is rejected even when current READY evidence is valid', () => {
+  const evidence = ownerEvidenceFixture();
+  const packetPath = closeDir + '/250-247-TUPLE-DECISION-PACKET.json';
+  const result = audit(repoRoot, { overrides: { ...evidence.overrides, [packetPath]: '{"altered":true}\n' } });
+  assert.ok(result.blockers.some(({ id, message }) => id === 'ACCEPTANCE' && /historical|amendment/i.test(message)));
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.acceptance_status, 'unaccepted');
+});
 
 test('strict matrix keeps READY unsatisfied while accepting exactly two phase-only exceptions', () => {
   const result = audit(repoRoot);
