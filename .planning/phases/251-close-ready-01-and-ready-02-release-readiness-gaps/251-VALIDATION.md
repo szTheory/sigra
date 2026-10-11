@@ -1,9 +1,9 @@
 ---
 phase: "251"
 slug: "close-ready-01-and-ready-02-release-readiness-gaps"
-status: validated
-nyquist_compliant: true
-wave_0_complete: true
+status: pending
+nyquist_compliant: false
+wave_0_complete: false
 created: "2026-10-11"
 ---
 
@@ -87,16 +87,16 @@ The 91/91 passing Plan 01/02 regression record above is historical. It does not 
 |---|---|---|---|---|---|---|
 | 251-03-01 | 03 / 3 | READY-02 | T-251-09, T-251-10 | `final inventory invalidates disposition when any captured PR identity component changes` covers changed head, base ref, and base SHA plus unchanged identity | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` — 31/31 pass; RED record `251-03-task1-red-evidence.json` | pass |
 | 251-03-02 | 03 / 3 | READY-02 | T-251-10 | `requires unique complete PR identities and stable numeric ordering in snapshots`; `final inventory sorts PRs numerically and rejects duplicate or null identities` | same validator suite — 31/31 pass; RED record `251-03-task2-red-evidence.json` | pass |
-| 251-04-01 | 04 / 3 | READY-01 | T-251-11 | `a published-guide pass cannot cite candidate guide bytes`; `package checks reject wrong path, commit, blob, digest, and assertion identity` | readiness suite in fresh 114/114 full run; RED record `251-04-task1-red-evidence.json` | pass |
-| 251-04-02 | 04 / 3 | READY-01 | T-251-12 | `independent audit rejects a satisfied READY-01 row whose guide ref points to candidate bytes`; `independent audit rejects each changed READY-01 check source or result identity` | traceability suite in fresh 114/114 full run; RED record `251-04-task2-red-evidence.json` | pass |
+| 251-04-01 | 04 / 3 | READY-01 | T-251-11 | `a published-guide pass cannot cite candidate guide bytes`; `package checks reject wrong path, commit, blob, digest, and assertion identity` | readiness suite in fresh 114/114 full run; RED record `251-04-task1-red-evidence.json` | blocked |
+| 251-04-02 | 04 / 3 | READY-01 | T-251-12 | `independent audit rejects a satisfied READY-01 row whose guide ref points to candidate bytes`; `independent audit rejects each changed READY-01 check source or result identity` | traceability suite in fresh 114/114 full run; RED record `251-04-task2-red-evidence.json` | blocked |
 | 251-05-01 | 05 / 4 | READY-02 | T-251-13, T-251-14 | `secondary-worktree dirty paths stay in the READY-02 disposition and preservation join`; `clean secondary worktrees do not create phantom dirty inherited items`; exact preservation read-back regression | readiness suite in fresh 114/114 full run; RED record `251-05-task1-red-evidence.json` | pass |
 | 251-05-02 | 05 / 4 | READY-02 | T-251-15 | `paginated PR capture distinguishes complete empty, one-page, 100-plus, duplicate, null, and reordered sets`; historical-base binding regression | readiness and validator suites in fresh 114/114 full run; RED record `251-05-task2-red-evidence.json` | pass |
-| 251-05-03 | 05 / 4 | READY-02 | T-251-13, T-251-14, T-251-15 | Current packet includes all 15 complete PR identities and 2,421 inherited identities, exact disposition joins and preservation read-backs | readiness and validator suites in fresh 114/114 full run; `--check-251` valid for capture `phase251-939607ff3f17e03b22aa` | pass |
+| 251-05-03 | 05 / 4 | READY-02 | T-251-13, T-251-14, T-251-15 | Current packet includes all 15 complete PR identities and 2,421 inherited identities, exact disposition joins and preservation read-backs | readiness and validator suites in fresh 114/114 full run; `--check-251` valid for capture `phase251-939607ff3f17e03b22aa` | blocked |
 | 251-06-01 | 06 / 5 | READY-01 | T-251-16 | `complete history with no approval stays authorization_pending and preserves READY-02`; exact candidate/CI/readiness/dry-run tuple mismatch and later approval guards | readiness suite in fresh 114/114 full run; RED record `251-06-task1-red-evidence.json` | pass |
 | 251-06-02 | 06 / 5 | READY-01 | T-251-17, T-251-18 | Exact published-tag guide/README absence, mixed-generation rejection, and semantic capture determinism regression cases | readiness suite and `--check-251` valid for current capture; RED record `251-06-task2-red-evidence.json` | pass |
-| 251-07-01 | 07 / 6 | READY-01, READY-02 | T-251-19, T-251-20 | `ownerReportReferenceRequired`, `ownerDerivedSevenEightNine`, and `phase250ExceptionNotReadyPass` all pass in the fresh traceability suite | traceability suite in fresh 114/114 full run; `251-07-task1-red-evidence.json` passed `RED_EVIDENCE_OK` | pass |
-| 251-07-02 | 07 / 6 | READY-01, READY-02 | T-251-20 | Source-derived owner rows and audit are 8/9 because only READY-02 is proven; historical exceptions stay phase-only and AUTO/REL facts remain source-derived | fresh 114/114 suite; `--check-sources` exits 0; `--check-audit` valid at 8/9 | pass |
-| 251-07-03 | 07 / 6 | READY-01, READY-02 | T-251-21 | CR-01/02/03 each have machine-verified RED evidence and named passing regression; current READY-01 gap remains explicit | fresh 114/114 suite, `--check-251`, `--check-sources`, and `--check-audit` all pass | pass |
+| 251-07-01 | 07 / 6 | READY-01, READY-02 | T-251-19, T-251-20 | `ownerReportReferenceRequired`, `ownerDerivedSevenEightNine`, and `phase250ExceptionNotReadyPass` all pass in the fresh traceability suite | traceability suite in fresh 114/114 full run; `251-07-task1-red-evidence.json` passed `RED_EVIDENCE_OK` | blocked |
+| 251-07-02 | 07 / 6 | READY-01, READY-02 | T-251-20 | Source-derived owner rows and audit are 8/9 because only READY-02 is proven; historical exceptions stay phase-only and AUTO/REL facts remain source-derived | fresh 114/114 suite; `--check-sources` exits 0; `--check-audit` valid at 8/9 | blocked |
+| 251-07-03 | 07 / 6 | READY-01, READY-02 | T-251-21 | CR-01/02/03 each have machine-verified RED evidence and named passing regression; current READY-01 gap remains explicit | fresh 114/114 suite, `--check-251`, `--check-sources`, and `--check-audit` all pass | blocked |
 
 Gap-closure validation status: **validated (12/12 new task checks proven)**. The prior 91/91 Plan 01/02 result remains historical and is not counted. No broad `mix test` pass is claimed; its eight unchanged legacy failures remain separately recorded diagnostics.
 
@@ -105,14 +105,14 @@ Gap-closure validation status: **validated (12/12 new task checks proven)**. The
 | Metric | Count |
 |---|---:|
 | Plans 03–07 task checks | 12 |
-| Checks proven passing | 12 |
-| Checks not yet proven | 0 |
+| Checks proven passing | 6 |
+| Checks not yet proven | 6 |
 
 ## Current Full-Phase Validation Sign-Off
 
-- [x] All 12 Plan 03–07 rows have passing command output and referenced task evidence; no pending, failed, or blocked row is counted as proven.
-- [x] The required red-then-green fixtures, `--check-251`, `--check-sources`, and `--check-audit` have actual passing evidence; the historical 91/91 record does not substitute for these checks.
-- [x] The current audit counts, row statuses, frontmatter, and sign-off agree. READY-01 remains unsatisfied and READY-02 is source-proven; the audit is 8/9 and incomplete.
+- [ ] All 12 Plan 03–07 rows have passing command output and referenced task evidence; no pending, failed, or blocked row is counted as proven.
+- [ ] The required red-then-green fixtures, `--check-251`, `--check-sources`, and `--check-audit` have actual passing evidence; the historical 91/91 record does not substitute for these checks.
+- [ ] The current audit counts, row statuses, frontmatter, and sign-off agree. READY-01 remains unsatisfied and READY-02 is source-proven; the audit is 8/9 and incomplete.
 
 **Current approval:** validated. This validation sign-off concerns test evidence only. Phase 247 still reports READY-01 unsatisfied; Phase 251 verification remains `gaps_found` even though the current test evidence is complete.
 
@@ -129,3 +129,7 @@ Spec-less prohibition recall found no new bespoke values or safety rule beyond t
 | Gaps found | 0 |
 | Resolved | 0 |
 | Escalated | 0 |
+
+## Independent Security Recheck
+
+Four reproduced acceptance bypasses (CR-04–CR-07 / T-251-11–14) supersede the prior 12/12 proof claim for six affected task rows. They remain blocked until source-byte predicates, complete dirty-population joins, and named-ref/source-byte readback regressions pass. Historical RED/GREEN results are retained as history.
