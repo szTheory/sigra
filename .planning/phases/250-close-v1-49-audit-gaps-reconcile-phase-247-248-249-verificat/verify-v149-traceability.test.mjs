@@ -184,7 +184,7 @@ test('ownerReportReferenceRequired rejects READY evidence rows that omit the can
   );
 
   const result = audit(repoRoot, { overrides: evidence.overrides });
-  assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied', JSON.stringify(result.blockers.filter(({ id }) => id === 'READY-02')));
   assert.ok(result.blockers.some(({ id, message }) => id === 'READY-02' && /owner report reference/i.test(message)));
 });
 
@@ -210,6 +210,48 @@ test('independent audit accepts complete path-bound check evidence when READY-01
   const result = audit(repoRoot, { overrides: evidence.overrides });
   assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'satisfied');
   assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+});
+
+test('independent audit rejects a coherently omitted captured worktree status identity', () => {
+  const evidence = ownerEvidenceFixture({ ready02: true });
+  assert.equal(audit(repoRoot, { overrides: evidence.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied');
+  const packet = evidence.packet;
+  const local = packet.source_capture.local_inherited_work;
+  const dirty = local.inherited_dirty_entries[0];
+  const join = packet.requirements.READY02.inherited_work.disposition_join;
+  for (const rows of [join.observedIds, join.dispositionIds, join.preservationRefs]) {
+    const index = rows.findIndex((row) => (typeof row === 'string' ? row : row.id) === dirty.id);
+    assert.notEqual(index, -1);
+    rows.splice(index, 1);
+  }
+  const priorPacketHash = sha256(evidence.packetText);
+  evidence.packetText = `${JSON.stringify(packet, null, 2)}\n`;
+  evidence.overrides[phase251PacketPath] = evidence.packetText;
+  const packetHash = sha256(evidence.packetText);
+  evidence.report = evidence.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`);
+  evidence.overrides['.planning/REQUIREMENTS.md'] = evidence.overrides['.planning/REQUIREMENTS.md'].replaceAll(priorPacketHash, packetHash);
+  evidence.overrides[phase247ReportPath] = evidence.report;
+
+  const result = audit(repoRoot, { overrides: evidence.overrides });
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied', JSON.stringify(result.blockers.filter(({ id }) => id === 'READY-02')));
+});
+
+test('independent audit rejects nonexistent preservation refs and altered decision provenance', () => {
+  const evidence = ownerEvidenceFixture({ ready02: true });
+  const packet = evidence.packet;
+  const row = packet.source_capture.local_inherited_work.inherited_dispositions[0];
+  const reference = packet.requirements.READY02.inherited_work.disposition_join.preservationRefs.find((item) => item.id === row.id);
+  reference.ref = 'refs/heads/definitely-nonexistent-phase251';
+  const priorPacketHash = sha256(evidence.packetText);
+  evidence.packetText = `${JSON.stringify(packet, null, 2)}\n`;
+  evidence.overrides[phase251PacketPath] = evidence.packetText;
+  const packetHash = sha256(evidence.packetText);
+  evidence.report = evidence.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`);
+  evidence.overrides['.planning/REQUIREMENTS.md'] = evidence.overrides['.planning/REQUIREMENTS.md'].replaceAll(priorPacketHash, packetHash);
+  evidence.overrides[phase247ReportPath] = evidence.report;
+
+  const result = audit(repoRoot, { overrides: evidence.overrides });
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied', JSON.stringify(result.blockers.filter(({ id }) => id === 'READY-02')));
 });
 
 test('independent audit rejects each changed READY-01 check source or result identity', () => {
