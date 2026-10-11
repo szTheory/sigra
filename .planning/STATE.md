@@ -4,22 +4,22 @@ milestone: v1.49
 milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
-current_plan: 7
-status: authorized_250_07_packet_v8_run_in_progress
-stopped_at: Controller run 38137539834 is in progress under packet v8; one watcher is active
-last_updated: "2026-10-11T12:02:46Z"
+current_plan: null
+status: phase_250_blocked_on_ready_tuple
+stopped_at: Plan 250-10 is complete; zero plans are runnable because Plan 250-08 has no eligible exact-source tuple
+last_updated: "2026-10-11T15:57:42Z"
 last_activity: 2026-10-11
-last_activity_desc: User authorized packet v8 for one no-publish canary on main 84ebcea60024c9e8caee405d55cad1c76b0e858a. Controller run 38137539834 is in progress after the fresh source-bound preflight passed. AUTO-02 still needs the hosted cancellation receipt.
-state_head: 13b4a6d0d306a152d86a8f957949f0b52c4df92a
+last_activity_desc: Plan 250-10 completed and refreshed Phase 249 REL-01/REL-02 evidence. The exact current-main CI run passed; Plan 250-08 remains halted because no candidate has a complete same-source browser, dry-run, and readiness evidence set.
+state_head: 6879a9570f5fb03972a1024b3f4377a1ab9a02b4
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 43
-  completed_plans: 39
-  percent: 91
+  completed_plans: 40
+  percent: 93
 verification_status: gaps_found
 next_command: null
-resume_command: "$gsd-execute-phase 250 --gaps-only"
+resume_command: "$gsd-plan-phase 250 --gaps"
 ---
 
 # Project State
@@ -34,20 +34,20 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 — ACTIVE; Plan 250-07 is complete, and Plan 250-10 is the sole runnable gap plan.
-Current Plan: 10 (refresh public source, repair the exact current-main admin-eval failure, reconcile current PR/worktree evidence, and refresh the Phase 249 owner report).
+Phase: 250 — ACTIVE and incomplete. Plan 250-10 is complete; `init.execute-phase 250` reports zero runnable plans.
+Current Plan: none runnable. Plans 250-01 through 250-07 and 250-10 are complete; Plan 250-08 is halted, and 250-09, 250-11, and 250-12 are blocked behind it.
 Total Plans in Phase: 12
-Plans summarized: 8 of 12 (Plans 250-01 through 250-07 are complete; Plan 250-08 is halted; 250-09, 250-11, and 250-12 remain blocked behind Plan 08).
-Status: Phase verification remains incomplete. The latest `init.execute-phase 250` result reports one runnable plan: `250-10-PLAN.md`. Plan 08 stays halted because its committed tuple packet has no eligible exact-source route.
-Last activity: 2026-10-11 — Plan 250-07 was manually closed after the exact failure and cancellation receipts were independently validated; the Phase 248 owner report now satisfies AUTO-01/AUTO-02. PR #327 fixes the controller's `gh api --output` downloader defect; its CI run 38138426620 is still in progress under one watcher.
+Plans summarized: 9 of 12 (Plans 250-01 through 250-07 and 250-10 are complete; Plan 250-08 is halted; 250-09, 250-11, and 250-12 remain blocked).
+Status: Phase-wide verification remains incomplete. Plan 250-08 has no complete same-source candidate tuple: the parent browser result used an outdated spec, the corrected child has no matching authenticated dry-run or final readiness record, and the later candidate also lacks matching records. Evidence from one commit cannot be borrowed for another.
+Last activity: 2026-10-11 — Plan 250-10 completed. The Phase 249 owner report passes REL-01/REL-02; current main `4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97` passed full CI run `38146312411` attempt 1. The latest inventory found 15 open PRs identity-matched and all five registered worktrees clean.
 
-Progress: [█████████░] 91% (39/43 summary records; this is a project metric, not phase acceptance completion)
+Progress: [█████████░] 93% (40/43 summary records; this is a project metric, not phase acceptance completion)
 
 Plain-language explanation: the canary controller itself failed while downloading the final receipt ZIP. The failure and cancellation source workflows had already produced artifacts. Both exact artifact ZIPs were downloaded and checked against current GitHub run, artifact, observer, and receipt metadata, so Phase 248 AUTO-02 now passes without claiming the controller passed.
 
-Plan 250-07 evidence: packet v8 SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`; the user's one-run authorization is recorded at `250-07-CANARY-AUTHORIZATION-DECISION-v8.json`. Preflight SHA-256 `3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953` targeted main `84ebcea60024c9e8caee405d55cad1c76b0e858a`. Controller run `38137539834` failed with `failure_receipt_digest_or_json_validation_failed`; failure run `38137550871` artifact `11701436633` and cancellation run `38137614523` artifact `11702216188` both validate. Observer run `38137756922` succeeded. The one-run authority is consumed; do not retry or dispatch another canary.
+Plan 250-07 evidence: packet v8 SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`; its one-run authorization was consumed. The controller failed, while the failure/cancellation artifacts were independently validated. No new canary authority is available.
 
-Phase 248 owner snapshot `250-248-SOURCE-SNAPSHOT.json` reports AUTO-01 and AUTO-02 satisfied with zero blockers; `248-VERIFICATION.md` passes `--check-report`. The controller failure and exact independent reconciliation are documented in both artifacts. PR #327 (`https://github.com/szTheory/sigra/pull/327`) is the focused downloader repair. Its CI result will be used for the already-authorized conditional squash merge; it is not a canary retry.
+Phase 248 owner snapshot `250-248-SOURCE-SNAPSHOT.json` reports AUTO-01 and AUTO-02 satisfied with zero blockers; `248-VERIFICATION.md` passes `--check-report`. The controller failure and exact independent reconciliation are documented in both artifacts. PR #327 (`https://github.com/szTheory/sigra/pull/327`) is the focused downloader repair and is already squash-merged after green CI; it is not a canary retry.
 
 The requested CI/CD runtime and reliability optimization remains a separate future GSD item after Phase 250. No production release, publish, tag, or additional canary is part of current work.
 
@@ -63,7 +63,7 @@ Plan 250-08 remains halted on its durable zero-eligible-tuple packet. The parent
 
 Separate release observation: Sigra 1.7.0 is published at GitHub Releases and Hex. Evidence is in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json` (squash merge ff96768; release-commit CI 38097941299 green; Release Please run 38097941302 and Hex publish job 114351805835 successful). This is separate from the v1.49 Phase 249 target and does not change its owner verification.
 
-The latest Phase 250 verifier remains gaps_found at 8/14 and the strict audit remains 5/9 with 31 blockers; neither was rerun after these scoped repairs. Six plans are complete and two are halted; plan summaries do not establish completed phase verification. Run-specific blocked evidence includes `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json`. Requirements and original ownership are unchanged. Keep v1.49 unarchived.
+Plan 250-10 summary: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-SUMMARY.md`. Its final snapshot SHA-256 is `c78756977c05d8f13e1cf5de5c174852e90b33b42f71a82a39364c08985bd09d`; Phase 249 owner report SHA-256 is `1245ce7bfc639c102cb50ac4dfc96a12ca5773393aa664fdcdef51e2db74dd74`; summary SHA-256 is `fe0551d73783e2d80b9068c7d0730df9d7f48239921a195562ed08bb637a36b5`. The full current-main CI run 38146312411 passed. Plan summaries establish implementation progress, not phase-wide verification. Requirements and original ownership are unchanged. Keep v1.49 unarchived.
 
 Controller run 38087516844 failed at exact_cancellation_observer_run_was_not_found. Failure receipt and exact source cancellation are recorded, but AUTO-02 remains unsatisfied and the single-run authority is consumed. Diagnose/fix the observer path; any further hosted run requires a fresh explicit packet decision. init.execute-phase 250 earlier reported six incomplete plans and no duplicate threat IDs. No later roadmap phase is defined.
 
@@ -877,16 +877,19 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-11T12:37:11Z
-Stopped at: PR #327 is squash-merged; Plan 250-10 is the sole runnable gap plan and is ready for executor dispatch.
+Last session: 2026-10-11T15:57:42Z
+Stopped at: Plan 250-10 completed; Phase 250 has no runnable plans while the exact-source READY tuple is unresolved.
 Resume file: `.planning/HANDOFF.json`
 
 ## Operator Next Steps
 
-- **Next GSD command:** `$gsd-execute-phase 250 --gaps-only`. `init.execute-phase 250` reported Plan 250-10 as the sole runnable plan after Plan 250-07 was summarized complete.
-- **Evidence:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md`, `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json`, `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`, and `.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md`. Plan 250-08 remains halted on zero eligible tuples; Plans 250-09, 250-11, and 250-12 remain blocked by that route.
-- **Remaining canary authority:** The single packet-v8 run is consumed. Do not dispatch or cancel another run without a newly reviewed packet and explicit user authorization. The owner report records controller failure while validating both source artifacts independently.
-- **Current CI:** PR #327 passed full CI run 38139291120 on rebased head baa1ce16f6e18b7c67b733ee9e8990ba28934958 and was squash-merged as 58fe634eccf0058f2217017bb8aeda4a83e6ce21. Exact-main CI run 38139851334 is queued for that SHA; Plan 250-10 owns its single watch. Automatic Release Please run 38139851336 was triggered by the merge; no manual publish command was run.
+- **Next GSD command:** None is actionable now. After matching evidence is recovered for one exact candidate, or the user changes the acceptance rule, run `$gsd-plan-phase 250 --gaps` to refresh the gap plan against the new facts. Do not repeat the same plan with unchanged inputs.
+- **Completed work vs phase verification:** Plan 250-10 implementation is complete and Phase 249 REL-01/REL-02 pass. Phase 250 itself remains incomplete; its phase verification and strict milestone audit still need the remaining READY route and downstream plans.
+- **Evidence:** Plan 250-10 summary and source snapshot are `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-SUMMARY.md` and `250-249-SOURCE-SNAPSHOT.json`; the Phase 249 report is `.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md`. The blocker packet is `250-247-TUPLE-DECISION-PACKET.json`.
+- **Plain-language blocker:** The saved parent test covered an older version of the browser test. The corrected child has its own browser result, but no dry-run or final readiness record for that same child. A later candidate is missing its own full set too. The packet lists no complete match, so Plan 250-08 cannot ask for a valid tuple approval. The old dry-run workflow requires 1.6.0 to be absent from Hex; it is now published, so a new run cannot replace that historical receipt.
+- **Decision needed to move past the blocker:** Keep READY-01/02 blocked under the original proof rule, or formally change Phase 250 acceptance to record them as unresolved historical gaps. Changing acceptance will preserve the facts but will not make those requirements pass.
+- **Canary authority:** The packet-v8 run is consumed. No further canary dispatch or cancellation is authorized by the existing packet.
+- **Current CI:** Current main `4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97` passed full CI run `38146312411` attempt 1. PR #327 is merged. No release action is part of this handoff.
 - **Future work:** CI/CD run-time and reliability optimization is separate follow-up work after Phase 250.
 - **Preservation:** Recovery manifest `.planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/REF.json` records the exact pre-closeout state, handoff, verifier, report, snapshot, and prior proof bytes. The historical HANDOFF accepted-loss status remains unchanged; those bytes were not recovered.
 
