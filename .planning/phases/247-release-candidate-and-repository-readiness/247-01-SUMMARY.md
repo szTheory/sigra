@@ -36,7 +36,7 @@ key-decisions:
   - "Promote only the four Phase246 files whose blobs match the tested source and whose scoped PR passed review and CI; exclude other inherited work and open PRs."
   - "Pin the candidate to protected main only after its own required CI passes."
 
-requirements-completed: [READY-02]
+requirements-completed: []
 
 coverage:
   - id: D1

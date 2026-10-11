@@ -5,7 +5,7 @@
   "plan": "250-08",
   "task": "Wait for matching historical Phase 247 evidence or an explicit decision to accept the remaining historical gaps; a fresh 1.6.0 dry-run is no longer possible because that version is public.",
   "total_tasks": 19,
-  "status": "Plan 250-10 complete. Exact current-main run 38146312411 passed at 4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97; the Phase 249 owner report passes REL-01/REL-02 with a fresh 15-PR and five-clean-worktree inventory. Plan 250-08 remains halted at zero eligible historical tuples; 250-09, 250-11 and 250-12 remain blocked. The one packet-v8 canary authority is consumed; no new canary is authorized.",
+  "status": "Phase 250 Plan 13 is complete under the amended phase-only contract. The source-derived audit reports 7/9 verified, READY-01/02 remain unsatisfied accepted exceptions, and v1.49 remains incomplete and unarchived.",
   "completed_tasks": [
     {
       "id": "249-08",
@@ -632,7 +632,7 @@
     "merge_method": "squash"
   },
   "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
-  "next_command": null,
+  "next_command": "$gsd-audit-milestone v1.49",
   "route_reconciliation": {
     "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
     "phase_247_summaries": "11 plans / 11 summaries after byte-exact restoration and evidence-backed Plan 09 summary reconstruction",
@@ -680,25 +680,19 @@
   },
   "resume_command": "$gsd-plan-phase 250 --gaps",
   "route": {
-    "immediate_gsd_command": null,
-    "immediate_action": "Wait for exact same-candidate Phase 247 records or an explicit acceptance-rule decision; no plan is currently runnable.",
-    "resume_command": "$gsd-plan-phase 250 --gaps",
-    "resume_when": "After matching historical evidence is recovered or the user explicitly changes the historical acceptance rule. Do not repeat planning with unchanged inputs.",
-    "no_runnable_reason": "init.execute-phase 250 reports runnable_count 0. Plan 250-08 has zero eligible tuples; Plans 250-09, 250-11 and 250-12 depend on it.",
-    "blocked_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
-    "completed_plan": "250-10",
-    "completed_plan_summary": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-SUMMARY.md",
-    "phase249_snapshot": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
-    "phase249_owner_report": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
-    "current_main_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
-    "current_main_ci_run_id": 38146312411,
-    "current_main_ci_attempt": 1,
-    "current_main_ci_admin_eval_job_id": 114490322445,
-    "current_main_ci_gate_job_id": 114491782314,
+    "immediate_gsd_command": "$gsd-audit-milestone v1.49",
+    "immediate_action": "Run the milestone audit for v1.49. Phase 251 is not defined.",
+    "resume_command": "$gsd-audit-milestone v1.49",
+    "resume_when": "Phase 250 is verified; the next workflow step is milestone-level audit.",
+    "no_runnable_reason": "Plan 250-13 is complete and init.execute-phase 250 reports no incomplete plans.",
     "next_roadmap_phase": null,
-    "canary_authority_consumed": true,
-    "canary_retry_authorized": false,
-    "future_follow_up": "CI/CD runtime and reliability optimization after Phase 250"
+    "accepted_exceptions": [
+      "READY-01",
+      "READY-02"
+    ],
+    "accepted_exception_scope": "Phase 250 closeout only; both Phase 247 owner verdicts remain unsatisfied.",
+    "milestone_status": "incomplete_unarchived",
+    "future_follow_up": "CI/CD runtime and reliability optimization after the milestone audit"
   },
   "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T1148Z.json",
   "ci_pr_number": 327,
@@ -712,5 +706,73 @@
   "ci_main_run_url": "https://github.com/szTheory/sigra/actions/runs/38139851334",
   "ci_main_run_status": "queued",
   "ci_release_please_run_id": 38139851336,
-  "ci_release_please_status": "in_progress"
+  "ci_release_please_status": "in_progress",
+  "current": "Phase 250 verified; v1.49 milestone audit pending.",
+  "immediate_action": "Run the v1.49 milestone audit; Phase 251 is not defined.",
+  "updated_at": "2026-10-11T16:46:10Z",
+  "phase_250_closeout": {
+    "recorded_at": "2026-10-11T16:46:10Z",
+    "status": "passed_amended_phase_only_contract",
+    "plan": "250-13",
+    "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-SUMMARY.md",
+    "verification_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md",
+    "validation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VALIDATION.md",
+    "acceptance_amendment_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-ACCEPTANCE-AMENDMENT.json",
+    "milestone_audit_path": ".planning/v1.49-MILESTONE-AUDIT.md",
+    "audit_status": "accepted_exceptions",
+    "verified_requirements": "7/9",
+    "accepted_exception_ids": [
+      "READY-01",
+      "READY-02"
+    ],
+    "owner_verdicts": {
+      "READY-01": "unsatisfied",
+      "READY-02": "unsatisfied"
+    },
+    "unaccepted_blocker_count": 0,
+    "milestone_status": "incomplete_unarchived",
+    "superseded_plans": [
+      "250-08",
+      "250-09",
+      "250-11",
+      "250-12"
+    ],
+    "owner_report_checks": {
+      "phase247": {
+        "valid": true,
+        "owner_status": "gaps_found",
+        "requirements": {
+          "READY-01": "unsatisfied",
+          "READY-02": "unsatisfied"
+        }
+      },
+      "phase248": {
+        "valid": true,
+        "owner_status": "passed",
+        "requirements": {
+          "AUTO-01": "satisfied",
+          "AUTO-02": "satisfied"
+        }
+      },
+      "phase249": {
+        "pending_clean_worktree_check": true,
+        "requirements": {
+          "REL-01": "satisfied",
+          "REL-02": "satisfied"
+        }
+      }
+    },
+    "route": {
+      "immediate_gsd_command": "$gsd-audit-milestone v1.49",
+      "next_roadmap_phase": null,
+      "phase251_readiness": "init.plan-phase 251 returned phase_found=false",
+      "future_follow_up": "CI/CD runtime and reliability optimization after the milestone audit"
+    },
+    "actions_during_closeout": {
+      "canary_dispatch": false,
+      "publish": false,
+      "release": false,
+      "merge": false
+    }
+  }
 }

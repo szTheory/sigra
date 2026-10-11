@@ -35,7 +35,7 @@ key-decisions:
   - "AUTO-02 is satisfied only after the exact failure and cancellation ZIPs were independently retrieved and joined to live run, observer, artifact, and receipt identities."
   - "The controller run and its internal blocked proof remain explicitly failed; the owner report does not mark the controller successful."
   - "CI/CD runtime optimization is a future follow-up, separate from this gap closure."
-requirements-completed: [AUTO-01, AUTO-02]
+requirements-completed: []
 coverage:
   - id: D1
     description: Fresh main-bound authorization and exact hosted failure/cancellation receipts are retained and validated.

@@ -4,33 +4,60 @@ import test from 'node:test';
 import { audit, checkAudit, renderAudit } from './verify-v149-traceability.mjs';
 
 const repoRoot = path.resolve('.');
+const closeDir = '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat';
+const acceptancePath = closeDir + '/250-ACCEPTANCE-AMENDMENT.json';
 
-test('strict matrix keeps all nine milestone requirements and preserves known gaps', () => {
+test('strict matrix keeps READY unsatisfied while accepting exactly two phase-only exceptions', () => {
   const result = audit(repoRoot);
-  assert.equal(result.status, 'gaps_found');
+  assert.equal(result.status, 'accepted_exceptions');
+  assert.equal(result.milestoneStatus, 'incomplete');
   assert.equal(result.requirements.length, 9);
-  assert.equal(result.score.requirements, '5/9');
-  assert.equal(result.score.integration, '3/5');
-  assert.equal(result.score.flows, '1/4');
-  assert.deepEqual(result.nyquist.missingPhases, [250]);
-  assert.equal(result.nyquist.overall, 'partial');
+  assert.equal(result.score.requirements, '7/9');
+  assert.equal(result.score.phases, '4/5');
+  assert.equal(result.score.integration, '4/5');
+  assert.equal(result.score.flows, '3/4');
+  assert.equal(result.acceptedExceptionCount, 2);
+  assert.equal(result.unacceptedBlockerCount, 0);
+  assert.deepEqual(result.blockers, []);
+  assert.deepEqual(result.acceptedExceptions.map(({ id }) => id), ['READY-01', 'READY-02']);
+
+  for (const id of ['READY-01', 'READY-02']) {
+    const row = result.requirements.find((requirement) => requirement.id === id);
+    assert.equal(row?.status, 'unsatisfied');
+    assert.equal(row?.verification_status, 'unsatisfied');
+    assert.equal(row?.owner_report_status, 'gaps_found');
+    assert.equal(row?.acceptance_status, 'accepted_exception');
+    assert.equal(row?.traceability, 'open');
+  }
+
   assert.equal(result.requirements.find(({ id }) => id === 'AUTO-01')?.status, 'satisfied');
+  assert.equal(result.requirements.find(({ id }) => id === 'AUTO-02')?.status, 'satisfied');
   assert.equal(result.requirements.find(({ id }) => id === 'REL-01')?.status, 'satisfied');
-  assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
-  assert.ok(result.blockers.some(({ id }) => id === 'READY-01'));
-  assert.ok(result.blockers.some(({ id }) => id === 'AUTO-02'));
-  assert.ok(result.blockers.some(({ id }) => id === 'REL-02'));
+  assert.equal(result.requirements.find(({ id }) => id === 'REL-02')?.status, 'satisfied');
+  assert.equal(result.acceptedExceptions[0].evidence_blockers.length, 7);
+  assert.equal(result.acceptedExceptions[1].evidence_blockers.length, 3);
+  assert.ok(result.sourceBlockers.some(({ id }) => id === 'READY-01'));
+  assert.ok(result.sourceBlockers.some(({ id }) => id === 'READY-02'));
 });
 
-test('generated audit reports integration review and Nyquist gaps from source state', () => {
+test('generated audit identifies the two exceptions and never claims milestone completion', () => {
+  const report = renderAudit(audit(repoRoot));
+  assert.match(report, /^status: accepted_exceptions$/m);
+  assert.match(report, /^milestone_status: incomplete$/m);
+  assert.match(report, /^  requirements: 7\/9$/m);
+  assert.match(report, /^accepted_exception_count: 2$/m);
+  assert.match(report, /^accepted_exception_ids: \[READY-01, READY-02\]$/m);
+  assert.match(report, /^unaccepted_blocker_count: 0$/m);
+  assert.match(report, /acceptance_status: "accepted_exception"/);
+  assert.match(report, /READY-01 and READY-02 remain unsatisfied in Phase 247/);
+  assert.doesNotMatch(report, /^status: passed$/m);
+  assert.doesNotMatch(report, /9\/9/);
+});
+
+test('the validated Phase 250 Nyquist marker is reflected in audit coverage', () => {
   const result = audit(repoRoot);
-  const report = renderAudit(result);
-  assert.match(report, /requirements: 5\/9/);
-  assert.match(report, /owner_report_status: "gaps_found"/);
-  assert.match(report, /integration: 3\/5/);
-  assert.match(report, /2\/5 broken at the evidence\/acceptance join/);
-  assert.match(report, /missing_phases: \[250\]/);
-  assert.match(report, /status: "blocked"/);
+  assert.deepEqual(result.nyquist.compliantPhases, [246, 247, 249, 250]);
+  assert.deepEqual(result.nyquist.missingPhases, []);
 });
 
 test('second audit run is deterministic apart from capture time', () => {
@@ -39,25 +66,29 @@ test('second audit run is deterministic apart from capture time', () => {
   assert.deepEqual({ ...first, capturedAt: null }, { ...second, capturedAt: null });
 });
 
-test('owner source identity changes are reported against their requirement rows', () => {
+test('owner source identity changes remain unaccepted REL blockers', () => {
   const result = audit(repoRoot, {
     overrides: {
       '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md':
-        (source) => source.replace('current_protected_main_sha":"6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5', 'current_protected_main_sha":"deadbeef'),
+        (source) => source.replace('current_protected_main_sha":"4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97', 'current_protected_main_sha":"deadbeef'),
     },
   });
+  assert.equal(result.status, 'gaps_found');
   assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /identity/i.test(row.message)));
 });
 
-test('forged owner requirement markers are checked against recomputed snapshot verdicts', () => {
+test('forged AUTO and REL requirement markers are checked against recomputed snapshots', () => {
   const result = audit(repoRoot, {
     overrides: {
-      '.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md': (source) => source.replace('"AUTO-02":"unsatisfied"', '"AUTO-02":"satisfied"'),
-      '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md': (source) => source.replace('"REL-02":"unsatisfied"', '"REL-02":"satisfied"'),
+      '.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md':
+        (source) => source.replace('"AUTO-02":"satisfied"', '"AUTO-02":"unsatisfied"'),
+      '.planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md':
+        (source) => source.replace('"REL-02":"satisfied"', '"REL-02":"unsatisfied"'),
     },
   });
-  assert.ok(result.blockers.some((row) => row.id === 'AUTO-02' && /report_requirement_mismatch|embedded.*verdict/i.test(row.message)));
-  assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /report_requirement_mismatch|embedded.*verdict/i.test(row.message)));
+  assert.equal(result.status, 'gaps_found');
+  assert.ok(result.blockers.some((row) => row.id === 'AUTO-02' && /embedded requirement verdict/i.test(row.message)));
+  assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /embedded requirement verdict/i.test(row.message)));
 });
 
 test('accepted historical handoff loss must remain explicitly unrecovered', () => {
@@ -67,42 +98,121 @@ test('accepted historical handoff loss must remain explicitly unrecovered', () =
         (source) => source.replace('were not recovered and were not preserved', 'were recovered and preserved'),
     },
   });
+  assert.equal(result.status, 'gaps_found');
   assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /accepted-loss|recovered|preserved/i.test(row.message)));
 });
 
 test('missing hosted failure/cancellation proof remains an AUTO-02 blocker', () => {
   const result = audit(repoRoot, {
     overrides: {
-      '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json': null,
+      [closeDir + '/250-CANARY-PROOF.json']: null,
     },
   });
+  assert.equal(result.status, 'gaps_found');
   assert.ok(result.blockers.some((row) => row.id === 'AUTO-02' && /canary|artifact/i.test(row.message)));
 });
 
-test('fresh current-main and open-PR inventory is bound to the owner snapshot', () => {
+test('changed canary receipt identity remains an AUTO-02 blocker', () => {
   const result = audit(repoRoot, {
     overrides: {
-      '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-CURRENT-INVENTORY.json':
-        (source) => source.replace('6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5', 'deadbeef'),
+      [closeDir + '/250-CANARY-PROOF.json']:
+        (source) => source.replace('"source_run_id": "38137550871"', '"source_run_id": "999"'),
     },
   });
-  assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /fresh GitHub main observation/i.test(row.message)));
+  assert.equal(result.status, 'gaps_found');
+  assert.ok(result.blockers.some((row) => row.id === 'AUTO-02' && /proof|digest/i.test(row.message)));
+});
+
+test('older Plan 05 inventory is preserved as history and ignored as a live capture', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      [closeDir + '/250-05-CURRENT-INVENTORY.json']: '{invalid historical fixture',
+    },
+  });
+  assert.equal(result.status, 'accepted_exceptions');
+  assert.equal(result.unacceptedBlockerCount, 0);
+  assert.equal(result.owners['249'].liveInventory, undefined);
+  assert.ok(result.sourceIdentities.some((item) => item.path === closeDir + '/250-249-SOURCE-SNAPSHOT.json'));
+  assert.ok(!result.sourceIdentities.some((item) => item.path === closeDir + '/250-05-CURRENT-INVENTORY.json'));
+});
+
+test('changing the captured current-main snapshot remains an unaccepted REL blocker', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      [closeDir + '/250-249-SOURCE-SNAPSHOT.json']:
+        (source) => source.replace('4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97', 'deadbeef'),
+    },
+  });
+  assert.equal(result.status, 'gaps_found');
+  assert.ok(result.blockers.some((row) => row.id === 'REL-02'));
+});
+
+test('missing acceptance record cannot turn READY gaps into accepted exceptions', () => {
+  const result = audit(repoRoot, { overrides: { [acceptancePath]: null } });
+  assert.equal(result.status, 'gaps_found');
+  assert.equal(result.acceptedExceptionCount, 0);
+  assert.ok(result.blockers.some((row) => row.id === 'ACCEPTANCE'));
+  assert.ok(result.blockers.some((row) => row.id === 'READY-01'));
+  assert.ok(result.blockers.some((row) => row.id === 'READY-02'));
+});
+
+test('an expanded exception allowlist is rejected', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      [acceptancePath]: (source) => source.replace(
+        '"accepted_exception_ids": ["READY-01", "READY-02"]',
+        '"accepted_exception_ids": ["READY-01", "READY-02", "AUTO-02"]',
+      ),
+    },
+  });
+  assert.equal(result.status, 'gaps_found');
+  assert.equal(result.acceptedExceptionCount, 0);
+  assert.ok(result.blockers.some((row) => row.id === 'ACCEPTANCE'));
+  assert.deepEqual(result.acceptedExceptions, []);
+});
+
+test('an owner report change invalidates the bound acceptance record', () => {
+  const result = audit(repoRoot, {
+    overrides: {
+      '.planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md':
+        (source) => source + '\n',
+    },
+  });
+  assert.equal(result.status, 'gaps_found');
+  assert.ok(result.blockers.some((row) => row.id === 'ACCEPTANCE'));
+  assert.ok(result.blockers.some((row) => row.id === 'READY-01'));
 });
 
 test('a Phase 250 summary cannot claim original owner requirements', () => {
   const result = audit(repoRoot, {
     overrides: {
-      '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-SUMMARY.md':
+      [closeDir + '/250-04-SUMMARY.md']:
         (source) => source.replace('requirements-completed: []', 'requirements-completed: [REL-02]'),
     },
   });
+  assert.equal(result.status, 'gaps_found');
   assert.ok(result.blockers.some((row) => row.id === 'REL-02' && /phase 250|owner/i.test(row.message)));
 });
 
-test('a hand-edited 8/9 or passed audit cannot override computed source gaps', () => {
-  const result = checkAudit(repoRoot, '.planning/v1.49-MILESTONE-AUDIT.md', {
-    '.planning/v1.49-MILESTONE-AUDIT.md': (source) => source.replace('status: gaps_found', 'status: passed').replace('requirements: 5/9', 'requirements: 8/9'),
+test('a hand-edited passed or 9/9 audit cannot override computed accepted exceptions', () => {
+  const sourceAudit = renderAudit(audit(repoRoot));
+  const forgedAudit = sourceAudit
+    .replace('status: accepted_exceptions', 'status: passed')
+    .replace('requirements: 7/9', 'requirements: 9/9');
+  const checked = checkAudit(repoRoot, '.planning/v1.49-MILESTONE-AUDIT.md', {
+    '.planning/v1.49-MILESTONE-AUDIT.md': forgedAudit,
   });
-  assert.equal(result.valid, false);
-  assert.ok(result.errors.some((message) => /status does not match/i.test(message)));
+  assert.equal(checked.valid, false);
+  assert.ok(checked.errors.some((message) => /status does not match/i.test(message)));
+  assert.ok(checked.errors.some((message) => /accepted requirements remain unsatisfied/i.test(message)));
+});
+
+test('source audit report must bind accepted exception evidence and exact decision hash', () => {
+  const sourceAudit = renderAudit(audit(repoRoot));
+  const forgedAudit = sourceAudit.replace(/acceptance_amendment_sha256: [a-f0-9]{64}/, 'acceptance_amendment_sha256: ' + '0'.repeat(64));
+  const checked = checkAudit(repoRoot, '.planning/v1.49-MILESTONE-AUDIT.md', {
+    '.planning/v1.49-MILESTONE-AUDIT.md': forgedAudit,
+  });
+  assert.equal(checked.valid, false);
+  assert.ok(checked.errors.some((message) => /exact acceptance amendment/i.test(message)));
 });

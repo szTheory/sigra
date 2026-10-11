@@ -177,18 +177,19 @@ Plans:
 **Wave 10** *(blocked on Plan 11)*
 - [x] 249-12-PLAN.md — Verify final-main evidence and terminal repository cleanliness.
 
-#### Phase 250: Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts
+#### Phase 250: Close v1.49 audit gaps with recorded READY exceptions
 
-**Goal**: Reconcile missing and stale v1.49 phase verifications, prove hosted failure/cancellation receipt delivery with a safe non-publishing canary, and close the milestone audit with a consistent 9/9 requirements record.
+**Goal**: Reconcile the v1.49 owner verifications and close Phase 250 with seven source-verified requirements and explicit, still-unsatisfied READY-01/02 exceptions. The milestone remains incomplete and unarchived.
 **Depends on**: Phase 249
 **Requirements**: READY-01, READY-02, AUTO-01, AUTO-02, REL-01, REL-02 (verification closure; original traceability assignments remain unchanged)
 **Success Criteria**:
-  1. Phase 247 has an independent verification proving READY-01 and READY-02 against the exact candidate, readiness ledger, and disposition evidence.
-  2. Phase 248 canonical verification reflects the current protected-environment and successful exact-source evidence; a canary with no publish credentials creates, retains, retrieves, and validates source-bound hosted failure and cancellation receipts.
-  3. Phase 249 canonical verification reconciles to the passing final acceptance, current-main CI, public release proof, clean inventory, and the explicitly accepted historical HANDOFF loss.
-  4. Requirements traceability and the v1.49 audit agree across phase verification, summary frontmatter, and requirements mapping; the audit passes with no orphaned requirements.
+  1. Phase 247 remains gaps_found; READY-01/02 remain unchecked and unsatisfied, with the immutable tuple packet and reconciliation evidence identified as accepted exceptions.
+  2. Phase 248 AUTO-01/02 and Phase 249 REL-01/02 agree with their passing owner evidence and original ownership.
+  3. Summary frontmatter makes no requirement claim outside its original owner phase; the stale Plan 05 inventory remains historical and is not used as a live source.
+  4. The source-derived audit reports 7/9 verified, exactly two accepted exceptions, no unaccepted blockers or orphaned requirements, and never reports the milestone passed.
+  5. Phase 250 verification passes only this amended phase-level contract; v1.49 remains incomplete and unarchived.
 
-**Plans**: 6/12 complete; Plans 07–08 have truthful halted summaries; Plans 09–12 are blocked by their evidence dependencies; phase verification remains gaps_found (8/14)
+**Plans**: 9 executable plans completed; Plans 08, 09, 11, and 12 are superseded by Plan 13. Phase 250 is verified under its amended phase-only contract.
 
 **Wave 1** *(original implementation complete)*
 - [x] 250-01-PLAN.md
@@ -201,18 +202,21 @@ Plans:
 
 **Wave 3** *(gap execution follows Plan06; exact authority checkpoints)*
 - [x] 250-05-PLAN.md
-- [ ] 250-07-PLAN.md — HALTED after the one authorized run: failure receipt exists, exact child cancellation succeeded, observer 38135205117 failed before receipt upload. Local deterministic fix `3b7a94f8c` passes shell tests; current-main CI and a fresh packet are still required.
-- [ ] 250-08-PLAN.md — HALTED: the committed packet has zero eligible tuples; do not request approval until a complete immutable route is proved.
+- [x] 250-07-PLAN.md — Complete with hosted receipts and current-main evidence in its summary.
+- [x] 250-08-PLAN.md — Superseded by Plan 13; the historical zero-eligible-tuple halt is preserved.
 
-**Wave 4** *(blocked on the relevant Wave3 proof/decision)*
-- [ ] 250-09-PLAN.md — BLOCKED by halted Plan 08; pass READY verification only after a complete tuple and disposition joins are proved.
-- [ ] 250-10-PLAN.md — BLOCKED by halted Plan 07; repair whole-main CI and refresh public-source/REL evidence after the canary route is renewed.
+**Wave 4** *(after the relevant Wave 3 proof/decision)*
+- [x] 250-09-PLAN.md — Superseded by Plan 13; READY evidence remains unsatisfied.
+- [x] 250-10-PLAN.md — Complete; Phase 249 REL evidence is refreshed and passing.
 
-**Wave 5** *(blocked on Plans07,09,10)*
-- [ ] 250-11-PLAN.md — BLOCKED by Plans 07, 09, and 10; reconcile owner summaries/requirements and the declared Mix wrapper afterward.
+**Wave 5**
+- [x] 250-11-PLAN.md — Superseded by Plan 13; the Mix TAP wrapper remains a required deterministic check.
 
-**Wave 6** *(blocked on Plan11; strict audit last)*
-- [ ] 250-12-PLAN.md — BLOCKED by Plan 11; require source-derived 9/9 and zero blockers last.
+**Wave 6**
+- [x] 250-12-PLAN.md — Superseded by Plan 13; the audit remains 7/9 with two exceptions.
+
+**Wave 7**
+- [x] 250-13-PLAN.md — Reconcile accepted READY exceptions without changing their owner verdicts.
 
 Cross-cutting constraints: original requirement ownership stays with247/248/249; no new authority is inferred from planning; missing evidence interrupts execution and never completes a plan; preserve exact dirty planning bytes before replacement.
 
@@ -226,12 +230,12 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 | 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
-| 250. Close v1.49 audit gaps | v1.49 | 6/12 | Two gap plans halted; four dependency-blocked; verification incomplete | — |
+| 250. Close v1.49 audit gaps | v1.49 | 9/9 active plans (4 superseded) | Complete under amended phase-only contract; milestone remains incomplete | 2026-10-11 |
 
 ### Next
 
-Phase 250 remains incomplete: goal verification is `gaps_found` (8/14), the strict audit is 5/9 with 31 blockers, and six plans are complete. The latest gap-planning run created no new plan because Plan 07 already covers the missing hosted test. Current-main CI and local tests pass, but AUTO-02 still needs hosted failure and cancellation records. Plan 08 still has no candidate with all required matching evidence.
+Phase 250 is complete under the narrowly amended closeout contract. The generated audit records seven source-verified requirements and two accepted but still-unsatisfied READY exceptions; v1.49 remains incomplete and unarchived. Plan 08's packet still has zero eligible tuples, and the original Phase 247 owner report remains `gaps_found`.
 
-**Immediate action:** carry only fix `3b7a94f8c` onto a clean branch from live current main, run CI, and squash merge if green under the user’s earlier authorization. Then prepare a new exact-source packet and obtain fresh explicit approval before any canary retry. Phase 250 remains incomplete and v1.49 is unarchived; no Phase 251 is defined. The user separately requested a future CI/CD duration and reliability optimization after this phase closes.
+**Immediate GSD command:** `$gsd-audit-milestone v1.49`. `init.plan-phase 251` reports that Phase 251 is not defined, so the next GSD step is the milestone audit. The user’s longer-term CI/CD runtime and reliability optimization request remains queued after that audit as separate work.
 
-Keep Plan 08 halted until a candidate has all of its own matching browser, dry-run, readiness, and disposition evidence. Do not mark missing evidence as passed or reuse an older packet approval. Do not rerun `$gsd-validate-phase 248` until new hosted terminal records exist. Preserve the historical Phase 249 acceptance at `refs/heads/evidence/phase-249-final-acceptance`; it does not prove current-main CI or current PR dispositions. The public-source freshness check previously returned HTTP 503 after one retry, and the Mix wrapper remains blocked by the existing dependency lock mismatch; standalone contract tests passed without waiving either block.
+The Phase 250 acceptance amendment does not change owner verdicts or authorize a canary, publish, merge, or release action. Keep READY-01/02 unchecked; the accepted exception applies only to this phase closeout. Historical Phase 247 evidence is recorded in `250-247-TUPLE-DECISION-PACKET.json` and `250-247-RECONCILIATION.json`.

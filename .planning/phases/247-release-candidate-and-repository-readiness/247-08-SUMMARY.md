@@ -35,7 +35,7 @@ key-decisions:
   - "Expose dedicated Hex key presence only as a boolean in the trusted receipt."
   - "Restore only the verified evidence PR ref after merge so the workflow can prove its pre-merge manifest provenance."
   - "Verify trusted-main cleanliness in a separate exact-main checkout while preserving the shared dirty worktree."
-requirements-completed: [READY-01, READY-02]
+requirements-completed: []
 duration: 75min
 completed: 2026-10-08
 status: complete

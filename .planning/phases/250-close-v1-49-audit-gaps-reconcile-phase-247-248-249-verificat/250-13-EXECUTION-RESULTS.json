@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-11T16:48:38Z",
+  "phase": "250",
+  "plan": "250-13",
+  "result": "passed_amended_phase_only_contract",
+  "requirements": {
+    "verified": ["AUTO-01", "AUTO-02", "REL-01", "REL-02", "CONF-01", "CONF-02", "CONF-03"],
+    "accepted_exceptions": ["READY-01", "READY-02"],
+    "owner_verdicts_remain_unsatisfied": true
+  },
+  "audit": {
+    "status": "accepted_exceptions",
+    "requirements_score": "7/9",
+    "accepted_exception_count": 2,
+    "unaccepted_blocker_count": 0,
+    "orphaned": [],
+    "contradictions": [],
+    "milestone_status": "incomplete_unarchived",
+    "nyquist_compliant_phases": [246, 247, 249, 250],
+    "nyquist_missing_phases": []
+  },
+  "tests": [
+    {"name": "v1.49 traceability hostile fixtures", "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs", "passed": 17, "failed": 0},
+    {"name": "Phase 250 TAP wrapper", "command": "node --test scripts/ci/phase-250-contract.tap.test.mjs", "passed": 1, "failed": 0},
+    {"name": "Phase 250 and Phase 248 ExUnit contracts", "command": "mix test test/sigra/planning/phase_250_canary_contract_test.exs test/sigra/planning/phase_248_release_gate_contract_test.exs test/sigra/planning/phase_248_release_observer_contract_test.exs", "passed": 21, "failed": 0},
+    {"name": "Phase 247/248/249 verifier and Phase 249 closeout Node suites", "passed": 98, "failed": 0},
+    {"name": "release receipt fixtures", "command": "bash scripts/ci/release-receipt.test.sh", "passed": 15, "failed": 0},
+    {"name": "release observer fixtures", "command": "bash scripts/ci/release-observer.test.sh", "passed": 23, "failed": 0}
+  ],
+  "owner_report_checks": {
+    "phase247": {"valid": true, "owner_status": "gaps_found", "READY-01": "unsatisfied", "READY-02": "unsatisfied"},
+    "phase248": {"valid": true, "owner_status": "passed", "AUTO-01": "satisfied", "AUTO-02": "satisfied"},
+    "phase249": {"status": "run_after_clean_closeout_commit", "owner_requirements": {"REL-01": "satisfied", "REL-02": "satisfied"}}
+  },
+  "gsd_readiness": {
+    "phase250_incomplete_plans": [],
+    "phase250_runnable_plans": [],
+    "phase250_halted_plans": [],
+    "phase251_found": false,
+    "next_command": "$gsd-audit-milestone v1.49"
+  },
+  "closeout_actions": {
+    "canary_dispatch": false,
+    "publish": false,
+    "release": false,
+    "merge": false
+  }
+}

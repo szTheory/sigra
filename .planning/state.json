@@ -26,43 +26,34 @@
     {
       "number": "250",
       "name": "Close v1.49 audit gaps",
-      "status": "in_progress",
-      "verification_status": "gaps_found",
-      "completed_plans": 8,
-      "total_plans": 12,
-      "summaries_present": 9,
-      "halted_plans": 1,
-      "blocked_plans": 3,
+      "status": "complete_with_accepted_exceptions",
+      "verification_status": "passed_with_accepted_exceptions",
+      "completed_plans": 9,
+      "total_plans": 13,
+      "summaries_present": 10,
+      "halted_plans": 0,
+      "blocked_plans": 0,
       "runnable_plans": 0,
       "current_plan": null,
-      "latest_completed_plan": "250-10",
-      "latest_completed_plan_summary": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-SUMMARY.md",
+      "latest_completed_plan": "250-13",
+      "latest_completed_plan_summary": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-SUMMARY.md",
       "latest_owner_report": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
-      "latest_source_snapshot": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json"
+      "latest_source_snapshot": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
+      "accepted_exceptions": [
+        "READY-01",
+        "READY-02"
+      ],
+      "milestone_status": "incomplete_unarchived"
     }
   ],
   "next": {
-    "command": null,
-    "label": "No GSD command is actionable until the Phase 247 evidence route changes",
-    "reason": "Plan 250-10 is complete and Phase 249 REL-01/REL-02 pass. init.execute-phase 250 reports zero runnable plans because Plan 250-08 has no eligible exact historical candidate tuple; Plans 09, 11 and 12 depend on it.",
-    "blocked_by": [
-      "250-08: the parent browser result used an outdated test file; the corrected child result lacks its own matching dry-run and final readiness record; later candidate evidence is also incomplete.",
-      "250-09, 250-11, 250-12: remain dependency-blocked behind 250-08.",
-      "Phase-wide verification and strict milestone audit must be refreshed after the READY route is resolved."
-    ],
-    "blocker_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
-    "completed_plan_summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-SUMMARY.md",
-    "current_release_snapshot_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
-    "current_release_owner_report_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
-    "current_main_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
-    "current_main_ci_run_id": 38146312411,
-    "current_main_ci_attempt": 1,
-    "current_main_ci_admin_eval_job_id": 114490322445,
-    "current_main_ci_gate_job_id": 114491782314,
-    "resume_command": "$gsd-plan-phase 250 --gaps",
-    "resume_when": "Only after matching historical Phase 247 evidence is recovered or the user explicitly accepts READY-01/02 as unresolved historical gaps and changes Phase 250 acceptance. The 1.6.0 dry-run cannot be rerun because that version is already public. Do not repeat planning with unchanged inputs.",
+    "command": "$gsd-audit-milestone v1.49",
+    "label": "Audit v1.49 milestone completion",
+    "reason": "Phase 250 closeout is complete under its exact amended acceptance. The milestone audit must preserve READY-01/02 as unsatisfied accepted exceptions and keep v1.49 incomplete unless its evidence-based review establishes otherwise.",
+    "blocked_by": [],
     "next_roadmap_phase": null,
-    "future_follow_up": "CI/CD runtime and reliability optimization after Phase 250"
+    "phase251_readiness": "init.plan-phase 251 returned phase_found=false",
+    "future_follow_up": "CI/CD runtime and reliability optimization after the milestone audit"
   },
-  "updated_at": "2026-10-11T15:57:42Z"
+  "updated_at": "2026-10-11T16:46:10Z"
 }

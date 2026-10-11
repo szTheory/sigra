@@ -1,6 +1,7 @@
 ---
 phase: 250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat
 plan: 08
+superseded_by: 250-13
 subsystem: release-readiness
 tags: [historical-evidence, tuple, readiness, safe-resume]
 requires:
@@ -8,7 +9,7 @@ requires:
     provides: Independent Phase 247 verifier and reconciled source facts from Plan 02
 provides:
   - Manual closeout of the committed tuple packet's no-eligible-route stop
-affects: [250-09, 250-11, 250-12, READY-01, READY-02]
+affects: [250-13, READY-01, READY-02]
 actuals:
   tasks: 1
   commits: 1
@@ -27,7 +28,7 @@ requirements-completed: []
 coverage: []
 duration: manual-reconciliation
 completed: 2026-10-11
-status: halted
+status: superseded
 ---
 
 # Phase 250 Plan 08: Exact-tuple evidence stop
@@ -39,7 +40,7 @@ The committed decision packet was inspected and reconciled from the existing Pla
 - **Task 1 — Build an immutable tuple and gap packet:** Completed in commit `52146cf001247d3a25ce1ca293bcedcc7d901278`. Packet SHA-256: `8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660`. It identifies five blockers: parent browser predicate mismatch, missing child dry-run/readiness, missing later-tuple evidence, stale READY-02 population joins, and no complete READY route.
 - **Task 2 — Decide whether one exact historical candidate tuple is approved:** Not entered. No tuple met the packet's eligibility predicate, so no approval was requested or inferred.
 
-No requirement status changed. Plan 08 is halted; Plans 09, 11, and 12 remain blocked by the absent eligible route and its dependencies.
+No owner requirement status changed. Plan 08 halted because no tuple met its evidence predicate. Plan 13 now supersedes that route under the user-approved Phase 250 acceptance amendment; the historical missing evidence remains unchanged.
 
 ## Next phase readiness
 

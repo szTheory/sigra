@@ -24,13 +24,13 @@
 
 ### Release automation (AUTO)
 
-- [ ] **AUTO-01**: Before release package work starts, the release tag is proven to resolve to the exact Release Please source SHA whose required CI gate passed; the existing test, warning-free docs, package-content, and Hex dry-run checks run against that immutable source. Active release evaluation is not cancelled, workflow permissions are scoped, and the Hex secret is available only to the final publish step.
-- [ ] **AUTO-02**: The release lane retains machine-readable gate and publish receipts for both success and failure, linking version/tag, source SHA, workflow/run identity, verdict, relevant URLs, attempts/timestamps, and failure or cancellation state.
+- [x] **AUTO-01**: Before release package work starts, the release tag is proven to resolve to the exact Release Please source SHA whose required CI gate passed; the existing test, warning-free docs, package-content, and Hex dry-run checks run against that immutable source. Active release evaluation is not cancelled, workflow permissions are scoped, and the Hex secret is available only to the final publish step.
+- [x] **AUTO-02**: The release lane retains machine-readable gate and publish receipts for both success and failure, linking version/tag, source SHA, workflow/run identity, verdict, relevant URLs, attempts/timestamps, and failure or cancellation state.
 
 ### Published release (REL)
 
-- [ ] **REL-01**: Hex contains package version 1.6.0 built from the gated source, and live checks prove the versioned HexDocs and source reference resolve to the same release.
-- [ ] **REL-02**: The final protected-main release commit has green required CI, the release receipt is committed and points to that exact source, every local worktree is clean, and every open PR has a recorded disposition.
+- [x] **REL-01**: Hex contains package version 1.6.0 built from the gated source, and live checks prove the versioned HexDocs and source reference resolve to the same release.
+- [x] **REL-02**: The final protected-main release commit has green required CI, the release receipt is committed and points to that exact source, every local worktree is clean, and every open PR has a recorded disposition.
 
 ## Deferred Requirements
 
@@ -63,15 +63,15 @@ Every v1 requirement maps to exactly one v1.49 phase.
 | CONF-01 | Phase 246 | Complete |
 | CONF-02 | Phase 246 | Complete |
 | CONF-03 | Phase 246 | Complete |
-| READY-01 | Phase 247 | Blocked |
-| READY-02 | Phase 247 | Blocked |
-| AUTO-01 | Phase 248 | Blocked |
-| AUTO-02 | Phase 248 | Partial |
-| REL-01 | Phase 249 | Pending |
-| REL-02 | Phase 249 | Pending |
+| READY-01 | Phase 247 | Accepted exception; unsatisfied |
+| READY-02 | Phase 247 | Accepted exception; unsatisfied |
+| AUTO-01 | Phase 248 | Complete |
+| AUTO-02 | Phase 248 | Complete |
+| REL-01 | Phase 249 | Complete |
+| REL-02 | Phase 249 | Complete |
 
 **Coverage:** 9/9 v1 requirements mapped exactly once; 0 unmapped.
 
 ---
 *Requirements defined: 2026-10-06*
-*Last updated: 2026-10-08; Phase 248 verifier found credential-scope and hosted-evidence gaps*
+*Last updated: 2026-10-11; Phase 250 acceptance amendment preserves READY-01/02 as unsatisfied while reconciling the seven verified requirements*

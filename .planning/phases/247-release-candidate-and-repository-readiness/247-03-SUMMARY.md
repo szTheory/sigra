@@ -38,7 +38,7 @@ key-decisions:
   - "Treat generated confirmation LiveView changes as host-owned adoption work; no migration or upgrade task is needed solely for this release."
 patterns-established:
   - "Versioned adopter guides link from README to the matching changelog heading and distinguish package behavior from generated host code."
-requirements-completed: [READY-01]
+requirements-completed: []
 coverage:
   - id: D1
     description: "README routes existing adopters to the v1.6 guide and its 1.6.0 changelog entry."

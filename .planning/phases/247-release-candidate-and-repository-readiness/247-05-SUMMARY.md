@@ -29,7 +29,7 @@ key-files:
 decisions:
   - "Treat the 563f411/e3883b historical workflow and baseline as superseded; use only the final reviewed source and its re-bound evidence."
   - "Close Plan 05 operationally through Plans 06–08, while retaining independent Phase 247 verification as the next gate."
-requirements-completed: [READY-01]
+requirements-completed: []
 duration: 10min
 completed: 2026-10-08
 status: complete

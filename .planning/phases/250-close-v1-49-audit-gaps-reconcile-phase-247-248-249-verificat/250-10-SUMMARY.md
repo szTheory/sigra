@@ -38,7 +38,7 @@ key-decisions:
   - "Keep local WebKit launch failure as an environment limitation; use the successful exact-main admin-eval lane as mobile verification."
 patterns-established:
   - "Record Compare URL, requested head SHA, response keys, result fields and observation time in the source snapshot."
-requirements-completed: [REL-01, REL-02]
+requirements-completed: []
 coverage:
   - id: D1
     description: Public Sigra 1.6.0 Hex, docs, tag and source reference resolve to the accepted package source and checksum.
