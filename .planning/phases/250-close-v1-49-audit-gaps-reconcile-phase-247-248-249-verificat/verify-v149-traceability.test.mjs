@@ -160,7 +160,7 @@ test('source-derived readiness fixtures score 7/9, 8/9, and 9/9 without stale mi
     const rendered = renderAudit(result);
     assert.equal(result.score.requirements, fixture.score);
     assert.equal(result.requirements.filter(({ id }) => id.startsWith('READY-') && id && result.requirements.find((row) => row.id === id)?.status === 'satisfied').length, fixture.passedReady);
-    assert.equal(result.milestoneStatus, fixture.score === '9/9' ? 'passed' : 'incomplete');
+    assert.equal(result.milestoneStatus, fixture.score === '9/9' ? 'passed' : 'incomplete', JSON.stringify(result.blockers));
     assert.match(rendered, new RegExp(`requirements: ${fixture.score.replace('/', '\\/')}`));
     assert.match(rendered, new RegExp(`strict milestone status is \\*\\*${fixture.score === '9/9' ? 'passed' : 'gaps_found'}\\*\\* at \\*\\*${fixture.score.replace('/', '\\/')} requirements`));
     if (fixture.score !== '7/9') assert.doesNotMatch(rendered, /7\/9/);
@@ -182,6 +182,54 @@ test('independent audit rejects a satisfied READY-01 row whose guide ref points 
   const result = audit(repoRoot, { overrides: evidence.overrides });
   assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
   assert.ok(result.blockers.some(({ id, message }) => id === 'READY-01' && /source-bound|package check|guide/i.test(message)));
+});
+
+test('independent audit accepts complete path-bound check evidence when READY-01 alone passes', () => {
+  const evidence = ownerEvidenceFixture({ ready01: true });
+  const result = audit(repoRoot, { overrides: evidence.overrides });
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'satisfied');
+  assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+});
+
+test('independent audit rejects each changed READY-01 check source or result identity', () => {
+  const mutations = [
+    (check) => { check.source_refs[0].path = 'README.md'; },
+    (check) => { check.source_refs[0].commit_sha = 'f'.repeat(40); },
+    (check) => { check.source_refs[0].git_blob_oid = 'f'.repeat(40); },
+    (check) => { check.source_refs[0].sha256 = '0'.repeat(64); },
+    (check) => { check.source_assertions[0].result = 'fail'; },
+    (check) => { check.result = 'mismatch'; },
+    (check) => { check.finding_detail = 'mismatch: source predicate failed.'; },
+  ];
+  for (const mutate of mutations) {
+    const evidence = ownerEvidenceFixture({ ready01: true });
+    mutate(evidence.packet.requirements.READY01.package_adopter.checks.published_tag_guide);
+    const packetText = `${JSON.stringify(evidence.packet, null, 2)}\n`;
+    const packetHash = sha256(packetText);
+    evidence.overrides[phase251PacketPath] = packetText;
+    evidence.overrides[phase247ReportPath] = evidence.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`);
+    const result = audit(repoRoot, { overrides: evidence.overrides });
+    assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
+  }
+});
+
+test('an exact-tag guide or README 404 independently blocks a claimed READY-01 pass', () => {
+  for (const sourcePath of ['guides/introduction/upgrading-to-v1.6.md', 'README.md']) {
+    const evidence = ownerEvidenceFixture({ ready01: true });
+    const source = evidence.packet.requirements.READY01.package_adopter.sources.find((item) =>
+      item.source_identity === 'published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca' && item.path === sourcePath);
+    Object.assign(source, { read_status: 'missing', trust_status: 'trusted_exact_commit_404', http_status: 404 });
+    delete source.git_blob_oid;
+    delete source.api_blob_oid;
+    delete source.sha256;
+    delete source.api_sha256;
+    const packetText = `${JSON.stringify(evidence.packet, null, 2)}\n`;
+    const packetHash = sha256(packetText);
+    evidence.overrides[phase251PacketPath] = packetText;
+    evidence.overrides[phase247ReportPath] = evidence.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`);
+    const result = audit(repoRoot, { overrides: evidence.overrides });
+    assert.equal(result.requirements.find(({ id }) => id === 'READY-01')?.status, 'unsatisfied');
+  }
 });
 
 test('stale Phase 247 packet binding and wrong-phase ownership cannot satisfy READY', () => {

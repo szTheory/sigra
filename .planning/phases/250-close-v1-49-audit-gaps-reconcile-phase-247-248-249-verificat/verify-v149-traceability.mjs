@@ -38,6 +38,23 @@ const ACCEPTED_READY_BLOCKER_IDS = [
   'readiness_tuple_mismatch',
 ];
 
+const PHASE251_PACKAGE_CHECK_SOURCES = {
+  package_version: [['candidate', 'mix.exs', 'candidate_version_1_6_0'], ['published', 'mix.exs', 'published_version_1_6_0']],
+  package_metadata: [['candidate', 'mix.exs', 'candidate_package_metadata_sigra_1_6_0'], ['published', 'mix.exs', 'published_package_metadata_sigra_1_6_0']],
+  release_manifest: [['candidate', '.release-please-manifest.json', 'manifest_version_1_6_0']],
+  release_config: [['candidate', 'release-please-config.json', 'release_config_elixir_changelog']],
+  changelog: [['candidate', 'CHANGELOG.md', 'candidate_changelog_1_6_0'], ['published', 'CHANGELOG.md', 'published_changelog_1_6_0']],
+  tag_target: [['published', 'mix.exs', 'tag_v1_6_0_targets_published_commit']],
+  hexdocs_source_reference: [['published', 'mix.exs', 'hexdocs_uses_version_source_ref'], ['published', 'lib/sigra.ex', 'published_module_source']],
+  published_tag_guide: [['published', 'guides/introduction/upgrading-to-v1.6.md', 'published_guide_present']],
+  readme_guide_link: [['candidate', 'README.md', 'candidate_readme_guide_link'], ['published', 'README.md', 'published_readme_guide_link']],
+  adopter_shipped_changes: [['candidate', 'guides/introduction/upgrading-to-v1.6.md', 'guide_shipped_changes'], ['candidate', 'test/example/priv/playwright/tests/organizations.spec.ts', 'generated_host_regression_coverage']],
+  adopter_compatibility: [['candidate', 'guides/introduction/upgrading-to-v1.6.md', 'guide_compatibility_constraints']],
+  generated_host_action: [['candidate', 'guides/introduction/upgrading-to-v1.6.md', 'guide_host_actions'], ['candidate', 'test/example/priv/playwright/tests/organizations.spec.ts', 'host_action_test_coverage']],
+  version_requirement: [['candidate', 'guides/introduction/upgrading-to-v1.6.md', 'guide_version_requirement'], ['candidate', 'mix.exs', 'candidate_package_version_requirement']],
+  update_check_path: [['candidate', 'guides/introduction/upgrading-to-v1.6.md', 'guide_update_and_check_steps'], ['candidate', 'README.md', 'readme_points_to_upgrade_guide']],
+};
+
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
@@ -440,13 +457,51 @@ function phase251Ready01Complete(packet, feasibility) {
     && source.read_status === 'readable'
     && source.trust_status === 'trusted_exact_api_blob_match'
   );
+  const sourceRecord = (identity, commitSha, sourcePath) => {
+    const matches = Array.isArray(sources) ? sources.filter((source) => source.source_identity === identity
+      && source.commit_sha === commitSha && source.path === sourcePath) : [];
+    return matches.length === 1 ? matches[0] : null;
+  };
   const exactPackageSourceSet = Array.isArray(ready?.package_adopter?.source_paths)
     && candidatePaths.every((sourcePath) => ready.package_adopter.source_paths.includes(sourcePath) && sourceIdentity(`candidate:${tuple?.candidate_sha}`, tuple?.candidate_sha, sourcePath))
     && publishedPaths.every((sourcePath) => ready.package_adopter.source_paths.includes(sourcePath) && sourceIdentity(`published_tag:v1.6.0:${tuple?.published_source_sha}`, tuple?.published_source_sha, sourcePath));
+  const packageCheckSourcesComplete = packageCheckIds.every((id) => {
+    const check = checks?.[id];
+    const required = PHASE251_PACKAGE_CHECK_SOURCES[id] ?? [];
+    if (!check || check.result !== 'pass' || !Array.isArray(check.source_refs) || !Array.isArray(check.source_assertions)
+      || !required.length || check.source_refs.length !== required.length || check.source_assertions.length !== required.length) return false;
+    const expected = required.map(([scope, sourcePath, assertion]) => {
+      const identity = scope === 'candidate' ? `candidate:${tuple?.candidate_sha}` : `published_tag:v1.6.0:${tuple?.published_source_sha}`;
+      const commitSha = scope === 'candidate' ? tuple?.candidate_sha : tuple?.published_source_sha;
+      return { identity, commitSha, sourcePath, assertion, source: sourceRecord(identity, commitSha, sourcePath) };
+    });
+    if (expected.some((item) => !item.source)) return false;
+    const refKeys = check.source_refs.map((ref) => `${ref?.source_identity}:${ref?.commit_sha}:${ref?.path}`).sort();
+    const expectedKeys = expected.map((item) => `${item.identity}:${item.commitSha}:${item.sourcePath}`).sort();
+    if (new Set(refKeys).size !== refKeys.length || JSON.stringify(refKeys) !== JSON.stringify(expectedKeys)) return false;
+    const refsMatch = expected.every((item) => {
+      const ref = check.source_refs.find((candidate) => candidate.source_identity === item.identity
+        && candidate.commit_sha === item.commitSha && candidate.path === item.sourcePath);
+      return item.source.trust_status === 'trusted_exact_api_blob_match'
+        && item.source.read_status === 'readable'
+        && item.source.git_blob_oid === item.source.api_blob_oid
+        && item.source.sha256 === item.source.api_sha256
+        && ref?.git_blob_oid === item.source.git_blob_oid && ref?.sha256 === item.source.sha256;
+    });
+    const assertionsMatch = expected.every((item) => {
+      const assertion = check.source_assertions.find((candidate) => candidate?.id === item.assertion);
+      return assertion?.result === 'pass' && assertion.expected === true && assertion.actual === true
+        && assertion.source_identity === item.identity && assertion.commit_sha === item.commitSha
+        && assertion.path === item.sourcePath && assertion.git_blob_oid === item.source.git_blob_oid
+        && assertion.sha256 === item.source.sha256;
+    });
+    return refsMatch && assertionsMatch;
+  });
   const packageComplete = ready?.package_adopter?.acceptance_satisfied === true
     && checks && packageCheckIds.every((id) => checks[id]?.result === 'pass' && typeof checks[id].evidence_detail === 'string' && checks[id].evidence_detail.length > 0 && /^No finding\b/i.test(checks[id].finding_detail ?? ''))
     && sourceBytesComplete
-    && exactPackageSourceSet;
+    && exactPackageSourceSet
+    && packageCheckSourcesComplete;
   return feasible?.source_feasibility === 'ready'
     && feasible?.capture_allowed === true
     && ready?.source_feasibility === 'ready'
@@ -579,7 +634,7 @@ function collectOwnerSources(root, blockers, overrides = {}) {
               const complete = id === 'READY-01'
                 ? phase251Ready01Complete(parsed, feasibility)
                 : phase251Ready02Complete(parsed, feasibility);
-              if (normalizedPacket === 'satisfied' && !complete) add(blockers, id, 'Phase 251 reports a pass without the complete exact-source acceptance evidence and joins.', PHASE251_PACKET_PATH);
+              if (normalizedPacket === 'satisfied' && !complete) add(blockers, id, 'Phase 251 reports a pass without complete source-bound package check refs/assertions, exact tuple approval, and inventory joins.', PHASE251_PACKET_PATH);
               const currentStatus = normalizedPacket === 'satisfied' && complete && rowBound && nestedConsistent ? 'satisfied' : 'unsatisfied';
               report.requirementVerdicts[id] = currentStatus;
               if (normalizedPacket === 'unsatisfied') {
