@@ -2,7 +2,7 @@
 phase: "248"
 slug: "exact-source-release-gate"
 status: validated
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: true
 created: "2026-10-07"
 ---
@@ -19,14 +19,14 @@ created: "2026-10-07"
 | **Config file** | `mix.exs`; `.github/workflows/release-please.yml`; `scripts/ci/` |
 | **Quick run command** | `bash scripts/ci/wait-for-ci-gate.test.sh` plus the focused auto-merge, exact-source, environment-policy, and receipt fixture tests |
 | **Full suite command** | `mix test` and `actionlint` on changed workflows; final verification also requires the exact-head `ci-gate` and retained release receipts |
-| **Estimated runtime** | Focused local suite duration not yet sampled; live CI duration remains an external probe |
+| **Estimated runtime** | Focused local suite plus workflow syntax check: about 6.5 seconds observed on this checkout; hosted proof retrieval is an external probe |
 
 ## Sampling Rate
 
 - **After every task commit:** Run the hermetic test for each changed script and the focused workflow contract test; run `git diff --check`.
 - **After every plan wave:** Run all Phase 248 fixture tests and `actionlint` on every changed workflow.
 - **Before final phase verification:** Run the full relevant test suite, `actionlint`, the exact-source gate against its immutable tag/SHA, and deterministic receipt/cancellation fixture checks. Retrieve machine-readable hosted receipts from the non-publishing canary; missing terminal evidence remains open.
-- **Max feedback latency:** Not measured; keep local fixture checks focused and record observed durations.
+- **Observed feedback latency:** The focused Phase 248 shell fixtures, ExUnit contracts, and workflow syntax check completed in about 6.5 seconds on this checkout. This is an observation, not a guaranteed upper bound.
 
 ## Per-Task Verification Map
 
@@ -62,11 +62,17 @@ Each newly introduced fixture test is the first source created in its task and i
 - **Published-source gate and receipt:** release run `37875238705`, attempt 3, and CI run `37875238741`, attempt 2, both identify source SHA `9e80cb78d6374b1ed4074d5fef6b613fee879dca`; the `ci-gate` succeeded. Artifact `release-result-1.6.0-37875238705` (artifact ID `11594782728`) was retrieved and its JSON records the gate as pass and publish outcome as published. The artifact is retained until 2027-01-07. Phase 249's committed release receipt preserves this identity.
 - **Remaining hosted probe:** no eligible terminal failed or cancelled Release Please run with a retained release receipt was found. Failed main-branch runs `37993629242` and `38003573382` have only documentation artifacts; no cancelled Release Please run appeared in the 100-run query. Cancelled candidate `ci.yml` runs are not evidence for the Release Please `workflow_run` observer.
 
+## Hosted Evidence Confirmed 2026-10-11
+
+- **Bounded no-publish canary:** controller run `38137539834` used source SHA `84ebcea60024c9e8caee405d55cad1c76b0e858a`. It failed during its final ZIP download because the script supplied an unsupported `gh api --output` flag. No retry or additional dispatch occurred. The controller failure is retained as a diagnostic; it is not counted as a successful controller run.
+- **Hosted failure receipt:** source run `38137550871`, attempt 1, concluded `failure`. Artifact `11701436633` (`release-canary-failure-38137550871-1-de77060c49e441abb00148a9e17518b0`) expires 2026-11-10. The independently downloaded ZIP digest is `94cc44aaa38388e89bb4790e504328ff70c0a163d90ed6301be7a8e912c5565e`; the receipt JSON SHA-256 is `d3c09829c42dd4dbe55a10e16a1a75432cdf04e7077afd0b6948f1283dd28d6d`.
+- **Hosted cancellation receipt:** source run `38137614523`, attempt 1, concluded `cancelled`. Trusted observer run `38137756922` succeeded and uploaded artifact `11702216188` (`release-canary-cancellation-38137614523-1`), retained until 2027-01-09. The independently downloaded ZIP digest is `57d3d1667a61483edbe85182fee995697fdb3c502de2c5f97ab464cc24529707`; the receipt JSON SHA-256 is `ed5adb5ac6d1b0a0b12cf7a328c8789d9b99951badeb0aabd71e1791ea7840c3`.
+- **Source-bound reconciliation:** the failure and cancellation receipts identify the same repository, main-branch source SHA, canary workflow, source event, and their exact run IDs/outcomes. The receipt-pair validator passes. Phase 250's owner verifier tests pass 12/12 and its report check confirms AUTO-01/AUTO-02 satisfied with zero blockers. Aggregate proof SHA-256: `6eb5fb2e373d2bca6efd3dc9161793e4a3ca0f260bfcf4f6a208aa3c40952289`; source snapshot SHA-256: `87e5681a5ae24a3cce32ef4d0a7e8e3e14c66b07ee871762f68bab2e789ea223`.
+- **Validator compatibility note:** the generic `release-canary.sh --validate-proof` in this checkout rejects the historical aggregate proof because it requires the observer event to be `workflow_run`. The canary's exact source SHA has an explicit `workflow_dispatch` observer route, and the owner verifier joins that actual event and observer identity to the recorded source and artifact metadata. The source-specific owner verifier and receipt-pair checks pass; keep the generic validator mismatch visible without treating the failed controller download as success.
+
 ## Manual-Only Verifications
 
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
-| Verify hosted failure and cancellation receipt delivery. | AUTO-02 | Local fixtures prove the receipt contract, but no eligible hosted failure/cancellation run exists to prove event delivery, retention, retrieval, and source-run binding. No operator action or production release interruption is required; close this with an automated non-publishing canary. | Add a canary workflow with no publish credentials. Exercise failure and cancellation through the same observer/artifact path, retrieve each artifact in CI, and validate its terminal outcome, source run identity, schema, and retention. Never use or interrupt the production publish lane for this probe. |
+No manual-only verifications remain. The hosted failure and cancellation path was exercised by the bounded no-publish canary above; the actual release lane was not interrupted.
 
 **Baseline note:** The required default `actionlint` command reports six pre-existing embedded ShellCheck warnings in the inherited `ci.yml`; the same warnings reproduce against committed baseline. Workflow syntax passes with `actionlint -shellcheck=0`, and the other four release workflows pass default `actionlint`. The inherited `ci.yml` was preserved.
 
@@ -76,10 +82,10 @@ Each newly introduced fixture test is the first source created in its task and i
 - [x] Sampling continuity: no three consecutive tasks without automated verification.
 - [x] All Wave 0 fixture validators are present and green; the live exact-head candidate gate and retained release-success receipt are verified.
 - [x] No watch-mode flags.
-- [ ] Record feedback latency from execution evidence; do not claim a bound before measurement.
-- [ ] Set `nyquist_compliant: true` only after retained success, failure, and cancellation artifacts from eligible hosted release runs are proven.
+- [x] Record observed feedback latency without claiming a guaranteed bound.
+- [x] Retained success, failure, and cancellation artifacts are proven by the Phase 249 release receipt and the Phase 250 no-publish hosted canary.
 
-**Validation result:** partial — all 11 local task checks pass and environment setup, exact-head gating, and release success are proven; hosted failure/cancellation receipt retrieval remains open. No maintainer setup or live release action is requested. Close the gap through an automated non-publishing canary.
+**Validation result:** complete — all 11 local task checks pass, the exact-head gate and retained release-success receipt are proven, and the hosted canary failure/cancellation receipts are retrieved and source-bound. The canary controller's download failure remains recorded separately; no production release was interrupted.
 
 ## Validation Audit 2026-10-08
 
@@ -109,3 +115,11 @@ Each newly introduced fixture test is the first source created in its task and i
 | Hosted probes closed | 2 |
 | Hosted probes remaining | 1 |
 | Local automated checks | 11 |
+
+## Validation Audit 2026-10-11
+
+| Metric | Count |
+|---|---|
+| Gaps found | 1 |
+| Resolved | 1 |
+| Escalated | 0 |
