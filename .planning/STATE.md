@@ -3,13 +3,13 @@ gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
 status: milestone_audit_gaps_found
-stopped_at: Phase 251 plans passed independent checker; execute the feasibility-gated evidence refresh next
-last_updated: "2026-10-11T20:05:31Z"
-state_head: 873dbbfa599b071c75c39674dc7af599d0211e25
+stopped_at: Completed 251-01-PLAN.md; 251-02 remains runnable
+last_updated: "2026-10-11T20:33:27.667Z"
+state_head: 4578fa24e91f6b38c959fd65e4141176fc520734
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 40
+  total_plans: 42
   completed_plans: 41
   percent: 83
 last_activity: 2026-10-11
@@ -19,7 +19,7 @@ resume_command: $gsd-execute-phase 251
 current_phase: 251
 current_phase_name: Close READY-01 and READY-02 release readiness gaps
 current_plan: null
-last_activity_desc: Revised Phase 251 Task 1 assertions to require distinct candidate/published-tag records per path and named results for all 14 package/adopter checks, with nonempty identity, evidence, and finding detail for every result. Task 2 specifies the exact 20 mismatch fixtures, set/duplicate/registration/execution assertions, and per-case READY-01 unsatisfied / source-ready READY-02 capture assertions; Task 3 requires the exact two-file test command to pass before live capture. Both plan structures/frontmatter pass, decision coverage is 6/6, command-path checks have zero blockers/warnings, failure-direction checks are ok, and git diff --check is clean. Candidate guide resolves; published-tag guide is absent and remains a READY-01 finding while READY-02 remains independently captureable. The independent plan checker passed both plans with no findings. The exact prewrite STATE bytes are preserved at .planning/recovery/phase251-state-route-prewrite-20261011T195950Z/manifest.json (SHA-256 f48a691eedbfbf64d6154de9265039c0633e3653943b79a82b0d0ccfbd4bc854); the 19:58 planning-file snapshot remains at .planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/manifest.json (SHA-256 9f405dd4bd9da012a5db51ab9040139d205e9067f796501838dd87e968cd6b76). The checker-pass route/state prewrite is recorded at .planning/recovery/phase251-checker-pass-route-prewrite-20261011T200322Z/manifest.json (SHA-256 4d1bb7fdb6e7237b7b060a6e72b5b7d4fa454c844fe637b9906f34449f3ee16).
+last_activity_desc: "Revised Phase 251 Task 1 assertions to require distinct candidate/published-tag records per path and named results for all 14 package/adopter checks, with nonempty identity, evidence, and finding detail for every result. Task 2 specifies the exact 20 mismatch fixtures, set/duplicate/registration/execution assertions, and per-case READY-01 unsatisfied / source-ready READY-02 capture assertions; Task 3 requires the exact two-file test command to pass before live capture. Both plan structures/frontmatter pass, decision coverage is 6/6, command-path checks have zero blockers/warnings, failure-direction checks are ok, and git diff --check is clean. Candidate guide resolves; published-tag guide is absent and remains a READY-01 finding while READY-02 remains independently captureable. The independent plan checker passed both plans with no findings. The exact prewrite STATE bytes are preserved at .planning/recovery/phase251-state-route-prewrite-20261011T195950Z/manifest.json (SHA-256 f48a691eedbfbf64d6154de9265039c0633e3653943b79a82b0d0ccfbd4bc854); the 19:58 planning-file snapshot remains at .planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/manifest.json (SHA-256 9f405dd4bd9da012a5db51ab9040139d205e9067f796501838dd87e968cd6b76). The checker-pass route/state prewrite is recorded at .planning/recovery/phase251-checker-pass-route-prewrite-20261011T200322Z/manifest.json (SHA-256 4d1bb7fdb6e7237b7b060a6e72b5b7d4fa454c844fe637b9906f34449f3ee16)."
 ---
 
 # Project State
@@ -62,6 +62,22 @@ Phase 251 context and two plans are present. Fresh deterministic checks now pass
 
 ## Session
 
-**Last session:** 2026-10-11T18:39:48.793Z
-**Stopped at:** Phase 251 package/adopter evidence contract added; fresh deterministic prechecks passed and independent plan checker pending; execution starts with the read-only per-requirement feasibility gate
+**Last session:** 2026-10-11T20:33:25.973Z
+**Stopped at:** Completed 251-01-PLAN.md; 251-02 remains runnable
 **Resume file:** .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md
+
+## Performance Metrics
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 251 P01 | 12m | 3 tasks | 8 files |
+
+### Blockers
+
+- Phase 251 READY-01 remains unsatisfied: trusted source lookup for the historical owner report returned 404, the full trusted history contains no exact-candidate contemporaneous approval, and the published v1.6.0 tag lacks the required guide path.
+- Phase 251 READY-02 remains unsatisfied: the fresh complete open-PR inventory has 15 items with no exact disposition joins, and the live-main commit is unavailable locally for inherited-change derivation.
+
+## Decisions
+
+- [Phase 251]: Keep READY-01 and READY-02 source feasibility independent; READY-01 failure does not suppress source-ready READY-02 capture.
+- [Phase 251]: Keep both READY requirements unsatisfied until their individual original evidence bars are fully proven; later authorization cannot substitute for historical approval.

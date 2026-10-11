@@ -231,7 +231,7 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
 | 250. Close v1.49 audit gaps | v1.49 | 9/9 active plans (4 superseded) | Complete under amended phase-only contract; milestone remains incomplete | 2026-10-11 |
-| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 0/2 | Planned; checker passed; ready to execute | — |
+| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 1/2 | In Progress; checker passed; ready to execute | — |
 
 ### Next
 
@@ -246,7 +246,7 @@ The Phase 250 acceptance amendment does not change owner verdicts or authorize a
 **Goal:** Reconcile the two outstanding release-readiness requirements against their original evidence bars and refresh the Phase 247 owner verdicts without expanding release-action scope.
 **Requirements**: READY-01, READY-02
 **Depends on:** Phase 250
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 **Success Criteria**:
 1. READY-01 is marked satisfied only if one exact candidate/source/base/main tuple joins matching package version/metadata, release manifest/config, changelog, `v1.6.0` tag, HexDocs source reference, adopter notes for shipped changes/compatibility/generated-host action or no-action/`~> 1.6.0` update and check path, exact-source CI, readiness, authenticated non-publishing dry-run, and contemporaneous approval. If an approval event or any source item is missing or mismatched, the owner report records the gap and leaves READY-01 unsatisfied; this does not gate independent READY-02 inventory capture when its source slice is ready.
@@ -255,5 +255,5 @@ The Phase 250 acceptance amendment does not change owner verdicts or authorize a
 4. Work uses read-only external observations and deterministic checks. No workflow dispatch, PR merge, package publish, release creation, or candidate mutation occurs in this phase.
 
 Plans:
-- [ ] 251-01-PLAN.md — Run the read-only per-requirement source-feasibility preflight, then capture every source-ready evidence slice.
+- [x] 251-01-PLAN.md — Run the read-only per-requirement source-feasibility preflight, then capture every source-ready evidence slice.
 - [ ] 251-02-PLAN.md — Reconcile original-owner traceability and the strict milestone audit from the source-derived packet and report.
