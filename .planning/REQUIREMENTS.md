@@ -19,8 +19,8 @@
 
 ### Release readiness (READY)
 
-- [ ] **READY-01**: The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path. Final local Hex dry-run remains blocked by unavailable candidate locked dependencies.
-- [ ] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work. Final evidence capture remains blocked with Plan 04.
+- [ ] **READY-01**: The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path. The current Phase 247 owner verdict is `authorization_pending`: no recoverable contemporaneous approval joins the exact candidate/source/CI/readiness/dry-run record; the published tag also lacks the v1.6 guide and its README link.
+- [ ] **READY-02**: Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work. The current Phase 247 owner verdict remains unsatisfied because the local inherited commit base is unavailable and the fresh PR disposition join is incomplete.
 
 ### Release automation (AUTO)
 
@@ -63,8 +63,8 @@ Every v1 requirement maps to exactly one v1.49 phase.
 | CONF-01 | Phase 246 | Complete |
 | CONF-02 | Phase 246 | Complete |
 | CONF-03 | Phase 246 | Complete |
-| READY-01 | Phase 247 | Accepted exception; unsatisfied |
-| READY-02 | Phase 247 | Accepted exception; unsatisfied |
+| READY-01 | Phase 247 | Unsatisfied; current Phase 251 packet |
+| READY-02 | Phase 247 | Unsatisfied; current Phase 251 packet |
 | AUTO-01 | Phase 248 | Complete |
 | AUTO-02 | Phase 248 | Complete |
 | REL-01 | Phase 249 | Complete |
@@ -74,4 +74,4 @@ Every v1 requirement maps to exactly one v1.49 phase.
 
 ---
 *Requirements defined: 2026-10-06*
-*Last updated: 2026-10-11; Phase 250 acceptance amendment preserves READY-01/02 as unsatisfied while reconciling the seven verified requirements*
+*Last updated: 2026-10-11; Phase 251 packet `36bbf3514b15d50cdf9bbc05062ca2c9a125771ec8c882a757143e59345349df` leaves READY-01/02 unsatisfied; Phase 250's exception remains historical and phase-only.*
