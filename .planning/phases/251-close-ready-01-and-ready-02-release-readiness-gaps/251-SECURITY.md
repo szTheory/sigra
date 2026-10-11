@@ -1,62 +1,38 @@
 ---
 phase: "251"
 slug: "close-ready-01-and-ready-02-release-readiness-gaps"
-status: verified
-threats_open: 0
+status: open_threats
+threats_open: 4
 asvs_level: 1
-created: "2026-10-11"
 ---
 
-# Phase 251 — Security
+# Phase 251 Security Verification
 
-> Per-phase security contract: threat register, accepted risks, and audit trail.
+Independent audit: 18 of 22 planned mitigations closed; four high-severity acceptance bypasses remain open. No risks were accepted or waived. Structured evidence: `251-SECURITY-AUDIT-GAPS.json`.
 
-## Trust Boundaries
+| Threat | Severity | Status | Evidence |
+|---|---|---|---|
+| T-251-01 | high | CLOSED | verify-247-readiness.mjs:238-293,316-347 exact tuple/CI/readiness/dry-run identities |
+| T-251-02 | high | CLOSED | verify-247-readiness.mjs:255-281,328-347 complete contemporaneous approval history |
+| T-251-03 | high | CLOSED | verify-247-readiness.mjs:407-427,557-575,905-930 complete stable PR identity joins |
+| T-251-04 | high | CLOSED | verify-247-readiness.mjs:590-612,669-727 scoped dirty-byte capture and readback |
+| T-251-05 | high | CLOSED | verify-v149-traceability.mjs:162-220 pinned historical owner/amendment bytes |
+| T-251-06 | high | CLOSED | verify-v149-traceability.mjs:703-719,879-911 owner-derived verdicts and checkbox contradiction checks |
+| T-251-07 | high | CLOSED | verify-v149-traceability.mjs:943-946,1136-1158 source-derived audit checks |
+| T-251-08 | high | CLOSED | verify-247-readiness.mjs:356-405,760-769 persisted preflight/source identity gate |
+| T-251-09 | high | CLOSED | validate-release-readiness.mjs:811-818 full identity disposition invalidation; test:632-659 |
+| T-251-10 | high | CLOSED | validate-release-readiness.mjs:109-131,470-482 identity completeness/duplicates/null guards |
+| T-251-11 | high | OPEN | verify-247-readiness.mjs:225-232 derives assertions from check.result instead of cited blob content; a forged README guide-link pass removes the missing-link finding. |
+| T-251-12 | high | OPEN | verify-v149-traceability.mjs:536-567 validates stored assertion booleans; fabricated passing blobs and assertions are accepted. |
+| T-251-13 | high | OPEN | verify-v149-traceability.mjs:602-633 does not require every worktree status entry in disposition joins; removing a dirty-path ID still yields READY-02 satisfied and 8/9. |
+| T-251-14 | high | OPEN | verify-v149-traceability.mjs:406-443 reads commit:path but does not resolve the preservation ref or compare decision/source-byte proof; nonexistent ref still yields READY-02 satisfied and 8/9. |
+| T-251-15 | high | CLOSED | verify-247-readiness.mjs:407-427,557-575,1121-1126 complete paginated stable PR snapshots |
+| T-251-16 | high | CLOSED | verify-247-readiness.mjs:238-293 original interval and tuple-bound approval |
+| T-251-17 | high | CLOSED | verify-247-readiness.mjs:108-123,152-204 exact published guide identity and trusted 404 findings |
+| T-251-18 | medium | CLOSED | verify-247-readiness.mjs:736-757 packet digest/capture ID consistency |
+| T-251-19 | high | CLOSED | verify-v149-traceability.mjs:446-470,902-911 owner/packet references |
+| T-251-20 | high | CLOSED | verify-v149-traceability.mjs:879-947,1136-1158 owner-derived count/status |
+| T-251-21 | medium | CLOSED | validate-release-readiness.test.mjs:632,687,716 and verify-247-readiness.test.mjs:676,805 retained regression evidence; dispositions remain subject to new audit gaps |
+| T-251-SC | high | CLOSED | Existing Node/Git/gh only; no install tasks or commands. |
 
-| Boundary | Description | Data Crossing |
-|----------|-------------|---------------|
-| Historical readiness and approval sources → Phase 251 packet | Public source records and exact identities determine whether READY-01 can pass. | Commit, blob, CI, review-event and digest metadata; no credentials. |
-| Live GitHub and local checkout → READY-02 evidence | Read-only inventory observations are joined to local inherited-work and preservation records. | PR number, head/base identity, worktree/ref identity and content hashes. |
-| Phase 250 history → current v1.49 audit | The earlier exception remains phase-only and must not change current READY verdicts. | Immutable report, amendment and packet hashes. |
-| Phase 247 owner report and Phase 251 packet → requirements and milestone audit | Current statuses are derived from the original owner’s verdicts. | Requirement verdicts, blockers and source packet digest. |
-
-## Threat Register
-
-| Threat ID | Category | Component | Severity | Disposition | Mitigation | Status |
-|-----------|----------|-----------|----------|-------------|------------|--------|
-| T-251-01 | Tampering | READY-01 tuple evaluator | high | mitigate | Exact source, CI, readiness, dry-run, package and adopter identities are checked; the 20 mismatch fixtures leave READY-01 unsatisfied. | closed |
-| T-251-02 | Repudiation | Historical candidate approval | high | mitigate | A contemporaneous exact-tuple approval is required; complete history without one produces `authorization_pending`. | closed |
-| T-251-03 | Tampering | Live PR and inherited-work population | high | mitigate | Complete paginated full-identity snapshots are compared; missing dispositions or inherited base leave READY-02 unsatisfied. | closed |
-| T-251-04 | Information disclosure | Preservation record handling | high | mitigate | Packet records identities and digests only; sensitive-key scan found no secret, password, token, private-key or access-key fields. | closed |
-| T-251-08 | Tampering | Feasibility gate | high | mitigate | Capture modes require the first persisted feasibility result and keep READY-01 / READY-02 branches independent. | closed |
-| T-251-05 | Repudiation | Phase 250 acceptance amendment | high | mitigate | Historical owner-report bytes are read from the pinned commit and all amendment and tuple packet hashes are checked. | closed |
-| T-251-06 | Tampering | Requirement traceability | high | mitigate | READY rows derive from the Phase 247 owner verdict; stale packet, wrong owner and contradictory checkbox fixtures are rejected. | closed |
-| T-251-07 | Spoofing | Milestone audit | high | mitigate | Source and generated audit checks pass; current evidence yields 7/9 and cannot claim milestone completion. | closed |
-| T-251-SC | Tampering | Package installs | high | mitigate | No package installation is used; validation relies on built-in Node tests and existing repository tools. | closed |
-
-*Status: open · closed · open — below high threshold (non-blocking)*
-*Severity: critical > high > medium > low — only open threats at or above workflow.security_block_on count toward threats_open*
-*Disposition: mitigate (implementation required) · accept (documented risk) · transfer (third-party)*
-
-## Accepted Risks Log
-
-No accepted risks.
-
-## Security Audit Trail
-
-| Audit Date | Threats Total | Closed | Open | Run By |
-|------------|---------------|--------|------|--------|
-| 2026-10-11 | 9 | 9 | 0 | GSD security hook (ASVS L1) |
-
-## Sign-Off
-
-- [x] All threats have a disposition (mitigate / accept / transfer)
-- [x] Accepted risks documented in Accepted Risks Log
-- [x] `threats_open: 0` confirmed
-- [x] `status: verified` set in frontmatter
-
-**Approval:** verified 2026-10-11 (automated mitigation and contract-test review)
-
-## Security Audit
-
-All nine registered mitigations are present in the evidence evaluators, strict audit, and regression tests. READY-01 remains `authorization_pending`; READY-02 remains unsatisfied. No credential values were found in the two machine-readable evidence packets. The milestone remains incomplete.
+READY-01 remains authorization_pending. READY-02 acceptance is subject to the demonstrated independent-audit join and preservation bypasses until repaired. Prior report bytes remain recoverable at f3214912e056e50ea373b8e235a7f107231e83b3 (SHA-256 776ce7cfb1f2bb109bd06199d8acae0172b17618e1343d3cdfb1168bff6e1ad6).
