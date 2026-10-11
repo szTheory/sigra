@@ -603,6 +603,37 @@ test('clean secondary worktrees do not create phantom dirty inherited items', as
   }
 });
 
+test('scoped preservation records read back exact item identity and PR dispositions cite current source paths', async () => {
+  const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { execFileSync } = await import('node:child_process');
+  const { createScopedPreservationRef, prDisposition, joinPopulation } = await import('./verify-247-readiness.mjs');
+  const root = mkdtempSync(join(tmpdir(), 'readiness-scoped-preservation-'));
+  try {
+    execFileSync('git', ['init', '-q', root]);
+    execFileSync('git', ['-C', root, 'config', 'user.email', 'fixture@example.invalid']);
+    execFileSync('git', ['-C', root, 'config', 'user.name', 'Fixture']);
+    writeFileSync(join(root, 'base.txt'), 'base\n');
+    execFileSync('git', ['-C', root, 'add', 'base.txt']);
+    execFileSync('git', ['-C', root, 'commit', '-qm', 'fixture base']);
+    const head = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+    const record = { id: '17:' + 'a'.repeat(40) + ':' + 'b'.repeat(40) + ':main', kind: 'pull_request',
+      decision: 'release-relevant', reason: 'Release source requires separate review.', source_byte_sha256: null,
+      captured_source: { id: '17:' + 'a'.repeat(40) + ':' + 'b'.repeat(40) + ':main' },
+      detail: { files: ['mix.exs'] } };
+    const preservation = createScopedPreservationRef([record], head, root);
+    const reference = preservation.references.get(record.id);
+    const joined = joinPopulation({ observedIds: [record.id], dispositions: [{ id: record.id, decision: record.decision, preservation_ref: reference }], label: 'pr', root });
+    assert.equal(preservation.readback_verified, true);
+    assert.equal(joined.status, 'passed');
+    assert.equal(prDisposition({ number: 17, title: 'Update package metadata', files: [{ filename: 'mix.exs' }] }).decision, 'release-relevant');
+    assert.equal(prDisposition({ number: 18, title: 'Update test fixture', files: [{ filename: 'test/fixture.ex' }] }).decision, 'separate-follow-up');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('package checks reject wrong path, commit, blob, digest, and assertion identity', async () => {
   const { evaluatePhase251Feasibility, phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
   for (const mutate of [

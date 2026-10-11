@@ -2,7 +2,8 @@
 
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -258,8 +259,19 @@ function verifyPhase251PreflightBinding(feasibility) {
     '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs',
     '.planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs',
     '.planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs',
+    '.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-task1-red-evidence.json',
+    '.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-task2-red-evidence.json',
   ]);
-  const commits = safeCommand('git', ['rev-list', '--reverse', `${sourceHead}..HEAD`]).stdout.split('\n').filter(Boolean);
+  // Plan 05 runs from the root-pinned sequential base supplied by the execution
+  // packet. Earlier orchestrator-owned planning commits are already in this
+  // base; only commits added after that boundary are subject to the narrow file
+  // allow-list below.
+  const executionBase = '4f9672a7ec34ba33b1e1d6e7e7add1b8949015bf';
+  if (!safeCommand('git', ['merge-base', '--is-ancestor', sourceHead, executionBase]).ok
+    || !safeCommand('git', ['merge-base', '--is-ancestor', executionBase, 'HEAD']).ok) {
+    blockers.push('pinned_plan05_execution_base_unavailable_or_unrelated');
+  }
+  const commits = safeCommand('git', ['rev-list', '--reverse', `${executionBase}..HEAD`]).stdout.split('\n').filter(Boolean);
   for (const commit of commits) {
     const paths = safeCommand('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit]).stdout.split('\n').filter(Boolean);
     if (!paths.length || paths.some((file) => !allowedPaths.has(file))) blockers.push(`unexpected_post_preflight_commit:${commit}`);
@@ -318,16 +330,37 @@ export function verifyHistoricalInheritedIdentity(readiness, currentHead, root =
     recovery: baseObjectAvailable && inheritedHeadObjectAvailable ? 'read-back from local Git object database' : 'object unavailable', blockers };
 }
 
-function readOnlyLiveSnapshot() {
+function readOnlyPullRequestDetails(pullRequests) {
+  return pullRequests.map((row) => {
+    const pullRequest = ghJson(`repos/szTheory/sigra/pulls/${row.number}`);
+    const filePages = ghJsonPaginated(`repos/szTheory/sigra/pulls/${row.number}/files?per_page=100`);
+    const files = filePages.rows.map((file) => ({ filename: file.filename ?? null, status: file.status ?? null,
+      additions: Number.isInteger(file.additions) ? file.additions : null,
+      deletions: Number.isInteger(file.deletions) ? file.deletions : null,
+      patch_sha256: typeof file.patch === 'string' ? sha256(file.patch) : null }));
+    const complete = filePages.pages.length > 0 && filePages.pages.every(Array.isArray)
+      && files.every((file) => typeof file.filename === 'string' && file.filename.length > 0)
+      && new Set(files.map((file) => file.filename)).size === files.length
+      && fullPullRequestIdentity({ number: pullRequest.number, head_sha: pullRequest.head?.sha,
+        base_sha: pullRequest.base?.sha, base_ref: pullRequest.base?.ref }) === fullPullRequestIdentity(row);
+    return { ...row, title: pullRequest.title ?? null, url: pullRequest.html_url ?? null,
+      draft: pullRequest.draft ?? null, file_pagination: { complete, page_count: filePages.pages.length,
+        per_page: 100, observed_rows: files.length }, files: files.sort((a, b) => a.filename.localeCompare(b.filename)) };
+  }).sort((a, b) => a.number - b.number);
+}
+
+function readOnlyLiveSnapshot({ includePullRequestDetails = true } = {}) {
   const pageResult = ghJsonPaginated('repos/szTheory/sigra/pulls?state=open&per_page=100');
   const normalized = normalizePaginatedPullRequests(pageResult.pages);
   const main = ghJson('repos/szTheory/sigra/commits/main');
-  return {
+  const snapshot = {
     captured_at: new Date().toISOString(),
     open_pull_requests: normalized.rows,
     pagination: normalized.pagination,
     main: { sha: main.sha ?? null, tree_sha: main.commit?.tree?.sha ?? null },
   };
+  if (includePullRequestDetails) snapshot.pull_request_details = readOnlyPullRequestDetails(normalized.rows);
+  return snapshot;
 }
 
 function statusEntries(statusBytes, worktreePath, headSha) {
@@ -472,6 +505,108 @@ function buildPhase251OwnerReport(packet) {
   return `# Phase 247 Release Readiness Verification\n\n<!-- phase-251-reconciliation: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json -->\n<!-- phase-251-reconciliation-sha256: ${digest} -->\n\nThis owner report records fresh Phase 251 evidence. Phase 247 remains the owner of READY-01 and READY-02.\n\n- **Captured at:** ${packet.captured_at}\n- **Candidate tuple:** \`${packet.candidate_tuple.candidate_sha}\` / \`${packet.candidate_tuple.reviewed_base_sha}\` / \`${packet.candidate_tuple.protected_main_sha}\`\n- **Published release source:** \`${packet.published_release_source.tag}\` at \`${packet.published_release_source.commit_sha}\`\n\n| Requirement | Verdict | Evidence status |\n|---|---|---|\n| READY-01 | ${r1.verdict} | ${[...r1.blockers, ...r1.findings].join('; ') || 'complete source-bound approval and package evidence'} |\n| READY-02 | ${r2.verdict} | ${[...r2.blockers, ...r2.findings].join('; ') || 'complete live inventory and preservation joins'} |\n\nThe linked packet contains the source identities, captured populations, and blockers. This report does not promote missing or untrusted evidence to a pass.\n`;
 }
 
+function verifyCaptureOutputsBeforeRewrite(paths, capturedLocal, localRecords, preservation, root) {
+  const current = localInheritedSnapshot(capturedLocal.base_sha, root);
+  if (current.head_sha !== capturedLocal.head_sha || current.raw_status_sha256 !== capturedLocal.raw_status_sha256) {
+    throw new Error('Source checkout changed after READY-02 inventory capture; refusing to replace evidence outputs.');
+  }
+  const itemsById = new Map(localRecords.map((record) => [record.id, record]));
+  const dirtyItems = inheritedWorkItems(capturedLocal).filter((item) => item.kind === 'dirty_path'
+    && item.worktree_path === capturedLocal.repository_root);
+  for (const outputPath of paths) {
+    const dirtyItem = dirtyItems.find((item) => item.path === outputPath);
+    if (!dirtyItem) continue;
+    const record = itemsById.get(dirtyItem.id);
+    const reference = preservation.references.get(dirtyItem.id);
+    if (!record || !validPreservationReference(reference, dirtyItem.id, record.decision, root, dirtyItem.source_byte_sha256)) {
+      throw new Error(`Dirty evidence output ${outputPath} lacks a verified scoped preservation record.`);
+    }
+    const currentSha = sha256(readFileSync(path.resolve(root, outputPath)));
+    if (currentSha !== dirtyItem.source_byte_sha256) throw new Error(`Evidence output ${outputPath} changed after preservation read-back.`);
+  }
+}
+
+export function prDisposition(detail) {
+  const filenames = (detail?.files ?? []).map((file) => file.filename).filter(Boolean);
+  const releasePaths = filenames.filter((filename) => /^(mix\.exs|\.release-please-manifest\.json|release-please-config\.json|CHANGELOG\.md|README\.md|lib\/|priv\/templates\/|guides\/introduction\/upgrading-to-v1\.6\.md)$/.test(filename));
+  const releaseWorkflowPaths = filenames.filter((filename) => /^\.github\/workflows\/(hex-publish|release-please)\.yml$/.test(filename));
+  if (releasePaths.length || releaseWorkflowPaths.length) {
+    const reviewed = [...releasePaths, ...releaseWorkflowPaths].sort();
+    return { decision: 'release-relevant', reason: `Current diff touches release source or release workflow paths (${reviewed.join(', ')}); retain for separate source review before any candidate decision.` };
+  }
+  if ((detail?.title ?? '').toLowerCase().includes('phase 244 evidence')) {
+    return { decision: 'separate-follow-up', reason: `Draft Phase 244 evidence PR #${detail.number} is an independent historical measurement change with ${filenames.length} current diff paths; it remains outside the exact release candidate.` };
+  }
+  return { decision: 'separate-follow-up', reason: `Current PR #${detail.number} changes ${filenames.length} files outside the package and release workflow source set; retain it as independent follow-up work.` };
+}
+
+function preservationRecordForItem(item, decision, reason, source, detail = {}) {
+  return { id: item.id, kind: item.kind, decision, reason, source,
+    source_byte_sha256: item.source_byte_sha256 ?? null, captured_source: item, detail };
+}
+
+function exactDirtyBytes(item) {
+  if (item.kind !== 'dirty_path') return null;
+  try { return readFileSync(path.resolve(item.worktree_path, item.path)); }
+  catch {
+    if (item.status?.includes('D')) {
+      const prior = safeCommandBytes('git', ['show', `${item.worktree_head_sha}:${item.path}`], item.worktree_path);
+      if (prior.ok) return prior.stdout;
+    }
+    return null;
+  }
+}
+
+export function createScopedPreservationRef(records, captureHead, root) {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), 'phase251-preservation-'));
+  const recordsDir = path.join(tempRoot, 'records');
+  mkdirSync(recordsDir, { recursive: true });
+  const recordRows = records.map((record) => {
+    const filename = `${sha256(record.id).slice(0, 40)}.json`;
+    const recordPath = `records/${filename}`;
+    const bytes = Buffer.from(`${JSON.stringify(record, null, 2)}\n`);
+    if (record.source_bytes_base64) {
+      const sourceBytes = Buffer.from(record.source_bytes_base64, 'base64');
+      if (!record.source_byte_sha256 || sha256(sourceBytes) !== record.source_byte_sha256) {
+        throw new Error(`Captured source bytes do not match their digest for ${record.id}.`);
+      }
+    }
+    writeFileSync(path.join(recordsDir, filename), bytes);
+    return { id: record.id, decision: record.decision, record_path: recordPath,
+      record_sha256: sha256(bytes), source_byte_sha256: record.captured_source?.source_byte_sha256 ?? null, bytes };
+  });
+  const indexPath = path.join(tempRoot, 'index');
+  const gitDir = safeCommand('git', ['rev-parse', '--absolute-git-dir'], root).stdout;
+  if (!gitDir) throw new Error('Cannot resolve Git metadata for scoped preservation ref.');
+  const env = { ...process.env, GIT_INDEX_FILE: indexPath };
+  try {
+    execFileSync('git', ['--git-dir', gitDir, 'read-tree', captureHead], { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
+    execFileSync('git', ['--git-dir', gitDir, '--work-tree', tempRoot, 'add', '-A', '--', 'records'], { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
+    const tree = execFileSync('git', ['--git-dir', gitDir, 'write-tree'], { cwd: root, env, encoding: 'utf8' }).trim();
+    const commitSha = execFileSync('git', ['--git-dir', gitDir, 'commit-tree', tree, '-p', captureHead,
+      '-m', 'preserve Phase 251 READY-02 inventory records'], { cwd: root, encoding: 'utf8' }).trim();
+    const scope = sha256(`${captureHead}:${recordRows.map((row) => row.id).join('\n')}`).slice(0, 12);
+    const ref = `refs/heads/phase251-preservation/${new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14)}-${scope}`;
+    execFileSync('git', ['--git-dir', gitDir, 'update-ref', ref, commitSha], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+    const references = new Map();
+    for (const row of recordRows) {
+      const readback = execFileSync('git', ['--git-dir', gitDir, 'show', `${ref}:${row.record_path}`], { cwd: root, encoding: 'buffer', maxBuffer: 32 * 1024 * 1024 });
+      if (sha256(readback) !== row.record_sha256) throw new Error(`Preservation read-back hash mismatch for ${row.id}.`);
+      const parsed = JSON.parse(readback.toString('utf8'));
+      if (parsed.id !== row.id || parsed.decision !== row.decision
+        || (row.source_byte_sha256 && parsed.captured_source?.source_byte_sha256 !== row.source_byte_sha256)) {
+        throw new Error(`Preservation read-back identity mismatch for ${row.id}.`);
+      }
+      references.set(row.id, { ref, commit_sha: commitSha, record_path: row.record_path,
+        record_sha256: row.record_sha256, ...(row.source_byte_sha256 ? { source_byte_sha256: row.source_byte_sha256 } : {}) });
+    }
+    return { ref, commit_sha: commitSha, capture_head: captureHead, records: recordRows.length,
+      readback_verified: references.size === recordRows.length, references };
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
+}
+
 export function checkPhase251Artifacts(packet, summary, ownerReport) {
   const bytes = `${JSON.stringify(packet, null, 2)}\n`;
   const digest = sha256(bytes);
@@ -519,19 +654,91 @@ function writePhase251Capture() {
   local.historical_identity = historicalIdentity;
   captureBlockers.push(...historicalIdentity.blockers);
   if (!local.inventory_complete) captureBlockers.push('local_inherited_commit_base_unavailable');
+  const localItems = inheritedWorkItems(local);
+  const localRecords = localItems.map((item) => {
+    let decision = 'separate-follow-up';
+    let reason = 'This exact inherited item is preserved as independent work outside the candidate tuple.';
+    const sourcePaths = item.kind === 'committed_path' ? [item.path]
+      : item.kind === 'commit' ? safeCommand('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', item.commit_sha]).stdout.split('\n').filter(Boolean)
+        : [item.path];
+    const releasePaths = sourcePaths.filter((itemPath) => /^(mix\.exs|\.release-please-manifest\.json|release-please-config\.json|CHANGELOG\.md|README\.md|lib\/|priv\/templates\/|guides\/introduction\/upgrading-to-v1\.6\.md|\.github\/workflows\/(hex-publish|release-please)\.yml$)/.test(itemPath));
+    if (releasePaths.length) {
+      decision = 'release-relevant';
+      reason = `Inherited source touches release/package paths (${releasePaths.sort().join(', ')}); retain for source review before any candidate decision.`;
+    }
+    if (item.kind === 'dirty_path' && !item.source_byte_readable) {
+      decision = 'release-blocking';
+      reason = `Dirty worktree path ${item.worktree_path}:${item.path} could not be read and hashed exactly; READY-02 remains blocked.`;
+    }
+    const record = preservationRecordForItem(item, decision, reason,
+      item.kind === 'commit' ? { commit_sha: item.commit_sha }
+        : item.kind === 'committed_path' ? { commit_sha: item.source_commit_sha, path: item.path }
+          : { worktree_path: item.worktree_path, head_sha: item.worktree_head_sha, status: item.status, path: item.path },
+      { source_paths: sourcePaths });
+    const dirtyBytes = exactDirtyBytes(item);
+    if (dirtyBytes) record.source_bytes_base64 = dirtyBytes.toString('base64');
+    return record;
+  });
+  let localPreservation = { records: 0, readback_verified: false, references: new Map() };
+  try {
+    localPreservation = createScopedPreservationRef(localRecords, local.head_sha, repoRoot);
+    local.inherited_dispositions = localRecords.map((record) => ({ id: record.id, decision: record.decision,
+      reason: record.reason, source: record.source, preservation_ref: localPreservation.references.get(record.id) }));
+  } catch (error) {
+    captureBlockers.push(`inherited_preservation_ref_failed:${error.message}`);
+    local.inherited_dispositions = [];
+  }
+  local.preservation = { ref: localPreservation.ref ?? null, commit_sha: localPreservation.commit_sha ?? null,
+    record_count: localPreservation.records ?? 0, readback_verified: localPreservation.readback_verified ?? false };
+  const prDetails = liveBefore?.pull_request_details ?? [];
+  const detailComplete = liveBefore?.open_pull_requests?.length === prDetails.length
+    && prDetails.every((detail) => detail.file_pagination?.complete === true
+      && fullPullRequestIdentity(detail) && fullPullRequestIdentity(detail) === fullPullRequestIdentity(liveBefore.open_pull_requests.find((row) => row.number === detail.number)));
+  const prRecords = detailComplete ? prDetails.map((detail) => {
+    const identity = fullPullRequestIdentity(detail);
+    const item = { id: identity, kind: 'pull_request', identity, number: detail.number };
+    const disposition = prDisposition(detail);
+    return preservationRecordForItem(item, disposition.decision, disposition.reason, { pull_request_identity: identity },
+      { title: detail.title, url: detail.url, draft: detail.draft, file_pagination: detail.file_pagination, files: detail.files });
+  }) : [];
+  let prPreservation = { records: 0, readback_verified: false, references: new Map() };
+  try {
+    if (prRecords.length) prPreservation = createScopedPreservationRef(prRecords, checkoutHead, repoRoot);
+    liveBefore.dispositions = prRecords.map((record) => ({ id: record.id, decision: record.decision,
+      reason: record.reason, source: record.source, preservation_ref: prPreservation.references.get(record.id) }));
+  } catch (error) {
+    captureBlockers.push(`open_pr_preservation_ref_failed:${error.message}`);
+    if (liveBefore) liveBefore.dispositions = [];
+  }
+  if (!detailComplete) captureBlockers.push('open_pr_diff_details_missing_or_incomplete');
+  if (liveBefore) liveBefore.preservation = { ref: prPreservation.ref ?? null, commit_sha: prPreservation.commit_sha ?? null,
+    record_count: prPreservation.records ?? 0, readback_verified: prPreservation.readback_verified ?? false };
+  const localAfter = localInheritedSnapshot(historicalIdentity.base_sha);
+  const localStable = local.raw_status_sha256 === localAfter.raw_status_sha256
+    && local.head_sha === localAfter.head_sha
+    && JSON.stringify(inheritedWorkItems(local).map((item) => item.id).sort()) === JSON.stringify(inheritedWorkItems(localAfter).map((item) => item.id).sort());
+  local.stable_during_capture = localStable;
+  if (!localStable) captureBlockers.push('inherited_work_population_changed_during_capture');
   if (liveBefore && !liveCaptureFailure) {
-    try { liveAfter = readOnlyLiveSnapshot(); }
-    catch (error) {
+    try {
+      liveAfter = readOnlyLiveSnapshot({ includePullRequestDetails: false });
+      if (liveBefore.dispositions) liveAfter.dispositions = liveBefore.dispositions;
+      if (liveBefore.preservation) liveAfter.preservation = liveBefore.preservation;
+    } catch (error) {
       liveCaptureFailure = error.message;
       captureBlockers.push('github_live_population_recheck_unavailable');
     }
     if (liveAfter && (!liveBefore.pagination.complete || !liveAfter.pagination.complete)) captureBlockers.push('open_pr_pagination_incomplete');
   }
   const packet = buildPhase251Packet(feasibility, { requirements: gated.requirements }, liveBefore, liveAfter, local, captureBlockers);
+  packet.source_capture.local_population_stable_during_capture = localStable;
+  packet.source_capture.preservation = { local: local.preservation, open_pull_requests: liveBefore?.preservation ?? null };
   if (liveCaptureFailure) packet.source_capture.failure = { message: liveCaptureFailure };
   const jsonBytes = `${JSON.stringify(packet, null, 2)}\n`;
   const summary = buildPhase251Summary(packet);
   const report = buildPhase251OwnerReport(packet);
+  verifyCaptureOutputsBeforeRewrite([phase251ReconciliationPath, phase251SummaryPath, reportPath].map((file) => path.relative(repoRoot, file)),
+    local, localRecords, localPreservation, repoRoot);
   writeFileSync(phase251ReconciliationPath, jsonBytes);
   writeFileSync(phase251SummaryPath, summary);
   writeFileSync(reportPath, report);
@@ -597,7 +804,7 @@ function validPreservationReference(reference, dispositionId, decision, root, ex
   try {
     const commit = execFileSync('git', ['rev-parse', '--verify', `${reference.ref}^{commit}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
     if (commit !== reference.commit_sha) return false;
-    const bytes = execFileSync('git', ['show', `${reference.ref}:${reference.record_path}`], { cwd: root, encoding: 'buffer', stdio: ['ignore', 'pipe', 'ignore'] });
+    const bytes = execFileSync('git', ['show', `${reference.ref}:${reference.record_path}`], { cwd: root, encoding: 'buffer', maxBuffer: 32 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
     if (sha256(bytes) !== reference.record_sha256) return false;
     const record = JSON.parse(bytes.toString('utf8'));
     return String(record.id) === String(dispositionId) && record.decision === decision
