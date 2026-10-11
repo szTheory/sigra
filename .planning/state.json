@@ -27,12 +27,17 @@
       "number": "250",
       "name": "Close v1.49 audit gaps",
       "status": "complete"
+    },
+    {
+      "number": "251",
+      "name": "Close READY-01 and READY-02 release readiness gaps",
+      "status": "pending"
     }
   ],
   "next": {
-    "command": "/gsd:progress",
-    "label": "Show progress",
-    "reason": "Unsure of state — showing progress"
+    "command": "/gsd:plan-phase 251",
+    "label": "Plan Phase 251",
+    "reason": "Phase 251 context is committed; readiness reports no prerequisite blocker."
   },
-  "updated_at": "2026-10-11T18:25:20.633Z"
+  "updated_at": "2026-10-11T18:40:10Z"
 }

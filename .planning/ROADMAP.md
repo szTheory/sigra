@@ -222,21 +222,22 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 
 ### Progress
 
-**Execution Order:** 246 → 247 → 248 → 249 → 250
+**Execution Order:** 246 → 247 → 248 → 249 → 250 → 251
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 246. Generated Confirmation Recovery | v1.49 | 3/3 | Complete    | 2026-10-07 |
-| 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Complete | 2026-10-08 |
+| 247. Release Candidate and Repository Readiness | v1.49 | 10/11 | Implementation complete; owner verification gaps_found, Nyquist partial | 2026-10-08 |
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
 | 250. Close v1.49 audit gaps | v1.49 | 9/9 active plans (4 superseded) | Complete under amended phase-only contract; milestone remains incomplete | 2026-10-11 |
+| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 0 plans | Pending planning; context ready | — |
 
 ### Next
 
-Phase 250 is complete under the narrowly amended closeout contract. The generated audit records seven source-verified requirements and two accepted but still-unsatisfied READY exceptions; v1.49 remains incomplete and unarchived. Plan 08's packet still has zero eligible tuples, and the original Phase 247 owner report remains `gaps_found`.
+Phase 250 is complete under its narrowly amended closeout contract. The current audit records seven source-verified requirements and two accepted but still-unsatisfied READY exceptions; v1.49 remains incomplete and unarchived. Phase 248 validation is now Nyquist-compliant. Phase 247 remains partial and its owner report remains `gaps_found`; do not repeat its validation without new evidence. Phase 251 has a committed context that preserves the original approval and evidence bar.
 
-**Immediate GSD command:** `$gsd-audit-milestone v1.49`. `init.plan-phase 251` reports that Phase 251 is not defined, so the next GSD step is the milestone audit. The user’s longer-term CI/CD runtime and reliability optimization request remains queued after that audit as separate work.
+**Immediate GSD command:** `$gsd-plan-phase 251`. `init.plan-phase 251` confirms the phase exists, its context is complete, and there is no prerequisite blocker. Plan the evidence refresh for READY-01/02; keep either requirement unsatisfied if its full original proof cannot be recovered. The user’s longer-term CI/CD runtime and reliability optimization request remains queued after v1.49 as separate work.
 
 The Phase 250 acceptance amendment does not change owner verdicts or authorize a canary, publish, merge, or release action. Keep READY-01/02 unchecked; the accepted exception applies only to this phase closeout. Historical Phase 247 evidence is recorded in `250-247-TUPLE-DECISION-PACKET.json` and `250-247-RECONCILIATION.json`.
 
