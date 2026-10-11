@@ -78,7 +78,7 @@ write_canary_fixtures() {
   local probe="0123456789abcdef0123456789abcdef" run_id=74124
   jq -n --arg sha "$SOURCE_SHA" --arg probe "$probe" \
     --arg url "https://github.com/${REPOSITORY}/actions/runs/${run_id}" \
-    '{id:74124,name:"Release Receipt Canary",workflow_id:2025,path:".github/workflows/release-receipt-canary.yml@main",
+    '{id:74124,name:("release-receipt-canary-cancellation-"+$probe),workflow_id:2025,path:".github/workflows/release-receipt-canary.yml@main",
       display_title:("release-receipt-canary-cancellation-"+$probe),event:"workflow_dispatch",head_branch:"main",head_sha:$sha,
       conclusion:"cancelled",run_attempt:1,run_started_at:"2026-10-10T10:00:00Z",updated_at:"2026-10-10T10:01:00Z",
       html_url:$url,repository:{full_name:"szTheory/sigra"}}' > "$TMP_DIR/fixture/canary-run.json"
@@ -165,8 +165,8 @@ expect_rejected non-main-source-branch
 write_fixtures push main success
 expect_rejected non-cancelled-source-run
 write_fixtures push
-jq '.name="Unexpected workflow"' "$TMP_DIR/fixture/run.json" > "$TMP_DIR/run-mutated.json" && mv "$TMP_DIR/run-mutated.json" "$TMP_DIR/fixture/run.json"
-expect_rejected wrong-source-workflow-name
+jq '.name="Unexpected workflow"' "$TMP_DIR/fixture/workflow.json" > "$TMP_DIR/workflow-mutated.json" && mv "$TMP_DIR/workflow-mutated.json" "$TMP_DIR/fixture/workflow.json"
+expect_rejected wrong-authoritative-workflow-name
 write_fixtures push
 jq '.path=".github/workflows/other.yml@main"' "$TMP_DIR/fixture/run.json" > "$TMP_DIR/run-mutated.json" && mv "$TMP_DIR/run-mutated.json" "$TMP_DIR/fixture/run.json"
 expect_rejected wrong-source-workflow-path
