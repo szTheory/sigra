@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "szTheory/sigra",
-  "observed_at": "2026-10-09T23:59:26.461Z",
+  "observed_at": "2026-10-11T15:31:33.048561Z",
   "accepted_loss_exceptions": [
     {
       "schema_version": 1,
@@ -9151,9 +9151,9 @@
       "number": 267,
       "title": "deps: bump dialyxir from 1.4.7 to 1.4.8",
       "base_ref": "main",
-      "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+      "base_sha": "0faf6bbeacbb0fc7f16246f498e98a1a88ccd042",
       "head_ref": "dependabot/hex/dialyxir-1.4.8",
-      "head_sha": "4a49825fff9e8796a881f708325422ca05e74b86",
+      "head_sha": "d2a29fd9529b2cad4e54b0c116db9a27c2052dc4",
       "url": "https://github.com/szTheory/sigra/pull/267",
       "files_read": {
         "status": "complete",
@@ -9168,13 +9168,14 @@
       "is_release_please_candidate": false,
       "disposition": {
         "category": "separate-follow-up",
-        "reason": "The PR changes only mix.lock for Dialyxir, which mix.exs declares for dev and test with runtime disabled; it does not affect the published package runtime.",
+        "reason": "The current diff changes only mix.lock for Dialyxir 1.4.8. Dialyxir is a dev/test-only, non-runtime dependency, so this update does not change the published package runtime or 1.6.0 source proof.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/267",
-          "https://api.github.com/repos/szTheory/sigra/pulls/267/files?per_page=100",
-          "https://github.com/szTheory/sigra/blob/9e80cb78d6374b1ed4074d5fef6b613fee879dca/mix.exs"
+          "https://github.com/szTheory/sigra/compare/0faf6bbeacbb0fc7f16246f498e98a1a88ccd042...d2a29fd9529b2cad4e54b0c116db9a27c2052dc4",
+          "https://api.github.com/repos/szTheory/sigra/pulls/267/files?per_page=100"
         ]
-      }
+      },
+      "identity_refreshed_at": "2026-10-11T15:31:33.048561Z"
     },
     {
       "number": 268,
@@ -9212,9 +9213,9 @@
       "number": 269,
       "title": "deps: bump stream_data from 1.3.0 to 1.4.0",
       "base_ref": "main",
-      "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+      "base_sha": "0faf6bbeacbb0fc7f16246f498e98a1a88ccd042",
       "head_ref": "dependabot/hex/stream_data-1.4.0",
-      "head_sha": "e7e85791f87ae1dce9742fbcfff7ad5eee8026d4",
+      "head_sha": "a46face6d6b1d96eb9fe053a50163b68f2432dc7",
       "url": "https://github.com/szTheory/sigra/pull/269",
       "files_read": {
         "status": "complete",
@@ -9229,13 +9230,14 @@
       "is_release_please_candidate": false,
       "disposition": {
         "category": "separate-follow-up",
-        "reason": "The PR changes only mix.lock for StreamData, which mix.exs declares for dev and test; it does not alter the published 1.6.0 source.",
+        "reason": "The current diff changes only mix.lock for StreamData 1.4.0, a dev/test dependency. It does not change the published package runtime or 1.6.0 source proof.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/269",
-          "https://api.github.com/repos/szTheory/sigra/pulls/269/files?per_page=100",
-          "https://github.com/szTheory/sigra/blob/9e80cb78d6374b1ed4074d5fef6b613fee879dca/mix.exs"
+          "https://github.com/szTheory/sigra/compare/0faf6bbeacbb0fc7f16246f498e98a1a88ccd042...a46face6d6b1d96eb9fe053a50163b68f2432dc7",
+          "https://api.github.com/repos/szTheory/sigra/pulls/269/files?per_page=100"
         ]
-      }
+      },
+      "identity_refreshed_at": "2026-10-11T15:31:33.048561Z"
     },
     {
       "number": 271,
@@ -9273,9 +9275,9 @@
       "number": 272,
       "title": "deps: bump mox from 1.2.0 to 1.3.2",
       "base_ref": "main",
-      "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+      "base_sha": "0faf6bbeacbb0fc7f16246f498e98a1a88ccd042",
       "head_ref": "dependabot/hex/mox-1.3.2",
-      "head_sha": "d1ce01b90058c835feaf6ddc2a730fbc94071b34",
+      "head_sha": "4715483ac13beb9817b14027073e890a09360590",
       "url": "https://github.com/szTheory/sigra/pull/272",
       "files_read": {
         "status": "complete",
@@ -9290,13 +9292,14 @@
       "is_release_please_candidate": false,
       "disposition": {
         "category": "separate-follow-up",
-        "reason": "The PR changes only mix.lock for Mox, which mix.exs declares as test-only; it does not alter the package runtime or release automation.",
+        "reason": "The current diff changes only mix.lock for Mox 1.3.2, a test-only dependency. It does not change the published package runtime or 1.6.0 source proof.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/272",
-          "https://api.github.com/repos/szTheory/sigra/pulls/272/files?per_page=100",
-          "https://github.com/szTheory/sigra/blob/9e80cb78d6374b1ed4074d5fef6b613fee879dca/mix.exs"
+          "https://github.com/szTheory/sigra/compare/0faf6bbeacbb0fc7f16246f498e98a1a88ccd042...4715483ac13beb9817b14027073e890a09360590",
+          "https://api.github.com/repos/szTheory/sigra/pulls/272/files?per_page=100"
         ]
-      }
+      },
+      "identity_refreshed_at": "2026-10-11T15:31:33.048561Z"
     },
     {
       "number": 273,
@@ -9334,9 +9337,9 @@
       "number": 274,
       "title": "deps: bump threadline from 0.9.0 to 0.12.0",
       "base_ref": "main",
-      "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+      "base_sha": "0faf6bbeacbb0fc7f16246f498e98a1a88ccd042",
       "head_ref": "dependabot/hex/threadline-0.10.1",
-      "head_sha": "707f1d0733cd39ce3510cf74a3ede0fead9cd0a6",
+      "head_sha": "4d64459cd59105db96b09151f87e69fa6357ae48",
       "url": "https://github.com/szTheory/sigra/pull/274",
       "files_read": {
         "status": "complete",
@@ -9344,28 +9347,33 @@
       },
       "changed_files": [
         {
+          "path": "mix.exs",
+          "status": "modified"
+        },
+        {
           "path": "mix.lock",
           "status": "modified"
         }
       ],
       "is_release_please_candidate": false,
       "disposition": {
-        "category": "separate-follow-up",
-        "reason": "The PR changes only mix.lock for the optional Threadline companion dependency. It is a dependency-maintenance change outside the gated 1.6.0 source and current release receipt.",
+        "category": "release-relevant",
+        "reason": "The current diff raises the optional Threadline constraint in mix.exs and updates mix.lock. That changes future package dependency metadata/optional integration behavior, so it is release-relevant for a future release but does not alter the already-published 1.6.0 source proof; keep it for separate dependency review.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/274",
-          "https://api.github.com/repos/szTheory/sigra/pulls/274/files?per_page=100",
-          "https://github.com/szTheory/sigra/blob/9e80cb78d6374b1ed4074d5fef6b613fee879dca/mix.exs"
+          "https://github.com/szTheory/sigra/compare/0faf6bbeacbb0fc7f16246f498e98a1a88ccd042...4d64459cd59105db96b09151f87e69fa6357ae48",
+          "https://api.github.com/repos/szTheory/sigra/pulls/274/files?per_page=100"
         ]
-      }
+      },
+      "identity_refreshed_at": "2026-10-11T15:31:33.048561Z"
     },
     {
       "number": 275,
       "title": "deps: bump ex_doc from 0.40.3 to 0.40.4",
       "base_ref": "main",
-      "base_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+      "base_sha": "0faf6bbeacbb0fc7f16246f498e98a1a88ccd042",
       "head_ref": "dependabot/hex/ex_doc-0.40.4",
-      "head_sha": "2e9467662373ee3321c5d6dfb63b13cca76b6e6b",
+      "head_sha": "b82a53029d9147f3792367056b9650d35d6638c3",
       "url": "https://github.com/szTheory/sigra/pull/275",
       "files_read": {
         "status": "complete",
@@ -9380,13 +9388,14 @@
       "is_release_please_candidate": false,
       "disposition": {
         "category": "release-relevant",
-        "reason": "The PR updates only mix.lock for ExDoc, which mix.exs declares as a dev-only, non-runtime dependency. ExDoc generates the versioned docs and llms index, so this can affect future documentation proof; the published 1.6.0 source remains immutable.",
+        "reason": "The current diff changes only mix.lock for ExDoc 0.40.4, a dev-only documentation generator. It can affect future generated docs evidence but does not alter the already-published 1.6.0 source; keep it for separate dependency review.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/275",
-          "https://api.github.com/repos/szTheory/sigra/pulls/275/files?per_page=100",
-          "https://github.com/szTheory/sigra/blob/9e80cb78d6374b1ed4074d5fef6b613fee879dca/mix.exs"
+          "https://github.com/szTheory/sigra/compare/0faf6bbeacbb0fc7f16246f498e98a1a88ccd042...b82a53029d9147f3792367056b9650d35d6638c3",
+          "https://api.github.com/repos/szTheory/sigra/pulls/275/files?per_page=100"
         ]
-      }
+      },
+      "identity_refreshed_at": "2026-10-11T15:31:33.048561Z"
     },
     {
       "number": 283,
@@ -10253,14 +10262,17 @@
       "is_release_please_candidate": true,
       "disposition": {
         "category": "release-relevant",
-        "reason": "The current Release Please candidate proposes Sigra 1.7.0 on the observed base/head identity. Its complete diff changes only .release-please-manifest.json, CHANGELOG.md, doc/llms.txt, and mix.exs. This future release is relevant to release automation but outside Phase 249 proof of the already-published 1.6.0 package; leave it open for its separate exact-head CI and review.",
+        "reason": "PR #302 was merged on 2026-10-11 as the 1.7.0 release (merge commit ff96768bc2843ef1a89926d238690b1145bfd514). Its reviewed diff was limited to release manifest/changelog/docs-index/mix metadata; it was release-relevant as a future release and is now closed, separate from proof of the already-published 1.6.0 package.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/302",
           "https://github.com/szTheory/sigra/compare/6c9fb8a7623b1f35b8259489f9384b2bde3198d0...b7b2a05c603736f0cff1128c9fa000cb0b5c05bd",
           "https://api.github.com/repos/szTheory/sigra/pulls/302/files?per_page=100"
         ],
-        "candidate_eligibility": "Not eligible for Phase 249 auto-merge: this is a separate follow-up and not the 1.6.0 release proof. No merge or auto-merge change was requested."
-      }
+        "candidate_eligibility": "Merged separately before this capture; excluded from the current open-PR population. This Phase 249 closeout does not take merge or release action."
+      },
+      "state": "MERGED",
+      "merged_at": "2026-10-11T00:17:45Z",
+      "merge_commit_sha": "ff96768bc2843ef1a89926d238690b1145bfd514"
     },
     {
       "number": 306,
@@ -10451,7 +10463,8 @@
     "This is a live read-only inventory. No worktree, file, or PR was modified by capture.",
     "Content is represented by SHA-256 identities; file contents are not copied into this ledger.",
     "Before rewriting any dirty .planning path, preserve or commit its exact captured bytes and verify read-back; the capture lists these paths in planning_mutation_guards.",
-    "The clean-closeout claim remains blocked until every inherited dirty path is either exactly preserved or covered by an explicit validated user-authorized loss exception and all live worktree statuses are empty."
+    "The clean-closeout claim remains blocked until every inherited dirty path is either exactly preserved or covered by an explicit validated user-authorized loss exception and all live worktree statuses are empty.",
+    "Refreshed exact identities and dispositions for PRs #267, #269, #272, #274, #275 after dependency update commits; PR #302 is recorded as merged before this capture."
   ],
-  "capture_completed_at": "2026-10-09T23:59:39.869Z"
+  "capture_completed_at": "2026-10-11T15:31:33.048561Z"
 }
