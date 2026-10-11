@@ -1,0 +1,89 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "phases": [
+    {
+      "number": "246",
+      "name": "Generated Confirmation Recovery",
+      "status": "complete"
+    },
+    {
+      "number": "247",
+      "name": "Release Candidate and Repository Readiness",
+      "status": "complete"
+    },
+    {
+      "number": "248",
+      "name": "Exact-Source Release Gate",
+      "status": "complete"
+    },
+    {
+      "number": "249",
+      "name": "Publish and Prove Sigra 1.6.0",
+      "status": "complete"
+    },
+    {
+      "number": "250",
+      "name": "Close v1.49 audit gaps",
+      "status": "in_progress",
+      "verification_status": "gaps_found",
+      "completed_plans": 7,
+      "total_plans": 12,
+      "summaries_present": 8,
+      "halted_plans": 1,
+      "blocked_plans": 3,
+      "runnable_plans": 1,
+      "current_plan": "250-10"
+    }
+  ],
+  "next": {
+    "command": "$gsd-execute-phase 250 --gaps-only",
+    "label": "Execute Plan 250-10, the sole runnable gap plan",
+    "reason": "Plan 250-07 is complete. Latest init.execute-phase 250 reports 250-10 as the only runnable plan; overall Phase 250 remains incomplete.",
+    "blocked_by": [
+      "250-08: tuple packet has zero eligible tuples; no source-bound readiness route exists",
+      "250-09: depends on halted 250-08",
+      "250-11 and 250-12: depend on the unresolved READY tuple route"
+    ],
+    "checkpoint_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
+    "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
+    "route_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
+    "resume_command": "$gsd-execute-phase 250 --gaps-only",
+    "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T1148Z.json",
+    "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T115503Z.json",
+    "next_roadmap_phase": null,
+    "coverage_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/COVERAGE.md",
+    "coverage_sha256": "f43d19a4a51f7fc4cc84caef5dcccb136eaa6723dfe4d6c255772376c7595224",
+    "coverage_gate": "passed: 17 capabilities, 12 INTEGRATE, 5 OPT-OUT",
+    "packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json",
+    "packet_sha256": "0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628",
+    "packet_source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "preflight_sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+    "source_identity_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json",
+    "source_identity_sha256": "de02a0d9cb888214792b52d847755b4615a168e8eb3e0604aa924c70d9b791c3",
+    "planning_outcome_sha256": "49ae2645eacc9fc785c3d3c79d037c40f3bd66fe82f4af6bea10c5c7a538d239",
+    "resume_when": "After explicit authorization and hosted proof, manually close Plan 250-07, then re-run init.execute-phase 250 to determine runnable plans.",
+    "authorization_decision_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORIZATION-DECISION-v8.json",
+    "authorization_decision_sha256": "3929673c2fae1f9d783ce00c15ec1229646576c165d125f70c9d3bbe5f562c8b",
+    "controller_run_id": 38137539834,
+    "controller_run_url": "https://github.com/szTheory/sigra/actions/runs/38137539834",
+    "controller_run_record_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38137539834.json",
+    "controller_run_record_sha256": "8dde48953b0a55a35132cde9d35d25b44872c8caee0f254238747fd1b246936c",
+    "current_plan": "250-10",
+    "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-PLAN.md",
+    "plan07_summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md",
+    "canary_proof_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+    "phase248_snapshot_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+    "phase248_report_path": ".planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+    "controller_run_conclusion": "failure",
+    "canary_authority_consumed": true,
+    "canary_retry_authorized": false,
+    "pr_327_url": "https://github.com/szTheory/sigra/pull/327",
+    "pr_327_ci_run_id": 38138426620,
+    "pr_327_ci_status": "in_progress",
+    "pr_327_watcher_session_id": 50816,
+    "future_follow_up": "CI/CD runtime and reliability optimization after Phase 250"
+  },
+  "updated_at": "2026-10-11T12:25:37Z"
+}

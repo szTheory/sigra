@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { evaluateSnapshot, checkReport, normalizeControllerProof, captureCanaryTerminalReceipts, downloadArtifact, reportIdentity } from './verify-248-release.mjs';
+import { evaluateSnapshot, checkReport, normalizeControllerProof, captureCanaryTerminalReceipts, downloadArtifact, reportIdentity, selectProducerProof } from './verify-248-release.mjs';
 import { audit } from './verify-v149-traceability.mjs';
 
 const sourceSha = '9e80cb78d6374b1ed4074d5fef6b613fee879dca';
@@ -124,6 +124,121 @@ test('accepts only exact source, scope and terminal-artifact identities', () => 
   assert.equal(traceability.blockers.some(({ id, message }) => id === 'AUTO-02' && message.includes('Phase 248 report fails its recomputed source check')), false);
 });
 
+test('reconciles a controller archive-download failure only after both live terminal receipts validate', () => {
+  const current = snapshot();
+  current.canary.controller.run.conclusion = 'failure';
+  current.canary.controller.artifact.internal_proof_status = 'blocked';
+  current.canary.controller.artifact.internal_proof_reason = 'failure_receipt_digest_or_json_validation_failed';
+  current.canary.controller_proof_source = 'independent_terminal_artifact_revalidation';
+  current.canary.controller_reconciliation = {
+    status: 'passed', mode: 'independent_terminal_artifact_revalidation',
+    failure_code: 'gh_api_unknown_output_flag', controller_run_id: current.canary.controller.expected_id,
+    controller_artifact_id: current.canary.controller.expected_artifact_id,
+  };
+  let result = evaluateSnapshot(current);
+  assert.equal(result.requirements['AUTO-02'].status, 'satisfied');
+
+  current.canary.cancellation.artifact_retrieved.status = 'blocked';
+  result = evaluateSnapshot(current);
+  assert.equal(result.requirements['AUTO-02'].status, 'unsatisfied');
+  assert.ok(result.blockers.some((item) => item.includes('controller run identity or conclusion mismatch')));
+
+  const wrongFailure = snapshot();
+  wrongFailure.canary.controller.run.conclusion = 'failure';
+  wrongFailure.canary.controller.artifact.internal_proof_status = 'blocked';
+  wrongFailure.canary.controller.artifact.internal_proof_reason = 'failure_receipt_digest_or_json_validation_failed';
+  wrongFailure.canary.controller_proof_source = 'independent_terminal_artifact_revalidation';
+  wrongFailure.canary.controller_reconciliation = {
+    status: 'passed', mode: 'independent_terminal_artifact_revalidation',
+    failure_code: 'some_other_controller_failure', controller_run_id: wrongFailure.canary.controller.expected_id,
+    controller_artifact_id: wrongFailure.canary.controller.expected_artifact_id,
+  };
+  assert.equal(evaluateSnapshot(wrongFailure).requirements['AUTO-02'].status, 'unsatisfied');
+});
+
+test('selects independent receipt records only for the exact failed controller artifact and source', () => {
+  const current = snapshot();
+  const controller = current.canary.controller.run;
+  const failureReceipt = current.canary.controller_proof.source_failure.receipt;
+  const cancellationReceipt = current.canary.controller_proof.source_cancellation.receipt;
+  const failureArtifact = {
+    id: 11671884955,
+    name: `release-canary-failure-${failureReceipt.source_run_id}-1-${failureReceipt.probe_id}`,
+    digest: digest('e'), expires_at: '2026-11-01T00:00:00Z',
+  };
+  const cancellationArtifact = {
+    id: 11671884956,
+    name: `release-canary-cancellation-${cancellationReceipt.source_run_id}-1`,
+    digest: digest('f'), expires_at: '2026-11-01T00:00:00Z',
+  };
+  const independent = {
+    schema_version: 1, status: 'pass', credential_values_recorded: false,
+    source_failure: {
+      run_id: failureReceipt.source_run_id, attempt: failureReceipt.source_run_attempt,
+      workflow_id: failureReceipt.source_workflow_id, workflow_path: failureReceipt.source_workflow_path,
+      event: failureReceipt.source_event, ref: failureReceipt.source_ref, sha: failureReceipt.source_sha,
+      conclusion: 'failure', artifact: failureArtifact, receipt: failureReceipt,
+    },
+    source_cancellation: {
+      run_id: cancellationReceipt.source_run_id, attempt: cancellationReceipt.source_run_attempt,
+      workflow_id: cancellationReceipt.source_workflow_id, workflow_path: cancellationReceipt.source_workflow_path,
+      event: cancellationReceipt.source_event, ref: cancellationReceipt.source_ref, sha: cancellationReceipt.source_sha,
+      conclusion: 'cancelled', artifact: cancellationArtifact,
+      observer_run_id: cancellationReceipt.observer_run.id, observer_attempt: cancellationReceipt.observer_run.attempt,
+      observer_workflow_id: cancellationReceipt.observer_run.workflow_id,
+      observer_workflow_path: '.github/workflows/release-run-observer.yml', observer_event: 'workflow_dispatch',
+      observer_ref: 'refs/heads/main', observer_conclusion: 'success', receipt: cancellationReceipt,
+    },
+    source_sha: failureReceipt.source_sha,
+    controller_run: {
+      id: controller.id, attempt: controller.attempt, workflow_id: controller.workflow_id,
+      workflow_path: controller.workflow_path, event: controller.event, ref: `refs/heads/${controller.branch}`,
+      sha: controller.head_sha, conclusion: 'failure', artifact: {
+        id: current.canary.controller.expected_artifact_id,
+        name: `release-canary-controller-${controller.id}-${controller.attempt}`,
+        digest: digest('2'), expires_at: '2026-11-01T00:00:00Z', proof_sha256: '3'.repeat(64),
+      },
+    },
+    controller_outcome: {
+      run_id: controller.id, conclusion: 'failure', failure_code: 'gh_api_unknown_output_flag',
+      failed_step: 'Read-only preflight and exact-run orchestration',
+    },
+  };
+  const artifact = {
+    id: independent.controller_run.artifact.id, name: independent.controller_run.artifact.name,
+    digest: independent.controller_run.artifact.digest, expires_at: independent.controller_run.artifact.expires_at,
+    expired: false, run_id: controller.id,
+  };
+  const selection = selectProducerProof({
+    proof: independent,
+    controllerRun: { ...controller, conclusion: 'failure' },
+    controllerArtifact: artifact,
+    controllerArtifactDownload: {
+      metadata: { ...artifact, workflow_run: { id: controller.id } },
+      retrieval: { status: 'passed', sha256: '3'.repeat(64), receipt: { status: 'blocked', reason: 'failure_receipt_digest_or_json_validation_failed' } },
+    },
+    controllerArtifactProof: { status: 'blocked', reason: 'failure_receipt_digest_or_json_validation_failed' },
+    controllerLocalSha: '3'.repeat(64),
+  });
+  assert.equal(selection.producerProof.status, 'passed');
+  assert.equal(selection.source, 'independent_terminal_artifact_revalidation');
+  assert.equal(selection.reconciliation.failure_code, 'gh_api_unknown_output_flag');
+
+  const mismatch = selectProducerProof({
+    proof: independent,
+    controllerRun: { ...controller, conclusion: 'failure' },
+    controllerArtifact: { ...artifact, digest: digest('0') },
+    controllerArtifactDownload: {
+      metadata: { ...artifact, workflow_run: { id: controller.id } },
+      retrieval: { status: 'passed', sha256: '3'.repeat(64), receipt: { status: 'blocked', reason: 'failure_receipt_digest_or_json_validation_failed' } },
+    },
+    controllerArtifactProof: { status: 'blocked', reason: 'failure_receipt_digest_or_json_validation_failed' },
+    controllerLocalSha: '3'.repeat(64),
+  });
+  assert.equal(mismatch.producerProof.status, 'blocked');
+  assert.equal(mismatch.reconciliation.status, 'blocked');
+});
+
 test('capture joins both downloaded terminal receipts to producer proof and authoritative artifact metadata', () => {
   const valid = snapshot();
   assert.equal(valid.canary.failure.artifact_retrieved.status, 'passed');
@@ -143,6 +258,9 @@ test('capture joins both downloaded terminal receipts to producer proof and auth
   const badObserverIdentity = captureTerminalFixtures(failureReceipt, cancellationReceipt, (downloaded, id) => id === 11671884956
     ? { ...downloaded, retrieval: { ...downloaded.retrieval, receipt: { ...downloaded.retrieval.receipt, observer_run: { ...downloaded.retrieval.receipt.observer_run, attempt: 9 } } } } : downloaded);
   assert.equal(badObserverIdentity.cancellationArtifactRetrieved.status, 'blocked');
+  const badObserverUrl = captureTerminalFixtures(failureReceipt, cancellationReceipt, (downloaded, id) => id === 11671884956
+    ? { ...downloaded, retrieval: { ...downloaded.retrieval, receipt: { ...downloaded.retrieval.receipt, observer_run: { ...downloaded.retrieval.receipt.observer_run, url: 'https://github.com/szTheory/sigra/actions/runs/1' } } } } : downloaded);
+  assert.equal(badObserverUrl.cancellationArtifactRetrieved.status, 'blocked');
   const badArtifactBytes = captureTerminalFixtures(failureReceipt, cancellationReceipt, (downloaded, id) => id === 11671884955
     ? { ...downloaded, retrieval: { ...downloaded.retrieval, status: 'failed', reason: 'artifact_digest_mismatch', receipt: null } } : downloaded);
   assert.equal(badArtifactBytes.failureArtifactRetrieved.status, 'blocked');

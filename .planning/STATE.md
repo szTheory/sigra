@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: awaiting_250_07_packet_v8_authorization
-stopped_at: Fresh packet v8 for main 84ebcea awaits an explicit user decision; no new dispatch has occurred
-last_updated: "2026-10-11T11:50:21Z"
+status: authorized_250_07_packet_v8_run_in_progress
+stopped_at: Controller run 38137539834 is in progress under packet v8; one watcher is active
+last_updated: "2026-10-11T12:02:46Z"
 last_activity: 2026-10-11
-last_activity_desc: PR #325 merged the observer metadata fix to main at 84ebcea60024c9e8caee405d55cad1c76b0e858a. Its CI run 38135909462 passed, and the merged tree matches the tested PR head. Current-main canary (59), observer (24), receipt (16), and actionlint checks pass. Fresh packet v8 is prepared for an explicit decision; AUTO-02 still needs the hosted cancellation receipt.
+last_activity_desc: User authorized packet v8 for one no-publish canary on main 84ebcea60024c9e8caee405d55cad1c76b0e858a. Controller run 38137539834 is in progress after the fresh source-bound preflight passed. AUTO-02 still needs the hosted cancellation receipt.
 state_head: 13b4a6d0d306a152d86a8f957949f0b52c4df92a
 progress:
   total_phases: 5
@@ -34,20 +34,22 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 — ACTIVE, Plan 250-07 is waiting for a new packet-specific decision after the observer metadata repair merged; the previous one-run authority is consumed.
-Current Plan: 7 (current-main canary receipt proof; Plans 250-08 to 250-12 remain blocked behind unresolved evidence)
+Phase: 250 — ACTIVE; Plan 250-07 is complete, and Plan 250-10 is the sole runnable gap plan.
+Current Plan: 10 (refresh public source, repair the exact current-main admin-eval failure, reconcile current PR/worktree evidence, and refresh the Phase 249 owner report).
 Total Plans in Phase: 12
-Plans summarized: 8 of 12 (01–06 complete; 07–08 halted; 09–12 dependency-blocked)
-Status: Phase verification is incomplete. Gap planning created no new plan because Plan 07 already covers the missing hosted test. `init.execute-phase 250` reports zero runnable plans while Plan 07 is halted and Plan 08 has no eligible tuple.
-Last activity: 2026-10-11 — PR #325 merged the observer metadata fix at main `84ebcea60024c9e8caee405d55cad1c76b0e858a`; CI run 38135909462 passed on a tree identical to the merge. Current-main local checks pass (canary 59, observer 24, receipt 16, actionlint). Fresh packet v8 awaits a new explicit decision; no new dispatch has occurred.
+Plans summarized: 8 of 12 (Plans 250-01 through 250-07 are complete; Plan 250-08 is halted; 250-09, 250-11, and 250-12 remain blocked behind Plan 08).
+Status: Phase verification remains incomplete. The latest `init.execute-phase 250` result reports one runnable plan: `250-10-PLAN.md`. Plan 08 stays halted because its committed tuple packet has no eligible exact-source route.
+Last activity: 2026-10-11 — Plan 250-07 was manually closed after the exact failure and cancellation receipts were independently validated; the Phase 248 owner report now satisfies AUTO-01/AUTO-02. PR #327 fixes the controller's `gh api --output` downloader defect; its CI run 38138426620 is still in progress under one watcher.
 
-Progress: [█████████░] 91% (39/43 summary records; includes halted/checkpointed plans and is not acceptance completion)
+Progress: [█████████░] 91% (39/43 summary records; this is a project metric, not phase acceptance completion)
 
-Plain-language explanation: “Source-bound” means the test record identifies the exact code commit and test files that produced it. The earlier packet for main `ff96768bc2843ef1a89926d238690b1145bfd514` was approved for one test; that run ended and used up that approval. The new packet is for merged main `84ebcea60024c9e8caee405d55cad1c76b0e858a` and needs a new yes/no before dispatch.
+Plain-language explanation: the canary controller itself failed while downloading the final receipt ZIP. The failure and cancellation source workflows had already produced artifacts. Both exact artifact ZIPs were downloaded and checked against current GitHub run, artifact, observer, and receipt metadata, so Phase 248 AUTO-02 now passes without claiming the controller passed.
 
-The consumed packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `208ea69cc0dbd0fd352a9ab298b983c1f3e0985a0910eb8cc9779b61b80d719f`); it cannot authorize a retry. The proposed packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json` (SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`) for exact main `84ebcea60024c9e8caee405d55cad1c76b0e858a`. Its read-only preflight and digest-bound controller input both passed validation; the packet awaits a new explicit decision. AUTO-02 remains incomplete until the hosted test creates and validates both required records. Plan 08 separately remains blocked because no candidate has all required matching readiness evidence.
+Plan 250-07 evidence: packet v8 SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`; the user's one-run authorization is recorded at `250-07-CANARY-AUTHORIZATION-DECISION-v8.json`. Preflight SHA-256 `3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953` targeted main `84ebcea60024c9e8caee405d55cad1c76b0e858a`. Controller run `38137539834` failed with `failure_receipt_digest_or_json_validation_failed`; failure run `38137550871` artifact `11701436633` and cancellation run `38137614523` artifact `11702216188` both validate. Observer run `38137756922` succeeded. The one-run authority is consumed; do not retry or dispatch another canary.
 
-Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found existing plan-scoped commits without completed summaries. Plan 250-07 one-run authority was consumed by controller 38135003478. Failure receipt exists; exact child cancellation succeeded; observer 38135205117 failed before receipt upload. AUTO-02 remains unsatisfied. Plan 250-08 still has zero eligible tuples. Full historical commit, packet, and pre-write hash provenance remains in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
+Phase 248 owner snapshot `250-248-SOURCE-SNAPSHOT.json` reports AUTO-01 and AUTO-02 satisfied with zero blockers; `248-VERIFICATION.md` passes `--check-report`. The controller failure and exact independent reconciliation are documented in both artifacts. PR #327 (`https://github.com/szTheory/sigra/pull/327`) is the focused downloader repair. Its CI result will be used for the already-authorized conditional squash merge; it is not a canary retry.
+
+The requested CI/CD runtime and reliability optimization remains a separate future GSD item after Phase 250. No production release, publish, tag, or additional canary is part of current work.
 
 ### v1.49 audit route
 
@@ -875,15 +877,18 @@ override_closeout — `audit-open` reported ~20 open items, all acknowledged-def
 
 ## Session Continuity
 
-Last session: 2026-10-10T19:49:01.247Z
-Stopped at: Completed 250-06-PLAN.md; parent owns remaining Phase 250 gap plans and final verification route
-Resume file: None
+Last session: 2026-10-11T12:37:11Z
+Stopped at: PR #327 is squash-merged; Plan 250-10 is the sole runnable gap plan and is ready for executor dispatch.
+Resume file: `.planning/HANDOFF.json`
 
 ## Operator Next Steps
 
-- **Next GSD command:** `$gsd-execute-phase 250 --gaps-only`. Seven gap plans 06–12 are ready and independently checked; five original summaries remain complete. Execute the closure work, then re-verify. Phase 250 and v1.49 remain incomplete; no Phase 251 is defined.
-- **Evidence:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md`, `.planning/v1.49-MILESTONE-AUDIT.md`, and `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json` distinguish passing local controls from missing live proof. No requirement rows were promoted. Historical Phase 249 acceptance remains at `refs/heads/evidence/phase-249-final-acceptance`; it does not prove current-main CI or current dispositions.
-- **Authorization and preservation:** No further canary dispatch/cancellation is authorized. Historical HANDOFF SHA-256 `00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148` remains the single accepted loss; its bytes were neither recovered nor preserved. Existing prevention controls and exact preservation references remain binding.
+- **Next GSD command:** `$gsd-execute-phase 250 --gaps-only`. `init.execute-phase 250` reported Plan 250-10 as the sole runnable plan after Plan 250-07 was summarized complete.
+- **Evidence:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md`, `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json`, `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`, and `.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md`. Plan 250-08 remains halted on zero eligible tuples; Plans 250-09, 250-11, and 250-12 remain blocked by that route.
+- **Remaining canary authority:** The single packet-v8 run is consumed. Do not dispatch or cancel another run without a newly reviewed packet and explicit user authorization. The owner report records controller failure while validating both source artifacts independently.
+- **Current CI:** PR #327 passed full CI run 38139291120 on rebased head baa1ce16f6e18b7c67b733ee9e8990ba28934958 and was squash-merged as 58fe634eccf0058f2217017bb8aeda4a83e6ce21. Exact-main CI run 38139851334 is queued for that SHA; Plan 250-10 owns its single watch. Automatic Release Please run 38139851336 was triggered by the merge; no manual publish command was run.
+- **Future work:** CI/CD run-time and reliability optimization is separate follow-up work after Phase 250.
+- **Preservation:** Recovery manifest `.planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/REF.json` records the exact pre-closeout state, handoff, verifier, report, snapshot, and prior proof bytes. The historical HANDOFF accepted-loss status remains unchanged; those bytes were not recovered.
 
 ## Performance Metrics
 
@@ -1127,6 +1132,6 @@ Controller run 38135003478 dispatch record: `.planning/phases/250-close-v1-49-au
 
 PR #325 (`https://github.com/szTheory/sigra/pull/325`) is squash-merged at `84ebcea60024c9e8caee405d55cad1c76b0e858a`. CI run 38135909462 passed, and the merge tree is identical to its tested head. On the exact merged-main worktree, canary tests (59), canary self-test, observer tests (24), receipt tests (16), and actionlint all passed. Read-only preflight is ready for main `84ebcea` with workflow IDs and retention recorded; it contains no credential values.
 
-The new packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json` (SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`). Its preflight is `250-07-CANARY-PREFLIGHT-84ebcea-20261011T114545Z.json` (SHA-256 `044e8b4050b7602e6b39fd7d40764690257278900c3c73ddddc2ffcdc41e9ede`); its source identity record is `250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json` (SHA-256 `de02a0d9cb888214792b52d847755b4615a168e8eb3e0604aa924c70d9b791c3`). Preflight validation passed at 11:50:21Z, and the compact controller input passed digest validation. Packet approval is pending. No new dispatch has occurred, and the prior packet approval cannot be reused.
+The new packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json` (SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`). Its preflight is `250-07-CANARY-PREFLIGHT-84ebcea-20261011T114545Z.json` (SHA-256 `044e8b4050b7602e6b39fd7d40764690257278900c3c73ddddc2ffcdc41e9ede`); its source identity record is `250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json` (SHA-256 `de02a0d9cb888214792b52d847755b4615a168e8eb3e0604aa924c70d9b791c3`). The refreshed preflight and compact controller input passed validation. The user authorized packet v8; its one controller dispatch is run `38137539834`, currently in progress. The prior packet approval cannot be reused.
 
-The GSD planner found no distinct new plan: Plan 250-07 already covers this exact receipt proof, while Plan 250-08 still has zero eligible READY tuples. `init.execute-phase 250` reports zero runnable plans. Immediate next action is the user's yes/no decision on packet v8. If approved, re-check live main and preflight freshness before exactly one controller run with no retries or publishing. After hosted proof, manually reconcile Plan 250-07, then run `init.execute-phase 250` before selecting the next GSD command. The requested CI/CD duration and reliability optimization remains separate follow-up work after Phase 250.
+The GSD planner found no distinct new plan: Plan 250-07 already covers this exact receipt proof, while Plan 250-08 still has zero eligible READY tuples. `init.execute-phase 250` reports zero runnable plans. The accepted dispatch is run `38137539834`; continue its existing watcher. After the run, retrieve and validate the exact hosted proof, manually reconcile Plan 250-07, then run `init.execute-phase 250` before selecting the next GSD command. The requested CI/CD duration and reliability optimization remains separate follow-up work after Phase 250.

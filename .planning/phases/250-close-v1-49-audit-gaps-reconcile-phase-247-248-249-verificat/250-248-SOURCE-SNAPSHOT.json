@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-10-10T20:31:32.908Z",
+  "captured_at": "2026-10-11T12:19:47.481Z",
   "repository": "szTheory/sigra",
   "tag": {
     "name": "v1.6.0",
@@ -126,54 +126,53 @@
     "error": null
   },
   "canary": {
-    "proof_status": "blocked",
-    "proof_sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4",
-    "proof_captured_at": "2026-10-10T20:27:57Z",
-    "proof_reason": "failure_source_workflow_name_mismatch_deterministic_no_receipt",
-    "source_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "proof_status": "passed",
+    "proof_sha256": "6eb5fb2e373d2bca6efd3dc9161793e4a3ca0f260bfcf4f6a208aa3c40952289",
+    "proof_captured_at": "2026-10-11T12:17:23Z",
+    "source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
     "controller": {
-      "expected_id": 38083752867,
+      "expected_id": 38137539834,
       "expected_attempt": 1,
       "expected_workflow_id": 380517406,
-      "expected_artifact_id": 11680699592,
+      "expected_artifact_id": 11702305814,
       "run": {
-        "id": 38083752867,
+        "id": 38137539834,
         "attempt": 1,
         "workflow_id": 380517406,
-        "workflow_name": "release-receipt-canary-controller-38083752867-1",
+        "workflow_name": "Release Receipt Canary Controller",
         "workflow_path": ".github/workflows/release-receipt-canary-controller.yml",
-        "display_title": "release-receipt-canary-controller-38083752867-1",
+        "display_title": "release-receipt-canary-controller-38137539834-1",
         "event": "workflow_dispatch",
         "branch": "main",
-        "head_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
-        "url": "https://github.com/szTheory/sigra/actions/runs/38083752867",
-        "started_at": "2026-10-10T20:26:27Z",
+        "head_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+        "url": "https://github.com/szTheory/sigra/actions/runs/38137539834",
+        "started_at": "2026-10-11T11:58:56Z",
         "status": "completed",
         "conclusion": "failure",
-        "created_at": "2026-10-10T20:26:27Z",
-        "updated_at": "2026-10-10T20:27:57Z"
+        "created_at": "2026-10-11T11:58:56Z",
+        "updated_at": "2026-10-11T12:03:23Z"
       },
       "artifact": {
-        "id": 11680699592,
-        "name": "release-canary-controller-38083752867-1",
-        "digest": "sha256:4cc36337ea4968d214969a4898d2c8981e59c2846e12965dca3420d6fdb1f4d1",
+        "id": 11702305814,
+        "name": "release-canary-controller-38137539834-1",
+        "digest": "sha256:c6a0381a4663e38a3f60fa431dd50194767620bfe56ca17cf34dbfdaf6565526",
         "expired": false,
-        "expires_at": "2026-11-09T20:27:53Z",
-        "run_id": 38083752867,
+        "expires_at": "2026-11-10T12:03:21Z",
+        "run_id": 38137539834,
         "retrieved": {
           "status": "passed",
-          "sha256": "60fbcafa3d8663babb08cda6c989d0e192ffb9ec8031c8e4096d9dd86ce5a216",
+          "sha256": "31845ad8407aef21d304525c7fb6c93a8d707d53ee117cbff980c69010277508",
           "receipt": {
             "schema_version": 1,
             "status": "blocked",
-            "captured_at": "2026-10-10T20:27:53Z",
+            "captured_at": "2026-10-11T12:03:20Z",
             "preflight": {
               "schema_version": 1,
               "status": "ready",
-              "captured_at": "2026-10-10T20:20:35Z",
+              "captured_at": "2026-10-11T11:55:06Z",
               "repository": "szTheory/sigra",
               "default_branch": "main",
-              "target_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+              "target_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
               "actions_enabled": true,
               "artifact_retention_days": 90,
               "artifact_retention_maximum_days": 90,
@@ -199,67 +198,271 @@
               "credential_values_recorded": false,
               "dispatch_attempted": false
             },
-            "reason": "failure_probe_dispatch_correlation_failed_zero_ambiguous_or_mismatched_source_identity",
+            "reason": "failure_receipt_digest_or_json_validation_failed",
             "dispatch_attempted": true,
             "receipts": [],
             "credential_values_recorded": false
           }
-        }
+        },
+        "internal_proof_status": "blocked",
+        "internal_proof_reason": "failure_receipt_digest_or_json_validation_failed"
       },
-      "proof_file_sha256": "60fbcafa3d8663babb08cda6c989d0e192ffb9ec8031c8e4096d9dd86ce5a216",
-      "expected_proof_sha256": "60fbcafa3d8663babb08cda6c989d0e192ffb9ec8031c8e4096d9dd86ce5a216",
-      "local_proof_file_sha256": "60fbcafa3d8663babb08cda6c989d0e192ffb9ec8031c8e4096d9dd86ce5a216"
+      "proof_file_sha256": "31845ad8407aef21d304525c7fb6c93a8d707d53ee117cbff980c69010277508",
+      "expected_proof_sha256": "31845ad8407aef21d304525c7fb6c93a8d707d53ee117cbff980c69010277508",
+      "local_proof_file_sha256": "31845ad8407aef21d304525c7fb6c93a8d707d53ee117cbff980c69010277508"
     },
     "failure": {
-      "expected_id": 38083779742,
+      "expected_id": "38137550871",
       "expected_attempt": 1,
       "run": {
-        "id": 38083779742,
+        "id": 38137550871,
         "attempt": 1,
         "workflow_id": 380517407,
-        "workflow_name": "release-receipt-canary-failure-cf8b7cefb92de3eddb07013cd61691cf",
+        "workflow_name": "Release Receipt Canary",
         "workflow_path": ".github/workflows/release-receipt-canary.yml",
-        "display_title": "release-receipt-canary-failure-cf8b7cefb92de3eddb07013cd61691cf",
+        "display_title": "release-receipt-canary-failure-de77060c49e441abb00148a9e17518b0",
         "event": "workflow_dispatch",
         "branch": "main",
-        "head_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
-        "url": "https://github.com/szTheory/sigra/actions/runs/38083779742",
-        "started_at": "2026-10-10T20:26:51Z",
+        "head_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+        "url": "https://github.com/szTheory/sigra/actions/runs/38137550871",
+        "started_at": "2026-10-11T11:59:08Z",
         "status": "completed",
         "conclusion": "failure",
-        "created_at": "2026-10-10T20:26:51Z",
-        "updated_at": "2026-10-10T20:28:06Z"
+        "created_at": "2026-10-11T11:59:08Z",
+        "updated_at": "2026-10-11T11:59:22Z"
       },
-      "controlled_failure_step_conclusion": "failure",
-      "receipt_job_conclusion": "failure",
-      "artifacts": [],
+      "controlled_failure_step_conclusion": null,
+      "receipt_job_conclusion": null,
+      "artifacts": [
+        {
+          "id": 11701436633,
+          "name": "release-canary-failure-38137550871-1-de77060c49e441abb00148a9e17518b0",
+          "digest": "sha256:94cc44aaa38388e89bb4790e504328ff70c0a163d90ed6301be7a8e912c5565e",
+          "expired": false,
+          "expires_at": "2026-11-10T11:59:19Z",
+          "run_id": 38137550871
+        }
+      ],
       "artifact_retrieved": {
-        "status": "blocked",
-        "reason": "terminal_artifact_identity_missing",
-        "receipt": null
+        "status": "passed",
+        "sha256": "d3c09829c42dd4dbe55a10e16a1a75432cdf04e7077afd0b6948f1283dd28d6d",
+        "artifact_id": 11701436633,
+        "artifact_name": "release-canary-failure-38137550871-1-de77060c49e441abb00148a9e17518b0",
+        "artifact_digest": "sha256:94cc44aaa38388e89bb4790e504328ff70c0a163d90ed6301be7a8e912c5565e",
+        "receipt": {
+          "schema_version": 1,
+          "receipt_kind": "canary",
+          "probe_id": "de77060c49e441abb00148a9e17518b0",
+          "scenario": "failure",
+          "source_event": "workflow_dispatch",
+          "source_repository": "szTheory/sigra",
+          "source_ref": "refs/heads/main",
+          "source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+          "source_run_id": "38137550871",
+          "source_run_attempt": 1,
+          "source_run_url": "https://github.com/szTheory/sigra/actions/runs/38137550871",
+          "source_workflow_id": 380517407,
+          "source_workflow_name": "Release Receipt Canary",
+          "source_workflow_path": ".github/workflows/release-receipt-canary.yml",
+          "source_started_at": "2026-10-11T11:59:08Z",
+          "source_observed_at": "2026-10-11T11:59:19Z",
+          "terminal_verdict": "failure",
+          "observer_run": null,
+          "recorded_at": "2026-10-11T11:59:19Z"
+        }
       }
     },
     "cancellation": {
-      "expected_id": null,
-      "run": null,
-      "proof_dispatch_attempted": false,
-      "proof_reason": "controller halted after deterministic failure source workflow identity mismatch; no cancellation child was dispatched",
-      "artifacts": [],
-      "observer": null,
+      "expected_id": "38137614523",
+      "run": {
+        "id": 38137614523,
+        "attempt": 1,
+        "workflow_id": 380517407,
+        "workflow_name": "Release Receipt Canary",
+        "workflow_path": ".github/workflows/release-receipt-canary.yml",
+        "display_title": "release-receipt-canary-cancellation-05f3e1be8f382c99849277937f56bd5e",
+        "event": "workflow_dispatch",
+        "branch": "main",
+        "head_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+        "url": "https://github.com/szTheory/sigra/actions/runs/38137614523",
+        "started_at": "2026-10-11T12:00:12Z",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "created_at": "2026-10-11T12:00:12Z",
+        "updated_at": "2026-10-11T12:01:30Z"
+      },
+      "proof_dispatch_attempted": true,
+      "proof_reason": null,
+      "artifacts": [
+        {
+          "id": 11702216188,
+          "name": "release-canary-cancellation-38137614523-1",
+          "digest": "sha256:57d3d1667a61483edbe85182fee995697fdb3c502de2c5f97ab464cc24529707",
+          "expired": false,
+          "expires_at": "2027-01-09T12:02:20Z",
+          "run_id": 38137756922
+        }
+      ],
+      "observer": {
+        "run_id": 38137756922,
+        "attempt": 1,
+        "workflow_id": 379162190,
+        "workflow_path": ".github/workflows/release-run-observer.yml",
+        "url": "https://github.com/szTheory/sigra/actions/runs/38137756922",
+        "started_at": "2026-10-11T12:02:18Z",
+        "event": "workflow_dispatch",
+        "ref": "refs/heads/main",
+        "source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+        "conclusion": "success",
+        "event_source_run_id": "38137614523"
+      },
       "artifact_retrieved": {
-        "status": "blocked",
-        "reason": "terminal_artifact_identity_missing",
-        "receipt": null
+        "status": "passed",
+        "sha256": "ed5adb5ac6d1b0a0b12cf7a328c8789d9b99951badeb0aabd71e1791ea7840c3",
+        "artifact_id": 11702216188,
+        "artifact_name": "release-canary-cancellation-38137614523-1",
+        "artifact_digest": "sha256:57d3d1667a61483edbe85182fee995697fdb3c502de2c5f97ab464cc24529707",
+        "receipt": {
+          "schema_version": 1,
+          "receipt_kind": "canary",
+          "probe_id": "05f3e1be8f382c99849277937f56bd5e",
+          "scenario": "cancellation",
+          "source_event": "workflow_dispatch",
+          "source_repository": "szTheory/sigra",
+          "source_ref": "refs/heads/main",
+          "source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+          "source_run_id": "38137614523",
+          "source_run_attempt": 1,
+          "source_run_url": "https://github.com/szTheory/sigra/actions/runs/38137614523",
+          "source_workflow_id": 380517407,
+          "source_workflow_name": "Release Receipt Canary",
+          "source_workflow_path": ".github/workflows/release-receipt-canary.yml",
+          "source_started_at": "2026-10-11T12:00:12Z",
+          "source_observed_at": "2026-10-11T12:02:26Z",
+          "terminal_verdict": "cancelled",
+          "observer_run": {
+            "id": "38137756922",
+            "attempt": 1,
+            "workflow_id": 379162190,
+            "url": "https://github.com/szTheory/sigra/actions/runs/38137756922",
+            "started_at": "2026-10-11T12:02:18Z",
+            "observed_at": "2026-10-11T12:02:27Z"
+          },
+          "recorded_at": "2026-10-11T12:02:27Z"
+        }
       }
     },
     "controller_proof": {
-      "status": "blocked",
-      "source_failure_receipts": 0,
-      "source_cancellation_receipts": 0,
+      "status": "passed",
+      "source_failure_receipts": 1,
+      "source_cancellation_receipts": 1,
       "credential_values_recorded": false,
-      "source_failure": null,
-      "source_cancellation": null,
-      "retrieval": null
+      "source_failure": {
+        "run_id": "38137550871",
+        "attempt": 1,
+        "workflow_id": 380517407,
+        "workflow_path": ".github/workflows/release-receipt-canary.yml",
+        "event": "workflow_dispatch",
+        "ref": "refs/heads/main",
+        "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+        "conclusion": "failure",
+        "artifact": {
+          "id": 11701436633,
+          "name": "release-canary-failure-38137550871-1-de77060c49e441abb00148a9e17518b0",
+          "digest": "sha256:94cc44aaa38388e89bb4790e504328ff70c0a163d90ed6301be7a8e912c5565e",
+          "expires_at": "2026-11-10T11:59:19Z"
+        },
+        "receipt": {
+          "schema_version": 1,
+          "receipt_kind": "canary",
+          "probe_id": "de77060c49e441abb00148a9e17518b0",
+          "scenario": "failure",
+          "source_event": "workflow_dispatch",
+          "source_repository": "szTheory/sigra",
+          "source_ref": "refs/heads/main",
+          "source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+          "source_run_id": "38137550871",
+          "source_run_attempt": 1,
+          "source_run_url": "https://github.com/szTheory/sigra/actions/runs/38137550871",
+          "source_workflow_id": 380517407,
+          "source_workflow_name": "Release Receipt Canary",
+          "source_workflow_path": ".github/workflows/release-receipt-canary.yml",
+          "source_started_at": "2026-10-11T11:59:08Z",
+          "source_observed_at": "2026-10-11T11:59:19Z",
+          "terminal_verdict": "failure",
+          "observer_run": null,
+          "recorded_at": "2026-10-11T11:59:19Z"
+        }
+      },
+      "source_cancellation": {
+        "run_id": "38137614523",
+        "attempt": 1,
+        "workflow_id": 380517407,
+        "workflow_path": ".github/workflows/release-receipt-canary.yml",
+        "event": "workflow_dispatch",
+        "ref": "refs/heads/main",
+        "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+        "conclusion": "cancelled",
+        "artifact": {
+          "id": 11702216188,
+          "name": "release-canary-cancellation-38137614523-1",
+          "digest": "sha256:57d3d1667a61483edbe85182fee995697fdb3c502de2c5f97ab464cc24529707",
+          "expires_at": "2027-01-09T12:02:20Z"
+        },
+        "observer_run_id": "38137756922",
+        "observer_attempt": 1,
+        "observer_workflow_id": 379162190,
+        "observer_workflow_path": ".github/workflows/release-run-observer.yml",
+        "observer_event": "workflow_dispatch",
+        "observer_ref": "refs/heads/main",
+        "observer_conclusion": "success",
+        "receipt": {
+          "schema_version": 1,
+          "receipt_kind": "canary",
+          "probe_id": "05f3e1be8f382c99849277937f56bd5e",
+          "scenario": "cancellation",
+          "source_event": "workflow_dispatch",
+          "source_repository": "szTheory/sigra",
+          "source_ref": "refs/heads/main",
+          "source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+          "source_run_id": "38137614523",
+          "source_run_attempt": 1,
+          "source_run_url": "https://github.com/szTheory/sigra/actions/runs/38137614523",
+          "source_workflow_id": 380517407,
+          "source_workflow_name": "Release Receipt Canary",
+          "source_workflow_path": ".github/workflows/release-receipt-canary.yml",
+          "source_started_at": "2026-10-11T12:00:12Z",
+          "source_observed_at": "2026-10-11T12:02:26Z",
+          "terminal_verdict": "cancelled",
+          "observer_run": {
+            "id": "38137756922",
+            "attempt": 1,
+            "workflow_id": 379162190,
+            "url": "https://github.com/szTheory/sigra/actions/runs/38137756922",
+            "started_at": "2026-10-11T12:02:18Z",
+            "observed_at": "2026-10-11T12:02:27Z"
+          },
+          "recorded_at": "2026-10-11T12:02:27Z"
+        }
+      },
+      "retrieval": {
+        "failure_artifact_name": "release-canary-failure-38137550871-1-de77060c49e441abb00148a9e17518b0",
+        "cancellation_artifact_name": "release-canary-cancellation-38137614523-1",
+        "retrieved_at": "2026-10-11T12:06:17Z",
+        "failure_zip_sha256": "94cc44aaa38388e89bb4790e504328ff70c0a163d90ed6301be7a8e912c5565e",
+        "cancellation_zip_sha256": "57d3d1667a61483edbe85182fee995697fdb3c502de2c5f97ab464cc24529707",
+        "artifact_files_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834"
+      }
+    },
+    "controller_proof_source": "independent_terminal_artifact_revalidation",
+    "controller_reconciliation": {
+      "status": "passed",
+      "mode": "independent_terminal_artifact_revalidation",
+      "failure_code": "gh_api_unknown_output_flag",
+      "controller_run_id": 38137539834,
+      "controller_artifact_id": 11702305814,
+      "controller_artifact_proof_status": "blocked",
+      "controller_artifact_proof_reason": "failure_receipt_digest_or_json_validation_failed"
     },
     "credential_values_recorded": false
   },
@@ -269,41 +472,9 @@
       "blockers": []
     },
     "AUTO-02": {
-      "status": "unsatisfied",
-      "blockers": [
-        "hosted canary proof is blocked; a blocked proof cannot establish terminal receipts",
-        "controller run identity or conclusion mismatch",
-        "controller proof does not contain both validated producer receipts",
-        "controller producer failure record does not join the authoritative run metadata",
-        "producer failure receipt has an invalid canary identity",
-        "producer cancellation receipt has an invalid canary identity",
-        "failure artifact is missing, expired, or has a malformed digest",
-        "cancellation source run is missing or mismatched",
-        "controller producer cancellation record does not join the authoritative run metadata",
-        "cancellation observer identity or conclusion mismatch",
-        "failure receipt unexpectedly contains an observer run",
-        "producer receipt source identity fields do not join their run records",
-        "observer cancellation artifact is missing, expired, or has a malformed digest",
-        "retrieved failure receipt identity or digest validation mismatch",
-        "retrieved cancellation receipt identity or digest validation mismatch"
-      ]
+      "status": "satisfied",
+      "blockers": []
     }
   },
-  "blockers": [
-    "AUTO-02: hosted canary proof is blocked; a blocked proof cannot establish terminal receipts",
-    "AUTO-02: controller run identity or conclusion mismatch",
-    "AUTO-02: controller proof does not contain both validated producer receipts",
-    "AUTO-02: controller producer failure record does not join the authoritative run metadata",
-    "AUTO-02: producer failure receipt has an invalid canary identity",
-    "AUTO-02: producer cancellation receipt has an invalid canary identity",
-    "AUTO-02: failure artifact is missing, expired, or has a malformed digest",
-    "AUTO-02: cancellation source run is missing or mismatched",
-    "AUTO-02: controller producer cancellation record does not join the authoritative run metadata",
-    "AUTO-02: cancellation observer identity or conclusion mismatch",
-    "AUTO-02: failure receipt unexpectedly contains an observer run",
-    "AUTO-02: producer receipt source identity fields do not join their run records",
-    "AUTO-02: observer cancellation artifact is missing, expired, or has a malformed digest",
-    "AUTO-02: retrieved failure receipt identity or digest validation mismatch",
-    "AUTO-02: retrieved cancellation receipt identity or digest validation mismatch"
-  ]
+  "blockers": []
 }

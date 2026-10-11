@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "receipt_kind": "canary",
+  "probe_id": "05f3e1be8f382c99849277937f56bd5e",
+  "scenario": "cancellation",
+  "source_event": "workflow_dispatch",
+  "source_repository": "szTheory/sigra",
+  "source_ref": "refs/heads/main",
+  "source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+  "source_run_id": "38137614523",
+  "source_run_attempt": 1,
+  "source_run_url": "https://github.com/szTheory/sigra/actions/runs/38137614523",
+  "source_workflow_id": 380517407,
+  "source_workflow_name": "Release Receipt Canary",
+  "source_workflow_path": ".github/workflows/release-receipt-canary.yml",
+  "source_started_at": "2026-10-11T12:00:12Z",
+  "source_observed_at": "2026-10-11T12:02:26Z",
+  "terminal_verdict": "cancelled",
+  "observer_run": {
+    "id": "38137756922",
+    "attempt": 1,
+    "workflow_id": 379162190,
+    "url": "https://github.com/szTheory/sigra/actions/runs/38137756922",
+    "started_at": "2026-10-11T12:02:18Z",
+    "observed_at": "2026-10-11T12:02:27Z"
+  },
+  "recorded_at": "2026-10-11T12:02:27Z"
+}
