@@ -9140,7 +9140,7 @@
       "is_release_please_candidate": false,
       "disposition": {
         "category": "separate-follow-up",
-        "reason": "The 126-file diff is Phase 241 final-head evidence and related CI bookkeeping. It is not required to prove the v1.6.0 package source or this phase’s final-main receipt.",
+        "reason": "The 126-file diff is Phase 241 final-head evidence and related CI bookkeeping. It is not required to prove the v1.6.0 package source or this phase\u2019s final-main receipt.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/266",
           "https://api.github.com/repos/szTheory/sigra/pulls/266/files?per_page=100"
@@ -10224,9 +10224,9 @@
       "number": 302,
       "title": "chore(main): release 1.7.0",
       "base_ref": "main",
-      "base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+      "base_sha": "6c9fb8a7623b1f35b8259489f9384b2bde3198d0",
       "head_ref": "release-please--branches--main",
-      "head_sha": "048f137e146c684b32ca7f40d4885271cf921a7c",
+      "head_sha": "b7b2a05c603736f0cff1128c9fa000cb0b5c05bd",
       "url": "https://github.com/szTheory/sigra/pull/302",
       "files_read": {
         "status": "complete",
@@ -10253,13 +10253,197 @@
       "is_release_please_candidate": true,
       "disposition": {
         "category": "release-relevant",
-        "reason": "The current Release Please candidate proposes Sigra 1.7.0 on base 08300af1740fea8b77d5928a182688acbf103edc at head 048f137e146c684b32ca7f40d4885271cf921a7c. Its complete diff changes only .release-please-manifest.json, CHANGELOG.md, doc/llms.txt, and mix.exs. This future release is relevant to release automation but outside Phase 249 proof of the already-published 1.6.0 package; leave it open for its separate exact-head CI and review.",
+        "reason": "The current Release Please candidate proposes Sigra 1.7.0 on the observed base/head identity. Its complete diff changes only .release-please-manifest.json, CHANGELOG.md, doc/llms.txt, and mix.exs. This future release is relevant to release automation but outside Phase 249 proof of the already-published 1.6.0 package; leave it open for its separate exact-head CI and review.",
         "sources": [
           "https://github.com/szTheory/sigra/pull/302",
-          "https://github.com/szTheory/sigra/compare/08300af1740fea8b77d5928a182688acbf103edc...048f137e146c684b32ca7f40d4885271cf921a7c",
+          "https://github.com/szTheory/sigra/compare/6c9fb8a7623b1f35b8259489f9384b2bde3198d0...b7b2a05c603736f0cff1128c9fa000cb0b5c05bd",
           "https://api.github.com/repos/szTheory/sigra/pulls/302/files?per_page=100"
         ],
-        "candidate_eligibility": "Not eligible for Phase 249 auto-merge: this is a separate 1.7.0 candidate, not the 1.6.0 release proof. No merge or auto-merge change was requested."
+        "candidate_eligibility": "Not eligible for Phase 249 auto-merge: this is a separate follow-up and not the 1.6.0 release proof. No merge or auto-merge change was requested."
+      }
+    },
+    {
+      "number": 306,
+      "title": "ci: bump actions/upload-artifact from 4.6.2 to 7.0.2",
+      "base_ref": "main",
+      "base_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "head_ref": "dependabot/github_actions/actions/upload-artifact-7.0.2",
+      "head_sha": "f19b25beb93247c3708f48b3bacc31972e437f21",
+      "url": "https://github.com/szTheory/sigra/pull/306",
+      "files_read": {
+        "status": "complete",
+        "endpoint": "repos/szTheory/sigra/pulls/306/files?per_page=100"
+      },
+      "changed_files": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/fast-01-gap-closure-evidence.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/fast-01-remeasurement-evidence.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/generated-app-login-runtime-proof.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/green-04-evidence.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/hex-publish.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/phase-244-playwright-measure.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/phase-247-hex-dry-run.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/release-please.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/release-receipt-canary-controller.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/release-receipt-canary.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/release-run-observer.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/terminal-ratification-evidence.yml",
+          "status": "modified"
+        }
+      ],
+      "is_release_please_candidate": false,
+      "disposition": {
+        "category": "release-relevant",
+        "reason": "The exact diff updates actions/upload-artifact pins across the main CI workflow and release, publish, and evidence workflows. It affects future CI and release evidence but is independent of proving the already-published 1.6.0 source; keep it for separate dependency review.",
+        "sources": [
+          "https://github.com/szTheory/sigra/pull/306",
+          "https://github.com/szTheory/sigra/compare/1b420936e5135727f4a1b6dfcfd9c3d1ca050a04...f19b25beb93247c3708f48b3bacc31972e437f21",
+          "https://api.github.com/repos/szTheory/sigra/pulls/306/files?per_page=100"
+        ],
+        "candidate_eligibility": "Not eligible for Phase 249 auto-merge: this is a separate follow-up and not the 1.6.0 release proof. No merge or auto-merge change was requested."
+      }
+    },
+    {
+      "number": 307,
+      "title": "ci: bump actions/setup-node from 7.0.0 to 7.1.0",
+      "base_ref": "main",
+      "base_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "head_ref": "dependabot/github_actions/actions/setup-node-7.1.0",
+      "head_sha": "ba28abeddad240e2d38bb163d995fc5145a12be4",
+      "url": "https://github.com/szTheory/sigra/pull/307",
+      "files_read": {
+        "status": "complete",
+        "endpoint": "repos/szTheory/sigra/pulls/307/files?per_page=100"
+      },
+      "changed_files": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/green-04-evidence.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/phase-244-playwright-measure.yml",
+          "status": "modified"
+        },
+        {
+          "path": ".github/workflows/playwright-github-pages.yml",
+          "status": "modified"
+        }
+      ],
+      "is_release_please_candidate": false,
+      "disposition": {
+        "category": "release-relevant",
+        "reason": "The exact diff updates actions/setup-node pins in CI and evidence workflows, affecting future test/evidence execution. It does not change the published 1.6.0 package source, so keep it for separate dependency review.",
+        "sources": [
+          "https://github.com/szTheory/sigra/pull/307",
+          "https://github.com/szTheory/sigra/compare/1b420936e5135727f4a1b6dfcfd9c3d1ca050a04...ba28abeddad240e2d38bb163d995fc5145a12be4",
+          "https://api.github.com/repos/szTheory/sigra/pulls/307/files?per_page=100"
+        ],
+        "candidate_eligibility": "Not eligible for Phase 249 auto-merge: this is a separate follow-up and not the 1.6.0 release proof. No merge or auto-merge change was requested."
+      }
+    },
+    {
+      "number": 308,
+      "title": "ci: bump actions/download-artifact from 5.0.0 to 8.0.2",
+      "base_ref": "main",
+      "base_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "head_ref": "dependabot/github_actions/actions/download-artifact-8.0.2",
+      "head_sha": "619a4d4175369e3e9320114448c80a0cf9319277",
+      "url": "https://github.com/szTheory/sigra/pull/308",
+      "files_read": {
+        "status": "complete",
+        "endpoint": "repos/szTheory/sigra/pulls/308/files?per_page=100"
+      },
+      "changed_files": [
+        {
+          "path": ".github/workflows/release-please.yml",
+          "status": "modified"
+        }
+      ],
+      "is_release_please_candidate": false,
+      "disposition": {
+        "category": "release-relevant",
+        "reason": "The exact diff updates actions/download-artifact in the Release Please workflow. That affects future release automation, but not the immutable 1.6.0 source proof; keep it for separate dependency review.",
+        "sources": [
+          "https://github.com/szTheory/sigra/pull/308",
+          "https://github.com/szTheory/sigra/compare/1b420936e5135727f4a1b6dfcfd9c3d1ca050a04...619a4d4175369e3e9320114448c80a0cf9319277",
+          "https://api.github.com/repos/szTheory/sigra/pulls/308/files?per_page=100"
+        ],
+        "candidate_eligibility": "Not eligible for Phase 249 auto-merge: this is a separate follow-up and not the 1.6.0 release proof. No merge or auto-merge change was requested."
+      }
+    },
+    {
+      "number": 309,
+      "title": "deps: bump @anthropic-ai/sdk from 0.123.0 to 0.131.0 in /test/example/priv/playwright",
+      "base_ref": "main",
+      "base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+      "head_ref": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.131.0",
+      "head_sha": "143f73f03f4b5bd3412d50d00a8f2ffa3ccdd728",
+      "url": "https://github.com/szTheory/sigra/pull/309",
+      "files_read": {
+        "status": "complete",
+        "endpoint": "repos/szTheory/sigra/pulls/309/files?per_page=100"
+      },
+      "changed_files": [
+        {
+          "path": "test/example/priv/playwright/package-lock.json",
+          "status": "modified"
+        },
+        {
+          "path": "test/example/priv/playwright/package.json",
+          "status": "modified"
+        }
+      ],
+      "is_release_please_candidate": false,
+      "disposition": {
+        "category": "separate-follow-up",
+        "reason": "The exact diff updates only the example app Playwright package manifest and lockfile for its Anthropic SDK test dependency. It is outside the published package source and release proof; keep it as a separate dependency follow-up.",
+        "sources": [
+          "https://github.com/szTheory/sigra/pull/309",
+          "https://github.com/szTheory/sigra/compare/08300af1740fea8b77d5928a182688acbf103edc...143f73f03f4b5bd3412d50d00a8f2ffa3ccdd728",
+          "https://api.github.com/repos/szTheory/sigra/pulls/309/files?per_page=100"
+        ],
+        "candidate_eligibility": "Not eligible for Phase 249 auto-merge: this is a separate follow-up and not the 1.6.0 release proof. No merge or auto-merge change was requested."
       }
     }
   ],
