@@ -392,7 +392,8 @@ download_receipt_artifact() {
   expected_digest="$(jq -er '.digest | select(type == "string" and test("^sha256:[0-9a-f]{64}$")) | sub("^sha256:"; "")' <<<"$artifact_json")" || return 1
   zip="${target_dir}/artifact-${artifact_id}.zip"
   mkdir -p "$target_dir"
-  gh api "repos/${REPOSITORY}/actions/artifacts/${artifact_id}/zip" --output "$zip" >/dev/null || return 1
+  # gh api writes the response body to stdout; --output is not a supported gh api flag.
+  gh api "repos/${REPOSITORY}/actions/artifacts/${artifact_id}/zip" > "$zip" || return 1
   actual_digest="$(shasum -a 256 "$zip" | awk '{print $1}')"
   [[ "$actual_digest" == "$expected_digest" ]] || return 1
   unzip -p "$zip" canary-receipt.json > "${target_dir}/receipt.json" || return 1

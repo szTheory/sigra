@@ -433,7 +433,7 @@ if [[ "${2:-}" == --method ]]; then endpoint="${4:-}"; else endpoint="${2:-}"; f
 printf '%s\t%s\n' "$endpoint" "$*" >> "$FLOW/api.log"
 for ((i=2; i<=$#; i++)); do
   arg="${!i}"
-  if [[ "$arg" == --output ]]; then j=$((i+1)); output="${!j}"; fi
+  if [[ "$arg" == --output ]]; then echo "unknown flag: --output" >&2; exit 2; fi
 done
 case "$endpoint" in
   "rate_limit") jq -n '{resources:{core:{remaining:500}}}' ;;
@@ -512,8 +512,8 @@ case "$endpoint" in
     fi
     digest="$(shasum -a 256 "$FLOW/cancellation.zip" | awk '{print $1}')"
     jq -n --arg digest "sha256:$digest" '{artifacts:[{id:902,name:"release-canary-cancellation-74126-1",expired:false,workflow_run:{id:34567},digest:$digest,expires_at:"2026-11-09T10:00:00Z"}]}' ;;
-  "repos/${GITHUB_REPOSITORY}/actions/artifacts/901/zip") cp "$FLOW/failure.zip" "$output" ;;
-  "repos/${GITHUB_REPOSITORY}/actions/artifacts/902/zip") cp "$FLOW/cancellation.zip" "$output" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/artifacts/901/zip") cat "$FLOW/failure.zip" ;;
+  "repos/${GITHUB_REPOSITORY}/actions/artifacts/902/zip") cat "$FLOW/cancellation.zip" ;;
   *) exit 2 ;;
 esac
 GH_FLOW
