@@ -642,7 +642,7 @@
     "merge_method": "squash"
   },
   "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
-  "next_command": "$gsd-validate-phase 247",
+  "next_command": "$gsd-validate-phase 248",
   "route_reconciliation": {
     "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
     "phase_247_summaries": "11 plans / 11 summaries after byte-exact restoration and evidence-backed Plan 09 summary reconstruction",
@@ -664,7 +664,7 @@
       "phase250_closeout_copy": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-CLOSEOUT-AUDIT.md",
       "phase250_closeout_sha256": "648f291c683b88bf94c071160519d79976bc666a10dbcc87503f78b3f96e0f0e"
     },
-    "current_route": "Validate Phase 247, then Phase 248; after both, insert one Phase 251 for READY-01/02 if they remain unsatisfied."
+    "current_route": "Validate Phase 248; after both validation audits, insert Phase 251 if READY-01/02 remain unsatisfied."
   },
   "safe_resume_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
   "manual_reconciliation": {
@@ -704,12 +704,12 @@
     "owner_report_path": ".planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
     "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md"
   },
-  "resume_command": "$gsd-validate-phase 247",
+  "resume_command": "$gsd-validate-phase 248",
   "route": {
-    "immediate_gsd_command": "$gsd-validate-phase 247",
-    "immediate_action": "Reconcile Phase 247's legacy Nyquist status, then validate Phase 248's partial coverage.",
-    "resume_command": "$gsd-validate-phase 247",
-    "resume_when": "The v1.49 GSD milestone audit is complete and the worktree is clean.",
+    "immediate_gsd_command": "$gsd-validate-phase 248",
+    "immediate_action": "Validate Phase 248's partial coverage next. Then insert Phase 251 for READY-01/02 if they remain unsatisfied.",
+    "resume_command": "$gsd-validate-phase 248",
+    "resume_when": "Phase 247 validation report, recovered source-bound receipt/baseline, and tests are saved; remaining blockers are approval and final source/inventory joins.",
     "next_roadmap_phase": null,
     "phase251_readiness": "init.plan-phase 251 returned phase_found=false",
     "after_phase247_validation": "$gsd-validate-phase 248",
@@ -720,7 +720,8 @@
     ],
     "accepted_exception_scope": "Phase 250 closeout only; READY-01/02 remain unsatisfied for v1.49.",
     "milestone_status": "gaps_found_incomplete_unarchived",
-    "future_follow_up": "CI/CD runtime and reliability optimization after v1.49"
+    "future_follow_up": "CI/CD runtime and reliability optimization after v1.49",
+    "current_route": "Validate Phase 248; after both validation audits, insert Phase 251 if READY-01/02 remain unsatisfied."
   },
   "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T1148Z.json",
   "ci_pr_number": 327,
@@ -736,8 +737,8 @@
   "ci_release_please_run_id": 38139851336,
   "ci_release_please_status": "in_progress",
   "current": "Milestone audit complete: 7/9 requirements satisfied; READY-01/02 remain unsatisfied.",
-  "immediate_action": "Run $gsd-validate-phase 247; its VALIDATION.md has legacy status passed rather than the current canonical validated value.",
-  "updated_at": "2026-10-11T17:07:55Z",
+  "immediate_action": "Run $gsd-validate-phase 248 next. Phase 247 is validated partial; the recovered dry-run run does not resolve missing approval or final source/inventory joins.",
+  "updated_at": "2026-10-11T17:49:28Z",
   "phase_250_closeout": {
     "recorded_at": "2026-10-11T16:50:13Z",
     "status": "passed_amended_phase_only_contract",
@@ -810,5 +811,26 @@
     "milestone_audit_status": "gaps_found",
     "milestone_audit_score": "7/9",
     "next_command": "$gsd-validate-phase 247"
+  },
+  "phase247_nyquist_validation": {
+    "report_path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+    "status": "validated_partial",
+    "nyquist_compliant": false,
+    "mapped_plan_groups": 11,
+    "newly_mapped_groups": 7,
+    "resolved_groups": 3,
+    "escalated_groups": 4,
+    "readiness_test_command": "node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+    "readiness_tests": "27 passed, 0 failed",
+    "receipt_path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+    "receipt_run_id": 37824714823,
+    "receipt_sha256": "3685c58429e2fddf33b4cffb0aadb39919d6d567ae15f9508abc7d0590ca7cb7",
+    "baseline_path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+    "manifest_blob_id": "12daf4f704bbc2d4aa136d0ef678e64abce38aeb",
+    "remaining_blockers": [
+      "No retained immutable approval for the exact Plan 10 candidate/base/main tuple.",
+      "The final readiness ledger and independent Phase 247 report still do not join to the recovered receipt and current inventory."
+    ],
+    "next_command": "$gsd-validate-phase 248"
   }
 }

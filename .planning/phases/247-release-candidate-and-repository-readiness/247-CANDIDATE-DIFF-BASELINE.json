@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
-  "candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+  "candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
   "diff_algorithm": "git-diff-raw-v1",
-  "diff_sha256": "d7cbfeddd55bc0528738f89b82377379e55a73464f2c174217af31410625ac5e",
-  "diff_bytes": 8372
+  "diff_sha256": "85020173c21fded708030b7422bb00ddd1510a073010122e6cf5364527772ec4",
+  "diff_bytes": 9906
 }
