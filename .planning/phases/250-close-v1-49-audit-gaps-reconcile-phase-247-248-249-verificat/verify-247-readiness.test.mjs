@@ -606,6 +606,40 @@ test('complete history with no approval stays authorization_pending and preserve
   assert.equal(result.requirements.READY02.source_feasibility, 'ready');
 });
 
+test('the refreshed Phase 251 source artifact binds every named package check to trusted source refs', async () => {
+  const { phase251PackageCheckRequirements } = await import('./verify-247-readiness.mjs');
+  const feasibility = JSON.parse(readFileSync(new URL('../251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json', import.meta.url), 'utf8'));
+  const ready01 = feasibility.requirements.READY01;
+  const checks = ready01.package_adopter.checks;
+  for (const [name, requirements] of Object.entries(phase251PackageCheckRequirements)) {
+    const check = checks[name];
+    assert.ok(Array.isArray(check.source_refs), `${name} source_refs are missing`);
+    assert.equal(check.source_refs.length, requirements.length, `${name} source_refs are incomplete`);
+    assert.ok(Array.isArray(check.source_assertions), `${name} source_assertions are missing`);
+    const actualKeys = check.source_refs.map((ref) => `${ref.identity}:${ref.commit_sha}:${ref.path}`).sort();
+    const expectedKeys = requirements.map((source) => `${source.identity}:${source.commit_sha}:${source.path}`).sort();
+    assert.deepEqual(actualKeys, expectedKeys, `${name} source_refs differ from the Plan04 mapping`);
+    for (const required of requirements) {
+      const source = ready01.sources.find((item) => item.source_identity === required.identity
+        && item.commit_sha === required.commit_sha && item.path === required.path);
+      const ref = check.source_refs.find((item) => item.identity === required.identity
+        && item.commit_sha === required.commit_sha && item.path === required.path);
+      assert.ok(source, `${name} source record is missing: ${required.path}`);
+      assert.equal(ref.git_blob_oid, source.git_blob_oid);
+      assert.equal(ref.sha256, source.sha256);
+      assert.match(source.trust_status, /^trusted_/);
+    }
+    assert.deepEqual(check.source_assertions.map((item) => item.id).sort(),
+      requirements.flatMap((source) => source.assertions).sort(), `${name} assertions differ from the Plan04 mapping`);
+  }
+  const guide = checks.published_tag_guide.source_refs[0];
+  assert.equal(guide.read_status, 'missing');
+  assert.equal(guide.trust_status, 'trusted_exact_commit_404');
+  assert.equal(guide.http_status, 404);
+  assert.equal(checks.published_tag_guide.result, 'missing');
+  assert.equal(checks.readme_guide_link.result, 'mismatch');
+});
+
 test('semantic READY verdicts and blockers are stable when capture timestamps differ', async () => {
   const { evaluatePhase251Feasibility } = await import('./verify-247-readiness.mjs');
   const first = structuredClone(phase251ReadyFeasibilityFixture);
