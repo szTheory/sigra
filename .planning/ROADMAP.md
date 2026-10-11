@@ -201,7 +201,7 @@ Plans:
 
 **Wave 3** *(gap execution follows Plan06; exact authority checkpoints)*
 - [x] 250-05-PLAN.md
-- [ ] 250-07-PLAN.md — AUTHORIZED for one bounded test on main `ff96768bc2843ef1a89926d238690b1145bfd514`; fresh preflight and approval record were committed; controller run 38135003478 is in progress.
+- [ ] 250-07-PLAN.md — HALTED after the one authorized run: failure receipt exists, exact child cancellation succeeded, observer 38135205117 failed before receipt upload. Local deterministic fix `3b7a94f8c` passes shell tests; current-main CI and a fresh packet are still required.
 - [ ] 250-08-PLAN.md — HALTED: the committed packet has zero eligible tuples; do not request approval until a complete immutable route is proved.
 
 **Wave 4** *(blocked on the relevant Wave3 proof/decision)*
@@ -232,6 +232,6 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 
 Phase 250 remains incomplete: goal verification is `gaps_found` (8/14), the strict audit is 5/9 with 31 blockers, and six plans are complete. The latest gap-planning run created no new plan because Plan 07 already covers the missing hosted test. Current-main CI and local tests pass, but AUTO-02 still needs hosted failure and cancellation records. Plan 08 still has no candidate with all required matching evidence.
 
-**Immediate action:** monitor the one authorized controller run 38135003478; it permits no release, publish, merge, tag, unrelated cancellation, or retry. After recording the result, continue with `$gsd-execute-phase 250 --gaps-only`. Phase 250 remains incomplete and v1.49 is unarchived; no Phase 251 is defined. The user separately requested a future CI/CD duration and reliability optimization after this phase closes.
+**Immediate action:** carry only fix `3b7a94f8c` onto a clean branch from live current main, run CI, and squash merge if green under the user’s earlier authorization. Then prepare a new exact-source packet and obtain fresh explicit approval before any canary retry. Phase 250 remains incomplete and v1.49 is unarchived; no Phase 251 is defined. The user separately requested a future CI/CD duration and reliability optimization after this phase closes.
 
 Keep Plan 08 halted until a candidate has all of its own matching browser, dry-run, readiness, and disposition evidence. Do not mark missing evidence as passed or reuse an older packet approval. Do not rerun `$gsd-validate-phase 248` until new hosted terminal records exist. Preserve the historical Phase 249 acceptance at `refs/heads/evidence/phase-249-final-acceptance`; it does not prove current-main CI or current PR dispositions. The public-source freshness check previously returned HTTP 503 after one retry, and the Mix wrapper remains blocked by the existing dependency lock mismatch; standalone contract tests passed without waiving either block.

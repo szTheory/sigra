@@ -5,11 +5,11 @@ milestone_name: RELEASE-1.6.0
 current_phase: 250
 current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
 current_plan: 7
-status: authorized_250_07_test_in_progress
-stopped_at: The single authorized controller workflow run 38135003478 is in progress
-last_updated: "2026-10-11T11:17:16Z"
+status: halted_250_07_observer_identity_repair
+stopped_at: Controller 38135003478 failed; exact cancellation succeeded but observer 38135205117 failed before receipt upload
+last_updated: "2026-10-11T11:27:59Z"
 last_activity: 2026-10-11
-last_activity_desc: Fresh current-main source checks and passing local tests were recorded, but they do not include the hosted failure/cancellation receipts Phase 250 requires. The planner found no new plan because Plan 250-07 already covers that test. The exact packet is authorized; its preflight was refreshed with unchanged source, workflow, permission, and retention identities. No hosted dispatch has occurred yet.
+last_activity_desc: One authorized controller run completed on exact current main. The failure receipt and exact cancellation are proven; the observer failed before uploading the cancellation receipt. The packet authority is consumed and AUTO-02 remains incomplete. Local repair 3b7a94f8c passes focused shell tests; current-main CI and a new authority decision remain necessary.
 state_head: 13b4a6d0d306a152d86a8f957949f0b52c4df92a
 progress:
   total_phases: 5
@@ -34,20 +34,20 @@ See: `.planning/PROJECT.md` (updated 2026-10-06)
 
 ## Current Position
 
-Phase: 250 — ACTIVE, authorized controller run 38135003478 is in progress.
-Current Plan: 7 (approval checkpoint; Plans 250-08 to 250-12 remain blocked behind unresolved evidence)
+Phase: 250 — ACTIVE, Plan 250-07 is halted after a deterministic observer identity failure; one-run authority is consumed.
+Current Plan: 7 (deterministic observer identity repair; Plans 250-08 to 250-12 remain blocked behind unresolved evidence)
 Total Plans in Phase: 12
 Plans summarized: 8 of 12 (01–06 complete; 07–08 halted; 09–12 dependency-blocked)
 Status: Phase verification is incomplete. The planner did not create another plan because Plan 07 already covers the missing hosted test.
-Last activity: 2026-10-11 — Current-main code identity, green CI, and local tests were checked. They prove the code and CI match that commit, but they do not prove the hosted failure and cancellation records.
+Last activity: 2026-10-11 — The hosted failure receipt and exact child cancellation are recorded; observer 38135205117 failed before producing the cancellation receipt. Local repair 3b7a94f8c passes the focused shell suites; the new source has not reached current main yet.
 
 Progress: [█████████░] 91% (39/43 summary records; includes halted/checkpointed plans and is not acceptance completion)
 
-Plain-language explanation: “Source-bound” means the test record must identify the exact code commit and test files that produced it. Older hosted results came from older commits, so they cannot prove what the current code does. The current test packet matches main `ff96768bc2843ef1a89926d238690b1145bfd514`; it asks to run one controlled, non-publishing test, and is approved for one bounded test only; it does not authorize a release or merge.
+Plain-language explanation: “Source-bound” means the test record must identify the exact code commit and test files that produced it. Older hosted results came from older commits, so they cannot prove what the current code does. The current test packet matches main `ff96768bc2843ef1a89926d238690b1145bfd514`; it was approved for one controlled, non-publishing test and that authority was consumed by run 38135003478. A new run requires a fresh packet and explicit approval.
 
-The current packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237`). Its preflight and source identity records are linked inside it. AUTO-02 remains incomplete until the hosted test creates and validates both required records. Plan 08 separately remains blocked because no candidate has all required matching readiness evidence.
+The current packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json` (SHA-256 `208ea69cc0dbd0fd352a9ab298b983c1f3e0985a0910eb8cc9779b61b80d719f`). Its preflight and source identity records are linked inside it. AUTO-02 remains incomplete until the hosted test creates and validates both required records. Plan 08 separately remains blocked because no candidate has all required matching readiness evidence.
 
-Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found existing plan-scoped commits without completed summaries. Plan 250-07 has one authorized controller run in progress (run 38135003478); no retry is authorized. Plan 250-08 still has zero eligible tuples. Full historical commit, packet, and pre-write hash provenance remains in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
+Plans 250-07 and 250-08 were manually reconciled after the safe-resume gate found existing plan-scoped commits without completed summaries. Plan 250-07 one-run authority was consumed by controller 38135003478. Failure receipt exists; exact child cancellation succeeded; observer 38135205117 failed before receipt upload. AUTO-02 remains unsatisfied. Plan 250-08 still has zero eligible tuples. Full historical commit, packet, and pre-write hash provenance remains in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json`.
 
 ### v1.49 audit route
 
@@ -73,9 +73,11 @@ Write-ahead snapshot for the resumed-turn starting bytes: `.planning/recovery/ph
 
 The phrase “new immutable source-bound evidence” means a fresh test result tied to the exact commit and helper files that ran it. The current-main files and local tests are now checked, and CI is green at that exact commit; this is new evidence, but it does not include the hosted failure/cancellation receipts needed to close AUTO-02. The planner returned `PLANNING INCONCLUSIVE` because Plan 07 already covers the next test; no new plan is needed.
 
-The earlier packet was for older main `e0c66d61211ddb461c049ca6422350308b420126`. The current packet targets main `ff96768bc2843ef1a89926d238690b1145bfd514` and is authorized for exactly one bounded run. The user authorized this exact packet at 2026-10-11T11:11:18Z; it permits one controlled test (one deliberate failure, cancel only that exact test run, then one read-only observer; 35 minutes maximum). No release, publish, merge, tag, unrelated cancellation, or retry is included. The refreshed preflight and exact starting-file recovery snapshot are recorded. Controller run 38135003478 is active; no child cancellation or observer result is claimed yet.
+The earlier packet was for older main `e0c66d61211ddb461c049ca6422350308b420126`. The current packet targets main `ff96768bc2843ef1a89926d238690b1145bfd514` and is authorized for exactly one bounded run. The user authorized this exact packet at 2026-10-11T11:11:18Z; it permits one controlled test (one deliberate failure, cancel only that exact test run, then one read-only observer; 35 minutes maximum). No release, publish, merge, tag, unrelated cancellation, or retry is included. The refreshed preflight and exact starting-file recovery snapshot are recorded. Controller 38135003478 failed, cancellation run 38135076285 is cancelled, and observer 38135205117 failed before receipt upload. Evidence is in `250-07-CANARY-ARTIFACT-RETRIEVAL-38135003478.json`; the packet is consumed.
 
-**Immediate action:** monitor controller run 38135003478 with one 60-second watcher; after completion, fetch the structured summary once and logs only if it fails. After its result is recorded, resume with `$gsd-execute-phase 250 --gaps-only`; Phase 250 remains incomplete, Plan 08 remains a separate evidence blocker, and no Phase 251 is defined. The user separately requested a long-running CI/CD duration and reliability optimization after Phase 250 closeout; it is not part of this canary.
+The observer helper read the dynamic run title as the static workflow name. Local repair commit `3b7a94f8c` fixes the metadata source and passes shell suites (23/61/15). The targeted Mix tests remain blocked by the pre-existing Phoenix lock mismatch.
+
+**Immediate action:** carry only repair commit `3b7a94f8c` onto a clean branch from live current main, run CI, and squash merge if green under the user's earlier authorization. A new canary attempt needs a new packet and explicit approval. The user separately requested a longer-term CI/CD duration/reliability effort after Phase 250 closeout; keep it separate.
 
 ### v1.49 phase map
 

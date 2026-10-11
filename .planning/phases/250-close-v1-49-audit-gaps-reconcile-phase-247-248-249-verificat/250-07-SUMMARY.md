@@ -22,8 +22,9 @@ key-files:
   modified: []
 key-decisions:
   - "The v5 packet SHA-256 b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287 was prepared for main e0c66d61211ddb461c049ca6422350308b420126, then became stale when main advanced to ff96768bc2843ef1a89926d238690b1145bfd514."
-  - "No approval exists for the current packet; prior v4 authority was consumed by controller run 38091955379 and cannot be reused."
-  - "Keep AUTO-01/AUTO-02 unpromoted and mark this plan halted so dependent plans cannot treat the missing hosted proof as complete."
+  - "At the earlier manual reconciliation, no approval existed for packet v5. Packet v7 later received one exact authorization and that one-run authority was consumed by controller run 38135003478."
+  - "Keep AUTO-02 unsatisfied and this plan halted because the cancellation receipt was not uploaded."
+  - "The deterministic observer workflow-name bug was repaired locally in commit 3b7a94f8c; the shell regression suite passes, but a new hosted run requires a fresh packet and explicit approval."
 requirements-completed: []
 coverage: []
 duration: manual-reconciliation
@@ -47,7 +48,15 @@ The safe-resume query resolved 30 plan-scoped commits, from `66225507d5a85aed257
 
 ## Next phase readiness
 
-Plan 07 is halted, not complete. Its dependent Plans 10–12 must remain blocked until a fresh current-main packet is reviewed and any required exact authority is separately given. The earlier approval and v5 packet cannot authorize another hosted action.
+Plan 07 is halted, not complete. Its dependent Plans 10–12 must remain blocked until a fresh current-main packet is reviewed and any required exact authority is separately given. The v7 approval below authorized only one run and is consumed; it cannot authorize another hosted action.
+
+## Post-approval execution — 2026-10-11
+
+Packet v7 was approved for one no-publish controller run. Controller run `38135003478` failed after 4m23s at `observer_run_exact_identity_or_conclusion_mismatch`. Its exact failure child `38135014843` produced a schema-valid failure receipt; exact cancellation child `38135076285` completed cancelled; observer run `38135205117` failed before upload with `canary workflow name mismatch`. No cancellation receipt exists, and AUTO-02 remains unsatisfied. The one-run authority is consumed; no retry, release, merge, or publish is authorized by that packet.
+
+The root cause was `release-observer.sh` reading the dynamic workflow-run `.name` as the static source workflow name. The helper now reads the name from the authoritative workflow metadata response. Regression coverage exercises a dynamic cancellation run title. Local checks: observer (23/23), canary (61/61), receipt (15/15); the targeted Mix test invocation remains blocked by the pre-existing Phoenix lock mismatch. Repair commit: `3b7a94f8c` (local, not yet on current main). Artifact and run evidence: `250-07-CANARY-ARTIFACT-RETRIEVAL-38135003478.json` (SHA-256 `fc90e673be5070c0b6e4933f48d551364b6cd7f6d37d9a52b863047d78c5de19`).
+
+The plan remains halted until the deterministic repair is tested on current main and a fresh source-bound authority packet receives a new explicit user decision. The user separately requested a future long-running CI/CD duration and reliability optimization; keep it outside this plan.
 
 ---
 *Phase: 250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat*

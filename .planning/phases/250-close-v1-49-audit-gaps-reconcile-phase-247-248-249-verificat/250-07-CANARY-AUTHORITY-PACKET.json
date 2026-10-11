@@ -2,7 +2,7 @@
   "schema_version": 1,
   "packet_id": "250-07-canary-authority-v7",
   "created_at": "2026-10-11T03:40:34Z",
-  "status": "dispatched_pending_validation",
+  "status": "consumed_blocked",
   "repository": "szTheory/sigra",
   "objective": "Prove the repaired read-only observer receipt path with one bounded no-publish canary controller run on the exact current main source.",
   "source": {
@@ -174,7 +174,9 @@
     "approved_packet_sha256": "6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c",
     "approved_at": "2026-10-11T11:11:18Z",
     "user_reply_verbatim": "yeah go for it maybe u can also in future optimize ci/cd that's a long run",
-    "scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at ff96768bc2843ef1a89926d238690b1145bfd514, using this packet's digest-bound preflight; one controlled failure canary; cancel only its exact self-owned waiting canary child; then exactly one read-only observer dispatch (workflow 379162190) for that child; maximum 35 minutes; no retries, release, or publish. Immediately before dispatch, verify main and source blobs still match this packet."
+    "scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at ff96768bc2843ef1a89926d238690b1145bfd514, using this packet's digest-bound preflight; one controlled failure canary; cancel only its exact self-owned waiting canary child; then exactly one read-only observer dispatch (workflow 379162190) for that child; maximum 35 minutes; no retries, release, or publish. Immediately before dispatch, verify main and source blobs still match this packet.",
+    "consumed_by_controller_run_id": 38135003478,
+    "consumed_at": "2026-10-11T11:17:16Z"
   },
   "decision": {
     "question": "Do you authorize one controlled GitHub Actions test on current main commit ff96768bc2843ef1a89926d238690b1145bfd514? It starts controller workflow 380517406 once, runs one deliberately failing canary test, cancels only that exact test run, then starts one read-only observer to check the failure and cancellation records. Maximum 35 minutes. This test cannot publish or release software, merge a PR, create a tag, cancel any other run, or retry. Earlier approvals applied to different packets/runs and cannot authorize this one: the previous packet was for older main commit e0c66d61211ddb461c049ca6422350308b420126.",
@@ -188,7 +190,7 @@
         "meaning": "Do not start or cancel another run; keep AUTO-02 marked incomplete."
       }
     ],
-    "status": "authorized",
+    "status": "consumed_blocked",
     "dispatch_attempted": true,
     "credential_values_recorded": false,
     "silence_is_approval": false,
@@ -198,7 +200,22 @@
     "user_reply_verbatim": "yeah go for it maybe u can also in future optimize ci/cd that's a long run",
     "dispatched_at": "2026-10-11T11:17:16Z",
     "controller_run_id": 38135003478,
-    "dispatch_packet_sha256": "5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237"
+    "dispatch_packet_sha256": "5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237",
+    "result": {
+      "controller_run_id": 38135003478,
+      "controller_conclusion": "failure",
+      "controller_failure_reason": "observer_run_exact_identity_or_conclusion_mismatch",
+      "failure_run_id": 38135014843,
+      "failure_receipt_present": true,
+      "cancellation_run_id": 38135076285,
+      "cancellation_conclusion": "cancelled",
+      "observer_run_id": 38135205117,
+      "observer_conclusion": "failure",
+      "cancellation_receipt_present": false,
+      "authority_consumed": true,
+      "retry_authorized": false,
+      "publish_authorized": false
+    }
   },
   "prior_authority_history": {
     "packet_v3": {
@@ -298,5 +315,20 @@
     "previous_packet_sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
     "source_identity_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-ff96768-20261011T0323Z.json",
     "source_identity_evidence_sha256": "f47daee40a947ee38e11533f56e86ee9bedd370a5a0a75457b014e6db0d573b8"
+  },
+  "execution": {
+    "dispatch_packet_sha256": "5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237",
+    "controller_run_id": 38135003478,
+    "controller_conclusion": "failure",
+    "source_failure_run_id": 38135014843,
+    "failure_receipt_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-FAILURE-RECEIPT-38135014843.json",
+    "cancellation_run_id": 38135076285,
+    "cancellation_conclusion": "cancelled",
+    "observer_run_id": 38135205117,
+    "observer_conclusion": "failure",
+    "cancellation_receipt_path": null,
+    "artifact_retrieval_record_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-ARTIFACT-RETRIEVAL-38135003478.json",
+    "artifact_retrieval_record_sha256": "fc90e673be5070c0b6e4933f48d551364b6cd7f6d37d9a52b863047d78c5de19",
+    "outcome": "blocked; cancellation receipt absent; AUTO-02 unsatisfied; authority consumed"
   }
 }
