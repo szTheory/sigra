@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { evaluateSnapshot as evaluate248, checkReport as check248Report } from './verify-248-release.mjs';
 import { evaluateSnapshot as evaluate249, checkReport as check249Report } from './verify-249-release.mjs';
@@ -21,6 +22,10 @@ const TRACE_PATH = '.planning/REQUIREMENTS.md';
 const CLOSE_DIR = '.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat';
 const AUDIT_PATH = '.planning/v1.49-MILESTONE-AUDIT.md';
 const ACCEPTANCE_PATH = CLOSE_DIR + '/250-ACCEPTANCE-AMENDMENT.json';
+const PHASE251_DIR = '.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps';
+const PHASE251_PACKET_PATH = PHASE251_DIR + '/251-247-RECONCILIATION.json';
+const PHASE251_FEASIBILITY_PATH = PHASE251_DIR + '/251-EVIDENCE-FEASIBILITY.json';
+const PHASE251_HISTORICAL_OWNER_COMMIT = '0e7a2835ebd0d7a1e791ad4dbc73955270108ed1';
 const ACCEPTED_READY_IDS = ['READY-01', 'READY-02'];
 const ACCEPTED_READY_BLOCKER_IDS = [
   'authorization_pending',
@@ -48,6 +53,36 @@ function readSource(root, relative, overrides = {}) {
   return existsSync(absolute) ? readFileSync(absolute, 'utf8') : null;
 }
 
+function readHistoricalSource(root, commit, relative, overrides = {}) {
+  const key = `git:${commit}:${relative}`;
+  if (Object.hasOwn(overrides, key)) {
+    const override = overrides[key];
+    if (override === null) return null;
+    let original = null;
+    try {
+      original = execFileSync('git', ['show', `${commit}:${relative}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    } catch { /* a missing commit or path is an unavailable historical source */ }
+    return typeof override === 'function' ? override(original ?? '') : override;
+  }
+  try {
+    return execFileSync('git', ['show', `${commit}:${relative}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch {
+    return null;
+  }
+}
+
+function normalizedRequirementVerdict(value) {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (normalized === 'satisfied' || normalized === 'passed' || normalized === 'complete') return 'satisfied';
+  if (normalized === 'unsatisfied' || normalized === 'authorization_pending' || normalized === 'partial' || normalized === 'gaps_found') return 'unsatisfied';
+  return 'missing';
+}
+
+function reportRequirementVerdict(text, id) {
+  const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.match(new RegExp(`^\\|\\s*${escaped}\\s*\\|\\s*([^|]+)\\|`, 'm'))?.[1]?.trim() ?? null;
+}
+
 function readJson(root, relative, blockers, overrides) {
   const text = readSource(root, relative, overrides);
   if (text === null) {
@@ -66,7 +101,12 @@ function reportStatus(text) {
   const frontmatter = text.match(/^---\s*\n([\s\S]*?)\n---/);
   const frontStatus = frontmatter?.[1].match(/^status:\s*([\w-]+)/m)?.[1];
   const proseStatus = text.match(/^\s*- \*\*Status:\*\*\s*([\w-]+)/m)?.[1];
-  return (frontStatus || proseStatus || 'missing').toLowerCase();
+  if (frontStatus || proseStatus) return (frontStatus || proseStatus).toLowerCase();
+  if (/<!--\s*phase-251-reconciliation:/.test(text)) {
+    const readyVerdicts = ['READY-01', 'READY-02'].map((id) => normalizedRequirementVerdict(reportRequirementVerdict(text, id)));
+    return readyVerdicts.every((status) => status === 'satisfied') ? 'passed' : 'gaps_found';
+  }
+  return 'missing';
 }
 
 function yamlRequirementClaims(text) {
@@ -91,7 +131,7 @@ function readAcceptanceAmendment(root, blockers, overrides = {}) {
   const text = readSource(root, ACCEPTANCE_PATH, overrides);
   if (text === null) {
     add(blockers, 'ACCEPTANCE', 'Missing the Phase 250 acceptance amendment.', ACCEPTANCE_PATH);
-    return { valid: false, hash: null, ids: [] };
+    return { valid: false, hash: null, ids: [], historicalSource: null };
   }
 
   let amendment;
@@ -99,18 +139,24 @@ function readAcceptanceAmendment(root, blockers, overrides = {}) {
     amendment = JSON.parse(text);
   } catch (error) {
     add(blockers, 'ACCEPTANCE', 'Malformed Phase 250 acceptance amendment: ' + error.message, ACCEPTANCE_PATH);
-    return { valid: false, hash: sha256(text), ids: [] };
+    return { valid: false, hash: sha256(text), ids: [], historicalSource: null };
   }
 
   const sourcePath = '.planning/phases/' + OWNER_DIR['247'] + '/247-VERIFICATION.md';
   const reconciliationPath = CLOSE_DIR + '/250-247-RECONCILIATION.json';
   const packetPath = CLOSE_DIR + '/250-247-TUPLE-DECISION-PACKET.json';
-  const sourceText = readSource(root, sourcePath, overrides);
-  const reconciliationText = readSource(root, reconciliationPath, overrides);
-  const packetText = readSource(root, packetPath, overrides);
+  const historicalCommit = amendment.pre_amendment_commit;
+  const historicalOwnerText = typeof historicalCommit === 'string'
+    ? readHistoricalSource(root, historicalCommit, sourcePath, overrides) : null;
+  const historicalReconciliationText = typeof historicalCommit === 'string'
+    ? readHistoricalSource(root, historicalCommit, reconciliationPath, overrides) : null;
+  const historicalPacketText = typeof historicalCommit === 'string'
+    ? readHistoricalSource(root, historicalCommit, packetPath, overrides) : null;
+  const currentReconciliationText = readSource(root, reconciliationPath, overrides);
+  const currentPacketText = readSource(root, packetPath, overrides);
   let reconciliation = null;
-  if (reconciliationText !== null) {
-    try { reconciliation = JSON.parse(reconciliationText); } catch {
+  if (historicalReconciliationText !== null) {
+    try { reconciliation = JSON.parse(historicalReconciliationText); } catch {
       add(blockers, 'ACCEPTANCE', 'The cited Phase 247 reconciliation is malformed.', reconciliationPath);
     }
   }
@@ -119,6 +165,17 @@ function readAcceptanceAmendment(root, blockers, overrides = {}) {
   const exactIds = (left, right) => JSON.stringify(left) === JSON.stringify(right);
   const exceptionRows = Array.isArray(amendment.exceptions) ? amendment.exceptions : [];
   const exactExceptionIds = exceptionRows.map((row) => row?.id).sort();
+  const historicalHashes = {
+    ownerReportSha256: historicalOwnerText === null ? null : sha256(historicalOwnerText),
+    reconciliationSha256: historicalReconciliationText === null ? null : sha256(historicalReconciliationText),
+    tuplePacketSha256: historicalPacketText === null ? null : sha256(historicalPacketText),
+  };
+  const historicalSourcesAvailable = Object.values(historicalHashes).every(Boolean);
+  const historicalSourcesUnchanged = historicalSourcesAvailable
+    && currentReconciliationText !== null
+    && currentPacketText !== null
+    && sha256(currentReconciliationText) === historicalHashes.reconciliationSha256
+    && sha256(currentPacketText) === historicalHashes.tuplePacketSha256;
   const valid =
     amendment.schema_version === 1
     && amendment.record_type === 'phase_acceptance_amendment'
@@ -140,29 +197,47 @@ function readAcceptanceAmendment(root, blockers, overrides = {}) {
     && exactIds(actualIds, expectedIds)
     && exactIds((Array.isArray(amendment.accepted_reconciliation_blocker_ids) ? amendment.accepted_reconciliation_blocker_ids : []).slice().sort(), expectedIds)
     && reconciliation?.status === 'blocked'
-    && sourceText !== null
-    && sha256(sourceText) === exceptionRows[0]?.source_sha256
+    && historicalCommit === PHASE251_HISTORICAL_OWNER_COMMIT
+    && historicalSourcesAvailable
+    && historicalHashes.ownerReportSha256 === exceptionRows[0]?.source_sha256
+    && historicalSourcesUnchanged
     && exceptionRows.every((row) => row && (
       row.owner_phase === 247
       && row.owner_verdict === 'unsatisfied'
       && row.acceptance === 'accepted_exception'
       && row.source === sourcePath
-      && row.source_sha256 === sha256(sourceText)
+      && row.source_sha256 === historicalHashes.ownerReportSha256
       && row.reconciliation === reconciliationPath
-      && row.reconciliation_sha256 === (reconciliationText === null ? null : sha256(reconciliationText))
+      && row.reconciliation_sha256 === historicalHashes.reconciliationSha256
       && row.tuple_packet === packetPath
-      && row.tuple_packet_sha256 === (packetText === null ? null : sha256(packetText))
+      && row.tuple_packet_sha256 === historicalHashes.tuplePacketSha256
     ));
 
   if (!valid) {
-    add(blockers, 'ACCEPTANCE', 'Phase 250 acceptance amendment is missing, altered, overbroad, or no longer matches the cited READY evidence.', {
+    add(blockers, 'ACCEPTANCE', 'Phase 250 historical amendment cannot be verified against its immutable owner report, reconciliation, and tuple packet sources.', {
       path: ACCEPTANCE_PATH,
       amendmentSha256: sha256(text),
+      historicalCommit: historicalCommit ?? null,
+      historicalSourcesAvailable,
+      historicalSourcesUnchanged,
       actualExceptionIds: exactExceptionIds,
       actualReconciliationBlockerIds: actualIds,
     });
   }
-  return { valid, hash: sha256(text), ids: valid ? [...ACCEPTED_READY_IDS] : [] };
+  return {
+    valid,
+    hash: sha256(text),
+    ids: valid ? [...ACCEPTED_READY_IDS] : [],
+    historicalSource: valid ? {
+      commit: historicalCommit,
+      ownerReportPath: sourcePath,
+      ownerReportSha256: historicalHashes.ownerReportSha256,
+      reconciliationPath,
+      reconciliationSha256: historicalHashes.reconciliationSha256,
+      tuplePacketPath: packetPath,
+      tuplePacketSha256: historicalHashes.tuplePacketSha256,
+    } : null,
+  };
 }
 
 function canaryProofMatchesSnapshot(proof, snapshot, proofHash) {
@@ -289,13 +364,114 @@ function requirementRows(requirementsText) {
 function reportRequirementStatus(phase, id, text, parsed) {
   if (!text) return 'missing';
   const overall = reportStatus(text);
-  const specific = parsed?.requirements?.[id];
-  if (typeof specific === 'string') return specific.toLowerCase();
-  if (specific?.status) return specific.status.toLowerCase();
-  const table = text.match(new RegExp(`^\\|\\s*${id}\\s*\\|\\s*([^|]+)\\|`, 'm'))?.[1]?.trim().toLowerCase();
-  if (table === 'satisfied' || table === 'unsatisfied' || table === 'partial') return table;
+  const packetKey = id.replace('-', '');
+  const specific = parsed?.requirement_verdicts?.[id]
+    ?? parsed?.requirements?.[packetKey]?.verdict
+    ?? parsed?.requirements?.[id];
+  if (typeof specific === 'string') return normalizedRequirementVerdict(specific);
+  if (specific?.status) return normalizedRequirementVerdict(specific.status);
+  const table = phase === '247' ? reportRequirementVerdict(text, id) : null;
+  if (table) return normalizedRequirementVerdict(table);
   if (overall === 'passed') return 'satisfied';
   return 'unsatisfied';
+}
+
+function exactStringSet(actual, expected) {
+  return Array.isArray(actual)
+    && Array.isArray(expected)
+    && actual.length === expected.length
+    && new Set(actual).size === actual.length
+    && actual.every((value) => expected.includes(value));
+}
+
+function phase251Ready01Complete(packet, feasibility) {
+  const ready = packet?.requirements?.READY01;
+  const feasible = feasibility?.requirements?.READY01;
+  const checks = ready?.package_adopter?.checks;
+  const tuple = ready?.exact_tuple;
+  const approval = ready?.contemporaneous_approval;
+  const expectedTuple = feasible?.candidate_tuple;
+  const expectedPublished = feasible?.published_release_source?.commit_sha;
+  const requiredTupleFields = ['candidate_sha', 'reviewed_base_sha', 'protected_main_sha', 'published_source_sha', 'ci_head_sha', 'readiness_sha256', 'dry_run_sha256'];
+  const tupleComplete = tuple && requiredTupleFields.every((field) => typeof tuple[field] === 'string' && tuple[field].length > 0)
+    && tuple.candidate_sha === tuple.ci_head_sha
+    && tuple.candidate_sha === expectedTuple?.candidate_sha
+    && tuple.reviewed_base_sha === expectedTuple?.reviewed_base_sha
+    && tuple.protected_main_sha === expectedTuple?.protected_main_sha
+    && tuple.published_source_sha === expectedPublished;
+  const approvalComplete = approval?.status === 'approved'
+    && approval?.contemporaneous === true
+    && typeof approval.record_sha256 === 'string'
+    && /^[a-f0-9]{64}$/.test(approval.record_sha256)
+    && approval.tuple_sha256 === sha256(JSON.stringify(tuple));
+  const sources = ready?.package_adopter?.sources;
+  const sourceBytesComplete = Array.isArray(sources) && sources.length > 0 && sources.every((source) =>
+    typeof source?.source_identity === 'string'
+    && typeof source?.commit_sha === 'string'
+    && typeof source?.path === 'string'
+    && source.read_status === 'readable'
+    && source.trust_status === 'trusted_exact_api_blob_match'
+    && typeof source.git_blob_oid === 'string'
+    && source.git_blob_oid === source.api_blob_oid
+    && typeof source.sha256 === 'string'
+    && source.sha256 === source.api_sha256
+  );
+  const packageComplete = ready?.package_adopter?.acceptance_satisfied === true
+    && checks && Object.keys(checks).length > 0
+    && Object.values(checks).every((check) => check?.result === 'pass' && typeof check.evidence_detail === 'string' && check.evidence_detail.length > 0 && /^No finding\b/i.test(check.finding_detail ?? ''))
+    && sourceBytesComplete;
+  return feasible?.source_feasibility === 'ready'
+    && feasible?.capture_allowed === true
+    && ready?.source_feasibility === 'ready'
+    && ready?.capture_allowed === true
+    && ready?.verdict === 'satisfied'
+    && Array.isArray(ready?.blockers) && ready.blockers.length === 0
+    && Array.isArray(ready?.findings) && ready.findings.length === 0
+    && tupleComplete
+    && approvalComplete
+    && packageComplete;
+}
+
+function phase251Ready02Complete(packet, feasibility) {
+  const ready = packet?.requirements?.READY02;
+  const feasible = feasibility?.requirements?.READY02;
+  const population = ready?.open_pr_population;
+  const prJoin = population?.disposition_join;
+  const inherited = ready?.inherited_work;
+  const inheritedJoin = inherited?.disposition_join;
+  const identities = (rows) => Array.isArray(rows) ? rows.map((row) => `${row.number}:${row.head_sha}:${row.base_sha}:${row.base_ref}`) : [];
+  const before = identities(population?.before);
+  const after = identities(population?.after);
+  const observed = Array.isArray(prJoin?.observedIds) ? prJoin.observedIds : [];
+  const prDispositions = Array.isArray(prJoin?.dispositionIds) ? prJoin.dispositionIds : [];
+  const inheritedObserved = Array.isArray(inheritedJoin?.observedIds) ? inheritedJoin.observedIds : [];
+  const inheritedDispositions = Array.isArray(inheritedJoin?.dispositionIds) ? inheritedJoin.dispositionIds : [];
+  const preservationRefs = Array.isArray(inheritedJoin?.preservationRefs) ? inheritedJoin.preservationRefs : [];
+  const inheritedCount = Number(inherited?.commit_count ?? 0) + Number(inherited?.path_count ?? 0);
+  const sourceInventory = packet?.source_capture?.local_inherited_work;
+  const populationMatches = population?.stable === true
+    && population?.complete === true
+    && population.before_count === before.length
+    && population.after_count === after.length
+    && exactStringSet(before, after)
+    && exactStringSet(observed, before)
+    && exactStringSet(prDispositions, observed)
+    && prJoin?.status === 'passed'
+    && Array.isArray(prJoin?.blockers) && prJoin.blockers.length === 0;
+  const inheritedMatches = sourceInventory?.inventory_complete === true
+    && inheritedJoin?.status === 'passed'
+    && Array.isArray(inheritedJoin?.blockers) && inheritedJoin.blockers.length === 0
+    && exactStringSet(inheritedDispositions, inheritedObserved)
+    && (inheritedCount === 0 ? preservationRefs.length === 0 : exactStringSet(preservationRefs, inheritedObserved));
+  return feasible?.source_feasibility === 'ready'
+    && feasible?.capture_allowed === true
+    && ready?.source_feasibility === 'ready'
+    && ready?.capture_allowed === true
+    && ready?.verdict === 'satisfied'
+    && Array.isArray(ready?.blockers) && ready.blockers.length === 0
+    && Array.isArray(ready?.findings) && ready.findings.length === 0
+    && populationMatches
+    && inheritedMatches;
 }
 
 function collectOwnerSources(root, blockers, overrides = {}) {
@@ -310,22 +486,78 @@ function collectOwnerSources(root, blockers, overrides = {}) {
     let recomputedRequirements = null;
 
     if (phase === '247') {
-      const markerPath = reportText?.match(/<!-- reconciliation:\s*([^\s]+)\s*-->/)?.[1];
-      const markerHash = reportText?.match(/<!-- reconciliation-sha256:\s*([a-f0-9]{64})\s*-->/)?.[1];
-      if (!markerPath || !markerHash) add(blockers, 'READY-01', 'Phase 247 verification lacks its captured reconciliation identity.');
+      const markerPath = reportText?.match(/<!--\s*phase-251-reconciliation:\s*([^\s]+)\s*-->/)?.[1];
+      const markerHash = reportText?.match(/<!--\s*phase-251-reconciliation-sha256:\s*([a-f0-9]{64})\s*-->/)?.[1];
+      if (markerPath !== PHASE251_PACKET_PATH || !markerHash) {
+        for (const id of ACCEPTED_READY_IDS) add(blockers, id, 'Phase 247 verification lacks the exact Phase 251 reconciliation path and digest.');
+      }
       else {
-        const reconciliationText = readSource(root, markerPath, overrides);
-        if (!reconciliationText || sha256(reconciliationText) !== markerHash) {
-          add(blockers, 'READY-01', 'Phase 247 reconciliation input is missing or stale against its report digest.', markerPath);
+        const reconciliationText = readSource(root, PHASE251_PACKET_PATH, overrides);
+        const feasibilityText = readSource(root, PHASE251_FEASIBILITY_PATH, overrides);
+        const packetHash = reconciliationText === null ? null : sha256(reconciliationText);
+        const feasibilityHash = feasibilityText === null ? null : sha256(feasibilityText);
+        if (!reconciliationText || packetHash !== markerHash) {
+          for (const id of ACCEPTED_READY_IDS) add(blockers, id, 'Phase 247 verification is stale against the exact Phase 251 packet digest.', { path: PHASE251_PACKET_PATH, expected: markerHash, actual: packetHash });
         } else {
-          parsed = JSON.parse(reconciliationText);
-          report.reconciliation = markerPath;
-          report.reconciliationSha256 = markerHash;
-          report.capturedAt = parsed.captured_at ?? null;
-          sourceIdentities.push({ phase, path: markerPath, sha256: markerHash, status: parsed.status });
-          for (const item of parsed.blockers ?? []) {
-            const readyOwner = ['authorization_pending', 'candidate_diff_digest_missing', 'dry_run_tuple_mismatch', 'exact_head_ci_source_missing', 'live_candidate_tuple_changed', 'readiness_tuple_mismatch'].includes(item.id) ? 'READY-01' : 'READY-02';
-            add(blockers, readyOwner, `Phase 247 ${item.id}: ${item.message}`, item.identities ?? null);
+          try {
+            parsed = JSON.parse(reconciliationText);
+          } catch (error) {
+            add(blockers, 'READY-01', `Phase 251 reconciliation packet is malformed: ${error.message}`, PHASE251_PACKET_PATH);
+            parsed = null;
+          }
+          let feasibility = null;
+          try {
+            feasibility = feasibilityText === null ? null : JSON.parse(feasibilityText);
+          } catch (error) {
+            add(blockers, 'READY-01', `Phase 251 source-feasibility record is malformed: ${error.message}`, PHASE251_FEASIBILITY_PATH);
+          }
+          if (!feasibility) add(blockers, 'READY-01', 'Phase 251 source-feasibility record is missing.', PHASE251_FEASIBILITY_PATH);
+          if (parsed && feasibility) {
+            report.reconciliation = PHASE251_PACKET_PATH;
+            report.reconciliationSha256 = markerHash;
+            report.capturedAt = parsed.captured_at ?? null;
+            report.sourceFeasibility = { path: PHASE251_FEASIBILITY_PATH, sha256: feasibilityHash };
+            report.packetOwnerPhase = parsed.owner_phase ?? null;
+            sourceIdentities.push({ phase, path: PHASE251_PACKET_PATH, sha256: markerHash, ownerPhase: parsed.owner_phase, status: parsed.status });
+            sourceIdentities.push({ phase, path: PHASE251_FEASIBILITY_PATH, sha256: feasibilityHash, status: feasibility.status });
+            const correctPacketOwner = parsed.phase === 251 && parsed.owner_phase === 247;
+            if (!correctPacketOwner) add(blockers, 'READY-01', 'Phase 251 packet ownership does not identify the Phase 247 owner report.', { packetPhase: parsed.phase, ownerPhase: parsed.owner_phase });
+            const recordedFeasibility = parsed.source_feasibility;
+            const feasibilityBound = recordedFeasibility?.path === PHASE251_FEASIBILITY_PATH && recordedFeasibility?.sha256 === feasibilityHash;
+            if (!feasibilityBound) {
+              add(blockers, 'READY-01', 'Phase 251 packet does not bind the exact source-feasibility artifact bytes.', { packet: recordedFeasibility ?? null, expected: { path: PHASE251_FEASIBILITY_PATH, sha256: feasibilityHash } });
+            }
+            report.phase251BindingValid = correctPacketOwner && feasibilityBound;
+            report.requirementVerdicts = {};
+            for (const id of ACCEPTED_READY_IDS) {
+              const key = id.replace('-', '');
+              const packetVerdict = parsed.requirement_verdicts?.[id];
+              const nestedVerdict = parsed.requirements?.[key]?.verdict;
+              const tableVerdict = reportRequirementVerdict(reportText, id);
+              const normalizedPacket = normalizedRequirementVerdict(packetVerdict);
+              const nestedConsistent = normalizedRequirementVerdict(nestedVerdict) === normalizedPacket;
+              const rowBound = tableVerdict !== null && normalizedRequirementVerdict(tableVerdict) === normalizedPacket;
+              if (normalizedPacket === 'missing' || !nestedConsistent) add(blockers, id, 'Phase 251 packet requirement verdict is missing or conflicts with its owner detail.', { packetVerdict, nestedVerdict });
+              if (!rowBound) add(blockers, id, 'Phase 247 owner table verdict differs from the exact Phase 251 packet verdict.', { tableVerdict, packetVerdict });
+              if (feasibility.status !== 'ready' && normalizedPacket === 'satisfied') add(blockers, id, 'Phase 251 claims a pass while its complete evidence-feasibility record is not ready.', { feasibilityStatus: feasibility.status });
+              const complete = id === 'READY-01'
+                ? phase251Ready01Complete(parsed, feasibility)
+                : phase251Ready02Complete(parsed, feasibility);
+              if (normalizedPacket === 'satisfied' && !complete) add(blockers, id, 'Phase 251 reports a pass without the complete exact-source acceptance evidence and joins.', PHASE251_PACKET_PATH);
+              const currentStatus = normalizedPacket === 'satisfied' && complete && rowBound && nestedConsistent ? 'satisfied' : 'unsatisfied';
+              report.requirementVerdicts[id] = currentStatus;
+              if (normalizedPacket === 'unsatisfied') {
+                const detail = parsed.requirements?.[key] ?? {};
+                const itemBlockers = Array.isArray(detail.blockers) ? detail.blockers : [];
+                const itemFindings = Array.isArray(detail.findings) ? detail.findings : [];
+                for (const message of [...itemBlockers, ...itemFindings]) add(blockers, id, `Phase 251 ${id}: ${message}`, PHASE251_PACKET_PATH);
+                if (id === 'READY-01' && packetVerdict === 'authorization_pending') add(blockers, id, 'Phase 251 READY-01 is authorization_pending: no recoverable contemporaneous approval binds the exact candidate/source/CI/readiness/dry-run record.', PHASE251_PACKET_PATH);
+              }
+            }
+            for (const item of parsed.blockers ?? []) {
+              const id = item?.includes?.('local_inherited') || item?.includes?.('open_pr') ? 'READY-02' : null;
+              if (id) add(blockers, id, `Phase 251 packet blocker: ${item}`, PHASE251_PACKET_PATH);
+            }
           }
         }
       }
@@ -454,7 +686,12 @@ function collectOwnerSources(root, blockers, overrides = {}) {
       }
     }
 
-    report.requirements = Object.keys(OWNER_PHASE).filter((id) => OWNER_PHASE[id] === phase).map((id) => ({ id, status: recomputedRequirements?.[id]?.status ?? reportRequirementStatus(phase, id, reportText, parsed) }));
+    report.requirements = Object.keys(OWNER_PHASE).filter((id) => OWNER_PHASE[id] === phase).map((id) => ({
+      id,
+      status: phase === '247'
+        ? (report.phase251BindingValid ? report.requirementVerdicts?.[id] ?? 'unsatisfied' : 'unsatisfied')
+        : recomputedRequirements?.[id]?.status ?? reportRequirementStatus(phase, id, reportText, parsed),
+    }));
     owners[phase] = report;
     if (status === 'missing') {
       for (const [id, owner] of Object.entries(OWNER_PHASE)) if (owner === phase) add(blockers, id, `Owner Phase ${phase} verification report is missing; requirement is orphaned.`, reportPath);
@@ -476,7 +713,10 @@ export function audit(root = process.cwd(), options = {}) {
   const claims = scanSummaryClaims(root, options.overrides);
   const { owners, sourceIdentities } = collectOwnerSources(root, blockers, options.overrides);
   const amendment = readAcceptanceAmendment(root, blockers, options.overrides);
-  if (amendment.valid) sourceIdentities.push({ phase: '250', path: ACCEPTANCE_PATH, sha256: amendment.hash });
+  if (amendment.valid) {
+    sourceIdentities.push({ phase: '250', path: ACCEPTANCE_PATH, sha256: amendment.hash });
+    sourceIdentities.push({ phase: '250-historical', ...amendment.historicalSource });
+  }
   const requirementList = Object.entries(OWNER_PHASE).map(([id, phase]) => {
     const row = rows.get(id);
     const owner = owners[phase];
@@ -492,23 +732,16 @@ export function audit(root = process.cwd(), options = {}) {
       add(blockers, id, `Summary frontmatter claims ${id} although owner Phase ${phase} requirement verdict is ${verificationStatus} (overall report: ${ownerStatus}); plan completion does not satisfy the milestone requirement.`, allClaims.map(({ file }) => file));
     }
     if (status === 'satisfied' && row && !row.checked) add(blockers, id, 'Verification is passing but REQUIREMENTS.md remains unchecked; traceability needs reconciliation.', { phase });
-    const acceptedByDecision = amendment.valid && amendment.ids.includes(id);
-    if (acceptedByDecision && (status !== 'unsatisfied' || ownerStatus !== 'gaps_found' || row?.checked || allClaims.length > 0)) {
-      add(blockers, 'ACCEPTANCE', 'Accepted READY exception no longer matches its unsatisfied owner report and unchecked requirement row.', {
-        requirement: id,
-        verificationStatus,
-        ownerReportStatus: ownerStatus,
-        checkboxChecked: row?.checked ?? null,
-        summaryClaims: allClaims.map(({ file }) => file),
-      });
-    }
+    if (status !== 'satisfied' && row?.checked) add(blockers, id, 'REQUIREMENTS.md is checked although the canonical owner verifier remains unsatisfied.', { phase });
+    const historicalException = amendment.valid && amendment.ids.includes(id);
     return {
       id,
       phase,
       description: row?.description ?? 'Requirement row missing',
       traceability: row?.checked ? 'complete' : 'open',
       status,
-      acceptance_status: acceptedByDecision ? 'accepted_exception' : status === 'satisfied' ? 'verified' : 'unaccepted',
+      acceptance_status: status === 'satisfied' ? 'verified' : 'unaccepted',
+      historical_phase_250_exception: historicalException,
       verification_status: verificationStatus,
       owner_report_status: ownerStatus,
       claimed_by_plans: [...new Set(allClaims.filter((claim) => claim.phase === phase).map((claim) => path.basename(claim.file, '-SUMMARY.md')))],
@@ -523,58 +756,58 @@ export function audit(root = process.cwd(), options = {}) {
     if (!unique.has(key)) unique.set(key, blocker);
   }
   const deduped = [...unique.values()];
-  const expectedRequirementForReadyBlocker = {
-    authorization_pending: 'READY-01',
-    candidate_diff_digest_missing: 'READY-01',
-    dry_run_tuple_mismatch: 'READY-01',
-    exact_head_ci_source_missing: 'READY-01',
-    fresh_inherited_dispositions_missing: 'READY-02',
-    fresh_pr_dispositions_incomplete: 'READY-02',
-    live_candidate_tuple_changed: 'READY-01',
-    readiness_tuple_mismatch: 'READY-01',
-  };
-  const acceptedEvidenceBlockers = amendment.valid ? deduped.filter((blocker) => {
-    if (!amendment.ids.includes(blocker.id)) return false;
-    if (blocker.message === 'Canonical owner Phase 247 verifier is gaps_found; requirement verdict is unsatisfied.') return true;
-    return Object.entries(expectedRequirementForReadyBlocker).some(([sourceId, requirementId]) =>
-      blocker.id === requirementId && blocker.message.startsWith('Phase 247 ' + sourceId + ':')
-    );
-  }) : [];
-  const acceptedEvidenceSet = new Set(acceptedEvidenceBlockers);
-  const unacceptedBlockers = deduped.filter((blocker) => !acceptedEvidenceSet.has(blocker));
-  const acceptedExceptions = requirementList
-    .filter((row) => row.acceptance_status === 'accepted_exception')
-    .map((row) => ({
-      id: row.id,
-      acceptance_status: row.acceptance_status,
-      owner_verification_status: row.verification_status,
-      owner_report_status: row.owner_report_status,
-      evidence_blockers: acceptedEvidenceBlockers.filter((blocker) => blocker.id === row.id),
-    }));
+  const unacceptedBlockers = deduped;
+  const historicalExceptions = amendment.valid ? amendment.ids.map((id) => ({
+    id,
+    acceptance_status: 'accepted_exception',
+    scope: 'Phase 250 closeout only',
+    owner_verification_status: 'unsatisfied',
+    source: amendment.historicalSource,
+  })) : [];
   const satisfied = requirementList.filter((row) => row.status === 'satisfied').length;
-  const exceptionsAreComplete =
-    amendment.valid
-    && satisfied === 7
-    && acceptedExceptions.length === 2
-    && acceptedExceptions.every((row) => row.owner_verification_status === 'unsatisfied' && row.owner_report_status === 'gaps_found' && row.evidence_blockers.length > 0)
-    && unacceptedBlockers.length === 0;
   const status = satisfied === requirementList.length && unacceptedBlockers.length === 0
     ? 'passed'
-    : exceptionsAreComplete ? 'accepted_exceptions' : 'gaps_found';
+    : 'gaps_found';
+  const groupSatisfied = (ids) => ids.every((id) => requirementList.find((row) => row.id === id)?.status === 'satisfied');
+  const integrationGroups = [
+    ['CONF-01', 'CONF-02', 'CONF-03'],
+    ['READY-01', 'READY-02'],
+    ['AUTO-01'],
+    ['AUTO-02'],
+    ['REL-01', 'REL-02'],
+  ];
+  const flowGroups = [
+    ['CONF-01', 'CONF-02', 'CONF-03'],
+    ['READY-01', 'READY-02'],
+    ['AUTO-01', 'AUTO-02'],
+    ['REL-01', 'REL-02'],
+  ];
+  const completeGroups = integrationGroups.filter(groupSatisfied).length;
+  const completeFlows = flowGroups.filter(groupSatisfied).length;
+  const packetIdentity = sourceIdentities.find((item) => item.path === PHASE251_PACKET_PATH);
   return {
     schemaVersion: 1,
     capturedAt: new Date().toISOString(),
     status,
     milestoneStatus: status === 'passed' ? 'passed' : 'incomplete',
-    acceptanceAmendment: amendment.valid ? { path: ACCEPTANCE_PATH, sha256: amendment.hash } : null,
-    acceptedExceptionCount: acceptedExceptions.length,
+    acceptanceAmendment: amendment.valid ? { path: ACCEPTANCE_PATH, sha256: amendment.hash, historicalSource: amendment.historicalSource } : null,
+    acceptedExceptionCount: 0,
+    historicalExceptionCount: historicalExceptions.length,
     unacceptedBlockerCount: unacceptedBlockers.length,
-    score: { requirements: `${satisfied}/${requirementList.length}`, phases: '4/6', integration: '4/5', flows: '3/4' },
+    score: { requirements: `${satisfied}/${requirementList.length}`, phases: '4/6', integration: `${completeGroups}/${integrationGroups.length}`, flows: `${completeFlows}/${flowGroups.length}` },
+    currentReadiness: {
+      packetPath: PHASE251_PACKET_PATH,
+      packetSha256: packetIdentity?.sha256 ?? null,
+      ownerPhase: 247,
+      ready01: requirementList.find((row) => row.id === 'READY-01')?.status ?? 'missing',
+      ready02: requirementList.find((row) => row.id === 'READY-02')?.status ?? 'missing',
+      blockers: deduped.filter((row) => row.id === 'READY-01' || row.id === 'READY-02'),
+    },
     nyquist: discoverNyquist(root, options.overrides),
     requirements: requirementList,
     owners,
     sourceIdentities,
-    acceptedExceptions,
+    historicalExceptions,
     blockers: unacceptedBlockers,
     sourceBlockers: deduped,
     orphaned: requirementList.filter((row) => row.status === 'orphaned').map(({ id }) => id),
@@ -583,10 +816,10 @@ export function audit(root = process.cwd(), options = {}) {
 }
 
 export function renderAudit(result) {
-  const gsdStatus = result.status === 'accepted_exceptions' ? 'gaps_found' : result.status;
-  const acceptedIdsYaml = result.acceptedExceptions.map(({ id }) => id).join(', ');
+  const gsdStatus = result.status;
   const requirementsYaml = result.requirements.map((row) => [
     `    - id: "${row.id}"`, `      status: "${row.status}"`, `      acceptance_status: "${row.acceptance_status}"`, `      phase: "${row.phase}"`,
+    `      historical_phase_250_exception: ${row.historical_phase_250_exception}`,
     `      claimed_by_plans: [${row.claimed_by_plans.map((value) => `"${value}"`).join(', ')}]`,
     `      completed_by_plans: [${row.completed_by_plans.map((value) => `"${value}"`).join(', ')}]`,
     `      verification_status: "${row.verification_status}"`, `      owner_report_status: "${row.owner_report_status}"`, `      evidence: "${row.evidence.replaceAll('"', "'")}"`,
@@ -595,6 +828,42 @@ export function renderAudit(result) {
   const requirementRowsMd = result.requirements.map((row) => `| ${row.id} | ${row.phase} | ${row.traceability} | ${row.verification_status} | ${row.acceptance_status} | **${row.status}** | ${row.evidence} |`).join('\n');
   const ownerRows = Object.values(result.owners).map((row) => `| ${row.phase} | ${row.status} | ${row.reportSha256 ?? 'missing'} | ${row.snapshotCapturedAt ?? row.capturedAt ?? 'not captured'} |`).join('\n');
   const blockerRows = result.blockers.map((row) => `- **${row.id}:** ${row.message}${row.identity === undefined ? '' : ` Identity: \`${JSON.stringify(row.identity)}\`.`}`).join('\n');
+  const ready01 = result.requirements.find((row) => row.id === 'READY-01');
+  const ready02 = result.requirements.find((row) => row.id === 'READY-02');
+  const requirementStatus = (id) => result.requirements.find((row) => row.id === id)?.status ?? 'missing';
+  const groupStatus = (ids) => ids.every((id) => requirementStatus(id) === 'satisfied') ? 'complete' : 'incomplete';
+  const readinessReason = (row) => row?.status === 'satisfied' ? 'The Phase 247 owner verdict passes its complete Phase 251 source joins.' : row?.evidence ?? 'The Phase 247 owner verdict is unavailable.';
+  const historical = result.acceptanceAmendment?.historicalSource;
+  const historyParagraph = historical
+    ? `Phase 250's two exceptions remain historical phase-only decisions. Amendment SHA-256 ${result.acceptanceAmendment.sha256}; original owner report at commit \`${historical.commit}\` SHA-256 ${historical.ownerReportSha256}; Phase 250 reconciliation SHA-256 ${historical.reconciliationSha256}; tuple packet SHA-256 ${historical.tuplePacketSha256}. They do not satisfy current READY requirements.`
+    : 'The Phase 250 historical amendment could not be verified; its source is a blocker and it grants no current READY acceptance.';
+  const readReadyBlockers = result.currentReadiness.blockers.map(({ message }) => message);
+  const readyBlockerSummary = readReadyBlockers.length ? readReadyBlockers.join(' ') : 'No READY-specific source blockers were reported.';
+  const integrationReady = ready01?.status === 'satisfied' && ready02?.status === 'satisfied';
+  const integrationRows = [
+    `    - requirement: "CONF-01/02/03"\n      status: "${groupStatus(['CONF-01', 'CONF-02', 'CONF-03'])}"\n      evidence: "Original confirmation owner verifications."`,
+    `    - requirement: "READY-01/02"\n      status: "${integrationReady ? 'complete' : 'incomplete'}"\n      evidence: "${readyBlockerSummary.replaceAll('"', "'")}"`,
+    `    - requirement: "AUTO-01"\n      status: "${requirementStatus('AUTO-01') === 'satisfied' ? 'complete' : 'incomplete'}"\n      evidence: "${requirementStatus('AUTO-01')} from its Phase 248 owner verification."`,
+    `    - requirement: "AUTO-02"\n      status: "${requirementStatus('AUTO-02') === 'satisfied' ? 'complete' : 'incomplete'}"\n      evidence: "${requirementStatus('AUTO-02')} from its Phase 248 owner verification."`,
+    `    - requirement: "REL-01/02"\n      status: "${groupStatus(['REL-01', 'REL-02'])}"\n      evidence: "Original release owner verifications."`,
+  ].join('\n');
+  const flowRows = [
+    `    - name: "Confirmation requirements to owner verification"\n      status: "${groupStatus(['CONF-01', 'CONF-02', 'CONF-03'])}"\n      evidence: "CONF-01/02/03 original-owner results."`,
+    `    - name: "Phase 247 readiness tuple and dispositions"\n      status: "${integrationReady ? 'complete' : 'incomplete'}"\n      evidence: "READY-01 ${ready01?.status ?? 'missing'}; READY-02 ${ready02?.status ?? 'missing'}; packet ${result.currentReadiness.packetPath} SHA-256 ${result.currentReadiness.packetSha256 ?? 'missing'}."`,
+    `    - name: "Phase 248 hosted terminal receipt retrieval"\n      status: "${groupStatus(['AUTO-01', 'AUTO-02'])}"\n      evidence: "AUTO-01/02 source-derived owner results."`,
+    `    - name: "Phase 249 current-main release and PR reconciliation"\n      status: "${groupStatus(['REL-01', 'REL-02'])}"\n      evidence: "REL-01/02 source-derived owner results."`,
+  ].join('\n');
+  const currentReadinessYaml = [
+    `current_ready_statuses:`,
+    `  READY-01: "${result.currentReadiness.ready01}"`,
+    `  READY-02: "${result.currentReadiness.ready02}"`,
+    `current_ready_packet: "${result.currentReadiness.packetPath}"`,
+    `current_ready_packet_sha256: "${result.currentReadiness.packetSha256 ?? 'missing'}"`,
+    `current_ready_owner_phase: 247`,
+    `historical_phase_250_exception_count: ${result.historicalExceptionCount}`,
+    `historical_phase_250_exception_ids: [${result.historicalExceptions.map(({ id }) => id).join(', ')}]`,
+    `historical_phase_250_owner_commit: "${historical?.commit ?? 'unavailable'}"`,
+  ].join('\n');
   return `---
 milestone: v1.49
 audited: ${result.capturedAt}
@@ -602,8 +871,9 @@ status: ${gsdStatus}
 source_audit_status: ${result.status}
 milestone_status: ${result.milestoneStatus}
 acceptance_amendment_sha256: ${result.acceptanceAmendment?.sha256 ?? 'missing'}
-accepted_exception_count: ${result.acceptedExceptionCount}
-accepted_exception_ids: [${acceptedIdsYaml}]
+${currentReadinessYaml}
+accepted_exception_count: 0
+accepted_exception_ids: []
 unaccepted_blocker_count: ${result.unacceptedBlockerCount}
 scores:
   requirements: ${result.score.requirements}
@@ -620,44 +890,16 @@ gaps:
   requirements:
 ${requirementsYaml}
   integration:
-    - requirement: "CONF-01/02/03"
-      status: "complete"
-      evidence: "All three confirmation requirements are source-verified."
-    - requirement: "READY-01/02"
-      status: "accepted_exception"
-      evidence: "Phase 247 remains gaps_found; both owner verdicts remain unsatisfied and are accepted only for Phase 250 closeout."
-    - requirement: "AUTO-01"
-      status: "complete"
-      evidence: "Phase 248 owner verification and the source-bound release evidence pass."
-    - requirement: "AUTO-02"
-      status: "complete"
-      evidence: "The exact failure and cancellation receipts, artifact digests, and observer identity match the Phase 248 snapshot."
-    - requirement: "REL-01"
-      status: "complete"
-      evidence: "The evidence-ref release path is connected and source-verified."
-    - requirement: "REL-02"
-      status: "complete"
-      evidence: "Phase 249 owner verification passes against the captured current-main CI and disposition inventory."
+${integrationRows}
   integration_review:
-    wiring: "4/5 handoff groups are source-verified"
-    gaps: "1/5 readiness group remains an accepted exception"
-    source: "Source-derived owner and accepted-exception audit"
+    wiring: "${result.score.integration} handoff groups are source-verified"
+    gaps: "${integrationReady ? '0' : '1'} readiness group remains incomplete"
+    source: "Source-derived original-owner requirement results"
   flows:
-    - name: "Confirmation requirements to owner verification"
-      status: "complete"
-      evidence: "CONF-01/02/03 have consistent source verification."
-    - name: "Phase 247 readiness tuple and dispositions"
-      status: "accepted_exception"
-      evidence: "The owner report remains unsatisfied; see the exact tuple packet and reconciliation."
-    - name: "Phase 248 hosted terminal receipt retrieval"
-      status: "complete"
-      evidence: "The source failure and cancellation artifacts and observer receipt validate against their snapshot."
-    - name: "Phase 249 current-main release and PR reconciliation"
-      status: "complete"
-      evidence: "Current-main CI and the 15-PR inventory pass against the captured exact identities."
+${flowRows}
 tech_debt:
   - phase: "247"
-    items: ["READY-01/02 remain unsatisfied under Phase 247; Phase 250 accepts these two gaps for phase closeout only."]
+    items: ["${readinessReason(ready01).replaceAll('"', "'")}", "${readinessReason(ready02).replaceAll('"', "'")}"]
 blockers:
 ${blockerYaml}
 source_identities:
@@ -670,7 +912,7 @@ contradiction_count: ${result.contradictions.length}
 
 ## Outcome
 
-The strict milestone status is **${gsdStatus}** at **${result.score.requirements} requirements**. Phase 247 remains gaps_found; READY-01/02 remain owner-unsatisfied and are accepted exceptions only for Phase 250. AUTO-01/02 and REL-01/02 are source-verified by their original owner reports. The milestone remains incomplete and unarchived.
+The strict milestone status is **${gsdStatus}** at **${result.score.requirements} requirements**. The milestone ${result.milestoneStatus === 'passed' ? 'meets all nine owner-verification and traceability checks' : 'remains incomplete and unarchived because at least one original-owner requirement is unsatisfied or blocked'}. Current readiness comes from Phase 247's exact Phase 251 packet binding: READY-01 is **${ready01?.status ?? 'missing'}** and READY-02 is **${ready02?.status ?? 'missing'}**. ${historyParagraph}
 
 ## Requirements Coverage
 
@@ -680,9 +922,13 @@ This matrix cross-references original assignments, owner verifications, summary 
 |---|---:|---|---|---|---|---|
 ${requirementRowsMd}
 
-## Accepted Exceptions
+## Historical Phase 250 Exceptions
 
-READY-01 and READY-02 remain unsatisfied in Phase 247. The user-approved amendment accepts these historical evidence gaps for Phase 250 closeout only. The decision record, original owner report, reconciliation digest, tuple packet, and exact missing-join identities are linked under Source Reports; none is represented as a passed verification.
+${historyParagraph}
+
+## Current READY Evidence
+
+Owner Phase 247 report: \`${result.owners['247']?.path}\` (SHA-256 ${result.owners['247']?.reportSha256 ?? 'missing'}). Current packet: \`${result.currentReadiness.packetPath}\` (SHA-256 ${result.currentReadiness.packetSha256 ?? 'missing'}). READY-01: **${ready01?.status ?? 'missing'}**. READY-02: **${ready02?.status ?? 'missing'}**. ${readyBlockerSummary}
 
 ## Source Reports
 
@@ -698,7 +944,7 @@ ${blockerRows || 'None.'}
 
 ## Integration and End-to-End Flows
 
-Four of five handoff groups are source-verified. The remaining readiness group is recorded as the two accepted, unsatisfied READY exceptions. AUTO-01/02 and REL-01/02 pass against their original owner reports. No new release, canary, publish, merge, or workflow dispatch was performed for this audit.
+${result.score.integration} of five handoff groups and ${result.score.flows} of four end-to-end flows are source-verified. Each group follows its original-owner requirement rows. No new release, canary, publish, merge, or workflow dispatch was performed for this audit.
 
 ## Nyquist Coverage
 
@@ -707,7 +953,7 @@ Overall: ${result.nyquist.overall}.
 
 ## Route
 
-Keep v1.49 unarchived. Phase 250 may complete against its amended phase-only acceptance after all deterministic gates pass; milestone verification remains incomplete at 7/9. Phase 251 is the forward closure phase for READY-01/02. Its readiness check found no context or plan, so continue with \`$gsd-discuss-phase 251\`, then plan and execute it after the context is saved. Keep the original owner requirements unsatisfied unless new matching evidence proves them.
+Keep v1.49 unarchived while the current audit is incomplete. Continue only from the live GSD phase state; Phase 250's historical acceptance does not change READY-01/02. Resolve each named owner-evidence blocker and regenerate this audit from the resulting Phase 247 verdicts before claiming milestone completion.
 `;
 }
 
@@ -718,31 +964,21 @@ export function checkAudit(root, auditPath = AUDIT_PATH, overrides = {}) {
   const errors = [];
   const frontmatter = actual.match(/^---\s*\n([\s\S]*?)\n---/m)?.[1] ?? '';
   if (!/^milestone:\s*v1\.49$/m.test(frontmatter) || !/^audited:\s*\S+/m.test(frontmatter)) errors.push('Audit is missing v1.49 generated frontmatter.');
+  const auditedAt = frontmatter.match(/^audited:\s*(\S+)$/m)?.[1];
   const recordedStatus = frontmatter.match(/^status:\s*([\w-]+)/m)?.[1];
-  const expectedGsdStatus = expected.status === 'accepted_exceptions' ? 'gaps_found' : expected.status;
-  if (recordedStatus !== expectedGsdStatus) errors.push(`Audit status does not match computed GSD status ${expectedGsdStatus}.`);
-  const recordedSourceStatus = frontmatter.match(/^source_audit_status:\s*([\w-]+)/m)?.[1];
-  if (recordedSourceStatus !== expected.status) errors.push(`Audit source status does not match computed ${expected.status}.`);
-  const recordedScore = frontmatter.match(/^  requirements:\s*(\d+\/\d+)$/m)?.[1];
-  const recordedMilestoneStatus = frontmatter.match(/^milestone_status:\s*([\w-]+)/m)?.[1];
-  if (recordedMilestoneStatus !== expected.milestoneStatus) errors.push('Audit milestone status does not match the computed incomplete/complete result.');
-  const recordedExceptionCount = Number(frontmatter.match(/^accepted_exception_count:\s*(\d+)$/m)?.[1] ?? -1);
-  if (recordedExceptionCount !== expected.acceptedExceptionCount) errors.push('Audit accepted-exception count does not match computed source state.');
-  const expectedExceptionIds = 'accepted_exception_ids: [' + expected.acceptedExceptions.map(({ id }) => id).join(', ') + ']';
-  if (!frontmatter.includes(expectedExceptionIds)) errors.push('Audit accepted-exception identities do not match the amendment.');
-  const recordedUnacceptedCount = Number(frontmatter.match(/^unaccepted_blocker_count:\s*(\d+)$/m)?.[1] ?? -1);
-  if (recordedUnacceptedCount !== expected.unacceptedBlockerCount) errors.push('Audit unaccepted-blocker count does not match computed source state.');
-  const recordedAmendmentSha = frontmatter.match(/^acceptance_amendment_sha256:\s*([a-f0-9]{64})$/m)?.[1];
-  if (recordedAmendmentSha !== expected.acceptanceAmendment?.sha256) errors.push('Audit does not bind the exact acceptance amendment.');
-  if (recordedScore !== expected.score.requirements) errors.push(`Audit score does not match computed ${expected.score.requirements}.`);
-  for (const row of expected.requirements) if (!actual.includes(`| ${row.id} |`)) errors.push(`Audit is missing requirement row ${row.id}.`);
-  if (expected.status === 'accepted_exceptions' && (recordedStatus === 'passed' || recordedMilestoneStatus === 'passed')) errors.push('Audit falsely claims milestone completion while accepted requirements remain unsatisfied.');
-  if (expected.status === 'gaps_found' && recordedStatus === 'passed') errors.push('Audit falsely claims passed while computed blockers remain.');
-  for (const row of expected.acceptedExceptions) {
-    if (!actual.includes(row.id) || !actual.includes('accepted_exception')) errors.push('Audit omits accepted exception ' + row.id + '.');
+  if (recordedStatus !== expected.status) errors.push(`Audit status does not match computed GSD status ${expected.status}.`);
+  if (frontmatter.match(/^source_audit_status:\s*([\w-]+)/m)?.[1] !== expected.status) errors.push(`Audit source status does not match computed ${expected.status}.`);
+  if (frontmatter.match(/^milestone_status:\s*([\w-]+)/m)?.[1] !== expected.milestoneStatus) errors.push('Audit milestone status does not match the computed incomplete/complete result.');
+  if (frontmatter.match(/^  requirements:\s*(\d+\/\d+)$/m)?.[1] !== expected.score.requirements) errors.push(`Audit score does not match computed ${expected.score.requirements}.`);
+  const expectedReady01 = `  READY-01: "${expected.currentReadiness.ready01}"`;
+  const expectedReady02 = `  READY-02: "${expected.currentReadiness.ready02}"`;
+  if (!frontmatter.includes(expectedReady01) || !frontmatter.includes(expectedReady02)) errors.push('Audit current READY statuses do not match their Phase 247 owner verdicts.');
+  for (const row of expected.requirements) {
+    const exactRow = `| ${row.id} | ${row.phase} | ${row.traceability} | ${row.verification_status} | ${row.acceptance_status} | **${row.status}** | ${row.evidence} |`;
+    if (!actual.includes(exactRow)) errors.push(`Audit requirement row ${row.id} differs from the source-derived owner verdict or traceability state.`);
   }
-  const reportText = actual;
-  for (const blocker of expected.blockers) if (!reportText.includes(blocker.id)) errors.push(`Audit omits blocker identity ${blocker.id}.`);
+  if (auditedAt && actual !== renderAudit({ ...expected, capturedAt: auditedAt })) errors.push('Audit prose, historical exception provenance, counts, blockers, or route differ from the complete source-derived rendering.');
+  for (const blocker of expected.blockers) if (!actual.includes(blocker.id)) errors.push(`Audit omits blocker identity ${blocker.id}.`);
   return { valid: errors.length === 0, errors, expected };
 }
 
