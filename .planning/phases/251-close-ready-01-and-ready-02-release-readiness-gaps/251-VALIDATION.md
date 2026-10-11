@@ -1,9 +1,9 @@
 ---
 phase: "251"
 slug: "close-ready-01-and-ready-02-release-readiness-gaps"
-status: validated
-nyquist_compliant: true
-wave_0_complete: true
+status: pending
+nyquist_compliant: false
+wave_0_complete: false
 created: "2026-10-11"
 ---
 
@@ -54,21 +54,68 @@ All in-scope checks are automated. If a trusted complete historical source conta
 - `node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources`
 - `node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md`
 
-## Validation Sign-Off
+## Historical Plan 01–02 Validation Sign-Off
+
+The checked items below record the completed Plan 01–02 validation only. They do not sign off Plans 03–07 or current full-phase compliance.
 
 - [x] Every plan task has an automated verify command or a Wave 0 dependency.
 - [x] Sampling continuity: no 3 consecutive tasks without automated verification.
 - [x] Wave 0 covers all required new regression cases.
 - [x] No watch-mode flags.
 - [x] Feedback latency remains within the local test budget.
-- [x] `nyquist_compliant: true` set after validation is complete.
+- [x] The Plan 01–02 validation was marked `nyquist_compliant: true` when its original checks completed.
 
-**Approval:** pending
+**Historical Plan 01–02 approval:** pending
 
-## Validation Audit 2026-10-11
+## Historical Plan 01–02 Validation Audit 2026-10-11
+
+The counts below describe the completed Plan 01–02 audit only; the current gap-plan audit follows the pending map.
 
 | Metric | Count |
 |---|---|
-| Gaps found | 0 |
-| Resolved | 0 |
-| Escalated | 0 |
+| Plan 01–02 gaps found | 0 |
+| Plan 01–02 resolved | 0 |
+| Plan 01–02 escalated | 0 |
+
+## Gap-Closure Planning Addendum — Plans 03–07 (pending)
+
+The 91/91 passing Plan 01/02 regression record above is historical. It does not validate the new CR-01/02/03 repairs or new READY evidence. All rows below are pending execution and evidence. The frontmatter now describes full-phase validation; the earlier checked sign-off and zero-gap audit remain explicitly historical.
+
+**Wave 0 prerequisite:** Before implementing a repair, add the named unsafe-acceptance fixture and prove it fails against the current code. Preserve that red result in the task summary, then require the same fixture to pass after repair. The inherited Node test infrastructure exists, so no new framework or install is needed. Fixture calls are local and deterministic; live GitHub observations occur only in evidence-capture tasks. `--check-251` must accept truthful unsatisfied packets while rejecting internally inconsistent or forged satisfied packets.
+
+| Task ID | Plan / wave | Requirement | Threat Ref | Required regression cases and evidence | Automated command | Status |
+|---|---|---|---|---|---|---|
+| 251-03-01 | 03 / 3 | READY-02 | T-251-09, T-251-10 | `prBaseShaChangedInvalidatesDisposition`, `prHeadChangedInvalidatesDisposition`, `prBaseRefChangedInvalidatesDisposition`, `prUnchangedIdentityKeepsDisposition` | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` | pending |
+| 251-03-02 | 03 / 3 | READY-02 | T-251-10 | `prEqualIdentityJoinsOnce`, `prDuplicateIdentityRejected`, `prNullBaseShaRejected`, `prNumericOrderingStable` | `node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` | pending |
+| 251-04-01 | 04 / 3 | READY-01 | T-251-11 | `publishedGuideCannotUseCandidateBlob`, `genericCheckEvidenceRejected`, `wrongCheckPathRejected`, `wrongCheckBlobRejected`, `namedCheckSourceBytesVerified` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs` | pending |
+| 251-04-02 | 04 / 3 | READY-01 | T-251-12 | `traceabilityRejectsForgedPackagePass`, `traceabilityAcceptsTruthfulPublishedGuideGap` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs` | pending |
+| 251-05-01 | 05 / 4 | READY-02 | T-251-13, T-251-14 | `secondaryDirtyWorktreeJoins`, `secondaryDirtyMissingPreservationBlocks`, `wrongBytePreservationRefBlocks`, `cleanSecondaryWorktreeAddsNoItem` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs` | pending |
+| 251-05-02 | 05 / 4 | READY-02 | T-251-15 | `recordedInheritedBaseRequired`, `prPages100And101Complete`, `prEmptyCompleteVsNull`, `prPopulationRaceBlocks`, `prStableOrdering` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs` | pending |
+| 251-05-03 | 05 / 4 | READY-02 | T-251-13, T-251-14, T-251-15 | Current packet includes every full PR and inherited identity, one disposition each, scoped ref byte read-back, owner packet digest; unresolved items carry precise blockers | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251` | pending |
+| 251-06-01 | 06 / 5 | READY-01 | T-251-16 | `historicalOwner404NotTrusted`, `noContemporaneousApprovalPending`, `laterApprovalRejected`, `wrongTupleMemberRejected`, `ready02IndependentOfApproval` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs` | pending |
+| 251-06-02 | 06 / 5 | READY-01 | T-251-17, T-251-18 | `publishedGuideTrusted404Blocks`, `publishedReadmeLinkMissingBlocks`, `sameInputSemanticIdempotency`, `interruptedCaptureFailsCheck`, `interleavedCaptureFailsCheck` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251` | pending |
+| 251-07-01 | 07 / 6 | READY-01, READY-02 | T-251-19, T-251-20 | `ownerReportReferenceRequired`, `ownerDerivedSevenEightNine`, `phase250ExceptionNotReadyPass` | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources` | pending |
+| 251-07-02 | 07 / 6 | READY-01, READY-02 | T-251-20 | Source-derived READY rows, strict 7/9-or-proven audit, Phase 248/249 unchanged, eight legacy mix failures labeled contextual | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md` | pending |
+| 251-07-03 | 07 / 6 | READY-01, READY-02 | T-251-21 | CR-01/02/03 fixed only with named red/green fixture evidence; unresolved originals leave phase verification gaps_found | `node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251 && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md` | pending |
+
+Gap-closure validation status: **pending (0/12 new task checks proven)**. Old 91/91 and source/audit passes remain historical only. The new fixture names are required contracts for execution, not claims that the tests currently exist or pass. No broad `mix test` pass is claimed; its eight unchanged legacy failures remain separately recorded diagnostics.
+
+## Current Gap-Closure Validation Audit
+
+| Metric | Count |
+|---|---:|
+| Plans 03–07 task checks | 12 |
+| Checks proven passing | 0 |
+| Checks not yet proven | 12 |
+
+## Current Full-Phase Validation Sign-Off
+
+- [ ] All 12 Plan 03–07 rows have passing command output and referenced task evidence; no pending, failed, or blocked row is counted as proven.
+- [ ] The required red-then-green fixtures, `--check-251`, `--check-sources`, and `--check-audit` have actual passing evidence; the historical 91/91 record does not substitute for these checks.
+- [ ] The current audit counts, row statuses, frontmatter, and sign-off agree. Set `status: validated`, `nyquist_compliant: true`, and `wave_0_complete: true` only after these checks are proven; otherwise retain pending/false and state precise failures.
+
+**Current approval:** pending. This validation sign-off concerns test evidence only. The separate Phase 247 owner verdict and Phase 251 verification may still report READY gaps after all tests pass.
+
+**Prewrite recovery identity:** The exact previous dirty validation bytes (` M`, SHA-256 `65fa3105a90363cfe00f6e2788e8a08895b2eaa236a1d2fd4ce979cb0ef888a6`) and untracked Plan 07 bytes (`??`, SHA-256 `89143b31589bf03e34132f367d701c5265fe08674a3e9762b5acf3fa497c0b42`) are recoverable from commit `975e3174685fbc7c1a42a94bfa3de864c48fae64` at `.planning/recovery/phase251-gap-checker-prewrite-20261011T215540Z/manifest.json` and its listed backup paths; parent verified committed read-back and the source hash/status before this revision.
+
+Spec-less prohibition recall found no new bespoke values or safety rule beyond the explicit D-01–D-06 source-truth and no-release-action constraints. The routine missing/duplicate/order cases are covered by edge fixtures. Canon Git/API input-tampering concerns are referred to the Phase 251 STRIDE threat register and `$gsd-secure-phase`; no duplicate prohibition is minted or silently marked verified.

@@ -2,23 +2,23 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-current_plan: null
 status: milestone_audit_gaps_found
 stopped_at: Phase 251 verification complete with gaps_found (2/4); READY-01/02 remain unsatisfied and three CRITICAL review findings remain open
-last_updated: "2026-10-11T21:34:07Z"
-state_head: ce4d606f136474efce342e1381052b3f65adc78b
+last_updated: "2026-10-11T21:59:35.175Z"
+state_head: 975e3174685fbc7c1a42a94bfa3de864c48fae64
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 42
+  total_plans: 47
   completed_plans: 42
-  percent: 83
+  percent: 67
 last_activity: 2026-10-11
 verification_status: gaps_found
 next_command: $gsd-plan-phase 251 --gaps
 resume_command: $gsd-plan-phase 251 --gaps
-current_phase: 251
 current_phase_name: Close READY-01 and READY-02 release readiness gaps
+current_phase: 251
+current_plan: null
 last_activity_desc: "Phase 251 verification is gaps_found (2/4). READY-01/02 remain unsatisfied; three CRITICAL code-review findings are recorded open; 91/91 Plan 02 tests pass, while the broader mix test has 8 unchanged legacy contract failures. Next: $gsd-plan-phase 251 --gaps."
 ---
 

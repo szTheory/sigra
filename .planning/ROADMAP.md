@@ -257,5 +257,8 @@ Plan 02 summary: .planning/phases/251-close-ready-01-and-ready-02-release-readin
 4. Work uses read-only external observations and deterministic checks. No workflow dispatch, PR merge, package publish, release creation, or candidate mutation occurs in this phase.
 
 Plans:
+**Wave 1**
 - [x] 251-01-PLAN.md — Run the read-only per-requirement source-feasibility preflight, then capture every source-ready evidence slice.
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [x] 251-02-PLAN.md — Reconcile original-owner traceability and the strict milestone audit from the source-derived packet and report.
