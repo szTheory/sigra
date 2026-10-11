@@ -2,31 +2,33 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-status: milestone_audit_gaps_found
-stopped_at: Phase 251 verification complete with gaps_found (2/4); READY-01/02 remain unsatisfied and three CRITICAL review findings remain open
-last_updated: "2026-10-11T21:59:35.175Z"
-state_head: 975e3174685fbc7c1a42a94bfa3de864c48fae64
+status: ready_to_execute
+stopped_at: Phase 251 gap planning verified; Plans 03–07 pending, phase verification remains gaps_found
+last_updated: "2026-10-11T22:02:08.898025Z"
+state_head: 6781a48afe37f68d7be094ff52a305e52e4adf07
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 47
   completed_plans: 42
-  percent: 67
+  percent: 89
 last_activity: 2026-10-11
 verification_status: gaps_found
-next_command: $gsd-plan-phase 251 --gaps
-resume_command: $gsd-plan-phase 251 --gaps
+next_command: $gsd-execute-phase 251 --gaps-only
+resume_command: $gsd-execute-phase 251 --gaps-only
 current_phase_name: Close READY-01 and READY-02 release readiness gaps
 current_phase: 251
-current_plan: null
-last_activity_desc: "Phase 251 verification is gaps_found (2/4). READY-01/02 remain unsatisfied; three CRITICAL code-review findings are recorded open; 91/91 Plan 02 tests pass, while the broader mix test has 8 unchanged legacy contract failures. Next: $gsd-plan-phase 251 --gaps."
+current_plan: 03
+last_activity_desc: "Phase 251 gap planning passed independent review: five new plans (03\u201307), 12 pending tasks in four remaining waves. Plans 01/02 are complete. Latest phase verification remains gaps_found (2/4), READY-01/02 remain unsatisfied, and the strict v1.49 audit remains 7/9 and incomplete. Next: $gsd-execute-phase 251 --gaps-only"
 ---
 
 # Project State
 
 ## Current position
 
-Plans complete: 2 of 2; phase verification returned gaps_found (2/4).
+Plans complete: 2 of 7; five gap plans and 12 new tasks are pending. Plan verification passed; phase verification remains gaps_found (2/4).
+
+Phase 251 gap planning passed independent review: five new plans (03–07), 12 pending tasks in four remaining waves. Plans 01/02 are complete. Latest phase verification remains gaps_found (2/4), READY-01/02 remain unsatisfied, and the strict v1.49 audit remains 7/9 and incomplete.
 
 Phase 251 Plan 01 and Plan 02 are complete. Verification returned gaps_found (2/4). The Phase 247 owner report is bound to the refreshed Phase 251 packet; the strict v1.49 audit remains gaps_found at 7/9; and both READY requirements remain unsatisfied. Plan 02's 91/91 required tests pass. The broader mix test has eight failures in unchanged legacy contract tests for Phases 233, 235, 58, and 198. Three CRITICAL validator findings are recorded open in the code-review disposition. Phase 250's accepted exceptions remain historical closeout evidence only.
 
@@ -57,11 +59,15 @@ Phase 247 implementation is recorded complete, but its owner verification remain
 - Later prewrite snapshot before final plan assertion edits: .planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/manifest.json (SHA-256 634bb548eb8cd9477ef4a8c9281a550611f23cf66e221f33769c0de92489f982; eight planning files read-back verified)
 - Exact write-ahead bytes for Nyquist checker revisions: .planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/manifest.json (SHA-256 95fd8600d50955f8d9f8ca6715e59a7405714eb305acc62100853e3d05c862ee), .planning/recovery/phase251-nyquist-followup-prewrite-20261011T195015Z/manifest.json (SHA-256 56ef6f87eadc084c3f23dfb1248e68c0c79e62e86c85441da3bc3e1b37a64c8b), and .planning/recovery/phase251-nyquist-finalization-prewrite-20261011T195300Z/manifest.json (SHA-256 49b5524b98429a0b6ae333f57d1bfbe2a9414785e855b44b4aef7e84a46d7a43; five files read-back verified).
 
+- Gap planning evidence: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-OUTCOME.json (SHA-256 56d0b24562dcfbebce571eb00bad3050eb705b35f5237d5b1086d2b5e498a65f); five plans verified after one revision, 12 task checks pending.
+- Gap checker prewrite preservation: .planning/recovery/phase251-gap-checker-prewrite-20261011T215540Z/manifest.json (commit 975e3174685fbc7c1a42a94bfa3de864c48fae64; byte read-back verified).
+- Generated state before route reconciliation preserved at commit 6781a48afe37f68d7be094ff52a305e52e4adf07; exact state.json read-back verified.
+
 ## Next GSD command
 
-$gsd-plan-phase 251 --gaps
+$gsd-execute-phase 251 --gaps-only
 
-Phase 251 implementation and verification are complete, with verification status gaps_found (2/4). GSD routes to a gap plan for Phase 251; both existing execution plans already have summaries, so do not replay them. READY-01 and READY-02 remain unsatisfied. Three CRITICAL validator findings remain recorded open, and the broader mix-test gate has eight failures in unchanged legacy contract tests. The exact verification report, code-review report, and disposition ledger are linked above. No workflow dispatch, merge, publish, or release action occurred. Phase 252 is not in the roadmap. Keep CI/CD runtime and reliability optimization queued separately after v1.49.
+Run $gsd-execute-phase 251 --gaps-only to execute only Plans 03–07. Preserve completed Plans 01/02 and original READY evidence bars; then re-verify Phase 251 from actual repair and capture evidence. CI/CD optimization remains separate work. Planning completion is separate from phase verification; all 12 new validation tasks remain pending. No phase-completion claim is made. Phase 252 is absent from the current roadmap.
 
 ## Accumulated Context
 
@@ -71,9 +77,9 @@ Phase 251 implementation and verification are complete, with verification status
 
 ## Session
 
-**Last session:** 2026-10-11T21:34:07Z
-**Stopped at:** Phase 251 verification completed with gaps_found (2/4); READY-01/02 remain unsatisfied; three CRITICAL findings remain open.
-**Resume file:** .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md
+**Last session:** 2026-10-11T22:02:08.898025Z
+**Stopped at:** Five Phase 251 gap plans independently verified; execution pending, phase verification gaps_found.
+**Resume file:** .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-OUTCOME.json
 
 ## Performance Metrics
 

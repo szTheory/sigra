@@ -231,15 +231,13 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
 | 250. Close v1.49 audit gaps | v1.49 | 9/9 active plans (4 superseded) | Complete under amended phase-only contract; milestone remains incomplete | 2026-10-11 |
-| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 2/2 | In Progress; plans complete, phase verification pending; audit gaps_found | — |
+| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 2/7 | Gap plans verified; execution pending; phase verification gaps_found | — |
 
 ### Next
 
-Phase 250 is complete under its narrowly amended closeout contract. The current audit records seven source-verified requirements and two still-unsatisfied READY requirements; v1.49 remains incomplete and unarchived. Phase 248 validation is Nyquist-compliant. Phase 247 remains partial and its owner report remains `gaps_found`; do not repeat its validation without new evidence. Phase 251 Plans 01 and 02 are complete, its current owner report and strict audit are reconciled, and 91 deterministic tests pass. READY-01 and READY-02 remain unsatisfied, so Phase 251 still needs its GSD verification gate.
+Phase 251 gap planning passed independent review: five new plans (03–07), 12 pending tasks in four remaining waves. Plans 01/02 are complete. Latest phase verification remains gaps_found (2/4), READY-01/02 remain unsatisfied, and the strict v1.49 audit remains 7/9 and incomplete. The original READY acceptance bars and Phase 250 historical exception scope remain unchanged.
 
-**Immediate GSD command:** `$gsd-execute-phase 251`. `init.verify-work 251` reports that the verification report is missing and explicitly routes to this command; it resumes at the verification gate and does not rerun plans that already have summaries. Phase 252 is not present in the roadmap and `init.plan-phase 252` reports no context or plans, so do not plan a speculative follow-up before Phase 251 verification. The user’s longer-term CI/CD runtime and reliability optimization request remains queued as separate work after v1.49.
-
-The Phase 250 acceptance amendment does not change owner verdicts or authorize a canary, publish, merge, or release action. Keep READY-01/02 unchecked; the accepted exception applies only to this phase closeout. Historical Phase 247 evidence is recorded in `250-247-TUPLE-DECISION-PACKET.json` and `250-247-RECONCILIATION.json`.
+**Immediate GSD command:** `$gsd-execute-phase 251 --gaps-only`. `init.execute-phase 251` confirms exactly five unfinished gap plans, no prerequisite blockers, and no duplicate threat IDs. Completed Plans 01/02 are excluded. The current roadmap ends at Phase 251; CI/CD runtime and reliability work remains a separate follow-up after v1.49.
 
 ### Phase 251: Close READY-01 and READY-02 release readiness gaps
 
@@ -248,7 +246,7 @@ Plan 02 summary: .planning/phases/251-close-ready-01-and-ready-02-release-readin
 **Goal:** Reconcile the two outstanding release-readiness requirements against their original evidence bars and refresh the Phase 247 owner verdicts without expanding release-action scope.
 **Requirements**: READY-01, READY-02
 **Depends on:** Phase 250
-**Plans:** 2/2 plans executed
+**Plans:** 2/7 plans executed; five gap plans independently verified and pending
 
 **Success Criteria**:
 1. READY-01 is marked satisfied only if one exact candidate/source/base/main tuple joins matching package version/metadata, release manifest/config, changelog, `v1.6.0` tag, HexDocs source reference, adopter notes for shipped changes/compatibility/generated-host action or no-action/`~> 1.6.0` update and check path, exact-source CI, readiness, authenticated non-publishing dry-run, and contemporaneous approval. If an approval event or any source item is missing or mismatched, the owner report records the gap and leaves READY-01 unsatisfied; this does not gate independent READY-02 inventory capture when its source slice is ready.
@@ -262,3 +260,19 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [x] 251-02-PLAN.md — Reconcile original-owner traceability and the strict milestone audit from the source-derived packet and report.
+
+
+**Wave 3** *(completed Plans 01/02 are prerequisites)*
+- [ ] 251-03-PLAN.md — Bind PR dispositions to complete repository/head/base identities.
+- [ ] 251-04-PLAN.md — Bind package and adopter checks to exact immutable source paths and blobs.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 251-05-PLAN.md — Join every worktree and fresh PR identity to disposition and preserved bytes.
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 251-06-PLAN.md — Bound historical approval and published-source recovery with explicit blockers.
+
+**Wave 6** *(blocked on Waves 3–5 completion)*
+- [ ] 251-07-PLAN.md — Reconcile Phase 247 ownership, strict audit, review findings, and pending validation.
+
+Gap planning evidence: `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-OUTCOME.json`. Independent plan verification passed after one revision. Current phase validation is pending (`nyquist_compliant: false`); all 12 new tasks require execution evidence. Phase verification remains `gaps_found`; planning does not satisfy READY-01/02.

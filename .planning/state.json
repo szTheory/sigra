@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 — RELEASE-1.6.0",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -11,7 +11,7 @@
     {
       "number": "247",
       "name": "Release Candidate and Repository Readiness",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "248",
@@ -31,13 +31,17 @@
     {
       "number": "251",
       "name": "Close READY-01 and READY-02 release readiness gaps",
-      "status": "in_progress"
+      "status": "in_progress",
+      "planning_status": "verified",
+      "gap_plans_pending": 5,
+      "gap_tasks_pending": 12,
+      "verification_status": "gaps_found"
     }
   ],
   "next": {
-    "command": "/gsd:progress",
-    "label": "Show progress",
-    "reason": "Unsure of state — showing progress"
+    "command": "$gsd-execute-phase 251 --gaps-only",
+    "label": "Execute five Phase 251 gap plans",
+    "reason": "Phase 251 gap planning passed independent review: five new plans (03\u201307), 12 pending tasks in four remaining waves. Plans 01/02 are complete. Latest phase verification remains gaps_found (2/4), READY-01/02 remain unsatisfied, and the strict v1.49 audit remains 7/9 and incomplete."
   },
-  "updated_at": "2026-10-11T21:59:35.187Z"
+  "updated_at": "2026-10-11T22:02:08.898025Z"
 }
