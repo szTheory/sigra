@@ -121,3 +121,11 @@ Gap-closure validation status: **validated (12/12 new task checks proven)**. The
 **Prewrite recovery identity:** The exact previous dirty validation bytes (` M`, SHA-256 `65fa3105a90363cfe00f6e2788e8a08895b2eaa236a1d2fd4ce979cb0ef888a6`) and untracked Plan 07 bytes (`??`, SHA-256 `89143b31589bf03e34132f367d701c5265fe08674a3e9762b5acf3fa497c0b42`) are recoverable from commit `975e3174685fbc7c1a42a94bfa3de864c48fae64` at `.planning/recovery/phase251-gap-checker-prewrite-20261011T215540Z/manifest.json` and its listed backup paths; parent verified committed read-back and the source hash/status before this revision.
 
 Spec-less prohibition recall found no new bespoke values or safety rule beyond the explicit D-01–D-06 source-truth and no-release-action constraints. The routine missing/duplicate/order cases are covered by edge fixtures. Canon Git/API input-tampering concerns are referred to the Phase 251 STRIDE threat register and `$gsd-secure-phase`; no duplicate prohibition is minted or silently marked verified.
+
+## Validation Audit 2026-10-11
+
+| Metric | Count |
+|---|---|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
