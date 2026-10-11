@@ -250,6 +250,39 @@ test('a concurrent PR or main move invalidates the captured live snapshot', asyn
   assert.equal(liveSnapshotStable(fullBefore, { ...fullBefore, openPullRequestPagination: { complete: false } }), false);
 });
 
+test('paginated PR capture distinguishes complete empty, one-page, 100-plus, duplicate, null, and reordered sets', async () => {
+  const { normalizePaginatedPullRequests, liveSnapshotStable } = await import('./verify-247-readiness.mjs');
+  assert.equal(typeof normalizePaginatedPullRequests, 'function');
+  const row = (number, head = String(number).padStart(40, '0')) => ({
+    number, head_sha: head, base_sha: 'b'.repeat(40), base_ref: 'main', state: 'open',
+  });
+  const empty = normalizePaginatedPullRequests([[]]);
+  assert.deepEqual(empty.rows, []);
+  assert.equal(empty.pagination.complete, true);
+  assert.equal(empty.pagination.observed_rows, 0);
+  assert.equal(normalizePaginatedPullRequests([]).pagination.complete, false);
+
+  for (const count of [1, 100, 101]) {
+    const rows = Array.from({ length: count }, (_, index) => row(index + 1));
+    const pages = [rows.slice(0, 100), ...(rows.length > 100 ? [rows.slice(100)] : [])];
+    const result = normalizePaginatedPullRequests(pages.reverse());
+    assert.equal(result.pagination.complete, true, `${count} rows should be complete`);
+    assert.equal(result.pagination.observed_rows, count);
+    assert.equal(result.rows[0].number, 1);
+    assert.equal(result.rows.at(-1).number, count);
+  }
+
+  assert.equal(normalizePaginatedPullRequests([[row(1), row(1, 'c'.repeat(40))]]).pagination.complete, false);
+  assert.equal(normalizePaginatedPullRequests([[{ ...row(1), base_sha: null }]]).pagination.complete, false);
+  const before = {
+    pullRequest: { number: 224, state: 'OPEN', headSha: 'a'.repeat(40), baseSha: 'b'.repeat(40) },
+    main: { sha: 'c'.repeat(40) }, openPullRequestNumbers: [1], openPullRequestIdentities: [row(1)],
+    openPullRequestPagination: { complete: true },
+  };
+  assert.equal(liveSnapshotStable(before, { ...before, openPullRequestIdentities: [row(1, 'd'.repeat(40))] }), false);
+  assert.equal(liveSnapshotStable(before, { ...before, openPullRequestPagination: { complete: false } }), false);
+});
+
 test('candidate source blob drift blocks the tuple even when the commit object exists', async () => {
   const { evaluateEvidence } = await import('./verify-247-readiness.mjs');
   const result = evaluateEvidence({
