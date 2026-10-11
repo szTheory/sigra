@@ -243,10 +243,16 @@ The Phase 250 acceptance amendment does not change owner verdicts or authorize a
 
 ### Phase 251: Close READY-01 and READY-02 release readiness gaps
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Reconcile the two outstanding release-readiness requirements against their original evidence bars and refresh the Phase 247 owner verdicts without expanding release-action scope.
+**Requirements**: READY-01, READY-02
 **Depends on:** Phase 250
 **Plans:** 0 plans
+
+**Success Criteria**:
+1. READY-01 is marked satisfied only if one exact candidate/source/base/main tuple joins matching exact-source CI, readiness, authenticated non-publishing dry-run, and contemporaneous approval. If the exact approval or any tuple evidence cannot be recovered, the owner report records the gap and leaves READY-01 unsatisfied.
+2. READY-02 is marked satisfied only after a fresh inventory accounts for every current open PR and inherited checkout change, each item has an explicit disposition, and each inherited change has a recoverable preservation identity verified by read-back. Missing, unreadable, or incomplete evidence leaves READY-02 unsatisfied.
+3. The Phase 247 owner verification, requirement traceability, and v1.49 milestone audit agree with the evidence. The milestone remains incomplete if either READY requirement remains unsatisfied; Phase 250's exception is not treated as milestone acceptance.
+4. Work uses read-only external observations and deterministic checks. No workflow dispatch, PR merge, package publish, release creation, or candidate mutation occurs in this phase.
 
 Plans:
 - [ ] TBD (run /gsd-plan-phase 251 to break down)
