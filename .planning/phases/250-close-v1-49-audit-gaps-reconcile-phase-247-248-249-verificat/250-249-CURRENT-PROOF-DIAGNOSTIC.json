@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T12:39:47Z",
+  "source": {
+    "acceptance_ref": "refs/heads/evidence/phase-249-final-acceptance",
+    "acceptance_commit": "65f1ca4c851d62415ed656509cb068dc3acbab15",
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "historical_protected_main_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+    "accepted_handoff_loss": {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+      "bytes_recovered": false,
+      "bytes_preserved": false
+    }
+  },
+  "public_source": {
+    "observed_at": "2026-10-11T12:39:47Z",
+    "http_status": 200,
+    "effective_url": "https://github.com/szTheory/sigra/blob/v1.6.0/lib/sigra.ex",
+    "source_url": "https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1",
+    "versioned_docs_status": 200,
+    "versioned_docs_effective_url": "https://sigra.hexdocs.pm/1.6.0/Sigra.html",
+    "hex_release_api_status": 200,
+    "version": "1.6.0",
+    "tag": "v1.6.0",
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "checksum": "e71dd35586011fbb387b4215e86d883ba2c3312f0e4a390ed107552affb75997",
+    "expected_checksum": "e71dd35586011fbb387b4215e86d883ba2c3312f0e4a390ed107552affb75997",
+    "verdict": "passed"
+  },
+  "historical_current_main_failure": {
+    "run_id": 38061391571,
+    "attempt": 1,
+    "head_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+    "event": "push",
+    "branch": "main",
+    "workflow_path": ".github/workflows/ci.yml",
+    "overall_conclusion": "failure",
+    "ci_gate": {
+      "job_id": 114241911167,
+      "conclusion": "success"
+    },
+    "admin_eval": {
+      "job_id": 114240219936,
+      "conclusion": "failure",
+      "failure_class": "registration navigation never left /users/register before Playwright's 10-second waitForURL deadline",
+      "test_location": "test/example/priv/playwright/tests/admin-eval.spec.ts:164",
+      "failed_cases": ["board-mg-3", "board-mg-6", "board-mg-7", "board-mg-9", "board-mg-11"]
+    },
+    "log_handling": "failure log inspected from the cached run archive; only sanitized timeout class retained"
+  },
+  "current_main_ci": {
+    "run_id": 38139851334,
+    "attempt": 1,
+    "head_sha": "58fe634eccf0058f2217017bb8aeda4a83e6ce21",
+    "event": "push",
+    "branch": "main",
+    "workflow_path": ".github/workflows/ci.yml",
+    "status": "in_progress",
+    "overall_conclusion": null,
+    "admin_eval_job_id": 114471607886,
+    "ci_gate_job_id": null,
+    "required_jobs": [],
+    "verdict": "pending"
+  },
+  "historical_source_url_failures": [
+    {"observed_status": 503, "classification": "historical failed freshness check; not promoted to a pass"},
+    {"observed_status": 503, "classification": "historical failed freshness check; not promoted to a pass"}
+  ]
+}
