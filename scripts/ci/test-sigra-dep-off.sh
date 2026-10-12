@@ -62,7 +62,7 @@ case "$*" in
     ;;
   "deps.get --check-locked")
     ;;
-  "compile threadline")
+  "compile --force --warnings-as-errors")
     mkdir -p _build/test/lib/threadline
     printf 'restored-build\n' > _build/test/lib/threadline/.built
     ;;

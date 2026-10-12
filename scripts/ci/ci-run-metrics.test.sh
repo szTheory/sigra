@@ -427,7 +427,7 @@ redirect_good=0
 for url in 'https://pipelines.actions.githubusercontent.com/download/file?sig=SECRET_VALUE' 'https://productionresultssa123.blob.core.windows.net/container/file?sig=SECRET_VALUE'; do
   redirect_host="$(PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --validate-redirect "$url" 2>/dev/null || true)"
   if [[ "$redirect_host" == pipelines.actions.githubusercontent.com || "$redirect_host" == productionresultssa123.blob.core.windows.net ]]; then redirect_good=$((redirect_good+1)); fi
-  ! rg -F 'SECRET_VALUE' <<<"$redirect_host" >/dev/null || redirect_good=0
+  ! grep -F 'SECRET_VALUE' <<<"$redirect_host" >/dev/null || redirect_good=0
 done
 redirect_bad=0
 for url in 'http://pipelines.actions.githubusercontent.com/x' 'https://evil.pipelines.actions.githubusercontent.com/x' 'https://productionresultssa123evil.blob.core.windows.net/x' 'https://user@pipelines.actions.githubusercontent.com/x' 'https://pipelines.actions.githubusercontent.com/x#fragment' 'https://pipelines.actions.githubusercontent.com:444/x' 'https://pipelines.actions.githubusercontent.com' 'https://pipelines.actions.githubusercontent.com.evil.test/x' 'https://127.0.0.1/x'; do
@@ -472,11 +472,11 @@ if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --extract-timing-zip "${
 else fail "ZIP member validation failed"; fi
 printf '%s\n' 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' 'Authorization: Bearer secret-token' 'password=cleartext' 'AWS_SECRET_ACCESS_KEY=aws-cleartext' 'https://blob.example/file?sig=SIGNED_QUERY' >"${TMPDIR_ROOT}/sensitive.log"
 if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --redact-log "${TMPDIR_ROOT}/sensitive.log" --redacted-output "${TMPDIR_ROOT}/redacted.log" \
-  && ! rg -F 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
-  && ! rg -F 'secret-token' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
-  && ! rg -F 'cleartext' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
-  && ! rg -F 'aws-cleartext' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
-  && ! rg -F 'SIGNED_QUERY' "${TMPDIR_ROOT}/redacted.log" >/dev/null; then pass "known token, bearer, password and signed-query patterns are redacted"; else fail "sensitive log content survived redaction"; fi
+  && ! grep -F 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
+  && ! grep -F 'secret-token' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
+  && ! grep -F 'cleartext' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
+  && ! grep -F 'aws-cleartext' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
+  && ! grep -F 'SIGNED_QUERY' "${TMPDIR_ROOT}/redacted.log" >/dev/null; then pass "known token, bearer, password and signed-query patterns are redacted"; else fail "sensitive log content survived redaction"; fi
 }
 
 echo ""
@@ -577,7 +577,7 @@ PREFLIGHT_FILE="${TMPDIR_ROOT}/preflight.json"
 if PATH="${GH_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --preflight --preflight-output "$PREFLIGHT_FILE" >/dev/null 2>"${TMPDIR_ROOT}/preflight.err" \
   && jq -e '.status == "ready" and (.checkout.sha|length)>0 and .workflow.git_blob_sha != "" and (.effective_required_contexts|length)==5' "$PREFLIGHT_FILE" >/dev/null \
   && [[ "$(wc -l <"$GH_API_LOG" | tr -d ' ')" -eq 4 ]] \
-  && ! rg -v -- '--method GET' "$GH_API_LOG" >/dev/null; then
+  && ! grep -v -- '--method GET' "$GH_API_LOG" >/dev/null; then
   pass "preflight reports current five contexts and guards all four initial requests"
 else
   fail "preflight failed: $(cat "${TMPDIR_ROOT}/preflight.err" 2>/dev/null) preflight=$(cat "$PREFLIGHT_FILE" 2>/dev/null) calls=$(cat "$GH_API_LOG" 2>/dev/null)"
@@ -838,12 +838,12 @@ if [[ "$window_rc" -eq 0 ]] \
   && jq -e 'any(.artifact_diagnostics[]?; .kind=="failed_job_log" and .result.status=="retained_redacted")' "$WINDOW_BUNDLE/raw/families/5001/manifest.json" >/dev/null \
   && jq -e '[.requests[]|select(startswith("download:artifact:"))]|length==2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
   && jq -e '[.requests[]|select(startswith("download:job-log:"))]|length==2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
-  && ! rg -F 'SIGNED_URL_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
-  && ! rg -F 'SIGNED_LOG_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
-  && ! rg -F 'SIGNED_LOG_SECRET' "$WINDOW_BUNDLE" >/dev/null \
-  && ! rg -F 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' "$WINDOW_BUNDLE" >/dev/null \
-  && ! rg -F 'cleartext' "$WINDOW_BUNDLE" >/dev/null \
-  && ! rg -F 'DO_NOT_RETAIN' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'SIGNED_URL_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'SIGNED_LOG_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'SIGNED_LOG_SECRET' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'cleartext' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'DO_NOT_RETAIN' "$WINDOW_BUNDLE" >/dev/null \
   && ! jq -e '.populations.push_main.runs[] | select(.head_branch != "main")' "$WINDOW_BUNDLE/manifest.json" >/dev/null; then
   pass "fixed cutoff, 100-run cap, API totals and event separation are retained"
 else

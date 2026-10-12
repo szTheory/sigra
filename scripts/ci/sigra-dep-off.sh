@@ -30,7 +30,7 @@ restore() {
   ) || restore_status=1
   (
     cd "${ROOT}"
-    MIX_ENV=test mix compile threadline
+    MIX_ENV=test mix compile --force --warnings-as-errors
   ) || restore_status=1
 
   rm -rf "${SNAPSHOT_DIR}" || restore_status=1
