@@ -18,6 +18,7 @@ contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
 output=pathlib.Path(sys.argv[3])
 identity=baseline.get('measured_pr_identity') or {}
 bundle_hash=baseline.get('source_bundle_sha256','unknown')
+full=baseline.get('instrumented_full_pr') or {}
 def show(value, unit=''):
     if value is None: return 'unknown'
     if isinstance(value, dict):
@@ -78,7 +79,7 @@ PR workload classes: full `{baseline.get('cohorts',{}).get('full',{}).get('n',0)
 
 ## Required result and cost
 
-The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial wait is recorded separately from dependencies, while required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{baseline.get('instrumented_full_pr',{}).get('status','unknown')}`. Run [{identity.get('producing_run_id','unknown')} attempt {identity.get('run_attempt','unknown')}]({identity.get('source_url') or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{identity.get('pull_request_number','unknown')}]({identity.get('pull_request') or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{identity.get('application_sha','unknown')}`; producer checked-out source revision `{identity.get('producer_source_sha','unknown')}`; workflow file SHA-256 `{identity.get('workflow_file_sha256','unknown')}`; workload identity SHA-256 `{identity.get('workload_revision_sha256','unknown')}`. These are distinct revisions and digests.
+The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial wait is recorded separately from dependencies, while required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{full.get('status','unknown')}`. Across its retained attempts, runner cost is {show(full.get('job_cost_seconds'),'s')}; timing producer jobs account for {show(full.get('instrumentation_producer_job_seconds'),'s')}; test durations sum to ExUnit {show(full.get('test_costs',{}).get('exunit_test_duration_us'),'µs')} and Playwright {show(full.get('test_costs',{}).get('playwright_test_duration_ms'),'ms')}. Run [{identity.get('producing_run_id','unknown')} attempt {identity.get('run_attempt','unknown')}]({identity.get('source_url') or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{identity.get('pull_request_number','unknown')}]({identity.get('pull_request') or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{identity.get('application_sha','unknown')}`; producer checked-out source revision `{identity.get('producer_source_sha','unknown')}`; workflow file SHA-256 `{identity.get('workflow_file_sha256','unknown')}`; workload identity SHA-256 `{identity.get('workload_revision_sha256','unknown')}`. These are distinct revisions and digests.
 
 Currently enforced required names, with ruleset IDs as provenance:
 {required}
