@@ -357,6 +357,25 @@ if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --replay --source-bundle
   pass "source bundle replays offline with API totals and outcomes intact"
 else fail "snapshot replay error=$(cat "${TMPDIR_ROOT}/snapshot-replay.err") output=$(cat "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
 
+echo "Test V2: replay exposes source-backed cohort ranks, stages, provenance and unknowns"
+if jq -e '
+  (.ranked_by_wait.pull_request.n >= 1) and (.ranked_by_runner.pull_request.n >= 1) and
+  ([.ranked_by_wait.pull_request.rows[].identity|tostring] | length == (.ranked_by_wait.pull_request.rows|length)) and
+  (.stage_costs.pull_request.setup.status == "measured") and
+  (.stage_costs.pull_request.cache_restore_download.status == "unknown") and
+  (.cache_outcome.browser_binaries == "unknown") and
+  (.runner_image.pull_request.runner_os == "Linux") and
+  (.configured_versions.playwright == "1.59.1") and
+  (.observed_versions.pull_request.playwright.value == null) and
+  (.observed_versions.pull_request.playwright.reason != null) and
+  (.reporter_overhead.playwright.status == "unmeasured") and
+  (.populations.docs_only.status == "insufficient_data" and .populations.docs_only.n == 0) and
+  ([.test_rows[]|select(.source=="exunit")]|length)==0 and
+  ([.test_rows[]|select(.source=="playwright")]|length)==0
+' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null; then
+  pass "replay separates rankings, stages, cache, runtime and zero-sample unknowns"
+else fail "replay metrics missing or fabricated: $(jq -c '{ranked_by_wait,ranked_by_runner,stage_costs,cache_outcome,runner_image,configured_versions,observed_versions,reporter_overhead,test_rows,populations:.populations.docs_only}' "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
+
 echo "Test W: concurrent lock, interruption ledger, and request ceiling are enforced"
 LOCKED_BUNDLE="${TMPDIR_ROOT}/locked-bundle"
 mkdir "${LOCKED_BUNDLE}.lock"
