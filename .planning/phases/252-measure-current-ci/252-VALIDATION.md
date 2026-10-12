@@ -86,3 +86,11 @@ None. Unavailable logs, timestamps, artifact origin or cache conditions are reco
 - [ ] `nyquist_compliant: true` set only after the required validation is actually achieved
 
 **Status:** Partial. Twelve task checks passed; three task outcomes are escalated for the same ExUnit artifact scope defect. Phase verification and requirement status remain pending.
+
+## Validation Audit 2026-10-12
+
+| Metric | Count |
+|---|---|
+| Gaps found | 2 |
+| Resolved | 1 |
+| Escalated | 1 |
