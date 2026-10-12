@@ -4,17 +4,17 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 252
 current_phase_name: Measure Current CI
-status: executing
-stopped_at: Completed 252-05-PLAN.md; full mix ci still has six unrelated Threadline failures
-last_updated: "2026-10-12T19:34:06.908Z"
+status: verifying
+stopped_at: Completed 252-06-PLAN.md; phase verification pending
+last_updated: "2026-10-12T21:36:27.655Z"
 last_activity: 2026-10-12
 last_activity_desc: Plan 252-05 implementation, offline checks, and hosted-proof handoff completed
-state_head: 6354cc45d68e5bdf852f6081939b2d3dd94ff5a4
+state_head: 68f72acfd440e5ab8f25bfd8693245511921a006
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 milestone_status: active
 workflow_step: phase_execution_pending
@@ -40,7 +40,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 Phase: 252 (Measure Current CI) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-10-12 — Plan 252-05 implementation and offline checks completed; Plan 252-06 remains
 Progress: [░░░░░░░░░░] 0%
 
@@ -83,9 +83,9 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T19:34:06.895Z
-**Stopped at:** Completed 252-05-PLAN.md; full mix ci still has six unrelated Threadline failures
-**Resume file:** .planning/phases/252-measure-current-ci/252-06-PLAN.md
+**Last session:** 2026-10-12T21:36:27.637Z
+**Stopped at:** Completed 252-06-PLAN.md; phase verification pending
+**Resume file:** None
 
 ## Deferred Items
 
@@ -105,6 +105,7 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 | Phase 252 P03 | 12min | 2 tasks | 5 files |
 | Phase 252 P04 | 28min | 2 tasks | 3 files |
 | Phase 252 P05 | 32min | 3 tasks | 13 files |
+| Phase 252 P6 | 84 | 3 tasks | 11 files |
 
 ## Decisions
 
@@ -117,3 +118,6 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 - [Phase 252]: Replay keeps rankings for initial wait, required-context critical path, execution, and summed runner time separate.
 - [Phase 252]: Missing artifact identities, timestamps, cache results, and runtime versions remain unknown rather than being filled from configured pins.
 - [Phase 252]: Failure signatures require repeat source references; cancellation without superseding-run evidence stays unclassified.
+- [Phase 252]: The 20-pair comparison uses the measured baseline cache vector and freezes candidate identity and exact UTC dates before the first run.
+- [Phase 252]: ExUnit's five-pair historical overhead is retained separately; current ExUnit paired overhead and Playwright reporter overhead remain unknown and are not subtracted.
+- [Phase 252]: Hosted retry evidence and runner cost remain in the original source family; no replacement families or comparison-window extension are allowed.

@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 252",
-    "label": "Continue Phase 252 execution",
-    "reason": "Plan 252-06 of 6 remains before phase-level verification; all requirements stay pending."
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step (verify)",
+    "reason": "Phase 252 of 4 · 0% · ready to verify"
   },
-  "updated_at": "2026-10-12T19:33:50.166Z"
+  "updated_at": "2026-10-12T21:36:26.552Z"
 }
