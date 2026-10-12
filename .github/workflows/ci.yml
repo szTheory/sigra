@@ -582,6 +582,8 @@ jobs:
         run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch library deps
         run: mix deps.get
+      - name: Prepare timing output directory
+        run: mkdir -p test-results
       - name: Run contributor CI gate
         env:
           PGUSER: postgres
