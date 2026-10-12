@@ -1,12 +1,15 @@
 ---
 phase: 251-close-ready-01-and-ready-02-release-readiness-gaps
-verified: 2026-10-11T21:29:13Z
+verified: 2026-10-12T00:42:58Z
 status: gaps_found
-score: 2/4 must-haves verified
+score: 9/10 must-haves verified
 covered_files:
   - .planning/REQUIREMENTS.md
   - .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs
   - .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-ACCEPTANCE-AMENDMENT.json
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs
@@ -15,58 +18,77 @@ covered_files:
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-SUMMARY.md
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-SUMMARY.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-task1-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-PLAN.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-SUMMARY.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-task1-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-task2-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-PLAN.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-SUMMARY.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-task1-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-task2-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-PLAN.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-SUMMARY.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-task1-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-task2-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-PLAN.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-SUMMARY.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-task1-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-task2-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-PLAN.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-SUMMARY.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-task1-red-evidence.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-validation-evidence.json
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-SUMMARY.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-RESULT.json
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-mix.log
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-node.log
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW-DISPOSITION.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW-FIX.md
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW.md
+  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-CLOSEOUT-CHECKS.json
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY.md
-  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-UI-REVIEW.md
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md
-  - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION-PRESERVED-20261011T2129Z.md
   - .planning/v1.49-MILESTONE-AUDIT.md
-covered_digest: "v3:sha256:276190337068896d6dd36d40afc4a4a5a1ba5b5e1a352a9f8a52b1c5ce095b04"
+covered_digest: "v3:sha256:90f9807ee069794af3709f9bba8fb1f930df7885d8d76c22e71b438029fddb49"
 behavior_unverified: 0
 overrides_applied: 0
+re_verification:
+  previous_status: gaps_found
+  previous_score: 2/4
+  gaps_closed:
+    - "READY-02 now has a complete current PR and inherited-work population, exact dispositions, and verified preservation read-backs."
+    - "The prior CR-01, CR-02, and CR-03 gaps and later CR-04 through CR-08 findings are closed by source-bound checks and regressions."
+  gaps_remaining:
+    - "READY-01 remains unsatisfied under its original owner evidence bar."
+  regressions: []
 gaps:
   - truth: "READY-01 satisfies its complete original acceptance bar for the exact candidate and published source identities."
     status: failed
-    reason: "The exact acceptance evidence is incomplete: the trusted historical owner-report source returns 404, the complete review history contains no exact-candidate contemporaneous approval, the published v1.6.0 source has no upgrade guide, and its README omits the guide link. Three open CRITICAL review findings also show the package checks can accept unbound evidence text."
+    reason: "Trusted historical owner-report bytes are unavailable from the authoritative source; the complete contemporaneous review history has no approval for the exact candidate/CI/readiness/dry-run tuple; stored readiness and dry-run records name a different candidate; and the immutable published v1.6.0 tag lacks the upgrade guide and its README link. The Phase 247 owner report correctly leaves READY-01 unsatisfied."
     artifacts:
       - path: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json
-        issue: "READY-01 remains authorization_pending/unsatisfied; published_tag_guide is missing and readme_guide_link mismatches."
-      - path: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs
-        issue: "Open CR-02: package/adopter checks accept generic nonempty identity/evidence strings without binding them to the required source paths."
+        issue: "READY-01 is authorization_pending with named source, tuple, approval, published-guide, and README-link findings."
       - path: .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md
-        issue: "Canonical Phase 247 owner verdict remains authorization_pending."
+        issue: "The original owner verdict remains gaps_found and READY-01 unsatisfied, bound to the current packet digest."
+      - path: .planning/REQUIREMENTS.md
+        issue: "READY-01 remains unchecked and its traceability row records the unsatisfied owner verdict."
     missing:
-      - "Independently trusted immutable historical owner-report bytes."
-      - "A contemporaneous approval for the exact candidate/source/CI/readiness/dry-run tuple, if one exists in the required historical interval."
-      - "The published v1.6.0 upgrade guide and its published README link, or an explicitly approved alternative that still meets the original evidence bar."
-      - "Source-path-bound package/adopter check validation and fixtures."
-  - truth: "READY-02 has a fresh complete open-PR and inherited-work inventory with a disposition for every full identity and read-back verified preservation for each inherited item."
-    status: failed
-    reason: "The packet reports local_inherited_commit_base_unavailable and open_pr_population_mismatch, and contains no complete disposition/preservation join. Open CR-01 permits dispositions to carry across changed PR identities; open CR-03 omits dirty secondary-worktree changes from the inherited-work join."
-    artifacts:
-      - path: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json
-        issue: "READY-02 is unsatisfied with blockers local_inherited_commit_base_unavailable and open_pr_population_mismatch; dispositionIds and preservationRefs are empty."
-      - path: .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs
-        issue: "Open CR-01 allows stale PR dispositions after identity changes; open CR-03 can miss dirty secondary worktrees."
-      - path: .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md
-        issue: "Canonical Phase 247 owner verdict remains unsatisfied."
-    missing:
-      - "A readable inherited commit base and complete current inherited-work population."
-      - "A complete current open-PR population with full identity-bound dispositions."
-      - "Read-back-verified preservation identities for each applicable inherited change, including every worktree."
-      - "Fixes and regression coverage for CR-01 and CR-03."
+      - "Independently trusted immutable bytes for the historical Phase 247 owner report."
+      - "A contemporaneous approval for the exact candidate/source/CI/readiness/dry-run tuple, if one exists in the original interval."
+      - "Matching readiness and authenticated non-publishing dry-run evidence for the exact candidate tuple."
+      - "The published v1.6.0 upgrade guide and its README link, or an explicitly approved alternative meeting the original bar."
 ---
 
 # Phase 251: Close READY-01 and READY-02 Release Readiness Gaps — Verification Report
 
 **Phase Goal:** Reconcile the two outstanding release-readiness requirements against their original evidence bars and refresh the Phase 247 owner verdicts without expanding release-action scope.
-**Verified:** 2026-10-11T21:29:13Z
+**Verified:** 2026-10-12T00:42:58Z
 **Status:** gaps_found
-**Re-verification:** No — initial verification
+**Re-verification:** Yes — after gap closure
 
 ## Goal Achievement
 
@@ -74,97 +96,87 @@ gaps:
 
 | # | Truth | Status | Evidence |
 |---|---|---|---|
-| 1 | READY-01 satisfies its complete original acceptance bar for the exact candidate and published source identities. | ✗ FAILED | The candidate `0e773d3614a242e4fbcdd34c418ecb8a307703d6` and published `v1.6.0` source `9e80cb78d6374b1ed4074d5fef6b613fee879dca` are kept distinct, but the trusted historical owner-report lookup is 404, complete review history has no exact approval, the published guide lookup is 404, and the published README lacks its link. The owner verdict is authorization_pending. Open CR-02 also shows package checks do not bind generic evidence text to the files they claim to check. |
-| 2 | READY-02 has a fresh complete open-PR and inherited-work inventory with a disposition for every full identity and read-back verified preservation for each inherited item. | ✗ FAILED | The packet names `local_inherited_commit_base_unavailable` and `open_pr_population_mismatch`; its disposition and preservation joins are empty. Open CR-01 permits stale dispositions after PR identity changes, and open CR-03 can omit dirty secondary worktrees. The owner verdict is unsatisfied. |
-| 3 | The Phase 247 owner report, requirement traceability, and v1.49 strict audit agree with the current evidence, while Phase 250's exception remains historical only. | ✓ VERIFIED | The owner report is SHA-256 `1b0c66dec55dd8502936a3ff58263b90b2c8647151057e66002644de9d9b9a43` and binds packet SHA-256 `36bbf3514b15d50cdf9bbc05062ca2c9a125771ec8c882a757143e59345349df`. [REQUIREMENTS.md](/Users/jon/projects/sigra/.planning/REQUIREMENTS.md) leaves both rows unchecked. The strict audit reports `gaps_found`, 7/9, and incomplete; it traces the Phase 250 exception to its recorded historical amendment and tuple evidence. Recorded `--check-sources` and `--check-audit` checks pass. This verifies the current recorded outcomes; the open CRITICAL findings remain relevant to any future pass decision. |
-| 4 | Phase 251 stays within read-only external observations and does not dispatch workflows, merge PRs, publish packages, create releases, or mutate the candidate. | ✓ VERIFIED | Phase plans, feasibility/evidence records, and summaries record no release action; the captured active checkout was clean at `11766bf0456b7d9d5a4d79f1c0c94b12e61eba94`. No workflow dispatch or merge/publish/release action is recorded. |
+| 1 | READY-01 acceptance is bound to one exact candidate/base/main tuple, exact-source CI/readiness/dry-run, complete package/adopter sources, and contemporaneous approval; missing or mismatched inputs remain unsatisfied without blocking READY-02. | ✓ VERIFIED | `verify-247-readiness.mjs --check-251` accepts the current packet. Its exact source records distinguish candidate `0e773d3614a242e4fbcdd34c418ecb8a307703d6` from published tag `v1.6.0` at `9e80cb78d6374b1ed4074d5fef6b613fee879dca`; the packet records the historical owner-source 422/404, zero exact approvals in the complete review interval, candidate mismatch in readiness and dry-run, missing published-tag guide, and missing README link. READY-01 remains `authorization_pending`. |
+| 2 | READY-02 has a fresh complete open-PR and inherited-work inventory, one disposition per full identity, and read-back verified preservation for each applicable item. | ✓ VERIFIED | The packet and independent audit contain 15 stable before/after open-PR identities; 746 inherited commits, 1,670 paths, and 5 dirty records; 2,421 exact disposition identities; and preservation refs with 2,421 inherited and 15 PR records read back. `--check-251`, `--check-sources`, and `--check-audit` all pass. |
+| 3 | Phase 247 remains owner of READY-01/02; the current owner report, requirement rows, and strict milestone audit agree, and Phase 250 exceptions remain historical only. | ✓ VERIFIED | Owner report, requirement traceability, and audit bind packet SHA-256 `fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140`. READY-01 is unsatisfied, READY-02 is satisfied, and the strict audit is `gaps_found`, incomplete at 8/9. The exact source and audit checks return valid; the audit records zero accepted current exceptions and two historical Phase 250 exceptions. |
+| 4 | Phase 251 stays within read-only source observations and deterministic verification, without dispatching a workflow, merging, publishing, creating a release, or mutating the candidate. | ✓ VERIFIED | Plans and current evidence use read-only source observations and local tests. The captured candidate/tag identities are unchanged, no release action appears in the packet or closeout records, and the active checkout was clean at the verification capture boundary. |
+| 5 | Per-requirement feasibility is independent, and an untrusted or incomplete source leaves only the affected requirement unsatisfied while Phase 247 retains ownership. | ✓ VERIFIED | `251-EVIDENCE-FEASIBILITY.json` and the current packet preserve separate READY-01/READY-02 source states. READY-01 is blocked/authorization_pending; independently source-ready READY-02 was captured and proven. The bounded historical recovery and package tests exercise this split. |
+| 6 | PR dispositions cannot survive changed full identities, and population ordering/uniqueness is enforced. | ✓ VERIFIED | The READY-02 validator checks repository, PR number, head, base ref, and base SHA; its regressions cover changed identity components, duplicate/null identities, and numeric ordering. The scoped regression log reports 213 Node tests passing. |
+| 7 | Each READY-01 package/adopter conclusion is derived from exact immutable source paths and bytes; generic evidence text cannot establish acceptance. | ✓ VERIFIED | The capture and independent audit read source blobs from named commits, recompute Git blob OIDs/SHA-256, and derive predicates. Source-binding and forged-evidence regressions pass in the current 213-test Node run. The immutable published guide 404 remains a real requirement finding. |
+| 8 | Every dirty worktree item is included in the READY-02 join and must match its preservation record, ref, source identity, and read-back bytes. | ✓ VERIFIED | The independent audit derives the canonical dirty population from all worktree status rows, validates metadata and exact set equality, and reads preserved bytes. Security closeout records 14 population controls, 16 preservation controls, 5 real dirty-record read-backs, and 23 source predicates passing; all 22 registered mitigations are closed. |
+| 9 | The current phase review, validation, and scoped regressions have machine evidence; no other original READY gap is hidden by the historical audit exception. | ✓ VERIFIED | Current validation records 12/12 Plan 03–07 checks. Code review is clean with 0 findings; all 8 tracked review findings are fixed with retained RED and passing regression evidence. The scoped regression result records 213 Node tests and 250 Elixir tests passing, with the broad legacy failures explicitly excluded as historical context. |
+| 10 | READY-01 meets its complete original owner acceptance bar. | ✗ FAILED | The immutable published tag lacks the guide and README link; the complete historical approval interval contains no exact approval; exact readiness/dry-run records refer to another candidate; and the historical owner report is not independently trusted. These are original-bar failures, not a Phase 251 test or validation failure. |
 
-**Score:** 2/4 truths verified (0 present, behavior-unverified)
+**Score:** 9/10 truths verified (0 present, behavior-unverified)
 
-## Required Artifacts
+### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |---|---|---|---|
-| `251-EVIDENCE-FEASIBILITY.json` | Per-requirement trusted-source feasibility and capture decision | ✓ VERIFIED | Exists and is substantive. READY-01 is blocked/authorization_pending; READY-02 capture was allowed independently. It records exact source identities and source checks. |
-| `251-247-RECONCILIATION.json` | Fresh evidence packet and owner verdict inputs | ✓ VERIFIED (incomplete evidence recorded) | Exists and is substantive. READY-01/02 remain unsatisfied with named blockers; this packet does not satisfy the requirements. |
-| `251-EVIDENCE-SUMMARY.md` | Human-readable packet rendering | ✓ VERIFIED | Matches the packet identity, verdicts, and blockers. |
-| `247-VERIFICATION.md` | Refreshed canonical Phase 247 owner verdicts | ✓ VERIFIED (gaps remain) | Explicitly binds the Phase 251 packet path/digest and leaves READY-01/02 unsatisfied. |
-| `REQUIREMENTS.md` | Original-owner READY traceability | ✓ VERIFIED (unchecked) | Both requirements remain mapped to Phase 247 and unchecked. |
-| `v1.49-MILESTONE-AUDIT.md` | Source-derived strict milestone status | ✓ VERIFIED (incomplete) | Reports 7/9 requirements, `gaps_found`, and an incomplete milestone. |
-| Phase 251 readiness/audit evaluators | Enforce the original evidence contracts | ✗ FAILED | Three CRITICAL findings are recorded with `disposition: open` in `251-REVIEW-DISPOSITION.md` and remain unresolved: stale PR identity dispositions (CR-01), unbound READY-01 check evidence (CR-02), and omitted dirty secondary worktree changes (CR-03). |
+| `251-EVIDENCE-FEASIBILITY.json` | Separate source feasibility and capture gates | ✓ VERIFIED | Machine-readable READY-01 blocked and READY-02 source-ready; preserves distinct requirement outcomes. |
+| `251-247-RECONCILIATION.json` | Current evidence packet and owner inputs | ✓ VERIFIED | Exact capture `phase251-939607ff3f17e03b22aa`; READY-01 authorization_pending and READY-02 satisfied. |
+| `251-EVIDENCE-SUMMARY.md` | Packet rendering | ✓ VERIFIED | Bound to the same packet generation and digest. |
+| `247-VERIFICATION.md` | Canonical Phase 247 owner verdict | ✓ VERIFIED | Current packet path/digest attached; the owner leaves READY-01 unsatisfied and proves READY-02. |
+| `REQUIREMENTS.md` | Original-owner requirement traceability | ✓ VERIFIED | READY-01 unchecked and READY-02 checked in agreement with Phase 247. |
+| `v1.49-MILESTONE-AUDIT.md` | Strict source-derived milestone status | ✓ VERIFIED | Current audit passes checks; remains incomplete at 8/9, with READY-01 as the only unsatisfied requirement. |
+| `validate-release-readiness.mjs` and `verify-247-readiness.mjs` | Full identity joins and path-bound source checks | ✓ VERIFIED | Substantive validators are imported by their CLIs and exercised by the named regression suites. |
+| `verify-v149-traceability.mjs` | Independent owner and milestone audit | ✓ VERIFIED | Re-reads immutable source and preservation evidence and is wired to `--check-sources` and `--check-audit`. |
 
-## Key Link Verification
+### Key Link Verification
 
 | From | To | Via | Status | Details |
 |---|---|---|---|---|
-| `251-247-RECONCILIATION.json` | `247-VERIFICATION.md` | Packet path and digest | ✓ WIRED | Owner report contains the exact packet path and SHA-256. |
-| `247-CANDIDATE-APPROVAL.json` | `251-247-RECONCILIATION.json` | Exact tuple approval evidence or pending verdict | ✗ NOT WIRED | Approval source is absent/untrusted; complete history reports no qualifying event, leaving READY-01 authorization_pending. |
-| `247-VERIFICATION.md` | `REQUIREMENTS.md` | Owner verdict reflected in requirement rows | ⚠️ PARTIAL | Rows match the owner verdict and packet, but do not cite the owner report; the GSD key-link checker found no source reference. |
-| `250-ACCEPTANCE-AMENDMENT.json` | `v1.49-MILESTONE-AUDIT.md` | Historical Phase 250 exception identity | ✓ WIRED | Audit records the amendment hash and keeps it separate from current READY acceptance. |
+| Reconciliation packet | Phase 247 owner report | Capture ID and packet SHA-256 | ✓ WIRED | `--check-251` confirms packet digest and verdict binding. |
+| Phase 247 owner report | `REQUIREMENTS.md` | Requirement verdict, owner report path, packet path/digest | ✓ WIRED | `--check-sources` validates the two owner-linked rows. |
+| `REQUIREMENTS.md` | Strict v1.49 audit | Independent source-derived check | ✓ WIRED | `--check-sources` and `--check-audit` both return valid. |
+| Immutable package sources | READY-01 check results | Exact commit/path/blob/digest references | ✓ WIRED | Independent audit reads bytes and recomputes identities before checking the assertions. |
+| Captured worktrees and PRs | READY-02 dispositions and preservation | Full identities and byte read-back | ✓ WIRED | Exact population and disposition joins are checked; the preservation evidence reads back. |
 
-## Data-Flow Trace (Level 4)
+### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 |---|---|---|---|---|
-| `251-247-RECONCILIATION.json` | READY-01 source checks | Exact candidate/tag GitHub contents, tag ref, review/timeline history, readiness and dry-run producers | Yes; exact immutable source checks are recorded, including the trusted 404 | ✓ FLOWING, acceptance incomplete |
-| `251-247-RECONCILIATION.json` | READY-02 PR/inherited inventory | Open-PR API and local inherited-work/preservation sources | Partial; population mismatch and unavailable inherited base prevent complete joins | ✗ INCOMPLETE |
-| `247-VERIFICATION.md` | Requirement verdicts | Hash-bound Phase 251 packet | Yes; explicit requirement verdicts and packet digest | ✓ FLOWING |
-| `v1.49-MILESTONE-AUDIT.md` | Current status and blocker rows | Phase 247 owner report and Phase 251 packet | Yes; current owner verdicts produce 7/9 incomplete status | ✓ FLOWING |
+| Readiness packet | requirement verdicts | Trusted GitHub source records, local Git/worktree snapshots, and exact preservation refs | Yes; values are captured and independently recomputed | ✓ FLOWING |
+| Strict audit | READY and milestone statuses | Current owner report, requirements traceability, current packet, and pinned historical exception records | Yes; statuses and source predicates are derived | ✓ FLOWING |
 
-## Behavioral Spot-Checks
+### Behavioral Spot-Checks
 
-| Behavior | Command/evidence | Result | Status |
+| Behavior | Command or evidence | Result | Status |
 |---|---|---|---|
-| Plan 02 readiness and audit regressions | Recorded phase validation: required suites, source check, and audit check | 91/91 tests passed; source/audit checks passed | ✓ PASS (recorded validation evidence; not rerun in this verification) |
-| Broader Elixir regression gate | Recorded `mix test` result | 8 failures in unchanged legacy contract tests for Phases 233, 235, 58, and 198 | ✗ FAIL (not claimed as passed; failures are outside Phase 251 changes) |
-| Release workflow or publish action | Phase packet/summary action records | No dispatch, merge, publish, release creation, or candidate mutation recorded | ✓ PASS |
+| Packet, owner report, and verdict generation agree | `node .../verify-247-readiness.mjs --check-251` | Valid; packet SHA and capture ID match | ✓ PASS |
+| Owner rows and milestone status are source-derived | `node .../verify-v149-traceability.mjs --check-sources` | Valid; READY-01 unsatisfied, READY-02 satisfied, audit 8/9 | ✓ PASS |
+| Strict audit matches current source evidence | `node .../verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md` | Valid; `gaps_found`, incomplete, 8/9 | ✓ PASS |
+| Scoped Node and Elixir regressions | `251-GAP-REGRESSION-RESULT.json` and bound logs | 213 Node tests and 250 Elixir tests passed; exit code 0 for both | ✓ PASS |
+| Phase 251 gap-closure ledger | `251-VALIDATION.md` and `251-07-validation-evidence.json` | 12/12 new task checks proven; no pending/failed/blocked rows | ✓ PASS |
 
-## Probe Execution
+### Probe Execution
 
-No phase-declared or conventional probe scripts were found for this evidence-reconciliation phase. Plan-required deterministic checks are recorded above.
+No probe files are declared by this evidence phase's plans or success criteria; probe execution is not applicable.
 
-## Requirements Coverage
+### Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |---|---|---|---|---|
-| READY-01 | 251-01, 251-02 | Exact candidate/published-source tuple, package/adopter sources, exact-source CI/readiness/dry-run, and contemporaneous approval | ✗ BLOCKED / unsatisfied | No qualifying approval, untrusted historical owner-report source, missing published guide, and missing published README link. Current Phase 247 owner verdict is authorization_pending. |
-| READY-02 | 251-01, 251-02 | Complete current open-PR and inherited-work inventory, full-identity dispositions, and verified preservation | ✗ BLOCKED / unsatisfied | Missing inherited base and mismatched PR population; no complete dispositions or preservation joins. Current Phase 247 owner verdict is unsatisfied. |
+| READY-01 | 251-01, 251-04, 251-06, 251-07 | Exact candidate and published-source acceptance, including exact approval and package/adopter evidence | BLOCKED | Original evidence bar remains unsatisfied; Phase 247 owner verdict and strict audit both preserve the named gap. |
+| READY-02 | 251-01, 251-03, 251-05, 251-07 | Complete fresh PR and inherited-work dispositions with recoverable preservation | SATISFIED | 15 PR identities and 2,421 inherited identities are joined to dispositions and verified preservation read-backs. |
 
-The milestone audit independently remains `gaps_found` at 7/9. There are no orphaned Phase 251 requirements: both IDs are present in both plans and retain Phase 247 ownership in traceability.
-
-## Decision Coverage
-
-All trackable CONTEXT.md decisions are honored by shipped artifacts (6/6; non-blocking gate).
-
-## Test Quality Audit
-
-| Test File | Linked Req | Active | Skipped | Circular | Assertion Level | Verdict |
-|---|---|---:|---:|---|---|---|
-| `verify-247-readiness.test.mjs` | READY-01/02 | Yes, per recorded validation | 0 found | No detected circular assertion | Behavioral/contract | ⚠️ Insufficient for READY-01 evidence provenance: CR-02 notes generic evidence text can pass without path binding; the success fixture uses generic identity/detail for every named check. |
-| `validate-release-readiness.test.mjs` | READY-02 | Yes, per recorded validation | 0 found | No detected circular assertion | Behavioral/contract | ⚠️ Does not close CR-01 or CR-03: changed PR identities and dirty secondary worktrees can escape the final acceptance join. |
-| `verify-v149-traceability.test.mjs` | READY-01/02 | Yes, per recorded validation | 0 found | No detected circular assertion | Value/contract | ⚠️ Audit contract tests pass but share the CR-02 weakness in accepting generic source identity and evidence text. |
-
-**Disabled tests on requirements:** 0 found. **Circular patterns detected:** 0. **Insufficient assertions:** 3 critical review findings remain open.
-
-## Anti-Patterns Found
+### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
-|---|---:|---|---|---|
-| `verify-247-readiness.mjs` | 106–114 | Check evidence accepts free-form nonempty strings rather than validating expected source paths | 🛑 BLOCKER (CR-02) | A false READY-01 pass can be assembled from unbound evidence. |
-| `validate-release-readiness.mjs` | 426–432, 761–764 | Disposition copied across changed PR identity without re-binding `base_sha` | 🛑 BLOCKER (CR-01) | Stale disposition can survive a changed PR source identity. |
-| `verify-247-readiness.mjs` | 265–270 | READY-02 pass predicate checks worktree readability but does not join secondary dirty files | 🛑 BLOCKER (CR-03) | Inherited changes in another worktree can be omitted from inventory/disposition. |
+|---|---|---|---|---|
+| — | — | No actionable stub, placeholder, or unreferenced debt marker found in the scoped source files | — | — |
 
-The three findings are documented in [251-REVIEW.md](/Users/jon/projects/sigra/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW.md) and all remain open in `251-REVIEW-DISPOSITION.md`.
+Intentional `return null` branches are fail-closed parsing and validation paths, covered by source-bound tests; they do not return empty success data.
 
-## Human Verification Required
+### Human Verification Required
 
-None. The failed acceptance bars are tied to absent, mismatched, or incomplete source evidence and unresolved evaluator defects; they do not require subjective human judgment to classify as unmet.
+None. The project instructions require automated evidence where available, and the in-scope owner/evidence contracts have deterministic checks. READY-01 is an objectively missing evidence gap, not an unresolved human judgment.
 
-## Gaps Summary
+### Gaps Summary
 
-READY-01 remains unsatisfied because its contemporaneous approval and published adopter-guide requirements are not proven by the required exact sources. READY-02 remains unsatisfied because its inherited base, current PR population, per-identity dispositions, and preservation joins are incomplete. Phase 251 correctly preserves both owner verdicts as unsatisfied and the milestone audit as incomplete, but the phase cannot pass while those required READY bars remain unmet. The three open CRITICAL findings further prevent trusting the evaluators to safely promote either item after future evidence changes.
+The refresh achieved its reconciliation outcome for READY-02 and corrected the earlier incomplete population joins. READY-01 remains unaccepted under the original Phase 247 bar: independently trusted historical owner bytes are unavailable, the complete original review window contains no exact-candidate approval, the readiness and dry-run records name a different candidate, and the published v1.6.0 tag has neither the upgrade guide nor the README link. No Phase 250 exception or later approval changes that result. The current owner report, requirement traceability, and strict audit consistently retain READY-01 as unsatisfied, so Phase 251 cannot be reported as fully closed.
 
 ---
 
-_Verified: 2026-10-11T21:29:13Z_  
+_Verified: 2026-10-12T00:42:58Z_
 _Verifier: the agent (gsd-verifier)_
