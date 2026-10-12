@@ -1,12 +1,15 @@
 # Phase 251: Close READY-01 and READY-02 Release Readiness Gaps - Context
 
 **Gathered:** 2026-10-11 (assumptions mode)
-**Status:** Ready for planning
+**Updated:** 2026-10-12 (assumptions confirmed after exhausted recovery)
+**Status:** Discussion resolved; implementation complete, verification incomplete; no automatic retry
 
 <domain>
 ## Phase Boundary
 
 Refresh and reconcile the evidence for the two still-unsatisfied Phase 247 release-readiness requirements. READY-01 may pass only if one exact candidate/source/base/main tuple is joined to its matching CI, readiness, dry-run, and contemporaneous approval record. READY-02 may pass only if a fresh inventory accounts for every open PR and inherited checkout change, with a recorded disposition and recoverable preservation identity for each applicable item. If the required historical approval cannot be recovered, or either evidence join remains incomplete, record the gap and leave that owner requirement unsatisfied. Keep READY-01/02 owned by Phase 247 and keep v1.49 incomplete unless the canonical owner verification proves both requirements.
+
+Plans 251-01 through 251-07 and all 12 gap tasks are implemented. Verification remains `gaps_found` at 9/10, READY-01 remains unsatisfied, READY-02 is satisfied, and v1.49 remains incomplete at 8/9. The user confirmed the exhausted-recovery direction: no automatic retry without new trusted historical evidence or an explicitly separate scope decision.
 
 This is an evidence-refresh and verification phase. Use read-only source/API observations and deterministic checks; do not dispatch a workflow, merge a PR, publish a package, create a release, or change a release candidate. Do not treat the Phase 250 accepted exceptions as milestone acceptance. The longer-term CI/CD reliability and performance work remains a separate follow-up after v1.49.
 </domain>
@@ -26,10 +29,17 @@ This is an evidence-refresh and verification phase. Use read-only source/API obs
 - **D-05:** Prefer read-only live inventory, exact-source artifact checks, and deterministic tests over manual UAT. Record capture time, exact identities, source paths, and hashes for evidence; label historical snapshots as historical. No new workflow dispatch, merge, publish, release, or candidate mutation is in scope, as confirmed by the user.
 - **D-06:** Keep CI/CD timeout, reliability, and release-lane follow-up ideas outside Phase 251. The user's earlier instruction places that optimization work after the current milestone. Phase 251 only determines whether READY-01/02 can be proven from the required evidence.
 
+### Exhausted recovery and discussion resolution
+- **D-07:** Stop automatic gap-planning retries. Plan 251-06 exhausted bounded recovery, and the independently checked replanning diagnostic found no materially new finite read-only task. Do not create a diagnostic-only Plan 08 or repeat the completed searches without a newly identified, independently trusted original evidence source.
+- **D-08:** Preserve the current distinction between implementation and verification: all seven plans and 12 gap tasks are implemented; Phase 251 verification remains `gaps_found` at 9/10. Phase 247 continues to own both READY requirements, READY-02 remains satisfied by its captured complete population and verified preservation joins, READY-01 remains `authorization_pending` and unsatisfied, and v1.49 remains incomplete and unarchived at 8/9. This discussion confirms that record; it does not waive a missing acceptance item.
+- **D-09:** A future recovery plan requires a new independently authenticated, pre-existing original source identified by immutable record IDs and exact source identities. Run a deterministic source-feasibility preflight before proposing finite recovery tasks; record which blocker the source can actually address. An archive cannot add the missing guide or README link to the immutable published tag, and a new receipt or approval cannot become contemporaneous historical evidence. Only after such new source material is identified is `$gsd-plan-phase 251 --gaps` a conditional next command; there is no automatic next command now.
+- **D-10:** Prospective documentation or release repairs require separately scoped work and an explicit acceptance or scope decision. Record any later corrective result separately from the original historical failure. No prospective repair, new phase, milestone closeout exception, replacement approval, workflow dispatch, merge, publish, release, or candidate mutation is authorized by this discussion.
+
 ### the agent's Discretion
 - Choose the smallest deterministic verifier and evidence-ledger updates that preserve Phase 247 ownership and existing schemas.
 - Refresh external read-only observations when planning/execution needs current facts; do not transplant live values into historical source records.
 - If evidence is absent or a live read is unavailable, record the precise blocker and stop the affected requirement at unsatisfied.
+- Keep the confirmed no-retry guard in state and handoff. Routine status or discussion commands are not evidence that a new recovery source exists.
 
 ### Folded Todos
 None. The matching release-lane CI/CD items remain separate follow-up work per the user's prior instruction.
@@ -47,7 +57,7 @@ None. The matching release-lane CI/CD items remain separate follow-up work per t
 - `.planning/METHODOLOGY.md` — automation-first verification, immutable source identity, decisive defaults, and write-ahead preservation.
 - `.planning/VERIFICATION-POLICY.md` — deterministic evidence and exact-SHA requirements.
 - `.planning/STATE.md` — current route and unresolved milestone state; refresh before execution.
-- `.planning/v1.49-MILESTONE-AUDIT.md` — current 7/9 milestone verdict, Phase 250-only exception boundary, validation classifications, and next route.
+- `.planning/v1.49-MILESTONE-AUDIT.md` — current 8/9 milestone verdict, Phase 250-only exception boundary, validation classifications, and next route.
 - `.planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md` — original readiness decisions and Phase 247 boundary.
 - `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CONTEXT.md` — source-identity, owner, and fail-closed verification decisions.
 
@@ -63,6 +73,15 @@ None. The matching release-lane CI/CD items remain separate follow-up work per t
 - `.planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json` and `249-12-SUMMARY.md` — examples of recoverable preservation identities and completed disposition formats; do not copy their historical inventory as current.
 - `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-CLOSEOUT-AUDIT.md` — the phase-only exception record.
 - `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs` and `verify-v149-traceability.test.mjs` — source-derived fail-closed milestone checks and regression tests.
+
+### Current implementation and exhausted-recovery evidence
+- `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json` — source-bound current packet; READY-02 satisfied and READY-01 unsatisfied.
+- `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-SUMMARY.md` — completed bounded historical approval, owner-source, tuple, and published-tag recovery.
+- `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json` — seven implemented plans, 12 implemented gap tasks, regression history, and preserved prior tracking identities.
+- `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json` — four remaining blocker categories and no compliant Plan 08 delta.
+- `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CHECKS.json` — independent checker and source-derived planning checks; not a READY-01 pass.
+- `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md` — implementation complete, verification `gaps_found` at 9/10.
+- `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json` — this user-confirmed no-retry decision, exact prior-byte recovery references, and source checks.
 
 No product UI, application API, or visual-design contract applies to this evidence phase.
 </canonical_refs>
@@ -84,11 +103,13 @@ No product UI, application API, or visual-design contract applies to this eviden
 ### Integration Points
 - Phase 251 evidence updates feed the Phase 247 owner verification for READY-01/02, then `.planning/REQUIREMENTS.md` and `.planning/v1.49-MILESTONE-AUDIT.md` only if the canonical owner verdict changes.
 - Phase 248 AUTO and Phase 249 REL reports remain independently satisfied and unchanged by this phase.
-- The current next route is Phase 251 planning after this context is committed; CI/CD optimization remains after v1.49.
+- There is no automatic next action after this discussion. `$gsd-plan-phase 251 --gaps` is conditional on newly identified independently trusted historical evidence and a finite source-ready delta. A separate prospective repair requires explicit separate scope. CI/CD optimization remains after v1.49.
 </code_context>
 
 <specifics>
 ## Specific Ideas
+
+- The user selected “Yes, save this direction”: preserve the original approval/source bar, retain current owner and milestone verdicts, stop automatic recovery retries, and scope any prospective repair separately. No new archive was identified and no prospective work was authorized.
 
 - Treat the exact READY-01 approval as a historic record to recover, never as a new approval to request or infer. The user's current answers define Phase 251's acceptance rule; they do not approve a candidate, merge, or release.
 - For READY-02, make the inventory complete and reviewable before calling anything dispositioned; bind each preservation reference to bytes that can actually be read back.

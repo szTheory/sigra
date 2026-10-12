@@ -3,9 +3,9 @@ gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
 status: gaps_found
-stopped_at: "Phase 251 gap replanning inconclusive; original-bar verification gaps_found9/10"
-last_updated: "2026-10-12T02:35:28.790315+00:00"
-state_head: 8168b76c33bdeb70a34c42827f08eec1a5fde71c
+stopped_at: "Phase 251 discussion confirmed; implementation complete, verification incomplete; no automatic retry"
+last_updated: 2026-10-12T12:56:18.946087+00:00
+state_head: 5d4b2638d1ff42a3228953cede17f8aed1bd4046
 progress:
   total_phases: 6
   completed_phases: 4
@@ -14,18 +14,21 @@ progress:
   percent: 100
 verification_status: gaps_found
 next_command: $gsd-discuss-phase 251
-resume_command: $gsd-discuss-phase 251
+resume_command: $gsd-plan-phase 251 --gaps
+resume_condition: newly identified independently trusted original source
+automatic_next_command: null
+automatic_retry_allowed: false
 current_phase: 251
 current_phase_name: Close READY-01 and READY-02 release readiness gaps
 current_plan: 07
-last_activity_desc: "Phase 251 gap replanning is inconclusive: no new Plan 08 is executable within the locked read-only scope. All seven plans and 12 gap tasks remain implemented; phase verification is gaps_found 9/10, READY-02 is satisfied, READY-01 is unsatisfied, and v1.49 remains incomplete at 8/9."
+last_activity_desc: "Phase 251 discussion is resolved: all seven plans and 12 gap tasks are implemented; verification remains gaps_found 9/10. READY-02 is satisfied, READY-01 is unsatisfied, and v1.49 remains incomplete at 8/9. Automatic recovery retries are disabled pending new trusted historical evidence or explicit separate scope."
 ---
 
 # Project State
 
 ## Current position
 
-Phase 251 gap replanning is inconclusive: no new Plan 08 is executable within the locked read-only scope. All seven plans and 12 gap tasks remain implemented; phase verification is gaps_found 9/10, READY-02 is satisfied, READY-01 is unsatisfied, and v1.49 remains incomplete at 8/9.
+Phase 251 discussion is resolved: all seven plans and 12 gap tasks are implemented; verification remains gaps_found 9/10. READY-02 is satisfied, READY-01 is unsatisfied, and v1.49 remains incomplete at 8/9. Automatic recovery retries are disabled pending new trusted historical evidence or explicit separate scope.
 
 Implementation progress is 7/7 plans and 12/12 gap tasks. Phase verification is incomplete. READY-02 has 15 current captured PR identities and 2,421 inherited identities with exact dispositions and recoverable read-backs. The historical inherited base was recovered; every captured worktree participates. READY-01 remains authorization_pending under its original owner acceptance bar.
 
@@ -34,6 +37,8 @@ Current automatic proof: 213 Node regression tests and 250 scoped Elixir tests p
 The v1.49 milestone remains incomplete and unarchived at 8/9. Phase 247 retains READY ownership. Phase 250 accepted exceptions remain historical closeout only; independent Phase 248/249 facts are preserved. CI/CD optimization is separate future work.
 
 ## Current evidence
+
+- Confirmed discussion: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md (D-07–D-10) and .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json; prior context, log, and tracking bytes read back at 5d4b2638d1ff42a3228953cede17f8aed1bd4046.
 
 - Gap replanning diagnostic: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json; committed 8168b76c33bdeb70a34c42827f08eec1a5fde71c; independent checker confirms no new compliant plan.
 - Fresh planning checks and capture: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CHECKS.json and 251-GAP-REPLANNING-CAPTURE.json. Prior tracking bytes are verified against fe1ec63b978cf732b113dcb407d3a6a395b79245.
@@ -50,9 +55,13 @@ The v1.49 milestone remains incomplete and unarchived at 8/9. Phase 247 retains 
 
 ## Next GSD command
 
-$gsd-discuss-phase 251
+**Automatic next command:** None.
 
-Plan 251-06 exhausted bounded read-only recovery; independent gap planner and checker found no materially new compliant delta. Context or scope resolution is required; acceptance bars are unchanged. `init.plan-phase 251` reports Executed, seven plans, complete context and research; `init.execute-phase 251` reports no incomplete plans. The verification owner defaulted to gap planning, which this attempt exhausted without a new plan. The roadmap ends at Phase 251; no later phase is inferred. Discussion resolves evidence or scope; it does not authorize release mutations or retroactive approval.
+**Conditional command:** `$gsd-plan-phase 251 --gaps`
+
+Only after a newly identified independently trusted pre-existing original evidence source is supplied; a finite source-ready delta is required. No automatic retry.
+
+User confirmed exhausted recovery: implementation complete, verification incomplete. No new trusted historical source or separately authorized prospective scope exists. `init.plan-phase 251` reports Executed with seven plans and complete context/research; this is orchestration readiness, not proof of new historical evidence. The roadmap ends at Phase 251. Prospective repair requires separate explicit scope; none was authorized.
 
 ## Blockers
 
@@ -64,8 +73,8 @@ Plan 251-06 exhausted bounded read-only recovery; independent gap planner and ch
 ## Session
 
 **Last session:** 2026-10-12T02:35:28.790315+00:00
-**Stopped at:** Gap replanning inconclusive; original READY-01 evidence remains unsatisfied. No new plan or execution is pending.
-**Resume file:** .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CHECKS.json
+**Stopped at:** Discussion confirmed; original READY-01 evidence remains unsatisfied. No automatic retry, new plan, or execution is pending.
+**Resume file:** .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md
 
 ## Performance Metrics
 
@@ -82,3 +91,5 @@ Plan 251-06 exhausted bounded read-only recovery; independent gap planner and ch
 - Later authorization cannot replace missing contemporaneous exact-tuple approval.
 - Current source audit and owner proof drive requirement checkboxes; Phase 250 exceptions do not substitute for READY evidence.
 - Preserve exact dirty planning revisions before replacement, with durable refs and verified byte read-back.
+
+- User confirmed no automatic retry; any prospective correction requires separately authorized scope.

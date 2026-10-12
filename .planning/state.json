@@ -43,13 +43,21 @@
       "gap_execution_outcome": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json",
       "planning_status": "inconclusive",
       "new_gap_plans": 0,
-      "gap_replanning_diagnostic": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json"
+      "gap_replanning_diagnostic": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json",
+      "discussion_status": "confirmed",
+      "automatic_retry_allowed": false,
+      "gap_planning_precondition": "new_independently_trusted_original_source",
+      "discussion_resolution": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json"
     }
   ],
   "next": {
-    "command": "$gsd-discuss-phase 251",
-    "label": "Resolve Phase 251 evidence or scope",
-    "reason": "Plan 251-06 exhausted bounded read-only recovery; independent gap planner and checker found no materially new compliant delta. Context or scope resolution is required; acceptance bars are unchanged."
+    "command": "$gsd-plan-phase 251 --gaps",
+    "label": "Conditional recovery after new trusted evidence",
+    "reason": "User confirmed exhausted recovery: implementation complete, verification incomplete. No new trusted historical source or separately authorized prospective scope exists.",
+    "conditional": true,
+    "condition": "Only after a newly identified independently trusted pre-existing original evidence source is supplied; a finite source-ready delta is required. No automatic retry.",
+    "automatic_command": null,
+    "route_status": "waiting_for_new_evidence_or_explicit_separate_scope"
   },
-  "updated_at": "2026-10-12T02:35:28.790315+00:00"
+  "updated_at": "2026-10-12T12:56:18.946087+00:00"
 }
