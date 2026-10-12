@@ -36,6 +36,7 @@ required='\n'.join(f"- `{c}` (ruleset IDs: {', '.join(str(x.get('ruleset_id')) f
 runs='\n'.join(f"- [{r.get('event')} run {r.get('id')} attempt {r.get('run_attempt','unknown')} — {r.get('conclusion','unknown')}]({r.get('html_url') or 'https://github.com/szTheory/sigra/actions'}) — SHA `{r.get('head_sha','unknown')}`, workload `{r.get('workload','unknown')}`" for r in baseline.get('source_runs',[])[:12]) or '- unknown (no source run records in replay)'
 events=['pull_request','main','nightly']
 rank_wait=baseline.get('ranked_by_wait',{}); rank_runner=baseline.get('ranked_by_runner',{})
+queue_pr=baseline.get('initial_wait',{}).get('pull_request',{})
 over=baseline.get('reporter_overhead',{})
 exunit=over.get('exunit',{})
 pw=over.get('playwright',{})
@@ -81,7 +82,7 @@ PR workload classes: full `{baseline.get('cohorts',{}).get('full',{}).get('n',0)
 
 ## Required result and cost
 
-The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial wait is recorded separately from dependencies, while required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{full.get('status','unknown')}`. Across its retained attempts, runner cost is {show(full.get('job_cost_seconds'),'s')}; timing producer jobs account for {show(full.get('instrumentation_producer_job_seconds'),'s')}; test durations sum to ExUnit {show(full.get('test_costs',{}).get('exunit_test_duration_us'),'µs')} and Playwright {show(full.get('test_costs',{}).get('playwright_test_duration_ms'),'ms')}. Run [{identity.get('producing_run_id','unknown')} attempt {identity.get('run_attempt','unknown')}]({identity.get('source_url') or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{identity.get('pull_request_number','unknown')}]({identity.get('pull_request') or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{identity.get('application_sha','unknown')}`; producer checked-out source revision `{identity.get('producer_source_sha','unknown')}`; workflow file SHA-256 `{identity.get('workflow_file_sha256','unknown')}`; workload identity SHA-256 `{identity.get('workload_revision_sha256','unknown')}`. These are distinct revisions and digests.
+The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial per-job queue wait is {show(queue_pr.get('total_seconds'),'s')} summed across {queue_pr.get('n','unknown')} job attempts (not a workflow wall time); dependency gaps remain {show(baseline.get('dag_dependency_gaps',{}).get('pull_request'))}; required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{full.get('status','unknown')}`. Across its retained attempts, runner cost is {show(full.get('job_cost_seconds'),'s')}; timing producer jobs account for {show(full.get('instrumentation_producer_job_seconds'),'s')}; test durations sum to ExUnit {show(full.get('test_costs',{}).get('exunit_test_duration_us'),'µs')} and Playwright {show(full.get('test_costs',{}).get('playwright_test_duration_ms'),'ms')}. Run [{identity.get('producing_run_id','unknown')} attempt {identity.get('run_attempt','unknown')}]({identity.get('source_url') or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{identity.get('pull_request_number','unknown')}]({identity.get('pull_request') or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{identity.get('application_sha','unknown')}`; producer checked-out source revision `{identity.get('producer_source_sha','unknown')}`; workflow file SHA-256 `{identity.get('workflow_file_sha256','unknown')}`; workload identity SHA-256 `{identity.get('workload_revision_sha256','unknown')}`. These are distinct revisions and digests.
 
 Currently enforced required names, with ruleset IDs as provenance:
 {required}
@@ -90,9 +91,21 @@ Currently enforced required names, with ruleset IDs as provenance:
 
 {section_rank(rank_wait.get('pull_request',{}))}
 
+Main pushes:
+{section_rank(rank_wait.get('main',{}))}
+
+Nightly schedule:
+{section_rank(rank_wait.get('nightly',{}))}
+
 ### Largest summed runner cost
 
 {section_rank(rank_runner.get('pull_request',{}))}
+
+Main pushes:
+{section_rank(rank_runner.get('main',{}))}
+
+Nightly schedule:
+{section_rank(rank_runner.get('nightly',{}))}
 
 Wait includes time until the required-result endpoint; runner cost sums actual job execution across attempts. They are different measures. Dependency gaps are {show(baseline.get('dag_dependency_gaps',{}).get('pull_request',{}))}. Step categories: setup `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('setup'))}`, cache restore/download `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('cache_restore_download'))}`, compile `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('compile'))}`, database `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('database_startup'))}`, app boot `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('app_boot'))}`, tests `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('test_execution'))}. Cache: `{json.dumps(baseline.get('cache_outcome',{}),sort_keys=True)}`. Runner image: `{json.dumps(baseline.get('runner_image',{}).get('pull_request',{}),sort_keys=True)}`.
 
