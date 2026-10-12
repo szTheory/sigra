@@ -9,7 +9,11 @@
     "head": "5cad1606e87037620047ab8c7b2c85ae524e232b",
     "validation_path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
     "validation_sha256_before_audit": "6f7c572ba699de95e0ebba82d947327283e1864e672645a2f0902250defa6878",
-    "preserved_copy": "/private/tmp/sigra-phase252-252-validation-before-audit.md"
+    "preserved_copy": "/private/tmp/sigra-phase252-252-validation-before-audit.md",
+    "validation_revision_before_audit_append": {
+      "commit": "ece099b22ebbf5f41cd9ce87c40e4e31d42d69ec",
+      "sha256": "a82f6cdebbc93ce81ec8c2de6303abd466dc3a20b89fb6d79e6ddcf2b91f4522"
+    }
   },
   "summary": {
     "tasks_total": 15,
