@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile, readdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import test from 'node:test';
+import { normalizeReport } from './ci-playwright-report.mjs';
 
 const configPath = new URL('../../test/example/priv/playwright/playwright.config.ts', import.meta.url);
 const workflowPath = new URL('../../.github/workflows/ci.yml', import.meta.url);
+const cliPath = new URL('./ci-playwright-report.mjs', import.meta.url);
 
 test('Playwright JSON output is opt-in beside the existing human-readable reporters', async () => {
   const config = await readFile(configPath, 'utf8');
@@ -45,4 +50,184 @@ test('the five existing browser seam identifiers and selection commands stay in 
     assert.ok(shard.includes(selection), `missing existing selection ${selection}`);
   }
   assert.equal((shard.match(/--retries=0/g) ?? []).length, 7);
+});
+
+function result(retry, status, duration, startTime = '2026-10-12T18:00:00.000Z') {
+  return {
+    workerIndex: 0,
+    parallelIndex: 0,
+    status,
+    duration,
+    retry,
+    startTime,
+    errors: [],
+    stdout: [],
+    stderr: [],
+    attachments: [],
+  };
+}
+
+function nativeReport() {
+  return {
+    config: {
+      projects: [{ id: 'chromium-id', name: 'chromium' }, { id: 'mobile-id', name: 'mobile' }],
+    },
+    suites: [
+      {
+        title: 'admin',
+        file: 'tests/admin.spec.ts',
+        specs: [
+          {
+            id: 'admin-test-id',
+            title: 'keeps equal duration one',
+            file: 'tests/admin.spec.ts',
+            ok: true,
+            tests: [
+              {
+                projectName: 'chromium',
+                projectId: 'chromium-id',
+                expectedStatus: 'passed',
+                status: 'flaky',
+                results: [result(0, 'failed', 200), result(1, 'passed', 200, '2026-10-12T18:00:01.000Z')],
+              },
+            ],
+          },
+          {
+            id: 'admin-test-id-2',
+            title: 'keeps equal duration two',
+            file: 'tests/admin.spec.ts',
+            ok: true,
+            tests: [
+              {
+                projectName: 'mobile',
+                projectId: 'mobile-id',
+                expectedStatus: 'passed',
+                status: 'expected',
+                results: [result(0, 'passed', 200)],
+              },
+            ],
+          },
+          {
+            id: 'admin-test-skipped',
+            title: 'keeps skipped selection visible',
+            file: 'tests/admin.spec.ts',
+            ok: true,
+            tests: [
+              {
+                projectName: 'chromium',
+                projectId: 'chromium-id',
+                expectedStatus: 'skipped',
+                status: 'skipped',
+                results: [],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    errors: [],
+    stats: {
+      startTime: '2026-10-12T18:00:00.000Z',
+      duration: 1250,
+      expected: 1,
+      unexpected: 0,
+      flaky: 1,
+      skipped: 1,
+    },
+  };
+}
+
+test('normalizes identity, retry, result and millisecond durations without merging ties', () => {
+  const normalized = normalizeReport(nativeReport(), { seam: 'admin_behavior', invocation: 'behavior' });
+
+  assert.equal(normalized.complete, true);
+  assert.equal(normalized.seam, 'admin_behavior');
+  assert.equal(normalized.invocation, 'behavior');
+  assert.equal(normalized.unit, 'ms');
+  assert.equal(normalized.selected_count, 3);
+  assert.equal(normalized.skipped_count, 1);
+  assert.equal(normalized.excluded_count, null);
+  assert.equal(normalized.excluded_count_reason, 'native_json_does_not_include_excluded_cases');
+  assert.equal(normalized.suite_elapsed_ms, 1250);
+  assert.deepEqual(normalized.tests.map((row) => [row.project, row.retry, row.result, row.duration_ms]), [
+    ['chromium', 0, 'failed', 200],
+    ['chromium', 1, 'passed', 200],
+    ['chromium', 0, 'skipped', null],
+    ['mobile', 0, 'passed', 200],
+  ].sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right))));
+  assert.equal(new Set(normalized.tests.map((row) => row.test_id)).size, 3);
+  assert.equal(normalized.reporter_overhead.status, 'unmeasured');
+  assert.equal(normalized.reporter_overhead.overhead_ms, null);
+  assert.equal(normalized.reporter_overhead.unit, 'ms');
+  assert.equal(normalized.reporter_overhead.reason, 'paired_same_selection_runs_not_recorded');
+  assert.equal(JSON.parse(JSON.stringify(normalized)).reporter_overhead.overhead_ms, null);
+});
+
+test('stable identity order is independent of native suite order when durations tie', () => {
+  const report = nativeReport();
+  const first = normalizeReport(report, { seam: 'admin_behavior', invocation: 'behavior' });
+  report.suites[0].specs.reverse();
+  const replay = normalizeReport(report, { seam: 'admin_behavior', invocation: 'behavior' });
+
+  assert.ok(Array.isArray(first.tests));
+  assert.ok(Array.isArray(replay.tests));
+  assert.deepEqual(replay.tests, first.tests);
+});
+
+test('rejects malformed, empty, truncated, duplicate and invalid-duration reports as incomplete', () => {
+  const cases = [
+    [null, 'report_invalid_shape'],
+    [{ ...nativeReport(), suites: [] }, 'selected_count_mismatch'],
+    [{ ...nativeReport(), stats: { ...nativeReport().stats, expected: 2 } }, 'selected_count_mismatch'],
+    (() => {
+      const report = nativeReport();
+      report.suites[0].specs[0].tests[0].results.push(result(1, 'passed', 200));
+      return [report, 'duplicate_result_identity'];
+    })(),
+    (() => {
+      const report = nativeReport();
+      report.suites[0].specs[0].tests[0].results[0].duration = -1;
+      return [report, 'invalid_duration'];
+    })(),
+    (() => {
+      const report = nativeReport();
+      report.suites[0].specs[0].tests[0].results[0].status = undefined;
+      return [report, 'invalid_result_status'];
+    })(),
+    (() => {
+      const report = nativeReport();
+      report.errors.push({ message: 'reporter interrupted before suite finish' });
+      return [report, 'report_has_errors'];
+    })(),
+  ];
+
+  for (const [report, reason] of cases) {
+    const normalized = normalizeReport(report, { seam: 'admin_behavior', invocation: 'behavior' });
+    assert.equal(normalized.complete, false, reason);
+    assert.ok(Array.isArray(normalized.incomplete_reasons));
+    assert.ok(normalized.incomplete_reasons.includes(reason), reason);
+  }
+});
+
+test('CLI writes incomplete output atomically and retains a nonzero status for missing or malformed input', async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), 'sigra-playwright-report-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const input = join(directory, 'missing.json');
+  const output = join(directory, 'normalized.json');
+  const args = ['--input', input, '--seam', 'admin_behavior', '--invocation', 'behavior', '--output', output];
+
+  const missing = spawnSync(process.execPath, [cliPath.pathname, ...args], { encoding: 'utf8' });
+  assert.notEqual(missing.status, 0);
+  const missingOutput = JSON.parse(await readFile(output, 'utf8'));
+  assert.equal(missingOutput.complete, false);
+  assert.ok(missingOutput.incomplete_reasons.includes('input_unavailable'));
+  assert.equal(missingOutput.reporter_overhead.overhead_ms, null);
+
+  await writeFile(input, '{"suites":[', 'utf8');
+  const malformed = spawnSync(process.execPath, [cliPath.pathname, ...args], { encoding: 'utf8' });
+  assert.notEqual(malformed.status, 0);
+  const malformedOutput = JSON.parse(await readFile(output, 'utf8'));
+  assert.equal(malformedOutput.complete, false);
+  assert.ok(malformedOutput.incomplete_reasons.includes('input_invalid_json'));
+  assert.deepEqual((await readdir(directory)).sort(), ['missing.json', 'normalized.json']);
 });
