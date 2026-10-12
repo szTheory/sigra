@@ -33,7 +33,9 @@ def sanitize_structure(value, key=''):
     if isinstance(value, list):
         return [sanitize_structure(v,key) for v in value]
     if isinstance(value, str):
-        if key in ('html_url','source_url','pull_request','log_reference'):
+        if key in ('html_url','source_url','log_reference'):
+            return safe_markdown_url(value)
+        if key == 'pull_request' and value.startswith('https://'):
             return safe_markdown_url(value)
         return safe_text(value)
     return value
