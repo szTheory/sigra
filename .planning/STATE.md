@@ -6,10 +6,10 @@ current_phase: 252
 current_phase_name: Measure Current CI
 status: executing
 stopped_at: Completed 252-03-PLAN.md
-last_updated: "2026-10-12T18:59:33.024Z"
+last_updated: "2026-10-12T18:59:41.241Z"
 last_activity: 2026-10-12
 last_activity_desc: Plan 252-03 implementation and automated checks completed
-state_head: feb0db3001877ce15b8d6fb5344e19516ffa3ca8
+state_head: d999831b120d86e37129f6f8ab5273d9b5850363
 progress:
   total_phases: 4
   completed_phases: 0
@@ -112,3 +112,4 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 - [Phase 252]: workflow_dispatch and release-branch pushes remain separate from the primary PR, main-push and schedule cohorts
 - [Phase 252]: Expired, mismatched, unavailable or unsafe artifact inputs remain diagnostics and do not become timing rows
 - [Phase 252]: Keep the ExUnit timing report opt-in and test-only; reporting failures preserve the original test process exit.
+- [Phase 252]: Playwright JSON stays opt-in; excluded counts and unmeasured reporter overhead remain null, with CI wiring owned by Plan 252-05.
