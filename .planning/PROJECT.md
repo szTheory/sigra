@@ -22,11 +22,20 @@ scope, requires unavailable credentials, creates an unapproved external or mater
 side effect, changes a security or public-contract decision, or leaves uncertainty that automation
 cannot resolve.
 
-## Current Milestone: None — preparing CI speed and reliability work
+## Current Milestone: v1.50 CI-SPEED-AND-RELIABILITY
 
-v1.49 RELEASE-1.6.0 is closed with one known failed readiness check (2026-10-12). The release is already published. All 47 active implementation plans have summaries, and the strict audit proves 8/9 requirements. READY-01 stays unfinished; missing old approval/test records do not block the next milestone. See `.planning/milestones/v1.49-CLOSEOUT.md`.
+**Goal:** Make CI faster and more reliable while keeping useful tests and making failures easy to reproduce locally.
 
-**Next command:** `$gsd-new-milestone`. The previously queued goal is to make CI faster and more reliable; measure its current behavior and define the fixes during the new milestone. Keep the missing 1.6 upgrade guide as a separately scoped documentation task. No new product feature or package release is started by this closeout.
+**Target features:**
+- Measure current test times, queue time, failures, and reruns for pull requests, main pushes, and nightly CI.
+- Speed up the measured slowest jobs while keeping useful tests and controlling total runner time.
+- Reproduce and fix flaky failures without adding blanket retries; keep relevant checks runnable through the contributor CI commands.
+
+**Scope confirmed:** The user selected this direction on 2026-10-12. Skip broad ecosystem research for this milestone; keep the project's research default unchanged. Reuse the existing CI measurement script, five browser-test jobs, and `mix ci` where they fit. The prior CI audit is implemented history, not a new seed to repeat.
+
+**Current step:** Define and confirm requirements, then create and approve the roadmap. Phase numbering continues at 252. No implementation plan or active phase exists yet.
+
+**Boundaries:** v1.49 is closed with READY-01 unfinished; missing old release records do not block this work. The missing 1.6 upgrade guide remains a separate documentation task. This milestone starts no product feature or package release, changes no public API or authentication behavior, and does not weaken required checks.
 
 ## Current State (2026-10-12)
 
@@ -776,6 +785,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Active — v1.50 CI-SPEED-AND-RELIABILITY (requirements being defined)
+
+- [ ] Measure current CI runtimes, failures, reruns, and the slowest jobs with reproducible saved data.
+- [ ] Reduce measured CI waiting time while keeping useful tests and controlling runner time.
+- [ ] Fix selected flaky failures with reproducible regression checks and clear local reproduction commands.
+
 ### Validated — v1.49 RELEASE-1.6.0 (closed with known gaps)
 
 - ✓ **CONF-01, CONF-02, CONF-03:** Generated confirmation, pasted spaced codes, and visible feedback proved by the archived owner/CI records.
@@ -1345,4 +1360,4 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-10-06 — Opened milestone v1.49 RELEASE-1.6.0; phases continue at 246. Package version 1.6.0 was selected from existing Release Please PR #224 by user delegation. Four bounded phases cover the committed generated-confirmation fast-follow, release-source readiness, exact-source automation, and publication. Shift-left verification is the default per VERIFICATION-POLICY.md.*
 
 ---
-*Last updated: 2026-10-12 after v1.49 closeout with known readiness gaps.*
+*Last updated: 2026-10-12 after starting v1.50 CI-SPEED-AND-RELIABILITY with user-confirmed scope.*

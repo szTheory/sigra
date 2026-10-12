@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-12T14:59:01.007922+00:00",
+  "capture_head": "d57869d114471921162d453a9db5c75935edea93",
+  "capture_status": "",
+  "runtime": {
+    "packageName": "@opengsd/gsd-core",
+    "version": "1.16.0"
+  },
+  "paths": [
+    {
+      "path": ".planning/PROJECT.md",
+      "status": "clean",
+      "bytes": 194775,
+      "sha256": "0d2600dd3fba5c9fe4914cbbf5fe5bac6a07d59e129a0548bd5ef206243acf3e",
+      "recoverable_ref": "d57869d114471921162d453a9db5c75935edea93",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "bytes": 4297,
+      "sha256": "07d190c7d306a9d59afa3384e8bfc06d8d7c7dcad13b8b9c2f2c2efd8b3f4497",
+      "recoverable_ref": "d57869d114471921162d453a9db5c75935edea93",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "bytes": 1220,
+      "sha256": "846fc1a8aa7a1065660493c87d564aaa47521920f645132a24866d4fb5b2668e",
+      "recoverable_ref": "d57869d114471921162d453a9db5c75935edea93",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "bytes": 2792,
+      "sha256": "1c785559392642880199d78fc1f59d9406c3938fdf9e466fe0cf38b5ef3e9bf5",
+      "recoverable_ref": "d57869d114471921162d453a9db5c75935edea93",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "bytes": 3002,
+      "sha256": "3fe8fca0d105e88ad56861ed446a8a580a0727005ea58a3b08a1f6ef9d7baed3",
+      "recoverable_ref": "d57869d114471921162d453a9db5c75935edea93",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/config.json",
+      "status": "clean",
+      "bytes": 1797,
+      "sha256": "c4edd866d9ca58f698740210c77b7064b29e955b0c165a3f0461cdc9788aa386",
+      "recoverable_ref": "d57869d114471921162d453a9db5c75935edea93",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/MILESTONES.md",
+      "status": "clean",
+      "bytes": 134834,
+      "sha256": "5a52ac77b02cb3b0a5ec9d6d984f069cc165ca68bf16f4152fc7e1ea31fd52ce",
+      "recoverable_ref": "d57869d114471921162d453a9db5c75935edea93",
+      "git_readback_exact": true
+    }
+  ],
+  "milestone": "v1.50",
+  "name": "CI-SPEED-AND-RELIABILITY",
+  "scope_confirmed": true,
+  "confirmation": {
+    "user_response": "1",
+    "selected_option": "Use this scope and skip broad research. Recommended.",
+    "goal": "Make CI faster and more reliable while keeping useful tests and easy local reproduction.",
+    "targets": [
+      "Measure current test times, failures, and reruns.",
+      "Speed up the slowest jobs while keeping useful tests.",
+      "Fix flaky tests and keep failures easy to reproduce locally."
+    ]
+  },
+  "research_choice": "skip broad ecosystem research for this milestone",
+  "persistent_research_config_unchanged": true,
+  "phase_numbering": "continue at 252",
+  "prior_milestone": "v1.49",
+  "prior_readiness_gap_is_forward_blocker": false,
+  "implementation_started": false,
+  "requirements_approved": false,
+  "roadmap_approved": false,
+  "requirements_path_exists": false,
+  "milestone_context_exists": false,
+  "active_phase_dirs": [],
+  "recovery_note": "Clean source bytes are stored at capture_head. Before any later dirty revision rewrite, commit it and verify exact read-back.",
+  "state_switch": {
+    "switched": true,
+    "version": "v1.50",
+    "name": "CI-SPEED-AND-RELIABILITY",
+    "status": "planning"
+  },
+  "phase_cleanup": {
+    "cleared": 0
+  },
+  "post_switch_init": {
+    "current_milestone": "v1.50",
+    "phase_dir_count": 0,
+    "latest_completed_milestone_from_runtime": "v1.47",
+    "phase_numbering_authority": ".planning/milestones/v1.49-ROADMAP.md ends at 251; closed-with-known-gaps v1.49 is newer than runtime latest_completed_milestone v1.47."
+  },
+  "pending_workflow_gate": "Full requirements list confirmation, then roadmap approval.",
+  "next_command": "$gsd-new-milestone",
+  "next_action": "Continue new-milestone: confirm concrete requirements."
+}

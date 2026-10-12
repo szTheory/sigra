@@ -1,17 +1,16 @@
 ---
 gsd_state_version: "1.0"
-status: between_milestones
-milestone: v1.49
-milestone_name: RELEASE-1.6.0
-milestone_status: closed_with_known_gaps
-closeout_type: override_closeout
-verification_status: gaps_found
-next_command: $gsd-new-milestone
-resume_command: $gsd-new-milestone
-next_command_conditional: false
-automatic_retry_allowed: false
-last_updated: "2026-10-12T13:30:59.683141+00:00"
-state_head: f20381132082360c3fbf5ea2c2dd3068c930e15b
+milestone: v1.50
+milestone_name: CI-SPEED-AND-RELIABILITY
+status: planning
+last_updated: "2026-10-12T14:59:01.342Z"
+last_activity: 2026-10-12
+progress:
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,11 +24,10 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-v1.49 is closed with one known failed readiness check. All 47 active plans across six phases have summaries. Phase 251 implemented all seven plans and 12 gap tasks; its verification remains `gaps_found` at 9/10. The strict milestone audit remains 8/9, with READY-01 unfinished and READY-02 satisfied.
-
-The user instructed us to move forward because they cannot produce the missing old records. This authorizes closing the planning cycle with the failure recorded. It does not supply the original approval, satisfy READY-01, or authorize a new package release.
-
-The missing upgrade guide and README link are a separate corrective documentation task. Historical approval/readiness failures do not block planning new work, and the exhausted searches must not repeat automatically.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-10-12 — Milestone v1.50 started
 
 ## Next GSD command
 
