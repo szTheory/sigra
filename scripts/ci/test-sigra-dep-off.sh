@@ -29,6 +29,8 @@ setup_fixture() {
   chmod +x "${fixture}/scripts/ci/sigra-dep-off.sh"
   printf '{:threadline, {:hex, :threadline, "1.0.0", "locked", [], [], "hexpm", "checksum"}}\n' > "${fixture}/mix.lock"
   printf 'original-build\n' > "${fixture}/_build/test/lib/threadline/.built"
+  mkdir -p "${fixture}/test-results"
+  printf 'main-report\n' > "${fixture}/test-results/ci-exunit-timing-main.json"
 
   cat > "${fixture}/bin/mix" <<'STUB'
 #!/usr/bin/env bash
@@ -45,6 +47,15 @@ case "$*" in
     [[ "${SIGRA_DEP_OFF_FORCE_FAILURE:-0}" != "1" ]] || exit 42
     ;;
   "test --only threadline_guard --no-deps-check")
+    [[ "${SIGRA_EXUNIT_TIMING_INVOCATION:-}" == "threadline_guard" ]] || {
+      echo "dependency-off test did not receive its invocation identity" >&2
+      exit 98
+    }
+    [[ "${SIGRA_EXUNIT_TIMING_JSON:-}" == "${PWD}/test-results/ci-exunit-timing-threadline-guard.json" ]] || {
+      echo "dependency-off test did not receive its own report path" >&2
+      exit 97
+    }
+    printf 'threadline-guard-report\n' > "${SIGRA_EXUNIT_TIMING_JSON}"
     ;;
   "deps.get --check-locked")
     ;;
@@ -75,6 +86,8 @@ run_case() {
   (
     cd "${fixture}"
     PATH="${fixture}/bin:${PATH}" SIGRA_DEP_OFF_FORCE_FAILURE="${force_failure}" \
+      SIGRA_EXUNIT_TIMING_JSON="${fixture}/test-results/ci-exunit-timing-main.json" \
+      SIGRA_EXUNIT_TIMING_INVOCATION="main" \
       bash scripts/ci/sigra-dep-off.sh
   )
   status=$?
@@ -91,6 +104,14 @@ run_case() {
   [[ -f "${fixture}/_build/test/lib/threadline/.built" ]] \
     && pass "${name}: threadline build marker restored" \
     || fail "${name}: threadline build marker missing after cleanup"
+  if [[ "${name}" == "success" ]]; then
+    [[ "$(cat "${fixture}/test-results/ci-exunit-timing-main.json")" == "main-report" ]] \
+      && pass "${name}: child invocation preserves main report bytes" \
+      || fail "${name}: child invocation overwrote the main report"
+    [[ "$(cat "${fixture}/test-results/ci-exunit-timing-threadline-guard.json")" == "threadline-guard-report" ]] \
+      && pass "${name}: child invocation writes a separate report" \
+      || fail "${name}: child report is missing"
+  fi
 }
 
 run_case success 0 0
