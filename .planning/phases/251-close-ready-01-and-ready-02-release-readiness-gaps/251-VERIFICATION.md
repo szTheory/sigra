@@ -5,13 +5,30 @@ status: gaps_found
 score: 9/10 must-haves verified
 covered_files:
   - .planning/REQUIREMENTS.md
+  - .planning/phases/246-generated-confirmation-recovery/246-VALIDATION.md
+  - .planning/phases/247-release-candidate-and-repository-readiness/247-05-SUMMARY.md
+  - .planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md
+  - .planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json
+  - .planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json
+  - .planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json
+  - .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json
+  - .planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md
   - .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs
   - .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs
+  - .planning/phases/248-exact-source-release-gate/248-VALIDATION.md
+  - .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VALIDATION.md
+  - .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-ACCEPTANCE-AMENDMENT.json
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VALIDATION.md
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs
+  - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs
   - .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md
@@ -53,7 +70,7 @@ covered_files:
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY.md
   - .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md
   - .planning/v1.49-MILESTONE-AUDIT.md
-covered_digest: "v3:sha256:90f9807ee069794af3709f9bba8fb1f930df7885d8d76c22e71b438029fddb49"
+covered_digest: "v3:sha256:0d9e4b443bf929d1ed74b2cf6b5089c4e03e7acedfa6b283614e846e734fc618"
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
