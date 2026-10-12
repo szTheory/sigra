@@ -1,0 +1,47 @@
+{
+  "phase": "252",
+  "created_at_utc": "2026-10-12T22:56:32.338959+00:00",
+  "source_head": "9a920d5662b145c62080154546d2420d6ae0d714",
+  "method": "SUMMARY primary file scope plus official evaluation-scope cross-check; task repair files added to SUMMARY key-files so no delivered source is omitted",
+  "summary_revision_preserved": {
+    "commit": "9a920d5662b145c62080154546d2420d6ae0d714",
+    "path": ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md",
+    "sha256": "23c35007b0478f31a5282c2fa24c9b0c11f7727c42308224476f30a7eb58872e",
+    "byte_exact_readback": true
+  },
+  "summary_added_created": [
+    "scripts/ci/ci-run-metrics-comparison.test.sh",
+    "scripts/ci/exunit_timing_contract.py",
+    "scripts/ci/exunit_timing_contract_test.py"
+  ],
+  "summary_added_modified": [
+    "scripts/ci/ci-exunit-timing.test.sh",
+    "scripts/ci/sigra-dep-off.sh",
+    "scripts/ci/test-sigra-dep-off.sh",
+    "test/sigra/planning/ci_timing_formatter_test.exs",
+    "test/support/ci_timing_formatter.ex"
+  ],
+  "review_files": [
+    ".github/workflows/ci.yml",
+    "scripts/ci/ci-exunit-timing.test.sh",
+    "scripts/ci/ci-measure-report.sh",
+    "scripts/ci/ci-measure-report.test.sh",
+    "scripts/ci/ci-measure-workflow.test.mjs",
+    "scripts/ci/ci-playwright-report.mjs",
+    "scripts/ci/ci-playwright-report.test.mjs",
+    "scripts/ci/ci-run-metrics-comparison.test.sh",
+    "scripts/ci/ci-run-metrics-replay.test.mjs",
+    "scripts/ci/ci-run-metrics.sh",
+    "scripts/ci/ci-run-metrics.test.sh",
+    "scripts/ci/exunit_timing_contract.py",
+    "scripts/ci/exunit_timing_contract_test.py",
+    "scripts/ci/sigra-dep-off.sh",
+    "scripts/ci/test-sigra-dep-off.sh",
+    "test/example/priv/playwright/playwright.config.ts",
+    "test/sigra/planning/ci_timing_formatter_test.exs",
+    "test/support/ci_timing_formatter.ex",
+    "test/test_helper.exs"
+  ],
+  "file_count": 19,
+  "all_phase_source_paths_accounted_for": true
+}

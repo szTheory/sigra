@@ -11,6 +11,9 @@ tech-stack:
   patterns: [offline-source-bundle-replay, measured-versus-configured-runtime-identity, matched-cache-strata]
 key-files:
   created:
+    - scripts/ci/ci-run-metrics-comparison.test.sh
+    - scripts/ci/exunit_timing_contract.py
+    - scripts/ci/exunit_timing_contract_test.py
     - scripts/ci/ci-measure-report.sh
     - scripts/ci/ci-measure-report.test.sh
     - .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz
@@ -19,6 +22,11 @@ key-files:
     - .planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json
     - .planning/phases/252-measure-current-ci/252-06-STATE-PRESERVATION.json
   modified:
+    - scripts/ci/ci-exunit-timing.test.sh
+    - scripts/ci/sigra-dep-off.sh
+    - scripts/ci/test-sigra-dep-off.sh
+    - test/sigra/planning/ci_timing_formatter_test.exs
+    - test/support/ci_timing_formatter.ex
     - scripts/ci/ci-run-metrics.sh
     - scripts/ci/ci-run-metrics.test.sh
     - .github/workflows/ci.yml
