@@ -58,6 +58,10 @@ test('records seven distinct Playwright reports without changing the five seam s
 test('uploads timing and small run metadata from each producing job even after failure', () => {
   assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_JSON:/);
   assert.match(blocks.library_tests_shard, /run: (?:MIX_ENV=test )?mix ci/);
+  const prepareTimingDirectory = blocks.library_tests_shard.indexOf("mkdir -p test-results");
+  const contributorCi = blocks.library_tests_shard.indexOf("run: mix ci");
+  assert.notEqual(prepareTimingDirectory, -1, "library timing directory is not created");
+  assert.ok(prepareTimingDirectory < contributorCi, "timing directory must exist before mix ci writes ExUnit timing");
   assert.match(blocks.library_tests_shard, /if: always\(\)[\s\S]*?ci-exunit-timing\.json/);
   for (const [id, block] of Object.entries(blocks)) {
     assert.match(block, /ci-measurement-metadata\.json/, `${id} lacks metadata artifact`);
