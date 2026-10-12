@@ -107,5 +107,60 @@
   },
   "pending_workflow_gate": "Full requirements list confirmation, then roadmap approval.",
   "next_command": "$gsd-new-milestone",
-  "next_action": "Continue new-milestone: confirm concrete requirements."
+  "next_action": "Confirm the full requirements proposal, then create and approve the roadmap.",
+  "milestone_start_commit": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+  "continuation_prewrite": {
+    "ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "sha256": "276aeaef18a3ba7d68df4fc9ab66486f58fd4853ceabf437d64355c4e387bb6c",
+        "bytes": 3486,
+        "recoverable_ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "sha256": "9cf2796006d67562aa495b0af23c80170f6294005bcf4ce00913380e9dcd54dd",
+        "bytes": 286,
+        "recoverable_ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "sha256": "1c785559392642880199d78fc1f59d9406c3938fdf9e466fe0cf38b5ef3e9bf5",
+        "bytes": 2792,
+        "recoverable_ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/v1.50-START.json",
+        "status": "clean",
+        "sha256": "699428f67a9478b091061bee857e83f72597adcf372f22d0b47370165102fe4a",
+        "bytes": 4081,
+        "recoverable_ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+        "git_readback_exact": true
+      }
+    ],
+    "read_back_verified": true
+  },
+  "requirements_proposal": {
+    "path": ".planning/v1.50-REQUIREMENTS-PROPOSAL.md",
+    "sha256": "745ff6ea96ebaac131a57422514f1838122185606be9a4e02efed34df8917707",
+    "requirement_count": 9,
+    "approved": false
+  },
+  "next_readiness": {
+    "command": "init.plan-phase 252",
+    "phase_found": false,
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "plan_count": 0
+  },
+  "workflow_step": "requirements_confirmation",
+  "dispatch": "Inline; user has not requested subagents."
 }

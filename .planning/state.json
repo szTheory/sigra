@@ -4,9 +4,38 @@
   "milestone": "v1.50",
   "phases": [],
   "next": {
-    "command": "/gsd:discuss-phase",
-    "label": "Discuss the first phase",
-    "reason": "Project initialized — plan your first phase"
+    "command": "$gsd-new-milestone",
+    "label": "Continue v1.50: confirm requirements",
+    "reason": "Scope/version and skip-research choice confirmed. Full requirements confirmation is the next workflow gate; no phase exists yet.",
+    "conditional": false,
+    "route_status": "awaiting_requirements_confirmation",
+    "next_phase_number": 252,
+    "next_phase_exists": false,
+    "historical_verification_is_forward_blocker": false
   },
-  "updated_at": "2026-10-12T14:59:01.345Z"
+  "updated_at": "2026-10-12T15:04:03.842431+00:00",
+  "milestone_name": "CI-SPEED-AND-RELIABILITY",
+  "milestone_status": "active",
+  "status": "planning",
+  "workflow_step": "requirements_confirmation",
+  "verification_status": "not_started",
+  "archived_milestones": [
+    {
+      "version": "v1.49",
+      "closeout_type": "override_closeout",
+      "requirements_score": "8/9",
+      "READY-01": "unsatisfied",
+      "READY-02": "satisfied",
+      "phase251_verification": "gaps_found 9/10",
+      "original_phase_state": ".planning/milestones/v1.49-PRE-CLOSE-state.json",
+      "phase_archive": ".planning/milestones/v1.49-phases/",
+      "closeout_record": ".planning/milestones/v1.49-CLOSEOUT-DECISION.json"
+    }
+  ],
+  "proposal": {
+    "path": ".planning/v1.50-REQUIREMENTS-PROPOSAL.md",
+    "sha256": "745ff6ea96ebaac131a57422514f1838122185606be9a4e02efed34df8917707",
+    "requirement_count": 9,
+    "approved": false
+  }
 }

@@ -11,6 +11,14 @@ progress:
   total_plans: 0
   completed_plans: 0
   percent: 0
+milestone_status: active
+workflow_step: requirements_confirmation
+verification_status: not_started
+next_command: $gsd-new-milestone
+resume_command: $gsd-new-milestone
+next_command_conditional: false
+historical_verification_is_forward_blocker: false
+state_head: a9e29eb00f6e63b0effea1025b22d1e114d24346
 ---
 
 # Project State
@@ -20,7 +28,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 **Core value:** Authentication that works out of the box, with a clear path for Phoenix adopters.
-**Current focus:** Define the next milestone for CI speed and reliability.
+**Current focus:** Confirm v1.50 CI speed and reliability requirements.
 
 ## Current position
 
@@ -33,7 +41,11 @@ Last activity: 2026-10-12 — Milestone v1.50 started
 
 $gsd-new-milestone
 
-Start the previously queued CI runtime and reliability work. No Phase 252 is on the roadmap yet; `init.plan-phase 252` reports `phase_found=false`. The next milestone defines its requirements and phases. Historical failed/stale verification reports are maintenance records, not prerequisites to starting that planning.
+Continue the current new-milestone workflow: confirm the full requirements proposal, then create and approve the roadmap. The user has confirmed v1.50 CI-SPEED-AND-RELIABILITY and chosen to skip broad research.
+
+The proposed requirements are in `.planning/v1.50-REQUIREMENTS-PROPOSAL.md`. Reply `1` to accept them or describe changes. REQUIREMENTS.md and the phase roadmap remain unapproved. No implementation or phase verification has started. `init.plan-phase 252` reports `phase_found=false`; do not start discussing or planning a nonexistent phase. Numbering continues at 252 after roadmap creation.
+
+Historical failed/stale verification is separate maintenance and does not block this milestone. No missing old record is needed from the user.
 
 ## Known unfinished work
 
@@ -44,6 +56,10 @@ Start the previously queued CI runtime and reliability work. No Phase 252 is on 
 
 ## Evidence
 
+- New milestone scope/capture: `.planning/v1.50-START.json`.
+- Requirements awaiting confirmation: `.planning/v1.50-REQUIREMENTS-PROPOSAL.md`.
+- Continuation checks: `.planning/v1.50-START-CHECKS.json`.
+- Prior SDK state and original handoff are exactly recoverable at `a9e29eb00f6e63b0effea1025b22d1e114d24346`; read-back verified before this continuation rewrite.
 - Decision: `.planning/milestones/v1.49-CLOSEOUT-DECISION.json`.
 - Strict audit: `.planning/milestones/v1.49-MILESTONE-AUDIT.md` — original bytes retained; `gaps_found`, 8/9.
 - Requirement archive: `.planning/milestones/v1.49-REQUIREMENTS.md` — READY-01 unchecked, READY-02 checked.
@@ -54,9 +70,9 @@ Start the previously queued CI runtime and reliability work. No Phase 252 is on 
 
 ## Session
 
-**Last session:** 2026-10-12T13:30:59.683141+00:00
-**Stopped at:** v1.49 closed with known READY-01 failure; ready for next milestone.
-**Resume file:** .planning/PROJECT.md
+**Last session:** 2026-10-12T15:04:03.842431+00:00
+**Stopped at:** v1.50 scope confirmed and committed; requirements confirmation pending.
+**Resume file:** .planning/v1.50-REQUIREMENTS-PROPOSAL.md
 
 ## Deferred Items
 
