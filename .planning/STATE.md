@@ -17,10 +17,10 @@ progress:
   completed_plans: 0
   percent: 0
 milestone_status: active
-workflow_step: phase_discussion
+workflow_step: phase_planning
 verification_status: not_started
-next_command: $gsd-discuss-phase 252
-resume_command: $gsd-discuss-phase 252
+next_command: $gsd-plan-phase 252
+resume_command: $gsd-plan-phase 252
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -40,15 +40,15 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 Phase: 252 — Measure Current CI (first of four approved phases)
 Plan: —
-Status: Milestone roadmap approved; ready for Phase 252 discussion
-Last activity: 2026-10-12 — Nine requirements and four-phase roadmap approved
+Status: Phase 252 context confirmed and committed; ready for planning
+Last activity: 2026-10-12 — Phase 252 measurement decisions confirmed and context committed
 Progress: [░░░░░░░░░░] 0%
 
 ## Next GSD command
 
-$gsd-discuss-phase 252
+$gsd-plan-phase 252
 
-Define the finite measurement plan for today's CI. The nine confirmed requirements map exactly once to approved Phases 252–255; all remain Pending. Phase 252 is pending with no context, research, plans, or prerequisite verification commands, so discussion is next.
+Create the Phase 252 plan from its confirmed context. Readiness finds the context, no research or plans, and no prerequisite verification commands. All nine milestone requirements remain Pending; no implementation or phase verification has started.
 
 The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Phase implementation and verification have not started.
 
@@ -60,6 +60,10 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 - Unrelated backlog and quick tasks remain open; none was silently marked complete.
 
 ## Evidence
+
+- Phase 252 context/log/discovery: `.planning/phases/252-measure-current-ci/252-CONTEXT.md`, `252-DISCUSSION-LOG.md`, `252-DISCUSSION-RECORD.json`; context commit `96611810e2674a7c6318f48f36ae488a35d33c99`.
+- Phase 252 artifact checks: `252-DISCUSSION-CHECKS.json`; final routing checks: `252-ROUTING-CHECKS.json`. Discovery is not phase acceptance.
+- Prior session/routing bytes recoverable at `4faed92f6883005a29ced4e5f94d58eb12f0559b`; seven exact path read-backs recorded in the Phase 252 discussion record before route updates.
 
 - New milestone scope/capture: `.planning/v1.50-START.json`; roadmap approval: `.planning/v1.50-ROADMAP-APPROVAL.json`.
 - Final setup evidence: `.planning/v1.50-INITIALIZATION.json`; 70 todos scanned, one linked to Phase 253, 69 retained unchanged.

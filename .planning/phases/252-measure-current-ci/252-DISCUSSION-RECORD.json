@@ -198,5 +198,141 @@
   "ci_dispatched": false,
   "external_mutations": false,
   "next_command": "$gsd-plan-phase 252",
-  "historical_verification_is_forward_blocker": false
+  "historical_verification_is_forward_blocker": false,
+  "context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
+  "session_commit": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+  "routing": {
+    "updated_at": "2026-10-12T16:13:46.589917+00:00",
+    "next_command": "$gsd-plan-phase 252",
+    "readiness": {
+      "phase_found": true,
+      "phase_number": "252",
+      "phase_name": "measure-current-ci",
+      "phase_status": "Pending",
+      "has_context": true,
+      "has_research": false,
+      "has_plans": false,
+      "plan_count": 0,
+      "prior_verify_commands": []
+    },
+    "before_session_write": {
+      "capture_head": "96611810e2674a7c6318f48f36ae488a35d33c99",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "sha256": "52df302dbd742eb84374245b88f20ce57cfa57f8a7a97e763ca10f1d7b4ac9f5",
+          "bytes": 4942,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/state.json",
+          "sha256": "be19a061fe7c6cd0c6e7b0c126a6d8bbdea5c8be8b362a2afd72a08310804dc6",
+          "bytes": 2561,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "sha256": "c4a19b1a3e87af163b70eff11c0c5f98d9ba110208f6caabc59c8ff111087777",
+          "bytes": 11055,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/PROJECT.md",
+          "sha256": "67c0c3fdf67f7512e846fcd3ffd4d4a9985b2ccbc6626f4a37cacb994e1c6e4b",
+          "bytes": 197364,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "sha256": "d1408ba38a3b773eb0a492fa5dac030a6152bf71e776f769477e94066986c5fa",
+          "bytes": 9847,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/v1.50-START.json",
+          "sha256": "dd30064c7dee146590ab16140692ee2fadb15ad95cbac09674257e6b4c9672d3",
+          "bytes": 11802,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        }
+      ]
+    },
+    "before_route_write": {
+      "ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "status": "clean",
+          "bytes": 5119,
+          "sha256": "931981a0eb7e8072053646074968362405ef86958acb70cdf9c014db1134c3ec",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/state.json",
+          "status": "clean",
+          "bytes": 2561,
+          "sha256": "be19a061fe7c6cd0c6e7b0c126a6d8bbdea5c8be8b362a2afd72a08310804dc6",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": "clean",
+          "bytes": 11055,
+          "sha256": "c4a19b1a3e87af163b70eff11c0c5f98d9ba110208f6caabc59c8ff111087777",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/PROJECT.md",
+          "status": "clean",
+          "bytes": 197364,
+          "sha256": "67c0c3fdf67f7512e846fcd3ffd4d4a9985b2ccbc6626f4a37cacb994e1c6e4b",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "status": "clean",
+          "bytes": 9847,
+          "sha256": "d1408ba38a3b773eb0a492fa5dac030a6152bf71e776f769477e94066986c5fa",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/v1.50-START.json",
+          "status": "clean",
+          "bytes": 11802,
+          "sha256": "dd30064c7dee146590ab16140692ee2fadb15ad95cbac09674257e6b4c9672d3",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+          "status": "clean",
+          "bytes": 6792,
+          "sha256": "370355c97b0f59c2015e39efe973d4a9ce5e5a191353200088a13dabf47ff02e",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        }
+      ],
+      "read_back_verified": true,
+      "source_status_and_hashes_rechecked": true
+    },
+    "auto_advance": false,
+    "implementation_started": false,
+    "phase_verification_status": "not_started"
+  }
 }

@@ -105,9 +105,9 @@
     "latest_completed_milestone_from_runtime": "v1.47",
     "phase_numbering_authority": ".planning/milestones/v1.49-ROADMAP.md ends at 251; closed-with-known-gaps v1.49 is newer than runtime latest_completed_milestone v1.47."
   },
-  "pending_workflow_gate": null,
-  "next_command": "$gsd-discuss-phase 252",
-  "next_action": "Discuss Phase 252; do not repeat milestone approvals.",
+  "pending_workflow_gate": "Phase 252 planning",
+  "next_command": "$gsd-plan-phase 252",
+  "next_action": "Plan Phase 252 from the confirmed context; implementation and verification remain pending.",
   "milestone_start_commit": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
   "continuation_prewrite": {
     "ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
@@ -154,17 +154,17 @@
     "approved": true
   },
   "next_readiness": {
-    "command": "init.plan-phase 252",
     "phase_found": true,
     "phase_number": "252",
     "phase_name": "measure-current-ci",
-    "has_context": false,
+    "phase_status": "Pending",
+    "has_context": true,
     "has_research": false,
     "has_plans": false,
     "plan_count": 0,
     "prior_verify_commands": []
   },
-  "workflow_step": "phase_discussion",
+  "workflow_step": "phase_planning",
   "dispatch": "Inline; user has not requested subagents.",
   "requirements_confirmation": {
     "user_response": "1",
@@ -325,5 +325,13 @@
       }
     ],
     "readback_verified": true
+  },
+  "phase252_discussion": {
+    "confirmed": true,
+    "answer": "1",
+    "context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
+    "context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
+    "record": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+    "recorded_at": "2026-10-12T16:13:46.589917+00:00"
   }
 }

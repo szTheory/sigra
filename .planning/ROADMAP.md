@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** `$gsd-discuss-phase 252` — settle the bounded measurement plan for today's CI. Phase 252 is pending and has no context, research, or plans; its readiness reports no prerequisite verification commands.
+**Next command:** `$gsd-plan-phase 252` — create the measurement implementation plan from the user-confirmed context. Readiness finds Phase 252's context, no research or plans, and no prerequisite verification commands. Discussion is complete; implementation and phase verification have not started.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
