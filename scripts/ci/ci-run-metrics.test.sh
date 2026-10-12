@@ -838,12 +838,12 @@ if [[ "$window_rc" -eq 0 ]] \
   && jq -e 'any(.artifact_diagnostics[]?; .kind=="failed_job_log" and .result.status=="retained_redacted")' "$WINDOW_BUNDLE/raw/families/5001/manifest.json" >/dev/null \
   && jq -e '[.requests[]|select(startswith("download:artifact:"))]|length==2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
   && jq -e '[.requests[]|select(startswith("download:job-log:"))]|length==2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
-  && ! grep -F 'SIGNED_URL_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
-  && ! grep -F 'SIGNED_LOG_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
-  && ! grep -F 'SIGNED_LOG_SECRET' "$WINDOW_BUNDLE" >/dev/null \
-  && ! grep -F 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' "$WINDOW_BUNDLE" >/dev/null \
-  && ! grep -F 'cleartext' "$WINDOW_BUNDLE" >/dev/null \
-  && ! grep -F 'DO_NOT_RETAIN' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'SIGNED_URL_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'SIGNED_LOG_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'SIGNED_LOG_SECRET' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'cleartext' "$WINDOW_BUNDLE" >/dev/null \
+  && ! grep -R -F 'DO_NOT_RETAIN' "$WINDOW_BUNDLE" >/dev/null \
   && ! jq -e '.populations.push_main.runs[] | select(.head_branch != "main")' "$WINDOW_BUNDLE/manifest.json" >/dev/null; then
   pass "fixed cutoff, 100-run cap, API totals and event separation are retained"
 else
