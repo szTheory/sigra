@@ -149,10 +149,14 @@ test('normalizes identity, retry, result and millisecond durations without mergi
   assert.equal(normalized.excluded_count, null);
   assert.equal(normalized.excluded_count_reason, 'native_json_does_not_include_excluded_cases');
   assert.equal(normalized.suite_elapsed_ms, 1250);
-  assert.deepEqual(normalized.tests.map((row) => [row.project, row.retry, row.result, row.duration_ms]), [
+  assert.equal(normalized.sum_test_duration_ms, 600);
+  assert.notEqual(normalized.sum_test_duration_ms, normalized.suite_elapsed_ms);
+  const actualResults = normalized.tests.map((row) => [row.project, row.retry, row.result, row.duration_ms])
+    .sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
+  assert.deepEqual(actualResults, [
     ['chromium', 0, 'failed', 200],
     ['chromium', 1, 'passed', 200],
-    ['chromium', 0, 'skipped', null],
+    ['chromium', null, 'skipped', null],
     ['mobile', 0, 'passed', 200],
   ].sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right))));
   assert.equal(new Set(normalized.tests.map((row) => row.test_id)).size, 3);
@@ -196,6 +200,11 @@ test('rejects malformed, empty, truncated, duplicate and invalid-duration report
     })(),
     (() => {
       const report = nativeReport();
+      report.suites[0].specs[0].tests[0].projectName = 'mobile';
+      return [report, 'project_identity_mismatch'];
+    })(),
+    (() => {
+      const report = nativeReport();
       report.errors.push({ message: 'reporter interrupted before suite finish' });
       return [report, 'report_has_errors'];
     })(),
@@ -229,5 +238,45 @@ test('CLI writes incomplete output atomically and retains a nonzero status for m
   const malformedOutput = JSON.parse(await readFile(output, 'utf8'));
   assert.equal(malformedOutput.complete, false);
   assert.ok(malformedOutput.incomplete_reasons.includes('input_invalid_json'));
+  await writeFile(input, JSON.stringify(nativeReport()), 'utf8');
+  const valid = spawnSync(process.execPath, [cliPath.pathname, ...args], { encoding: 'utf8' });
+  assert.equal(valid.status, 0, valid.stderr);
+  assert.equal(JSON.parse(await readFile(output, 'utf8')).complete, true);
   assert.deepEqual((await readdir(directory)).sort(), ['missing.json', 'normalized.json']);
+});
+
+test('CLI keeps a write failure visible and does not publish a partial output', async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), 'sigra-playwright-report-write-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const input = join(directory, 'report.json');
+  const output = join(directory, 'missing-parent', 'normalized.json');
+  await writeFile(input, JSON.stringify(nativeReport()), 'utf8');
+
+  const result = spawnSync(process.execPath, [cliPath.pathname,
+    '--input', input,
+    '--seam', 'admin_behavior',
+    '--invocation', 'behavior',
+    '--output', output,
+  ], { encoding: 'utf8' });
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /output_write_failed/);
+  await assert.rejects(readFile(output), { code: 'ENOENT' });
+});
+
+test('CLI refuses to overwrite its raw Playwright input with normalized output', async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), 'sigra-playwright-report-input-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const input = join(directory, 'report.json');
+  const raw = JSON.stringify(nativeReport());
+  await writeFile(input, raw, 'utf8');
+
+  const result = spawnSync(process.execPath, [cliPath.pathname,
+    '--input', input,
+    '--seam', 'admin_behavior',
+    '--invocation', 'behavior',
+    '--output', input,
+  ], { encoding: 'utf8' });
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /input_and_output_must_differ/);
+  assert.equal(await readFile(input, 'utf8'), raw);
 });
