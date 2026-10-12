@@ -1,282 +1,181 @@
 {
   "verdict": "OPEN_THREATS",
-  "phase": "252",
-  "source_head": "95a3fa57795f9bdd510e73f178435e9adc2b6948",
-  "audited_at_utc": "2026-10-12 23:04:49 UTC",
+  "phase": 252,
+  "source_head": "5af2854a863c1081b54fe3ff71a965c1e64b4f12",
   "asvs_level": 1,
   "block_on": "high",
   "register_authored_at_plan_time": true,
   "counts": {
     "total": 20,
-    "closed": 9,
-    "open": 11,
+    "closed": 10,
+    "open": 10,
     "blocking_open": 9,
-    "nonblocking_open": 2,
+    "nonblocking_open": 1,
     "threats_open": 9
   },
   "threats": [
     {
       "id": "T-252-01",
-      "category": "Spoofing",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:1059",
-        "scripts/ci/ci-run-metrics.sh:1194"
-      ],
-      "reason": "Snapshot replay accepts required checks by name/SHA/app without binding run, attempt and producer job ID."
+      "evidence": "scripts/ci/ci-run-metrics.sh:1215-1224; scripts/ci/ci_metrics_security.py:129-154",
+      "reason": "Family replay omits job run, attempt and repository bindings."
     },
     {
       "id": "T-252-02",
-      "category": "Tampering",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:783",
-        "scripts/ci/ci-run-metrics.sh:1128",
-        "scripts/ci/ci-run-metrics.sh:1233"
-      ],
-      "reason": "Extracted JSON members are read without member/ZIP equality checks; manual and release population replay hash checks are missing."
+      "evidence": "scripts/ci/ci-run-metrics.sh:686; scripts/ci/ci_metrics_security.py:48-72",
+      "reason": "Retained changed-path API pages have no response hashes."
     },
     {
       "id": "T-252-03",
-      "category": "Information Disclosure",
       "severity": "medium",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:324",
-        "scripts/ci/ci-run-metrics.sh:338",
-        "scripts/ci/ci-run-metrics.sh:388"
-      ],
-      "reason": "Request ledger does not receive bearer tokens or signed redirect URLs."
+      "evidence": "scripts/ci/ci-run-metrics.sh:329,345,409-413",
+      "reason": "Ledger excludes bearer headers and signed redirect URLs."
     },
     {
       "id": "T-252-04",
-      "category": "Spoofing",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:183",
-        "scripts/ci/ci-run-metrics.sh:725",
-        "scripts/ci/ci-run-metrics.sh:1222"
-      ],
-      "reason": "API artifact ID, producing run, head SHA and digest are checked."
+      "evidence": "scripts/ci/ci-run-metrics.sh:194-203,761-766",
+      "reason": "Artifact API ID/digest/run/head SHA checked before ZIP acceptance."
     },
     {
       "id": "T-252-05",
-      "category": "Elevation",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:206",
-        "scripts/ci/ci-run-metrics.sh:210",
-        "scripts/ci/ci-run-metrics.sh:213",
-        "scripts/ci/ci-run-metrics.sh:237"
-      ],
-      "reason": "ZIP extractor rejects traversal, absolute paths and symlinks and bounds members and expanded bytes."
+      "evidence": "scripts/ci/ci-run-metrics.sh:206-253",
+      "reason": "ZIP bounds and traversal/absolute/symlink/duplicate rejection present."
     },
     {
       "id": "T-252-06",
-      "category": "Information Disclosure",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:170",
-        "scripts/ci/ci-run-metrics.sh:347",
-        "scripts/ci/ci-run-metrics.sh:249"
-      ],
-      "reason": "Regex redaction does not detect or exclude environment dumps."
+      "evidence": "scripts/ci/ci_metrics_security.py:252-270; scripts/ci/ci-run-metrics.sh:729-733",
+      "reason": "Shell-traced environment assignments survive redaction; reproduced offline."
     },
     {
       "id": "T-252-07",
-      "category": "Denial of Service",
       "severity": "medium",
-      "disposition": "mitigate",
-      "status": "OPEN_NON_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:307",
-        "scripts/ci/ci-run-metrics.sh:408",
-        "scripts/ci/ci-run-metrics.sh:440"
-      ],
-      "reason": "Core budget is refreshed every 100 calls without local decrement; a remaining reading of 251 can authorize calls after 250."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:322-328,370-379,438-445",
+      "reason": "Every request debits budgets; rate-limit hard stop and bounded transient retry."
     },
     {
       "id": "T-252-08",
-      "category": "Tampering",
       "severity": "medium",
-      "disposition": "mitigate",
       "status": "OPEN_NON_BLOCKING",
-      "evidence": [
-        "test/support/ci_timing_formatter.ex:133",
-        "test/support/ci_timing_formatter.ex:174",
-        "scripts/ci/exunit_timing_contract.py:30"
-      ],
-      "reason": "Consumer accepts an empty self-declared complete report with zero sum; result values and counts are not reconciled with rows."
+      "evidence": "scripts/ci/exunit_timing_contract.py:46-84; scripts/ci/ci-run-metrics.sh:1611-1627",
+      "reason": "General ExUnit reader accepts empty complete reports and unchecked counts/results."
     },
     {
       "id": "T-252-09",
-      "category": "Information Disclosure",
       "severity": "medium",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "test/support/ci_timing_formatter.ex:53",
-        "test/support/ci_timing_formatter.ex:119"
-      ],
-      "reason": "Formatter does not serialize assertions or environment data."
+      "evidence": "test/support/ci_timing_formatter.ex:43-68,119-134",
+      "reason": "Output contains identity/result/duration, no assertions/environment."
     },
     {
       "id": "T-252-10",
-      "category": "Tampering",
       "severity": "medium",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "scripts/ci/ci-playwright-report.mjs:71",
-        "scripts/ci/ci-playwright-report.mjs:123",
-        "scripts/ci/ci-playwright-report.mjs:166",
-        "scripts/ci/ci-playwright-report.mjs:209"
-      ],
-      "reason": "Playwright normalizer validates shape, identity, duration, results and summary completeness."
+      "evidence": "scripts/ci/ci-playwright-report.mjs:71-97,122-170,209-215",
+      "reason": "Playwright shape/identity/results/timing/summary checked."
     },
     {
       "id": "T-252-11",
-      "category": "Elevation",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "scripts/ci/ci-playwright-report.mjs:244",
-        "scripts/ci/ci-playwright-report.mjs:266",
-        "scripts/ci/ci-playwright-report.mjs:272"
-      ],
-      "reason": "Output path comes from explicit CLI; report fields are data only."
+      "evidence": "scripts/ci/ci-playwright-report.mjs:260-293",
+      "reason": "Explicit CLI destinations; report is data."
     },
     {
       "id": "T-252-12",
-      "category": "Spoofing",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:1242",
-        "scripts/ci/ci-run-metrics.sh:1247",
-        ".github/workflows/ci.yml:641"
-      ],
-      "reason": "Producer attempt/job are self-asserted metadata matched by name, without independent job ID and merge checkout SHA binding."
+      "evidence": "scripts/ci/ci-run-metrics.sh:1581-1608; scripts/ci/ci_metrics_security.py:157-202",
+      "reason": "General timing reader lacks API artifact-owner and producer-upload binding."
     },
     {
       "id": "T-252-13",
-      "category": "Tampering",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:1194",
-        "scripts/ci/ci-run-metrics.sh:1203",
-        "scripts/ci/ci-run-metrics.sh:1208"
-      ],
-      "reason": "A same-name/SHA check from a different run or attempt can enter the baseline because producer job IDs are not joined."
+      "evidence": "scripts/ci/ci-run-metrics.sh:1559-1573,1365",
+      "reason": "General rankings omit job run, attempt and head SHA checks."
     },
     {
       "id": "T-252-14",
-      "category": "Repudiation",
       "severity": "medium",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:1437",
-        "scripts/ci/ci-run-metrics.sh:1459",
-        "scripts/ci/ci-run-metrics.sh:1463"
-      ],
-      "reason": "Failure signatures retain literal outcomes and source run, attempt and log references."
+      "evidence": "scripts/ci/ci-run-metrics.sh:1633-1665",
+      "reason": "Literal outcomes and run/attempt/log references retained."
     },
     {
       "id": "T-252-15",
-      "category": "Information Disclosure",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:249",
-        "scripts/ci/ci-run-metrics.sh:254",
-        "scripts/ci/ci-run-metrics.sh:263",
-        "scripts/ci/ci-run-metrics.sh:698"
-      ],
-      "reason": "Entire failed-job logs are retained without excerpt or byte bounds and may include environment dumps."
+      "evidence": "scripts/ci/ci_metrics_security.py:252-278; scripts/ci/ci-run-metrics.sh:729-733",
+      "reason": "Bounded logs still retain shell-traced environment secrets."
     },
     {
       "id": "T-252-16",
-      "category": "Spoofing",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:1247",
-        "scripts/ci/ci-run-metrics.sh:1316",
-        "scripts/ci/ci-run-metrics.sh:1559"
-      ],
-      "reason": "Producer merge SHA is only format/agreement checked among uploaded metadata, not independently bound to the job."
+      "evidence": "scripts/ci/ci_metrics_security.py:205-226; scripts/ci/ci-run-metrics.sh:1492-1509",
+      "reason": "Replay does not bind tree.sha to commit.commit.tree.sha; reproduced offline."
     },
     {
       "id": "T-252-17",
-      "category": "Tampering",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-run-metrics.sh:1600",
-        "scripts/ci/ci-run-metrics.sh:1608",
-        "scripts/ci/ci-run-metrics.sh:1623"
-      ],
-      "reason": "Evaluator lacks frozen family run-ID membership and per-row timestamp window checks; replacement is possible."
+      "evidence": ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json:10; scripts/ci/ci-run-metrics.sh:1792-1802,1084-1102; scripts/ci/ci_metrics_security.py:439",
+      "reason": "Contract retains old bundle SHA without evaluator equality check. Queued API response discarded; recorded digest only syntax checked."
     },
     {
       "id": "T-252-18",
-      "category": "Repudiation",
       "severity": "medium",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "scripts/ci/ci-measure-report.sh:33",
-        "scripts/ci/ci-measure-report.sh:60",
-        "scripts/ci/ci-measure-report.sh:130"
-      ],
-      "reason": "Report costs, failures and outcomes retain run, attempt and source references."
+      "evidence": "scripts/ci/ci-measure-report.sh:58-65,86-88,115",
+      "reason": "Ranking/failure references and literal outcomes retained."
     },
     {
       "id": "T-252-19",
-      "category": "Information Disclosure",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "OPEN_BLOCKING",
-      "evidence": [
-        "scripts/ci/ci-measure-report.sh:38",
-        "scripts/ci/ci-measure-report.sh:60",
-        "scripts/ci/ci-measure-report.sh:87"
-      ],
-      "reason": "Source URL/diagnostic text is inserted into Markdown without output redaction or destination allowlist."
+      "evidence": "scripts/ci/ci-run-metrics.sh:1642-1656; scripts/ci/ci-measure-report.sh:21-26,88",
+      "reason": "Log reference path not contained or bound to hash-verified log; Markdown allows non-HTTP link syntax."
     },
     {
       "id": "T-252-SC",
-      "category": "Tampering",
       "severity": "high",
-      "disposition": "mitigate",
       "status": "CLOSED",
-      "evidence": [
-        "scripts/ci/sigra-dep-off.sh:29",
-        ".github/workflows/ci.yml:448"
-      ],
-      "reason": "No new dependency manifest or lockfile change; changed harness uses existing locked dependencies."
+      "evidence": "scripts/ci/sigra-dep-off.sh:29; .github/workflows/ci.yml:448",
+      "reason": "No manifest/lock change; existing locked dependencies used."
     }
   ],
+  "unregistered_flags": [],
   "accepted_risks": [],
-  "implementation_status": "complete",
-  "phase_verification_status": "blocked_pending_automated_repair"
+  "files_written": [],
+  "validation": [
+    "Archive-backed baseline replay ready; focused security 10, ExUnit 8, collector 41, comparison/report passed.",
+    "Offline probes reproduced traced-secret leakage and commit/tree mismatch acceptance."
+  ],
+  "next": "Automated repair of all remaining controls, then independent re-audit; phase verification pending.",
+  "audited_at_utc": "2026-10-12T23:49:35.370798+00:00",
+  "prior_reports_preserved": [
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-SECURITY.md",
+      "ref": "5af2854a863c1081b54fe3ff71a965c1e64b4f12",
+      "sha256": "98732d95ca28a9c2ebd4db8084668bd885420b713b6e902794a7b85e2106a760",
+      "byte_exact_readback": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-SECURITY-AUDIT.json",
+      "ref": "5af2854a863c1081b54fe3ff71a965c1e64b4f12",
+      "sha256": "141e9c67e081da9def74f02ce1349d3630e263c674c9f7d68e612d3150046791",
+      "byte_exact_readback": true
+    }
+  ]
 }
