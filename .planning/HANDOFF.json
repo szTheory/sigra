@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-12T17:40:27Z",
-  "status": "Plan 252-01 implementation complete; Phase 252 continues with five plans pending.",
+  "timestamp": "2026-10-12T18:32:22Z",
+  "status": "Plan 252-03 implementation and automated checks complete; Phase 252 continues with three plans pending.",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Plan 252-01 implementation, tests, and preflight evidence are complete. Five plans remain; phase-level verification has not started. CIMEAS-01 and CIMEAS-02 remain Pending.",
+  "current": "Plan 252-03 implementation, tests, and timing evidence are complete. Three plans remain; phase-level verification has not started. CIMEAS-01 and CIMEAS-02 remain Pending.",
   "next_command": "$gsd-execute-phase 252",
   "resume_command": "$gsd-execute-phase 252",
-  "next_action": "Continue the remaining five Phase 252 plans with $gsd-execute-phase 252. Keep CIMEAS-01 and CIMEAS-02 Pending until phase-level verification.",
+  "next_action": "Continue the remaining three Phase 252 plans with $gsd-execute-phase 252. Keep CIMEAS-01 and CIMEAS-02 Pending until phase-level verification.",
   "route": {
     "immediate_gsd_command": "$gsd-execute-phase 252",
     "resume_command": "$gsd-execute-phase 252",
@@ -46,29 +46,27 @@
         "252-06-PLAN.md"
       ],
       "summaries": [
-        "252-01-SUMMARY.md"
+        "252-01-SUMMARY.md",
+        "252-02-SUMMARY.md",
+        "252-03-SUMMARY.md"
       ],
       "incomplete_plans": [
-        "252-02-PLAN.md",
-        "252-03-PLAN.md",
         "252-04-PLAN.md",
         "252-05-PLAN.md",
         "252-06-PLAN.md"
       ],
       "plan_count": 6,
-      "incomplete_count": 5,
+      "incomplete_count": 3,
       "threat_id_duplicates": [],
       "threat_id_duplicate_count": 0,
       "halted_plans": [],
       "blocked_by": {},
       "runnable_plans": [
-        "252-02-PLAN.md",
-        "252-03-PLAN.md",
         "252-04-PLAN.md",
         "252-05-PLAN.md",
         "252-06-PLAN.md"
       ],
-      "runnable_count": 5,
+      "runnable_count": 3,
       "branch_name": null,
       "milestone_version": "v1.50",
       "milestone_name": "CI-SPEED-AND-RELIABILITY",
@@ -141,8 +139,8 @@
     "phase252_plan_count": 6,
     "phase252_wave_count": 4,
     "phase252_task_count": 15,
-    "phase252_completed_plans": 1,
-    "phase252_remaining_plans": 5
+    "phase252_completed_plans": 3,
+    "phase252_remaining_plans": 3
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -162,6 +160,8 @@
   "automatic_recovery_retry_allowed": false,
   "external_actions_performed": false,
   "evidence_refs": {
+    "phase252_plan03_summary": ".planning/phases/252-measure-current-ci/252-03-SUMMARY.md",
+    "phase252_plan03_timing": ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json",
     "decision": ".planning/milestones/v1.49-CLOSEOUT-DECISION.json",
     "archive_manifest": ".planning/milestones/v1.49-ARCHIVE-MANIFEST.json",
     "strict_audit": ".planning/milestones/v1.49-MILESTONE-AUDIT.md",
@@ -532,5 +532,5 @@
     "sdk_generated_state_preserved_at": "5218357fd1bcc2bdf0da5319b48040c93ccdbf14",
     "curated_json_state_restored_from": "57ee210f050a90e61b47a9cc8f11b91ba606a459"
   },
-  "resume_file": ".planning/phases/252-measure-current-ci/252-02-PLAN.md"
+  "resume_file": ".planning/phases/252-measure-current-ci/252-04-PLAN.md"
 }

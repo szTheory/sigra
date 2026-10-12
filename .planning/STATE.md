@@ -5,16 +5,16 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 252
 current_phase_name: Measure Current CI
 status: executing
-stopped_at: Completed 252-02-PLAN.md
-last_updated: "2026-10-12T18:14:45.846Z"
+stopped_at: Completed 252-03-PLAN.md
+last_updated: "2026-10-12T18:32:22.316Z"
 last_activity: 2026-10-12
-last_activity_desc: Plan 252-02 implementation and automated checks completed
-state_head: 040f58d5fdb8d928a2fbeda0450feb76b7b94d47
+last_activity_desc: Plan 252-03 implementation and automated checks completed
+state_head: da1e4b492b15058d35a7ca4bc7d2da720d5cf4dc
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 milestone_status: active
 workflow_step: phase_execution_pending
@@ -39,7 +39,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 252 (Measure Current CI) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-10-12 — Phase 252 execution started
 Progress: [░░░░░░░░░░] 0%
@@ -61,7 +61,7 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Evidence
 
-- Phase 252 plan 01 implementation and evidence: `252-01-SUMMARY.md`, `252-EVIDENCE-PREFLIGHT.json`, and `252-run-family-38144377407-retry1/`; plans 02–06 remain pending. Phase requirements remain unchecked pending phase-level verification.
+- Phase 252 plan 01 implementation and evidence: `252-01-SUMMARY.md`, `252-EVIDENCE-PREFLIGHT.json`, and `252-run-family-38144377407-retry1/`. Plans 02 and 03 are also complete; plans 04–06 and phase-level verification remain. Plan 03 timing evidence: `252-03-SUMMARY.md` and `252-03-EXUNIT-TIMING.json`. Phase requirements remain unchecked pending phase-level verification.
 - Final independent planning check: `252-PLAN-CHECK-03.md`; planning record/checks: `252-PLANNING-RECORD.json`, `252-PLANNING-CHECKS.json`, `252-PLANNING-ROUTING-CHECKS.json`. These are planning checks, not completed phase verification.
 
 - Phase 252 context/log/discovery: `.planning/phases/252-measure-current-ci/252-CONTEXT.md`, `252-DISCUSSION-LOG.md`, `252-DISCUSSION-RECORD.json`; context commit `96611810e2674a7c6318f48f36ae488a35d33c99`.
@@ -83,9 +83,9 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T18:14:45.822Z
-**Stopped at:** Completed 252-02-PLAN.md
-**Resume file:** .planning/phases/252-measure-current-ci/252-03-PLAN.md
+**Last session:** 2026-10-12T18:32:22.298Z
+**Stopped at:** Completed 252-03-PLAN.md
+**Resume file:** .planning/phases/252-measure-current-ci/252-04-PLAN.md
 
 ## Deferred Items
 
@@ -102,6 +102,7 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 |------|----------|-------|-------|
 | Phase 252 P01 | 19m | 2 tasks | 19 files |
 | Phase 252 P02 | 28min | 3 tasks | 2 files |
+| Phase 252 P03 | 12min | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -109,3 +110,4 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 - [Phase 252]: Missing source-revision data keeps a multi-revision family at unknown timing.
 - [Phase 252]: workflow_dispatch and release-branch pushes remain separate from the primary PR, main-push and schedule cohorts
 - [Phase 252]: Expired, mismatched, unavailable or unsafe artifact inputs remain diagnostics and do not become timing rows
+- [Phase 252]: Keep the ExUnit timing report opt-in and test-only; reporting failures preserve the original test process exit.
