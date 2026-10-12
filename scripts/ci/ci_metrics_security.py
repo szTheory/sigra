@@ -322,12 +322,66 @@ def deduplicate_physical_jobs(attempts: dict) -> tuple[list[dict], list[dict]]:
     return counted, rows
 
 
-def validate_comparison_reservations(contract: dict, families: list[dict], source_runs: list[dict]) -> list[str]:
+def comparison_contract_sha256(contract: dict) -> str:
+    frozen = {k: v for k, v in contract.items() if k not in ("family_registrations", "registration_ledger_sha256")}
+    return hashlib.sha256(json.dumps(frozen, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, ledger: dict | None = None, api_run_sha256: str | None = None) -> dict:
+    """Create an append-only identity record without reading the API outcome fields."""
+    reservations = [x for x in contract.get("family_reservations", []) if x.get("reservation_id") == reservation_id]
+    if len(reservations) != 1:
+        raise ValueError("comparison_reservation_unknown_or_duplicate")
+    reservation = reservations[0]
+    expected_sha = contract.get("baseline_application_sha") if reservation.get("family_role") == "before" else (contract.get("candidate_identity") or {}).get("application_sha")
+    try:
+        start, end = _utc(contract["window"]["start_utc"]), _utc(contract["window"]["end_utc"])
+        created = _utc(api_run["created_at"])
+    except (KeyError, TypeError, ValueError):
+        raise ValueError("comparison_run_identity_or_window_invalid")
+    pull_requests = api_run.get("pull_requests") or []
+    if (contract.get("status") != "ready" or not expected_sha or len(pull_requests) != 1
+            or not isinstance(api_run.get("id"), int) or api_run.get("id") <= 0 or api_run.get("event") != "pull_request"
+            or not re.fullmatch(r"[0-9a-f]{64}", api_run_sha256 or "")
+            or api_run.get("path") != ".github/workflows/ci.yml" or api_run.get("head_sha") != expected_sha
+            or not start <= created <= end or reservation.get("pair_id") is None):
+        raise ValueError("comparison_run_identity_does_not_match_reservation")
+    pr = pull_requests[0]
+    if pr.get("head", {}).get("sha") != expected_sha:
+        raise ValueError("comparison_run_pull_request_head_mismatch")
+    previous_rows = (ledger or {}).get("records", [])
+    if (ledger and ledger.get("contract_sha256") != comparison_contract_sha256(contract)):
+        raise ValueError("comparison_registration_contract_hash_mismatch")
+    if any(x.get("reservation_id") == reservation_id or str(x.get("run_id")) == str(api_run["id"]) for x in previous_rows):
+        raise ValueError("comparison_registration_duplicate")
+    identity = {
+        "reservation_id": reservation_id,
+        "pair_id": reservation["pair_id"],
+        "family_role": reservation["family_role"],
+        "run_id": api_run["id"],
+        "created_at": api_run["created_at"],
+        "event": api_run["event"],
+        "workflow_path": api_run["path"],
+        "head_sha": api_run["head_sha"],
+        "pull_request_number": pr.get("number"),
+        "pull_request_head_sha": pr.get("head", {}).get("sha"),
+        "pull_request_base_sha": pr.get("base", {}).get("sha"),
+        "api_run_sha256": api_run_sha256,
+    }
+    record = {"sequence": len(previous_rows), "previous_sha256": previous_rows[-1]["record_sha256"] if previous_rows else "0" * 64, **identity}
+    record["record_sha256"] = hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return {"schema_version": "sigra.ci-comparison-registration/v1", "contract_sha256": comparison_contract_sha256(contract), "records": previous_rows + [record]}
+
+
+def validate_comparison_reservations(contract: dict, families: list[dict], source_runs: list[dict], registration_ledger: dict | None = None) -> list[str]:
     reservations = contract.get("family_reservations") or []
-    registrations = contract.get("family_registrations") or []
+    registration_ledger = registration_ledger or {"contract_sha256": comparison_contract_sha256(contract), "records": contract.get("family_registrations") or []}
+    registrations = registration_ledger.get("records") or []
     reserved = {(x.get("pair_id"), x.get("family_role")): x for x in reservations}
     runs = {str(x.get("id")): x for x in source_runs if x.get("event") == "pull_request"}
     diagnostics = []
+    if registration_ledger.get("contract_sha256") != comparison_contract_sha256(contract):
+        diagnostics.append("comparison_registration_contract_hash_mismatch")
     if len(reservations) != 40 or len(reserved) != 40 or len({x.get("reservation_id") for x in reservations}) != 40:
         diagnostics.append("comparison_reservation_set_incomplete")
     if len(registrations) != 40:
@@ -372,11 +426,13 @@ def validate_comparison_reservations(contract: dict, families: list[dict], sourc
         run = runs.get(str(family.get("run_id")))
         expected_sha = contract.get("baseline_application_sha") if family.get("family_role") == "before" else (contract.get("candidate_identity") or {}).get("application_sha")
         if (family.get("run_id") != registration.get("run_id")
-                or family.get("run_id") != reservation.get("run_id")
+                or family.get("pair_id") != registration.get("pair_id")
+                or family.get("family_role") != registration.get("family_role")
                 or family.get("created_at") != registration.get("created_at")
-                or family.get("created_at") != reservation.get("created_at")
                 or not run or run.get("created_at") != family.get("created_at")
-                or run.get("head_sha") != expected_sha or run.get("detail_status") != "complete"):
+                or run.get("head_sha") != expected_sha or run.get("detail_status") != "complete"
+                or registration.get("head_sha") != expected_sha or registration.get("pull_request_head_sha") != expected_sha
+                or not re.fullmatch(r"[0-9a-f]{64}", registration.get("api_run_sha256") or "")):
             diagnostics.append("comparison_family_api_origin_mismatch")
         if not start <= created <= end:
             diagnostics.append("comparison_family_outside_frozen_window")

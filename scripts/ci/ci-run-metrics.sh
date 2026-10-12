@@ -56,15 +56,19 @@ EVENT=""
 MODE="wall"
 FORMAT="table"
 RUN_ID=""
+RESERVATION_ID=""
+REGISTER_LOCK=""
 SOURCE_PAGES=""
 UNTIL=""
 THRESHOLD=720
 COLLECT=false
 REPLAY=false
 EVALUATE_COMPARISON=false
+REGISTER_COMPARISON_RUN=false
 CONTRACT_FILE=""
 BEFORE_BUNDLE=""
 AFTER_BUNDLE=""
+REGISTRATIONS_FILE=""
 PREFLIGHT=false
 PREFLIGHT_OUTPUT=""
 SOURCE_BUNDLE=""
@@ -124,12 +128,15 @@ while [[ $# -gt 0 ]]; do
     --collect) COLLECT=true; shift;;
     --replay) REPLAY=true; shift;;
     --evaluate-comparison) EVALUATE_COMPARISON=true; shift;;
+    --register-comparison-run) REGISTER_COMPARISON_RUN=true; shift;;
     --contract) CONTRACT_FILE="$2"; shift 2;;
     --before-bundle) BEFORE_BUNDLE="$2"; shift 2;;
     --after-bundle) AFTER_BUNDLE="$2"; shift 2;;
+    --registrations) REGISTRATIONS_FILE="$2"; shift 2;;
     --preflight) PREFLIGHT=true; shift;;
     --preflight-output) PREFLIGHT_OUTPUT="$2"; shift 2;;
     --run-id) RUN_ID="$2"; shift 2;;
+    --reservation-id) RESERVATION_ID="$2"; shift 2;;
     --source-bundle) SOURCE_BUNDLE="$2"; shift 2;;
     --branch) TARGET_BRANCH="$2"; shift 2;;
     --cutoff) CUTOFF="$2"; shift 2;;
@@ -722,6 +729,10 @@ collect_window() {
           log_record="$(jq -cn --arg hash "$log_hash" --arg path "raw/families/$id/failed-job.log" '{status:"retained_redacted",path:$path,sha256:$hash}')"
         else
           log_record="$(jq -cn --arg reason "${API_STOP_REASON:-diagnostics_unknown}" '{status:"diagnostics_unknown",diagnostic:$reason}')"
+          # A failed diagnostic excerpt is recorded as unknown, but it does not
+          # invalidate independently complete event populations or cost inputs.
+          # Hard rate-limit and budget stops still halt the whole collection.
+          [[ "$API_STOP_REASON" == download_unavailable || "$API_STOP_REASON" == expired_input ]] && API_STOP_REASON=""
         fi
         jq -e . <<<"$artifact_record" >/dev/null || fail "artifact_diagnostic_invalid:${id}"
         jq -e . <<<"$log_record" >/dev/null || fail "log_diagnostic_invalid:${id}"
@@ -1043,6 +1054,50 @@ run_preflight() {
   trap - EXIT INT TERM HUP
   [[ "$status" == ready ]] || return 2
   return 0
+}
+
+register_comparison_run() {
+  [[ -s "$CONTRACT_FILE" && -n "$REGISTRATIONS_FILE" && "$RUN_ID" =~ ^[1-9][0-9]*$ && -n "$RESERVATION_ID" ]] || fail "comparison registration requires --contract, --registrations, --reservation-id and --run-id"
+  python3 - "$CONTRACT_FILE" "$RESERVATION_ID" <<'PY' || fail "comparison registration reservation or predeclared window invalid"
+import json,pathlib,sys
+c=json.loads(pathlib.Path(sys.argv[1]).read_text())
+if c.get('status')!='ready' or len([r for r in c.get('family_reservations',[]) if r.get('reservation_id')==sys.argv[2]])!=1:
+    raise SystemExit(1)
+w=c.get('window') or {}
+if not w.get('start_utc') or not w.get('end_utc') or (c.get('candidate_identity') or {}).get('status'):
+    raise SystemExit(1)
+PY
+  local tmp run_file output_tmp
+  REGISTER_LOCK="${REGISTRATIONS_FILE}.lock"
+  mkdir -p "$(dirname "$REGISTRATIONS_FILE")"
+  mkdir "$REGISTER_LOCK" 2>/dev/null || fail "comparison registration ledger is locked"
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-comparison-register.XXXXXX")"
+  run_file="$tmp/run.json"; output_tmp="${REGISTRATIONS_FILE}.tmp.$$"
+  API_LEDGER="${REGISTRATIONS_FILE}.requests.json"
+  API_STARTED="$(date +%s)"; API_REQUESTS=0; API_STOP_REASON=""; API_RESET_AT=""; API_UNKNOWN='[]'; API_CORE_REMAINING=""; API_REQUEST_LOG='[]'; API_LAST_RATE_REQUEST=0; API_RATE_CHECK_IN_FLIGHT=false
+  API_TEMP_DIR="$tmp"
+  trap 'api_cleanup; rm -rf "$REGISTER_LOCK"' EXIT INT TERM HUP
+  api_get rate_limit "$tmp/rate-limit.json" || fail "comparison registration rate preflight blocked"
+  api_get "/repos/${REPO}/actions/runs/${RUN_ID}" "$run_file" || fail "comparison run identity unavailable"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REGISTRATIONS_FILE" "$RESERVATION_ID" "$run_file" "$output_tmp" <<'PY'
+import hashlib,json,os,pathlib,sys
+from ci_metrics_security import register_comparison_run
+contract_path,ledger_path,run_path,out_path=map(pathlib.Path,(sys.argv[1],sys.argv[2],sys.argv[4],sys.argv[5]))
+reservation_id=sys.argv[3]
+contract=json.loads(contract_path.read_text()); run=json.loads(run_path.read_text())
+ledger=json.loads(ledger_path.read_text()) if ledger_path.exists() else None
+created=register_comparison_run(contract,reservation_id,run,ledger,hashlib.sha256(run_path.read_bytes()).hexdigest())
+fd=os.open(out_path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+with os.fdopen(fd,'w') as stream:
+    json.dump(created,stream,sort_keys=True,separators=(',',':')); stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
+PY
+  mv "$output_tmp" "$REGISTRATIONS_FILE"
+  sync "$REGISTRATIONS_FILE" 2>/dev/null || sync 2>/dev/null || true
+  api_write_ledger complete
+  API_COMPLETED=true; API_TEMP_DIR=""
+  rm -rf "$tmp" "$REGISTER_LOCK"
+  trap - EXIT INT TERM HUP
+  jq -n --arg reservation "$RESERVATION_ID" --arg run "$RUN_ID" --arg hash "$(jq -r '.records[-1].record_sha256' "$REGISTRATIONS_FILE")" '{status:"registered",reservation_id:$reservation,run_id:$run,record_sha256:$hash}'
 }
 
 replay_family() {
@@ -1667,10 +1722,11 @@ if [[ "$EVALUATE_COMPARISON" == true ]]; then
   after_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-after.XXXXXX")"
   replay_snapshot "$BEFORE_BUNDLE" >"$before_json"
   replay_snapshot "$AFTER_BUNDLE" >"$after_json"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" <<'PY'
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" "$REGISTRATIONS_FILE" <<'PY'
 import datetime, json, math, pathlib, sys
 from ci_metrics_security import validate_comparison_reservations
-contract, before, after = map(lambda p: json.loads(pathlib.Path(p).read_text()), sys.argv[1:])
+contract, before, after = map(lambda p: json.loads(pathlib.Path(p).read_text()), sys.argv[1:4])
+registrations = json.loads(pathlib.Path(sys.argv[4]).read_text()) if sys.argv[4] else None
 issues=[]; families=[]; paired=[]
 def issue(code, detail=None):
     row={'reason':code}
@@ -1697,7 +1753,7 @@ try:
     if window_end-window_start != datetime.timedelta(hours=48): issue('comparison_window_duration_mismatch')
 except Exception: issue('comparison_window_not_predeclared')
 source_runs=(before.get('source_runs') or [])+(after.get('source_runs') or [])
-reservation_issues=validate_comparison_reservations(contract,(before.get('comparison_families') or [])+(after.get('comparison_families') or []),source_runs)
+reservation_issues=validate_comparison_reservations(contract,(before.get('comparison_families') or [])+(after.get('comparison_families') or []),source_runs,registrations)
 for code in reservation_issues: issue(code)
 for label, data in [('before',before),('after',after)]:
     if data.get('status') != 'complete': issue(label+'_snapshot_incomplete')
@@ -1755,6 +1811,10 @@ PY
   rc=$?
   rm -f "$before_json" "$after_json"
   exit "$rc"
+fi
+if [[ "$REGISTER_COMPARISON_RUN" == true ]]; then
+  register_comparison_run
+  exit 0
 fi
 if [[ "$PREFLIGHT" == true ]]; then
   run_preflight

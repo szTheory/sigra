@@ -384,12 +384,13 @@ if jq -e '
   (.failure_analysis.inspected_family_count <= 12) and
   (all(.failure_analysis.per_event_counts[]; . <= 4)) and
   ([.failure_analysis.failure_signatures.signatures[]]|length <= 3) and
-  ([.failure_class.application_test_failure[]?|select(.outcome=="failure")]|length == 1) and
+  ([.failure_class.application_test_failure[]?|select(.outcome=="failure")]|length == 0) and
+  ([.failure_class.unknown_failure[]?|select(.outcome=="failure")]|length > 0) and
   (.failure_signatures.status == "unknown") and (.diagnostics_status.missing_count > 0) and
   ([.failure_analysis.failure_signatures.signatures[].references[]?|select(.run_id != null and .attempt != null and .log_reference != null)]|length == 0) and
   (all(.failure_analysis.families[]; .outcome != "failure" or .failure_class == "application_test_failure" or .failure_class == "unknown_failure"))
 ' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null; then
-  pass "failure shortlist inspects at most twelve families, cites current evidence, and reports unknown when diagnostics are incomplete"
+  pass "failure shortlist inspects at most twelve families and keeps unavailable log evidence unknown"
 else fail "failure analysis invalid: $(jq -c '{failure_analysis,failure_signatures,failure_class}' "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
 
 echo "Test W: concurrent lock, interruption ledger, and request ceiling are enforced"
@@ -809,6 +810,10 @@ elif [[ "$url" == https://api.github.com/*/actions/jobs/*/logs ]]; then
   : >"$output"; printf '302'; exit 0
 elif [[ "$url" == https://pipelines.actions.githubusercontent.com/* ]]; then
   if [[ "$url" == */job-log/* ]]; then
+    if [[ "${WINDOW_LOG_FAIL:-}" == 1 ]]; then
+      printf 'HTTP/1.1 500 Internal Server Error\r\n\r\n' >"$headers"
+      : >"$output"; printf '500'; exit 0
+    fi
     printf 'HTTP/1.1 200 OK\r\n\r\n' >"$headers"
     printf '%s\n' 'Error: expect(received).toBe(expected) at tests/admin/admin-profile.spec.ts:42:5' 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' 'password=cleartext' 'https://logs.example/output?sig=SIGNED_LOG_SECRET' >"$output"
   else
@@ -834,7 +839,7 @@ WINDOW_BUNDLE="${TMPDIR_ROOT}/window-bundle"
 export GH_TOKEN=fixture-token WINDOW_ARTIFACT_MODE=download WINDOW_ARTIFACT_DIGEST WINDOW_ARTIFACT_ZIP
 export CI_METRICS_TEST_MODE=1
 set +e
-PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$WINDOW_BUNDLE" >"${TMPDIR_ROOT}/window-collect.out" 2>"${TMPDIR_ROOT}/window-collect.err"
+WINDOW_LOG_FAIL=1 PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$WINDOW_BUNDLE" >"${TMPDIR_ROOT}/window-collect.out" 2>"${TMPDIR_ROOT}/window-collect.err"
 window_rc=$?
 set -e
 if [[ "$window_rc" -eq 0 ]] \
@@ -842,9 +847,10 @@ if [[ "$window_rc" -eq 0 ]] \
   && jq -e '.populations.manual.records|length==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
   && jq -e '([.populations.pull_request.runs[]|select(.id==5000 and .workload=="docs_only")]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5001 and .conclusion=="failure" and .workload=="full" and .detail_status=="complete" and (.attempt_jobs|keys|length)==2)]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5002 and .workload=="unknown")]|length)==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
   && jq -e 'any(.artifact_diagnostics[]?; .kind=="artifact" and .result.status=="accepted")' "$WINDOW_BUNDLE/raw/families/5001/manifest.json" >/dev/null \
-  && jq -e 'any(.artifact_diagnostics[]?; .kind=="failed_job_log" and .result.status=="retained_redacted")' "$WINDOW_BUNDLE/raw/families/5001/manifest.json" >/dev/null \
+  && jq -e 'any(.artifact_diagnostics[]?; .kind=="failed_job_log" and .result.status=="diagnostics_unknown" and .result.diagnostic=="download_unavailable")' "$WINDOW_BUNDLE/raw/families/5001/manifest.json" >/dev/null \
   && jq -e '[.requests[]|select(startswith("download:artifact:"))]|length==2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
-  && jq -e '[.requests[]|select(startswith("download:job-log:"))]|length==2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
+  && jq -e '[.requests[]|select(startswith("download:job-log:"))]|length>=2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
+  && jq -e '.status=="complete" and any(.unknown_inputs[];.reason=="download_unavailable" and (.endpoint|startswith("job-log:")))' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
   && ! grep -R -F 'SIGNED_URL_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
   && ! grep -R -F 'SIGNED_LOG_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
   && ! grep -R -F 'SIGNED_LOG_SECRET' "$WINDOW_BUNDLE" >/dev/null \

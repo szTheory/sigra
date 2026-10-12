@@ -12,6 +12,7 @@ from ci_metrics_security import (
     CoreRequestBudget,
     deduplicate_physical_jobs,
     safe_markdown_url,
+    register_comparison_run,
     sanitize_failure_log,
     validate_check_bindings,
     validate_comparison_reservations,
@@ -153,7 +154,7 @@ class SecurityContractsTest(unittest.TestCase):
                 run_id=base+i; created="2026-10-13T00:00:00Z"
                 reservation={"reservation_id":f"r{run_id}","pair_id":f"p{i}","family_role":role,"run_id":run_id,"created_at":created}
                 reservations.append(reservation)
-                row={"sequence":len(registrations),"previous_sha256":previous,**reservation}
+                row={"sequence":len(registrations),"previous_sha256":previous,**reservation,"head_sha":sha,"pull_request_head_sha":sha,"api_run_sha256":"f"*64}
                 row["record_sha256"]=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(",",":")).encode()).hexdigest()
                 registrations.append(row); previous=row["record_sha256"]
                 families.append(dict(reservation))
@@ -165,6 +166,17 @@ class SecurityContractsTest(unittest.TestCase):
         out_of_window=[dict(families[0],created_at="2026-10-15T00:00:00Z")]+families[1:]
         self.assertIn("comparison_family_outside_frozen_window",validate_comparison_reservations(contract,out_of_window,runs))
         self.assertIn("comparison_registration_chain_invalid",validate_comparison_reservations({**contract,"family_registrations":registrations[::-1]},families,runs))
+
+    def test_registration_records_api_identity_without_recording_outcome(self):
+        contract={"status":"ready","baseline_application_sha":"a"*40,"candidate_identity":{"application_sha":"a"*40},"window":{"start_utc":"2026-10-12T10:00:00Z","end_utc":"2026-10-14T10:00:00Z"},"family_reservations":[{"reservation_id":"reserve-1","pair_id":"p1","family_role":"before"}]}
+        api_run={"id":77,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"a"*40,"created_at":"2026-10-13T00:00:00Z","conclusion":"failure","pull_requests":[{"number":331,"head":{"sha":"a"*40},"base":{"sha":"b"*40}}]}
+        ledger=register_comparison_run(contract,"reserve-1",api_run,api_run_sha256="f"*64)
+        self.assertEqual("77",str(ledger["records"][0]["run_id"]))
+        self.assertNotIn("conclusion",ledger["records"][0])
+        with self.assertRaisesRegex(ValueError,"duplicate"):
+            register_comparison_run(contract,"reserve-1",api_run,ledger,"f"*64)
+        with self.assertRaisesRegex(ValueError,"contract_hash"):
+            register_comparison_run({**contract,"frozen_note":"changed"},"reserve-1",api_run,ledger,"f"*64)
 
     def test_rerun_failed_reused_job_ids_are_counted_once(self):
         attempts = {

@@ -33,15 +33,24 @@ for family in before_rows+after_rows:
 registrations=[]; previous='0'*64
 for index,reservation in enumerate(reservations):
     import hashlib
-    row={'sequence':index,'previous_sha256':previous,**reservation}
+    source_sha='base-app' if reservation['family_role']=='before' else 'candidate-app'
+    row={'sequence':index,'previous_sha256':previous,**reservation,'head_sha':source_sha,'pull_request_head_sha':source_sha,'api_run_sha256':'f'*64}
     row['record_sha256']=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     registrations.append(row); previous=row['record_sha256']
 contract={'status':'ready','pair_count':20,'primary_family_count':40,'family_reservations':reservations,'family_registrations':registrations,'window_duration_hours':48,'baseline_application_sha':'base-app','baseline_workload_revision_sha256':'workload-sha','baseline_workflow_sha256':'base-workflow','candidate_identity':{'application_sha':'candidate-app','workflow_revision':'candidate-app','workload_revision_sha256':'workload-sha','workflow_file_sha256':'candidate-workflow'},'window':{'start_utc':'2026-10-13T10:00:00Z','end_utc':'2026-10-15T10:00:00Z'},'cache_stratum_allocation':[{'stratum_id':'warm','pair_count':20}],'instrumentation_overhead':{'exunit':{'status':'measured','value':7},'playwright':{'status':'unmeasured','reason':'not available'}}}
+(root/'registrations.json').write_text(json.dumps({'schema_version':'sigra.ci-comparison-registration/v1','contract_sha256':hashlib.sha256(json.dumps({k:v for k,v in contract.items() if k not in ('family_registrations','registration_ledger_sha256')},sort_keys=True,separators=(',',':')).encode()).hexdigest(),'records':registrations}))
+contract.pop('family_registrations')
 (root/'contract.json').write_text(json.dumps(contract))
 PY
-run_eval() { bash "$ROOT/scripts/ci/ci-run-metrics.sh" --evaluate-comparison --contract "$TMP/contract.json" --before-bundle "$TMP/before" --after-bundle "$TMP/after" --format json; }
+run_eval() { bash "$ROOT/scripts/ci/ci-run-metrics.sh" --evaluate-comparison --contract "$TMP/contract.json" --registrations "$TMP/registrations.json" --before-bundle "$TMP/before" --after-bundle "$TMP/after" --format json; }
 run_eval >"$TMP/pass.json"
 jq -e '.status=="pass" and .metrics.pair_count==20 and .metrics.comparable_successful_pairs==20 and .metrics.baseline_median_seconds==10.5 and .metrics.baseline_p95_seconds==19 and .metrics.candidate_median_seconds==5.25 and .metrics.candidate_p95_seconds==9.5 and .metrics.baseline_runner_seconds==200 and .metrics.candidate_runner_seconds==200 and (.metrics.overhead_disclosure.playwright.status=="unmeasured")' "$TMP/pass.json" >/dev/null
+python3 - "$TMP/after/manifest.json" <<'PY'
+import json,pathlib,sys
+p=pathlib.Path(sys.argv[1]); d=json.loads(p.read_text()); d['comparison_families'][0]['run_id']=9999; p.write_text(json.dumps(d))
+PY
+run_eval >"$TMP/replaced-run.json"
+jq -e '.status=="insufficient_data" and any(.diagnostics[];.reason=="comparison_family_api_origin_mismatch")' "$TMP/replaced-run.json" >/dev/null
 python3 - "$TMP/after/manifest.json" <<'PY'
 import json,pathlib,sys
 p=pathlib.Path(sys.argv[1]); d=json.loads(p.read_text()); d['comparison_families'].pop(); p.write_text(json.dumps(d))
@@ -54,4 +63,23 @@ p=pathlib.Path(sys.argv[1]); d=json.loads(p.read_text()); d['cache_stratum_alloc
 PY
 run_eval >"$TMP/cache-allocation-mismatch.json"
 jq -e '.status=="insufficient_data" and any(.diagnostics[];.reason=="cache_stratum_allocation_mismatch")' "$TMP/cache-allocation-mismatch.json" >/dev/null
+python3 - "$TMP/register-contract.json" <<'PY'
+import json,pathlib,sys
+p=pathlib.Path(sys.argv[1]); sha='a'*40
+p.write_text(json.dumps({'status':'ready','baseline_application_sha':sha,'candidate_identity':{'application_sha':sha},'window':{'start_utc':'2026-10-12T10:00:00Z','end_utc':'2026-10-14T10:00:00Z'},'family_reservations':[{'reservation_id':'reserve-1','pair_id':'p1','family_role':'before'}]}))
+PY
+mkdir -p "$TMP/gh-bin"
+cat >"$TMP/gh-bin/gh" <<'GH'
+#!/usr/bin/env bash
+case "${4:-}" in
+  rate_limit) echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}';;
+  /repos/szTheory/sigra/actions/runs/777) echo '{"id":777,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","created_at":"2026-10-13T00:00:00Z","conclusion":"failure","pull_requests":[{"number":331,"head":{"sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},"base":{"sha":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}]}';;
+  *) exit 2;;
+esac
+GH
+chmod +x "$TMP/gh-bin/gh"
+PATH="$TMP/gh-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --register-comparison-run --contract "$TMP/register-contract.json" --registrations "$TMP/register-ledger.json" --reservation-id reserve-1 --run-id 777 >"$TMP/register-out.json"
+jq -e '.status=="registered" and .run_id=="777"' "$TMP/register-out.json" >/dev/null
+jq -e '.records as $r | ($r|length)==1 and $r[0].run_id==777 and $r[0].pull_request_number==331 and ($r[0]|has("conclusion")|not) and ($r[0].record_sha256|length)==64' "$TMP/register-ledger.json" >/dev/null
+jq -e '.status=="complete" and .request_count==2' "$TMP/register-ledger.json.requests.json" >/dev/null
 echo "ci-run-metrics-comparison.test: PASS"
