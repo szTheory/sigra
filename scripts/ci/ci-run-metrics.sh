@@ -651,7 +651,7 @@ collect_window() {
       else docs_rule=unknown; fi
       skip_seen=false
       if [[ "$jobs_status" == complete ]]; then
-        skip_seen="$(jq -r '[.jobs[]? | select(.name|test("Example unit smoke|Install smoke|Example HTTP smoke|Example Playwright")) | select(.conclusion=="skipped" or any(.steps[]?; .conclusion=="skipped"))] | length>0' "$family_dir/jobs-attempt-${attempts}.json" 2>/dev/null || echo false)"
+        skip_seen="$(jq -r '[.jobs[]? | select(.name|test("Library tests|Example unit smoke|Install smoke|Example HTTP smoke|Example Playwright")) | select(.conclusion=="skipped")] | length>0' "$family_dir/jobs-attempt-${attempts}.json" 2>/dev/null || echo false)"
       fi
       workload=unknown
       if [[ "$paths_status" == complete && "$docs_rule" == true && "$skip_seen" == true ]]; then workload=docs_only
