@@ -586,6 +586,19 @@ if jq -e '.status=="unknown" and .family_observation_count==1 and .revision_coun
   pass "multiple source revisions are represented once and remain unknown without each revision's source bundle"
 else fail "multi-revision result=$(cat "${TMPDIR_ROOT}/revision-result.json")"; fi
 
+echo "Test T: non-required failure, cancellation, timeout, and skip conclusions stay literal"
+OUTCOMES_DIR="${TMPDIR_ROOT}/literal-outcomes-family"
+cp -R "$SOURCE_DIR" "$OUTCOMES_DIR"
+jq '.check_runs += [{id:8000,name:"fixture failed",status:"completed",conclusion:"failure"},{id:8001,name:"fixture cancelled",status:"completed",conclusion:"cancelled"},{id:8002,name:"fixture timed out",status:"completed",conclusion:"timed_out"},{id:8003,name:"fixture skipped",status:"completed",conclusion:"skipped"}]' "$OUTCOMES_DIR/raw/check-runs.json" >"${TMPDIR_ROOT}/outcome-checks.json"
+mv "${TMPDIR_ROOT}/outcome-checks.json" "$OUTCOMES_DIR/raw/check-runs.json"
+hash="$(shasum -a 256 "$OUTCOMES_DIR/raw/check-runs.json" | awk '{print $1}')"
+jq --arg hash "$hash" '.raw_sha256.check_runs=$hash' "$OUTCOMES_DIR/manifest.json" >"${TMPDIR_ROOT}/outcome-manifest.json"
+mv "${TMPDIR_ROOT}/outcome-manifest.json" "$OUTCOMES_DIR/manifest.json"
+PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$OUTCOMES_DIR" --format json >"${TMPDIR_ROOT}/outcome-result.json"
+if jq -e 'any(.literal_outcomes.check_runs[]; .conclusion=="failure") and any(.literal_outcomes.check_runs[]; .conclusion=="cancelled") and any(.literal_outcomes.check_runs[]; .conclusion=="timed_out") and any(.literal_outcomes.check_runs[]; .conclusion=="skipped")' "${TMPDIR_ROOT}/outcome-result.json" >/dev/null; then
+  pass "replay retains failure, cancellation, timeout, and skip conclusions verbatim"
+else fail "literal outcome result=$(cat "${TMPDIR_ROOT}/outcome-result.json")"; fi
+
 echo ""
 echo "----------------------------------------"
 echo "Results: ${PASS} passed, ${FAIL} failed"
