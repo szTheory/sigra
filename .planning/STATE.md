@@ -4,12 +4,12 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 252
 current_phase_name: Measure Current CI
-status: planning
+status: executing
 stopped_at: Phase 252 planned and independently checked; next $gsd-execute-phase 252
-last_updated: "2026-10-12T17:12:51.574828+00:00"
+last_updated: "2026-10-12T17:19:07.838Z"
 last_activity: 2026-10-12
-last_activity_desc: Phase 252 six-plan execution contract independently checked
-state_head: e94f63f25269def2d381ffc9627c84439562bf71
+last_activity_desc: Phase 252 execution started
+state_head: 69be9c3de31e612bf316a3e33c92dc55b08c0f3f
 progress:
   total_phases: 4
   completed_phases: 0
@@ -34,14 +34,14 @@ roadmap_approved: true
 See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 **Core value:** Authentication that works out of the box, with a clear path for Phoenix adopters.
-**Current focus:** Phase 252 — Measure Current CI.
+**Current focus:** Phase 252 — Measure Current CI
 
 ## Current position
 
-Phase: 252 (Measure Current CI) — READY TO EXECUTE
-Plan: 01 of 6 (not started)
-Status: Phase 252 planned and independently checked; ready to execute
-Last activity: 2026-10-12 — Six plans in four waves passed independent plan review
+Phase: 252 (Measure Current CI) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 252
+Last activity: 2026-10-12 — Phase 252 execution started
 Progress: [░░░░░░░░░░] 0%
 
 ## Next GSD command
