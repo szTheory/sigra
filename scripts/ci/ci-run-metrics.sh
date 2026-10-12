@@ -61,6 +61,10 @@ UNTIL=""
 THRESHOLD=720
 COLLECT=false
 REPLAY=false
+EVALUATE_COMPARISON=false
+CONTRACT_FILE=""
+BEFORE_BUNDLE=""
+AFTER_BUNDLE=""
 PREFLIGHT=false
 PREFLIGHT_OUTPUT=""
 SOURCE_BUNDLE=""
@@ -73,6 +77,8 @@ ARCHIVE_PATH=""
 ARCHIVE_OUTPUT=""
 LOG_TO_REDACT=""
 REDACTED_OUTPUT=""
+VERIFY_BASELINE=false
+BASELINE_FILE=""
 API_STARTED=0
 API_REQUESTS=0
 API_STOP_REASON=""
@@ -117,6 +123,10 @@ while [[ $# -gt 0 ]]; do
     --threshold) THRESHOLD="$2"; shift 2;;
     --collect) COLLECT=true; shift;;
     --replay) REPLAY=true; shift;;
+    --evaluate-comparison) EVALUATE_COMPARISON=true; shift;;
+    --contract) CONTRACT_FILE="$2"; shift 2;;
+    --before-bundle) BEFORE_BUNDLE="$2"; shift 2;;
+    --after-bundle) AFTER_BUNDLE="$2"; shift 2;;
     --preflight) PREFLIGHT=true; shift;;
     --preflight-output) PREFLIGHT_OUTPUT="$2"; shift 2;;
     --run-id) RUN_ID="$2"; shift 2;;
@@ -130,6 +140,8 @@ while [[ $# -gt 0 ]]; do
     --output-dir) ARCHIVE_OUTPUT="$2"; shift 2;;
     --redact-log) LOG_TO_REDACT="$2"; shift 2;;
     --redacted-output) REDACTED_OUTPUT="$2"; shift 2;;
+    --verify-baseline) VERIFY_BASELINE=true; shift;;
+    --baseline) BASELINE_FILE="$2"; shift 2;;
     *) echo "ci-run-metrics: FAIL: unknown arg: $1" >&2; exit 2;;
   esac
 done
@@ -248,6 +260,43 @@ destination.parent.mkdir(parents=True, exist_ok=True)
 temp = destination.with_suffix(destination.suffix + ".tmp")
 temp.write_text(text, encoding="utf-8")
 temp.replace(destination)
+PY
+}
+
+extract_snapshot_bundle() {
+  local archive="$1" destination="$2"
+  python3 - "$archive" "$destination" <<'PY'
+import os, pathlib, shutil, sys, tarfile
+archive, destination = map(pathlib.Path, sys.argv[1:])
+max_total, max_member, max_members = 768 * 1024 * 1024, 128 * 1024 * 1024, 20000
+try:
+    destination.mkdir(parents=True, exist_ok=False)
+    total = 0
+    with tarfile.open(archive, 'r:gz') as tf:
+        members = tf.getmembers()
+        if len(members) > max_members: raise ValueError('snapshot_member_limit_exceeded')
+        for member in members:
+            name = member.name
+            path = pathlib.PurePosixPath(name)
+            if '\\' in name or path.is_absolute() or any(part in ('', '.', '..') for part in path.parts):
+                raise ValueError('unsafe_snapshot_path')
+            if member.issym() or member.islnk() or not (member.isdir() or member.isfile()):
+                raise ValueError('unsafe_snapshot_member_type')
+            if member.size > max_member: raise ValueError('snapshot_member_limit_exceeded')
+            total += member.size
+            if total > max_total: raise ValueError('snapshot_total_limit_exceeded')
+            target = destination.joinpath(*path.parts)
+            if destination not in target.parents and target != destination: raise ValueError('unsafe_snapshot_path')
+            if member.isdir(): target.mkdir(parents=True, exist_ok=True); continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            source = tf.extractfile(member)
+            if source is None: raise ValueError('snapshot_member_unreadable')
+            with source, target.open('xb') as output: shutil.copyfileobj(source, output, 1024 * 1024)
+            if target.stat().st_size != member.size: raise ValueError('snapshot_member_size_mismatch')
+except Exception as exc:
+    shutil.rmtree(destination, ignore_errors=True)
+    print(str(exc) if isinstance(exc, ValueError) else 'snapshot_archive_invalid', file=sys.stderr)
+    raise SystemExit(1)
 PY
 }
 
@@ -424,12 +473,21 @@ collect_window() {
   jq -en --arg cutoff "$CUTOFF" 'try ($cutoff|fromdateiso8601) catch false' >/dev/null || fail "cutoff_invalid"
   [[ ! -e "$SOURCE_BUNDLE" ]] || fail "source_bundle_already_exists"
 
-  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha tree_sha request_hash selection_hash request_count manual_json release_json
+  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha workflow_blob tree_sha request_hash selection_hash request_count manual_json release_json source_hashes required_contexts required_provenance active_rules
   mkdir -p "$(dirname "$SOURCE_BUNDLE")"
   [[ ! -e "$stage" ]] || fail "source_bundle_staging_exists"
   mkdir "$lock" 2>/dev/null || fail "source_bundle_locked"
   printf '{"pid":%s,"started_at":"%s"}\n' "$$" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$lock/owner.json"
   mkdir -p "$stage/raw/populations"
+  mkdir -p "$stage/source"
+  cp "$ROOT/.github/workflows/ci.yml" "$stage/source/ci.yml"
+  cp "$ROOT/scripts/ci/ci-run-metrics.sh" "$stage/source/ci-run-metrics.sh"
+  cp "$ROOT/scripts/ci/ci-playwright-report.mjs" "$stage/source/ci-playwright-report.mjs"
+  cp "$ROOT/scripts/ci/ci-playwright-report.test.mjs" "$stage/source/ci-playwright-report.test.mjs"
+  cp "$ROOT/test/support/ci_timing_formatter.ex" "$stage/source/ci_timing_formatter.ex"
+  cp "$ROOT/test/test_helper.exs" "$stage/source/test_helper.exs"
+  cp "$ROOT/test/example/priv/playwright/playwright.config.ts" "$stage/source/playwright.config.ts"
+  cp "$ROOT/test/example/priv/playwright/package-lock.json" "$stage/source/playwright-package-lock.json"
   API_LEDGER="$stage/request-ledger.json"
   API_STARTED="$(date +%s)"
   API_COMPLETED=false
@@ -489,8 +547,11 @@ collect_window() {
   local collect_one_population
   collect_one_population() {
     local name="$1" ev="$2" br="$3" out="$stage/raw/populations/$1.json"
-    local p=1 pages='[]' selected='[]' total='' response returned filtered valid
-    while (( $(jq 'length' <<<"$selected") < 100 )); do
+    local p=1 total='' response returned filtered valid
+    local selected_file="$tmp/${name}-selected.json" filtered_file="$tmp/${name}-filtered.json" pages_file="$tmp/${name}-pages.json"
+    printf '[]\n' >"$selected_file"
+    printf '[]\n' >"$pages_file"
+    while (( $(jq 'length' "$selected_file") < 100 )); do
       endpoint="/repos/${REPO}/actions/workflows/${WORKFLOW}/runs?event=${ev}"
       [[ -n "$br" ]] && endpoint+="&branch=${br}"
       endpoint+="&created=${since}..${CUTOFF}&per_page=100&page=${p}"
@@ -499,10 +560,12 @@ collect_window() {
       jq -e '(.total_count|type)=="number" and (.workflow_runs|type)=="array"' "$page_file" >/dev/null || { API_STOP_REASON="population_response_invalid:${name}"; break; }
       [[ -n "$total" ]] || total="$(jq -r '.total_count' "$page_file")"
       returned="$(jq '.workflow_runs|length' "$page_file")"
-      pages="$(jq -cn --argjson p "$p" --argjson n "$returned" --slurpfile raw "$page_file" --argjson before "$pages" '$before + [{page:$p,returned_count:$n,response:$raw[0]}]')"
-      filtered="$(jq -c --arg ev "$ev" --arg br "$br" --argjson lo "$(jq -nr --arg t "$since" '$t|fromdateiso8601')" --argjson hi "$cutoff_epoch" '[.workflow_runs[] | select(.event==$ev) | select(($br=="") or .head_branch==$br) | select((try (.created_at|fromdateiso8601) catch -1) >= $lo and (try (.created_at|fromdateiso8601) catch -1) <= $hi)]' "$page_file")"
-      selected="$(jq -cn --argjson before "$selected" --argjson page "$filtered" '$before + $page')"
-      jq -n --arg cutoff "$CUTOFF" --arg population "$name" --argjson page "$p" --argjson ids "$(jq -c '[.[]|.id]' <<<"$selected")" --slurpfile previous "$stage/selection-ledger.json" '{schema_version:"sigra.ci-run-metrics/selection-ledger-v1",cutoff_utc:$cutoff,populations:($previous[0].populations | map(select(.population!=$population)) + [{population:$population,last_page:$page,selected_run_ids:$ids}])}' >"$stage/selection-ledger.json.tmp" && mv "$stage/selection-ledger.json.tmp" "$stage/selection-ledger.json"
+      jq -cn --argjson p "$p" --argjson n "$returned" --slurpfile raw "$page_file" --slurpfile before "$pages_file" '$before[0] + [{page:$p,returned_count:$n,response:$raw[0]}]' >"$pages_file.tmp"
+      mv "$pages_file.tmp" "$pages_file"
+      jq -c --arg ev "$ev" --arg br "$br" --argjson lo "$(jq -nr --arg t "$since" '$t|fromdateiso8601')" --argjson hi "$cutoff_epoch" '[.workflow_runs[] | select(.event==$ev) | select(($br=="") or .head_branch==$br) | select((try (.created_at|fromdateiso8601) catch -1) >= $lo and (try (.created_at|fromdateiso8601) catch -1) <= $hi)]' "$page_file" >"$filtered_file"
+      jq -cn --slurpfile before "$selected_file" --slurpfile page "$filtered_file" '$before[0] + $page[0]' >"$selected_file.tmp"
+      mv "$selected_file.tmp" "$selected_file"
+      jq -n --arg cutoff "$CUTOFF" --arg population "$name" --argjson page "$p" --argjson ids "$(jq -c '[.[]|.id]' "$selected_file")" --slurpfile previous "$stage/selection-ledger.json" '{schema_version:"sigra.ci-run-metrics/selection-ledger-v1",cutoff_utc:$cutoff,populations:($previous[0].populations | map(select(.population!=$population)) + [{population:$population,last_page:$page,selected_run_ids:$ids}])}' >"$stage/selection-ledger.json.tmp" && mv "$stage/selection-ledger.json.tmp" "$stage/selection-ledger.json"
       sync "$stage/selection-ledger.json" 2>/dev/null || sync 2>/dev/null || true
       if [[ "${CI_METRICS_TEST_MODE:-0}" == 1 && "${CI_METRICS_TEST_INTERRUPT_AFTER_POPULATION:-}" == "$name" ]]; then kill -INT "$$"; fi
       p=$((p+1))
@@ -510,20 +573,24 @@ collect_window() {
       (( p <= 10 )) || { API_STOP_REASON="population_page_bound:${name}"; break; }
     done
     total="${total:-0}"
-    selected="$(jq -c '.[0:100]' <<<"$selected")"
-    selected_count="$(jq 'length' <<<"$selected")"
+    jq -c '.[0:100]' "$selected_file" >"$selected_file.capped"
+    mv "$selected_file.capped" "$selected_file"
+    selected_count="$(jq 'length' "$selected_file")"
     capped=false; exhausted=false
     (( total > selected_count )) && capped=true
     [[ "$capped" == false ]] && exhausted=true
-    jq -n --arg name "$name" --arg event "$ev" --arg branch "$br" --arg since "$since" --arg cutoff "$CUTOFF" --argjson total "$total" --argjson selected "$selected" --argjson pages "$pages" --argjson capped "$capped" --argjson exhausted "$exhausted" '{population:$name,event:$event,branch:(if $branch=="" then null else $branch end),created_window:{after:$since,before:$cutoff},api_total_count:$total,population_capped:$capped,population_exhausted:$exhausted,selected_run_ids:[$selected[].id],runs:$selected,pages:$pages,detail_status:"pending"}' >"$out"
+    jq -n --arg name "$name" --arg event "$ev" --arg branch "$br" --arg since "$since" --arg cutoff "$CUTOFF" --argjson total "$total" --slurpfile selected "$selected_file" --slurpfile pages "$pages_file" --argjson capped "$capped" --argjson exhausted "$exhausted" '{population:$name,event:$event,branch:(if $branch=="" then null else $branch end),created_window:{after:$since,before:$cutoff},api_total_count:$total,population_capped:$capped,population_exhausted:$exhausted,selected_run_ids:[$selected[0][].id],runs:$selected[0],pages:$pages[0],detail_status:"pending"}' >"$out"
     api_write_ledger collecting
   }
 
   collect_attempt_details() {
-    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=108 max_attempt
-    selected="$(jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]')"
-    failed="$(jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' <<<"$selected")"
-    priority="$(jq -cn --argjson failed "$failed" --argjson selected "$selected" '[ $failed[] ] + [ $selected[] | . as $x | select(([ $failed[].run.id ] | index($x.run.id))==null) ]')"
+    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=108 max_attempt measurement_target
+    local selected_file="$tmp/all-selected-runs.json" failed_file="$tmp/failed-selected-runs.json" priority_file="$tmp/prioritized-runs.json" enrichments_file="$tmp/family-enrichments.json"
+    jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]' >"$selected_file"
+    jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' "$selected_file" >"$failed_file"
+    measurement_target="$(jq -r '[.[] | select(.population=="pull_request" and .run.conclusion=="success")] | sort_by(.run.created_at) | reverse | .[0].run.id // empty' "$selected_file")"
+    jq -cn --arg target "$measurement_target" --slurpfile failed "$failed_file" --slurpfile selected "$selected_file" '[ $selected[0][] | select((.run.id|tostring)==$target) ] + [ $failed[0][] | select((.run.id|tostring)!=$target) ] + [ $selected[0][] | . as $x | select((($x.run.id|tostring)!=$target) and (([ $failed[0][].run.id ] | index($x.run.id))==null)) ]' >"$priority_file"
+    printf '[]\n' >"$enrichments_file"
     while IFS= read -r row; do
       [[ -n "$row" ]] || continue
       id="$(jq -r '.run.id' <<<"$row")"
@@ -531,7 +598,8 @@ collect_window() {
       run="$(jq -c '.run' <<<"$row")"
       attempts="$(jq -r '.run.run_attempt // 1' <<<"$row")"
       if [[ ! "$id" =~ ^[0-9]+$ || ! "$attempts" =~ ^[1-9][0-9]*$ ]] || (( attempts > 100 )); then
-        enrichments="$(jq -cn --argjson prior "$enrichments" --argjson id "${id:-0}" '{run_id:$id,detail_status:"invalid_run_attempt_count",attempt_jobs:{},changed_paths_status:"unknown",workload:"unknown",diagnostics:["run_identity_or_attempt_count_invalid"]} + { } as $e | $prior + [$e]')"
+        jq -cn --slurpfile prior "$enrichments_file" --argjson id "${id:-0}" '$prior[0] + [{run_id:$id,detail_status:"invalid_run_attempt_count",attempt_jobs:{},changed_paths_status:"unknown",workload:"unknown",diagnostics:["run_identity_or_attempt_count_invalid"]}]' >"$enrichments_file.tmp"
+        mv "$enrichments_file.tmp" "$enrichments_file"
         continue
       fi
       family_dir="$stage/raw/families/$id"
@@ -542,7 +610,8 @@ collect_window() {
       # one artifact metadata read, and the initial request plus three possible
       # redirects for each artifact and failed-job log.
       if (( API_REQUESTS + needed + reserve > 600 )); then
-        enrichments="$(jq -cn --argjson prior "$enrichments" --argjson id "$id" '{run_id:$id,detail_status:"detail_unavailable_budget",attempt_jobs:{},changed_paths_status:"detail_unavailable_budget",workload:"unknown",diagnostics:["detail_unavailable_budget"]} | $prior + [.]')"
+        jq -cn --slurpfile prior "$enrichments_file" --argjson id "$id" '$prior[0] + [{run_id:$id,detail_status:"detail_unavailable_budget",attempt_jobs:{},changed_paths_status:"detail_unavailable_budget",workload:"unknown",diagnostics:["detail_unavailable_budget"]}]' >"$enrichments_file.tmp"
+        mv "$enrichments_file.tmp" "$enrichments_file"
         jq --argjson id "$id" --arg reason detail_unavailable_budget '.unknown_inputs += [{reason:$reason,run_id:$id}]' "$API_LEDGER" >"$API_LEDGER.tmp" && mv "$API_LEDGER.tmp" "$API_LEDGER"
         continue
       fi
@@ -559,6 +628,8 @@ collect_window() {
       done
       paths_status=unavailable
       paths_json='[]'
+      local paths_file="$tmp/family-${id}-paths.json"
+      printf '[]\n' >"$paths_file"
       pr_number="$(jq -r '.pull_requests[0].number // empty' <<<"$run")"
       if [[ "$event" == pull_request && "$pr_number" =~ ^[1-9][0-9]*$ && "$jobs_status" == complete ]] && (( API_REQUESTS + 1 + reserve <= 600 )); then
         local changed_file="$tmp/family-${id}-changed-paths.json" page=1 total_paths=0
@@ -566,7 +637,8 @@ collect_window() {
           if ! api_get "/repos/${REPO}/pulls/${pr_number}/files?per_page=100&page=${page}" "$changed_file"; then paths_status="${API_STOP_REASON:-changed_paths_unavailable}"; break; fi
           jq -e 'type=="array"' "$changed_file" >/dev/null || { paths_status=changed_paths_invalid; break; }
           total_paths=$((total_paths + $(jq 'length' "$changed_file")))
-          paths_json="$(jq -cn --argjson before "$paths_json" --slurpfile current "$changed_file" '$before + $current[0]')"
+          jq -cn --slurpfile before "$paths_file" --slurpfile current "$changed_file" '$before[0] + $current[0]' >"$paths_file.tmp"
+          mv "$paths_file.tmp" "$paths_file"
           cp "$changed_file" "$family_dir/changed-paths-page-${page}.json"
           (( $(jq 'length' "$changed_file") == 100 )) || { paths_status=complete; break; }
           (( API_REQUESTS + 1 + reserve <= 600 )) || { paths_status=detail_unavailable_budget; break; }
@@ -575,7 +647,7 @@ collect_window() {
       elif [[ "$event" == pull_request ]]; then paths_status=changed_paths_unavailable_budget; fi
       docs_flag="$(jq -r 'if .changes.docs_only==true then "true" elif .changes.docs_only==false then "false" else "unknown" end' <<<"$run")"
       if [[ "$paths_status" == complete ]]; then
-        docs_rule="$(printf '%s\n' "$(jq -r '.[].filename' <<<"$paths_json")" | bash "$ROOT/scripts/ci/docs-only-classify.sh" 2>/dev/null | sed -n 's/^docs_only=//p')"
+        docs_rule="$(jq -r '.[].filename' "$paths_file" | bash "$ROOT/scripts/ci/docs-only-classify.sh" 2>/dev/null | sed -n 's/^docs_only=//p')"
       else docs_rule=unknown; fi
       skip_seen=false
       if [[ "$jobs_status" == complete ]]; then
@@ -586,7 +658,7 @@ collect_window() {
       elif [[ "$docs_flag" == false && "$jobs_status" == complete && "$skip_seen" == false ]]; then workload=full
       fi
       local diagnostic="[]" artifact_meta="$tmp/family-${id}-artifacts.json" artifact_record='{}' log_record='{}' job_id artifact_row artifact_id expected_digest artifact_zip="$family_dir/timing-artifact.zip" artifact_out="$family_dir/timing" artifact_status
-      if jq -e --argjson id "$id" '[.[] | select(.run.id==$id)]|length>0' <<<"$failed" >/dev/null; then
+      if jq -e --argjson id "$id" '[.[] | select(.run.id==$id)]|length>0' "$failed_file" >/dev/null; then
         if api_get "/repos/${REPO}/actions/runs/${id}/artifacts?per_page=100" "$artifact_meta"; then
             jq '{total_count,artifacts:[.artifacts[]? | {id,name,size_in_bytes,expired,digest,created_at,expires_at,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha}}]}' "$artifact_meta" >"$family_dir/artifacts-metadata.json"
           artifact_row="$(jq -c '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|test-results|report")))][0] // empty' "$artifact_meta")"
@@ -622,15 +694,46 @@ collect_window() {
         jq -e . <<<"$log_record" >/dev/null || fail "log_diagnostic_invalid:${id}"
         diagnostic="$(jq -cn --argjson artifact "$artifact_record" --argjson log "$log_record" '[{kind:"artifact",result:$artifact},{kind:"failed_job_log",result:$log}]')"
       fi
-      details_json="$(jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --argjson paths "$paths_json" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths:$paths,changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}')" || fail "family_detail_json_invalid:${id}: attempts=${attempts_json} paths=${paths_json} skip=${skip_seen} diagnostic=${diagnostic}"
-      jq -n --argjson detail "$details_json" --arg run_hash "$(sha256_file "$family_dir/run.json")" --argjson attempts "$attempts_json" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail.run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail.detail_status,changed_paths_status:$detail.changed_paths_status,changes_docs_only:$detail.changes_docs_only,workload:$detail.workload,observed_expected_skip:$detail.observed_expected_skip,artifact_diagnostics:$detail.artifact_diagnostics}' >"$family_dir/manifest.json"
-      enrichments="$(jq -cn --argjson prior "$enrichments" --argjson detail "$details_json" '$prior + [$detail]')"
+      if [[ "$event" == pull_request && "$id" == "$measurement_target" && "$workload" == full && "$jobs_status" == complete ]]; then
+        local check_file="$family_dir/check-runs.json" target_artifacts="$family_dir/artifacts" artifact_manifest="$family_dir/artifact-evidence.json" artifact_index=0 artifact_row_target target_artifact_id target_digest target_zip target_dir target_hash target_extract
+        mkdir -p "$target_artifacts"
+        if api_get "/repos/${REPO}/commits/$(jq -r '.head_sha' "$family_dir/run.json")/check-runs?per_page=100" "$tmp/family-${id}-check-runs.json"; then
+          cp "$tmp/family-${id}-check-runs.json" "$check_file"
+        else jq -n --arg reason "${API_STOP_REASON:-check_runs_unavailable}" '{status:"unknown",reason:$reason}' >"$check_file"; fi
+        if api_get "/repos/${REPO}/actions/runs/${id}/artifacts?per_page=100" "$artifact_meta"; then
+          jq '{total_count,artifacts:[.artifacts[]? | {id,name,size_in_bytes,expired,digest,created_at,expires_at,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha}}]}' "$artifact_meta" >"$family_dir/artifacts-metadata.json"
+          printf '[]\n' >"$artifact_manifest"
+          while IFS= read -r artifact_row_target; do
+            [[ -n "$artifact_row_target" ]] || continue
+            target_artifact_id="$(jq -r '.id' <<<"$artifact_row_target")"
+            target_digest="$(jq -r '.digest // empty' <<<"$artifact_row_target")"
+            target_zip="$target_artifacts/${target_artifact_id}.zip"
+            target_dir="$target_artifacts/${target_artifact_id}"
+            target_extract='{"status":"unknown","diagnostic":"artifact_not_downloaded"}'
+            if jq -e --argjson run "$run" '.expired!=true and (.id|type)=="number" and (.digest|test("^sha256:[0-9a-f]{64}$")) and (.workflow_run.id|tostring)==($run.id|tostring) and .workflow_run.head_sha==$run.head_sha' <<<"$artifact_row_target" >/dev/null \
+              && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${target_artifact_id}/zip" "$target_zip" "artifact:${id}:${target_artifact_id}"; then
+              target_hash="sha256:$(sha256_file "$target_zip")"
+              if [[ "$target_hash" == "$target_digest" ]] && extract_timing_archive "$target_zip" "$target_dir" >"$tmp/target-extract-${target_artifact_id}.json" 2>"$tmp/target-extract-${target_artifact_id}.err"; then
+                target_extract="$(jq -cn --arg archive_sha256 "${target_hash#sha256:}" --arg path "raw/families/${id}/artifacts/${target_artifact_id}" --slurpfile extraction "$tmp/target-extract-${target_artifact_id}.json" '$extraction[0] + {status:"accepted",archive_sha256:$archive_sha256,path:$path}')"
+              else target_extract="$(jq -cn --arg reason "$(if [[ "$target_hash" != "$target_digest" ]]; then echo artifact_digest_mismatch; else cat "$tmp/target-extract-${target_artifact_id}.err"; fi)" '{status:"unknown",diagnostic:$reason}')"; rm -rf "$target_zip" "$target_dir"; fi
+            else target_extract="$(jq -cn --arg reason "${API_STOP_REASON:-artifact_identity_or_digest_invalid}" '{status:"unknown",diagnostic:$reason}')"; fi
+            jq -cn --slurpfile prior "$artifact_manifest" --argjson artifact "$artifact_row_target" --argjson result "$target_extract" '$prior[0] + [{artifact:$artifact,result:$result}]' >"$artifact_manifest.tmp" && mv "$artifact_manifest.tmp" "$artifact_manifest"
+            artifact_index=$((artifact_index+1))
+            [[ -z "$API_STOP_REASON" ]] || break
+          done < <(jq -c '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|measurement-metadata")))] | sort_by(.name,.id) | .[]' "$artifact_meta")
+        else jq -n --arg reason "${API_STOP_REASON:-artifact_metadata_unavailable}" '{status:"unknown",reason:$reason}' >"$artifact_manifest"; fi
+      fi
+      details_file="$tmp/family-${id}-detail.json"
+      jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --slurpfile paths "$paths_file" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths:$paths[0],changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}' >"$details_file" || fail "family_detail_json_invalid:${id}"
+      jq -n --slurpfile detail "$details_file" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --argjson attempts "$attempts_json" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
+      jq -cn --slurpfile prior "$enrichments_file" --slurpfile detail "$details_file" '$prior[0] + [$detail[0]]' >"$enrichments_file.tmp"
+      mv "$enrichments_file.tmp" "$enrichments_file"
       api_write_ledger collecting
       [[ -z "$API_STOP_REASON" ]] || break
-    done <<<"$(jq -c '.[]' <<<"$priority")"
+    done <<<"$(jq -c '.[]' "$priority_file")"
     for population_name in pull_request push_main schedule; do
       local population_file="$stage/raw/populations/${population_name}.json"
-      jq --argjson details "$enrichments" '.runs |= map(. as $r | . + ([$details[] | select(.run_id==$r.id)][0] // {detail_status:"detail_unavailable_budget",workload:"unknown",attempt_jobs:{}}))' "$population_file" >"$population_file.tmp" && mv "$population_file.tmp" "$population_file"
+      jq --slurpfile details "$enrichments_file" '.runs |= map(. as $r | . + ([$details[0][] | select(.run_id==$r.id)][0] // {detail_status:"detail_unavailable_budget",workload:"unknown",attempt_jobs:{}}))' "$population_file" >"$population_file.tmp" && mv "$population_file.tmp" "$population_file"
     done
   }
 
@@ -652,15 +755,20 @@ collect_window() {
   request_count="$API_REQUESTS"
   manifest_status=complete
   [[ -n "$API_STOP_REASON" ]] && manifest_status=incomplete
-  workflow_sha="$(git hash-object "$ROOT/.github/workflows/ci.yml" 2>/dev/null || echo unavailable)"
+  workflow_blob="$(git hash-object "$ROOT/.github/workflows/ci.yml" 2>/dev/null || echo unavailable)"
+  workflow_sha="$(sha256_file "$ROOT/.github/workflows/ci.yml")"
   tree_sha="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
+  source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test}')"
+  required_contexts="$(jq -c '[.[]? | select(.type=="required_status_checks") | .parameters.required_status_checks[]?.context] | unique' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
+  required_provenance="$(jq -c '[.[]? | select(.type=="required_status_checks") | {context:.parameters.required_status_checks[]?.context,ruleset_id:.ruleset_id,ruleset_source:.ruleset_source}]' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
+  active_rules="$(jq -c '[.[]? | select(.enforcement=="active") | {id,name,target,enforcement}] | sort_by(.id)' "$stage/raw/rulesets.json" 2>/dev/null || echo '[]')"
   api_write_ledger "$manifest_status"
   request_hash="$(sha256_file "$API_LEDGER")"
   selection_hash="$(sha256_file "$stage/selection-ledger.json")"
   pr_hash="$(sha256_file "$stage/raw/populations/pull_request.json")"
   push_hash="$(sha256_file "$stage/raw/populations/push_main.json")"
   night_hash="$(sha256_file "$stage/raw/populations/schedule.json")"
-  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg request_hash "$request_hash" --arg selection_hash "$selection_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
+  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg captured "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg workflow_blob "$workflow_blob" --arg source_hashes "$source_hashes" --argjson required_contexts "$required_contexts" --argjson required_provenance "$required_provenance" --argjson active_rules "$active_rules" --arg request_hash "$request_hash" --arg selection_hash "$selection_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --arg rate_hash "$(sha256_file "$stage/raw/rate-limit.json")" --arg rules_hash "$(sha256_file "$stage/raw/effective-rules.json")" --arg protection_hash "$(sha256_file "$stage/raw/branch-protection.json")" --arg rulesets_hash "$(sha256_file "$stage/raw/rulesets.json")" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,captured_at_utc:$captured,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,workflow_blob_sha:$workflow_blob,required_contexts:$required_contexts,required_rule_provenance:$required_provenance,active_rulesets:$active_rules,source_file_sha256:($source_hashes|fromjson),source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash,rate_limit:$rate_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
   sync 2>/dev/null || true
   rm -rf "$tmp"
   API_TEMP_DIR=""
@@ -1005,18 +1113,28 @@ replay_snapshot() {
     jq -S '{schema_version,repository,workflow,cutoff_utc,window_start_utc,status,stop_reason,request_count,selection_ledger}' "$manifest"
     return 0
   fi
-  for name in request_ledger selection_ledger pull_request push_main schedule; do
+  for name in request_ledger selection_ledger pull_request push_main schedule rate_limit effective_rules branch_protection rulesets; do
     case "$name" in
       request_ledger) file="$bundle/request-ledger.json";;
       selection_ledger) file="$bundle/selection-ledger.json";;
       *) file="$bundle/raw/populations/${name}.json";;
     esac
+    case "$name" in
+      rate_limit|effective_rules|branch_protection|rulesets) file="$bundle/raw/${name//_/-}.json";;
+    esac
     expected="$(jq -r --arg key "$name" '.source_sha256[$key] // empty' "$manifest")"
     [[ -n "$expected" && -s "$file" && "$(sha256_file "$file")" == "$expected" ]] || fail "snapshot_hash_mismatch:${name}"
   done
-  result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,window_start_utc,status,stop_reason,request_count,source_sha,populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
-  local metrics
-  metrics="$(python3 - "$bundle" "$ROOT" <<'PY'
+  local source_name source_path source_expected
+  while IFS= read -r source_name; do
+    source_path="$bundle/source/$source_name"
+    source_expected="$(jq -r --arg name "$source_name" '.source_file_sha256[$name]' "$manifest")"
+    [[ -s "$source_path" && "$(sha256_file "$source_path")" == "$source_expected" ]] || fail "snapshot_source_file_hash_mismatch:${source_name}"
+  done < <(jq -r '.source_file_sha256|keys[]' "$manifest")
+  result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,captured_at_utc,window_start_utc,status,stop_reason,request_count,source_sha,workflow_sha256,workflow_blob_sha,required_contexts,required_rule_provenance,active_rulesets,source_file_sha256,source_sha256,comparison_families:(.comparison_families // null),source_runs:([.populations|to_entries[]|select(.key=="pull_request" or .key=="push_main" or .key=="schedule") as $pop | $pop.value.runs[]? | {event:$pop.key,id,html_url,head_sha,run_attempt,conclusion,created_at,updated_at,detail_status,workload,changes_docs_only} ]|sort_by(.event,.created_at,.id)),populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
+  local metrics_file
+  metrics_file="$(mktemp "${TMPDIR:-/tmp}/ci-run-metrics-replay.XXXXXX")"
+  python3 - "$bundle" "$ROOT" >"$metrics_file" <<'PY'
 import datetime, hashlib, json, pathlib, re, sys
 root = pathlib.Path(sys.argv[1]); project = pathlib.Path(sys.argv[2]); manifest = json.loads((root/'manifest.json').read_text())
 events = {'pull_request':'pull_request','push_main':'main','schedule':'nightly'}
@@ -1147,10 +1265,13 @@ initial_wait={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':r
 critical_wait={k:rank(rows) for k,rows in wait_rows.items()}
 job_execution={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':r['attempt'],'job_id':r['job_id'],'seconds':r['seconds']} for r in rows]) for k,rows in runner_rows.items()}
 out={'ranked_by_wait':{k:rank(v) for k,v in wait_rows.items()},'ranked_by_runner':{k:rank(v) for k,v in runner_rows.items()},'initial_wait':initial_wait,'critical_path_wait':critical_wait,'job_execution':job_execution,'dag_dependency_gaps':{k:{'status':'unknown','n':0,'reason':'dependency_edges_not_exposed_by_saved_job_api'} for k in events.values()},'stage_costs':{k:{s:result(v,'seconds') for s,v in values.items()} for k,values in stage_values.items()},'cache_outcome':cache or {'library_deps':'unknown','example_deps':'unknown','browser_binaries':'unknown'},'runner_image':{k:images.get(k,image_defaults) for k in events.values()},'configured_versions':{k:configured.get(k,configured_defaults) for k in events.values()},'observed_versions':{k:observed.get(k,observed_defaults) for k in events.values()},'test_rows':sorted(test_rows,key=lambda r:r['identity']),'reporter_overhead':overhead,'instrumentation_baseline':instrumentation_baseline,'cohorts':cohorts,'failure_analysis':failure_analysis,'failure_signatures':failure_analysis['failure_signatures'],'diagnostics_status':failure_analysis['diagnostics_status'],'failure_class':failure_bins}
+out['required_result_wait']={'status':'unknown','n':0,'seconds':None,'reason':'no_complete_source_bound_full_pr_required_check_endpoint'}
+out['instrumented_full_pr']={'complete':False,'status':'insufficient_data','diagnostics':['no_source_bound_full_pr_family_has_all_required_contexts_and_both_test_timing_artifacts'],'producing_run_id':None,'source_sha':None,'attempt':None,'job_cost_seconds':None,'step_costs':None,'test_costs':None}
 print(json.dumps(out,separators=(',',':')))
 PY
-)" || fail replay_metrics_unavailable
-  result="$(jq --argjson metrics "$metrics" '. + $metrics' <<<"$result")"
+  jq --slurpfile metrics "$metrics_file" '. + $metrics[0]' <<<"$result" >"$metrics_file.merged"
+  result="$(cat "$metrics_file.merged")"
+  rm -f "$metrics_file" "$metrics_file.merged"
   if [[ "$FORMAT" == json ]]; then jq -S . <<<"$result"; else jq -r '[.populations|to_entries[]|[.key,(.value.run_count // .value.records // 0)]|@tsv]|.[]|@tsv' <<<"$result"; fi
 }
 
@@ -1165,6 +1286,127 @@ fi
 if [[ "$COLLECT" == true && "$REPLAY" == true ]]; then
   fail "--collect and --replay are mutually exclusive"
 fi
+if [[ "$VERIFY_BASELINE" == true ]]; then
+  [[ -n "$SOURCE_BUNDLE" && -n "$BASELINE_FILE" ]] || fail "--verify-baseline requires --source-bundle and --baseline"
+  [[ -s "$BASELINE_FILE" ]] || fail "baseline_missing"
+  verify_dir="$SOURCE_BUNDLE"; verify_tmp=""
+  if [[ ! -d "$SOURCE_BUNDLE" ]]; then
+    verify_tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-run-metrics-verify.XXXXXX")"
+    extract_snapshot_bundle "$SOURCE_BUNDLE" "$verify_tmp/bundle" || fail "source_bundle_archive_invalid"
+    verify_dir="$verify_tmp/bundle"
+  fi
+  replay_file="$(mktemp "${TMPDIR:-/tmp}/ci-run-metrics-expected.XXXXXX")"
+  replay_snapshot "$verify_dir" >"$replay_file"
+  python3 - "$verify_dir" "$BASELINE_FILE" "$replay_file" <<'PY'
+import datetime, json, pathlib, sys
+bundle, baseline_path, replay_path = map(pathlib.Path, sys.argv[1:])
+baseline = json.loads(baseline_path.read_text()); replay = json.loads(replay_path.read_text())
+manifest = json.loads((bundle/'manifest.json').read_text())
+expected = ['Library tests','Example unit smoke (ExUnit + ConnTest)','Install smoke (fresh phx.new + sigra.install)','Example HTTP smoke (boot + curl critical routes)','Example Playwright smoke (full lifecycle)']
+problems=[]
+def fail(reason, detail=None):
+    item={'reason':reason}
+    if detail is not None: item['detail']=detail
+    problems.append(item)
+try:
+    cutoff=datetime.datetime.fromisoformat(manifest['cutoff_utc'].replace('Z','+00:00'))
+    captured=datetime.datetime.fromisoformat(manifest['captured_at_utc'].replace('Z','+00:00'))
+    now=datetime.datetime.now(datetime.timezone.utc)
+    if cutoff > captured or captured > now + datetime.timedelta(minutes=5) or now-cutoff > datetime.timedelta(days=30): fail('cutoff_not_current')
+except Exception: fail('cutoff_invalid')
+if manifest.get('status') != 'complete': fail('source_snapshot_incomplete',manifest.get('stop_reason'))
+if baseline != replay: fail('baseline_replay_mismatch')
+if sorted(manifest.get('required_contexts') or []) != sorted(expected): fail('required_context_set_changed',manifest.get('required_contexts'))
+provenance=manifest.get('required_rule_provenance') or []
+if {x.get('context') for x in provenance} != set(expected) or any(not isinstance(x.get('ruleset_id'),int) for x in provenance): fail('required_context_provenance_incomplete')
+for event,key in [('pull_request','pull_request'),('main_push','push_main'),('nightly','schedule')]:
+    pop=manifest.get('populations',{}).get(key,{})
+    if (pop.get('api_total_count') or 0)>0:
+        if not any(r.get('detail_status')=='complete' and r.get('attempt_jobs') for r in pop.get('runs',[])):
+            fail('event_has_no_complete_family',event)
+if replay.get('cohorts',{}).get('full',{}).get('n',0)<1: fail('full_pr_measurement_missing')
+if replay.get('instrumented_full_pr',{}).get('complete') is not True: fail('instrumented_full_pr_incomplete',replay.get('instrumented_full_pr',{}).get('diagnostics'))
+if replay.get('required_result_wait',{}).get('status') != 'measured': fail('required_result_wait_unavailable')
+if replay.get('instrumentation_baseline',{}).get('exunit',{}).get('status') not in ('historical_baseline','measured'): fail('exunit_overhead_unavailable')
+if replay.get('reporter_overhead',{}).get('playwright',{}).get('status') not in ('measured','unmeasured'): fail('playwright_overhead_disclosure_missing')
+print(json.dumps({'status':'ready' if not problems else 'insufficient_data','source_sha':manifest.get('source_sha'),'cutoff_utc':manifest.get('cutoff_utc'),'diagnostics':problems},sort_keys=True))
+raise SystemExit(0 if not problems else 1)
+PY
+  verify_rc=$?
+  rm -f "$replay_file"
+  [[ -z "$verify_tmp" ]] || rm -rf "$verify_tmp"
+  exit "$verify_rc"
+fi
+if [[ "$EVALUATE_COMPARISON" == true ]]; then
+  [[ -s "$CONTRACT_FILE" && -d "$BEFORE_BUNDLE" && -d "$AFTER_BUNDLE" ]] || fail "--evaluate-comparison requires --contract and extracted --before-bundle/--after-bundle directories"
+  before_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-before.XXXXXX")"
+  after_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-after.XXXXXX")"
+  replay_snapshot "$BEFORE_BUNDLE" >"$before_json"
+  replay_snapshot "$AFTER_BUNDLE" >"$after_json"
+  python3 - "$CONTRACT_FILE" "$before_json" "$after_json" <<'PY'
+import json, math, pathlib, sys
+contract, before, after = map(lambda p: json.loads(pathlib.Path(p).read_text()), sys.argv[1:])
+issues=[]; families=[]; paired=[]
+def issue(code, detail=None):
+    row={'reason':code}
+    if detail is not None: row['detail']=detail
+    issues.append(row)
+if contract.get('status') != 'ready': issue('contract_not_ready',contract.get('status'))
+if contract.get('pair_count') != 20 or contract.get('primary_family_count') != 40: issue('contract_sample_size_invalid')
+if contract.get('window_duration_hours') != 48: issue('contract_window_invalid')
+if before.get('source_sha') != contract.get('baseline_application_sha'): issue('before_source_identity_mismatch')
+if before.get('workflow_sha256') != contract.get('baseline_workflow_sha256'): issue('before_workflow_identity_mismatch')
+if after.get('source_sha') != contract.get('candidate_application_sha'): issue('after_source_identity_mismatch')
+if after.get('workflow_sha256') != contract.get('candidate_workflow_sha256'): issue('after_workflow_identity_mismatch')
+for label, data in [('before',before),('after',after)]:
+    if data.get('status') != 'complete': issue(label+'_snapshot_incomplete')
+    rows=data.get('comparison_families')
+    if not isinstance(rows,list): issue(label+'_family_inputs_missing'); continue
+    if len(rows) != 20: issue(label+'_family_count',len(rows))
+    seen=set()
+    for row in rows:
+        ident=(row.get('pair_id'),row.get('family_role'))
+        if ident in seen: issue(label+'_duplicate_family',ident)
+        seen.add(ident); families.append((label,row))
+        if row.get('family_role') not in ('before','after'): issue(label+'_invalid_family_role',ident)
+        if row.get('conclusion') != 'success': issue(label+'_family_not_successful',{'identity':ident,'conclusion':row.get('conclusion')})
+        if not isinstance(row.get('required_result_wait_seconds'),(int,float)) or not isinstance(row.get('runner_seconds'),(int,float)): issue(label+'_family_cost_missing',ident)
+        attempts=row.get('attempts',[])
+        retries=[a for a in attempts if a.get('retry') is True]
+        if len(retries)>1 or any(a.get('classification')!='infrastructure_failure' or not a.get('diagnosed') for a in retries): issue(label+'_retry_policy_violation',ident)
+    if len(seen)!=20: issue(label+'_unique_family_count',len(seen))
+before_rows={r.get('pair_id'):r for label,r in families if label=='before' and r.get('family_role')=='before'}
+after_rows={r.get('pair_id'):r for label,r in families if label=='after' and r.get('family_role')=='after'}
+if set(before_rows)!=set(after_rows) or len(before_rows)!=20: issue('pair_identity_mismatch')
+for pair_id in sorted(set(before_rows)&set(after_rows)):
+    b,a=before_rows[pair_id],after_rows[pair_id]
+    fields=['workload','workload_sha','runner_class','cache_stratum','exunit_instrumentation','playwright_instrumentation']
+    mismatch=[field for field in fields if b.get(field)!=a.get(field)]
+    if mismatch: issue('pair_not_equivalent',{'pair_id':pair_id,'fields':mismatch}); continue
+    paired.append((pair_id,b,a))
+    if b.get('conclusion')!='success' or a.get('conclusion')!='success': continue
+    if not isinstance(b.get('required_result_wait_seconds'),(int,float)) or not isinstance(a.get('required_result_wait_seconds'),(int,float)): continue
+    if not isinstance(b.get('runner_seconds'),(int,float)) or not isinstance(a.get('runner_seconds'),(int,float)): continue
+wait_before=[b['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
+wait_after=[a['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
+runner_before=sum(b['runner_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success')
+runner_after=sum(a['runner_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success')
+def median(xs):
+    xs=sorted(xs); n=len(xs)
+    return (xs[(n-1)//2]+xs[n//2])/2 if n else None
+def p95(xs):
+    xs=sorted(xs); return xs[math.ceil(.95*len(xs))-1] if xs else None
+if len(paired)!=20 or len(wait_before)!=20: issue('insufficient_equivalent_successful_pairs',len(wait_before))
+metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead')}
+if not issues and len(wait_before)==20:
+    verdict='pass' if median(wait_after)<=.8*median(wait_before) and p95(wait_after)<=p95(wait_before) and runner_after<=runner_before else 'miss'
+else: verdict='insufficient_data'
+print(json.dumps({'status':verdict,'metrics':metrics,'diagnostics':issues},sort_keys=True))
+PY
+  rc=$?
+  rm -f "$before_json" "$after_json"
+  exit "$rc"
+fi
 if [[ "$PREFLIGHT" == true ]]; then
   run_preflight
   exit $?
@@ -1175,8 +1417,19 @@ if [[ "$COLLECT" == true ]]; then
 fi
 if [[ "$REPLAY" == true ]]; then
   [[ -n "$SOURCE_BUNDLE" ]] || fail "--replay requires --source-bundle"
-  if [[ "$(jq -r '.schema_version // empty' "$SOURCE_BUNDLE/manifest.json" 2>/dev/null || true)" == "sigra.ci-run-metrics/snapshot-v1" ]]; then
-    replay_snapshot "$SOURCE_BUNDLE"
+  replay_dir="$SOURCE_BUNDLE"; replay_tmp=""
+  if [[ ! -d "$SOURCE_BUNDLE" ]]; then
+    replay_tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-run-metrics-replay.XXXXXX")"
+    extract_snapshot_bundle "$SOURCE_BUNDLE" "$replay_tmp/bundle" || fail "source_bundle_archive_invalid"
+    replay_dir="$replay_tmp/bundle"
+  fi
+  if [[ "$(jq -r '.schema_version // empty' "$replay_dir/manifest.json" 2>/dev/null || true)" == "sigra.ci-run-metrics/snapshot-v1" ]]; then
+    if [[ -n "$BASELINE_FILE" ]]; then
+      [[ ! -e "$BASELINE_FILE" ]] || fail "baseline_output_already_exists"
+      replay_snapshot "$replay_dir" >"$BASELINE_FILE.tmp"
+      mv "$BASELINE_FILE.tmp" "$BASELINE_FILE"
+    else replay_snapshot "$replay_dir"; fi
+    [[ -z "$replay_tmp" ]] || rm -rf "$replay_tmp"
     exit 0
   fi
   if [[ -z "$RUN_ID" ]]; then RUN_ID="$(jq -r '.run_id // empty' "$SOURCE_BUNDLE/manifest.json" 2>/dev/null || true)"; fi
