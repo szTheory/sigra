@@ -166,6 +166,19 @@ function rekeyCapturedDirtyIdentity(packet, dirty, { status = dirty.status, sour
       entry.source_byte_sha256 = sourceByteSha256;
     }
   }
+  if (local.repository_root === dirty.worktree_path) {
+    const rawEntry = local.raw_status?.find((row) => row.path === dirty.path && row.source_byte_sha256 === oldDigest);
+    assert.ok(rawEntry, `raw status row missing for ${oldId}`);
+    rawEntry.status = status;
+    rawEntry.source_byte_sha256 = sourceByteSha256;
+    for (const inventory of [local, inherited]) {
+      const rootWorktree = inventory.worktrees?.find((row) => row.path === local.repository_root);
+      if (!rootWorktree) continue;
+      rootWorktree.status_bytes = rootWorktree.status_entries.map((row) => `${row.status} ${row.path}\0`).join('');
+      rootWorktree.status_sha256 = sha256(rootWorktree.status_bytes);
+    }
+    local.raw_status_sha256 = local.worktrees.find((row) => row.path === local.repository_root).status_sha256;
+  }
   const join = inherited.disposition_join;
   join.observedIds = join.observedIds.map((id) => id === oldId ? newId : id);
   join.dispositionIds = join.dispositionIds.map((id) => id === oldId ? newId : id);
@@ -340,6 +353,71 @@ test('independent audit rejects a coherently omitted captured worktree status id
     const changedResult = audit(repoRoot, { overrides: changed.overrides });
     assert.equal(changedResult.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
   }
+});
+
+test('independent audit binds every dirty-row metadata field to its canonical status row', () => {
+  const positive = ownerEvidenceFixture({ ready02: true });
+  assert.equal(audit(repoRoot, { overrides: positive.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied');
+  const mutations = [
+    ['path', (dirty) => { dirty.path = 'forged/path-that-never-appeared-in-status.txt'; }],
+    ['original_path', (dirty) => { dirty.original_path = 'forged/original.txt'; }],
+    ['status', (dirty) => { dirty.status = 'MM'; }],
+    ['worktree_path', (dirty) => { dirty.worktree_path = '/tmp/forged-worktree'; }],
+    ['worktree_head_sha', (dirty) => { dirty.worktree_head_sha = 'f'.repeat(40); }],
+    ['worktree_branch', (dirty) => { dirty.worktree_branch = 'refs/heads/forged-branch'; }],
+    ['source_byte_sha256', (dirty) => { dirty.source_byte_sha256 = sha256('forged source bytes'); }],
+    ['source_byte_readable', (dirty) => { dirty.source_byte_readable = false; }],
+    ['kind', (dirty) => { dirty.kind = 'committed_path'; }],
+  ];
+  for (const [index, [field, mutate]] of mutations.entries()) {
+    const evidence = ownerEvidenceFixture({ ready02: true });
+    const packet = evidence.packet;
+    const dirty = packet.source_capture.local_inherited_work.inherited_dirty_entries[0];
+    const disposition = packet.source_capture.local_inherited_work.inherited_dispositions.find((row) => row.id === dirty.id);
+    const joinRef = packet.requirements.READY02.inherited_work.disposition_join.preservationRefs.find((row) => row.id === dirty.id);
+    const oldRef = structuredClone(disposition.preservation_ref);
+    mutate(dirty);
+    const source = { ...disposition.source };
+    if (field === 'path') source.path = dirty.path;
+    if (field === 'original_path') source.original_path = dirty.original_path;
+    if (field === 'status') source.status = dirty.status;
+    if (field === 'worktree_path') source.worktree_path = dirty.worktree_path;
+    if (field === 'worktree_head_sha') source.head_sha = dirty.worktree_head_sha;
+    if (field === 'worktree_branch') source.worktree_branch = dirty.worktree_branch;
+    if (field === 'source_byte_sha256') source.source_byte_sha256 = dirty.source_byte_sha256;
+    if (field === 'kind') source.kind = dirty.kind;
+    disposition.source = source;
+    const variant = commitPreservationVariant(oldRef, (record) => {
+      record.source = source;
+      record.captured_source.path = source.path;
+      record.captured_source.original_path = source.original_path;
+      record.captured_source.status = source.status;
+      record.captured_source.worktree_path = source.worktree_path;
+      record.captured_source.worktree_head_sha = source.head_sha;
+      record.captured_source.worktree_branch = source.worktree_branch;
+      record.captured_source.source_byte_sha256 = dirty.source_byte_sha256;
+      record.captured_source.kind = dirty.kind;
+      if (field === 'source_byte_sha256') {
+        record.source_byte_sha256 = dirty.source_byte_sha256;
+        record.source_bytes_base64 = Buffer.from('forged source bytes').toString('base64');
+      }
+      if (field === 'kind') record.kind = dirty.kind;
+    }, `dirty-row-field-${index}`);
+    disposition.preservation_ref = { ...oldRef, ref: variant.ref, commit_sha: variant.commitSha, record_sha256: variant.recordSha256 };
+    Object.assign(joinRef, { ref: variant.ref, commitSha: variant.commitSha, recordSha256: variant.recordSha256 });
+    rebindPacketAndReport(evidence);
+    try {
+      const result = audit(repoRoot, { overrides: evidence.overrides });
+      assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied', `dirty ${field} relabel`);
+    } finally { variant.cleanup(); }
+  }
+
+  const evidence = ownerEvidenceFixture({ ready02: true });
+  const rootInventory = evidence.packet.source_capture.local_inherited_work;
+  rootInventory.worktrees.find((row) => row.path === rootInventory.repository_root).status_entries[0].original_path = 'forged/original.txt';
+  rebindPacketAndReport(evidence);
+  assert.equal(audit(repoRoot, { overrides: evidence.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied',
+    'source and READY-02 status-row metadata must match exactly');
 });
 
 test('independent audit rejects nonexistent preservation refs and altered decision provenance', () => {
@@ -535,7 +613,8 @@ test('valid captured dirty modification, empty-byte payload, and tombstoned dele
 
   try {
     assert.equal(audit(repoRoot, { overrides: empty.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied');
-    assert.equal(audit(repoRoot, { overrides: deleted.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied');
+    const deletedResult = audit(repoRoot, { overrides: deleted.overrides });
+    assert.equal(deletedResult.requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied', JSON.stringify(deletedResult.blockers.filter(({ id }) => id === 'READY-02')));
   } finally { emptyVariant.cleanup(); deletedVariant.cleanup(); }
 });
 

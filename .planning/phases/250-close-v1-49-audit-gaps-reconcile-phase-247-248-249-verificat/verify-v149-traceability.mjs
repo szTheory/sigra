@@ -768,7 +768,19 @@ function phase251Ready02Complete(root, packet, feasibility) {
         statusRows.push({ ...entry, worktree_path: worktree.path, worktree_head_sha: worktree.head_sha });
       }
     }
-    const statusIds = statusRows.map((entry) => `dirty:${entry.worktree_path}:${entry.worktree_head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`);
+    const canonicalDirtyRows = statusRows.map((entry) => ({
+      id: `dirty:${entry.worktree_path}:${entry.worktree_head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`,
+      kind: 'dirty_path',
+      worktree_path: entry.worktree_path,
+      worktree_head_sha: entry.worktree_head_sha,
+      worktree_branch: worktreeRows.find((worktree) => worktree.path === entry.worktree_path)?.branch,
+      status: entry.status,
+      path: entry.path,
+      original_path: entry.original_path ?? null,
+      source_byte_readable: entry.source_byte_readable,
+      source_byte_sha256: entry.source_byte_sha256,
+    }));
+    const statusIds = canonicalDirtyRows.map((entry) => entry.id);
     const capturedStatusRows = [];
     if (!Array.isArray(sourceInventory?.worktrees)) return null;
     for (const worktree of sourceInventory.worktrees) {
@@ -779,18 +791,51 @@ function phase251Ready02Complete(root, packet, feasibility) {
         if (!entry || typeof entry.status !== 'string' || !entry.status
           || typeof entry.path !== 'string' || !entry.path
           || entry.source_byte_readable !== true || !/^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? '')) return null;
-        capturedStatusRows.push(`dirty:${worktree.path}:${worktree.head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`);
+        capturedStatusRows.push({
+          id: `dirty:${worktree.path}:${worktree.head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`,
+          kind: 'dirty_path',
+          worktree_path: worktree.path,
+          worktree_head_sha: worktree.head_sha,
+          worktree_branch: worktree.branch,
+          status: entry.status,
+          path: entry.path,
+          original_path: entry.original_path ?? null,
+          source_byte_readable: entry.source_byte_readable,
+          source_byte_sha256: entry.source_byte_sha256,
+        });
       }
     }
-    const dirtyIds = dirtyRows.map((row) => row.id);
-    const expectedDirtyIds = statusRows.map((entry) => `dirty:${entry.worktree_path}:${entry.worktree_head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`);
-    if (!exactStringSet(capturedStatusRows, statusIds) || !exactStringSet(dirtyIds, expectedDirtyIds)) return null;
+    const dirtyMetadata = (row) => ({
+      id: row?.id,
+      kind: row?.kind,
+      worktree_path: row?.worktree_path,
+      worktree_head_sha: row?.worktree_head_sha,
+      worktree_branch: row?.worktree_branch,
+      status: row?.status,
+      path: row?.path,
+      original_path: row?.original_path ?? null,
+      source_byte_readable: row?.source_byte_readable,
+      source_byte_sha256: row?.source_byte_sha256,
+    });
+    if (!exactStringSet(capturedStatusRows.map((row) => row.id), statusIds)
+      || stableJson(capturedStatusRows) !== stableJson(canonicalDirtyRows)
+      || !exactStringSet(dirtyRows.map((row) => row?.id), statusIds)
+      || stableJson(dirtyRows.map(dirtyMetadata).sort((a, b) => a.id.localeCompare(b.id)))
+        !== stableJson(canonicalDirtyRows.map(dirtyMetadata).sort((a, b) => a.id.localeCompare(b.id)))) return null;
+    const sourceRootRows = sourceInventory.worktrees.find((worktree) => worktree.path === sourceInventory.repository_root)?.status_entries;
+    const statusEntryMetadata = (entry) => ({ status: entry?.status, path: entry?.path,
+      original_path: entry?.original_path ?? null, source_byte_readable: entry?.source_byte_readable,
+      source_byte_sha256: entry?.source_byte_sha256 });
+    if (!Array.isArray(sourceInventory.raw_status) || !Array.isArray(sourceRootRows)
+      || stableJson(sourceInventory.raw_status.map(statusEntryMetadata)) !== stableJson(sourceRootRows.map(statusEntryMetadata))
+      || stableJson(sourceInventory.worktrees) !== stableJson(worktreeRows)) return null;
     const expected = [...identityRows.map((sha) => `commit:${sha}`), ...pathRows.map((sourcePath) => `path:${sourcePath}`), ...statusIds];
     if (new Set(expected).size !== expected.length) return null;
     if (!exactStringSet(sourceDispositions.map((row) => row.id), expected)) return null;
-    return expected;
+    return { ids: expected, dirtyRows: canonicalDirtyRows };
   };
-  const expectedIds = expectedInheritedIds();
+  const expectedInventory = expectedInheritedIds();
+  const expectedIds = expectedInventory?.ids ?? null;
   const completeWorktrees = (inventory) => Array.isArray(inventory?.raw_status)
     && inventory.raw_status.every((entry) => typeof entry?.path === 'string'
       && entry.source_byte_readable === true && /^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? ''))
@@ -824,7 +869,7 @@ function phase251Ready02Complete(root, packet, feasibility) {
     && inheritedJoin?.status === 'passed'
     && Array.isArray(inheritedJoin?.blockers) && inheritedJoin.blockers.length === 0
     && exactStringSet(inheritedDispositions, expectedIds)
-    && (inheritedCount === 0 ? preservationRefs.length === 0 : preservationRecordsMatch(root, preservationRefs, expectedIds, sourceDispositions, dirtyRows));
+    && (inheritedCount === 0 ? preservationRefs.length === 0 : preservationRecordsMatch(root, preservationRefs, expectedIds, sourceDispositions, expectedInventory.dirtyRows));
   const historicalInventoryNote = 'Prior inventory is historical; Task 3 must capture a fresh complete open-PR and inherited-work inventory before dispositions.';
   const findingsAreHistoricalOnly = Array.isArray(ready?.findings)
     && ready.findings.every((finding) => finding === historicalInventoryNote);
