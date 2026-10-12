@@ -654,8 +654,8 @@ collect_window() {
         skip_seen="$(jq -r '[.jobs[]? | select(.name|test("Example unit smoke|Install smoke|Example HTTP smoke|Example Playwright")) | select(.conclusion=="skipped" or any(.steps[]?; .conclusion=="skipped"))] | length>0' "$family_dir/jobs-attempt-${attempts}.json" 2>/dev/null || echo false)"
       fi
       workload=unknown
-      if [[ "$docs_flag" == true && "$docs_rule" == true && "$skip_seen" == true && "$paths_status" == complete ]]; then workload=docs_only
-      elif [[ "$docs_flag" == false && "$jobs_status" == complete && "$skip_seen" == false ]]; then workload=full
+      if [[ "$paths_status" == complete && "$docs_rule" == true && "$skip_seen" == true ]]; then workload=docs_only
+      elif [[ "$paths_status" == complete && "$docs_rule" == false && "$jobs_status" == complete && "$skip_seen" == false ]]; then workload=full
       fi
       local diagnostic="[]" artifact_meta="$tmp/family-${id}-artifacts.json" artifact_record='{}' log_record='{}' job_id artifact_row artifact_id expected_digest artifact_zip="$family_dir/timing-artifact.zip" artifact_out="$family_dir/timing" artifact_status
       if jq -e --argjson id "$id" '[.[] | select(.run.id==$id)]|length>0' "$failed_file" >/dev/null; then
