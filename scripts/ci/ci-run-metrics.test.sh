@@ -849,6 +849,7 @@ fi
 unset GH_TOKEN WINDOW_ARTIFACT_MODE WINDOW_ARTIFACT_DIGEST WINDOW_ARTIFACT_ZIP CI_METRICS_TEST_MODE
 
 run_window_extension_tests
+bash "$SCRIPT_DIR/ci-run-metrics-comparison.test.sh"
 
 echo ""
 echo "----------------------------------------"
