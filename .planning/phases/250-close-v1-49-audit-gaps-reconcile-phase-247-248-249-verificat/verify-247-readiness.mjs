@@ -868,7 +868,8 @@ function writePhase251Capture() {
     const record = preservationRecordForItem(item, decision, reason,
       item.kind === 'commit' ? { commit_sha: item.commit_sha }
         : item.kind === 'committed_path' ? { commit_sha: item.source_commit_sha, path: item.path }
-          : { worktree_path: item.worktree_path, head_sha: item.worktree_head_sha, status: item.status, path: item.path },
+          : { worktree_path: item.worktree_path, head_sha: item.worktree_head_sha, worktree_branch: item.worktree_branch,
+            status: item.status, path: item.path, original_path: item.original_path ?? null },
       { source_paths: sourcePaths });
     const dirtyBytes = exactDirtyBytes(item);
     if (dirtyBytes) record.source_bytes_base64 = dirtyBytes.toString('base64');

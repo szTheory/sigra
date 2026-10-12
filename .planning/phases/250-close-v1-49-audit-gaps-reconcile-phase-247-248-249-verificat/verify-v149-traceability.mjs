@@ -446,7 +446,10 @@ function preservationRecordsMatch(root, references, observedIds, dispositions, d
   let offset = 0;
   for (const reference of resolvedReferences) {
     const disposition = dispositionById.get(reference.id);
-    const dirtyItem = dirtyById.get(reference.id);
+    const capturedItem = dirtyById.get(reference.id);
+    const isCapturedDirtyPath = capturedItem?.kind === 'dirty_path';
+    if (capturedItem && !isCapturedDirtyPath) return false;
+    const dirtyItem = isCapturedDirtyPath ? capturedItem : null;
     const expectedReference = disposition?.preservation_ref;
     if (!disposition || typeof disposition.decision !== 'string' || !disposition.decision
       || typeof disposition.reason !== 'string' || !disposition.reason
@@ -455,6 +458,24 @@ function preservationRecordsMatch(root, references, observedIds, dispositions, d
       || reference.commitSha !== expectedReference?.commit_sha
       || reference.recordPath !== expectedReference?.record_path
       || reference.recordSha256 !== expectedReference?.record_sha256) return false;
+    if (isCapturedDirtyPath) {
+      const source = disposition.source;
+      if (typeof capturedItem.worktree_path !== 'string' || !capturedItem.worktree_path
+        || !/^[a-f0-9]{40}$/.test(capturedItem.worktree_head_sha ?? '')
+        || typeof capturedItem.worktree_branch !== 'string' || !capturedItem.worktree_branch
+        || typeof capturedItem.status !== 'string' || !capturedItem.status
+        || typeof capturedItem.path !== 'string' || !capturedItem.path
+        || !(capturedItem.original_path === null || typeof capturedItem.original_path === 'string')
+        || capturedItem.source_byte_readable !== true
+        || !/^[a-f0-9]{64}$/.test(capturedItem.source_byte_sha256 ?? '')
+        || source.worktree_path !== capturedItem.worktree_path
+        || source.head_sha !== capturedItem.worktree_head_sha
+        || source.status !== capturedItem.status
+        || source.path !== capturedItem.path
+        || (source.kind !== undefined && source.kind !== 'dirty_path')
+        || (source.worktree_branch !== undefined && source.worktree_branch !== capturedItem.worktree_branch)
+        || (source.original_path !== undefined && source.original_path !== capturedItem.original_path)) return false;
+    } else if (disposition.source.worktree_path || disposition.source.kind === 'dirty_path') return false;
     const headerEnd = output.indexOf(0x0a, offset);
     if (headerEnd < 0) return false;
     const header = output.toString('utf8', offset, headerEnd).split(' ');
@@ -473,20 +494,21 @@ function preservationRecordsMatch(root, references, observedIds, dispositions, d
       || stableJson(record.source) !== stableJson(disposition.source)
       || (record.source_byte_sha256 ?? null) !== (dirtyItem?.source_byte_sha256 ?? null)
       || !record.captured_source || record.captured_source.id !== disposition.id
-      || (disposition.source.worktree_path
-        ? (record.captured_source.kind !== 'dirty_path'
+      || (isCapturedDirtyPath
+        ? (record.kind !== 'dirty_path' || record.captured_source.kind !== 'dirty_path'
           || record.captured_source.worktree_path !== disposition.source.worktree_path
           || record.captured_source.worktree_head_sha !== disposition.source.head_sha
           || record.captured_source.status !== disposition.source.status
           || record.captured_source.path !== disposition.source.path
+          || record.captured_source.worktree_branch !== dirtyItem.worktree_branch
+          || (record.captured_source.original_path ?? null) !== (dirtyItem.original_path ?? null)
           || (record.captured_source.source_byte_sha256 ?? null) !== (dirtyItem?.source_byte_sha256 ?? null)
-          || record.captured_source.worktree_branch !== dirtyItem?.worktree_branch
-          || (record.captured_source.original_path ?? null) !== (dirtyItem?.original_path ?? null))
+          )
         : disposition.source.path
           ? (record.captured_source.kind !== 'committed_path' || record.captured_source.source_commit_sha !== disposition.source.commit_sha
             || record.captured_source.path !== disposition.source.path)
           : (record.captured_source.kind !== 'commit' || record.captured_source.commit_sha !== disposition.source.commit_sha))) return false;
-    if (disposition.source.worktree_path) {
+    if (isCapturedDirtyPath) {
       const encoded = record.source_bytes_base64;
       if (typeof encoded !== 'string' || encoded.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)) return false;
       const sourceBytes = Buffer.from(encoded, 'base64');
@@ -495,17 +517,17 @@ function preservationRecordsMatch(root, references, observedIds, dispositions, d
         || !/^[a-f0-9]{64}$/.test(dirtyItem?.source_byte_sha256 ?? '')
         || sha256(sourceBytes) !== record.source_byte_sha256
         || sha256(sourceBytes) !== dirtyItem.source_byte_sha256) return false;
-      if (typeof disposition.source.status === 'string' && disposition.source.status.includes('D')) {
+      if (capturedItem.status.includes('D')) {
         const tombstone = record.source_absence_proof;
         if (!tombstone || tombstone.kind !== 'worktree-deletion-tombstone'
-          || tombstone.worktree_path !== disposition.source.worktree_path
-          || tombstone.head_sha !== disposition.source.head_sha
-          || tombstone.status !== disposition.source.status
-          || tombstone.path !== disposition.source.path
+          || tombstone.worktree_path !== capturedItem.worktree_path
+          || tombstone.head_sha !== capturedItem.worktree_head_sha
+          || tombstone.status !== capturedItem.status
+          || tombstone.path !== capturedItem.path
           || tombstone.source_byte_sha256 !== sha256(sourceBytes)
-          || record.captured_source.status !== disposition.source.status
-          || record.captured_source.path !== disposition.source.path
-          || record.captured_source.worktree_head_sha !== disposition.source.head_sha) return false;
+          || record.captured_source.status !== capturedItem.status
+          || record.captured_source.path !== capturedItem.path
+          || record.captured_source.worktree_head_sha !== capturedItem.worktree_head_sha) return false;
       } else if (record.source_absence_proof !== undefined) return false;
     }
   }

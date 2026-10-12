@@ -122,6 +122,57 @@ function ownerEvidenceFixture({ ready01 = false, ready02 = false } = {}) {
   };
 }
 
+let forgedRefSequence = 0;
+function commitPreservationVariant(oldRef, mutateRecord, label) {
+  const record = JSON.parse(execFileSync('git', ['show', `${oldRef.commit_sha}:${oldRef.record_path}`], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }));
+  mutateRecord(record);
+  const recordBytes = Buffer.from(`${JSON.stringify(record, null, 2)}\n`);
+  const blob = execFileSync('git', ['hash-object', '-w', '--stdin'], { input: recordBytes, encoding: 'utf8' }).trim();
+  const recordsTree = execFileSync('git', ['mktree'], { input: `100644 blob ${blob}\t${oldRef.record_path.slice('records/'.length)}\n`, encoding: 'utf8' }).trim();
+  const tree = execFileSync('git', ['mktree'], { input: `040000 tree ${recordsTree}\trecords\n`, encoding: 'utf8' }).trim();
+  const commitSha = execFileSync('git', ['commit-tree', tree, '-p', oldRef.commit_sha, '-m', `test ${label} preservation record`], { encoding: 'utf8' }).trim();
+  const ref = `refs/heads/test-phase251-${label}-${process.pid}-${++forgedRefSequence}`;
+  execFileSync('git', ['update-ref', ref, commitSha]);
+  return { ref, commitSha, recordSha256: sha256(recordBytes), cleanup: () => execFileSync('git', ['update-ref', '-d', ref]) };
+}
+
+function rebindPacketAndReport(evidence, previousPacketHash = sha256(evidence.packetText)) {
+  evidence.packetText = `${JSON.stringify(evidence.packet, null, 2)}\n`;
+  const packetHash = sha256(evidence.packetText);
+  evidence.overrides[phase251PacketPath] = evidence.packetText;
+  evidence.report = evidence.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`);
+  evidence.overrides[phase247ReportPath] = evidence.report;
+  evidence.overrides['.planning/REQUIREMENTS.md'] = evidence.overrides['.planning/REQUIREMENTS.md'].replaceAll(previousPacketHash, packetHash)
+    .split('\n').map((line) => /^\|\s*READY-0[12]\s*\|/.test(line) ? line.replace(/[a-f0-9]{64}(?=\s*\|$)/, packetHash) : line).join('\n');
+}
+
+function rekeyCapturedDirtyIdentity(packet, dirty, { status = dirty.status, sourceByteSha256 = dirty.source_byte_sha256 } = {}) {
+  const oldId = dirty.id;
+  const oldDigest = dirty.source_byte_sha256;
+  const newId = `dirty:${dirty.worktree_path}:${dirty.worktree_head_sha}:${status}:${dirty.path}:${sourceByteSha256}`;
+  const local = packet.source_capture.local_inherited_work;
+  const inherited = packet.requirements.READY02.inherited_work;
+  const dirtyRow = local.inherited_dirty_entries.find((row) => row.id === oldId);
+  dirtyRow.id = newId;
+  dirtyRow.status = status;
+  dirtyRow.source_byte_sha256 = sourceByteSha256;
+  local.inherited_dispositions.find((row) => row.id === oldId).id = newId;
+  for (const inventory of [local, inherited]) {
+    for (const worktree of inventory.worktrees ?? []) {
+      if (worktree.path !== dirty.worktree_path || worktree.head_sha !== dirty.worktree_head_sha) continue;
+      const entry = worktree.status_entries.find((row) => row.path === dirty.path && row.source_byte_sha256 === oldDigest);
+      assert.ok(entry, `captured status row missing for ${oldId}`);
+      entry.status = status;
+      entry.source_byte_sha256 = sourceByteSha256;
+    }
+  }
+  const join = inherited.disposition_join;
+  join.observedIds = join.observedIds.map((id) => id === oldId ? newId : id);
+  join.dispositionIds = join.dispositionIds.map((id) => id === oldId ? newId : id);
+  join.preservationRefs.find((row) => row.id === oldId).id = newId;
+  return newId;
+}
+
 test('historical Phase 250 amendment resolves the original owner report from its immutable commit', () => {
   const result = audit(repoRoot);
   assert.equal(result.acceptanceAmendment?.historicalSource?.commit, historicalCommit);
@@ -344,6 +395,148 @@ test('independent audit rejects coherently committed preservation bytes that do 
   } finally {
     execFileSync('git', ['update-ref', '-d', ref]);
   }
+});
+
+test('independent audit selects dirty-path proof from the captured dirty identity, not relabeled source metadata', () => {
+  const evidence = ownerEvidenceFixture({ ready02: true });
+  const dirty = evidence.packet.source_capture.local_inherited_work.inherited_dirty_entries[0];
+  const disposition = evidence.packet.source_capture.local_inherited_work.inherited_dispositions.find((row) => row.id === dirty.id);
+  const joinRef = evidence.packet.requirements.READY02.inherited_work.disposition_join.preservationRefs.find((row) => row.id === dirty.id);
+  const oldRef = structuredClone(disposition.preservation_ref);
+  assert.equal(audit(repoRoot, { overrides: evidence.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied');
+  const fakeSource = { kind: 'committed_path', commit_sha: disposition.source.head_sha, path: disposition.source.path };
+  disposition.source = fakeSource;
+  const variant = commitPreservationVariant(oldRef, (record) => {
+    record.kind = 'committed_path';
+    record.source = fakeSource;
+    delete record.source_bytes_base64;
+    delete record.source_absence_proof;
+    record.captured_source = { id: dirty.id, kind: 'committed_path', source_commit_sha: fakeSource.commit_sha, path: fakeSource.path };
+  }, 'dirty-kind-relabel');
+  disposition.preservation_ref = { ...oldRef, ref: variant.ref, commit_sha: variant.commitSha, record_sha256: variant.recordSha256 };
+  Object.assign(joinRef, { ref: variant.ref, commitSha: variant.commitSha, recordSha256: variant.recordSha256 });
+  rebindPacketAndReport(evidence);
+  try {
+    const result = audit(repoRoot, { overrides: evidence.overrides });
+    assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+  } finally { variant.cleanup(); }
+});
+
+test('independent audit uses the captured deletion status for tombstone validation', () => {
+  const evidence = ownerEvidenceFixture({ ready02: true });
+  const packet = evidence.packet;
+  const dirty = packet.source_capture.local_inherited_work.inherited_dirty_entries[0];
+  const disposition = packet.source_capture.local_inherited_work.inherited_dispositions.find((row) => row.id === dirty.id);
+  const joinRef = packet.requirements.READY02.inherited_work.disposition_join.preservationRefs.find((row) => row.id === dirty.id);
+  const oldRef = structuredClone(disposition.preservation_ref);
+  const oldId = dirty.id;
+  const deletedId = rekeyCapturedDirtyIdentity(packet, dirty, { status: ' D' });
+  disposition.id = deletedId;
+  disposition.preservation_ref = { ...oldRef };
+  joinRef.id = deletedId;
+  const variant = commitPreservationVariant(oldRef, (record) => {
+    record.id = deletedId;
+    record.captured_source.id = deletedId;
+    // Keep the source/record mislabeled as a modification and remove its tombstone.
+    delete record.source_absence_proof;
+  }, 'deletion-status-relabel');
+  disposition.preservation_ref = { ...oldRef, ref: variant.ref, commit_sha: variant.commitSha, record_sha256: variant.recordSha256 };
+  Object.assign(joinRef, { ref: variant.ref, commitSha: variant.commitSha, recordSha256: variant.recordSha256 });
+  assert.notEqual(deletedId, oldId);
+  rebindPacketAndReport(evidence);
+  try {
+    const result = audit(repoRoot, { overrides: evidence.overrides });
+    assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+  } finally { variant.cleanup(); }
+});
+
+test('dirty source identity controls reject worktree, head, path, original path, and branch relabels', () => {
+  const mutations = [
+    (source) => { source.worktree_path = '/tmp/wrong-worktree'; },
+    (source) => { source.head_sha = 'f'.repeat(40); },
+    (source) => { source.path = 'other/path.md'; },
+    (source) => { source.original_path = 'renamed/path.md'; },
+    (source) => { source.worktree_branch = 'refs/heads/wrong-branch'; },
+  ];
+  for (const [index, mutate] of mutations.entries()) {
+    const evidence = ownerEvidenceFixture({ ready02: true });
+    const packet = evidence.packet;
+    const dirty = packet.source_capture.local_inherited_work.inherited_dirty_entries[0];
+    const disposition = packet.source_capture.local_inherited_work.inherited_dispositions.find((row) => row.id === dirty.id);
+    const joinRef = packet.requirements.READY02.inherited_work.disposition_join.preservationRefs.find((row) => row.id === dirty.id);
+    const oldRef = structuredClone(disposition.preservation_ref);
+    const alteredSource = { ...disposition.source };
+    mutate(alteredSource);
+    disposition.source = alteredSource;
+    const variant = commitPreservationVariant(oldRef, (record) => {
+      record.source = alteredSource;
+      if (alteredSource.worktree_path) record.captured_source.worktree_path = alteredSource.worktree_path;
+      if (alteredSource.head_sha) record.captured_source.worktree_head_sha = alteredSource.head_sha;
+      if (alteredSource.path) record.captured_source.path = alteredSource.path;
+      if (Object.hasOwn(alteredSource, 'original_path')) record.captured_source.original_path = alteredSource.original_path;
+      if (alteredSource.worktree_branch) record.captured_source.worktree_branch = alteredSource.worktree_branch;
+    }, `dirty-identity-${index}`);
+    disposition.preservation_ref = { ...oldRef, ref: variant.ref, commit_sha: variant.commitSha, record_sha256: variant.recordSha256 };
+    Object.assign(joinRef, { ref: variant.ref, commitSha: variant.commitSha, recordSha256: variant.recordSha256 });
+    rebindPacketAndReport(evidence);
+    try {
+      const result = audit(repoRoot, { overrides: evidence.overrides });
+      assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied', `relabel ${index}`);
+    } finally { variant.cleanup(); }
+  }
+});
+
+test('valid captured dirty modification, empty-byte payload, and tombstoned deletion remain provable', () => {
+  const modified = ownerEvidenceFixture({ ready02: true });
+  assert.equal(audit(repoRoot, { overrides: modified.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied');
+
+  const empty = ownerEvidenceFixture({ ready02: true });
+  const emptyPacket = empty.packet;
+  const emptyDirty = emptyPacket.source_capture.local_inherited_work.inherited_dirty_entries[0];
+  const emptyDisposition = emptyPacket.source_capture.local_inherited_work.inherited_dispositions.find((row) => row.id === emptyDirty.id);
+  const emptyJoinRef = emptyPacket.requirements.READY02.inherited_work.disposition_join.preservationRefs.find((row) => row.id === emptyDirty.id);
+  const emptyOldRef = structuredClone(emptyDisposition.preservation_ref);
+  const emptyDigest = sha256(Buffer.alloc(0));
+  const emptyId = rekeyCapturedDirtyIdentity(emptyPacket, emptyDirty, { sourceByteSha256: emptyDigest });
+  emptyDisposition.id = emptyId;
+  emptyJoinRef.id = emptyId;
+  const emptyVariant = commitPreservationVariant(emptyOldRef, (record) => {
+    record.id = emptyId;
+    record.source_byte_sha256 = emptyDigest;
+    record.source_bytes_base64 = '';
+    record.captured_source.id = emptyId;
+    record.captured_source.source_byte_sha256 = emptyDigest;
+  }, 'empty-dirty-bytes');
+  emptyDisposition.preservation_ref = { ...emptyOldRef, ref: emptyVariant.ref, commit_sha: emptyVariant.commitSha, record_sha256: emptyVariant.recordSha256 };
+  Object.assign(emptyJoinRef, { ref: emptyVariant.ref, commitSha: emptyVariant.commitSha, recordSha256: emptyVariant.recordSha256 });
+  rebindPacketAndReport(empty);
+
+  const deleted = ownerEvidenceFixture({ ready02: true });
+  const deletedPacket = deleted.packet;
+  const deletedDirty = deletedPacket.source_capture.local_inherited_work.inherited_dirty_entries[0];
+  const deletedDisposition = deletedPacket.source_capture.local_inherited_work.inherited_dispositions.find((row) => row.id === deletedDirty.id);
+  const deletedJoinRef = deletedPacket.requirements.READY02.inherited_work.disposition_join.preservationRefs.find((row) => row.id === deletedDirty.id);
+  const deletedOldRef = structuredClone(deletedDisposition.preservation_ref);
+  const deletedId = rekeyCapturedDirtyIdentity(deletedPacket, deletedDirty, { status: ' D' });
+  deletedDisposition.id = deletedId;
+  deletedDisposition.source.status = ' D';
+  deletedJoinRef.id = deletedId;
+  const deletedVariant = commitPreservationVariant(deletedOldRef, (record) => {
+    record.id = deletedId;
+    record.source.status = ' D';
+    record.captured_source.id = deletedId;
+    record.captured_source.status = ' D';
+    record.source_absence_proof = { kind: 'worktree-deletion-tombstone', worktree_path: deletedDirty.worktree_path,
+      head_sha: deletedDirty.worktree_head_sha, status: ' D', path: deletedDirty.path, source_byte_sha256: deletedDirty.source_byte_sha256 };
+  }, 'valid-deletion-tombstone');
+  deletedDisposition.preservation_ref = { ...deletedOldRef, ref: deletedVariant.ref, commit_sha: deletedVariant.commitSha, record_sha256: deletedVariant.recordSha256 };
+  Object.assign(deletedJoinRef, { ref: deletedVariant.ref, commitSha: deletedVariant.commitSha, recordSha256: deletedVariant.recordSha256 });
+  rebindPacketAndReport(deleted);
+
+  try {
+    assert.equal(audit(repoRoot, { overrides: empty.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied');
+    assert.equal(audit(repoRoot, { overrides: deleted.overrides }).requirements.find(({ id }) => id === 'READY-02')?.status, 'satisfied');
+  } finally { emptyVariant.cleanup(); deletedVariant.cleanup(); }
 });
 
 test('every declared package source assertion has an independent implemented predicate', () => {
