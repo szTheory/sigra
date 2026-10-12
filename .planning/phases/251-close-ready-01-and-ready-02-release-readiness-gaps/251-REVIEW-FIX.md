@@ -49,3 +49,7 @@ The source and regression changes are committed; this updated report remains unc
 
 _Iteration: 3_
 _Fixer: the agent (gsd-code-fixer)_
+
+## Automatic Independent Verification
+
+The security auditor verified all four findings after the final source repair, with 22/22 registered mitigations closed. Evidence: `251-SECURITY-FINAL-CHECKS.json`, including 16 preservation controls, five real dirty-record readbacks, all 23 source assertion predicates, and seven targeted tests. Project AGENTS.md replaces human verification with this deterministic proof.

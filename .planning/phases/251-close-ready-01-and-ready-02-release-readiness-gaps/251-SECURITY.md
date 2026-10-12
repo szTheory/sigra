@@ -1,14 +1,14 @@
 ---
 phase: "251"
 slug: "close-ready-01-and-ready-02-release-readiness-gaps"
-status: open_threats
-threats_open: 1
+status: verified
+threats_open: 0
 asvs_level: 1
 ---
 
 # Phase 251 Security Verification
 
-Independent audit: 21 of 22 planned mitigations closed; one high-severity byte-readback acceptance bypass remains open. No risks were accepted or waived. Structured evidence: `251-SECURITY-RECHECK-2.json` (earlier four-gap audit retained in `251-SECURITY-AUDIT-GAPS.json`).
+Independent audit: 22/22 registered mitigations closed; zero open threats, accepted risks, or unregistered flags. Fresh automatic proof: `251-SECURITY-FINAL-CHECKS.json`. Historical findings remain in the prior security audit and recheck JSON records.
 
 | Threat | Severity | Status | Evidence |
 |---|---|---|---|
@@ -25,7 +25,7 @@ Independent audit: 21 of 22 planned mitigations closed; one high-severity byte-r
 | T-251-11 | high | CLOSED | verify-247-readiness.mjs:125-183,204-293 exact Git blob content and derived assertions; forged README pass rejected |
 | T-251-12 | high | CLOSED | verify-v149-traceability.mjs:523-566,606-683 independent immutable blob reads/content predicates; fake object digests and mutable content rejected |
 | T-251-13 | high | CLOSED | verify-v149-traceability.mjs:703-782 full inherited ID set from all worktree status rows; coherently omitted dirty identity yields unsatisfied 7/9 |
-| T-251-14 | high | OPEN | verify-v149-traceability.mjs:476,489,498 selects byte/tombstone proof from mutable disposition.source kind/status. Dirty-to-committed_path and deletion-D-to-modification-M relabels with coherent record hashes both bypass source-byte/tombstone checks. |
+| T-251-14 | high | CLOSED | verify-v149-traceability.mjs:446-529 binds captured dirty kind/worktree/head/branch/status/path/original_path/digest before selecting strict decoded-byte and deletion-tombstone proof; 16/16 direct controls and 5/5 current real records verified. |
 | T-251-15 | high | CLOSED | verify-247-readiness.mjs:407-427,557-575,1121-1126 complete paginated stable PR snapshots |
 | T-251-16 | high | CLOSED | verify-247-readiness.mjs:238-293 original interval and tuple-bound approval |
 | T-251-17 | high | CLOSED | verify-247-readiness.mjs:108-123,152-204 exact published guide identity and trusted 404 findings |
@@ -35,4 +35,4 @@ Independent audit: 21 of 22 planned mitigations closed; one high-severity byte-r
 | T-251-21 | medium | CLOSED | validate-release-readiness.test.mjs:632,687,716 and verify-247-readiness.test.mjs:676,805 retained regression evidence; dispositions remain subject to new audit gaps |
 | T-251-SC | high | CLOSED | Existing Node/Git/gh only; no install tasks or commands. |
 
-READY-01 remains authorization_pending. READY-02 acceptance is subject to the demonstrated independent-audit join and preservation bypasses until repaired. Prior report bytes remain recoverable at f3214912e056e50ea373b8e235a7f107231e83b3 (SHA-256 776ce7cfb1f2bb109bd06199d8acae0172b17618e1343d3cdfb1168bff6e1ad6).
+READY-01 remains unsatisfied under its original evidence bar. Security mitigation completion does not satisfy that requirement.
