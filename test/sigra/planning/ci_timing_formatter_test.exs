@@ -4,9 +4,10 @@ defmodule Sigra.Planning.CITimingFormatterTest do
   alias Sigra.Test.CITimingFormatter
 
   test "writes distinct completed test results only after the suite finishes" do
-    assert function_exported?(CITimingFormatter, :new_state, 1)
+    assert Code.ensure_loaded?(CITimingFormatter)
 
     path = timing_path()
+    on_exit(fn -> File.rm(path) end)
     state = CITimingFormatter.new_state(path)
 
     {:noreply, state} = CITimingFormatter.handle_cast({:suite_started, []}, state)
@@ -53,7 +54,14 @@ defmodule Sigra.Planning.CITimingFormatterTest do
     assert report["load_us"] == 70
     assert report["skipped_count"] == 1
     assert report["excluded_count"] == 1
-    assert report["counts"] == %{"passed" => 1, "failed" => 1, "skipped" => 1}
+
+    assert report["counts"] == %{
+             "passed" => 1,
+             "failed" => 1,
+             "skipped" => 1,
+             "excluded" => 1
+           }
+
     assert report["test_duration_sum_us"] == 53
 
     assert Enum.map(report["tests"], & &1["test_id"]) == [
@@ -69,9 +77,10 @@ defmodule Sigra.Planning.CITimingFormatterTest do
   end
 
   test "keeps missing duration visible as incomplete without inventing a zero-time row" do
-    assert function_exported?(CITimingFormatter, :new_state, 1)
+    assert Code.ensure_loaded?(CITimingFormatter)
 
     path = timing_path()
+    on_exit(fn -> File.rm(path) end)
     state = CITimingFormatter.new_state(path)
     {:noreply, state} = CITimingFormatter.handle_cast({:suite_started, []}, state)
 
@@ -95,7 +104,10 @@ defmodule Sigra.Planning.CITimingFormatterTest do
   end
 
   defp timing_path do
-    Path.join(System.tmp_dir!(), "sigra-ci-timing-#{System.unique_integer([:positive])}.json")
+    filename =
+      "sigra-ci-timing-#{System.system_time(:nanosecond)}-#{System.unique_integer([:positive])}.json"
+
+    Path.join(System.tmp_dir!(), filename)
   end
 
   defp event_test(name, state, time) do
