@@ -1,5 +1,37 @@
 # Milestones
 
+## v1.49 RELEASE-1.6.0 (Shipped: 2026-10-12)
+
+**Phases completed:** 6 phases, 47 plans, 73 tasks
+
+**Key accomplishments:**
+- Generated email confirmation now changes the token owner's persisted state only on explicit submit while preserving the visitor session.
+- Generated confirmation accepts the email's spaced code only for the current account and announces visible success or retryable validation feedback.
+- The generated-host Chromium journey and required-CI route are implemented and verified on the exact final source.
+- PR #224 now carries a curated, source-backed Sigra 1.6.0 candidate with live source-promotion validation and exact-head CI documentation proof.
+- PR #224 now has a source-backed v1.6 adopter path, and its corrected exact-head documentation build and required CI passed.
+- A fail-closed final validator now checks the reviewed 1.6.0 candidate, adopter docs, exact-head CI, Hex package output, live PR population, and inherited checkout; readiness remains blocked by the local Hex dry run.
+- PR #224 now carries the complete v1.6 adopter path and a deterministic mobile signup test on exact source SHA `6f8028658f0bdd7f26e13c3fe4d45437880c341b`.
+- The existing dry-run workflow and immutable diff proof now name the reviewed PR #224 source and survive a four-file protected main merge.
+- The protected workflow produced an authenticated non-publishing receipt for the exact curated candidate, and the refreshed final readiness validator passed with complete live inventory evidence.
+- The Release Please package job now asserts tag/SHA/HEAD identity before setup, and the ci-gate poller proves the successful run belongs to that same full SHA.
+- Release Please candidates now pass through source-bound CI and changelog preflight before a fresh, exact-head squash-merge decision.
+- Release evaluation and recovery now use least-privilege permissions, non-cancelling run identities, exact-main environment policies, and step-scoped credentials.
+- A trusted default-branch observer records source-linked cancellation receipts and adds deterministic contracts for the complete release lane.
+- Sigra 1.6.0 now has a live, source-bound receipt joining its published package to the exact tagged source and successful required CI.
+- Sigra 1.6.0 now tracks the complete ExDoc index and requires byte-exact index validation in CI for every PR.
+- Release proof now rejects mismatched source-CI run objects, redirected source pages, and symlinked artifact members while preserving the existing receipt schema.
+- The no-publish canary and receipt validator are covered locally and by exact-head CI; the one authorized hosted retry produced no failure receipt, so AUTO-02 remains open.
+- A read-only verifier binds Phase 247 evidence to explicit source identities and records READY-01/02 as unsatisfied when the candidate tuple cannot be approved and joined.
+- A source-bound verifier proves AUTO-01 from current environment and success-receipt evidence while keeping AUTO-02 open until hosted failure and cancellation artifacts both validate.
+- A read-only verifier joins Sigra 1.6.0 public proof to its historical acceptance and separately checks current main and live repository inventory.
+- Phase 249 now has passing public-source and exact-main CI evidence, with all 15 open PRs dispositioned against their current identities and all five registered worktrees clean.
+- Source-bound audit logic now verifies historical Phase 250 evidence separately from current Phase 247 verdicts, preserving the incomplete 7/9 milestone status.
+- READY-02 now binds all 15 open PRs and 2,421 inherited items to explicit dispositions and read-back-verified scoped preservation records.
+- The refreshed evidence keeps READY-01 pending on independently untrusted historical bytes, absent approval, and missing published guide/link evidence while preserving READY-02 as satisfied.
+
+---
+
 ## v1.48 CLEAN-BASELINE (Closed: 2026-10-05 — override_closeout)
 
 **Classification:** Internal planning milestone closeout; no Hex release was published.

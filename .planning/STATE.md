@@ -2,10 +2,12 @@
 gsd_state_version: "1.0"
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-status: gaps_found
+status: Awaiting next milestone
 stopped_at: Phase 251 context confirmed; implementation complete, verification incomplete; no automatic retry
-last_updated: "2026-10-12T12:59:20.483Z"
-state_head: a531bc469f92ea973b6f7dca9eb8633c6a7a1df7
+last_updated: "2026-10-12T13:24:14.990Z"
+last_activity: 2026-10-12
+last_activity_desc: Milestone v1.49 completed and archived
+state_head: 13cb1e0de2effac476b979fe4c89151812a6d156
 progress:
   total_phases: 6
   completed_phases: 4
@@ -22,20 +24,16 @@ automatic_retry_allowed: false
 current_phase: 251
 current_phase_name: Close READY-01 and READY-02 release readiness gaps
 current_plan: 07
-last_activity_desc: "Phase 251 discussion is resolved: all seven plans and 12 gap tasks are implemented; verification remains gaps_found 9/10. READY-02 is satisfied, READY-01 is unsatisfied, and v1.49 remains incomplete at 8/9. Automatic recovery retries are disabled pending new trusted historical evidence or explicit separate scope."
 ---
 
 # Project State
 
 ## Current position
 
-Phase 251 discussion is resolved: all seven plans and 12 gap tasks are implemented; verification remains gaps_found 9/10. READY-02 is satisfied, READY-01 is unsatisfied, and v1.49 remains incomplete at 8/9. Automatic recovery retries are disabled pending new trusted historical evidence or explicit separate scope.
-
-Implementation progress is 7/7 plans and 12/12 gap tasks. Phase verification is incomplete. READY-02 has 15 current captured PR identities and 2,421 inherited identities with exact dispositions and recoverable read-backs. The historical inherited base was recovered; every captured worktree participates. READY-01 remains authorization_pending under its original owner acceptance bar.
-
-Current automatic proof: 213 Node regression tests and 250 scoped Elixir tests passed; all 12 current validation rows are proven; independent code review is clean, all eight findings are fixed, and all 22 registered security mitigations are closed. The eight unchanged broad Mix failures remain historical contextual diagnostics, with no broad-suite pass claimed.
-
-The v1.49 milestone remains incomplete and unarchived at 8/9. Phase 247 retains READY ownership. Phase 250 accepted exceptions remain historical closeout only; independent Phase 248/249 facts are preserved. CI/CD optimization is separate future work.
+Phase: Milestone v1.49 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-10-12 — Milestone v1.49 completed and archived
 
 ## Current evidence
 
@@ -92,3 +90,7 @@ User confirmed exhausted recovery: implementation complete, verification incompl
 - Preserve exact dirty planning revisions before replacement, with durable refs and verified byte read-back.
 
 - User confirmed no automatic retry; any prospective correction requires separately authorized scope.
+
+## Operator Next Steps
+
+- Start the next milestone with $gsd-new-milestone
