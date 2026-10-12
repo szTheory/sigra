@@ -47,6 +47,16 @@ test('snapshot replay emits explicit zero-sample unknowns and distinct cost dime
     assert.equal(replay.cohorts?.docs_only?.status, 'insufficient_data');
     assert.equal(replay.cohorts?.docs_only?.n, 0);
     assert.notEqual(replay.ranked_by_wait, replay.ranked_by_runner);
+
+    const prPath = path.join(root, 'raw', 'populations', 'pull_request.json');
+    const cancelledRun = { id: 42, event: 'pull_request', head_sha: 'sha-42', conclusion: 'cancelled', created_at: '2026-10-11T00:00:00Z', updated_at: '2026-10-11T00:01:00Z', run_attempt: 1, attempt_jobs: {} };
+    const prPopulation = JSON.stringify({ population: 'pull_request', api_total_count: 1, population_capped: false, population_exhausted: true, runs: [cancelledRun], records: [] });
+    writeFileSync(prPath, prPopulation);
+    manifest.source_sha256.pull_request = hash(prPopulation);
+    manifest.populations.pull_request.runs = [cancelledRun];
+    writeFileSync(path.join(root, 'manifest.json'), JSON.stringify(manifest));
+    const cancellationReplay = JSON.parse(execFileSync('bash', [script, '--replay', '--source-bundle', root, '--format', 'json'], { encoding: 'utf8' }));
+    assert.equal(cancellationReplay.failure_class?.cancellation_unclassified?.length, 1);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
