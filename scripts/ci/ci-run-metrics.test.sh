@@ -457,12 +457,13 @@ import pathlib, sys, zipfile
 root = pathlib.Path(sys.argv[1])
 with zipfile.ZipFile(root / "timing-good.zip", "w") as z:
     z.writestr("nested/timing.json", '{"duration":12}')
+    z.writestr("test-results/pixel.png", b"synthetic screenshot fixture")
 with zipfile.ZipFile(root / "timing-traversal.zip", "w") as z:
     z.writestr("../timing.json", '{"duration":12}')
 with zipfile.ZipFile(root / "timing-oversized.zip", "w") as z:
     z.writestr("timing.json", '{"duration":' + '1' * (64 * 1024 * 1024) + '}')
 PY
-if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --extract-timing-zip "${TMPDIR_ROOT}/timing-good.zip" --output-dir "${TMPDIR_ROOT}/timing-out" | jq -e '.status=="accepted"' >/dev/null \
+if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --extract-timing-zip "${TMPDIR_ROOT}/timing-good.zip" --output-dir "${TMPDIR_ROOT}/timing-out" | jq -e '.status=="accepted" and .skipped_non_json_members==["pixel.png"]' >/dev/null \
   && ! PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --extract-timing-zip "${TMPDIR_ROOT}/timing-traversal.zip" --output-dir "${TMPDIR_ROOT}/timing-bad-out" >/dev/null 2>&1 \
   && ! PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --extract-timing-zip "${TMPDIR_ROOT}/timing-oversized.zip" --output-dir "${TMPDIR_ROOT}/timing-large-out" >/dev/null 2>&1; then
   pass "timing JSON extracts while traversal and 64 MiB members are rejected"

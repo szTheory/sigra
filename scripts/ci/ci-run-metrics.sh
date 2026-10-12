@@ -204,7 +204,7 @@ try:
     with zipfile.ZipFile(archive) as zf:
         infos = zf.infolist()
         if len(infos) > max_members: raise ValueError("archive_member_limit_exceeded")
-        total, seen, selected = 0, set(), []
+        total, seen, selected, skipped = 0, set(), [], []
         for info in infos:
             name = info.filename
             if "\\" in name or name.startswith("/") or re.match(r"^[A-Za-z]:", name): raise ValueError("unsafe_archive_path")
@@ -215,9 +215,13 @@ try:
             if info.file_size > max_member: raise ValueError("archive_member_limit_exceeded")
             total += info.file_size
             if total > max_total: raise ValueError("archive_total_limit_exceeded")
-            if pathlib.PurePosixPath(name).name.lower() not in allowed: raise ValueError("unexpected_archive_member")
             if name in seen: raise ValueError("duplicate_archive_member")
-            seen.add(name); selected.append(info)
+            seen.add(name)
+            if pathlib.PurePosixPath(name).name.lower() not in allowed:
+                if pathlib.PurePosixPath(name).suffix.lower() == ".json": raise ValueError("unexpected_archive_json")
+                skipped.append(pathlib.PurePosixPath(name).name[:128])
+                continue
+            selected.append(info)
         if not selected: raise ValueError("expected_timing_json_missing")
         used, output = set(), []
         for info in selected:
@@ -235,7 +239,7 @@ try:
             if written != info.file_size: raise ValueError("archive_member_size_mismatch")
             with open(temp, "rb") as f: json.load(f)
             os.replace(temp, target); output.append({"member":info.filename,"path":target,"bytes":written})
-        print(json.dumps({"status":"accepted","members":output}, sort_keys=True))
+        print(json.dumps({"status":"accepted","members":output,"skipped_non_json_members":skipped[:100]}, sort_keys=True))
 except Exception as exc:
     print(str(exc) if isinstance(exc, ValueError) else "archive_invalid", file=sys.stderr)
     raise SystemExit(1)
