@@ -65,6 +65,8 @@ PREFLIGHT=false
 PREFLIGHT_OUTPUT=""
 SOURCE_BUNDLE=""
 TARGET_BRANCH="main"
+CUTOFF=""
+REDIRECT_TO_VALIDATE=""
 API_STARTED=0
 API_REQUESTS=0
 API_STOP_REASON=""
@@ -76,6 +78,8 @@ API_COMPLETED=false
 API_REQUEST_LOG='[]'
 API_LAST_ERROR=""
 API_TEMP_DIR=""
+API_LAST_RATE_REQUEST=0
+API_RATE_CHECK_IN_FLIGHT=false
 
 api_elapsed_seconds() {
   local elapsed injected
@@ -112,6 +116,8 @@ while [[ $# -gt 0 ]]; do
     --run-id) RUN_ID="$2"; shift 2;;
     --source-bundle) SOURCE_BUNDLE="$2"; shift 2;;
     --branch) TARGET_BRANCH="$2"; shift 2;;
+    --cutoff) CUTOFF="$2"; shift 2;;
+    --validate-redirect) REDIRECT_TO_VALIDATE="$2"; shift 2;;
     *) echo "ci-run-metrics: FAIL: unknown arg: $1" >&2; exit 2;;
   esac
 done
@@ -119,6 +125,35 @@ done
 fail() {
   echo "ci-run-metrics: FAIL: $*" >&2
   exit 1
+}
+
+validate_download_redirect() {
+  local value="$1"
+  python3 - "$value" <<'PY'
+import sys
+from urllib.parse import urlsplit
+
+try:
+    u = urlsplit(sys.argv[1])
+    host = (u.hostname or "").lower()
+    port = u.port
+    valid_host = host == "pipelines.actions.githubusercontent.com" or (
+        host.endswith(".blob.core.windows.net")
+        and host[:-len(".blob.core.windows.net")].startswith("productionresultssa")
+        and host[:-len(".blob.core.windows.net")][len("productionresultssa"):].isdigit()
+        and host[:-len(".blob.core.windows.net")].count(".") == 0
+    )
+    ok = (u.scheme.lower() == "https" and valid_host and not u.username and not u.password
+          and not u.fragment and port in (None, 443) and bool(u.path) and u.path.startswith("/"))
+except Exception:
+    ok = False
+    host = ""
+
+if not ok:
+    print("download_redirect_rejected", file=sys.stderr)
+    raise SystemExit(1)
+print(host)
+PY
 }
 
 # All new GitHub reads, including the first rate-limit preflight, pass through
@@ -131,7 +166,7 @@ api_write_ledger() {
     --arg reset_at "$API_RESET_AT" --argjson request_count "$API_REQUESTS" \
     --argjson unknown_inputs "$API_UNKNOWN" --argjson requests "$API_REQUEST_LOG" \
     '{status:$status,request_count:$request_count,stop_reason:(if $stop_reason=="" then null else $stop_reason end),reset_or_retry_at:(if $reset_at=="" then null else $reset_at end),unknown_inputs:$unknown_inputs,requests:$requests}' \
-    >"${API_LEDGER}.tmp" && mv "${API_LEDGER}.tmp" "$API_LEDGER"
+    >"${API_LEDGER}.tmp" && mv "${API_LEDGER}.tmp" "$API_LEDGER" && { sync "$API_LEDGER" 2>/dev/null || sync 2>/dev/null || true; }
 }
 
 api_stop() {
@@ -144,6 +179,13 @@ api_stop() {
 
 api_get() {
   local endpoint="$1" output_file="$2" response rc attempt err_file elapsed remaining reset timeout_cmd
+  if [[ "$endpoint" != "rate_limit" && "$endpoint" != "/rate_limit" && "$API_RATE_CHECK_IN_FLIGHT" != true && "$API_LAST_RATE_REQUEST" -gt 0 ]] && (( API_REQUESTS - API_LAST_RATE_REQUEST >= 100 )); then
+    API_RATE_CHECK_IN_FLIGHT=true
+    local rate_file="${API_LEDGER%/*}/rate-limit-refresh-${API_REQUESTS}.json"
+    if ! api_get rate_limit "$rate_file"; then API_RATE_CHECK_IN_FLIGHT=false; return 1; fi
+    API_RATE_CHECK_IN_FLIGHT=false
+    [[ -d "${API_LEDGER%/*}/raw/rate-limits" ]] && cp "$rate_file" "${API_LEDGER%/*}/raw/rate-limits/${API_REQUESTS}.json" || true
+  fi
   elapsed="$(api_elapsed_seconds)"
   (( elapsed < 3600 )) || { api_stop time_limit_exhausted "" "$endpoint"; return 1; }
   (( API_REQUESTS < 600 )) || { api_stop request_limit_exhausted "" "$endpoint"; return 1; }
@@ -172,6 +214,7 @@ api_get() {
       if [[ "$endpoint" == "rate_limit" || "$endpoint" == "/rate_limit" ]]; then
         API_CORE_REMAINING="$(jq -r '.resources.core.remaining // empty' "$output_file" 2>/dev/null || true)"
         API_RESET_AT="$(jq -r '.resources.core.reset // empty' "$output_file" 2>/dev/null || true)"
+        API_LAST_RATE_REQUEST="$API_REQUESTS"
       fi
       api_write_ledger collecting
       return 0
@@ -198,6 +241,218 @@ api_get() {
 sha256_file() {
   if command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}'
   else sha256sum "$1" | awk '{print $1}'; fi
+}
+
+collect_window() {
+  [[ "$REPO" == "szTheory/sigra" ]] || fail "collect_repo_mismatch"
+  [[ "$WORKFLOW" == "ci.yml" ]] || fail "collect_workflow_mismatch"
+  [[ -n "$SOURCE_BUNDLE" && -n "$CUTOFF" ]] || fail "window_collect_requires_cutoff_and_source_bundle"
+  [[ "$CUTOFF" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || fail "cutoff_must_be_utc_rfc3339"
+  jq -en --arg cutoff "$CUTOFF" 'try ($cutoff|fromdateiso8601) catch false' >/dev/null || fail "cutoff_invalid"
+  [[ ! -e "$SOURCE_BUNDLE" ]] || fail "source_bundle_already_exists"
+
+  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha tree_sha request_hash request_count manual_json release_json
+  mkdir -p "$(dirname "$SOURCE_BUNDLE")"
+  mkdir "$lock" 2>/dev/null || fail "source_bundle_locked"
+  printf '{"pid":%s,"started_at":"%s"}\n' "$$" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$lock/owner.json"
+  mkdir -p "$stage/raw/populations"
+  API_LEDGER="$stage/request-ledger.json"
+  API_STARTED="$(date +%s)"
+  API_COMPLETED=false
+  API_REQUESTS=0
+  API_STOP_REASON=""
+  API_RESET_AT=""
+  API_CORE_REMAINING=""
+  API_UNKNOWN='[]'
+  API_REQUEST_LOG='[]'
+  API_LAST_RATE_REQUEST=0
+  API_RATE_CHECK_IN_FLIGHT=false
+  if [[ "${CI_METRICS_TEST_MODE:-0}" == 1 && "${CI_METRICS_TEST_PRIOR_REQUESTS:-}" =~ ^[0-9]+$ ]] && (( CI_METRICS_TEST_PRIOR_REQUESTS <= 600 )); then API_REQUESTS="$CI_METRICS_TEST_PRIOR_REQUESTS"; fi
+  API_LAST_ERROR=""
+  API_TEMP_DIR=""
+  tmp="$(mktemp -d)"
+  API_TEMP_DIR="$tmp"
+  API_STOP_REASON=""
+  API_RESET_AT=""
+  API_CORE_REMAINING=""
+  API_UNKNOWN='[]'
+  API_REQUEST_LOG='[]'
+  if [[ "${CI_METRICS_TEST_MODE:-0}" == 1 && "${CI_METRICS_TEST_PRIOR_REQUESTS:-}" =~ ^[0-9]+$ ]] && (( CI_METRICS_TEST_PRIOR_REQUESTS <= 600 )); then API_REQUESTS="$CI_METRICS_TEST_PRIOR_REQUESTS"; fi
+  : >"$stage/selection-ledger.json"
+  printf '{"schema_version":"sigra.ci-run-metrics/selection-ledger-v1","cutoff_utc":"%s","populations":[]}\n' "$CUTOFF" >"$stage/selection-ledger.json"
+  jq -n --arg cutoff "$CUTOFF" --arg status incomplete --arg repo "$REPO" --arg workflow "$WORKFLOW" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,status:$status,request_count:0,stop_reason:"collection_in_progress",populations:{}}' >"$stage/manifest.json"
+  window_collect_interrupt() {
+    API_STOP_REASON="interrupted"
+    api_write_ledger incomplete
+    jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg since "${since:-}" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson requests "$API_REQUESTS" --argjson selections "$(cat "$stage/selection-ledger.json" 2>/dev/null || echo '{}')" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,window_start_utc:(if $since=="" then null else $since end),status:"incomplete",stop_reason:"interrupted",interrupted_at_utc:$at,request_count:$requests,selection_ledger:$selections,populations:{}}' >"$stage/manifest.json"
+    sync 2>/dev/null || true
+    mv "$stage" "$SOURCE_BUNDLE" 2>/dev/null || true
+    rm -rf "$lock" "$API_TEMP_DIR"
+    exit 130
+  }
+  trap 'window_collect_interrupt' INT TERM HUP
+
+  # Check rate budget before any population query, then refresh live rules inside
+  # the same shared request guard used by Plan 01.
+  if ! api_get rate_limit "$tmp/rate-limit.json"; then API_STOP_REASON="${API_STOP_REASON:-rate_limit_preflight}"; fi
+  if [[ -z "$API_STOP_REASON" ]]; then
+    api_get "/repos/${REPO}/rules/branches/${TARGET_BRANCH}" "$tmp/effective-rules.json" || API_STOP_REASON="${API_STOP_REASON:-effective_rules_unavailable}"
+  fi
+  if [[ -z "$API_STOP_REASON" ]]; then
+    api_get "/repos/${REPO}/branches/${TARGET_BRANCH}/protection/required_status_checks" "$tmp/branch-protection.json" || { if [[ "$API_LAST_ERROR" =~ 404 ]]; then jq -n '{status:"not_configured",http_status:404}' >"$tmp/branch-protection.json"; API_STOP_REASON=""; else API_STOP_REASON="${API_STOP_REASON:-branch_protection_unavailable}"; fi; }
+  fi
+  if [[ -z "$API_STOP_REASON" ]]; then api_get "/repos/${REPO}/rulesets?per_page=100" "$tmp/rulesets.json" || API_STOP_REASON="${API_STOP_REASON:-active_rulesets_unavailable}"; fi
+  [[ -s "$tmp/rate-limit.json" ]] && cp "$tmp/rate-limit.json" "$stage/raw/rate-limit.json"
+  [[ -s "$tmp/effective-rules.json" ]] && cp "$tmp/effective-rules.json" "$stage/raw/effective-rules.json"
+  [[ -s "$tmp/branch-protection.json" ]] && cp "$tmp/branch-protection.json" "$stage/raw/branch-protection.json"
+  [[ -s "$tmp/rulesets.json" ]] && cp "$tmp/rulesets.json" "$stage/raw/rulesets.json"
+
+  cutoff_epoch="$(jq -nr --arg t "$CUTOFF" '$t|fromdateiso8601')"
+  since="$(jq -nr --argjson t "$cutoff_epoch" '($t-2592000)|todateiso8601')"
+  local collect_one_population
+  collect_one_population() {
+    local name="$1" ev="$2" br="$3" out="$stage/raw/populations/$1.json"
+    local p=1 pages='[]' selected='[]' total='' response returned filtered valid
+    while (( $(jq 'length' <<<"$selected") < 100 )); do
+      endpoint="/repos/${REPO}/actions/workflows/${WORKFLOW}/runs?event=${ev}"
+      [[ -n "$br" ]] && endpoint+="&branch=${br}"
+      endpoint+="&created=${since}..${CUTOFF}&per_page=100&page=${p}"
+      page_file="$tmp/${name}-page-${p}.json"
+      if ! api_get "$endpoint" "$page_file"; then break; fi
+      jq -e '(.total_count|type)=="number" and (.workflow_runs|type)=="array"' "$page_file" >/dev/null || { API_STOP_REASON="population_response_invalid:${name}"; break; }
+      [[ -n "$total" ]] || total="$(jq -r '.total_count' "$page_file")"
+      returned="$(jq '.workflow_runs|length' "$page_file")"
+      pages="$(jq -cn --argjson p "$p" --argjson n "$returned" --slurpfile raw "$page_file" --argjson before "$pages" '$before + [{page:$p,returned_count:$n,response:$raw[0]}]')"
+      filtered="$(jq -c --arg ev "$ev" --arg br "$br" --argjson lo "$(jq -nr --arg t "$since" '$t|fromdateiso8601')" --argjson hi "$cutoff_epoch" '[.workflow_runs[] | select(.event==$ev) | select(($br=="") or .head_branch==$br) | select((try (.created_at|fromdateiso8601) catch -1) >= $lo and (try (.created_at|fromdateiso8601) catch -1) <= $hi)]' "$page_file")"
+      selected="$(jq -cn --argjson before "$selected" --argjson page "$filtered" '$before + $page')"
+      jq -n --arg cutoff "$CUTOFF" --arg population "$name" --argjson page "$p" --argjson ids "$(jq -c '[.[]|.id]' <<<"$selected")" --slurpfile previous "$stage/selection-ledger.json" '{schema_version:"sigra.ci-run-metrics/selection-ledger-v1",cutoff_utc:$cutoff,populations:($previous[0].populations | map(select(.population!=$population)) + [{population:$population,last_page:$page,selected_run_ids:$ids}])}' >"$stage/selection-ledger.json.tmp" && mv "$stage/selection-ledger.json.tmp" "$stage/selection-ledger.json"
+      sync "$stage/selection-ledger.json" 2>/dev/null || sync 2>/dev/null || true
+      if [[ "${CI_METRICS_TEST_MODE:-0}" == 1 && "${CI_METRICS_TEST_INTERRUPT_AFTER_POPULATION:-}" == "$name" ]]; then kill -INT "$$"; fi
+      p=$((p+1))
+      (( returned == 100 )) || break
+      (( p <= 10 )) || { API_STOP_REASON="population_page_bound:${name}"; break; }
+    done
+    total="${total:-0}"
+    selected="$(jq -c '.[0:100]' <<<"$selected")"
+    selected_count="$(jq 'length' <<<"$selected")"
+    capped=false; exhausted=false
+    (( total > selected_count )) && capped=true
+    [[ "$capped" == false ]] && exhausted=true
+    jq -n --arg name "$name" --arg event "$ev" --arg branch "$br" --arg since "$since" --arg cutoff "$CUTOFF" --argjson total "$total" --argjson selected "$selected" --argjson pages "$pages" --argjson capped "$capped" --argjson exhausted "$exhausted" '{population:$name,event:$event,branch:(if $branch=="" then null else $branch end),created_window:{after:$since,before:$cutoff},api_total_count:$total,population_capped:$capped,population_exhausted:$exhausted,selected_run_ids:[$selected[].id],runs:$selected,pages:$pages,detail_status:"pending"}' >"$out"
+    api_write_ledger collecting
+  }
+
+  collect_attempt_details() {
+    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=12 max_attempt
+    selected="$(jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]')"
+    failed="$(jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' <<<"$selected")"
+    priority="$(jq -cn --argjson failed "$failed" --argjson selected "$selected" '[ $failed[] ] + [ $selected[] | . as $x | select(([ $failed[].run.id ] | index($x.run.id))==null) ]')"
+    while IFS= read -r row; do
+      [[ -n "$row" ]] || continue
+      id="$(jq -r '.run.id' <<<"$row")"
+      event="$(jq -r '.run.event' <<<"$row")"
+      run="$(jq -c '.run' <<<"$row")"
+      attempts="$(jq -r '.run.run_attempt // 1' <<<"$row")"
+      if [[ ! "$id" =~ ^[0-9]+$ || ! "$attempts" =~ ^[1-9][0-9]*$ ]] || (( attempts > 100 )); then
+        enrichments="$(jq -cn --argjson prior "$enrichments" --argjson id "${id:-0}" '{run_id:$id,detail_status:"invalid_run_attempt_count",attempt_jobs:{},changed_paths_status:"unknown",workload:"unknown",diagnostics:["run_identity_or_attempt_count_invalid"]} + { } as $e | $prior + [$e]')"
+        continue
+      fi
+      family_dir="$stage/raw/families/$id"
+      mkdir -p "$family_dir"
+      printf '%s\n' "$run" >"$family_dir/run.json"
+      needed="$attempts"
+      # Preserve twelve request slots for the bounded failure/artifact pass.
+      if (( API_REQUESTS + needed + reserve > 600 )); then
+        enrichments="$(jq -cn --argjson prior "$enrichments" --argjson id "$id" '{run_id:$id,detail_status:"detail_unavailable_budget",attempt_jobs:{},changed_paths_status:"detail_unavailable_budget",workload:"unknown",diagnostics:["detail_unavailable_budget"]} | $prior + [.]')"
+        jq --argjson id "$id" --arg reason detail_unavailable_budget '.unknown_inputs += [{reason:$reason,run_id:$id}]' "$API_LEDGER" >"$API_LEDGER.tmp" && mv "$API_LEDGER.tmp" "$API_LEDGER"
+        continue
+      fi
+      jobs_status=complete
+      attempts_json='{}'
+      for ((attempt=1; attempt<=attempts; attempt++)); do
+        jobs_file="$tmp/family-${id}-attempt-${attempt}-jobs.json"
+        if ! api_get "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100" "$jobs_file"; then
+          jobs_status="${API_STOP_REASON:-attempt_jobs_unavailable}"
+          break
+        fi
+        cp "$jobs_file" "$family_dir/jobs-attempt-${attempt}.json"
+        attempts_json="$(jq -cn --argjson prior "$attempts_json" --argjson attempt "$attempt" --arg path "raw/families/$id/jobs-attempt-${attempt}.json" --arg hash "$(sha256_file "$jobs_file")" '$prior + {($attempt|tostring):{path:$path,sha256:$hash}}')"
+      done
+      paths_status=unavailable
+      paths_json='[]'
+      pr_number="$(jq -r '.pull_requests[0].number // empty' <<<"$run")"
+      if [[ "$event" == pull_request && "$pr_number" =~ ^[1-9][0-9]*$ && "$jobs_status" == complete ]] && (( API_REQUESTS + 1 + reserve <= 600 )); then
+        local changed_file="$tmp/family-${id}-changed-paths.json" page=1 total_paths=0
+        while :; do
+          if ! api_get "/repos/${REPO}/pulls/${pr_number}/files?per_page=100&page=${page}" "$changed_file"; then paths_status="${API_STOP_REASON:-changed_paths_unavailable}"; break; fi
+          jq -e 'type=="array"' "$changed_file" >/dev/null || { paths_status=changed_paths_invalid; break; }
+          total_paths=$((total_paths + $(jq 'length' "$changed_file")))
+          paths_json="$(jq -cn --argjson before "$paths_json" --slurpfile current "$changed_file" '$before + $current[0]')"
+          cp "$changed_file" "$family_dir/changed-paths-page-${page}.json"
+          (( $(jq 'length' "$changed_file") == 100 )) || { paths_status=complete; break; }
+          (( API_REQUESTS + 1 + reserve <= 600 )) || { paths_status=detail_unavailable_budget; break; }
+          page=$((page+1))
+        done
+      elif [[ "$event" == pull_request ]]; then paths_status=changed_paths_unavailable_budget; fi
+      docs_flag="$(jq -r 'if .changes.docs_only==true then "true" elif .changes.docs_only==false then "false" else "unknown" end' <<<"$run")"
+      if [[ "$paths_status" == complete ]]; then
+        docs_rule="$(printf '%s\n' "$(jq -r '.[].filename' <<<"$paths_json")" | bash "$ROOT/scripts/ci/docs-only-classify.sh" 2>/dev/null | sed -n 's/^docs_only=//p')"
+      else docs_rule=unknown; fi
+      skip_seen=false
+      if [[ "$jobs_status" == complete ]]; then
+        skip_seen="$(jq -r '[.jobs[]? | select(.name|test("Example unit smoke|Install smoke|Example HTTP smoke|Example Playwright")) | select(.conclusion=="skipped" or any(.steps[]?; .conclusion=="skipped"))] | length>0' "$family_dir/jobs-attempt-${attempts}.json" 2>/dev/null || echo false)"
+      fi
+      workload=unknown
+      if [[ "$docs_flag" == true && "$docs_rule" == true && "$skip_seen" == true && "$paths_status" == complete ]]; then workload=docs_only
+      elif [[ "$docs_flag" == false && "$jobs_status" == complete && "$skip_seen" == false ]]; then workload=full
+      fi
+      details_json="$(jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --argjson paths "$paths_json" --argjson skip_seen "$skip_seen" --arg path_count "$(jq 'length' <<<"$paths_json")" --arg jobs_hash "$(if [[ -s "$family_dir/jobs-attempt-${attempts}.json" ]]; then sha256_file "$family_dir/jobs-attempt-${attempts}.json"; else echo ''; fi)" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths_sha256:(if $paths_status=="complete" then null else null end),changed_paths:$paths,changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then (if ($paths|length)==0 then "docs_only" else "captured" end) else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,diagnostics:(if $status=="complete" then [] else [$status] end)}')"
+      jq -n --argjson detail "$details_json" --arg run_hash "$(sha256_file "$family_dir/run.json")" --argjson attempts "$attempts_json" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail.run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail.detail_status,changed_paths_status:$detail.changed_paths_status,changes_docs_only:$detail.changes_docs_only,workload:$detail.workload,observed_expected_skip:$detail.observed_expected_skip}' >"$family_dir/manifest.json"
+      enrichments="$(jq -cn --argjson prior "$enrichments" --argjson detail "$details_json" '$prior + [$detail]')"
+      api_write_ledger collecting
+      [[ -z "$API_STOP_REASON" ]] || break
+    done <<<"$(jq -c '.[]' <<<"$priority")"
+    for population_name in pull_request push_main schedule; do
+      local population_file="$stage/raw/populations/${population_name}.json"
+      jq --argjson details "$enrichments" '.runs |= map(. as $r | . + ([$details[] | select(.run_id==$r.id)][0] // {detail_status:"detail_unavailable_budget",workload:"unknown",attempt_jobs:{}}))' "$population_file" >"$population_file.tmp" && mv "$population_file.tmp" "$population_file"
+    done
+  }
+
+  if [[ -z "$API_STOP_REASON" ]]; then collect_one_population pull_request pull_request ""; fi
+  if [[ -z "$API_STOP_REASON" ]]; then collect_one_population push_main push main; fi
+  if [[ -z "$API_STOP_REASON" ]]; then collect_one_population schedule schedule ""; fi
+  if [[ -z "$API_STOP_REASON" ]]; then collect_one_population manual workflow_dispatch ""; fi
+  if [[ -z "$API_STOP_REASON" ]]; then collect_one_population release_push push ""; fi
+  for population_name in pull_request push_main schedule manual release_push; do
+    [[ -s "$stage/raw/populations/${population_name}.json" ]] || jq -n --arg name "$population_name" '{population:$name,event:null,api_total_count:null,population_capped:null,population_exhausted:null,selected_run_ids:[],runs:[],pages:[],detail_status:"unavailable"}' >"$stage/raw/populations/${population_name}.json"
+  done
+  if [[ -z "$API_STOP_REASON" ]]; then collect_attempt_details; fi
+  # Keep primary cohorts distinct; move non-main rows from the broad push scan
+  # into release diagnostics, never into the main-push denominator.
+  release_json="$(jq -c '.runs | map(select((.head_branch // "") | startswith("release/") or startswith("release-") or startswith("releases/")))' "$stage/raw/populations/release_push.json")"
+  jq --argjson rows "$release_json" '.runs=$rows | .selected_run_ids=[$rows[].id] | .detail_status="pending"' "$stage/raw/populations/release_push.json" >"$tmp/release.json" && mv "$tmp/release.json" "$stage/raw/populations/release_push.json"
+  manual_json="$(jq -c '.runs' "$stage/raw/populations/manual.json")"
+
+  request_count="$API_REQUESTS"
+  manifest_status=complete
+  [[ -n "$API_STOP_REASON" ]] && manifest_status=incomplete
+  workflow_sha="$(git hash-object "$ROOT/.github/workflows/ci.yml" 2>/dev/null || echo unavailable)"
+  tree_sha="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
+  api_write_ledger "$manifest_status"
+  request_hash="$(sha256_file "$API_LEDGER")"
+  pr_hash="$(sha256_file "$stage/raw/populations/pull_request.json")"
+  push_hash="$(sha256_file "$stage/raw/populations/push_main.json")"
+  night_hash="$(sha256_file "$stage/raw/populations/schedule.json")"
+  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg request_hash "$request_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,source_sha256:{request_ledger:$request_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
+  sync 2>/dev/null || true
+  rm -rf "$tmp"
+  API_TEMP_DIR=""
+  API_COMPLETED=true
+  trap - INT TERM HUP
+  rm -rf "$lock"
+  mv "$stage" "$SOURCE_BUNDLE"
+  printf '%s\n' "snapshot manifest: $SOURCE_BUNDLE/manifest.json" "status: $manifest_status; requests: $request_count"
+  [[ "$manifest_status" == complete ]]
 }
 
 collect_family() {
@@ -520,6 +775,22 @@ replay_family() {
   if [[ "$output_format" == json ]]; then printf '%s\n' "$result" | jq -S .; else printf '%s\n' "$result"; fi
 }
 
+replay_snapshot() {
+  local bundle="$1" manifest="$1/manifest.json" name expected file result
+  [[ -s "$manifest" ]] || fail source_manifest_missing
+  jq -e '.schema_version=="sigra.ci-run-metrics/snapshot-v1" and .repository=="szTheory/sigra" and .workflow=="ci.yml" and (.status=="complete" or .status=="incomplete") and (.source_sha256|type)=="object"' "$manifest" >/dev/null || fail source_manifest_invalid
+  for name in request_ledger pull_request push_main schedule; do
+    case "$name" in
+      request_ledger) file="$bundle/request-ledger.json";;
+      *) file="$bundle/raw/populations/${name}.json";;
+    esac
+    expected="$(jq -r --arg key "$name" '.source_sha256[$key] // empty' "$manifest")"
+    [[ -n "$expected" && -s "$file" && "$(sha256_file "$file")" == "$expected" ]] || fail "snapshot_hash_mismatch:${name}"
+  done
+  result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,window_start_utc,status,stop_reason,request_count,source_sha,populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
+  if [[ "$FORMAT" == json ]]; then jq -S . <<<"$result"; else jq -r '[.populations|to_entries[]|[.key,(.value.run_count // .value.records // 0)]|@tsv]|.[]|@tsv' <<<"$result"; fi
+}
+
 if [[ "$FORMAT" != "table" && "$FORMAT" != "json" ]]; then
   fail "unknown --format: ${FORMAT} (expected table|json)"
 fi
@@ -536,15 +807,23 @@ if [[ "$PREFLIGHT" == true ]]; then
   exit $?
 fi
 if [[ "$COLLECT" == true ]]; then
-  collect_family
+  if [[ -n "$CUTOFF" ]]; then collect_window; else collect_family; fi
   exit 0
 fi
 if [[ "$REPLAY" == true ]]; then
   [[ -n "$SOURCE_BUNDLE" ]] || fail "--replay requires --source-bundle"
+  if [[ "$(jq -r '.schema_version // empty' "$SOURCE_BUNDLE/manifest.json" 2>/dev/null || true)" == "sigra.ci-run-metrics/snapshot-v1" ]]; then
+    replay_snapshot "$SOURCE_BUNDLE"
+    exit 0
+  fi
   if [[ -z "$RUN_ID" ]]; then RUN_ID="$(jq -r '.run_id // empty' "$SOURCE_BUNDLE/manifest.json" 2>/dev/null || true)"; fi
   [[ -n "$RUN_ID" ]] || fail "source manifest has no run id"
   replay_family "$SOURCE_BUNDLE" "$FORMAT"
   exit 0
+fi
+if [[ -n "$REDIRECT_TO_VALIDATE" ]]; then
+  validate_download_redirect "$REDIRECT_TO_VALIDATE"
+  exit $?
 fi
 
 if [[ -z "$SOURCE_PAGES" ]] && ! command -v gh >/dev/null 2>&1; then

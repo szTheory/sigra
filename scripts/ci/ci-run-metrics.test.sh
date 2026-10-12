@@ -348,6 +348,57 @@ else
 fi
 
 # ---- Summary -------------------------------------------------------------
+run_window_extension_tests() {
+echo "Test V: snapshot replay reads verified files offline without contacting gh"
+before_replay_calls="$(wc -l <"$WINDOW_API_LOG" | tr -d ' ')"
+if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --replay --source-bundle "$WINDOW_BUNDLE" --format json >"${TMPDIR_ROOT}/snapshot-replay.json" 2>"${TMPDIR_ROOT}/snapshot-replay.err" \
+  && jq -e '.status=="complete" and .populations.pull_request.run_count==100 and .populations.pull_request.api_total_count==125 and .populations.manual_records==1 and .populations.release_push_records==0' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null \
+  && [[ "$(wc -l <"$WINDOW_API_LOG" | tr -d ' ')" -eq "$before_replay_calls" ]]; then
+  pass "source bundle replays offline with API totals and outcomes intact"
+else fail "snapshot replay error=$(cat "${TMPDIR_ROOT}/snapshot-replay.err") output=$(cat "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
+
+echo "Test W: concurrent lock, interruption ledger, and request ceiling are enforced"
+LOCKED_BUNDLE="${TMPDIR_ROOT}/locked-bundle"
+mkdir "${LOCKED_BUNDLE}.lock"
+printf '{"owner":"test"}\n' >"${LOCKED_BUNDLE}.lock/owner.json"
+locked_before="$(shasum -a 256 "${LOCKED_BUNDLE}.lock/owner.json" | awk '{print $1}')"
+set +e
+PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$LOCKED_BUNDLE" >/dev/null 2>&1
+locked_rc=$?
+set -e
+locked_after="$(shasum -a 256 "${LOCKED_BUNDLE}.lock/owner.json" | awk '{print $1}')"
+if [[ "$locked_rc" -ne 0 && "$locked_before" == "$locked_after" && ! -e "$LOCKED_BUNDLE" ]]; then pass "an active snapshot lock prevents mutation"; else fail "lock rc=$locked_rc before=$locked_before after=$locked_after"; fi
+
+INTERRUPTED_BUNDLE="${TMPDIR_ROOT}/interrupted-bundle"
+set +e
+CI_METRICS_TEST_MODE=1 CI_METRICS_TEST_INTERRUPT_AFTER_POPULATION=pull_request PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$INTERRUPTED_BUNDLE" >/dev/null 2>"${TMPDIR_ROOT}/interrupted.err"
+interrupt_rc=$?
+set -e
+if [[ "$interrupt_rc" -eq 130 ]] && jq -e '.status=="incomplete" and .stop_reason=="interrupted" and .request_count==5 and .selection_ledger.populations[0].population=="pull_request" and (.selection_ledger.populations[0].selected_run_ids|length)==100' "$INTERRUPTED_BUNDLE/manifest.json" >/dev/null && jq -e '.status=="incomplete" and .request_count==5 and (.requests|length)==5' "$INTERRUPTED_BUNDLE/request-ledger.json" >/dev/null; then
+  pass "signal interruption leaves request and selected-run ledgers with incomplete status"
+else fail "interruption rc=$interrupt_rc manifest=$(cat "$INTERRUPTED_BUNDLE/manifest.json" 2>/dev/null) ledger=$(cat "$INTERRUPTED_BUNDLE/request-ledger.json" 2>/dev/null) err=$(cat "${TMPDIR_ROOT}/interrupted.err")"; fi
+
+LIMIT_BUNDLE="${TMPDIR_ROOT}/request-limit-bundle"
+set +e
+CI_METRICS_TEST_MODE=1 CI_METRICS_TEST_PRIOR_REQUESTS=599 PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$LIMIT_BUNDLE" >/dev/null 2>&1
+limit_rc=$?
+set -e
+if [[ "$limit_rc" -ne 0 ]] && jq -e '.status=="incomplete" and .request_count==600 and .stop_reason=="request_limit_exhausted"' "$LIMIT_BUNDLE/manifest.json" >/dev/null; then pass "request 600 is allowed and the following event query is stopped"; else fail "request limit rc=$limit_rc manifest=$(cat "$LIMIT_BUNDLE/manifest.json" 2>/dev/null)"; fi
+
+echo "Test X: redirect validation accepts only the exact HTTPS hosts and never echoes signed queries"
+redirect_good=0
+for url in 'https://pipelines.actions.githubusercontent.com/download/file?sig=SECRET_VALUE' 'https://productionresultssa123.blob.core.windows.net/container/file?sig=SECRET_VALUE'; do
+  redirect_host="$(PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --validate-redirect "$url" 2>/dev/null || true)"
+  if [[ "$redirect_host" == pipelines.actions.githubusercontent.com || "$redirect_host" == productionresultssa123.blob.core.windows.net ]]; then redirect_good=$((redirect_good+1)); fi
+  ! rg -F 'SECRET_VALUE' <<<"$redirect_host" >/dev/null || redirect_good=0
+done
+redirect_bad=0
+for url in 'http://pipelines.actions.githubusercontent.com/x' 'https://evil.pipelines.actions.githubusercontent.com/x' 'https://productionresultssa123evil.blob.core.windows.net/x' 'https://user@pipelines.actions.githubusercontent.com/x' 'https://pipelines.actions.githubusercontent.com/x#fragment' 'https://pipelines.actions.githubusercontent.com:444/x' 'https://pipelines.actions.githubusercontent.com' 'https://pipelines.actions.githubusercontent.com.evil.test/x' 'https://127.0.0.1/x'; do
+  if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --validate-redirect "$url" >/dev/null 2>&1; then redirect_bad=$((redirect_bad+1)); fi
+done
+if [[ "$redirect_good" -eq 2 && "$redirect_bad" -eq 0 ]]; then pass "both exact hosts accepted; downgrade, deceptive host, credentials, fragment, port, path and IP rejected"; else fail "redirect accepts=$redirect_good rejects=$redirect_bad"; fi
+}
+
 echo ""
 echo "----------------------------------------"
 echo "Results: ${PASS} passed, ${FAIL} failed"
@@ -611,10 +662,21 @@ set -euo pipefail
 endpoint="${4:-}"
 printf '%s\n' "$endpoint" >>"$WINDOW_API_LOG"
 case "$endpoint" in
-  rate_limit) echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}';;
+  rate_limit)
+    if [[ "${GH_API_MODE:-}" == rate403 ]]; then echo 'HTTP 403 rate limit; x-ratelimit-reset: 1900000000' >&2; exit 1; fi
+    if [[ "${GH_API_MODE:-}" == transient && ! -e "${GH_API_FAIL_ONCE_FILE:-/nonexistent}" ]]; then touch "$GH_API_FAIL_ONCE_FILE"; echo 'HTTP 503 temporary service failure' >&2; exit 1; fi
+    if [[ "${GH_API_MODE:-}" == core ]]; then echo '{"resources":{"core":{"remaining":250,"reset":1900000000}}}'; else echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}'; fi;;
   *'/rules/branches/main') echo '[{"type":"required_status_checks","parameters":{"required_status_checks":[]}}]';;
   *'/branches/main/protection/required_status_checks') echo '{"status":"not_configured","http_status":404}';;
   *'/rulesets?per_page=100') echo '[]';;
+  /repos/szTheory/sigra/actions/runs/*/attempts/*/jobs\?*)
+    run_id="$(printf '%s' "$endpoint" | sed -nE 's#^.*/actions/runs/([0-9]+)/attempts/.*#\1#p')"
+    attempt="$(printf '%s' "$endpoint" | sed -nE 's#^.*/attempts/([0-9]+)/jobs.*#\1#p')"
+    if [[ "$run_id" == 5000 ]]; then job_conclusion=skipped; else job_conclusion=success; fi
+    jq -cn --argjson id "$run_id" --argjson attempt "$attempt" --arg conclusion "$job_conclusion" '{total_count:1,jobs:[{id:($id*100+$attempt),name:"Example Playwright smoke",head_sha:("sha-"+($id|tostring)),conclusion:$conclusion,started_at:"2026-10-10T10:00:00Z",completed_at:"2026-10-10T10:01:00Z",steps:[{name:"Run selected tests",conclusion:$conclusion}]}]}';;
+  /repos/szTheory/sigra/pulls/*/files\?*)
+    pr="$(printf '%s' "$endpoint" | sed -nE 's#^.*/pulls/([0-9]+)/files.*#\1#p')"
+    case "$pr" in 123) echo '[{"filename":"docs/guide.md"}]';; 124) echo '[{"filename":"lib/sigra.ex"}]';; *) echo '[{"filename":"docs/unknown.md"}]';; esac;;
   *'/actions/workflows/ci.yml/runs?'*)
     event="$(printf '%s' "$endpoint" | sed -nE 's/.*[?&]event=([^&]+).*/\1/p')"
     page="$(printf '%s' "$endpoint" | sed -nE 's/.*[?&]page=([0-9]+).*/\1/p')"
@@ -627,7 +689,7 @@ case "$endpoint" in
     esac
     if [[ "$event" == pull_request && "$page" == 2 ]]; then count=1; base=5100; fi
     if [[ "$event" == pull_request && "$page" -gt 2 ]]; then count=0; fi
-    jq -cn --argjson total "$total" --argjson count "$count" --argjson base "$base" --arg event "$event" --arg page "$page" --arg cutoff "2026-10-12T00:00:00Z" '{total_count:$total,workflow_runs:[range(0;$count) as $i | {id:($base+$i),run_number:($base+$i),event:$event,head_branch:(if $event=="push" then "main" elif $event=="workflow_dispatch" then "manual-probe" else "feature" end),head_sha:("sha-"+(( $base+$i)|tostring)),path:".github/workflows/ci.yml",run_attempt:1,created_at:(if $i==0 then "2026-09-12T00:00:00Z" else "2026-10-10T00:00:00Z" end),updated_at:$cutoff,conclusion:(if $i%2==0 then "success" else "failure" end)}]}'
+    jq -cn --argjson total "$total" --argjson count "$count" --argjson base "$base" --arg event "$event" --arg page "$page" --arg cutoff "2026-10-12T00:00:00Z" '{total_count:$total,workflow_runs:[range(0;$count) as $i | (( $base+$i) as $id | {id:$id,run_number:$id,event:$event,head_branch:(if $event=="push" then "main" elif $event=="workflow_dispatch" then "manual-probe" else "feature" end),head_sha:("sha-"+($id|tostring)),path:".github/workflows/ci.yml",run_attempt:(if $id==5001 then 2 else 1 end),pull_requests:(if $event=="pull_request" and ($id==5000 or $id==5001 or $id==5002) then [{number:(if $id==5000 then 123 elif $id==5001 then 124 else 125 end)}] else [] end),changes:{docs_only:(if $id==5000 then true elif $id==5001 then false else null end)},created_at:(if $i==0 then "2026-09-12T00:00:00Z" else "2026-10-10T00:00:00Z" end),updated_at:$cutoff,conclusion:(if $i%2==0 then "success" else "failure" end)})]}'
     ;;
   *) echo "unhandled $endpoint" >&2; exit 4;;
 esac
@@ -640,13 +702,16 @@ CI_METRICS_TEST_MODE=1 PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --co
 window_rc=$?
 set -e
 if [[ "$window_rc" -eq 0 ]] \
-  && jq -e '.status == "complete" and .cutoff_utc == "2026-10-12T00:00:00Z" and .populations.pull_request.api_total_count == 125 and .populations.pull_request.population_capped == true and (.populations.pull_request.selected_run_ids|length)==100 and .populations.push_main.population_exhausted == true and .populations.schedule.population_exhausted == true and (.populations.manual.records|length)==1 and (.populations.pull_request.runs[0].created_at|startswith("2026-09-12"))' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
-  && jq -e 'all(.populations[]?; true)' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
-  && ! rg 'workflow_dispatch|head_branch=release|release/' "$WINDOW_API_LOG" >/dev/null; then
+  && jq -e '.status == "complete" and .cutoff_utc == "2026-10-12T00:00:00Z" and .populations.pull_request.api_total_count == 125 and .populations.pull_request.population_capped == true and (.populations.pull_request.selected_run_ids|length)==100 and .populations.pull_request.selected_run_ids[-1]==5099 and .populations.push_main.population_exhausted == true and .populations.schedule.population_exhausted == true and (.populations.manual.records|length)==1 and (.populations.pull_request.runs[0].created_at|startswith("2026-09-12"))' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
+  && jq -e '.populations.manual.records|length==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
+  && jq -e '([.populations.pull_request.runs[]|select(.id==5000 and .workload=="docs_only")]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5001 and .workload=="full" and .detail_status=="complete" and (.attempt_jobs|keys|length)==2)]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5002 and .workload=="unknown")]|length)==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
+  && ! jq -e '.populations.push_main.runs[] | select(.head_branch != "main")' "$WINDOW_BUNDLE/manifest.json" >/dev/null; then
   pass "fixed cutoff, 100-run cap, API totals and event separation are retained"
 else
   fail "window collect rc=$window_rc stderr=$(cat "${TMPDIR_ROOT}/window-collect.err") manifest=$(cat "$WINDOW_BUNDLE/manifest.json" 2>/dev/null)"
 fi
+
+run_window_extension_tests
 
 echo ""
 echo "----------------------------------------"
