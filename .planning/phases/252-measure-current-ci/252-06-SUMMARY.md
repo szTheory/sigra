@@ -16,11 +16,16 @@ key-files:
     - scripts/ci/exunit_timing_contract_test.py
     - scripts/ci/ci-measure-report.sh
     - scripts/ci/ci-measure-report.test.sh
+    - scripts/ci/ci_metrics_security.py
+    - scripts/ci/ci-metrics-security.test.py
     - .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz
     - .planning/phases/252-measure-current-ci/252-BASELINE.json
     - .planning/phases/252-measure-current-ci/252-BASELINE.md
     - .planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json
     - .planning/phases/252-measure-current-ci/252-06-STATE-PRESERVATION.json
+    - .planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION.json
+    - .planning/phases/252-measure-current-ci/252-06-ACQUISITION-ATTEMPTS.json
+    - .planning/phases/252-measure-current-ci/acquisition-attempts/
   modified:
     - scripts/ci/ci-exunit-timing.test.sh
     - scripts/ci/sigra-dep-off.sh
@@ -39,12 +44,12 @@ metrics:
   duration: 84 minutes
   completed_date: 2026-10-12
   plan_head_before: 399f80d8c2f17120117d729a75d3e57f099ec9dc
-  plan_head_after: fa2d151e50f3d72afc3c29b925d28cce3fa53451
-  commits: 20
+  plan_head_after: c97bf641e
+  commits: 50
 actuals:
   tokens: 8676277
   tasks: 3
-  commits: 20
+  commits: 50
 status: complete
 ---
 
@@ -153,3 +158,32 @@ The two earlier failed PR attempts remain in the immutable source bundle and are
 The refreshed collection cutoff is `2026-10-12T22:41:22Z`: 125 API requests, 100 of 270 pull-request runs selected (capped), all 81 main pushes and all 30 scheduled runs. Bundle SHA-256 is `5478c3337881eac2285764d57f35fe103191cb5eea1814fc3dd8b36357758d29`; baseline SHA-256 is `45029a440b8c00fb9aca6ad9b5ae427c443e5736bb7ae1164c44a5ce4caf0376`; report SHA-256 is `5bb582b266e7d2f2ccedd01c4b749939ae13c0d1430ce85cec5037c9c713413a`; comparison contract SHA-256 is `c485b54ace77d9bfa871261889e40b6c52ea0c21c0db7ef9e20b2ca468a9193f`. Two offline replays were byte-identical (`a8661ab14c1ee8ff8dca74edae321e2d1f589d4592b579c181b2a24ea22d67de`), and the archive-backed baseline verifier returned `ready` with no diagnostics. The frozen contract still requires 20 equivalent pairs/40 families over a fixed 48-hour window, 20% median improvement, non-increasing nearest-rank p95 and total runner cost; no comparison families were run. Candidate identity and actual window dates remain unset until before the later comparison starts. Requirements remain pending phase-level verification.
 
 Repair verification also passed `python3 scripts/ci/exunit_timing_contract_test.py` (5 tests), `bash scripts/ci/ci-run-metrics.test.sh`, `bash scripts/ci/ci-run-metrics-comparison.test.sh`, `bash scripts/ci/ci-measure-report.test.sh`, and `node --test scripts/ci/ci-run-metrics-replay.test.mjs scripts/ci/ci-measure-workflow.test.mjs` (5 tests). The local forced-compile `MIX_ENV=test mix ci` run passed with 2,652 main tests, 33 doctests, 3 properties, zero failures, and a separate 65-test dependency-off run. Earlier hosted failures and the local retry race/cache-permission diagnostics remain preserved; this repair does not waive them.
+
+## Security remediation correction (2026-10-12)
+
+The independent audit identified eleven open controls. The implementation changes below address the findings with adversarial tests; the parent security auditor will recheck the controls separately. The security register and audit files remain unchanged until that re-audit.
+
+| Findings | Implemented control | Verification |
+| --- | --- | --- |
+| T-252-01, T-252-13 | Required check runs bind to run ID, attempt, job ID, head SHA, GitHub Actions app, and completion result. | Wrong-attempt and wrong-check-ID fixtures fail closed. |
+| T-252-02 | Source hashes cover PR, main, schedule, manual and release populations; accepted artifact JSON members are hash-checked against the saved ZIP and consumed extraction bytes. | Population-tampering and ZIP-member mismatch fixtures; strict archive replay. |
+| T-252-06, T-252-15 | Failed-log download is capped at 1 MiB; retained excerpts are capped at 16 KiB and redact environment assignments/dumps, credentials, bearer values and URLs. | Oversized-log, environment-secret and useful-diagnostic fixtures. |
+| T-252-07 | Every API request and retry debits the locally observed core budget; refreshes can lower the remaining count. | A starting budget of 251 permits one read, then stops at 250; 403/429 is not retried. |
+| T-252-08 | ExUnit reports require both identified invocations, rows, valid result enums and microsecond units; counts and duration totals reconcile, including excluded rows. | Eight consumer contract tests reject empty, wrong-identity, negative, invalid-enum and mismatched-count reports. |
+| T-252-12, T-252-16 | Producer artifacts bind to the API run, job attempt, exact artifact owner/name, successful upload step interval, producer merge commit parents, PR head/base and workflow tree/blob bytes. | Producer binding and source-provenance fixtures; independently collected GitHub source facts for run 38317383419. |
+| T-252-17 | Comparison families bind to a frozen reservation and append-only, hash-chained API run registration; each run must be created inside the exact declared window. | Run substitution, out-of-window timestamp, duplicate registration and chain tampering fixtures. |
+| T-252-19 | Report URLs use a strict GitHub path allowlist; prose is escaped and redacted, including unsafe links and Markdown payloads. | Adversarial Markdown/URL fixture; report retains the PR population SHA-256 digest. |
+
+The security repair commits are `282091eaa` (source bindings, hashes, bounded diagnostics, report safety and ExUnit validation), `362c84008` (immutable comparison registrations and source acquisition), `0cdc4e40f` (independent producer-source API collection), `a97017e50` (report identity digest preservation), `654f771bf` (artifact repository-owner binding), and `c97bf641e` (register comparison runs while queued or in progress, before a conclusion exists). All five focused suites pass: 10 security fixtures, 8 ExUnit contract tests, 41 collector tests, comparison fixtures, and report fixtures. The contract suite exercises exact 20-pair median/p95 and runner-cost enforcement; no comparison runs were launched.
+
+### Refreshed source proof and retained acquisition attempts
+
+The bounded population attempt `security-window-20261012-01` stopped after 68 API requests because one failed-log download was unavailable. The distinct retry acquisition `security-window-20261012-02` completed after 97 requests and retained the capped populations (264 PR events/100 selected, 10 manual records and 38 release records), but did not contain a fully bound instrumented artifact sample: the candidate artifact evidence hash did not match. Both ledgers, manifest hashes and outcomes are retained in `252-06-ACQUISITION-ATTEMPTS.json`; neither attempt is represented as a successful full baseline.
+
+For run 38317383419, a separate five-request GitHub source collection verified PR #331 head `d4dcc1939bd1f1590f6ca01d55b861e31acc745f`, base `4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97`, producer merge checkout `cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17`, and the exact workflow blob. Reproduce that source check with `bash scripts/ci/ci-run-metrics.sh --collect-producer-source --source-bundle /private/tmp/phase252-06-producer-source-38317383419 --producer-source-sha cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17 --run-id 38317383419`. Strict offline replay also verifies each accepted artifact ZIP and every consumed JSON member. The resulting archive SHA-256 is `e0e662a8e546c95386651a33407341b23046524d50083eb740d1b2689e37640a`; baseline SHA-256 is `a70f1f1dd41568d4977a9847c3908a9526bc593d6680f97e6079939da0b023e5`; report SHA-256 is `1dd28ed10fe7605cd52526cc5d1de0739530dd05d30693ef4ea9f5ed84b90a3d`. Archive-backed `--verify-baseline` returns `ready` with no diagnostics.
+
+The corrected sample has 2,042 seconds total runner cost across one attempt, 1,358 seconds in timing producer jobs, main ExUnit 2,683 rows (2,671 passed, 12 skipped, 22 excluded), and `threadline_guard` 65 rows (65 passed, 2,640 excluded). Test durations remain separate at 18,811,928µs and 129,529µs. Playwright test duration is 798,348ms; reporter overhead remains explicitly unmeasured because paired selections were not recorded. Run 38317383419 has no rerun attempts, so its runner-job set contains no reused physical job IDs. The earlier failure records and 4,325-second attempt history remain in the prior sections and preserved archive history.
+
+The original archive, baseline, report, comparison contract and summary bytes were read from and matched against HEAD `0cdc4e40f` before refresh; exact hashes and recovery ref are committed in `252-06-SECURITY-REFRESH-PRESERVATION.json` at `6b3990d0b`. The comparison still has no candidate identity, dates or future family IDs. Its 20-pair/40-family, exact 48-hour, no-replacement method stays frozen, while no 40-run comparison has been performed.
+
+No new producer change was needed, so PR #331 was not modified and no new CI run was dispatched. Requirements remain pending phase-level verification; independent security re-audit remains outstanding.

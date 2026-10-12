@@ -1,6 +1,6 @@
 # Current CI baseline
 
-Cutoff: `2026-10-12T22:41:22Z`; collected `2026-10-12T22:43:39Z` from collector checkout `4ed2edf5f1c231a3889fbf02b7179f9093df4883` and collector workflow SHA-256 `fb691f11c2df00f77e270b064a031ae5d6d671aacdcb5de7e52a38d349971c3e`. Immutable source bundle SHA-256: `5478c3337881eac2285764d57f35fe103191cb5eea1814fc3dd8b36357758d29`. Replay source identity: `4768f010d454b10973c0e1b40c2d57f8d30ccdaad287ec33459e841cbed3df74` (PR population hash), `a653759f4f238c7ee3cf9ede26cc6d846fa673216b4b32201c849fbf45800479` (request ledger hash). Status: **complete**. This snapshot is bounded to 100 runs per event and a 30-day window; capped/expired or undetailed records remain unknown.
+Cutoff: `2026-10-12T22:41:22Z`; collected `2026-10-12T22:43:39Z` from collector checkout `4ed2edf5f1c231a3889fbf02b7179f9093df4883` and collector workflow SHA-256 `fb691f11c2df00f77e270b064a031ae5d6d671aacdcb5de7e52a38d349971c3e`. Immutable source bundle SHA-256: `e0e662a8e546c95386651a33407341b23046524d50083eb740d1b2689e37640a`. Replay source identity: `4768f010d454b10973c0e1b40c2d57f8d30ccdaad287ec33459e841cbed3df74` (PR population hash), `a653759f4f238c7ee3cf9ede26cc6d846fa673216b4b32201c849fbf45800479` (request ledger hash). Status: **complete**. This snapshot is bounded to 100 runs per event and a 30-day window; capped/expired or undetailed records remain unknown.
 
 ## Separate populations
 
@@ -79,7 +79,7 @@ ExUnit overhead: `{"method": "median of five paired whole-mix-process elapsed-ti
 ## Current failures
 
 At most twelve failed families were inspected; no more than three recurring signatures are shown:
-- <n>-<n>-<n>T<n>:<n>:<n>.<n>Z Test D: --add round-trip passes (add ID_B first, then ID_A, assert sorted + lint passes) — 2 observations: [run 38314896976 attempt 1](raw/families/38314896976/failed-job.log), [run 38316396580 attempt 1](raw/families/38316396580/failed-job.log)
+- &amp;lt;n&amp;gt;-&amp;lt;n&amp;gt;-&amp;lt;n&amp;gt;T&amp;lt;n&amp;gt;:&amp;lt;n&amp;gt;:&amp;lt;n&amp;gt;.&amp;lt;n&amp;gt;Z Test D: --add round-trip passes (add ID_B first, then ID_A, assert sorted + lint passes) — 2 observations: run 38314896976 attempt 1 (link unavailable), run 38316396580 attempt 1 (link unavailable)
 
 The selected full PR family completed required checks on attempt `1`. Its complete attempt history is:
 
@@ -87,18 +87,18 @@ The selected full PR family completed required checks on attempt `1`. Its comple
 
 ## Exact source run records
 
-- [pull_request run 37992672660 attempt 1 — success](https://github.com/szTheory/sigra/actions/runs/37992672660) — SHA `4e631d895caa1e02108e05ed9d68069990ca305f`, workload `unknown`
-- [pull_request run 37993672153 attempt 1 — cancelled](https://github.com/szTheory/sigra/actions/runs/37993672153) — SHA `3dbf08d58359b3f468d838d413b17235b332134e`, workload `unknown`
-- [pull_request run 37993871903 attempt 1 — success](https://github.com/szTheory/sigra/actions/runs/37993871903) — SHA `a6f918841cbca39c58df5b23cdbe66bda728b050`, workload `unknown`
-- [pull_request run 37993906353 attempt 1 — success](https://github.com/szTheory/sigra/actions/runs/37993906353) — SHA `d29dde4194ea263af44c1ec1a700308374a2b121`, workload `unknown`
-- [pull_request run 38003010120 attempt 1 — success](https://github.com/szTheory/sigra/actions/runs/38003010120) — SHA `238eb1d68dd797222a869e5a98676aca4ebef651`, workload `unknown`
-- [pull_request run 38003611334 attempt 1 — cancelled](https://github.com/szTheory/sigra/actions/runs/38003611334) — SHA `000cf751dc12735ef4bd660ab154219f45d39369`, workload `unknown`
-- [pull_request run 38003804068 attempt 1 — failure](https://github.com/szTheory/sigra/actions/runs/38003804068) — SHA `048f137e146c684b32ca7f40d4885271cf921a7c`, workload `unknown`
-- [pull_request run 38010026366 attempt 1 — failure](https://github.com/szTheory/sigra/actions/runs/38010026366) — SHA `8d302b50a631cd6e27a84c0d33bee60baa26e8b5`, workload `unknown`
-- [pull_request run 38010038505 attempt 1 — success](https://github.com/szTheory/sigra/actions/runs/38010038505) — SHA `3393cb1b7e5fadba2898532b78bc9d259b6fccf7`, workload `unknown`
-- [pull_request run 38010043544 attempt 1 — success](https://github.com/szTheory/sigra/actions/runs/38010043544) — SHA `109fd7cfbf9dcf0559674291d63c9ccd7083f9de`, workload `unknown`
-- [pull_request run 38010089224 attempt 1 — success](https://github.com/szTheory/sigra/actions/runs/38010089224) — SHA `143f73f03f4b5bd3412d50d00a8f2ffa3ccdd728`, workload `unknown`
-- [pull_request run 38052566830 attempt 1 — failure](https://github.com/szTheory/sigra/actions/runs/38052566830) — SHA `3ad51aac1f185194fe25159ffad5d8968e50e7b1`, workload `unknown`
+- [pull_request run 37992672660 attempt 1 — success](<https://github.com/szTheory/sigra/actions/runs/37992672660>) — SHA `4e631d895caa1e02108e05ed9d68069990ca305f`, workload `unknown`
+- [pull_request run 37993672153 attempt 1 — cancelled](<https://github.com/szTheory/sigra/actions/runs/37993672153>) — SHA `3dbf08d58359b3f468d838d413b17235b332134e`, workload `unknown`
+- [pull_request run 37993871903 attempt 1 — success](<https://github.com/szTheory/sigra/actions/runs/37993871903>) — SHA `a6f918841cbca39c58df5b23cdbe66bda728b050`, workload `unknown`
+- [pull_request run 37993906353 attempt 1 — success](<https://github.com/szTheory/sigra/actions/runs/37993906353>) — SHA `d29dde4194ea263af44c1ec1a700308374a2b121`, workload `unknown`
+- [pull_request run 38003010120 attempt 1 — success](<https://github.com/szTheory/sigra/actions/runs/38003010120>) — SHA `238eb1d68dd797222a869e5a98676aca4ebef651`, workload `unknown`
+- [pull_request run 38003611334 attempt 1 — cancelled](<https://github.com/szTheory/sigra/actions/runs/38003611334>) — SHA `000cf751dc12735ef4bd660ab154219f45d39369`, workload `unknown`
+- [pull_request run 38003804068 attempt 1 — failure](<https://github.com/szTheory/sigra/actions/runs/38003804068>) — SHA `048f137e146c684b32ca7f40d4885271cf921a7c`, workload `unknown`
+- [pull_request run 38010026366 attempt 1 — failure](<https://github.com/szTheory/sigra/actions/runs/38010026366>) — SHA `8d302b50a631cd6e27a84c0d33bee60baa26e8b5`, workload `unknown`
+- [pull_request run 38010038505 attempt 1 — success](<https://github.com/szTheory/sigra/actions/runs/38010038505>) — SHA `3393cb1b7e5fadba2898532b78bc9d259b6fccf7`, workload `unknown`
+- [pull_request run 38010043544 attempt 1 — success](<https://github.com/szTheory/sigra/actions/runs/38010043544>) — SHA `109fd7cfbf9dcf0559674291d63c9ccd7083f9de`, workload `unknown`
+- [pull_request run 38010089224 attempt 1 — success](<https://github.com/szTheory/sigra/actions/runs/38010089224>) — SHA `143f73f03f4b5bd3412d50d00a8f2ffa3ccdd728`, workload `unknown`
+- [pull_request run 38052566830 attempt 1 — failure](<https://github.com/szTheory/sigra/actions/runs/38052566830>) — SHA `3ad51aac1f185194fe25159ffad5d8968e50e7b1`, workload `unknown`
 
 ## Frozen later comparison
 

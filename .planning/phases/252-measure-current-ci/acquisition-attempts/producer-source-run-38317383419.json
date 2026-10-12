@@ -1,0 +1,14 @@
+{
+  "status": "complete",
+  "request_count": 5,
+  "stop_reason": null,
+  "reset_or_retry_at": "1791851598",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/actions/runs/38317383419",
+    "/repos/szTheory/sigra/commits/cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+    "/repos/szTheory/sigra/git/trees/bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452?recursive=1",
+    "/repos/szTheory/sigra/contents/.github/workflows/ci.yml?ref=cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17"
+  ]
+}

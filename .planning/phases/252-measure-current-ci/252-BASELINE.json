@@ -10493,163 +10493,217 @@
         "attempt": 1,
         "jobs": [
           {
+            "api_reported_runner_seconds": 0.0,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115037172447,
             "name": "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)",
             "runner_seconds": 0.0
           },
           {
+            "api_reported_runner_seconds": 8.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037148530,
             "name": "Detect docs-only change",
             "runner_seconds": 8.0
           },
           {
+            "api_reported_runner_seconds": 55.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037204942,
             "name": "Example HTTP smoke (boot + curl critical routes)",
             "runner_seconds": 55.0
           },
           {
+            "api_reported_runner_seconds": 367.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037204977,
             "name": "Example Playwright shard (admin_behavior)",
             "runner_seconds": 367.0
           },
           {
+            "api_reported_runner_seconds": 240.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037205052,
             "name": "Example Playwright shard (admin_checkpoints)",
             "runner_seconds": 240.0
           },
           {
+            "api_reported_runner_seconds": 96.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037204978,
             "name": "Example Playwright shard (demo_showcase)",
             "runner_seconds": 96.0
           },
           {
+            "api_reported_runner_seconds": 243.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037205108,
             "name": "Example Playwright shard (design_gallery)",
             "runner_seconds": 243.0
           },
           {
+            "api_reported_runner_seconds": 333.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037204949,
             "name": "Example Playwright shard (non_admin_smoke)",
             "runner_seconds": 333.0
           },
           {
+            "api_reported_runner_seconds": 3.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115039064416,
             "name": "Example Playwright smoke (full lifecycle)",
             "runner_seconds": 3.0
           },
           {
+            "api_reported_runner_seconds": 64.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037204943,
             "name": "Example unit smoke (ExUnit + ConnTest)",
             "runner_seconds": 64.0
           },
           {
+            "api_reported_runner_seconds": 45.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037148904,
             "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)",
             "runner_seconds": 45.0
           },
           {
+            "api_reported_runner_seconds": 232.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037170256,
             "name": "Generated admin Playwright smoke",
             "runner_seconds": 232.0
           },
           {
+            "api_reported_runner_seconds": 37.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037170298,
             "name": "Install golden + idempotency contract (subprocess harness)",
             "runner_seconds": 37.0
           },
           {
+            "api_reported_runner_seconds": 0.0,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115037149898,
             "name": "Install matrix (flag combinations)",
             "runner_seconds": 0.0
           },
           {
+            "api_reported_runner_seconds": 177.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037204969,
             "name": "Install smoke (fresh phx.new + sigra.install)",
             "runner_seconds": 177.0
           },
           {
+            "api_reported_runner_seconds": 4.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037589695,
             "name": "Library tests",
             "runner_seconds": 4.0
           },
           {
+            "api_reported_runner_seconds": 51.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037205046,
             "name": "Library tests (dep-off \u2014 Threadline absent)",
             "runner_seconds": 51.0
           },
           {
+            "api_reported_runner_seconds": 79.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037170118,
             "name": "Library tests shard",
             "runner_seconds": 79.0
           },
           {
+            "api_reported_runner_seconds": null,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115037185040,
             "name": "Nightly probe (forced-failure self-test)",
             "runner_seconds": null
           },
           {
+            "api_reported_runner_seconds": 0.0,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115039125576,
             "name": "Notify on red ci-gate (release-lane-rot)",
             "runner_seconds": 0.0
           },
           {
+            "api_reported_runner_seconds": 0.0,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115037150148,
             "name": "Passkeys manual fallback smoke",
             "runner_seconds": 0.0
           },
           {
+            "api_reported_runner_seconds": 0.0,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115037149508,
             "name": "Passkeys opt-out smoke",
             "runner_seconds": 0.0
           },
           {
+            "api_reported_runner_seconds": 0.0,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115037171906,
             "name": "Recapture admin-checkpoint baselines (in-CI)",
             "runner_seconds": 0.0
           },
           {
+            "api_reported_runner_seconds": 0.0,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115037171812,
             "name": "Recapture admin-design baselines (in-CI)",
             "runner_seconds": 0.0
           },
           {
+            "api_reported_runner_seconds": 3.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115037148715,
             "name": "Release ref guard",
             "runner_seconds": 3.0
           },
           {
+            "api_reported_runner_seconds": 0.0,
             "conclusion": "skipped",
+            "counted_physical_job": true,
             "job_id": 115037172560,
             "name": "Upgrade smoke (published source series -> local candidate)",
             "runner_seconds": 0.0
           },
           {
+            "api_reported_runner_seconds": 5.0,
             "conclusion": "success",
+            "counted_physical_job": true,
             "job_id": 115039087421,
             "name": "ci-gate",
             "runner_seconds": 5.0
@@ -20960,7 +21014,7 @@
     }
   },
   "schema_version": "sigra.ci-run-metrics/snapshot-v1",
-  "source_bundle_sha256": "5478c3337881eac2285764d57f35fe103191cb5eea1814fc3dd8b36357758d29",
+  "source_bundle_sha256": "e0e662a8e546c95386651a33407341b23046524d50083eb740d1b2689e37640a",
   "source_file_sha256": {
     "ci-playwright-report.mjs": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
     "ci-playwright-report.test.mjs": "6ef30793de2e492daba4bd9928ccf5116ddaa0864f79cc1372863a19d98fc616",
@@ -23730,9 +23784,11 @@
   "source_sha256": {
     "branch_protection": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153",
     "effective_rules": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+    "manual": "ce7ffd94770987c1690a8dfcecab86d92f7deaec9933c090a13f1140102fd98d",
     "pull_request": "4768f010d454b10973c0e1b40c2d57f8d30ccdaad287ec33459e841cbed3df74",
     "push_main": "8c81c415ba0b1243547d1da5a53e8f9c39b93672c7ca6fc0d3dd0344e38258c3",
     "rate_limit": "727c135daed98dc7a3c52ff91ce59dfada68edc06171ba0bdd818c5fe9a4a035",
+    "release_push": "4d3e12e92798fe68459970d82f63e686868a6f202d8b66293208b5cd5e41bf00",
     "request_ledger": "a653759f4f238c7ee3cf9ede26cc6d846fa673216b4b32201c849fbf45800479",
     "rulesets": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
     "schedule": "ae19e97969313a6cf384ec93393ba438e3fc1014dd36b3a66c585882602777af",
