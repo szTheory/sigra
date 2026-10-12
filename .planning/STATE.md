@@ -6,10 +6,10 @@ current_phase: 252
 current_phase_name: Measure Current CI
 status: executing
 stopped_at: Completed 252-04-PLAN.md
-last_updated: "2026-10-12T18:59:48.288Z"
+last_updated: "2026-10-12T19:00:30Z"
 last_activity: 2026-10-12
-last_activity_desc: Plan 252-03 implementation and automated checks completed
-state_head: a3d2f13c0dd3187cdefe60655d3a92a3aaec0fc7
+last_activity_desc: Plan 252-04 implementation and automated checks completed
+state_head: 95c87db82c8b00e04fbd1a934a0582ce7c70716c
 progress:
   total_phases: 4
   completed_phases: 0
@@ -48,7 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 
 $gsd-execute-phase 252
 
-Execute six plans across four waves. Plans 252-01 and 252-02 implementation and automated checks are complete; four plans remain. Research, pattern mapping and independent plan checks are complete. The latest readiness check found no blocked or halted plans and no duplicate threat IDs. All nine requirements remain Pending; phase-level verification has not started.
+Execute six plans across four waves. Plans 252-01 through 252-04 implementation and automated checks are complete; Plans 252-05 and 252-06 remain, followed by phase-level verification. Research, pattern mapping and independent plan checks are complete. The latest readiness check found no blocked or halted plans and no duplicate threat IDs. All nine requirements remain Pending; phase-level verification has not started.
 
 The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Continue with `$gsd-execute-phase 252`; do not advance to Phase 253 before the remaining Phase 252 plans and phase-level verification.
 
@@ -61,7 +61,7 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Evidence
 
-- Phase 252 plan 01 implementation and evidence: `252-01-SUMMARY.md`, `252-EVIDENCE-PREFLIGHT.json`, and `252-run-family-38144377407-retry1/`. Plans 02 and 03 are also complete; plans 04–06 and phase-level verification remain. Plan 03 timing evidence: `252-03-SUMMARY.md` and `252-03-EXUNIT-TIMING.json`. Phase requirements remain unchecked pending phase-level verification.
+- Phase 252 implementation and checks for Plans 01–04 are complete. Plan 01 evidence: `252-01-SUMMARY.md`, `252-EVIDENCE-PREFLIGHT.json`, and `252-run-family-38144377407-retry1/`. Plan 03 timing evidence: `252-03-SUMMARY.md` and `252-03-EXUNIT-TIMING.json`. Plan 04 Playwright report contract: `252-04-SUMMARY.md`. Plans 05–06 and phase-level verification remain; phase requirements stay unchecked until verification.
 - Final independent planning check: `252-PLAN-CHECK-03.md`; planning record/checks: `252-PLANNING-RECORD.json`, `252-PLANNING-CHECKS.json`, `252-PLANNING-ROUTING-CHECKS.json`. These are planning checks, not completed phase verification.
 
 - Phase 252 context/log/discovery: `.planning/phases/252-measure-current-ci/252-CONTEXT.md`, `252-DISCUSSION-LOG.md`, `252-DISCUSSION-RECORD.json`; context commit `96611810e2674a7c6318f48f36ae488a35d33c99`.
@@ -83,7 +83,7 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T18:59:48.272Z
+**Last session:** 2026-10-12T19:00:30Z
 **Stopped at:** Completed 252-04-PLAN.md
 **Resume file:** .planning/phases/252-measure-current-ci/252-05-PLAN.md
 
@@ -103,7 +103,7 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 | Phase 252 P01 | 19m | 2 tasks | 19 files |
 | Phase 252 P02 | 28min | 3 tasks | 2 files |
 | Phase 252 P03 | 12min | 2 tasks | 5 files |
-| Phase 252 P04 | 25min | 2 tasks | 3 files |
+| Phase 252 P04 | 28min | 2 tasks | 3 files |
 
 ## Decisions
 

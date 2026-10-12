@@ -63,7 +63,7 @@ coverage:
         ref: "scripts/ci/ci-playwright-report.test.mjs#CLI writes incomplete output atomically and retains a nonzero status for missing or malformed input"
         status: pass
     human_judgment: false
-duration: 25min
+duration: 28min
 completed: 2026-10-12
 status: complete
 ---
@@ -74,9 +74,9 @@ status: complete
 
 ## Performance
 
-- **Duration:** 25 minutes
+- **Duration:** 28 minutes
 - **Started:** 2026-10-12T18:32:22Z
-- **Completed:** 2026-10-12T18:57:19Z
+- **Completed:** 2026-10-12T19:00:16Z
 - **Tasks:** 2
 - **Files modified:** 3
 
@@ -115,6 +115,19 @@ status: complete
 ## Deviations from Plan
 
 None. The plan's `files_modified` scope assigns workflow wiring to the dependent Plan 252-05; this plan supplies the opt-in config and the per-invocation contract for that wiring.
+
+## Planning Write-Ahead Preservation
+
+The SDK state transition and later route updates were committed before their exact planning files were refreshed. Each read-back hash below matched the committed bytes.
+
+| Prior revision | Durable commit | Path | Exact SHA-256 read-back |
+|---|---|---|---|
+| SDK plan advance | `feb0db300` | `.planning/STATE.md` | `8711157ddf0eae47e3d61d1aeb2f60f872dbf0212bf880064bebc3c4680fd32a` |
+| SDK plan advance | `feb0db300` | `.planning/state.json` | `8d6f70acf511f73e56279579fb850b185e00bd8dc287a6f61d5280f0b4e40317` |
+| SDK performance metric | `d999831b1` | `.planning/STATE.md` | `cea4c97af961d7341352af451d094af9a346252c2a122c7dd62a0a93c7129a35` |
+| SDK decision entry | `a3d2f13c0` | `.planning/STATE.md` | `834b3491dd3c9f60ce74e132355b092ab05c43a22cba20a338d544a99844904c` |
+| SDK session route | `262a99fa5` | `.planning/STATE.md` | `2d64e7acc426282bae0ecc8ad31902f7a9af4fe6de5ba73541e978a363dc00a0` |
+| SDK roadmap progress | `95c87db82` | `.planning/ROADMAP.md` | `1bffd79e520313edb13aa001fa8c870b5e333e9b1aec44e9fc62df634e163531` |
 
 ## Issues Encountered
 
