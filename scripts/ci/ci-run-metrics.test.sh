@@ -851,14 +851,11 @@ else
 fi
 unset GH_TOKEN WINDOW_ARTIFACT_MODE WINDOW_ARTIFACT_DIGEST WINDOW_ARTIFACT_ZIP CI_METRICS_TEST_MODE
 
-echo "Test Z: the retained dependency-off-only ExUnit artifact is no longer accepted as full-suite timing"
-LEGACY_BUNDLE="${SCRIPT_DIR}/../../.planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz"
-if [[ -s "$LEGACY_BUNDLE" ]] \
-  && bash "$SCRIPT" --replay --source-bundle "$LEGACY_BUNDLE" --format json >"${TMPDIR_ROOT}/legacy-replay.json" 2>"${TMPDIR_ROOT}/legacy-replay.err" \
-  && jq -e '.instrumented_full_pr.complete == false and (.instrumented_full_pr.diagnostics | index("complete_exunit_main_timing_missing_or_wrong_invocation") != null) and (.instrumented_full_pr.diagnostics | index("complete_exunit_threadline_guard_timing_missing_or_wrong_invocation") != null)' "${TMPDIR_ROOT}/legacy-replay.json" >/dev/null; then
-  pass "65-test dependency-off-only artifact cannot satisfy the main+child timing contract"
+echo "Test Z: legacy dependency-off-only timing cannot satisfy full-suite coverage"
+if python3 "$SCRIPT_DIR/exunit_timing_contract_test.py" >"${TMPDIR_ROOT}/exunit-contract.out" 2>"${TMPDIR_ROOT}/exunit-contract.err"; then
+  pass "missing main and child invocation reports fail closed without a historical archive"
 else
-  fail "legacy timing bundle did not fail closed: $(cat "${TMPDIR_ROOT}/legacy-replay.err") $(jq -c '.instrumented_full_pr' "${TMPDIR_ROOT}/legacy-replay.json" 2>/dev/null)"
+  fail "ExUnit invocation contract failed: $(cat "${TMPDIR_ROOT}/exunit-contract.err")"
 fi
 
 run_window_extension_tests

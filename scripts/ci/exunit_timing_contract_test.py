@@ -91,6 +91,25 @@ class ExunitTimingContractTest(unittest.TestCase):
             result["diagnostics"],
         )
 
+    def test_rejects_legacy_dependency_off_only_artifact(self):
+        metadata = dict(self.metadata)
+        metadata["exunit_reports"] = [
+            {"invocation": "threadline_guard", "path": "ci-exunit-timing.json"}
+        ]
+        result = validate(
+            metadata,
+            {"threadline_guard": self.reports["threadline_guard"]},
+            {"threadline_guard": "library-test-timing-123-2"},
+            "123",
+            2,
+        )
+        self.assertFalse(result["valid"])
+        self.assertIn(
+            "complete_exunit_main_timing_missing_or_wrong_invocation",
+            result["diagnostics"],
+        )
+        self.assertIn("exunit_producer_report_contract_missing", result["diagnostics"])
+
 
 if __name__ == "__main__":
     unittest.main()
