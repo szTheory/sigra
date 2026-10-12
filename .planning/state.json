@@ -2,22 +2,43 @@
   "contract": "1.0.0",
   "flavor": "core",
   "milestone": "v1.50",
-  "phases": [],
+  "phases": [
+    {
+      "number": "252",
+      "name": "Measure Current CI",
+      "status": "pending"
+    },
+    {
+      "number": "253",
+      "name": "Fix Flaky CI and Preserve Required Checks",
+      "status": "pending"
+    },
+    {
+      "number": "254",
+      "name": "Speed Up the Measured Slow Jobs",
+      "status": "pending"
+    },
+    {
+      "number": "255",
+      "name": "Make Failures Reproducible and Report the Result",
+      "status": "pending"
+    }
+  ],
   "next": {
-    "command": "$gsd-new-milestone",
-    "label": "Continue v1.50: confirm requirements",
-    "reason": "Scope/version and skip-research choice confirmed. Full requirements confirmation is the next workflow gate; no phase exists yet.",
+    "command": "$gsd-discuss-phase 252",
+    "label": "Discuss Phase 252: Measure Current CI",
+    "reason": "Requirements and roadmap approved. Phase 252 is pending with no context, research, plans, or prerequisite verification commands.",
     "conditional": false,
-    "route_status": "awaiting_requirements_confirmation",
+    "route_status": "ready_for_phase_discussion",
     "next_phase_number": 252,
-    "next_phase_exists": false,
+    "next_phase_exists": true,
     "historical_verification_is_forward_blocker": false
   },
-  "updated_at": "2026-10-12T15:04:03.842431+00:00",
+  "updated_at": "2026-10-12T15:36:25.328862+00:00",
   "milestone_name": "CI-SPEED-AND-RELIABILITY",
   "milestone_status": "active",
   "status": "planning",
-  "workflow_step": "requirements_confirmation",
+  "workflow_step": "phase_discussion",
   "verification_status": "not_started",
   "archived_milestones": [
     {
@@ -36,6 +57,27 @@
     "path": ".planning/v1.50-REQUIREMENTS-PROPOSAL.md",
     "sha256": "745ff6ea96ebaac131a57422514f1838122185606be9a4e02efed34df8917707",
     "requirement_count": 9,
-    "approved": false
+    "approved": true
+  },
+  "current_phase": "252",
+  "current_phase_name": "Measure Current CI",
+  "requirements_approved": true,
+  "roadmap_approved": true,
+  "requirements": {
+    "path": ".planning/REQUIREMENTS.md",
+    "count": 9,
+    "approved": true,
+    "complete": 0,
+    "phase_mapping": {
+      "CIMEAS-01": 252,
+      "CIMEAS-02": 252,
+      "CIREL-01": 253,
+      "CIREL-02": 253,
+      "CISPEED-01": 254,
+      "CISPEED-02": 254,
+      "CIDX-01": 255,
+      "CIDX-02": 255,
+      "CIMEAS-03": 255
+    }
   }
 }

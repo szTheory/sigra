@@ -3,22 +3,26 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: planning
-last_updated: "2026-10-12T14:59:01.342Z"
+last_updated: "2026-10-12T15:36:25.328862+00:00"
 last_activity: 2026-10-12
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
 milestone_status: active
-workflow_step: requirements_confirmation
+workflow_step: phase_discussion
 verification_status: not_started
-next_command: $gsd-new-milestone
-resume_command: $gsd-new-milestone
+next_command: $gsd-discuss-phase 252
+resume_command: $gsd-discuss-phase 252
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
-state_head: a9e29eb00f6e63b0effea1025b22d1e114d24346
+state_head: 30b22bc16c0124151616e2dcab18ae25fdd1816a
+current_phase: 252
+current_phase_name: Measure Current CI
+requirements_approved: true
+roadmap_approved: true
 ---
 
 # Project State
@@ -28,24 +32,23 @@ state_head: a9e29eb00f6e63b0effea1025b22d1e114d24346
 See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 **Core value:** Authentication that works out of the box, with a clear path for Phoenix adopters.
-**Current focus:** Confirm v1.50 CI speed and reliability requirements.
+**Current focus:** Phase 252 — Measure Current CI.
 
 ## Current position
 
-Phase: Not started (defining requirements)
+Phase: 252 — Measure Current CI (first of four approved phases)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-10-12 — Milestone v1.50 started
+Status: Milestone roadmap approved; ready for Phase 252 discussion
+Last activity: 2026-10-12 — Nine requirements and four-phase roadmap approved
+Progress: 0/4 phases implemented; no phase verification started
 
 ## Next GSD command
 
-$gsd-new-milestone
+$gsd-discuss-phase 252
 
-Continue the current new-milestone workflow: confirm the full requirements proposal, then create and approve the roadmap. The user has confirmed v1.50 CI-SPEED-AND-RELIABILITY and chosen to skip broad research.
+Define the finite measurement plan for today's CI. The nine confirmed requirements map exactly once to approved Phases 252–255; all remain Pending. Phase 252 is pending with no context, research, plans, or prerequisite verification commands, so discussion is next.
 
-The proposed requirements are in `.planning/v1.50-REQUIREMENTS-PROPOSAL.md`. Reply `1` to accept them or describe changes. REQUIREMENTS.md and the phase roadmap remain unapproved. No implementation or phase verification has started. `init.plan-phase 252` reports `phase_found=false`; do not start discussing or planning a nonexistent phase. Numbering continues at 252 after roadmap creation.
-
-Historical failed/stale verification is separate maintenance and does not block this milestone. No missing old record is needed from the user.
+The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Phase implementation and verification have not started.
 
 ## Known unfinished work
 
@@ -56,9 +59,10 @@ Historical failed/stale verification is separate maintenance and does not block 
 
 ## Evidence
 
-- New milestone scope/capture: `.planning/v1.50-START.json`.
-- Requirements awaiting confirmation: `.planning/v1.50-REQUIREMENTS-PROPOSAL.md`.
-- Continuation checks: `.planning/v1.50-START-CHECKS.json`.
+- New milestone scope/capture: `.planning/v1.50-START.json`; roadmap approval: `.planning/v1.50-ROADMAP-APPROVAL.json`.
+- Final setup evidence: `.planning/v1.50-INITIALIZATION.json` (written after automatic cleanup).
+- Confirmed requirements: `.planning/REQUIREMENTS.md`; original proposal retained unchanged.
+- Roadmap review, checks, and byte-preservation record: `.planning/v1.50-ROADMAP-REVIEW.json`, `.planning/v1.50-ROADMAP-CHECKS.json`, `.planning/v1.50-ROADMAP-PRESERVATION.json`. Earlier start checks remain historical.
 - Prior SDK state and original handoff are exactly recoverable at `a9e29eb00f6e63b0effea1025b22d1e114d24346`; read-back verified before this continuation rewrite.
 - Decision: `.planning/milestones/v1.49-CLOSEOUT-DECISION.json`.
 - Strict audit: `.planning/milestones/v1.49-MILESTONE-AUDIT.md` — original bytes retained; `gaps_found`, 8/9.
@@ -70,9 +74,9 @@ Historical failed/stale verification is separate maintenance and does not block 
 
 ## Session
 
-**Last session:** 2026-10-12T15:04:03.842431+00:00
-**Stopped at:** v1.50 scope confirmed and committed; requirements confirmation pending.
-**Resume file:** .planning/v1.50-REQUIREMENTS-PROPOSAL.md
+**Last session:** 2026-10-12T15:36:25.328862+00:00
+**Stopped at:** Roadmap approved; automatic cleanup remains before final initialization checks.
+**Resume file:** .planning/ROADMAP.md
 
 ## Deferred Items
 

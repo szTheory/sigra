@@ -60,21 +60,22 @@ The missing 1.6 upgrade guide remains a separately scoped documentation task: `.
 
 ## Traceability
 
-Phase assignment will be filled during roadmap creation. Status remains Pending until each requirement is implemented, automatically verified, and committed.
+The user confirmed all nine requirements and approved the four-phase roadmap. Each requirement below maps to exactly one phase. All statuses remain Pending; no requirement is implemented or verified.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CIMEAS-01 | — | Pending |
-| CIMEAS-02 | — | Pending |
-| CIMEAS-03 | — | Pending |
-| CISPEED-01 | — | Pending |
-| CISPEED-02 | — | Pending |
-| CIREL-01 | — | Pending |
-| CIREL-02 | — | Pending |
-| CIDX-01 | — | Pending |
-| CIDX-02 | — | Pending |
+| CIMEAS-01 | Phase 252 | Pending |
+| CIMEAS-02 | Phase 252 | Pending |
+| CIMEAS-03 | Phase 255 | Pending |
+| CISPEED-01 | Phase 254 | Pending |
+| CISPEED-02 | Phase 254 | Pending |
+| CIREL-01 | Phase 253 | Pending |
+| CIREL-02 | Phase 253 | Pending |
+| CIDX-01 | Phase 255 | Pending |
+| CIDX-02 | Phase 255 | Pending |
 
-**Coverage:** 9 requirements; roadmap mapping pending. No requirement is complete.
+**Coverage:** 9 requirements; 9 mapped exactly once; 0 unmapped; 0 duplicate assignments.
 
 ---
 *Requirements confirmed: 2026-10-12 — user selected “Accept these requirements and create the roadmap.”*
+*Phase mappings approved: 2026-10-12 — user selected “Approve and commit this roadmap.”*

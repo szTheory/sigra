@@ -33,7 +33,7 @@ cannot resolve.
 
 **Scope confirmed:** The user selected this direction on 2026-10-12. Skip broad ecosystem research for this milestone; keep the project's research default unchanged. Reuse the existing CI measurement script, five browser-test jobs, and `mix ci` where they fit. The prior CI audit is implemented history, not a new seed to repeat.
 
-**Current step:** All nine requirements are confirmed; create and approve the roadmap next. Phase numbering continues at 252. No implementation plan or phase verification has started.
+**Current step:** All nine requirements and the four-phase roadmap (252–255) are approved. Next: `$gsd-discuss-phase 252` to define the current CI measurement plan. No implementation plan or phase verification has started.
 
 **Boundaries:** v1.49 is closed with READY-01 unfinished; missing old release records do not block this work. The missing 1.6 upgrade guide remains a separate documentation task. This milestone starts no product feature or package release, changes no public API or authentication behavior, and does not weaken required checks.
 
