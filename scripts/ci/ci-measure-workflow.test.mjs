@@ -14,7 +14,7 @@ const ids = [
 const blocks = Object.fromEntries(ids.map((id) => [id, jobBlock(workflow, id)]));
 
 test('keeps one library mix ci owner and preserves required check names', () => {
-  const owners = Object.entries(blocks).filter(([, block]) => /^\s+run: mix ci\s*$/m.test(block));
+  const owners = Object.entries(blocks).filter(([, block]) => /^\s+run: (?:MIX_ENV=test )?mix ci\s*$/m.test(block));
   assert.deepEqual(owners.map(([id]) => id), ['library_tests_shard']);
   assert.match(workflow, /^    name: Library tests\s+#?\s*$/m);
   for (const name of [
@@ -57,7 +57,7 @@ test('records seven distinct Playwright reports without changing the five seam s
 
 test('uploads timing and small run metadata from each producing job even after failure', () => {
   assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_JSON:/);
-  assert.match(blocks.library_tests_shard, /run: mix ci/);
+  assert.match(blocks.library_tests_shard, /run: (?:MIX_ENV=test )?mix ci/);
   assert.match(blocks.library_tests_shard, /if: always\(\)[\s\S]*?ci-exunit-timing\.json/);
   for (const [id, block] of Object.entries(blocks)) {
     assert.match(block, /ci-measurement-metadata\.json/, `${id} lacks metadata artifact`);

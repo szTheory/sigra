@@ -589,6 +589,7 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           SIGRA_EXUNIT_TIMING_JSON: test-results/ci-exunit-timing.json
+        # Local equivalent: run: MIX_ENV=test mix ci (MIX_ENV is set above).
         run: mix ci
       - name: Upload library test timing
         if: always()
