@@ -2,27 +2,9 @@
   "schema_version": "sigra.ci-run-metrics/preflight-v1",
   "status": "ready",
   "checkout": {
-    "sha": "30df8ca199b05d1e60901cba863df38bbc1a6681",
+    "sha": "a5063f29a4ee0eca1a8dc6d47d3f7d8fed9c2396",
     "branch": "phase-244-playwright-measurement",
-    "dirty_paths": [
-      " M scripts/ci/ci-run-metrics.sh",
-      " M scripts/ci/ci-run-metrics.test.sh",
-      "?? .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-active-rulesets.json",
-      "?? .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-branch-protection.json",
-      "?? .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-effective-rules.json",
-      "?? .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-request-ledger.json",
-      "?? .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/manifest.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/branch-protection.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/check-runs.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/effective-rules.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs-attempt-1.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/rate-limit.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/rulesets.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/run.json",
-      "?? .planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/request-ledger.json"
-    ]
+    "dirty_paths": []
   },
   "workflow": {
     "path": ".github/workflows/ci.yml",
@@ -41,8 +23,8 @@
     "branch_protection": "https://api.github.com/repos/szTheory/sigra/branches/main/protection/required_status_checks",
     "active_rulesets": "https://api.github.com/repos/szTheory/sigra/rulesets"
   },
-  "cutoff_utc": "2026-10-12T17:34:52Z",
-  "captured_at_utc": "2026-10-12T17:34:52Z",
+  "cutoff_utc": "2026-10-12T17:37:16Z",
+  "captured_at_utc": "2026-10-12T17:37:16Z",
   "expected_required_contexts": [
     "Library tests",
     "Example unit smoke (ExUnit + ConnTest)",
@@ -73,8 +55,8 @@
     }
   ],
   "core_rate_remaining": 5000,
-  "core_rate_reset_at": 1791830092,
+  "core_rate_reset_at": 1791830236,
   "request_count": 4,
-  "request_ledger": "/private/tmp/sigra-phase252-execute/preflight-final/252-EVIDENCE-PREFLIGHT-request-ledger.json",
+  "request_ledger": "/private/tmp/sigra-phase252-execute/preflight-committed/252-EVIDENCE-PREFLIGHT-request-ledger.json",
   "missing_capabilities": []
 }
