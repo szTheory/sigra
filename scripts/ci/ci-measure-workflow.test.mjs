@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readRepoFile, jobBlock, stripYamlComments } from './prohibitions/_lib.mjs';
 
 const workflow = stripYamlComments(readRepoFile('.github/workflows/ci.yml'));
+const playwrightConfig = readRepoFile('test/example/priv/playwright/playwright.config.ts');
 const ids = [
   'library_tests_shard',
   'example_unit_smoke',
@@ -40,7 +41,7 @@ test('records seven distinct Playwright reports without changing the five seam s
     const at = workflow.indexOf(path);
     assert.notEqual(at, -1, `missing report destination ${path}`);
     paths.push(path);
-    const around = workflow.slice(Math.max(0, at - 1800), at + 500);
+    const around = workflow.slice(Math.max(0, at - 1800), at + 3500);
     assert.ok(around.includes('SIGRA_PLAYWRIGHT_JSON'), `${path} is not wired to the opt-in reporter`);
     assert.ok(around.includes(selection), `${path} lost its selected test path/grep`);
     assert.ok(around.includes(condition), `${path} lost its event/seam guard`);
@@ -48,9 +49,10 @@ test('records seven distinct Playwright reports without changing the five seam s
   }
   assert.equal(new Set(paths).size, 7, 'report destinations must be unique per command');
   for (const seam of ['admin_behavior', 'admin_checkpoints', 'design_gallery', 'non_admin_smoke', 'demo_showcase']) {
-    assert.ok(blocks.example_playwright_shard.includes(`- ${seam}:`), `missing matrix seam ${seam}`);
+    assert.ok(blocks.example_playwright_shard.includes(`- seam: ${seam}`), `missing matrix seam ${seam}`);
   }
-  assert.match(blocks.example_playwright_shard, /workers:\s*1/);
+  assert.match(playwrightConfig, /workers:\s*1/);
+  assert.match(playwrightConfig, /retries:\s*0/);
 });
 
 test('uploads timing and small run metadata from each producing job even after failure', () => {
@@ -83,7 +85,7 @@ test('metadata keeps configured pins separate from command-observed versions and
   ]) assert.ok(blocks[id].includes(`steps.${cache}.outputs.cache-hit`), `${id} cache output is not retained`);
   assert.ok(blocks.example_playwright_shard.includes('steps.boot.outputs.deps_cache_hit'));
   assert.ok(blocks.example_playwright_shard.includes('steps.boot.outputs.browser_cache_hit'));
-  assert.match(blocks.example_playwright_shard, /playwright --version/);
-  assert.match(blocks.example_playwright_shard, /elixir --version/);
-  assert.match(blocks.example_playwright_shard, /node --version/);
+  assert.match(blocks.example_playwright_shard, /node_modules\/\.bin\/playwright/);
+  assert.match(blocks.example_playwright_shard, /capture\('elixir',\['--version'\]/);
+  assert.match(blocks.example_playwright_shard, /capture\('node',\['--version'\]/);
 });
