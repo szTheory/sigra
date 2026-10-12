@@ -257,7 +257,7 @@ Validate that the returned artifact's GitHub `workflow_run.id` and `head_sha` ma
 ### Pitfall 6: Twenty pairs are presented as a population guarantee
 
 **What goes wrong:** A nearest-rank p95 from 20 observations is read as a stable tail claim.  
-**Why it happens:** At n=20, nearest-rank p95 selects the maximum; small samples make tails fragile.  
+**Why it happens:** At n=20, nearest-rank p95 selects the 19th sorted value (the second-largest); small samples make tails fragile.
 **How to avoid:** Keep the per-pair list and full outcome/cost frequencies; explicitly say the empirical tail estimate is fragile and apply the existing pass/miss/unknown contract without extending the window. [VERIFIED: `252-CONTEXT.md:43-46`]
 
 ## Environment Availability
@@ -349,7 +349,7 @@ Use OWASP ASVS 5.0 category names; the category numbering changed from older ASV
 
 Before Phase 254 changes CI, freeze Phase 252's exact code/workflow identity and all timing instrumentation. The comparison uses **20 matched pairs / 40 primary invocation families**, full PR workload, matched runner class and cache strata allocated from the baseline, and a single predeclared **48-hour** run window. Record app/workload and workflow revisions separately because workflow changes necessarily change the overall source identity. [VERIFIED: `252-CONTEXT.md:43-46`]
 
-Keep failed/cancelled/non-comparable pair outcomes; do not replace them. Permit one retry only for an independently diagnosed infrastructure-only issue inside the same family; browser/test retries remain zero. Require all comparable successful pairs for a pass; otherwise report insufficient data. Median averages the two center observations for even n; empirical p95 uses nearest rank `ceil(0.95*n)`. At n=20 the nearest-rank p95 is the maximum and must be disclosed as a fragile tail estimate. Do not extend the window after seeing a miss. [VERIFIED: `252-CONTEXT.md:45-46`]
+Keep failed/cancelled/non-comparable pair outcomes; do not replace them. Permit one retry only for an independently diagnosed infrastructure-only issue inside the same family; browser/test retries remain zero. Require all comparable successful pairs for a pass; otherwise report insufficient data. Median averages the two center observations for even n; empirical p95 uses nearest rank `ceil(0.95*n)`. At n=20 the nearest-rank p95 is the 19th sorted value (the second-largest) and must be disclosed as a fragile tail estimate. Do not extend the window after seeing a miss. [VERIFIED: `252-CONTEXT.md:45-46`]
 
 Report successful equivalent-workload required-result wait separately from failures/cancellations/reruns, and compare summed job time over the same workload count and strata. The targets remain 20% lower median wait, no higher empirical p95 wait and no higher total runner time. Target miss or unproved non-increase must remain miss/unknown. [VERIFIED: `.planning/REQUIREMENTS.md:18-19`; `252-CONTEXT.md:43-46`]
 
