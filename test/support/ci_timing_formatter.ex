@@ -21,7 +21,17 @@ defmodule Sigra.Test.CITimingFormatter do
 
   @impl true
   def init(_opts) do
-    {:ok, new_state(System.get_env("SIGRA_EXUNIT_TIMING_JSON"))}
+    path = System.get_env("SIGRA_EXUNIT_TIMING_JSON")
+    state = new_state(path)
+
+    case clear_previous_report(path) do
+      :ok ->
+        {:ok, state}
+
+      {:error, reason} ->
+        report_write_error(reason)
+        {:ok, add_diagnostic(state, "previous_output_unavailable")}
+    end
   end
 
   @impl true
@@ -148,6 +158,16 @@ defmodule Sigra.Test.CITimingFormatter do
   defp add_diagnostic(state, diagnostic),
     do: update_in(state.diagnostics, &[diagnostic | &1])
 
+  defp clear_previous_report(path) when is_binary(path) and path != "" do
+    case File.rm(path) do
+      :ok -> :ok
+      {:error, :enoent} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp clear_previous_report(_path), do: :ok
+
   defp write_report(path, report) when is_binary(path) and path != "" do
     temporary_path = path <> ".tmp." <> Integer.to_string(System.unique_integer([:positive]))
     contents = Jason.encode!(report)
@@ -173,10 +193,17 @@ defmodule Sigra.Test.CITimingFormatter do
   defp write_report(_path, _report), do: report_write_error(:output_path_missing)
 
   defp report_write_error(reason) do
-    IO.puts(
-      :stderr,
-      "SIGRA_EXUNIT_TIMING_JSON: incomplete output (#{:file.format_error(reason)})"
-    )
+    diagnostic =
+      if reason == :output_path_missing, do: "output_path_missing", else: "write_failed"
+
+    message =
+      Jason.encode!(%{
+        complete: false,
+        diagnostic: diagnostic,
+        reason: reason |> :file.format_error() |> List.to_string()
+      })
+
+    IO.puts(:stderr, "SIGRA_EXUNIT_TIMING_JSON: #{message}")
 
     :error
   end
