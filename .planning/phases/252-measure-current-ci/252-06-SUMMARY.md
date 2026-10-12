@@ -17,6 +17,7 @@ key-files:
     - .planning/phases/252-measure-current-ci/252-BASELINE.json
     - .planning/phases/252-measure-current-ci/252-BASELINE.md
     - .planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json
+    - .planning/phases/252-measure-current-ci/252-06-STATE-PRESERVATION.json
   modified:
     - scripts/ci/ci-run-metrics.sh
     - scripts/ci/ci-run-metrics.test.sh
@@ -33,7 +34,7 @@ metrics:
   plan_head_after: fa2d151e50f3d72afc3c29b925d28cce3fa53451
   commits: 20
 actuals:
-  tokens: 8673206
+  tokens: 8676277
   tasks: 3
   commits: 20
 status: complete
@@ -52,6 +53,8 @@ The bounded source bundle now replays into a validated CI baseline, the report d
 | 3. Render a reproducible report with one-command replay instructions | Complete; report names event populations, provenance, costs, unknowns and reproduction commands. | `fa2d151e5` |
 
 The implementation fixes were committed separately: `1c7bd817a`, `8bd4d6392`, `b26243c3a`, `b5d1632e6`, `e40889292`, `a76bfd85c`, `2ecbb09dd`, `eb4615dc3`, `2d548f967`, `0461f3118`, `9e882feab`, `dc7ff1965`, `15248bfba`, `705558fe5`, `34ab7d50b`, `ae864e5dc`, and `b9bb12907`.
+
+The plan-state SDK transition was committed and byte-verified at `2c50a2a213a7ca52f2733e694e4b8bc4a630796f` before the handoff text and next route were curated. File hashes and the preserved bytes' original clean-state hashes are in `252-06-STATE-PRESERVATION.json`.
 
 ## Hosted evidence
 

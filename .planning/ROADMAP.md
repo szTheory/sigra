@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (roadmap approved; implementation not started)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (roadmap approved; Phase 252 plan implementation complete, phase verification pending)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -25,14 +25,14 @@
 
 **Goal:** Make CI faster and more reliable while keeping useful tests and straightforward local reproduction.
 **Requirements:** 9 confirmed; each maps to exactly one phase.
-**Roadmap approval:** User-approved on 2026-10-12. No phase implementation or verification has started.
+**Roadmap approval:** User-approved on 2026-10-12. Phase 252 plan implementation is complete; phase-level verification remains pending.
 **Research:** Broad ecosystem research skipped by the user; the project research default stays unchanged.
 
 The work follows four delivery boundaries: measure current CI, remove the selected flaky failures and protect required checks, optimize the measured costs, then finish the contributor commands and reproducible result report. The existing five browser-test jobs, runtime measurement script, and mix ci are starting points, not work to rebuild automatically.
 
 ## Next
 
-**Next command:** `$gsd-execute-phase 252` — execute six independently checked plans across four waves. Research, pattern mapping and plan review are complete; readiness finds six incomplete plans and no execution blocker. Implementation and phase verification have not started.
+**Next command:** `$gsd-execute-phase 252` — all six implementation plans have summaries; continue through phase-level verification. Requirements remain pending until that verification is recorded. Do not advance to Phase 253 first.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -56,7 +56,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. The baseline and ranked findings can be reproduced with documented commands using the saved inputs; static timeout values or old audit conclusions are not used as runtime measurements.
   4. Before any optimization, the report fixes the comparison workloads, code revisions, cache conditions, runner class, sample sizes, percentile method, and finite collection/rate-limit budget. The 20% median improvement and non-increasing p95/runner-time targets stay unchanged.
 
-**Plans**: 6/6 plans executed across 4 waves (independent plan review passed; four plans and phase-level verification remain)
+**Plans**: 6/6 plans executed across 4 waves (independent plan review passed; phase-level verification remains)
 **Wave 1**
 - [x] 252-01-PLAN.md — Source-bound collection and offline replay
 
@@ -116,7 +116,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 252. Measure Current CI | v1.50 | 6/6 | In Progress; ready to execute | — |
+| 252. Measure Current CI | v1.50 | 6/6 | In Progress; verification pending | — |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 0/TBD | Not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |

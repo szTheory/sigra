@@ -6,9 +6,9 @@ current_phase: 252
 current_phase_name: Measure Current CI
 status: verifying
 stopped_at: Completed 252-06-PLAN.md; phase verification pending
-last_updated: "2026-10-12T21:36:27.655Z"
+last_updated: "2026-10-12T21:38:49Z"
 last_activity: 2026-10-12
-last_activity_desc: Plan 252-05 implementation, offline checks, and hosted-proof handoff completed
+last_activity_desc: Plan 252-06 hosted baseline and report complete; Phase 252 verification remains
 state_head: 68f72acfd440e5ab8f25bfd8693245511921a006
 progress:
   total_phases: 4
@@ -17,7 +17,7 @@ progress:
   completed_plans: 6
   percent: 0
 milestone_status: active
-workflow_step: phase_execution_pending
+workflow_step: phase_verification_pending
 verification_status: not_started
 next_command: $gsd-execute-phase 252
 resume_command: $gsd-execute-phase 252
@@ -38,19 +38,19 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 252 (Measure Current CI) — EXECUTING
+Phase: 252 (Measure Current CI) — VERIFYING
 Plan: 6 of 6
-Status: Phase complete — ready for verification
-Last activity: 2026-10-12 — Plan 252-05 implementation and offline checks completed; Plan 252-06 remains
+Status: Plan implementation complete — phase-level verification pending
+Last activity: 2026-10-12 — Plan 252-06 hosted baseline, archive replay and comparison contract completed
 Progress: [░░░░░░░░░░] 0%
 
 ## Next GSD command
 
 $gsd-execute-phase 252
 
-Execute six plans across four waves. Plans 252-01 through 252-05 implementation and offline checks are complete; Plan 252-06 remains, followed by phase-level verification. The hosted producing-PR artifacts and browser proof are assigned to Plan 252-06. The full `mix ci` run still has six Threadline tests failing outside Plan 252-05's files; details are in `252-05-MIX-CI-DIAGNOSTIC.json`. Research, pattern mapping and independent plan checks are complete. The latest readiness check found no blocked or halted plans and no duplicate threat IDs. All nine requirements remain Pending; phase-level verification has not started.
+All six Phase 252 plan implementations and summaries are complete. Plan 252-06 saved the hosted run, all five passing required checks, the source bundle, the hash-validated baseline and the later comparison contract. The phase-level verification has not started, so all nine requirements remain Pending. Plan 252-05's original Threadline failure was resolved by a forced test-environment compile and its required full `mix ci` rerun passed; see `252-05-INTEGRATION-RECHECK.json` and `252-05-SUMMARY.md`. Research, pattern mapping and independent plan checks are complete.
 
-The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Continue with `$gsd-execute-phase 252`; do not advance to Phase 253 before the remaining Phase 252 plans and phase-level verification.
+The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Continue with `$gsd-execute-phase 252` for the phase-level verification route; do not advance to Phase 253 or mark Phase 252 requirements complete before verification.
 
 ## Known unfinished work
 
@@ -61,7 +61,8 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Evidence
 
-- Phase 252 implementation and checks for Plans 01–05 are complete. Plan 01 evidence: `252-01-SUMMARY.md`, `252-EVIDENCE-PREFLIGHT.json`, and `252-run-family-38144377407-retry1/`. Plan 03 timing evidence: `252-03-SUMMARY.md` and `252-03-EXUNIT-TIMING.json`. Plan 04 Playwright report contract: `252-04-SUMMARY.md`. Plan 05 replay and hosted-proof handoff: `252-05-SUMMARY.md` and `252-05-MIX-CI-DIAGNOSTIC.json`. Plan 06 and phase-level verification remain; phase requirements stay unchecked until verification.
+- Phase 252 Plans 01–06 implementation and checks are complete; phase-level verification remains. Plan 06 evidence: `252-06-SUMMARY.md`, `252-CI-SOURCE-BUNDLE.tar.gz`, `252-BASELINE.json`, `252-BASELINE.md`, and `252-COMPARISON-CONTRACT.json`. Hosted evidence is draft PR #331 and run 38307191464, attempt 2; its five required contexts passed. Plan 05 evidence: `252-05-SUMMARY.md`, `252-05-MIX-CI-DIAGNOSTIC.json`, and `252-05-INTEGRATION-RECHECK.json`. Phase requirements stay unchecked until verification.
+- The exact SDK state transition is preserved and read back at commit `2c50a2a213a7ca52f2733e694e4b8bc4a630796f`, with file hashes in `252-06-STATE-PRESERVATION.json`.
 - Final independent planning check: `252-PLAN-CHECK-03.md`; planning record/checks: `252-PLANNING-RECORD.json`, `252-PLANNING-CHECKS.json`, `252-PLANNING-ROUTING-CHECKS.json`. These are planning checks, not completed phase verification.
 
 - Phase 252 context/log/discovery: `.planning/phases/252-measure-current-ci/252-CONTEXT.md`, `252-DISCUSSION-LOG.md`, `252-DISCUSSION-RECORD.json`; context commit `96611810e2674a7c6318f48f36ae488a35d33c99`.
@@ -105,7 +106,7 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 | Phase 252 P03 | 12min | 2 tasks | 5 files |
 | Phase 252 P04 | 28min | 2 tasks | 3 files |
 | Phase 252 P05 | 32min | 3 tasks | 13 files |
-| Phase 252 P6 | 84 | 3 tasks | 11 files |
+| Phase 252 P6 | 84 | 3 tasks | 12 files |
 
 ## Decisions
 
