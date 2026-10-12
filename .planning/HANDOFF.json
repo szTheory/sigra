@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-12T17:12:51.574828+00:00",
-  "status": "Phase 252 planned and independently checked; ready to execute",
+  "timestamp": "2026-10-12T17:40:27Z",
+  "status": "Plan 252-01 implementation complete; Phase 252 continues with five plans pending.",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Six Phase 252 plans in four waves are committed and independently checked. Implementation and phase verification have not started.",
+  "current": "Plan 252-01 implementation, tests, and preflight evidence are complete. Five plans remain; phase-level verification has not started. CIMEAS-01 and CIMEAS-02 remain Pending.",
   "next_command": "$gsd-execute-phase 252",
   "resume_command": "$gsd-execute-phase 252",
-  "next_action": "Execute the six Phase 252 plans. Preserve approved decisions, limits and current CI topology; no further scope confirmation is needed.",
+  "next_action": "Continue the remaining five Phase 252 plans with $gsd-execute-phase 252. Keep CIMEAS-01 and CIMEAS-02 Pending until phase-level verification.",
   "route": {
     "immediate_gsd_command": "$gsd-execute-phase 252",
     "resume_command": "$gsd-execute-phase 252",
@@ -16,7 +16,7 @@
     "next_roadmap_phase": {
       "number": 252,
       "name": "Measure Current CI",
-      "status": "planned"
+      "status": "in_progress"
     },
     "readiness": {
       "executor_model": "gpt-6-luna",
@@ -45,9 +45,10 @@
         "252-05-PLAN.md",
         "252-06-PLAN.md"
       ],
-      "summaries": [],
+      "summaries": [
+        "252-01-SUMMARY.md"
+      ],
       "incomplete_plans": [
-        "252-01-PLAN.md",
         "252-02-PLAN.md",
         "252-03-PLAN.md",
         "252-04-PLAN.md",
@@ -55,20 +56,19 @@
         "252-06-PLAN.md"
       ],
       "plan_count": 6,
-      "incomplete_count": 6,
+      "incomplete_count": 5,
       "threat_id_duplicates": [],
       "threat_id_duplicate_count": 0,
       "halted_plans": [],
       "blocked_by": {},
       "runnable_plans": [
-        "252-01-PLAN.md",
         "252-02-PLAN.md",
         "252-03-PLAN.md",
         "252-04-PLAN.md",
         "252-05-PLAN.md",
         "252-06-PLAN.md"
       ],
-      "runnable_count": 6,
+      "runnable_count": 5,
       "branch_name": null,
       "milestone_version": "v1.50",
       "milestone_name": "CI-SPEED-AND-RELIABILITY",
@@ -107,7 +107,7 @@
     "requirements_proposal_sha256": "745ff6ea96ebaac131a57422514f1838122185606be9a4e02efed34df8917707",
     "requirements_approved": true,
     "roadmap_approved": true,
-    "implementation_started": false,
+    "implementation_started": true,
     "phase_verification_status": "not_started",
     "dispatch": "Typed phase researcher, pattern mapper, two planner contexts and three independent checker contexts returned terminal results.",
     "requirements_path": ".planning/REQUIREMENTS.md",
@@ -140,7 +140,9 @@
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
     "phase252_wave_count": 4,
-    "phase252_task_count": 15
+    "phase252_task_count": 15,
+    "phase252_completed_plans": 1,
+    "phase252_remaining_plans": 5
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -154,7 +156,8 @@
   },
   "known_unfinished_work": {
     "READY-01": "Original approval, matching readiness/test records, and independently confirmed old report are missing; requirement remains unsatisfied.",
-    "upgrade_guidance": "Published 1.6.0 lacks the guide/link; separately tracked corrective documentation task."
+    "upgrade_guidance": "Published 1.6.0 lacks the guide/link; separately tracked corrective documentation task.",
+    "phase252_revision_source": "Run 38144377407 returned pull_requests: []; its bundle proves one source SHA. Multi-revision timing remains unknown until each revision has retained source data."
   },
   "automatic_recovery_retry_allowed": false,
   "external_actions_performed": false,
@@ -186,7 +189,10 @@
     "phase252_planning_record": ".planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
     "phase252_planning_checks": ".planning/phases/252-measure-current-ci/252-PLANNING-CHECKS.json",
     "phase252_plan_review": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-03.md",
-    "phase252_planning_routing_checks": ".planning/phases/252-measure-current-ci/252-PLANNING-ROUTING-CHECKS.json"
+    "phase252_planning_routing_checks": ".planning/phases/252-measure-current-ci/252-PLANNING-ROUTING-CHECKS.json",
+    "phase252_plan01_summary": ".planning/phases/252-measure-current-ci/252-01-SUMMARY.md",
+    "phase252_preflight": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json",
+    "phase252_run_family": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/manifest.json"
   },
   "preservation": {
     "capture_ref": "d57869d114471921162d453a9db5c75935edea93",
@@ -526,5 +532,5 @@
     "sdk_generated_state_preserved_at": "5218357fd1bcc2bdf0da5319b48040c93ccdbf14",
     "curated_json_state_restored_from": "57ee210f050a90e61b47a9cc8f11b91ba606a459"
   },
-  "resume_file": ".planning/phases/252-measure-current-ci/252-01-PLAN.md"
+  "resume_file": ".planning/phases/252-measure-current-ci/252-02-PLAN.md"
 }
