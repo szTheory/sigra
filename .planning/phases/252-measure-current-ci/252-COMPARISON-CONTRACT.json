@@ -1,16 +1,16 @@
 {
-  "baseline_application_sha": "0e15a5713da5aeeec5a81110970011d76486eae1",
+  "baseline_application_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
   "baseline_identity": {
-    "application_sha": "0e15a5713da5aeeec5a81110970011d76486eae1",
+    "application_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
-    "producer_source_sha": "dc94d895317a91e164aa29d47135710641008814",
-    "run_attempt": 2,
-    "run_id": 38307191464,
-    "run_url": "https://github.com/szTheory/sigra/actions/runs/38307191464",
-    "source_bundle_sha256": "169e5425870bd4486b0c7c6a07a4fd2c938c363fb7c156ffac27f4220f7426f0",
-    "workflow_file_sha256": "d5dcdb22303ed7426fc3d597fa47b5c9401fa80f7a5501fdc472ac01642049f6",
-    "workflow_revision": "0e15a5713da5aeeec5a81110970011d76486eae1",
-    "workload_revision_sha256": "682515c962a366c31e8c6acada380d58294976d8282ca2d7b081d26c530191db"
+    "producer_source_sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+    "run_attempt": 1,
+    "run_id": 38317383419,
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/38317383419",
+    "source_bundle_sha256": "5478c3337881eac2285764d57f35fe103191cb5eea1814fc3dd8b36357758d29",
+    "workflow_file_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+    "workflow_revision": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "workload_revision_sha256": "2f4ece52eb21e9a065a61a943036c88632a2b93b33117db6d992b18b93ca06aa"
   },
   "baseline_runner_image": {
     "arch": "X64",
@@ -19,9 +19,9 @@
     "image_version": "20261004.327.1",
     "os": "Linux"
   },
-  "baseline_workflow_revision": "0e15a5713da5aeeec5a81110970011d76486eae1",
-  "baseline_workflow_sha256": "d5dcdb22303ed7426fc3d597fa47b5c9401fa80f7a5501fdc472ac01642049f6",
-  "baseline_workload_revision_sha256": "682515c962a366c31e8c6acada380d58294976d8282ca2d7b081d26c530191db",
+  "baseline_workflow_revision": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+  "baseline_workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+  "baseline_workload_revision_sha256": "2f4ece52eb21e9a065a61a943036c88632a2b93b33117db6d992b18b93ca06aa",
   "cache_stratum_allocation": [
     {
       "allocation_method": "largest_remainder_from_measured_full_pr_cache_strata",
