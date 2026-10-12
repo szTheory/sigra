@@ -377,6 +377,19 @@ if jq -e '. as $r |
   pass "replay separates rankings, stages, cache, runtime and zero-sample unknowns"
 else fail "replay metrics missing or fabricated: $(jq -c '{ranked_by_wait,ranked_by_runner,stage_costs,cache_outcome,runner_image,configured_versions,observed_versions,reporter_overhead,test_rows,cohorts}' "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
 
+echo "Test V3: current failures stay bounded and one-off red evidence is not called flaky"
+if jq -e '
+  (.failure_analysis.inspected_family_count <= 12) and
+  (all(.failure_analysis.per_event_counts[]; . <= 4)) and
+  ([.failure_analysis.failure_signatures.signatures[]]|length <= 3) and
+  ([.failure_class.application_test_failure[]?|select(.outcome=="failure")]|length == 1) and
+  (.failure_signatures.status == "unknown") and (.diagnostics_status.missing_count > 0) and
+  ([.failure_analysis.failure_signatures.signatures[].references[]?|select(.run_id != null and .attempt != null and .log_reference != null)]|length == 0) and
+  (all(.failure_analysis.families[]; .outcome != "failure" or .failure_class == "application_test_failure" or .failure_class == "unknown_failure"))
+' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null; then
+  pass "failure shortlist inspects at most twelve families, cites current evidence, and reports unknown when diagnostics are incomplete"
+else fail "failure analysis invalid: $(jq -c '{failure_analysis,failure_signatures,failure_class}' "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
+
 echo "Test W: concurrent lock, interruption ledger, and request ceiling are enforced"
 LOCKED_BUNDLE="${TMPDIR_ROOT}/locked-bundle"
 mkdir "${LOCKED_BUNDLE}.lock"
@@ -787,7 +800,7 @@ elif [[ "$url" == https://api.github.com/*/actions/jobs/*/logs ]]; then
 elif [[ "$url" == https://pipelines.actions.githubusercontent.com/* ]]; then
   if [[ "$url" == */job-log/* ]]; then
     printf 'HTTP/1.1 200 OK\r\n\r\n' >"$headers"
-    printf '%s\n' 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' 'password=cleartext' 'https://logs.example/output?sig=SIGNED_LOG_SECRET' >"$output"
+    printf '%s\n' 'Error: expect(received).toBe(expected) at tests/admin/admin-profile.spec.ts:42:5' 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' 'password=cleartext' 'https://logs.example/output?sig=SIGNED_LOG_SECRET' >"$output"
   else
     printf 'HTTP/1.1 200 OK\r\nContent-Length: %s\r\n\r\n' "$(wc -c <"$WINDOW_ARTIFACT_ZIP" | tr -d ' ')" >"$headers"
     cp "$WINDOW_ARTIFACT_ZIP" "$output"

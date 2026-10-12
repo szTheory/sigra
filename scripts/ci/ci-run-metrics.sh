@@ -1016,14 +1016,20 @@ replay_snapshot() {
   done
   result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,window_start_utc,status,stop_reason,request_count,source_sha,populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
   local metrics
-  metrics="$(python3 - "$bundle" <<'PY'
+  metrics="$(python3 - "$bundle" "$ROOT" <<'PY'
 import datetime, hashlib, json, pathlib, re, sys
-root = pathlib.Path(sys.argv[1]); manifest = json.loads((root/'manifest.json').read_text())
+root = pathlib.Path(sys.argv[1]); project = pathlib.Path(sys.argv[2]); manifest = json.loads((root/'manifest.json').read_text())
 events = {'pull_request':'pull_request','push_main':'main','schedule':'nightly'}
 stages = ['setup','cache_restore_download','compile','database_startup','app_boot','test_execution','artifact_upload','other']
 wait_rows={k:[] for k in events.values()}; runner_rows={k:[] for k in events.values()}; stage_values={k:{s:[] for s in stages} for k in events.values()}
 cache={}; images={}; configured={}; observed={}; test_rows=[]; overhead={'playwright':{'status':'unmeasured','overhead_ms':None},'exunit':{'status':'unknown','overhead_us':None}}
-failure_candidates=[]; signature_groups={}; failure_bins={k:[] for k in ['application_test_failure','infrastructure_failure','superseded_cancellation','expected_skip','unexpected_skip','missing_job','unknown_failure']}; missing_diagnostics=[]
+instrumentation_baseline={'exunit':{'status':'unknown','source':'.planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json'}}
+try:
+    baseline=json.loads((project/'.planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json').read_text())
+    if baseline.get('complete') is True:
+        instrumentation_baseline['exunit']={'status':'historical_baseline','source':'.planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json','observed_at_utc':baseline.get('observed_at_utc'),'instrumentation_overhead_us':baseline.get('instrumentation_overhead_us'),'method':baseline.get('overhead_method')}
+except (OSError,ValueError): pass
+failure_candidates=[]; signature_groups={}; failure_bins={k:[] for k in ['application_test_failure','infrastructure_failure','superseded_cancellation','cancellation_unclassified','expected_skip','unexpected_skip','missing_job','unknown_failure']}; missing_diagnostics=[]
 def epoch(v):
     if not v: return None
     try: return datetime.datetime.fromisoformat(v.replace('Z','+00:00')).timestamp()
@@ -1108,7 +1114,7 @@ for item in failures:
         except Exception: pass
     category='unknown_failure'; signature=None
     if conclusion=='skipped': category='expected_skip' if run.get('workload')=='docs_only' or run.get('observed_expected_skip') is True else 'unexpected_skip'
-    elif conclusion=='cancelled': category='superseded_cancellation' if run.get('run_attempt',1)>1 or run.get('updated_at') else 'superseded_cancellation'
+    elif conclusion=='cancelled': category='superseded_cancellation' if run.get('run_attempt',1)>1 or run.get('superseded_by_run_id') else 'cancellation_unclassified'
     elif conclusion in ('timed_out',): category='infrastructure_failure'
     elif not (run.get('attempt_jobs') or {}): category='missing_job'
     elif ref:
@@ -1140,7 +1146,7 @@ image_defaults={'runner_os':None,'runner_arch':None,'image_os':None,'image_versi
 initial_wait={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':r['attempt'],'seconds':r['queue_seconds']} for r in rows]) for k,rows in wait_rows.items()}
 critical_wait={k:rank(rows) for k,rows in wait_rows.items()}
 job_execution={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':r['attempt'],'job_id':r['job_id'],'seconds':r['seconds']} for r in rows]) for k,rows in runner_rows.items()}
-out={'ranked_by_wait':{k:rank(v) for k,v in wait_rows.items()},'ranked_by_runner':{k:rank(v) for k,v in runner_rows.items()},'initial_wait':initial_wait,'critical_path_wait':critical_wait,'job_execution':job_execution,'dag_dependency_gaps':{k:{'status':'unknown','n':0,'reason':'dependency_edges_not_exposed_by_saved_job_api'} for k in events.values()},'stage_costs':{k:{s:result(v,'seconds') for s,v in values.items()} for k,values in stage_values.items()},'cache_outcome':cache or {'library_deps':'unknown','example_deps':'unknown','browser_binaries':'unknown'},'runner_image':{k:images.get(k,image_defaults) for k in events.values()},'configured_versions':{k:configured.get(k,configured_defaults) for k in events.values()},'observed_versions':{k:observed.get(k,observed_defaults) for k in events.values()},'test_rows':sorted(test_rows,key=lambda r:r['identity']),'reporter_overhead':overhead,'cohorts':cohorts,'failure_analysis':failure_analysis,'failure_signatures':failure_analysis['failure_signatures'],'diagnostics_status':failure_analysis['diagnostics_status'],'failure_class':failure_bins}
+out={'ranked_by_wait':{k:rank(v) for k,v in wait_rows.items()},'ranked_by_runner':{k:rank(v) for k,v in runner_rows.items()},'initial_wait':initial_wait,'critical_path_wait':critical_wait,'job_execution':job_execution,'dag_dependency_gaps':{k:{'status':'unknown','n':0,'reason':'dependency_edges_not_exposed_by_saved_job_api'} for k in events.values()},'stage_costs':{k:{s:result(v,'seconds') for s,v in values.items()} for k,values in stage_values.items()},'cache_outcome':cache or {'library_deps':'unknown','example_deps':'unknown','browser_binaries':'unknown'},'runner_image':{k:images.get(k,image_defaults) for k in events.values()},'configured_versions':{k:configured.get(k,configured_defaults) for k in events.values()},'observed_versions':{k:observed.get(k,observed_defaults) for k in events.values()},'test_rows':sorted(test_rows,key=lambda r:r['identity']),'reporter_overhead':overhead,'instrumentation_baseline':instrumentation_baseline,'cohorts':cohorts,'failure_analysis':failure_analysis,'failure_signatures':failure_analysis['failure_signatures'],'diagnostics_status':failure_analysis['diagnostics_status'],'failure_class':failure_bins}
 print(json.dumps(out,separators=(',',':')))
 PY
 )" || fail replay_metrics_unavailable
