@@ -231,17 +231,17 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
 | 250. Close v1.49 audit gaps | v1.49 | 9/9 active plans (4 superseded) | Complete under amended phase-only contract; milestone remains incomplete | 2026-10-11 |
-| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 7/7 | Gap plans verified; execution pending; phase verification gaps_found | — |
+| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 7/7 | Executed; verification gaps_found 9/10 | — |
 
 ### Next
 
-Phase 251 gap planning passed independent review: five new plans (03–07), 12 pending tasks in four remaining waves. Plans 01/02 are complete. Latest phase verification remains gaps_found (2/4), READY-01/02 remain unsatisfied, and the strict v1.49 audit remains 7/9 and incomplete. The original READY acceptance bars and Phase 250 historical exception scope remain unchanged.
+All seven Phase 251 plans are implemented; five gap plans and 12 tasks are complete. Fresh verification remains gaps_found (9/10): READY-02 is satisfied, READY-01 is unsatisfied; strict v1.49 audit is 8/9 and incomplete.
 
-**Immediate GSD command:** `$gsd-execute-phase 251 --gaps-only`. `init.execute-phase 251` confirms exactly five unfinished gap plans, no prerequisite blockers, and no duplicate threat IDs. Completed Plans 01/02 are excluded. The current roadmap ends at Phase 251; CI/CD runtime and reliability work remains a separate follow-up after v1.49.
+**Immediate GSD command:** `$gsd-plan-phase 251 --gaps`. The fresh verification owner routes to plan-phase. `init.plan-phase 251` reports Executed with seven plans, complete context and research. The roadmap ends at Phase 251; no next phase is inferred. CI/CD optimization remains separate future work.
 
 ### Phase 251: Close READY-01 and READY-02 release readiness gaps
 
-Plan 02 summary: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-SUMMARY.md (SHA-256 f7c0d17043f9886ef0845ba23f448f8b59c77f50b00b28054754207cba82c688). Current packet: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json (SHA-256 36bbf3514b15d50cdf9bbc05062ca2c9a125771ec8c882a757143e59345349df). Current strict audit: gaps_found at 7/9; READY-01 and READY-02 remain unsatisfied.
+Current packet: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json (SHA-256 fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140). Fresh phase verification: gaps_found 9/10. Current strict audit: gaps_found at 8/9; READY-02 satisfied, READY-01 unsatisfied. Plans 01–07 are implemented.
 
 **Goal:** Reconcile the two outstanding release-readiness requirements against their original evidence bars and refresh the Phase 247 owner verdicts without expanding release-action scope.
 **Requirements**: READY-01, READY-02
@@ -274,4 +274,4 @@ Plans:
 **Wave 6** *(blocked on Waves 3–5 completion)*
 - [x] 251-07-PLAN.md — Reconcile Phase 247 ownership, strict audit, review findings, and pending validation.
 
-Gap planning evidence: `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-OUTCOME.json`. Independent plan verification passed after one revision. Current phase validation is pending (`nyquist_compliant: false`); all 12 new tasks require execution evidence. Phase verification remains `gaps_found`; planning does not satisfy READY-01/02.
+Gap execution evidence: `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json`. All 12 gap tasks have automatic proof; current validation is validated and Nyquist-compliant. Phase verification remains gaps_found 9/10 because original READY-01 evidence is missing; the milestone is incomplete at 8/9.

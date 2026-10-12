@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 — RELEASE-1.6.0",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
   "phases": [
     {
       "number": "246",
@@ -31,13 +31,22 @@
     {
       "number": "251",
       "name": "Close READY-01 and READY-02 release readiness gaps",
-      "status": "pending"
+      "status": "in_progress",
+      "execution_status": "complete",
+      "plans_complete": 7,
+      "plans_total": 7,
+      "gap_tasks_complete": 12,
+      "gap_tasks_total": 12,
+      "verification_status": "gaps_found",
+      "verification_score": "9/10",
+      "validation_status": "validated",
+      "gap_execution_outcome": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json"
     }
   ],
   "next": {
-    "command": "/gsd:progress",
-    "label": "Show progress",
-    "reason": "Unsure of state — showing progress"
+    "command": "$gsd-plan-phase 251 --gaps",
+    "label": "Plan remaining Phase 251 evidence gap",
+    "reason": "Implementation is complete; READY-01 still fails its original evidence bar. Original owner route is plan-phase, current phase has context/research, and no later roadmap phase exists."
   },
-  "updated_at": "2026-10-11T22:06:53.971Z"
+  "updated_at": "2026-10-12T01:32:06.846922+00:00"
 }
