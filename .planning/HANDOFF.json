@@ -1,33 +1,101 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-12T16:13:46.589917+00:00",
-  "status": "Phase 252 context confirmed; ready for planning",
+  "timestamp": "2026-10-12T17:12:51.574828+00:00",
+  "status": "Phase 252 planned and independently checked; ready to execute",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Phase 252 measurement decisions are confirmed and committed. No implementation or phase verification has started.",
-  "next_command": "$gsd-plan-phase 252",
-  "resume_command": "$gsd-plan-phase 252",
-  "next_action": "Plan Phase 252 from its confirmed context. Do not repeat scope, roadmap or measurement-default confirmation.",
+  "current": "Six Phase 252 plans in four waves are committed and independently checked. Implementation and phase verification have not started.",
+  "next_command": "$gsd-execute-phase 252",
+  "resume_command": "$gsd-execute-phase 252",
+  "next_action": "Execute the six Phase 252 plans. Preserve approved decisions, limits and current CI topology; no further scope confirmation is needed.",
   "route": {
-    "immediate_gsd_command": "$gsd-plan-phase 252",
-    "resume_command": "$gsd-plan-phase 252",
+    "immediate_gsd_command": "$gsd-execute-phase 252",
+    "resume_command": "$gsd-execute-phase 252",
     "next_phase_number": 252,
     "next_roadmap_phase": {
       "number": 252,
       "name": "Measure Current CI",
-      "status": "pending"
+      "status": "planned"
     },
     "readiness": {
+      "executor_model": "gpt-6-luna",
+      "verifier_model": "gpt-6-luna",
+      "tdd_mode": false,
+      "commit_docs": true,
+      "sub_repos": [],
+      "parallelization": true,
+      "context_window": 200000,
+      "branching_strategy": "none",
+      "phase_branch_template": "gsd/phase-{phase}-{slug}",
+      "milestone_branch_template": "gsd/{milestone}-{slug}",
+      "verifier_enabled": true,
       "phase_found": true,
+      "phase_dir": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci",
       "phase_number": "252",
-      "phase_name": "measure-current-ci",
-      "phase_status": "Pending",
-      "has_context": true,
-      "has_research": false,
-      "has_plans": false,
-      "plan_count": 0,
-      "prior_verify_commands": []
+      "padded_phase": "252",
+      "phase_name": "Measure Current CI",
+      "phase_slug": "measure-current-ci",
+      "phase_req_ids": "CIMEAS-01, CIMEAS-02",
+      "plans": [
+        "252-01-PLAN.md",
+        "252-02-PLAN.md",
+        "252-03-PLAN.md",
+        "252-04-PLAN.md",
+        "252-05-PLAN.md",
+        "252-06-PLAN.md"
+      ],
+      "summaries": [],
+      "incomplete_plans": [
+        "252-01-PLAN.md",
+        "252-02-PLAN.md",
+        "252-03-PLAN.md",
+        "252-04-PLAN.md",
+        "252-05-PLAN.md",
+        "252-06-PLAN.md"
+      ],
+      "plan_count": 6,
+      "incomplete_count": 6,
+      "threat_id_duplicates": [],
+      "threat_id_duplicate_count": 0,
+      "halted_plans": [],
+      "blocked_by": {},
+      "runnable_plans": [
+        "252-01-PLAN.md",
+        "252-02-PLAN.md",
+        "252-03-PLAN.md",
+        "252-04-PLAN.md",
+        "252-05-PLAN.md",
+        "252-06-PLAN.md"
+      ],
+      "runnable_count": 6,
+      "branch_name": null,
+      "milestone_version": "v1.50",
+      "milestone_name": "CI-SPEED-AND-RELIABILITY",
+      "milestone_slug": "ci-speed-and-reliability",
+      "state_exists": true,
+      "roadmap_exists": true,
+      "config_exists": true,
+      "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+      "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+      "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+      "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+      "section_manifest": {
+        "workflow": "execute-phase",
+        "included": [],
+        "excluded": [
+          "partial-wave",
+          "gap-closure-artifacts",
+          "regression-gate"
+        ],
+        "read": []
+      },
+      "project_root": "/Users/jon/projects/sigra",
+      "agents_installed": true,
+      "missing_agents": [],
+      "agents_dir": "/Users/jon/.codex/agents",
+      "agent_runtime": "codex",
+      "project_title": "Sigra"
     },
     "historical_verification_is_forward_blocker": false
   },
@@ -41,7 +109,7 @@
     "roadmap_approved": true,
     "implementation_started": false,
     "phase_verification_status": "not_started",
-    "dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
+    "dispatch": "Typed phase researcher, pattern mapper, two planner contexts and three independent checker contexts returned terminal results.",
     "requirements_path": ".planning/REQUIREMENTS.md",
     "requirements_commit": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
     "roadmap_path": ".planning/ROADMAP.md",
@@ -52,7 +120,7 @@
       254,
       255
     ],
-    "next_required_gate": "Phase 252 planning",
+    "next_required_gate": "Phase 252 execution",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -67,7 +135,12 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "phase_planning"
+    "workflow_step": "phase_execution_pending",
+    "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
+    "phase252_planning_status": "passed",
+    "phase252_plan_count": 6,
+    "phase252_wave_count": 4,
+    "phase252_task_count": 15
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -109,7 +182,11 @@
     "phase252_discussion_record": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
     "phase252_discussion_checks": ".planning/phases/252-measure-current-ci/252-DISCUSSION-CHECKS.json",
     "phase252_source_manifest": ".planning/phases/252-measure-current-ci/discussion-sources/manifest.json",
-    "phase252_routing_checks": ".planning/phases/252-measure-current-ci/252-ROUTING-CHECKS.json"
+    "phase252_routing_checks": ".planning/phases/252-measure-current-ci/252-ROUTING-CHECKS.json",
+    "phase252_planning_record": ".planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
+    "phase252_planning_checks": ".planning/phases/252-measure-current-ci/252-PLANNING-CHECKS.json",
+    "phase252_plan_review": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-03.md",
+    "phase252_planning_routing_checks": ".planning/phases/252-measure-current-ci/252-PLANNING-ROUTING-CHECKS.json"
   },
   "preservation": {
     "capture_ref": "d57869d114471921162d453a9db5c75935edea93",
@@ -392,7 +469,62 @@
           "git_readback_exact": true
         }
       ]
-    }
+    },
+    "before_phase252_execution_route": {
+      "ref": "e94f63f25269def2d381ffc9627c84439562bf71",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "sha256": "8042dab314985d5ad990e4e85fba8cf14526a7037778d669d3f13626db4c92dc",
+          "bytes": 5628,
+          "status": "clean",
+          "recoverable_ref": "e94f63f25269def2d381ffc9627c84439562bf71",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/state.json",
+          "sha256": "7d96adb999eb652e3984afdb7504ca35331489555aeea5e3880b2ae2fae2b3a8",
+          "bytes": 781,
+          "status": "clean",
+          "recoverable_ref": "e94f63f25269def2d381ffc9627c84439562bf71",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "sha256": "8a12b6687c65fd6842aa8c62f71048fd05b3fc4dacf49704178918d542daa9a5",
+          "bytes": 16552,
+          "status": "clean",
+          "recoverable_ref": "e94f63f25269def2d381ffc9627c84439562bf71",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/PROJECT.md",
+          "sha256": "4f63d0e7a1407bf7d553b602c1160bd2d72e1087160d4294acaf0a963f1b37d1",
+          "bytes": 197440,
+          "status": "clean",
+          "recoverable_ref": "e94f63f25269def2d381ffc9627c84439562bf71",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/v1.50-START.json",
+          "sha256": "964e2237b1c31d1dd4574bc3071c4ba93c836be7e77537898a3cf5acc95e5b4f",
+          "bytes": 12198,
+          "status": "clean",
+          "recoverable_ref": "e94f63f25269def2d381ffc9627c84439562bf71",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
+          "sha256": "d66ca0016e17eaf1bc0422853d480aba30c3923eb837de3e08789eb5afbbba45",
+          "bytes": 19684,
+          "status": "clean",
+          "recoverable_ref": "e94f63f25269def2d381ffc9627c84439562bf71",
+          "git_readback_exact": true
+        }
+      ]
+    },
+    "sdk_generated_state_preserved_at": "5218357fd1bcc2bdf0da5319b48040c93ccdbf14",
+    "curated_json_state_restored_from": "57ee210f050a90e61b47a9cc8f11b91ba606a459"
   },
-  "resume_file": ".planning/phases/252-measure-current-ci/252-CONTEXT.md"
+  "resume_file": ".planning/phases/252-measure-current-ci/252-01-PLAN.md"
 }

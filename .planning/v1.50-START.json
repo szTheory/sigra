@@ -105,9 +105,9 @@
     "latest_completed_milestone_from_runtime": "v1.47",
     "phase_numbering_authority": ".planning/milestones/v1.49-ROADMAP.md ends at 251; closed-with-known-gaps v1.49 is newer than runtime latest_completed_milestone v1.47."
   },
-  "pending_workflow_gate": "Phase 252 planning",
-  "next_command": "$gsd-plan-phase 252",
-  "next_action": "Plan Phase 252 from the confirmed context; implementation and verification remain pending.",
+  "pending_workflow_gate": "Phase 252 execution",
+  "next_command": "$gsd-execute-phase 252",
+  "next_action": "Execute six independently checked Phase 252 plans; implementation and phase verification have not started.",
   "milestone_start_commit": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
   "continuation_prewrite": {
     "ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
@@ -154,17 +154,85 @@
     "approved": true
   },
   "next_readiness": {
+    "executor_model": "gpt-6-luna",
+    "verifier_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "commit_docs": true,
+    "sub_repos": [],
+    "parallelization": true,
+    "context_window": 200000,
+    "branching_strategy": "none",
+    "phase_branch_template": "gsd/phase-{phase}-{slug}",
+    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "verifier_enabled": true,
     "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci",
     "phase_number": "252",
-    "phase_name": "measure-current-ci",
-    "phase_status": "Pending",
-    "has_context": true,
-    "has_research": false,
-    "has_plans": false,
-    "plan_count": 0,
-    "prior_verify_commands": []
+    "padded_phase": "252",
+    "phase_name": "Measure Current CI",
+    "phase_slug": "measure-current-ci",
+    "phase_req_ids": "CIMEAS-01, CIMEAS-02",
+    "plans": [
+      "252-01-PLAN.md",
+      "252-02-PLAN.md",
+      "252-03-PLAN.md",
+      "252-04-PLAN.md",
+      "252-05-PLAN.md",
+      "252-06-PLAN.md"
+    ],
+    "summaries": [],
+    "incomplete_plans": [
+      "252-01-PLAN.md",
+      "252-02-PLAN.md",
+      "252-03-PLAN.md",
+      "252-04-PLAN.md",
+      "252-05-PLAN.md",
+      "252-06-PLAN.md"
+    ],
+    "plan_count": 6,
+    "incomplete_count": 6,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "halted_plans": [],
+    "blocked_by": {},
+    "runnable_plans": [
+      "252-01-PLAN.md",
+      "252-02-PLAN.md",
+      "252-03-PLAN.md",
+      "252-04-PLAN.md",
+      "252-05-PLAN.md",
+      "252-06-PLAN.md"
+    ],
+    "runnable_count": 6,
+    "branch_name": null,
+    "milestone_version": "v1.50",
+    "milestone_name": "CI-SPEED-AND-RELIABILITY",
+    "milestone_slug": "ci-speed-and-reliability",
+    "state_exists": true,
+    "roadmap_exists": true,
+    "config_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "section_manifest": {
+      "workflow": "execute-phase",
+      "included": [],
+      "excluded": [
+        "partial-wave",
+        "gap-closure-artifacts",
+        "regression-gate"
+      ],
+      "read": []
+    },
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
   },
-  "workflow_step": "phase_planning",
+  "workflow_step": "phase_execution_pending",
   "dispatch": "Inline; user has not requested subagents.",
   "requirements_confirmation": {
     "user_response": "1",
@@ -333,5 +401,16 @@
     "context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
     "record": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
     "recorded_at": "2026-10-12T16:13:46.589917+00:00"
+  },
+  "phase252_planning": {
+    "status": "passed",
+    "record": ".planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
+    "review": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-03.md",
+    "plans": 6,
+    "tasks": 15,
+    "waves": 4,
+    "recorded_at": "2026-10-12T17:12:51.574828+00:00",
+    "implementation_status": "not_started",
+    "phase_verification_status": "not_started"
   }
 }

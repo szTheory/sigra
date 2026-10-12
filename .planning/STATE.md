@@ -5,11 +5,11 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 252
 current_phase_name: Measure Current CI
 status: planning
-stopped_at: Phase 252 context gathered (assumptions mode); next $gsd-plan-phase 252
-last_updated: "2026-10-12T17:10:09.620Z"
+stopped_at: Phase 252 planned and independently checked; next $gsd-execute-phase 252
+last_updated: "2026-10-12T17:12:51.574828+00:00"
 last_activity: 2026-10-12
-last_activity_desc: Nine requirements and four-phase roadmap approved
-state_head: 57ee210f050a90e61b47a9cc8f11b91ba606a459
+last_activity_desc: Phase 252 six-plan execution contract independently checked
+state_head: e94f63f25269def2d381ffc9627c84439562bf71
 progress:
   total_phases: 4
   completed_phases: 0
@@ -17,10 +17,10 @@ progress:
   completed_plans: 0
   percent: 0
 milestone_status: active
-workflow_step: phase_planning
+workflow_step: phase_execution_pending
 verification_status: not_started
-next_command: $gsd-plan-phase 252
-resume_command: $gsd-plan-phase 252
+next_command: $gsd-execute-phase 252
+resume_command: $gsd-execute-phase 252
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -39,16 +39,16 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 252 (Measure Current CI) — READY TO EXECUTE
-Plan: —
-Status: Phase 252 context confirmed and committed; ready for planning
-Last activity: 2026-10-12 — Phase 252 measurement decisions confirmed and context committed
+Plan: 01 of 6 (not started)
+Status: Phase 252 planned and independently checked; ready to execute
+Last activity: 2026-10-12 — Six plans in four waves passed independent plan review
 Progress: [░░░░░░░░░░] 0%
 
 ## Next GSD command
 
-$gsd-plan-phase 252
+$gsd-execute-phase 252
 
-Create the Phase 252 plan from its confirmed context. Readiness finds the context, no research or plans, and no prerequisite verification commands. All nine milestone requirements remain Pending; no implementation or phase verification has started.
+Execute six plans across four waves. Research, pattern mapping and independent plan checks are complete. Execution readiness finds six incomplete plans, no blocked or halted plans and no duplicate threat IDs. All nine requirements remain Pending; implementation and phase verification have not started.
 
 The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Phase implementation and verification have not started.
 
@@ -60,6 +60,9 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 - Unrelated backlog and quick tasks remain open; none was silently marked complete.
 
 ## Evidence
+
+- Phase 252 six-plan contract and research: `252-01-PLAN.md` through `252-06-PLAN.md`, `252-RESEARCH.md`, `252-PATTERNS.md`, `252-VALIDATION.md` (draft; execution pending).
+- Final independent planning check: `252-PLAN-CHECK-03.md`; planning record/checks: `252-PLANNING-RECORD.json`, `252-PLANNING-CHECKS.json`, `252-PLANNING-ROUTING-CHECKS.json`. These are planning checks, not completed phase verification.
 
 - Phase 252 context/log/discovery: `.planning/phases/252-measure-current-ci/252-CONTEXT.md`, `252-DISCUSSION-LOG.md`, `252-DISCUSSION-RECORD.json`; context commit `96611810e2674a7c6318f48f36ae488a35d33c99`.
 - Phase 252 artifact checks: `252-DISCUSSION-CHECKS.json`; final routing checks: `252-ROUTING-CHECKS.json`. Discovery is not phase acceptance.
@@ -80,9 +83,9 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T16:11:34.476Z
-**Stopped at:** Phase 252 context gathered (assumptions mode); next $gsd-plan-phase 252
-**Resume file:** .planning/phases/252-measure-current-ci/252-CONTEXT.md
+**Last session:** 2026-10-12T17:12:51.574828+00:00
+**Stopped at:** Phase 252 planned and independently checked; next $gsd-execute-phase 252
+**Resume file:** .planning/phases/252-measure-current-ci/252-01-PLAN.md
 
 ## Deferred Items
 
