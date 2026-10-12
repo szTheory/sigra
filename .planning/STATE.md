@@ -1,96 +1,70 @@
 ---
 gsd_state_version: "1.0"
+status: between_milestones
 milestone: v1.49
 milestone_name: RELEASE-1.6.0
-status: Awaiting next milestone
-stopped_at: Phase 251 context confirmed; implementation complete, verification incomplete; no automatic retry
-last_updated: "2026-10-12T13:24:14.990Z"
-last_activity: 2026-10-12
-last_activity_desc: Milestone v1.49 completed and archived
-state_head: 13cb1e0de2effac476b979fe4c89151812a6d156
-progress:
-  total_phases: 6
-  completed_phases: 4
-  total_plans: 47
-  completed_plans: 47
-  percent: 67
+milestone_status: closed_with_known_gaps
+closeout_type: override_closeout
 verification_status: gaps_found
-next_command: $gsd-plan-phase 251 --gaps
-next_command_conditional: true
-resume_command: $gsd-plan-phase 251 --gaps
-resume_condition: newly identified independently trusted original source
-automatic_next_command: null
+next_command: $gsd-new-milestone
+resume_command: $gsd-new-milestone
+next_command_conditional: false
 automatic_retry_allowed: false
-current_phase: 251
-current_phase_name: Close READY-01 and READY-02 release readiness gaps
-current_plan: 07
+last_updated: "2026-10-12T13:30:59.683141+00:00"
+state_head: f20381132082360c3fbf5ea2c2dd3068c930e15b
 ---
 
 # Project State
 
+## Project Reference
+
+See: `.planning/PROJECT.md` (updated 2026-10-12).
+
+**Core value:** Authentication that works out of the box, with a clear path for Phoenix adopters.
+**Current focus:** Define the next milestone for CI speed and reliability.
+
 ## Current position
 
-Phase: Milestone v1.49 complete
-Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-10-12 — Milestone v1.49 completed and archived
+v1.49 is closed with one known failed readiness check. All 47 active plans across six phases have summaries. Phase 251 implemented all seven plans and 12 gap tasks; its verification remains `gaps_found` at 9/10. The strict milestone audit remains 8/9, with READY-01 unfinished and READY-02 satisfied.
 
-## Current evidence
+The user instructed us to move forward because they cannot produce the missing old records. This authorizes closing the planning cycle with the failure recorded. It does not supply the original approval, satisfy READY-01, or authorize a new package release.
 
-- Confirmed discussion: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md (D-07–D-10) and .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json; prior context, log, and tracking bytes read back at 5d4b2638d1ff42a3228953cede17f8aed1bd4046.
-
-- Gap replanning diagnostic: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json; committed 8168b76c33bdeb70a34c42827f08eec1a5fde71c; independent checker confirms no new compliant plan.
-- Fresh planning checks and capture: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CHECKS.json and 251-GAP-REPLANNING-CAPTURE.json. Prior tracking bytes are verified against fe1ec63b978cf732b113dcb407d3a6a395b79245.
-
-- Gap execution outcome and exact prior tracking refs: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json (SHA-256 0e482a6b372e5e144d11f6b9be59296a83ec663a8d0d7a94b74d5977b946f56d)
-- Fresh phase verification: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md; gaps_found 9/10; fingerprint v3:sha256:0d9e4b443bf929d1ed74b2cf6b5089c4e03e7acedfa6b283614e846e734fc618
-- Current owner report: .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md (SHA-256 4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c)
-- Current packet: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json (SHA-256 fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140)
-- Strict audit: .planning/v1.49-MILESTONE-AUDIT.md (SHA-256 e074f01d1974753cb0705f7163730b427d397c0c5806f67d177e44de0ca3722c); 8/9, incomplete
-- Scoped regression logs and command identities: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-RESULT.json
-- Final security proof: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-CLOSEOUT-CHECKS.json
-- Clean review and fixed ledger: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW.md and 251-REVIEW-DISPOSITION.md
-- Prior STATE/HANDOFF/roadmap bytes read back at 200e28ba75ff46f093959c80b9e0d90ad75e8448; earlier recovery refs remain in the outcome and historical handoff.
+The missing upgrade guide and README link are a separate corrective documentation task. Historical approval/readiness failures do not block planning new work, and the exhausted searches must not repeat automatically.
 
 ## Next GSD command
 
-**Automatic next command:** None.
+$gsd-new-milestone
 
-**Conditional command:** `$gsd-plan-phase 251 --gaps`
+Start the previously queued CI runtime and reliability work. No Phase 252 is on the roadmap yet; `init.plan-phase 252` reports `phase_found=false`. The next milestone defines its requirements and phases. Historical failed/stale verification reports are maintenance records, not prerequisites to starting that planning.
 
-Only after a newly identified independently trusted pre-existing original evidence source is supplied; a finite source-ready delta is required. No automatic retry.
+## Known unfinished work
 
-User confirmed exhausted recovery: implementation complete, verification incomplete. No new trusted historical source or separately authorized prospective scope exists. `init.plan-phase 251` reports Executed with seven plans and complete context/research; this is orchestration readiness, not proof of new historical evidence. The roadmap ends at Phase 251. Prospective repair requires separate explicit scope; none was authorized.
+- READY-01: no original approval was found for the exact code and checks used to prepare the release; saved readiness/test receipts name different code, and the old owner report could not be confirmed from its original GitHub record. The archived requirement remains unchecked.
+- Published 1.6.0 lacks its upgrade guide and README link. See `.planning/todos/pending/2026-10-12-add-missing-v16-upgrade-guidance.md`.
+- Phase 246's report is stale, and GSD's parser reports Phase 247's legacy report missing even though the source-derived checker reads it. These are recorded verification overrides, not passes.
+- Unrelated backlog and quick tasks remain open; none was silently marked complete.
 
-## Blockers
+## Evidence
 
-- READY-01 historical owner report is locally readable but not independently trusted from authoritative 422/404 source lookup.
-- READY-01 complete contemporaneous review history has no exact-candidate approval.
-- READY-01 saved readiness and authenticated dry-run evidence identify a different candidate.
-- READY-01 immutable published v1.6.0 source lacks the upgrade guide and README guide link.
+- Decision: `.planning/milestones/v1.49-CLOSEOUT-DECISION.json`.
+- Strict audit: `.planning/milestones/v1.49-MILESTONE-AUDIT.md` — original bytes retained; `gaps_found`, 8/9.
+- Requirement archive: `.planning/milestones/v1.49-REQUIREMENTS.md` — READY-01 unchecked, READY-02 checked.
+- Owner report: `.planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md`.
+- Phase 251 report: `.planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md` — `gaps_found`, 9/10.
+- Archive mapping and exact byte checks: `.planning/milestones/v1.49-ARCHIVE-MANIFEST.json`.
+- Original context, log, state, and handoff remain recoverable at their recorded commits. Before this final rewrite, all nine target files were read back exactly from `f20381132082360c3fbf5ea2c2dd3068c930e15b`.
 
 ## Session
 
-**Last session:** 2026-10-12T12:59:20.276Z
-**Stopped at:** Phase 251 context confirmed; implementation complete, verification incomplete; no automatic retry
-**Resume file:** .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md
+**Last session:** 2026-10-12T13:30:59.683141+00:00
+**Stopped at:** v1.49 closed with known READY-01 failure; ready for next milestone.
+**Resume file:** .planning/PROJECT.md
 
-## Performance Metrics
+## Deferred Items
 
-| Plan | Duration | Tasks | Files |
-|------|----------|-------|-------|
-| Phase 251 P01 | 12m | 3 tasks | 8 files |
-| Phase 251 P02 | 32m | 2 tasks | 5 files |
+| Category | Item | Status | Deferred At | Milestone |
+|----------|------|--------|-------------|-----------|
+| verification_gaps | 251/251-VERIFICATION.md | gaps_found; accepted for moving on, not passed | 2026-10-12 | v1.49 |
+| verification_gaps | 251/251-VERIFICATION-PRESERVED-20261011T2129Z.md | historical gaps_found; accepted for moving on, not passed | 2026-10-12 | v1.49 |
 
-## Decisions
-
-- Each READY requirement follows its own original Phase 247 acceptance bar; READY-02 is proven independently of READY-01.
-- Later authorization cannot replace missing contemporaneous exact-tuple approval.
-- Current source audit and owner proof drive requirement checkboxes; Phase 250 exceptions do not substitute for READY evidence.
-- Preserve exact dirty planning revisions before replacement, with durable refs and verified byte read-back.
-
-- User confirmed no automatic retry; any prospective correction requires separately authorized scope.
-
-## Operator Next Steps
-
-- Start the next milestone with $gsd-new-milestone
+Two current records were acknowledged through the audit writer; 52 earlier acknowledgments remain. Thirty unrelated open items were retained, and the new upgrade-guide task remains open. The full inventories are in the closeout records.

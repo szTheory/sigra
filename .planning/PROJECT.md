@@ -22,6 +22,21 @@ scope, requires unavailable credentials, creates an unapproved external or mater
 side effect, changes a security or public-contract decision, or leaves uncertainty that automation
 cannot resolve.
 
+## Current Milestone: None — preparing CI speed and reliability work
+
+v1.49 RELEASE-1.6.0 is closed with one known failed readiness check (2026-10-12). The release is already published. All 47 active implementation plans have summaries, and the strict audit proves 8/9 requirements. READY-01 stays unfinished; missing old approval/test records do not block the next milestone. See `.planning/milestones/v1.49-CLOSEOUT.md`.
+
+**Next command:** `$gsd-new-milestone`. The previously queued goal is to make CI faster and more reliable; measure its current behavior and define the fixes during the new milestone. Keep the missing 1.6 upgrade guide as a separately scoped documentation task. No new product feature or package release is started by this closeout.
+
+## Current State (2026-10-12)
+
+The planning cycle for Phases 246–251 is archived. The original phase reports and 8/9 audit remain unchanged in the archive; this is an explicitly user-authorized closeout with known gaps, not a claim that every acceptance check passed. Phase 251 implemented seven plans and 12 gap tasks, while verification remains 9/10.
+
+Use plain English with the user. Name the missing approval, test record, or guide directly instead of phrases such as “new trusted historical evidence.” Do not ask the user to produce records the automated recovery could not find.
+
+<details>
+<summary>v1.49 original scope and release target (historical)</summary>
+
 ## Current Milestone: v1.49 RELEASE-1.6.0
 
 **Goal:** Ship Sigra 1.6.0 from reviewed, exactly tested source, with an accurate adopter upgrade path,
@@ -39,6 +54,8 @@ green main CI, clean worktrees, triaged open PRs, and durable package-to-source 
 
 **Package version choice:** The user delegated the version decision. Use the existing protected-main
 Release Please PR #224 proposing 1.6.0; the GSD milestone version remains v1.49.
+
+</details>
 
 ## Archived Milestone Context: v1.48 CLEAN-BASELINE (opened 2026-09-15; closed 2026-10-05)
 
@@ -94,7 +111,7 @@ intended *next* milestone), admin/operator-UI iteration, pruning `.planning/` ou
 BFG/filter-repo history slimming (the 645M `.git` is acknowledged and deliberately untouched),
 and any new feature work.
 
-## Current State (2026-10-06)
+## Previous State (2026-10-06)
 
 **v1.48 CLEAN-BASELINE is archived as an internal override closeout.** It advanced the generated-
 admin flake fix, release-tag namespace cleanup, adopter-surface ratchets, queue triage, and
@@ -759,6 +776,17 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Validated — v1.49 RELEASE-1.6.0 (closed with known gaps)
+
+- ✓ **CONF-01, CONF-02, CONF-03:** Generated confirmation, pasted spaced codes, and visible feedback proved by the archived owner/CI records.
+- ✓ **READY-02:** Complete captured PR and inherited-work decisions with readable preserved copies.
+- ✓ **AUTO-01, AUTO-02:** Exact tested release source and retained success/failure/cancellation records proved by the archived owner reports.
+- ✓ **REL-01, REL-02:** Published 1.6.0 source/package/docs proof and recorded final CI/repository closeout.
+
+### Outstanding at v1.49 close
+
+- [ ] **READY-01:** Original approval and matching readiness/test records remain missing; the published source also lacks the upgrade guide/link. This remains a failed original requirement and does not block the next planning cycle. Follow up on the guide through `.planning/todos/pending/2026-10-12-add-missing-v16-upgrade-guidance.md`.
+
 ### Validated — Phase 235
 - ✓ **FAST-01** — authenticated source-complete protected evidence verifies 52 eligible PR runs at a 469-second wall-clock p50, below the strict 720-second threshold, with literal terminal conclusions and immutable miss history.
 - ✓ **GATE-05** — the protected 93-row ownership ledger, receipts, contributor topology, and independent offline verifier remain exact while FAST-01 is reconciled.
@@ -1154,6 +1182,8 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 
 ## Key Decisions
 
+**v1.49 closeout decision:** The user explicitly instructed us to move on when original records could not be recovered. Preserve the failed requirement and strict audit; close the planning cycle with the failure disclosed. Require original approval/test records at the time of future release preparation so this situation does not recur. No release safety gate is weakened.
+
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | ✓ Validated v1.0 — no regret |
@@ -1313,3 +1343,6 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-09-17 after Phase **238 Tag Guard, Then Tag Deletion** completed (6/6 plans; verification passed, UAT 1/1, security threats_open 0 across a 35-entry register). REL-01 satisfied as a **supersession** — its "server-side ruleset + paired contract test, demonstrated RED, before any deletion" holds, but its implied SemVer-validator mechanism does not: Tier 1 `tag_name_pattern` is enterprise-gated and was rejected live (`HTTP 422`) on this Free-tier repo, so the landed Tier 2 `creation` rule with `exclude: refs/tags/v*.*.*` is a shape guard. REL-02 satisfied: 39 tags deleted from a committed allowlist (never a glob), one literal name per invocation, `pre_delete_sha` captured for every ref, release surface unchanged and zero untagged drafts. The last UAT item — whether the `tag_ruleset_drift` observer actually executes post-merge — was closed by evidence, not by eye: observe run `35249205910` ran the job green (`live tag-namespace ruleset (id 23574716) matches the committed snapshot`). Recorded trap: two earlier observe runs at the same head SHA reported the RUN green while the job was `skipped` (its guard is `workflow_run.event != 'pull_request'`), so a green run is not proof — only the job's own conclusion and stdout are. Carry-forward: `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-*` now tracks three items — the unreachable `ABSENT` branch, the unpaginated ruleset list, and the absent assertion that the job ran; all three fail closed. **Never run `git gc`, `reflog expire` or `prune`** — the allowlist's `pre_delete_sha` column is Phase 245's forward-feed and the deleted objects must stay reachable by SHA. Phase 239 (`priv/templates/` sweep + one batched re-bless) is next.*
 
 *Last updated: 2026-10-06 — Opened milestone v1.49 RELEASE-1.6.0; phases continue at 246. Package version 1.6.0 was selected from existing Release Please PR #224 by user delegation. Four bounded phases cover the committed generated-confirmation fast-follow, release-source readiness, exact-source automation, and publication. Shift-left verification is the default per VERIFICATION-POLICY.md.*
+
+---
+*Last updated: 2026-10-12 after v1.49 closeout with known readiness gaps.*

@@ -225,5 +225,85 @@
   "capture_ref": "671989f67a5d025bfc32a4afc1d9f6e03ad60508",
   "git_tag_creation": false,
   "git_branch_changes": false,
-  "external_actions": false
+  "external_actions": false,
+  "archive_completed": true,
+  "archive_commit": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+  "archived_phase_files_byte_checked": 361,
+  "final_tracking_prewrite": [
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "sha256": "517bf1cecf35c66bbff3602cc1432bdb541f7be2d5770841910d01bcb35bc844",
+      "bytes": 22580,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "2e5e02629d99bef56a45ccaf8561304b71c5891f9c56817a9c576467a7798bfd",
+      "bytes": 5711,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "d43a01242e3801f42d0702c8ca312e03f79a8d9e2994663e02d4869401cc47a2",
+      "bytes": 983,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "c14694f70d0ba8b337e6e21823917e8ed2a7f4b6f4985c31ce38aa4cbdd1a400",
+      "bytes": 104362,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/MILESTONES.md",
+      "status": "clean",
+      "sha256": "44c39efb82b5ac9643027895236ac7d3e7fda6fa53724baee593c7ccaddb9548",
+      "bytes": 135911,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/PROJECT.md",
+      "status": "clean",
+      "sha256": "254c7bb381afe7b4ae5ce8253afc7e8e8d566c2d9c77fb8cd9964cc41b5985fb",
+      "bytes": 191936,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/RETROSPECTIVE.md",
+      "status": "clean",
+      "sha256": "c795d94d883939b2d3f137824c5d4224c9a1bb7ded1fceb9d43700be813f3b20",
+      "bytes": 89698,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/milestones/v1.49-REQUIREMENTS.md",
+      "status": "clean",
+      "sha256": "6ce1e8e17377350f0b47bec2c544e4923f3d42f2db945734496e040fb364eca1",
+      "bytes": 7593,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/milestones/v1.49-CLOSEOUT-DECISION.json",
+      "status": "clean",
+      "sha256": "3755ed0b7df12b14aa89d553165dea5facd9566891cfd46ebc3829d093c6bdec",
+      "bytes": 10605,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    }
+  ],
+  "active_requirements_removal_allowed_after_archive_commit": true,
+  "current_route": "ready_for_new_milestone",
+  "documentation_task": ".planning/todos/pending/2026-10-12-add-missing-v16-upgrade-guidance.md"
 }

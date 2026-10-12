@@ -1,43 +1,33 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.49 — RELEASE-1.6.0",
-  "phases": [
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "milestone_status": "closed_with_known_gaps",
+  "closeout_type": "override_closeout",
+  "verification_status": "gaps_found",
+  "last_milestone_requirements_score": "8/9",
+  "phases": [],
+  "archived_milestones": [
     {
-      "number": "246",
-      "name": "Generated Confirmation Recovery",
-      "status": "complete"
-    },
-    {
-      "number": "247",
-      "name": "Release Candidate and Repository Readiness",
-      "status": "pending"
-    },
-    {
-      "number": "248",
-      "name": "Exact-Source Release Gate",
-      "status": "complete"
-    },
-    {
-      "number": "249",
-      "name": "Publish and Prove Sigra 1.6.0",
-      "status": "complete"
-    },
-    {
-      "number": "250",
-      "name": "Close v1.49 audit gaps",
-      "status": "complete"
-    },
-    {
-      "number": "251",
-      "name": "Close READY-01 and READY-02 release readiness gaps",
-      "status": "pending"
+      "version": "v1.49",
+      "closeout_type": "override_closeout",
+      "requirements_score": "8/9",
+      "READY-01": "unsatisfied",
+      "READY-02": "satisfied",
+      "phase251_verification": "gaps_found 9/10",
+      "original_phase_state": ".planning/milestones/v1.49-PRE-CLOSE-state.json",
+      "phase_archive": ".planning/milestones/v1.49-phases/",
+      "closeout_record": ".planning/milestones/v1.49-CLOSEOUT-DECISION.json"
     }
   ],
   "next": {
-    "command": "/gsd:debug",
-    "label": "Debug the blocker",
-    "reason": "Blocked · 4 blocker(s) — resolve before continuing"
+    "command": "$gsd-new-milestone",
+    "label": "Start next milestone: CI speed and reliability",
+    "reason": "User instructed us to move on with the missing old readiness records recorded as unfinished. No recovery input is required from the user.",
+    "conditional": false,
+    "route_status": "ready_for_new_milestone",
+    "next_phase_number": 252,
+    "next_phase_exists": false
   },
-  "updated_at": "2026-10-12T13:24:15.000Z"
+  "updated_at": "2026-10-12T13:30:59.683141+00:00"
 }

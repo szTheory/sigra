@@ -1,34 +1,30 @@
 # Milestones
 
-## v1.49 RELEASE-1.6.0 (Shipped: 2026-10-12)
+## v1.49 RELEASE-1.6.0 (Closed: 2026-10-12 — override_closeout)
 
-**Phases completed:** 6 phases, 47 plans, 73 tasks
+**Classification:** Planning milestone closed at the user's instruction with one known failed readiness requirement. Sigra 1.6.0 was already published; this closeout performs no new release action.
+**Implementation:** Six phases (246–251), 47 active plans with matching summaries, 73 tasks; four earlier plans were explicitly superseded.
+**Verification:** 8/9 requirements proved. READY-01 remains unchecked and unsatisfied; READY-02 is satisfied. Phase 251 remains `gaps_found` at 9/10; Phase 246 is stale and the manager parser cannot read Phase 247's legacy verification format. No failed or missing check is promoted to passed.
 
 **Key accomplishments:**
-- Generated email confirmation now changes the token owner's persisted state only on explicit submit while preserving the visitor session.
-- Generated confirmation accepts the email's spaced code only for the current account and announces visible success or retryable validation feedback.
-- The generated-host Chromium journey and required-CI route are implemented and verified on the exact final source.
-- PR #224 now carries a curated, source-backed Sigra 1.6.0 candidate with live source-promotion validation and exact-head CI documentation proof.
-- PR #224 now has a source-backed v1.6 adopter path, and its corrected exact-head documentation build and required CI passed.
-- A fail-closed final validator now checks the reviewed 1.6.0 candidate, adopter docs, exact-head CI, Hex package output, live PR population, and inherited checkout; readiness remains blocked by the local Hex dry run.
-- PR #224 now carries the complete v1.6 adopter path and a deterministic mobile signup test on exact source SHA `6f8028658f0bdd7f26e13c3fe4d45437880c341b`.
-- The existing dry-run workflow and immutable diff proof now name the reviewed PR #224 source and survive a four-file protected main merge.
-- The protected workflow produced an authenticated non-publishing receipt for the exact curated candidate, and the refreshed final readiness validator passed with complete live inventory evidence.
-- The Release Please package job now asserts tag/SHA/HEAD identity before setup, and the ci-gate poller proves the successful run belongs to that same full SHA.
-- Release Please candidates now pass through source-bound CI and changelog preflight before a fresh, exact-head squash-merge decision.
-- Release evaluation and recovery now use least-privilege permissions, non-cancelling run identities, exact-main environment policies, and step-scoped credentials.
-- A trusted default-branch observer records source-linked cancellation receipts and adds deterministic contracts for the complete release lane.
-- Sigra 1.6.0 now has a live, source-bound receipt joining its published package to the exact tagged source and successful required CI.
-- Sigra 1.6.0 now tracks the complete ExDoc index and requires byte-exact index validation in CI for every PR.
-- Release proof now rejects mismatched source-CI run objects, redirected source pages, and symlinked artifact members while preserving the existing receipt schema.
-- The no-publish canary and receipt validator are covered locally and by exact-head CI; the one authorized hosted retry produced no failure receipt, so AUTO-02 remains open.
-- A read-only verifier binds Phase 247 evidence to explicit source identities and records READY-01/02 as unsatisfied when the candidate tuple cannot be approved and joined.
-- A source-bound verifier proves AUTO-01 from current environment and success-receipt evidence while keeping AUTO-02 open until hosted failure and cancellation artifacts both validate.
-- A read-only verifier joins Sigra 1.6.0 public proof to its historical acceptance and separately checks current main and live repository inventory.
-- Phase 249 now has passing public-source and exact-main CI evidence, with all 15 open PRs dispositioned against their current identities and all five registered worktrees clean.
-- Source-bound audit logic now verifies historical Phase 250 evidence separately from current Phase 247 verdicts, preserving the incomplete 7/9 milestone status.
-- READY-02 now binds all 15 open PRs and 2,421 inherited items to explicit dispositions and read-back-verified scoped preservation records.
-- The refreshed evidence keeps READY-01 pending on independently untrusted historical bytes, absent approval, and missing published guide/link evidence while preserving READY-02 as satisfied.
+- Made generated confirmation work through an explicit submit, accept pasted spaced codes for the correct account, and show accessible success/error feedback.
+- Added recurring generated-host confirmation checks on the required CI path.
+- Hardened the release lane to check the exact source commit, restrict publish credentials, preserve active release evaluation, and retain success/failure/cancellation records.
+- Proved the published 1.6.0 package, versioned docs, tag, and tested source agree in the recorded release evidence.
+- Added an automatic ExDoc-index refresh and drift check for Release Please candidates.
+- Accounted for all 15 captured PRs and 2,421 inherited items with recorded decisions and readable preservation copies.
+
+### Known Gaps
+
+- **READY-01:** The original exact-code approval was not found, saved readiness/non-publishing test records name different code, and the old owner report could not be independently confirmed. Bounded recovery is exhausted. These failures stay recorded and do not block new planning.
+- The immutable published 1.6.0 source lacks its upgrade guide and README link. A separate current-documentation fix is queued; a later fix cannot change what the original package contained.
+- Historical report freshness/parser issues remain overrides. The strict audit stays `gaps_found`, 8/9, with its original bytes retained.
+
+**Known verification overrides:** 2 current records newly acknowledged as unfinished, 52 carried forward from earlier closes. Thirty unrelated open audit items were retained; a new corrective guide task remains open. This is not an all-items-clear or fully verified closeout.
+
+**Archives:** `milestones/v1.49-ROADMAP.md`, `v1.49-REQUIREMENTS.md`, `v1.49-MILESTONE-AUDIT.md`, and `v1.49-phases/`. Exact byte comparisons cover all 361 phase files. Previous full state and handoff snapshots remain available.
+**Tags:** None; internal milestone tags remain disabled.
+**Next:** `$gsd-new-milestone` for the previously queued CI speed and reliability work. No missing historical record is required from the user.
 
 ---
 

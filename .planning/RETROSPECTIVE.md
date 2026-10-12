@@ -1110,6 +1110,36 @@ A systematically audited, award-grade admin/operator design system, graded *frac
 
 ---
 
+## Milestone: v1.49 — RELEASE-1.6.0
+
+**Closed:** 2026-10-12 with one known failed readiness requirement. **Phases:** 6 | **Active plans:** 47 | **Tasks:** 73.
+
+### What Was Built
+
+Generated confirmation fixes and recurring host checks; guarded exact-source release automation; retained success/failure/cancellation records; published 1.6.0 proof; automatic docs-index freshness; complete PR/work preservation decisions.
+
+### What Worked
+
+Automated checks kept READY-02 independently provable, and read-back checks preserved the inherited work. The final closeout retained the original failed requirement and audit rather than changing a missing record into a pass.
+
+### What Was Inefficient
+
+Repeated gap-planning cycles could not recover an approval that the complete original history does not contain. Abstract language about “trusted historical evidence” obscured this limit and made the user feel responsible for producing something unavailable.
+
+### Patterns Established
+
+Bound historical searches. When they are exhausted, record the failure and make a concrete decision about moving on. Capture approval, exact-code checks, and durable records when actions happen. Preserve every dirty planning revision before another writer replaces it. Keep incomplete historical checks separate from prerequisites for future scoped work.
+
+### Key Lessons
+
+Use plain English: name the missing approval, test record, or guide. A user instruction to move forward can close a planning cycle with a known failure; it does not retroactively approve old code or weaken future release checks. Carry an actionable guide correction separately from unavailable historical records.
+
+### Verification Record
+
+The strict audit remains `gaps_found`, 8/9. Phase251 remains `gaps_found`, 9/10, with 7/7 implementation plans complete. No product tests or hosted CI were rerun during this administrative closeout, and no new package was published.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process evolution
