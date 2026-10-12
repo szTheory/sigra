@@ -764,6 +764,7 @@ function phase251Ready02Complete(root, packet, feasibility) {
       for (const entry of worktree.status_entries) {
         if (!entry || typeof entry.status !== 'string' || !entry.status
           || typeof entry.path !== 'string' || !entry.path
+          || !Object.hasOwn(entry, 'original_path') || !(entry.original_path === null || typeof entry.original_path === 'string')
           || entry.source_byte_readable !== true || !/^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? '')) return null;
         statusRows.push({ ...entry, worktree_path: worktree.path, worktree_head_sha: worktree.head_sha });
       }
@@ -776,7 +777,7 @@ function phase251Ready02Complete(root, packet, feasibility) {
       worktree_branch: worktreeRows.find((worktree) => worktree.path === entry.worktree_path)?.branch,
       status: entry.status,
       path: entry.path,
-      original_path: entry.original_path ?? null,
+      original_path: entry.original_path,
       source_byte_readable: entry.source_byte_readable,
       source_byte_sha256: entry.source_byte_sha256,
     }));
@@ -790,6 +791,7 @@ function phase251Ready02Complete(root, packet, feasibility) {
       for (const entry of worktree.status_entries) {
         if (!entry || typeof entry.status !== 'string' || !entry.status
           || typeof entry.path !== 'string' || !entry.path
+          || !Object.hasOwn(entry, 'original_path') || !(entry.original_path === null || typeof entry.original_path === 'string')
           || entry.source_byte_readable !== true || !/^[a-f0-9]{64}$/.test(entry.source_byte_sha256 ?? '')) return null;
         capturedStatusRows.push({
           id: `dirty:${worktree.path}:${worktree.head_sha}:${entry.status}:${entry.path}:${entry.source_byte_sha256}`,
@@ -799,7 +801,7 @@ function phase251Ready02Complete(root, packet, feasibility) {
           worktree_branch: worktree.branch,
           status: entry.status,
           path: entry.path,
-          original_path: entry.original_path ?? null,
+          original_path: entry.original_path,
           source_byte_readable: entry.source_byte_readable,
           source_byte_sha256: entry.source_byte_sha256,
         });
@@ -813,7 +815,7 @@ function phase251Ready02Complete(root, packet, feasibility) {
       worktree_branch: row?.worktree_branch,
       status: row?.status,
       path: row?.path,
-      original_path: row?.original_path ?? null,
+      original_path: row?.original_path,
       source_byte_readable: row?.source_byte_readable,
       source_byte_sha256: row?.source_byte_sha256,
     });
@@ -824,7 +826,7 @@ function phase251Ready02Complete(root, packet, feasibility) {
         !== stableJson(canonicalDirtyRows.map(dirtyMetadata).sort((a, b) => a.id.localeCompare(b.id)))) return null;
     const sourceRootRows = sourceInventory.worktrees.find((worktree) => worktree.path === sourceInventory.repository_root)?.status_entries;
     const statusEntryMetadata = (entry) => ({ status: entry?.status, path: entry?.path,
-      original_path: entry?.original_path ?? null, source_byte_readable: entry?.source_byte_readable,
+      original_path: entry?.original_path, source_byte_readable: entry?.source_byte_readable,
       source_byte_sha256: entry?.source_byte_sha256 });
     if (!Array.isArray(sourceInventory.raw_status) || !Array.isArray(sourceRootRows)
       || stableJson(sourceInventory.raw_status.map(statusEntryMetadata)) !== stableJson(sourceRootRows.map(statusEntryMetadata))

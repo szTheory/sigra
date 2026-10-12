@@ -361,6 +361,7 @@ test('independent audit binds every dirty-row metadata field to its canonical st
   const mutations = [
     ['path', (dirty) => { dirty.path = 'forged/path-that-never-appeared-in-status.txt'; }],
     ['original_path', (dirty) => { dirty.original_path = 'forged/original.txt'; }],
+    ['missing_original_path', (dirty) => { delete dirty.original_path; }],
     ['status', (dirty) => { dirty.status = 'MM'; }],
     ['worktree_path', (dirty) => { dirty.worktree_path = '/tmp/forged-worktree'; }],
     ['worktree_head_sha', (dirty) => { dirty.worktree_head_sha = 'f'.repeat(40); }],
@@ -380,6 +381,7 @@ test('independent audit binds every dirty-row metadata field to its canonical st
     const source = { ...disposition.source };
     if (field === 'path') source.path = dirty.path;
     if (field === 'original_path') source.original_path = dirty.original_path;
+    if (field === 'missing_original_path') delete source.original_path;
     if (field === 'status') source.status = dirty.status;
     if (field === 'worktree_path') source.worktree_path = dirty.worktree_path;
     if (field === 'worktree_head_sha') source.head_sha = dirty.worktree_head_sha;
@@ -397,6 +399,7 @@ test('independent audit binds every dirty-row metadata field to its canonical st
       record.captured_source.worktree_branch = source.worktree_branch;
       record.captured_source.source_byte_sha256 = dirty.source_byte_sha256;
       record.captured_source.kind = dirty.kind;
+      if (field === 'missing_original_path') delete record.captured_source.original_path;
       if (field === 'source_byte_sha256') {
         record.source_byte_sha256 = dirty.source_byte_sha256;
         record.source_bytes_base64 = Buffer.from('forged source bytes').toString('base64');
