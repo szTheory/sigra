@@ -102,13 +102,15 @@ class SecurityContractsTest(unittest.TestCase):
                "steps": [{"name": "Upload library test timing", "conclusion": "success",
                           "started_at": "2026-10-12T10:00:00Z", "completed_at": "2026-10-12T10:00:10Z"}]}
         artifact = {"id": 101, "name": "library-test-timing-7-1", "created_at": "2026-10-12T10:00:05Z",
-                    "workflow_run": {"id": 7, "head_sha": "a" * 40}}
+                    "workflow_run": {"id": 7, "head_sha": "a" * 40, "repository_id": 1207487684, "head_repository_id": 1207487684}}
         metadata = {"repository": "szTheory/sigra", "run_id": "7", "run_attempt": "1", "event": "pull_request",
                     "job_name": "Library tests shard", "source_sha": "c" * 40,
                     "timing_artifact_name": "library-test-timing-7-1"}
         self.assertEqual([], validate_producer_binding(run, job, artifact, metadata, "Library tests shard"))
         altered = dict(artifact, name="library-test-timing-8-1")
         self.assertTrue(validate_producer_binding(run, job, altered, metadata, "Library tests shard"))
+        fork_artifact = {**artifact, "workflow_run": {**artifact["workflow_run"], "head_repository_id": 777}}
+        self.assertTrue(validate_producer_binding(run, job, fork_artifact, metadata, "Library tests shard"))
         commit = {"sha": "c" * 40, "parents": [{"sha": "b" * 40}, {"sha": "a" * 40}]}
         self.assertEqual([], validate_producer_commit(metadata["source_sha"], commit, run))
         self.assertTrue(validate_producer_commit(metadata["source_sha"], {"sha": "c" * 40, "parents": [{"sha": "x" * 40}]}, run))

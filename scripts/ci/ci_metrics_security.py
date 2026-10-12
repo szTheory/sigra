@@ -176,6 +176,7 @@ def validate_producer_binding(run: dict, job: dict, artifact: dict, metadata: di
     else:
         return ["producer_job_contract_unknown"]
     artifact_name = artifact.get("name")
+    artifact_run = artifact.get("workflow_run") or {}
     upload_step_name = artifact_steps.get(artifact_name)
     steps = [s for s in job.get("steps", []) if s.get("name") == upload_step_name and s.get("conclusion") == "success"] if upload_step_name else []
     try:
@@ -188,6 +189,8 @@ def validate_producer_binding(run: dict, job: dict, artifact: dict, metadata: di
         and job.get("name") in expected_job_names and job.get("conclusion") == "success"
         and str(artifact.get("workflow_run", {}).get("id")) == run_id
         and artifact.get("workflow_run", {}).get("head_sha") == run.get("head_sha")
+        and artifact_run.get("repository_id") == 1207487684
+        and artifact_run.get("head_repository_id") == 1207487684
         and artifact_name in expected_artifacts
         and (metadata.get("timing_artifact_name") in (None, "", timing_name))
         and str(metadata.get("run_id")) == run_id and str(metadata.get("run_attempt")) == attempt
