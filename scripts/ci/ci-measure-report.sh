@@ -54,6 +54,14 @@ if failures.get('signatures'):
     failure_text='\n'.join(f"- {x.get('signature')} — {x.get('occurrences')} observations: " + ', '.join(f"[run {r.get('run_id')} attempt {r.get('attempt')}]({r.get('log_reference') or 'https://github.com/szTheory/sigra/actions'})" for r in x.get('references',[])) for x in failures['signatures'][:3])
 else:
     failure_text=f"- {failures.get('status','unknown')}: {', '.join(map(str,failures.get('missing_inputs',[])[:3])) or 'no recurring signature was identified in the bounded sample'}"
+attempts=baseline.get('instrumented_full_pr',{}).get('run_attempts') or []
+attempt_lines=[]
+for attempt in attempts:
+    failed=[j for j in attempt.get('jobs',[]) if j.get('conclusion') in ('failure','timed_out','cancelled')]
+    skipped=sum(1 for j in attempt.get('jobs',[]) if j.get('conclusion')=='skipped')
+    detail=', '.join(f"{j.get('name')} `{j.get('conclusion')}` ({show(j.get('runner_seconds'),'s')})" for j in failed) if failed else 'no failed, timed out or cancelled jobs'
+    attempt_lines.append(f"- Attempt {attempt.get('attempt','unknown')}: {show(attempt.get('runner_seconds'),'s')} summed runner time; {detail}; {skipped} skipped jobs.")
+attempt_text='\n'.join(attempt_lines) or '- unknown (attempt job records were not retained)'
 text=f'''# Current CI baseline
 
 Cutoff: `{baseline.get('cutoff_utc','unknown')}`; collected `{baseline.get('captured_at_utc','unknown')}` from source SHA `{baseline.get('source_sha','unknown')}` and workflow SHA-256 `{baseline.get('workflow_sha256','unknown')}`. Replay source identity: `{baseline.get('source_sha256',{}).get('pull_request','unknown')}` (PR population hash), `{baseline.get('source_sha256',{}).get('request_ledger','unknown')}` (request ledger hash). Status: **{baseline.get('status','unknown')}**. This snapshot is bounded to 100 runs per event and a 30-day window; capped/expired or undetailed records remain unknown.
@@ -94,6 +102,10 @@ ExUnit overhead: `{json.dumps(exunit,sort_keys=True)}`. Playwright reporter over
 
 At most twelve failed families were inspected; no more than three recurring signatures are shown:
 {failure_text}
+
+The selected full PR family completed required checks on attempt `{baseline.get('instrumented_full_pr',{}).get('attempt','unknown')}`. Its complete attempt history is:
+
+{attempt_text}
 
 ## Exact source run records
 
