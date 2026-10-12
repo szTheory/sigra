@@ -5,16 +5,16 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 252
 current_phase_name: Measure Current CI
 status: executing
-stopped_at: Phase 252 planned and independently checked; next $gsd-execute-phase 252
-last_updated: "2026-10-12T17:19:07.838Z"
+stopped_at: Completed 252-01-PLAN.md
+last_updated: "2026-10-12T17:38:56.141Z"
 last_activity: 2026-10-12
 last_activity_desc: Phase 252 execution started
-state_head: 69be9c3de31e612bf316a3e33c92dc55b08c0f3f
+state_head: e259480b2f5a3c2c9df1fafcc3283fec367d1df8
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 milestone_status: active
 workflow_step: phase_execution_pending
@@ -39,8 +39,8 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 252 (Measure Current CI) — EXECUTING
-Plan: 1 of 6
-Status: Executing Phase 252
+Plan: 2 of 6
+Status: Ready to execute
 Last activity: 2026-10-12 — Phase 252 execution started
 Progress: [░░░░░░░░░░] 0%
 
@@ -83,9 +83,9 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T17:12:51.574828+00:00
-**Stopped at:** Phase 252 planned and independently checked; next $gsd-execute-phase 252
-**Resume file:** .planning/phases/252-measure-current-ci/252-01-PLAN.md
+**Last session:** 2026-10-12T17:38:56.122Z
+**Stopped at:** Completed 252-01-PLAN.md
+**Resume file:** None
 
 ## Deferred Items
 
@@ -95,3 +95,14 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 | verification_gaps | 251/251-VERIFICATION-PRESERVED-20261011T2129Z.md | historical gaps_found; accepted for moving on, not passed | 2026-10-12 | v1.49 |
 
 Two current records were acknowledged through the audit writer; 52 earlier acknowledgments remain. Thirty unrelated open items were retained, and the new upgrade-guide task remains open. The full inventories are in the closeout records.
+
+## Performance Metrics
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 252 P01 | 19m | 2 tasks | 19 files |
+
+## Decisions
+
+- [Phase 252]: Current effective required context names determine eligibility; ruleset IDs are provenance only.
+- [Phase 252]: Missing source-revision data keeps a multi-revision family at unknown timing.
