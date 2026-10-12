@@ -584,11 +584,12 @@ collect_window() {
   }
 
   collect_attempt_details() {
-    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=108 max_attempt
+    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=108 max_attempt measurement_target
     local selected_file="$tmp/all-selected-runs.json" failed_file="$tmp/failed-selected-runs.json" priority_file="$tmp/prioritized-runs.json" enrichments_file="$tmp/family-enrichments.json"
     jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]' >"$selected_file"
     jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' "$selected_file" >"$failed_file"
-    jq -cn --slurpfile failed "$failed_file" --slurpfile selected "$selected_file" '[ $failed[0][] ] + [ $selected[0][] | . as $x | select(([ $failed[0][].run.id ] | index($x.run.id))==null) ]' >"$priority_file"
+    measurement_target="$(jq -r '[.[] | select(.population=="pull_request" and .run.conclusion=="success")] | sort_by(.run.created_at) | reverse | .[0].run.id // empty' "$selected_file")"
+    jq -cn --arg target "$measurement_target" --slurpfile failed "$failed_file" --slurpfile selected "$selected_file" '[ $selected[0][] | select((.run.id|tostring)==$target) ] + [ $failed[0][] | select((.run.id|tostring)!=$target) ] + [ $selected[0][] | . as $x | select((($x.run.id|tostring)!=$target) and (([ $failed[0][].run.id ] | index($x.run.id))==null)) ]' >"$priority_file"
     printf '[]\n' >"$enrichments_file"
     while IFS= read -r row; do
       [[ -n "$row" ]] || continue
@@ -693,9 +694,38 @@ collect_window() {
         jq -e . <<<"$log_record" >/dev/null || fail "log_diagnostic_invalid:${id}"
         diagnostic="$(jq -cn --argjson artifact "$artifact_record" --argjson log "$log_record" '[{kind:"artifact",result:$artifact},{kind:"failed_job_log",result:$log}]')"
       fi
+      if [[ "$event" == pull_request && "$id" == "$measurement_target" && "$workload" == full && "$jobs_status" == complete ]]; then
+        local check_file="$family_dir/check-runs.json" target_artifacts="$family_dir/artifacts" artifact_manifest="$family_dir/artifact-evidence.json" artifact_index=0 artifact_row_target target_artifact_id target_digest target_zip target_dir target_hash target_extract
+        mkdir -p "$target_artifacts"
+        if api_get "/repos/${REPO}/commits/$(jq -r '.head_sha' "$family_dir/run.json")/check-runs?per_page=100" "$tmp/family-${id}-check-runs.json"; then
+          cp "$tmp/family-${id}-check-runs.json" "$check_file"
+        else jq -n --arg reason "${API_STOP_REASON:-check_runs_unavailable}" '{status:"unknown",reason:$reason}' >"$check_file"; fi
+        if api_get "/repos/${REPO}/actions/runs/${id}/artifacts?per_page=100" "$artifact_meta"; then
+          jq '{total_count,artifacts:[.artifacts[]? | {id,name,size_in_bytes,expired,digest,created_at,expires_at,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha}}]}' "$artifact_meta" >"$family_dir/artifacts-metadata.json"
+          printf '[]\n' >"$artifact_manifest"
+          while IFS= read -r artifact_row_target; do
+            [[ -n "$artifact_row_target" ]] || continue
+            target_artifact_id="$(jq -r '.id' <<<"$artifact_row_target")"
+            target_digest="$(jq -r '.digest // empty' <<<"$artifact_row_target")"
+            target_zip="$target_artifacts/${target_artifact_id}.zip"
+            target_dir="$target_artifacts/${target_artifact_id}"
+            target_extract='{"status":"unknown","diagnostic":"artifact_not_downloaded"}'
+            if jq -e --argjson run "$run" '.expired!=true and (.id|type)=="number" and (.digest|test("^sha256:[0-9a-f]{64}$")) and (.workflow_run.id|tostring)==($run.id|tostring) and .workflow_run.head_sha==$run.head_sha' <<<"$artifact_row_target" >/dev/null \
+              && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${target_artifact_id}/zip" "$target_zip" "artifact:${id}:${target_artifact_id}"; then
+              target_hash="sha256:$(sha256_file "$target_zip")"
+              if [[ "$target_hash" == "$target_digest" ]] && extract_timing_archive "$target_zip" "$target_dir" >"$tmp/target-extract-${target_artifact_id}.json" 2>"$tmp/target-extract-${target_artifact_id}.err"; then
+                target_extract="$(jq -cn --arg archive_sha256 "${target_hash#sha256:}" --arg path "raw/families/${id}/artifacts/${target_artifact_id}" --slurpfile extraction "$tmp/target-extract-${target_artifact_id}.json" '$extraction[0] + {status:"accepted",archive_sha256:$archive_sha256,path:$path}')"
+              else target_extract="$(jq -cn --arg reason "$(if [[ "$target_hash" != "$target_digest" ]]; then echo artifact_digest_mismatch; else cat "$tmp/target-extract-${target_artifact_id}.err"; fi)" '{status:"unknown",diagnostic:$reason}')"; rm -rf "$target_zip" "$target_dir"; fi
+            else target_extract="$(jq -cn --arg reason "${API_STOP_REASON:-artifact_identity_or_digest_invalid}" '{status:"unknown",diagnostic:$reason}')"; fi
+            jq -cn --slurpfile prior "$artifact_manifest" --argjson artifact "$artifact_row_target" --argjson result "$target_extract" '$prior[0] + [{artifact:$artifact,result:$result}]' >"$artifact_manifest.tmp" && mv "$artifact_manifest.tmp" "$artifact_manifest"
+            artifact_index=$((artifact_index+1))
+            [[ -z "$API_STOP_REASON" ]] || break
+          done < <(jq -c '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|measurement-metadata")))] | sort_by(.name,.id) | .[]' "$artifact_meta")
+        else jq -n --arg reason "${API_STOP_REASON:-artifact_metadata_unavailable}" '{status:"unknown",reason:$reason}' >"$artifact_manifest"; fi
+      fi
       details_file="$tmp/family-${id}-detail.json"
       jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --slurpfile paths "$paths_file" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths:$paths[0],changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}' >"$details_file" || fail "family_detail_json_invalid:${id}"
-      jq -n --slurpfile detail "$details_file" --arg run_hash "$(sha256_file "$family_dir/run.json")" --argjson attempts "$attempts_json" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
+      jq -n --slurpfile detail "$details_file" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --argjson attempts "$attempts_json" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
       jq -cn --slurpfile prior "$enrichments_file" --slurpfile detail "$details_file" '$prior[0] + [$detail[0]]' >"$enrichments_file.tmp"
       mv "$enrichments_file.tmp" "$enrichments_file"
       api_write_ledger collecting
