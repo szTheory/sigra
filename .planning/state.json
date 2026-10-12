@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50",
+  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -25,68 +25,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 252",
-    "label": "Plan Phase 252: Measure Current CI",
-    "reason": "User-confirmed context committed; readiness finds context, no plans and no prerequisite verification commands.",
-    "conditional": false,
-    "route_status": "ready_for_phase_planning",
-    "next_phase_number": 252,
-    "next_phase_exists": true,
-    "historical_verification_is_forward_blocker": false
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step (plan phase 252)",
+    "reason": "Phase 252 of 4 — needs a plan"
   },
-  "updated_at": "2026-10-12T16:13:46.589917+00:00",
-  "milestone_name": "CI-SPEED-AND-RELIABILITY",
-  "milestone_status": "active",
-  "status": "planning",
-  "workflow_step": "phase_planning",
-  "verification_status": "not_started",
-  "archived_milestones": [
-    {
-      "version": "v1.49",
-      "closeout_type": "override_closeout",
-      "requirements_score": "8/9",
-      "READY-01": "unsatisfied",
-      "READY-02": "satisfied",
-      "phase251_verification": "gaps_found 9/10",
-      "original_phase_state": ".planning/milestones/v1.49-PRE-CLOSE-state.json",
-      "phase_archive": ".planning/milestones/v1.49-phases/",
-      "closeout_record": ".planning/milestones/v1.49-CLOSEOUT-DECISION.json"
-    }
-  ],
-  "proposal": {
-    "path": ".planning/v1.50-REQUIREMENTS-PROPOSAL.md",
-    "sha256": "745ff6ea96ebaac131a57422514f1838122185606be9a4e02efed34df8917707",
-    "requirement_count": 9,
-    "approved": true
-  },
-  "current_phase": "252",
-  "current_phase_name": "Measure Current CI",
-  "requirements_approved": true,
-  "roadmap_approved": true,
-  "requirements": {
-    "path": ".planning/REQUIREMENTS.md",
-    "count": 9,
-    "approved": true,
-    "complete": 0,
-    "phase_mapping": {
-      "CIMEAS-01": 252,
-      "CIMEAS-02": 252,
-      "CIREL-01": 253,
-      "CIREL-02": 253,
-      "CISPEED-01": 254,
-      "CISPEED-02": 254,
-      "CIDX-01": 255,
-      "CIDX-02": 255,
-      "CIMEAS-03": 255
-    }
-  },
-  "milestone_initialized": true,
-  "initialization_record": ".planning/v1.50-INITIALIZATION.json",
-  "todos_scanned": 70,
-  "todos_linked": 1,
-  "resume_command": "$gsd-plan-phase 252",
-  "resume_file": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
-  "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
-  "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-  "phase252_discussion_confirmed": true
+  "updated_at": "2026-10-12T17:10:09.631Z"
 }

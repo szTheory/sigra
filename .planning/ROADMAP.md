@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** `$gsd-plan-phase 252` — create the measurement implementation plan from the user-confirmed context. Readiness finds Phase 252's context, no research or plans, and no prerequisite verification commands. Discussion is complete; implementation and phase verification have not started.
+**Next command:** `$gsd-execute-phase 252` — execute six independently checked plans across four waves. Research, pattern mapping and plan review are complete; readiness finds six incomplete plans and no execution blocker. Implementation and phase verification have not started.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -55,7 +55,15 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   2. Measured job, step, and test costs identify the largest setup/cache/execution costs; current failure signatures form a concrete, bounded flaky-test shortlist.
   3. The baseline and ranked findings can be reproduced with documented commands using the saved inputs; static timeout values or old audit conclusions are not used as runtime measurements.
   4. Before any optimization, the report fixes the comparison workloads, code revisions, cache conditions, runner class, sample sizes, percentile method, and finite collection/rate-limit budget. The 20% median improvement and non-increasing p95/runner-time targets stay unchanged.
-**Plans**: TBD
+**Plans**: 6 plans across 4 waves (independent plan review passed; implementation pending)
+
+- [ ] 252-01-PLAN.md — Source-bound collection and offline replay
+- [ ] 252-02-PLAN.md — Bounded populations, attempts and safe artifact acquisition
+- [ ] 252-03-PLAN.md — Opt-in ExUnit timing and exit preservation
+- [ ] 252-04-PLAN.md — Native Playwright JSON and completeness checks
+- [ ] 252-05-PLAN.md — CI timing integration, cost rankings and failure shortlist
+- [ ] 252-06-PLAN.md — Hosted baseline, reproducible report and later comparison contract
+
 
 ### Phase 253: Fix Flaky CI and Preserve Required Checks
 
@@ -95,11 +103,11 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Plan counts are determined during each phase's planning.
+**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six plans in four waves; later plan counts are determined during their planning.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 252. Measure Current CI | v1.50 | 0/TBD | Not started | — |
+| 252. Measure Current CI | v1.50 | 0/6 | Planned; ready to execute | — |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 0/TBD | Not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
