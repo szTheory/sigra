@@ -65,6 +65,8 @@ COLLECT=false
 REPLAY=false
 EVALUATE_COMPARISON=false
 REGISTER_COMPARISON_RUN=false
+COLLECT_PRODUCER_SOURCE=false
+PRODUCER_SOURCE_SHA=""
 CONTRACT_FILE=""
 BEFORE_BUNDLE=""
 AFTER_BUNDLE=""
@@ -129,6 +131,8 @@ while [[ $# -gt 0 ]]; do
     --replay) REPLAY=true; shift;;
     --evaluate-comparison) EVALUATE_COMPARISON=true; shift;;
     --register-comparison-run) REGISTER_COMPARISON_RUN=true; shift;;
+    --collect-producer-source) COLLECT_PRODUCER_SOURCE=true; shift;;
+    --producer-source-sha) PRODUCER_SOURCE_SHA="$2"; shift 2;;
     --contract) CONTRACT_FILE="$2"; shift 2;;
     --before-bundle) BEFORE_BUNDLE="$2"; shift 2;;
     --after-bundle) AFTER_BUNDLE="$2"; shift 2;;
@@ -1100,6 +1104,56 @@ PY
   jq -n --arg reservation "$RESERVATION_ID" --arg run "$RUN_ID" --arg hash "$(jq -r '.records[-1].record_sha256' "$REGISTRATIONS_FILE")" '{status:"registered",reservation_id:$reservation,run_id:$run,record_sha256:$hash}'
 }
 
+collect_producer_source() {
+  [[ -n "$SOURCE_BUNDLE" && -n "$RUN_ID" && "$RUN_ID" =~ ^[1-9][0-9]*$ && "$PRODUCER_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || fail "producer source collection requires --source-bundle, --run-id and --producer-source-sha"
+  [[ ! -e "$SOURCE_BUNDLE" ]] || fail "producer source output already exists"
+  mkdir -p "$(dirname "$SOURCE_BUNDLE")"
+  local lock="${SOURCE_BUNDLE}.lock" tmp commit_file tree_file content_file workflow_file tree_sha
+  mkdir "$lock" 2>/dev/null || fail "producer source output is locked"
+  mkdir -p "$SOURCE_BUNDLE/raw" || fail "producer source output could not be created"
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-producer-source.XXXXXX")"
+  API_LEDGER="$SOURCE_BUNDLE/request-ledger.json"
+  API_STARTED="$(date +%s)"; API_REQUESTS=0; API_STOP_REASON=""; API_RESET_AT=""; API_UNKNOWN='[]'; API_CORE_REMAINING=""; API_REQUEST_LOG='[]'; API_LAST_RATE_REQUEST=0; API_RATE_CHECK_IN_FLIGHT=false
+  API_TEMP_DIR="$tmp"
+  trap 'api_cleanup; rm -rf "$tmp" "$lock"' EXIT INT TERM HUP
+  commit_file="$tmp/commit.json"; tree_file="$tmp/tree.json"; content_file="$tmp/workflow-content.json"; workflow_file="$tmp/ci.yml"
+  api_get rate_limit "$tmp/rate-limit.json" || fail "producer source rate preflight blocked"
+  api_get "/repos/${REPO}/actions/runs/${RUN_ID}" "$tmp/run.json" || fail "producer source workflow run unavailable"
+  api_get "/repos/${REPO}/commits/${PRODUCER_SOURCE_SHA}" "$commit_file" || fail "producer commit unavailable"
+  tree_sha="$(jq -r '.commit.tree.sha // empty' "$commit_file")"
+  [[ "$tree_sha" =~ ^[0-9a-f]{40}$ ]] || fail "producer commit tree identity unavailable"
+  api_get "/repos/${REPO}/git/trees/${tree_sha}?recursive=1" "$tree_file" || fail "producer workflow tree unavailable"
+  api_get "/repos/${REPO}/contents/.github/workflows/ci.yml?ref=${PRODUCER_SOURCE_SHA}" "$content_file" || fail "producer workflow content unavailable"
+  python3 - "$content_file" "$workflow_file" <<'PY'
+import base64,json,pathlib,sys
+record=json.loads(pathlib.Path(sys.argv[1]).read_text())
+if record.get("encoding")!="base64" or not isinstance(record.get("content"),str): raise SystemExit("workflow_content_encoding_invalid")
+pathlib.Path(sys.argv[2]).write_bytes(base64.b64decode(record["content"]))
+PY
+  cp "$tmp/run.json" "$SOURCE_BUNDLE/raw/run.json"
+  cp "$tmp/rate-limit.json" "$SOURCE_BUNDLE/raw/rate-limit.json"
+  cp "$commit_file" "$SOURCE_BUNDLE/raw/commit.json"
+  cp "$tree_file" "$SOURCE_BUNDLE/raw/tree.json"
+  cp "$content_file" "$SOURCE_BUNDLE/raw/workflow-content.json"
+  cp "$workflow_file" "$SOURCE_BUNDLE/raw/ci.yml"
+  api_write_ledger complete
+  API_COMPLETED=true
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$SOURCE_BUNDLE" "$PRODUCER_SOURCE_SHA" <<'PY'
+import hashlib,json,pathlib,sys
+from ci_metrics_security import validate_producer_commit,validate_workflow_source
+root=pathlib.Path(sys.argv[1]); sha=sys.argv[2]
+run=json.loads((root/'raw/run.json').read_text()); commit=json.loads((root/'raw/commit.json').read_text()); tree=json.loads((root/'raw/tree.json').read_text()); workflow=(root/'raw/ci.yml').read_bytes()
+errors=validate_producer_commit(sha,commit,run)+validate_workflow_source(sha,tree,workflow,hashlib.sha256(workflow).hexdigest())
+if errors: raise SystemExit(','.join(errors))
+files={p.relative_to(root).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/'raw').iterdir() if p.is_file()}
+request_hash=hashlib.sha256((root/'request-ledger.json').read_bytes()).hexdigest()
+(root/'manifest.json').write_text(json.dumps({'schema_version':'sigra.ci-producer-source/v1','run_id':run['id'],'producer_source_sha':sha,'pull_request_number':run['pull_requests'][0]['number'],'pr_head_sha':run['pull_requests'][0]['head']['sha'],'pr_base_sha':run['pull_requests'][0]['base']['sha'],'validated':True,'request_ledger_sha256':request_hash,'raw_sha256':files},sort_keys=True,indent=2)+'\n')
+PY
+  sync 2>/dev/null || true
+  API_TEMP_DIR=""; rm -rf "$tmp" "$lock"; trap - EXIT INT TERM HUP
+  cat "$SOURCE_BUNDLE/manifest.json"
+}
+
 replay_family() {
   local bundle="$1" output_format="${2:-json}" required_changed run created check_data jobs_json contexts check_lines last_created wait runner diagnostics
   [[ -d "$bundle" && -s "$bundle/manifest.json" ]] || fail source_bundle_missing
@@ -1811,6 +1865,10 @@ PY
   rc=$?
   rm -f "$before_json" "$after_json"
   exit "$rc"
+fi
+if [[ "$COLLECT_PRODUCER_SOURCE" == true ]]; then
+  collect_producer_source
+  exit 0
 fi
 if [[ "$REGISTER_COMPARISON_RUN" == true ]]; then
   register_comparison_run

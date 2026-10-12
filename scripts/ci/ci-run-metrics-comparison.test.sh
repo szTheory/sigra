@@ -74,6 +74,10 @@ cat >"$TMP/gh-bin/gh" <<'GH'
 case "${4:-}" in
   rate_limit) echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}';;
   /repos/szTheory/sigra/actions/runs/777) echo '{"id":777,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","created_at":"2026-10-13T00:00:00Z","conclusion":"failure","pull_requests":[{"number":331,"head":{"sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},"base":{"sha":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}]}';;
+  /repos/szTheory/sigra/actions/runs/778) cat "$PRODUCER_FIXTURE_DIR/run.json";;
+  /repos/szTheory/sigra/commits/cccccccccccccccccccccccccccccccccccccccc) cat "$PRODUCER_FIXTURE_DIR/commit.json";;
+  /repos/szTheory/sigra/git/trees/dddddddddddddddddddddddddddddddddddddddd\?recursive=1) cat "$PRODUCER_FIXTURE_DIR/tree.json";;
+  /repos/szTheory/sigra/contents/.github/workflows/ci.yml\?ref=cccccccccccccccccccccccccccccccccccccccc) cat "$PRODUCER_FIXTURE_DIR/workflow-content.json";;
   *) exit 2;;
 esac
 GH
@@ -82,4 +86,17 @@ PATH="$TMP/gh-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --register-co
 jq -e '.status=="registered" and .run_id=="777"' "$TMP/register-out.json" >/dev/null
 jq -e '.records as $r | ($r|length)==1 and $r[0].run_id==777 and $r[0].pull_request_number==331 and ($r[0]|has("conclusion")|not) and ($r[0].record_sha256|length)==64' "$TMP/register-ledger.json" >/dev/null
 jq -e '.status=="complete" and .request_count==2' "$TMP/register-ledger.json.requests.json" >/dev/null
+mkdir -p "$TMP/producer-fixture"
+python3 - "$TMP/producer-fixture" <<'PY'
+import base64,hashlib,json,pathlib,sys
+p=pathlib.Path(sys.argv[1]); a='a'*40; b='b'*40; c='c'*40; d='d'*40; content=b'name: fixture\n'
+blob=hashlib.sha1(b'blob '+str(len(content)).encode()+b'\0'+content).hexdigest()
+(p/'run.json').write_text(json.dumps({'id':778,'event':'pull_request','path':'.github/workflows/ci.yml','head_sha':a,'created_at':'2026-10-13T00:00:00Z','pull_requests':[{'number':331,'head':{'sha':a},'base':{'sha':b}}]}))
+(p/'commit.json').write_text(json.dumps({'sha':c,'parents':[{'sha':a},{'sha':b}],'commit':{'tree':{'sha':d}}}))
+(p/'tree.json').write_text(json.dumps({'sha':d,'tree':[{'path':'.github/workflows/ci.yml','type':'blob','sha':blob}]}))
+(p/'workflow-content.json').write_text(json.dumps({'encoding':'base64','content':base64.b64encode(content).decode()}))
+PY
+PRODUCER_FIXTURE_DIR="$TMP/producer-fixture" PATH="$TMP/gh-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --collect-producer-source --source-bundle "$TMP/producer-source" --producer-source-sha cccccccccccccccccccccccccccccccccccccccc --run-id 778 >"$TMP/producer-source.out"
+jq -e '.validated==true and .producer_source_sha=="cccccccccccccccccccccccccccccccccccccccc" and .pull_request_number==331 and (.raw_sha256|has("raw/ci.yml"))' "$TMP/producer-source/manifest.json" >/dev/null
+jq -e '.status=="complete" and .request_count==5' "$TMP/producer-source/request-ledger.json" >/dev/null
 echo "ci-run-metrics-comparison.test: PASS"
