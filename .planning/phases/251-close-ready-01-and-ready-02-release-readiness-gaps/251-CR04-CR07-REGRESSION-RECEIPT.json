@@ -119,6 +119,28 @@
       "check_audit": { "exit_code": 1, "valid": false, "status": "gaps_found", "reason": "canonical milestone audit rendering is stale; root owns refresh" }
     }
   },
+  "iteration_4_canonical_dirty_row_binding": {
+    "finding": {
+      "id": "CR-08/T-251-14",
+      "title": "[BLOCKER] T-251-14: Dirty preservation metadata can diverge from its captured status row",
+      "red": "Against pre-fix auditor ea89df4c4, a coherently rebound immutable preservation record relabeled the captured dirty item's worktree_branch while retaining its valid ID; READY-02 remained satisfied. The reproduced dirty path attack also remains covered.",
+      "green": "Independent audit derives canonical dirty rows from READY-02 worktree status entries and requires full metadata equality with source-capture rows, dirty rows, and immutable preservation evidence. It compares complete source-capture and READY-02 worktree records, reconciles root raw-status entries to parsed entries, and passes only canonical-derived dirty rows to preservation validation."
+    },
+    "controls": "A valid original five-dirty-item READY-02 proof passes. Coherent record/ref/report/packet relabels of path, original_path, status, worktree_path, worktree_head_sha, worktree_branch, source_byte_sha256, source_byte_readable, and kind fail; mismatched status-row metadata across the two inventories fails. Valid modified, empty-byte, and tombstoned-deletion proofs pass.",
+    "red_test": "verify-v149-traceability.test.mjs: independent audit binds every dirty-row metadata field to its canonical status row; pre-fix assertion failed because READY-02 stayed satisfied after worktree_branch relabel.",
+    "green_test": "verify-v149-traceability.test.mjs: independent audit binds every dirty-row metadata field to its canonical status row; pass",
+    "commit": "441489e12",
+    "suites": {
+      "verify_247_readiness": "54 passed, 0 failed",
+      "verify_v149_traceability": "39 passed, 2 existing Nyquist classification failures because Phase 251 VALIDATION remains not_validated",
+      "validate_release_readiness": "31 passed, 0 failed"
+    },
+    "canonical_checks": {
+      "check_251": { "exit_code": 0, "valid": true, "capture_id": "phase251-939607ff3f17e03b22aa", "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140" },
+      "check_sources": { "exit_code": 0, "status": "gaps_found", "requirements": "8/9", "ready01": "unsatisfied", "ready02": "satisfied" },
+      "check_audit": { "exit_code": 1, "valid": false, "status": "gaps_found", "reason": "canonical milestone audit rendering is stale; root owns refresh" }
+    }
+  },
   "suites": [
     {
       "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
