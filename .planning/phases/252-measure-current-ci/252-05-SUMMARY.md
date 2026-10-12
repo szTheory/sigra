@@ -14,9 +14,9 @@ provides:
   - Bounded current failure analysis keeps unsupported or missing evidence unknown
 affects: [252-06, phase-252-verification, ci-performance]
 actuals:
-  tokens: 18579
+  tokens: 26679
   tasks: 3
-  commits: 8
+  commits: 12
 tech-stack:
   added: []
   patterns:
@@ -27,8 +27,10 @@ key-files:
     - scripts/ci/ci-run-metrics-replay.test.mjs
     - .planning/phases/252-measure-current-ci/252-05-task1-red-evidence.json
     - .planning/phases/252-measure-current-ci/252-05-task2-red-evidence.json
+    - .planning/phases/252-measure-current-ci/252-05-task2-single-red-evidence.json
     - .planning/phases/252-measure-current-ci/252-05-task3-red-evidence.json
     - .planning/phases/252-measure-current-ci/252-05-MIX-CI-DIAGNOSTIC.json
+    - .planning/phases/252-measure-current-ci/252-05-STATE-PRESERVATION.json
   modified:
     - .github/workflows/ci.yml
     - scripts/ci/ci-measure-workflow.test.mjs
@@ -71,12 +73,12 @@ coverage:
         ref: scripts/ci/ci-run-metrics-replay.test.mjs
         status: pass
     human_judgment: false
-duration: 27min
+duration: 32min
 completed: 2026-10-12
 status: complete
-commits: 8
+commits: 12
 plan_head_before: 9bde55eda32d730c2ce8ca8427719b947be1bc80
-plan_head_after: 3fef4bac2e74ce09cd34705ddbdd83d479e35bff
+plan_head_after: 6807e6fe6ce665986bd1d4107b39719912f52263
 ---
 
 # Phase 252 Plan 05: Current CI Measurement Summary
@@ -85,11 +87,11 @@ plan_head_after: 3fef4bac2e74ce09cd34705ddbdd83d479e35bff
 
 ## Performance
 
-- **Duration:** 27 minutes
+- **Duration:** 32 minutes
 - **Started:** 2026-10-12T19:05:34Z
-- **Completed:** 2026-10-12T19:32:57Z
+- **Completed:** 2026-10-12T19:37:13Z
 - **Tasks:** 3
-- **Files modified or created:** 11
+- **Files modified or created:** 13
 
 ## Accomplishments
 
@@ -99,11 +101,11 @@ plan_head_after: 3fef4bac2e74ce09cd34705ddbdd83d479e35bff
 
 ## Task Commits
 
-1. **Task 1: Retain timing and cache provenance** — RED `5f0476060`; GREEN `0a0ca2e6f`.
-2. **Task 2: Rank source-backed critical wait and summed runner costs** — RED `62a2a9be0`; GREEN `b296382cc`.
+1. **Task 1: Retain timing and cache provenance** — RED `5f0476060`; GREEN `0a0ca2e6f`; compatibility fix `085143ff0`.
+2. **Task 2: Rank source-backed critical wait and summed runner costs** — RED `62a2a9be0`; GREEN `b296382cc`; single-observation RED `2ffb1610d`; GREEN `6807e6fe6`.
 3. **Task 3: Produce a bounded current failure-signature shortlist** — RED `d8d6ca042`; GREEN `1ee3197e5`; additional empty-versus-unknown test `3fef4bac2`.
 
-Additional compatibility fix: `085143ff0` preserves the literal local command form used by existing workflow contract tests while the actual job remains `run: mix ci` with `MIX_ENV=test` set in the step environment.
+Additional plan records: summary `6354cc45d`; exact SDK state transition preservation `428183e85`.
 
 ## TDD Gate Compliance
 
@@ -113,13 +115,15 @@ Additional compatibility fix: `085143ff0` preserves the literal local command fo
 | 2 | `252-05-task2-red-evidence.json` — `RED_EVIDENCE_OK` | `b296382cc` | Passed |
 | 3 | `252-05-task3-red-evidence.json` — `RED_EVIDENCE_OK` | `1ee3197e5` | Passed |
 
+Task 2's single-observation bound also has a separate RED/GREEN pair: `252-05-task2-single-red-evidence.json` (`RED_EVIDENCE_OK`), `2ffb1610d` → `6807e6fe6`.
+
 ## Files Created/Modified
 
 - `.github/workflows/ci.yml` — timing and metadata uploads on existing jobs; no job or required-check ownership changes.
 - `scripts/ci/ci-measure-workflow.test.mjs` — offline CI structure and artifact contract checks.
 - `scripts/ci/ci-run-metrics.sh` and `.test.sh` — source-checked replay rankings and bounded failure diagnostics.
 - `scripts/ci/ci-run-metrics-replay.test.mjs` — empty-sample, unknown, and cancellation classification contracts.
-- `252-05-task{1,2,3}-red-evidence.json` — actual TAP RED runs accepted by the GSD classifier.
+- `252-05-task{1,2,3}-red-evidence.json` and `252-05-task2-single-red-evidence.json` — actual TAP RED runs accepted by the GSD classifier.
 - `252-05-MIX-CI-DIAGNOSTIC.json` and `deferred-items.md` — durable record of the remaining full-suite failure.
 
 ## Decisions Made
@@ -154,12 +158,12 @@ None.
 
 ## Next Phase Readiness
 
-Plan 252-05 implementation and offline contracts are committed. Hosted artifact and browser proof remains pending Plan 252-06, and the six Threadline failures remain in `deferred-items.md`. Continue with `$gsd-execute-phase 252`; keep all Phase 252 requirements Pending until phase-level verification.
+Plan 252-05 implementation and offline contracts are committed. The SDK-generated state transition is recoverable at commit `428183e85`; the prior STATE, state.json, and ROADMAP bytes were verified before route reconciliation. Hosted artifact and browser proof remains pending Plan 252-06, and the six Threadline failures remain in `deferred-items.md`. Continue with `$gsd-execute-phase 252`; keep all Phase 252 requirements Pending until phase-level verification.
 
 ## Self-Check: PASSED
 
 - Summary and evidence files exist at the paths listed above.
-- All eight task commits measured from `plan_head_before` are ancestors of `plan_head_after`.
+- All ten task commits and two plan-record commits measured from `plan_head_before` are ancestors of `plan_head_after`.
 - The working tree was clean after task commits; the only failing full-suite cases are listed in the committed diagnostic.
 
 ---

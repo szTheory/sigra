@@ -8,7 +8,7 @@ status: executing
 stopped_at: Completed 252-05-PLAN.md; full mix ci still has six unrelated Threadline failures
 last_updated: "2026-10-12T19:34:06.908Z"
 last_activity: 2026-10-12
-last_activity_desc: Plan 252-04 implementation and automated checks completed
+last_activity_desc: Plan 252-05 implementation, offline checks, and hosted-proof handoff completed
 state_head: 6354cc45d68e5bdf852f6081939b2d3dd94ff5a4
 progress:
   total_phases: 4
@@ -41,14 +41,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 Phase: 252 (Measure Current CI) — EXECUTING
 Plan: 6 of 6
 Status: Ready to execute
-Last activity: 2026-10-12 — Plan 252-04 implementation and automated checks completed
+Last activity: 2026-10-12 — Plan 252-05 implementation and offline checks completed; Plan 252-06 remains
 Progress: [░░░░░░░░░░] 0%
 
 ## Next GSD command
 
 $gsd-execute-phase 252
 
-Execute six plans across four waves. Plans 252-01 through 252-04 implementation and automated checks are complete; Plans 252-05 and 252-06 remain, followed by phase-level verification. Research, pattern mapping and independent plan checks are complete. The latest readiness check found no blocked or halted plans and no duplicate threat IDs. All nine requirements remain Pending; phase-level verification has not started.
+Execute six plans across four waves. Plans 252-01 through 252-05 implementation and offline checks are complete; Plan 252-06 remains, followed by phase-level verification. The hosted producing-PR artifacts and browser proof are assigned to Plan 252-06. The full `mix ci` run still has six Threadline tests failing outside Plan 252-05's files; details are in `252-05-MIX-CI-DIAGNOSTIC.json`. Research, pattern mapping and independent plan checks are complete. The latest readiness check found no blocked or halted plans and no duplicate threat IDs. All nine requirements remain Pending; phase-level verification has not started.
 
 The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Continue with `$gsd-execute-phase 252`; do not advance to Phase 253 before the remaining Phase 252 plans and phase-level verification.
 
@@ -61,7 +61,7 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Evidence
 
-- Phase 252 implementation and checks for Plans 01–04 are complete. Plan 01 evidence: `252-01-SUMMARY.md`, `252-EVIDENCE-PREFLIGHT.json`, and `252-run-family-38144377407-retry1/`. Plan 03 timing evidence: `252-03-SUMMARY.md` and `252-03-EXUNIT-TIMING.json`. Plan 04 Playwright report contract: `252-04-SUMMARY.md`. Plans 05–06 and phase-level verification remain; phase requirements stay unchecked until verification.
+- Phase 252 implementation and checks for Plans 01–05 are complete. Plan 01 evidence: `252-01-SUMMARY.md`, `252-EVIDENCE-PREFLIGHT.json`, and `252-run-family-38144377407-retry1/`. Plan 03 timing evidence: `252-03-SUMMARY.md` and `252-03-EXUNIT-TIMING.json`. Plan 04 Playwright report contract: `252-04-SUMMARY.md`. Plan 05 replay and hosted-proof handoff: `252-05-SUMMARY.md` and `252-05-MIX-CI-DIAGNOSTIC.json`. Plan 06 and phase-level verification remain; phase requirements stay unchecked until verification.
 - Final independent planning check: `252-PLAN-CHECK-03.md`; planning record/checks: `252-PLANNING-RECORD.json`, `252-PLANNING-CHECKS.json`, `252-PLANNING-ROUTING-CHECKS.json`. These are planning checks, not completed phase verification.
 
 - Phase 252 context/log/discovery: `.planning/phases/252-measure-current-ci/252-CONTEXT.md`, `252-DISCUSSION-LOG.md`, `252-DISCUSSION-RECORD.json`; context commit `96611810e2674a7c6318f48f36ae488a35d33c99`.
@@ -104,7 +104,7 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 | Phase 252 P02 | 28min | 3 tasks | 2 files |
 | Phase 252 P03 | 12min | 2 tasks | 5 files |
 | Phase 252 P04 | 28min | 2 tasks | 3 files |
-| Phase 252 P05 | 27min | 3 tasks | 11 files |
+| Phase 252 P05 | 32min | 3 tasks | 13 files |
 
 ## Decisions
 
