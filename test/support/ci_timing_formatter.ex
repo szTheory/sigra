@@ -7,9 +7,10 @@ defmodule Sigra.Test.CITimingFormatter do
   @count_keys [:passed, :failed, :skipped, :excluded]
 
   @doc false
-  def new_state(path) do
+  def new_state(path, invocation \\ System.get_env("SIGRA_EXUNIT_TIMING_INVOCATION")) do
     %{
       path: path,
+      invocation: invocation,
       tests: [],
       counts: Map.new(@count_keys, &{&1, 0}),
       test_duration_sum_us: 0,
@@ -22,7 +23,7 @@ defmodule Sigra.Test.CITimingFormatter do
   @impl true
   def init(_opts) do
     path = System.get_env("SIGRA_EXUNIT_TIMING_JSON")
-    state = new_state(path)
+    state = new_state(path, System.get_env("SIGRA_EXUNIT_TIMING_INVOCATION"))
 
     case clear_previous_report(path) do
       :ok ->
@@ -50,6 +51,7 @@ defmodule Sigra.Test.CITimingFormatter do
       case test.time do
         time when is_integer(time) and time >= 0 ->
           row = %{
+            invocation: state.invocation,
             test_id: id,
             module: inspect(test.module),
             name: Atom.to_string(test.name),
@@ -116,6 +118,7 @@ defmodule Sigra.Test.CITimingFormatter do
 
     %{
       unit: @unit,
+      invocation: state.invocation,
       tests: Enum.reverse(state.tests),
       counts: Map.new(state.counts, fn {key, value} -> {Atom.to_string(key), value} end),
       passed_count: state.counts.passed,

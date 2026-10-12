@@ -198,7 +198,7 @@ extract_timing_archive() {
 import json, os, pathlib, re, stat, sys, zipfile
 archive, destination = sys.argv[1:]
 max_total, max_member, max_members = 512 * 1024 * 1024, 64 * 1024 * 1024, 10000
-allowed = {"report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json"}
+allowed = {"report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing-main.json", "ci-exunit-timing-threadline-guard.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json"}
 try:
     os.makedirs(destination, exist_ok=True)
     with zipfile.ZipFile(archive) as zf:
@@ -488,6 +488,8 @@ collect_window() {
   cp "$ROOT/scripts/ci/ci-run-metrics.sh" "$stage/source/ci-run-metrics.sh"
   cp "$ROOT/scripts/ci/ci-playwright-report.mjs" "$stage/source/ci-playwright-report.mjs"
   cp "$ROOT/scripts/ci/ci-playwright-report.test.mjs" "$stage/source/ci-playwright-report.test.mjs"
+  cp "$ROOT/scripts/ci/sigra-dep-off.sh" "$stage/source/sigra-dep-off.sh"
+  cp "$ROOT/mix.exs" "$stage/source/mix.exs"
   cp "$ROOT/test/support/ci_timing_formatter.ex" "$stage/source/ci_timing_formatter.ex"
   cp "$ROOT/test/test_helper.exs" "$stage/source/test_helper.exs"
   cp "$ROOT/test/example/priv/playwright/playwright.config.ts" "$stage/source/playwright.config.ts"
@@ -767,7 +769,7 @@ collect_window() {
   workflow_blob="$(git hash-object "$ROOT/.github/workflows/ci.yml" 2>/dev/null || echo unavailable)"
   workflow_sha="$(sha256_file "$ROOT/.github/workflows/ci.yml")"
   tree_sha="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
-  source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test}')"
+  source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" --arg mix "$(sha256_file "$stage/source/mix.exs")" --arg dep_off "$(sha256_file "$stage/source/sigra-dep-off.sh")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test,"mix.exs":$mix,"sigra-dep-off.sh":$dep_off}')"
   required_contexts="$(jq -c '[.[]? | select(.type=="required_status_checks") | .parameters.required_status_checks[]?.context] | unique' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
   required_provenance="$(jq -c '[.[]? | select(.type=="required_status_checks") | {context:.parameters.required_status_checks[]?.context,ruleset_id:.ruleset_id,ruleset_source:.ruleset_source}]' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
   active_rules="$(jq -c '[.[]? | select(.enforcement=="active") | {id,name,target,enforcement}] | sort_by(.id)' "$stage/raw/rulesets.json" 2>/dev/null || echo '[]')"
@@ -1280,21 +1282,49 @@ def source_bound_full_pr(run, runid):
                         for row in normalized.get('tests',[]):
                             test_rows.append({'source':'playwright','identity':f"{runid}:{meta.get('run_attempt')}:{seam}:{row.get('test_id')}:{row.get('retry')}",'run_id':runid,'attempt':meta.get('run_attempt'),'sha':meta.get('source_sha'),'seam':seam,'test_id':row.get('test_id'),'name':row.get('title'),'duration_ms':row.get('duration_ms'),'result':row.get('result'),'unit':'ms'})
                 output.unlink(missing_ok=True)
-        ex_path=next((p for _,p in files if p.name=='ci-exunit-timing.json'),None)
-        exunit={}
-        if ex_path:
-            try: exunit=json.loads(ex_path.read_text())
-            except Exception: exunit={}
+        expected_exunit={'main':'ci-exunit-timing-main.json','threadline_guard':'ci-exunit-timing-threadline-guard.json'}
+        exunit_by_invocation={}; exunit_paths={}
+        for artifact,path in files:
+            if path.name in expected_exunit.values():
+                if path.name in exunit_paths: diagnostics.append('duplicate_exunit_timing_report')
+                exunit_paths[path.name]=(artifact,path)
+        exunit_reports=[]
+        for invocation,filename in expected_exunit.items():
+            artifact_path=exunit_paths.get(filename)
+            artifact,path=artifact_path if artifact_path else ({},None)
+            report={}
+            if path:
+                try: report=json.loads(path.read_text())
+                except Exception: report={}
+            if report.get('complete') is not True or report.get('unit')!='microsecond' or report.get('invocation')!=invocation:
+                diagnostics.append('complete_exunit_'+invocation+'_timing_missing_or_wrong_invocation')
+                continue
+            rows=report.get('tests')
+            if not isinstance(rows,list) or any(row.get('invocation')!=invocation or not isinstance(row.get('test_id'),str) or not isinstance(row.get('duration_us'),int) or row.get('duration_us')<0 for row in rows):
+                diagnostics.append('exunit_'+invocation+'_test_identity_invalid')
+                continue
+            if report.get('test_duration_sum_us')!=sum(row['duration_us'] for row in rows):
+                diagnostics.append('exunit_'+invocation+'_duration_total_mismatch')
+                continue
+            exunit_by_invocation[invocation]=report
+            exunit_reports.append({'invocation':invocation,'tests':len(rows),'passed':report.get('passed_count'),'failed':report.get('failed_count'),'skipped':report.get('skipped_count'),'excluded':report.get('excluded_count'),'suite_elapsed_us':report.get('suite_elapsed_us'),'test_duration_sum_us':report.get('test_duration_sum_us')})
         ex_meta=next((m for m,j,_ in metadata if m.get('job_name')=='Library tests shard'),None)
-        if not ex_meta or int(ex_meta.get('run_attempt',-1)) not in [int(a) for a in refs]: exunit={}
+        metadata_reports=ex_meta.get('exunit_reports') if ex_meta else None
+        if metadata_reports != [{'invocation':'main','path':expected_exunit['main']},{'invocation':'threadline_guard','path':expected_exunit['threadline_guard']}]:
+            diagnostics.append('exunit_producer_report_contract_missing')
+        expected_artifact_name=f'library-test-timing-{runid}-{ex_meta.get("run_attempt")}' if ex_meta else None
+        if (not ex_meta or ex_meta.get('timing_artifact_name')!=expected_artifact_name
+            or any(not exunit_paths.get(filename) or exunit_paths[filename][0].get('name')!=expected_artifact_name for filename in expected_exunit.values())):
+            diagnostics.append('exunit_timing_artifact_not_bound_to_library_job')
+        if not ex_meta or int(ex_meta.get('run_attempt',-1)) not in [int(a) for a in refs]: exunit_by_invocation={}
         expected_seams=set(x[0] for x in expected_pw.values())
-        if not exunit.get('complete') or exunit.get('unit')!='microsecond': diagnostics.append('complete_exunit_timing_missing')
         if set(pw_reports)!=expected_seams: diagnostics.append('complete_playwright_seam_timing_missing')
         if len({m.get('source_sha') for m,_,_ in metadata if m.get('job_name')=='Library tests shard' or m.get('job_name')=='Example Playwright shard'})>1:
             diagnostics.append('producer_source_revision_mismatch')
         if diagnostics: return None, sorted(set(diagnostics))
-        for row in exunit.get('tests',[]):
-            test_rows.append({'source':'exunit','identity':f"{runid}:{ex_meta.get('run_attempt')}:{row.get('test_id')}",'run_id':runid,'attempt':ex_meta.get('run_attempt'),'sha':ex_meta.get('source_sha'),'test_id':row.get('test_id'),'name':row.get('name'),'duration_us':row.get('duration_us'),'result':row.get('result'),'unit':'microsecond'})
+        for invocation,report in exunit_by_invocation.items():
+            for row in report.get('tests',[]):
+                test_rows.append({'source':'exunit','identity':f"{runid}:{ex_meta.get('run_attempt')}:{invocation}:{row.get('test_id')}",'run_id':runid,'attempt':ex_meta.get('run_attempt'),'sha':ex_meta.get('source_sha'),'invocation':invocation,'test_id':row.get('test_id'),'name':row.get('name'),'duration_us':row.get('duration_us'),'result':row.get('result'),'unit':'microsecond'})
         producer_rows=[(ex_meta,next(j for j in jobs_by_attempt[str(ex_meta['run_attempt'])] if j.get('name')=='Library tests shard'))]
         producer_rows.extend((meta,job) for _,meta,job in pw_reports.values())
         costs=[]; stage={s:0.0 for s in stages}; cache_vector={}; runner_classes=[]; producer_attempts={}
@@ -1320,9 +1350,9 @@ def source_bound_full_pr(run, runid):
                 if seconds is not None: run_runner_seconds+=seconds; attempt_seconds+=seconds
                 attempt_rows.append({'job_id':job.get('id'),'name':job.get('name'),'conclusion':job.get('conclusion'),'runner_seconds':seconds})
             run_attempts.append({'attempt':int(attempt),'runner_seconds':round(attempt_seconds,6),'jobs':sorted(attempt_rows,key=lambda row:(row['name'] or '',int(row['job_id'] or 0)))})
-        exunit_over=exunit.get('instrumentation_overhead_us')
+        exunit_over=exunit_by_invocation.get('main',{}).get('instrumentation_overhead_us')
         pw_over={seam:report.get('reporter_overhead') for seam,(report,_,_) in sorted(pw_reports.items())}
-        return {'run_id':runid,'attempt':run.get('run_attempt'),'created_at':run.get('created_at'),'application_revision':run.get('head_sha'),'producer_source_sha':ex_meta.get('source_sha'),'workflow_revision':run.get('head_sha'),'workflow_sha256':None,'source_url':run.get('html_url'),'required_contexts':expected_contexts,'required_result_wait_seconds':required_wait_candidates[-1]['seconds'] if required_wait_candidates and required_wait_candidates[-1]['run_id']==runid else None,'runner_seconds':round(run_runner_seconds,6),'run_attempts':run_attempts,'instrumentation_producer_job_seconds':round(sum(costs),6),'producer_job_count':len(producer_rows),'producer_attempts':producer_attempts,'step_costs':{k:round(v,6) for k,v in stage.items()},'exunit_test_duration_us':exunit.get('test_duration_sum_us'),'exunit_instrumentation_overhead_us':exunit_over,'playwright_test_duration_ms':sum(r.get('sum_test_duration_ms',0) for r,_,_ in pw_reports.values()),'playwright_reporter_overhead':pw_over,'playwright_seams':sorted(pw_reports),'cache_stratum':cache_vector,'runner_classes':runner_classes,'observed_versions':{'elixir':ex_meta.get('observed_versions',{}).get('elixir'),'node':next((m.get('observed_versions',{}).get('node') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None),'playwright':next((m.get('observed_versions',{}).get('playwright') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None)},'configured_versions':{'elixir':ex_meta.get('configured_versions',{}).get('elixir'),'node':next((m.get('configured_versions',{}).get('node') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None),'playwright':next((m.get('configured_versions',{}).get('playwright') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None)}},[]
+        return {'run_id':runid,'attempt':run.get('run_attempt'),'created_at':run.get('created_at'),'application_revision':run.get('head_sha'),'producer_source_sha':ex_meta.get('source_sha'),'workflow_revision':run.get('head_sha'),'workflow_sha256':None,'source_url':run.get('html_url'),'required_contexts':expected_contexts,'required_result_wait_seconds':required_wait_candidates[-1]['seconds'] if required_wait_candidates and required_wait_candidates[-1]['run_id']==runid else None,'runner_seconds':round(run_runner_seconds,6),'run_attempts':run_attempts,'instrumentation_producer_job_seconds':round(sum(costs),6),'producer_job_count':len(producer_rows),'producer_attempts':producer_attempts,'step_costs':{k:round(v,6) for k,v in stage.items()},'exunit_test_duration_us':sum(x.get('test_duration_sum_us',0) for x in exunit_by_invocation.values()),'exunit_invocations':exunit_reports,'exunit_instrumentation_overhead_us':exunit_over,'playwright_test_duration_ms':sum(r.get('sum_test_duration_ms',0) for r,_,_ in pw_reports.values()),'playwright_reporter_overhead':pw_over,'playwright_seams':sorted(pw_reports),'cache_stratum':cache_vector,'runner_classes':runner_classes,'observed_versions':{'elixir':ex_meta.get('observed_versions',{}).get('elixir'),'node':next((m.get('observed_versions',{}).get('node') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None),'playwright':next((m.get('observed_versions',{}).get('playwright') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None)},'configured_versions':{'elixir':ex_meta.get('configured_versions',{}).get('elixir'),'node':next((m.get('configured_versions',{}).get('node') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None),'playwright':next((m.get('configured_versions',{}).get('playwright') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None)}},[]
     except (OSError,ValueError,TypeError,KeyError) as error:
         return None,['source_evidence_invalid:'+type(error).__name__]
 full_pr_runs=[r for r in manifest.get('populations',{}).get('pull_request',{}).get('runs',[]) if r.get('workload')=='full' and r.get('conclusion')=='success']
@@ -1375,20 +1405,31 @@ for pop,key in events.items():
                 cache.update(meta.get('cache_outcome',{}))
                 timing=family/'timing'
                 for path in timing.glob('*.json'):
-                    if path.name in ('ci-measurement-metadata.json','ci-exunit-timing.json'): continue
+                    if path.name in ('ci-measurement-metadata.json','ci-exunit-timing-main.json','ci-exunit-timing-threadline-guard.json'): continue
                     try: report=json.loads(path.read_text())
                     except Exception: continue
                     if report.get('seam')!=seam or not report.get('complete'): continue
                     for row in report.get('tests',[]):
                         test_rows.append({'source':'playwright','identity':f"{runid}:{expected_attempt}:{seam}:{row.get('test_id')}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'seam':seam,'test_id':row.get('test_id'),'name':row.get('title'),'duration_ms':row.get('duration_ms'),'suite_elapsed_ms':report.get('suite_elapsed_ms'),'sum_test_duration_ms':report.get('sum_test_duration_ms')})
                     overhead['playwright']=report.get('reporter_overhead',overhead['playwright'])
-                exunit=timing/'ci-exunit-timing.json'
-                if exunit.is_file():
-                    try: report=json.loads(exunit.read_text())
+                exunit_reports=[]; exunit_main={}
+                for invocation,filename in [('main','ci-exunit-timing-main.json'),('threadline_guard','ci-exunit-timing-threadline-guard.json')]:
+                    exunit_path=timing/filename
+                    if not exunit_path.is_file(): continue
+                    try: report=json.loads(exunit_path.read_text())
                     except Exception: report={}
-                    if report.get('complete') and report.get('unit')=='microsecond':
-                        for row in report.get('tests',[]): test_rows.append({'source':'exunit','identity':f"{runid}:{expected_attempt}:{row.get('test_id')}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'test_id':row.get('test_id'),'name':row.get('name'),'duration_us':row.get('duration_us')})
-                        overhead['exunit']={'status':'measured','instrumentation_overhead_us':report.get('instrumentation_overhead_us'),'method':report.get('instrumentation_overhead_method')}
+                    metadata_reports=meta.get('exunit_reports') or []
+                    if (report.get('complete') is True and report.get('unit')=='microsecond' and report.get('invocation')==invocation
+                        and {'invocation':invocation,'path':filename} in metadata_reports
+                        and isinstance(report.get('tests'),list)
+                        and all(row.get('invocation')==invocation and isinstance(row.get('duration_us'),int) and row['duration_us']>=0 for row in report.get('tests',[]))
+                        and report.get('test_duration_sum_us')==sum(row['duration_us'] for row in report.get('tests',[]))):
+                        exunit_reports.append({'invocation':invocation,'tests':len(report['tests']),'test_duration_sum_us':report['test_duration_sum_us'],'suite_elapsed_us':report.get('suite_elapsed_us')})
+                        for row in report.get('tests',[]): test_rows.append({'source':'exunit','identity':f"{runid}:{expected_attempt}:{invocation}:{row.get('test_id')}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'invocation':invocation,'test_id':row.get('test_id'),'name':row.get('name'),'duration_us':row.get('duration_us')})
+                        if invocation=='main': exunit_main=report
+                if len(exunit_reports)==2 and [x['invocation'] for x in exunit_reports]==['main','threadline_guard']:
+                    exunit={'invocations':exunit_reports,'test_duration_sum_us':sum(x['test_duration_sum_us'] for x in exunit_reports),'instrumentation_overhead_us':exunit_main.get('instrumentation_overhead_us')}
+                    overhead['exunit']={'status':'measured','instrumentation_overhead_us':exunit.get('instrumentation_overhead_us'),'method':exunit_main.get('instrumentation_overhead_method')}
         if pop=='pull_request' and run.get('workload')=='full' and run.get('conclusion')=='success' and run.get('id')==latest_instrumented_pr:
             sample,diagnostics=source_bound_full_pr(run,runid)
             if sample: instrumented_full_candidates.append(sample)
@@ -1449,7 +1490,7 @@ if required_wait_candidates:
     out['required_result_wait']={'status':'measured','n':1,'seconds':wait['seconds'],'unit':'seconds','run_id':wait['run_id'],'attempt':wait['attempt'],'source_sha':wait['head_sha'],'source_url':wait['url'],'required_contexts':wait['contexts'],'completed_at':wait['completed_at'],'limitation':'single_observation'}
 if instrumented_full_candidates:
     sample=sorted(instrumented_full_candidates,key=lambda x:(x.get('created_at',''),int(x['run_id'])))[-1]
-    out['instrumented_full_pr']={'complete':True,'status':'measured','diagnostics':[],'producing_run_id':sample['run_id'],'source_sha':sample['application_revision'],'application_revision':sample['application_revision'],'producer_source_sha':sample['producer_source_sha'],'workflow_revision':sample['workflow_revision'],'workflow_sha256':manifest.get('measured_pr_workflow_sha256'),'source_url':sample['source_url'],'attempt':sample['attempt'],'job_cost_seconds':sample['runner_seconds'],'runner_seconds':sample['runner_seconds'],'run_attempts':sample['run_attempts'],'instrumentation_producer_job_seconds':sample['instrumentation_producer_job_seconds'],'producer_job_count':sample['producer_job_count'],'producer_attempts':sample['producer_attempts'],'step_costs':sample['step_costs'],'test_costs':{'exunit_test_duration_us':sample['exunit_test_duration_us'],'playwright_test_duration_ms':sample['playwright_test_duration_ms']},'exunit_instrumentation':{'identity':'Sigra.TestSupport.CiTimingFormatter/v1','overhead_us':sample['exunit_instrumentation_overhead_us']},'playwright_instrumentation':{'identity':'ci-playwright-report.mjs/playwright-json-1.59.1','overhead':sample['playwright_reporter_overhead']},'playwright_seams':sample['playwright_seams'],'cache_stratum':sample['cache_stratum'],'runner_classes':sample['runner_classes']}
+    out['instrumented_full_pr']={'complete':True,'status':'measured','diagnostics':[],'producing_run_id':sample['run_id'],'source_sha':sample['application_revision'],'application_revision':sample['application_revision'],'producer_source_sha':sample['producer_source_sha'],'workflow_revision':sample['workflow_revision'],'workflow_sha256':manifest.get('measured_pr_workflow_sha256'),'source_url':sample['source_url'],'attempt':sample['attempt'],'job_cost_seconds':sample['runner_seconds'],'runner_seconds':sample['runner_seconds'],'run_attempts':sample['run_attempts'],'instrumentation_producer_job_seconds':sample['instrumentation_producer_job_seconds'],'producer_job_count':sample['producer_job_count'],'producer_attempts':sample['producer_attempts'],'step_costs':sample['step_costs'],'test_costs':{'exunit_test_duration_us':sample['exunit_test_duration_us'],'exunit_invocations':sample['exunit_invocations'],'playwright_test_duration_ms':sample['playwright_test_duration_ms']},'exunit_instrumentation':{'identity':'Sigra.TestSupport.CiTimingFormatter/v1','overhead_us':sample['exunit_instrumentation_overhead_us']},'playwright_instrumentation':{'identity':'ci-playwright-report.mjs/playwright-json-1.59.1','overhead':sample['playwright_reporter_overhead']},'playwright_seams':sample['playwright_seams'],'cache_stratum':sample['cache_stratum'],'runner_classes':sample['runner_classes']}
     out['observed_versions']['pull_request']=sample['observed_versions']; out['configured_versions']['pull_request']=sample['configured_versions']; out['cache_outcome']=sample['cache_stratum']; out['runner_image']['pull_request']=sample['runner_classes'][0] if sample['runner_classes'] else image_defaults
     exunit_baseline=instrumentation_baseline.get('exunit',{})
     exunit_overhead=exunit_baseline.get('instrumentation_overhead_us') if exunit_baseline.get('status')=='historical_baseline' else None

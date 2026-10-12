@@ -55,14 +55,18 @@ test('records seven distinct Playwright reports without changing the five seam s
   assert.match(playwrightConfig, /retries:\s*0/);
 });
 
-test('uploads timing and small run metadata from each producing job even after failure', () => {
-  assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_JSON:/);
+test('uploads separate main and dependency-off timing reports from their producing job', () => {
+  assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_JSON: test-results\/ci-exunit-timing-main\.json/);
+  assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_INVOCATION: main/);
+  assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results\/ci-exunit-timing-threadline-guard\.json/);
   assert.match(blocks.library_tests_shard, /run: (?:MIX_ENV=test )?mix ci/);
   const prepareTimingDirectory = blocks.library_tests_shard.indexOf('mkdir -p test-results');
   const contributorCi = blocks.library_tests_shard.indexOf('run: mix ci');
   assert.notEqual(prepareTimingDirectory, -1, 'library timing directory is not created');
   assert.ok(prepareTimingDirectory < contributorCi, 'timing directory must exist before mix ci writes ExUnit timing');
-  assert.match(blocks.library_tests_shard, /if: always\(\)[\s\S]*?ci-exunit-timing\.json/);
+  assert.match(blocks.library_tests_shard, /if: always\(\)[\s\S]*?ci-exunit-timing-main\.json[\s\S]*?ci-exunit-timing-threadline-guard\.json/);
+  assert.match(blocks.library_tests_shard, /invocation: 'main'[\s\S]*?invocation: 'threadline_guard'/);
+  assert.match(blocks.library_tests_shard, /timing_artifact_name: `library-test-timing-\$\{process\.env\.GITHUB_RUN_ID\}-\$\{process\.env\.GITHUB_RUN_ATTEMPT\}`/);
   for (const [id, block] of Object.entries(blocks)) {
     assert.match(block, /ci-measurement-metadata\.json/, `${id} lacks metadata artifact`);
     assert.match(block, /if: always\(\)[\s\S]*?upload-artifact/, `${id} does not retain artifacts on failure`);

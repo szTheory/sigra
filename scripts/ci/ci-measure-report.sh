@@ -26,6 +26,8 @@ def show(value, unit=''):
         value=value.get('seconds',value.get('total_seconds',value.get('total')))
         if value is None: return 'unknown'
     return f"{value:g}{unit}"
+exunit_invocations=full.get('test_costs',{}).get('exunit_invocations',[])
+exunit_invocation_text='; '.join(f"{x.get('invocation','unknown')}: {x.get('tests','unknown')} tests, {show(x.get('test_duration_sum_us'),'µs')}" for x in exunit_invocations) or 'invocation reports unavailable'
 def section_rank(data):
     rows=data.get('rows') or []
     return '\n'.join(f"- {row.get('identity','unknown')} — {show(row.get('seconds'),'s')} (run {row.get('run_id','unknown')}, attempt {row.get('attempt','unknown')})" for row in rows[:5]) or '- unknown (no complete source timestamps)'
@@ -82,7 +84,7 @@ PR workload classes: full `{baseline.get('cohorts',{}).get('full',{}).get('n',0)
 
 ## Required result and cost
 
-The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial per-job queue wait is {show(queue_pr.get('total_seconds'),'s')} summed across {queue_pr.get('n','unknown')} job attempts (not a workflow wall time); dependency gaps remain {show(baseline.get('dag_dependency_gaps',{}).get('pull_request'))}; required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{full.get('status','unknown')}`. Across its retained attempts, runner cost is {show(full.get('job_cost_seconds'),'s')}; timing producer jobs account for {show(full.get('instrumentation_producer_job_seconds'),'s')}; test durations sum to ExUnit {show(full.get('test_costs',{}).get('exunit_test_duration_us'),'µs')} and Playwright {show(full.get('test_costs',{}).get('playwright_test_duration_ms'),'ms')}. Run [{identity.get('producing_run_id','unknown')} attempt {identity.get('run_attempt','unknown')}]({identity.get('source_url') or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{identity.get('pull_request_number','unknown')}]({identity.get('pull_request') or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{identity.get('application_sha','unknown')}`; producer checked-out source revision `{identity.get('producer_source_sha','unknown')}`; workflow file SHA-256 `{identity.get('workflow_file_sha256','unknown')}`; workload identity SHA-256 `{identity.get('workload_revision_sha256','unknown')}`. These are distinct revisions and digests.
+The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial per-job queue wait is {show(queue_pr.get('total_seconds'),'s')} summed across {queue_pr.get('n','unknown')} job attempts (not a workflow wall time); dependency gaps remain {show(baseline.get('dag_dependency_gaps',{}).get('pull_request'))}; required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{full.get('status','unknown')}`. Across its retained attempts, runner cost is {show(full.get('job_cost_seconds'),'s')}; timing producer jobs account for {show(full.get('instrumentation_producer_job_seconds'),'s')}; ExUnit invocation reports are {exunit_invocation_text} (total {show(full.get('test_costs',{}).get('exunit_test_duration_us'),'µs')}) and Playwright tests total {show(full.get('test_costs',{}).get('playwright_test_duration_ms'),'ms')}. Run [{identity.get('producing_run_id','unknown')} attempt {identity.get('run_attempt','unknown')}]({identity.get('source_url') or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{identity.get('pull_request_number','unknown')}]({identity.get('pull_request') or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{identity.get('application_sha','unknown')}`; producer checked-out source revision `{identity.get('producer_source_sha','unknown')}`; workflow file SHA-256 `{identity.get('workflow_file_sha256','unknown')}`; workload identity SHA-256 `{identity.get('workload_revision_sha256','unknown')}`. These are distinct revisions and digests.
 
 Currently enforced required names, with ruleset IDs as provenance:
 {required}
@@ -142,7 +144,7 @@ Run from the repository root:
 ```sh
 bash scripts/ci/ci-run-metrics.sh --replay --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --format json
 bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json
-SIGRA_EXUNIT_TIMING_JSON=tmp/ci-exunit-timing.json PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci
+SIGRA_EXUNIT_TIMING_JSON=tmp/ci-exunit-timing-main.json SIGRA_EXUNIT_TIMING_INVOCATION=main PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci
 SIGRA_EXAMPLE_URL=http://localhost:4002 SIGRA_PLAYWRIGHT_JSON=artifacts/ci-timing/admin_checkpoints-local.json npm --prefix test/example/priv/playwright test -- tests/admin-checkpoints.spec.ts --project=admin-checkpoints-chromium --project=admin-checkpoints-mobile --project=admin-checkpoints-dark --retries=0
 ```
 

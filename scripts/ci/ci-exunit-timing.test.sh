@@ -105,7 +105,7 @@ run_focus_sample() {
   local -a command
 
   if [[ "$mode" == "with" ]]; then
-    command=(env "SIGRA_EXUNIT_TIMING_JSON=$output_path" node -e "$TIMED_MIX_JS")
+    command=(env "SIGRA_EXUNIT_TIMING_JSON=$output_path" SIGRA_EXUNIT_TIMING_INVOCATION=instrumentation_test node -e "$TIMED_MIX_JS")
   else
     command=(env -u SIGRA_EXUNIT_TIMING_JSON node -e "$TIMED_MIX_JS")
   fi
@@ -130,9 +130,9 @@ run_focus_sample() {
   fi
 
   if [[ "$mode" == "with" ]]; then
-    if [[ ! -s "$output_path" ]] || ! jq -e '.complete == true and .unit == "microsecond" and (.tests | length == 2)' "$output_path" >/dev/null; then
+    if [[ ! -s "$output_path" ]] || ! jq -e '.complete == true and .unit == "microsecond" and .invocation == "instrumentation_test" and (.tests | length == 3) and all(.tests[]; .invocation == "instrumentation_test")' "$output_path" >/dev/null; then
       cat "$log_path" >&2
-      echo "ci-exunit-timing.test: instrumented sample $sample did not produce a complete two-test report" >&2
+      echo "ci-exunit-timing.test: instrumented sample $sample did not produce a complete three-test report" >&2
       return 1
     fi
   else
@@ -143,7 +143,7 @@ run_focus_sample() {
     fi
   fi
 
-  if ! rg -q '2 tests, 0 failures' "$log_path"; then
+  if ! rg -q '3 tests, 0 failures' "$log_path"; then
     cat "$log_path" >&2
     echo "ci-exunit-timing.test: focused suite $mode sample $sample did not preserve normal ExUnit output" >&2
     return 1

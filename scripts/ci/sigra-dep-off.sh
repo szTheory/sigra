@@ -58,7 +58,19 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 cd "${ROOT}"
+TIMING_DIR=""
+THREADLINE_TIMING_JSON=""
+if [[ -n "${SIGRA_EXUNIT_TIMING_JSON:-}" ]]; then
+  TIMING_DIR="$(dirname "${SIGRA_EXUNIT_TIMING_JSON}")"
+  THREADLINE_TIMING_JSON="${SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON:-${TIMING_DIR}/ci-exunit-timing-threadline-guard.json}"
+fi
 mix deps.unlock threadline || exit $?
 mix deps.clean threadline --build || exit $?
 mix compile --warnings-as-errors --no-deps-check || exit $?
-mix test --only threadline_guard --no-deps-check
+if [[ -n "${THREADLINE_TIMING_JSON}" ]]; then
+  SIGRA_EXUNIT_TIMING_INVOCATION=threadline_guard \
+    SIGRA_EXUNIT_TIMING_JSON="${THREADLINE_TIMING_JSON}" \
+    mix test --only threadline_guard --no-deps-check
+else
+  mix test --only threadline_guard --no-deps-check
+fi
