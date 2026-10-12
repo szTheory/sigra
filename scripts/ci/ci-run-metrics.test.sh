@@ -369,6 +369,8 @@ if jq -e '. as $r |
   ($r.observed_versions.pull_request.playwright.value == null) and
   ($r.observed_versions.pull_request.playwright.reason != null) and
   ($r.reporter_overhead.playwright.status == "unmeasured") and
+  ($r.required_result_wait.status == "unknown") and
+  ($r.instrumented_full_pr.complete == false and $r.instrumented_full_pr.status == "insufficient_data") and
   ($r.cohorts.docs_only.status == "measured" and $r.cohorts.docs_only.n == 1) and
   ([$r.test_rows[]|select(.source=="exunit")]|length)==0 and
   ([$r.test_rows[]|select(.source=="playwright")]|length)==1 and

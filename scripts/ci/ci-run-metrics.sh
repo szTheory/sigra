@@ -1140,11 +1140,11 @@ replay_snapshot() {
     source_expected="$(jq -r --arg name "$source_name" '.source_file_sha256[$name]' "$manifest")"
     [[ -s "$source_path" && "$(sha256_file "$source_path")" == "$source_expected" ]] || fail "snapshot_source_file_hash_mismatch:${source_name}"
   done < <(jq -r '.source_file_sha256|keys[]' "$manifest")
-  result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,captured_at_utc,window_start_utc,status,stop_reason,request_count,source_sha,workflow_sha256,workflow_blob_sha,required_contexts,required_rule_provenance,active_rulesets,source_file_sha256,source_sha256,comparison_families:(.comparison_families // null),source_runs:([.populations|to_entries[]|select(.key=="pull_request" or .key=="push_main" or .key=="schedule") as $pop | $pop.value.runs[]? | {event:$pop.key,id,html_url,head_sha,run_attempt,conclusion,created_at,updated_at,detail_status,workload,changes_docs_only} ]|sort_by(.event,.created_at,.id)),populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
+  result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,captured_at_utc,window_start_utc,status,stop_reason,request_count,source_sha,workflow_sha256,workflow_blob_sha,required_contexts,required_rule_provenance,active_rulesets,source_file_sha256,source_sha256,measured_pr_workflow_sha256,measured_pr_identity,comparison_families:(.comparison_families // null),source_runs:([.populations|to_entries[]|select(.key=="pull_request" or .key=="push_main" or .key=="schedule") as $pop | $pop.value.runs[]? | {event:$pop.key,id,html_url,head_sha,run_attempt,conclusion,created_at,updated_at,detail_status,workload,changes_docs_only} ]|sort_by(.event,.created_at,.id)),populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
   local metrics_file
   metrics_file="$(mktemp "${TMPDIR:-/tmp}/ci-run-metrics-replay.XXXXXX")"
   python3 - "$bundle" "$ROOT" >"$metrics_file" <<'PY'
-import datetime, hashlib, json, pathlib, re, sys
+import datetime, hashlib, json, pathlib, re, subprocess, sys
 root = pathlib.Path(sys.argv[1]); project = pathlib.Path(sys.argv[2]); manifest = json.loads((root/'manifest.json').read_text())
 events = {'pull_request':'pull_request','push_main':'main','schedule':'nightly'}
 stages = ['setup','cache_restore_download','compile','database_startup','app_boot','test_execution','artifact_upload','other']
@@ -1152,17 +1152,175 @@ wait_rows={k:[] for k in events.values()}; runner_rows={k:[] for k in events.val
 cache={}; images={}; configured={}; observed={}; test_rows=[]; overhead={'playwright':{'status':'unmeasured','overhead_ms':None},'exunit':{'status':'unknown','overhead_us':None}}
 instrumentation_baseline={'exunit':{'status':'unknown','source':'.planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json'}}
 try:
-    baseline=json.loads((project/'.planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json').read_text())
+    baseline_path=root/'source'/'252-03-EXUNIT-TIMING.json'
+    if not baseline_path.is_file(): baseline_path=project/'.planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json'
+    baseline=json.loads(baseline_path.read_text())
     if baseline.get('complete') is True:
-        instrumentation_baseline['exunit']={'status':'historical_baseline','source':'.planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json','observed_at_utc':baseline.get('observed_at_utc'),'instrumentation_overhead_us':baseline.get('instrumentation_overhead_us'),'method':baseline.get('overhead_method')}
+        instrumentation_baseline['exunit']={'status':'historical_baseline','source':'.planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json','observed_at_utc':baseline.get('observed_at_utc'),'instrumentation_overhead_us':baseline.get('instrumentation_overhead_us'),'method':baseline.get('overhead_method'),'samples':baseline.get('samples')}
 except (OSError,ValueError): pass
 failure_candidates=[]; signature_groups={}; failure_bins={k:[] for k in ['application_test_failure','infrastructure_failure','superseded_cancellation','cancellation_unclassified','expected_skip','unexpected_skip','missing_job','unknown_failure']}; missing_diagnostics=[]
+required_wait_candidates=[]; instrumented_full_candidates=[]
 def epoch(v):
     if not v: return None
     try: return datetime.datetime.fromisoformat(v.replace('Z','+00:00')).timestamp()
     except (ValueError, TypeError): return None
 def result(vals, unit):
     return {'status':'measured','n':len(vals),'unit':unit,'total':round(sum(vals),6),'limitation':'single_observation' if len(vals)==1 else None} if vals else {'status':'unknown','n':0,'unit':unit,'total':None,'reason':'no_complete_source_timestamps'}
+def source_bound_full_pr(run, runid):
+    """Read current artifact-evidence bundles and bind timings to their producing jobs."""
+    family=root/'raw'/'families'/runid
+    diagnostics=[]
+    try:
+        fm=json.loads((family/'manifest.json').read_text())
+        run_raw=family/'run.json'
+        if not run_raw.is_file() or hashlib.sha256(run_raw.read_bytes()).hexdigest()!=fm.get('source_run_sha256'):
+            return None, ['source_run_hash_mismatch']
+        evidence_ref=fm.get('artifact_evidence') or {}
+        evidence_path=root/evidence_ref.get('path','')
+        if not evidence_ref.get('sha256') or not evidence_path.is_file() or hashlib.sha256(evidence_path.read_bytes()).hexdigest()!=evidence_ref.get('sha256'):
+            return None, ['artifact_evidence_hash_mismatch']
+        evidence=json.loads(evidence_path.read_text())
+        checks_path=family/'check-runs.json'
+        if not checks_path.is_file() or hashlib.sha256(checks_path.read_bytes()).hexdigest()!=fm.get('check_runs_sha256'):
+            return None, ['check_runs_hash_mismatch']
+        checks=json.loads(checks_path.read_text()).get('check_runs',[])
+        expected_contexts=manifest.get('required_contexts',[])
+        by_name={}
+        for check in checks:
+            if check.get('head_sha')!=run.get('head_sha') or check.get('app',{}).get('slug')!='github-actions': continue
+            by_name[check.get('name')]=check
+        endpoints=[by_name.get(name) for name in expected_contexts]
+        if not expected_contexts or any(not check or check.get('status')!='completed' or check.get('conclusion')!='success' or not epoch(check.get('completed_at')) for check in endpoints):
+            diagnostics.append('required_contexts_incomplete_or_unbound')
+        else:
+            completed=max(epoch(check.get('completed_at')) for check in endpoints)
+            created=epoch(run.get('created_at'))
+            if created is not None and completed>=created:
+                required_wait_candidates.append({'run_id':runid,'attempt':run.get('run_attempt'),'head_sha':run.get('head_sha'),'created_at':run.get('created_at'),'completed_at':max(check.get('completed_at') for check in endpoints),'seconds':round(completed-created,6),'url':run.get('html_url'),'contexts':expected_contexts})
+            else: diagnostics.append('required_context_endpoint_invalid')
+        refs=run.get('attempt_jobs') or {}
+        jobs_by_attempt={}
+        for attempt,ref in refs.items():
+            jp=family/pathlib.Path(ref.get('path') or '').name
+            if not jp.is_file() or hashlib.sha256(jp.read_bytes()).hexdigest()!=ref.get('sha256'): continue
+            try: jobs_by_attempt[str(attempt)]=json.loads(jp.read_text()).get('jobs',[])
+            except Exception: continue
+        files=[]; metadata=[]
+        for item in evidence:
+            art=item.get('artifact') or {}; accepted=item.get('result') or {}
+            if accepted.get('status')!='accepted': continue
+            aid=str(art.get('id','')); wf=art.get('workflow_run') or {}
+            archive=family/'artifacts'/f'{aid}.zip'
+            digest=accepted.get('archive_sha256')
+            api_digest=(art.get('digest') or '').removeprefix('sha256:')
+            if (not aid or art.get('expired') is not False or str(wf.get('id'))!=runid or wf.get('head_sha')!=run.get('head_sha')
+                or not archive.is_file() or not digest or hashlib.sha256(archive.read_bytes()).hexdigest()!=digest
+                or (api_digest and api_digest!=digest)):
+                diagnostics.append('artifact_origin_or_digest_mismatch'); continue
+            rel=accepted.get('path') or ''
+            base=(root/rel).resolve()
+            if not base.is_relative_to(root.resolve()):
+                diagnostics.append('artifact_extraction_path_invalid'); continue
+            for member in accepted.get('members',[]):
+                name=pathlib.PurePosixPath(member.get('member','')).name
+                if not name or name in ('.','..'): continue
+                path=base/name
+                if not path.is_file(): continue
+                files.append((art,path))
+                if name=='ci-measurement-metadata.json':
+                    try: meta=json.loads(path.read_text())
+                    except Exception: continue
+                    try: att=str(int(meta.get('run_attempt',-1)))
+                    except (TypeError,ValueError): att='-1'
+                    job_name=meta.get('job_name'); seam=meta.get('matrix_seam')
+                    expected_job_name=(f'Example Playwright shard ({seam})' if job_name=='Example Playwright shard' and seam else job_name)
+                    matching=[j for j in jobs_by_attempt.get(att,[]) if j.get('name')==expected_job_name]
+                    valid=(meta.get('repository')=='szTheory/sigra' and str(meta.get('run_id'))==runid and meta.get('event')==run.get('event')
+                        and att in refs and job_name and len(matching)==1 and matching[0].get('conclusion')=='success'
+                        and isinstance(meta.get('source_sha'),str) and re.fullmatch(r'[0-9a-f]{40}',meta.get('source_sha')))
+                    if valid: metadata.append((meta,matching[0],art))
+                    elif job_name in ('Library tests shard','Example Playwright shard'):
+                        diagnostics.append('producer_metadata_not_bound_to_successful_job')
+        # Produce five checked Playwright measurements from the pinned native JSON format.
+        expected_pw={
+          'admin-behavior.json':('admin_behavior','admin-behavior'),
+          'admin-checkpoints.json':('admin_checkpoints','admin-checkpoints'),
+          'design-gallery-pr-behavior.json':('design_gallery','design-gallery-pr-behavior'),
+          'non-admin-smoke.json':('non_admin_smoke','non-admin-smoke'),
+          'demo-showcase.json':('demo_showcase','demo-showcase'),
+        }
+        pw_reports={}; pw_meta={}
+        for meta,job,art in metadata:
+            if meta.get('job_name')=='Example Playwright shard' and meta.get('matrix_seam'):
+                pw_meta[meta.get('matrix_seam')]=(meta,job)
+        for art,path in files:
+            name=path.name
+            if name in expected_pw:
+                seam,invocation=expected_pw[name]
+                meta_job=pw_meta.get(seam)
+                if not meta_job: continue
+                meta,job=meta_job
+                try: native=json.loads(path.read_text())
+                except Exception: native={}
+                git_identity=(native.get('config') or {}).get('metadata',{}).get('ci',{})
+                if git_identity.get('commitHash')!=meta.get('source_sha') or not str(git_identity.get('prHref','')).endswith('/pull/'+str((run.get('pull_requests') or [{}])[0].get('number',''))):
+                    diagnostics.append('playwright_source_identity_mismatch'); continue
+                node=root/'source'/'ci-playwright-report.mjs'
+                if not node.is_file(): continue
+                output=path.with_suffix('.normalized.json')
+                proc=subprocess.run(['node',str(node),'--input',str(path),'--seam',seam,'--invocation',invocation,'--output',str(output)],capture_output=True,text=True)
+                if proc.returncode==0:
+                    try: normalized=json.loads(output.read_text())
+                    except Exception: normalized={}
+                    if normalized.get('complete') is True:
+                        pw_reports[seam]=(normalized,meta,job)
+                        for row in normalized.get('tests',[]):
+                            test_rows.append({'source':'playwright','identity':f"{runid}:{meta.get('run_attempt')}:{seam}:{row.get('test_id')}:{row.get('retry')}",'run_id':runid,'attempt':meta.get('run_attempt'),'sha':meta.get('source_sha'),'seam':seam,'test_id':row.get('test_id'),'name':row.get('title'),'duration_ms':row.get('duration_ms'),'result':row.get('result'),'unit':'ms'})
+                output.unlink(missing_ok=True)
+        ex_path=next((p for _,p in files if p.name=='ci-exunit-timing.json'),None)
+        exunit={}
+        if ex_path:
+            try: exunit=json.loads(ex_path.read_text())
+            except Exception: exunit={}
+        ex_meta=next((m for m,j,_ in metadata if m.get('job_name')=='Library tests shard'),None)
+        if not ex_meta or int(ex_meta.get('run_attempt',-1)) not in [int(a) for a in refs]: exunit={}
+        expected_seams=set(x[0] for x in expected_pw.values())
+        if not exunit.get('complete') or exunit.get('unit')!='microsecond': diagnostics.append('complete_exunit_timing_missing')
+        if set(pw_reports)!=expected_seams: diagnostics.append('complete_playwright_seam_timing_missing')
+        if len({m.get('source_sha') for m,_,_ in metadata if m.get('job_name')=='Library tests shard' or m.get('job_name')=='Example Playwright shard'})>1:
+            diagnostics.append('producer_source_revision_mismatch')
+        if diagnostics: return None, sorted(set(diagnostics))
+        for row in exunit.get('tests',[]):
+            test_rows.append({'source':'exunit','identity':f"{runid}:{ex_meta.get('run_attempt')}:{row.get('test_id')}",'run_id':runid,'attempt':ex_meta.get('run_attempt'),'sha':ex_meta.get('source_sha'),'test_id':row.get('test_id'),'name':row.get('name'),'duration_us':row.get('duration_us'),'result':row.get('result'),'unit':'microsecond'})
+        producer_rows=[(ex_meta,next(j for j in jobs_by_attempt[str(ex_meta['run_attempt'])] if j.get('name')=='Library tests shard'))]
+        producer_rows.extend((meta,job) for _,meta,job in pw_reports.values())
+        costs=[]; stage={s:0.0 for s in stages}; cache_vector={}; runner_classes=[]; producer_attempts={}
+        for meta,job in producer_rows:
+            started=epoch(job.get('started_at')); ended=epoch(job.get('completed_at'))
+            if started is None or ended is None or ended<started: return None,['producer_job_timing_missing']
+            costs.append(round(ended-started,6))
+            image=meta.get('runner_image') or {}; runner_classes.append({'os':meta.get('runner_os'),'arch':meta.get('runner_arch'),'image_os':image.get('image_os'),'image_version':image.get('image_version')})
+            key=meta.get('job_name')+((':'+str(meta.get('matrix_seam'))) if meta.get('matrix_seam') else '')
+            cache_vector[key]=meta.get('cache_outcome') or {}
+            producer_attempts[key]={'attempt':int(meta.get('run_attempt')),'job_id':job.get('id'),'source_sha':meta.get('source_sha'),'job_seconds':round(ended-started,6)}
+            for step in job.get('steps',[]):
+                a,b=epoch(step.get('started_at')),epoch(step.get('completed_at'))
+                if a is None or b is None or b<a: continue
+                n=(step.get('name') or '').lower()
+                bucket=('cache_restore_download' if re.search(r'cache|download|restore',n) else 'compile' if re.search(r'compile|deps|install dependencies',n) else 'database_startup' if re.search(r'database|postgres|mysql',n) else 'app_boot' if re.search(r'boot|start server|application',n) else 'test_execution' if re.search(r'test|playwright|exunit|mix ci',n) else 'artifact_upload' if re.search(r'upload artifact',n) else 'setup' if re.search(r'setup|checkout|install erlang|install elixir|install node',n) else 'other')
+                stage[bucket]+=b-a
+        run_runner_seconds=0.0
+        for attempt_jobs in jobs_by_attempt.values():
+            for job in attempt_jobs:
+                a,b=epoch(job.get('started_at')),epoch(job.get('completed_at'))
+                if a is not None and b is not None and b>=a: run_runner_seconds+=b-a
+        exunit_over=exunit.get('instrumentation_overhead_us')
+        pw_over={seam:report.get('reporter_overhead') for seam,(report,_,_) in sorted(pw_reports.items())}
+        return {'run_id':runid,'attempt':run.get('run_attempt'),'created_at':run.get('created_at'),'application_revision':run.get('head_sha'),'producer_source_sha':ex_meta.get('source_sha'),'workflow_revision':run.get('head_sha'),'workflow_sha256':None,'source_url':run.get('html_url'),'required_contexts':expected_contexts,'required_result_wait_seconds':required_wait_candidates[-1]['seconds'] if required_wait_candidates and required_wait_candidates[-1]['run_id']==runid else None,'runner_seconds':round(run_runner_seconds,6),'instrumentation_producer_job_seconds':round(sum(costs),6),'producer_job_count':len(producer_rows),'producer_attempts':producer_attempts,'step_costs':{k:round(v,6) for k,v in stage.items()},'exunit_test_duration_us':exunit.get('test_duration_sum_us'),'exunit_instrumentation_overhead_us':exunit_over,'playwright_test_duration_ms':sum(r.get('sum_test_duration_ms',0) for r,_,_ in pw_reports.values()),'playwright_reporter_overhead':pw_over,'playwright_seams':sorted(pw_reports),'cache_stratum':cache_vector,'runner_classes':runner_classes,'observed_versions':{'elixir':ex_meta.get('observed_versions',{}).get('elixir'),'node':next((m.get('observed_versions',{}).get('node') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None),'playwright':next((m.get('observed_versions',{}).get('playwright') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None)},'configured_versions':{'elixir':ex_meta.get('configured_versions',{}).get('elixir'),'node':next((m.get('configured_versions',{}).get('node') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None),'playwright':next((m.get('configured_versions',{}).get('playwright') for m,j,_ in metadata if m.get('job_name')=='Example Playwright shard'),None)}},[]
+    except (OSError,ValueError,TypeError,KeyError) as error:
+        return None,['source_evidence_invalid:'+type(error).__name__]
+full_pr_runs=[r for r in manifest.get('populations',{}).get('pull_request',{}).get('runs',[]) if r.get('workload')=='full' and r.get('conclusion')=='success']
+latest_instrumented_pr=(max(full_pr_runs,key=lambda r:(r.get('created_at',''),int(r.get('id',0)))).get('id') if full_pr_runs else None)
 for pop,key in events.items():
     for run in manifest.get('populations',{}).get(pop,{}).get('runs',[]):
         runid=str(run.get('id','')); created=epoch(run.get('created_at'))
@@ -1225,6 +1383,10 @@ for pop,key in events.items():
                     if report.get('complete') and report.get('unit')=='microsecond':
                         for row in report.get('tests',[]): test_rows.append({'source':'exunit','identity':f"{runid}:{expected_attempt}:{row.get('test_id')}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'test_id':row.get('test_id'),'name':row.get('name'),'duration_us':row.get('duration_us')})
                         overhead['exunit']={'status':'measured','instrumentation_overhead_us':report.get('instrumentation_overhead_us'),'method':report.get('instrumentation_overhead_method')}
+        if pop=='pull_request' and run.get('workload')=='full' and run.get('conclusion')=='success' and run.get('id')==latest_instrumented_pr:
+            sample,diagnostics=source_bound_full_pr(run,runid)
+            if sample: instrumented_full_candidates.append(sample)
+            elif diagnostics: run['_instrumentation_diagnostics']=diagnostics
 failures=[]
 for event in events.values():
     candidates=sorted((x for x in failure_candidates if x['event']==event),key=lambda x:(-x['created_epoch'],-int(x['run'].get('id',0))))[:4]
@@ -1276,6 +1438,20 @@ job_execution={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':
 out={'ranked_by_wait':{k:rank(v) for k,v in wait_rows.items()},'ranked_by_runner':{k:rank(v) for k,v in runner_rows.items()},'initial_wait':initial_wait,'critical_path_wait':critical_wait,'job_execution':job_execution,'dag_dependency_gaps':{k:{'status':'unknown','n':0,'reason':'dependency_edges_not_exposed_by_saved_job_api'} for k in events.values()},'stage_costs':{k:{s:result(v,'seconds') for s,v in values.items()} for k,values in stage_values.items()},'cache_outcome':cache or {'library_deps':'unknown','example_deps':'unknown','browser_binaries':'unknown'},'runner_image':{k:images.get(k,image_defaults) for k in events.values()},'configured_versions':{k:configured.get(k,configured_defaults) for k in events.values()},'observed_versions':{k:observed.get(k,observed_defaults) for k in events.values()},'test_rows':sorted(test_rows,key=lambda r:r['identity']),'reporter_overhead':overhead,'instrumentation_baseline':instrumentation_baseline,'cohorts':cohorts,'failure_analysis':failure_analysis,'failure_signatures':failure_analysis['failure_signatures'],'diagnostics_status':failure_analysis['diagnostics_status'],'failure_class':failure_bins}
 out['required_result_wait']={'status':'unknown','n':0,'seconds':None,'reason':'no_complete_source_bound_full_pr_required_check_endpoint'}
 out['instrumented_full_pr']={'complete':False,'status':'insufficient_data','diagnostics':['no_source_bound_full_pr_family_has_all_required_contexts_and_both_test_timing_artifacts'],'producing_run_id':None,'source_sha':None,'attempt':None,'job_cost_seconds':None,'step_costs':None,'test_costs':None}
+if required_wait_candidates:
+    wait=sorted(required_wait_candidates,key=lambda x:(x['created_at'],int(x['run_id'])))[-1]
+    out['required_result_wait']={'status':'measured','n':1,'seconds':wait['seconds'],'unit':'seconds','run_id':wait['run_id'],'attempt':wait['attempt'],'source_sha':wait['head_sha'],'source_url':wait['url'],'required_contexts':wait['contexts'],'completed_at':wait['completed_at'],'limitation':'single_observation'}
+if instrumented_full_candidates:
+    sample=sorted(instrumented_full_candidates,key=lambda x:(x.get('created_at',''),int(x['run_id'])))[-1]
+    out['instrumented_full_pr']={'complete':True,'status':'measured','diagnostics':[],'producing_run_id':sample['run_id'],'source_sha':sample['application_revision'],'application_revision':sample['application_revision'],'producer_source_sha':sample['producer_source_sha'],'workflow_revision':sample['workflow_revision'],'workflow_sha256':manifest.get('measured_pr_workflow_sha256'),'source_url':sample['source_url'],'attempt':sample['attempt'],'job_cost_seconds':sample['runner_seconds'],'runner_seconds':sample['runner_seconds'],'instrumentation_producer_job_seconds':sample['instrumentation_producer_job_seconds'],'producer_job_count':sample['producer_job_count'],'producer_attempts':sample['producer_attempts'],'step_costs':sample['step_costs'],'test_costs':{'exunit_test_duration_us':sample['exunit_test_duration_us'],'playwright_test_duration_ms':sample['playwright_test_duration_ms']},'exunit_instrumentation':{'identity':'Sigra.TestSupport.CiTimingFormatter/v1','overhead_us':sample['exunit_instrumentation_overhead_us']},'playwright_instrumentation':{'identity':'ci-playwright-report.mjs/playwright-json-1.59.1','overhead':sample['playwright_reporter_overhead']},'playwright_seams':sample['playwright_seams'],'cache_stratum':sample['cache_stratum'],'runner_classes':sample['runner_classes']}
+    out['observed_versions']['pull_request']=sample['observed_versions']; out['configured_versions']['pull_request']=sample['configured_versions']; out['cache_outcome']=sample['cache_stratum']; out['runner_image']['pull_request']=sample['runner_classes'][0] if sample['runner_classes'] else image_defaults
+    exunit_baseline=instrumentation_baseline.get('exunit',{})
+    exunit_overhead=exunit_baseline.get('instrumentation_overhead_us') if exunit_baseline.get('status')=='historical_baseline' else None
+    out['reporter_overhead']['exunit']={'status':'measured' if exunit_overhead is not None else 'unmeasured','overhead_us':exunit_overhead,'method':exunit_baseline.get('method'),'source':exunit_baseline.get('source'),'samples':exunit_baseline.get('samples'),'reason':None if exunit_overhead is not None else 'historical_five_pair_baseline_unavailable'}
+    out['reporter_overhead']['playwright']={'status':'measured' if any((x or {}).get('status')=='measured' for x in sample['playwright_reporter_overhead'].values()) else 'unmeasured','overhead_ms':None,'per_seam':sample['playwright_reporter_overhead'],'reason':'paired_same_selection_runs_not_recorded'}
+else:
+    reasons=sorted({d for r in manifest.get('populations',{}).get('pull_request',{}).get('runs',[]) for d in r.get('_instrumentation_diagnostics',[])})
+    if reasons: out['instrumented_full_pr']['diagnostics']=reasons
 print(json.dumps(out,separators=(',',':')))
 PY
   jq --slurpfile metrics "$metrics_file" '. + $metrics[0]' <<<"$result" >"$metrics_file.merged"
@@ -1353,7 +1529,7 @@ if [[ "$EVALUATE_COMPARISON" == true ]]; then
   replay_snapshot "$BEFORE_BUNDLE" >"$before_json"
   replay_snapshot "$AFTER_BUNDLE" >"$after_json"
   python3 - "$CONTRACT_FILE" "$before_json" "$after_json" <<'PY'
-import json, math, pathlib, sys
+import datetime, json, math, pathlib, sys
 contract, before, after = map(lambda p: json.loads(pathlib.Path(p).read_text()), sys.argv[1:])
 issues=[]; families=[]; paired=[]
 def issue(code, detail=None):
@@ -1363,10 +1539,23 @@ def issue(code, detail=None):
 if contract.get('status') != 'ready': issue('contract_not_ready',contract.get('status'))
 if contract.get('pair_count') != 20 or contract.get('primary_family_count') != 40: issue('contract_sample_size_invalid')
 if contract.get('window_duration_hours') != 48: issue('contract_window_invalid')
-if before.get('source_sha') != contract.get('baseline_application_sha'): issue('before_source_identity_mismatch')
-if before.get('workflow_sha256') != contract.get('baseline_workflow_sha256'): issue('before_workflow_identity_mismatch')
-if after.get('source_sha') != contract.get('candidate_application_sha'): issue('after_source_identity_mismatch')
-if after.get('workflow_sha256') != contract.get('candidate_workflow_sha256'): issue('after_workflow_identity_mismatch')
+before_identity=before.get('measured_pr_identity') or {}
+after_identity=after.get('measured_pr_identity') or {}
+candidate=contract.get('candidate_identity') or {}
+if not candidate.get('application_sha') or not candidate.get('workflow_revision') or not candidate.get('workload_revision_sha256') or not candidate.get('workflow_file_sha256'): issue('candidate_identity_not_predeclared')
+if before_identity.get('application_sha') != contract.get('baseline_application_sha'): issue('before_source_identity_mismatch')
+if before_identity.get('workflow_file_sha256') != contract.get('baseline_workflow_sha256'): issue('before_workflow_identity_mismatch')
+if before_identity.get('workload_revision_sha256') != contract.get('baseline_workload_revision_sha256'): issue('before_workload_identity_mismatch')
+if after_identity.get('application_sha') != candidate.get('application_sha'): issue('after_source_identity_mismatch')
+if after_identity.get('workflow_revision') != candidate.get('workflow_revision'): issue('after_workflow_revision_mismatch')
+if after_identity.get('workflow_file_sha256') != candidate.get('workflow_file_sha256'): issue('after_workflow_identity_mismatch')
+if after_identity.get('workload_revision_sha256') != candidate.get('workload_revision_sha256'): issue('after_workload_identity_mismatch')
+window=contract.get('window') or {}
+try:
+    window_start=datetime.datetime.fromisoformat(window['start_utc'].replace('Z','+00:00'))
+    window_end=datetime.datetime.fromisoformat(window['end_utc'].replace('Z','+00:00'))
+    if window_end-window_start != datetime.timedelta(hours=48): issue('comparison_window_duration_mismatch')
+except Exception: issue('comparison_window_not_predeclared')
 for label, data in [('before',before),('after',after)]:
     if data.get('status') != 'complete': issue(label+'_snapshot_incomplete')
     rows=data.get('comparison_families')
@@ -1389,8 +1578,9 @@ after_rows={r.get('pair_id'):r for label,r in families if label=='after' and r.g
 if set(before_rows)!=set(after_rows) or len(before_rows)!=20: issue('pair_identity_mismatch')
 for pair_id in sorted(set(before_rows)&set(after_rows)):
     b,a=before_rows[pair_id],after_rows[pair_id]
-    fields=['workload','workload_sha','runner_class','cache_stratum','exunit_instrumentation','playwright_instrumentation']
+    fields=['workload','workload_sha','runner_class','runner_image','cache_stratum','exunit_instrumentation','playwright_instrumentation']
     mismatch=[field for field in fields if b.get(field)!=a.get(field)]
+    if 'runner_image' in mismatch: issue('runner_image_drift',{'pair_id':pair_id,'before':b.get('runner_image'),'after':a.get('runner_image')})
     if mismatch: issue('pair_not_equivalent',{'pair_id':pair_id,'fields':mismatch}); continue
     paired.append((pair_id,b,a))
     if b.get('conclusion')!='success' or a.get('conclusion')!='success': continue
@@ -1406,6 +1596,13 @@ def median(xs):
 def p95(xs):
     xs=sorted(xs); return xs[math.ceil(.95*len(xs))-1] if xs else None
 if len(paired)!=20 or len(wait_before)!=20: issue('insufficient_equivalent_successful_pairs',len(wait_before))
+allocations=contract.get('cache_stratum_allocation') or []
+if not allocations: issue('cache_stratum_allocation_missing')
+else:
+    expected_alloc={str(row.get('stratum_id')):row.get('pair_count') for row in allocations}
+    actual_alloc={}
+    for _,b,_ in paired: actual_alloc[str(b.get('cache_stratum'))]=actual_alloc.get(str(b.get('cache_stratum')),0)+1
+    if actual_alloc!=expected_alloc: issue('cache_stratum_allocation_mismatch',{'expected':expected_alloc,'actual':actual_alloc})
 metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead')}
 if not issues and len(wait_before)==20:
     verdict='pass' if median(wait_after)<=.8*median(wait_before) and p95(wait_after)<=p95(wait_before) and runner_after<=runner_before else 'miss'
