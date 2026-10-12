@@ -216,7 +216,7 @@
           "--check-sources"
         ],
         "exit_code": 0,
-        "stdout_sha256": "f24b63b080df893ffb366e787e76c09c2625d156ff4121426724191bcb0c26d2",
+        "stdout_sha256": "8a0736b87da9c7a6e51fdb600132fb897b182e6e2af46a1864a5c7853dfc2175",
         "result": {
           "status": "gaps_found",
           "milestoneStatus": "incomplete",
@@ -374,7 +374,12 @@
           "valid": true
         }
       }
-    }
+    },
+    "route_frontmatter_review_issue": "Inherited next_command still named discuss-phase; corrected before final closeout and covered by the strengthened route assertion.",
+    "next_command_and_resume_command_asserted": true,
+    "session_state_exact_readback": true,
+    "context_commit_exact_readback": true,
+    "phase_progress_is_not_implementation_progress": true
   },
   "readiness": {
     "phase": 251,
@@ -387,5 +392,65 @@
     "auto_advance": false,
     "next_roadmap_phase": null,
     "qualification": "Orchestration readiness does not establish a new historical source; no automatic plan or execution is enabled."
-  }
+  },
+  "context_commit": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+  "session_record": {
+    "command": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "state.record-session",
+      "--stopped-at",
+      "Phase 251 context confirmed; implementation complete, verification incomplete; no automatic retry",
+      "--resume-file",
+      ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md"
+    ],
+    "recorded": true,
+    "session_state_commit": "513c70bb69689ad0ca26d620c0a4a532c279b183",
+    "prewrite_records": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "recovery_ref": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+        "sha256": "c0dd996a7ffe082d70d08bf712ef94c5b62cae25d2be55edd2aa95676b2a0b5c",
+        "bytes": 7063,
+        "read_back_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "recovery_ref": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+        "sha256": "2b0bf69f3b94ca5ea4ec9ace680b36efc8099f7e2dbd441ef94b6e0e77e16136",
+        "bytes": 2391,
+        "read_back_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "recovery_ref": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+        "sha256": "13a0cdfc9b8bca33d6e1679272def59a337f5bab23a36a6363de8cacc0e03132",
+        "bytes": 103879,
+        "read_back_verified": true
+      },
+      {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json",
+        "status": "clean",
+        "recovery_ref": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+        "sha256": "4148f270c873bec152bae25c1501c92f18e5ed3440d01b32c6d6ebf673b84d6c",
+        "bytes": 16525,
+        "read_back_verified": true
+      }
+    ],
+    "session_state_preserved_before_route_repair": {
+      "path": ".planning/STATE.md",
+      "status": " M",
+      "sha256": "e78a30930d7ac6a18804708ee8b47902f6c5c8f4f0d9155f9f50b29df96bd7f1",
+      "bytes": 7014,
+      "recovery_ref": "513c70bb69689ad0ca26d620c0a4a532c279b183",
+      "read_back_verified": true,
+      "pre_repair_status_and_hash_verified": true
+    },
+    "route_repair": "Corrected inherited next_command frontmatter to the same conditional command as resume_command, state.json, and HANDOFF.json. Session writer phase-progress calculation (67%) is retained; implementation counts remain 47/47 overall and 7/7 in Phase251."
+  },
+  "context_sha256": "3b6d2e3b202106907f06a71aca30ed40e5eba45666322b163c561ecf4254c410"
 }

@@ -13,7 +13,8 @@ progress:
   completed_plans: 47
   percent: 67
 verification_status: gaps_found
-next_command: $gsd-discuss-phase 251
+next_command: $gsd-plan-phase 251 --gaps
+next_command_conditional: true
 resume_command: $gsd-plan-phase 251 --gaps
 resume_condition: newly identified independently trusted original source
 automatic_next_command: null
