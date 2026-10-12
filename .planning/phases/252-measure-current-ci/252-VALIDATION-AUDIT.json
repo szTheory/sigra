@@ -2,27 +2,29 @@
   "schema_version": "sigra.phase-validation-audit/v1",
   "phase": 252,
   "name": "measure-current-ci",
-  "audited_at_utc": "2026-10-12T21:47:49Z",
-  "status": "partial",
-  "nyquist_compliant": false,
+  "audited_at_utc": "2026-10-12T22:00:00Z",
+  "status": "validated",
+  "nyquist_compliant": true,
   "capture": {
     "head": "5cad1606e87037620047ab8c7b2c85ae524e232b",
     "validation_path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
     "validation_sha256_before_audit": "6f7c572ba699de95e0ebba82d947327283e1864e672645a2f0902250defa6878",
     "preserved_copy": "/private/tmp/sigra-phase252-252-validation-before-audit.md",
     "validation_revision_before_audit_append": {
-      "commit": "ece099b22ebbf5f41cd9ce87c40e4e31d42d69ec",
-      "sha256": "a82f6cdebbc93ce81ec8c2de6303abd466dc3a20b89fb6d79e6ddcf2b91f4522"
+      "commit": "0554bce55",
+      "sha256": "c2f36605076165e8214609e828a46da27e070fcf93f96135aefe6e493110128b",
+      "bytes": 13068
     },
     "validation_revision_after_audit_append": {
-      "commit": "789ef4cbe78528d685f410f05624e8523e6f3ee8",
-      "sha256": "cf61b539acb27dfd334dcb67f87b122c7745108f8fa526deec385c356e4b1d65"
+      "commit": "42040737b",
+      "sha256": "bb21efc1ef9add212893343d59ec48da2d6703740e9108f995b918a68097efcb",
+      "bytes": 13184
     }
   },
   "summary": {
     "tasks_total": 15,
-    "tasks_green": 12,
-    "tasks_escalated": 3,
+    "tasks_green": 15,
+    "tasks_escalated": 0,
     "implementation_files_modified": false,
     "remote_calls_made": false
   },
@@ -95,7 +97,11 @@
     {
       "id": "CIMEAS-02-exunit-primary-suite-scope",
       "classification": "BLOCKER",
-      "tasks": ["252-05 Task 2", "252-06 Task 1", "252-06 Task 3"],
+      "tasks": [
+        "252-05 Task 2",
+        "252-06 Task 1",
+        "252-06 Task 3"
+      ],
       "reason": "The retained source-bound ExUnit artifact is from the final dependency-off test subprocess rather than the primary contributor test suite, and baseline verification accepts and reports it as the primary suite cost.",
       "expected": "The artifact uploaded by the primary Library tests shard must contain the completed test rows and timing from the main mix ci test run, with the separate dependency-off subprocess represented independently or excluded from that measurement.",
       "actual": {
@@ -125,8 +131,124 @@
         "formatter_report_write": "test/support/ci_timing_formatter.ex:82-85"
       },
       "debug_iterations": 0,
-      "note": "The producer artifact itself and source/command identity establish the mismatch; no implementation change was authorized in this audit scope."
+      "note": "The producer artifact itself and source/command identity establish the mismatch; no implementation change was authorized in this audit scope.",
+      "status": "resolved_by_source_bound_recheck",
+      "resolution_ref": "recheck"
     }
   ],
-  "next": "Keep phase requirements pending until the ExUnit output is separated from the dependency-off child, then rerun baseline verification and regenerate the report from corrected source evidence."
+  "next": "$gsd-verify-work 252 (phase verification only; requirements remain pending)",
+  "recheck": {
+    "date": "2026-10-12",
+    "prior_audit_revision_preserved": {
+      "clean_head": "a0512cae4fec3db998b71d1680836bd60c7c5936",
+      "validation_copy": "/private/tmp/sigra-phase252-validation-before-recheck.md",
+      "validation_sha256": "cf61b539acb27dfd334dcb67f87b122c7745108f8fa526deec385c356e4b1d65",
+      "audit_copy": "/private/tmp/sigra-phase252-validation-audit-before-recheck.json",
+      "audit_sha256": "9b6ea87a7ad8dae3aa2de0705fe73ea23046ff331a9a83126e11bdd13af0a09d",
+      "byte_readback_compared_to_clean_head": true
+    },
+    "source_evidence": {
+      "run_id": 38317383419,
+      "attempt": 1,
+      "required_contexts_passed": 5,
+      "producer_job_id": 115037170118,
+      "producer_job_name": "Library tests shard",
+      "metadata_artifact_id": 11777487125,
+      "timing_artifact_id": 11777372344,
+      "timing_artifact_name": "library-test-timing-38317383419-1",
+      "timing_zip_sha256": "0bd41fb24cdaf5721f7d2b9d63fb1a873e6e128a86e09598990d3826960f6e23",
+      "workflow_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "producer_checkout_sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "source_bundle_sha256": "5478c3337881eac2285764d57f35fe103191cb5eea1814fc3dd8b36357758d29",
+      "baseline_sha256": "45029a440b8c00fb9aca6ad9b5ae427c443e5736bb7ae1164c44a5ce4caf0376",
+      "reports": {
+        "main": {
+          "file": "ci-exunit-timing-main.json",
+          "complete": true,
+          "rows": 2683,
+          "passed": 2671,
+          "skipped": 12,
+          "excluded": 22,
+          "failed": 0,
+          "duration_us": 18811928,
+          "suite_duration_us": 11404623
+        },
+        "threadline_guard": {
+          "file": "ci-exunit-timing-threadline-guard.json",
+          "complete": true,
+          "rows": 65,
+          "passed": 65,
+          "skipped": 0,
+          "excluded": 2640,
+          "failed": 0,
+          "duration_us": 129529,
+          "suite_duration_us": 6875354
+        }
+      },
+      "invocation_separation": {
+        "baseline_total_duration_us": 18941457,
+        "child_test_ids_overlapping_main": 65,
+        "unique_invocation_test_rows": 2748,
+        "distinct_invocations": [
+          "main",
+          "threadline_guard"
+        ],
+        "producer_log_confirms_primary_main_then_child_guard": true
+      }
+    },
+    "previous_artifact_rejected": {
+      "preserved_from_commit": "5cad1606",
+      "timing_rows": 65,
+      "passed": 65,
+      "excluded": 2639,
+      "duration_us": 188522,
+      "verification_exit_code": 1,
+      "status": "insufficient_data",
+      "diagnostics": [
+        "baseline_replay_mismatch",
+        "instrumented_full_pr_incomplete",
+        "complete_exunit_main_timing_missing_or_wrong_invocation",
+        "complete_exunit_threadline_guard_timing_missing_or_wrong_invocation",
+        "exunit_producer_report_contract_missing",
+        "exunit_timing_artifact_not_bound_to_library_job"
+      ]
+    },
+    "verification": {
+      "archive_baseline_status": "ready",
+      "archive_baseline_diagnostics": [],
+      "offline_replays_identical": true,
+      "offline_replay_sha256": "a8661ab14c1ee8ff8dca74edae321e2d1f589d4592b579c181b2a24ea22d67de",
+      "full_mix_ci": "252-06-SUMMARY.md: 2652 main tests, 33 doctests, 3 properties, zero failures; separate 65-test dep-off run passed",
+      "timing_process_harness": "passed; child failure exit 2 preserved with or without output",
+      "mix_lock_sha256_before_after": "b0f7f2e5a1cab359d82eae227f1854c48ced59e313c7c385c666e42a1a2fd045",
+      "mix_lock_changed": false,
+      "tests": [
+        {
+          "command": "python3 scripts/ci/exunit_timing_contract_test.py",
+          "result": "5 passed"
+        },
+        {
+          "command": "bash scripts/ci/ci-run-metrics.test.sh",
+          "result": "40 passed (including legacy dep-off-only rejection)"
+        },
+        {
+          "command": "node --test scripts/ci/ci-run-metrics-replay.test.mjs scripts/ci/ci-measure-workflow.test.mjs",
+          "result": "5 passed"
+        },
+        {
+          "command": "bash scripts/ci/ci-measure-report.test.sh",
+          "result": "passed"
+        },
+        {
+          "command": "bash scripts/ci/ci-exunit-timing.test.sh",
+          "result": "passed"
+        }
+      ]
+    },
+    "implementation_files_modified": false,
+    "remote_calls_made": false,
+    "requirements_status": "pending",
+    "phase_verification_status": "pending",
+    "next": "$gsd-verify-work 252"
+  }
 }
