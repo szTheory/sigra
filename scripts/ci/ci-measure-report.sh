@@ -65,6 +65,8 @@ for attempt in attempts:
     detail=', '.join(f"{j.get('name')} `{j.get('conclusion')}` ({show(j.get('runner_seconds'),'s')})" for j in failed) if failed else 'no failed, timed out or cancelled jobs'
     attempt_lines.append(f"- Attempt {attempt.get('attempt','unknown')}: {show(attempt.get('runner_seconds'),'s')} summed runner time; {detail}; {skipped} skipped jobs.")
 attempt_text='\n'.join(attempt_lines) or '- unknown (attempt job records were not retained)'
+window=contract.get('window') or {}
+window_dates=f"`{window.get('start_utc')}` to `{window.get('end_utc')}`" if window.get('start_utc') and window.get('end_utc') else 'unset; freeze exact UTC start/end after candidate identity and before the first comparison run'
 text=f'''# Current CI baseline
 
 Cutoff: `{baseline.get('cutoff_utc','unknown')}`; collected `{baseline.get('captured_at_utc','unknown')}` from collector checkout `{baseline.get('source_sha','unknown')}` and collector workflow SHA-256 `{baseline.get('workflow_sha256','unknown')}`. Immutable source bundle SHA-256: `{bundle_hash}`. Replay source identity: `{baseline.get('source_sha256',{}).get('pull_request','unknown')}` (PR population hash), `{baseline.get('source_sha256',{}).get('request_ledger','unknown')}` (request ledger hash). Status: **{baseline.get('status','unknown')}**. This snapshot is bounded to 100 runs per event and a 30-day window; capped/expired or undetailed records remain unknown.
@@ -116,7 +118,7 @@ The selected full PR family completed required checks on attempt `{baseline.get(
 
 ## Frozen later comparison
 
-Contract status `{contract.get('status','unknown')}`; fixed `{contract.get('pair_count','unknown')} pairs / {contract.get('primary_family_count','unknown')} families`, `{contract.get('window_duration_hours','unknown')}-hour window. The comparison needs 20 equivalent successful pairs, at least 20% lower median required-result wait, non-increasing nearest-rank p95 and total runner cost. With 20 pairs p95 is the 19th sorted value and is a fragile tail estimate, not a population guarantee. No 40-family comparison is scheduled by this phase.
+Contract status `{contract.get('status','unknown')}`; fixed `{contract.get('pair_count','unknown')} pairs / {contract.get('primary_family_count','unknown')} families`, `{contract.get('window_duration_hours','unknown')}-hour window; dates {window_dates}. The comparison needs 20 equivalent successful pairs, at least 20% lower median required-result wait, non-increasing nearest-rank p95 and total runner cost. With 20 pairs p95 is the 19th sorted value and is a fragile tail estimate, not a population guarantee. No 40-family comparison is scheduled by this phase.
 
 Known missing inputs: {', '.join(missing) if missing else 'none recorded'}.
 
