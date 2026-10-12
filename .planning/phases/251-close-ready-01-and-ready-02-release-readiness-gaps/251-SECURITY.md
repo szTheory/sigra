@@ -1,14 +1,14 @@
 ---
 phase: "251"
 slug: "close-ready-01-and-ready-02-release-readiness-gaps"
-status: verified
-threats_open: 0
+status: open_threats
+threats_open: 1
 asvs_level: 1
 ---
 
 # Phase 251 Security Verification
 
-Independent audit: 22/22 registered mitigations closed; zero open threats, accepted risks, or unregistered flags. Fresh automatic proof: `251-SECURITY-FINAL-CHECKS.json`. Historical findings remain in the prior security audit and recheck JSON records.
+The subsequent code review reopened T-251-14: 21/22 mitigations remain closed, with one open captured-row metadata join gap. No risks were accepted. Fresh automatic proof: `251-SECURITY-FINAL-CHECKS.json`. Historical findings remain in the prior security audit and recheck JSON records.
 
 | Threat | Severity | Status | Evidence |
 |---|---|---|---|
@@ -25,7 +25,7 @@ Independent audit: 22/22 registered mitigations closed; zero open threats, accep
 | T-251-11 | high | CLOSED | verify-247-readiness.mjs:125-183,204-293 exact Git blob content and derived assertions; forged README pass rejected |
 | T-251-12 | high | CLOSED | verify-v149-traceability.mjs:523-566,606-683 independent immutable blob reads/content predicates; fake object digests and mutable content rejected |
 | T-251-13 | high | CLOSED | verify-v149-traceability.mjs:703-782 full inherited ID set from all worktree status rows; coherently omitted dirty identity yields unsatisfied 7/9 |
-| T-251-14 | high | CLOSED | verify-v149-traceability.mjs:446-529 binds captured dirty kind/worktree/head/branch/status/path/original_path/digest before selecting strict decoded-byte and deletion-tombstone proof; 16/16 direct controls and 5/5 current real records verified. |
+| T-251-14 | high | OPEN | CR-08: retained valid status-row ID can carry forged dirty path metadata and coherently rebound preservation record; 251-CR08-REPRODUCTION.json. |
 | T-251-15 | high | CLOSED | verify-247-readiness.mjs:407-427,557-575,1121-1126 complete paginated stable PR snapshots |
 | T-251-16 | high | CLOSED | verify-247-readiness.mjs:238-293 original interval and tuple-bound approval |
 | T-251-17 | high | CLOSED | verify-247-readiness.mjs:108-123,152-204 exact published guide identity and trusted 404 findings |

@@ -1,0 +1,9 @@
+{
+  "phase": 251,
+  "finding": "CR-08",
+  "threat": "T-251-14",
+  "status": "open",
+  "source_head": "6dd46e28c6b7869f8d048adf44327dd3282fb4d8",
+  "evidence": "Isolated-clone reproduction changed inherited_dirty_entries[0].path to nonexistent path while retaining a valid status-row ID and coherently rebinding disposition and immutable preservation record. Strict audit incorrectly retained READY02 satisfied 8/9. Dirty-row metadata must match canonical captured worktree status row, not just ID sets.",
+  "observed_at": "2026-10-12T00:24:42.804900+00:00"
+}
