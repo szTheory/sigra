@@ -5,16 +5,16 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 252
 current_phase_name: Measure Current CI
 status: executing
-stopped_at: Completed 252-01-PLAN.md
-last_updated: "2026-10-12T17:38:56.141Z"
+stopped_at: Completed 252-02-PLAN.md
+last_updated: "2026-10-12T18:14:45.846Z"
 last_activity: 2026-10-12
-last_activity_desc: Plan 252-01 implementation and automated checks completed
-state_head: e259480b2f5a3c2c9df1fafcc3283fec367d1df8
+last_activity_desc: Plan 252-02 implementation and automated checks completed
+state_head: 040f58d5fdb8d928a2fbeda0450feb76b7b94d47
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 milestone_status: active
 workflow_step: phase_execution_pending
@@ -39,7 +39,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 252 (Measure Current CI) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-10-12 — Phase 252 execution started
 Progress: [░░░░░░░░░░] 0%
@@ -48,7 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 
 $gsd-execute-phase 252
 
-Execute six plans across four waves. Plan 252-01 implementation and automated checks are complete; five plans remain. Research, pattern mapping and independent plan checks are complete. The latest readiness check found no blocked or halted plans and no duplicate threat IDs. All nine requirements remain Pending; phase-level verification has not started.
+Execute six plans across four waves. Plans 252-01 and 252-02 implementation and automated checks are complete; four plans remain. Research, pattern mapping and independent plan checks are complete. The latest readiness check found no blocked or halted plans and no duplicate threat IDs. All nine requirements remain Pending; phase-level verification has not started.
 
 The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Continue with `$gsd-execute-phase 252`; do not advance to Phase 253 before the remaining Phase 252 plans and phase-level verification.
 
@@ -83,9 +83,9 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T17:38:56.122Z
-**Stopped at:** Completed 252-01-PLAN.md
-**Resume file:** .planning/phases/252-measure-current-ci/252-02-PLAN.md
+**Last session:** 2026-10-12T18:14:45.822Z
+**Stopped at:** Completed 252-02-PLAN.md
+**Resume file:** .planning/phases/252-measure-current-ci/252-03-PLAN.md
 
 ## Deferred Items
 
@@ -101,8 +101,11 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 252 P01 | 19m | 2 tasks | 19 files |
+| Phase 252 P02 | 28min | 3 tasks | 2 files |
 
 ## Decisions
 
 - [Phase 252]: Current effective required context names determine eligibility; ruleset IDs are provenance only.
 - [Phase 252]: Missing source-revision data keeps a multi-revision family at unknown timing.
+- [Phase 252]: workflow_dispatch and release-branch pushes remain separate from the primary PR, main-push and schedule cohorts
+- [Phase 252]: Expired, mismatched, unavailable or unsafe artifact inputs remain diagnostics and do not become timing rows

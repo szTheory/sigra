@@ -56,12 +56,12 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. The baseline and ranked findings can be reproduced with documented commands using the saved inputs; static timeout values or old audit conclusions are not used as runtime measurements.
   4. Before any optimization, the report fixes the comparison workloads, code revisions, cache conditions, runner class, sample sizes, percentile method, and finite collection/rate-limit budget. The 20% median improvement and non-increasing p95/runner-time targets stay unchanged.
 
-**Plans**: 1/6 plans executed across 4 waves (independent plan review passed; five plans and phase-level verification remain)
+**Plans**: 2/6 plans executed across 4 waves (independent plan review passed; four plans and phase-level verification remain)
 **Wave 1**
 - [x] 252-01-PLAN.md — Source-bound collection and offline replay
 
 **Wave 2**
-- [ ] 252-02-PLAN.md — Bounded populations, attempts and safe artifact acquisition
+- [x] 252-02-PLAN.md — Bounded populations, attempts and safe artifact acquisition
 - [ ] 252-03-PLAN.md — Opt-in ExUnit timing and exit preservation
 - [ ] 252-04-PLAN.md — Native Playwright JSON and completeness checks
 
@@ -116,7 +116,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 252. Measure Current CI | v1.50 | 1/6 | In Progress; ready to execute | — |
+| 252. Measure Current CI | v1.50 | 2/6 | In Progress; ready to execute | — |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 0/TBD | Not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
