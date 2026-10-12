@@ -1,0 +1,13 @@
+Running ExUnit with seed: 955036, max_cases: 36
+Excluding tags: [:upgrade]
+
+............................................................................................................................      warning: default values for the optional arguments in the private function build_session/1 are never used
+      │
+ 1141 │   defp build_session(overrides \\ %{}) do
+      │        ~
+      │
+      └─ test/sigra/auth_test.exs:1141:8: Sigra.AuthTest (module)
+
+..............................................................................................................................
+Finished in 1.1 seconds (1.1s async, 0.00s sync)
+250 tests, 0 failures

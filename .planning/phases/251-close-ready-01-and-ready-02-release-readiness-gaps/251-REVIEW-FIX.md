@@ -3,8 +3,8 @@ phase: 251
 fixed_at: 2026-10-12T00:32:12Z
 review_path: .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW.md
 iteration: 4
-findings_in_scope: 1
-fixed: 1
+findings_in_scope: 5
+fixed: 5
 skipped: 0
 status: all_fixed
 ---
@@ -22,6 +22,34 @@ status: all_fixed
 - Earlier fixes remain in commits `8596fa340`, `266a28d57`, `9c92f1052`, and `167b59a586b4035f01b9d2a51b3dda9f3b9faceb`. The exact iteration-3 report bytes were preserved and read back at `refs/heads/phase251-review-fix-iteration3-preserved`, commit `714d24967fc64bcea9dbc33d196499037ad81b70`, SHA-256 `b3892e953124123eafdeeee03ed33c5fe4f91815e7490d1c39e9ca44c945f799`.
 
 ## Fixed Issues
+
+### CR-04: [BLOCKER] T-251-11: Package source assertions are generated from the claimed result
+
+**Files modified:** `verify-247-readiness.mjs`, `verify-247-readiness.test.mjs`  
+**Status:** fixed: requires human verification  
+**Commits:** `4c4480e277fb399ae2263feb68cd97950bcf3d95`, `e11f9b5208232abde415f59c9eacdeb942f845f3`, `75d41c643456d4a751b3c71a34686a62ac24667c`  
+**Applied fix:** The owner evaluator now reads every required immutable `commit:path` blob, checks its Git blob OID and SHA-256 against the trusted source record, and derives the named content predicate. Stored result labels and assertion booleans cannot establish a pass. Missing or unreadable bytes fail closed; a trusted exact-commit 404 remains a missing result. Fixture controls use actual Git objects and bytes.
+
+**RED/GREEN proof:** The pre-fix verifier emitted `published_readme_guide_link.actual=true` when the check label was forged to `pass`, although the exact published README blob lacked the guide link. The regression now forges the same result and expects the owner evaluator to reject it. See [the regression receipt](251-CR04-CR07-REGRESSION-RECEIPT.json).
+
+### CR-05: [BLOCKER] T-251-12: Independent audit trusts fabricated source digests and assertion booleans
+
+**Files modified:** `verify-v149-traceability.mjs`, `verify-v149-traceability.test.mjs`  
+**Status:** fixed: requires human verification  
+**Commits:** `85e30ec6f76412296e64d904d86b156c56a8afd6`, `3127a7eb2acb4d0949fe149c504b710cd3681d3c`  
+**Applied fix:** The independent audit now reads every expected source blob from the exact commit/path, recomputes its Git OID and SHA-256, and independently derives the assertion values before accepting a READY-01 pass. Rebound packet, report, and traceability hashes do not make fabricated blob metadata or booleans valid.
+
+**RED/GREEN proof:** Before the audit fix, the forged source fixture left READY-01 satisfied. The regression now verifies that the same claim is unsatisfied when the audit reads the named immutable objects. The fixture preserves real source OIDs and hashes except for the deliberate fabricated attack rows.
+
+### CR-06: [BLOCKER] T-251-13: READY-02 does not require every captured worktree item in the join
+
+**Files modified:** `verify-v149-traceability.mjs`, `verify-v149-traceability.test.mjs`  
+**Status:** fixed: requires human verification  
+**Commits:** `0c2ad145a319187f91b631e07302de916876cbd6`, `e59a5c47c2afdfea78402496bd3d1a6114afb865`, `3127a7eb2acb4d0949fe149c504b710cd3681d3c`  
+**Applied fix:** The audit derives the expected set from inherited commits, paths, and every dirty `status_entry` in both the source capture and READY-02 inventory. It requires exact, duplicate-free equality with observed IDs, disposition IDs, source dispositions, and preservation references; missing, null, or duplicate identities fail closed.
+
+**RED/GREEN proof:** Before the fix, READY-02 remained satisfied after a dirty identity was removed from all three join arrays while packet and owner hashes were rebound. The same retained regression now makes READY-02 unsatisfied.
+
 
 ### CR-07: [BLOCKER] T-251-14: Preservation validation ignores the named ref and record decision
 
@@ -63,3 +91,7 @@ _Fixer: the agent (gsd-code-fixer)_
 ## Automatic Independent Verification
 
 The earlier independent security audit verified CR-04 through CR-07 with 22/22 registered mitigations closed. CR-08 has an added independent recheck pending root reconciliation. Evidence from the earlier audit: `251-SECURITY-FINAL-CHECKS.json`, including 16 preservation controls, five real dirty-record readbacks, all 23 source assertion predicates, and seven targeted tests. Project AGENTS.md replaces human verification with deterministic proof.
+
+## Consolidated Closeout Evidence
+
+Earlier CR-04–CR-06 fix records were read back from commit 8596fa340 and retained above. The final clean independent code review and `251-SECURITY-CLOSEOUT-CHECKS.json` verify CR-04 through CR-08 together. Current regression gate: 213 Node tests and 250 Elixir tests passed; source audit remains 8/9 because READY-01 is unsatisfied. All human-verification suggestions are superseded by committed automatic proof under project AGENTS.md.

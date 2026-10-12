@@ -1,14 +1,14 @@
 ---
 phase: "251"
 slug: "close-ready-01-and-ready-02-release-readiness-gaps"
-status: open_threats
-threats_open: 1
+status: verified
+threats_open: 0
 asvs_level: 1
 ---
 
 # Phase 251 Security Verification
 
-The subsequent code review reopened T-251-14: 21/22 mitigations remain closed, with one open captured-row metadata join gap. No risks were accepted. Fresh automatic proof: `251-SECURITY-FINAL-CHECKS.json`. Historical findings remain in the prior security audit and recheck JSON records.
+Final independent audit: 22/22 registered mitigations closed, zero open threats, accepted risks, or unregistered flags. Current proof: `251-SECURITY-CLOSEOUT-CHECKS.json`. Earlier reports and reproduced counterexamples remain historical evidence.
 
 | Threat | Severity | Status | Evidence |
 |---|---|---|---|
@@ -25,7 +25,7 @@ The subsequent code review reopened T-251-14: 21/22 mitigations remain closed, w
 | T-251-11 | high | CLOSED | verify-247-readiness.mjs:125-183,204-293 exact Git blob content and derived assertions; forged README pass rejected |
 | T-251-12 | high | CLOSED | verify-v149-traceability.mjs:523-566,606-683 independent immutable blob reads/content predicates; fake object digests and mutable content rejected |
 | T-251-13 | high | CLOSED | verify-v149-traceability.mjs:703-782 full inherited ID set from all worktree status rows; coherently omitted dirty identity yields unsatisfied 7/9 |
-| T-251-14 | high | OPEN | CR-08: retained valid status-row ID can carry forged dirty path metadata and coherently rebound preservation record; 251-CR08-REPRODUCTION.json. |
+| T-251-14 | high | CLOSED | verify-v149-traceability.mjs:753-871 binds canonical status-derived dirty row metadata across captures/raw status before preservation validation; :446-529 validates ref, record, source identity, decoded bytes and tombstones. Independent 14 population controls and 16 byte/identity controls pass; five actual dirty records read back exactly. |
 | T-251-15 | high | CLOSED | verify-247-readiness.mjs:407-427,557-575,1121-1126 complete paginated stable PR snapshots |
 | T-251-16 | high | CLOSED | verify-247-readiness.mjs:238-293 original interval and tuple-bound approval |
 | T-251-17 | high | CLOSED | verify-247-readiness.mjs:108-123,152-204 exact published guide identity and trusted 404 findings |
@@ -35,4 +35,4 @@ The subsequent code review reopened T-251-14: 21/22 mitigations remain closed, w
 | T-251-21 | medium | CLOSED | validate-release-readiness.test.mjs:632,687,716 and verify-247-readiness.test.mjs:676,805 retained regression evidence; dispositions remain subject to new audit gaps |
 | T-251-SC | high | CLOSED | Existing Node/Git/gh only; no install tasks or commands. |
 
-READY-01 remains unsatisfied under its original evidence bar. Security mitigation completion does not satisfy that requirement.
+READY-01 remains unsatisfied under its original evidence bar. Security completion does not satisfy that requirement.

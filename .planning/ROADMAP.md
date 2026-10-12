@@ -231,7 +231,7 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 | 248. Exact-Source Release Gate | v1.49 | 5/5 | Complete | 2026-10-09 |
 | 249. Publish and Prove Sigra 1.6.0 | v1.49 | 12/12 | Complete | 2026-10-09 |
 | 250. Close v1.49 audit gaps | v1.49 | 9/9 active plans (4 superseded) | Complete under amended phase-only contract; milestone remains incomplete | 2026-10-11 |
-| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 6/7 | Gap plans verified; execution pending; phase verification gaps_found | — |
+| 251. Close READY-01 and READY-02 release readiness gaps | v1.49 | 7/7 | Gap plans verified; execution pending; phase verification gaps_found | — |
 
 ### Next
 
@@ -246,7 +246,7 @@ Plan 02 summary: .planning/phases/251-close-ready-01-and-ready-02-release-readin
 **Goal:** Reconcile the two outstanding release-readiness requirements against their original evidence bars and refresh the Phase 247 owner verdicts without expanding release-action scope.
 **Requirements**: READY-01, READY-02
 **Depends on:** Phase 250
-**Plans:** 6/7 plans executed; five gap plans independently verified and pending
+**Plans:** 7/7 plans executed; five gap plans independently verified and pending
 
 **Success Criteria**:
 1. READY-01 is marked satisfied only if one exact candidate/source/base/main tuple joins matching package version/metadata, release manifest/config, changelog, `v1.6.0` tag, HexDocs source reference, adopter notes for shipped changes/compatibility/generated-host action or no-action/`~> 1.6.0` update and check path, exact-source CI, readiness, authenticated non-publishing dry-run, and contemporaneous approval. If an approval event or any source item is missing or mismatched, the owner report records the gap and leaves READY-01 unsatisfied; this does not gate independent READY-02 inventory capture when its source slice is ready.
@@ -272,6 +272,6 @@ Plans:
 - [x] 251-06-PLAN.md — Bound historical approval and published-source recovery with explicit blockers.
 
 **Wave 6** *(blocked on Waves 3–5 completion)*
-- [ ] 251-07-PLAN.md — Reconcile Phase 247 ownership, strict audit, review findings, and pending validation.
+- [x] 251-07-PLAN.md — Reconcile Phase 247 ownership, strict audit, review findings, and pending validation.
 
 Gap planning evidence: `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-OUTCOME.json`. Independent plan verification passed after one revision. Current phase validation is pending (`nyquist_compliant: false`); all 12 new tasks require execution evidence. Phase verification remains `gaps_found`; planning does not satisfy READY-01/02.
