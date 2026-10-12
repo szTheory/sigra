@@ -18,7 +18,10 @@ defmodule Sigra.Planning.CITimingFormatterTest do
     System.put_env("SIGRA_EXUNIT_TIMING_INVOCATION", "main")
     {:ok, state} = CITimingFormatter.init([])
     {:noreply, state} = CITimingFormatter.handle_cast({:suite_started, []}, state)
-    {:noreply, state} = CITimingFormatter.handle_cast({:test_finished, event_test(:main_test, nil, 11)}, state)
+
+    {:noreply, state} =
+      CITimingFormatter.handle_cast({:test_finished, event_test(:main_test, nil, 11)}, state)
+
     {:noreply, _state} = CITimingFormatter.handle_cast({:suite_finished, %{run: 20}}, state)
 
     report = path |> File.read!() |> Jason.decode!()

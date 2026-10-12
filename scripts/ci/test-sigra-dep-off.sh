@@ -48,14 +48,17 @@ case "$*" in
     ;;
   "test --only threadline_guard --no-deps-check")
     [[ "${SIGRA_EXUNIT_TIMING_INVOCATION:-}" == "threadline_guard" ]] || {
+      printf 'threadline-guard-report\n' > "${SIGRA_EXUNIT_TIMING_JSON:-missing-report-path}"
       echo "dependency-off test did not receive its invocation identity" >&2
       exit 98
     }
     [[ "${SIGRA_EXUNIT_TIMING_JSON:-}" == "${PWD}/test-results/ci-exunit-timing-threadline-guard.json" ]] || {
+      printf 'threadline-guard-report\n' > "${SIGRA_EXUNIT_TIMING_JSON:-missing-report-path}"
       echo "dependency-off test did not receive its own report path" >&2
       exit 97
     }
     printf 'threadline-guard-report\n' > "${SIGRA_EXUNIT_TIMING_JSON}"
+    [[ "${SIGRA_DEP_OFF_FORCE_TEST_FAILURE:-0}" != "1" ]] || exit 24
     ;;
   "deps.get --check-locked")
     ;;
@@ -77,6 +80,7 @@ run_case() {
   local name="$1"
   local expected_status="$2"
   local force_failure="$3"
+  local force_test_failure="${4:-0}"
   local fixture lock_before lock_after status
 
   fixture="$(setup_fixture "${name}")"
@@ -85,7 +89,7 @@ run_case() {
   set +e
   (
     cd "${fixture}"
-    PATH="${fixture}/bin:${PATH}" SIGRA_DEP_OFF_FORCE_FAILURE="${force_failure}" \
+    PATH="${fixture}/bin:${PATH}" SIGRA_DEP_OFF_FORCE_FAILURE="${force_failure}" SIGRA_DEP_OFF_FORCE_TEST_FAILURE="${force_test_failure}" \
       SIGRA_EXUNIT_TIMING_JSON="${fixture}/test-results/ci-exunit-timing-main.json" \
       SIGRA_EXUNIT_TIMING_INVOCATION="main" \
       bash scripts/ci/sigra-dep-off.sh
@@ -104,7 +108,7 @@ run_case() {
   [[ -f "${fixture}/_build/test/lib/threadline/.built" ]] \
     && pass "${name}: threadline build marker restored" \
     || fail "${name}: threadline build marker missing after cleanup"
-  if [[ "${name}" == "success" ]]; then
+  if [[ "${name}" == "success" || "${name}" == "child_failure" ]]; then
     [[ "$(cat "${fixture}/test-results/ci-exunit-timing-main.json")" == "main-report" ]] \
       && pass "${name}: child invocation preserves main report bytes" \
       || fail "${name}: child invocation overwrote the main report"
@@ -115,7 +119,8 @@ run_case() {
 }
 
 run_case success 0 0
-run_case injected_failure 42 1
+run_case injected_compile_failure 42 1
+run_case child_failure 24 0 1
 
 echo "Results: ${PASS} passed, ${FAIL} failed"
 ((FAIL == 0))
