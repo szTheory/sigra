@@ -98,6 +98,10 @@ gaps:
       - "A contemporaneous approval for the exact candidate/source/CI/readiness/dry-run tuple, if one exists in the original interval."
       - "Matching readiness and authenticated non-publishing dry-run evidence for the exact candidate tuple."
       - "The published v1.6.0 upgrade guide and its README link, or an explicitly approved alternative meeting the original bar."
+audit_acknowledged:
+  milestone: v1.49
+  at: 2026-10-12
+  status: gaps_found
 ---
 
 # Phase 251: Close READY-01 and READY-02 Release Readiness Gaps — Verification Report

@@ -58,6 +58,10 @@ gaps:
       - "A complete current open-PR population with full identity-bound dispositions."
       - "Read-back-verified preservation identities for each applicable inherited change, including every worktree."
       - "Fixes and regression coverage for CR-01 and CR-03."
+audit_acknowledged:
+  milestone: v1.49
+  at: 2026-10-12
+  status: gaps_found
 ---
 
 # Phase 251: Close READY-01 and READY-02 Release Readiness Gaps — Verification Report
