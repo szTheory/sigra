@@ -5,7 +5,7 @@
 | capability | decision | reason |
 |---|---|---|
 | GET REST core rate limit and reset time | INTEGRATE | |
-| GET current effective branch protection and active rulesets for enforced required contexts | INTEGRATE | Derive the endpoint from current enforcement; retain observed ruleset IDs, including historical 14941512 when present, as provenance only. |
+| GET effective branch enforcement and required contexts | INTEGRATE | Derive the endpoint from current enforcement; retain observed ruleset IDs, including historical 14941512 when present, as provenance only. |
 | GET `ci.yml` workflow runs by event, branch, created window and page | INTEGRATE | |
 | GET exact workflow run, source SHA, event and attempt count | INTEGRATE | |
 | GET all attempts for each selected run | INTEGRATE | |
@@ -13,7 +13,7 @@
 | GET check runs/statuses for enforced required contexts | INTEGRATE | |
 | GET PR changed paths and saved docs-only/skip evidence | INTEGRATE | |
 | GET producing-run artifact metadata, ID, digest and expiry | INTEGRATE | |
-| GET selected producing-run artifact bytes through validated download redirects | INTEGRATE | Disable automatic following; allow HTTPS redirects only to exact `pipelines.actions.githubusercontent.com` or a full host with first label `productionresultssa` plus digits and literal suffix `.blob.core.windows.net`; require a nonempty path and no user-info, fragment or non-default port. Count every hop and never persist signed query URLs. |
+| GET selected producing-run artifact bytes through validated download redirects | INTEGRATE | Use Plan 02 Task 3's exact HTTPS redirect policy; count every hop, reject unsafe destinations, and never persist signed URLs. |
 | GET selected failed-family logs within the shared request budget | INTEGRATE | Apply the same redirect checks and signed-URL handling as artifact downloads. |
 | POST workflow dispatch or rerun | OPT-OUT | Real PR CI is triggered by a scoped draft PR; manual dispatch does not measure the required PR wait. |
 | POST/PUT check runs, statuses or required rules | OPT-OUT | This phase measures effective checks; Phase 253 owns gate repairs and no rule mutation is authorized here. |

@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "phase": 252,
+  "invocation": "$gsd-plan-phase 252",
+  "recorded_at": "2026-10-12T17:09:41.102319+00:00",
+  "planning_status": "passed",
+  "implementation_status": "not_started",
+  "phase_verification_status": "not_started",
+  "next_command": "$gsd-execute-phase 252",
+  "plan_count": 6,
+  "task_count": 15,
+  "wave_count": 4,
+  "waves": {
+    "1": [
+      "252-01"
+    ],
+    "2": [
+      "252-02",
+      "252-03",
+      "252-04"
+    ],
+    "3": [
+      "252-05"
+    ],
+    "4": [
+      "252-06"
+    ]
+  },
+  "requirements": [
+    "CIMEAS-01",
+    "CIMEAS-02"
+  ],
+  "decisions_covered": 21,
+  "research": "completed with primary sources; current hosted collection deferred to execution",
+  "pattern_mapping": "completed",
+  "capture": {
+    "captured_at": "2026-10-12T16:23:12.399221+00:00",
+    "head": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f",
+    "branch": "phase-244-playwright-measurement",
+    "status": "",
+    "planning_readbacks": [
+      {
+        "path": ".planning/STATE.md",
+        "sha256": "bbb804c5227e7ee6339d65351f107e758a3cc599b46f90dd1c49d456f8349ebb",
+        "bytes": 5641,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/STATE.md"
+      },
+      {
+        "path": ".planning/state.json",
+        "sha256": "4ba7d18455e18cb537da94453ca0ae7dafff99b259e45905b97445c8e089d2d2",
+        "bytes": 2850,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/state.json"
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "sha256": "8a12b6687c65fd6842aa8c62f71048fd05b3fc4dacf49704178918d542daa9a5",
+        "bytes": 16552,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/HANDOFF.json"
+      },
+      {
+        "path": ".planning/PROJECT.md",
+        "sha256": "4f63d0e7a1407bf7d553b602c1160bd2d72e1087160d4294acaf0a963f1b37d1",
+        "bytes": 197440,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/PROJECT.md"
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "sha256": "9b60b444fcd28517fb853fe6c3f05bb4ae01f7f1fd0240995d23a3f00a4c4c40",
+        "bytes": 9928,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/ROADMAP.md"
+      },
+      {
+        "path": ".planning/v1.50-START.json",
+        "sha256": "964e2237b1c31d1dd4574bc3071c4ba93c836be7e77537898a3cf5acc95e5b4f",
+        "bytes": 12198,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/v1.50-START.json"
+      },
+      {
+        "path": ".planning/REQUIREMENTS.md",
+        "sha256": "a54db141fae57cdaede7de6d6702fab34dd2d1fb5e96d36171adf3fb6a374622",
+        "bytes": 5874,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/REQUIREMENTS.md"
+      },
+      {
+        "path": ".planning/config.json",
+        "sha256": "c4edd866d9ca58f698740210c77b7064b29e955b0c165a3f0461cdc9788aa386",
+        "bytes": 1797,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/config.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/.gitkeep",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "bytes": 1,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/.gitkeep"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
+        "sha256": "892880d07c89ee496d8e193d9df3aed38bd78cabd7de87b94a62694674ed155f",
+        "bytes": 17961,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/252-CONTEXT.md"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-CHECKS.json",
+        "sha256": "5fd2c553163320d68c2485dfe270420f6afa5229e9a1635fa3ea32a432b02d37",
+        "bytes": 6069,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/252-DISCUSSION-CHECKS.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-LOG.md",
+        "sha256": "9d78d6f019f5bf1b28212f42eda392f65d1f1e4c16851114a6989c4b7b06712d",
+        "bytes": 8081,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/252-DISCUSSION-LOG.md"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+        "sha256": "7f2b58a7f6d584b1a01bb977994c4f678c8b217d849b8de24e840e5c2266fa27",
+        "bytes": 11932,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-ROUTING-CHECKS.json",
+        "sha256": "a300c39b622e0a263d8d2163a01ed6c80169f8f075641f411ef34cbbe0cbd719",
+        "bytes": 5479,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/252-ROUTING-CHECKS.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/API-ACCESS-NOTES.txt",
+        "sha256": "10499444f2c80269c79966efd92658de5ac09c35c48b00eb853bba1ef61efc65",
+        "bytes": 2128,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/API-ACCESS-NOTES.txt"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/DECISION-PACKET.md",
+        "sha256": "2bba79ffc62fee94dd106f57ad37fc2474d942a62b91c9112f45fb6e439ea356",
+        "bytes": 12729,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/DECISION-PACKET.md"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request-get.json",
+        "sha256": "8d819d8067067041e3ea58f57ca19dbf93afe3befb0b5cbcbe2567c9ddd9c7f7",
+        "bytes": 12002,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request-get.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request.json",
+        "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b",
+        "bytes": 106,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/effective-rules-main.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+        "bytes": 1180,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/effective-rules-main.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/manifest.json",
+        "sha256": "295e6ac6eb25f94b5318b1dadb5836931ad12cf71048e049eba5ca5a27804f1b",
+        "bytes": 3798,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/manifest.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/representative-pr-jobs.json",
+        "sha256": "041335638f31ebacf709c51b5b45c0de72c694bbb6f1872aab931c52966b98d4",
+        "bytes": 53969,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/representative-pr-jobs.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-pull_request.json",
+        "sha256": "075899712dced9c6c3115cd6dc4f70481cc2d32557ce00f611143c6adb52fb1e",
+        "bytes": 46145,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/runs-pull_request.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-push-main.json",
+        "sha256": "ee90cda380016de86d28bb82711c2aac3b6f129f84d07bbea44b84145789454b",
+        "bytes": 33975,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/runs-push-main.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-schedule.json",
+        "sha256": "3ddd9defd398479cc30f9b5e4b26291437bb1055cc3ee2726bb1161616c73acf",
+        "bytes": 13119,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/runs-schedule.json"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/workflows.json",
+        "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b",
+        "bytes": 106,
+        "status": "clean",
+        "recoverable_at": "fc7181ffc16628f497489cd7af3bcb6e4bdf3c3f:.planning/phases/252-measure-current-ci/discussion-sources/workflows.json"
+      }
+    ]
+  },
+  "preservation": {
+    "before_plan_revision": {
+      "head": "bf0e88cd23ce23095d804aa8fce39c9e95d35398",
+      "readbacks": [
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-05-PLAN.md",
+          "sha256": "769c68bee8acb21bbdaacd4566584d3f08400cce2dcf8fa9ebeb7a11f9882357",
+          "bytes": 13692,
+          "recoverable_at": "bf0e88cd23ce23095d804aa8fce39c9e95d35398:.planning/phases/252-measure-current-ci/252-05-PLAN.md",
+          "status": "clean"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-04-PLAN.md",
+          "sha256": "cd192e8bda9bd69fb46f55b1a132fb7ae8a6c10cbeb510e2a698840d53d79414",
+          "bytes": 8337,
+          "recoverable_at": "bf0e88cd23ce23095d804aa8fce39c9e95d35398:.planning/phases/252-measure-current-ci/252-04-PLAN.md",
+          "status": "clean"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-06-PLAN.md",
+          "sha256": "b0fabc61c3588bee8bfa93a0cbf899ab5f8a6015ad1266c728baa648c2cd7b6e",
+          "bytes": 21193,
+          "recoverable_at": "bf0e88cd23ce23095d804aa8fce39c9e95d35398:.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+          "status": "clean"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-02-PLAN.md",
+          "sha256": "a6ba87f9317211bd71a87b495551e3375cceda6d555a0630f784023b8d01d471",
+          "bytes": 11861,
+          "recoverable_at": "bf0e88cd23ce23095d804aa8fce39c9e95d35398:.planning/phases/252-measure-current-ci/252-02-PLAN.md",
+          "status": "clean"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-03-PLAN.md",
+          "sha256": "3c155bf5eb6d79f67420621efd8b819447a4b2ad21f88ba9f41079b165fda367",
+          "bytes": 8979,
+          "recoverable_at": "bf0e88cd23ce23095d804aa8fce39c9e95d35398:.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+          "status": "clean"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-01-PLAN.md",
+          "sha256": "e51a65264f1898dd82ef460f749fb008b63d5b4112e5c3efa4c5241771e3ba3a",
+          "bytes": 11192,
+          "recoverable_at": "bf0e88cd23ce23095d804aa8fce39c9e95d35398:.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+          "status": "clean"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
+          "sha256": "812d56889babb738e591883658d4bc67293d06328df1bd1bc84a59f92a222cb5",
+          "bytes": 7586,
+          "recoverable_at": "bf0e88cd23ce23095d804aa8fce39c9e95d35398:.planning/phases/252-measure-current-ci/252-VALIDATION.md",
+          "status": "clean"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/COVERAGE.md",
+          "sha256": "3a02140bb91528df24ab9ef65bd4dd12d9c7502627422e457b99bf91a578f252",
+          "bytes": 2342,
+          "recoverable_at": "bf0e88cd23ce23095d804aa8fce39c9e95d35398:.planning/phases/252-measure-current-ci/COVERAGE.md",
+          "status": "clean"
+        }
+      ]
+    },
+    "before_research_resolution": {
+      "head": "8dd04f60cfdb8fc5cb7da50f62bbba5127065138",
+      "path": ".planning/phases/252-measure-current-ci/252-RESEARCH.md",
+      "sha256": "83ff13e44cb908d245417a61310dc7875820d68a6769c0e2a25436bb1456c1a1",
+      "bytes": 58706,
+      "status": "clean",
+      "recoverable_at": "8dd04f60cfdb8fc5cb7da50f62bbba5127065138:.planning/phases/252-measure-current-ci/252-RESEARCH.md"
+    },
+    "before_coverage_format_edit": {
+      "ref": "786d39d53191622326bc14b42e42049f12d89d81",
+      "path": ".planning/phases/252-measure-current-ci/COVERAGE.md",
+      "sha256": "d4fe74aae84e7649f99c3a9f5339677b4858d2e19b34d8a09578a8512d16aef6",
+      "bytes": 3228,
+      "status": "clean",
+      "readback_exact": true
+    },
+    "before_sdk_state_write": {
+      "ref": "786d39d53191622326bc14b42e42049f12d89d81",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "sha256": "bbb804c5227e7ee6339d65351f107e758a3cc599b46f90dd1c49d456f8349ebb",
+          "bytes": 5641,
+          "status": "clean",
+          "recoverable_ref": "786d39d53191622326bc14b42e42049f12d89d81",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "sha256": "9b60b444fcd28517fb853fe6c3f05bb4ae01f7f1fd0240995d23a3f00a4c4c40",
+          "bytes": 9928,
+          "status": "clean",
+          "recoverable_ref": "786d39d53191622326bc14b42e42049f12d89d81",
+          "git_readback_exact": true
+        }
+      ]
+    }
+  },
+  "review": {
+    "reports": [
+      "252-PLAN-CHECK.md",
+      "252-PLAN-CHECK-02.md",
+      "252-PLAN-CHECK-03.md"
+    ],
+    "blocking_warning_counts": [
+      6,
+      1,
+      0
+    ],
+    "revision_count": 2,
+    "final_report": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-03.md",
+    "final_report_sha256": "ed35576b146817b306cabe201def46acbfff9efd40941243eff2cb0482825e87",
+    "reviewed_inputs": [
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "reviewed_sha256": "286b0b0035fdf16458113d21181ad068be18ffd4c1dd865c8ac16818cd86c7c6",
+        "current_sha256": "286b0b0035fdf16458113d21181ad068be18ffd4c1dd865c8ac16818cd86c7c6",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-02-PLAN.md",
+        "reviewed_sha256": "1d801f7c6f953d121c78bbbc5f54c03f69bd87b2b3d8058e3feb0731c2817015",
+        "current_sha256": "1d801f7c6f953d121c78bbbc5f54c03f69bd87b2b3d8058e3feb0731c2817015",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "reviewed_sha256": "3c155bf5eb6d79f67420621efd8b819447a4b2ad21f88ba9f41079b165fda367",
+        "current_sha256": "3c155bf5eb6d79f67420621efd8b819447a4b2ad21f88ba9f41079b165fda367",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-04-PLAN.md",
+        "reviewed_sha256": "f7a8d1c5b4a5a86f206b53d4117d03119787b42b04b0b959e888f69efe5de76d",
+        "current_sha256": "f7a8d1c5b4a5a86f206b53d4117d03119787b42b04b0b959e888f69efe5de76d",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-PLAN.md",
+        "reviewed_sha256": "93558bdf70ef52be1eaeeac4c7610ba7e9f7417c410c5eddc51fafa64075d00f",
+        "current_sha256": "93558bdf70ef52be1eaeeac4c7610ba7e9f7417c410c5eddc51fafa64075d00f",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "reviewed_sha256": "b3652a1ec0aad31b583e0b38b15353b58697783a61e1ff786032d3177ae223ff",
+        "current_sha256": "b3652a1ec0aad31b583e0b38b15353b58697783a61e1ff786032d3177ae223ff",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-RESEARCH.md",
+        "reviewed_sha256": "aad630f613f7add6f81bb1c3fa5bc54a76442ccbb711fdf8b788e41aa29842a0",
+        "current_sha256": "aad630f613f7add6f81bb1c3fa5bc54a76442ccbb711fdf8b788e41aa29842a0",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
+        "reviewed_sha256": "892880d07c89ee496d8e193d9df3aed38bd78cabd7de87b94a62694674ed155f",
+        "current_sha256": "892880d07c89ee496d8e193d9df3aed38bd78cabd7de87b94a62694674ed155f",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PATTERNS.md",
+        "reviewed_sha256": "6ea28c8da6cd5cab236f374dfacf8cb76c91744ce01b888aa77cc425d20193f7",
+        "current_sha256": "6ea28c8da6cd5cab236f374dfacf8cb76c91744ce01b888aa77cc425d20193f7",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
+        "reviewed_sha256": "6f7c572ba699de95e0ebba82d947327283e1864e672645a2f0902250defa6878",
+        "current_sha256": "6f7c572ba699de95e0ebba82d947327283e1864e672645a2f0902250defa6878",
+        "same": true
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/COVERAGE.md",
+        "reviewed_sha256": "d4fe74aae84e7649f99c3a9f5339677b4858d2e19b34d8a09578a8512d16aef6",
+        "current_sha256": "31f421f3419cf5261adceeb16e9f2d2e664422fa2612933dadb6c9c34ff19644",
+        "same": false
+      }
+    ],
+    "post_review_format_adjustment": "COVERAGE.md shortened one capability label and one explanation to pass 80/200 character limits; same11integrations/5optouts and redirectpolicy unchanged inPlan02. Machine gate now passes.",
+    "final_plan_revision": "8dd04f60cfdb8fc5cb7da50f62bbba5127065138",
+    "research_resolution_revision": "786d39d53191622326bc14b42e42049f12d89d81"
+  },
+  "dispatch": [
+    {
+      "role": "gsd-phase-researcher",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "role": "gsd-pattern-mapper",
+      "model": "gpt-6-luna",
+      "effort": "low"
+    },
+    {
+      "role": "gsd-planner",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "turns": 2
+    },
+    {
+      "role": "gsd-plan-checker",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "turns": 3
+    }
+  ],
+  "runtime": {
+    "packageName": "@opengsd/gsd-core",
+    "version": "1.16.0",
+    "typed_dispatch": true,
+    "auto_advance": false,
+    "auto_chain_active": false
+  },
+  "external_actions": {
+    "live_github_api": false,
+    "ci_runs": false,
+    "remote_mutations": false
+  },
+  "notes": [
+    "Discussion approval and locked defaults reused; no user gate reopened.",
+    "Research p95 prose corrected: [1..20] has median10.5 and nearest-rankp9519.",
+    "Hosted availability remains execution-time fact; conservative fallbacks are design resolutions.",
+    "Prior research and draft plans remain exactly recoverable at committed refs."
+  ]
+}
