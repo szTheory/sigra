@@ -33,14 +33,18 @@ class ExunitTimingContractTest(unittest.TestCase):
             "complete": True,
             "unit": "microsecond",
             "invocation": invocation,
+            "counts": {"passed": 1, "failed": 0, "skipped": 0, "excluded": 0},
             "tests": [
                 {
                     "invocation": invocation,
                     "test_id": "Same.test name",
                     "duration_us": 13,
                     "result": "passed",
+                    "unit": "microsecond",
                 }
             ],
+            "suite_elapsed_us": 100,
+            "run_us": 90,
             "test_duration_sum_us": 13,
             "passed_count": 1,
             "failed_count": 0,
@@ -109,6 +113,38 @@ class ExunitTimingContractTest(unittest.TestCase):
             result["diagnostics"],
         )
         self.assertIn("exunit_producer_report_contract_missing", result["diagnostics"])
+
+    def test_rejects_empty_primary_report(self):
+        reports = dict(self.reports)
+        reports["main"] = self.report("main")
+        reports["main"]["tests"] = []
+        reports["main"]["counts"] = {"passed": 0, "failed": 0, "skipped": 0, "excluded": 0}
+        reports["main"]["passed_count"] = 0
+        reports["main"]["test_duration_sum_us"] = 0
+        result = self.validate(reports=reports)
+        self.assertFalse(result["valid"])
+        self.assertIn("exunit_main_report_empty", result["diagnostics"])
+
+    def test_reconciles_rows_result_counts_and_units(self):
+        reports = {name: dict(report) for name, report in self.reports.items()}
+        reports["main"] = self.report("main")
+        reports["main"]["tests"] = [dict(row, result="not-a-result") for row in reports["main"]["tests"]]
+        result = self.validate(reports=reports)
+        self.assertFalse(result["valid"])
+        self.assertIn("exunit_main_test_identity_invalid", result["diagnostics"])
+
+        reports["main"] = self.report("main")
+        reports["main"]["counts"]["passed"] = 0
+        result = self.validate(reports=reports)
+        self.assertIn("exunit_main_counts_do_not_match_rows", result["diagnostics"])
+
+    def test_preserves_nonserialized_excluded_count(self):
+        report = self.report("main")
+        report["counts"] = {"passed": 1, "failed": 0, "skipped": 0, "excluded": 3}
+        report["excluded_count"] = 3
+        result = self.validate(reports={"main": report, "threadline_guard": self.reports["threadline_guard"]})
+        self.assertTrue(result["valid"])
+        self.assertEqual(3, result["reports"][0]["excluded"])
 
 
 if __name__ == "__main__":

@@ -195,7 +195,7 @@ validate_artifact_metadata() {
 extract_timing_archive() {
   local zip="$1" destination="$2"
   python3 - "$zip" "$destination" <<'PY'
-import json, os, pathlib, re, stat, sys, zipfile
+import hashlib, json, os, pathlib, re, stat, sys, zipfile
 archive, destination = sys.argv[1:]
 max_total, max_member, max_members = 512 * 1024 * 1024, 64 * 1024 * 1024, 10000
 allowed = {"report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing-main.json", "ci-exunit-timing-threadline-guard.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json"}
@@ -238,7 +238,7 @@ try:
                     dst.write(chunk)
             if written != info.file_size: raise ValueError("archive_member_size_mismatch")
             with open(temp, "rb") as f: json.load(f)
-            os.replace(temp, target); output.append({"member":info.filename,"path":target,"bytes":written})
+            os.replace(temp, target); output.append({"member":info.filename,"path":target,"bytes":written,"sha256":hashlib.sha256(pathlib.Path(target).read_bytes()).hexdigest()})
         print(json.dumps({"status":"accepted","members":output,"skipped_non_json_members":skipped[:100]}, sort_keys=True))
 except Exception as exc:
     print(str(exc) if isinstance(exc, ValueError) else "archive_invalid", file=sys.stderr)
@@ -248,21 +248,14 @@ PY
 
 redact_log_file() {
   local source="$1" destination="$2"
-  python3 - "$source" "$destination" <<'PY'
-import pathlib, re, sys
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$source" "$destination" <<'PY'
+import pathlib, sys
+from ci_metrics_security import sanitize_failure_log
 source, destination = map(pathlib.Path, sys.argv[1:])
-text = source.read_bytes().decode("utf-8", "replace")
-for pattern, replacement in [
-    (r"\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b", "[REDACTED_TOKEN]"),
-    (r"(?i)\bBearer\s+[^\s,;]+", "Bearer [REDACTED]"),
-    (r"(?i)\b(?:gh[_-]?token|github[_-]?(?:token|pat)|aws[_-]?(?:access[_-]?key[_-]?id|secret[_-]?access[_-]?key)|client[_-]?secret|access[_-]?token|refresh[_-]?token|private[_-]?key)\s*[:=]\s*[^\s,\"']+", "[REDACTED_CREDENTIAL]"),
-    (r"(?i)\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^\s,\"']+", r"\1=[REDACTED]"),
-    (r"https?://[^\s?#]+\?[^\s#]+", "[SIGNED_URL_REDACTED]"),
-]:
-    text = re.sub(pattern, replacement, text)
+report = sanitize_failure_log(source.read_bytes())
 destination.parent.mkdir(parents=True, exist_ok=True)
 temp = destination.with_suffix(destination.suffix + ".tmp")
-temp.write_text(text, encoding="utf-8")
+temp.write_text(report["text"], encoding="utf-8")
 temp.replace(destination)
 PY
 }
@@ -320,19 +313,22 @@ api_external_reserve() {
   [[ -z "$API_CORE_REMAINING" || "$API_CORE_REMAINING" -gt 250 ]] || { api_stop core_rate_limit_stop "$API_RESET_AT" "$endpoint"; return 1; }
   timeout_cmd="$(command -v timeout || command -v gtimeout || true)"
   [[ -n "$timeout_cmd" ]] || { api_stop request_deadline_enforcer_unavailable "" "$endpoint"; return 1; }
+  if [[ "$API_CORE_REMAINING" =~ ^[0-9]+$ ]]; then API_CORE_REMAINING=$((API_CORE_REMAINING - 1)); fi
   ((API_REQUESTS+=1))
   API_REQUEST_LOG="$(jq -cn --arg endpoint "$endpoint" --argjson prior "$API_REQUEST_LOG" '$prior + [$endpoint]')"
   api_write_ledger collecting
 }
 
 api_download_no_follow() {
-  local url="$1" destination="$2" category="$3" token="" host host_kind headers body status_code location location_count elapsed timeout_cmd attempt rc
+  local url="$1" destination="$2" category="$3" token="" host host_kind headers body status_code location location_count elapsed timeout_cmd attempt rc log_cap_bytes
   [[ "$url" == https://api.github.com/* ]] || { api_stop download_api_origin_rejected "" "$category"; return 1; }
   if [[ -n "${GH_TOKEN:-}" ]]; then token="$GH_TOKEN"
   elif [[ -n "${GITHUB_TOKEN:-}" ]]; then token="$GITHUB_TOKEN"
   else token="$(gh auth token 2>/dev/null || true)"; fi
   [[ -n "$token" ]] || { api_stop download_auth_unavailable "" "$category"; return 1; }
   host_kind=api
+  log_cap_bytes=0
+  [[ "$category" == job-log:* ]] && log_cap_bytes=1048576
   for ((hop=0; hop<=3; hop++)); do
     if [[ "$host_kind" == api ]]; then host=api.github.com; else host="$host_kind"; fi
     api_external_reserve "download:${category}:${host}" || return 1
@@ -344,9 +340,17 @@ api_download_no_follow() {
     while :; do
       set +e
       if [[ "$host_kind" == api ]]; then
-        status_code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" | "$timeout_cmd" --signal=TERM "${request_timeout}s" curl --config - --silent --show-error --max-redirs 0 --request GET --max-time "$request_timeout" --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$url" 2>/dev/null)"
+        if (( log_cap_bytes > 0 )); then
+          status_code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" | "$timeout_cmd" --signal=TERM "${request_timeout}s" curl --config - --silent --show-error --max-redirs 0 --request GET --max-time "$request_timeout" --max-filesize "$log_cap_bytes" --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$url" 2>/dev/null)"
+        else
+          status_code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" | "$timeout_cmd" --signal=TERM "${request_timeout}s" curl --config - --silent --show-error --max-redirs 0 --request GET --max-time "$request_timeout" --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$url" 2>/dev/null)"
+        fi
       else
-        status_code="$("$timeout_cmd" --signal=TERM "${request_timeout}s" curl --silent --show-error --max-redirs 0 --request GET --max-time "$request_timeout" --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$url" 2>/dev/null)"
+        if (( log_cap_bytes > 0 )); then
+          status_code="$("$timeout_cmd" --signal=TERM "${request_timeout}s" curl --silent --show-error --max-redirs 0 --request GET --max-time "$request_timeout" --max-filesize "$log_cap_bytes" --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$url" 2>/dev/null)"
+        else
+          status_code="$("$timeout_cmd" --signal=TERM "${request_timeout}s" curl --silent --show-error --max-redirs 0 --request GET --max-time "$request_timeout" --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$url" 2>/dev/null)"
+        fi
       fi
       rc=$?
       set -e
@@ -365,6 +369,9 @@ api_download_no_follow() {
       break
     done
     if [[ "$status_code" == 200 ]]; then
+      if (( log_cap_bytes > 0 )) && (( $(wc -c <"$body") > log_cap_bytes )); then
+        api_stop failed_log_input_too_large "" "$category"; rm -f "$headers" "$body"; return 1
+      fi
       mkdir -p "$(dirname "$destination")"; mv "$body" "$destination"; rm -f "$headers"; return 0
     fi
     if [[ "$status_code" =~ ^30[12378]$ ]]; then
@@ -422,6 +429,10 @@ api_get() {
   fi
   attempt=0
   while :; do
+    if [[ "$API_CORE_REMAINING" =~ ^[0-9]+$ ]]; then
+      (( API_CORE_REMAINING > 250 )) || { api_stop core_rate_limit_stop "$API_RESET_AT" "$endpoint"; return 1; }
+      API_CORE_REMAINING=$((API_CORE_REMAINING - 1))
+    fi
     ((API_REQUESTS+=1))
     API_REQUEST_LOG="$(jq -cn --arg endpoint "$endpoint" --argjson prior "$API_REQUEST_LOG" '$prior + [$endpoint]')"
     err_file="${TMPDIR:-/tmp}/ci-run-metrics-gh-error.$$"
@@ -438,7 +449,15 @@ api_get() {
     if (( rc == 0 )); then
       mv "${output_file}.tmp" "$output_file"
       if [[ "$endpoint" == "rate_limit" || "$endpoint" == "/rate_limit" ]]; then
-        API_CORE_REMAINING="$(jq -r '.resources.core.remaining // empty' "$output_file" 2>/dev/null || true)"
+        local observed_remaining
+        observed_remaining="$(jq -r '.resources.core.remaining // empty' "$output_file" 2>/dev/null || true)"
+        if [[ "$observed_remaining" =~ ^[0-9]+$ ]]; then
+          if [[ "$API_CORE_REMAINING" =~ ^[0-9]+$ ]]; then
+            (( observed_remaining < API_CORE_REMAINING )) && API_CORE_REMAINING="$observed_remaining"
+          else
+            API_CORE_REMAINING="$observed_remaining"
+          fi
+        fi
         API_RESET_AT="$(jq -r '.resources.core.reset // empty' "$output_file" 2>/dev/null || true)"
         API_LAST_RATE_REQUEST="$API_REQUESTS"
       fi
@@ -477,7 +496,7 @@ collect_window() {
   jq -en --arg cutoff "$CUTOFF" 'try ($cutoff|fromdateiso8601) catch false' >/dev/null || fail "cutoff_invalid"
   [[ ! -e "$SOURCE_BUNDLE" ]] || fail "source_bundle_already_exists"
 
-  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha workflow_blob tree_sha request_hash selection_hash request_count manual_json release_json source_hashes required_contexts required_provenance active_rules
+  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha workflow_blob tree_sha request_hash selection_hash request_count manual_json release_json source_hashes required_contexts required_provenance active_rules manual_hash release_hash producer_refs producer_sha producer_dir producer_tree_sha producer_parent_valid workflow_content producer_meta
   mkdir -p "$(dirname "$SOURCE_BUNDLE")"
   [[ ! -e "$stage" ]] || fail "source_bundle_staging_exists"
   mkdir "$lock" 2>/dev/null || fail "source_bundle_locked"
@@ -486,6 +505,7 @@ collect_window() {
   mkdir -p "$stage/source"
   cp "$ROOT/.github/workflows/ci.yml" "$stage/source/ci.yml"
   cp "$ROOT/scripts/ci/ci-run-metrics.sh" "$stage/source/ci-run-metrics.sh"
+  cp "$ROOT/scripts/ci/ci_metrics_security.py" "$stage/source/ci_metrics_security.py"
   cp "$ROOT/scripts/ci/exunit_timing_contract.py" "$stage/source/exunit_timing_contract.py"
   cp "$ROOT/scripts/ci/ci-playwright-report.mjs" "$stage/source/ci-playwright-report.mjs"
   cp "$ROOT/scripts/ci/ci-playwright-report.test.mjs" "$stage/source/ci-playwright-report.test.mjs"
@@ -603,6 +623,7 @@ collect_window() {
       ($anchors + $recent + $failed[0]) | unique_by([.population,.run.id])
     ' "$selected_file" >"$priority_file"
     printf '[]\n' >"$enrichments_file"
+    producer_refs='{}'
     while IFS= read -r row; do
       [[ -n "$row" ]] || continue
       id="$(jq -r '.run.id' <<<"$row")"
@@ -734,10 +755,34 @@ collect_window() {
             [[ -z "$API_STOP_REASON" ]] || break
           done < <(jq -c '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|measurement-metadata")))] | sort_by(.name,.id) | .[]' "$artifact_meta")
         else jq -n --arg reason "${API_STOP_REASON:-artifact_metadata_unavailable}" '{status:"unknown",reason:$reason}' >"$artifact_manifest"; fi
+        while IFS= read -r producer_meta; do
+          [[ -s "$producer_meta" ]] || continue
+          producer_sha="$(jq -r '.source_sha // empty' "$producer_meta")"
+          [[ "$producer_sha" =~ ^[0-9a-f]{40}$ ]] || continue
+          if jq -e --arg sha "$producer_sha" 'has($sha)' <<<"$producer_refs" >/dev/null; then continue; fi
+          producer_dir="$family_dir/producer-source/$producer_sha"
+          mkdir -p "$producer_dir"
+          if api_get "/repos/${REPO}/commits/${producer_sha}" "$tmp/producer-commit-${producer_sha}.json" \
+            && api_get "/repos/${REPO}/git/trees/$(jq -r '.commit.tree.sha' "$tmp/producer-commit-${producer_sha}.json")?recursive=1" "$tmp/producer-tree-${producer_sha}.json" \
+            && api_get "/repos/${REPO}/contents/.github/workflows/ci.yml?ref=${producer_sha}" "$tmp/producer-workflow-${producer_sha}.json"; then
+            cp "$tmp/producer-commit-${producer_sha}.json" "$producer_dir/commit.json"
+            cp "$tmp/producer-tree-${producer_sha}.json" "$producer_dir/tree.json"
+            cp "$tmp/producer-workflow-${producer_sha}.json" "$producer_dir/workflow-content.json"
+            workflow_content="$producer_dir/ci.yml"
+            if jq -r '.content' "$producer_dir/workflow-content.json" | tr -d '\n' | base64 -d >"$workflow_content" 2>/dev/null; then
+              producer_tree_sha="$(jq -r '.commit.tree.sha // empty' "$producer_dir/commit.json")"
+              producer_parent_valid="$(jq -c --arg sha "$producer_sha" --argjson run "$run" '.sha==$sha and ([.parents[].sha]|sort)==([$run.pull_requests[0].head.sha,$run.pull_requests[0].base.sha]|sort) and ($run.pull_requests|length)==1' "$producer_dir/commit.json")"
+              if [[ "$producer_parent_valid" == true ]] && jq -e --arg tree "$producer_tree_sha" --arg workflow "$(git hash-object "$workflow_content")" '.sha==$tree and any(.tree[]; .path==".github/workflows/ci.yml" and .type=="blob" and .sha==$workflow)' "$producer_dir/tree.json" >/dev/null; then
+                producer_refs="$(jq -cn --arg sha "$producer_sha" --arg c "raw/families/${id}/producer-source/${producer_sha}/commit.json" --arg ch "$(sha256_file "$producer_dir/commit.json")" --arg t "raw/families/${id}/producer-source/${producer_sha}/tree.json" --arg th "$(sha256_file "$producer_dir/tree.json")" --arg w "raw/families/${id}/producer-source/${producer_sha}/ci.yml" --arg wh "$(sha256_file "$workflow_content")" --arg raw "raw/families/${id}/producer-source/${producer_sha}/workflow-content.json" --arg rh "$(sha256_file "$producer_dir/workflow-content.json")" --argjson prior "$producer_refs" '$prior + {($sha):{commit_path:$c,commit_sha256:$ch,tree_path:$t,tree_sha256:$th,workflow_path:$w,workflow_sha256:$wh,workflow_api_path:$raw,workflow_api_sha256:$rh}}')"
+              else api_stop producer_source_origin_unverified "" "$producer_sha"; fi
+            else api_stop producer_workflow_content_unavailable "" "$producer_sha"; fi
+          fi
+          [[ -z "$API_STOP_REASON" ]] || break
+        done < <(find "$target_artifacts" -mindepth 2 -maxdepth 2 -name ci-measurement-metadata.json -type f 2>/dev/null | sort)
       fi
       details_file="$tmp/family-${id}-detail.json"
       jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --slurpfile paths "$paths_file" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths:$paths[0],changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}' >"$details_file" || fail "family_detail_json_invalid:${id}"
-      jq -n --slurpfile detail "$details_file" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --argjson attempts "$attempts_json" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
+      jq -n --slurpfile detail "$details_file" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --arg metadata_hash "$(if [[ -s "$family_dir/artifacts-metadata.json" ]]; then sha256_file "$family_dir/artifacts-metadata.json"; fi)" --argjson attempts "$attempts_json" --argjson producer_refs "$producer_refs" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_metadata_sha256:(if $metadata_hash=="" then null else $metadata_hash end),artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),producer_commits:$producer_refs,artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
       jq -cn --slurpfile prior "$enrichments_file" --slurpfile detail "$details_file" '$prior[0] + [$detail[0]]' >"$enrichments_file.tmp"
       mv "$enrichments_file.tmp" "$enrichments_file"
       api_write_ledger collecting
@@ -770,7 +815,7 @@ collect_window() {
   workflow_blob="$(git hash-object "$ROOT/.github/workflows/ci.yml" 2>/dev/null || echo unavailable)"
   workflow_sha="$(sha256_file "$ROOT/.github/workflows/ci.yml")"
   tree_sha="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
-  source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg exunit_contract "$(sha256_file "$stage/source/exunit_timing_contract.py")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" --arg mix "$(sha256_file "$stage/source/mix.exs")" --arg dep_off "$(sha256_file "$stage/source/sigra-dep-off.sh")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"exunit_timing_contract.py":$exunit_contract,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test,"mix.exs":$mix,"sigra-dep-off.sh":$dep_off}')"
+  source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg security "$(sha256_file "$stage/source/ci_metrics_security.py")" --arg exunit_contract "$(sha256_file "$stage/source/exunit_timing_contract.py")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" --arg mix "$(sha256_file "$stage/source/mix.exs")" --arg dep_off "$(sha256_file "$stage/source/sigra-dep-off.sh")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"ci_metrics_security.py":$security,"exunit_timing_contract.py":$exunit_contract,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test,"mix.exs":$mix,"sigra-dep-off.sh":$dep_off}')"
   required_contexts="$(jq -c '[.[]? | select(.type=="required_status_checks") | .parameters.required_status_checks[]?.context] | unique' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
   required_provenance="$(jq -c '[.[]? | select(.type=="required_status_checks") | {context:.parameters.required_status_checks[]?.context,ruleset_id:.ruleset_id,ruleset_source:.ruleset_source}]' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
   active_rules="$(jq -c '[.[]? | select(.enforcement=="active") | {id,name,target,enforcement}] | sort_by(.id)' "$stage/raw/rulesets.json" 2>/dev/null || echo '[]')"
@@ -780,7 +825,9 @@ collect_window() {
   pr_hash="$(sha256_file "$stage/raw/populations/pull_request.json")"
   push_hash="$(sha256_file "$stage/raw/populations/push_main.json")"
   night_hash="$(sha256_file "$stage/raw/populations/schedule.json")"
-  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg captured "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg workflow_blob "$workflow_blob" --arg source_hashes "$source_hashes" --argjson required_contexts "$required_contexts" --argjson required_provenance "$required_provenance" --argjson active_rules "$active_rules" --arg request_hash "$request_hash" --arg selection_hash "$selection_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --arg rate_hash "$(sha256_file "$stage/raw/rate-limit.json")" --arg rules_hash "$(sha256_file "$stage/raw/effective-rules.json")" --arg protection_hash "$(sha256_file "$stage/raw/branch-protection.json")" --arg rulesets_hash "$(sha256_file "$stage/raw/rulesets.json")" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,captured_at_utc:$captured,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,workflow_blob_sha:$workflow_blob,required_contexts:$required_contexts,required_rule_provenance:$required_provenance,active_rulesets:$active_rules,source_file_sha256:($source_hashes|fromjson),source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash,rate_limit:$rate_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
+  manual_hash="$(sha256_file "$stage/raw/populations/manual.json")"
+  release_hash="$(sha256_file "$stage/raw/populations/release_push.json")"
+  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg captured "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg workflow_blob "$workflow_blob" --arg source_hashes "$source_hashes" --argjson required_contexts "$required_contexts" --argjson required_provenance "$required_provenance" --argjson active_rules "$active_rules" --arg request_hash "$request_hash" --arg selection_hash "$selection_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --arg manual_hash "$manual_hash" --arg release_hash "$release_hash" --arg rate_hash "$(sha256_file "$stage/raw/rate-limit.json")" --arg rules_hash "$(sha256_file "$stage/raw/effective-rules.json")" --arg protection_hash "$(sha256_file "$stage/raw/branch-protection.json")" --arg rulesets_hash "$(sha256_file "$stage/raw/rulesets.json")" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,captured_at_utc:$captured,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,workflow_blob_sha:$workflow_blob,required_contexts:$required_contexts,required_rule_provenance:$required_provenance,active_rulesets:$active_rules,source_file_sha256:($source_hashes|fromjson),source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash,manual:$manual_hash,release_push:$release_hash,rate_limit:$rate_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
   sync 2>/dev/null || true
   rm -rf "$tmp"
   API_TEMP_DIR=""
@@ -1098,7 +1145,7 @@ replay_family() {
   if (( first_count == required_count )); then first_wait="$(jq -nr --arg created "$created" --argjson contexts "$first_contexts" '[ $contexts[] | fromdateiso8601 ] | max - ($created|fromdateiso8601)')"; fi
   if (( eventual_count == required_count )) && [[ "$required_changed" != true ]]; then wait_value="$(jq -nr --arg created "$created" --argjson contexts "$eventual_contexts" '[ $contexts[] | fromdateiso8601 ] | max - ($created|fromdateiso8601)')"; fi
   [[ "$required_changed" == true ]] && fatal=true
-  runner="$(jq -r 'if any(.jobs[]?; .conclusion != "skipped" and (.started_at == null or .completed_at == null)) then null else ([.jobs[]? | select(.conclusion != "skipped" and .started_at != null and .completed_at != null) | ((.completed_at|fromdateiso8601)-(.started_at|fromdateiso8601)) | select(.>=0)] | add // null) end' "$bundle/raw/jobs.json")"
+  runner="$(jq -r 'if any(.jobs[]?; .conclusion != "skipped" and ((.id|type)!="number" or .started_at == null or .completed_at == null)) then null else ([.jobs[]? | select(.conclusion != "skipped" and .started_at != null and .completed_at != null)] | unique_by(.id) | map(((.completed_at|fromdateiso8601)-(.started_at|fromdateiso8601))) | map(select(.>=0)) | add // null) end' "$bundle/raw/jobs.json")"
   if [[ "$runner" == null ]]; then diagnostics="$(jq -c '. + [{reason:"runner_timing_incomplete"}]' <<<"$diagnostics")"; fatal=true; fi
   local result revision_count
   revision_count="$(jq -r '(.revisions // [{source_sha:.source_sha}]) | length' "$bundle/manifest.json")"
@@ -1125,7 +1172,7 @@ replay_snapshot() {
     jq -S '{schema_version,repository,workflow,cutoff_utc,window_start_utc,status,stop_reason,request_count,selection_ledger}' "$manifest"
     return 0
   fi
-  for name in request_ledger selection_ledger pull_request push_main schedule rate_limit effective_rules branch_protection rulesets; do
+  for name in request_ledger selection_ledger pull_request push_main schedule manual release_push rate_limit effective_rules branch_protection rulesets; do
     case "$name" in
       request_ledger) file="$bundle/request-ledger.json";;
       selection_ledger) file="$bundle/selection-ledger.json";;
@@ -1133,6 +1180,8 @@ replay_snapshot() {
     esac
     case "$name" in
       rate_limit|effective_rules|branch_protection|rulesets) file="$bundle/raw/${name//_/-}.json";;
+      manual) file="$bundle/raw/populations/manual.json";;
+      release_push) file="$bundle/raw/populations/release_push.json";;
     esac
     expected="$(jq -r --arg key "$name" '.source_sha256[$key] // empty' "$manifest")"
     [[ -n "$expected" && -s "$file" && "$(sha256_file "$file")" == "$expected" ]] || fail "snapshot_hash_mismatch:${name}"
@@ -1152,6 +1201,11 @@ root = pathlib.Path(sys.argv[1]); project = pathlib.Path(sys.argv[2]); manifest 
 sys.path.insert(0, str(project/'scripts'/'ci'))
 sys.path.insert(0, str(root/'source'))
 from exunit_timing_contract import validate as validate_exunit_timing
+from ci_metrics_security import deduplicate_physical_jobs, validate_check_bindings, validate_producer_binding, validate_producer_commit, validate_workflow_source, verify_snapshot_hashes
+integrity_errors=verify_snapshot_hashes(root)
+if integrity_errors:
+    print(json.dumps({'status':'unknown','diagnostics':integrity_errors},sort_keys=True),file=sys.stderr)
+    raise SystemExit(1)
 events = {'pull_request':'pull_request','push_main':'main','schedule':'nightly'}
 stages = ['setup','cache_restore_download','compile','database_startup','app_boot','test_execution','artifact_upload','other']
 wait_rows={k:[] for k in events.values()}; runner_rows={k:[] for k in events.values()}; stage_values={k:{s:[] for s in stages} for k in events.values()}
@@ -1191,19 +1245,6 @@ def source_bound_full_pr(run, runid):
             return None, ['check_runs_hash_mismatch']
         checks=json.loads(checks_path.read_text()).get('check_runs',[])
         expected_contexts=manifest.get('required_contexts',[])
-        by_name={}
-        for check in checks:
-            if check.get('head_sha')!=run.get('head_sha') or check.get('app',{}).get('slug')!='github-actions': continue
-            by_name[check.get('name')]=check
-        endpoints=[by_name.get(name) for name in expected_contexts]
-        if not expected_contexts or any(not check or check.get('status')!='completed' or check.get('conclusion')!='success' or not epoch(check.get('completed_at')) for check in endpoints):
-            diagnostics.append('required_contexts_incomplete_or_unbound')
-        else:
-            completed=max(epoch(check.get('completed_at')) for check in endpoints)
-            created=epoch(run.get('created_at'))
-            if created is not None and completed>=created:
-                required_wait_candidates.append({'run_id':runid,'attempt':run.get('run_attempt'),'head_sha':run.get('head_sha'),'created_at':run.get('created_at'),'completed_at':max(check.get('completed_at') for check in endpoints),'seconds':round(completed-created,6),'url':run.get('html_url'),'contexts':expected_contexts})
-            else: diagnostics.append('required_context_endpoint_invalid')
         refs=run.get('attempt_jobs') or {}
         jobs_by_attempt={}
         for attempt,ref in refs.items():
@@ -1211,6 +1252,22 @@ def source_bound_full_pr(run, runid):
             if not jp.is_file() or hashlib.sha256(jp.read_bytes()).hexdigest()!=ref.get('sha256'): continue
             try: jobs_by_attempt[str(attempt)]=json.loads(jp.read_text()).get('jobs',[])
             except Exception: continue
+        latest_attempt=str(run.get('run_attempt') or max([int(x) for x in jobs_by_attempt] or [1]))
+        check_errors=validate_check_bindings(run,int(latest_attempt),jobs_by_attempt.get(latest_attempt,[]),checks,expected_contexts)
+        diagnostics.extend(check_errors)
+        by_name={}
+        for check in checks:
+            if check.get('head_sha')!=run.get('head_sha') or check.get('app',{}).get('slug')!='github-actions': continue
+            by_name[check.get('name')]=check
+        endpoints=[by_name.get(name) for name in expected_contexts]
+        if check_errors or not expected_contexts or any(not check or check.get('status')!='completed' or check.get('conclusion')!='success' or not epoch(check.get('completed_at')) for check in endpoints):
+            diagnostics.append('required_contexts_incomplete_or_unbound')
+        else:
+            completed=max(epoch(check.get('completed_at')) for check in endpoints)
+            created=epoch(run.get('created_at'))
+            if created is not None and completed>=created:
+                required_wait_candidates.append({'run_id':runid,'attempt':run.get('run_attempt'),'head_sha':run.get('head_sha'),'created_at':run.get('created_at'),'completed_at':max(check.get('completed_at') for check in endpoints),'seconds':round(completed-created,6),'url':run.get('html_url'),'contexts':expected_contexts})
+            else: diagnostics.append('required_context_endpoint_invalid')
         files=[]; metadata=[]
         for item in evidence:
             art=item.get('artifact') or {}; accepted=item.get('result') or {}
@@ -1244,8 +1301,7 @@ def source_bound_full_pr(run, runid):
                     job_name=meta.get('job_name'); seam=meta.get('matrix_seam')
                     expected_job_name=(f'Example Playwright shard ({seam})' if job_name=='Example Playwright shard' and seam else job_name)
                     matching=[j for j in jobs_by_attempt.get(att,[]) if j.get('name')==expected_job_name]
-                    valid=(meta.get('repository')=='szTheory/sigra' and str(meta.get('run_id'))==runid and meta.get('event')==run.get('event')
-                        and att in refs and job_name and len(matching)==1 and matching[0].get('conclusion')=='success'
+                    valid=(job_name and len(matching)==1 and not validate_producer_binding(run,matching[0],art,meta,expected_job_name)
                         and isinstance(meta.get('source_sha'),str) and re.fullmatch(r'[0-9a-f]{40}',meta.get('source_sha')))
                     if valid: metadata.append((meta,matching[0],art))
                     elif job_name in ('Library tests shard','Example Playwright shard'):
@@ -1269,6 +1325,10 @@ def source_bound_full_pr(run, runid):
                 meta_job=pw_meta.get(seam)
                 if not meta_job: continue
                 meta,job=meta_job
+                producer_errors=validate_producer_binding(run,job,art,meta,job.get('name',''))
+                if producer_errors:
+                    diagnostics.extend(producer_errors)
+                    continue
                 try: native=json.loads(path.read_text())
                 except Exception: native={}
                 git_identity=(native.get('config') or {}).get('metadata',{}).get('ci',{})
@@ -1293,16 +1353,23 @@ def source_bound_full_pr(run, runid):
                 if path.name in exunit_paths: diagnostics.append('duplicate_exunit_timing_report')
                 exunit_paths[path.name]=(artifact,path)
         exunit_reports=[]; exunit_payloads={}; exunit_artifact_names={}
+        ex_meta=next((m for m,j,_ in metadata if m.get('job_name')=='Library tests shard'),None)
         for invocation,filename in expected_exunit.items():
             artifact_path=exunit_paths.get(filename)
             artifact,path=artifact_path if artifact_path else ({},None)
             report={}
             if path:
+                if not ex_meta:
+                    diagnostics.append('exunit_producer_metadata_missing')
+                    continue
+                ex_job=next((j for j in jobs_by_attempt.get(str(ex_meta.get('run_attempt')),[]) if j.get('name')=='Library tests shard'),None)
+                if not ex_job or validate_producer_binding(run,ex_job,artifact,ex_meta,ex_job.get('name','')):
+                    diagnostics.append('exunit_timing_artifact_not_bound_to_library_job_upload')
+                    continue
                 try: report=json.loads(path.read_text())
                 except Exception: report={}
                 exunit_payloads[invocation]=report
                 exunit_artifact_names[invocation]=artifact.get('name')
-        ex_meta=next((m for m,j,_ in metadata if m.get('job_name')=='Library tests shard'),None)
         exunit_validation=validate_exunit_timing(
             ex_meta or {}, exunit_payloads, exunit_artifact_names, runid,
             ex_meta.get('run_attempt') if ex_meta else None,
@@ -1313,7 +1380,25 @@ def source_bound_full_pr(run, runid):
         if not ex_meta or int(ex_meta.get('run_attempt',-1)) not in [int(a) for a in refs]: exunit_by_invocation={}
         expected_seams=set(x[0] for x in expected_pw.values())
         if set(pw_reports)!=expected_seams: diagnostics.append('complete_playwright_seam_timing_missing')
-        if len({m.get('source_sha') for m,_,_ in metadata if m.get('job_name')=='Library tests shard' or m.get('job_name')=='Example Playwright shard'})>1:
+        producer_sources={m.get('source_sha') for m,_,_ in metadata if m.get('job_name')=='Library tests shard' or m.get('job_name')=='Example Playwright shard'}
+        producer_commit_refs=(fm.get('producer_commits') or {})
+        for producer_sha in producer_sources:
+            ref=producer_commit_refs.get(producer_sha) or {}
+            commit_path=root/ref.get('commit_path','')
+            tree_path=root/ref.get('tree_path','')
+            workflow_path=root/ref.get('workflow_path','')
+            if (not ref.get('commit_sha256') or not commit_path.is_file() or hashlib.sha256(commit_path.read_bytes()).hexdigest()!=ref.get('commit_sha256')
+                or not ref.get('tree_sha256') or not tree_path.is_file() or hashlib.sha256(tree_path.read_bytes()).hexdigest()!=ref.get('tree_sha256')
+                or not ref.get('workflow_sha256') or not workflow_path.is_file() or hashlib.sha256(workflow_path.read_bytes()).hexdigest()!=ref.get('workflow_sha256')):
+                diagnostics.append('producer_merge_commit_evidence_missing')
+                continue
+            try:
+                commit=json.loads(commit_path.read_text())
+                tree=json.loads(tree_path.read_text())
+            except Exception: diagnostics.append('producer_merge_commit_evidence_invalid'); continue
+            diagnostics.extend(validate_producer_commit(producer_sha,commit,run))
+            diagnostics.extend(validate_workflow_source(producer_sha,tree,workflow_path.read_bytes(),ref.get('workflow_sha256')))
+        if len(producer_sources)>1:
             diagnostics.append('producer_source_revision_mismatch')
         if diagnostics: return None, sorted(set(diagnostics))
         for invocation,report in exunit_by_invocation.items():
@@ -1337,12 +1422,16 @@ def source_bound_full_pr(run, runid):
                 bucket=('cache_restore_download' if re.search(r'cache|download|restore',n) else 'compile' if re.search(r'compile|deps|install dependencies',n) else 'database_startup' if re.search(r'database|postgres|mysql',n) else 'app_boot' if re.search(r'boot|start server|application',n) else 'test_execution' if re.search(r'test|playwright|exunit|mix ci',n) else 'artifact_upload' if re.search(r'upload artifact',n) else 'setup' if re.search(r'setup|checkout|install erlang|install elixir|install node',n) else 'other')
                 stage[bucket]+=b-a
         run_runner_seconds=0.0; run_attempts=[]
+        counted_jobs, physical_history=deduplicate_physical_jobs(jobs_by_attempt)
+        counted_ids={(str(row['attempt']),str(row['job'].get('id'))) for row in counted_jobs}
         for attempt,jobs in sorted(jobs_by_attempt.items(),key=lambda item:int(item[0])):
             attempt_rows=[]; attempt_seconds=0.0
             for job in jobs:
-                a,b=epoch(job.get('started_at')),epoch(job.get('completed_at')); seconds=round(b-a,6) if a is not None and b is not None and b>=a else None
+                a,b=epoch(job.get('started_at')),epoch(job.get('completed_at')); observed_seconds=round(b-a,6) if a is not None and b is not None and b>=a else None
+                counted=(str(attempt),str(job.get('id'))) in counted_ids
+                seconds=observed_seconds if counted else (0.0 if observed_seconds is not None else None)
                 if seconds is not None: run_runner_seconds+=seconds; attempt_seconds+=seconds
-                attempt_rows.append({'job_id':job.get('id'),'name':job.get('name'),'conclusion':job.get('conclusion'),'runner_seconds':seconds})
+                attempt_rows.append({'job_id':job.get('id'),'name':job.get('name'),'conclusion':job.get('conclusion'),'runner_seconds':seconds,'api_reported_runner_seconds':observed_seconds,'counted_physical_job':counted})
             run_attempts.append({'attempt':int(attempt),'runner_seconds':round(attempt_seconds,6),'jobs':sorted(attempt_rows,key=lambda row:(row['name'] or '',int(row['job_id'] or 0)))})
         exunit_over=exunit_by_invocation.get('main',{}).get('instrumentation_overhead_us')
         pw_over={seam:report.get('reporter_overhead') for seam,(report,_,_) in sorted(pw_reports.items())}
@@ -1354,6 +1443,7 @@ latest_instrumented_pr=(max(full_pr_runs,key=lambda r:(r.get('created_at',''),in
 for pop,key in events.items():
     for run in manifest.get('populations',{}).get(pop,{}).get('runs',[]):
         runid=str(run.get('id','')); created=epoch(run.get('created_at'))
+        seen_physical_job_ids=set()
         if run.get('conclusion') in ('failure','timed_out','cancelled','skipped'):
             failure_candidates.append({'event':key,'run':run,'created_epoch':created if created is not None else -1})
         refs=run.get('attempt_jobs') or {}
@@ -1365,6 +1455,8 @@ for pop,key in events.items():
             except Exception: continue
             for job in jobs:
                 jid=str(job.get('id','')); started=epoch(job.get('started_at')); ended=epoch(job.get('completed_at'))
+                if not jid or jid in seen_physical_job_ids: continue
+                seen_physical_job_ids.add(jid)
                 identity=f'{runid}:{attempt}:{jid}'
                 if started is not None and ended is not None and ended>=started:
                     duration=ended-started
@@ -1575,8 +1667,9 @@ if [[ "$EVALUATE_COMPARISON" == true ]]; then
   after_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-after.XXXXXX")"
   replay_snapshot "$BEFORE_BUNDLE" >"$before_json"
   replay_snapshot "$AFTER_BUNDLE" >"$after_json"
-  python3 - "$CONTRACT_FILE" "$before_json" "$after_json" <<'PY'
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" <<'PY'
 import datetime, json, math, pathlib, sys
+from ci_metrics_security import validate_comparison_reservations
 contract, before, after = map(lambda p: json.loads(pathlib.Path(p).read_text()), sys.argv[1:])
 issues=[]; families=[]; paired=[]
 def issue(code, detail=None):
@@ -1603,6 +1696,9 @@ try:
     window_end=datetime.datetime.fromisoformat(window['end_utc'].replace('Z','+00:00'))
     if window_end-window_start != datetime.timedelta(hours=48): issue('comparison_window_duration_mismatch')
 except Exception: issue('comparison_window_not_predeclared')
+source_runs=(before.get('source_runs') or [])+(after.get('source_runs') or [])
+reservation_issues=validate_comparison_reservations(contract,(before.get('comparison_families') or [])+(after.get('comparison_families') or []),source_runs)
+for code in reservation_issues: issue(code)
 for label, data in [('before',before),('after',after)]:
     if data.get('status') != 'complete': issue(label+'_snapshot_incomplete')
     rows=data.get('comparison_families')

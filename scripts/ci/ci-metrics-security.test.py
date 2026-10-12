@@ -10,12 +10,14 @@ import zipfile
 
 from ci_metrics_security import (
     CoreRequestBudget,
+    deduplicate_physical_jobs,
     safe_markdown_url,
     sanitize_failure_log,
     validate_check_bindings,
     validate_comparison_reservations,
     validate_producer_binding,
     validate_producer_commit,
+    validate_workflow_source,
     verify_snapshot_hashes,
     verified_zip_members,
 )
@@ -35,6 +37,11 @@ class SecurityContractsTest(unittest.TestCase):
                 path = raw / "populations" / f"{name}.json"
                 path.write_text(json.dumps({"runs": []}))
                 files[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+            for name, value in (("rate-limit.json", {}), ("effective-rules.json", []),
+                                ("branch-protection.json", {}), ("rulesets.json", [])):
+                path = raw / name
+                path.write_text(json.dumps(value))
+                files[name[:-5].replace("-", "_")] = hashlib.sha256(path.read_bytes()).hexdigest()
             family = raw / "families" / "42"
             run = family / "run.json"
             run.write_text('{"id":42}')
@@ -84,8 +91,8 @@ class SecurityContractsTest(unittest.TestCase):
             digest = hashlib.sha256(path.read_bytes()).hexdigest()
             member_hash = hashlib.sha256(payload).hexdigest()
             self.assertEqual({"report.json": payload}, verified_zip_members(path, digest, {"report.json": member_hash}))
-            self.assertIn("artifact_member_hash_mismatch:report.json",
-                          verified_zip_members(path, digest, {"report.json": "0" * 64}))
+            with self.assertRaisesRegex(ValueError, "artifact_member_hash_mismatch:report.json"):
+                verified_zip_members(path, digest, {"report.json": "0" * 64})
 
     def test_producer_requires_independent_job_upload_artifact_and_source_commit(self):
         run = {"id": 7, "head_sha": "a" * 40, "run_attempt": 1, "event": "pull_request",
@@ -104,6 +111,11 @@ class SecurityContractsTest(unittest.TestCase):
         commit = {"sha": "c" * 40, "parents": [{"sha": "b" * 40}, {"sha": "a" * 40}]}
         self.assertEqual([], validate_producer_commit(metadata["source_sha"], commit, run))
         self.assertTrue(validate_producer_commit(metadata["source_sha"], {"sha": "c" * 40, "parents": [{"sha": "x" * 40}]}, run))
+        workflow = b"name: CI\n"
+        blob = hashlib.sha1(b"blob " + str(len(workflow)).encode() + b"\0" + workflow).hexdigest()
+        tree = {"sha": "d" * 40, "tree": [{"path": ".github/workflows/ci.yml", "type": "blob", "sha": blob}]}
+        self.assertEqual([], validate_workflow_source("c" * 40, tree, workflow, hashlib.sha256(workflow).hexdigest()))
+        self.assertTrue(validate_workflow_source("c" * 40, tree, b"tampered", hashlib.sha256(workflow).hexdigest()))
 
     def test_log_redaction_is_bounded_and_excludes_environment_dumps(self):
         raw = (b"assertion failed: useful diagnosis\nGITHUB_TOKEN=ghp_" + b"a" * 40 + b"\n"
@@ -128,19 +140,40 @@ class SecurityContractsTest(unittest.TestCase):
         self.assertFalse(budget.reserve())
         self.assertEqual(250, budget.remaining)
         budget.refresh(900)
-        self.assertTrue(budget.reserve())
-        budget.refresh(250)
         self.assertFalse(budget.reserve())
+        fresh = CoreRequestBudget(remaining=900)
+        self.assertTrue(fresh.reserve())
+        fresh.refresh(250)
+        self.assertFalse(fresh.reserve())
 
     def test_comparison_family_registration_binds_run_and_window(self):
-        contract = {"window": {"start_utc": "2026-10-12T10:00:00Z", "end_utc": "2026-10-14T10:00:00Z"},
-                    "family_reservations": [{"pair_id": "p1", "family_role": "before", "run_id": 7,
-                                             "created_at": "2026-10-13T00:00:00Z"}]}
-        self.assertEqual([], validate_comparison_reservations(contract, contract["family_reservations"]))
-        replacement = [dict(contract["family_reservations"][0], run_id=8)]
-        self.assertTrue(validate_comparison_reservations(contract, replacement))
-        out_of_window = [dict(contract["family_reservations"][0], created_at="2026-10-15T00:00:00Z")]
-        self.assertTrue(validate_comparison_reservations(contract, out_of_window))
+        reservations=[]; families=[]; runs=[]; registrations=[]; previous="0"*64
+        for role,base,sha in (("before",100,"a"*40),("after",200,"b"*40)):
+            for i in range(1,21):
+                run_id=base+i; created="2026-10-13T00:00:00Z"
+                reservation={"reservation_id":f"r{run_id}","pair_id":f"p{i}","family_role":role,"run_id":run_id,"created_at":created}
+                reservations.append(reservation)
+                row={"sequence":len(registrations),"previous_sha256":previous,**reservation}
+                row["record_sha256"]=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+                registrations.append(row); previous=row["record_sha256"]
+                families.append(dict(reservation))
+                runs.append({"id":run_id,"event":"pull_request","head_sha":sha,"created_at":created,"detail_status":"complete"})
+        contract={"window":{"start_utc":"2026-10-12T10:00:00Z","end_utc":"2026-10-14T10:00:00Z"},"family_reservations":reservations,"family_registrations":registrations,"baseline_application_sha":"a"*40,"candidate_identity":{"application_sha":"b"*40}}
+        self.assertEqual([], validate_comparison_reservations(contract,families,runs))
+        substituted=[dict(families[0],run_id=999)]+families[1:]
+        self.assertIn("comparison_family_api_origin_mismatch",validate_comparison_reservations(contract,substituted,runs))
+        out_of_window=[dict(families[0],created_at="2026-10-15T00:00:00Z")]+families[1:]
+        self.assertIn("comparison_family_outside_frozen_window",validate_comparison_reservations(contract,out_of_window,runs))
+        self.assertIn("comparison_registration_chain_invalid",validate_comparison_reservations({**contract,"family_registrations":registrations[::-1]},families,runs))
+
+    def test_rerun_failed_reused_job_ids_are_counted_once(self):
+        attempts = {
+            "1": [{"id": 1, "seconds": 10}, {"id": 2, "seconds": 20}],
+            "2": [{"id": 1, "seconds": 10}, {"id": 2, "seconds": 20}, {"id": 3, "seconds": 30}],
+        }
+        counted, history = deduplicate_physical_jobs(attempts)
+        self.assertEqual(60, sum(x["job"]["seconds"] for x in counted))
+        self.assertEqual(2, sum(not x["counted"] for x in history))
 
 
 if __name__ == "__main__":

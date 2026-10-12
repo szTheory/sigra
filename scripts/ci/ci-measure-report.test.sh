@@ -23,4 +23,17 @@ missing=[x for x in required if x not in text]
 if missing: raise SystemExit('report missing: '+', '.join(missing)+'\n'+next((line for line in text.splitlines() if 'ExUnit invocation reports' in line), 'ExUnit line missing'))
 if 'required-result wait is 0s' in text or 'pure queue time is 0s' in text: raise SystemExit('unknown metric was rendered as zero')
 PY
+python3 - "$TMP/baseline.json" <<'PY'
+import json,pathlib,sys
+p=pathlib.Path(sys.argv[1]); d=json.loads(p.read_text())
+d['source_runs'][0]['html_url']='https://github.com.evil.test/szTheory/sigra/actions/runs/123?token=ghp_supersecretvalue1234567890'
+d['failure_signatures']={'status':'unknown','missing_inputs':[],'signatures':[{'signature':'<script>alert(1)</script> [x](https://evil.test/?token=leak)','occurrences':1,'references':[{'run_id':123,'attempt':1,'log_reference':'https://github.com/szTheory/sigra/actions/runs/123'}]}]}
+p.write_text(json.dumps(d))
+PY
+bash "$ROOT/scripts/ci/ci-measure-report.sh" --baseline "$TMP/baseline.json" --contract "$TMP/contract.json" --output "$TMP/adversarial.md"
+if grep -E 'github\.com\.evil|supersecretvalue|token=leak|<script>|\]\(https://evil' "$TMP/adversarial.md" >/dev/null; then
+  echo "report exposed unsafe URL or Markdown payload" >&2
+  exit 1
+fi
+grep -F 'link unavailable' "$TMP/adversarial.md" >/dev/null
 echo "ci-measure-report.test: PASS"

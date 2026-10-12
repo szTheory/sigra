@@ -561,7 +561,7 @@ case "$endpoint" in
   rate_limit|/rate_limit)
     if [[ "${GH_API_MODE:-}" == rate403 ]]; then echo 'HTTP 403 rate limit; x-ratelimit-reset: 1900000000' >&2; exit 1; fi
     if [[ "${GH_API_MODE:-}" == transient && ! -e "${GH_API_FAIL_ONCE_FILE}" ]]; then touch "$GH_API_FAIL_ONCE_FILE"; echo 'HTTP 503 temporary service failure' >&2; exit 1; fi
-    if [[ "${GH_API_MODE:-}" == core ]]; then echo '{"resources":{"core":{"remaining":250,"reset":1900000000}}}'; else echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}'; fi;;
+    if [[ "${GH_API_MODE:-}" == core ]]; then echo '{"resources":{"core":{"remaining":250,"reset":1900000000}}}'; elif [[ "${GH_API_MODE:-}" == core251 ]]; then echo '{"resources":{"core":{"remaining":251,"reset":1900000000}}}'; else echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}'; fi;;
   /repos/szTheory/sigra/branches/main/protection/required_status_checks) echo '{"contexts":["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"]}';;
   /repos/szTheory/sigra/rules/branches/main) echo '[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"Library tests"},{"context":"Example unit smoke (ExUnit + ConnTest)"},{"context":"Install smoke (fresh phx.new + sigra.install)"},{"context":"Example HTTP smoke (boot + curl critical routes)"},{"context":"Example Playwright smoke (full lifecycle)"}]}}]';;
   /repos/szTheory/sigra/rulesets\?per_page=100) echo '[{"id":8123,"name":"main-checks","target":"branch","enforcement":"active"}]';;
@@ -606,6 +606,13 @@ set -e
 if [[ "$core_rc" -eq 2 ]] && jq -e '.request_count == 1 and .stop_reason == "core_rate_limit_stop"' "${TMPDIR_ROOT}/core-stop-request-ledger.json" >/dev/null; then
   pass "core budget at 250 stops before the next API request"
 else fail "core budget rc=$core_rc ledger=$(cat "${TMPDIR_ROOT}/core-stop-request-ledger.json" 2>/dev/null)"; fi
+set +e
+GH_API_MODE=core251 PATH="${GH_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --preflight --preflight-output "${TMPDIR_ROOT}/core-251-stop.json" >/dev/null 2>&1
+core251_rc=$?
+set -e
+if [[ "$core251_rc" -eq 2 ]] && jq -e '.request_count == 2 and .stop_reason == "core_rate_limit_stop" and (.requests|length)==2' "${TMPDIR_ROOT}/core-251-stop-request-ledger.json" >/dev/null; then
+  pass "core budget 251 permits one read, decrements to 250, then blocks"
+else fail "core 251 boundary rc=$core251_rc ledger=$(cat "${TMPDIR_ROOT}/core-251-stop-request-ledger.json" 2>/dev/null)"; fi
 if jq -e '.status=="blocked" and (.missing_capabilities|length)>0' "${TMPDIR_ROOT}/core-stop.json" >/dev/null; then
   pass "blocked hosted preflight names its missing capability while offline tests continue"
 else fail "blocked preflight diagnostic=$(cat "${TMPDIR_ROOT}/core-stop.json" 2>/dev/null)"; fi

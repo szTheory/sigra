@@ -11,11 +11,34 @@ while (($#)); do
   esac
 done
 [[ -s "$BASELINE" && -s "$CONTRACT" && -n "$OUTPUT" ]] || { echo "ci-measure-report: baseline, contract and output are required" >&2; exit 2; }
-python3 - "$BASELINE" "$CONTRACT" "$OUTPUT" <<'PY'
-import json, pathlib, sys
+PYTHONPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" python3 - "$BASELINE" "$CONTRACT" "$OUTPUT" <<'PY'
+import html, json, pathlib, re, sys
+from ci_metrics_security import safe_markdown_url
 baseline=json.loads(pathlib.Path(sys.argv[1]).read_text())
 contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
 output=pathlib.Path(sys.argv[3])
+identity=baseline.get('measured_pr_identity') or {}
+def safe_text(value):
+    text=str(value if value is not None else 'unknown')
+    text=re.sub(r"\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b", '[REDACTED TOKEN]', text)
+    text=re.sub(r"(?i)\bBearer\s+[^\s,;]+", 'Bearer [REDACTED]', text)
+    text=re.sub(r'https?://[^\s<>\]\[()]+', '[URL REDACTED]', text)
+    return html.escape(text, quote=False).replace('|', '&#124;').replace('\\', '&#92;').replace('\n', ' ')
+def safe_link(value, label):
+    url=safe_markdown_url(value)
+    return f"[{safe_text(label)}](<{url}>)" if url else f"{safe_text(label)} (link unavailable)"
+def sanitize_structure(value, key=''):
+    if isinstance(value, dict):
+        return {k:sanitize_structure(v,k) for k,v in value.items()}
+    if isinstance(value, list):
+        return [sanitize_structure(v,key) for v in value]
+    if isinstance(value, str):
+        if key in ('html_url','source_url','pull_request','log_reference'):
+            return safe_markdown_url(value)
+        return safe_text(value)
+    return value
+baseline=sanitize_structure(baseline)
+contract=sanitize_structure(contract)
 identity=baseline.get('measured_pr_identity') or {}
 bundle_hash=baseline.get('source_bundle_sha256','unknown')
 full=baseline.get('instrumented_full_pr') or {}
@@ -33,9 +56,12 @@ def section_rank(data):
     return '\n'.join(f"- {row.get('identity','unknown')} — {show(row.get('seconds'),'s')} (run {row.get('run_id','unknown')}, attempt {row.get('attempt','unknown')})" for row in rows[:5]) or '- unknown (no complete source timestamps)'
 def population(name, label):
     p=baseline.get('populations',{}).get(name,{})
-    return f"- **{label}:** {p.get('run_count',0)} selected of {p.get('api_total_count','unknown')} API runs; outcomes `{json.dumps(p.get('outcomes',{}),sort_keys=True)}`; capped={p.get('population_capped','unknown')}"
+    return f"- **{safe_text(label)}:** {safe_text(p.get('run_count',0))} selected of {safe_text(p.get('api_total_count','unknown'))} API runs; outcomes `{safe_text(json.dumps(p.get('outcomes',{}),sort_keys=True))}`; capped={safe_text(p.get('population_capped','unknown'))}"
 required='\n'.join(f"- `{c}` (ruleset IDs: {', '.join(str(x.get('ruleset_id')) for x in baseline.get('required_rule_provenance',[]) if x.get('context')==c) or 'unknown'})" for c in baseline.get('required_contexts',[])) or '- unknown (effective enforcement snapshot missing)'
-runs='\n'.join(f"- [{r.get('event')} run {r.get('id')} attempt {r.get('run_attempt','unknown')} — {r.get('conclusion','unknown')}]({r.get('html_url') or 'https://github.com/szTheory/sigra/actions'}) — SHA `{r.get('head_sha','unknown')}`, workload `{r.get('workload','unknown')}`" for r in baseline.get('source_runs',[])[:12]) or '- unknown (no source run records in replay)'
+def run_line(r):
+    label=f"{r.get('event')} run {r.get('id')} attempt {r.get('run_attempt','unknown')} — {r.get('conclusion','unknown')}"
+    return f"- {safe_link(r.get('html_url'),label)} — SHA `{safe_text(r.get('head_sha','unknown'))}`, workload `{safe_text(r.get('workload','unknown'))}`"
+runs='\n'.join(run_line(r) for r in baseline.get('source_runs',[])[:12]) or '- unknown (no source run records in replay)'
 events=['pull_request','main','nightly']
 rank_wait=baseline.get('ranked_by_wait',{}); rank_runner=baseline.get('ranked_by_runner',{})
 queue_pr=baseline.get('initial_wait',{}).get('pull_request',{})
@@ -57,9 +83,9 @@ if baseline.get('instrumented_full_pr',{}).get('complete') is not True:
 if baseline.get('required_result_wait',{}).get('status')!='measured': missing.append(baseline.get('required_result_wait',{}).get('reason','required result endpoint unavailable'))
 failures=baseline.get('failure_signatures',{})
 if failures.get('signatures'):
-    failure_text='\n'.join(f"- {x.get('signature')} — {x.get('occurrences')} observations: " + ', '.join(f"[run {r.get('run_id')} attempt {r.get('attempt')}]({r.get('log_reference') or 'https://github.com/szTheory/sigra/actions'})" for r in x.get('references',[])) for x in failures['signatures'][:3])
+    failure_text='\n'.join(f"- {safe_text(x.get('signature'))} — {safe_text(x.get('occurrences'))} observations: " + ', '.join(safe_link(r.get('log_reference'), f"run {r.get('run_id')} attempt {r.get('attempt')}") for r in x.get('references',[])) for x in failures['signatures'][:3])
 else:
-    failure_text=f"- {failures.get('status','unknown')}: {', '.join(map(str,failures.get('missing_inputs',[])[:3])) or 'no recurring signature was identified in the bounded sample'}"
+    failure_text=f"- {safe_text(failures.get('status','unknown'))}: {', '.join(safe_text(x) for x in failures.get('missing_inputs',[])[:3]) or 'no recurring signature was identified in the bounded sample'}"
 attempts=baseline.get('instrumented_full_pr',{}).get('run_attempts') or []
 attempt_lines=[]
 for attempt in attempts:
