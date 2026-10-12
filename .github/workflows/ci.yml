@@ -616,7 +616,9 @@ jobs:
           MIX_ENV: test
           PGPASSWORD: postgres
           PGHOST: localhost
-          SIGRA_EXUNIT_TIMING_JSON: test-results/ci-exunit-timing.json
+          SIGRA_EXUNIT_TIMING_JSON: test-results/ci-exunit-timing-main.json
+          SIGRA_EXUNIT_TIMING_INVOCATION: main
+          SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results/ci-exunit-timing-threadline-guard.json
         # Local equivalent: run: MIX_ENV=test mix ci (MIX_ENV is set above).
         run: mix ci
       - name: Upload library test timing
@@ -624,7 +626,9 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: library-test-timing-${{ github.run_id }}-${{ github.run_attempt }}
-          path: test-results/ci-exunit-timing.json
+          path: |
+            test-results/ci-exunit-timing-main.json
+            test-results/ci-exunit-timing-threadline-guard.json
           retention-days: 7
           if-no-files-found: warn
       - name: Capture CI measurement metadata
@@ -669,6 +673,11 @@ jobs:
             event: process.env.GITHUB_EVENT_NAME ?? null,
             matrix_seam: null,
             job_name: process.env.JOB_NAME,
+            timing_artifact_name: `library-test-timing-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`,
+            exunit_reports: [
+              { invocation: 'main', path: 'ci-exunit-timing-main.json' },
+              { invocation: 'threadline_guard', path: 'ci-exunit-timing-threadline-guard.json' },
+            ],
             runner_os: process.env.RUNNER_OS ?? null,
             runner_arch: process.env.RUNNER_ARCH ?? null,
             runner_image: { image_os: process.env.ImageOS ?? null, image_version: process.env.ImageVersion ?? null },

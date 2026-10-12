@@ -3,6 +3,32 @@ defmodule Sigra.Planning.CITimingFormatterTest do
 
   alias Sigra.Test.CITimingFormatter
 
+  test "binds the report and each test row to its explicit invocation" do
+    path = timing_path()
+    previous_path = System.get_env("SIGRA_EXUNIT_TIMING_JSON")
+    previous_invocation = System.get_env("SIGRA_EXUNIT_TIMING_INVOCATION")
+
+    on_exit(fn ->
+      File.rm(path)
+      restore_env("SIGRA_EXUNIT_TIMING_JSON", previous_path)
+      restore_env("SIGRA_EXUNIT_TIMING_INVOCATION", previous_invocation)
+    end)
+
+    System.put_env("SIGRA_EXUNIT_TIMING_JSON", path)
+    System.put_env("SIGRA_EXUNIT_TIMING_INVOCATION", "main")
+    {:ok, state} = CITimingFormatter.init([])
+    {:noreply, state} = CITimingFormatter.handle_cast({:suite_started, []}, state)
+
+    {:noreply, state} =
+      CITimingFormatter.handle_cast({:test_finished, event_test(:main_test, nil, 11)}, state)
+
+    {:noreply, _state} = CITimingFormatter.handle_cast({:suite_finished, %{run: 20}}, state)
+
+    report = path |> File.read!() |> Jason.decode!()
+    assert report["invocation"] == "main"
+    assert [%{"invocation" => "main", "test_id" => "Example.main_test"}] = report["tests"]
+  end
+
   test "writes distinct completed test results only after the suite finishes" do
     assert Code.ensure_loaded?(CITimingFormatter)
 
@@ -113,4 +139,7 @@ defmodule Sigra.Planning.CITimingFormatterTest do
   defp event_test(name, state, time) do
     %ExUnit.Test{module: Example, name: name, state: state, time: time}
   end
+
+  defp restore_env(name, nil), do: System.delete_env(name)
+  defp restore_env(name, value), do: System.put_env(name, value)
 end

@@ -13,10 +13,24 @@ test('snapshot replay emits explicit zero-sample unknowns and distinct cost dime
   const root = mkdtempSync(path.join(os.tmpdir(), 'sigra-replay-contract-'));
   try {
     mkdirSync(path.join(root, 'raw', 'populations'), { recursive: true });
+    mkdirSync(path.join(root, 'source'), { recursive: true });
     const request = JSON.stringify({ schema_version: 'sigra.ci-run-metrics/request-ledger-v1', requests: [] });
     const selection = JSON.stringify({ schema_version: 'sigra.ci-run-metrics/selection-ledger-v1', populations: [] });
     writeFileSync(path.join(root, 'request-ledger.json'), request);
     writeFileSync(path.join(root, 'selection-ledger.json'), selection);
+    const rawSources = {
+      'rate-limit.json': JSON.stringify({ resources: { core: { remaining: 5000 } } }),
+      'effective-rules.json': JSON.stringify([]),
+      'branch-protection.json': JSON.stringify({ status: 'not_configured' }),
+      'rulesets.json': JSON.stringify([]),
+    };
+    const sourceHashes = {};
+    for (const [filename, contents] of Object.entries(rawSources)) {
+      writeFileSync(path.join(root, 'raw', filename), contents);
+      sourceHashes[filename.replace('.json', '').replaceAll('-', '_')] = hash(contents);
+    }
+    const workflowSource = 'name: CI\n';
+    writeFileSync(path.join(root, 'source', 'ci.yml'), workflowSource);
     const populations = {};
     for (const name of ['pull_request', 'push_main', 'schedule', 'manual', 'release_push']) {
       const population = JSON.stringify({ population: name, api_total_count: 0, population_capped: false, population_exhausted: true, runs: [], records: [] });
@@ -27,7 +41,9 @@ test('snapshot replay emits explicit zero-sample unknowns and distinct cost dime
       schema_version: 'sigra.ci-run-metrics/snapshot-v1', repository: 'szTheory/sigra', workflow: 'ci.yml',
       cutoff_utc: '2026-10-12T00:00:00Z', window_start_utc: '2026-09-12T00:00:00Z', status: 'complete',
       stop_reason: null, request_count: 0, source_sha: 'fixture',
-      source_sha256: { request_ledger: hash(request), selection_ledger: hash(selection), ...populations },
+      workflow_sha256: hash(workflowSource),
+      source_file_sha256: { 'ci.yml': hash(workflowSource) },
+      source_sha256: { request_ledger: hash(request), selection_ledger: hash(selection), ...sourceHashes, ...populations },
       populations: {
         pull_request: { population: 'pull_request', api_total_count: 0, population_capped: false, population_exhausted: true, runs: [] },
         push_main: { population: 'push_main', api_total_count: 0, population_capped: false, population_exhausted: true, runs: [] },
