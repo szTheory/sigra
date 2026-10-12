@@ -40,13 +40,16 @@
       "verification_status": "gaps_found",
       "verification_score": "9/10",
       "validation_status": "validated",
-      "gap_execution_outcome": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json"
+      "gap_execution_outcome": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json",
+      "planning_status": "inconclusive",
+      "new_gap_plans": 0,
+      "gap_replanning_diagnostic": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json"
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 251 --gaps",
-    "label": "Plan remaining Phase 251 evidence gap",
-    "reason": "Implementation is complete; READY-01 still fails its original evidence bar. Original owner route is plan-phase, current phase has context/research, and no later roadmap phase exists."
+    "command": "$gsd-discuss-phase 251",
+    "label": "Resolve Phase 251 evidence or scope",
+    "reason": "Plan 251-06 exhausted bounded read-only recovery; independent gap planner and checker found no materially new compliant delta. Context or scope resolution is required; acceptance bars are unchanged."
   },
-  "updated_at": "2026-10-12T01:32:06.846922+00:00"
+  "updated_at": "2026-10-12T02:35:28.790315+00:00"
 }

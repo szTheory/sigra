@@ -235,9 +235,9 @@ Cross-cutting constraints: original requirement ownership stays with247/248/249;
 
 ### Next
 
-All seven Phase 251 plans are implemented; five gap plans and 12 tasks are complete. Fresh verification remains gaps_found (9/10): READY-02 is satisfied, READY-01 is unsatisfied; strict v1.49 audit is 8/9 and incomplete.
+Phase 251 gap replanning is inconclusive: no new Plan 08 is executable within the locked read-only scope. All seven plans and 12 gap tasks remain implemented; phase verification is gaps_found 9/10, READY-02 is satisfied, READY-01 is unsatisfied, and v1.49 remains incomplete at 8/9.
 
-**Immediate GSD command:** `$gsd-plan-phase 251 --gaps`. The fresh verification owner routes to plan-phase. `init.plan-phase 251` reports Executed with seven plans, complete context and research. The roadmap ends at Phase 251; no next phase is inferred. CI/CD optimization remains separate future work.
+**Immediate GSD command:** `$gsd-discuss-phase 251`. Plan 251-06 exhausted bounded read-only recovery; independent gap planner and checker found no materially new compliant delta. Context or scope resolution is required; acceptance bars are unchanged. `init.plan-phase 251` reports Executed with seven plans and complete context/research; `init.execute-phase 251` has no incomplete plans. The roadmap ends at Phase 251. CI/CD optimization remains separate future work.
 
 ### Phase 251: Close READY-01 and READY-02 release readiness gaps
 
@@ -246,7 +246,7 @@ Current packet: .planning/phases/251-close-ready-01-and-ready-02-release-readine
 **Goal:** Reconcile the two outstanding release-readiness requirements against their original evidence bars and refresh the Phase 247 owner verdicts without expanding release-action scope.
 **Requirements**: READY-01, READY-02
 **Depends on:** Phase 250
-**Plans:** 7/7 plans executed; five gap plans independently verified and pending
+**Plans:** 7/7 plans executed; gap replanning inconclusive with no new Plan08
 
 **Success Criteria**:
 1. READY-01 is marked satisfied only if one exact candidate/source/base/main tuple joins matching package version/metadata, release manifest/config, changelog, `v1.6.0` tag, HexDocs source reference, adopter notes for shipped changes/compatibility/generated-host action or no-action/`~> 1.6.0` update and check path, exact-source CI, readiness, authenticated non-publishing dry-run, and contemporaneous approval. If an approval event or any source item is missing or mismatched, the owner report records the gap and leaves READY-01 unsatisfied; this does not gate independent READY-02 inventory capture when its source slice is ready.
@@ -275,3 +275,5 @@ Plans:
 - [x] 251-07-PLAN.md — Reconcile Phase 247 ownership, strict audit, review findings, and pending validation.
 
 Gap execution evidence: `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json`. All 12 gap tasks have automatic proof; current validation is validated and Nyquist-compliant. Phase verification remains gaps_found 9/10 because original READY-01 evidence is missing; the milestone is incomplete at 8/9.
+
+Gap replanning: no materially new finite read-only recovery remains after Plan251-06. The independent planner and checker preserve all four READY-01 blocker categories; no Plan08 or acceptance change was created. Diagnostic: `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json`; automatic checks: `.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CHECKS.json`. Next: `$gsd-discuss-phase 251` for context/scope resolution.
