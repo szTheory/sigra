@@ -110,6 +110,16 @@ None. Implementation and tests stayed within the planned collector seam. No pack
 - `bash scripts/ci/ci-run-metrics.test.sh` — 37 passed, 0 failed.
 - The fixture collector used stubbed GitHub and curl clients. No live population was collected; that belongs to Plan 06.
 
+## Planning Write-Ahead Preservation
+
+Before the SDK state transition, the current planning files were clean and read-back matched commit `aa583857955c8f99eb24c5744290a13bb107a4a4`:
+
+| File | SHA-256 before transition |
+|---|---|
+| `.planning/STATE.md` | `67ac032b27a1f93e1d6820693b4d79fd378671c48562fd13d2a6e37e9124dd05` |
+| `.planning/state.json` | `f626512ef532953da4707b27c0c2bfa1307344f6ece18ab955d97bbe34d9c267` |
+| `.planning/ROADMAP.md` | `999a5e94977b43c459e472ed5800827a8ff335e53868e387872c6da7a388fe39` |
+
 ## Self-Check: PASSED
 
 - The summary file exists at the requested phase path.
