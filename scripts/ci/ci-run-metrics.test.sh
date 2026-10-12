@@ -352,7 +352,7 @@ run_window_extension_tests() {
 echo "Test V: snapshot replay reads verified files offline without contacting gh"
 before_replay_calls="$(wc -l <"$WINDOW_API_LOG" | tr -d ' ')"
 if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --replay --source-bundle "$WINDOW_BUNDLE" --format json >"${TMPDIR_ROOT}/snapshot-replay.json" 2>"${TMPDIR_ROOT}/snapshot-replay.err" \
-  && jq -e '.status=="complete" and .populations.pull_request.run_count==100 and .populations.pull_request.api_total_count==125 and .populations.manual_records==1 and .populations.release_push_records==0' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null \
+  && jq -e '.status=="complete" and .populations.pull_request.run_count==100 and .populations.pull_request.api_total_count==125 and .populations.manual_records==1 and .populations.release_push_records==1' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null \
   && [[ "$(wc -l <"$WINDOW_API_LOG" | tr -d ' ')" -eq "$before_replay_calls" ]]; then
   pass "source bundle replays offline with API totals and outcomes intact"
 else fail "snapshot replay error=$(cat "${TMPDIR_ROOT}/snapshot-replay.err") output=$(cat "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
@@ -377,6 +377,8 @@ set -e
 if [[ "$interrupt_rc" -eq 130 ]] && jq -e '.status=="incomplete" and .stop_reason=="interrupted" and .request_count==5 and .selection_ledger.populations[0].population=="pull_request" and (.selection_ledger.populations[0].selected_run_ids|length)==100' "$INTERRUPTED_BUNDLE/manifest.json" >/dev/null && jq -e '.status=="incomplete" and .request_count==5 and (.requests|length)==5' "$INTERRUPTED_BUNDLE/request-ledger.json" >/dev/null; then
   pass "signal interruption leaves request and selected-run ledgers with incomplete status"
 else fail "interruption rc=$interrupt_rc manifest=$(cat "$INTERRUPTED_BUNDLE/manifest.json" 2>/dev/null) ledger=$(cat "$INTERRUPTED_BUNDLE/request-ledger.json" 2>/dev/null) err=$(cat "${TMPDIR_ROOT}/interrupted.err")"; fi
+if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --replay --source-bundle "$INTERRUPTED_BUNDLE" --format json >"${TMPDIR_ROOT}/interrupted-replay.json" 2>"${TMPDIR_ROOT}/interrupted-replay.err" \
+  && jq -e '.status=="incomplete" and (.selection_ledger.populations[0].selected_run_ids|length)==100' "${TMPDIR_ROOT}/interrupted-replay.json" >/dev/null; then pass "incomplete snapshots replay their verified ledgers offline"; else fail "incomplete replay failed: $(cat "${TMPDIR_ROOT}/interrupted-replay.err")"; fi
 
 LIMIT_BUNDLE="${TMPDIR_ROOT}/request-limit-bundle"
 set +e
@@ -397,6 +399,48 @@ for url in 'http://pipelines.actions.githubusercontent.com/x' 'https://evil.pipe
   if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --validate-redirect "$url" >/dev/null 2>&1; then redirect_bad=$((redirect_bad+1)); fi
 done
 if [[ "$redirect_good" -eq 2 && "$redirect_bad" -eq 0 ]]; then pass "both exact hosts accepted; downgrade, deceptive host, credentials, fragment, port, path and IP rejected"; else fail "redirect accepts=$redirect_good rejects=$redirect_bad"; fi
+
+echo "Test Y: artifact provenance, bounded ZIP handling, and log redaction fail closed"
+cat >"${TMPDIR_ROOT}/artifact-run.json" <<'JSON'
+{"id":5000,"head_sha":"sha-5000"}
+JSON
+cat >"${TMPDIR_ROOT}/artifact.json" <<'JSON'
+{"id":77,"name":"playwright-report-5000","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","expired":false,"workflow_run":{"id":5000,"head_sha":"sha-5000"},"archive_download_url":"https://api.github.com/download?sig=DO_NOT_RETAIN"}
+JSON
+if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --validate-artifact-json "${TMPDIR_ROOT}/artifact.json" --run-json "${TMPDIR_ROOT}/artifact-run.json" >"${TMPDIR_ROOT}/artifact-valid.json" \
+  && jq -e '.status=="verified" and .artifact_id==77 and .run_id==5000' "${TMPDIR_ROOT}/artifact-valid.json" >/dev/null; then
+  pass "GitHub artifact ID, producing run, SHA and digest are source-bound"
+else fail "valid artifact rejected: $(cat "${TMPDIR_ROOT}/artifact-valid.json" 2>/dev/null)"; fi
+jq '.workflow_run.id=5001' "${TMPDIR_ROOT}/artifact.json" >"${TMPDIR_ROOT}/artifact-wrong-run.json"
+jq '.workflow_run.head_sha="other-sha"' "${TMPDIR_ROOT}/artifact.json" >"${TMPDIR_ROOT}/artifact-wrong-sha.json"
+jq '.expired=true' "${TMPDIR_ROOT}/artifact.json" >"${TMPDIR_ROOT}/artifact-expired.json"
+if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --validate-artifact-json "${TMPDIR_ROOT}/artifact-wrong-run.json" --run-json "${TMPDIR_ROOT}/artifact-run.json" | jq -e '.diagnostic=="artifact_origin_mismatch"' >/dev/null \
+  && PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --validate-artifact-json "${TMPDIR_ROOT}/artifact-wrong-sha.json" --run-json "${TMPDIR_ROOT}/artifact-run.json" | jq -e '.diagnostic=="artifact_origin_mismatch"' >/dev/null \
+  && PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --validate-artifact-json "${TMPDIR_ROOT}/artifact-expired.json" --run-json "${TMPDIR_ROOT}/artifact-run.json" | jq -e '.status=="expired_input"' >/dev/null; then
+  pass "wrong-run, wrong-SHA and expired artifacts are diagnostics, not measurements"
+else fail "artifact binding/expiry validation accepted unsafe metadata"; fi
+python3 - "${TMPDIR_ROOT}" <<'PY'
+import pathlib, sys, zipfile
+root = pathlib.Path(sys.argv[1])
+with zipfile.ZipFile(root / "timing-good.zip", "w") as z:
+    z.writestr("nested/timing.json", '{"duration":12}')
+with zipfile.ZipFile(root / "timing-traversal.zip", "w") as z:
+    z.writestr("../timing.json", '{"duration":12}')
+with zipfile.ZipFile(root / "timing-oversized.zip", "w") as z:
+    z.writestr("timing.json", '{"duration":' + '1' * (64 * 1024 * 1024) + '}')
+PY
+if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --extract-timing-zip "${TMPDIR_ROOT}/timing-good.zip" --output-dir "${TMPDIR_ROOT}/timing-out" | jq -e '.status=="accepted"' >/dev/null \
+  && ! PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --extract-timing-zip "${TMPDIR_ROOT}/timing-traversal.zip" --output-dir "${TMPDIR_ROOT}/timing-bad-out" >/dev/null 2>&1 \
+  && ! PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --extract-timing-zip "${TMPDIR_ROOT}/timing-oversized.zip" --output-dir "${TMPDIR_ROOT}/timing-large-out" >/dev/null 2>&1; then
+  pass "timing JSON extracts while traversal and 64 MiB members are rejected"
+else fail "ZIP member validation failed"; fi
+printf '%s\n' 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' 'Authorization: Bearer secret-token' 'password=cleartext' 'AWS_SECRET_ACCESS_KEY=aws-cleartext' 'https://blob.example/file?sig=SIGNED_QUERY' >"${TMPDIR_ROOT}/sensitive.log"
+if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --redact-log "${TMPDIR_ROOT}/sensitive.log" --redacted-output "${TMPDIR_ROOT}/redacted.log" \
+  && ! rg -F 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
+  && ! rg -F 'secret-token' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
+  && ! rg -F 'cleartext' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
+  && ! rg -F 'aws-cleartext' "${TMPDIR_ROOT}/redacted.log" >/dev/null \
+  && ! rg -F 'SIGNED_QUERY' "${TMPDIR_ROOT}/redacted.log" >/dev/null; then pass "known token, bearer, password and signed-query patterns are redacted"; else fail "sensitive log content survived redaction"; fi
 }
 
 echo ""
@@ -672,44 +716,102 @@ case "$endpoint" in
   /repos/szTheory/sigra/actions/runs/*/attempts/*/jobs\?*)
     run_id="$(printf '%s' "$endpoint" | sed -nE 's#^.*/actions/runs/([0-9]+)/attempts/.*#\1#p')"
     attempt="$(printf '%s' "$endpoint" | sed -nE 's#^.*/attempts/([0-9]+)/jobs.*#\1#p')"
-    if [[ "$run_id" == 5000 ]]; then job_conclusion=skipped; else job_conclusion=success; fi
+    if [[ "$run_id" == 5000 ]]; then job_conclusion=skipped; elif [[ "$run_id" == 5001 ]]; then job_conclusion=failure; else job_conclusion=success; fi
     jq -cn --argjson id "$run_id" --argjson attempt "$attempt" --arg conclusion "$job_conclusion" '{total_count:1,jobs:[{id:($id*100+$attempt),name:"Example Playwright smoke",head_sha:("sha-"+($id|tostring)),conclusion:$conclusion,started_at:"2026-10-10T10:00:00Z",completed_at:"2026-10-10T10:01:00Z",steps:[{name:"Run selected tests",conclusion:$conclusion}]}]}';;
   /repos/szTheory/sigra/pulls/*/files\?*)
     pr="$(printf '%s' "$endpoint" | sed -nE 's#^.*/pulls/([0-9]+)/files.*#\1#p')"
     case "$pr" in 123) echo '[{"filename":"docs/guide.md"}]';; 124) echo '[{"filename":"lib/sigra.ex"}]';; *) echo '[{"filename":"docs/unknown.md"}]';; esac;;
+  /repos/szTheory/sigra/actions/runs/*/artifacts\?*)
+    run_id="$(printf '%s' "$endpoint" | sed -nE 's#^.*/actions/runs/([0-9]+)/artifacts.*#\1#p')"
+    if [[ "${WINDOW_ARTIFACT_MODE:-}" == download && "$run_id" == 5001 ]]; then
+      jq -cn --argjson run "$run_id" --arg sha "sha-$run_id" --arg digest "$WINDOW_ARTIFACT_DIGEST" '{total_count:1,artifacts:[{id:77,name:("playwright-report-"+($run|tostring)),expired:false,digest:$digest,workflow_run:{id:$run,head_sha:$sha},archive_download_url:"https://api.github.com/download?sig=DO_NOT_RETAIN"}]}'
+    else echo '{"total_count":0,"artifacts":[]}'; fi;;
   *'/actions/workflows/ci.yml/runs?'*)
     event="$(printf '%s' "$endpoint" | sed -nE 's/.*[?&]event=([^&]+).*/\1/p')"
     page="$(printf '%s' "$endpoint" | sed -nE 's/.*[?&]page=([0-9]+).*/\1/p')"
     case "$event" in
       pull_request) total=125; count=100; base=5000;;
-      push) total=2; count=2; base=6000;;
+      push) if [[ "$endpoint" == *'&branch=main&'* ]]; then total=2; count=2; base=6000; else total=1; count=1; base=6100; fi;;
       schedule) total=1; count=1; base=7000;;
       workflow_dispatch) total=1; count=1; base=8000;;
       *) exit 3;;
     esac
     if [[ "$event" == pull_request && "$page" == 2 ]]; then count=1; base=5100; fi
     if [[ "$event" == pull_request && "$page" -gt 2 ]]; then count=0; fi
-    jq -cn --argjson total "$total" --argjson count "$count" --argjson base "$base" --arg event "$event" --arg page "$page" --arg cutoff "2026-10-12T00:00:00Z" '{total_count:$total,workflow_runs:[range(0;$count) as $i | (( $base+$i) as $id | {id:$id,run_number:$id,event:$event,head_branch:(if $event=="push" then "main" elif $event=="workflow_dispatch" then "manual-probe" else "feature" end),head_sha:("sha-"+($id|tostring)),path:".github/workflows/ci.yml",run_attempt:(if $id==5001 then 2 else 1 end),pull_requests:(if $event=="pull_request" and ($id==5000 or $id==5001 or $id==5002) then [{number:(if $id==5000 then 123 elif $id==5001 then 124 else 125 end)}] else [] end),changes:{docs_only:(if $id==5000 then true elif $id==5001 then false else null end)},created_at:(if $i==0 then "2026-09-12T00:00:00Z" else "2026-10-10T00:00:00Z" end),updated_at:$cutoff,conclusion:(if $i%2==0 then "success" else "failure" end)})]}'
+    jq -cn --argjson total "$total" --argjson count "$count" --argjson base "$base" --arg event "$event" --arg page "$page" --arg cutoff "2026-10-12T00:00:00Z" --arg endpoint "$endpoint" '{total_count:$total,workflow_runs:[range(0;$count) as $i | (( $base+$i) as $id | {id:$id,run_number:$id,event:$event,head_branch:(if $event=="push" and ($endpoint|contains("branch=main")) then "main" elif $event=="push" then "release/1.0" elif $event=="workflow_dispatch" then "manual-probe" else "feature" end),head_sha:("sha-"+($id|tostring)),path:".github/workflows/ci.yml",run_attempt:(if $id==5001 then 2 else 1 end),pull_requests:(if $event=="pull_request" and ($id==5000 or $id==5001 or $id==5002) then [{number:(if $id==5000 then 123 elif $id==5001 then 124 else 125 end)}] else [] end),changes:{docs_only:(if $id==5000 then true elif $id==5001 then false else null end)},created_at:(if $id==5000 then "2026-09-12T00:00:00Z" elif $id==5001 then "2026-10-11T00:00:00Z" else "2026-10-10T00:00:00Z" end),updated_at:$cutoff,conclusion:(if $i%2==0 then "success" else "failure" end)})]}'
     ;;
   *) echo "unhandled $endpoint" >&2; exit 4;;
 esac
 WINDOW_GH
 chmod +x "$WINDOW_API_BIN/gh"
+cat >"${WINDOW_API_BIN}/curl" <<'WINDOW_CURL'
+#!/usr/bin/env bash
+set -euo pipefail
+headers="" output="" url=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dump-header) headers="$2"; shift 2;;
+    --output) output="$2"; shift 2;;
+    --config) shift 2;;
+    --write-out) shift 2;;
+    *) if [[ "$1" == http* ]]; then url="$1"; fi; shift;;
+  esac
+done
+[[ -n "$headers" && -n "$output" && -n "$url" ]] || exit 2
+if [[ "$url" == https://api.github.com/*/actions/artifacts/77/zip ]]; then
+  printf 'HTTP/1.1 302 Found\r\nLocation: https://pipelines.actions.githubusercontent.com/download/file?sig=SIGNED_URL_SENTINEL\r\n\r\n' >"$headers"
+  : >"$output"; printf '302'; exit 0
+elif [[ "$url" == https://api.github.com/*/actions/jobs/*/logs ]]; then
+  printf 'HTTP/1.1 302 Found\r\nLocation: https://pipelines.actions.githubusercontent.com/job-log/run?sig=SIGNED_LOG_SENTINEL\r\n\r\n' >"$headers"
+  : >"$output"; printf '302'; exit 0
+elif [[ "$url" == https://pipelines.actions.githubusercontent.com/* ]]; then
+  if [[ "$url" == */job-log/* ]]; then
+    printf 'HTTP/1.1 200 OK\r\n\r\n' >"$headers"
+    printf '%s\n' 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' 'password=cleartext' 'https://logs.example/output?sig=SIGNED_LOG_SECRET' >"$output"
+  else
+    printf 'HTTP/1.1 200 OK\r\nContent-Length: %s\r\n\r\n' "$(wc -c <"$WINDOW_ARTIFACT_ZIP" | tr -d ' ')" >"$headers"
+    cp "$WINDOW_ARTIFACT_ZIP" "$output"
+  fi
+  printf '200'; exit 0
+fi
+printf 'HTTP/1.1 404 Not Found\r\n\r\n' >"$headers"; : >"$output"; printf '404'
+WINDOW_CURL
+chmod +x "$WINDOW_API_BIN/curl"
+WINDOW_ARTIFACT_ZIP="${TMPDIR_ROOT}/artifact-timing.zip"
+python3 - "$WINDOW_ARTIFACT_ZIP" <<'PY'
+import sys, zipfile
+with zipfile.ZipFile(sys.argv[1], "w") as z:
+    z.writestr("timing.json", '{"duration_seconds":12}')
+PY
+WINDOW_ARTIFACT_DIGEST="sha256:$(shasum -a 256 "$WINDOW_ARTIFACT_ZIP" | awk '{print $1}')"
 export WINDOW_API_LOG
 WINDOW_BUNDLE="${TMPDIR_ROOT}/window-bundle"
+export GH_TOKEN=fixture-token WINDOW_ARTIFACT_MODE=download WINDOW_ARTIFACT_DIGEST WINDOW_ARTIFACT_ZIP
+export CI_METRICS_TEST_MODE=1
 set +e
-CI_METRICS_TEST_MODE=1 PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$WINDOW_BUNDLE" >"${TMPDIR_ROOT}/window-collect.out" 2>"${TMPDIR_ROOT}/window-collect.err"
+PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$WINDOW_BUNDLE" >"${TMPDIR_ROOT}/window-collect.out" 2>"${TMPDIR_ROOT}/window-collect.err"
 window_rc=$?
 set -e
 if [[ "$window_rc" -eq 0 ]] \
-  && jq -e '.status == "complete" and .cutoff_utc == "2026-10-12T00:00:00Z" and .populations.pull_request.api_total_count == 125 and .populations.pull_request.population_capped == true and (.populations.pull_request.selected_run_ids|length)==100 and .populations.pull_request.selected_run_ids[-1]==5099 and .populations.push_main.population_exhausted == true and .populations.schedule.population_exhausted == true and (.populations.manual.records|length)==1 and (.populations.pull_request.runs[0].created_at|startswith("2026-09-12"))' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
+  && jq -e '.status == "complete" and .cutoff_utc == "2026-10-12T00:00:00Z" and .populations.pull_request.api_total_count == 125 and .populations.pull_request.population_capped == true and (.populations.pull_request.selected_run_ids|length)==100 and .populations.pull_request.selected_run_ids[-1]==5099 and .populations.push_main.population_exhausted == true and .populations.schedule.population_exhausted == true and (.populations.manual.records|length)==1 and (.populations.release_push.records|length)==1 and (.populations.release_push.records[0].head_branch=="release/1.0") and (.populations.pull_request.runs[0].created_at|startswith("2026-09-12"))' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
   && jq -e '.populations.manual.records|length==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
-  && jq -e '([.populations.pull_request.runs[]|select(.id==5000 and .workload=="docs_only")]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5001 and .workload=="full" and .detail_status=="complete" and (.attempt_jobs|keys|length)==2)]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5002 and .workload=="unknown")]|length)==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
+  && jq -e '([.populations.pull_request.runs[]|select(.id==5000 and .workload=="docs_only")]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5001 and .conclusion=="failure" and .workload=="full" and .detail_status=="complete" and (.attempt_jobs|keys|length)==2)]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5002 and .workload=="unknown")]|length)==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
+  && jq -e 'any(.artifact_diagnostics[]?; .kind=="artifact" and .result.status=="accepted")' "$WINDOW_BUNDLE/raw/families/5001/manifest.json" >/dev/null \
+  && jq -e 'any(.artifact_diagnostics[]?; .kind=="failed_job_log" and .result.status=="retained_redacted")' "$WINDOW_BUNDLE/raw/families/5001/manifest.json" >/dev/null \
+  && jq -e '[.requests[]|select(startswith("download:artifact:"))]|length==2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
+  && jq -e '[.requests[]|select(startswith("download:job-log:"))]|length==2' "$WINDOW_BUNDLE/request-ledger.json" >/dev/null \
+  && ! rg -F 'SIGNED_URL_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
+  && ! rg -F 'SIGNED_LOG_SENTINEL' "$WINDOW_BUNDLE" >/dev/null \
+  && ! rg -F 'SIGNED_LOG_SECRET' "$WINDOW_BUNDLE" >/dev/null \
+  && ! rg -F 'ghp_abcdefghijklmnopqrstuvwxyz1234567890' "$WINDOW_BUNDLE" >/dev/null \
+  && ! rg -F 'cleartext' "$WINDOW_BUNDLE" >/dev/null \
+  && ! rg -F 'DO_NOT_RETAIN' "$WINDOW_BUNDLE" >/dev/null \
   && ! jq -e '.populations.push_main.runs[] | select(.head_branch != "main")' "$WINDOW_BUNDLE/manifest.json" >/dev/null; then
   pass "fixed cutoff, 100-run cap, API totals and event separation are retained"
 else
-  fail "window collect rc=$window_rc stderr=$(cat "${TMPDIR_ROOT}/window-collect.err") manifest=$(cat "$WINDOW_BUNDLE/manifest.json" 2>/dev/null)"
+  fail "window collect rc=$window_rc stderr=$(cat "${TMPDIR_ROOT}/window-collect.err") manifest_status=$(jq -c '{status,request_count,stop_reason,artifact:.populations.pull_request.runs[]?|select(.id==5001)|.artifact_diagnostics}' "$WINDOW_BUNDLE/manifest.json" 2>/dev/null) family=$(cat "$WINDOW_BUNDLE/raw/families/5001/manifest.json" 2>/dev/null)"
 fi
+unset GH_TOKEN WINDOW_ARTIFACT_MODE WINDOW_ARTIFACT_DIGEST WINDOW_ARTIFACT_ZIP CI_METRICS_TEST_MODE
 
 run_window_extension_tests
 

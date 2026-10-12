@@ -67,6 +67,12 @@ SOURCE_BUNDLE=""
 TARGET_BRANCH="main"
 CUTOFF=""
 REDIRECT_TO_VALIDATE=""
+ARTIFACT_JSON=""
+RUN_JSON=""
+ARCHIVE_PATH=""
+ARCHIVE_OUTPUT=""
+LOG_TO_REDACT=""
+REDACTED_OUTPUT=""
 API_STARTED=0
 API_REQUESTS=0
 API_STOP_REASON=""
@@ -118,6 +124,12 @@ while [[ $# -gt 0 ]]; do
     --branch) TARGET_BRANCH="$2"; shift 2;;
     --cutoff) CUTOFF="$2"; shift 2;;
     --validate-redirect) REDIRECT_TO_VALIDATE="$2"; shift 2;;
+    --validate-artifact-json) ARTIFACT_JSON="$2"; shift 2;;
+    --run-json) RUN_JSON="$2"; shift 2;;
+    --extract-timing-zip) ARCHIVE_PATH="$2"; shift 2;;
+    --output-dir) ARCHIVE_OUTPUT="$2"; shift 2;;
+    --redact-log) LOG_TO_REDACT="$2"; shift 2;;
+    --redacted-output) REDACTED_OUTPUT="$2"; shift 2;;
     *) echo "ci-run-metrics: FAIL: unknown arg: $1" >&2; exit 2;;
   esac
 done
@@ -154,6 +166,167 @@ if not ok:
     raise SystemExit(1)
 print(host)
 PY
+}
+
+validate_artifact_metadata() {
+  local artifact="$1" run="$2"
+  jq -n --slurpfile a "$artifact" --slurpfile r "$run" '
+    ($a[0]) as $artifact | ($r[0]) as $run |
+    if $artifact.expired==true then {status:"expired_input",diagnostic:"expired_input"}
+    elif (($artifact.id|type)!="number" or ($artifact.id|floor)!=$artifact.id) then {status:"unknown",diagnostic:"artifact_id_invalid"}
+    elif (($artifact.digest // "")|test("^sha256:[0-9a-f]{64}$")|not) then {status:"unknown",diagnostic:"artifact_digest_unavailable"}
+    elif (($artifact.workflow_run.id|tostring)!=($run.id|tostring) or $artifact.workflow_run.head_sha!=$run.head_sha) then {status:"unknown",diagnostic:"artifact_origin_mismatch"}
+    else {status:"verified",artifact_id:$artifact.id,run_id:$run.id,source_sha:$run.head_sha,digest:$artifact.digest} end
+  '
+}
+
+extract_timing_archive() {
+  local zip="$1" destination="$2"
+  python3 - "$zip" "$destination" <<'PY'
+import json, os, pathlib, re, stat, sys, zipfile
+archive, destination = sys.argv[1:]
+max_total, max_member, max_members = 512 * 1024 * 1024, 64 * 1024 * 1024, 10000
+allowed = {"report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json"}
+try:
+    os.makedirs(destination, exist_ok=True)
+    with zipfile.ZipFile(archive) as zf:
+        infos = zf.infolist()
+        if len(infos) > max_members: raise ValueError("archive_member_limit_exceeded")
+        total, seen, selected = 0, set(), []
+        for info in infos:
+            name = info.filename
+            if "\\" in name or name.startswith("/") or re.match(r"^[A-Za-z]:", name): raise ValueError("unsafe_archive_path")
+            if any(part in ("..", "") for part in pathlib.PurePosixPath(name).parts): raise ValueError("unsafe_archive_path")
+            mode = (info.external_attr >> 16) & 0xffff
+            if stat.S_ISLNK(mode): raise ValueError("archive_symlink_rejected")
+            if info.is_dir(): continue
+            if info.file_size > max_member: raise ValueError("archive_member_limit_exceeded")
+            total += info.file_size
+            if total > max_total: raise ValueError("archive_total_limit_exceeded")
+            if pathlib.PurePosixPath(name).name.lower() not in allowed: raise ValueError("unexpected_archive_member")
+            if name in seen: raise ValueError("duplicate_archive_member")
+            seen.add(name); selected.append(info)
+        if not selected: raise ValueError("expected_timing_json_missing")
+        used, output = set(), []
+        for info in selected:
+            basename = pathlib.PurePosixPath(info.filename).name
+            if basename in used: raise ValueError("duplicate_archive_basename")
+            used.add(basename)
+            target = os.path.join(destination, basename); temp = target + ".tmp"; written = 0
+            with zf.open(info) as src, open(temp, "wb") as dst:
+                while True:
+                    chunk = src.read(1024 * 1024)
+                    if not chunk: break
+                    written += len(chunk)
+                    if written > max_member or total - info.file_size + written > max_total: raise ValueError("archive_expansion_limit_exceeded")
+                    dst.write(chunk)
+            if written != info.file_size: raise ValueError("archive_member_size_mismatch")
+            with open(temp, "rb") as f: json.load(f)
+            os.replace(temp, target); output.append({"member":info.filename,"path":target,"bytes":written})
+        print(json.dumps({"status":"accepted","members":output}, sort_keys=True))
+except Exception as exc:
+    print(str(exc) if isinstance(exc, ValueError) else "archive_invalid", file=sys.stderr)
+    raise SystemExit(1)
+PY
+}
+
+redact_log_file() {
+  local source="$1" destination="$2"
+  python3 - "$source" "$destination" <<'PY'
+import pathlib, re, sys
+source, destination = map(pathlib.Path, sys.argv[1:])
+text = source.read_bytes().decode("utf-8", "replace")
+for pattern, replacement in [
+    (r"\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b", "[REDACTED_TOKEN]"),
+    (r"(?i)\bBearer\s+[^\s,;]+", "Bearer [REDACTED]"),
+    (r"(?i)\b(?:gh[_-]?token|github[_-]?(?:token|pat)|aws[_-]?(?:access[_-]?key[_-]?id|secret[_-]?access[_-]?key)|client[_-]?secret|access[_-]?token|refresh[_-]?token|private[_-]?key)\s*[:=]\s*[^\s,\"']+", "[REDACTED_CREDENTIAL]"),
+    (r"(?i)\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^\s,\"']+", r"\1=[REDACTED]"),
+    (r"https?://[^\s?#]+\?[^\s#]+", "[SIGNED_URL_REDACTED]"),
+]:
+    text = re.sub(pattern, replacement, text)
+destination.parent.mkdir(parents=True, exist_ok=True)
+temp = destination.with_suffix(destination.suffix + ".tmp")
+temp.write_text(text, encoding="utf-8")
+temp.replace(destination)
+PY
+}
+
+api_external_reserve() {
+  local endpoint="$1" elapsed timeout_cmd
+  if (( API_LAST_RATE_REQUEST > 0 && API_REQUESTS - API_LAST_RATE_REQUEST >= 100 )); then
+    local rate_file="${API_TEMP_DIR:-${TMPDIR:-/tmp}}/ci-metrics-rate-refresh-$$-${API_REQUESTS}.json"
+    api_get rate_limit "$rate_file" || return 1
+    if [[ -n "$API_LEDGER" && -f "$rate_file" ]]; then
+      mkdir -p "${API_LEDGER%/*}/raw/rate-limits"
+      cp "$rate_file" "${API_LEDGER%/*}/raw/rate-limits/${API_REQUESTS}.json" 2>/dev/null || true
+    fi
+  fi
+  elapsed="$(api_elapsed_seconds)"
+  (( elapsed < 3600 )) || { api_stop time_limit_exhausted "" "$endpoint"; return 1; }
+  (( API_REQUESTS < 600 )) || { api_stop request_limit_exhausted "" "$endpoint"; return 1; }
+  [[ -z "$API_CORE_REMAINING" || "$API_CORE_REMAINING" -gt 250 ]] || { api_stop core_rate_limit_stop "$API_RESET_AT" "$endpoint"; return 1; }
+  timeout_cmd="$(command -v timeout || command -v gtimeout || true)"
+  [[ -n "$timeout_cmd" ]] || { api_stop request_deadline_enforcer_unavailable "" "$endpoint"; return 1; }
+  ((API_REQUESTS+=1))
+  API_REQUEST_LOG="$(jq -cn --arg endpoint "$endpoint" --argjson prior "$API_REQUEST_LOG" '$prior + [$endpoint]')"
+  api_write_ledger collecting
+}
+
+api_download_no_follow() {
+  local url="$1" destination="$2" category="$3" token="" host host_kind headers body status_code location location_count elapsed timeout_cmd attempt rc
+  [[ "$url" == https://api.github.com/* ]] || { api_stop download_api_origin_rejected "" "$category"; return 1; }
+  if [[ -n "${GH_TOKEN:-}" ]]; then token="$GH_TOKEN"
+  elif [[ -n "${GITHUB_TOKEN:-}" ]]; then token="$GITHUB_TOKEN"
+  else token="$(gh auth token 2>/dev/null || true)"; fi
+  [[ -n "$token" ]] || { api_stop download_auth_unavailable "" "$category"; return 1; }
+  host_kind=api
+  for ((hop=0; hop<=3; hop++)); do
+    if [[ "$host_kind" == api ]]; then host=api.github.com; else host="$host_kind"; fi
+    api_external_reserve "download:${category}:${host}" || return 1
+    elapsed="$(api_elapsed_seconds)"; timeout_cmd="$(command -v timeout || command -v gtimeout || true)"
+    local request_timeout=$((3600-elapsed)); (( request_timeout > 30 )) && request_timeout=30
+    headers="${API_TEMP_DIR:-${TMPDIR:-/tmp}}/ci-download-headers-$$-${API_REQUESTS}"
+    body="${API_TEMP_DIR:-${TMPDIR:-/tmp}}/ci-download-body-$$-${API_REQUESTS}"
+    attempt=0
+    while :; do
+      set +e
+      if [[ "$host_kind" == api ]]; then
+        status_code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" | "$timeout_cmd" --signal=TERM "${request_timeout}s" curl --config - --silent --show-error --max-redirs 0 --request GET --max-time "$request_timeout" --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$url" 2>/dev/null)"
+      else
+        status_code="$("$timeout_cmd" --signal=TERM "${request_timeout}s" curl --silent --show-error --max-redirs 0 --request GET --max-time "$request_timeout" --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$url" 2>/dev/null)"
+      fi
+      rc=$?
+      set -e
+      if (( rc != 0 )); then status_code=000; fi
+      [[ "$status_code" =~ ^[0-9]{3}$ ]] || status_code=000
+      if [[ "$status_code" == 403 || "$status_code" == 429 ]]; then
+        location="$(awk 'BEGIN{IGNORECASE=1} tolower($1)=="retry-after:"||tolower($1)=="x-ratelimit-reset:" {gsub("\\r",""); print $2; exit}' "$headers" 2>/dev/null || true)"
+        api_stop http_rate_limit "$location" "$category"; rm -f "$headers" "$body"; return 1
+      fi
+      if [[ "$status_code" =~ ^5(00|02|03|04)$ || "$status_code" == 000 ]]; then
+        if (( attempt == 0 )) && (( API_REQUESTS < 600 )) && (( $(api_elapsed_seconds) < 3600 )); then
+          attempt=1; api_external_reserve "download:${category}:${host}:retry" || return 1; continue
+        fi
+        api_stop download_unavailable "" "$category"; rm -f "$headers" "$body"; return 1
+      fi
+      break
+    done
+    if [[ "$status_code" == 200 ]]; then
+      mkdir -p "$(dirname "$destination")"; mv "$body" "$destination"; rm -f "$headers"; return 0
+    fi
+    if [[ "$status_code" =~ ^30[12378]$ ]]; then
+      location_count="$(awk 'BEGIN{IGNORECASE=1} tolower($1)=="location:" {n++} END{print n+0}' "$headers" 2>/dev/null || echo 0)"
+      location="$(awk 'BEGIN{IGNORECASE=1} tolower($1)=="location:" {sub(/^[^:]*:[[:space:]]*/,""); gsub("\\r",""); print; n++} END{if(n!=1) exit 1}' "$headers" 2>/dev/null || true)"
+      rm -f "$headers" "$body"
+      if [[ "$location_count" != 1 || -z "$location" || "$hop" -eq 3 ]]; then api_stop download_redirect_rejected "" "$category"; return 1; fi
+      if ! host="$(validate_download_redirect "$location" 2>/dev/null)"; then api_stop download_redirect_rejected "" "$category"; return 1; fi
+      url="$location"; token=""; host_kind="$host"; continue
+    fi
+    rm -f "$headers" "$body"
+    if [[ "$status_code" == 410 || "$status_code" == 404 ]]; then api_stop expired_input "" "$category"; else api_stop download_unavailable "" "$category"; fi
+    return 1
+  done
+  api_stop download_redirect_rejected "" "$category"
 }
 
 # All new GitHub reads, including the first rate-limit preflight, pass through
@@ -251,8 +424,9 @@ collect_window() {
   jq -en --arg cutoff "$CUTOFF" 'try ($cutoff|fromdateiso8601) catch false' >/dev/null || fail "cutoff_invalid"
   [[ ! -e "$SOURCE_BUNDLE" ]] || fail "source_bundle_already_exists"
 
-  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha tree_sha request_hash request_count manual_json release_json
+  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha tree_sha request_hash selection_hash request_count manual_json release_json
   mkdir -p "$(dirname "$SOURCE_BUNDLE")"
+  [[ ! -e "$stage" ]] || fail "source_bundle_staging_exists"
   mkdir "$lock" 2>/dev/null || fail "source_bundle_locked"
   printf '{"pid":%s,"started_at":"%s"}\n' "$$" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$lock/owner.json"
   mkdir -p "$stage/raw/populations"
@@ -284,7 +458,10 @@ collect_window() {
   window_collect_interrupt() {
     API_STOP_REASON="interrupted"
     api_write_ledger incomplete
-    jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg since "${since:-}" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson requests "$API_REQUESTS" --argjson selections "$(cat "$stage/selection-ledger.json" 2>/dev/null || echo '{}')" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,window_start_utc:(if $since=="" then null else $since end),status:"incomplete",stop_reason:"interrupted",interrupted_at_utc:$at,request_count:$requests,selection_ledger:$selections,populations:{}}' >"$stage/manifest.json"
+    local interrupted_dir="$stage"
+    [[ -d "$stage" ]] || interrupted_dir="$SOURCE_BUNDLE"
+    mkdir -p "$interrupted_dir"
+    jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg since "${since:-}" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson requests "$API_REQUESTS" --argjson selections "$(cat "$interrupted_dir/selection-ledger.json" 2>/dev/null || echo '{}')" --arg request_hash "$(sha256_file "$interrupted_dir/request-ledger.json" 2>/dev/null || echo '')" --arg selection_hash "$(sha256_file "$interrupted_dir/selection-ledger.json" 2>/dev/null || echo '')" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,window_start_utc:(if $since=="" then null else $since end),status:"incomplete",stop_reason:"interrupted",interrupted_at_utc:$at,request_count:$requests,selection_ledger:$selections,source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash},populations:{}}' >"$interrupted_dir/manifest.json"
     sync 2>/dev/null || true
     mv "$stage" "$SOURCE_BUNDLE" 2>/dev/null || true
     rm -rf "$lock" "$API_TEMP_DIR"
@@ -343,7 +520,7 @@ collect_window() {
   }
 
   collect_attempt_details() {
-    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=12 max_attempt
+    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=108 max_attempt
     selected="$(jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]')"
     failed="$(jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' <<<"$selected")"
     priority="$(jq -cn --argjson failed "$failed" --argjson selected "$selected" '[ $failed[] ] + [ $selected[] | . as $x | select(([ $failed[].run.id ] | index($x.run.id))==null) ]')"
@@ -361,7 +538,9 @@ collect_window() {
       mkdir -p "$family_dir"
       printf '%s\n' "$run" >"$family_dir/run.json"
       needed="$attempts"
-      # Preserve twelve request slots for the bounded failure/artifact pass.
+      # Reserve a bounded pass for the twelve newest failed families: at most
+      # one artifact metadata read, and the initial request plus three possible
+      # redirects for each artifact and failed-job log.
       if (( API_REQUESTS + needed + reserve > 600 )); then
         enrichments="$(jq -cn --argjson prior "$enrichments" --argjson id "$id" '{run_id:$id,detail_status:"detail_unavailable_budget",attempt_jobs:{},changed_paths_status:"detail_unavailable_budget",workload:"unknown",diagnostics:["detail_unavailable_budget"]} | $prior + [.]')"
         jq --argjson id "$id" --arg reason detail_unavailable_budget '.unknown_inputs += [{reason:$reason,run_id:$id}]' "$API_LEDGER" >"$API_LEDGER.tmp" && mv "$API_LEDGER.tmp" "$API_LEDGER"
@@ -406,8 +585,45 @@ collect_window() {
       if [[ "$docs_flag" == true && "$docs_rule" == true && "$skip_seen" == true && "$paths_status" == complete ]]; then workload=docs_only
       elif [[ "$docs_flag" == false && "$jobs_status" == complete && "$skip_seen" == false ]]; then workload=full
       fi
-      details_json="$(jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --argjson paths "$paths_json" --argjson skip_seen "$skip_seen" --arg path_count "$(jq 'length' <<<"$paths_json")" --arg jobs_hash "$(if [[ -s "$family_dir/jobs-attempt-${attempts}.json" ]]; then sha256_file "$family_dir/jobs-attempt-${attempts}.json"; else echo ''; fi)" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths_sha256:(if $paths_status=="complete" then null else null end),changed_paths:$paths,changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then (if ($paths|length)==0 then "docs_only" else "captured" end) else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,diagnostics:(if $status=="complete" then [] else [$status] end)}')"
-      jq -n --argjson detail "$details_json" --arg run_hash "$(sha256_file "$family_dir/run.json")" --argjson attempts "$attempts_json" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail.run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail.detail_status,changed_paths_status:$detail.changed_paths_status,changes_docs_only:$detail.changes_docs_only,workload:$detail.workload,observed_expected_skip:$detail.observed_expected_skip}' >"$family_dir/manifest.json"
+      local diagnostic="[]" artifact_meta="$tmp/family-${id}-artifacts.json" artifact_record='{}' log_record='{}' job_id artifact_row artifact_id expected_digest artifact_zip="$family_dir/timing-artifact.zip" artifact_out="$family_dir/timing" artifact_status
+      if jq -e --argjson id "$id" '[.[] | select(.run.id==$id)]|length>0' <<<"$failed" >/dev/null; then
+        if api_get "/repos/${REPO}/actions/runs/${id}/artifacts?per_page=100" "$artifact_meta"; then
+            jq '{total_count,artifacts:[.artifacts[]? | {id,name,size_in_bytes,expired,digest,created_at,expires_at,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha}}]}' "$artifact_meta" >"$family_dir/artifacts-metadata.json"
+          artifact_row="$(jq -c '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|test-results|report")))][0] // empty' "$artifact_meta")"
+          if [[ -n "$artifact_row" ]]; then
+            artifact_id="$(jq -r '.id' <<<"$artifact_row")"
+            expected_digest="$(jq -r '.digest // empty' <<<"$artifact_row")"
+            artifact_status="$(jq -c -n --argjson artifact "$artifact_row" --argjson run "$run" 'if $artifact.expired==true then {status:"expired_input",diagnostic:"expired_input"} elif (($artifact.id|type)!="number" or ($artifact.id|floor)!=$artifact.id) then {status:"unknown",diagnostic:"artifact_id_invalid"} elif (($artifact.digest//"")|test("^sha256:[0-9a-f]{64}$")|not) then {status:"unknown",diagnostic:"artifact_digest_unavailable"} elif (($artifact.workflow_run.id|tostring)!=($run.id|tostring) or $artifact.workflow_run.head_sha!=$run.head_sha) then {status:"unknown",diagnostic:"artifact_origin_mismatch"} else {status:"verified",artifact_id:$artifact.id,run_id:$run.id,source_sha:$run.head_sha,digest:$artifact.digest} end')"
+            if [[ "$(jq -r '.status' <<<"$artifact_status")" == verified ]] && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${artifact_id}/zip" "$artifact_zip" "artifact:${id}"; then
+              local actual_digest
+              actual_digest="sha256:$(sha256_file "$artifact_zip")"
+              if [[ "$actual_digest" == "$expected_digest" ]] && extract_timing_archive "$artifact_zip" "$artifact_out" >"$tmp/extract-${id}.json" 2>"$tmp/extract-${id}.err"; then
+                artifact_record="$(jq -cn --arg archive_sha256 "${actual_digest#sha256:}" --slurpfile accepted "$tmp/extract-${id}.json" '$accepted[0] + {archive_sha256:$archive_sha256}')"
+              else
+                artifact_record="$(jq -cn --arg reason "$(if [[ "$actual_digest" != "$expected_digest" ]]; then echo artifact_digest_mismatch; else cat "$tmp/extract-${id}.err"; fi)" '{status:"unknown",diagnostic:$reason}')"
+                rm -rf "$artifact_zip" "$artifact_out"
+              fi
+            else
+              artifact_record="$artifact_status"
+            fi
+          else
+            artifact_record='{"status":"unknown","diagnostic":"artifact_unavailable"}'
+          fi
+        else artifact_record="$(jq -cn --arg reason "${API_STOP_REASON:-artifact_unavailable}" '{status:"unknown",diagnostic:$reason}')"; fi
+        job_id="$(jq -r '[.jobs[]? | select(.conclusion=="failure" or .conclusion=="timed_out") | .id][0] // empty' "$family_dir/jobs-attempt-${attempts}.json" 2>/dev/null || true)"
+        if [[ "$job_id" =~ ^[1-9][0-9]*$ ]] && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/jobs/${job_id}/logs" "$tmp/job-${id}.log" "job-log:${id}"; then
+          redact_log_file "$tmp/job-${id}.log" "$family_dir/failed-job.log"
+          local log_hash; log_hash="$(sha256_file "$family_dir/failed-job.log")"
+          log_record="$(jq -cn --arg hash "$log_hash" --arg path "raw/families/$id/failed-job.log" '{status:"retained_redacted",path:$path,sha256:$hash}')"
+        else
+          log_record="$(jq -cn --arg reason "${API_STOP_REASON:-diagnostics_unknown}" '{status:"diagnostics_unknown",diagnostic:$reason}')"
+        fi
+        jq -e . <<<"$artifact_record" >/dev/null || fail "artifact_diagnostic_invalid:${id}"
+        jq -e . <<<"$log_record" >/dev/null || fail "log_diagnostic_invalid:${id}"
+        diagnostic="$(jq -cn --argjson artifact "$artifact_record" --argjson log "$log_record" '[{kind:"artifact",result:$artifact},{kind:"failed_job_log",result:$log}]')"
+      fi
+      details_json="$(jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --argjson paths "$paths_json" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths:$paths,changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}')" || fail "family_detail_json_invalid:${id}: attempts=${attempts_json} paths=${paths_json} skip=${skip_seen} diagnostic=${diagnostic}"
+      jq -n --argjson detail "$details_json" --arg run_hash "$(sha256_file "$family_dir/run.json")" --argjson attempts "$attempts_json" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail.run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail.detail_status,changed_paths_status:$detail.changed_paths_status,changes_docs_only:$detail.changes_docs_only,workload:$detail.workload,observed_expected_skip:$detail.observed_expected_skip,artifact_diagnostics:$detail.artifact_diagnostics}' >"$family_dir/manifest.json"
       enrichments="$(jq -cn --argjson prior "$enrichments" --argjson detail "$details_json" '$prior + [$detail]')"
       api_write_ledger collecting
       [[ -z "$API_STOP_REASON" ]] || break
@@ -440,17 +656,18 @@ collect_window() {
   tree_sha="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
   api_write_ledger "$manifest_status"
   request_hash="$(sha256_file "$API_LEDGER")"
+  selection_hash="$(sha256_file "$stage/selection-ledger.json")"
   pr_hash="$(sha256_file "$stage/raw/populations/pull_request.json")"
   push_hash="$(sha256_file "$stage/raw/populations/push_main.json")"
   night_hash="$(sha256_file "$stage/raw/populations/schedule.json")"
-  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg request_hash "$request_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,source_sha256:{request_ledger:$request_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
+  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg request_hash "$request_hash" --arg selection_hash "$selection_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
   sync 2>/dev/null || true
   rm -rf "$tmp"
   API_TEMP_DIR=""
+  mv "$stage" "$SOURCE_BUNDLE"
   API_COMPLETED=true
   trap - INT TERM HUP
   rm -rf "$lock"
-  mv "$stage" "$SOURCE_BUNDLE"
   printf '%s\n' "snapshot manifest: $SOURCE_BUNDLE/manifest.json" "status: $manifest_status; requests: $request_count"
   [[ "$manifest_status" == complete ]]
 }
@@ -779,9 +996,19 @@ replay_snapshot() {
   local bundle="$1" manifest="$1/manifest.json" name expected file result
   [[ -s "$manifest" ]] || fail source_manifest_missing
   jq -e '.schema_version=="sigra.ci-run-metrics/snapshot-v1" and .repository=="szTheory/sigra" and .workflow=="ci.yml" and (.status=="complete" or .status=="incomplete") and (.source_sha256|type)=="object"' "$manifest" >/dev/null || fail source_manifest_invalid
-  for name in request_ledger pull_request push_main schedule; do
+  if [[ "$(jq -r '.status' "$manifest")" == incomplete ]]; then
+    for name in request_ledger selection_ledger; do
+      expected="$(jq -r --arg key "$name" '.source_sha256[$key] // empty' "$manifest")"
+      case "$name" in request_ledger) file="$bundle/request-ledger.json";; selection_ledger) file="$bundle/selection-ledger.json";; esac
+      [[ -n "$expected" && -s "$file" && "$(sha256_file "$file")" == "$expected" ]] || fail "snapshot_hash_mismatch:${name}"
+    done
+    jq -S '{schema_version,repository,workflow,cutoff_utc,window_start_utc,status,stop_reason,request_count,selection_ledger}' "$manifest"
+    return 0
+  fi
+  for name in request_ledger selection_ledger pull_request push_main schedule; do
     case "$name" in
       request_ledger) file="$bundle/request-ledger.json";;
+      selection_ledger) file="$bundle/selection-ledger.json";;
       *) file="$bundle/raw/populations/${name}.json";;
     esac
     expected="$(jq -r --arg key "$name" '.source_sha256[$key] // empty' "$manifest")"
@@ -823,6 +1050,21 @@ if [[ "$REPLAY" == true ]]; then
 fi
 if [[ -n "$REDIRECT_TO_VALIDATE" ]]; then
   validate_download_redirect "$REDIRECT_TO_VALIDATE"
+  exit $?
+fi
+if [[ -n "$ARTIFACT_JSON" || -n "$RUN_JSON" ]]; then
+  [[ -n "$ARTIFACT_JSON" && -n "$RUN_JSON" ]] || fail "artifact validation requires --validate-artifact-json and --run-json"
+  validate_artifact_metadata "$ARTIFACT_JSON" "$RUN_JSON"
+  exit 0
+fi
+if [[ -n "$ARCHIVE_PATH" ]]; then
+  [[ -n "$ARCHIVE_OUTPUT" && -s "$ARCHIVE_PATH" ]] || fail "timing ZIP validation requires --output-dir and an existing archive"
+  extract_timing_archive "$ARCHIVE_PATH" "$ARCHIVE_OUTPUT"
+  exit $?
+fi
+if [[ -n "$LOG_TO_REDACT" || -n "$REDACTED_OUTPUT" ]]; then
+  [[ -n "$LOG_TO_REDACT" && -n "$REDACTED_OUTPUT" && -s "$LOG_TO_REDACT" ]] || fail "log redaction requires --redact-log and --redacted-output with an existing input"
+  redact_log_file "$LOG_TO_REDACT" "$REDACTED_OUTPUT"
   exit $?
 fi
 
