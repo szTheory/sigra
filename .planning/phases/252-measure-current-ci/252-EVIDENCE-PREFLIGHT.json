@@ -1,0 +1,60 @@
+{
+  "schema_version": "sigra.ci-run-metrics/preflight-v1",
+  "status": "ready",
+  "checkout": {
+    "sha": "a99dce2008f8f2924e147440585ea8859bfd8df7",
+    "branch": "phase-244-playwright-measurement",
+    "dirty_paths": [
+      " M scripts/ci/ci-run-metrics.sh",
+      " M scripts/ci/ci-run-metrics.test.sh"
+    ]
+  },
+  "workflow": {
+    "path": ".github/workflows/ci.yml",
+    "git_blob_sha": "0f89643260b1aed455727bd4aa16f09a8762bffc"
+  },
+  "toolchain": {
+    "gh_path": "/opt/homebrew/bin/gh",
+    "bash": "5.2.37(1)-release",
+    "jq": "jq-1.7.1-apple"
+  },
+  "source_urls": {
+    "workflow_run": "https://api.github.com/repos/szTheory/sigra/actions/runs/38144377407",
+    "effective_branch_rules": "https://api.github.com/repos/szTheory/sigra/rules/branches/main",
+    "active_rulesets": "https://api.github.com/repos/szTheory/sigra/rulesets"
+  },
+  "cutoff_utc": "2026-10-12T17:27:15Z",
+  "captured_at_utc": "2026-10-12T17:27:15Z",
+  "expected_required_contexts": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "effective_required_contexts": [
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Library tests"
+  ],
+  "required_rules_changed": false,
+  "active_rulesets": [
+    {
+      "id": 14941512,
+      "name": "main",
+      "target": "branch",
+      "enforcement": "active"
+    },
+    {
+      "id": 23574716,
+      "name": "tag-namespace",
+      "target": "tag",
+      "enforcement": "active"
+    }
+  ],
+  "request_count": 4,
+  "request_ledger": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-request-ledger.json",
+  "missing_capabilities": []
+}

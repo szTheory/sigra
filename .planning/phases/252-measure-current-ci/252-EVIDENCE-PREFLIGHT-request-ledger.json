@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "request_count": 4,
+  "stop_reason": null,
+  "reset_or_retry_at": "1791829636",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/branches/main/protection/required_status_checks",
+    "/repos/szTheory/sigra/rules/branches/main",
+    "/repos/szTheory/sigra/rulesets?per_page=100"
+  ]
+}
