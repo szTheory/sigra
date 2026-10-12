@@ -16,6 +16,8 @@ import json, pathlib, sys
 baseline=json.loads(pathlib.Path(sys.argv[1]).read_text())
 contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
 output=pathlib.Path(sys.argv[3])
+identity=baseline.get('measured_pr_identity') or {}
+bundle_hash=baseline.get('source_bundle_sha256','unknown')
 def show(value, unit=''):
     if value is None: return 'unknown'
     if isinstance(value, dict):
@@ -64,7 +66,7 @@ for attempt in attempts:
 attempt_text='\n'.join(attempt_lines) or '- unknown (attempt job records were not retained)'
 text=f'''# Current CI baseline
 
-Cutoff: `{baseline.get('cutoff_utc','unknown')}`; collected `{baseline.get('captured_at_utc','unknown')}` from source SHA `{baseline.get('source_sha','unknown')}` and workflow SHA-256 `{baseline.get('workflow_sha256','unknown')}`. Replay source identity: `{baseline.get('source_sha256',{}).get('pull_request','unknown')}` (PR population hash), `{baseline.get('source_sha256',{}).get('request_ledger','unknown')}` (request ledger hash). Status: **{baseline.get('status','unknown')}**. This snapshot is bounded to 100 runs per event and a 30-day window; capped/expired or undetailed records remain unknown.
+Cutoff: `{baseline.get('cutoff_utc','unknown')}`; collected `{baseline.get('captured_at_utc','unknown')}` from collector checkout `{baseline.get('source_sha','unknown')}` and collector workflow SHA-256 `{baseline.get('workflow_sha256','unknown')}`. Immutable source bundle SHA-256: `{bundle_hash}`. Replay source identity: `{baseline.get('source_sha256',{}).get('pull_request','unknown')}` (PR population hash), `{baseline.get('source_sha256',{}).get('request_ledger','unknown')}` (request ledger hash). Status: **{baseline.get('status','unknown')}**. This snapshot is bounded to 100 runs per event and a 30-day window; capped/expired or undetailed records remain unknown.
 
 ## Separate populations
 
@@ -76,7 +78,7 @@ PR workload classes: full `{baseline.get('cohorts',{}).get('full',{}).get('n',0)
 
 ## Required result and cost
 
-The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial wait is recorded separately from dependencies, while required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{baseline.get('instrumented_full_pr',{}).get('status','unknown')}`.
+The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial wait is recorded separately from dependencies, while required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{baseline.get('instrumented_full_pr',{}).get('status','unknown')}`. Run [{identity.get('producing_run_id','unknown')} attempt {identity.get('run_attempt','unknown')}]({identity.get('source_url') or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{identity.get('pull_request_number','unknown')}]({identity.get('pull_request') or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{identity.get('application_sha','unknown')}`; producer checked-out source revision `{identity.get('producer_source_sha','unknown')}`; workflow file SHA-256 `{identity.get('workflow_file_sha256','unknown')}`; workload identity SHA-256 `{identity.get('workload_revision_sha256','unknown')}`. These are distinct revisions and digests.
 
 Currently enforced required names, with ruleset IDs as provenance:
 {required}
