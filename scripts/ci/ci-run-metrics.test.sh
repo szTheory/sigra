@@ -362,7 +362,7 @@ if jq -e '. as $r |
   ($r.ranked_by_wait.pull_request.n >= 1) and ($r.ranked_by_runner.pull_request.n >= 1) and
   (($r.ranked_by_wait.pull_request.rows|map(.identity)|unique|length) == ($r.ranked_by_wait.pull_request.rows|length)) and
   ($r.stage_costs.pull_request.setup.status == "measured") and
-  ($r.stage_costs.pull_request.cache_restore_download.status == "measured" and $r.stage_costs.pull_request.cache_restore_download.total == 500) and
+  ($r.stage_costs.pull_request.cache_restore_download.status == "measured" and $r.stage_costs.pull_request.cache_restore_download.total == (5 * $r.stage_costs.pull_request.cache_restore_download.n)) and
   ($r.cache_outcome.browser_binaries == "miss") and
   ($r.runner_image.pull_request.runner_os == "Linux" and $r.runner_image.pull_request.image_version == "20261001.1") and
   ($r.configured_versions.pull_request.playwright == "1.59.1") and

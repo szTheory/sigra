@@ -593,7 +593,12 @@ collect_window() {
     jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]' >"$selected_file"
     jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' "$selected_file" >"$failed_file"
     measurement_target="$(jq -r '[.[] | select(.population=="pull_request" and .run.conclusion=="success")] | sort_by(.run.created_at) | reverse | .[0].run.id // empty' "$selected_file")"
-    jq -cn --arg target "$measurement_target" --slurpfile failed "$failed_file" --slurpfile selected "$selected_file" '[ $selected[0][] | select((.run.id|tostring)==$target) ] + [ $failed[0][] | select((.run.id|tostring)!=$target) ] + [ $selected[0][] | . as $x | select((($x.run.id|tostring)!=$target) and (([ $failed[0][].run.id ] | index($x.run.id))==null)) ]' >"$priority_file"
+    jq -cn --arg target "$measurement_target" --slurpfile failed "$failed_file" --slurpfile selected "$selected_file" '
+      ($selected[0] | sort_by(.run.created_at) | reverse) as $ordered |
+      ([($ordered | map(select(.population=="pull_request" and (.run.id|tostring)==$target)) | .[0]),($ordered | map(select(.population=="push_main" and .run.conclusion=="success")) | .[0]),($ordered | map(select(.population=="schedule" and .run.conclusion=="success")) | .[0])] | map(select(.!=null)) | unique_by([.population,.run.id])) as $anchors |
+      ($selected[0] | .[0:3]) as $recent |
+      ($anchors + $recent + $failed[0]) | unique_by([.population,.run.id])
+    ' "$selected_file" >"$priority_file"
     printf '[]\n' >"$enrichments_file"
     while IFS= read -r row; do
       [[ -n "$row" ]] || continue
