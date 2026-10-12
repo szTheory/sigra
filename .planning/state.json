@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 252",
-    "label": "Continue Phase 252",
-    "reason": "Plan 3 of 6 complete; three plans remain; phase-level verification is pending."
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 252 of 4 · 0% · executing"
   },
-  "updated_at": "2026-10-12T18:32:21.703Z"
+  "updated_at": "2026-10-12T18:58:35.415Z"
 }
