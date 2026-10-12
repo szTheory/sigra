@@ -143,10 +143,12 @@ api_stop() {
 }
 
 api_get() {
-  local endpoint="$1" output_file="$2" response rc attempt err_file elapsed remaining reset
+  local endpoint="$1" output_file="$2" response rc attempt err_file elapsed remaining reset timeout_cmd
   elapsed="$(api_elapsed_seconds)"
   (( elapsed < 3600 )) || { api_stop time_limit_exhausted "" "$endpoint"; return 1; }
   (( API_REQUESTS < 600 )) || { api_stop request_limit_exhausted "" "$endpoint"; return 1; }
+  timeout_cmd="$(command -v timeout || command -v gtimeout || true)"
+  [[ -n "$timeout_cmd" ]] || { api_stop request_deadline_enforcer_unavailable "" "$endpoint"; return 1; }
   if [[ -n "$API_CORE_REMAINING" ]] && (( API_CORE_REMAINING <= 250 )); then
     api_stop core_rate_limit_stop "$API_RESET_AT" "$endpoint"; return 1
   fi
@@ -159,7 +161,7 @@ api_get() {
     (( request_timeout > 30 )) && request_timeout=30
     (( request_timeout > 0 )) || { api_stop time_limit_exhausted "" "$endpoint"; return 1; }
     set +e
-    GH_HTTP_TIMEOUT="$request_timeout" gh api --method GET "$endpoint" >"${output_file}.tmp" 2>"$err_file"
+    "$timeout_cmd" --signal=TERM "${request_timeout}s" gh api --method GET "$endpoint" >"${output_file}.tmp" 2>"$err_file"
     rc=$?
     set -e
     response="$(cat "$err_file" 2>/dev/null || true)"
