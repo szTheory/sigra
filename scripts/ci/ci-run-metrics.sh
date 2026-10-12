@@ -1485,9 +1485,9 @@ if [[ "$VERIFY_BASELINE" == true ]]; then
   fi
   replay_file="$(mktemp "${TMPDIR:-/tmp}/ci-run-metrics-expected.XXXXXX")"
   replay_snapshot "$verify_dir" >"$replay_file"
-  python3 - "$verify_dir" "$BASELINE_FILE" "$replay_file" <<'PY'
-import datetime, json, pathlib, sys
-bundle, baseline_path, replay_path = map(pathlib.Path, sys.argv[1:])
+  python3 - "$verify_dir" "$BASELINE_FILE" "$replay_file" "$SOURCE_BUNDLE" <<'PY'
+import datetime, hashlib, json, pathlib, sys
+bundle, baseline_path, replay_path, bundle_input = map(pathlib.Path, sys.argv[1:])
 baseline = json.loads(baseline_path.read_text()); replay = json.loads(replay_path.read_text())
 manifest = json.loads((bundle/'manifest.json').read_text())
 expected = ['Library tests','Example unit smoke (ExUnit + ConnTest)','Install smoke (fresh phx.new + sigra.install)','Example HTTP smoke (boot + curl critical routes)','Example Playwright smoke (full lifecycle)']
@@ -1503,7 +1503,10 @@ try:
     if cutoff > captured or captured > now + datetime.timedelta(minutes=5) or now-cutoff > datetime.timedelta(days=30): fail('cutoff_not_current')
 except Exception: fail('cutoff_invalid')
 if manifest.get('status') != 'complete': fail('source_snapshot_incomplete',manifest.get('stop_reason'))
-if baseline != replay: fail('baseline_replay_mismatch')
+baseline_for_compare=baseline.copy(); bundle_hash=baseline_for_compare.pop('source_bundle_sha256',None)
+if not isinstance(bundle_hash,str) or not bundle_hash: fail('source_bundle_hash_missing')
+elif not bundle_input.is_file() or hashlib.sha256(bundle_input.read_bytes()).hexdigest()!=bundle_hash: fail('source_bundle_hash_mismatch')
+if baseline_for_compare != replay: fail('baseline_replay_mismatch')
 if sorted(manifest.get('required_contexts') or []) != sorted(expected): fail('required_context_set_changed',manifest.get('required_contexts'))
 provenance=manifest.get('required_rule_provenance') or []
 if {x.get('context') for x in provenance} != set(expected) or any(not isinstance(x.get('ruleset_id'),int) for x in provenance): fail('required_context_provenance_incomplete')
