@@ -44,12 +44,12 @@ metrics:
   duration: 84 minutes
   completed_date: 2026-10-12
   plan_head_before: 399f80d8c2f17120117d729a75d3e57f099ec9dc
-  plan_head_after: c97bf641e
-  commits: 50
+  plan_head_after: cae9eb2f8
+  commits: 51
 actuals:
   tokens: 8676277
   tasks: 3
-  commits: 50
+  commits: 51
 status: complete
 ---
 
@@ -187,3 +187,7 @@ The corrected sample has 2,042 seconds total runner cost across one attempt, 1,3
 The original archive, baseline, report, comparison contract and summary bytes were read from and matched against HEAD `0cdc4e40f` before refresh; exact hashes and recovery ref are committed in `252-06-SECURITY-REFRESH-PRESERVATION.json` at `6b3990d0b`. The comparison still has no candidate identity, dates or future family IDs. Its 20-pair/40-family, exact 48-hour, no-replacement method stays frozen, while no 40-run comparison has been performed.
 
 No new producer change was needed, so PR #331 was not modified and no new CI run was dispatched. Requirements remain pending phase-level verification; independent security re-audit remains outstanding.
+
+## Security refresh self-check: PASSED
+
+The refreshed source bundle, baseline, report, comparison contract, acquisition ledger, durable request ledgers and write-ahead preservation record exist. Commits `282091eaa`, `362c84008`, `0cdc4e40f`, `a97017e50`, `654f771bf`, `c97bf641e` and `cae9eb2f8` are ancestors of the current branch. The refreshed archive replays byte-identically and archive-backed baseline verification returns `ready` with no diagnostics. Phase verification and independent security re-audit are still pending.
