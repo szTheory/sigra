@@ -73,7 +73,7 @@ cat >"$TMP/gh-bin/gh" <<'GH'
 #!/usr/bin/env bash
 case "${4:-}" in
   rate_limit) echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}';;
-  /repos/szTheory/sigra/actions/runs/777) echo '{"id":777,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","created_at":"2026-10-13T00:00:00Z","conclusion":"failure","pull_requests":[{"number":331,"head":{"sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},"base":{"sha":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}]}';;
+  /repos/szTheory/sigra/actions/runs/777) echo '{"id":777,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","created_at":"2026-10-13T00:00:00Z","status":"queued","conclusion":null,"pull_requests":[{"number":331,"head":{"sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},"base":{"sha":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}]}';;
   /repos/szTheory/sigra/actions/runs/778) cat "$PRODUCER_FIXTURE_DIR/run.json";;
   /repos/szTheory/sigra/commits/cccccccccccccccccccccccccccccccccccccccc) cat "$PRODUCER_FIXTURE_DIR/commit.json";;
   /repos/szTheory/sigra/git/trees/dddddddddddddddddddddddddddddddddddddddd\?recursive=1) cat "$PRODUCER_FIXTURE_DIR/tree.json";;

@@ -345,6 +345,7 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
     pull_requests = api_run.get("pull_requests") or []
     if (contract.get("status") != "ready" or not expected_sha or len(pull_requests) != 1
             or not isinstance(api_run.get("id"), int) or api_run.get("id") <= 0 or api_run.get("event") != "pull_request"
+            or api_run.get("status") not in ("queued", "in_progress") or api_run.get("conclusion") is not None
             or not re.fullmatch(r"[0-9a-f]{64}", api_run_sha256 or "")
             or api_run.get("path") != ".github/workflows/ci.yml" or api_run.get("head_sha") != expected_sha
             or not start <= created <= end or reservation.get("pair_id") is None):

@@ -171,7 +171,7 @@ class SecurityContractsTest(unittest.TestCase):
 
     def test_registration_records_api_identity_without_recording_outcome(self):
         contract={"status":"ready","baseline_application_sha":"a"*40,"candidate_identity":{"application_sha":"a"*40},"window":{"start_utc":"2026-10-12T10:00:00Z","end_utc":"2026-10-14T10:00:00Z"},"family_reservations":[{"reservation_id":"reserve-1","pair_id":"p1","family_role":"before"}]}
-        api_run={"id":77,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"a"*40,"created_at":"2026-10-13T00:00:00Z","conclusion":"failure","pull_requests":[{"number":331,"head":{"sha":"a"*40},"base":{"sha":"b"*40}}]}
+        api_run={"id":77,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"a"*40,"created_at":"2026-10-13T00:00:00Z","status":"queued","conclusion":None,"pull_requests":[{"number":331,"head":{"sha":"a"*40},"base":{"sha":"b"*40}}]}
         ledger=register_comparison_run(contract,"reserve-1",api_run,api_run_sha256="f"*64)
         self.assertEqual("77",str(ledger["records"][0]["run_id"]))
         self.assertNotIn("conclusion",ledger["records"][0])
@@ -179,6 +179,9 @@ class SecurityContractsTest(unittest.TestCase):
             register_comparison_run(contract,"reserve-1",api_run,ledger,"f"*64)
         with self.assertRaisesRegex(ValueError,"contract_hash"):
             register_comparison_run({**contract,"frozen_note":"changed"},"reserve-1",api_run,ledger,"f"*64)
+        completed={**api_run,"status":"completed","conclusion":"failure"}
+        with self.assertRaisesRegex(ValueError,"does_not_match_reservation"):
+            register_comparison_run(contract,"reserve-1",completed,api_run_sha256="f"*64)
 
     def test_rerun_failed_reused_job_ids_are_counted_once(self):
         attempts = {
