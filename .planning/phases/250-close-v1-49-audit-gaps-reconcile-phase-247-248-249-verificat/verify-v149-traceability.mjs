@@ -486,6 +486,28 @@ function preservationRecordsMatch(root, references, observedIds, dispositions, d
           ? (record.captured_source.kind !== 'committed_path' || record.captured_source.source_commit_sha !== disposition.source.commit_sha
             || record.captured_source.path !== disposition.source.path)
           : (record.captured_source.kind !== 'commit' || record.captured_source.commit_sha !== disposition.source.commit_sha))) return false;
+    if (disposition.source.worktree_path) {
+      const encoded = record.source_bytes_base64;
+      if (typeof encoded !== 'string' || encoded.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)) return false;
+      const sourceBytes = Buffer.from(encoded, 'base64');
+      if (sourceBytes.toString('base64') !== encoded
+        || dirtyItem?.source_byte_readable !== true
+        || !/^[a-f0-9]{64}$/.test(dirtyItem?.source_byte_sha256 ?? '')
+        || sha256(sourceBytes) !== record.source_byte_sha256
+        || sha256(sourceBytes) !== dirtyItem.source_byte_sha256) return false;
+      if (typeof disposition.source.status === 'string' && disposition.source.status.includes('D')) {
+        const tombstone = record.source_absence_proof;
+        if (!tombstone || tombstone.kind !== 'worktree-deletion-tombstone'
+          || tombstone.worktree_path !== disposition.source.worktree_path
+          || tombstone.head_sha !== disposition.source.head_sha
+          || tombstone.status !== disposition.source.status
+          || tombstone.path !== disposition.source.path
+          || tombstone.source_byte_sha256 !== sha256(sourceBytes)
+          || record.captured_source.status !== disposition.source.status
+          || record.captured_source.path !== disposition.source.path
+          || record.captured_source.worktree_head_sha !== disposition.source.head_sha) return false;
+      } else if (record.source_absence_proof !== undefined) return false;
+    }
   }
   if (offset !== output.length) return false;
   preservationRecordCache.add(cacheKey);
@@ -535,7 +557,7 @@ function phase251ExactPackageBytes(root, source) {
   } catch { phase251PackageBytesCache.set(cacheKey, null); return null; }
 }
 
-function phase251AuditAssertion(root, id, bytes, source) {
+export function phase251AuditAssertion(root, id, bytes, source) {
   if (!bytes?.length) return false;
   const text = bytes.toString('utf8');
   const hasGuide = /# Upgrade to Sigra v1\.6\.0/.test(text);
@@ -560,6 +582,7 @@ function phase251AuditAssertion(root, id, bytes, source) {
     case 'guide_host_actions': return /mix deps\.update sigra/.test(text) && /selectively adopt/i.test(text) && /mix sigra\.install/.test(text);
     case 'host_action_test_coverage': return /test\(['"`].*organizations UX/i.test(text) && /await expect\(/.test(text);
     case 'guide_version_requirement': return /~> 1\.6\.0/.test(text);
+    case 'candidate_package_version_requirement': return versionedMix;
     case 'guide_update_and_check_steps': return /mix deps\.update sigra/.test(text) && /mix deps\.tree/.test(text) && /host checks/i.test(text);
     default: return false;
   }

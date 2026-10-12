@@ -177,6 +177,7 @@ export function evaluatePhase251PackageAssertion(id, sourceBytes, source = {}) {
     case 'guide_host_actions': return /mix deps\.update sigra/.test(text) && /selectively adopt/i.test(text) && /mix sigra\.install/.test(text);
     case 'host_action_test_coverage': return /test\(['"`].*organizations UX/i.test(text) && /await expect\(/.test(text);
     case 'guide_version_requirement': return /~> 1\.6\.0/.test(text);
+    case 'candidate_package_version_requirement': return mixHasVersion;
     case 'guide_update_and_check_steps': return /mix deps\.update sigra/.test(text) && /mix deps\.tree/.test(text) && /host checks/i.test(text);
     default: return false;
   }
@@ -871,6 +872,11 @@ function writePhase251Capture() {
       { source_paths: sourcePaths });
     const dirtyBytes = exactDirtyBytes(item);
     if (dirtyBytes) record.source_bytes_base64 = dirtyBytes.toString('base64');
+    if (item.kind === 'dirty_path' && item.status.includes('D')) {
+      if (!dirtyBytes || !item.source_byte_readable) throw new Error(`Deleted inherited path lacks captured preimage bytes: ${item.id}`);
+      record.source_absence_proof = { kind: 'worktree-deletion-tombstone', worktree_path: item.worktree_path,
+        head_sha: item.worktree_head_sha, status: item.status, path: item.path, source_byte_sha256: sha256(dirtyBytes) };
+    }
     return record;
   });
   let localPreservation = { records: 0, readback_verified: false, references: new Map() };

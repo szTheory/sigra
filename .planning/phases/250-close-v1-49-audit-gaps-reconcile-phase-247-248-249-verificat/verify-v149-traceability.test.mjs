@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
-import { audit, checkAudit, renderAudit } from './verify-v149-traceability.mjs';
+import { audit, checkAudit, phase251AuditAssertion, renderAudit } from './verify-v149-traceability.mjs';
 import { evaluatePhase251PackageAssertion, phase251PackageCheckRequirements } from './verify-247-readiness.mjs';
 
 const repoRoot = path.resolve('.');
@@ -307,6 +307,66 @@ test('independent audit rejects nonexistent preservation refs and altered decisi
 
   const result = audit(repoRoot, { overrides: evidence.overrides });
   assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied', JSON.stringify(result.blockers.filter(({ id }) => id === 'READY-02')));
+});
+
+test('independent audit rejects coherently committed preservation bytes that do not match the captured digest', () => {
+  const evidence = ownerEvidenceFixture({ ready02: true });
+  const packet = evidence.packet;
+  const disposition = packet.source_capture.local_inherited_work.inherited_dispositions.find((row) => row.source?.worktree_path);
+  const joinRef = packet.requirements.READY02.inherited_work.disposition_join.preservationRefs.find((row) => row.id === disposition.id);
+  const oldRef = disposition.preservation_ref;
+  const forgedRecord = JSON.parse(execFileSync('git', ['show', `${oldRef.commit_sha}:${oldRef.record_path}`], { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 }));
+  const decoded = Buffer.from(forgedRecord.source_bytes_base64, 'base64');
+  assert.equal(sha256(decoded), forgedRecord.source_byte_sha256);
+  decoded[0] = decoded[0] ^ 1;
+  forgedRecord.source_bytes_base64 = decoded.toString('base64');
+  const recordBytes = Buffer.from(`${JSON.stringify(forgedRecord, null, 2)}\n`);
+  const blob = execFileSync('git', ['hash-object', '-w', '--stdin'], { input: recordBytes, encoding: 'utf8' }).trim();
+  const recordsTree = execFileSync('git', ['mktree'], { input: `100644 blob ${blob}\t${oldRef.record_path.slice('records/'.length)}\n`, encoding: 'utf8' }).trim();
+  const tree = execFileSync('git', ['mktree'], { input: `040000 tree ${recordsTree}\trecords\n`, encoding: 'utf8' }).trim();
+  const commitSha = execFileSync('git', ['commit-tree', tree, '-p', oldRef.commit_sha, '-m', 'test forged preservation source bytes'], { encoding: 'utf8' }).trim();
+  const ref = `refs/heads/test-phase251-forged-preservation-${process.pid}`;
+  execFileSync('git', ['update-ref', ref, commitSha]);
+  try {
+    const recordSha256 = sha256(recordBytes);
+    disposition.preservation_ref = { ...oldRef, ref, commit_sha: commitSha, record_sha256: recordSha256 };
+    Object.assign(joinRef, { ref, commitSha, recordSha256 });
+    const priorPacketHash = sha256(evidence.packetText);
+    evidence.packetText = `${JSON.stringify(packet, null, 2)}\n`;
+    const packetHash = sha256(evidence.packetText);
+    evidence.overrides[phase251PacketPath] = evidence.packetText;
+    evidence.report = evidence.report.replace(/phase-251-reconciliation-sha256: [a-f0-9]{64}/, `phase-251-reconciliation-sha256: ${packetHash}`);
+    evidence.overrides[phase247ReportPath] = evidence.report;
+    evidence.overrides['.planning/REQUIREMENTS.md'] = evidence.overrides['.planning/REQUIREMENTS.md'].replaceAll(priorPacketHash, packetHash)
+      .split('\n').map((line) => /^\|\s*READY-0[12]\s*\|/.test(line) ? line.replace(/[a-f0-9]{64}(?=\s*\|$)/, packetHash) : line).join('\n');
+    const result = audit(repoRoot, { overrides: evidence.overrides });
+    assert.equal(result.requirements.find(({ id }) => id === 'READY-02')?.status, 'unsatisfied');
+  } finally {
+    execFileSync('git', ['update-ref', '-d', ref]);
+  }
+});
+
+test('every declared package source assertion has an independent implemented predicate', () => {
+  const ownerSource = readFileSync(new URL('./verify-247-readiness.mjs', import.meta.url), 'utf8');
+  const auditSource = readFileSync(new URL('./verify-v149-traceability.mjs', import.meta.url), 'utf8');
+  const allMapped = Object.values(phase251PackageCheckRequirements).flatMap((sources) => sources.flatMap((source) => source.assertions));
+  for (const [label, source] of [['owner', ownerSource], ['independent audit', auditSource]]) {
+    const switchBody = source.match(/switch \(id\) \{([\s\S]*?)\n\s*default: return false;/)?.[1] ?? '';
+    const implemented = new Set([...switchBody.matchAll(/case '([^']+)'/g)].map((match) => match[1]));
+    for (const id of allMapped) assert.ok(implemented.has(id), `${label} has no predicate for ${id}`);
+  }
+  assert.ok(allMapped.includes('candidate_package_version_requirement'));
+});
+
+test('candidate package version requirement has passing 1.6.0 and failing 1.5.0 byte controls', () => {
+  const bytes = execFileSync('git', ['show', '0e773d3614a242e4fbcdd34c418ecb8a307703d6:mix.exs']);
+  const source = { commit_sha: '0e773d3614a242e4fbcdd34c418ecb8a307703d6' };
+  const invalidVersion = Buffer.from(bytes.toString('utf8').replace('@version "1.6.0"', '@version "1.5.0"'));
+  assert.notDeepEqual(invalidVersion, bytes);
+  assert.equal(evaluatePhase251PackageAssertion('candidate_package_version_requirement', bytes, source), true);
+  assert.equal(evaluatePhase251PackageAssertion('candidate_package_version_requirement', invalidVersion, source), false);
+  assert.equal(phase251AuditAssertion(repoRoot, 'candidate_package_version_requirement', bytes, source), true);
+  assert.equal(phase251AuditAssertion(repoRoot, 'candidate_package_version_requirement', invalidVersion, source), false);
 });
 
 test('independent audit rejects each changed READY-01 check source or result identity', () => {
