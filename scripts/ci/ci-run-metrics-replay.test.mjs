@@ -48,6 +48,8 @@ test('snapshot replay emits explicit zero-sample unknowns and distinct cost dime
     assert.equal(replay.instrumentation_baseline?.exunit?.instrumentation_overhead_us, -60547);
     assert.equal(replay.cohorts?.docs_only?.status, 'insufficient_data');
     assert.equal(replay.cohorts?.docs_only?.n, 0);
+    assert.equal(replay.failure_signatures?.status, 'no_current_flake_identified');
+    assert.equal(replay.failure_analysis?.inspected_family_count, 0);
     assert.notEqual(replay.ranked_by_wait, replay.ranked_by_runner);
 
     const prPath = path.join(root, 'raw', 'populations', 'pull_request.json');
