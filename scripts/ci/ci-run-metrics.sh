@@ -486,6 +486,7 @@ collect_window() {
   mkdir -p "$stage/source"
   cp "$ROOT/.github/workflows/ci.yml" "$stage/source/ci.yml"
   cp "$ROOT/scripts/ci/ci-run-metrics.sh" "$stage/source/ci-run-metrics.sh"
+  cp "$ROOT/scripts/ci/exunit_timing_contract.py" "$stage/source/exunit_timing_contract.py"
   cp "$ROOT/scripts/ci/ci-playwright-report.mjs" "$stage/source/ci-playwright-report.mjs"
   cp "$ROOT/scripts/ci/ci-playwright-report.test.mjs" "$stage/source/ci-playwright-report.test.mjs"
   cp "$ROOT/scripts/ci/sigra-dep-off.sh" "$stage/source/sigra-dep-off.sh"
@@ -769,7 +770,7 @@ collect_window() {
   workflow_blob="$(git hash-object "$ROOT/.github/workflows/ci.yml" 2>/dev/null || echo unavailable)"
   workflow_sha="$(sha256_file "$ROOT/.github/workflows/ci.yml")"
   tree_sha="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
-  source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" --arg mix "$(sha256_file "$stage/source/mix.exs")" --arg dep_off "$(sha256_file "$stage/source/sigra-dep-off.sh")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test,"mix.exs":$mix,"sigra-dep-off.sh":$dep_off}')"
+  source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg exunit_contract "$(sha256_file "$stage/source/exunit_timing_contract.py")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" --arg mix "$(sha256_file "$stage/source/mix.exs")" --arg dep_off "$(sha256_file "$stage/source/sigra-dep-off.sh")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"exunit_timing_contract.py":$exunit_contract,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test,"mix.exs":$mix,"sigra-dep-off.sh":$dep_off}')"
   required_contexts="$(jq -c '[.[]? | select(.type=="required_status_checks") | .parameters.required_status_checks[]?.context] | unique' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
   required_provenance="$(jq -c '[.[]? | select(.type=="required_status_checks") | {context:.parameters.required_status_checks[]?.context,ruleset_id:.ruleset_id,ruleset_source:.ruleset_source}]' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
   active_rules="$(jq -c '[.[]? | select(.enforcement=="active") | {id,name,target,enforcement}] | sort_by(.id)' "$stage/raw/rulesets.json" 2>/dev/null || echo '[]')"
@@ -1148,6 +1149,9 @@ replay_snapshot() {
   python3 - "$bundle" "$ROOT" >"$metrics_file" <<'PY'
 import datetime, hashlib, json, pathlib, re, subprocess, sys
 root = pathlib.Path(sys.argv[1]); project = pathlib.Path(sys.argv[2]); manifest = json.loads((root/'manifest.json').read_text())
+sys.path.insert(0, str(project/'scripts'/'ci'))
+sys.path.insert(0, str(root/'source'))
+from exunit_timing_contract import validate as validate_exunit_timing
 events = {'pull_request':'pull_request','push_main':'main','schedule':'nightly'}
 stages = ['setup','cache_restore_download','compile','database_startup','app_boot','test_execution','artifact_upload','other']
 wait_rows={k:[] for k in events.values()}; runner_rows={k:[] for k in events.values()}; stage_values={k:{s:[] for s in stages} for k in events.values()}
@@ -1288,7 +1292,7 @@ def source_bound_full_pr(run, runid):
             if path.name in expected_exunit.values():
                 if path.name in exunit_paths: diagnostics.append('duplicate_exunit_timing_report')
                 exunit_paths[path.name]=(artifact,path)
-        exunit_reports=[]
+        exunit_reports=[]; exunit_payloads={}; exunit_artifact_names={}
         for invocation,filename in expected_exunit.items():
             artifact_path=exunit_paths.get(filename)
             artifact,path=artifact_path if artifact_path else ({},None)
@@ -1296,26 +1300,16 @@ def source_bound_full_pr(run, runid):
             if path:
                 try: report=json.loads(path.read_text())
                 except Exception: report={}
-            if report.get('complete') is not True or report.get('unit')!='microsecond' or report.get('invocation')!=invocation:
-                diagnostics.append('complete_exunit_'+invocation+'_timing_missing_or_wrong_invocation')
-                continue
-            rows=report.get('tests')
-            if not isinstance(rows,list) or any(row.get('invocation')!=invocation or not isinstance(row.get('test_id'),str) or not isinstance(row.get('duration_us'),int) or row.get('duration_us')<0 for row in rows):
-                diagnostics.append('exunit_'+invocation+'_test_identity_invalid')
-                continue
-            if report.get('test_duration_sum_us')!=sum(row['duration_us'] for row in rows):
-                diagnostics.append('exunit_'+invocation+'_duration_total_mismatch')
-                continue
-            exunit_by_invocation[invocation]=report
-            exunit_reports.append({'invocation':invocation,'tests':len(rows),'passed':report.get('passed_count'),'failed':report.get('failed_count'),'skipped':report.get('skipped_count'),'excluded':report.get('excluded_count'),'suite_elapsed_us':report.get('suite_elapsed_us'),'test_duration_sum_us':report.get('test_duration_sum_us')})
+                exunit_payloads[invocation]=report
+                exunit_artifact_names[invocation]=artifact.get('name')
         ex_meta=next((m for m,j,_ in metadata if m.get('job_name')=='Library tests shard'),None)
-        metadata_reports=ex_meta.get('exunit_reports') if ex_meta else None
-        if metadata_reports != [{'invocation':'main','path':expected_exunit['main']},{'invocation':'threadline_guard','path':expected_exunit['threadline_guard']}]:
-            diagnostics.append('exunit_producer_report_contract_missing')
-        expected_artifact_name=f'library-test-timing-{runid}-{ex_meta.get("run_attempt")}' if ex_meta else None
-        if (not ex_meta or ex_meta.get('timing_artifact_name')!=expected_artifact_name
-            or any(not exunit_paths.get(filename) or exunit_paths[filename][0].get('name')!=expected_artifact_name for filename in expected_exunit.values())):
-            diagnostics.append('exunit_timing_artifact_not_bound_to_library_job')
+        exunit_validation=validate_exunit_timing(
+            ex_meta or {}, exunit_payloads, exunit_artifact_names, runid,
+            ex_meta.get('run_attempt') if ex_meta else None,
+        )
+        diagnostics.extend(exunit_validation['diagnostics'])
+        exunit_by_invocation=exunit_validation['normalized']
+        exunit_reports=exunit_validation['reports']
         if not ex_meta or int(ex_meta.get('run_attempt',-1)) not in [int(a) for a in refs]: exunit_by_invocation={}
         expected_seams=set(x[0] for x in expected_pw.values())
         if set(pw_reports)!=expected_seams: diagnostics.append('complete_playwright_seam_timing_missing')
