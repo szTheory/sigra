@@ -61,6 +61,21 @@ test('snapshot replay emits explicit zero-sample unknowns and distinct cost dime
     writeFileSync(path.join(root, 'manifest.json'), JSON.stringify(manifest));
     const cancellationReplay = JSON.parse(execFileSync('bash', [script, '--replay', '--source-bundle', root, '--format', 'json'], { encoding: 'utf8' }));
     assert.equal(cancellationReplay.failure_class?.cancellation_unclassified?.length, 1);
+
+    const jobPath = path.join(root, 'raw', 'families', '52', 'jobs-attempt-1.json');
+    mkdirSync(path.dirname(jobPath), { recursive: true });
+    const jobs = JSON.stringify({ jobs: [{ id: 5201, name: 'Library tests', started_at: '2026-10-11T00:01:00Z', completed_at: '2026-10-11T00:02:00Z', conclusion: 'success', steps: [] }] });
+    writeFileSync(jobPath, jobs);
+    const mainRun = { id: 52, event: 'push', head_branch: 'main', head_sha: 'sha-52', conclusion: 'success', created_at: '2026-10-11T00:00:00Z', run_attempt: 1, attempt_jobs: { '1': { path: 'raw/families/52/jobs-attempt-1.json', sha256: hash(jobs) } } };
+    const mainPopulation = JSON.stringify({ population: 'push_main', api_total_count: 1, population_capped: false, population_exhausted: true, runs: [mainRun], records: [] });
+    writeFileSync(path.join(root, 'raw', 'populations', 'push_main.json'), mainPopulation);
+    manifest.source_sha256.push_main = hash(mainPopulation);
+    manifest.populations.push_main.runs = [mainRun];
+    writeFileSync(path.join(root, 'manifest.json'), JSON.stringify(manifest));
+    const singleReplay = JSON.parse(execFileSync('bash', [script, '--replay', '--source-bundle', root, '--format', 'json'], { encoding: 'utf8' }));
+    assert.equal(singleReplay.ranked_by_runner?.main?.n, 1);
+    assert.equal(singleReplay.ranked_by_runner?.main?.total_seconds, 60);
+    assert.equal(singleReplay.ranked_by_runner?.main?.limitation, 'single_observation');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
