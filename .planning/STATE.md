@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: planning
-last_updated: "2026-10-12T15:36:25.328862+00:00"
+last_updated: "2026-10-12T15:39:16.970423+00:00"
 last_activity: 2026-10-12
 progress:
   total_phases: 4
@@ -18,7 +18,7 @@ next_command: $gsd-discuss-phase 252
 resume_command: $gsd-discuss-phase 252
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
-state_head: 30b22bc16c0124151616e2dcab18ae25fdd1816a
+state_head: 6d4038ee4dc859895fbd635b980a5100c9feaf8d
 current_phase: 252
 current_phase_name: Measure Current CI
 requirements_approved: true
@@ -60,7 +60,7 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 ## Evidence
 
 - New milestone scope/capture: `.planning/v1.50-START.json`; roadmap approval: `.planning/v1.50-ROADMAP-APPROVAL.json`.
-- Final setup evidence: `.planning/v1.50-INITIALIZATION.json` (written after automatic cleanup).
+- Final setup evidence: `.planning/v1.50-INITIALIZATION.json`; 70 todos scanned, one linked to Phase 253, 69 retained unchanged.
 - Confirmed requirements: `.planning/REQUIREMENTS.md`; original proposal retained unchanged.
 - Roadmap review, checks, and byte-preservation record: `.planning/v1.50-ROADMAP-REVIEW.json`, `.planning/v1.50-ROADMAP-CHECKS.json`, `.planning/v1.50-ROADMAP-PRESERVATION.json`. Earlier start checks remain historical.
 - Prior SDK state and original handoff are exactly recoverable at `a9e29eb00f6e63b0effea1025b22d1e114d24346`; read-back verified before this continuation rewrite.
@@ -74,8 +74,8 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T15:36:25.328862+00:00
-**Stopped at:** Roadmap approved; automatic cleanup remains before final initialization checks.
+**Last session:** 2026-10-12T15:39:16.970423+00:00
+**Stopped at:** v1.50 initialized; Phase 252 discussion is next.
 **Resume file:** .planning/ROADMAP.md
 
 ## Deferred Items

@@ -5,6 +5,7 @@ title: admin-eval WebKit registration flake — the 2026-07-04 "resolved" fix ou
 area: testing
 severity: medium
 disposition: flake-hardening
+resolves_phase: 253
 recurrence_of: .planning/todos/resolved/2026-07-04-admin-eval-first-nav-flake.md
 files:
   - test/example/priv/playwright/tests/admin-eval.spec.ts
