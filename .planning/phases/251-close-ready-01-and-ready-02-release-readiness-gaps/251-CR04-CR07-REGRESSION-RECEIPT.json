@@ -71,6 +71,34 @@
       ]
     }
   ],
+  "iteration_2_residual_recheck": {
+    "findings": [
+      {
+        "id": "CR-07/T-251-14",
+        "title": "[BLOCKER] T-251-14: Preservation validation ignores the named ref and record decision",
+        "red": "A coherent forged preservation commit changed source_bytes_base64 while keeping the claimed source digest, packet metadata, owner report binding, and traceability digest coherent; READY-02 remained satisfied.",
+        "green": "Independent audit decodes canonical base64 and requires decoded bytes to hash to both record.source_byte_sha256 and the captured dirty item digest. Deleted paths require an explicit captured tombstone."
+      },
+      {
+        "id": "candidate_package_version_requirement",
+        "title": "Declared package source assertion lacked owner and independent audit predicates",
+        "red": "The 1.6.0 candidate mix.exs bytes failed the missing predicate and the declared assertion had no switch case.",
+        "green": "Both independent switches now validate the 1.6.0 package version bytes; 1.5.0 controls fail. Every declared assertion ID is checked against both predicate switches."
+      }
+    ],
+    "commit": "266a28d57",
+    "tests": {
+      "verify_247_readiness": "54 passed, 0 failed",
+      "verify_v149_traceability": "34 passed, 2 expected Nyquist classification failures because Phase 251 VALIDATION remains not_validated",
+      "validate_release_readiness": "31 passed, 0 failed",
+      "default_proof_reader_dirty_records": "5/5 canonical base64 payloads verified against both source digests; READY-02 satisfied"
+    },
+    "canonical_checks": {
+      "check_251": { "exit_code": 0, "valid": true, "capture_id": "phase251-939607ff3f17e03b22aa", "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140" },
+      "check_sources": { "exit_code": 0, "status": "gaps_found", "requirements": "8/9", "ready01": "unsatisfied", "ready02": "satisfied" },
+      "check_audit": { "exit_code": 1, "valid": false, "status": "gaps_found", "reason": "canonical milestone audit rendering is stale; root owns refresh" }
+    }
+  },
   "suites": [
     {
       "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
