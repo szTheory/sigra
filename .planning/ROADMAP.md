@@ -55,15 +55,21 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   2. Measured job, step, and test costs identify the largest setup/cache/execution costs; current failure signatures form a concrete, bounded flaky-test shortlist.
   3. The baseline and ranked findings can be reproduced with documented commands using the saved inputs; static timeout values or old audit conclusions are not used as runtime measurements.
   4. Before any optimization, the report fixes the comparison workloads, code revisions, cache conditions, runner class, sample sizes, percentile method, and finite collection/rate-limit budget. The 20% median improvement and non-increasing p95/runner-time targets stay unchanged.
-**Plans**: 6 plans across 4 waves (independent plan review passed; implementation pending)
 
+**Plans**: 6 plans across 4 waves (independent plan review passed; implementation pending)
+**Wave 1**
 - [ ] 252-01-PLAN.md — Source-bound collection and offline replay
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 252-02-PLAN.md — Bounded populations, attempts and safe artifact acquisition
 - [ ] 252-03-PLAN.md — Opt-in ExUnit timing and exit preservation
 - [ ] 252-04-PLAN.md — Native Playwright JSON and completeness checks
-- [ ] 252-05-PLAN.md — CI timing integration, cost rankings and failure shortlist
-- [ ] 252-06-PLAN.md — Hosted baseline, reproducible report and later comparison contract
 
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 252-05-PLAN.md — CI timing integration, cost rankings and failure shortlist
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 252-06-PLAN.md — Hosted baseline, reproducible report and later comparison contract
 
 ### Phase 253: Fix Flaky CI and Preserve Required Checks
 
@@ -75,6 +81,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   2. Browser/test retries are not increased and readiness is asserted without sleeps; tests continue to use isolated application/database state where needed.
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
+
 **Plans**: TBD
 
 ### Phase 254: Speed Up the Measured Slow Jobs
@@ -87,6 +94,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   2. Saved real before/after run data show required PR-result median elapsed time at or below 80% of the baseline, calculated by the fixed method.
   3. The same comparison shows a 95th-percentile required-result wait no higher than baseline and total runner time per comparable PR no higher than baseline.
   4. The changed CI paths still pass the Phase 253 coverage/gate checks and applicable isolation/cache tests. A target miss is recorded as a miss; the collection window is not extended until the numbers look favorable.
+
 **Plans**: TBD
 
 ### Phase 255: Make Failures Reproducible and Report the Result
@@ -99,6 +107,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   2. A deliberately failed updated check identifies the failed test or command, reproduction command and applicable seed, and retained logs/traces needed to diagnose it.
   3. A documented calculation replays the final before/after comparison from saved inputs, including sample sizes, literal failure/cancellation/rerun outcomes, cache conditions, and limitations.
   4. The final report names the tested code, states whether the 20% median and non-increasing p95/runner-time targets hold, and records any remaining failures separately from implemented changes. Missing old release approvals or signed historical performance archives are not required inputs.
+
 **Plans**: TBD
 
 ## Progress
