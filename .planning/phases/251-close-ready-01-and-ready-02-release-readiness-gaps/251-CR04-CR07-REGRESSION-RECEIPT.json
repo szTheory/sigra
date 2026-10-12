@@ -126,10 +126,10 @@
       "red": "Against pre-fix auditor ea89df4c4, a coherently rebound immutable preservation record relabeled the captured dirty item's worktree_branch while retaining its valid ID; READY-02 remained satisfied. The reproduced dirty path attack also remains covered.",
       "green": "Independent audit derives canonical dirty rows from READY-02 worktree status entries and requires full metadata equality with source-capture rows, dirty rows, and immutable preservation evidence. It compares complete source-capture and READY-02 worktree records, reconciles root raw-status entries to parsed entries, and passes only canonical-derived dirty rows to preservation validation."
     },
-    "controls": "A valid original five-dirty-item READY-02 proof passes. Coherent record/ref/report/packet relabels of path, original_path, status, worktree_path, worktree_head_sha, worktree_branch, source_byte_sha256, source_byte_readable, and kind fail; mismatched status-row metadata across the two inventories fails. Valid modified, empty-byte, and tombstoned-deletion proofs pass.",
+    "controls": "A valid original five-dirty-item READY-02 proof passes. Coherent record/ref/report/packet relabels of path, original_path, omitted original_path, status, worktree_path, worktree_head_sha, worktree_branch, source_byte_sha256, source_byte_readable, and kind fail; mismatched status-row metadata across the two inventories fails. Valid modified, empty-byte, and tombstoned-deletion proofs pass.",
     "red_test": "verify-v149-traceability.test.mjs: independent audit binds every dirty-row metadata field to its canonical status row; pre-fix assertion failed because READY-02 stayed satisfied after worktree_branch relabel.",
-    "green_test": "verify-v149-traceability.test.mjs: independent audit binds every dirty-row metadata field to its canonical status row; pass",
-    "commit": "441489e12",
+    "green_test": "verify-v149-traceability.test.mjs: independent audit binds every dirty-row metadata field to its canonical status row; pass, including omitted original_path",
+    "commits": ["441489e12", "6e2058961"],
     "suites": {
       "verify_247_readiness": "54 passed, 0 failed",
       "verify_v149_traceability": "39 passed, 2 existing Nyquist classification failures because Phase 251 VALIDATION remains not_validated",
