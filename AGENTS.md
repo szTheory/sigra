@@ -1,5 +1,12 @@
 # Agent Notes
 
+## Communication preferences
+
+- Use plain English in user-facing explanations. The user explicitly finds phrases such as "new trusted historical evidence" meaningless.
+- Name the actual missing item and explain what would resolve it. For example: "an original approval or automated test record from before the release, whose origin we can check."
+- Avoid abstract GSD and verification jargon. If a technical term is necessary, explain it with a concrete example before using it.
+- State what this means for the user: what is missing, what can be done next, and whether anything is needed from them.
+
 For admin UI work, follow `guides/reference/admin-ui-principles.md` and `guides/reference/admin-design-contract.md`.
 
 Key constraints:
