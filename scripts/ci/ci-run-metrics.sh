@@ -186,7 +186,7 @@ extract_timing_archive() {
 import json, os, pathlib, re, stat, sys, zipfile
 archive, destination = sys.argv[1:]
 max_total, max_member, max_members = 512 * 1024 * 1024, 64 * 1024 * 1024, 10000
-allowed = {"report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json"}
+allowed = {"report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json"}
 try:
     os.makedirs(destination, exist_ok=True)
     with zipfile.ZipFile(archive) as zf:
@@ -1015,6 +1015,136 @@ replay_snapshot() {
     [[ -n "$expected" && -s "$file" && "$(sha256_file "$file")" == "$expected" ]] || fail "snapshot_hash_mismatch:${name}"
   done
   result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,window_start_utc,status,stop_reason,request_count,source_sha,populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
+  local metrics
+  metrics="$(python3 - "$bundle" <<'PY'
+import datetime, hashlib, json, pathlib, re, sys
+root = pathlib.Path(sys.argv[1]); manifest = json.loads((root/'manifest.json').read_text())
+events = {'pull_request':'pull_request','push_main':'main','schedule':'nightly'}
+stages = ['setup','cache_restore_download','compile','database_startup','app_boot','test_execution','artifact_upload','other']
+wait_rows={k:[] for k in events.values()}; runner_rows={k:[] for k in events.values()}; stage_values={k:{s:[] for s in stages} for k in events.values()}
+cache={}; images={}; configured={}; observed={}; test_rows=[]; overhead={'playwright':{'status':'unmeasured','overhead_ms':None},'exunit':{'status':'unknown','overhead_us':None}}
+failure_candidates=[]; signature_groups={}; failure_bins={k:[] for k in ['application_test_failure','infrastructure_failure','superseded_cancellation','expected_skip','unexpected_skip','missing_job','unknown_failure']}; missing_diagnostics=[]
+def epoch(v):
+    if not v: return None
+    try: return datetime.datetime.fromisoformat(v.replace('Z','+00:00')).timestamp()
+    except (ValueError, TypeError): return None
+def result(vals, unit):
+    return {'status':'measured','n':len(vals),'unit':unit,'total':round(sum(vals),6)} if vals else {'status':'unknown','n':0,'unit':unit,'total':None,'reason':'no_complete_source_timestamps'}
+for pop,key in events.items():
+    for run in manifest.get('populations',{}).get(pop,{}).get('runs',[]):
+        runid=str(run.get('id','')); created=epoch(run.get('created_at'))
+        if run.get('conclusion') in ('failure','timed_out','cancelled','skipped'):
+            failure_candidates.append({'event':key,'run':run,'created_epoch':created if created is not None else -1})
+        refs=run.get('attempt_jobs') or {}
+        for attempt,ref in sorted(refs.items(),key=lambda x:int(x[0])):
+            rel=(ref.get('path') or f'raw/families/{runid}/jobs-attempt-{attempt}.json').replace(f'raw/families/{runid}/','')
+            jobfile=root/'raw'/'families'/runid/pathlib.Path(rel).name
+            if not jobfile.is_file() or hashlib.sha256(jobfile.read_bytes()).hexdigest()!=ref.get('sha256'): continue
+            try: jobs=json.loads(jobfile.read_text()).get('jobs',[])
+            except Exception: continue
+            for job in jobs:
+                jid=str(job.get('id','')); started=epoch(job.get('started_at')); ended=epoch(job.get('completed_at'))
+                identity=f'{runid}:{attempt}:{jid}'
+                if started is not None and ended is not None and ended>=started:
+                    duration=ended-started
+                    runner_rows[key].append({'identity':identity,'run_id':runid,'attempt':int(attempt),'job_id':jid,'job_name':job.get('name'),'seconds':duration})
+                    if created is not None and ended>=created: wait_rows[key].append({'identity':identity,'run_id':runid,'attempt':int(attempt),'job_id':jid,'job_name':job.get('name'),'seconds':ended-created,'queue_seconds':max(0,started-created),'execution_seconds':duration})
+                for step in job.get('steps',[]):
+                    a,b=epoch(step.get('started_at')),epoch(step.get('completed_at'))
+                    if a is None or b is None or b<a or (started is not None and a<started) or (ended is not None and b>ended): continue
+                    n=(step.get('name') or '').lower()
+                    stage=('cache_restore_download' if re.search(r'cache|download|restore',n) else 'compile' if re.search(r'compile|deps|install dependencies',n) else 'database_startup' if re.search(r'database|postgres|mysql',n) else 'app_boot' if re.search(r'boot|start server|application',n) else 'test_execution' if re.search(r'test|playwright|exunit|mix ci',n) else 'artifact_upload' if re.search(r'upload artifact',n) else 'setup' if re.search(r'setup|checkout|install erlang|install elixir|install node',n) else 'other')
+                    stage_values[key][stage].append(b-a)
+        # Artifact facts are joined only when the API-accepted digest and producing run identity exist.
+        family=root/'raw'/'families'/runid; metadata_path=family/'timing'/'ci-measurement-metadata.json'
+        details=run.get('artifact_diagnostics') or []
+        accepted=next((d.get('result',{}) for d in details if d.get('kind')=='artifact' and d.get('result',{}).get('status')=='accepted'),None)
+        archive=family/'timing-artifact.zip'
+        if metadata_path.is_file() and accepted and accepted.get('archive_sha256') and archive.is_file():
+            try: meta=json.loads(metadata_path.read_text())
+            except Exception: meta={}
+            latest=str(max([int(x) for x in refs] or [1])); expected_sha=run.get('head_sha'); expected_attempt=int(latest)
+            seam=meta.get('matrix_seam')
+            archive_hash=hashlib.sha256(archive.read_bytes()).hexdigest()
+            try: meta_attempt=int(meta.get('run_attempt',-1))
+            except (TypeError,ValueError): meta_attempt=-1
+            latest_jobs=json.loads((family/f'jobs-attempt-{latest}.json').read_text()).get('jobs',[]) if (family/f'jobs-attempt-{latest}.json').is_file() else []
+            job_bound=any(j.get('name')==meta.get('job_name') for j in latest_jobs)
+            if (archive_hash==accepted.get('archive_sha256') and meta.get('repository')=='szTheory/sigra' and str(meta.get('run_id'))==runid and meta_attempt==expected_attempt and meta.get('source_sha')==expected_sha and meta.get('event')==run.get('event') and seam and job_bound):
+                image=meta.get('runner_image') or {}
+                images[key]={'runner_os':meta.get('runner_os'),'runner_arch':meta.get('runner_arch'),'image_os':image.get('image_os'),'image_version':image.get('image_version')}
+                configured[key]=meta.get('configured_versions',{})
+                observed[key]=meta.get('observed_versions',{})
+                cache.update(meta.get('cache_outcome',{}))
+                timing=family/'timing'
+                for path in timing.glob('*.json'):
+                    if path.name in ('ci-measurement-metadata.json','ci-exunit-timing.json'): continue
+                    try: report=json.loads(path.read_text())
+                    except Exception: continue
+                    if report.get('seam')!=seam or not report.get('complete'): continue
+                    for row in report.get('tests',[]):
+                        test_rows.append({'source':'playwright','identity':f"{runid}:{expected_attempt}:{seam}:{row.get('test_id')}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'seam':seam,'test_id':row.get('test_id'),'name':row.get('title'),'duration_ms':row.get('duration_ms'),'suite_elapsed_ms':report.get('suite_elapsed_ms'),'sum_test_duration_ms':report.get('sum_test_duration_ms')})
+                    overhead['playwright']=report.get('reporter_overhead',overhead['playwright'])
+                exunit=timing/'ci-exunit-timing.json'
+                if exunit.is_file():
+                    try: report=json.loads(exunit.read_text())
+                    except Exception: report={}
+                    if report.get('complete') and report.get('unit')=='microsecond':
+                        for row in report.get('tests',[]): test_rows.append({'source':'exunit','identity':f"{runid}:{expected_attempt}:{row.get('test_id')}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'test_id':row.get('test_id'),'name':row.get('name'),'duration_us':row.get('duration_us')})
+                        overhead['exunit']={'status':'measured','instrumentation_overhead_us':report.get('instrumentation_overhead_us'),'method':report.get('instrumentation_overhead_method')}
+failures=[]
+for event in events.values():
+    candidates=sorted((x for x in failure_candidates if x['event']==event),key=lambda x:(-x['created_epoch'],-int(x['run'].get('id',0))))[:4]
+    failures.extend(candidates)
+failures=sorted(failures,key=lambda x:(-x['created_epoch'],-int(x['run'].get('id',0))))[:12]
+for item in failures:
+    run=item['run']; runid=str(run.get('id')); conclusion=run.get('conclusion'); attempt=max([int(x) for x in (run.get('attempt_jobs') or {'1':{}})] or [1])
+    family=root/'raw'/'families'/runid; logpath=family/'failed-job.log'; detailpath=family/'manifest.json'; ref=None; diagnostic='missing'
+    if logpath.is_file() and detailpath.is_file():
+        try:
+            detail=json.loads(detailpath.read_text()); logdiag=next((d.get('result',{}) for d in detail.get('artifact_diagnostics',[]) if d.get('kind')=='failed_job_log'),{})
+            if logdiag.get('status')=='retained_redacted' and hashlib.sha256(logpath.read_bytes()).hexdigest()==logdiag.get('sha256'):
+                ref=logdiag.get('path'); diagnostic='available'
+        except Exception: pass
+    category='unknown_failure'; signature=None
+    if conclusion=='skipped': category='expected_skip' if run.get('workload')=='docs_only' or run.get('observed_expected_skip') is True else 'unexpected_skip'
+    elif conclusion=='cancelled': category='superseded_cancellation' if run.get('run_attempt',1)>1 or run.get('updated_at') else 'superseded_cancellation'
+    elif conclusion in ('timed_out',): category='infrastructure_failure'
+    elif not (run.get('attempt_jobs') or {}): category='missing_job'
+    elif ref:
+        text=(root/ref).read_text(errors='replace') if (root/ref).is_file() else ''
+        if re.search(r'(?i)(expect\(|assertionerror|assert\s+)',text):
+            category='application_test_failure'
+            match=re.search(r'(?im)^.*(?:expect\(|assertionerror|assert\s+).*$' ,text)
+            if match: signature=re.sub(r'\s+',' ',re.sub(r'\d+','<n>',match.group(0))).strip()[:200]
+        elif re.search(r'(?i)(network|runner lost|database unavailable|connection refused|timed out)',text): category='infrastructure_failure'
+        else: category='unknown_failure'
+    else: missing_diagnostics.append({'event':item['event'],'run_id':runid,'attempt':attempt,'missing':'redacted_failed_job_log'})
+    entry={'event':item['event'],'run_id':runid,'attempt':attempt,'outcome':conclusion,'failure_class':category,'diagnostics_status':diagnostic,'log_reference':ref}
+    failure_bins[category].append(entry); failures_item=entry.copy()
+    if signature: signature_groups.setdefault(signature,[]).append({'event':item['event'],'run_id':runid,'attempt':attempt,'log_reference':ref})
+    failures_item.pop('event',None)
+recurring=[{'signature':sig,'occurrences':len(refs),'references':sorted(refs,key=lambda r:(r['event'],r['run_id'],r['attempt']))} for sig,refs in signature_groups.items() if len(refs)>=2]
+recurring=sorted(recurring,key=lambda x:(-x['occurrences'],x['signature']))[:3]
+failure_analysis={'inspected_family_count':len(failures),'per_event_counts':{event:sum(1 for x in failures if x['event']==event) for event in events.values()},'families':failures,'failure_class':failure_bins,'failure_signatures':{'status':'recurring_signatures_found' if recurring else ('unknown' if missing_diagnostics else 'no_current_flake_identified'),'signatures':recurring,'missing_inputs':missing_diagnostics,'proposed_repeat_checks':(['repeat the isolated browser selection with readiness diagnostics'] if not recurring else [])},'diagnostics_status':{'status':'unknown' if missing_diagnostics or any(e['failure_class']=='unknown_failure' for rows in failure_bins.values() for e in rows) else 'sufficient','available_count':sum(1 for rows in failure_bins.values() for e in rows if e['diagnostics_status']=='available'),'missing_count':len(missing_diagnostics)}}
+for rows in list(wait_rows.values())+list(runner_rows.values()): rows.sort(key=lambda x:(-x['seconds'],x['identity']))
+rank=lambda rows: {'status':'measured' if rows else 'insufficient_data','n':len(rows),'rows':rows} if rows else {'status':'insufficient_data','n':0,'rows':[],'reason':'no_complete_source_timestamps'}
+cohorts={}
+for name,workload in [('full','full'),('docs_only','docs_only')]:
+    eligible=[r for r in manifest['populations']['pull_request']['runs'] if r.get('workload')==workload]
+    sampled={x['run_id'] for x in wait_rows['pull_request'] if x['run_id'] in {str(r['id']) for r in eligible}}
+    cohorts[name]={'status':'measured' if sampled else 'insufficient_data','n':len(sampled),'run_count':len(eligible),'run_ids':sorted(sampled),'limitation':'single_observation' if len(sampled)==1 else (None if sampled else 'no_complete_source_timestamps')}
+observed_defaults={runtime:{'value':None,'reason':'measurement_artifact_unavailable'} for runtime in ['elixir','node','playwright']}
+configured_defaults={runtime:None for runtime in ['elixir','node','playwright']}
+image_defaults={'runner_os':None,'runner_arch':None,'image_os':None,'image_version':None}
+initial_wait={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':r['attempt'],'seconds':r['queue_seconds']} for r in rows]) for k,rows in wait_rows.items()}
+critical_wait={k:rank(rows) for k,rows in wait_rows.items()}
+job_execution={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':r['attempt'],'job_id':r['job_id'],'seconds':r['seconds']} for r in rows]) for k,rows in runner_rows.items()}
+out={'ranked_by_wait':{k:rank(v) for k,v in wait_rows.items()},'ranked_by_runner':{k:rank(v) for k,v in runner_rows.items()},'initial_wait':initial_wait,'critical_path_wait':critical_wait,'job_execution':job_execution,'dag_dependency_gaps':{k:{'status':'unknown','n':0,'reason':'dependency_edges_not_exposed_by_saved_job_api'} for k in events.values()},'stage_costs':{k:{s:result(v,'seconds') for s,v in values.items()} for k,values in stage_values.items()},'cache_outcome':cache or {'library_deps':'unknown','example_deps':'unknown','browser_binaries':'unknown'},'runner_image':{k:images.get(k,image_defaults) for k in events.values()},'configured_versions':{k:configured.get(k,configured_defaults) for k in events.values()},'observed_versions':{k:observed.get(k,observed_defaults) for k in events.values()},'test_rows':sorted(test_rows,key=lambda r:r['identity']),'reporter_overhead':overhead,'cohorts':cohorts,'failure_analysis':failure_analysis,'failure_signatures':failure_analysis['failure_signatures'],'diagnostics_status':failure_analysis['diagnostics_status'],'failure_class':failure_bins}
+print(json.dumps(out,separators=(',',':')))
+PY
+)" || fail replay_metrics_unavailable
+  result="$(jq --argjson metrics "$metrics" '. + $metrics' <<<"$result")"
   if [[ "$FORMAT" == json ]]; then jq -S . <<<"$result"; else jq -r '[.populations|to_entries[]|[.key,(.value.run_count // .value.records // 0)]|@tsv]|.[]|@tsv' <<<"$result"; fi
 }
 

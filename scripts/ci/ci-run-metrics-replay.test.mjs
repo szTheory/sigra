@@ -44,8 +44,8 @@ test('snapshot replay emits explicit zero-sample unknowns and distinct cost dime
     assert.equal(replay.ranked_by_runner?.pull_request?.n, 0);
     assert.equal(replay.stage_costs?.pull_request?.setup?.status, 'unknown');
     assert.equal(replay.cache_outcome?.browser_binaries, 'unknown');
-    assert.equal(replay.populations?.docs_only?.status, 'insufficient_data');
-    assert.equal(replay.populations?.docs_only?.n, 0);
+    assert.equal(replay.cohorts?.docs_only?.status, 'insufficient_data');
+    assert.equal(replay.cohorts?.docs_only?.n, 0);
     assert.notEqual(replay.ranked_by_wait, replay.ranked_by_runner);
   } finally {
     rmSync(root, { recursive: true, force: true });

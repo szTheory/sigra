@@ -358,23 +358,24 @@ if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --replay --source-bundle
 else fail "snapshot replay error=$(cat "${TMPDIR_ROOT}/snapshot-replay.err") output=$(cat "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
 
 echo "Test V2: replay exposes source-backed cohort ranks, stages, provenance and unknowns"
-if jq -e '
-  (.ranked_by_wait.pull_request.n >= 1) and (.ranked_by_runner.pull_request.n >= 1) and
-  ([.ranked_by_wait.pull_request.rows[].identity|tostring] | length == (.ranked_by_wait.pull_request.rows|length)) and
-  (.stage_costs.pull_request.setup.status == "measured") and
-  (.stage_costs.pull_request.cache_restore_download.status == "unknown") and
-  (.cache_outcome.browser_binaries == "unknown") and
-  (.runner_image.pull_request.runner_os == "Linux") and
-  (.configured_versions.playwright == "1.59.1") and
-  (.observed_versions.pull_request.playwright.value == null) and
-  (.observed_versions.pull_request.playwright.reason != null) and
-  (.reporter_overhead.playwright.status == "unmeasured") and
-  (.populations.docs_only.status == "insufficient_data" and .populations.docs_only.n == 0) and
-  ([.test_rows[]|select(.source=="exunit")]|length)==0 and
-  ([.test_rows[]|select(.source=="playwright")]|length)==0
+if jq -e '. as $r |
+  ($r.ranked_by_wait.pull_request.n >= 1) and ($r.ranked_by_runner.pull_request.n >= 1) and
+  (($r.ranked_by_wait.pull_request.rows|map(.identity)|unique|length) == ($r.ranked_by_wait.pull_request.rows|length)) and
+  ($r.stage_costs.pull_request.setup.status == "measured") and
+  ($r.stage_costs.pull_request.cache_restore_download.status == "measured" and $r.stage_costs.pull_request.cache_restore_download.total == 500) and
+  ($r.cache_outcome.browser_binaries == "miss") and
+  ($r.runner_image.pull_request.runner_os == "Linux" and $r.runner_image.pull_request.image_version == "20261001.1") and
+  ($r.configured_versions.pull_request.playwright == "1.59.1") and
+  ($r.observed_versions.pull_request.playwright.value == null) and
+  ($r.observed_versions.pull_request.playwright.reason != null) and
+  ($r.reporter_overhead.playwright.status == "unmeasured") and
+  ($r.cohorts.docs_only.status == "measured" and $r.cohorts.docs_only.n == 1) and
+  ([$r.test_rows[]|select(.source=="exunit")]|length)==0 and
+  ([$r.test_rows[]|select(.source=="playwright")]|length)==1 and
+  $r.test_rows[0].suite_elapsed_ms == 125 and $r.test_rows[0].sum_test_duration_ms == 100
 ' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null; then
   pass "replay separates rankings, stages, cache, runtime and zero-sample unknowns"
-else fail "replay metrics missing or fabricated: $(jq -c '{ranked_by_wait,ranked_by_runner,stage_costs,cache_outcome,runner_image,configured_versions,observed_versions,reporter_overhead,test_rows,populations:.populations.docs_only}' "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
+else fail "replay metrics missing or fabricated: $(jq -c '{ranked_by_wait,ranked_by_runner,stage_costs,cache_outcome,runner_image,configured_versions,observed_versions,reporter_overhead,test_rows,cohorts}' "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
 
 echo "Test W: concurrent lock, interruption ledger, and request ceiling are enforced"
 LOCKED_BUNDLE="${TMPDIR_ROOT}/locked-bundle"
@@ -736,7 +737,7 @@ case "$endpoint" in
     run_id="$(printf '%s' "$endpoint" | sed -nE 's#^.*/actions/runs/([0-9]+)/attempts/.*#\1#p')"
     attempt="$(printf '%s' "$endpoint" | sed -nE 's#^.*/attempts/([0-9]+)/jobs.*#\1#p')"
     if [[ "$run_id" == 5000 ]]; then job_conclusion=skipped; elif [[ "$run_id" == 5001 ]]; then job_conclusion=failure; else job_conclusion=success; fi
-    jq -cn --argjson id "$run_id" --argjson attempt "$attempt" --arg conclusion "$job_conclusion" '{total_count:1,jobs:[{id:($id*100+$attempt),name:"Example Playwright smoke",head_sha:("sha-"+($id|tostring)),conclusion:$conclusion,started_at:"2026-10-10T10:00:00Z",completed_at:"2026-10-10T10:01:00Z",steps:[{name:"Run selected tests",conclusion:$conclusion}]}]}';;
+    jq -cn --argjson id "$run_id" --argjson attempt "$attempt" --arg conclusion "$job_conclusion" '{total_count:1,jobs:[{id:($id*100+$attempt),name:"Example Playwright smoke",head_sha:("sha-"+($id|tostring)),conclusion:$conclusion,started_at:(if $attempt==1 then "2026-10-10T10:00:00Z" else "2026-10-10T10:02:00Z" end),completed_at:(if $attempt==1 then "2026-10-10T10:01:00Z" else "2026-10-10T10:04:00Z" end),steps:[{name:"Checkout and setup",conclusion:"success",started_at:"2026-10-10T10:00:00Z",completed_at:"2026-10-10T10:00:05Z"},{name:"Restore dependencies cache",conclusion:"success",started_at:"2026-10-10T10:00:05Z",completed_at:"2026-10-10T10:00:10Z"},{name:"Compile dependencies",conclusion:"success",started_at:"2026-10-10T10:00:10Z",completed_at:"2026-10-10T10:00:20Z"},{name:"Start database",conclusion:"success",started_at:"2026-10-10T10:00:20Z",completed_at:"2026-10-10T10:00:30Z"},{name:"Boot application",conclusion:"success",started_at:"2026-10-10T10:00:30Z",completed_at:"2026-10-10T10:00:40Z"},{name:"Run selected tests",conclusion:$conclusion,started_at:"2026-10-10T10:00:40Z",completed_at:"2026-10-10T10:00:50Z"},{name:"Upload artifact",conclusion:"success",started_at:"2026-10-10T10:00:50Z",completed_at:"2026-10-10T10:00:52Z"}]}]}';;
   /repos/szTheory/sigra/pulls/*/files\?*)
     pr="$(printf '%s' "$endpoint" | sed -nE 's#^.*/pulls/([0-9]+)/files.*#\1#p')"
     case "$pr" in 123) echo '[{"filename":"docs/guide.md"}]';; 124) echo '[{"filename":"lib/sigra.ex"}]';; *) echo '[{"filename":"docs/unknown.md"}]';; esac;;
@@ -800,6 +801,8 @@ WINDOW_ARTIFACT_ZIP="${TMPDIR_ROOT}/artifact-timing.zip"
 python3 - "$WINDOW_ARTIFACT_ZIP" <<'PY'
 import sys, zipfile
 with zipfile.ZipFile(sys.argv[1], "w") as z:
+    z.writestr("ci-measurement-metadata.json", '{"schema_version":"sigra.ci-measurement-metadata/v1","repository":"szTheory/sigra","run_id":"5001","run_attempt":"2","source_sha":"sha-5001","event":"pull_request","matrix_seam":"design_gallery","job_name":"Example Playwright smoke","runner_os":"Linux","runner_arch":"X64","runner_image":{"image_os":"ubuntu22","image_version":"20261001.1"},"cache_outcome":{"example_deps":"hit","browser_binaries":"miss"},"configured_versions":{"elixir":"1.19.5-otp-28","node":"20","playwright":"1.59.1"},"observed_versions":{"elixir":{"value":"Elixir 1.19.5","reason":null},"node":{"value":"v20.19.0","reason":null},"playwright":{"value":null,"reason":"command_unavailable"}}}')
+    z.writestr("design-gallery-pr-behavior.json", '{"seam":"design_gallery","complete":true,"suite_elapsed_ms":125,"sum_test_duration_ms":100,"reporter_overhead":{"status":"unmeasured","overhead_ms":null},"tests":[{"test_id":"gallery:one","title":"gallery route","duration_ms":100}]}')
     z.writestr("timing.json", '{"duration_seconds":12}')
 PY
 WINDOW_ARTIFACT_DIGEST="sha256:$(shasum -a 256 "$WINDOW_ARTIFACT_ZIP" | awk '{print $1}')"
