@@ -368,22 +368,32 @@ The discussion discovery snapshot contains at most 100 PR runs while its API tot
 | A5 | Proposed formatter/report file placement can follow the existing `test/support` and `scripts/ci` patterns. | Recommended Project Structure | Internal paths are discretionary and can be adjusted by the planner after mapper review. |
 | A6 | Security enforcement will remain enabled by default unless project config explicitly changes it. | Security Domain | If a later explicit false is added, the plan should omit the required security section. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Can every captured historical attempt still provide per-attempt jobs and artifacts?**
+Resolved here means the implementation choice is fixed. Availability of particular hosted records remains an execution-time measurement, not an asserted fact. These choices implement the approved context and revised plans. Prior research bytes are recoverable at `8dd04f60cfdb8fc5cb7da50f62bbba5127065138`.
+
+1. **RESOLVED — Can every captured historical attempt still provide per-attempt jobs and artifacts?**
    - What we know: workflow and artifact APIs expose attempt-specific jobs and artifacts, and artifact/log download URLs expire quickly. Existing browser diagnostic artifacts have limited retention. [CITED: official GitHub API docs; VERIFIED: `.github/workflows/ci.yml:1397-1407`]
    - What's unclear: which capped run families still have logs/artifacts retained when collection starts.
    - Recommendation: collect promptly; record each expired/missing artifact or log and mark the affected test/failure detail unknown. Do not infer no failure.
 
-2. **Which timestamp source resolves a required context that is represented by an aggregator job?**
+2. **RESOLVED — Which timestamp source resolves a required context that is represented by an aggregator job?**
    - What we know: required names are the five contexts in D-03; `ci-gate` is a separate internal aggregate; job records provide per-step and job timestamps. [VERIFIED: `252-CONTEXT.md:22-24`; `MAINTAINING.md`, live ruleset section; CITED: https://docs.github.com/en/rest/checks/runs]
    - What's unclear: whether the authoritative check-run completion time is available for every historical attempt and cancellation edge.
    - Recommendation: use check-run/status data for literal context completion when available; cross-check against the producer job. If the source does not prove the endpoint, leave that family ineligible/unknown.
 
-3. **Does the collector have enough REST budget for logs and artifacts after run/job pagination?**
+3. **RESOLVED — Does the collector have enough REST budget for logs and artifacts after run/job pagination?**
    - What we know: maximum 100 runs per event, 600 requests or 60 minutes, and core remaining threshold at 250. Failure diagnostics start at at most 12 families. [VERIFIED: `252-CONTEXT.md:31-32,50-51`]
    - What's unclear: exact number of requests per family, redirect and artifact members.
    - Recommendation: estimate from the first bounded pass; reserve budget for four newest failed families/event and stop cleanly when the cap is reached.
+
+**Recorded planning resolutions (2026-10-12):**
+
+- Retention: Plan 02 Task 3 and Plan 06 Task 1 collect available current inputs within the fixed budget; expired/missing attempt data stays explicitly unknown. Offline work continues, and essential missing baseline measurements keep final acceptance nonzero. No assumption that every historical artifact exists is required.
+- Required completion: Plan 01 Tasks 1–2 save currently effective enforced contexts and bind each check completion to its producing run/attempt/job/SHA. Unresolved mapping or timestamps yield `required_context_unbound`/unknown. Whole-workflow completion and display-name matches cannot substitute for that endpoint.
+- Budget: Plan 01's guard applies before the first live preflight request. Plan 02 reserves detail capacity across events and the at-most-twelve failed families; selected-but-undetailed sources remain `detail_unavailable_budget`. The 600-request/60-minute/core-250 stop is fixed; budget insufficiency produces a diagnostic rather than another collection window.
+
+These resolve the three design questions, while the actual values will be obtained and checked during execution.
 
 ## Sources
 
