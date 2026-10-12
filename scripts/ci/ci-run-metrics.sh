@@ -1217,9 +1217,12 @@ def source_bound_full_pr(run, runid):
                 or not archive.is_file() or not digest or hashlib.sha256(archive.read_bytes()).hexdigest()!=digest
                 or (api_digest and api_digest!=digest)):
                 diagnostics.append('artifact_origin_or_digest_mismatch'); continue
-            rel=accepted.get('path') or ''
-            base=(root/rel).resolve()
-            if not base.is_relative_to(root.resolve()):
+            # The collector may have recorded an absolute extraction path from
+            # its temporary staging directory. That path is not portable after
+            # bundling; locate extracted members only under this verified
+            # family's numeric artifact ID.
+            base=family/'artifacts'/aid
+            if not aid.isdigit() or base.resolve().parent != (family/'artifacts').resolve() or not base.is_dir():
                 diagnostics.append('artifact_extraction_path_invalid'); continue
             for member in accepted.get('members',[]):
                 name=pathlib.PurePosixPath(member.get('member','')).name
@@ -1476,10 +1479,12 @@ if [[ "$COLLECT" == true && "$REPLAY" == true ]]; then
 fi
 if [[ "$VERIFY_BASELINE" == true ]]; then
   [[ -n "$SOURCE_BUNDLE" && -n "$BASELINE_FILE" ]] || fail "--verify-baseline requires --source-bundle and --baseline"
+  FORMAT=json
   [[ -s "$BASELINE_FILE" ]] || fail "baseline_missing"
   verify_dir="$SOURCE_BUNDLE"; verify_tmp=""
   if [[ ! -d "$SOURCE_BUNDLE" ]]; then
     verify_tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-run-metrics-verify.XXXXXX")"
+    verify_tmp="$(cd "$verify_tmp" && pwd -P)"
     extract_snapshot_bundle "$SOURCE_BUNDLE" "$verify_tmp/bundle" || fail "source_bundle_archive_invalid"
     verify_dir="$verify_tmp/bundle"
   fi
@@ -1530,6 +1535,7 @@ PY
 fi
 if [[ "$EVALUATE_COMPARISON" == true ]]; then
   [[ -s "$CONTRACT_FILE" && -d "$BEFORE_BUNDLE" && -d "$AFTER_BUNDLE" ]] || fail "--evaluate-comparison requires --contract and extracted --before-bundle/--after-bundle directories"
+  FORMAT=json
   before_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-before.XXXXXX")"
   after_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-after.XXXXXX")"
   replay_snapshot "$BEFORE_BUNDLE" >"$before_json"
@@ -1632,6 +1638,7 @@ if [[ "$REPLAY" == true ]]; then
   replay_dir="$SOURCE_BUNDLE"; replay_tmp=""
   if [[ ! -d "$SOURCE_BUNDLE" ]]; then
     replay_tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-run-metrics-replay.XXXXXX")"
+    replay_tmp="$(cd "$replay_tmp" && pwd -P)"
     extract_snapshot_bundle "$SOURCE_BUNDLE" "$replay_tmp/bundle" || fail "source_bundle_archive_invalid"
     replay_dir="$replay_tmp/bundle"
   fi
