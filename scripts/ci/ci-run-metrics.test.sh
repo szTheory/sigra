@@ -599,6 +599,55 @@ if jq -e 'any(.literal_outcomes.check_runs[]; .conclusion=="failure") and any(.l
   pass "replay retains failure, cancellation, timeout, and skip conclusions verbatim"
 else fail "literal outcome result=$(cat "${TMPDIR_ROOT}/outcome-result.json")"; fi
 
+echo "Test U: frozen cutoff keeps PR, main push and schedule populations separate and caps each at 100"
+WINDOW_API_BIN="${TMPDIR_ROOT}/window-api-bin"
+mkdir -p "$WINDOW_API_BIN"
+WINDOW_API_LOG="${TMPDIR_ROOT}/window-api.log"
+WINDOW_FIXTURE_MODE="${TMPDIR_ROOT}/window-mode"
+cat >"${WINDOW_API_BIN}/gh" <<'WINDOW_GH'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "${1:-}" == api && "${2:-}" == --method && "${3:-}" == GET ]] || exit 2
+endpoint="${4:-}"
+printf '%s\n' "$endpoint" >>"$WINDOW_API_LOG"
+case "$endpoint" in
+  rate_limit) echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}';;
+  *'/rules/branches/main') echo '[{"type":"required_status_checks","parameters":{"required_status_checks":[]}}]';;
+  *'/branches/main/protection/required_status_checks') echo '{"status":"not_configured","http_status":404}';;
+  *'/rulesets?per_page=100') echo '[]';;
+  *'/actions/workflows/ci.yml/runs?'*)
+    event="$(printf '%s' "$endpoint" | sed -nE 's/.*[?&]event=([^&]+).*/\1/p')"
+    page="$(printf '%s' "$endpoint" | sed -nE 's/.*[?&]page=([0-9]+).*/\1/p')"
+    case "$event" in
+      pull_request) total=125; count=100; base=5000;;
+      push) total=2; count=2; base=6000;;
+      schedule) total=1; count=1; base=7000;;
+      workflow_dispatch) total=1; count=1; base=8000;;
+      *) exit 3;;
+    esac
+    if [[ "$event" == pull_request && "$page" == 2 ]]; then count=1; base=5100; fi
+    if [[ "$event" == pull_request && "$page" -gt 2 ]]; then count=0; fi
+    jq -cn --argjson total "$total" --argjson count "$count" --argjson base "$base" --arg event "$event" --arg page "$page" --arg cutoff "2026-10-12T00:00:00Z" '{total_count:$total,workflow_runs:[range(0;$count) as $i | {id:($base+$i),run_number:($base+$i),event:$event,head_branch:(if $event=="push" then "main" elif $event=="workflow_dispatch" then "manual-probe" else "feature" end),head_sha:("sha-"+(( $base+$i)|tostring)),path:".github/workflows/ci.yml",run_attempt:1,created_at:(if $i==0 then "2026-09-12T00:00:00Z" else "2026-10-10T00:00:00Z" end),updated_at:$cutoff,conclusion:(if $i%2==0 then "success" else "failure" end)}]}'
+    ;;
+  *) echo "unhandled $endpoint" >&2; exit 4;;
+esac
+WINDOW_GH
+chmod +x "$WINDOW_API_BIN/gh"
+export WINDOW_API_LOG
+WINDOW_BUNDLE="${TMPDIR_ROOT}/window-bundle"
+set +e
+CI_METRICS_TEST_MODE=1 PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$WINDOW_BUNDLE" >"${TMPDIR_ROOT}/window-collect.out" 2>"${TMPDIR_ROOT}/window-collect.err"
+window_rc=$?
+set -e
+if [[ "$window_rc" -eq 0 ]] \
+  && jq -e '.status == "complete" and .cutoff_utc == "2026-10-12T00:00:00Z" and .populations.pull_request.api_total_count == 125 and .populations.pull_request.population_capped == true and (.populations.pull_request.selected_run_ids|length)==100 and .populations.push_main.population_exhausted == true and .populations.schedule.population_exhausted == true and (.populations.manual.records|length)==1 and (.populations.pull_request.runs[0].created_at|startswith("2026-09-12"))' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
+  && jq -e 'all(.populations[]?; true)' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
+  && ! rg 'workflow_dispatch|head_branch=release|release/' "$WINDOW_API_LOG" >/dev/null; then
+  pass "fixed cutoff, 100-run cap, API totals and event separation are retained"
+else
+  fail "window collect rc=$window_rc stderr=$(cat "${TMPDIR_ROOT}/window-collect.err") manifest=$(cat "$WINDOW_BUNDLE/manifest.json" 2>/dev/null)"
+fi
+
 echo ""
 echo "----------------------------------------"
 echo "Results: ${PASS} passed, ${FAIL} failed"
