@@ -5,16 +5,16 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 252
 current_phase_name: Measure Current CI
 status: executing
-stopped_at: Completed 252-04-PLAN.md
-last_updated: "2026-10-12T19:00:30Z"
+stopped_at: Completed 252-05-PLAN.md; full mix ci still has six unrelated Threadline failures
+last_updated: "2026-10-12T19:34:06.908Z"
 last_activity: 2026-10-12
 last_activity_desc: Plan 252-04 implementation and automated checks completed
-state_head: 95c87db82c8b00e04fbd1a934a0582ce7c70716c
+state_head: 6354cc45d68e5bdf852f6081939b2d3dd94ff5a4
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 milestone_status: active
 workflow_step: phase_execution_pending
@@ -39,7 +39,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 252 (Measure Current CI) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-10-12 — Plan 252-04 implementation and automated checks completed
 Progress: [░░░░░░░░░░] 0%
@@ -83,9 +83,9 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T19:00:30Z
-**Stopped at:** Completed 252-04-PLAN.md
-**Resume file:** .planning/phases/252-measure-current-ci/252-05-PLAN.md
+**Last session:** 2026-10-12T19:34:06.895Z
+**Stopped at:** Completed 252-05-PLAN.md; full mix ci still has six unrelated Threadline failures
+**Resume file:** .planning/phases/252-measure-current-ci/252-06-PLAN.md
 
 ## Deferred Items
 
@@ -104,6 +104,7 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 | Phase 252 P02 | 28min | 3 tasks | 2 files |
 | Phase 252 P03 | 12min | 2 tasks | 5 files |
 | Phase 252 P04 | 28min | 2 tasks | 3 files |
+| Phase 252 P05 | 27min | 3 tasks | 11 files |
 
 ## Decisions
 
@@ -113,3 +114,6 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 - [Phase 252]: Expired, mismatched, unavailable or unsafe artifact inputs remain diagnostics and do not become timing rows
 - [Phase 252]: Keep the ExUnit timing report opt-in and test-only; reporting failures preserve the original test process exit.
 - [Phase 252]: Playwright JSON stays opt-in; excluded counts and unmeasured reporter overhead remain null, with CI wiring owned by Plan 252-05.
+- [Phase 252]: Replay keeps rankings for initial wait, required-context critical path, execution, and summed runner time separate.
+- [Phase 252]: Missing artifact identities, timestamps, cache results, and runtime versions remain unknown rather than being filled from configured pins.
+- [Phase 252]: Failure signatures require repeat source references; cancellation without superseding-run evidence stays unclassified.
