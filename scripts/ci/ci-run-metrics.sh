@@ -1035,7 +1035,7 @@ def epoch(v):
     try: return datetime.datetime.fromisoformat(v.replace('Z','+00:00')).timestamp()
     except (ValueError, TypeError): return None
 def result(vals, unit):
-    return {'status':'measured','n':len(vals),'unit':unit,'total':round(sum(vals),6)} if vals else {'status':'unknown','n':0,'unit':unit,'total':None,'reason':'no_complete_source_timestamps'}
+    return {'status':'measured','n':len(vals),'unit':unit,'total':round(sum(vals),6),'limitation':'single_observation' if len(vals)==1 else None} if vals else {'status':'unknown','n':0,'unit':unit,'total':None,'reason':'no_complete_source_timestamps'}
 for pop,key in events.items():
     for run in manifest.get('populations',{}).get(pop,{}).get('runs',[]):
         runid=str(run.get('id','')); created=epoch(run.get('created_at'))
@@ -1134,7 +1134,7 @@ recurring=[{'signature':sig,'occurrences':len(refs),'references':sorted(refs,key
 recurring=sorted(recurring,key=lambda x:(-x['occurrences'],x['signature']))[:3]
 failure_analysis={'inspected_family_count':len(failures),'per_event_counts':{event:sum(1 for x in failures if x['event']==event) for event in events.values()},'families':failures,'failure_class':failure_bins,'failure_signatures':{'status':'recurring_signatures_found' if recurring else ('unknown' if missing_diagnostics else 'no_current_flake_identified'),'signatures':recurring,'missing_inputs':missing_diagnostics,'proposed_repeat_checks':(['repeat the isolated browser selection with readiness diagnostics'] if not recurring else [])},'diagnostics_status':{'status':'unknown' if missing_diagnostics or any(e['failure_class']=='unknown_failure' for rows in failure_bins.values() for e in rows) else 'sufficient','available_count':sum(1 for rows in failure_bins.values() for e in rows if e['diagnostics_status']=='available'),'missing_count':len(missing_diagnostics)}}
 for rows in list(wait_rows.values())+list(runner_rows.values()): rows.sort(key=lambda x:(-x['seconds'],x['identity']))
-rank=lambda rows: {'status':'measured' if rows else 'insufficient_data','n':len(rows),'rows':rows} if rows else {'status':'insufficient_data','n':0,'rows':[],'reason':'no_complete_source_timestamps'}
+rank=lambda rows: {'status':'measured','n':len(rows),'total_seconds':round(sum(x['seconds'] for x in rows),6),'rows':rows,'limitation':'single_observation' if len(rows)==1 else None} if rows else {'status':'insufficient_data','n':0,'total_seconds':None,'rows':[],'reason':'no_complete_source_timestamps'}
 cohorts={}
 for name,workload in [('full','full'),('docs_only','docs_only')]:
     eligible=[r for r in manifest['populations']['pull_request']['runs'] if r.get('workload')==workload]
