@@ -1,0 +1,124 @@
+{
+  "schema_version": "sigra.phase-validation-audit/v1",
+  "phase": 252,
+  "name": "measure-current-ci",
+  "audited_at_utc": "2026-10-12T21:43:00Z",
+  "status": "partial",
+  "nyquist_compliant": false,
+  "capture": {
+    "head": "5cad1606e87037620047ab8c7b2c85ae524e232b",
+    "validation_path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
+    "validation_sha256_before_audit": "6f7c572ba699de95e0ebba82d947327283e1864e672645a2f0902250defa6878",
+    "preserved_copy": "/private/tmp/sigra-phase252-252-validation-before-audit.md"
+  },
+  "summary": {
+    "tasks_total": 15,
+    "tasks_green": 12,
+    "tasks_escalated": 3,
+    "implementation_files_modified": false,
+    "remote_calls_made": false
+  },
+  "resolved_fixture_gap": {
+    "file": "scripts/ci/ci-run-metrics-replay.test.mjs",
+    "behavior": "A source-complete snapshot bundle replays offline while validating hashes for rate-limit and effective-rule inputs and the workflow source file.",
+    "debug_iterations": [
+      {
+        "iteration": 1,
+        "result": "failed",
+        "error": "snapshot_hash_mismatch:rate_limit",
+        "action": "Added the missing raw rate-limit/rules files and their matching manifest hashes, plus a source workflow file and matching source hash."
+      },
+      {
+        "iteration": 2,
+        "result": "passed",
+        "command": "node --test scripts/ci/ci-run-metrics-replay.test.mjs"
+      }
+    ],
+    "status": "green"
+  },
+  "tests": [
+    {
+      "command": "bash scripts/ci/ci-run-metrics.test.sh",
+      "result": "passed",
+      "evidence": "39 collector and embedded comparison contracts passed."
+    },
+    {
+      "command": "node --test scripts/ci/ci-run-metrics-replay.test.mjs scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-playwright-report.test.mjs",
+      "result": "passed",
+      "evidence": "13 tests passed, 0 failed."
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh",
+      "result": "passed"
+    },
+    {
+      "command": "bash scripts/ci/ci-measure-report.test.sh",
+      "result": "passed"
+    },
+    {
+      "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs",
+      "result": "passed",
+      "evidence": "2 tests, 0 failures."
+    },
+    {
+      "command": "bash scripts/ci/ci-exunit-timing.test.sh",
+      "result": "passed",
+      "evidence": "Process harness complete=true; test failures preserved exit 2 when output was available or unavailable."
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "result": "passed_with_finding",
+      "output": {
+        "status": "ready",
+        "diagnostics": []
+      }
+    },
+    {
+      "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json",
+      "result": "passed",
+      "output": {
+        "status": "ready",
+        "request_count": 4,
+        "missing_capabilities": []
+      }
+    }
+  ],
+  "escalated_findings": [
+    {
+      "id": "CIMEAS-02-exunit-primary-suite-scope",
+      "classification": "BLOCKER",
+      "tasks": ["252-05 Task 2", "252-06 Task 1", "252-06 Task 3"],
+      "reason": "The retained source-bound ExUnit artifact is from the final dependency-off test subprocess rather than the primary contributor test suite, and baseline verification accepts and reports it as the primary suite cost.",
+      "expected": "The artifact uploaded by the primary Library tests shard must contain the completed test rows and timing from the main mix ci test run, with the separate dependency-off subprocess represented independently or excluded from that measurement.",
+      "actual": {
+        "run_id": 38307191464,
+        "attempt": 2,
+        "producer_job_id": 115007133882,
+        "producer_job_name": "Library tests shard",
+        "artifact_id": 11773560061,
+        "artifact_name": "library-test-timing-38307191464-1",
+        "report_complete": true,
+        "tests_length": 65,
+        "passed": 65,
+        "excluded": 2639,
+        "failed": 0,
+        "test_duration_sum_us": 188522,
+        "baseline_verifier_status": "ready",
+        "baseline_verifier_diagnostics": []
+      },
+      "evidence": {
+        "source_bundle": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+        "source_bundle_sha256": "169e5425870bd4486b0c7c6a07a4fd2c938c363fb7c156ffac27f4220f7426f0",
+        "artifact_evidence": "raw/families/38307191464/artifact-evidence.json",
+        "producer_jobs": "raw/families/38307191464/jobs-attempt-2.json",
+        "uploaded_report": "raw/families/38307191464/artifacts/11773560061.zip:ci-exunit-timing.json",
+        "alias_source": "mix.exs:149-156",
+        "child_test_command": "scripts/ci/sigra-dep-off.sh:60-64",
+        "formatter_report_write": "test/support/ci_timing_formatter.ex:82-85"
+      },
+      "debug_iterations": 0,
+      "note": "The producer artifact itself and source/command identity establish the mismatch; no implementation change was authorized in this audit scope."
+    }
+  ],
+  "next": "Keep phase requirements pending until the ExUnit output is separated from the dependency-off child, then rerun baseline verification and regenerate the report from corrected source evidence."
+}
