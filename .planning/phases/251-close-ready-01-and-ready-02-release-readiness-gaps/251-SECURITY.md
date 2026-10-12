@@ -8,7 +8,7 @@ asvs_level: 1
 
 # Phase 251 Security Verification
 
-Independent audit: 21 of 22 planned mitigations closed; one high-severity byte-readback acceptance bypass remains open. No risks were accepted or waived. Structured evidence: `251-SECURITY-RECHECK-1.json` (earlier four-gap audit retained in `251-SECURITY-AUDIT-GAPS.json`).
+Independent audit: 21 of 22 planned mitigations closed; one high-severity byte-readback acceptance bypass remains open. No risks were accepted or waived. Structured evidence: `251-SECURITY-RECHECK-2.json` (earlier four-gap audit retained in `251-SECURITY-AUDIT-GAPS.json`).
 
 | Threat | Severity | Status | Evidence |
 |---|---|---|---|
@@ -25,7 +25,7 @@ Independent audit: 21 of 22 planned mitigations closed; one high-severity byte-r
 | T-251-11 | high | CLOSED | verify-247-readiness.mjs:125-183,204-293 exact Git blob content and derived assertions; forged README pass rejected |
 | T-251-12 | high | CLOSED | verify-v149-traceability.mjs:523-566,606-683 independent immutable blob reads/content predicates; fake object digests and mutable content rejected |
 | T-251-13 | high | CLOSED | verify-v149-traceability.mjs:703-782 full inherited ID set from all worktree status rows; coherently omitted dirty identity yields unsatisfied 7/9 |
-| T-251-14 | high | OPEN | verify-v149-traceability.mjs:415-488 resolves ref and verifies metadata, but does not decode/hash source_bytes_base64. A coherent record with different decoded bytes is accepted. |
+| T-251-14 | high | OPEN | verify-v149-traceability.mjs:476,489,498 selects byte/tombstone proof from mutable disposition.source kind/status. Dirty-to-committed_path and deletion-D-to-modification-M relabels with coherent record hashes both bypass source-byte/tombstone checks. |
 | T-251-15 | high | CLOSED | verify-247-readiness.mjs:407-427,557-575,1121-1126 complete paginated stable PR snapshots |
 | T-251-16 | high | CLOSED | verify-247-readiness.mjs:238-293 original interval and tuple-bound approval |
 | T-251-17 | high | CLOSED | verify-247-readiness.mjs:108-123,152-204 exact published guide identity and trusted 404 findings |
