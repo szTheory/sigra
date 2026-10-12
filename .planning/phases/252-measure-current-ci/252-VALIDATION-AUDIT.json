@@ -2,7 +2,7 @@
   "schema_version": "sigra.phase-validation-audit/v1",
   "phase": 252,
   "name": "measure-current-ci",
-  "audited_at_utc": "2026-10-12T21:43:00Z",
+  "audited_at_utc": "2026-10-12T21:47:49Z",
   "status": "partial",
   "nyquist_compliant": false,
   "capture": {
@@ -13,6 +13,10 @@
     "validation_revision_before_audit_append": {
       "commit": "ece099b22ebbf5f41cd9ce87c40e4e31d42d69ec",
       "sha256": "a82f6cdebbc93ce81ec8c2de6303abd466dc3a20b89fb6d79e6ddcf2b91f4522"
+    },
+    "validation_revision_after_audit_append": {
+      "commit": "789ef4cbe78528d685f410f05624e8523e6f3ee8",
+      "sha256": "cf61b539acb27dfd334dcb67f87b122c7745108f8fa526deec385c356e4b1d65"
     }
   },
   "summary": {
