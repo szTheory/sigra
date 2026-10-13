@@ -2,7 +2,7 @@
   "schema_version": "sigra.phase253.setup-entrypoint-verification-freeze/v1",
   "status": "frozen_before_results",
   "scope": "Verify the new setup-only entrypoint against real Phoenix; no registration browser execution",
-  "frozen_at": "2026-10-13T12:38:00Z",
+  "frozen_at": "2026-10-13T12:38:18Z",
   "source_head_at_freeze": "061e77771e7db259a84d3ad1850eee2c757e2270",
   "repair_commit": "4ffa9dcb12a8313ae847f35cbd5c543f4e27ed54",
   "prior_diagnostic": {
@@ -39,5 +39,11 @@
     "Stop on any nonzero setup result and retain receipt/log bytes.",
     "No live retry or additional launches after three launches.",
     "Do not change or reuse the exhausted original browser freeze."
-  ]
+  ],
+  "timestamp_correction": {
+    "prior_ref": "259e3de4343882e565f4ca14272db73a246cbd0c",
+    "prior_sha256": "b5cca66b8e97f18faf62bd61da58d21fb97231e7763b3cdcf339fac62916052f",
+    "readback_exact": true,
+    "reason": "Replace rounded timestamp with clock tool observation before execution"
+  }
 }
