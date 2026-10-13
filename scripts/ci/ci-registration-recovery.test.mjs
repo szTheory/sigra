@@ -65,6 +65,17 @@ test('the original controls and acceptance verification modes remain unavailable
   }
 });
 
+test('control verification requires native outcomes instead of caller-written passed status', () => {
+  assert.equal(typeof recovery.verifyControlEvidenceData, 'function');
+  const result = recovery.verifyControlEvidenceData(
+    { status: 'passed', attempts: [], limits: { used_slots: [] } },
+    {},
+    temporary,
+  );
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.length > 0);
+});
+
 test('the explicit revision CLI freezes before results and accepts a named diagnostic slot', () => {
   const freeze = path.join(temporary, 'registration-revision.json');
   const evidence = path.join(temporary, 'registration-revision-evidence.json');
