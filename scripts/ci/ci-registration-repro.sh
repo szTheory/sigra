@@ -7,6 +7,7 @@ Usage:
   ci-registration-repro.sh --create-revision --output <freeze.json>
   ci-registration-repro.sh --prepare-revision <freeze.json> --evidence <evidence.json>
   ci-registration-repro.sh --run-revision <freeze.json> --slot <id> --output <evidence.json>
+  ci-registration-repro.sh --create-infrastructure-retry --freeze <prior-freeze> --evidence <halted-evidence> --review <review.json> --output <retry-freeze> --reservation <reservation.json>
   ci-registration-repro.sh --verify-diagnostic <evidence.json> --revision
   ci-registration-repro.sh --run-recovery <freeze.json> --output <new-evidence.json>
   ci-registration-repro.sh --verify-diagnostic <evidence.json>
@@ -43,6 +44,10 @@ case "$MODE" in
     SLOT="${4}"
     OUTPUT="${6}"
     ;;
+  --create-infrastructure-retry)
+    [[ "${2:-}" == --freeze && -n "${3:-}" && "${4:-}" == --evidence && -n "${5:-}" && "${6:-}" == --review && -n "${7:-}" && "${8:-}" == --output && -n "${9:-}" && "${10:-}" == --reservation && -n "${11:-}" && -z "${12:-}" ]] || { usage >&2; exit 2; }
+    FREEZE="${3}"; RETRY_EVIDENCE="${5}"; REVIEW="${7}"; OUTPUT="${9}"; RESERVATION="${11}"
+    ;;
   --run-frozen)
     FREEZE="${2:-}"
     [[ "${3:-}" == --output && -n "${4:-}" ]] || { usage >&2; exit 2; }
@@ -73,6 +78,15 @@ if [[ -n "$OUTPUT" && "$OUTPUT" != /* ]]; then OUTPUT="$ROOT/$OUTPUT"; fi
 
 if [[ "$MODE" == --create-revision ]]; then
   exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --create-revision --output "$OUTPUT"
+fi
+
+if [[ "$MODE" == --create-infrastructure-retry ]]; then
+  [[ "$FREEZE" != /* ]] && FREEZE="$ROOT/$FREEZE"
+  [[ "$RETRY_EVIDENCE" != /* ]] && RETRY_EVIDENCE="$ROOT/$RETRY_EVIDENCE"
+  [[ "$REVIEW" != /* ]] && REVIEW="$ROOT/$REVIEW"
+  [[ "$OUTPUT" != /* ]] && OUTPUT="$ROOT/$OUTPUT"
+  [[ "$RESERVATION" != /* ]] && RESERVATION="$ROOT/$RESERVATION"
+  exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --create-infrastructure-retry --freeze "$FREEZE" --evidence "$RETRY_EVIDENCE" --review "$REVIEW" --output "$OUTPUT" --reservation "$RESERVATION"
 fi
 
 if [[ "$MODE" == --prepare-revision ]]; then

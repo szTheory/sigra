@@ -35,6 +35,7 @@ const D19_CAP_MS = 18 * 60 * 1000;
 const PROJECT_SLOT_MS = 120_000;
 const REPLAN_FREEZE_PATH = `${PHASE_DIR}/253-REPLAN-REGISTRATION-FREEZE.json`;
 const REPLAN_EVIDENCE_PATH = `${PHASE_DIR}/253-REPLAN-REGISTRATION-EVIDENCE.json`;
+const RETRY_MARKER_PATH = `${PHASE_DIR}/253-15-SHARED-RETRY-USED.json`;
 const DIRTY_CONFIG = {
   path: '.planning/config.json', status: ' M', porcelain: ' M .planning/config.json',
   ref: 'refs/gsd/phase253-recovery-execution-unrelated-config',
@@ -79,6 +80,9 @@ function parseArgs(argv) {
   if (argv[0] === '--verify-diagnostic' && argv[1] && argv[2] === '--revision' && argv.length === 3) {
     return { mode: 'verify-revision', evidence: path.resolve(argv[1]) };
   }
+  if (argv[0] === '--create-infrastructure-retry' && argv[1] === '--freeze' && argv[2] && argv[3] === '--evidence' && argv[4] && argv[5] === '--review' && argv[6] && argv[7] === '--output' && argv[8] && argv[9] === '--reservation' && argv[10] && argv.length === 11) {
+    return { mode: 'create-infrastructure-retry', predecessor: path.resolve(argv[2]), evidence: path.resolve(argv[4]), review: path.resolve(argv[6]), output: path.resolve(argv[8]), reservation: path.resolve(argv[10]) };
+  }
   if (argv[0] === '--create-freeze' && argv[1] === '--output' && argv[2] && argv.length === 3) {
     return { mode: 'create-freeze', output: path.resolve(argv[2]) };
   }
@@ -89,6 +93,49 @@ function parseArgs(argv) {
     return { mode: 'run-recovery', freeze: path.resolve(argv[1]), evidence: path.resolve(argv[3]) };
   }
   throw new Error('usage: ci-registration-recovery.mjs --create-freeze --output <freeze.json> | --run-recovery <freeze.json> --output <evidence.json> | --verify-diagnostic <evidence.json>');
+}
+
+export function validateInfrastructureRetry(prior, review) {
+  const errors = [];
+  const attempt = prior?.attempts?.length === 1 ? prior.attempts[0] : null;
+  if (prior?.status !== 'halted') errors.push('prior native ledger is not terminal halted evidence');
+  if (!attempt || attempt.slot_id !== 'R-DIAG-DESKTOP' || attempt.project !== 'admin-eval') errors.push('prior ledger does not contain exactly the spent desktop diagnostic');
+  if (attempt && (attempt.failure_classification !== 'infrastructure' || attempt.test_started !== false || attempt.browser?.launched !== true)) errors.push('prior desktop outcome is not an independently diagnosed pre-test infrastructure failure');
+  if (attempt && (attempt.server?.http_status !== 200 || attempt.database?.setup_exit_code !== 0 || attempt.database?.drop_exit_code !== 0)) errors.push('prior desktop setup, readiness, or cleanup receipts are incomplete');
+  if (attempt && attempt.charged_duration_ms !== 26373) errors.push('prior desktop attempt charge differs from the reviewed 26,373 ms');
+  if (review?.status !== 'independently_classified_infrastructure' || review.retry_used !== false || review.shared_retry_allowance !== 1) errors.push('independent review does not authorize the one unused shared retry');
+  if (review?.failure !== 'Chromium headless shell SIGTRAP at macOS Mach port bootstrap_check_in with Permission denied (1100), before selected test began') errors.push('independent review does not identify the exact pre-test Chromium bootstrap failure');
+  if (!attempt || attempt.files?.test_log?.sha256 !== review.test_log_sha256) errors.push('reviewed native test-log digest does not match the preserved failed attempt');
+  if (prior?.limits?.historical_charge_ms !== 3768 || prior?.limits?.preparation_charge_ms !== 3743 || prior?.limits?.charged_duration_ms !== 33884) errors.push('prior historical, preparation, and native charges do not sum to 33,884 ms');
+  if (prior?.limits?.browser_launches !== 1 || JSON.stringify(prior?.limits?.used_slots) !== JSON.stringify(['R-DIAG-DESKTOP'])) errors.push('prior desktop slot or browser launch accounting is inconsistent');
+  if (review?.native_attempt_charge_ms !== 26373 || review?.total_charge_ms !== 33884 || review?.evidence_sha256 === undefined) errors.push('independent review lacks exact immutable evidence identity and charges');
+  return { ok: errors.length === 0, errors };
+}
+
+function createInfrastructureRetry(predecessorFile, evidenceFile, reviewFile, outputFile, reservationFile, root = ROOT) {
+  if ([outputFile, reservationFile].some((file) => fs.existsSync(file))) throw new Error('refusing to reuse a retry freeze or shared-retry reservation');
+  const predecessor = readJson(predecessorFile); const prior = readJson(evidenceFile); const review = readJson(reviewFile);
+  if (fileHash(evidenceFile) !== review.evidence_sha256 || fileHash(predecessorFile) !== prior.freeze_sha256) throw new Error('independent review or prior freeze digest does not match preserved bytes');
+  const eligible = validateInfrastructureRetry(prior, review);
+  if (!eligible.ok) throw new Error(`infrastructure retry rejected: ${eligible.errors.join('; ')}`);
+  assertRevisionCheckout(root);
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const retrySlot = structuredClone(predecessor.ledger.slots.find((item) => item.id === 'R-DIAG-DESKTOP'));
+  const mobileSlot = structuredClone(predecessor.ledger.slots.find((item) => item.id === 'R-DIAG-MOBILE'));
+  retrySlot.id = 'R-INFRA-RETRY-DESKTOP'; retrySlot.sequence = 1; retrySlot.kind = 'diagnostic'; retrySlot.owner_plan = 15;
+  mobileSlot.sequence = 2;
+  const freeze = structuredClone(predecessor);
+  freeze.source = { ...freeze.source, checkout_head: head, blobs: sourceBlobs(root, head) };
+  freeze.retry_context = { original_freeze_path: path.relative(root, predecessorFile), original_freeze_sha256: fileHash(predecessorFile), original_evidence_path: path.relative(root, evidenceFile), original_evidence_sha256: fileHash(evidenceFile), review_path: path.relative(root, reviewFile), review_sha256: fileHash(reviewFile), original_source: prior.source, original_failure: prior.attempts[0].failure_detail, retry_count: 1, retry_budget: 1, retry_reason: review.failure };
+  freeze.ledger.slots = [retrySlot, mobileSlot];
+  freeze.ledger.historical_charge_ms = 33884;
+  freeze.ledger.d19.max_charged_duration_ms = 18 * 60 * 1000;
+  const reservation = { schema_version: 'sigra.phase253.registration-shared-retry/v1', status: 'reserved', retry_count: 1, budget: 1, charge_before_ms: 33884, max_duration_ms: 120000, source_commit: head, original_evidence_sha256: fileHash(evidenceFile), review_sha256: fileHash(reviewFile), slot_id: retrySlot.id };
+  writeJson(reservationFile, reservation);
+  freeze.infrastructure_retry = { reservation_path: path.relative(root, reservationFile), reservation_sha256: fileHash(reservationFile), used_marker_path: RETRY_MARKER_PATH, count: 1, max_duration_ms: 120000, consumed: false };
+  delete freeze.freeze_sha256; freeze.freeze_sha256 = revisionFreezeDigest(freeze);
+  writeJson(outputFile, freeze);
+  return { freeze, reservation };
 }
 
 function checkCleanCandidate(root) {
@@ -130,6 +177,7 @@ function assertRevisionCheckout(root, evidenceFile = null) {
     if (line === DIRTY_CONFIG.porcelain) continue;
     const code = line.slice(0, 2);
     const file = line.slice(3).replace(/^"|"$/g, '');
+    if (file === RETRY_MARKER_PATH && code === '??') continue;
     if (expectedEvidence && file === expectedEvidence && [' M', '??'].includes(code)) continue;
     if (expectedEvidence && (file === `${expectedEvidence}.raw` || file.startsWith(`${expectedEvidence}.raw/`)) && code === '??') continue;
     throw new Error(`candidate checkout contains an unapproved change: ${line}`);
@@ -725,6 +773,19 @@ function validateRevisionSource(root, freeze, evidenceFile = null) {
     [path.resolve(root, freeze.historical.recovery_capture_path), freeze.historical.recovery_capture_sha256]
   ];
   for (const [file, expected] of identities) if (fileHash(file) !== expected) throw new Error(`historical registration bytes changed: ${path.relative(root, file)}`);
+  if (freeze.retry_context) {
+    const retry = freeze.retry_context;
+    if (fileHash(path.resolve(root, retry.original_evidence_path)) !== retry.original_evidence_sha256
+      || fileHash(path.resolve(root, retry.original_freeze_path)) !== retry.original_freeze_sha256
+      || fileHash(path.resolve(root, retry.review_path)) !== retry.review_sha256) throw new Error('infrastructure retry historical evidence or review bytes changed');
+    const markerFile = path.resolve(root, freeze.infrastructure_retry.used_marker_path);
+    const reservationFile = path.resolve(root, freeze.infrastructure_retry.reservation_path);
+    if (fileHash(reservationFile) !== freeze.infrastructure_retry.reservation_sha256) throw new Error('shared retry reservation bytes changed');
+    if (fs.existsSync(markerFile)) {
+      const marker = readJson(markerFile);
+      if (marker.freeze_sha256 !== freeze.freeze_sha256 || marker.retry_count !== 1 || marker.status !== 'consumed') throw new Error('shared infrastructure retry marker is malformed or belongs to another source');
+    }
+  }
   return head;
 }
 
@@ -899,7 +960,7 @@ function verifyRevisionData(evidence, freeze, baseDir) {
   const errors = [];
   if (evidence?.schema_version !== REPLAN_SCHEMA || evidence.freeze_sha256 !== freeze?.freeze_sha256) errors.push('evidence does not match the frozen revision');
   if (evidence?.source?.checkout_head !== freeze?.source?.checkout_head || JSON.stringify(evidence?.source?.blobs) !== JSON.stringify(freeze?.source?.blobs)) errors.push('evidence source identity differs from the frozen revision');
-  if (evidence.historical?.preceding_order !== 'unknown' || evidence.limits?.historical_charge_ms !== 3768) errors.push('historical uncertainty or spent charge was not preserved');
+  if (evidence.historical?.preceding_order !== 'unknown' || evidence.limits?.historical_charge_ms !== freeze?.ledger?.historical_charge_ms) errors.push('historical uncertainty or spent charge was not preserved');
   if (evidence.preparation_status !== 'passed') errors.push('common dependency preparation is missing or incomplete');
   if (!Array.isArray(evidence.attempts) || !Array.isArray(evidence.preparation_receipts)) errors.push('preparation or attempt ledger is absent');
   else {
@@ -917,7 +978,7 @@ function verifyRevisionData(evidence, freeze, baseDir) {
     const prepCharge = evidence.preparation_receipts.reduce((sum, item) => sum + (Number(item.duration_ms) || 0), 0);
     if (prepCharge !== evidence.limits.preparation_charge_ms) errors.push('preparation charge does not match its command receipts');
     if (prepCharge > freeze.preparation.max_duration_ms) errors.push('common preparation exceeded its frozen 116,232 ms ceiling');
-    if (attemptCharge + 3768 + prepCharge !== evidence.limits.charged_duration_ms) errors.push('cumulative charged time does not match native receipt durations');
+    if (attemptCharge + evidence.limits.historical_charge_ms + prepCharge !== evidence.limits.charged_duration_ms) errors.push('cumulative charged time does not match native receipt durations');
     if (evidence.limits.charged_duration_ms > freeze.ledger.d19.max_charged_duration_ms) errors.push('D-19 charged time exceeds its frozen 18-minute allowance');
     if (browserLaunches !== evidence.limits.browser_launches) errors.push('browser launch count differs from native receipts');
     if (browserLaunches > freeze.ledger.max_new_browser_launches || evidence.limits.charged_duration_ms > freeze.ledger.max_charged_duration_ms) errors.push('shared recovery limit exceeded');
@@ -938,6 +999,15 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
   const expectedSlot = freeze.ledger.slots.filter((item) => item.owner_plan === 15)[evidence.attempts.length];
   if (slot !== expectedSlot) throw new Error(`next plan15 slot must be ${expectedSlot?.id ?? 'none'}; refusing ${slotId}`);
   if (evidence.limits.used_slots.includes(slotId)) throw new Error(`slot ${slotId} was already spent`);
+  if (freeze.retry_context) {
+    const markerFile = path.resolve(root, freeze.infrastructure_retry.used_marker_path);
+    if (slot.id === 'R-INFRA-RETRY-DESKTOP') {
+      if (fs.existsSync(markerFile)) throw new Error('the one shared infrastructure retry was already consumed');
+      writeJson(markerFile, { schema_version: 'sigra.phase253.registration-shared-retry/v1', status: 'consumed', retry_count: 1, budget: 1, charge_before_ms: 33884, max_duration_ms: 120000, source_commit: freeze.source.checkout_head, freeze_sha256: freeze.freeze_sha256, original_evidence_sha256: freeze.retry_context.original_evidence_sha256, review_sha256: freeze.retry_context.review_sha256, slot_id: slot.id, consumed_at: new Date().toISOString() });
+    } else if (slot.id === 'R-DIAG-MOBILE') {
+      if (!fs.existsSync(markerFile) || evidence.attempts[0]?.slot_id !== 'R-INFRA-RETRY-DESKTOP' || evidence.attempts[0]?.observed_outcome !== 'passed') throw new Error('mobile diagnostic is available only after the reserved desktop retry passed');
+    } else throw new Error('retry freeze exposes only the single desktop retry and conditional mobile diagnostic');
+  }
   const charge = evidence.limits.charged_duration_ms;
   if (charge + slot.max_duration_ms > freeze.ledger.d19.max_charged_duration_ms) throw new Error('full 120,000 ms command does not fit in the remaining D-19 allocation');
   if (charge + slot.max_duration_ms > freeze.ledger.max_charged_duration_ms || charge + slot.max_duration_ms > freeze.ledger.max_total_charged_ms_including_historical) throw new Error('full 120,000 ms command does not fit in the remaining shared allocation');
@@ -1023,6 +1093,7 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
   if (attempt.charged_duration_ms > slot.max_duration_ms) terminalError = [terminalError, 'slot duration ceiling exceeded'].filter(Boolean).join('; ');
   const nativeValidation = verifyRevisionAttempt(attempt, freeze, rawBase);
   if (!nativeValidation.ok) terminalError = [terminalError, ...nativeValidation.errors].filter(Boolean).join('; ');
+  if (freeze.retry_context && slot.id === 'R-INFRA-RETRY-DESKTOP' && attempt.observed_outcome !== 'passed') terminalError = [terminalError, 'the independently authorized retry did not prove desktop registration; mobile diagnostic remains blocked'].filter(Boolean).join('; ');
   if (terminalError) { evidence.status = 'halted'; evidence.stop_reason = terminalError; }
   else if (evidence.attempts.length === 2) { evidence.status = 'diagnosis_incomplete'; evidence.stop_reason = 'Desktop and mobile diagnostics completed; the dark combined diagnostic/control command remains reserved for plan16.'; }
   else evidence.status = 'running';
@@ -1310,6 +1381,11 @@ async function main() {
   if (args.mode === 'create-revision') {
     const freeze = createRevision(args.output);
     console.log(`registration revision frozen before results: ${path.relative(ROOT, args.output)} (${freeze.source.checkout_head})`);
+    return;
+  }
+  if (args.mode === 'create-infrastructure-retry') {
+    const result = createInfrastructureRetry(args.predecessor, args.evidence, args.review, args.output, args.reservation);
+    console.log(`one-use infrastructure retry frozen: ${path.relative(ROOT, args.output)} (${result.freeze.source.checkout_head})`);
     return;
   }
   if (args.mode === 'prepare-revision') {

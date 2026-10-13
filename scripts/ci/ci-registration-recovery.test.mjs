@@ -102,7 +102,9 @@ test('one-use infrastructure retry requires the independently reviewed Chromium 
     test_log_sha256: 'test-log-hash',
     native_attempt_charge_ms: 26373,
     total_charge_ms: 33884,
+    status: 'independently_classified_infrastructure',
     retry_used: false,
+    shared_retry_allowance: 1,
     failure: 'Chromium headless shell SIGTRAP at macOS Mach port bootstrap_check_in with Permission denied (1100), before selected test began'
   };
   const prior = {
