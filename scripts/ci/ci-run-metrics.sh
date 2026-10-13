@@ -84,6 +84,8 @@ ARCHIVE_OUTPUT=""
 LOG_TO_REDACT=""
 REDACTED_OUTPUT=""
 VERIFY_BASELINE=false
+DIAGNOSE_V1=false
+DIAGNOSIS_OUTPUT=""
 BASELINE_FILE=""
 BASELINE_SOURCE_BUNDLE=""
 API_STARTED=0
@@ -154,6 +156,8 @@ while [[ $# -gt 0 ]]; do
     --redact-log) LOG_TO_REDACT="$2"; shift 2;;
     --redacted-output) REDACTED_OUTPUT="$2"; shift 2;;
     --verify-baseline) VERIFY_BASELINE=true; shift;;
+    --diagnose-v1) DIAGNOSE_V1=true; shift;;
+    --output) DIAGNOSIS_OUTPUT="$2"; shift 2;;
     --baseline) BASELINE_FILE="$2"; shift 2;;
     *) echo "ci-run-metrics: FAIL: unknown arg: $1" >&2; exit 2;;
   esac
@@ -1735,6 +1739,26 @@ fi
 
 if [[ "$MODE" != "wall" && "$MODE" != "jobspan" ]]; then
   fail "unknown --mode: ${MODE} (expected wall|jobspan)"
+fi
+
+if [[ "$DIAGNOSE_V1" == true ]]; then
+  [[ -f "$SOURCE_BUNDLE" && -f "$BASELINE_FILE" && -n "$DIAGNOSIS_OUTPUT" ]] || fail "--diagnose-v1 requires archived --source-bundle, --baseline and --output"
+  diagnosis_tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-diagnosis.XXXXXX")"
+  trap 'rm -rf "$diagnosis_tmp"' EXIT
+  extract_snapshot_bundle "$SOURCE_BUNDLE" "$diagnosis_tmp/bundle" || fail "source_bundle_archive_invalid"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$diagnosis_tmp/bundle" "$SOURCE_BUNDLE" "$BASELINE_FILE" "$DIAGNOSIS_OUTPUT" "$ROOT" <<'PY'
+import json, pathlib, subprocess, sys
+from ci_metrics_security import diagnose_snapshot
+bundle, archive, baseline, output, root = map(pathlib.Path, sys.argv[1:])
+result = diagnose_snapshot(bundle, archive, baseline)
+result['analyzer'] = {'path': 'scripts/ci/ci_metrics_security.py',
+    'source_revision': subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip(),
+    'sha256': __import__('hashlib').sha256((root / 'scripts/ci/ci_metrics_security.py').read_bytes()).hexdigest()}
+output.write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({'status': result['status'], 'records': len(result['records']), 'output': str(output)}))
+raise SystemExit(1 if result['source_errors'] else 0)
+PY
+  exit $?
 fi
 
 if [[ "$COLLECT" == true && "$REPLAY" == true ]]; then

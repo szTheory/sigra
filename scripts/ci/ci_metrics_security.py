@@ -640,3 +640,92 @@ def validate_comparison_reservations(contract: dict, families: list[dict], sourc
 def _utc(value: str):
     import datetime
     return datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def diagnose_snapshot(bundle: pathlib.Path, archive: pathlib.Path, baseline: pathlib.Path) -> dict:
+    """A companion, never a rewrite of the immutable metrics replay."""
+    saved = json.loads(baseline.read_text())
+    errors = verify_snapshot_hashes(bundle)
+    if _digest(archive) != saved.get('source_bundle_sha256'):
+        errors.append('source_bundle_hash_mismatch')
+    result = {'schema_version': 'sigra.ci-diagnosis/v1',
+              'source_bundle_sha256': _digest(archive), 'baseline_sha256': _digest(baseline),
+              'source_errors': sorted(set(errors)), 'records': [],
+              'cause_claim': 'observations_only; no current flake or application cause proved'}
+    if errors:
+        result['status'] = 'incomplete'
+        return result
+    for selected in saved.get('failure_analysis', {}).get('families', []):
+        run_id = str(selected['run']['id'])
+        family = bundle / 'raw/families' / run_id
+        if not (family / 'manifest.json').is_file():
+            result['records'].append({'run_id': run_id, 'attempt': selected['run'].get('run_attempt'),
+                'source_sha': selected['run'].get('head_sha'), 'event': selected.get('event'),
+                'job_id': None, 'job_name': None, 'step_name': None, 'step_number': None,
+                'original_native_outcome': selected['run'].get('conclusion'),
+                'corrected_category': 'unknown_failure', 'completeness': 'incomplete',
+                'missing_details': ['family_jobs_and_logs_not_retained'], 'cause_status': 'unproved'})
+            continue
+        facts = json.loads((family / 'manifest.json').read_text())
+        run = json.loads((family / 'run.json').read_text())
+        for attempt, ref in sorted(facts.get('attempt_jobs', {}).items()):
+            jobs_path = bundle / ref['path']
+            jobs = json.loads(jobs_path.read_text())['jobs']
+            failed = [j for j in jobs if j.get('conclusion') in ('failure', 'timed_out', 'cancelled')]
+            log_ref = next((d.get('result', {}) for d in facts.get('artifact_diagnostics', [])
+                            if d.get('kind') == 'failed_job_log'), {})
+            # The old collector retained exactly the FIRST failing job in the LAST
+            # attempt. It did not retain a log for the rest. Never reuse that log.
+            logged_job = next((j['id'] for j in jobs if j.get('conclusion') in ('failure', 'timed_out')), None)
+            for job in failed:
+                steps = [s for s in job.get('steps', []) if s.get('conclusion') in ('failure', 'timed_out', 'cancelled')]
+                for step in steps or [{'name': None, 'number': None, 'conclusion': job.get('conclusion')}]:
+                    record = {'run_id': run_id, 'attempt': int(attempt), 'source_sha': run['head_sha'],
+                              'event': run['event'], 'job_id': job['id'], 'job_name': job['name'],
+                              'step_name': step['name'], 'step_number': step['number'],
+                              'original_native_outcome': step['conclusion'], 'original_job_outcome': job['conclusion'],
+                              'jobs_sha256': _digest(jobs_path), 'log_sha256': None,
+                              'corrected_category': 'unknown_failure', 'observed_test': None,
+                              'observed_command_exit': None, 'completeness': 'incomplete',
+                              'missing_details': [], 'cause_status': 'unproved'}
+                    if str(attempt) != str(run['run_attempt']) or job['id'] != logged_job or not log_ref.get('sha256'):
+                        record['missing_details'].append('producer_log_not_retained')
+                    else:
+                        try:
+                            raw = verified_failure_log(bundle, log_ref.get('path'), log_ref.get('sha256'))
+                            record['log_sha256'] = log_ref['sha256']
+                            lines = raw.decode('utf-8', 'replace').splitlines()
+                            relevant = []
+                            start, end = _utc(step['started_at']), _utc(step['completed_at'])
+                            for number, line in enumerate(lines, 1):
+                                try:
+                                    stamp = _utc(line.split(' ', 1)[0])
+                                except (ValueError, IndexError):
+                                    continue
+                                # GitHub step bounds have whole-second precision;
+                                # log timestamps have fractional seconds.
+                                if start <= stamp and stamp.timestamp() < end.timestamp() + 1:
+                                    relevant.append((number, line))
+                            text = '\n'.join(line for _, line in relevant)
+                            exits = re.findall(r'Process completed with exit code (\d+)', text)
+                            if exits:
+                                record['observed_command_exit'] = int(exits[-1])
+                            if (step['name'] == 'CI run metrics self-test'
+                                    and re.search(r'FAIL: legacy timing bundle did not fail closed', text)
+                                    and 'Test Z:' in text):
+                                record.update(corrected_category='historical_metrics_dependency_failure',
+                                              observed_test='Test Z', cause_status='observed_dependency_error')
+                                record['rejected_signature_status'] = ('passing_test_d' if any(
+                                    'PASS: Test D: lint of --add result exits 0 (round-trip valid)' in line for line in lines) else 'unknown')
+                            if not exits:
+                                record['missing_details'].append('native_command_exit_not_retained')
+                            if not relevant:
+                                record['missing_details'].append('selected_step_context_not_retained')
+                            if '[LOG EXCERPT TRUNCATED]' in text:
+                                record['missing_details'].append('selected_log_truncated')
+                            record['completeness'] = 'incomplete' if record['missing_details'] else 'complete'
+                        except (OSError, ValueError, KeyError) as exc:
+                            record['missing_details'].append('log_or_step_identity_invalid:' + str(exc))
+                    result['records'].append(record)
+    result['status'] = 'incomplete' if any(r['completeness'] != 'complete' for r in result['records']) else 'complete'
+    return result
