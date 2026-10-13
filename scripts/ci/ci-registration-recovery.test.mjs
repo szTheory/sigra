@@ -38,6 +38,29 @@ test('the original controls and acceptance verification modes remain unavailable
   }
 });
 
+test('the explicit revision CLI freezes before results and accepts a named diagnostic slot', () => {
+  const freeze = path.join(temporary, 'registration-revision.json');
+  const evidence = path.join(temporary, 'registration-revision-evidence.json');
+  const create = spawnSync(process.execPath, [
+    path.join(root, 'scripts/ci/ci-registration-recovery.mjs'),
+    '--create-revision', '--output', freeze
+  ], { encoding: 'utf8' });
+
+  assert.equal(create.status, 0, `${create.stdout}\n${create.stderr}`);
+  const revision = JSON.parse(fs.readFileSync(freeze, 'utf8'));
+  assert.equal(revision.schema_version, 'sigra.phase253.registration-replan-freeze/v1');
+  assert.equal(revision.status, 'frozen_before_results');
+  assert.equal(revision.ledger.slots[0].id, 'R-DIAG-DESKTOP');
+  assert.equal(revision.ledger.slots[0].argv[0], '--project=admin-eval');
+  assert.equal(revision.ledger.slots[1].id, 'R-DIAG-MOBILE');
+
+  const verify = spawnSync(process.execPath, [
+    path.join(root, 'scripts/ci/ci-registration-recovery.mjs'),
+    '--verify-diagnostic', evidence, '--revision'
+  ], { encoding: 'utf8' });
+  assert.notEqual(verify.status, 0, 'a missing result ledger must remain unverified');
+});
+
 test('runner floors fractional millisecond process timeouts before spawnSync', () => {
   const log = path.join(temporary, 'fractional-timeout.log');
   const result = runLogged(process.execPath, ['-e', 'setTimeout(() => {}, 200)'], root, process.env, log, 118654.22791698575);

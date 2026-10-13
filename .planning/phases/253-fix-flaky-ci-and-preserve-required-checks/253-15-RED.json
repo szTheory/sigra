@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-reporter=tap --test-name-pattern='explicit revision CLI freezes before results' scripts/ci/ci-registration-recovery.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: the explicit revision CLI freezes before results and accepts a named diagnostic slot\nnot ok 1 - the explicit revision CLI freezes before results and accepts a named diagnostic slot\n  ---\n  duration_ms: 51.138584\n  type: 'test'\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-registration-recovery.test.mjs:41:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    \n    usage: ci-registration-recovery.mjs --create-freeze --output <freeze.json> | --run-recovery <freeze.json> --output <evidence.json> | --verify-diagnostic <evidence.json>\n    \n    \n    3 !== 0\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 0\n  actual: 3\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-registration-recovery.test.mjs:49:10)\n    Test.runInAsyncScope (node:async_hooks:203:9)\n    Test.run (node:internal/test_runner/test:1402:25)\n    Test.start (node:internal/test_runner/test:1262:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 118.789291\n",
+  "targetTest": "the explicit revision CLI freezes before results and accepts a named diagnostic slot",
+  "targetFile": "scripts/ci/ci-registration-recovery.test.mjs",
+  "expected": "--create-revision --output <freeze> creates sigra.phase253.registration-replan-freeze/v1 and exposes the frozen desktop/mobile slot argv",
+  "actual": "The runner rejected --create-revision with its old usage error (exit 3); the Node assertion for successful revision creation failed.",
+  "semanticAssessment": "The target test executed and failed at the expected assertion because the new explicit revision behavior does not exist. TAP reports exactly one failing target and no skipped tests or setup failures."
+}
