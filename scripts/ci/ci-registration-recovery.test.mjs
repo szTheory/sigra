@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { runLogged, verifyDiagnosticData, verifyNativeAttempt } from './ci-registration-recovery.mjs';
+import { attemptDirectory, runLogged, verifyDiagnosticData, verifyNativeAttempt } from './ci-registration-recovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const runner = path.join(root, 'scripts/ci/ci-registration-repro.sh');
@@ -44,6 +44,18 @@ test('runner floors fractional millisecond process timeouts before spawnSync', (
   assert.equal(result.error, null);
   assert.equal(result.exit_code, 0);
   assert.match(fs.readFileSync(log, 'utf8'), /^$/);
+});
+
+test('browser attempt output gets a unique directory beside preserved preflight logs', () => {
+  const slotDirectory = path.join(temporary, 'D19-DIAG-01');
+  fs.mkdirSync(slotDirectory, { recursive: true });
+  fs.writeFileSync(path.join(slotDirectory, 'runner-preflight-error.log'), 'preserved exact runner error\n');
+
+  const attempt = attemptDirectory(temporary, 'D19-DIAG-01', 1);
+
+  assert.notEqual(attempt, slotDirectory);
+  assert.equal(fs.readFileSync(path.join(slotDirectory, 'runner-preflight-error.log'), 'utf8'), 'preserved exact runner error\n');
+  assert.equal(fs.existsSync(attempt), false);
 });
 
 function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {

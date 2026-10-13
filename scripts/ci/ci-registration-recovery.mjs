@@ -253,6 +253,8 @@ function createFreeze(output, root = ROOT) {
   const preflight = readJson(preflightPath);
   const runnerFailurePath = path.join(root, PHASE_DIR, '253-09-RUNNER-PREFLIGHT-FAILURE.json');
   const runnerFailure = readJson(runnerFailurePath);
+  const directoryCollisionPath = path.join(root, PHASE_DIR, '253-09-RUNNER-DIRECTORY-COLLISION.json');
+  const directoryCollision = readJson(directoryCollisionPath);
   if (preflight.schema_version !== 'sigra.phase253.registration-preflight/v1' || preflight.status !== 'passed' || preflight.exit_code !== 0 || preflight.playwright_version !== '1.59.1') {
     throw new Error('measured lockfile Playwright restore is missing or failed');
   }
@@ -261,6 +263,9 @@ function createFreeze(output, root = ROOT) {
   }
   if (runnerFailure.schema_version !== 'sigra.phase253.registration-runner-preflight-failure/v1' || runnerFailure.browser_launches !== 0 || runnerFailure.child_processes_spawned?.length !== 0 || runnerFailure.slot !== 'D19-DIAG-01') {
     throw new Error('the preserved runner timeout receipt is missing, malformed, or claims a browser launch');
+  }
+  if (directoryCollision.schema_version !== 'sigra.phase253.registration-runner-preflight-failure/v1' || directoryCollision.browser_launches !== 0 || directoryCollision.child_processes_spawned?.length !== 0 || directoryCollision.slot !== 'D19-DIAG-01') {
+    throw new Error('the preserved raw-directory collision receipt is missing, malformed, or claims a browser launch');
   }
   const lock = readJson(path.join(root, 'test/example/priv/playwright/package-lock.json'));
   const playwrightVersion = lock.packages?.['node_modules/@playwright/test']?.version;
@@ -384,16 +389,18 @@ function createFreeze(output, root = ROOT) {
     superseded_unlaunched_freezes: [
       { path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-01.json`, sha256: 'b20adf12b7b07ede9d11a85fd813d90c6c3f4bd7fcdf38eaf564797f06baf5db', commit: '31c966de7f5f4486cf936e83d38406764a1130bb' },
       { path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-02.json`, sha256: 'e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00', commit: 'e402569ad2205a99a2a63fa86aa1956896331ad5' },
-      { path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-03.json`, sha256: 'e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00', commit: '094dc5a7913a24fd0126e321a9a854eec7bf8130' }
+      { path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-03.json`, sha256: 'e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00', commit: '094dc5a7913a24fd0126e321a9a854eec7bf8130' },
+      { path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-04.json`, sha256: '127c445addd23c59d871670e6b06f0b9c42714ecccecfb482e4b628483ce228a', commit: 'e813c4223' }
     ],
     ledger: {
       slots, max_launches: 19, max_charged_duration_ms: TOTAL_CAP_MS,
       prelaunch_setup: {
         components: [
           { path: path.relative(root, preflightPath), sha256: fileHash(preflightPath), duration_ms: preflight.duration_ms, purpose: 'locked Playwright npm ci restore' },
-          { path: path.relative(root, runnerFailurePath), sha256: fileHash(runnerFailurePath), duration_ms: runnerFailure.tool_reported_wall_time_ms, purpose: 'runner timeout preflight failure before child process startup' }
+          { path: path.relative(root, runnerFailurePath), sha256: fileHash(runnerFailurePath), duration_ms: runnerFailure.tool_reported_wall_time_ms, purpose: 'runner timeout preflight failure before child process startup' },
+          { path: path.relative(root, directoryCollisionPath), sha256: fileHash(directoryCollisionPath), duration_ms: directoryCollision.tool_reported_wall_time_ms, purpose: 'runner raw-directory collision before child process startup' }
         ],
-        duration_ms: preflight.duration_ms + runnerFailure.tool_reported_wall_time_ms,
+        duration_ms: preflight.duration_ms + runnerFailure.tool_reported_wall_time_ms + directoryCollision.tool_reported_wall_time_ms,
         charged_to_slot: 'D19-DIAG-01'
       },
       control_round_order: ['first bundle: admin-eval, admin-eval-mobile, admin-eval-dark', 'second bundle: admin-eval, admin-eval-mobile, admin-eval-dark'],
@@ -480,6 +487,10 @@ export function runLogged(program, args, cwd, env, log, timeout) {
   return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null };
 }
 
+export function attemptDirectory(baseDir, slotId, attemptNumber) {
+  return path.join(baseDir, `${slotId}-attempt-${String(attemptNumber).padStart(2, '0')}`);
+}
+
 async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
   const used = new Set(evidence.attempts.map((attempt) => attempt.slot_id));
   const slot = freeze.ledger.slots.find((item) => item.kind === 'diagnostic' && item.id.startsWith('D19-DIAG-') && !used.has(item.id));
@@ -495,7 +506,7 @@ async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
   const prelaunchSetupMs = slot.sequence === 1 ? freeze.ledger.prelaunch_setup.duration_ms : 0;
   if (prelaunchSetupMs >= slot.max_duration_ms) throw new Error('prelaunch dependency restore consumed the entire first diagnostic slot');
   const baseDir = `${evidenceFile}.raw`;
-  const attemptDir = path.join(baseDir, slot.id);
+  const attemptDir = attemptDirectory(baseDir, slot.id, evidence.attempts.length + 1);
   fs.mkdirSync(attemptDir, { recursive: false });
   const startNs = process.hrtime.bigint().toString();
   const startMs = Number(process.hrtime.bigint()) / 1e6;
@@ -631,17 +642,15 @@ async function runRecovery(freezeFile, evidenceFile, root = ROOT) {
     if (evidence.status !== 'running') throw new Error(`refusing to continue terminal evidence: ${evidence.status}`);
     if (evidence.freeze_sha256 !== freezeHash) {
       if (evidence.attempts?.length !== 0 || evidence.limits?.browser_launches !== 0 || evidence.limits?.charged_duration_ms !== 0) throw new Error('only an untouched zero-launch start ledger may be rebound to the corrected freeze');
-      evidence.prior_zero_launch_start = {
+      evidence.prior_zero_launch_starts ??= [];
+      evidence.prior_zero_launch_starts.push({
         freeze_path: evidence.freeze_path, freeze_sha256: evidence.freeze_sha256,
         source_commit: evidence.source?.checkout_head,
-        preservation_commit: '6079a15aa'
-      };
-      evidence.preflight_failure = {
-        path: `${PHASE_DIR}/253-09-RUNNER-PREFLIGHT-FAILURE.json`,
-        sha256: fileHash(path.join(root, PHASE_DIR, '253-09-RUNNER-PREFLIGHT-FAILURE.json')),
-        charged_duration_ms: freeze.ledger.prelaunch_setup.duration_ms,
-        browser_launches: 0
-      };
+        preservation_commit: evidence.prior_zero_launch_starts.length === 0 ? '6079a15aa' : 'e813c4223'
+      });
+      evidence.preflight_failures = freeze.ledger.prelaunch_setup.components
+        .filter((component) => component.purpose.startsWith('runner '))
+        .map((component) => ({ path: component.path, sha256: component.sha256, charged_duration_ms: component.duration_ms, browser_launches: 0 }));
       evidence.freeze_path = path.relative(root, freezeFile);
       evidence.freeze_sha256 = freezeHash;
       evidence.source = { checkout_head: freeze.source.checkout_head, blobs: freeze.source.blobs };
