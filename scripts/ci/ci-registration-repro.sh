@@ -4,6 +4,10 @@ set -Eeuo pipefail
 usage() {
   cat <<'USAGE'
 Usage:
+  ci-registration-repro.sh --create-revision --output <freeze.json>
+  ci-registration-repro.sh --prepare-revision <freeze.json> --evidence <evidence.json>
+  ci-registration-repro.sh --run-revision <freeze.json> --slot <id> --output <evidence.json>
+  ci-registration-repro.sh --verify-diagnostic <evidence.json> --revision
   ci-registration-repro.sh --run-recovery <freeze.json> --output <new-evidence.json>
   ci-registration-repro.sh --verify-diagnostic <evidence.json>
   ci-registration-repro.sh --run-frozen <freeze.json> --output <evidence.json>
@@ -24,6 +28,21 @@ PHASE_DIR="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
 FREEZE=""
 OUTPUT=""
 case "$MODE" in
+  --create-revision)
+    [[ "${2:-}" == --output && -n "${3:-}" && -z "${4:-}" ]] || { usage >&2; exit 2; }
+    OUTPUT="${3}"
+    ;;
+  --prepare-revision)
+    FREEZE="${2:-}"
+    [[ -n "$FREEZE" && "${3:-}" == --evidence && -n "${4:-}" && -z "${5:-}" ]] || { usage >&2; exit 2; }
+    OUTPUT="${4}"
+    ;;
+  --run-revision)
+    FREEZE="${2:-}"
+    [[ -n "$FREEZE" && "${3:-}" == --slot && -n "${4:-}" && "${5:-}" == --output && -n "${6:-}" && -z "${7:-}" ]] || { usage >&2; exit 2; }
+    SLOT="${4}"
+    OUTPUT="${6}"
+    ;;
   --run-frozen)
     FREEZE="${2:-}"
     [[ "${3:-}" == --output && -n "${4:-}" ]] || { usage >&2; exit 2; }
@@ -36,7 +55,8 @@ case "$MODE" in
     ;;
   --verify-diagnostic)
     OUTPUT="${2:-}"
-    [[ -n "$OUTPUT" && -z "${3:-}" ]] || { usage >&2; exit 2; }
+    if [[ "${3:-}" == --revision ]]; then REVISION=true; [[ -z "${4:-}" ]] || { usage >&2; exit 2; }
+    else [[ -n "$OUTPUT" && -z "${3:-}" ]] || { usage >&2; exit 2; }; fi
     ;;
   --diagnose-setup)
     [[ "${2:-}" == --output && -n "${3:-}" && -z "${4:-}" ]] || { usage >&2; exit 2; }
@@ -51,11 +71,26 @@ esac
 if [[ -n "$FREEZE" && "$FREEZE" != /* ]]; then FREEZE="$ROOT/$FREEZE"; fi
 if [[ -n "$OUTPUT" && "$OUTPUT" != /* ]]; then OUTPUT="$ROOT/$OUTPUT"; fi
 
+if [[ "$MODE" == --create-revision ]]; then
+  exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --create-revision --output "$OUTPUT"
+fi
+
+if [[ "$MODE" == --prepare-revision ]]; then
+  exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --prepare-revision "$FREEZE" --evidence "$OUTPUT"
+fi
+
+if [[ "$MODE" == --run-revision ]]; then
+  exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --run-revision "$FREEZE" --slot "$SLOT" --output "$OUTPUT"
+fi
+
 if [[ "$MODE" == --run-recovery ]]; then
   exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --run-recovery "$FREEZE" --output "$OUTPUT"
 fi
 
 if [[ "$MODE" == --verify-diagnostic ]]; then
+  if [[ "${REVISION:-false}" == true ]]; then
+    exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --verify-diagnostic "$OUTPUT" --revision
+  fi
   exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --verify-diagnostic "$OUTPUT"
 fi
 

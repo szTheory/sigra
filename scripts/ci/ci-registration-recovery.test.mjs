@@ -41,10 +41,7 @@ test('the original controls and acceptance verification modes remain unavailable
 test('the explicit revision CLI freezes before results and accepts a named diagnostic slot', () => {
   const freeze = path.join(temporary, 'registration-revision.json');
   const evidence = path.join(temporary, 'registration-revision-evidence.json');
-  const create = spawnSync(process.execPath, [
-    path.join(root, 'scripts/ci/ci-registration-recovery.mjs'),
-    '--create-revision', '--output', freeze
-  ], { encoding: 'utf8' });
+  const create = spawnSync(runner, ['--create-revision', '--output', freeze], { encoding: 'utf8' });
 
   assert.equal(create.status, 0, `${create.stdout}\n${create.stderr}`);
   const revision = JSON.parse(fs.readFileSync(freeze, 'utf8'));
@@ -54,10 +51,7 @@ test('the explicit revision CLI freezes before results and accepts a named diagn
   assert.equal(revision.ledger.slots[0].argv[0], '--project=admin-eval');
   assert.equal(revision.ledger.slots[1].id, 'R-DIAG-MOBILE');
 
-  const verify = spawnSync(process.execPath, [
-    path.join(root, 'scripts/ci/ci-registration-recovery.mjs'),
-    '--verify-diagnostic', evidence, '--revision'
-  ], { encoding: 'utf8' });
+  const verify = spawnSync(runner, ['--verify-diagnostic', evidence, '--revision'], { encoding: 'utf8' });
   assert.notEqual(verify.status, 0, 'a missing result ledger must remain unverified');
 });
 

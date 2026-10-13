@@ -10,6 +10,8 @@ import { fileURLToPath } from 'node:url';
 
 const SCHEMA = 'sigra.phase253.registration-recovery-evidence/v1';
 const FREEZE_SCHEMA = 'sigra.phase253.registration-recovery-freeze/v1';
+const REPLAN_SCHEMA = 'sigra.phase253.registration-replan-evidence/v1';
+const REPLAN_FREEZE_SCHEMA = 'sigra.phase253.registration-replan-freeze/v1';
 const PHASE_DIR = '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks';
 const PROJECTS = [
   { name: 'admin-eval', port: 25311 },
@@ -20,15 +22,25 @@ const SOURCE_FILES = [
   'scripts/ci/ci-registration-repro.sh',
   'scripts/ci/ci-registration-recovery.mjs',
   'scripts/ci/ci-registration-recovery.test.mjs',
+  'scripts/ci/ci-playwright-report.mjs',
   'test/example/priv/playwright/playwright.config.ts',
   'test/example/priv/playwright/tests/admin-eval.spec.ts',
   'test/example/priv/playwright/helpers/adminFlows.ts',
   'test/example/priv/playwright/package-lock.json',
+  'test/example/mix.lock',
   '.github/workflows/ci.yml'
 ];
 const TOTAL_CAP_MS = 58 * 60 * 1000;
-const D19_CAP_MS = 20 * 60 * 1000;
-const PROJECT_SLOT_MS = 2 * 60 * 1000;
+const D19_CAP_MS = 18 * 60 * 1000;
+const PROJECT_SLOT_MS = 120_000;
+const REPLAN_FREEZE_PATH = `${PHASE_DIR}/253-REPLAN-REGISTRATION-FREEZE.json`;
+const REPLAN_EVIDENCE_PATH = `${PHASE_DIR}/253-REPLAN-REGISTRATION-EVIDENCE.json`;
+const DIRTY_CONFIG = {
+  path: '.planning/config.json', status: ' M', porcelain: ' M .planning/config.json',
+  ref: 'refs/gsd/phase253-recovery-execution-unrelated-config',
+  blob: 'ab8aa3007f17294e2f224d4ac8482522b79bda24',
+  sha256: '8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d'
+};
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 const sha256 = (data) => crypto.createHash('sha256').update(data).digest('hex');
@@ -55,6 +67,18 @@ const git = (args) => {
 };
 
 function parseArgs(argv) {
+  if (argv[0] === '--create-revision' && argv[1] === '--output' && argv[2] && argv.length === 3) {
+    return { mode: 'create-revision', output: path.resolve(argv[2]) };
+  }
+  if (argv[0] === '--prepare-revision' && argv[1] && argv[2] === '--evidence' && argv[3] && argv.length === 4) {
+    return { mode: 'prepare-revision', freeze: path.resolve(argv[1]), evidence: path.resolve(argv[3]) };
+  }
+  if (argv[0] === '--run-revision' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv.length === 6) {
+    return { mode: 'run-revision', freeze: path.resolve(argv[1]), slot: argv[3], evidence: path.resolve(argv[5]) };
+  }
+  if (argv[0] === '--verify-diagnostic' && argv[1] && argv[2] === '--revision' && argv.length === 3) {
+    return { mode: 'verify-revision', evidence: path.resolve(argv[1]) };
+  }
   if (argv[0] === '--create-freeze' && argv[1] === '--output' && argv[2] && argv.length === 3) {
     return { mode: 'create-freeze', output: path.resolve(argv[2]) };
   }
@@ -73,6 +97,158 @@ function checkCleanCandidate(root) {
   if (status.status !== 0) throw new Error('cannot read checkout status');
   if (status.stdout.trim()) throw new Error('candidate checkout must be clean before freezing or running recovery');
   return head;
+}
+
+function readGitBlob(root, reference) {
+  const type = run('git', ['-C', root, 'cat-file', '-t', reference]);
+  if (type.status !== 0 || type.stdout.trim() !== 'blob') throw new Error(`preservation ref is not a readable blob: ${reference}`);
+  const result = spawnSync('git', ['-C', root, 'cat-file', 'blob', reference], { encoding: null, maxBuffer: 8 * 1024 * 1024 });
+  if (result.status !== 0) throw new Error(`cannot read preserved bytes from ${reference}`);
+  return result.stdout;
+}
+
+function assertDirtyConfigPreserved(root) {
+  const file = path.join(root, DIRTY_CONFIG.path);
+  const bytes = fs.readFileSync(file);
+  if (sha256(bytes) !== DIRTY_CONFIG.sha256 || git(['-C', root, 'hash-object', file]) !== DIRTY_CONFIG.blob) {
+    throw new Error('the unrelated planning config no longer matches its authorized SHA-256 and Git blob');
+  }
+  if (!bytes.equals(readGitBlob(root, DIRTY_CONFIG.ref))) {
+    throw new Error('the unrelated planning config does not match the exact bytes in its preservation ref');
+  }
+}
+
+function assertRevisionCheckout(root, evidenceFile = null) {
+  assertDirtyConfigPreserved(root);
+  const status = run('git', ['-C', root, 'status', '--porcelain=v1', '--untracked-files=all']);
+  if (status.status !== 0) throw new Error('cannot read candidate checkout status');
+  const expectedEvidence = evidenceFile ? path.relative(root, evidenceFile) : null;
+  const lines = status.stdout.split('\n').filter(Boolean);
+  const seenConfig = lines.filter((line) => line === DIRTY_CONFIG.porcelain).length;
+  if (seenConfig !== 1) throw new Error(`candidate must retain exactly the preserved config status '${DIRTY_CONFIG.status}'`);
+  for (const line of lines) {
+    if (line === DIRTY_CONFIG.porcelain) continue;
+    const code = line.slice(0, 2);
+    const file = line.slice(3).replace(/^"|"$/g, '');
+    if (expectedEvidence && file === expectedEvidence && [' M', '??'].includes(code)) continue;
+    if (expectedEvidence && (file === `${expectedEvidence}.raw` || file.startsWith(`${expectedEvidence}.raw/`)) && code === '??') continue;
+    throw new Error(`candidate checkout contains an unapproved change: ${line}`);
+  }
+  const staged = run('git', ['-C', root, 'diff', '--cached', '--quiet']);
+  if (staged.status !== 0) throw new Error('staged changes are not allowed while running a frozen registration slot');
+  const tracked = run('git', ['-C', root, 'diff', '--name-status']);
+  if (tracked.status !== 0) throw new Error('cannot read tracked source changes');
+  const allowedTracked = new Set([DIRTY_CONFIG.path, ...(expectedEvidence ? [expectedEvidence] : [])]);
+  for (const line of tracked.stdout.split('\n').filter(Boolean)) {
+    const file = line.split('\t').at(-1);
+    if (!allowedTracked.has(file)) throw new Error(`tracked source changed after freeze: ${file}`);
+  }
+  return git(['-C', root, 'rev-parse', 'HEAD']);
+}
+
+const FIRST_CONTROLS = [
+  'registration waits for explicitly released LiveView readiness',
+  'registration stops when LiveView readiness is never released',
+  'registration fails when the readiness wait is deliberately broken',
+  'registration detects a deliberate same-account collision',
+  'registration retains the first forced assertion failure trace'
+];
+const SECOND_CONTROLS = [
+  'registration starts from a fresh database and context',
+  'registration discards trace after a passing control',
+  'registration regression passes after an evidenced repair'
+];
+const REPLAN_PROJECTS = [
+  { name: 'admin-eval', port: 25311 },
+  { name: 'admin-eval-mobile', port: 25312 },
+  { name: 'admin-eval-dark', port: 25313 }
+];
+
+function makeRevisionSlots() {
+  const selectedTitle = 'render bundle: board-mg-9/populated';
+  const command = (project, title) => [
+    '--project=' + project, `--grep=${title}`, '--workers=1', '--retries=0', '--trace=retain-on-failure'
+  ];
+  const slots = [
+    { id: 'R-DIAG-DESKTOP', owner_plan: 15, sequence: 1, kind: 'diagnostic', stage: 'D19', project: 'admin-eval', max_duration_ms: PROJECT_SLOT_MS, title: selectedTitle, argv: command('admin-eval', selectedTitle) },
+    { id: 'R-DIAG-MOBILE', owner_plan: 15, sequence: 2, kind: 'diagnostic', stage: 'D19', project: 'admin-eval-mobile', max_duration_ms: PROJECT_SLOT_MS, title: selectedTitle, argv: command('admin-eval-mobile', selectedTitle) },
+    { id: 'R-DIAG-CONTROL-DARK', owner_plan: 16, sequence: 3, kind: 'diagnostic_with_controls', stage: 'D19', project: 'admin-eval-dark', max_duration_ms: PROJECT_SLOT_MS, title: selectedTitle, named_cases: [selectedTitle, ...FIRST_CONTROLS], argv: command('admin-eval-dark', `(${[selectedTitle, ...FIRST_CONTROLS].join('|')})`) }
+  ];
+  for (const [round, titles] of [['first', FIRST_CONTROLS], ['second', SECOND_CONTROLS]]) {
+    for (const project of REPLAN_PROJECTS) {
+      if (round === 'first' && project.name === 'admin-eval-dark') continue;
+      const id = `R-CONTROL-${round.toUpperCase()}-${project.name.replace('admin-eval', '').replace(/^-/, '').toUpperCase() || 'DESKTOP'}`;
+      slots.push({ id, owner_plan: 16, sequence: slots.length + 1, kind: 'control', stage: 'D19', round, project: project.name, max_duration_ms: PROJECT_SLOT_MS, named_cases: titles, argv: command(project.name, `(${titles.join('|')})`) });
+    }
+  }
+  const regular = slots.map((slot) => ({ ...slot, selection: { spec: 'tests/admin-eval.spec.ts', title: slot.title ?? null, cases: slot.named_cases ?? null } }));
+  const acceptance = [];
+  for (const project of REPLAN_PROJECTS) for (let repeat = 1; repeat <= 3; repeat++) {
+    acceptance.push({ id: `D20-ACCEPT-${project.name}-${repeat}`, owner_plan: 17, kind: 'acceptance', stage: 'D20', project: project.name, repeat, max_duration_ms: 240_000 });
+  }
+  return { regular, acceptance };
+}
+
+function createRevision(output, root = ROOT) {
+  if (fs.existsSync(output)) throw new Error(`refusing to overwrite an existing revision freeze: ${output}`);
+  const head = assertRevisionCheckout(root);
+  const phaseDir = path.join(root, PHASE_DIR);
+  const oldFreezePath = path.join(phaseDir, '253-RECOVERY-REGISTRATION-FREEZE.json');
+  const oldEvidencePath = path.join(phaseDir, '253-RECOVERY-REGISTRATION-EVIDENCE.json');
+  const terminalPath = path.join(phaseDir, '253-09-TERMINAL-DIAGNOSTIC.json');
+  const capturePath = path.join(phaseDir, '253-ADDITIONAL-EXECUTION-CAPTURE.json');
+  const oldFreeze = readJson(oldFreezePath);
+  const oldEvidence = readJson(oldEvidencePath);
+  const terminal = readJson(terminalPath);
+  const capture = readJson(capturePath);
+  if (terminal.status !== 'halted' || terminal.attempt?.slot !== 'D19-DIAG-01' || terminal.attempt?.browser_launched !== false || terminal.attempt?.charged_duration_ms !== 3768) {
+    throw new Error('the original terminal diagnostic does not prove the spent 3,768 ms zero-launch slot');
+  }
+  if (oldEvidence.status !== 'halted' || oldEvidence.limits?.browser_launches !== 0 || oldEvidence.limits?.charged_duration_ms !== 3768) {
+    throw new Error('the original registration evidence does not preserve the halted zero-launch charge');
+  }
+  if (capture.dirty_config?.status !== DIRTY_CONFIG.status || capture.dirty_config?.sha256 !== DIRTY_CONFIG.sha256
+    || capture.dirty_config?.ref !== DIRTY_CONFIG.ref || capture.dirty_config?.blob !== DIRTY_CONFIG.blob) {
+    throw new Error('the prior capture does not match the exact unrelated config preservation');
+  }
+  const slots = makeRevisionSlots();
+  const freeze = {
+    schema_version: REPLAN_FREEZE_SCHEMA, status: 'frozen_before_results', frozen_at: new Date().toISOString(),
+    source: { repository: 'szTheory/sigra', checkout_head: head, tracked_worktree_clean_except_exact_preserved_config: true, blobs: sourceBlobs(root, head) },
+    historical: {
+      original_freeze_path: path.relative(root, oldFreezePath), original_freeze_sha256: fileHash(oldFreezePath),
+      original_evidence_path: path.relative(root, oldEvidencePath), original_evidence_sha256: fileHash(oldEvidencePath),
+      terminal_diagnostic_path: path.relative(root, terminalPath), terminal_diagnostic_sha256: fileHash(terminalPath),
+      recovery_capture_path: path.relative(root, capturePath), recovery_capture_sha256: fileHash(capturePath),
+      spent_slot_id: 'D19-DIAG-01', spent_browser_launches: 0, spent_charged_ms: 3768,
+      rejected_original_log_hashes: terminal.redacted_logs.map((entry) => ({ path: entry.path, sha256: entry.sha256, accepted_as_native_receipt: false })),
+      preceding_order: 'unknown', preceding_order_reason: 'The archived original preceding-order log is absent.'
+    },
+    preparation: { id: 'D19-COMMON-PREPARATION', max_duration_ms: 116232, charged_duration_ms: 0, allowed: ['npm ci using the existing lockfile', 'node --version', 'Playwright --version', 'mix --version', 'MIX_ENV=dev mix deps version observation'], prohibits: ['application boot', 'HTTP request', 'browser launch', 'endpoint compilation', 'database setup'] },
+    ledger: {
+      historical_charge_ms: 3768, spent_reservations: [{ id: 'D19-DIAG-01', browser_launches: 0, charged_ms: 3768, outcome: 'halted_setup_and_drop_exit_1' }],
+      slots: slots.regular, acceptance_slots: slots.acceptance,
+      d19: { regular_command_reservations: 8, each_max_duration_ms: 120000, max_charged_duration_ms: 1080000, retry: { count: 1, max_duration_ms: 120000, requires_independent_infrastructure_diagnosis: true } },
+      d20: { acceptance_command_reservations: 9, each_max_duration_ms: 240000, max_charged_duration_ms: 2160000, retry: { count: 1, max_duration_ms: 240000, requires_independent_infrastructure_diagnosis: true } },
+      shared_retry_count: 1, max_new_browser_launches: 18, max_charged_duration_ms: TOTAL_CAP_MS,
+      max_total_charged_ms_including_historical: 58 * 60 * 1000,
+      unused_slot_mapping: [
+        { id: 'R-DIAG-DESKTOP', old_slot: 'D19-DIAG-02', owner: '253-15' },
+        { id: 'R-DIAG-MOBILE', old_slot: 'D19-DIAG-03', owner: '253-15' },
+        { id: 'R-DIAG-CONTROL-DARK', old_slot: 'D19-CONTROL-03', owner: '253-16', combined: true },
+        { id: 'R-CONTROL-FIRST-DESKTOP', old_slot: 'D19-CONTROL-01', owner: '253-16' },
+        { id: 'R-CONTROL-FIRST-MOBILE', old_slot: 'D19-CONTROL-02', owner: '253-16' },
+        { id: 'R-CONTROL-SECOND-DESKTOP', old_slot: 'D19-CONTROL-04', owner: '253-16' },
+        { id: 'R-CONTROL-SECOND-MOBILE', old_slot: 'D19-CONTROL-05', owner: '253-16' },
+        { id: 'R-CONTROL-SECOND-DARK', old_slot: 'D19-CONTROL-06', owner: '253-16' }
+      ]
+    },
+    tools: { playwright_required: '1.59.1', playwright_lock_blob: sourceBlobs(root, head)['test/example/priv/playwright/package-lock.json'], ecto_sql: null, phoenix_live_view: null },
+    stop_conditions: ['source or config mismatch', 'missing/empty/forged native report', 'process and report status mismatch', 'failed setup/drop/cleanup', 'port collision', 'slot or cumulative clock exhaustion', 'unknown infrastructure outcome']
+  };
+  freeze.freeze_sha256 = sha256(JSON.stringify(freeze));
+  writeJson(output, freeze);
+  return freeze;
 }
 
 function sourceBlobs(root, head) {
@@ -106,7 +282,10 @@ function playReportTests(report) {
     for (const spec of suite.specs ?? []) {
       for (const test of spec.tests ?? []) {
         for (const result of test.results ?? []) {
-          found.push({ title: spec.title, file: spec.file ?? suite.file ?? '', project: test.projectName ?? '', status: result.status, duration: result.duration });
+          found.push({ title: spec.title, file: spec.file ?? suite.file ?? '', project: test.projectName ?? '',
+            expected_status: test.expectedStatus ?? null, summary_status: test.status ?? null,
+            status: result.status, duration: result.duration, result_count: test.results?.length ?? 0,
+            error: result.error ?? null, attachments: result.attachments ?? [] });
         }
       }
     }
@@ -503,6 +682,331 @@ export function runLogged(program, args, cwd, env, log, timeout) {
   return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, redacted_secret_fields: redactedSecretFields };
 }
 
+function revisionFreezeDigest(freeze) {
+  return sha256(JSON.stringify(Object.fromEntries(Object.entries(freeze).filter(([key]) => key !== 'freeze_sha256'))));
+}
+
+function validateRevisionSource(root, freeze, evidenceFile = null) {
+  const head = assertRevisionCheckout(root, evidenceFile);
+  const ancestor = run('git', ['-C', root, 'merge-base', '--is-ancestor', freeze.source.checkout_head, head]);
+  if (ancestor.status !== 0) throw new Error(`frozen source ${freeze.source.checkout_head} is not an ancestor of ${head}`);
+  for (const [file, expected] of Object.entries(freeze.source.blobs)) {
+    const actual = git(['-C', root, 'hash-object', file]);
+    if (actual !== expected) throw new Error(`source identity mismatch for ${file}: ${actual}`);
+  }
+  const phaseDir = path.join(root, PHASE_DIR);
+  const identities = [
+    [path.join(phaseDir, '253-RECOVERY-REGISTRATION-FREEZE.json'), freeze.historical.original_freeze_sha256],
+    [path.join(phaseDir, '253-RECOVERY-REGISTRATION-EVIDENCE.json'), freeze.historical.original_evidence_sha256],
+    [path.join(phaseDir, '253-09-TERMINAL-DIAGNOSTIC.json'), freeze.historical.terminal_diagnostic_sha256],
+    [path.join(phaseDir, '253-RECOVERY-REPLAN-CAPTURE.json'), freeze.historical.recovery_capture_sha256]
+  ];
+  for (const [file, expected] of identities) if (fileHash(file) !== expected) throw new Error(`historical registration bytes changed: ${path.relative(root, file)}`);
+  return head;
+}
+
+function loadRevisionEvidence(freezeFile, evidenceFile, root) {
+  const freeze = readJson(freezeFile);
+  if (freeze.schema_version !== REPLAN_FREEZE_SCHEMA || freeze.status !== 'frozen_before_results'
+    || freeze.freeze_sha256 !== revisionFreezeDigest(freeze)) throw new Error('registration revision freeze is malformed or has an invalid digest');
+  validateRevisionSource(root, freeze, evidenceFile);
+  const freezeHash = fileHash(freezeFile);
+  let evidence;
+  if (fs.existsSync(evidenceFile)) {
+    evidence = readJson(evidenceFile);
+    if (evidence.schema_version !== REPLAN_SCHEMA || evidence.freeze_sha256 !== freezeHash) throw new Error('registration evidence does not match the committed revision freeze');
+    if (!['running', 'diagnosis_incomplete', 'halted'].includes(evidence.status)) throw new Error('registration evidence has an unsupported status');
+  } else {
+    evidence = {
+      schema_version: REPLAN_SCHEMA, status: 'running', freeze_path: path.relative(root, freezeFile), freeze_sha256: freezeHash,
+      source: { checkout_head: freeze.source.checkout_head, blobs: freeze.source.blobs },
+      historical: { ...freeze.historical, preceding_order: 'unknown' },
+      preparation_receipts: [], attempts: [],
+      limits: { historical_charge_ms: freeze.ledger.historical_charge_ms, preparation_charge_ms: 0, charged_duration_ms: freeze.ledger.historical_charge_ms, browser_launches: 0, used_slots: [], max_charged_duration_ms: freeze.ledger.max_charged_duration_ms, max_new_browser_launches: freeze.ledger.max_new_browser_launches }
+    };
+    fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  }
+  return { freeze, freezeHash, evidence };
+}
+
+function receiptFile(baseDir, label, file) {
+  const reference = referenceFor(baseDir, file);
+  if (!reference) throw new Error(`cannot create receipt for ${label}`);
+  return reference;
+}
+
+function prepareRevision(freezeFile, evidenceFile, root = ROOT) {
+  const { freeze, evidence } = loadRevisionEvidence(freezeFile, evidenceFile, root);
+  if (evidence.preparation_receipts.length) throw new Error('common dependency preparation is already recorded and cannot be repeated');
+  if (evidence.attempts.length || evidence.limits.browser_launches) throw new Error('common preparation must precede every browser attempt');
+  const prepDir = path.join(`${evidenceFile}.raw`, 'preparation');
+  fs.mkdirSync(prepDir, { recursive: true });
+  const playwrightDir = path.join(root, 'test/example/priv/playwright');
+  const started = process.hrtime.bigint();
+  const commands = [
+    { name: 'locked_npm_ci', command: 'npm', args: ['ci'], cwd: playwrightDir, env: process.env },
+    { name: 'node_version', command: 'node', args: ['--version'], cwd: root, env: process.env },
+    { name: 'playwright_version', command: path.join(playwrightDir, 'node_modules/.bin/playwright'), args: ['--version'], cwd: playwrightDir, env: process.env },
+    { name: 'mix_version', command: 'mix', args: ['--version'], cwd: path.join(root, 'test/example'), env: { ...process.env, MIX_ENV: 'dev' } },
+    { name: 'host_dependency_versions', command: 'mix', args: ['deps'], cwd: path.join(root, 'test/example'), env: { ...process.env, MIX_ENV: 'dev' } }
+  ];
+  let failed = null;
+  for (const [index, item] of commands.entries()) {
+    validateRevisionSource(root, freeze, evidenceFile);
+    const elapsed = Number(process.hrtime.bigint() - started) / 1e6;
+    const remaining = freeze.preparation.max_duration_ms - Math.ceil(elapsed);
+    if (remaining <= 0) { failed = 'common dependency preparation reached its 116,232 ms reservation before all probes completed'; break; }
+    const log = path.join(prepDir, `${String(index + 1).padStart(2, '0')}-${item.name}.log`);
+    const before = process.hrtime.bigint();
+    const result = runLogged(item.command, item.args, item.cwd, item.env, log, remaining);
+    const duration = Math.ceil(Number(process.hrtime.bigint() - before) / 1e6);
+    const receipt = { name: item.name, argv: [item.command, ...item.args], exit_code: result.exit_code, duration_ms: duration, log: receiptFile(`${evidenceFile}.raw`, item.name, log), redacted_secret_fields: result.redacted_secret_fields };
+    evidence.preparation_receipts.push(receipt);
+    evidence.limits.preparation_charge_ms += duration;
+    evidence.limits.charged_duration_ms += duration;
+    if (duration + evidence.limits.preparation_charge_ms - duration > freeze.preparation.max_duration_ms) failed = 'common dependency preparation exceeded its 116,232 ms reservation';
+    if (result.exit_code !== 0 || result.error) failed = `${item.name} failed with exit ${result.exit_code ?? 'null'}${result.error ? `: ${result.error}` : ''}`;
+    writeJson(evidenceFile, evidence);
+    if (failed) break;
+  }
+  if (!failed) {
+    const playwright = readJson(path.join(playwrightDir, 'node_modules/@playwright/test/package.json')).version;
+    const depsLog = evidence.preparation_receipts.find((item) => item.name === 'host_dependency_versions');
+    const depText = fs.readFileSync(path.join(`${evidenceFile}.raw`, depsLog.log.path), 'utf8');
+    const versionOf = (name) => depText.split('\n').find((line) => line.startsWith(`* ${name} `))?.match(/^\* .+ ([0-9]+\.[0-9]+\.[0-9]+) /)?.[1] ?? null;
+    evidence.toolchain = { node: fs.readFileSync(path.join(`${evidenceFile}.raw`, evidence.preparation_receipts[1].log.path), 'utf8').trim(), playwright, mix: fs.readFileSync(path.join(`${evidenceFile}.raw`, evidence.preparation_receipts[3].log.path), 'utf8').split('\n')[0], ecto_sql: versionOf('ecto_sql'), phoenix_live_view: versionOf('phoenix_live_view') };
+    if (playwright !== '1.59.1' || !evidence.toolchain.ecto_sql || !evidence.toolchain.phoenix_live_view) failed = 'observed dependency versions do not match the frozen locked toolchain';
+  }
+  evidence.preparation_status = failed ? 'failed' : 'passed';
+  if (failed) { evidence.status = 'halted'; evidence.stop_reason = failed; }
+  writeJson(evidenceFile, evidence);
+  if (failed) throw new Error(failed);
+  return { status: evidence.status, preparation_charge_ms: evidence.limits.preparation_charge_ms, toolchain: evidence.toolchain };
+}
+
+export function verifyRevisionAttempt(attempt, freeze, baseDir) {
+  const errors = [];
+  const fail = (message) => errors.push(message);
+  if (!attempt || typeof attempt !== 'object') return { ok: false, errors: ['attempt is missing'] };
+  const slot = freeze.ledger.slots.find((item) => item.id === attempt.slot_id);
+  if (!slot) fail('attempt does not identify a frozen slot');
+  else {
+    if (slot.owner_plan !== 15 || slot.kind !== 'diagnostic' || slot.stage !== 'D19') fail('attempt consumed a slot not owned by plan15');
+    if (attempt.project !== slot.project || attempt.sequence !== slot.sequence) fail('attempt identity differs from its frozen slot');
+    if (!Number.isFinite(attempt.charged_duration_ms) || attempt.charged_duration_ms < 0 || attempt.charged_duration_ms > slot.max_duration_ms) fail('attempt exceeded its frozen 120,000 ms command');
+    if (JSON.stringify(attempt.argv) !== JSON.stringify(slot.argv)) fail('browser argv differs from the frozen selection');
+  }
+  if (attempt.source_commit !== freeze.source.checkout_head || JSON.stringify(attempt.source_blobs) !== JSON.stringify(freeze.source.blobs)) fail('attempt is not bound to the frozen source commit and blobs');
+  let start; let end;
+  try { start = BigInt(attempt.started_monotonic_ns); end = BigInt(attempt.ended_monotonic_ns); } catch { start = 0n; end = 0n; }
+  if (start <= 0n || end <= start || Math.ceil(Number(end - start) / 1e6) !== attempt.execution_duration_ms) fail('attempt monotonic duration is absent or inconsistent');
+  if (attempt.charged_duration_ms !== attempt.execution_duration_ms) fail('attempt charge does not equal its measured setup/browser/drop duration');
+  for (const name of ['setup_log', 'app_log', 'test_log', 'drop_log']) {
+    const reference = attempt.files?.[name];
+    const file = confinedFile(baseDir, reference);
+    if (!file || !fs.existsSync(file)) { fail(`native ${name} is missing`); continue; }
+    if (!reference.sha256 || fileHash(file) !== reference.sha256) fail(`native ${name} digest mismatch`);
+    if (!fs.statSync(file).size) fail(`native ${name} is empty`);
+  }
+  if (attempt.database?.setup_exit_code !== 0 || attempt.database?.drop_exit_code !== 0) fail('database setup or drop did not succeed');
+  if (!/^sigra_253_recovery_[a-z0-9_]+$/.test(attempt.database?.name ?? '')) fail('database identity is not a unique recovery database');
+  if (attempt.build_directory_removed !== true || !attempt.build_path?.endsWith(`/mix-build`)) fail('attempt did not remove its unique physical Mix build');
+  if (attempt.server?.http_status !== 200 || attempt.browser?.launched !== true) fail('registration browser did not launch after HTTP 200 readiness');
+  if (!Number.isInteger(attempt.browser?.exit_code)) fail('native browser CLI exit is missing');
+  const reportRef = attempt.files?.playwright_report;
+  const reportFile = confinedFile(baseDir, reportRef);
+  if (!reportFile || !fs.existsSync(reportFile)) fail('native Playwright report is missing');
+  else {
+    if (!reportRef.sha256 || fileHash(reportFile) !== reportRef.sha256) fail('native Playwright report digest mismatch');
+    try {
+      const report = readJson(reportFile);
+      if (!Array.isArray(report.errors) || !Array.isArray(report.config?.projects) || !Array.isArray(report.suites)) fail('native Playwright report shape is incomplete');
+      const tests = playReportTests(report);
+      if (!tests.length) fail('native Playwright report contains no results');
+      const selected = tests.filter((item) => item.title === slot.title && item.project === attempt.project && path.basename(item.file) === 'admin-eval.spec.ts');
+      if (selected.length !== 1) fail('native Playwright report must contain exactly one byte-exact selected project/title/spec result');
+      if (selected.length === 1) {
+        const result = selected[0];
+        if (!['expected', 'unexpected', 'flaky', 'skipped'].includes(result.summary_status)) fail('native Playwright summary status is invalid');
+        if (!Number.isFinite(result.duration) || result.duration < 0) fail('native Playwright result duration is missing');
+        if (result.result_count !== 1) fail('native Playwright result must have exactly one attempt with retries disabled');
+        if (['skipped', 'interrupted'].includes(result.status)) fail('native selected test was skipped or interrupted');
+        if (!result.expected_status || result.status !== result.expected_status) fail('native expectedStatus and result status disagree');
+        const passed = result.summary_status === 'expected';
+        if ((attempt.browser.exit_code === 0) !== passed) fail('native test status disagrees with the Playwright process exit');
+        if (attempt.observed_outcome !== (passed ? 'passed' : 'failed')) fail('attempt classification disagrees with the native result');
+        if (!passed && !result.error) fail('failed native test has no retained assertion/error detail');
+      }
+      if (report.errors.length && attempt.browser.exit_code === 0) fail('Playwright emitted top-level errors despite a zero exit');
+    } catch (error) { fail(`native Playwright report could not be parsed: ${error.message}`); }
+  }
+  if (attempt.browser?.exit_code !== 0) {
+    const trace = attempt.files?.traces?.some((reference) => {
+      const file = confinedFile(baseDir, reference);
+      return file && fs.existsSync(file) && fileHash(file) === reference.sha256 && fs.statSync(file).size > 0;
+    });
+    if (!trace) fail('failed browser result has no retained trace with a matching digest');
+  }
+  if (attempt.registration?.server_post_confirmed !== true || attempt.registration?.success_flash_asserted !== true) fail('selected registration did not prove both server POST and success flash');
+  for (const key of ['playwright', 'ecto_sql', 'phoenix_live_view']) if (!attempt.toolchain?.[key]) fail(`attempt toolchain is missing ${key}`);
+  return { ok: errors.length === 0, errors };
+}
+
+function verifyRevisionData(evidence, freeze, baseDir) {
+  const errors = [];
+  if (evidence?.schema_version !== REPLAN_SCHEMA || evidence.freeze_sha256 !== freeze?.freeze_sha256) errors.push('evidence does not match the frozen revision');
+  if (evidence.historical?.preceding_order !== 'unknown' || evidence.limits?.historical_charge_ms !== 3768) errors.push('historical uncertainty or spent charge was not preserved');
+  if (!Array.isArray(evidence.attempts) || !Array.isArray(evidence.preparation_receipts)) errors.push('preparation or attempt ledger is absent');
+  else {
+    const ids = new Set();
+    let browserLaunches = 0; let attemptCharge = 0;
+    for (const attempt of evidence.attempts) {
+      if (ids.has(attempt.slot_id)) errors.push(`diagnostic slot ${attempt.slot_id} was reused`);
+      ids.add(attempt.slot_id);
+      const verified = verifyRevisionAttempt(attempt, freeze, baseDir);
+      errors.push(...verified.errors.map((message) => `${attempt.project}: ${message}`));
+      browserLaunches += attempt.browser?.launched ? 1 : 0;
+      attemptCharge += Number(attempt.charged_duration_ms) || 0;
+    }
+    const prepCharge = evidence.preparation_receipts.reduce((sum, item) => sum + (Number(item.duration_ms) || 0), 0);
+    if (prepCharge !== evidence.limits.preparation_charge_ms) errors.push('preparation charge does not match its command receipts');
+    if (prepCharge > freeze.preparation.max_duration_ms) errors.push('common preparation exceeded its frozen 116,232 ms ceiling');
+    if (attemptCharge + 3768 + prepCharge !== evidence.limits.charged_duration_ms) errors.push('cumulative charged time does not match native receipt durations');
+    if (evidence.limits.charged_duration_ms > freeze.ledger.d19.max_charged_duration_ms) errors.push('D-19 charged time exceeds its frozen 18-minute allowance');
+    if (browserLaunches !== evidence.limits.browser_launches) errors.push('browser launch count differs from native receipts');
+    if (browserLaunches > freeze.ledger.max_new_browser_launches || evidence.limits.charged_duration_ms > freeze.ledger.max_charged_duration_ms) errors.push('shared recovery limit exceeded');
+    if (evidence.limits.charged_duration_ms > freeze.ledger.max_total_charged_ms_including_historical) errors.push('58-minute historical-inclusive recovery ceiling exceeded');
+    const ordered = freeze.ledger.slots.filter((slot) => slot.owner_plan === 15);
+    if (evidence.attempts.some((item, index) => item.slot_id !== ordered[index]?.id)) errors.push('plan15 diagnostic slots were consumed out of order');
+    if (!['running', 'diagnosis_incomplete', 'halted'].includes(evidence.status)) errors.push('evidence status is unsupported');
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
+  const { freeze, freezeHash, evidence } = loadRevisionEvidence(freezeFile, evidenceFile, root);
+  if (evidence.status !== 'running') throw new Error(`refusing to continue terminal evidence: ${evidence.status}`);
+  if (evidence.preparation_status !== 'passed') throw new Error('common dependency preparation has not passed');
+  const slot = freeze.ledger.slots.find((item) => item.id === slotId);
+  if (!slot || slot.owner_plan !== 15 || slot.kind !== 'diagnostic') throw new Error(`slot ${slotId} is not owned by plan15`);
+  const expectedSlot = freeze.ledger.slots.filter((item) => item.owner_plan === 15)[evidence.attempts.length];
+  if (slot !== expectedSlot) throw new Error(`next plan15 slot must be ${expectedSlot?.id ?? 'none'}; refusing ${slotId}`);
+  if (evidence.limits.used_slots.includes(slotId)) throw new Error(`slot ${slotId} was already spent`);
+  const charge = evidence.limits.charged_duration_ms;
+  if (charge + slot.max_duration_ms > freeze.ledger.d19.max_charged_duration_ms) throw new Error('full 120,000 ms command does not fit in the remaining D-19 allocation');
+  if (charge + slot.max_duration_ms > freeze.ledger.max_charged_duration_ms || charge + slot.max_duration_ms > freeze.ledger.max_total_charged_ms_including_historical) throw new Error('full 120,000 ms command does not fit in the remaining shared allocation');
+  validateRevisionSource(root, freeze, evidenceFile);
+  const project = REPLAN_PROJECTS.find((item) => item.name === slot.project);
+  const rawBase = `${evidenceFile}.raw`;
+  const attemptDir = path.join(rawBase, slot.id, 'attempt-01');
+  fs.mkdirSync(attemptDir, { recursive: false });
+  const started = process.hrtime.bigint();
+  const deadline = Number(started) / 1e6 + slot.max_duration_ms;
+  const unique = `${Date.now().toString(36)}_${process.pid}`;
+  const db = `sigra_253_recovery_${project.name.replaceAll('-', '_')}_${unique}`.toLowerCase();
+  const env = diagnosticEnvironment(project, db, attemptDir);
+  const attempt = {
+    slot_id: slot.id, sequence: slot.sequence, stage: slot.stage, project: project.name, argv: slot.argv,
+    source_commit: freeze.source.checkout_head, source_blobs: freeze.source.blobs,
+    started_monotonic_ns: started.toString(), database: { name: db, setup_exit_code: null, drop_exit_code: null },
+    server: { port: project.port, http_status: null }, browser: { launched: false, exit_code: null },
+    observed_outcome: 'setup_failed', registration: { server_post_confirmed: false, success_flash_asserted: false }, files: {}, toolchain: evidence.toolchain
+  };
+  const paths = Object.fromEntries(['setup_log', 'app_log', 'test_log', 'drop_log'].map((name) => [name, path.join(attemptDir, `${name.replaceAll('_', '-')}.log`)]));
+  const reportPath = path.join(attemptDir, 'playwright-report.json');
+  const playwrightDir = path.join(root, 'test/example/priv/playwright');
+  const exampleDir = path.join(root, 'test/example');
+  let app = null; let terminalError = null;
+  try {
+    const setup = runLogged('mix', ['ecto.setup'], exampleDir, env, paths.setup_log, Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
+    attempt.database.setup_exit_code = setup.exit_code;
+    if (setup.exit_code !== 0) throw new Error(`database setup failed with exit ${setup.exit_code ?? 'null'}${setup.error ? `: ${setup.error}` : ''}`);
+    const fd = fs.openSync(paths.app_log, 'w');
+    try { app = spawn('mix', ['phx.server'], { cwd: exampleDir, env, stdio: ['ignore', fd, fd], detached: true }); }
+    finally { fs.closeSync(fd); }
+    const ready = app.pid ? await waitReady(app, `http://127.0.0.1:${project.port}/`, deadline) : null;
+    attempt.server.http_status = ready;
+    attempt.server.app_pid = app.pid ?? null;
+    if (ready !== 200) throw new Error(`Phoenix did not return HTTP 200 at port ${project.port} before the slot expired`);
+    const installed = readJson(path.join(playwrightDir, 'node_modules/@playwright/test/package.json')).version;
+    if (installed !== freeze.tools.playwright_required) throw new Error(`installed Playwright ${installed} differs from frozen ${freeze.tools.playwright_required}`);
+    if (Number(process.hrtime.bigint()) / 1e6 >= deadline) throw new Error('120,000 ms slot expired before browser launch');
+    attempt.browser.launched = true;
+    const browser = runLogged(path.join(playwrightDir, 'node_modules/.bin/playwright'), [
+      'test', 'tests/admin-eval.spec.ts', `--project=${project.name}`, `--grep=${slot.title}`,
+      '--retries=0', '--workers=1', '--trace=retain-on-failure', `--output=${path.join(attemptDir, 'playwright-output')}`
+    ], playwrightDir, { ...env, CI: 'true', SIGRA_EXAMPLE_URL: `http://127.0.0.1:${project.port}`, SIGRA_PLAYWRIGHT_JSON: reportPath }, paths.test_log, Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
+    attempt.browser.exit_code = browser.exit_code;
+    attempt.observed_outcome = browser.exit_code === 0 ? 'passed' : 'failed';
+    attempt.files.playwright_report = receiptFile(rawBase, 'Playwright report', reportPath);
+    const outDir = path.join(attemptDir, 'playwright-output');
+    const traces = [];
+    if (fs.existsSync(outDir)) for (const entry of fs.readdirSync(outDir, { recursive: true })) {
+      if (String(entry).endsWith('trace.zip')) {
+        const source = path.join(outDir, String(entry)); const destination = path.join(attemptDir, `trace-${traces.length + 1}.zip`);
+        fs.copyFileSync(source, destination); traces.push(receiptFile(rawBase, 'trace', destination));
+      }
+    }
+    attempt.files.traces = traces;
+    attempt.registration.success_flash_asserted = browser.exit_code === 0;
+    const appText = fs.readFileSync(paths.app_log, 'utf8');
+    attempt.registration.server_post_confirmed = /POST \/users\/log_in/.test(appText) || /POST \/users\/register/.test(appText);
+    if (browser.exit_code === 0 && !attempt.registration.server_post_confirmed) throw new Error('native server log did not confirm the registration POST');
+  } catch (error) { terminalError = error.message; }
+  finally {
+    await stopApp(app);
+    const drop = runLogged('mix', ['ecto.drop', '--quiet'], exampleDir, env, paths.drop_log, Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
+    attempt.database.drop_exit_code = drop.exit_code;
+    if (drop.exit_code !== 0) terminalError = [terminalError, `database drop failed with exit ${drop.exit_code ?? 'null'}`].filter(Boolean).join('; ');
+    try { fs.rmSync(env.MIX_BUILD_PATH, { recursive: true, force: true }); attempt.build_directory_removed = !fs.existsSync(env.MIX_BUILD_PATH); }
+    catch (error) { attempt.build_directory_removed = false; terminalError = [terminalError, `Mix build cleanup failed: ${error.message}`].filter(Boolean).join('; '); }
+  }
+  for (const [name, file] of Object.entries(paths)) {
+    if (!fs.existsSync(file)) fs.writeFileSync(file, `${name} command did not start${terminalError ? `: ${terminalError}` : ''}\n`);
+    else if (!fs.statSync(file).size) fs.writeFileSync(file, `${name} command produced no output\n`);
+    attempt.files[name] = receiptFile(rawBase, name, file);
+  }
+  attempt.ended_monotonic_ns = process.hrtime.bigint().toString();
+  attempt.execution_duration_ms = Math.ceil(Number(BigInt(attempt.ended_monotonic_ns) - BigInt(attempt.started_monotonic_ns)) / 1e6);
+  attempt.charged_duration_ms = attempt.execution_duration_ms;
+  attempt.build_path = env.MIX_BUILD_PATH;
+  attempt.terminal_diagnostic = terminalError;
+  evidence.attempts.push(attempt);
+  evidence.limits.used_slots.push(slotId);
+  evidence.limits.browser_launches += attempt.browser.launched ? 1 : 0;
+  evidence.limits.charged_duration_ms += attempt.charged_duration_ms;
+  if (attempt.charged_duration_ms > slot.max_duration_ms) terminalError = [terminalError, 'slot duration ceiling exceeded'].filter(Boolean).join('; ');
+  const nativeValidation = verifyRevisionAttempt(attempt, freeze, rawBase);
+  if (!nativeValidation.ok) terminalError = [terminalError, ...nativeValidation.errors].filter(Boolean).join('; ');
+  if (terminalError) { evidence.status = 'halted'; evidence.stop_reason = terminalError; }
+  else if (evidence.attempts.length === 2) { evidence.status = 'diagnosis_incomplete'; evidence.stop_reason = 'Desktop and mobile diagnostics completed; the dark combined diagnostic/control command remains reserved for plan16.'; }
+  else evidence.status = 'running';
+  writeJson(evidenceFile, evidence);
+  const checked = verifyRevisionData(evidence, freeze, rawBase);
+  if (!checked.ok) {
+    evidence.status = 'halted'; evidence.stop_reason = `native revision receipt verification failed: ${checked.errors.join('; ')}`;
+    writeJson(evidenceFile, evidence);
+    throw new Error(evidence.stop_reason);
+  }
+  if (terminalError) throw new Error(terminalError);
+  return { status: evidence.status, slot: slotId, project: project.name, outcome: attempt.observed_outcome, browser_launched: attempt.browser.launched, charged_duration_ms: attempt.charged_duration_ms };
+}
+
+function verifyRevisionFile(evidenceFile, root = ROOT) {
+  try {
+    const evidence = readJson(evidenceFile);
+    if (typeof evidence.freeze_path !== 'string' || !evidence.freeze_path) throw new Error('evidence does not name its frozen source');
+    const freezePath = path.resolve(root, evidence.freeze_path);
+    const loaded = loadRevisionEvidence(freezePath, evidenceFile, root);
+    const freeze = loaded.freeze;
+    const latest = loaded.evidence;
+    const result = verifyRevisionData(latest, freeze, `${evidenceFile}.raw`);
+    if (!result.ok) console.error(`native revision receipt rejected:\n- ${result.errors.join('\n- ')}`);
+    else console.log(`native revision receipts verified: ${latest.attempts.length}/2 plan15 diagnostics; ${latest.limits.browser_launches} launches; ${latest.limits.charged_duration_ms} ms charged; status=${latest.status}`);
+    return result;
+  } catch (error) { console.error(`native revision receipt rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
+}
+
 export function attemptDirectory(baseDir, slotId, attemptNumber) {
   return path.join(baseDir, `${slotId}-attempt-${String(attemptNumber).padStart(2, '0')}`);
 }
@@ -751,6 +1255,26 @@ function verifyDiagnosticFile(evidenceFile, root = ROOT) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.mode === 'create-revision') {
+    const freeze = createRevision(args.output);
+    console.log(`registration revision frozen before results: ${path.relative(ROOT, args.output)} (${freeze.source.checkout_head})`);
+    return;
+  }
+  if (args.mode === 'prepare-revision') {
+    const result = prepareRevision(args.freeze, args.evidence);
+    console.log(JSON.stringify(result));
+    return;
+  }
+  if (args.mode === 'run-revision') {
+    const result = await runRevision(args.freeze, args.slot, args.evidence);
+    console.log(JSON.stringify(result));
+    return;
+  }
+  if (args.mode === 'verify-revision') {
+    const result = verifyRevisionFile(args.evidence);
+    if (!result.ok) process.exitCode = 3;
+    return;
+  }
   if (args.mode === 'create-freeze') {
     const freeze = createFreeze(args.output);
     console.log(`recovery freeze created before browser results: ${path.relative(ROOT, args.output)} (${freeze.source.checkout_head})`);
