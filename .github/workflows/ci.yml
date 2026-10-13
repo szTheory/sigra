@@ -786,13 +786,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
         id: example_unit_deps_cache
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
@@ -801,15 +801,15 @@ jobs:
           key: ${{ runner.os }}-example-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
           restore-keys: ${{ runner.os }}-example-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Fetch example deps
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example
         run: mix deps.get
       - name: Compile example
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example
         run: mix compile --warnings-as-errors
       - name: Setup database
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example
         env:
           MIX_ENV: test
@@ -818,7 +818,7 @@ jobs:
           PGHOST: localhost
         run: mix ecto.create && mix ecto.migrate
       - name: Run smoke tests
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example
         env:
           MIX_ENV: test
@@ -892,13 +892,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
         id: install_smoke_deps_cache
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
@@ -907,25 +907,25 @@ jobs:
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
           restore-keys: ${{ runner.os }}-hex-registry-
       - name: Install Hex + Rebar
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         run: |
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch Sigra library deps
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         run: mix deps.get
       - name: Run install smoke harness
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         env:
           PGUSER: postgres
           PGPASSWORD: postgres
@@ -1282,13 +1282,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
         id: http_smoke_deps_cache
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
@@ -1297,19 +1297,19 @@ jobs:
           key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
           restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
       - name: Fetch example deps
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example
         env:
           MIX_ENV: dev
         run: mix deps.get
       - name: Compile example
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example
         env:
           MIX_ENV: dev
         run: mix compile --warnings-as-errors
       - name: Setup example dev DB
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example
         env:
           MIX_ENV: dev
@@ -1318,7 +1318,7 @@ jobs:
           PGHOST: localhost
         run: mix ecto.create && mix ecto.migrate
       - name: Boot example app in background
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         working-directory: test/example
         env:
           MIX_ENV: dev
@@ -1332,7 +1332,7 @@ jobs:
         # follow this pattern — this step missed it.
         run: mix phx.server > /tmp/example-http-server.log 2>&1 &
       - name: Run HTTP smoke harness
-        if: needs.changes.outputs.docs_only != 'true'
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
         run: scripts/ci/http-smoke.sh
       - name: Dump example app log (on failure)
         if: failure()
@@ -1928,6 +1928,7 @@ jobs:
       - name: Honest-skip verdict (GATE-03)
         env:
           DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          CLASSIFIER_RESULT: ${{ needs.changes.result }}
           EVENT_NAME: ${{ github.event_name }}
           FORCE_ROT_PROBE: ${{ inputs.force_rot_probe }}
           INSTALL_GOLDEN_CONTRACT: ${{ needs.install_golden_contract.result }}
@@ -1943,6 +1944,7 @@ jobs:
         run: |
           set -euo pipefail
           bash scripts/ci/honest-skip-verdict.sh --format table --event "${EVENT_NAME}" --docs-only "${DOCS_ONLY}" \
+            --classifier-result "${CLASSIFIER_RESULT}" \
             --lane install_golden_contract="${INSTALL_GOLDEN_CONTRACT}" \
             --lane library_tests="${LIBRARY_TESTS}" \
             --lane library_tests_dep_off="${LIBRARY_TESTS_DEP_OFF}" \

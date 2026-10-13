@@ -301,9 +301,11 @@ question from Tier A/B. Gated:
 
 - The heavy steps (deps cache through the test-running step) of the three app-behaviour
   ruleset-required lanes — `example_unit_smoke`, `install_smoke`, `example_http_smoke` — each
-  guarded `if: needs.changes.outputs.docs_only != 'true'` (with
+  guarded `if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}` (with
   `!cancelled()` composed in where the job also carries other conditions). Gated at step level, not
-  job level, so all four required contexts still run and conclude `success`.
+  job level, so all four required contexts still run and conclude `success`. A docs-only skip is
+  allowed only when the `changes` classifier completed successfully; a failed classifier runs
+  these heavy steps even if it left a stale `docs_only=true` output.
 - The six selected browser steps (`admin_behavior`, `admin_checkpoints`, `design_gallery`,
   `design_gallery_snapshots`, `non_admin_smoke`, `demo_showcase`) have exact conditions
   recorded under their producer `example_playwright_shard`. All five matrix producers stay present.
@@ -318,7 +320,9 @@ successful `changes` classifier, and exactly `docs_only == 'true'`. False, empty
 or non-PR claims run the full selected body. The terminal aggregate always runs.
 
 **Fail-open polarity:** an empty, missing, or non-`'true'` `docs_only` output runs every heavy
-step and job above. Only an explicit `docs_only == 'true'` skips them.
+step and job above. A `docs_only == 'true'` output skips them only when the pull-request
+classifier result is `success`; otherwise the heavy work runs and the honest-skip verdict fails
+the unverified claim.
 
 **Not skipped.** `fast_checks` and `library_tests`/`library_tests_shard` are deliberately exempt
 from Tier C and carry no `changes` dependency: their guards (`milestone-verification-gate.sh`,

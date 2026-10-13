@@ -68,9 +68,9 @@ A	job	admin_checkpoint_recapture	-	Recapture admin-checkpoint baselines (in-CI)	
 A	job	notify_release_lane_rot	-	Notify on red ci-gate (release-lane-rot)	job	always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'	exempt
 B	job	admin_eval_render	-	Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)	job	github.event_name != 'pull_request'	assert
 C	job	example_playwright_shard	-	Example Playwright shard (design_gallery)	step	!(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')	ignore
-C	job	example_unit_smoke	-	Example unit smoke (ExUnit + ConnTest)	step	needs.changes.outputs.docs_only != 'true'	ignore
-C	job	install_smoke	-	Install smoke (fresh phx.new + sigra.install)	step	needs.changes.outputs.docs_only != 'true'	ignore
-C	job	example_http_smoke	-	Example HTTP smoke (boot + curl critical routes)	step	needs.changes.outputs.docs_only != 'true'	ignore
+C	job	example_unit_smoke	-	Example unit smoke (ExUnit + ConnTest)	step	needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true'	ignore
+C	job	install_smoke	-	Install smoke (fresh phx.new + sigra.install)	step	needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true'	ignore
+C	job	example_http_smoke	-	Example HTTP smoke (boot + curl critical routes)	step	needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true'	ignore
 C	step	admin_behavior	example_playwright_shard	Run admin behavior browser truth	step	!cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'admin_behavior'	ignore
 C	step	admin_checkpoints	example_playwright_shard	Run admin checkpoints	step	!cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'admin_checkpoints'	ignore
 C	step	design_gallery	example_playwright_shard	Run design gallery behavior	step	!cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'design_gallery' && github.event_name == 'pull_request'	ignore

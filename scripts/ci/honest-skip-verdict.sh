@@ -51,6 +51,7 @@ MANIFEST="${ROOT}/.github/ci-skip-manifest.tsv"
 WORKFLOW="${ROOT}/.github/workflows/ci.yml"
 EVENT="${GITHUB_EVENT_NAME:-}"
 DOCS_ONLY_RAW="${DOCS_ONLY:-}"
+CLASSIFIER_RESULT_RAW="${CLASSIFIER_RESULT:-}"
 FORMAT="table"
 FORCE_ROT_PROBE="${FORCE_ROT_PROBE:-}"
 FROM_JSON=""
@@ -62,6 +63,7 @@ while [[ $# -gt 0 ]]; do
     --workflow) WORKFLOW="$2"; shift 2;;
     --event) EVENT="$2"; shift 2;;
     --docs-only) DOCS_ONLY_RAW="$2"; shift 2;;
+    --classifier-result) CLASSIFIER_RESULT_RAW="$2"; shift 2;;
     --lane) LANE_ARGS+=("$2"); shift 2;;
     --from-json) FROM_JSON="$2"; shift 2;;
     --format) FORMAT="$2"; shift 2;;
@@ -229,11 +231,20 @@ gate_mentions_honest_signal() {
 # ---------------------------------------------------------------------------
 declare -a ALLOWED=()
 DOCS_ONLY_NORMALIZED="false"
+CLASSIFIER_CLAIM_INVALID=false
 if [[ "$EVENT" == "pull_request" ]]; then
   ALLOWED+=("upgrade_smoke")
   if [[ "$DOCS_ONLY_RAW" == "true" ]]; then
-    DOCS_ONLY_NORMALIZED="true"
+    if [[ "$CLASSIFIER_RESULT_RAW" == "success" ]]; then
+      DOCS_ONLY_NORMALIZED="true"
+    else
+      CLASSIFIER_CLAIM_INVALID=true
+      NOTES+=("docs_only=true was supplied without a successful changes classifier (result: ${CLASSIFIER_RESULT_RAW:-<empty>}); treating it as false and failing closed.")
+    fi
   fi
+elif [[ "$DOCS_ONLY_RAW" == "true" ]]; then
+  CLASSIFIER_CLAIM_INVALID=true
+  NOTES+=("docs_only=true was supplied for a non-pull_request event; treating it as false and failing closed.")
 fi
 
 declare -a NOTES=()
@@ -297,6 +308,7 @@ done
 # ---------------------------------------------------------------------------
 VERDICTS_JSON="[]"
 VERDICT_OVERALL="PASS"
+[[ "$CLASSIFIER_CLAIM_INVALID" == true ]] && VERDICT_OVERALL="FAIL"
 declare -a FAIL_LINES=()
 
 for lane in "${LANES[@]}"; do
@@ -368,10 +380,10 @@ NOTES_JSON="$(printf '%s\n' "${NOTES[@]}" | jq -R -s 'split("\n") | map(select(l
 case "$FORMAT" in
   json)
     jq -n \
-      --arg event "$EVENT" --arg docs_only "$DOCS_ONLY_NORMALIZED" \
+      --arg event "$EVENT" --arg docs_only "$DOCS_ONLY_NORMALIZED" --arg classifier_result "$CLASSIFIER_RESULT_RAW" \
       --argjson allowed_skips "$ALLOWED_JSON" --argjson lanes "$VERDICTS_JSON" \
       --argjson notes "$NOTES_JSON" --arg verdict "$VERDICT_OVERALL" \
-      '{event: $event, docs_only: $docs_only, allowed_skips: $allowed_skips,
+      '{event: $event, classifier_result: $classifier_result, docs_only: $docs_only, allowed_skips: $allowed_skips,
         lanes: $lanes, notes: $notes, verdict: $verdict}'
     ;;
   table)

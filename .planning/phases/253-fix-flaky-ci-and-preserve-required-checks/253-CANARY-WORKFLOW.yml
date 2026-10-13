@@ -1,0 +1,309 @@
+name: Phase 253 Gate Canary
+run-name: Phase 253 Gate Canary / ${{ inputs.scenario }} / ${{ github.run_id }}-${{ github.run_attempt }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: Bounded non-publishing gate canary case
+        required: true
+        type: choice
+        options: [full-pass, docs-only, actual-failure, missing-seam, unexpected-skip, cancelled, verifier]
+      candidate_sha:
+        description: Immutable candidate helper commit
+        required: true
+        type: string
+      fixture_sha:
+        description: Immutable fixture workflow commit
+        required: true
+        type: string
+      fixture_blob:
+        description: Git blob for this scoped fixture workflow
+        required: true
+        type: string
+      matrix_evidence:
+        description: Base64 JSON receipt used only by the separate verifier job
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  producers:
+    name: producer (${{ matrix.seam }})
+    if: ${{ inputs.scenario != 'verifier' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    strategy:
+      fail-fast: false
+      matrix:
+        seam: [non_admin_smoke, admin_behavior, admin_checkpoints, design_gallery, demo_showcase]
+    steps:
+      - name: Run the named synthetic tiny command
+        id: tiny
+        shell: bash
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+          SEAM: ${{ matrix.seam }}
+        run: |
+          mkdir -p producer
+          printf '{"schema_version":"sigra.gate-canary-producer/v1","scenario":"%s","seam":"%s","actual_event":"%s","synthetic":true}\n' \
+            "$SCENARIO" "$SEAM" "$GITHUB_EVENT_NAME" > producer/producer.json
+          if [[ "$SCENARIO" == cancelled && "$SEAM" == admin_behavior ]]; then
+            sleep 900
+          fi
+          if [[ "$SCENARIO" == actual-failure && "$SEAM" == admin_behavior ]]; then
+            echo 'intentional canary body failure'
+            exit 17
+          fi
+      - name: Upload this producer's synthetic receipt
+        if: ${{ always() && !(inputs.scenario == 'missing-seam' && matrix.seam == 'admin_checkpoints') }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: gate-canary-producer-${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: producer/producer.json
+          if-no-files-found: error
+          retention-days: 7
+
+  verdict:
+    name: Browser verdict
+    if: ${{ always() && inputs.scenario != 'cancelled' && inputs.scenario != 'verifier' }}
+    needs: [producers]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout the immutable fixture source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.fixture_sha }}
+          persist-credentials: false
+      - name: Checkout candidate shared gate helpers by pinned commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          path: candidate
+          persist-credentials: false
+      - name: Verify immutable fixture and candidate checkout identities
+        env:
+          EXPECTED_FIXTURE_SHA: ${{ inputs.fixture_sha }}
+          EXPECTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          [[ "$(git rev-parse HEAD)" == "$EXPECTED_FIXTURE_SHA" ]]
+          [[ "$(git -C candidate rev-parse HEAD)" == "$EXPECTED_CANDIDATE_SHA" ]]
+      - name: Download each producer into its own directory
+        if: ${{ always() }}
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          pattern: gate-canary-producer-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: producer-artifacts
+          merge-multiple: false
+      - name: Shared browser record validator
+        id: shared_verdict
+        if: ${{ always() }}
+        shell: bash
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          FIXTURE_SHA: ${{ inputs.fixture_sha }}
+          FIXTURE_BLOB: ${{ inputs.fixture_blob }}
+          GITHUB_SHA: ${{ inputs.candidate_sha }}
+          GITHUB_EVENT_NAME: ${{ inputs.scenario == 'docs-only' && 'pull_request' || 'workflow_dispatch' }}
+          GITHUB_WORKFLOW_REF: szTheory/sigra/.github/workflows/ci.yml@${{ github.ref_name }}
+          GITHUB_WORKFLOW_SHA: ${{ inputs.candidate_sha }}
+          CLASSIFIER_RESULT: ${{ inputs.scenario == 'docs-only' && 'success' || '' }}
+          DOCS_ONLY: ${{ inputs.scenario == 'docs-only' && 'true' || 'false' }}
+        run: |
+          set +e
+          python3 - <<'PY'
+          import json, os
+          scenario = os.environ['SCENARIO']
+          print(json.dumps({'scenario': scenario, 'synthetic': True, 'actual_event': 'workflow_dispatch',
+                            'logical_event': 'pull_request' if scenario == 'docs-only' else 'workflow_dispatch',
+                            'classifier_result': 'success' if scenario == 'docs-only' else '',
+                            'docs_only': scenario == 'docs-only', 'production_dispatch_exemption': False}))
+          PY
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
+          import { spawnSync } from 'node:child_process';
+          const helper = await import(pathToFileURL(path.resolve('candidate/scripts/ci/ci-browser-records.mjs')));
+          const seams = helper.SEAMS;
+          const scenario = process.env.SCENARIO;
+          const logicalEvent = scenario === 'docs-only' ? 'pull_request' : 'workflow_dispatch';
+          const root = 'synthetic-records';
+          const identity = {run_id: process.env.GITHUB_RUN_ID, run_attempt: process.env.GITHUB_RUN_ATTEMPT,
+            source_sha: process.env.CANDIDATE_SHA, event: logicalEvent,
+            workflow_ref: process.env.GITHUB_WORKFLOW_REF, workflow_sha: process.env.CANDIDATE_SHA,
+            classifier_result: scenario === 'docs-only' ? 'success' : '', docs_only: scenario === 'docs-only' ? 'true' : 'false'};
+          const selectedSteps = {};
+          const absentProducerSeams = [];
+          for (const seam of seams) {
+            const producerPath = path.join('producer-artifacts', `gate-canary-producer-${seam}-${identity.run_id}-${identity.run_attempt}`, 'producer.json');
+            try {
+              const producer = JSON.parse(fs.readFileSync(producerPath, 'utf8'));
+              if (producer.schema_version !== 'sigra.gate-canary-producer/v1' || producer.seam !== seam ||
+                  producer.scenario !== scenario || producer.actual_event !== 'workflow_dispatch' || producer.synthetic !== true)
+                throw new Error(`producer receipt identity mismatch for ${seam}`);
+            } catch (error) {
+              if (scenario !== 'missing-seam' || seam !== 'admin_checkpoints') throw error;
+              absentProducerSeams.push(seam);
+            }
+            const outputDir = path.join(root, `browser-execution-${seam}-${identity.run_id}-${identity.run_attempt}`);
+            const reportsDir = path.join(root, 'reports', seam);
+            fs.mkdirSync(reportsDir, {recursive: true});
+            fs.mkdirSync(outputDir, {recursive: true});
+            const policies = helper.bodyPolicy(seam, logicalEvent);
+            for (const policy of policies) for (const invocation of policy.invocations) {
+              const projects = invocation.projects;
+              const rows = [];
+              for (const file of invocation.specs) {
+                for (const project of projects) {
+                  if (project === 'mobile' && /^(passkeys-hooks|passkey-login|passkey-options)\.spec\.ts$/.test(file)) continue;
+                  rows.push({file, project, expectedStatus: 'passed'});
+                  if (seam === 'design_gallery') rows.push({file: 'admin-design.setup.ts',
+                    project: projectSetup(project), expectedStatus: 'passed'});
+                }
+              }
+              const projectNames = [...new Set(rows.map((row) => row.project))];
+              const configProjects = projectNames.map((name) => ({id: `${name}-synthetic-id`, name}));
+              const projectId = new Map(configProjects.map((item) => [item.name, item.id]));
+              const specs = rows.map((row, index) => ({id: `${seam}-${index}`, title: `synthetic ${seam} ${index}`,
+                file: row.file, tests: [{projectName: row.project, projectId: projectId.get(row.project), expectedStatus: row.expectedStatus}]}));
+              const selection = {config: {projects: configProjects}, suites: [{title: `synthetic-${seam}`,
+                file: specs[0].file, specs}]};
+              const report = JSON.parse(JSON.stringify(selection));
+              const tests = report.suites[0].specs.flatMap((spec) => spec.tests);
+              for (const test of tests) { test.status = 'expected'; test.results = [{retry: 0, status: 'passed', duration: 1,
+                startTime: '2026-10-13T00:00:00.000Z', errors: [], stdout: [], stderr: [], attachments: []}]; }
+              report.errors = [];
+              report.stats = {startTime: '2026-10-13T00:00:00.000Z', duration: Math.max(1, tests.length),
+                expected: tests.length, unexpected: 0, flaky: 0, skipped: 0};
+              fs.writeFileSync(path.join(reportsDir, invocation.path), JSON.stringify(report));
+              fs.writeFileSync(path.join(reportsDir, invocation.selection_path), JSON.stringify(selection));
+            }
+            const steps = {};
+            for (const policy of policies) {
+              const skip = scenario === 'docs-only' || scenario === 'unexpected-skip';
+              steps[policy.id] = {outcome: skip ? 'skipped' : 'success', conclusion: skip ? 'skipped' : 'success'};
+            }
+            selectedSteps[seam] = steps;
+            process.env.SELECTED_STEPS_JSON = JSON.stringify(steps);
+            const record = spawnSync(process.execPath,
+              [path.resolve('candidate/scripts/ci/ci-browser-records.mjs'), '--record', '--directory', outputDir,
+                '--reports-directory', reportsDir, '--seam', seam],
+              {encoding: 'utf8', env: {...process.env, SELECTED_STEPS_JSON: JSON.stringify(steps)}});
+            if (record.status !== 0) throw new Error(`candidate record helper failed for ${seam}: ${record.stderr}`);
+          }
+          function projectSetup(project) { return project.replace('admin-design-', 'admin-design-setup-'); }
+          const aggregate = path.join(root, 'aggregate'); fs.mkdirSync(aggregate, {recursive: true});
+          for (const seam of seams) {
+            const source = path.join(root, `browser-execution-${seam}-${identity.run_id}-${identity.run_attempt}`);
+            const target = path.join(aggregate, path.basename(source)); fs.cpSync(source, target, {recursive: true});
+          }
+          if (scenario === 'missing-seam') fs.rmSync(path.join(aggregate, `browser-execution-admin_checkpoints-${identity.run_id}-${identity.run_attempt}`), {recursive:true,force:true});
+          const selected = {};
+          for (const [seam, steps] of Object.entries(selectedSteps)) for (const [id, step] of Object.entries(steps)) selected[id] = step;
+          process.env.SELECTED_STEPS_JSON = JSON.stringify(selected);
+          let nativeResult = scenario === 'actual-failure' ? 'failure' : 'success';
+          let exitCode = 0;
+          try {
+            if (scenario === 'actual-failure') throw new Error('synthetic producer command failed with exit 17');
+            helper.verifyDirectory(aggregate, identity, nativeResult);
+          }
+          catch (error) { console.error(`candidate browser records rejected synthetic source: ${error.message}`); exitCode = 1; }
+          const verdict = {schema_version:'sigra.gate-canary-result/v1', scenario, run_id: identity.run_id,
+            run_attempt: identity.run_attempt, candidate_sha: process.env.CANDIDATE_SHA,
+            fixture_workflow_sha: process.env.FIXTURE_SHA, fixture_workflow_blob: process.env.FIXTURE_BLOB,
+            status: exitCode === 0 ? 'passed' : 'rejected', synthetic: true,
+            actual_event: 'workflow_dispatch', logical_event: logicalEvent,
+            classifier_result: scenario === 'docs-only' ? 'success' : '', docs_only: scenario === 'docs-only',
+            production_dispatch_exemption: false, validator_exit_code: exitCode};
+          verdict.missing_producer_seams = absentProducerSeams;
+          fs.mkdirSync('canary-output', {recursive:true});
+          fs.writeFileSync('canary-output/canary-result.json', JSON.stringify(verdict, null, 2) + '\n');
+          process.exit(exitCode);
+          NODE
+          native_status=$?
+          python3 - <<'PY' > /tmp/253-canary-lanes.json
+          import json, re
+          from pathlib import Path
+          scenario = __import__('os').environ['SCENARIO']
+          workflow = Path('candidate/.github/workflows/ci.yml').read_text()
+          block = re.search(r'^  ci-gate:\n(.*?)(?=^  [A-Za-z0-9_.-]+:|\Z)', workflow, re.M | re.S)
+          needs = re.search(r'^    needs:\n((?:^      - [A-Za-z0-9_.-]+\n)+)', block.group(1), re.M)
+          lanes = {line.strip()[2:]: 'success' for line in needs.group(1).splitlines()}
+          lanes.pop('changes', None)
+          if scenario == 'actual-failure': lanes['example_unit_smoke'] = 'failure'
+          if scenario == 'missing-seam': lanes['example_playwright_smoke'] = 'failure'
+          if scenario == 'unexpected-skip': lanes['example_playwright_smoke'] = 'skipped'
+          print(json.dumps(lanes))
+          PY
+          logical_event=workflow_dispatch
+          logical_docs_only=false
+          if [[ "$SCENARIO" == docs-only ]]; then logical_event=pull_request; logical_docs_only=true; fi
+          set +e
+          bash candidate/scripts/ci/honest-skip-verdict.sh \
+            --workflow candidate/.github/workflows/ci.yml --manifest candidate/.github/ci-skip-manifest.tsv \
+            --event "$logical_event" --docs-only "$logical_docs_only" \
+            --from-json /tmp/253-canary-lanes.json --format json > /tmp/253-honest-skip.json
+          honest_status=$?
+          set -e
+          expected_honest_status=1
+          if [[ "$SCENARIO" == full-pass || "$SCENARIO" == docs-only ]]; then expected_honest_status=0; fi
+          if [[ "$honest_status" -ne "$expected_honest_status" ]]; then
+            echo "honest-skip helper had unexpected exit status $honest_status" >&2
+            exit 1
+          fi
+          jq --argjson verdict "$(cat /tmp/253-honest-skip.json)" --argjson code "$honest_status" \
+            '.honest_skip_verdict=$verdict | .honest_skip_exit_code=$code' \
+            canary-output/canary-result.json > /tmp/253-canary-result.json
+          mv /tmp/253-canary-result.json canary-output/canary-result.json
+          exit "$native_status"
+      - name: Upload terminal synthetic source receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: gate-canary-${{ inputs.scenario }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: canary-output/canary-result.json
+          if-no-files-found: error
+          retention-days: 7
+
+  verifier:
+    if: ${{ inputs.scenario == 'verifier' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout candidate verifier by pinned commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          persist-credentials: false
+      - name: Verify immutable candidate verifier checkout
+        env:
+          EXPECTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: '[[ "$(git rev-parse HEAD)" == "$EXPECTED_CANDIDATE_SHA" ]]'
+      - name: Verify retained source matrix independently
+        env:
+          MATRIX_EVIDENCE: ${{ inputs.matrix_evidence }}
+        run: |
+          python3 - <<'PY'
+          import base64, os
+          from pathlib import Path
+          payload = base64.b64decode(os.environ['MATRIX_EVIDENCE'], validate=True)
+          Path('/tmp/253-canary-matrix.json').write_bytes(payload)
+          PY
+          python3 scripts/ci/ci-hosted-gate-verify.py --evidence /tmp/253-canary-matrix.json --scenario matrix > /tmp/253-verifier-result.json
+          cat /tmp/253-verifier-result.json
+      - name: Retain separate verifier result
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: gate-canary-verifier-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/253-verifier-result.json
+          if-no-files-found: error
+          retention-days: 7
