@@ -15,6 +15,7 @@ import ssl
 import subprocess
 import tempfile
 import time
+import uuid
 from pathlib import Path
 from urllib.parse import parse_qs, quote, urlsplit, urlunsplit
 
@@ -24,6 +25,13 @@ API_HOST = "api.github.com"
 DEFAULT_REPO = "szTheory/sigra"
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
 MAX_ALLOCATION_BYTES = 64 * 1024
+MAX_INPUT_KEYS = 10
+MAX_INPUT_SCALARS = 65535
+MAX_INPUT_BYTES = 65535
+DISPATCH_INPUT_TYPES = {
+    "scenario": str, "candidate_sha": str, "fixture_sha": str, "fixture_blob": str,
+    "matrix_evidence": str, "docs_only": bool, "production_dispatch_exemption": bool,
+}
 SAFE_HEADERS = {
     "content-type", "content-length", "date", "etag", "last-modified",
     "x-github-request-id", "x-ratelimit-limit", "x-ratelimit-remaining",
@@ -32,6 +40,8 @@ SAFE_HEADERS = {
 ROUTES = {
     "rate_limit": ("GET", "/rate_limit", "json"),
     "rules_main": ("GET", "/repos/{repo}/rules/branches/main", "json"),
+    "branch_protection": ("GET", "/repos/{repo}/branches/main/protection", "json"),
+    "check_runs": ("GET", "/repos/{repo}/commits/{commit_sha}/check-runs", "json"),
     "workflow": ("GET", "/repos/{repo}/actions/workflows/{workflow_id}", "json"),
     "workflow_runs": ("GET", "/repos/{repo}/actions/workflows/{workflow_id}/runs", "json"),
     "run": ("GET", "/repos/{repo}/actions/runs/{run_id}", "json"),
@@ -54,6 +64,24 @@ class TransportError(Exception):
         super().__init__(message)
         self.code = code
         self.exit_code = exit_code
+
+
+def serialize_dispatch_inputs(inputs: dict) -> bytes:
+    """Return the canonical UTF-8 bytes for a bounded, typed dispatch input object."""
+    if not isinstance(inputs, dict) or len(inputs) > MAX_INPUT_KEYS or set(inputs) - set(DISPATCH_INPUT_TYPES):
+        raise TransportError("dispatch_inputs_invalid", "dispatch input keys are unknown or exceed the ten-key limit")
+    for name, value in inputs.items():
+        if value is None or type(value) is not DISPATCH_INPUT_TYPES[name]:
+            raise TransportError("dispatch_inputs_invalid", f"dispatch input {name} has an invalid type")
+    try:
+        payload = json.dumps(inputs, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8", "strict")
+    except (UnicodeError, TypeError, ValueError) as exc:
+        raise TransportError("dispatch_inputs_invalid", "dispatch inputs contain invalid Unicode or JSON values") from exc
+    if len(payload.decode("utf-8", "strict")) > MAX_INPUT_SCALARS:
+        raise TransportError("dispatch_inputs_too_large", "dispatch inputs exceed 65535 Unicode scalar characters")
+    if len(payload) > MAX_INPUT_BYTES:
+        raise TransportError("dispatch_inputs_too_large", "dispatch inputs exceed the conservative 65535 UTF-8-byte limit")
+    return payload
 
 
 def _json(path: Path, limit: int) -> tuple[dict, bytes]:
@@ -216,6 +244,11 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
     for name in ("workflow_id", "run_id", "artifact_id", "job_id"):
         if f"{{{name}}}" in template:
             values[name] = str(_positive(params.get(name), name, 10**16))
+    if "{commit_sha}" in template:
+        commit_sha = params.get("commit_sha")
+        if not isinstance(commit_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", commit_sha):
+            raise TransportError("invalid_route_parameter", "commit_sha must be a full lowercase Git SHA")
+        values["commit_sha"] = commit_sha
     if "{branch}" in template:
         branch = params.get("branch")
         if not isinstance(branch, str) or not re.fullmatch(r"[A-Za-z0-9._/-]{1,160}", branch) or ".." in branch.split("/"):
@@ -229,7 +262,7 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
     if not isinstance(query, dict):
         raise TransportError("invalid_route_parameter", "query must be an object")
     permitted = {
-        "rules_main": {"per_page", "page"}, "workflow_runs": {"event", "branch", "per_page", "page"},
+        "rules_main": {"per_page", "page"}, "check_runs": {"per_page", "page"}, "workflow_runs": {"event", "branch", "per_page", "page"},
         "run_jobs": {"per_page", "page"}, "run_artifacts": {"per_page", "page"},
     }.get(route_id, set())
     if set(query) - permitted:
@@ -253,7 +286,14 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
     if method == "POST":
         if not isinstance(body, dict):
             raise TransportError("invalid_body", "POST route requires a JSON object body")
-        body_bytes = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode()
+        if route_id == "dispatch":
+            inputs = body.get("inputs")
+            canonical_inputs = serialize_dispatch_inputs(inputs)
+            body_bytes = json.dumps(body, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8", "strict")
+            if canonical_inputs not in body_bytes:
+                raise TransportError("dispatch_inputs_invalid", "serialized dispatch inputs differ from transmitted request body")
+        else:
+            body_bytes = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode()
         if len(body_bytes) > MAX_REQUEST_BYTES:
             raise TransportError("request_body_too_large", "request body exceeds the fixed 2 MiB limit")
     else:
@@ -372,9 +412,20 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
             ledger["preserved_revisions"].append(prior)
         ledger.setdefault("started_monotonic_ns", start_ns)
         sequence = len(ledger["transactions"]) + 1
+        request_url = f"https://{host}{path}"
+        dispatch_inputs = body.get("inputs") if request.get("route_id") == "dispatch" and isinstance(body, dict) else None
+        dispatch_bytes = serialize_dispatch_inputs(dispatch_inputs) if dispatch_inputs is not None else None
         entry = {"sequence": sequence, "request_kind": request.get("request_kind", request["route_id"]),
                  "method": request["method"], "route_id": request["route_id"], "host": host,
+                 "url": request_url, "request_sha256": hashlib.sha256(body or b"").hexdigest() if body is not None else None,
                  "page_ordinal": request.get("page_ordinal"), "hop_ordinal": request.get("hop_ordinal"),
+                 "request_group": request.get("request_group"), "window_id": allocation["window_id"],
+                 "source_sha256": allocation["source_sha256"],
+                 "dispatch_inputs": dispatch_inputs,
+                 "input_key_count": len(dispatch_inputs) if dispatch_bytes is not None else None,
+                 "input_unicode_scalars": len(dispatch_bytes.decode("utf-8")) if dispatch_bytes is not None else None,
+                 "input_utf8_bytes": len(dispatch_bytes) if dispatch_bytes is not None else None,
+                 "input_sha256": hashlib.sha256(dispatch_bytes).hexdigest() if dispatch_bytes is not None else None,
                  "state": "pending", "started_monotonic_ns": start_ns, "ended_monotonic_ns": None,
                  "actual_status": None, "scrubbed_headers": {}, "response_sha256": None,
                  "raw_observation_sha256": None, "response_bytes": None, "scrubbed_response_bytes": None}
@@ -468,6 +519,7 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
                       "response_sha256": hashlib.sha256(scrubbed_body).hexdigest() if actual_status is not None else None,
                       "raw_observation_sha256": hashlib.sha256(response_body).hexdigest() if actual_status is not None else None,
                       "response_bytes": len(response_body), "scrubbed_response_bytes": len(scrubbed_body),
+                      "response_body_base64": __import__("base64").b64encode(scrubbed_body).decode("ascii"),
                       "error": {"code": error_code, "message": error_message} if error_code else None})
         if hard_stop:
             ledger["terminal_stop"] = {"code": error_code or f"http_{actual_status}" if actual_status in {401, 403, 429} else "core_budget_stop",
@@ -487,6 +539,14 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
                "response_sha256": hashlib.sha256(scrubbed_body).hexdigest() if actual_status is not None else None,
                "raw_observation_sha256": hashlib.sha256(response_body).hexdigest() if actual_status is not None else None,
                "response_bytes": len(response_body), "scrubbed_response_bytes": len(scrubbed_body),
+               "url": request_url, "request_sha256": hashlib.sha256(body or b"").hexdigest() if body is not None else None,
+               "request_group": request.get("request_group"),
+               "dispatch_inputs": dispatch_inputs,
+               "input_key_count": len(dispatch_inputs) if dispatch_bytes is not None else None,
+               "input_unicode_scalars": len(dispatch_bytes.decode("utf-8")) if dispatch_bytes is not None else None,
+               "input_utf8_bytes": len(dispatch_bytes) if dispatch_bytes is not None else None,
+               "input_sha256": hashlib.sha256(dispatch_bytes).hexdigest() if dispatch_bytes is not None else None,
+               "response_body_base64": __import__("base64").b64encode(scrubbed_body).decode("ascii"),
                "error": {"code": error_code, "message": error_message} if error_code else None,
                "terminal_stop": hard_stop}
     _atomic_json(output_path, receipt)
@@ -541,11 +601,13 @@ def follow_download(allocation_path: Path, ledger_path: Path, request_path: Path
     if isinstance(max_hops, bool) or not isinstance(max_hops, int) or max_hops < 0 or max_hops > 2:
         raise TransportError("hop_budget_invalid", "download hop allocation must be from zero through two")
     hop = 0
+    request_group = uuid.uuid4().hex
     seen = set()
     destination = None
     while True:
         hop_request = dict(request)
         hop_request["hop_ordinal"] = hop
+        hop_request["request_group"] = request_group
         temp_fd, temp_name = tempfile.mkstemp(prefix="ci-http-hop-request-")
         os.close(temp_fd)
         temp_request = Path(temp_name)
@@ -589,11 +651,13 @@ def fetch_pages(allocation_path: Path, ledger_path: Path, request_path: Path,
     initial, _ = _json(request_path, MAX_REQUEST_BYTES)
     allocation, _ = _json(allocation_path, MAX_ALLOCATION_BYTES)
     _route(initial, allocation)
-    if initial.get("method") != "GET" or initial.get("route_id") not in {"workflow_runs", "rules_main", "run_jobs", "run_artifacts", "test_page"}:
+    if initial.get("method") != "GET" or initial.get("route_id") not in {"workflow_runs", "rules_main", "check_runs", "run_jobs", "run_artifacts", "test_page"}:
         raise TransportError("pagination_route_rejected", "route is not an approved paginated GET")
     max_pages = allocation.get("max_pages", 0)
     if isinstance(max_pages, bool) or not isinstance(max_pages, int) or max_pages < 1 or max_pages > 100:
         raise TransportError("page_budget_invalid", "page allocation must be from one through one hundred")
+    if initial["route_id"] == "rules_main":
+        max_pages = min(max_pages, 2)
     pages, receipts, seen = [], [], set()
     page = 1
     while True:
@@ -627,6 +691,25 @@ def fetch_pages(allocation_path: Path, ledger_path: Path, request_path: Path,
             except TransportError as exc:
                 _terminalize(ledger_path, exc.code, receipt["actual_status"])
                 raise
+            if initial["route_id"] == "rules_main":
+                if not isinstance(parsed_body, list):
+                    _terminalize(ledger_path, "invalid_rules_shape", receipt["actual_status"])
+                    raise TransportError("invalid_rules_shape", "effective branch rules page must be an array")
+                if page == 2 and len(parsed_body) == 100:
+                    _terminalize(ledger_path, "rules_completeness_unknown", receipt["actual_status"])
+                    raise TransportError("rules_completeness_unknown", "a full second rules page does not prove terminal completeness")
+                if len(parsed_body) < 100 and next_url is not None:
+                    _terminalize(ledger_path, "rules_total_disagreement", receipt["actual_status"])
+                    raise TransportError("rules_total_disagreement", "a short rules page unexpectedly advertises another page")
+                if page == 1 and len(parsed_body) == 100 and next_url is None:
+                    if page >= max_pages:
+                        _terminalize(ledger_path, "rules_completeness_unknown", receipt["actual_status"])
+                        raise TransportError("rules_completeness_unknown", "full first rules page needs one charged second page")
+                    parsed = urlsplit(f"https://{API_HOST}{_route(current, allocation)[3]}")
+                    query = parse_qs(parsed.query)
+                    query["page"] = ["2"]
+                    next_url = urlunsplit(("https", API_HOST, parsed.path,
+                                           "&".join(f"{key}={values[0]}" for key, values in query.items()), ""))
             if next_url is None:
                 break
             if next_url in seen or page >= max_pages:

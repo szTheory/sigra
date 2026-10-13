@@ -364,21 +364,26 @@ class V2VerifierContractTests(unittest.TestCase):
 
     def transport_fixture(self):
         response = b'{"rules":[]}'
-        digest = __import__("hashlib").sha256(response).hexdigest()
-        entry = {
-            "sequence": 1, "method": "GET", "url": "https://api.github.com/repos/szTheory/sigra/rules/branches/main?per_page=100&page=1",
-            "requested_url": "https://api.github.com/repos/szTheory/sigra/rules/branches/main?per_page=100&page=1",
-            "route_id": "rules_main", "page_ordinal": 1, "hop_ordinal": 0, "state": "completed",
-            "actual_status": 200, "status": 200, "scrubbed_headers": {"content-type": "application/json", "content-length": str(len(response))},
-            "response_sha256": digest, "response_body_base64": base64.b64encode(response).decode(),
-            "request_sha256": "d" * 64, "source_sha256": "e" * 64, "window_id": "fixture-window",
-        }
+        legacy_response = b'{"message":"not found"}'
+        native_response = b'{"total_count":0,"check_runs":[]}'
+        def entry(sequence, route, url, status, body):
+            return {"sequence": sequence, "method": "GET", "url": url, "route_id": route,
+                "page_ordinal": 1 if route == "rules_main" else None, "hop_ordinal": 0, "state": "complete",
+                "actual_status": status, "scrubbed_headers": {"content-type": "application/json", "content-length": str(len(body))},
+                "response_sha256": __import__("hashlib").sha256(body).hexdigest(),
+                "response_body_base64": base64.b64encode(body).decode(), "response_bytes": len(body),
+                "request_sha256": "d" * 64, "source_sha256": "e" * 64, "window_id": "fixture-window"}
+        first = entry(1, "rules_main", "https://api.github.com/repos/szTheory/sigra/rules/branches/main?per_page=100&page=1", 200, response)
+        second = entry(2, "branch_protection", "https://api.github.com/repos/szTheory/sigra/branches/main/protection", 404, legacy_response)
+        third = entry(3, "check_runs", "https://api.github.com/repos/szTheory/sigra/commits/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/check-runs?per_page=100&page=1", 200, native_response)
         return {"schema_version": "sigra.phase253.hosted-replan-evidence/v2",
                 "origin": {"kind": "measured-v2", "source_sha256": "e" * 64, "window_id": "fixture-window"},
-                "budget": {"request_count": 1, "max_requests": 117, "actual_jobs": 0, "max_jobs": 45, "elapsed_seconds": 1},
+                "expected": {"candidate_sha": "a" * 40},
+                "budget": {"request_count": 3, "max_requests": 117, "actual_jobs": 0, "max_jobs": 45, "elapsed_seconds": 1},
                 "transport_ledger": {"schema_version": "sigra.phase253.http-ledger/v2", "window_id": "fixture-window",
-                                     "source_sha256": "e" * 64, "transactions": [entry]},
-                "transport_receipts": [dict(entry)], "server_journal": [dict(entry)]}
+                                     "source_sha256": "e" * 64, "transactions": [first, second, third]},
+                "transport_receipts": [copy.deepcopy(first), copy.deepcopy(second), copy.deepcopy(third)],
+                "server_journal": [copy.deepcopy(first), copy.deepcopy(second), copy.deepcopy(third)]}
 
     def test_v2_transport_reconciles_receipt_status_headers_and_digests(self):
         self.assertTrue(callable(getattr(self.module, "verify_transport_v2", None)),
@@ -406,17 +411,39 @@ class V2VerifierContractTests(unittest.TestCase):
                  "Example HTTP smoke (boot + curl critical routes)",
                  "Example Playwright smoke (full lifecycle)"]
         evidence = self.transport_fixture()
+        page_records = [{"type": "required_status_checks", "parameters": {"required_status_checks": [
+            {"context": name, "integration_id": 123, "source": "workflow"} for name in names]}}]
+        page_bytes = json.dumps(page_records, separators=(",", ":")).encode()
+        page = evidence["transport_ledger"]["transactions"][0]
+        page.update(response_body_base64=base64.b64encode(page_bytes).decode(),
+                    response_sha256=__import__("hashlib").sha256(page_bytes).hexdigest(), response_bytes=len(page_bytes))
+        evidence["transport_receipts"][0].update(page)
+        evidence["server_journal"][0].update(page)
+        native_runs = [{"name": name, "app": {"id": 123, "slug": "github-actions"},
+                        "html_url": f"https://github.com/szTheory/sigra/actions/runs/99/job/{index}",
+                        "conclusion": "success"} for index, name in enumerate(names, 1)]
+        native_bytes = json.dumps({"total_count": 5, "check_runs": native_runs}, separators=(",", ":")).encode()
+        native = evidence["transport_ledger"]["transactions"][2]
+        native.update(response_body_base64=base64.b64encode(native_bytes).decode(),
+                      response_sha256=__import__("hashlib").sha256(native_bytes).hexdigest(), response_bytes=len(native_bytes))
+        evidence["transport_receipts"][2].update(native)
+        evidence["server_journal"][2].update(native)
         evidence["effective_checks"] = {"endpoint": "/repos/szTheory/sigra/rules/branches/main",
             "query": {"per_page": 100}, "complete": True, "terminal_page": 1,
-            "legacy_complete": True, "required": [
-                {"context": name, "app_id": 123, "integration_id": 123, "app_slug": "github-actions", "source": "workflow"}
-                for name in names]}
-        evidence["producer_checks"] = [{"name": name, "app_id": 123, "source": "workflow", "conclusion": "success"} for name in names]
+            "legacy_protection": {"present": False, "status": 404, "sequence": 2, "required": []},
+            "native_check_runs": {"sequence": 3},
+            "rules_pages": [{"page": 1, "sequence": 1, "records": page_records}], "required": [
+                {"context": name, "app_id": 123, "integration_id": 123, "app_slug": "github-actions",
+                 "source": f"https://github.com/szTheory/sigra/actions/runs/99/job/{index}"}
+                for index, name in enumerate(names, 1)]}
+        evidence["producer_checks"] = [{"name": name, "app_id": 123, "app_slug": "github-actions",
+                                        "source": f"https://github.com/szTheory/sigra/actions/runs/99/job/{index}",
+                                        "conclusion": "success"} for index, name in enumerate(names, 1)]
         self.module.verify_effective_checks(evidence)
         for mutate in (
             lambda e: e["effective_checks"].update(complete=False),
             lambda e: e["effective_checks"]["required"].pop(),
-            lambda e: e["effective_checks"]["required"][0].update(app_id=None, integration_id=-1),
+            lambda e: e["effective_checks"]["required"][0].update(app_id="123"),
             lambda e: e["producer_checks"][0].update(app_id=456),
             lambda e: e["effective_checks"]["required"].append(dict(e["effective_checks"]["required"][0])),
         ):
