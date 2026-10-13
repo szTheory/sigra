@@ -187,7 +187,7 @@ function readGitBlob(root, reference) {
   return result.stdout;
 }
 
-function assertDirtyConfigPreserved(root) {
+export function assertDirtyConfigPreserved(root) {
   const file = path.join(root, DIRTY_CONFIG.path);
   const bytes = fs.readFileSync(file);
   if (sha256(bytes) !== DIRTY_CONFIG.sha256 || git(['-C', root, 'hash-object', file]) !== DIRTY_CONFIG.blob) {
@@ -727,7 +727,7 @@ function httpStatus(url) {
   });
 }
 
-function portAvailable(port) {
+export function portAvailable(port) {
   return new Promise((resolve) => {
     const socket = net.connect({ host: '127.0.0.1', port });
     socket.once('connect', () => { socket.destroy(); resolve(false); });
@@ -1048,12 +1048,22 @@ export function verifyRevisionFreezeBinding(evidence, freeze, freezeFileHash) {
 
 export function verifyRevisionData(evidence, freeze, baseDir, freezeFileHash = freeze?.freeze_sha256) {
   const errors = [];
+  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) return { ok: false, errors: ['native revision evidence is missing or malformed'] };
+  if (!freeze || typeof freeze !== 'object' || !Array.isArray(freeze.ledger?.slots)) return { ok: false, errors: ['native revision freeze is missing or malformed'] };
   if (evidence?.schema_version !== REPLAN_SCHEMA || !verifyRevisionFreezeBinding(evidence, freeze, freezeFileHash)) errors.push('evidence does not match the frozen revision');
   if (evidence?.source?.checkout_head !== freeze?.source?.checkout_head || JSON.stringify(evidence?.source?.blobs) !== JSON.stringify(freeze?.source?.blobs)) errors.push('evidence source identity differs from the frozen revision');
   if (evidence.historical?.preceding_order !== 'unknown' || evidence.limits?.historical_charge_ms !== freeze?.ledger?.historical_charge_ms) errors.push('historical uncertainty or spent charge was not preserved');
   if (evidence.preparation_status !== 'passed') errors.push('common dependency preparation is missing or incomplete');
   if (!Array.isArray(evidence.attempts) || !Array.isArray(evidence.preparation_receipts)) errors.push('preparation or attempt ledger is absent');
   else {
+    const limits = evidence.limits;
+    if (!limits || typeof limits !== 'object') errors.push('native cumulative limits are missing');
+    else {
+      for (const key of ['historical_charge_ms', 'preparation_charge_ms', 'charged_duration_ms', 'browser_launches', 'max_charged_duration_ms', 'max_new_browser_launches']) {
+        if (!Number.isSafeInteger(limits[key]) || limits[key] < 0) errors.push(`native cumulative limit ${key} is not a nonnegative integer`);
+      }
+      if (limits.max_charged_duration_ms !== freeze.ledger.max_charged_duration_ms || limits.max_new_browser_launches !== freeze.ledger.max_new_browser_launches) errors.push('native cumulative ceilings differ from the frozen ledger');
+    }
     if (evidence.attempts.length === 0) errors.push('no native diagnostic attempt is present');
     const ids = new Set();
     let browserLaunches = 0; let attemptCharge = 0;
@@ -1065,12 +1075,15 @@ export function verifyRevisionData(evidence, freeze, baseDir, freezeFileHash = f
       browserLaunches += attempt.browser?.launched ? 1 : 0;
       attemptCharge += Number(attempt.charged_duration_ms) || 0;
     }
+    const usedSlots = evidence.limits?.used_slots;
+    const attemptSlots = evidence.attempts.map((attempt) => attempt.slot_id);
+    if (!Array.isArray(usedSlots) || JSON.stringify(usedSlots) !== JSON.stringify(attemptSlots)) errors.push('used slot ledger does not exactly match native attempt receipts');
     const prepCharge = evidence.preparation_receipts.reduce((sum, item) => sum + (Number(item.duration_ms) || 0), 0);
     if (prepCharge !== evidence.limits.preparation_charge_ms) errors.push('preparation charge does not match its command receipts');
     if (prepCharge > freeze.preparation.max_duration_ms) errors.push('common preparation exceeded its frozen 116,232 ms ceiling');
     if (attemptCharge + evidence.limits.historical_charge_ms + prepCharge !== evidence.limits.charged_duration_ms) errors.push('cumulative charged time does not match native receipt durations');
     if (evidence.limits.charged_duration_ms > freeze.ledger.d19.max_charged_duration_ms) errors.push('D-19 charged time exceeds its frozen 18-minute allowance');
-    if (browserLaunches !== evidence.limits.browser_launches) errors.push('browser launch count differs from native receipts');
+    if (browserLaunches !== evidence.limits?.browser_launches) errors.push('browser launch count differs from native receipts');
     if (browserLaunches > freeze.ledger.max_new_browser_launches || evidence.limits.charged_duration_ms > freeze.ledger.max_charged_duration_ms) errors.push('shared recovery limit exceeded');
     if (evidence.limits.charged_duration_ms > freeze.ledger.max_total_charged_ms_including_historical) errors.push('58-minute historical-inclusive recovery ceiling exceeded');
     const ordered = freeze.ledger.slots.filter((slot) => slot.owner_plan === 15);
@@ -1225,6 +1238,7 @@ export function attemptDirectory(baseDir, slotId, attemptNumber) {
 export function createAttemptDirectory(baseDir, slotId, attemptNumber = 1) {
   if (!/^[A-Z0-9-]+$/.test(slotId) || !Number.isInteger(attemptNumber) || attemptNumber < 1) throw new Error('invalid frozen attempt directory identity');
   const directory = path.join(baseDir, slotId, `attempt-${String(attemptNumber).padStart(2, '0')}`);
+  if (fs.existsSync(directory)) throw new Error(`refusing to overwrite an existing native attempt directory: ${directory}`);
   fs.mkdirSync(directory, { recursive: true });
   return directory;
 }

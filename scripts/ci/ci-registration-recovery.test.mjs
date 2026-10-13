@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -101,6 +102,27 @@ test('revision attempt directory creates the missing slot parent before any nati
   const attempt = recovery.createAttemptDirectory(base, 'R-DIAG-DESKTOP');
   assert.equal(fs.existsSync(attempt), true);
   assert.equal(path.relative(base, attempt), path.join('R-DIAG-DESKTOP', 'attempt-01'));
+});
+
+test('revision attempt directory collisions preserve existing native artifacts', () => {
+  const base = path.join(temporary, 'collision-output');
+  const existing = path.join(base, 'R-DIAG-DESKTOP', 'attempt-01');
+  fs.mkdirSync(existing, { recursive: true });
+  const marker = path.join(existing, 'prior-receipt.log');
+  fs.writeFileSync(marker, 'preserve the existing attempt');
+
+  assert.throws(() => recovery.createAttemptDirectory(base, 'R-DIAG-DESKTOP'), /refusing to overwrite/);
+  assert.equal(fs.readFileSync(marker, 'utf8'), 'preserve the existing attempt');
+});
+
+test('port availability detects an occupied localhost fixture port without launching a browser', async () => {
+  const server = net.createServer();
+  await new Promise((resolve, reject) => server.once('error', reject).listen(0, '127.0.0.1', resolve));
+  const { port } = server.address();
+  try {
+    assert.equal(await recovery.portAvailable(port), false);
+  } finally { await new Promise((resolve) => server.close(resolve)); }
+  assert.equal(await recovery.portAvailable(port), true);
 });
 
 test('one-use infrastructure retry requires the independently reviewed Chromium bootstrap failure', () => {
@@ -233,6 +255,20 @@ test('the saved desktop and mobile native Playwright receipts verify through the
   } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
 });
 
+test('revision CLI rejects null, empty, and fake evidence before trusting caller status', () => {
+  const cases = [
+    ['null', 'null\n'],
+    ['empty', '{}\n'],
+    ['fake', `${JSON.stringify({ schema_version: 'sigra.phase253.registration-replan-evidence/v1', status: 'diagnosis_incomplete', attempts: [], limits: { browser_launches: 2, charged_duration_ms: 121680 } })}\n`]
+  ];
+  for (const [label, contents] of cases) {
+    const evidence = path.join(temporary, `forged-${label}.json`);
+    fs.writeFileSync(evidence, contents);
+    const result = verifySavedReceipt(evidence);
+    assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
+  }
+});
+
 test('revision CLI rejects slot usage counters that do not match native attempts', () => {
   const fixture = copyAcceptedReceipt('slot-count-drift', (evidence) => { evidence.limits.used_slots = []; });
   try {
@@ -310,7 +346,22 @@ test('the real shell refuses to restart a terminal native receipt before setup o
 test('the dirty config must still match its exact preserved bytes and SHA-256', () => {
   assert.equal(typeof recovery.assertDirtyConfigPreserved, 'function');
   if (typeof recovery.assertDirtyConfigPreserved !== 'function') return;
-  assert.doesNotThrow(() => recovery.assertDirtyConfigPreserved(root));
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-config-integrity-'));
+  try {
+    const configDir = path.join(fixture, '.planning');
+    fs.mkdirSync(configDir, { recursive: true });
+    const configPath = path.join(configDir, 'config.json');
+    const bytes = spawnSync('git', ['-C', root, 'cat-file', 'blob', 'refs/gsd/phase253-recovery-execution-unrelated-config'], { encoding: null });
+    assert.equal(bytes.status, 0);
+    fs.writeFileSync(configPath, bytes.stdout);
+    assert.equal(spawnSync('git', ['-C', fixture, 'init', '--quiet']).status, 0);
+    const blob = spawnSync('git', ['-C', fixture, 'hash-object', '-w', configPath], { encoding: 'utf8' });
+    assert.equal(blob.status, 0);
+    assert.equal(spawnSync('git', ['-C', fixture, 'update-ref', 'refs/gsd/phase253-recovery-execution-unrelated-config', blob.stdout.trim()]).status, 0);
+    assert.doesNotThrow(() => recovery.assertDirtyConfigPreserved(fixture));
+    fs.appendFileSync(configPath, '\n');
+    assert.throws(() => recovery.assertDirtyConfigPreserved(fixture), /authorized SHA-256 and Git blob/);
+  } finally { fs.rmSync(fixture, { recursive: true, force: true }); }
 });
 
 function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {
