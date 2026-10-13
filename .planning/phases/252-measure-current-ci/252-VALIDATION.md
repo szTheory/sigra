@@ -119,3 +119,11 @@ None. Unavailable logs, timestamps, artifact origin or cache conditions are reco
 - The current archive SHA-256 is `95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30`; baseline SHA-256 is `f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843`; report SHA-256 is `7d0f7fff31b0a266ecc0c76853f8e6a98a193860c97ddea866bca1c3f6018237`; comparison contract SHA-256 is `8d3d0d991eff2955b9d8e29bd845df1d848150352ef808984350b801ed018d6c`. Fresh `--verify-baseline` returned `ready` with no diagnostics. Two fresh offline replays matched byte-for-byte (SHA-256 `0e047cb23f8c33e4aa41cb03da7fc6043f46047ed49e26842f80d58b4501643a`).
 - The retained hosted sample remains source-bound: run `38317383419` passed all five required contexts; its complete main and `threadline_guard` timing reports remain distinct. The primary report has 2,683 rows and 18,811,928µs summed test duration; the child has 65 rows and 129,529µs. The full Mix suite and child process harness were already run and recorded in the phase summary; neither was repeated because the final repairs did not change those paths. No live GitHub requests, workflow dispatch, or comparison runs were made during this refresh.
 - All 15 task-map entries remain green. Validation coverage is complete; requirements and phase goal verification remain pending for the root workflow.
+
+## Validation Audit 2026-10-13
+
+| Metric | Count |
+|---|---|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
