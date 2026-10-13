@@ -1,16 +1,16 @@
 {
   "schema_version": "sigra.phase253.registration-recovery-freeze/v1",
   "status": "frozen_before_results",
-  "frozen_at": "2026-10-13T15:36:17.931Z",
+  "frozen_at": "2026-10-13T15:40:16.591Z",
   "source": {
     "repository": "szTheory/sigra",
-    "checkout_head": "6b45b6605275e0c1591f635a3dfe50a270e6d465",
+    "checkout_head": "6be4b5332060595ebd528122a9f6d030bcc8788b",
     "tracked_worktree_clean": true,
     "execution_checkout": "current clean checkout; each app/database/context is created fresh per frozen slot",
     "blobs": {
       "scripts/ci/ci-registration-repro.sh": "2da1ba66a7a56270a9c7e3d619edb0162aa6b91b",
-      "scripts/ci/ci-registration-recovery.mjs": "7a744d1b05be2012d2a0e8adc05d37207b073382",
-      "scripts/ci/ci-registration-recovery.test.mjs": "08b6e07116489a9c064e999fd27f9fd227d53c29",
+      "scripts/ci/ci-registration-recovery.mjs": "c068464e71ddf12daad7a498c4f478a29a9028fb",
+      "scripts/ci/ci-registration-recovery.test.mjs": "549421c4d91643b0ddad70d2dee116ac55d91b11",
       "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
       "test/example/priv/playwright/tests/admin-eval.spec.ts": "6540493e78121f134867445dffc7010afcd85815",
       "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
@@ -182,6 +182,11 @@
       "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-03.json",
       "sha256": "e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00",
       "commit": "094dc5a7913a24fd0126e321a9a854eec7bf8130"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-04.json",
+      "sha256": "127c445addd23c59d871670e6b06f0b9c42714ecccecfb482e4b628483ce228a",
+      "commit": "e813c4223"
     }
   ],
   "ledger": {
@@ -513,9 +518,15 @@
           "sha256": "4edd9fa286ef148268a0016dbe282618d9890f9ce53ece23b7c9f177cf8932b0",
           "duration_ms": 146,
           "purpose": "runner timeout preflight failure before child process startup"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RUNNER-DIRECTORY-COLLISION.json",
+          "sha256": "b7136b9c95d04528283b22a8192b2ee2514bbf2d84c5c062f4f3ffefa2304bc4",
+          "duration_ms": 177,
+          "purpose": "runner raw-directory collision before child process startup"
         }
       ],
-      "duration_ms": 1490,
+      "duration_ms": 1667,
       "charged_to_slot": "D19-DIAG-01"
     },
     "control_round_order": [
@@ -556,5 +567,5 @@
     "time limit",
     "uncertain infrastructure classification"
   ],
-  "freeze_sha256": "a6d0e040acb598a08b6d6e6c49c71a70c47d4347bbef603f04aad96dfcce0133"
+  "freeze_sha256": "4f6f0708979d3418ff19941ac41f23409a5ea9af1cd01f509abb92c6939383fc"
 }
