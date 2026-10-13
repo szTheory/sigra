@@ -1,0 +1,16 @@
+{
+  "schema_version": "sigra.phase253.registration-setup-diagnostic/v1",
+  "scope": "setup_only",
+  "status": "running",
+  "started_at": "2026-10-13T12:20:33Z",
+  "deadline_at": "2026-10-13T12:40:33Z",
+  "limits": {
+    "max_project_launches": 3,
+    "max_duration_seconds": 1200,
+    "automatic_retries": 0,
+    "browser_invocations": 0
+  },
+  "project_launches": [],
+  "experiments": [],
+  "historical_registration_evidence_unchanged": true
+}
