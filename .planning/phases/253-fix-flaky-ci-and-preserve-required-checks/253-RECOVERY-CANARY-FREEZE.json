@@ -1,12 +1,12 @@
 {
   "schema_version": "sigra.recovery-canary-freeze/v1",
-  "plan": "253-11",
-  "scope": "local-only launch preparation; no hosted dispatch in this plan",
+  "plan": "253-12",
+  "scope": "Plan12 bounded hosted canary after local startup regression; old Plan11 fixture and failed-run records remain immutable",
   "identity": {
-    "candidate_helper_commit": "b8a3b128d8f2a6f6bc91f40622708d2a2cdd1d62",
-    "fixture_workflow_commit": "ce8e419f6ef409efae45181aa9d2eba903e57bd3",
+    "candidate_helper_commit": "92ae6cb507f91d0fe82026b58dc907b60c340482",
+    "fixture_workflow_commit": "c2db172ac23bf4296785f61dd3a7718c8ad4a632",
     "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
-    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T160622Z",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T163051Z-plan12",
     "fixture_ref_state": "verified-local-create-only-unpushed",
     "original_failed_run_id": "38347679431",
     "old_failed_run_id": "38347679431",
@@ -25,8 +25,8 @@
     }
   ],
   "source_sha256": {
-    "scripts/ci/ci-gate-canary.sh": "526b25d0ca045e13a0292563d3d03412fa7ded328f308d1a634318507e3db24e",
-    "scripts/ci/ci-gate-canary.test.sh": "22ab8433594b670188304675e1623543a9df304547f9e52c4cd6d245020f40c9",
+    "scripts/ci/ci-gate-canary.sh": "28705861585742bfcbfe408542c0b635d6721b58d205714e2ad7b96c5998c5be",
+    "scripts/ci/ci-gate-canary.test.sh": "7d639b029e3c39802d72b0c48e4bd05738cba98c4ab23ecfa0ba847338e449c6",
     "scripts/ci/ci-hosted-gate-verify.py": "e46366e315aeb1c1b3a170b0b586941b9897ca2d211114ecfb95d0aaa9e69e95",
     "scripts/ci/ci-hosted-gate-verify.test.py": "2e0af813e8916e56e6d9272f3e460e4e6831f5a91e27f94d3e95232d074063c3"
   },
@@ -117,5 +117,18 @@
     "stop on missing, duplicated, malformed, oversized, or wrong-origin artifact/receipt",
     "stop after any deterministic source failure while retaining its diagnostics",
     "never dispatch after the 60-minute or 120-request ceiling"
-  ]
+  ],
+  "prior_plan11_seal": {
+    "freeze_ref": "refs/gsd/phase253-12-prior-freeze",
+    "freeze_sha256": "f891b8c5bc8354fc110a8a0be4b8617d8f813c3f2c804e44206294cc6e98af82",
+    "workflow_ref": "refs/gsd/phase253-12-prior-workflow",
+    "workflow_sha256": "65b56df90ccd19b6152392027276887dcc1d55713462ec7e52d679480265c904",
+    "revision_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION.json",
+    "revision_sha256": "2c9e0fea97a6d900f96763f7376f88b30678e346106162135707f1547bb0d887"
+  },
+  "supersedes_intermediate_freeze": {
+    "ref": "refs/gsd/phase253-12-intermediate-freeze/50cd3075036741999cc9462d03195313ba597839ec29a1583880e0e541dd558c",
+    "sha256": "50cd3075036741999cc9462d03195313ba597839ec29a1583880e0e541dd558c",
+    "exact_readback": true
+  }
 }
