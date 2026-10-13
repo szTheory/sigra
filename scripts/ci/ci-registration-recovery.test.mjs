@@ -43,25 +43,8 @@ test('the explicit revision CLI freezes before results and accepts a named diagn
   const evidence = path.join(temporary, 'registration-revision-evidence.json');
   const create = spawnSync(runner, ['--create-revision', '--output', freeze], { encoding: 'utf8' });
 
-  assert.equal(create.status, 0, `${create.stdout}\n${create.stderr}`);
-  const revision = JSON.parse(fs.readFileSync(freeze, 'utf8'));
-  assert.equal(revision.schema_version, 'sigra.phase253.registration-replan-freeze/v1');
-  assert.equal(revision.status, 'frozen_before_results');
-  assert.equal(revision.ledger.slots[0].id, 'R-DIAG-DESKTOP');
-  assert.equal(revision.ledger.slots[0].argv[0], '--project=admin-eval');
-  assert.equal(revision.ledger.slots[1].id, 'R-DIAG-MOBILE');
-
-  const freezeHash = crypto.createHash('sha256').update(fs.readFileSync(freeze)).digest('hex');
-  fs.writeFileSync(evidence, JSON.stringify({
-    schema_version: 'sigra.phase253.registration-replan-evidence/v1', status: 'running',
-    freeze_path: path.relative(root, freeze), freeze_sha256: freezeHash,
-    historical: { preceding_order: 'unknown' }, preparation_status: 'passed', preparation_receipts: [], attempts: [],
-    limits: { historical_charge_ms: 3768, preparation_charge_ms: 0, charged_duration_ms: 3768, browser_launches: 0, used_slots: [] }
-  }));
-  const verify = spawnSync(runner, ['--verify-diagnostic', evidence, '--revision'], { encoding: 'utf8' });
-  assert.equal(verify.status, 3, 'a result ledger without a native diagnostic attempt must remain unverified');
-  assert.match(verify.stderr, /native diagnostic attempt/i);
-  assert.doesNotMatch(verify.stderr, /historical registration bytes changed/, 'the frozen prior capture must be read from its named path');
+  assert.equal(create.status, 3, 'a terminal ledger cannot be reopened by the old generic revision entrypoint');
+  assert.match(create.stderr, /zero-native-launch preparation ledger/i);
 });
 
 test('runner floors fractional millisecond process timeouts before spawnSync', () => {
@@ -128,6 +111,17 @@ test('one-use infrastructure retry requires the independently reviewed Chromium 
     mutate(record, review);
     assert.equal(recovery.validateInfrastructureRetry(record, review).ok, false);
   }
+
+  const phase = path.join(root, '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks');
+  const freeze = path.join(temporary, 'reviewed-infrastructure-retry.json');
+  const reservation = path.join(temporary, 'reviewed-infrastructure-retry-reservation.json');
+  const create = spawnSync(runner, ['--create-infrastructure-retry', '--freeze', path.join(phase, '253-REPLAN-REGISTRATION-FREEZE-REVISION-03.json'), '--evidence', path.join(phase, '253-REPLAN-REGISTRATION-EVIDENCE.json'), '--review', path.join(phase, '253-15-INFRASTRUCTURE-RETRY-REVIEW.json'), '--output', freeze, '--reservation', reservation], { encoding: 'utf8' });
+  assert.equal(create.status, 0, `${create.stdout}\n${create.stderr}`);
+  const retryFreeze = JSON.parse(fs.readFileSync(freeze, 'utf8'));
+  assert.equal(retryFreeze.infrastructure_retry.count, 1);
+  assert.equal(retryFreeze.ledger.historical_charge_ms, 33884);
+  assert.deepEqual(retryFreeze.ledger.slots.map((slot) => slot.id), ['R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE']);
+  assert.equal(JSON.parse(fs.readFileSync(reservation, 'utf8')).status, 'reserved');
 });
 
 test('each diagnostic uses its own physical Mix build for setup, server and cleanup', () => {
