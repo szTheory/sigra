@@ -51,6 +51,7 @@ The exact halted ledger is [253-REPLAN-REGISTRATION-EVIDENCE.json](./253-REPLAN-
 - `node --test scripts/ci/ci-registration-recovery.test.mjs`: 14 tests passed after the final runner source change.
 - `bash scripts/ci/ci-registration-repro.test.sh`: 5 tests passed, including rejection of forged claims.
 - `node scripts/ci/ci-registration-recovery.mjs --run-revision ... --slot R-DIAG-DESKTOP ...`: halted; one browser launch, 26,373 ms native attempt, test did not execute.
+- `node scripts/ci/ci-registration-recovery.mjs --verify-diagnostic ... --revision`: exit 3; rejected the receipt because the selected registration lacked a successful server POST and flash, and the Playwright expected/result statuses differed.
 - The final native receipt remains halted. A successful local test suite does not replace the missing desktop and mobile registration results.
 
 ## Deviations from Plan
