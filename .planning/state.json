@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -25,17 +25,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 253",
-    "label": "Plan Phase 253 \u2014 Fix Flaky CI and Preserve Required Checks",
-    "reason": "Researched context exists; implementation and verification are pending; init.plan-phase reports no prerequisite blocker."
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 253 of 4 · 25% · executing"
   },
-  "updated_at": "2026-10-13T02:12:51.125214+00:00",
-  "current_phase": "253",
-  "workflow_step": "phase_planning_pending",
-  "phase252_verification_status": "passed",
-  "historical_verification_is_forward_blocker": false,
-  "phase253_context_status": "ready_for_planning",
-  "phase253_verification_status": "not_started",
-  "verification_status": "not_started",
-  "resume_command": "$gsd-plan-phase 253"
+  "updated_at": "2026-10-13T03:00:06.545Z"
 }

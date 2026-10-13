@@ -4,16 +4,16 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: planning
+status: executing
 stopped_at: Phase 253 context gathered; ready for planning (implementation and verification pending)
-last_updated: "2026-10-13T02:12:51.125214+00:00"
+last_updated: "2026-10-13T03:00:06.532Z"
 last_activity: 2026-10-12
 last_activity_desc: Phase 253 researched context captured; planning pending
-state_head: 42c558cd77386b7e92ec142fefe95064c39efec5
+state_head: 438b87a38e5e7294689e3f8c6aa2a372f39b7593
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 6
+  total_plans: 14
   completed_plans: 6
   percent: 25
 milestone_status: active
@@ -40,9 +40,9 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — Fix Flaky CI and Preserve Required Checks
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-10-12 — Phase 253 researched context captured; implementation and verification pending
 Progress: [███░░░░░░░] 25%
 
