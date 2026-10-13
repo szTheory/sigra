@@ -2,6 +2,8 @@
 """Hermetic wire-level contracts for the Phase 253 hosted transport."""
 
 import http.server
+import base64
+import hashlib
 import json
 import os
 import pathlib
@@ -23,8 +25,6 @@ class JournalHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):  # noqa: N802
         ledger = json.loads(pathlib.Path(self.server.ledger_path).read_text())
         pending = ledger["transactions"][-1]
-        self.server.journal.append({"path": self.path, "charged": pending["state"] == "pending",
-                                    "authorization": self.headers.get("Authorization")})
         status, response_headers, payload = self.server.responses.pop(0) if self.server.responses else (
             self.server.status, [("Content-Type", "application/json")], b'{"ready":true}')
         self.send_response(status)
@@ -34,6 +34,17 @@ class JournalHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("X-GitHub-Request-Id", "local-fixture")
         self.end_headers()
         self.wfile.write(payload)
+        observed_headers = {name.lower(): value for name, value in response_headers}
+        observed_headers["x-github-request-id"] = "local-fixture"
+        observed_headers["date"] = self.date_time_string()
+        observed_headers["content-length"] = str(len(payload))
+        self.server.journal.append({"path": self.path, "charged": pending["state"] == "pending",
+                                    "authorization": self.headers.get("Authorization"), "method": "GET",
+                                    "status": status, "headers": observed_headers,
+                                    "body_sha256": hashlib.sha256(payload).hexdigest(), "body": base64.b64encode(payload).decode()})
+
+    def date_time_string(self, timestamp=None):
+        return "Tue, 13 Oct 2026 00:00:00 GMT"
 
     def log_message(self, *_args):
         pass
@@ -115,6 +126,44 @@ class HostedTransportWireTests(unittest.TestCase):
         self.assertEqual(receipt["scrubbed_headers"]["content-type"], "application/json")
         self.assertEqual(receipt["response_sha256"], __import__("hashlib").sha256(b'{"ready":true}').hexdigest())
         self.assertEqual(self.body_path.read_bytes(), b'{"ready":true}')
+
+    def test_actual_http_200_and_404_reconcile_to_independent_v2_verdict(self):
+        for status in (200, 404):
+            with self.subTest(status=status):
+                self.ledger.unlink(missing_ok=True)
+                self.output_path.unlink(missing_ok=True)
+                self.server.journal.clear()
+                self.server.status = status
+                self.server.responses = [(status, [("Content-Type", "application/json")], b'{"wire":true}')]
+                result = self.run_runner()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                ledger = json.loads(self.ledger.read_text())
+                receipt = json.loads(self.output_path.read_text())
+                observed = self.server.journal[0]
+                self.assertEqual(receipt["actual_status"], status)
+                self.assertEqual(observed["status"], status)
+                transaction = ledger["transactions"][0]
+                journal = {key: transaction[key] for key in (
+                    "sequence", "url", "url_sha256", "route_id", "page_ordinal", "hop_ordinal", "source_sha256", "window_id")}
+                journal.update(method=observed["method"], actual_status=observed["status"],
+                               scrubbed_headers=observed["headers"], response_sha256=observed["body_sha256"],
+                               response_body_base64=observed["body"], response_bytes=len(base64.b64decode(observed["body"])),
+                               scrubbed_response_bytes=len(base64.b64decode(observed["body"])),
+                               state="complete", request_sha256=transaction["request_sha256"], request_body_base64=None,
+                               dispatch_inputs=None, input_key_count=None, input_unicode_scalars=None,
+                               input_utf8_bytes=None, input_sha256=None)
+                evidence = {"schema_version": "sigra.phase253.hosted-replan-evidence/v2", "repository": "szTheory/sigra",
+                            "origin": {"kind": "measured-v2", "channel": "hermetic-https",
+                                       "window_id": ledger["window_id"], "source_sha256": ledger["source_sha256"]},
+                            "budget": {"request_count": 1, "max_requests": 4},
+                            "transport_ledger": ledger, "transport_receipts": [receipt], "server_journal": [journal]}
+                path = self.tmp_path / "independent-evidence.json"
+                path.write_text(json.dumps(evidence))
+                verdict = subprocess.run(["python3", str(ROOT / "scripts/ci/ci-hosted-gate-verify.py"),
+                                          "--mode", "transport", "--evidence", str(path)],
+                                         cwd=ROOT, text=True, capture_output=True, timeout=10)
+                self.assertEqual(verdict.returncode, 0, verdict.stderr)
+                self.assertIn('"status": "transport_verified"', verdict.stdout)
 
     def test_native_statuses_are_retained_without_inference(self):
         for status in (204, 404, 500):

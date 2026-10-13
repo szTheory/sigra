@@ -45,14 +45,14 @@ def sha256(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def serialize_dispatch_inputs(inputs):
+def serialize_dispatch_inputs(inputs, schema=None):
     """Serialize only typed workflow_dispatch fields with explicit byte limits."""
     try:
         transport_path = Path(__file__).with_name("ci-hosted-transport.py")
         spec = importlib.util.spec_from_file_location("ci_hosted_transport", transport_path)
         transport = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(transport)
-        encoded = transport.serialize_dispatch_inputs(inputs)
+        encoded = transport.serialize_dispatch_inputs(inputs, schema=schema)
     except Exception as error:
         if isinstance(error, VerificationError):
             raise
@@ -73,6 +73,7 @@ def verify_transport_v2(evidence):
             "measured HTTP ledger v2 is required")
     require(ledger.get("window_id") == origin.get("window_id") and ledger.get("source_sha256") == origin.get("source_sha256"),
             "transport ledger window or source differs from the measured origin")
+    require(ledger.get("terminal_stop") in (None, {}), "measured transport ledger has a terminal stop")
     budget = evidence.get("budget")
     transactions = ledger.get("transactions")
     receipts = evidence.get("transport_receipts")
@@ -95,8 +96,10 @@ def verify_transport_v2(evidence):
         require(transaction.get("sequence") == index and receipt.get("sequence") == index
                 and (observed is None or observed.get("sequence") == index),
                 "transport sequence is duplicated, missing or inconsistent")
-        for field in ("method", "url", "route_id", "page_ordinal", "hop_ordinal", "actual_status", "scrubbed_headers",
-                      "response_sha256", "source_sha256", "window_id"):
+        for field in ("method", "url", "url_sha256", "route_id", "page_ordinal", "hop_ordinal", "actual_status", "scrubbed_headers",
+                      "response_sha256", "source_sha256", "window_id", "request_sha256", "request_body_base64",
+                      "response_body_base64", "response_bytes", "scrubbed_response_bytes", "dispatch_inputs",
+                      "input_key_count", "input_unicode_scalars", "input_utf8_bytes", "input_sha256"):
             require(receipt.get(field) == transaction.get(field)
                     and (observed is None or observed.get(field) == transaction.get(field)),
                     f"transport {field} differs across ledger, receipt and journal")
@@ -104,6 +107,10 @@ def verify_transport_v2(evidence):
                 "transaction escaped the measured source window")
         require(transaction.get("state") == "complete" and type(transaction.get("actual_status")) is int
                 and 100 <= transaction["actual_status"] <= 599, "transaction lacks its actual completed HTTP status")
+        require(isinstance(transaction.get("url_sha256"), str) and re.fullmatch(r"[a-f0-9]{64}", transaction["url_sha256"]),
+                "measured request URL digest is malformed")
+        if "?[REDACTED]" not in transaction["url"]:
+            require(sha256(transaction["url"].encode()) == transaction["url_sha256"], "measured request URL digest differs from retained URL")
         require(transaction["actual_status"] not in (401, 403, 429), "authentication or rate limit requires a terminal stop")
         body_b64 = transaction.get("response_body_base64")
         require(isinstance(body_b64, str), "measured response body bytes are missing")
@@ -112,8 +119,13 @@ def verify_transport_v2(evidence):
         except (ValueError, base64.binascii.Error) as error:
             raise VerificationError("measured response body encoding is invalid") from error
         require(sha256(body) == transaction.get("response_sha256"), "measured response digest differs from retained bytes")
-        require(type(transaction.get("response_bytes")) is int and transaction["response_bytes"] == len(body),
-                "measured response byte count differs from retained bytes")
+        require(type(transaction.get("response_bytes")) is int and transaction["response_bytes"] >= 0
+                and type(transaction.get("scrubbed_response_bytes")) is int
+                and transaction["scrubbed_response_bytes"] == len(body),
+                "measured response or scrubbed-byte count differs from retained bytes")
+        content_length = transaction.get("scrubbed_headers", {}).get("content-length")
+        if isinstance(content_length, str) and content_length.isdigit():
+            require(int(content_length) == transaction["response_bytes"], "actual Content-Length differs from measured response bytes")
         page = transaction.get("page_ordinal")
         hop = transaction.get("hop_ordinal")
         if page is not None:
@@ -127,11 +139,34 @@ def verify_transport_v2(evidence):
         if transaction.get("method") == "POST" and transaction.get("route_id") == "dispatch":
             inputs = transaction.get("dispatch_inputs")
             canonical = serialize_dispatch_inputs(inputs)
+            workflow_id = evidence.get("expected", {}).get("workflow_id")
+            require(type(workflow_id) is int and transaction.get("url") ==
+                    f"https://api.github.com/repos/szTheory/sigra/actions/workflows/{workflow_id}/dispatches",
+                    "dispatch request origin or workflow identity differs from the frozen canary")
+            try:
+                request_body = base64.b64decode(transaction.get("request_body_base64", ""), validate=True)
+                request_json = json.loads(request_body.decode("utf-8", "strict"))
+            except (ValueError, base64.binascii.Error, UnicodeError, json.JSONDecodeError) as error:
+                raise VerificationError("dispatch request body bytes are missing or malformed") from error
+            require(sha256(request_body) == transaction.get("request_sha256")
+                    and isinstance(request_json, dict) and request_json.get("inputs") == inputs
+                    and canonical in request_body,
+                    "dispatch input metrics differ from exact transmitted request bytes")
             require(transaction.get("input_key_count") == len(inputs)
                     and transaction.get("input_unicode_scalars") == len(canonical.decode("utf-8"))
                     and transaction.get("input_utf8_bytes") == len(canonical)
                     and transaction.get("input_sha256") == sha256(canonical),
                     "dispatch metrics do not match exact transmitted inputs bytes")
+    grouped_pages = {}
+    for route, page in seen_pages:
+        grouped_pages.setdefault(route, []).append(page)
+    for route, pages in grouped_pages.items():
+        require(sorted(pages) == list(range(1, max(pages) + 1)), f"page sequence for {route} has a gap or unknown page")
+    grouped_hops = {}
+    for group, hop in seen_hops:
+        grouped_hops.setdefault(group, []).append(hop)
+    for group, hops in grouped_hops.items():
+        require(sorted(hops) == list(range(0, max(hops) + 1)), f"redirect hop sequence for {group} has a gap or unknown hop")
     return {"status": "transport_verified", "requests": len(transactions), "window_id": origin["window_id"]}
 
 
@@ -411,12 +446,25 @@ def validate_single_result_zip(archive_bytes):
                     "result ZIP is encrypted or uses an unsupported compression method")
             require(info.file_size <= MAX_MEMBER_BYTES and info.compress_size <= MAX_ZIP_BYTES, "result ZIP member metadata exceeds limits")
             require(info.header_offset == 0 and archive_bytes[:4] == b"PK\x03\x04", "result ZIP has a prefix or invalid local header")
-            local_name_len, local_extra_len = struct.unpack_from("<HH", archive_bytes, 26)
+            local = struct.unpack_from("<IHHHHHIIIHH", archive_bytes, 0)
+            signature, _version, local_flags, local_method, _time, _date, local_crc, local_compressed, local_uncompressed, local_name_len, local_extra_len = local
+            require(signature == 0x04034B50 and local_flags == info.flag_bits and local_method == info.compress_type,
+                    "ZIP local flags or compression method differs from the central directory")
             local_name = archive_bytes[30:30 + local_name_len]
             require(local_name.decode("utf-8" if info.flag_bits & 0x800 else "cp437") == info.filename,
                     "ZIP local and central member names differ")
             data_start = 30 + local_name_len + local_extra_len
             require(data_start + info.compress_size <= eocd, "ZIP member stream is truncated or overlaps its directory")
+            if info.flag_bits & 0x08:
+                descriptor = data_start + info.compress_size
+                if archive_bytes[descriptor:descriptor + 4] == b"PK\x07\x08":
+                    descriptor += 4
+                desc_crc, desc_compressed, desc_uncompressed = struct.unpack_from("<III", archive_bytes, descriptor)
+                require((desc_crc, desc_compressed, desc_uncompressed) == (info.CRC, info.compress_size, info.file_size),
+                        "ZIP data descriptor differs from central member metadata")
+            else:
+                require((local_crc, local_compressed, local_uncompressed) == (info.CRC, info.compress_size, info.file_size),
+                        "ZIP local sizes or CRC differ from central member metadata")
             output = bytearray()
             with bundle.open(info, "r") as stream:
                 while True:
@@ -552,7 +600,7 @@ def verify_scenario(receipt, scenario, evidence):
     for key in ("candidate_sha", "workflow_sha", "workflow_blob"):
         require(isinstance(expected.get(key), str) and re.fullmatch(r"[0-9a-f]{40}", expected[key]), f"invalid expected {key}")
     fixture_ref = expected.get("fixture_ref")
-    require(isinstance(fixture_ref, str) and fixture_ref.startswith("refs/heads/gsd/253-gate-canary-fixture-"),
+    require(isinstance(fixture_ref, str) and fixture_ref.startswith("refs/heads/gsd/253-replan-"),
             "fixture ref is outside the scoped namespace")
     require(expected.get("fixture_ref_state") == "verified", "scoped fixture ref was not read back before dispatch")
     require(expected.get("workflow_id") == 259268962 and expected.get("workflow_path") == WORKFLOW_PATH
@@ -638,6 +686,8 @@ def verify_scenario(receipt, scenario, evidence):
     require(isinstance(digest, str) and digest.startswith("sha256:"), "GitHub artifact API digest unavailable")
     archive_base64 = retained.get("archive_base64")
     require(isinstance(archive_base64, str), "downloaded artifact archive bytes are required")
+    require(len(archive_base64) <= 4 * ((MAX_ZIP_BYTES + 2) // 3),
+            "base64 archive representation exceeds the compressed artifact bound")
     try:
         archive_bytes = base64.b64decode(archive_base64, validate=True)
     except (ValueError, base64.binascii.Error) as error:

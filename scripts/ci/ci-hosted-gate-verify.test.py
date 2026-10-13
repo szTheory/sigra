@@ -36,7 +36,7 @@ def fixture():
         "scenario": "full-pass",
         "expected": {
             "candidate_sha": candidate,
-            "fixture_ref": "refs/heads/gsd/253-gate-canary-fixture-20261013-040000",
+            "fixture_ref": "refs/heads/gsd/253-replan-canary-fixture-20261013-040000",
             "fixture_ref_state": "verified",
             "workflow_id": 259268962,
             "workflow_path": ".github/workflows/ci.yml",
@@ -60,7 +60,7 @@ def fixture():
             "run_attempt": 1,
             "event": "workflow_dispatch",
             "head_sha": workflow_sha,
-            "head_branch": "gsd/253-gate-canary-fixture-20261013-040000",
+            "head_branch": "gsd/253-replan-canary-fixture-20261013-040000",
             "workflow_id": 259268962,
             "path": ".github/workflows/ci.yml",
             "name": "Phase 253 Gate Canary",
@@ -372,6 +372,8 @@ class V2VerifierContractTests(unittest.TestCase):
                 "actual_status": status, "scrubbed_headers": {"content-type": "application/json", "content-length": str(len(body))},
                 "response_sha256": __import__("hashlib").sha256(body).hexdigest(),
                 "response_body_base64": base64.b64encode(body).decode(), "response_bytes": len(body),
+                "scrubbed_response_bytes": len(body),
+                "url_sha256": __import__("hashlib").sha256(url.encode()).hexdigest(),
                 "request_sha256": "d" * 64, "source_sha256": "e" * 64, "window_id": "fixture-window"}
         first = entry(1, "rules_main", "https://api.github.com/repos/szTheory/sigra/rules/branches/main?per_page=100&page=1", 200, response)
         second = entry(2, "branch_protection", "https://api.github.com/repos/szTheory/sigra/branches/main/protection", 404, legacy_response)
@@ -389,6 +391,7 @@ class V2VerifierContractTests(unittest.TestCase):
         self.assertTrue(callable(getattr(self.module, "verify_transport_v2", None)),
                         "planned transport verifier must reconcile measured v2 evidence")
         evidence = self.transport_fixture()
+        evidence["expected"]["workflow_id"] = 259268962
         self.module.verify_transport_v2(evidence)
         for mutate in (
             lambda e: e["transport_receipts"][0].update(actual_status=404),
@@ -405,15 +408,18 @@ class V2VerifierContractTests(unittest.TestCase):
 
     def test_dispatch_metrics_are_bound_to_exact_transmitted_request_bytes(self):
         evidence = self.transport_fixture()
+        evidence["expected"]["workflow_id"] = 259268962
         inputs = {"scenario": "full-pass", "candidate_sha": "a" * 40}
         encoded = self.module.serialize_dispatch_inputs(inputs)
         request_body = b'{"ref":"fixture","inputs":' + encoded + b'}'
         transaction = evidence["transport_ledger"]["transactions"][0]
-        transaction.update(method="POST", route_id="dispatch", dispatch_inputs=inputs,
+        transaction.update(method="POST", route_id="dispatch",
+            url="https://api.github.com/repos/szTheory/sigra/actions/workflows/259268962/dispatches", dispatch_inputs=inputs,
             request_body_base64=base64.b64encode(request_body).decode(),
             request_sha256=__import__("hashlib").sha256(request_body).hexdigest(),
             input_key_count=len(inputs), input_unicode_scalars=len(encoded.decode()),
             input_utf8_bytes=len(encoded), input_sha256=__import__("hashlib").sha256(encoded).hexdigest())
+        transaction["url_sha256"] = __import__("hashlib").sha256(transaction["url"].encode()).hexdigest()
         for record in (evidence["transport_receipts"][0], evidence["server_journal"][0]):
             record.update(transaction)
         evidence["transport_ledger"]["transactions"][1].update(sequence=2)
@@ -438,6 +444,70 @@ class V2VerifierContractTests(unittest.TestCase):
         payload[14] ^= 0x01  # Local-header CRC; the central directory remains intact.
         with self.assertRaises(self.module.VerificationError):
             self.module.validate_single_result_zip(bytes(payload))
+
+    def test_dispatch_serializer_uses_typed_unicode_scalars_and_separate_byte_limit(self):
+        encode = self.module.serialize_dispatch_inputs
+        ten_key_schema = {f"k{index}": str for index in range(10)}
+        ten_keys = {name: "v" for name in ten_key_schema}
+        self.assertEqual(len(json.loads(encode(ten_keys, schema=ten_key_schema))), 10)
+        with self.assertRaises(self.module.VerificationError):
+            encode({**ten_keys, "k10": "v"}, schema={**ten_key_schema, "k10": str})
+        self.assertEqual(json.loads(encode({"enabled": True}, schema={"enabled": bool})), {"enabled": True})
+        with self.assertRaises(self.module.VerificationError):
+            encode({"enabled": 1}, schema={"enabled": bool})
+        self.assertEqual(json.loads(encode({"scenario": "full-pass"})), {"scenario": "full-pass"})
+        for invalid in ({"scenario": None}, {"scenario": ["full-pass"]}, {"scenario": "\ud800"},
+                        {"unknown": "x"}, {"scenario": "é" * 40000}, {"scenario": "🙂" * 20000}):
+            with self.subTest(keys=list(invalid)):
+                with self.assertRaises(self.module.VerificationError):
+                    encode(invalid)
+        max_ascii = "a" * 65520
+        self.assertEqual(len(encode({"scenario": max_ascii})), 65535)
+        with self.assertRaises(self.module.VerificationError):
+            encode({"scenario": max_ascii + "a"})
+
+    def test_matrix_gzip_decoder_rejects_truncated_concatenated_and_trailing_streams(self):
+        import gzip
+        valid = gzip.compress(b'{"scenarios":[]}')
+        self.assertEqual(self.module.decode_matrix_payload(base64.b64encode(valid).decode()), {"scenarios": []})
+        for malformed in (valid[:-1], valid + gzip.compress(b'{"extra":true}'), valid + b"tail", b"%%%"):
+            with self.subTest(length=len(malformed)):
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.decode_matrix_payload(base64.b64encode(malformed).decode())
+
+    def test_rejects_duplicate_symlink_and_trailing_zip_streams(self):
+        result = b'{"ok":true}'
+        cases = []
+        duplicate = io.BytesIO()
+        with zipfile.ZipFile(duplicate, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+            bundle.writestr("canary-result.json", result)
+            bundle.writestr("canary-result.json", result)
+        cases.append(duplicate.getvalue())
+        symlink = io.BytesIO()
+        with zipfile.ZipFile(symlink, "w") as bundle:
+            info = zipfile.ZipInfo("canary-result.json")
+            info.create_system = 3
+            info.external_attr = (0o120777 << 16)
+            bundle.writestr(info, result)
+        cases.append(symlink.getvalue())
+        base = io.BytesIO()
+        with zipfile.ZipFile(base, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+            bundle.writestr("canary-result.json", result)
+        cases.append(base.getvalue() + b"trailing")
+        for payload in cases:
+            with self.assertRaises(self.module.VerificationError):
+                self.module.validate_single_result_zip(payload)
+
+    def test_new_acceptance_modes_reject_historical_v1_while_legacy_remains_disclosable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "v1.json"
+            path.write_text(json.dumps(fixture()), encoding="utf-8")
+            legacy = subprocess.run(["python3", str(VERIFY), "--mode", "legacy", "--evidence", str(path),
+                                     "--scenario", "full-pass"], text=True, capture_output=True)
+            self.assertEqual(legacy.returncode, 0, legacy.stderr)
+            fresh = subprocess.run(["python3", str(VERIFY), "--mode", "preflight", "--evidence", str(path)],
+                                   text=True, capture_output=True)
+            self.assertNotEqual(fresh.returncode, 0)
 
     def test_fresh_rules_require_complete_exact_five_native_sources(self):
         self.assertTrue(callable(getattr(self.module, "verify_effective_checks", None)),
@@ -487,6 +557,21 @@ class V2VerifierContractTests(unittest.TestCase):
             mutate(broken)
             with self.assertRaises(self.module.VerificationError):
                 self.module.verify_effective_checks(broken)
+
+        full_page = copy.deepcopy(evidence)
+        raw = full_page["effective_checks"]["rules_pages"][0]["records"]
+        raw.extend({"type": "other"} for _ in range(99))
+        body = json.dumps(raw, separators=(",", ":")).encode()
+        for collection in (full_page["transport_ledger"]["transactions"], full_page["transport_receipts"], full_page["server_journal"]):
+            collection[0].update(response_body_base64=base64.b64encode(body).decode(),
+                                 response_sha256=__import__("hashlib").sha256(body).hexdigest(), response_bytes=len(body))
+        with self.assertRaises(self.module.VerificationError):
+            self.module.verify_effective_checks(full_page)
+
+        byte_variant = copy.deepcopy(evidence)
+        byte_variant["producer_checks"][0]["source"] = byte_variant["producer_checks"][0]["source"].upper()
+        with self.assertRaises(self.module.VerificationError):
+            self.module.verify_effective_checks(byte_variant)
 
 
 if __name__ == "__main__":

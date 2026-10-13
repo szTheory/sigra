@@ -46,7 +46,7 @@ candidate="$(git -C "$repo" rev-parse HEAD)"
 fixture_blob="$(git -C "$repo" rev-parse HEAD:.github/workflows/ci.yml)"
 git -C "$repo" commit --allow-empty -qm "fixture: sealed workflow identity"
 fixture_commit="$(git -C "$repo" rev-parse HEAD)"
-fixture_ref="refs/heads/gsd/253-recovery-canary-fixture-contract-$RANDOM"
+fixture_ref="refs/heads/gsd/253-replan-canary-fixture-contract-$RANDOM"
 git -C "$repo" update-ref "$fixture_ref" "$fixture_commit"
 
 python3 - "$repo" "$candidate" "$fixture_commit" "$fixture_blob" "$fixture_ref" <<'PY'

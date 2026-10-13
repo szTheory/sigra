@@ -150,7 +150,7 @@ blob=identity.get("fixture_workflow_blob", "")
 ref=identity.get("fixture_ref", "")
 if not re.fullmatch(r"[0-9a-f]{40}", candidate): raise SystemExit('candidate helper commit is invalid')
 if not re.fullmatch(r"[0-9a-f]{40}", fixture) or not re.fullmatch(r"[0-9a-f]{40}", blob): raise SystemExit('fixture commit or blob is invalid')
-if not ref.startswith('refs/heads/gsd/253-recovery-canary-fixture-') or '20261013T044113Z-67104' in ref: raise SystemExit('fixture ref is reused or outside the recovery namespace')
+if not ref.startswith('refs/heads/gsd/253-replan-') or '20261013T044113Z-67104' in ref: raise SystemExit('fixture ref is reused or outside the new replan namespace')
 actual_ref=subprocess.run(['git','rev-parse','--verify',ref],cwd=root,text=True,capture_output=True)
 if actual_ref.returncode or actual_ref.stdout.strip()!=fixture: raise SystemExit('create-only fixture ref does not resolve to frozen commit')
 if subprocess.run(['git','merge-base','--is-ancestor',candidate,'HEAD'],cwd=root).returncode: raise SystemExit('candidate helper commit is not in the current history')
@@ -524,7 +524,7 @@ CORE_LEFT="$(jq -r '.resources.core.remaining // 0' "$RATE_NOW")"
 if [[ -z "$CANDIDATE_SHA" ]]; then
   CANDIDATE_SHA="$(git rev-parse HEAD)"
   BRANCH_SUFFIX="$(date -u +%Y%m%dT%H%M%SZ)-$$"
-  FIXTURE_REF="refs/heads/gsd/253-recovery-canary-fixture-$BRANCH_SUFFIX"
+  FIXTURE_REF="refs/heads/gsd/253-replan-canary-fixture-$BRANCH_SUFFIX"
   FIXTURE_BLOB="$(git hash-object -w "$FIXTURE")"
   TMP_INDEX="$(mktemp /tmp/253-canary-index.XXXXXX)"
   rm -f "$TMP_INDEX"

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import contextlib
 import fcntl
 import hashlib
@@ -66,12 +67,14 @@ class TransportError(Exception):
         self.exit_code = exit_code
 
 
-def serialize_dispatch_inputs(inputs: dict) -> bytes:
+def serialize_dispatch_inputs(inputs: dict, schema: dict | None = None) -> bytes:
     """Return the canonical UTF-8 bytes for a bounded, typed dispatch input object."""
-    if not isinstance(inputs, dict) or len(inputs) > MAX_INPUT_KEYS or set(inputs) - set(DISPATCH_INPUT_TYPES):
+    declared_types = DISPATCH_INPUT_TYPES if schema is None else schema
+    if (not isinstance(declared_types, dict) or any(kind not in (str, bool) for kind in declared_types.values())
+            or not isinstance(inputs, dict) or len(inputs) > MAX_INPUT_KEYS or set(inputs) - set(declared_types)):
         raise TransportError("dispatch_inputs_invalid", "dispatch input keys are unknown or exceed the ten-key limit")
     for name, value in inputs.items():
-        if value is None or type(value) is not DISPATCH_INPUT_TYPES[name]:
+        if value is None or type(value) is not declared_types[name]:
             raise TransportError("dispatch_inputs_invalid", f"dispatch input {name} has an invalid type")
     try:
         payload = json.dumps(inputs, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8", "strict")
@@ -412,15 +415,21 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
             ledger["preserved_revisions"].append(prior)
         ledger.setdefault("started_monotonic_ns", start_ns)
         sequence = len(ledger["transactions"]) + 1
-        request_url = f"https://{host}{path}"
+        request_url_actual = f"https://{host}{path}"
+        redact_query = request.get("hop_ordinal", 0) > 0 or ROUTES[request["route_id"]][2] == "download"
+        request_url = request_url_actual
+        if redact_query and "?" in request_url:
+            request_url = request_url.split("?", 1)[0] + "?[REDACTED]"
         dispatch_inputs = body.get("inputs") if request.get("route_id") == "dispatch" and isinstance(body, dict) else None
         dispatch_bytes = serialize_dispatch_inputs(dispatch_inputs) if dispatch_inputs is not None else None
         entry = {"sequence": sequence, "request_kind": request.get("request_kind", request["route_id"]),
                  "method": request["method"], "route_id": request["route_id"], "host": host,
-                 "url": request_url, "request_sha256": hashlib.sha256(body or b"").hexdigest() if body is not None else None,
+                 "url": request_url, "url_sha256": hashlib.sha256(request_url_actual.encode()).hexdigest(),
+                 "request_sha256": hashlib.sha256(body or b"").hexdigest() if body is not None else None,
                  "page_ordinal": request.get("page_ordinal"), "hop_ordinal": request.get("hop_ordinal"),
                  "request_group": request.get("request_group"), "window_id": allocation["window_id"],
                  "source_sha256": allocation["source_sha256"],
+                 "request_body_base64": base64.b64encode(body).decode("ascii") if request["route_id"] == "dispatch" and body is not None else None,
                  "dispatch_inputs": dispatch_inputs,
                  "input_key_count": len(dispatch_inputs) if dispatch_bytes is not None else None,
                  "input_unicode_scalars": len(dispatch_bytes.decode("utf-8")) if dispatch_bytes is not None else None,
@@ -519,7 +528,7 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
                       "response_sha256": hashlib.sha256(scrubbed_body).hexdigest() if actual_status is not None else None,
                       "raw_observation_sha256": hashlib.sha256(response_body).hexdigest() if actual_status is not None else None,
                       "response_bytes": len(response_body), "scrubbed_response_bytes": len(scrubbed_body),
-                      "response_body_base64": __import__("base64").b64encode(scrubbed_body).decode("ascii"),
+                      "response_body_base64": base64.b64encode(scrubbed_body).decode("ascii"),
                       "error": {"code": error_code, "message": error_message} if error_code else None})
         if hard_stop:
             ledger["terminal_stop"] = {"code": error_code or f"http_{actual_status}" if actual_status in {401, 403, 429} else "core_budget_stop",
@@ -533,20 +542,22 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
 
     receipt = {"schema_version": "sigra.phase253.http-receipt/v1", "window_id": allocation["window_id"],
                "allocation_sha256": allocation_hash, "source_sha256": allocation["source_sha256"],
-               "sequence": sequence, "route_id": request["route_id"], "host": host,
+               "sequence": sequence, "method": request["method"], "route_id": request["route_id"], "host": host,
                "page_ordinal": request.get("page_ordinal"), "hop_ordinal": request.get("hop_ordinal"),
                "actual_status": actual_status, "scrubbed_headers": safe_headers,
                "response_sha256": hashlib.sha256(scrubbed_body).hexdigest() if actual_status is not None else None,
                "raw_observation_sha256": hashlib.sha256(response_body).hexdigest() if actual_status is not None else None,
                "response_bytes": len(response_body), "scrubbed_response_bytes": len(scrubbed_body),
-               "url": request_url, "request_sha256": hashlib.sha256(body or b"").hexdigest() if body is not None else None,
+               "url": request_url, "url_sha256": hashlib.sha256(request_url_actual.encode()).hexdigest(),
+               "request_sha256": hashlib.sha256(body or b"").hexdigest() if body is not None else None,
                "request_group": request.get("request_group"),
+               "request_body_base64": base64.b64encode(body).decode("ascii") if request["route_id"] == "dispatch" and body is not None else None,
                "dispatch_inputs": dispatch_inputs,
                "input_key_count": len(dispatch_inputs) if dispatch_bytes is not None else None,
                "input_unicode_scalars": len(dispatch_bytes.decode("utf-8")) if dispatch_bytes is not None else None,
                "input_utf8_bytes": len(dispatch_bytes) if dispatch_bytes is not None else None,
                "input_sha256": hashlib.sha256(dispatch_bytes).hexdigest() if dispatch_bytes is not None else None,
-               "response_body_base64": __import__("base64").b64encode(scrubbed_body).decode("ascii"),
+               "response_body_base64": base64.b64encode(scrubbed_body).decode("ascii"),
                "error": {"code": error_code, "message": error_message} if error_code else None,
                "terminal_stop": hard_stop}
     _atomic_json(output_path, receipt)
