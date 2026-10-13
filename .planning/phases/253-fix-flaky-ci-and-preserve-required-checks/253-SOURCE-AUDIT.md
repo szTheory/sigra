@@ -33,7 +33,7 @@ The prior 253-VALIDATION.md bytes were committed at ref c87dfb3b5ea73d64708537a3
 | CONTEXT | D-08 | HTTP/LiveView/server readiness with delayed/missing controls | 02 | COVERED |
 | CONTEXT | D-09 | Collision/order and Sandbox ownership boundaries | 02 | COVERED |
 | CONTEXT | D-10 | Scoped first-failure traces and safe retention | 02 | COVERED |
-| CONTEXT | D-11 | Exact checkout/tool identity; restore lockfile Playwright 1.59.1 | 02 | COVERED, subject to package legitimacy gate below |
+| CONTEXT | D-11 | Exact checkout/tool identity; restore lockfile Playwright 1.59.1 | 02 | COVERED |
 | CONTEXT | D-12 | Five exact effective required names; no sixth check | 03, 06, 08 | COVERED |
 | CONTEXT | D-13 | Unit smoke internal gate needs/result/verdict | 03 | COVERED |
 | CONTEXT | D-14 | Five producer/body records and complete native reports | 05, 06 | COVERED |
@@ -56,7 +56,7 @@ Deferred Phase 254 optimization, Phase 255 broad runbook/comparison, public auth
 - No bespoke values prohibition survived the precision filter. Ordinary input, origin and secret handling belong to the edge checks and threat registers; no invented prohibition check descriptor is emitted.
 - API-coverage detector over phase section plus all eight plans returned detected:false, with no skip. The phase acquires bounded GitHub evidence for an existing CI workflow; it does not integrate a new external service API. No COVERAGE.md is required.
 - Assumption-delta detector returned detected:false. No schema-relevant ORM paths were found. Graphify is disabled in project configuration.
-- No new dependency is selected. Plan 02 restores packages already pinned by the existing Playwright lockfile. The inherited planner package-install rule requires a RESEARCH.md Package Legitimacy Audit for any npm ci task; 253-RESEARCH.md currently lacks that heading. This is a process gate requiring the research owner to record the existing locked package audit before the plan is considered final. No install occurs during planning.
+- No new dependency is selected. Plan 02 restores packages already pinned by the existing Playwright lockfile. The package legitimacy gate is resolved by the exact-version audit in 253-RESEARCH.md and 253-PACKAGE-AUDIT.json: all eleven audited locked packages returned OK; exact registry integrity matched the lockfile, and no audited postinstall was present. The unversioned latest-release SUS result and version-aware correction remain recorded. No install occurred during planning.
 
 ## Dependency and file-ownership graph
 
@@ -72,3 +72,7 @@ Plan 02's unresolved-cause outcome is a durable handoff, not a skipped-fix pass.
 ## Source-path grounding
 
 All named existing edit, source and verification paths were checked in git tracking. New scripts and phase evidence paths are declared in their creating plan/task before a later task reads them. There is no ignored runtime mirror in plan file ownership. The prior proven verification commands are reused for ci-run-metrics, honest-skip, ci-playwright-report and ci-measure-workflow contracts; new commands point to files created by preceding task actions.
+
+## Draft preservation before independent review
+
+All drafted plans, refined validation, source audit and pattern map were committed at 735fe64ba66e094401e3efc27a53f3ba8371317a; parent verified exact read-back before this audit correction. 253-06/07-PLAN-PRESERVED-20261012.md preserve exact earlier draft bytes in the same commit. Those copies remain historical draft records and are not executable PLAN.md files. Initial capture was clean at cdbc002b163a737b15c1e55106d396b492366c29.

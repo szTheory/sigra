@@ -473,3 +473,25 @@ No application tests, GitHub API calls, CI dispatches or package installations w
 **Research date:** 2026-10-12
 **Valid until:** 30 days for repository boundaries; check official APIs and workflow behavior before implementation.
 
+
+## Package Legitimacy Audit
+
+Existing lockfile restoration only; this phase adds no package. The CLI check was run first; its unversioned lookup evaluated latest Playwright and reported `SUS: too-new`. The CLI exposes no version argument. The same exported `checkPackages` seam was therefore run against each exact locked version with real registry/clock/default thresholds; all eleven returned `OK`. The original latest-release result is retained and is not an override of a selected-version finding. [VERIFIED: /Users/jon/.codex/gsd-core/bin/lib/package-legitimacy.cjs:179-230,352-367; 253-PACKAGE-AUDIT.json]
+
+Names come from the existing tracked package.json/lockfile; Playwright is additionally documented by [official installation docs](https://playwright.dev/docs/intro) and [pinned upstream source](https://github.com/microsoft/playwright/tree/v1.59.1). Registry metadata for the exact version and SHA-512 integrity matched the lockfile. `npm view <name>@<locked-version> version scripts.postinstall repository.url dist.integrity --json` observed no postinstall for these packages. The initial home-cache EPERM was resolved with a writable scoped temporary cache. No installation was performed. [VERIFIED: test/example/priv/playwright/package.json; test/example/priv/playwright/package-lock.json; 253-PACKAGE-AUDIT.json]
+
+| Package (locked version) | Registry | Published | Weekly downloads | Source Repo | Verdict | Disposition |
+|---|---|---|---|---|---|---|
+| `@anthropic-ai/sdk@0.110.0` | npm | 2026-07-02T19:22:07.668Z | 46406759 | git+https://github.com/anthropics/anthropic-sdk-typescript.git | OK | Restore existing lock only |
+| `@axe-core/playwright@4.11.2` | npm | 2026-04-17T13:27:17.386Z | 14099716 | git+https://github.com/dequelabs/axe-core-npm.git | OK | Restore existing lock only |
+| `@playwright/test@1.59.1` | npm | 2026-04-01T17:59:00.155Z | 76192279 | git+https://github.com/microsoft/playwright.git | OK | Restore existing lock only |
+| `@simplewebauthn/browser@13.3.0` | npm | 2026-03-10T05:55:51.036Z | 5333765 | git+https://github.com/MasterKale/SimpleWebAuthn.git | OK | Restore existing lock only |
+| `cheerio@1.2.0` | npm | 2026-01-23T16:29:49.559Z | 27320678 | git://github.com/cheeriojs/cheerio.git | OK | Restore existing lock only |
+| `otplib@12.0.1` | npm | 2020-01-24T17:18:40.248Z | 3802314 | git+https://github.com/yeojz/otplib.git | OK | Restore existing lock only |
+| `parse5@8.0.1` | npm | 2026-04-19T20:16:16.612Z | 171448602 | git://github.com/inikulin/parse5.git | OK | Restore existing lock only |
+| `zod@4.4.3` | npm | 2026-05-04T07:06:40.819Z | 346095287 | git+https://github.com/colinhacks/zod.git | OK | Restore existing lock only |
+| `playwright@1.59.1` | npm | 2026-04-01T17:58:48.894Z | 113272409 | git+https://github.com/microsoft/playwright.git | OK | Restore existing lock only |
+| `playwright-core@1.59.1` | npm | 2026-04-01T17:58:55.514Z | 125014934 | git+https://github.com/microsoft/playwright.git | OK | Restore existing lock only |
+| `fsevents@2.3.2` | npm | 2021-02-05T14:46:33.925Z | 32181937 | git+https://github.com/fsevents/fsevents.git | OK | Restore existing lock only |
+
+Packages removed due to SLOP: none. Selected locked packages flagged SUS: none. This audit covers the eight direct packages and Playwright runtime/optional dependency boundary, not a claim that all transitive packages are vulnerability-free. Existing lockfile integrity is preserved for the remainder. Recheck a changed lockfile before installation; no unpinned latest install is authorized.
