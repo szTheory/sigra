@@ -64,8 +64,8 @@ The user confirmed all nine requirements and approved the four-phase roadmap. Ea
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CIMEAS-01 | Phase 252 | Pending |
-| CIMEAS-02 | Phase 252 | Pending |
+| CIMEAS-01 | Phase 252 | Complete |
+| CIMEAS-02 | Phase 252 | Complete |
 | CIMEAS-03 | Phase 255 | Pending |
 | CISPEED-01 | Phase 254 | Pending |
 | CISPEED-02 | Phase 254 | Pending |

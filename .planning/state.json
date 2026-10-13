@@ -6,7 +6,7 @@
     {
       "number": "252",
       "name": "Measure Current CI",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "253",
@@ -25,9 +25,9 @@
     }
   ],
   "next": {
-    "command": "/gsd:execute-phase 252",
-    "label": "Verify completed Phase 252 implementation",
-    "reason": "All six plan summaries are complete; phase-level verification remains and requirements stay pending."
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step (plan phase 253)",
+    "reason": "Phase 253 of 4 — needs a plan"
   },
-  "updated_at": "2026-10-12T21:38:49Z"
+  "updated_at": "2026-10-13T01:25:18.685Z"
 }

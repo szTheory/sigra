@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
-current_phase: 252
-current_phase_name: Measure Current CI
-status: verifying
-stopped_at: Completed 252-06-PLAN.md; phase verification pending
-last_updated: "2026-10-12T21:38:49Z"
+current_phase: 253
+current_phase_name: Fix Flaky CI and Preserve Required Checks
+status: planning
+stopped_at: Phase 252 complete, ready to plan Phase 253
+last_updated: "2026-10-13T01:25:18.676Z"
 last_activity: 2026-10-12
-last_activity_desc: Plan 252-06 hosted baseline and report complete; Phase 252 verification remains
-state_head: 68f72acfd440e5ab8f25bfd8693245511921a006
+last_activity_desc: Phase 252 complete, transitioned to Phase 253
+state_head: 1cfb0a490425e5f37c9f36205def8955c97674f1
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
   completed_plans: 6
-  percent: 0
+  percent: 25
 milestone_status: active
 workflow_step: phase_verification_pending
 verification_status: not_started
@@ -38,11 +38,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 252 (Measure Current CI) — VERIFYING
-Plan: 6 of 6
-Status: Plan implementation complete — phase-level verification pending
-Last activity: 2026-10-12 — Plan 252-06 hosted baseline, archive replay and comparison contract completed
-Progress: [░░░░░░░░░░] 0%
+Phase: 253 — Fix Flaky CI and Preserve Required Checks
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-10-12 — Phase 252 complete, transitioned to Phase 253
+Progress: [███░░░░░░░] 25%
 
 ## Next GSD command
 
@@ -85,7 +85,7 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 ## Session
 
 **Last session:** 2026-10-12T21:36:27.637Z
-**Stopped at:** Completed 252-06-PLAN.md; phase verification pending
+**Stopped at:** Phase 252 complete, ready to plan Phase 253
 **Resume file:** None
 
 ## Deferred Items

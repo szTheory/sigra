@@ -38,7 +38,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 ## Phases
 
-- [ ] **Phase 252: Measure Current CI** — Contributors and maintainers can identify today's CI waiting time, failure patterns, and largest runtime costs before choosing fixes.
+- [x] **Phase 252: Measure Current CI** — Contributors and maintainers can identify today's CI waiting time, failure patterns, and largest runtime costs before choosing fixes. (completed 2026-10-12)
 - [ ] **Phase 253: Fix Flaky CI and Preserve Required Checks** — Selected flaky CI failures are reproducible and fixed, while real failures still prevent the required checks from passing.
 - [ ] **Phase 254: Speed Up the Measured Slow Jobs** — Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
 - [ ] **Phase 255: Make Failures Reproducible and Report the Result** — Contributors can reproduce updated CI checks locally and maintainers can independently replay the final speed and reliability comparison.
@@ -56,7 +56,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. The baseline and ranked findings can be reproduced with documented commands using the saved inputs; static timeout values or old audit conclusions are not used as runtime measurements.
   4. Before any optimization, the report fixes the comparison workloads, code revisions, cache conditions, runner class, sample sizes, percentile method, and finite collection/rate-limit budget. The 20% median improvement and non-increasing p95/runner-time targets stay unchanged.
 
-**Plans**: 6/6 plans executed across 4 waves (independent plan review passed; phase-level verification remains)
+**Plans**: 6/6 plans complete across 4 waves (independent plan review passed; phase-level verification remains)
 **Wave 1**
 - [x] 252-01-PLAN.md — Source-bound collection and offline replay
 
@@ -116,7 +116,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 252. Measure Current CI | v1.50 | 6/6 | In Progress; verification pending | — |
+| 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 0/TBD | Not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
