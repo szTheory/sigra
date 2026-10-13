@@ -19,10 +19,12 @@ function fixture() {
   const repo = path.join(dir, 'repo');
   const bin = path.join(dir, 'bin');
   fs.mkdirSync(path.join(repo, 'test/example'), { recursive: true });
+  fs.mkdirSync(path.join(repo, 'test/example/deps/jose/include'), { recursive: true });
   fs.mkdirSync(bin);
   fs.writeFileSync(path.join(repo, 'test/example/README'), 'fixture\n');
+  fs.writeFileSync(path.join(repo, 'test/example/deps/jose/include/jose_jwt.hrl'), 'fixture header\n');
   git(repo, ['init', '-q']);
-  git(repo, ['add', 'test/example/README']);
+  git(repo, ['add', 'test/example']);
   git(repo, ['-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'fixture']);
   const mix = path.join(bin, 'mix');
   fs.writeFileSync(mix, `#!/bin/sh
@@ -30,6 +32,10 @@ case "$1" in
   deps.get) exit 0 ;;
   ecto.setup)
     if [ "\${SIGRA_SETUP_TEST_MODE:-}" = success ]; then exit 0; fi
+    if [ "\${SIGRA_SETUP_TEST_MODE:-}" = symlink ]; then
+      node -e 'const fs = require("node:fs"); const path = require("node:path"); const base = path.join(process.env.MIX_BUILD_PATH, "lib/jose"); fs.mkdirSync(base, {recursive: true}); const source = fs.realpathSync("deps/jose/include"); fs.symlinkSync(path.relative(base, source), path.join(base, "include")); if (!fs.existsSync(path.join(base, "include/jose_jwt.hrl"))) { console.error("JOSE include link is broken"); process.exit(43); } console.log("JOSE include link resolved at " + process.env.MIX_BUILD_PATH);'
+      exit $?
+    fi
     echo "forced setup failure" >&2; exit 42 ;;
   ecto.drop) exit 0 ;;
   phx.server) exec node -e 'require("node:http").createServer((_, res) => {res.statusCode=200;res.end("ready")}).listen(Number(process.env.PORT), "127.0.0.1")' ;;
@@ -85,6 +91,36 @@ test('setup-only entrypoint completes three isolated fixture ports within its bu
     }
     assert.equal(evidence.duration_seconds < 1200, true);
     assert.equal(evidence.limits.automatic_retries, 0);
+  } finally {
+    fs.rmSync(f.dir, { recursive: true, force: true });
+  }
+});
+
+test('symlinked TMPDIR still gives Mix a resolvable JOSE include path', () => {
+  const f = fixture();
+  try {
+    const alias = path.join(f.dir, 'temp-alias');
+    fs.symlinkSync(fs.realpathSync(f.dir), alias, 'dir');
+    const canonicalTemp = fs.realpathSync(alias);
+    assert.notEqual(alias, canonicalTemp);
+    const output = path.join(f.dir, 'diagnostic.json');
+    const result = spawnSync(process.execPath, [script, '--root', f.repo, '--output', output], {
+      env: {
+        ...process.env, TMPDIR: alias, PATH: `${f.bin}${path.delimiter}${process.env.PATH}`,
+        SIGRA_SETUP_TEST_MODE: 'symlink'
+      },
+      encoding: 'utf8', timeout: 15_000
+    });
+    const evidence = JSON.parse(fs.readFileSync(output, 'utf8'));
+    assert.equal(result.status, 0, JSON.stringify(evidence.failure));
+    assert.equal(evidence.status, 'setup_passed');
+    assert.deepEqual(evidence.project_launches.map((project) => project.port), [25311, 25312, 25313]);
+    for (const command of evidence.commands.filter((item) => item.label.endsWith('.db'))) {
+      const log = fs.readFileSync(command.log_path, 'utf8');
+      const build = log.match(/JOSE include link resolved at (.+)/)?.[1];
+      assert.ok(build, log);
+      assert.ok(build.startsWith(`${canonicalTemp}${path.sep}`), build);
+    }
   } finally {
     fs.rmSync(f.dir, { recursive: true, force: true });
   }
