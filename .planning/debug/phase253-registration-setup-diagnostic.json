@@ -31,6 +31,17 @@
       "compile_log_sha256": "d1a9e25db1be1368fc28445f4b44125d8747405bfa4d9ce73b0c4273282b1721",
       "browser_invocations": 0,
       "project_launches": 0
+    },
+    {
+      "kind": "clean_clone_ecto_setup_admin_eval",
+      "status": "passed",
+      "exit_code": 0,
+      "database": "sigra_253_setup_debug_121",
+      "port": 25311,
+      "log_path": "/private/tmp/sigra-253-clean.ZKJQW5/ecto-setup.log",
+      "log_sha256": "8dfe7f41cc51af794b6d33d5dbe0f238c5c42958b80144f9707e58d1ad935ec2",
+      "browser_invocations": 0,
+      "project_launches": 0
     }
   ],
   "historical_registration_evidence_unchanged": true

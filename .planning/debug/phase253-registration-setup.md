@@ -2,7 +2,7 @@
 status: investigating
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:22:38Z
+updated: 2026-10-13T12:24:00Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,10 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: The JOSE include failure occurs during full dependency/app compilation invoked by ecto.setup, after isolated JOSE compilation succeeds.
-test: Run ecto.setup in the clean clone with the same project-scoped build path, database settings, and PORT as the runner; retain full output and exit status.
-expecting: A nonzero ecto.setup with a JOSE include error confirms an interaction in the full build; successful setup eliminates current compilation as the startup blocker.
-next_action: run bounded ecto.setup for admin-eval in the clean clone, without a Phoenix server or browser
+hypothesis: Even after a clean scoped build and database setup, the runner's Phoenix launcher fails or binds the wrong port.
+test: Start the clean-clone Phoenix app once on port 25311, verify process ownership and HTTP response, then terminate it cleanly.
+expecting: No live child or no HTTP response would confirm the current launcher/readiness fault; stable HTTP response would rule it out for the first project.
+next_action: launch admin-eval once on port 25311 in the clean clone, probe HTTP readiness, and stop the owned process
 bug_class: Bohrbug candidate (build/config startup failure)
 candidate_causes:
   - code: runner sets MIX_BUILD_PATH independently for each project after deps.get
@@ -59,6 +59,9 @@ source: Symptoms are already established in the preceding session and committed 
 - hypothesis: Clean-clone dependency restoration plus fresh MIX_BUILD_PATH causes JOSE to miss an include artifact.
   evidence: deps.get --check-locked and a forced JOSE compile both exited 0 in a clean clone with scoped HEX_HOME and MIX_BUILD_PATH; eight JOSE .hrl include files exist there.
   timestamp: 2026-10-13T12:22:38Z
+- hypothesis: Full app compilation invoked by ecto.setup produces the reported JOSE include failure.
+  evidence: Clean-clone ecto.setup completed with exit 0, created/migrated/seeding sigra_253_setup_debug_121 on port 25311 configuration, using the fresh scoped build.
+  timestamp: 2026-10-13T12:24:00Z
 
 ## Evidence
 
@@ -78,6 +81,10 @@ source: Symptoms are already established in the preceding session and committed 
   checked: Fresh clone dependency restoration and isolated JOSE compilation
   found: git clone/checkout, locked deps.get, and JOSE compile all exited 0; deps log /private/tmp/sigra-253-clean.ZKJQW5/deps.log SHA-256 ee40e9ae3f91d46a4dab2c178493d639c5b57342800cc4438e5b89c45cfb434a; compile log has the same successful SHA-256 as the first experiment.
   implication: Neither clean dependency restore nor independent JOSE compilation reproduces the summarized historical failure; next test full app compilation.
+- timestamp: 2026-10-13T12:24:00Z
+  checked: Full ecto.setup in fresh clone with scoped build and database
+  found: Exit 0, database sigra_253_setup_debug_121 migrated and seeded; output log SHA-256 8dfe7f41cc51af794b6d33d5dbe0f238c5c42958b80144f9707e58d1ad935ec2.
+  implication: Current clean-clone setup reaches database readiness; test owned Phoenix launch and HTTP next.
 
 ## Resolution
 
