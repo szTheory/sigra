@@ -43,6 +43,23 @@ class JournalHandler(http.server.BaseHTTPRequestHandler):
                                     "status": status, "headers": observed_headers,
                                     "body_sha256": hashlib.sha256(payload).hexdigest(), "body": base64.b64encode(payload).decode()})
 
+    def do_POST(self):  # noqa: N802
+        length = int(self.headers.get("Content-Length", "0"))
+        request_body = self.rfile.read(length)
+        ledger = json.loads(pathlib.Path(self.server.ledger_path).read_text())
+        pending = ledger["transactions"][-1]
+        payload = b'{"created":true}'
+        self.send_response(201)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.send_header("X-GitHub-Request-Id", "local-object-fixture")
+        self.end_headers()
+        self.wfile.write(payload)
+        self.server.journal.append({"path": self.path, "charged": pending["state"] == "pending",
+                                    "authorization": self.headers.get("Authorization"), "method": "POST", "status": 201,
+                                    "request_body_sha256": hashlib.sha256(request_body).hexdigest(),
+                                    "request_body_bytes": len(request_body)})
+
     def date_time_string(self, timestamp=None):
         return "Tue, 13 Oct 2026 00:00:00 GMT"
 
@@ -126,6 +143,26 @@ class HostedTransportWireTests(unittest.TestCase):
         self.assertEqual(receipt["scrubbed_headers"]["content-type"], "application/json")
         self.assertEqual(receipt["response_sha256"], __import__("hashlib").sha256(b'{"ready":true}').hexdigest())
         self.assertEqual(self.body_path.read_bytes(), b'{"ready":true}')
+
+    def test_git_object_post_records_body_facts_without_retaining_source_content(self):
+        source_text = "UTF-8 source with newline Δ\n"
+        self.request_path.write_text(json.dumps({"method": "POST", "route_id": "git_create_blob",
+                                                 "body": {"encoding": "utf-8", "content": source_text}}))
+        result = self.run_runner()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        ledger = json.loads(self.ledger.read_text())
+        transaction = ledger["transactions"][0]
+        observed = self.server.journal[0]
+        request_body = json.dumps({"encoding": "utf-8", "content": source_text}, ensure_ascii=False,
+                                  separators=(",", ":")).encode()
+        self.assertTrue(observed["charged"])
+        self.assertEqual(observed["path"], "/repos/szTheory/sigra/git/blobs")
+        self.assertEqual(transaction["request_body_sha256"], hashlib.sha256(request_body).hexdigest())
+        self.assertEqual(transaction["request_body_bytes"], len(request_body))
+        self.assertEqual(observed["request_body_sha256"], transaction["request_body_sha256"])
+        self.assertIsNone(transaction["request_body_base64"])
+        self.assertNotIn(source_text, json.dumps(ledger))
+        self.assertIsNone(observed["authorization"])
 
     def test_actual_http_200_and_404_reconcile_to_independent_v2_verdict(self):
         for status in (200, 404):

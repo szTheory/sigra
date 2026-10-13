@@ -18,6 +18,7 @@ import tempfile
 import time
 import uuid
 from pathlib import Path
+from datetime import datetime
 from urllib.parse import parse_qs, quote, urlsplit, urlunsplit
 
 
@@ -25,6 +26,7 @@ SCHEMA = "sigra.phase253.http-ledger/v2"
 API_HOST = "api.github.com"
 DEFAULT_REPO = "szTheory/sigra"
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
+MAX_REQUEST_ENVELOPE_BYTES = MAX_REQUEST_BYTES + 65536
 MAX_ALLOCATION_BYTES = 64 * 1024
 MAX_INPUT_KEYS = 10
 MAX_INPUT_SCALARS = 65535
@@ -50,6 +52,12 @@ ROUTES = {
     "run_artifacts": ("GET", "/repos/{repo}/actions/runs/{run_id}/artifacts", "json"),
     "cancel_run": ("POST", "/repos/{repo}/actions/runs/{run_id}/cancel", "json"),
     "dispatch": ("POST", "/repos/{repo}/actions/workflows/{workflow_id}/dispatches", "json"),
+    "git_get_blob": ("GET", "/repos/{repo}/git/blobs/{sha}", "json"),
+    "git_create_blob": ("POST", "/repos/{repo}/git/blobs", "json"),
+    "git_get_tree": ("GET", "/repos/{repo}/git/trees/{sha}", "json"),
+    "git_create_tree": ("POST", "/repos/{repo}/git/trees", "json"),
+    "git_get_commit": ("GET", "/repos/{repo}/git/commits/{sha}", "json"),
+    "git_create_commit": ("POST", "/repos/{repo}/git/commits", "json"),
     "get_ref": ("GET", "/repos/{repo}/git/ref/heads/{branch}", "json"),
     "create_ref": ("POST", "/repos/{repo}/git/refs", "json"),
     "artifact_zip": ("GET", "/repos/{repo}/actions/artifacts/{artifact_id}/zip", "download"),
@@ -235,7 +243,19 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
             template = template.format(page_ordinal=page)
         return origin.hostname, origin.port, None, template
 
-    if allocation.get("mode") != "live":
+    git_object_route = route_id.startswith("git_") or route_id in {"get_ref", "create_ref"}
+    if git_object_route and allocation.get("mode") == "hermetic-test":
+        origin = urlsplit(str(allocation.get("test_origin", "")))
+        if (origin.scheme != "https" or origin.hostname not in {"localhost", "127.0.0.1"}
+                or origin.port is None or origin.username or origin.password or origin.query or origin.fragment):
+            raise TransportError("test_origin_rejected", "hermetic Git object route must use local HTTPS")
+        route_host, route_port = origin.hostname, origin.port
+    elif allocation.get("mode") == "live":
+        route_host, route_port = API_HOST, 443
+    else:
+        raise TransportError("live_allocation_required", "Git object routes require live or local hermetic allocation")
+
+    if allocation.get("mode") != "live" and not (git_object_route and allocation.get("mode") == "hermetic-test"):
         raise TransportError("live_allocation_required", "GitHub routes require a live frozen allocation")
     params = request.get("params", {})
     if not isinstance(params, dict):
@@ -252,6 +272,11 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
         if not isinstance(commit_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", commit_sha):
             raise TransportError("invalid_route_parameter", "commit_sha must be a full lowercase Git SHA")
         values["commit_sha"] = commit_sha
+    if "{sha}" in template:
+        sha = params.get("sha")
+        if not isinstance(sha, str) or not re.fullmatch(r"[a-f0-9]{40}", sha):
+            raise TransportError("invalid_route_parameter", "Git object sha must be a full lowercase Git SHA")
+        values["sha"] = sha
     if "{branch}" in template:
         branch = params.get("branch")
         if not isinstance(branch, str) or not re.fullmatch(r"[A-Za-z0-9._/-]{1,160}", branch) or ".." in branch.split("/"):
@@ -297,13 +322,74 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
                 raise TransportError("dispatch_inputs_invalid", "serialized dispatch inputs differ from transmitted request body")
         else:
             body_bytes = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode()
+        if route_id == "create_ref":
+            ref, sha = body.get("ref"), body.get("sha")
+            if (not isinstance(ref, str) or not re.fullmatch(
+                    r"refs/heads/gsd/253-replan-[a-z0-9][a-z0-9-]{0,100}", ref)
+                    or not isinstance(sha, str) or not re.fullmatch(r"[a-f0-9]{40}", sha)
+                    or set(body) != {"ref", "sha"}):
+                raise TransportError("ref_rejected", "reference creation is limited to exact gsd/253-replan-* commit refs")
+        elif route_id == "git_create_blob":
+            if (set(body) != {"content", "encoding"} or not isinstance(body.get("content"), str)
+                    or body.get("encoding") not in {"utf-8", "base64"}):
+                raise TransportError("git_blob_body_rejected", "Git blob body requires content and utf-8 or base64 encoding")
+            try:
+                body["content"].encode("utf-8", "strict") if body["encoding"] == "utf-8" else base64.b64decode(body["content"], validate=True)
+            except (UnicodeError, ValueError) as exc:
+                raise TransportError("git_blob_body_rejected", "Git blob content is not valid for its declared encoding") from exc
+        elif route_id == "git_create_tree":
+            if (set(body) - {"base_tree", "tree"} or not isinstance(body.get("tree"), list)
+                    or ("base_tree" in body and (not isinstance(body["base_tree"], str)
+                    or not re.fullmatch(r"[a-f0-9]{40}", body["base_tree"])) )):
+                raise TransportError("git_tree_body_rejected", "Git tree body has an invalid base or entries list")
+            seen_paths = set()
+            for item in body["tree"]:
+                if not isinstance(item, dict) or set(item) - {"path", "mode", "type", "sha", "content"}:
+                    raise TransportError("git_tree_body_rejected", "Git tree entry has unknown fields")
+                entry_path, mode = item.get("path"), item.get("mode")
+                if (not isinstance(entry_path, str) or entry_path.startswith("/") or "\x00" in entry_path
+                        or any(part in {"", ".", ".."} for part in entry_path.split("/"))
+                        or item.get("type") != "blob" or mode not in {"100644", "100755", "120000"}
+                        or (("sha" in item) == ("content" in item))):
+                    raise TransportError("git_tree_body_rejected", "Git tree entry path, mode, type, or content is unsafe")
+                if entry_path in seen_paths:
+                    raise TransportError("git_tree_body_rejected", "Git tree request contains a duplicate path")
+                seen_paths.add(entry_path)
+                if item.get("sha") is not None and (not isinstance(item["sha"], str) or not re.fullmatch(r"[a-f0-9]{40}", item["sha"])):
+                    raise TransportError("git_tree_body_rejected", "Git tree blob sha is malformed")
+                if "content" in item:
+                    if not isinstance(item["content"], str) or "\x00" in item["content"]:
+                        raise TransportError("git_tree_body_rejected", "inline tree content must be NUL-free UTF-8 text")
+                    try:
+                        item["content"].encode("utf-8", "strict")
+                    except UnicodeError as exc:
+                        raise TransportError("git_tree_body_rejected", "inline tree content is not valid UTF-8") from exc
+                if item.get("sha") is None and "content" not in item:
+                    continue
+        elif route_id == "git_create_commit":
+            fields = {"message", "tree", "parents", "author", "committer"}
+            if (set(body) != fields or not isinstance(body.get("message"), str) or not body["message"].endswith("\n")
+                    or not isinstance(body.get("tree"), str) or not re.fullmatch(r"[a-f0-9]{40}", body["tree"])
+                    or "\x00" in body["message"] or not isinstance(body.get("parents"), list) or len(body["parents"]) != 1
+                    or any(not isinstance(parent, str) or not re.fullmatch(r"[a-f0-9]{40}", parent) for parent in body["parents"])):
+                raise TransportError("git_commit_body_rejected", "Git commit body must be an unsigned complete commit with a newline-terminated message")
+            for identity in (body.get("author"), body.get("committer")):
+                if (not isinstance(identity, dict) or set(identity) != {"name", "email", "date"}
+                        or not isinstance(identity.get("name"), str) or not identity["name"] or "\n" in identity["name"] or "\x00" in identity["name"]
+                        or not isinstance(identity.get("email"), str) or "\n" in identity["email"] or "\x00" in identity["email"]
+                        or not re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", str(identity.get("date")))):
+                    raise TransportError("git_commit_body_rejected", "Git commit identities require explicit names, emails, and UTC second-resolution dates")
+                try:
+                    datetime.strptime(identity["date"], "%Y-%m-%dT%H:%M:%SZ")
+                except ValueError as exc:
+                    raise TransportError("git_commit_body_rejected", "Git commit date is not a real UTC second-resolution time") from exc
         if len(body_bytes) > MAX_REQUEST_BYTES:
             raise TransportError("request_body_too_large", "request body exceeds the fixed 2 MiB limit")
     else:
         if body is not None:
             raise TransportError("invalid_body", "GET route cannot carry a body")
         body_bytes = None
-    return API_HOST, 443, body_bytes, path
+    return route_host, route_port, body_bytes, path
 
 
 def _validate_allocation(allocation: dict) -> None:
@@ -386,7 +472,7 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
                 output_path: Path, body_output: Path | None = None,
                 destination: tuple[str, int, str] | None = None) -> tuple[dict, str | None, bytes, list[tuple[str, str]]]:
     allocation, allocation_raw = _json(allocation_path, MAX_ALLOCATION_BYTES)
-    request, _ = _json(request_path, MAX_REQUEST_BYTES)
+    request, _ = _json(request_path, MAX_REQUEST_ENVELOPE_BYTES)
     _validate_allocation(allocation)
     host, port, body, path = _route(request, allocation)
     if destination is not None:
@@ -430,6 +516,8 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
                  "request_group": request.get("request_group"), "window_id": allocation["window_id"],
                  "source_sha256": allocation["source_sha256"],
                  "request_body_base64": base64.b64encode(body).decode("ascii") if request["route_id"] == "dispatch" and body is not None else None,
+                 "request_body_bytes": len(body) if body is not None else None,
+                 "request_body_sha256": hashlib.sha256(body).hexdigest() if body is not None else None,
                  "dispatch_inputs": dispatch_inputs,
                  "input_key_count": len(dispatch_inputs) if dispatch_bytes is not None else None,
                  "input_unicode_scalars": len(dispatch_bytes.decode("utf-8")) if dispatch_bytes is not None else None,
@@ -552,6 +640,8 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
                "request_sha256": hashlib.sha256(body or b"").hexdigest() if body is not None else None,
                "request_group": request.get("request_group"),
                "request_body_base64": base64.b64encode(body).decode("ascii") if request["route_id"] == "dispatch" and body is not None else None,
+               "request_body_bytes": len(body) if body is not None else None,
+               "request_body_sha256": hashlib.sha256(body).hexdigest() if body is not None else None,
                "dispatch_inputs": dispatch_inputs,
                "input_key_count": len(dispatch_inputs) if dispatch_bytes is not None else None,
                "input_unicode_scalars": len(dispatch_bytes.decode("utf-8")) if dispatch_bytes is not None else None,
@@ -824,7 +914,7 @@ def _cli() -> int:
         if args.check_only:
             allocation, _ = _json(Path(args.allocation), MAX_ALLOCATION_BYTES)
             _validate_allocation(allocation)
-            request, _ = _json(Path(args.request), MAX_REQUEST_BYTES)
+            request, _ = _json(Path(args.request), MAX_REQUEST_ENVELOPE_BYTES)
             _route(request, allocation)
             return 0
         arguments = (Path(args.allocation), Path(args.ledger), Path(args.request), Path(args.output),
