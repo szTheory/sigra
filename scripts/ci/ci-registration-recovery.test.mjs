@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { verifyDiagnosticData, verifyNativeAttempt } from './ci-registration-recovery.mjs';
+import { runLogged, verifyDiagnosticData, verifyNativeAttempt } from './ci-registration-recovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const runner = path.join(root, 'scripts/ci/ci-registration-repro.sh');
@@ -35,6 +35,15 @@ test('the original controls and acceptance verification modes remain unavailable
     const result = spawnSync(runner, [mode, evidence], { encoding: 'utf8' });
     assert.equal(result.status, 3, `${mode}: ${result.stdout}\n${result.stderr}`);
   }
+});
+
+test('runner floors fractional millisecond process timeouts before spawnSync', () => {
+  const log = path.join(temporary, 'fractional-timeout.log');
+  const result = runLogged(process.execPath, ['-e', 'setTimeout(() => {}, 200)'], root, process.env, log, 118654.22791698575);
+
+  assert.equal(result.error, null);
+  assert.equal(result.exit_code, 0);
+  assert.match(fs.readFileSync(log, 'utf8'), /^$/);
 });
 
 function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {

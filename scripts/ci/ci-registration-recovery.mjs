@@ -251,11 +251,16 @@ function createFreeze(output, root = ROOT) {
   const head = checkCleanCandidate(root);
   const preflightPath = path.join(root, PHASE_DIR, '253-09-PREFLIGHT-SETUP.json');
   const preflight = readJson(preflightPath);
+  const runnerFailurePath = path.join(root, PHASE_DIR, '253-09-RUNNER-PREFLIGHT-FAILURE.json');
+  const runnerFailure = readJson(runnerFailurePath);
   if (preflight.schema_version !== 'sigra.phase253.registration-preflight/v1' || preflight.status !== 'passed' || preflight.exit_code !== 0 || preflight.playwright_version !== '1.59.1') {
     throw new Error('measured lockfile Playwright restore is missing or failed');
   }
   if (Math.ceil(Number(BigInt(preflight.ended_monotonic_ns) - BigInt(preflight.started_monotonic_ns)) / 1e6) !== preflight.duration_ms) {
     throw new Error('preflight setup receipt duration does not match its monotonic timestamps');
+  }
+  if (runnerFailure.schema_version !== 'sigra.phase253.registration-runner-preflight-failure/v1' || runnerFailure.browser_launches !== 0 || runnerFailure.child_processes_spawned?.length !== 0 || runnerFailure.slot !== 'D19-DIAG-01') {
+    throw new Error('the preserved runner timeout receipt is missing, malformed, or claims a browser launch');
   }
   const lock = readJson(path.join(root, 'test/example/priv/playwright/package-lock.json'));
   const playwrightVersion = lock.packages?.['node_modules/@playwright/test']?.version;
@@ -376,15 +381,21 @@ function createFreeze(output, root = ROOT) {
       preceding_order: 'unknown',
       preceding_order_reason: 'The archived record names the failed project and selected test but has no preceding test order.'
     },
-    supersedes_unlaunched_freeze: {
-      path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-01.json`,
-      sha256: 'b20adf12b7b07ede9d11a85fd813d90c6c3f4bd7fcdf38eaf564797f06baf5db',
-      commit: '31c966de7f5f4486cf936e83d38406764a1130bb',
-      reason: 'Control slots were reordered to run the first bundle across the frozen project order before any second bundle; no browser ran under the superseded revision.'
-    },
+    superseded_unlaunched_freezes: [
+      { path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-01.json`, sha256: 'b20adf12b7b07ede9d11a85fd813d90c6c3f4bd7fcdf38eaf564797f06baf5db', commit: '31c966de7f5f4486cf936e83d38406764a1130bb' },
+      { path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-02.json`, sha256: 'e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00', commit: 'e402569ad2205a99a2a63fa86aa1956896331ad5' },
+      { path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-03.json`, sha256: 'e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00', commit: '094dc5a7913a24fd0126e321a9a854eec7bf8130' }
+    ],
     ledger: {
       slots, max_launches: 19, max_charged_duration_ms: TOTAL_CAP_MS,
-      prelaunch_setup: { path: path.relative(root, preflightPath), sha256: fileHash(preflightPath), duration_ms: preflight.duration_ms, charged_to_slot: 'D19-DIAG-01' },
+      prelaunch_setup: {
+        components: [
+          { path: path.relative(root, preflightPath), sha256: fileHash(preflightPath), duration_ms: preflight.duration_ms, purpose: 'locked Playwright npm ci restore' },
+          { path: path.relative(root, runnerFailurePath), sha256: fileHash(runnerFailurePath), duration_ms: runnerFailure.tool_reported_wall_time_ms, purpose: 'runner timeout preflight failure before child process startup' }
+        ],
+        duration_ms: preflight.duration_ms + runnerFailure.tool_reported_wall_time_ms,
+        charged_to_slot: 'D19-DIAG-01'
+      },
       control_round_order: ['first bundle: admin-eval, admin-eval-mobile, admin-eval-dark', 'second bundle: admin-eval, admin-eval-mobile, admin-eval-dark'],
       d19: { max_launches: 10, max_charged_duration_ms: D19_CAP_MS, diagnostic_and_control_slots: 9, max_minutes_per_slot: 2 },
       d20: { max_launches: 10, max_charged_duration_ms: 40 * 60 * 1000, acceptance_slots: 9, max_minutes_per_slot: 4 },
@@ -454,14 +465,18 @@ async function stopApp(child) {
   }
 }
 
-function runLogged(program, args, cwd, env, log, timeout) {
+export function runLogged(program, args, cwd, env, log, timeout) {
   const fd = fs.openSync(log, 'w');
   let result;
+  let thrownError = null;
   try {
-    result = spawnSync(program, args, { cwd, env, stdio: ['ignore', fd, fd], timeout, killSignal: 'SIGKILL' });
+    result = spawnSync(program, args, { cwd, env, stdio: ['ignore', fd, fd], timeout: Math.max(1, Math.floor(timeout)), killSignal: 'SIGKILL' });
+  } catch (error) {
+    thrownError = error;
   } finally {
     fs.closeSync(fd);
   }
+  if (thrownError) return { exit_code: null, signal: null, error: thrownError.message };
   return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null };
 }
 
@@ -513,7 +528,7 @@ async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
     if (Number(process.hrtime.bigint()) / 1e6 >= deadline) throw new Error('slot budget expired before database setup');
     const setup = runLogged('mix', ['ecto.setup'], exampleDir, appEnv, paths.setup_log, Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
     attempt.database.setup_exit_code = setup.exit_code;
-    if (setup.exit_code !== 0) throw new Error(`database setup failed with exit ${setup.exit_code ?? 'null'}`);
+    if (setup.exit_code !== 0) throw new Error(`database setup failed with exit ${setup.exit_code ?? 'null'}${setup.error ? `: ${setup.error}` : ''}`);
     const appFd = fs.openSync(paths.app_log, 'w');
     try {
       app = spawn('mix', ['phx.server'], { cwd: exampleDir, env: appEnv, stdio: ['ignore', appFd, appFd], detached: true });
@@ -556,12 +571,15 @@ async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
     const drop = runLogged('mix', ['ecto.drop', '--quiet'], exampleDir, appEnv, paths.drop_log,
       Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
     attempt.database.drop_exit_code = drop.exit_code;
-    if (drop.exit_code !== 0) terminalError = [terminalError, `database drop failed with exit ${drop.exit_code ?? 'null'}`].filter(Boolean).join('; ');
+    if (drop.exit_code !== 0) terminalError = [terminalError, `database drop failed with exit ${drop.exit_code ?? 'null'}${drop.error ? `: ${drop.error}` : ''}`].filter(Boolean).join('; ');
   }
   if (!fs.existsSync(paths.setup_log)) fs.writeFileSync(paths.setup_log, 'database setup was not started\n');
   if (!fs.existsSync(paths.app_log)) fs.writeFileSync(paths.app_log, 'application process was not started\n');
   if (!fs.existsSync(paths.test_log)) fs.writeFileSync(paths.test_log, `browser command was not started${terminalError ? `: ${terminalError}` : ''}\n`);
   if (!fs.existsSync(paths.drop_log)) fs.writeFileSync(paths.drop_log, 'database drop command was not started\n');
+  for (const [name, file] of Object.entries({ setup: paths.setup_log, app: paths.app_log, test: paths.test_log, drop: paths.drop_log })) {
+    if (fs.statSync(file).size === 0) fs.writeFileSync(file, `${name} command did not produce output${terminalError ? `: ${terminalError}` : ''}\n`);
+  }
   attempt.files.setup_log = referenceFor(baseDir, paths.setup_log);
   attempt.files.app_log = referenceFor(baseDir, paths.app_log);
   attempt.files.test_log = referenceFor(baseDir, paths.test_log);
@@ -611,11 +629,29 @@ async function runRecovery(freezeFile, evidenceFile, root = ROOT) {
   if (fs.existsSync(evidenceFile)) {
     evidence = readJson(evidenceFile);
     if (evidence.status !== 'running') throw new Error(`refusing to continue terminal evidence: ${evidence.status}`);
-    if (evidence.freeze_sha256 !== freezeHash) throw new Error('existing evidence is bound to a different freeze');
+    if (evidence.freeze_sha256 !== freezeHash) {
+      if (evidence.attempts?.length !== 0 || evidence.limits?.browser_launches !== 0 || evidence.limits?.charged_duration_ms !== 0) throw new Error('only an untouched zero-launch start ledger may be rebound to the corrected freeze');
+      evidence.prior_zero_launch_start = {
+        freeze_path: evidence.freeze_path, freeze_sha256: evidence.freeze_sha256,
+        source_commit: evidence.source?.checkout_head,
+        preservation_commit: '6079a15aa'
+      };
+      evidence.preflight_failure = {
+        path: `${PHASE_DIR}/253-09-RUNNER-PREFLIGHT-FAILURE.json`,
+        sha256: fileHash(path.join(root, PHASE_DIR, '253-09-RUNNER-PREFLIGHT-FAILURE.json')),
+        charged_duration_ms: freeze.ledger.prelaunch_setup.duration_ms,
+        browser_launches: 0
+      };
+      evidence.freeze_path = path.relative(root, freezeFile);
+      evidence.freeze_sha256 = freezeHash;
+      evidence.source = { checkout_head: freeze.source.checkout_head, blobs: freeze.source.blobs };
+      evidence.limits.max_launches = freeze.ledger.max_launches;
+      evidence.limits.max_charged_duration_ms = freeze.ledger.max_charged_duration_ms;
+    }
     const validation = verifyDiagnosticData(evidence, { ...freeze, freeze_sha256: freezeHash }, baseDir);
     if (!validation.ok) throw new Error(`existing evidence failed native validation: ${validation.errors.join('; ')}`);
   } else {
-    fs.mkdirSync(baseDir, { recursive: false });
+    fs.mkdirSync(baseDir, { recursive: true });
     evidence = {
       schema_version: SCHEMA, status: 'running', freeze_path: path.relative(root, freezeFile), freeze_sha256: freezeHash,
       source: { checkout_head: freeze.source.checkout_head, blobs: freeze.source.blobs },
@@ -650,14 +686,18 @@ function verifyDiagnosticFile(evidenceFile, root = ROOT) {
     const oldFreeze = path.join(root, PHASE_DIR, '253-REPRO-FREEZE.json');
     const oldEvidence = path.join(root, PHASE_DIR, '253-REGISTRATION-EVIDENCE.json');
     const setupReceipt = path.join(root, freeze.historical.startup_receipt_path);
-    const preflightReceipt = path.resolve(root, freeze.ledger.prelaunch_setup.path);
-    const supersededFreeze = path.join(root, freeze.supersedes_unlaunched_freeze.path);
+    const supersededFreezes = freeze.superseded_unlaunched_freezes;
     if (fileHash(oldFreeze) !== freeze.historical.original_freeze_sha256) throw new Error('original registration freeze bytes changed');
     if (fileHash(oldEvidence) !== freeze.historical.original_evidence_sha256) throw new Error('original registration evidence bytes changed');
     if (!freeze.historical.startup_receipt_sha256 || fileHash(setupReceipt) !== freeze.historical.startup_receipt_sha256) throw new Error('previous setup receipt bytes changed or were not frozen');
-    if (fileHash(preflightReceipt) !== freeze.ledger.prelaunch_setup.sha256) throw new Error('prelaunch setup receipt bytes changed');
-    if (fileHash(supersededFreeze) !== freeze.supersedes_unlaunched_freeze.sha256) throw new Error('superseded unlaunched freeze bytes changed');
-    if (run('git', ['-C', root, 'merge-base', '--is-ancestor', freeze.supersedes_unlaunched_freeze.commit, git(['-C', root, 'rev-parse', 'HEAD'])]).status !== 0) throw new Error('superseded freeze preservation commit is not in history');
+    for (const component of freeze.ledger.prelaunch_setup.components) {
+      if (fileHash(path.resolve(root, component.path)) !== component.sha256) throw new Error(`prelaunch receipt bytes changed: ${component.path}`);
+    }
+    for (const superseded of supersededFreezes) {
+      const supersededFreeze = path.join(root, superseded.path);
+      if (fileHash(supersededFreeze) !== superseded.sha256) throw new Error(`superseded unlaunched freeze bytes changed: ${superseded.path}`);
+      if (run('git', ['-C', root, 'merge-base', '--is-ancestor', superseded.commit, git(['-C', root, 'rev-parse', 'HEAD'])]).status !== 0) throw new Error(`superseded freeze preservation commit is not in history: ${superseded.commit}`);
+    }
   } catch (error) {
     const result = { ok: false, errors: [error.message] };
     console.error(`native diagnostic receipt rejected: ${error.message}`);
