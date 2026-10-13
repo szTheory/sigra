@@ -2,7 +2,7 @@
 status: investigating
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:22:02Z
+updated: 2026-10-13T12:22:38Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,10 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: The original JOSE failure depends on the dependency sources restored in the clean clone, rather than MIX_BUILD_PATH alone.
-test: Clone the current checkout to a scoped directory, restore locked dependencies under a scoped HEX_HOME, inspect the JOSE include files, then compile JOSE in a fresh build path.
-expecting: A clean-clone-only compile failure would identify dependency restoration or source differences; success would rule out the prior JOSE diagnosis as a current reproducible startup blocker.
-next_action: run bounded deps.get and JOSE compile in a clean temporary clone without launching Phoenix or a browser
+hypothesis: The JOSE include failure occurs during full dependency/app compilation invoked by ecto.setup, after isolated JOSE compilation succeeds.
+test: Run ecto.setup in the clean clone with the same project-scoped build path, database settings, and PORT as the runner; retain full output and exit status.
+expecting: A nonzero ecto.setup with a JOSE include error confirms an interaction in the full build; successful setup eliminates current compilation as the startup blocker.
+next_action: run bounded ecto.setup for admin-eval in the clean clone, without a Phoenix server or browser
 bug_class: Bohrbug candidate (build/config startup failure)
 candidate_causes:
   - code: runner sets MIX_BUILD_PATH independently for each project after deps.get
@@ -56,6 +56,9 @@ source: Symptoms are already established in the preceding session and committed 
 - hypothesis: A fresh MIX_BUILD_PATH by itself causes JOSE to miss an include artifact.
   evidence: JOSE compiled successfully from installed dependency sources in a new build path: 113 Erlang and 8 Elixir files, exit 0.
   timestamp: 2026-10-13T12:22:02Z
+- hypothesis: Clean-clone dependency restoration plus fresh MIX_BUILD_PATH causes JOSE to miss an include artifact.
+  evidence: deps.get --check-locked and a forced JOSE compile both exited 0 in a clean clone with scoped HEX_HOME and MIX_BUILD_PATH; eight JOSE .hrl include files exist there.
+  timestamp: 2026-10-13T12:22:38Z
 
 ## Evidence
 
@@ -71,6 +74,10 @@ source: Symptoms are already established in the preceding session and committed 
   checked: Bounded JOSE-only compile with fresh MIX_BUILD_PATH and HEX_HOME
   found: Exit 0; 113 .erl and 8 .ex files compiled; log /private/tmp/sigra-253-jose.Zs4CQD/compile.log has SHA-256 d1a9e25db1be1368fc28445f4b44125d8747405bfa4d9ce73b0c4273282b1721.
   implication: Per-project build isolation is not a sufficient cause; fresh dependency restoration must be checked separately.
+- timestamp: 2026-10-13T12:22:38Z
+  checked: Fresh clone dependency restoration and isolated JOSE compilation
+  found: git clone/checkout, locked deps.get, and JOSE compile all exited 0; deps log /private/tmp/sigra-253-clean.ZKJQW5/deps.log SHA-256 ee40e9ae3f91d46a4dab2c178493d639c5b57342800cc4438e5b89c45cfb434a; compile log has the same successful SHA-256 as the first experiment.
+  implication: Neither clean dependency restore nor independent JOSE compilation reproduces the summarized historical failure; next test full app compilation.
 
 ## Resolution
 

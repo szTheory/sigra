@@ -20,6 +20,17 @@
       "log_sha256": "d1a9e25db1be1368fc28445f4b44125d8747405bfa4d9ce73b0c4273282b1721",
       "browser_invocations": 0,
       "project_launches": 0
+    },
+    {
+      "kind": "clean_clone_deps_restore_and_jose_compile",
+      "status": "passed",
+      "exit_code": 0,
+      "deps_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/deps.log",
+      "deps_log_sha256": "ee40e9ae3f91d46a4dab2c178493d639c5b57342800cc4438e5b89c45cfb434a",
+      "compile_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/compile.log",
+      "compile_log_sha256": "d1a9e25db1be1368fc28445f4b44125d8747405bfa4d9ce73b0c4273282b1721",
+      "browser_invocations": 0,
+      "project_launches": 0
     }
   ],
   "historical_registration_evidence_unchanged": true
