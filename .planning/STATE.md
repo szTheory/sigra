@@ -4,25 +4,25 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "executing_recovery"
-stopped_at: "Additional recovery execution starting at15"
-last_updated: "2026-10-13T18:32:03.629347+00:00"
+status: "native_controls_halted_recovery_planning_required"
+stopped_at: "Additional execution halted at native dark/control timeout; independent local helper work complete"
+last_updated: "2026-10-13T23:26:23.648776+00:00"
 last_activity: "2026-10-13"
-last_activity_desc: "Eleven additional recovery plans passed independent review and planning checks"
-state_head: "96e4bbbc3caecd0d1e5320dd3d271dff098a3a58"
+last_activity_desc: "Plans15/18/19/20 implemented; first dark/control command timed out;105 focused tests passed"
+state_head: "a1a1887e116fc34dbbdfc4186347467ffad33f91"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 31
-  completed_plans: 15
-  percent: 48
+  completed_plans: 16
+  percent: 52
 milestone_status: active
-workflow_step: "execute_recovery"
+workflow_step: "plan_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: "$gsd-plan-phase 253"
+resume_command: "$gsd-plan-phase 253"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -32,9 +32,9 @@ phase253_plan_count: 25
 phase253_wave_count: 8
 phase253_task_count: 54
 phase253_implementation_status: partial
-phase253_completed_plans: 9
+phase253_completed_plans: 10
 phase253_halted_plans: [253-02, 253-07, 253-09, 253-12, 253-16]
-phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
+phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14, 253-17, 253-21, 253-22, 253-23, 253-24, 253-25]
 
 phase253_recovery_plan_count: 6
 
@@ -56,18 +56,20 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 253 — incomplete
-Plans: 9/25 complete;15/18/19 complete;16 halted;20 ready; original failed plans preserved
-Status: Executing additional recovery plans; both requirements remain open
-Last activity: 2026-10-13 — 11 new plans,24 tasks,8 waves; independent review passed
-Progress: 15/31 planned milestone plans complete(48%); full Phase253 verification not started
+Plans: 10/25 complete;15/18/19/20 implemented;16 halted; original failed plans preserved
+Status: Native dark/control timeout needs recovery planning; both reliability requirements remain open
+Last activity: 2026-10-13T23:26:23.648776+00:00 —105 focused tests passed; publication proposal fits16/24requests
+Progress: 16/31 planned milestone plans complete(52%); full Phase253 verification not started
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only
+$gsd-plan-phase 253
 
-Run new15–25 in dependency order. They cover remaining registration diagnostics and controls, measured HTTP and Git object publication, six hosted gate scenarios, two real PR families and accepted-only reconciliation. Prior spent slots/charges, halted clocks/freezes and failed results stay preserved. Planning and local contract checks do not complete either reliability requirement. Phase254 remains pending.
+Add recovery plans for the missing native dark/control results. The first combined dark command timed out before producing its Playwright results file; its slot and the shared retry are spent. Five controls and nine conditional acceptance commands remain unrun under the stop condition. Preserve all old failures and define finite usable capacity without reopening spent slots. No manual UAT or missing-proof approval is needed.
 
-Planning closeout: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json. No user credential or manual UAT is needed. After all recovery requirements are accepted, run unfiltered $gsd-execute-phase 253 for full phase verification.
+The independent transport, verifier and publication helpers passed local checks. The complete publication tree fits three requests and16/24total requests; fresh server object/ref availability and hosted/PR proof remain unproven. Phase254 remains pending.
+
+Execution closeout: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json`; checks: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CHECKS.json`; fresh planning readiness: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-ROUTING-CHECKS.json`. When both requirements are accepted and no plans remain blocked, run unfiltered $gsd-execute-phase 253 for full phase verification.
 
 ## Known unfinished work
 
@@ -114,9 +116,9 @@ Planning closeout: .planning/phases/253-fix-flaky-ci-and-preserve-required-check
 
 ## Session
 
-**Last session:** 2026-10-13T18:24:48.788282+00:00
-**Stopped at:** Additional recovery planning checked; next15/18 ready
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json
+**Last session:** 2026-10-13T23:26:23.648776+00:00
+**Stopped at:** Native control timeout; independent local implementation complete
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json
 
 ## Deferred Items
 
@@ -173,3 +175,9 @@ Plan18 completed:14 local HTTPS tests and hermetic canary contract passed;0GitHu
 ## Native control halt and independent work
 
 Plan16 halted after the firstdarkcombined command:121252ms exceeds120000ms;no native report,originaldrop timedout. OwnedtemporaryDBnowconfirmedabsent,separate112mscleanup,total243044ms across4browserlaunches;sharedretryspent.32localrunner/prohibitiontests pass;nativecontrolgate rejects. Remainingfivecontrol/nineacceptancecommandsunrun;nohumanapprovalcanreplaceproof.20independentready,next:$gsd-execute-phase 253 --gaps-only tofinishit. After20,next:$gsd-plan-phase 253 fornativecontrolfailure/recoveryplanning;nonewwindowauthorized. Progress:253-ADDITIONAL-EXECUTION-PROGRESS-03.json. Phaseverificationnot_started,requirementsopen.
+
+## Additional recovery execution closeout
+
+Plans15/18/19/20 are complete at the implementation level. Plan16 is halted:121252ms exceeded120000ms and no native report was produced. Separate112ms database cleanup succeeded; total charged work is243044ms and four physical browser launches. Current desktop/mobile passes do not establish the historical cause or complete the missing dark/control results. Saved failed ledgers remain unchanged. The approved two-log sanitization is recorded at25286d5d4. No GitHub requests or remote mutations were made in this invocation.
+
+The next command is $gsd-plan-phase 253. Fresh init.plan-phase253 found existing context/research and no prerequisite blocker; init.execute-phase253 found zero runnable plans. Full phase verification has not started.

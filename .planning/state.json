@@ -25,13 +25,13 @@
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 253 --gaps-only",
-    "label": "Finish independent publication contracts",
-    "reason": "16nativecontrols halted;20ready;subsequentnativeworkneedsplanning"
+    "command": "$gsd-plan-phase 253",
+    "label": "Plan recovery for the native dark/control timeout",
+    "reason": "The first combined dark command timed out at 121252ms, 1252ms beyond its 120000ms limit. Playwright wrote no native results file; its original database cleanup also timed out."
   },
-  "updated_at": "2026-10-13T22:16:48.279003+00:00",
+  "updated_at": "2026-10-13T23:26:23.648776+00:00",
   "phase253_execution": {
-    "status": "partial_ready_for_recovery",
+    "status": "native_controls_halted_recovery_planning_required",
     "implementation_status": "partial",
     "phase_verification_status": "not_started",
     "plans": {
@@ -42,7 +42,24 @@
       "253-05": "complete",
       "253-06": "complete",
       "253-07": "halted",
-      "253-08": "blocked"
+      "253-08": "blocked",
+      "253-09": "halted",
+      "253-10": "blocked",
+      "253-11": "complete",
+      "253-12": "halted",
+      "253-13": "blocked",
+      "253-14": "blocked",
+      "253-15": "complete",
+      "253-16": "halted",
+      "253-17": "blocked",
+      "253-18": "complete",
+      "253-19": "complete",
+      "253-20": "complete",
+      "253-21": "blocked",
+      "253-22": "blocked",
+      "253-23": "blocked",
+      "253-24": "blocked",
+      "253-25": "blocked"
     },
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
     "recovery_plans": {
@@ -53,12 +70,10 @@
       "253-13": "blocked_by_253-09_and_253-12",
       "253-14": "blocked_by_253-09_and_253-12"
     },
-    "current_next_command": "$gsd-execute-phase 253 --gaps-only",
+    "current_next_command": "$gsd-plan-phase 253",
     "total_phase_plans": 25,
-    "current_ready_plans": [
-      "253-15",
-      "253-18"
-    ]
+    "current_ready_plans": [],
+    "completed_plan_count": 10
   },
   "phase253_registration_startup_debug": {
     "status": "resolved_startup_only",
@@ -84,7 +99,7 @@
     "plan02_status": "halted",
     "phase_verification_status": "not_started",
     "next_command": "$gsd-plan-phase 253",
-    "current_next_command": "$gsd-execute-phase 253 --gaps-only"
+    "current_next_command": "$gsd-plan-phase 253"
   },
   "phase253_recovery_planning": {
     "status": "passed",
@@ -115,11 +130,9 @@
     "phase_verification_status": "not_started",
     "browser_invocations": 0,
     "github_requests": 0,
-    "current_ready_plans": [
-      "253-15",
-      "253-18"
-    ],
-    "current_planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json"
+    "current_ready_plans": [],
+    "current_planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json",
+    "current_next_command": "$gsd-plan-phase 253"
   },
   "phase253_recovery_execution": {
     "schema_version": "sigra.phase253.recovery-execution-closeout/v1",
@@ -950,18 +963,18 @@
     "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PLAN-CHECK-02.md",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "implementation_status": "partial",
-    "phase_verification_status": "not_started"
+    "phase_verification_status": "not_started",
+    "current_ready_plans": [],
+    "current_next_command": "$gsd-plan-phase 253"
   },
-  "status": "executing_recovery",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "status": "native_controls_halted_recovery_planning_required",
+  "next_command": "$gsd-plan-phase 253",
+  "resume_command": "$gsd-plan-phase 253",
   "phase253_additional_execution": {
-    "status": "native_controls_halted_independent_publication_ready",
+    "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
-    "next_plan": "253-20",
-    "ready_plans": [
-      "253-20"
-    ],
+    "next_plan": null,
+    "ready_plans": [],
     "capture_head": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
     "sdk_transition_commit": "96e4bbbc3caecd0d1e5320dd3d271dff098a3a58",
     "implementation_status": "partial",
@@ -970,7 +983,8 @@
     "completed_plans": [
       "253-15",
       "253-18",
-      "253-19"
+      "253-19",
+      "253-20"
     ],
     "halted_plans": [
       "253-16"
@@ -997,7 +1011,7 @@
         "R-DIAG-MOBILE"
       ],
       "retry_spent": "R-INFRA-RETRY-DESKTOP",
-      "remaining_regular_commands": 6,
+      "remaining_regular_commands": 5,
       "remaining_acceptance_commands": 9,
       "native_registration_status": "diagnosis_incomplete",
       "plan_status": "complete",
@@ -1006,7 +1020,10 @@
       "original_order": "unknown",
       "local_tests": 26,
       "shell_tests": 5,
-      "no_additional_native_commands": true
+      "no_additional_native_commands": true,
+      "current_cumulative_charge_ms": 243044,
+      "current_physical_browser_launches": 4,
+      "control_attempt_status": "halted"
     },
     "pending_permission": null,
     "progress_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-PROGRESS-03.json",
@@ -1039,6 +1056,103 @@
       "cleanup_record": "253-16-POST-HALT-CLEANUP.json",
       "no_missing_proof_approval": true,
       "no_new_window_authorized": true
-    }
+    },
+    "next_command": "$gsd-plan-phase 253",
+    "resume_command": "$gsd-plan-phase 253",
+    "completed_plan_count": 10,
+    "publication": {
+      "implementation_status": "complete_local",
+      "proposal": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PUBLICATION-PROPOSAL.json",
+      "proposal_sha256": "a6cc4a42087e264d22bafda56e032690792ced474d77ce64dfcfabca9926de65",
+      "proposal_source_commit": "778be9c15b9a7128936036ac292ce60e183edd5a",
+      "candidate_commit": "7588b147d074e10fe9049e7e2706e56ecfdfcebb",
+      "fixture_commit": "775f0fed4ab38226c22c5314c4e58bb19787f2d7",
+      "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+      "server_parent_commit": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+      "product_files": 1462,
+      "exact_paths_modes_blobs": true,
+      "projection": {
+        "binary_blob_requests": 0,
+        "complete_product_delta_dropped": false,
+        "fixed_non_tree_requests": 12,
+        "largest_tree_body_bytes": 2084074,
+        "max_requests": 24,
+        "max_tree_body_bytes": 2097152,
+        "parent_preflight_requests": 1,
+        "projected_total_requests": 16,
+        "tree_request_count": 3
+      },
+      "tree_requests": [
+        {
+          "base_tree_sha": "e9d63071f0ab4ac8edba8a60a2503cc882cb5556",
+          "binary_blobs": 0,
+          "body_bytes": 2084074,
+          "changed_entries": 91,
+          "name": "candidate-part-01",
+          "sequence": 1,
+          "tree_sha": "7ffa4f0755e1780e9cce4ca7c35d810f46342e81",
+          "variant": "candidate"
+        },
+        {
+          "base_tree_sha": "7ffa4f0755e1780e9cce4ca7c35d810f46342e81",
+          "binary_blobs": 0,
+          "body_bytes": 949228,
+          "changed_entries": 76,
+          "name": "candidate-part-02",
+          "sequence": 2,
+          "tree_sha": "e45a14bce1667b2944338788f2d5305ddf1c19f9",
+          "variant": "candidate"
+        },
+        {
+          "base_tree_sha": "e45a14bce1667b2944338788f2d5305ddf1c19f9",
+          "binary_blobs": 0,
+          "body_bytes": 17332,
+          "changed_entries": 1,
+          "name": "fixture",
+          "sequence": 1,
+          "tree_sha": "7cfe91e189081c288b8baa8643fea03693481441",
+          "variant": "fixture"
+        }
+      ],
+      "packing_deviation": "Three counted tree requests replace the original two-call implementation; the 24-request reservation, 2MiB body limit, binary-only blob policy and complete product tree remain unchanged.",
+      "previous_blocked_proposal_commit": "ca29ed14b14b9eb3ff3e8fb23ea6850df8cadaaa",
+      "fresh_server_availability": "not_proven",
+      "production_publish_performed": false,
+      "must_refresh_source_manifest_before_future_hosted_window": true
+    },
+    "closeout_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json",
+    "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CHECKS.json",
+    "routing_checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-ROUTING-CHECKS.json",
+    "current_blockers": [
+      {
+        "plan": "253-16",
+        "missing": "A native results file for the combined dark registration/readiness/state/trace control run, followed by the remaining native controls and any cause-backed acceptance runs.",
+        "observed_failure": "The first combined dark command timed out at 121252ms, 1252ms beyond its 120000ms limit. Playwright wrote no native results file; its original database cleanup also timed out.",
+        "resource_cleanup": "The task-created database was removed separately and confirmed absent; this does not change the failed native result.",
+        "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json",
+        "summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-SUMMARY.md",
+        "remaining": "Five control commands and nine conditional acceptance commands did not run. The failed slot and shared retry remain spent; a new recovery plan must define usable finite capacity without reopening them.",
+        "blocked_plans": [
+          "253-17",
+          "253-21",
+          "253-22",
+          "253-23",
+          "253-24",
+          "253-25"
+        ]
+      },
+      {
+        "plans": [
+          "253-23",
+          "253-24",
+          "253-25"
+        ],
+        "missing": "Fresh GitHub object/ref availability, six hosted gate outcomes and a separate hosted verifier, normal production PR and real docs-only PR results, accepted-only reconciliation and whole-phase verification.",
+        "remaining": "These dependency-blocked plans did not start. Local helper tests do not prove either reliability requirement.",
+        "github_requests_this_invocation": 0,
+        "remote_mutations_this_invocation": 0
+      }
+    ],
+    "updated_at": "2026-10-13T23:26:23.648776+00:00"
   }
 }

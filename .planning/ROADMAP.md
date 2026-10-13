@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 partly implemented; additional recovery plans ready)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 partly implemented; native dark/control recovery planning required)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-execute-phase 253 --gaps-only — additional recovery plans15–25 passed review;15/18 ready. Native proof and full phase verification remain pending.
+**Next command:** $gsd-plan-phase 253 — dark/control results are missing after the native timeout; all runnable local plans finished. Both reliability requirements and full phase verification remain open.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:9/25 complete;15/18/19complete;16halted;20ready;phaseverificationnot_started
+**Plans**:10/25 complete;15/18/19/20implemented;16halted;native/hosted proof missing;phaseverificationnot_started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -133,7 +133,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 - [ ] 253-17-PLAN.md — Cause assessment, scoped repair and fresh repeats
 - [x] 253-18-PLAN.md — Measured actual HTTP transport
 - [x] 253-19-PLAN.md — Independent source and transport verifier
-- [ ] 253-20-PLAN.md — Counted server Git object/ref publication
+- [x] 253-20-PLAN.md — Local Git publication helper; complete tree fits16/24requests; hosted availability unproven
 - [ ] 253-21-PLAN.md — Real PR collector and completion contracts
 - [ ] 253-22-PLAN.md — Final local source/window freeze
 - [ ] 253-23-PLAN.md — Six hosted outcomes and separate verifier
@@ -173,7 +173,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 9/25 | Partial implementation;16/20ready;verificationnot_started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 10/25 | Partial implementation;16halted;recovery planning required;verificationnot_started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
