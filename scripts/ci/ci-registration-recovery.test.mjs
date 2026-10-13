@@ -94,6 +94,40 @@ test('revision attempt directory creates the missing slot parent before any nati
   assert.equal(path.relative(base, attempt), path.join('R-DIAG-DESKTOP', 'attempt-01'));
 });
 
+test('one-use infrastructure retry requires the independently reviewed Chromium bootstrap failure', () => {
+  assert.equal(typeof recovery.validateInfrastructureRetry, 'function');
+  if (typeof recovery.validateInfrastructureRetry !== 'function') return;
+  const reviewed = {
+    evidence_sha256: 'evidence-hash',
+    test_log_sha256: 'test-log-hash',
+    native_attempt_charge_ms: 26373,
+    total_charge_ms: 33884,
+    retry_used: false,
+    failure: 'Chromium headless shell SIGTRAP at macOS Mach port bootstrap_check_in with Permission denied (1100), before selected test began'
+  };
+  const prior = {
+    status: 'halted', freeze_sha256: 'freeze-hash',
+    limits: { historical_charge_ms: 3768, preparation_charge_ms: 3743, charged_duration_ms: 33884, browser_launches: 1, used_slots: ['R-DIAG-DESKTOP'] },
+    attempts: [{ slot_id: 'R-DIAG-DESKTOP', project: 'admin-eval', charged_duration_ms: 26373,
+      test_started: false, failure_classification: 'infrastructure', server: { http_status: 200 },
+      database: { setup_exit_code: 0, drop_exit_code: 0 }, browser: { launched: true }, files: { test_log: { sha256: 'test-log-hash' } } }]
+  };
+  assert.deepEqual(recovery.validateInfrastructureRetry(prior, reviewed), { ok: true, errors: [] });
+  const mutations = [
+    (record, review) => { review.retry_used = true; },
+    (record) => { record.attempts[0].test_started = true; },
+    (record) => { record.attempts[0].database.drop_exit_code = 1; },
+    (record) => { record.attempts[0].files.test_log.sha256 = 'changed'; },
+    (record, review) => { review.failure = 'unclassified'; },
+    (record) => { record.limits.charged_duration_ms = 0; }
+  ];
+  for (const mutate of mutations) {
+    const record = structuredClone(prior); const review = structuredClone(reviewed);
+    mutate(record, review);
+    assert.equal(recovery.validateInfrastructureRetry(record, review).ok, false);
+  }
+});
+
 test('each diagnostic uses its own physical Mix build for setup, server and cleanup', () => {
   const first = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-first-'));
   const second = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-second-'));
