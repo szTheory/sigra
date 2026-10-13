@@ -822,6 +822,27 @@ function validateRevisionSource(root, freeze, evidenceFile = null) {
   return head;
 }
 
+function validateFrozenRevisionProvenance(root, freeze) {
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  if (run('git', ['-C', root, 'merge-base', '--is-ancestor', freeze.source.checkout_head, head]).status !== 0) throw new Error('frozen source commit is not in the current repository history');
+  for (const [file, expected] of Object.entries(freeze.source.blobs ?? {})) {
+    if (git(['-C', root, 'rev-parse', `${freeze.source.checkout_head}:${file}`]) !== expected) throw new Error(`frozen Git source blob mismatch for ${file}`);
+  }
+  const phaseDir = path.join(root, PHASE_DIR);
+  const identities = [
+    [path.join(phaseDir, '253-RECOVERY-REGISTRATION-FREEZE.json'), freeze.historical.original_freeze_sha256],
+    [path.join(phaseDir, '253-RECOVERY-REGISTRATION-EVIDENCE.json'), freeze.historical.original_evidence_sha256],
+    [path.join(phaseDir, '253-09-TERMINAL-DIAGNOSTIC.json'), freeze.historical.terminal_diagnostic_sha256],
+    [path.resolve(root, freeze.historical.recovery_capture_path), freeze.historical.recovery_capture_sha256],
+    [path.resolve(root, freeze.retry_context?.original_evidence_path ?? ''), freeze.retry_context?.original_evidence_sha256],
+    [path.resolve(root, freeze.retry_context?.original_freeze_path ?? ''), freeze.retry_context?.original_freeze_sha256],
+    [path.resolve(root, freeze.retry_context?.review_path ?? ''), freeze.retry_context?.review_sha256],
+    [path.resolve(root, freeze.infrastructure_retry?.reservation_path ?? ''), freeze.infrastructure_retry?.reservation_sha256]
+  ];
+  for (const [file, expected] of identities) if (expected && fileHash(file) !== expected) throw new Error(`frozen historical evidence bytes changed: ${path.relative(root, file)}`);
+  assertDirtyConfigPreserved(root);
+}
+
 function loadRevisionEvidence(freezeFile, evidenceFile, root, { allowRebind = false } = {}) {
   const freeze = readJson(freezeFile);
   if (freeze.schema_version !== REPLAN_FREEZE_SCHEMA || freeze.status !== 'frozen_before_results'
@@ -991,9 +1012,13 @@ export function verifyRevisionAttempt(attempt, freeze, baseDir) {
   return { ok: errors.length === 0, errors };
 }
 
-function verifyRevisionData(evidence, freeze, baseDir) {
+export function verifyRevisionFreezeBinding(evidence, freeze, freezeFileHash) {
+  return freeze?.freeze_sha256 === revisionFreezeDigest(freeze) && evidence?.freeze_sha256 === freezeFileHash;
+}
+
+export function verifyRevisionData(evidence, freeze, baseDir, freezeFileHash = freeze?.freeze_sha256) {
   const errors = [];
-  if (evidence?.schema_version !== REPLAN_SCHEMA || evidence.freeze_sha256 !== freeze?.freeze_sha256) errors.push('evidence does not match the frozen revision');
+  if (evidence?.schema_version !== REPLAN_SCHEMA || !verifyRevisionFreezeBinding(evidence, freeze, freezeFileHash)) errors.push('evidence does not match the frozen revision');
   if (evidence?.source?.checkout_head !== freeze?.source?.checkout_head || JSON.stringify(evidence?.source?.blobs) !== JSON.stringify(freeze?.source?.blobs)) errors.push('evidence source identity differs from the frozen revision');
   if (evidence.historical?.preceding_order !== 'unknown' || evidence.limits?.historical_charge_ms !== freeze?.ledger?.historical_charge_ms) errors.push('historical uncertainty or spent charge was not preserved');
   if (evidence.preparation_status !== 'passed') errors.push('common dependency preparation is missing or incomplete');
@@ -1133,7 +1158,7 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
   else if (evidence.attempts.length === 2) { evidence.status = 'diagnosis_incomplete'; evidence.stop_reason = 'Desktop and mobile diagnostics completed; the dark combined diagnostic/control command remains reserved for plan16.'; }
   else evidence.status = 'running';
   writeJson(evidenceFile, evidence);
-  const checked = verifyRevisionData(evidence, freeze, rawBase);
+  const checked = verifyRevisionData(evidence, freeze, rawBase, freezeHash);
   if (!checked.ok) {
     evidence.status = 'halted'; evidence.stop_reason = `native revision receipt verification failed: ${checked.errors.join('; ')}`;
     writeJson(evidenceFile, evidence);
@@ -1148,12 +1173,12 @@ function verifyRevisionFile(evidenceFile, root = ROOT) {
     const evidence = readJson(evidenceFile);
     if (typeof evidence.freeze_path !== 'string' || !evidence.freeze_path) throw new Error('evidence does not name its frozen source');
     const freezePath = path.resolve(root, evidence.freeze_path);
-    const loaded = loadRevisionEvidence(freezePath, evidenceFile, root);
-    const freeze = loaded.freeze;
-    const latest = loaded.evidence;
-    const result = verifyRevisionData(latest, freeze, `${evidenceFile}.raw`);
+    const freeze = readJson(freezePath);
+    validateFrozenRevisionProvenance(root, freeze);
+    const freezeFileHash = fileHash(freezePath);
+    const result = verifyRevisionData(evidence, freeze, `${evidenceFile}.raw`, freezeFileHash);
     if (!result.ok) console.error(`native revision receipt rejected:\n- ${result.errors.join('\n- ')}`);
-    else console.log(`native revision receipts verified: ${latest.attempts.length}/2 plan15 diagnostics; ${latest.limits.browser_launches} launches; ${latest.limits.charged_duration_ms} ms charged; status=${latest.status}`);
+    else console.log(`native revision receipts verified: ${evidence.attempts.length}/2 plan15 diagnostics; ${evidence.limits.browser_launches} launches; ${evidence.limits.charged_duration_ms} ms charged; status=${evidence.status}`);
     return result;
   } catch (error) { console.error(`native revision receipt rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
 }

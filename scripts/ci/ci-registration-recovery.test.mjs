@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { attemptDirectory, runLogged, verifyDiagnosticData, verifyNativeAttempt } from './ci-registration-recovery.mjs';
+import { attemptDirectory, runLogged, verifyDiagnosticData, verifyNativeAttempt, verifyRevisionFreezeBinding } from './ci-registration-recovery.mjs';
 import * as recovery from './ci-registration-recovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -122,6 +122,18 @@ test('one-use infrastructure retry requires the independently reviewed Chromium 
   assert.equal(retryFreeze.ledger.historical_charge_ms, 33884);
   assert.deepEqual(retryFreeze.ledger.slots.map((slot) => slot.id), ['R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE']);
   assert.equal(JSON.parse(fs.readFileSync(reservation, 'utf8')).status, 'reserved');
+});
+
+test('revision evidence binds to the freeze file digest while validating its internal digest separately', () => {
+  const freeze = { schema_version: 'sigra.phase253.registration-replan-freeze/v1', status: 'frozen_before_results', payload: 'frozen' };
+  freeze.freeze_sha256 = crypto.createHash('sha256').update(JSON.stringify(freeze)).digest('hex');
+  const fileHash = crypto.createHash('sha256').update(`${JSON.stringify(freeze, null, 2)}\n`).digest('hex');
+  const evidence = { freeze_sha256: fileHash };
+  assert.notEqual(freeze.freeze_sha256, fileHash, 'pretty-printed on-disk freeze bytes have their own digest');
+  assert.equal(verifyRevisionFreezeBinding(evidence, freeze, fileHash), true);
+  assert.equal(verifyRevisionFreezeBinding(evidence, freeze, freeze.freeze_sha256), false);
+  freeze.freeze_sha256 = 'forged';
+  assert.equal(verifyRevisionFreezeBinding(evidence, freeze, fileHash), false);
 });
 
 test('each diagnostic uses its own physical Mix build for setup, server and cleanup', () => {
