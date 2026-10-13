@@ -34,3 +34,16 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Recurrence guard:** The coordinator shell fixture poisons PATH during install, proves `/usr/bin/git` hook denial and unchanged linked HEAD, and requires its final integration marker. The pruning fixture requires supported capability and uses a chained hook to prove pinned deletion and competing-attach rejection. The exact source-line revert makes the coordinator fixture fail.
 
 ---
+
+## phase253-registration-setup — aliased temp root broke JOSE include link and setup failure lost its receipt
+
+- **Date:** 2026-10-13
+- **Error patterns:** JOSE `jose_jwt.hrl` or `jose_jwk.hrl` enoent, `/var/folders` versus `/private/var/folders`, setup fails before HTTP readiness, missing terminal setup receipt
+- **Root cause(s):** The runner used an aliased macOS temporary root for `MIX_BUILD_PATH` while Mix resolved dependency source under its canonical path, producing a broken relative JOSE include symlink; shell `errexit` discarded the failing setup command result and raw log.
+- **Fix:** Canonicalized temporary roots in both runners; added a bounded setup-only diagnostic that writes each command result and retains its raw log even on failure.
+- **Files changed:** scripts/ci/ci-registration-repro.sh, scripts/ci/ci-registration-setup-diagnostic.mjs, scripts/ci/ci-registration-repro.test.sh, scripts/ci/ci-registration-setup-diagnostic.test.mjs
+- **Why not caught:** No runner gate covered a symlinked `TMPDIR` or required a retained nonzero setup receipt before the browser phase.
+- **Recurrence guard:** `scripts/ci/ci-registration-setup-diagnostic.test.mjs` covers aliased temp paths and failed setup evidence; the final actual entrypoint receipt and 12 raw logs are bound in `.planning/debug/phase253-setup-final-20261013T125238Z/manifest.json`.
+- **Scope limit:** Startup passed for all three projects, but the historical registration failure remains unexplained and Phase 253 verification has not started.
+
+---
