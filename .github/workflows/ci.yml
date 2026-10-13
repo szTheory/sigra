@@ -1445,6 +1445,7 @@ jobs:
           browser-cache-key: ${{ runner.os }}-${{ matrix.browser_cache_key }}
 
       - name: Run admin behavior browser truth
+        id: admin_behavior
         if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'admin_behavior' }}
         working-directory: test/example/priv/playwright
         env:
@@ -1465,6 +1466,7 @@ jobs:
             --retries=0
 
       - name: Run admin checkpoints
+        id: admin_checkpoints
         if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'admin_checkpoints' }}
         working-directory: test/example/priv/playwright
         env:
@@ -1525,6 +1527,7 @@ jobs:
             --retries=0
 
       - name: Run non-admin example browser smoke
+        id: non_admin_smoke
         if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'non_admin_smoke' }}
         working-directory: test/example/priv/playwright
         env:
@@ -1541,6 +1544,7 @@ jobs:
             --retries=0
 
       - name: Run demo showcase
+        id: demo_showcase
         if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' && matrix.seam == 'demo_showcase' }}
         working-directory: test/example/priv/playwright
         env:

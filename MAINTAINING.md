@@ -253,13 +253,16 @@ requires this list to equal the current manifest ids, including each step's pare
 - `admin_checkpoint_recapture`
 - `notify_release_lane_rot`
 - `admin_eval_render`
-- `design_gallery_snapshots`
 - `example_playwright_shard`
-- `library_tests_dep_off`
 - `example_unit_smoke`
 - `install_smoke`
 - `example_http_smoke`
-- `example_playwright_smoke`
+- `admin_behavior`
+- `admin_checkpoints`
+- `design_gallery`
+- `design_gallery_snapshots`
+- `non_admin_smoke`
+- `demo_showcase`
 <!-- honest-skip-active-ids:end -->
 
 **Tier A — event-gated, pre-existing (Phase 196).** `install_matrix`, `upgrade_smoke`,
@@ -287,9 +290,7 @@ event, including `pull_request`, gated by nothing.
   `example_playwright_shard` — `id: design_gallery_snapshots`,
   `if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true' }}`
   — newly gated to non-`pull_request` events, carrying the 84 per-board pixel-diff snapshot
-  assertions (FAST-02, D-01/D-04). Its step id is in the seam-outcome aggregator's hard-coded
-  outcome list (the `Aggregate every Playwright shard result` step's `for o in ...` loop inside
-  `example_playwright_smoke`), so a snapshot regression on `main` still reds the
+  assertions (FAST-02, D-01/D-04). The producer keeps its native exit, so a snapshot regression on `main` still reds the
   ruleset-required "Example Playwright smoke (full lifecycle)" context. The WCAG axe scan and the
   L1-state behaviour half of the same spec (`design_gallery`, filtered
   `--grep-invert '@snapshot'`) still run on every PR in the sibling step.
@@ -303,7 +304,10 @@ question from Tier A/B. Gated:
   guarded `if: needs.changes.outputs.docs_only != 'true'` (with
   `!cancelled()` composed in where the job also carries other conditions). Gated at step level, not
   job level, so all four required contexts still run and conclude `success`.
-- `example_playwright_smoke` is instead a one-step aggregator with no step-level `docs_only`
+- The six selected browser steps (`admin_behavior`, `admin_checkpoints`, `design_gallery`,
+  `design_gallery_snapshots`, `non_admin_smoke`, `demo_showcase`) have exact conditions
+  recorded under their producer `example_playwright_shard`. All five matrix producers stay present.
+- `example_playwright_smoke` is instead a terminal aggregator with no step-level `docs_only`
   gate; it reports the already-completed `example_playwright_shard` result.
 - The whole `library_tests_dep_off` job —
   `if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true' }}`
