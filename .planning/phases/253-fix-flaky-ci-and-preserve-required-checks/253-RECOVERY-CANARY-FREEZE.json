@@ -1,0 +1,121 @@
+{
+  "schema_version": "sigra.recovery-canary-freeze/v1",
+  "plan": "253-11",
+  "scope": "local-only launch preparation; no hosted dispatch in this plan",
+  "identity": {
+    "candidate_helper_commit": "b8a3b128d8f2a6f6bc91f40622708d2a2cdd1d62",
+    "fixture_workflow_commit": "ce8e419f6ef409efae45181aa9d2eba903e57bd3",
+    "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T160622Z",
+    "fixture_ref_state": "verified-local-create-only-unpushed",
+    "original_failed_run_id": "38347679431",
+    "old_failed_run_id": "38347679431",
+    "old_failed_fixture_ref": "refs/heads/gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+    "old_failed_fixture_commit": "19e66df3c7869cc52b4662ae8d0e3b0ee2ec3c6f",
+    "old_failed_fixture_blob": "077a89e438d5e054ee48799fe741cf1a49d2f85c"
+  },
+  "superseded_local_candidates": [
+    {
+      "candidate_helper_commit": "307dd959197e348fd095fa4020fad6ddb7916752",
+      "fixture_workflow_commit": "e52ed3f63b5e94f9aeeee7bb32bf049ce49780b7",
+      "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+      "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T160411Z",
+      "dispatched": false,
+      "reason": "Replaced after adding durable fail-closed diagnostics before any dispatch."
+    }
+  ],
+  "source_sha256": {
+    "scripts/ci/ci-gate-canary.sh": "526b25d0ca045e13a0292563d3d03412fa7ded328f308d1a634318507e3db24e",
+    "scripts/ci/ci-gate-canary.test.sh": "22ab8433594b670188304675e1623543a9df304547f9e52c4cd6d245020f40c9",
+    "scripts/ci/ci-hosted-gate-verify.py": "e46366e315aeb1c1b3a170b0b586941b9897ca2d211114ecfb95d0aaa9e69e95",
+    "scripts/ci/ci-hosted-gate-verify.test.py": "2e0af813e8916e56e6d9272f3e460e4e6831f5a91e27f94d3e95232d074063c3"
+  },
+  "required_checks": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "workflow": {
+    "name": "Phase 253 Gate Canary",
+    "path": ".github/workflows/ci.yml",
+    "trigger": [
+      "workflow_dispatch"
+    ],
+    "permissions": {
+      "contents": "read"
+    },
+    "jobs": {
+      "tiny_producers": 5,
+      "verdict": 1,
+      "independent_verifier": 1,
+      "observer_trigger": false
+    },
+    "scenario_input_event": "workflow_dispatch",
+    "docs_only_logical_event": "pull_request",
+    "docs_only_classifier_result": "success",
+    "docs_only_production_exemption": false,
+    "registered_workflow_id": 259268962
+  },
+  "scenarios": {
+    "count": 6,
+    "cases": [
+      {
+        "name": "full-pass",
+        "expected_outcome": "success"
+      },
+      {
+        "name": "docs-only",
+        "expected_outcome": "success",
+        "actual_event": "workflow_dispatch",
+        "logical_event": "pull_request"
+      },
+      {
+        "name": "actual-failure",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "missing-seam",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "unexpected-skip",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "cancelled",
+        "expected_outcome": "cancelled"
+      }
+    ],
+    "optional_infrastructure_retry": 1,
+    "retry_requires": "independent diagnosis proving infrastructure-only cause; original outcome retained",
+    "max_scenario_tiny_job_executions": 36,
+    "max_independent_verifier_jobs": 1,
+    "max_retry_tiny_job_executions": 6,
+    "maximum_with_retry": 43
+  },
+  "bounds": {
+    "max_requests": 120,
+    "max_actual_tiny_jobs": 45,
+    "max_minutes": 60,
+    "max_infrastructure_retries": 1,
+    "max_dispatch_input_keys": 10,
+    "max_dispatch_input_chars": 65535,
+    "max_artifact_compressed_bytes": 2097152,
+    "max_artifact_extracted_bytes": 4194304
+  },
+  "historical": {
+    "previous_accounted_or_reserved_requests": 20,
+    "previous_exact_http_count_proven": false,
+    "note": "Old failed run/ref/evidence remain historical only and are not credited to this budget."
+  },
+  "stop_conditions": [
+    "stop before dispatch if the source, fixture, required-check, input, or budget identity differs",
+    "stop at REST core remaining <=250 before every run watch",
+    "stop on HTTP 403/429 until GitHub's reported reset or retry time",
+    "stop on missing, duplicated, malformed, oversized, or wrong-origin artifact/receipt",
+    "stop after any deterministic source failure while retaining its diagnostics",
+    "never dispatch after the 60-minute or 120-request ceiling"
+  ]
+}
