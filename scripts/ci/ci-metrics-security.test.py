@@ -11,6 +11,7 @@ import zipfile
 
 from ci_metrics_security import (
     CoreRequestBudget,
+    bind_required_checks_by_attempt,
     deduplicate_physical_jobs,
     safe_markdown_url,
     register_comparison_run,
@@ -93,13 +94,41 @@ class SecurityContractsTest(unittest.TestCase):
                    "app": {"slug": "github-actions"}, "check_suite": {"id": 9}}]
         self.assertEqual([], validate_check_bindings(run, 2, jobs, checks, ["Library tests"]))
         wrong_attempt = [dict(jobs[0], run_attempt=1)]
-        self.assertIn("required_check_job_binding_invalid:Library tests",
-                      validate_check_bindings(run, 2, wrong_attempt, checks, ["Library tests"]))
+        self.assertTrue(validate_check_bindings(run, 2, wrong_attempt, checks, ["Library tests"]))
         wrong_check = [dict(checks[0], id=99, external_id="99")]
         self.assertIn("required_check_job_binding_invalid:Library tests",
                       validate_check_bindings(run, 2, jobs, wrong_check, ["Library tests"]))
         wrong_repo = [dict(jobs[0], source_repository="attacker/repo", source_repository_id=9)]
-        self.assertIn("required_check_job_binding_invalid:Library tests", validate_check_bindings(run, 2, wrong_repo, checks, ["Library tests"]))
+        self.assertTrue(validate_check_bindings(run, 2, wrong_repo, checks, ["Library tests"]))
+
+    def test_required_check_binding_rejects_foreign_duplicates_before_selecting_latest_attempt(self):
+        run = {"id": 7, "head_sha": "a" * 40, "run_attempt": 2, "repository": {"id": 1207487684}}
+        first = {"id": 88, "run_id": 7, "run_attempt": 1, "head_sha": "a" * 40, "name": "Library tests",
+                 "started_at": "2026-10-12T00:00:00Z", "completed_at": "2026-10-12T00:00:20Z"}
+        latest = {"id": 99, "run_id": 7, "run_attempt": 2, "head_sha": "a" * 40, "name": "Library tests",
+                  "started_at": "2026-10-12T00:01:00Z", "completed_at": "2026-10-12T00:01:30Z"}
+        def check(job, check_id):
+            return {"id": check_id, "external_id": str(job["id"]), "name": job["name"], "head_sha": "a" * 40,
+                    "status": "completed", "conclusion": "success", "started_at": job["started_at"],
+                    "completed_at": job["completed_at"], "app": {"slug": "github-actions"}, "check_suite": {"id": check_id + 10}}
+        checks = [check(first, 88), check(latest, 99)]
+        errors, endpoints, runner = bind_required_checks_by_attempt(run, {"1": [first], "2": [latest]}, checks, ["Library tests"])
+        self.assertEqual([], errors)
+        self.assertEqual(99, endpoints["2"]["Library tests"]["id"])
+        self.assertEqual(50.0, runner)
+        foreign = {**check(latest, 299), "external_id": "999999"}
+        errors, endpoints, _ = bind_required_checks_by_attempt(run, {"1": [first], "2": [latest]}, checks + [foreign], ["Library tests"])
+        self.assertIn("required_check_job_binding_invalid:Library tests", errors)
+        self.assertEqual({}, endpoints)
+
+    def test_native_job_identity_cannot_be_overridden_by_collector_assertions(self):
+        run = {"id": 7, "head_sha": "a" * 40}
+        forged = {"id": 88, "run_id": 999, "run_attempt": 9, "head_sha": "b" * 40,
+                  "source_run_id": 7, "source_run_attempt": 1, "source_head_sha": "a" * 40}
+        errors = validate_general_job_identity(run, 1, forged, request_bound=True)
+        self.assertIn("ranking_job_native_identity_conflict", errors)
+        self.assertTrue(validate_general_job_identity(run, 1, {"id": 88}, request_bound=False))
+        self.assertEqual([], validate_general_job_identity(run, 1, {"id": 88}, request_bound=True))
 
     def test_general_ranked_job_requires_run_attempt_head_and_repo(self):
         run = {"id": 7, "head_sha": "a" * 40}

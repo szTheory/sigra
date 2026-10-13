@@ -363,21 +363,58 @@ if jq -e '. as $r |
   (($r.ranked_by_wait.pull_request.rows|map(.identity)|unique|length) == ($r.ranked_by_wait.pull_request.rows|length)) and
   ($r.stage_costs.pull_request.setup.status == "measured") and
   ($r.stage_costs.pull_request.cache_restore_download.status == "measured" and $r.stage_costs.pull_request.cache_restore_download.total == (5 * $r.stage_costs.pull_request.cache_restore_download.n)) and
-  ($r.cache_outcome.browser_binaries == "miss") and
-  ($r.runner_image.pull_request.runner_os == "Linux" and $r.runner_image.pull_request.image_version == "20261001.1") and
-  ($r.configured_versions.pull_request.playwright == "1.59.1") and
+  ($r.cache_outcome.browser_binaries == "unknown") and
+  ($r.runner_image.pull_request.runner_os == null and $r.runner_image.pull_request.image_version == null) and
+  ($r.configured_versions.pull_request.playwright == null) and
   ($r.observed_versions.pull_request.playwright.value == null) and
   ($r.observed_versions.pull_request.playwright.reason != null) and
   ($r.reporter_overhead.playwright.status == "unmeasured") and
   ($r.required_result_wait.status == "unknown") and
+  ($r.instrumented_full_pr.cache_stratum == null) and
   ($r.instrumented_full_pr.complete == false and $r.instrumented_full_pr.status == "insufficient_data") and
   ($r.cohorts.docs_only.status == "measured" and $r.cohorts.docs_only.n == 1) and
   ([$r.test_rows[]|select(.source=="exunit")]|length)==0 and
   ([$r.test_rows[]|select(.source=="playwright")]|length)==0 and
   ($r.test_rows|length)==0
 ' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null; then
-  pass "replay separates rankings and costs while refusing unbound generic timing evidence"
+  pass "replay separates rankings and costs while withholding generic metadata without producer proof"
 else fail "replay metrics missing or fabricated: $(jq -c '{ranked_by_wait,ranked_by_runner,stage_costs,cache_outcome,runner_image,configured_versions,observed_versions,reporter_overhead,test_rows,cohorts}' "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
+
+echo "Test V2b: generic ranking rejects native API job identity conflicts despite matching local family labels"
+BAD_JOB_BUNDLE="${TMPDIR_ROOT}/wrong-native-ranking-job"
+cp -R "$WINDOW_BUNDLE" "$BAD_JOB_BUNDLE"
+python3 - "$BAD_JOB_BUNDLE" <<'PY'
+import hashlib, json, pathlib, sys
+root=pathlib.Path(sys.argv[1]); updates={}
+for family in sorted((root/'raw/families').glob('*/')):
+    facts_path=family/'manifest.json'
+    if not facts_path.is_file(): continue
+    facts=json.loads(facts_path.read_text()); run_id=str(facts.get('run_id'))
+    for attempt,ref in (facts.get('attempt_jobs') or {}).items():
+        jobs_path=root/ref['path']; payload=json.loads(jobs_path.read_text())
+        for job in payload.get('jobs',[]):
+            job['run_id']=999999; job['run_attempt']=9; job['head_sha']='wrong-native-head'
+        jobs_path.write_text(json.dumps(payload,separators=(',',':')))
+        digest=hashlib.sha256(jobs_path.read_bytes()).hexdigest(); ref['sha256']=digest
+        updates.setdefault(run_id,{})[attempt]=digest
+    facts_path.write_text(json.dumps(facts,separators=(',',':')))
+manifest_path=root/'manifest.json'; manifest=json.loads(manifest_path.read_text())
+for event in ('pull_request','push_main','schedule'):
+    pop_path=root/'raw/populations'/f'{event}.json'; population=json.loads(pop_path.read_text())
+    for run in population.get('runs',[]):
+        for attempt,digest in updates.get(str(run.get('id')) ,{}).items():
+            run['attempt_jobs'][attempt]['sha256']=digest
+    pop_path.write_text(json.dumps(population,separators=(',',':')))
+    manifest['source_sha256'][event]=hashlib.sha256(pop_path.read_bytes()).hexdigest()
+    for run in manifest['populations'][event]['runs']:
+        for attempt,digest in updates.get(str(run.get('id')) ,{}).items():
+            run['attempt_jobs'][attempt]['sha256']=digest
+manifest_path.write_text(json.dumps(manifest,separators=(',',':')))
+PY
+if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --replay --source-bundle "$BAD_JOB_BUNDLE" --format json >"${TMPDIR_ROOT}/wrong-ranking-job.json" 2>"${TMPDIR_ROOT}/wrong-ranking-job.err"; then bad_job_rc=0; else bad_job_rc=$?; fi
+if [[ "$bad_job_rc" -ne 0 ]] && grep -q 'ranking_job_native_identity_conflict' "${TMPDIR_ROOT}/wrong-ranking-job.err"; then
+  pass "generic ranking rejects API run/attempt/head conflicts after all source hashes are refreshed"
+else fail "wrong ranking job rc=$bad_job_rc stderr=$(cat "${TMPDIR_ROOT}/wrong-ranking-job.err")"; fi
 
 echo "Test V3: current failures stay bounded and one-off red evidence is not called flaky"
 if jq -e '
@@ -567,7 +604,10 @@ case "$endpoint" in
   /repos/szTheory/sigra/rules/branches/main) echo '[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"Library tests"},{"context":"Example unit smoke (ExUnit + ConnTest)"},{"context":"Install smoke (fresh phx.new + sigra.install)"},{"context":"Example HTTP smoke (boot + curl critical routes)"},{"context":"Example Playwright smoke (full lifecycle)"}]}}]';;
   /repos/szTheory/sigra/rulesets\?per_page=100) echo '[{"id":8123,"name":"main-checks","target":"branch","enforcement":"active"}]';;
   /repos/szTheory/sigra/actions/runs/38144377407) echo '{"id":38144377407,"head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","event":"pull_request","path":".github/workflows/ci.yml","run_attempt":1,"created_at":"2026-10-10T10:00:00Z","repository":{"id":1207487684},"pull_requests":[{"number":331,"head":{"sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","repo":{"id":1207487684}},"base":{"sha":"30e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","repo":{"id":1207487684}}}]}';;
-  /repos/szTheory/sigra/actions/runs/38144377407/attempts/1/jobs\?per_page=100) echo '{"jobs":[{"id":1101,"name":"Library tests","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1102,"name":"Example unit smoke (ExUnit + ConnTest)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1103,"name":"Install smoke (fresh phx.new + sigra.install)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1104,"name":"Example HTTP smoke (boot + curl critical routes)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1105,"name":"Example Playwright smoke (full lifecycle)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"}]}';;
+  /repos/szTheory/sigra/actions/runs/38144377407/attempts/1/jobs\?per_page=100)
+    jobs='{"jobs":[{"id":1101,"name":"Library tests","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1102,"name":"Example unit smoke (ExUnit + ConnTest)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1103,"name":"Install smoke (fresh phx.new + sigra.install)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1104,"name":"Example HTTP smoke (boot + curl critical routes)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1105,"name":"Example Playwright smoke (full lifecycle)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"}]}'
+    if [[ "${GH_API_MODE:-}" == wrong_native_job_identity ]]; then jobs="$(jq '.jobs[0].run_id=999999 | .jobs[0].run_attempt=9 | .jobs[0].head_sha="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"' <<<"$jobs")"; fi
+    echo "$jobs";;
   /repos/szTheory/sigra/commits/40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8/check-runs\?per_page=100) echo '{"check_runs":[{"id":2101,"external_id":"1101","name":"Library tests","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3101}},{"id":2102,"external_id":"1102","name":"Example unit smoke (ExUnit + ConnTest)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3102}},{"id":2103,"external_id":"1103","name":"Install smoke (fresh phx.new + sigra.install)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3103}},{"id":2104,"external_id":"1104","name":"Example HTTP smoke (boot + curl critical routes)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3104}},{"id":2105,"external_id":"1105","name":"Example Playwright smoke (full lifecycle)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3105}}]}';;
   *) echo "unhandled endpoint: $endpoint" >&2; exit 1;;
 esac
@@ -646,6 +686,22 @@ else
   fail "collect/replay failed: $(cat "${TMPDIR_ROOT}/collect.err" "${TMPDIR_ROOT}/replay.err" 2>/dev/null) replay=$(cat "${TMPDIR_ROOT}/replay.json" 2>/dev/null) manifest=$(cat "$SOURCE_DIR/manifest.json" 2>/dev/null)"
 fi
 
+echo "Test P2: native API job identity survives collection and conflicts cannot be relabeled"
+WRONG_IDENTITY_DIR="${TMPDIR_ROOT}/wrong-native-job-identity"
+cp -R "$SOURCE_DIR" "$WRONG_IDENTITY_DIR"
+jq '.jobs[0].run_id=999999 | .jobs[0].run_attempt=9 | .jobs[0].head_sha="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"' "$WRONG_IDENTITY_DIR/raw/jobs-attempt-1.json" >"${TMPDIR_ROOT}/wrong-identity-attempt.json"
+mv "${TMPDIR_ROOT}/wrong-identity-attempt.json" "$WRONG_IDENTITY_DIR/raw/jobs-attempt-1.json"
+cp "$WRONG_IDENTITY_DIR/raw/jobs-attempt-1.json" "$WRONG_IDENTITY_DIR/raw/jobs.json"
+attempt_hash="$(shasum -a 256 "$WRONG_IDENTITY_DIR/raw/jobs-attempt-1.json" | awk '{print $1}')"
+jobs_hash="$(shasum -a 256 "$WRONG_IDENTITY_DIR/raw/jobs.json" | awk '{print $1}')"
+jq --arg attempt "$attempt_hash" --arg jobs "$jobs_hash" '.raw_sha256.jobs_attempt_1=$attempt | .raw_sha256.jobs=$jobs' "$WRONG_IDENTITY_DIR/manifest.json" >"${TMPDIR_ROOT}/wrong-identity-manifest.json"
+mv "${TMPDIR_ROOT}/wrong-identity-manifest.json" "$WRONG_IDENTITY_DIR/manifest.json"
+if PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$WRONG_IDENTITY_DIR" --format json >"${TMPDIR_ROOT}/wrong-identity-result.json" 2>"${TMPDIR_ROOT}/wrong-identity-replay.err"; then wrong_identity_rc=0; else wrong_identity_rc=$?; fi
+if [[ "$wrong_identity_rc" -ne 0 ]] && grep -q 'family_required_check_api_binding_invalid' "${TMPDIR_ROOT}/wrong-identity-replay.err" \
+  && jq -e '.jobs[0].run_id==999999 and .jobs[0].run_attempt==9 and .jobs[0].head_sha=="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"' "$WRONG_IDENTITY_DIR/raw/jobs-attempt-1.json" >/dev/null; then
+  pass "conflicting native run, attempt, and head identity remains in retained API bytes and is rejected"
+else fail "wrong identity replay rc=$wrong_identity_rc stderr=$(cat "${TMPDIR_ROOT}/wrong-identity-replay.err")"; fi
+
 echo "Test Q: altered rules and incomplete or unbound required contexts remain unknown"
 INCOMPLETE_DIR="${TMPDIR_ROOT}/incomplete-family"
 cp -R "$SOURCE_DIR" "$INCOMPLETE_DIR"
@@ -670,6 +726,18 @@ if PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --repla
 if [[ "$unbound_rc" -ne 0 ]] && grep -q 'family_required_check_api_binding_invalid' "${TMPDIR_ROOT}/unbound.err"; then
   pass "check-run to job ID mismatch is reported as required_context_unbound"
 else fail "unbound context rc=$unbound_rc result=$(cat "${TMPDIR_ROOT}/unbound-result.json") stderr=$(cat "${TMPDIR_ROOT}/unbound.err")"; fi
+
+FOREIGN_CHECK_DIR="${TMPDIR_ROOT}/foreign-check-family"
+cp -R "$SOURCE_DIR" "$FOREIGN_CHECK_DIR"
+jq '.check_runs += [(.check_runs[] | select(.name=="Library tests") | . + {id:999999,external_id:"999999",head_sha:"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8"})]' "$FOREIGN_CHECK_DIR/raw/check-runs.json" >"${TMPDIR_ROOT}/foreign-checks.json"
+mv "${TMPDIR_ROOT}/foreign-checks.json" "$FOREIGN_CHECK_DIR/raw/check-runs.json"
+hash="$(shasum -a 256 "$FOREIGN_CHECK_DIR/raw/check-runs.json" | awk '{print $1}')"
+jq --arg hash "$hash" '.raw_sha256.check_runs=$hash' "$FOREIGN_CHECK_DIR/manifest.json" >"${TMPDIR_ROOT}/foreign-manifest.json"
+mv "${TMPDIR_ROOT}/foreign-manifest.json" "$FOREIGN_CHECK_DIR/manifest.json"
+if PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$FOREIGN_CHECK_DIR" --format json >"${TMPDIR_ROOT}/foreign-result.json" 2>"${TMPDIR_ROOT}/foreign.err"; then foreign_rc=0; else foreign_rc=$?; fi
+if [[ "$foreign_rc" -ne 0 ]] && grep -q 'family_required_check_api_binding_invalid' "${TMPDIR_ROOT}/foreign.err"; then
+  pass "a foreign duplicate required check is rejected before it can affect either endpoint"
+else fail "foreign check rc=$foreign_rc result=$(cat "${TMPDIR_ROOT}/foreign-result.json" 2>/dev/null) stderr=$(cat "${TMPDIR_ROOT}/foreign.err")"; fi
 
 CHANGED_DIR="${TMPDIR_ROOT}/changed-rules-family"
 cp -R "$SOURCE_DIR" "$CHANGED_DIR"
@@ -702,12 +770,14 @@ jq '(.run_attempt)=2' "$MULTI_DIR/raw/run.json" >"${TMPDIR_ROOT}/multi-run.json"
 mv "${TMPDIR_ROOT}/multi-run.json" "$MULTI_DIR/raw/run.json"
 jq '(.check_runs) as $checks | .check_runs += ($checks | map(.id -= 900 | .external_id=((.external_id|tonumber)+100|tostring) | .started_at="2026-10-10T10:03:00Z" | .completed_at="2026-10-10T10:04:00Z"))' "$MULTI_DIR/raw/check-runs.json" >"${TMPDIR_ROOT}/multi-checks.json"
 mv "${TMPDIR_ROOT}/multi-checks.json" "$MULTI_DIR/raw/check-runs.json"
+jq '.requests += ["/repos/szTheory/sigra/actions/runs/38144377407/attempts/2/jobs?per_page=100"]' "$MULTI_DIR/request-ledger.json" >"${TMPDIR_ROOT}/multi-ledger.json"
+mv "${TMPDIR_ROOT}/multi-ledger.json" "$MULTI_DIR/request-ledger.json"
 run_hash="$(shasum -a 256 "$MULTI_DIR/raw/run.json" | awk '{print $1}')"
 jobs_hash="$(shasum -a 256 "$MULTI_DIR/raw/jobs.json" | awk '{print $1}')"
 checks_hash="$(shasum -a 256 "$MULTI_DIR/raw/check-runs.json" | awk '{print $1}')"
 attempt2_hash="$(shasum -a 256 "$MULTI_DIR/raw/jobs-attempt-2.json" | awk '{print $1}')"
-jq --arg run "$run_hash" --arg jobs "$jobs_hash" --arg checks "$checks_hash" --arg attempt2 "$attempt2_hash" \
-  '.attempt=2 | .attempts_collected=2 | .raw_sha256.run=$run | .raw_sha256.jobs=$jobs | .raw_sha256.check_runs=$checks | .raw_sha256.jobs_attempt_2=$attempt2' \
+jq --arg run "$run_hash" --arg jobs "$jobs_hash" --arg checks "$checks_hash" --arg attempt2 "$attempt2_hash" --arg ledger "$(shasum -a 256 "$MULTI_DIR/request-ledger.json" | awk '{print $1}')" \
+  '.attempt=2 | .attempts_collected=2 | .raw_sha256.run=$run | .raw_sha256.jobs=$jobs | .raw_sha256.check_runs=$checks | .raw_sha256.jobs_attempt_2=$attempt2 | .request_ledger_sha256=$ledger' \
   "$MULTI_DIR/manifest.json" >"${TMPDIR_ROOT}/multi-manifest.json"
 mv "${TMPDIR_ROOT}/multi-manifest.json" "$MULTI_DIR/manifest.json"
 PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$MULTI_DIR" --format json >"${TMPDIR_ROOT}/multi-result.json"
@@ -822,6 +892,7 @@ elif [[ "$url" == https://pipelines.actions.githubusercontent.com/* ]]; then
   fi
   printf '200'; exit 0
 fi
+
 printf 'HTTP/1.1 404 Not Found\r\n\r\n' >"$headers"; : >"$output"; printf '404'
 WINDOW_CURL
 chmod +x "$WINDOW_API_BIN/curl"

@@ -669,8 +669,8 @@ collect_window() {
           jobs_status="${API_STOP_REASON:-attempt_jobs_unavailable}"
           break
         fi
-        jq --argjson run_id "$id" --argjson attempt "$attempt" --arg head_sha "$(jq -r '.head_sha' <<<"$run")" --arg repository "$REPO" --argjson repository_id "$(jq -r '.repository.id // 0' <<<"$run")" '.jobs |= map(. + {source_run_id:$run_id,source_run_attempt:$attempt,source_head_sha:$head_sha,source_repository:$repository,source_repository_id:$repository_id})' "$jobs_file" >"$family_dir/jobs-attempt-${attempt}.json"
-        attempts_json="$(jq -cn --argjson prior "$attempts_json" --argjson attempt "$attempt" --arg path "raw/families/$id/jobs-attempt-${attempt}.json" --arg hash "$(sha256_file "$family_dir/jobs-attempt-${attempt}.json")" '$prior + {($attempt|tostring):{path:$path,sha256:$hash}}')"
+        cp "$jobs_file" "$family_dir/jobs-attempt-${attempt}.json"
+        attempts_json="$(jq -cn --argjson prior "$attempts_json" --argjson attempt "$attempt" --arg path "raw/families/$id/jobs-attempt-${attempt}.json" --arg hash "$(sha256_file "$family_dir/jobs-attempt-${attempt}.json")" --arg endpoint "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100" '$prior + {($attempt|tostring):{path:$path,sha256:$hash,endpoint:$endpoint}}')"
       done
       paths_status=unavailable
       changed_path_pages='[]'
@@ -913,11 +913,11 @@ collect_family() {
   fi
   run="$tmp/run.json"
   source_sha="$(jq -r '.head_sha // empty' "$run")"
-  if [[ -z "$source_sha" || "$(jq -r '.event // empty' "$run")" != "pull_request" || "$(jq -r '.path // ""' "$run")" != ".github/workflows/ci.yml" ]]; then
+  if [[ "$(jq -r '.id // empty' "$run")" != "$RUN_ID" || -z "$source_sha" || "$(jq -r '.run_attempt // empty' "$run")" == "" || "$(jq -r '.event // empty' "$run")" != "pull_request" || "$(jq -r '.path // ""' "$run")" != ".github/workflows/ci.yml" || "$(jq -r '.repository.id // empty' "$run")" != 1207487684 ]]; then
     api_stop run_identity_mismatch "" "run identity"
   fi
   local attempt_id
-  attempt_id="$(jq -r '.run_attempt // 1' "$run")"
+  attempt_id="$(jq -r '.run_attempt' "$run")"
   local all_jobs='[]' attempt_num
   for ((attempt_num=1; attempt_num<=attempt_id; attempt_num++)); do
     if ! api_get "/repos/${REPO}/actions/runs/${RUN_ID}/attempts/${attempt_num}/jobs?per_page=100" "$tmp/jobs-attempt-${attempt_num}.json"; then
@@ -925,7 +925,7 @@ collect_family() {
       printf '%s\n' "$API_UNKNOWN" >"$SOURCE_BUNDLE/missing-capabilities.json"
       return 1
     fi
-    jq --argjson run_id "$RUN_ID" --argjson attempt "$attempt_num" --arg head_sha "$(jq -r '.head_sha' "$SOURCE_BUNDLE/raw/run.json")" --arg repository "$REPO" --argjson repository_id "$(jq -r '.repository.id // 0' "$SOURCE_BUNDLE/raw/run.json")" '.jobs |= map(. + {run_id:$run_id,run_attempt:$attempt,head_sha:$head_sha,source_run_id:$run_id,source_run_attempt:$attempt,source_head_sha:$head_sha,source_repository:$repository,source_repository_id:$repository_id})' "$tmp/jobs-attempt-${attempt_num}.json" >"$SOURCE_BUNDLE/raw/jobs-attempt-${attempt_num}.json"
+    cp "$tmp/jobs-attempt-${attempt_num}.json" "$SOURCE_BUNDLE/raw/jobs-attempt-${attempt_num}.json"
     all_jobs="$(jq -cn --argjson attempt "$attempt_num" --argjson prior "$all_jobs" --slurpfile current "$SOURCE_BUNDLE/raw/jobs-attempt-${attempt_num}.json" '$prior + (($current[0].jobs // []) | map(. + {attempt:$attempt}))')"
   done
   jq -cn --argjson jobs "$all_jobs" '{jobs:$jobs}' >"$SOURCE_BUNDLE/raw/jobs.json"
@@ -966,6 +966,8 @@ collect_family() {
     '{schema_version:"sigra.ci-run-metrics/family-v1",repository:$repo,workflow:$workflow,event:"pull_request",branch:$branch,run_id:$run_id,attempt:$attempt,attempts_collected:$all_attempts,source_sha:$sha,revisions:[{source_sha:$sha,run_id:$run_id,attempt:$attempt,associated_pull_requests:[]}],run_url:$url,literal_conclusion:$conclusion,required_contexts:$rules,approved_contexts:$expected,active_rulesets:$rulesets,required_rules_changed:$rules_changed,raw_sha256:($attempt_hashes + {run:$run_hash,jobs:$jobs_hash,check_runs:$checks_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash,rate_limit:$rate_hash})}' >"$SOURCE_BUNDLE/manifest.json"
   rm -rf "$tmp"
   api_write_ledger complete
+  jq --arg sha256 "$(sha256_file "$SOURCE_BUNDLE/request-ledger.json")" '.request_ledger_sha256=$sha256' "$SOURCE_BUNDLE/manifest.json" >"$SOURCE_BUNDLE/manifest.json.tmp"
+  mv "$SOURCE_BUNDLE/manifest.json.tmp" "$SOURCE_BUNDLE/manifest.json"
   API_COMPLETED=true
   API_TEMP_DIR=""
   trap - EXIT INT TERM HUP
@@ -1191,22 +1193,34 @@ replay_family() {
   run_sha="$(jq -r '.head_sha // empty' "$bundle/raw/run.json")"
   run_event="$(jq -r '.event // empty' "$bundle/raw/run.json")"
   run_workflow="$(jq -r '.path // empty' "$bundle/raw/run.json")"
-  run_attempt="$(jq -r '.run_attempt // 1' "$bundle/raw/run.json")"
-  [[ "$manifest_repo" == "$REPO" && "$manifest_run" == "$RUN_ID" && "$manifest_sha" == "$run_sha" && "$manifest_attempt" == "$run_attempt" && "$run_event" == "pull_request" && "$run_workflow" == ".github/workflows/ci.yml" ]] || fail source_identity_mismatch
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$bundle" "$manifest_repo" "$manifest_attempt" <<'PY' || fail family_required_check_api_binding_invalid
-import json,pathlib,sys
-from ci_metrics_security import validate_check_bindings
-root=pathlib.Path(sys.argv[1]); repo=sys.argv[2]; attempt=int(sys.argv[3])
-run=json.loads((root/'raw/run.json').read_text())
-if repo!='szTheory/sigra': raise SystemExit('family_repository_identity_invalid')
-attempt_file=root/f'raw/jobs-attempt-{attempt}.json'
-jobs=json.loads(attempt_file.read_text()).get('jobs',[])
-job_ids={str(job.get('id')) for job in jobs}
-all_checks=json.loads((root/'raw/check-runs.json').read_text()).get('check_runs',[])
-checks=[check for check in all_checks if str(check.get('external_id','')) in job_ids or str(check.get('id')) in job_ids]
-errors=validate_check_bindings(run,attempt,jobs,checks,(json.loads((root/'manifest.json').read_text()).get('required_contexts') or []))
+  run_attempt="$(jq -r '.run_attempt // empty' "$bundle/raw/run.json")"
+  [[ "$manifest_repo" == "$REPO" && "$manifest_run" == "$RUN_ID" && "$manifest_sha" == "$run_sha" && -n "$run_attempt" && "$manifest_attempt" == "$run_attempt" && "$(jq -r '.id // empty' "$bundle/raw/run.json")" == "$RUN_ID" && "$(jq -r '.repository.id // empty' "$bundle/raw/run.json")" == 1207487684 && "$run_event" == "pull_request" && "$run_workflow" == ".github/workflows/ci.yml" ]] || fail source_identity_mismatch
+  ledger_sha="$(jq -r '.request_ledger_sha256 // empty' "$bundle/manifest.json")"
+  [[ -n "$ledger_sha" && "$(sha256_file "$bundle/request-ledger.json")" == "$ledger_sha" ]] || fail request_ledger_hash_mismatch
+  local binding_json
+  binding_json="$(PYTHONPATH="$ROOT/scripts/ci" python3 - "$bundle" "$manifest_repo" <<'PY'
+import hashlib,json,pathlib,sys
+from ci_metrics_security import bind_required_checks_by_attempt
+root=pathlib.Path(sys.argv[1]); repo=sys.argv[2]
+run=json.loads((root/'raw/run.json').read_text()); manifest=json.loads((root/'manifest.json').read_text())
+ledger=json.loads((root/'request-ledger.json').read_text()); requests=set(ledger.get('requests',[]))
+attempts=int(manifest.get('attempts_collected',0)); jobs_by_attempt={}
+for attempt in range(1,attempts+1):
+    endpoint=f"/repos/{repo}/actions/runs/{run.get('id')}/attempts/{attempt}/jobs?per_page=100"
+    if endpoint not in requests: raise SystemExit(f"family_attempt_request_missing:{attempt}")
+    path=root/f'raw/jobs-attempt-{attempt}.json'
+    expected=(manifest.get('raw_sha256') or {}).get(f'jobs_attempt_{attempt}')
+    if not expected or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=expected:
+        raise SystemExit(f"family_attempt_hash_mismatch:{attempt}")
+    jobs_by_attempt[str(attempt)]=json.loads(path.read_text()).get('jobs',[])
+checks=json.loads((root/'raw/check-runs.json').read_text()).get('check_runs',[])
+errors,endpoints,runner=bind_required_checks_by_attempt(run,jobs_by_attempt,checks,manifest.get('required_contexts') or [],repo)
 if errors: raise SystemExit(','.join(errors))
+latest=str(manifest.get('attempt',1)); required=manifest.get('required_contexts') or []
+if set((endpoints.get(latest) or {})) != set(required): raise SystemExit('latest_attempt_required_context_set_incomplete')
+print(json.dumps({'endpoints':endpoints,'runner_seconds':runner},sort_keys=True,separators=(',',':')))
 PY
+  )" || fail family_required_check_api_binding_invalid
   required_changed="$(jq -r '.required_rules_changed' "$bundle/manifest.json")"
   contexts="$(jq -r '.required_contexts[]?' "$bundle/manifest.json")"
   run="$bundle/raw/run.json"
@@ -1214,50 +1228,29 @@ PY
   [[ -n "$created" ]] || fail run_created_at_missing
   # Completion endpoint is accepted only when every current required check is
   # successful, has valid timestamps, and maps by external_id to an actual job.
-  check_lines="$(jq -c --argjson required "$(jq -c '.required_contexts' "$bundle/manifest.json")" '
-    .check_runs[]? | select(.name as $n | $required | index($n))
-  ' "$bundle/raw/check-runs.json")"
   diagnostics='[]'
-  local first_contexts='{}' eventual_contexts='{}' latest_attempt check_attempt job_attempt mapped_job first_wait wait_value fatal
+  local first_contexts='{}' eventual_contexts='{}' latest_attempt first_wait wait_value fatal context attempt endpoint
+  local -a check_attempts
   latest_attempt="$(jq -r '.attempt // 1' "$bundle/manifest.json")"
   fatal=false
-  while IFS= read -r check; do
-    [[ -n "$check" ]] || continue
-    cid="$(jq -r '.id // empty' <<<"$check")"
-    name="$(jq -r '.name // empty' <<<"$check")"
-    external="$(jq -r '.external_id // empty | tostring' <<<"$check")"
-    check_sha="$(jq -r '.head_sha // empty' <<<"$check")"
-    status="$(jq -r '.status // empty' <<<"$check")"
-    conclusion="$(jq -r '.conclusion // empty' <<<"$check")"
-    started="$(jq -r '.started_at // empty' <<<"$check")"
-    completed="$(jq -r '.completed_at // empty' <<<"$check")"
-    if [[ "$required_changed" == true ]]; then diagnostics="$(jq -c '. + ["required_rules_changed"] | unique' <<<"$diagnostics")"; fatal=true; break; fi
-    mapped_job="$(jq -c --arg check_id "$cid" --arg external "$external" --arg name "$name" --arg sha "$manifest_sha" '
-      [.jobs[]? | select(((.id|tostring)==$check_id or (.id|tostring)==$external) and .head_sha==$sha and .name==$name)] | if length==1 then .[0] else null end
-    ' "$bundle/raw/jobs.json")"
-    if [[ "$mapped_job" == null ]]; then
-      diagnostics="$(jq -c --arg name "$name" --arg check_id "$cid" '. + [{reason:"required_context_unbound",context:$name,check_id:$check_id}]' <<<"$diagnostics")"
-      fatal=true
-      continue
-    fi
-    job_attempt="$(jq -r '.attempt // .run_attempt // 1' <<<"$mapped_job")"
-    if [[ "$check_sha" != "$manifest_sha" || -z "$started" || -z "$completed" || "$(jq -nr --arg s "$started" --arg c "$completed" 'try (($s|fromdateiso8601) <= ($c|fromdateiso8601)) catch false')" != true ]]; then
-      diagnostics="$(jq -c --arg name "$name" --argjson attempt "$job_attempt" '. + [{reason:"required_context_incomplete",context:$name,attempt:$attempt}]' <<<"$diagnostics")"
-      [[ "$job_attempt" == "$latest_attempt" ]] && fatal=true
-      continue
-    fi
-    if [[ "$status" != completed || "$conclusion" != success ]]; then
-      diagnostics="$(jq -c --arg name "$name" --argjson attempt "$job_attempt" --arg conclusion "$conclusion" '. + [{reason:"required_context_incomplete",context:$name,attempt:$attempt,conclusion:$conclusion}]' <<<"$diagnostics")"
-      [[ "$job_attempt" == "$latest_attempt" ]] && fatal=true
-      continue
-    fi
-    if [[ "$job_attempt" == 1 ]]; then
-      first_contexts="$(jq -cn --argjson contexts "$first_contexts" --arg name "$name" --arg value "$completed" '$contexts + {($name):$value}')"
-    fi
-    if [[ "$job_attempt" == "$latest_attempt" ]]; then
-      eventual_contexts="$(jq -cn --argjson contexts "$eventual_contexts" --arg name "$name" --arg value "$completed" '$contexts + {($name):$value}')"
-    fi
-  done <<<"$check_lines"
+  first_contexts='{}'
+  eventual_contexts='{}'
+  if [[ "$latest_attempt" == 1 ]]; then check_attempts=(1); else check_attempts=(1 "$latest_attempt"); fi
+  while IFS= read -r context; do
+    for attempt in "${check_attempts[@]}"; do
+      endpoint="$(jq -c --argjson e "$binding_json" --arg attempt "$attempt" --arg context "$context" '.endpoints[$attempt][$context] // null' <<<"$binding_json")"
+      [[ "$endpoint" != null ]] || continue
+      started="$(jq -r '.started_at // empty' <<<"$endpoint")"
+      completed="$(jq -r '.completed_at // empty' <<<"$endpoint")"
+      if [[ "$(jq -r '.status' <<<"$endpoint")" != completed || "$(jq -r '.conclusion' <<<"$endpoint")" != success || -z "$started" || -z "$completed" || "$(jq -nr --arg s "$started" --arg c "$completed" 'try (($s|fromdateiso8601) <= ($c|fromdateiso8601)) catch false')" != true ]]; then
+        diagnostics="$(jq -c --arg name "$context" --argjson attempt "$attempt" '. + [{reason:"required_context_incomplete",context:$name,attempt:$attempt}]' <<<"$diagnostics")"
+        [[ "$attempt" == "$latest_attempt" ]] && fatal=true
+      else
+        if [[ "$attempt" == 1 ]]; then first_contexts="$(jq -cn --argjson contexts "$first_contexts" --arg name "$context" --arg value "$completed" '$contexts + {($name):$value}')"; fi
+        if [[ "$attempt" == "$latest_attempt" ]]; then eventual_contexts="$(jq -cn --argjson contexts "$eventual_contexts" --arg name "$context" --arg value "$completed" '$contexts + {($name):$value}')"; fi
+      fi
+    done
+  done < <(jq -r '.required_contexts[]' "$bundle/manifest.json")
   required_count="$(jq '.required_contexts | length' "$bundle/manifest.json")"
   local first_count eventual_count
   first_count="$(jq -r 'length' <<<"$first_contexts")"
@@ -1271,10 +1264,13 @@ PY
   fi
   first_wait=null
   wait_value=null
-  if (( first_count == required_count )); then first_wait="$(jq -nr --arg created "$created" --argjson contexts "$first_contexts" '[ $contexts[] | fromdateiso8601 ] | max - ($created|fromdateiso8601)')"; fi
+  if (( first_count == required_count )) && [[ "$required_changed" != true ]]; then first_wait="$(jq -nr --arg created "$created" --argjson contexts "$first_contexts" '[ $contexts[] | fromdateiso8601 ] | max - ($created|fromdateiso8601)')"; fi
   if (( eventual_count == required_count )) && [[ "$required_changed" != true ]]; then wait_value="$(jq -nr --arg created "$created" --argjson contexts "$eventual_contexts" '[ $contexts[] | fromdateiso8601 ] | max - ($created|fromdateiso8601)')"; fi
-  [[ "$required_changed" == true ]] && fatal=true
-  runner="$(jq -r 'if any(.jobs[]?; .conclusion != "skipped" and ((.id|type)!="number" or .started_at == null or .completed_at == null)) then null else ([.jobs[]? | select(.conclusion != "skipped" and .started_at != null and .completed_at != null)] | unique_by(.id) | map(((.completed_at|fromdateiso8601)-(.started_at|fromdateiso8601))) | map(select(.>=0)) | add // null) end' "$bundle/raw/jobs.json")"
+  if [[ "$required_changed" == true ]]; then
+    diagnostics="$(jq -c '. + ["required_rules_changed"]' <<<"$diagnostics")"
+    fatal=true
+  fi
+  runner="$(jq -r '.runner_seconds' <<<"$binding_json")"
   if [[ "$runner" == null ]]; then diagnostics="$(jq -c '. + [{reason:"runner_timing_incomplete"}]' <<<"$diagnostics")"; fatal=true; fi
   local result revision_count
   revision_count="$(jq -r '(.revisions // [{source_sha:.source_sha}]) | length' "$bundle/manifest.json")"
@@ -1586,8 +1582,9 @@ for pop,key in events.items():
             try: jobs=json.loads(jobfile.read_text()).get('jobs',[])
             except Exception: continue
             for job in jobs:
-                if validate_general_job_identity(run,int(attempt),job,manifest['repository']):
-                    continue
+                identity_errors=validate_general_job_identity(run,int(attempt),job,manifest['repository'],request_bound=True)
+                if identity_errors:
+                    raise SystemExit(','.join(identity_errors))
                 jid=str(job.get('id','')); started=epoch(job.get('started_at')); ended=epoch(job.get('completed_at'))
                 if not jid or jid in seen_physical_job_ids: continue
                 seen_physical_job_ids.add(jid)
@@ -1602,53 +1599,9 @@ for pop,key in events.items():
                     n=(step.get('name') or '').lower()
                     stage=('cache_restore_download' if re.search(r'cache|download|restore',n) else 'compile' if re.search(r'compile|deps|install dependencies',n) else 'database_startup' if re.search(r'database|postgres|mysql',n) else 'app_boot' if re.search(r'boot|start server|application',n) else 'test_execution' if re.search(r'test|playwright|exunit|mix ci',n) else 'artifact_upload' if re.search(r'upload artifact',n) else 'setup' if re.search(r'setup|checkout|install erlang|install elixir|install node',n) else 'other')
                     stage_values[key][stage].append(b-a)
-        # Artifact facts are joined only when the API-accepted digest and producing run identity exist.
-        family=root/'raw'/'families'/runid; metadata_path=family/'timing'/'ci-measurement-metadata.json'
-        details=run.get('artifact_diagnostics') or []
-        accepted=next((d.get('result',{}) for d in details if d.get('kind')=='artifact' and d.get('result',{}).get('status')=='accepted'),None)
-        archive=family/'timing-artifact.zip'
-        if metadata_path.is_file() and accepted and accepted.get('archive_sha256') and archive.is_file():
-            try: meta=json.loads(metadata_path.read_text())
-            except Exception: meta={}
-            latest=str(max([int(x) for x in refs] or [1])); expected_sha=run.get('head_sha'); expected_attempt=int(latest)
-            seam=meta.get('matrix_seam')
-            archive_hash=hashlib.sha256(archive.read_bytes()).hexdigest()
-            try: meta_attempt=int(meta.get('run_attempt',-1))
-            except (TypeError,ValueError): meta_attempt=-1
-            latest_jobs=json.loads((family/f'jobs-attempt-{latest}.json').read_text()).get('jobs',[]) if (family/f'jobs-attempt-{latest}.json').is_file() else []
-            job_bound=any(j.get('name')==meta.get('job_name') for j in latest_jobs)
-            if (archive_hash==accepted.get('archive_sha256') and meta.get('repository')=='szTheory/sigra' and str(meta.get('run_id'))==runid and meta_attempt==expected_attempt and meta.get('source_sha')==expected_sha and meta.get('event')==run.get('event') and seam and job_bound):
-                image=meta.get('runner_image') or {}
-                images[key]={'runner_os':meta.get('runner_os'),'runner_arch':meta.get('runner_arch'),'image_os':image.get('image_os'),'image_version':image.get('image_version')}
-                configured[key]=meta.get('configured_versions',{})
-                observed[key]=meta.get('observed_versions',{})
-                cache.update(meta.get('cache_outcome',{}))
-                # Playwright rows are consumed only by source_bound_full_pr below,
-                # which binds every row to the API artifact, upload job, attempt and source.
-                exunit_reports=[]; exunit_main={}
-                try:
-                    metadata=json.loads(metadata_path.read_text())
-                    evidence=json.loads((family/'artifact-evidence.json').read_text())
-                    artifact_name=metadata.get('timing_artifact_name')
-                    artifact_entry=next((item for item in evidence if (item.get('artifact') or {}).get('name')==artifact_name and (item.get('result') or {}).get('status')=='accepted'),None)
-                    attempt_jobs=json.loads((family/f'jobs-attempt-{expected_attempt}.json').read_text()).get('jobs',[])
-                    producer=next((job for job in attempt_jobs if job.get('name')=='Library tests shard'),None)
-                    producer_errors=(validate_producer_binding(run,producer,artifact_entry['artifact'],metadata,'Library tests shard')
-                                     if producer and artifact_entry else ['producer_api_artifact_or_job_missing'])
-                    reports={}
-                    for invocation,filename in [('main','ci-exunit-timing-main.json'),('threadline_guard','ci-exunit-timing-threadline-guard.json')]:
-                        exunit_path=timing/filename
-                        if exunit_path.is_file(): reports[invocation]=json.loads(exunit_path.read_text())
-                    artifact_names={name:artifact_name for name in ('main','threadline_guard')}
-                    validation=validate_exunit_timing(metadata,reports,artifact_names,runid,expected_attempt)
-                    if not producer_errors and validation['valid']:
-                        exunit_reports=validation['reports']; exunit_main=validation['normalized']['main']
-                        for row in validation['tests']:
-                            test_rows.append({'source':'exunit','identity':f"{runid}:{expected_attempt}:{row['identity']}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'invocation':row['invocation'],'test_id':row['test_id'],'name':row.get('name'),'duration_us':row['duration_us'],'result':row['result']})
-                        exunit={'invocations':exunit_reports,'test_duration_sum_us':sum(x['test_duration_sum_us'] for x in exunit_reports),'instrumentation_overhead_us':exunit_main.get('instrumentation_overhead_us')}
-                        overhead['exunit']={'status':'measured','instrumentation_overhead_us':exunit.get('instrumentation_overhead_us'),'method':exunit_main.get('instrumentation_overhead_method')}
-                except (OSError,ValueError,TypeError,KeyError):
-                    pass
+        # Generic job/API metadata is not producer proof. Cache, runner, runtime,
+        # overhead and test claims are populated only by source_bound_full_pr,
+        # after the complete artifact/job/upload/source chain has been checked.
         if pop=='pull_request' and run.get('workload')=='full' and run.get('conclusion')=='success' and run.get('id')==latest_instrumented_pr:
             sample,diagnostics=source_bound_full_pr(run,runid)
             if sample:

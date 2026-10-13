@@ -177,40 +177,16 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
 
 
 def validate_check_bindings(run: dict, attempt: int, jobs: list[dict], checks: list[dict], required: list[str]) -> list[str]:
+    errors, by_attempt, _ = bind_required_checks_by_attempt(run, {str(attempt): jobs}, checks, required)
+    if errors:
+        return errors
+    current = by_attempt.get(str(attempt), {})
     diagnostics = []
-    run_id = str(run.get("id"))
-    head_sha = run.get("head_sha")
-    repository_id = ((run.get("repository") or {}).get("id")
-                     or (((run.get("pull_requests") or [{}])[0].get("head") or {}).get("repo") or {}).get("id"))
     for name in required:
-        matching_jobs = [j for j in jobs if j.get("name") == name]
-        matching_checks = [c for c in checks if c.get("name") == name]
-        valid = len(matching_jobs) == 1 and len(matching_checks) == 1
-        if valid:
-            job, check = matching_jobs[0], matching_checks[0]
-            check_url = urllib.parse.urlsplit(job.get("check_run_url", ""))
-            check_id = check_url.path.rstrip("/").split("/")[-1]
-            job_id = str(job.get("id"))
-            mapped_to_job = str(check.get("external_id", "")) == job_id or (check_id == str(check.get("id")) == job_id)
-            valid = (
-                str(job.get("source_run_id", job.get("run_id"))) == run_id
-                and int(job.get("source_run_attempt", job.get("run_attempt", -1))) == int(attempt)
-                and str(job.get("source_run_id", job.get("run_id"))) == run_id
-                and job.get("source_head_sha", job.get("head_sha")) == head_sha
-                and job.get("source_repository", "szTheory/sigra") == "szTheory/sigra"
-                and job.get("source_repository_id", 1207487684) == 1207487684
-                and repository_id == 1207487684
-                and job.get("source_head_sha", job.get("head_sha")) == head_sha
-                and mapped_to_job
-                and check.get("head_sha") == head_sha
-                and check.get("status") == "completed"
-                and check.get("conclusion") == "success"
-                and (check.get("app") or {}).get("slug") == "github-actions"
-                and check.get("check_suite", {}).get("id") is not None
-            )
-        if not valid:
-            diagnostics.append(f"required_check_job_binding_invalid:{name}")
-    return diagnostics
+        check = current.get(name)
+        if not check or check.get("status") != "completed" or check.get("conclusion") != "success":
+            diagnostics.append(f"required_check_result_invalid:{name}")
+    return sorted(set(diagnostics))
 
 
 def validate_producer_binding(run: dict, job: dict, artifact: dict, metadata: dict, expected_job: str) -> list[str]:
@@ -288,18 +264,107 @@ def validate_workflow_source(source_sha: str, tree: dict, workflow_bytes: bytes,
     return []
 
 
-def validate_general_job_identity(run: dict, attempt: int, job: dict, repository: str = "szTheory/sigra") -> list[str]:
-    """Require a ranking row to be tied to its requested run/attempt/repository/head."""
+def validate_general_job_identity(
+    run: dict, attempt: int, job: dict, repository: str = "szTheory/sigra", *, request_bound: bool = False
+) -> list[str]:
+    """Check native API identity; request context may fill only genuinely absent fields."""
     expected_repo_id = 1207487684 if repository == "szTheory/sigra" else None
-    repo = job.get("source_repository") or job.get("repository") or repository
-    valid = (
-        str(job.get("source_run_id", job.get("run_id", ""))) == str(run.get("id"))
-        and str(job.get("source_run_attempt", job.get("run_attempt", ""))) == str(attempt)
-        and job.get("source_head_sha", job.get("head_sha")) == run.get("head_sha")
-        and (repo == repository or (repo is None and job.get("source_repository_id") == expected_repo_id))
-        and str(job.get("id", "")).isdigit()
-    )
-    return [] if valid else ["ranking_job_run_attempt_head_repository_binding_invalid"]
+    diagnostics = []
+    for native, expected in (("run_id", run.get("id")), ("run_attempt", attempt), ("head_sha", run.get("head_sha"))):
+        value = job.get(native)
+        if value is not None:
+            if str(value) != str(expected):
+                diagnostics.append("ranking_job_native_identity_conflict")
+        elif not request_bound:
+            diagnostics.append("ranking_job_native_identity_missing")
+    # Collector assertions are supplementary evidence only. They can never mask a
+    # conflicting native API field, and callers enable request_bound only after
+    # validating the exact hashed request endpoint for this response.
+    for asserted, expected in (("source_run_id", run.get("id")), ("source_run_attempt", attempt),
+                               ("source_head_sha", run.get("head_sha")), ("source_repository", repository),
+                               ("source_repository_id", expected_repo_id)):
+        value = job.get(asserted)
+        if value is not None and str(value) != str(expected):
+            diagnostics.append("ranking_job_request_assertion_conflict")
+    repo = job.get("repository")
+    if repo is not None and repo != repository:
+        diagnostics.append("ranking_job_repository_conflict")
+    if not str(job.get("id", "")).isdigit():
+        diagnostics.append("ranking_job_id_invalid")
+    return sorted(set(diagnostics))
+
+
+def bind_required_checks_by_attempt(run: dict, jobs_by_attempt: dict, checks: list[dict], required: list[str], repository: str = "szTheory/sigra") -> tuple[list[str], dict, float | None]:
+    """Validate every required check against the exact attempt job set before exposing endpoints or cost."""
+    diagnostics = []
+    repository_id = ((run.get("repository") or {}).get("id")
+                     or (((run.get("pull_requests") or [{}])[0].get("head") or {}).get("repo") or {}).get("id"))
+    if repository == "szTheory/sigra" and repository_id != 1207487684:
+        diagnostics.append("family_repository_identity_invalid")
+    job_by_id = {}
+    runner_seconds = 0.0
+    runner_complete = True
+    seen_physical_ids = set()
+    for attempt_text, jobs in sorted(jobs_by_attempt.items(), key=lambda item: int(item[0])):
+        attempt = int(attempt_text)
+        for job in jobs:
+            row_errors = validate_general_job_identity(run, attempt, job, repository, request_bound=True)
+            diagnostics.extend(row_errors)
+            job_id = str(job.get("id", ""))
+            if not job_id.isdigit() or row_errors:
+                continue
+            if job_id in job_by_id and job_by_id[job_id] != job:
+                diagnostics.append("ranking_job_physical_identity_conflict")
+                continue
+            job_by_id[job_id] = {**job, "_verified_attempt": attempt}
+            if job_id not in seen_physical_ids:
+                seen_physical_ids.add(job_id)
+                if job.get("conclusion") == "skipped":
+                    continue
+                try:
+                    start, end = _utc(job["started_at"]), _utc(job["completed_at"])
+                    if end < start:
+                        raise ValueError
+                    runner_seconds += (end - start).total_seconds()
+                except (KeyError, TypeError, ValueError):
+                    runner_complete = False
+    endpoints = {}
+    seen_checks = set()
+    for check in checks:
+        name = check.get("name")
+        if name not in required:
+            continue
+        check_id = str(check.get("id", ""))
+        external_id = str(check.get("external_id", ""))
+        candidates = {key: row for key, row in job_by_id.items()
+                     if key == check_id or (external_id.isdigit() and key == external_id)
+                     or (row.get("check_run_url") is not None
+                         and row.get("check_run_url", "").endswith(f"/check-runs/{check_id}"))}
+        job = next(iter(candidates.values())) if len(candidates) == 1 else None
+        if job is None or job.get("name") != name:
+            diagnostics.append(f"required_check_job_binding_invalid:{name}")
+            continue
+        if (check.get("head_sha") != run.get("head_sha")
+                or (check.get("app") or {}).get("slug") != "github-actions"
+                or (check.get("check_suite") or {}).get("id") is None):
+            diagnostics.append(f"required_check_origin_invalid:{name}")
+            continue
+        attempt = job["_verified_attempt"]
+        key = (attempt, name)
+        if key in seen_checks:
+            diagnostics.append(f"required_check_duplicate:{name}:attempt-{attempt}")
+            continue
+        seen_checks.add(key)
+        endpoints.setdefault(str(attempt), {})[name] = {
+            "id": check.get("id"), "external_id": check.get("external_id"),
+            "job_id": job.get("id"), "attempt": attempt,
+            "head_sha": check.get("head_sha"), "status": check.get("status"),
+            "conclusion": check.get("conclusion"),
+            "started_at": check.get("started_at"), "completed_at": check.get("completed_at"),
+        }
+    if diagnostics:
+        return sorted(set(diagnostics)), {}, None
+    return [], endpoints, runner_seconds if runner_complete else None
 
 
 def verified_failure_log(root: pathlib.Path, relative: str, expected_sha256: str) -> bytes:
