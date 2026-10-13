@@ -445,7 +445,7 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
                 or workflow_readback.get("size") != len(expected_workflow) or workflow_bytes != expected_workflow
                 or object_sha("blob", workflow_bytes) != workflow_blob):
             raise PublicationError(f"server workflow blob readback differs for {label}")
-        receipts.append({"kind": "workflow-blob", "sha": workflow_blob, "commit": commit_sha})
+        receipts.append({"kind": "workflow-blob", "sha": workflow_blob, "commit": commit_sha, "variant": label})
         ref_body = {"ref": "refs/heads/" + ref_name, "sha": commit_sha}
         ref_probe, existing = api_request(allocation_path, ledger_path, "get_ref", "GET", {"branch": ref_name}, expected={200, 404})
         if ref_probe.get("actual_status") == 200:
@@ -464,12 +464,15 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
             _, readback_ref = api_request(allocation_path, ledger_path, "get_ref", "GET", {"branch": ref_name}, expected={200})
             if not readback_ref or readback_ref.get("object", {}).get("sha") != commit_sha:
                 raise PublicationError("scoped reference readback lost or changed the created commit")
-        receipts.append({"kind": "ref", "sha": commit_sha, "tree": tree_sha, "ref": ref_name,
+        receipts.append({"kind": "ref", "sha": commit_sha, "tree": tree_sha, "ref": "refs/heads/" + ref_name,
                          "variant": label, "workflow_blob": workflow_blob})
     final_ledger = json.loads(ledger_path.read_text())
     journal_entries = final_ledger.get("transactions", [])
     if len(journal_entries) > REQUEST_LIMIT:
         raise PublicationError("measured transport ledger exceeded 24 requests")
+    candidate_workflow_blob = git(repo, "rev-parse", f"{manifest['candidate_helper_commit']}:.github/workflows/ci.yml").decode().strip()
+    candidate_tree_sha = git(repo, "rev-parse", f"{manifest['candidate_helper_commit']}^{{tree}}").decode().strip()
+    fixture_tree_sha = git(repo, "rev-parse", f"{manifest['fixture_workflow_commit']}^{{tree}}").decode().strip()
     result = {"schema_version": "sigra.phase253.git-publication-receipt/v1", "status": "published-local-fixture",
               "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
               "allocation_sha256": hashlib.sha256(allocation_path.read_bytes()).hexdigest(),
@@ -477,6 +480,13 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
               "ledger_path": str(ledger_path.resolve()),
               "request_count": len(journal_entries), "server_object_receipts": receipts,
               "source_sha": manifest["source_sha"], "server_parent_sha": parent,
+              "candidate_sha": manifest["candidate_helper_commit"],
+              "fixture_sha": manifest["fixture_workflow_commit"],
+              "candidate_ref": "refs/heads/gsd/253-replan-candidate",
+              "fixture_ref": "refs/heads/gsd/253-replan-fixture",
+              "candidate_tree_sha": candidate_tree_sha, "fixture_tree_sha": fixture_tree_sha,
+              "candidate_workflow_blob": candidate_workflow_blob,
+              "fixture_workflow_blob": manifest["fixture_workflow_blob"],
               "production_publish_performed": False}
     atomic_json(receipt_path, result)
 
@@ -490,13 +500,34 @@ def verify_publication(path: Path) -> None:
     for row in value["server_object_receipts"]:
         if not isinstance(row, dict) or not re.fullmatch(r"[a-f0-9]{40}", str(row.get("sha", ""))):
             raise PublicationError("publication receipt contains an invalid server object identity")
+    identities = {(row.get("kind"), row.get("variant"), row.get("sha"), row.get("ref"))
+                  for row in value["server_object_receipts"] if isinstance(row, dict)}
+    required = {
+        ("parent-preflight", None, value.get("server_parent_sha"), None),
+        ("tree", "candidate", value.get("candidate_tree_sha"), None),
+        ("tree", "fixture", value.get("fixture_tree_sha"), None),
+        ("commit", "candidate", value.get("candidate_sha"), None),
+        ("commit", "fixture", value.get("fixture_sha"), None),
+        ("workflow-blob", "candidate", value.get("candidate_workflow_blob"), None),
+        ("workflow-blob", "fixture", value.get("fixture_workflow_blob"), None),
+        ("ref", "candidate", value.get("candidate_sha"), value.get("candidate_ref")),
+        ("ref", "fixture", value.get("fixture_sha"), value.get("fixture_ref")),
+    }
+    if not all(item in identities for item in required):
+        raise PublicationError(f"publication receipt is missing required parent, object, workflow, or scoped-ref proof: {sorted(required - identities, key=str)}")
+    if (value.get("candidate_sha") == value.get("fixture_sha")
+            or not re.fullmatch(r"[a-f0-9]{40}", str(value.get("source_sha", "")))
+            or value.get("candidate_ref") != "refs/heads/gsd/253-replan-candidate"
+            or value.get("fixture_ref") != "refs/heads/gsd/253-replan-fixture"):
+        raise PublicationError("publication receipt identities or scoped refs are inconsistent")
     ledger_path = Path(value.get("ledger_path", ""))
     if not ledger_path.is_file() or hashlib.sha256(ledger_path.read_bytes()).hexdigest() != value.get("ledger_sha256"):
         raise PublicationError("publication receipt no longer matches its measured request ledger")
     ledger = json.loads(ledger_path.read_text())
     transactions = ledger.get("transactions") if isinstance(ledger, dict) else None
     if (not isinstance(transactions, list) or len(transactions) != value.get("request_count")
-            or len(transactions) > REQUEST_LIMIT or any(tx.get("state") != "complete" for tx in transactions)):
+            or not isinstance(value.get("request_count"), int) or len(transactions) > REQUEST_LIMIT
+            or any(not isinstance(tx, dict) or tx.get("state") != "complete" for tx in transactions)):
         raise PublicationError("publication ledger has unaccounted, failed, or over-budget requests")
 
 
