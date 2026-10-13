@@ -6,10 +6,10 @@ current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
 status: planning
 stopped_at: Phase 253 context gathered; ready for planning (implementation and verification pending)
-last_updated: "2026-10-13T02:10:36.769Z"
+last_updated: "2026-10-13T02:12:51.125214+00:00"
 last_activity: 2026-10-12
-last_activity_desc: Phase 252 verified; checked forward route to Phase 253 discussion
-state_head: ba4b9e5eea403b892efe2fb02172a25caa55e10b
+last_activity_desc: Phase 253 researched context captured; planning pending
+state_head: 42c558cd77386b7e92ec142fefe95064c39efec5
 progress:
   total_phases: 4
   completed_phases: 1
@@ -17,12 +17,12 @@ progress:
   completed_plans: 6
   percent: 25
 milestone_status: active
-workflow_step: phase_discussion_pending
-verification_status: passed
+workflow_step: phase_planning_pending
+verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-discuss-phase 253
-resume_command: $gsd-discuss-phase 253
+next_command: $gsd-plan-phase 253
+resume_command: $gsd-plan-phase 253
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -42,17 +42,17 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 Phase: 253 — Fix Flaky CI and Preserve Required Checks
 Plan: Not started
-Status: Ready to discuss
-Last activity: 2026-10-12 — Phase 252 complete, transitioned to Phase 253
+Status: Ready to plan
+Last activity: 2026-10-12 — Phase 253 researched context captured; implementation and verification pending
 Progress: [███░░░░░░░] 25%
 
 ## Next GSD command
 
-$gsd-discuss-phase 253
+$gsd-plan-phase 253
 
 Phase 252 implementation and phase verification are complete: six plans, 27/27 verified truths, CIMEAS-01 and CIMEAS-02 satisfied, 20/20 security controls, and both code-review findings independently repaired. The committed baseline covers PR, main-push and nightly populations; run 38317383419 supplies the complete instrumented PR sample. Later comparison runs have not started.
 
-Phase 253 readiness was checked with init.plan-phase 253. It has no context, research or plans and reports no prerequisite blocker. Gather its context next. Historical release-record and stale-report maintenance remains separately recorded and does not block this forward route. Broad milestone research remains skipped as previously approved.
+Phase 253 context is captured from four specialist research passes, a final synthesis review and 24 delegated decisions. init.plan-phase 253 confirms context exists, no plans yet and no reported prerequisite blocker. Plan the corrected failure diagnosis, current registration investigation and complete required-gate ownership next. Registration root cause remains unknown; CIREL-01/02, implementation and phase verification are pending. Historical release-record maintenance does not block this route. Targeted phase research followed the current user request; persistent milestone research settings remain unchanged.
 
 ## Known unfinished work
 
@@ -62,6 +62,8 @@ Phase 253 readiness was checked with init.plan-phase 253. It has no context, res
 - Unrelated backlog and quick tasks remain open; none was silently marked complete.
 
 ## Evidence
+
+- Phase 253 context: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md` (commit `ba4b9e5eea403b892efe2fb02172a25caa55e10b`); discovery: `253-DISCOVERY.json`; discussion/review: `253-DISCUSSION-LOG.md`, `253-SYNTHESIS-REVIEW.md`; preservation and readiness: `253-DISCUSSION-RECORD.json`; 17 artifact checks: `253-DISCUSSION-CHECKS.json`. Current registration cause is unproved. Prior draft is recoverable at `87177118c66f6f1041a7c1727568ac19aeb3d990`; exact SDK session state at `42c558cd77386b7e92ec142fefe95064c39efec5`.
 
 - Phase 252 completion and routing: 252-COMPLETION-RECORD.json; verifier: 252-VERIFICATION.md (passed, 27/27); security: 252-SECURITY-AUDIT.json (20/20); validation: 252-VALIDATION.md; code review: 252-REVIEW-DISPOSITION.md and 252-REVIEW-FINAL-RECHECK.md (both findings fixed).
 - Baseline: 252-BASELINE.md, 252-BASELINE.json, 252-CI-SOURCE-BUNDLE.tar.gz; comparison method: 252-COMPARISON-CONTRACT.json. Hosted sample: draft PR #331, run 38317383419, all five required checks passed. Main ExUnit 2,683 rows and separate child 65 rows; total runner cost 2,042 seconds. Unknown overhead and one-sample limits remain explicit.
