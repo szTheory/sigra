@@ -61,6 +61,24 @@ function assertBrowserBodyParity(manifestRows, workflow) {
 
 test('every selected browser body has exact step and condition parity', () => assertBrowserBodyParity(rows, ci));
 
+const VERIFIED_DOCS_SKIP = "!(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')";
+test('browser body skips require actual successful PR classification', () => {
+  for (const row of rows.filter((row) => row.kind === 'step' && row.parentJobId === 'example_playwright_shard')) {
+    assert.ok(normalizeExpr(row.gate).includes(VERIFIED_DOCS_SKIP), `${row.id} can skip on an unverified classifier claim`);
+  }
+});
+
+test('old aggregate claim and missing stale or changed body conditions fail parity', () => {
+  const body = rows.find((row) => row.id === 'non_admin_smoke');
+  assert.ok(body);
+  for (const bad of [
+    [...rows, { ...body, kind: 'job', id: 'example_playwright_smoke' }],
+    rows.filter((row) => row.id !== body.id),
+    rows.map((row) => row === body ? { ...row, id: 'stale_body' } : row),
+    rows.map((row) => row === body ? { ...row, gate: 'true' } : row),
+  ]) assert.throws(() => assertBrowserBodyParity(bad, ci));
+});
+
 /**
  * Locate a STEP's own `if:` expression by its `id:` line, scoped to the text
  * before the next step boundary (` {6}- name:`) or the end of the block.
