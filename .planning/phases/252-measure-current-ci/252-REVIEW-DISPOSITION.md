@@ -20,7 +20,7 @@ total: 2
 | Finding | Severity | Disposition | Source |
 |---------|----------|-------------|--------|
 | CR-01 | critical | open | 252-REVIEW.md; automated repair authorized |
-| WR-01 | warning | fixed | 9894630d7; independent 252-REVIEW-RECHECK.md | 
+| WR-01 | warning | fixed | 9894630d7; independent 252-REVIEW-RECHECK.md |
 
 Each finding remains open until its repair and verification evidence are recorded. No findings were skipped or deferred.
 
