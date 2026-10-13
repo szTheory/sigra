@@ -50,6 +50,34 @@ root = script.parents[2]
 phase = root / '.planning/phases/252-measure-current-ci'
 
 class DiagnosisContract(unittest.TestCase):
+    def test_late_failure_context_and_incomplete_inputs(self):
+        sys.path.insert(0, str(script.parent))
+        import ci_metrics_security as security
+        select = getattr(security, 'select_failure_context', None)
+        self.assertTrue(callable(select), 'failure context must be selected before display clipping')
+        raw = ('PASS: expected negative probe FAIL remains expected\n' * 3000 +
+               'FAIL: original late assertion\nBearer secret-token\n').encode()
+        context = select(raw, hashlib.sha256(raw).hexdigest())
+        self.assertIn('original late assertion', context['text'])
+        self.assertNotIn('secret-token', context['text'])
+        self.assertGreater(context['source_line_start'], 2900)
+        self.assertFalse(context['truncated'])
+        self.assertEqual(context['input_sha256'], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(select(b'PASS: expected FAIL banner\n', hashlib.sha256(b'PASS: expected FAIL banner\n').hexdigest())['completeness'], 'incomplete')
+        self.assertEqual(select(raw, '0' * 64)['completeness'], 'incomplete')
+        clipped = b'FAIL: assertion\n' + b'x' * 20000
+        self.assertTrue(select(clipped, hashlib.sha256(clipped).hexdigest())['truncated'])
+
+    def test_changed_archive_fails_closed_with_saved_diagnostic(self):
+        with tempfile.TemporaryDirectory() as directory:
+            archive = pathlib.Path(directory) / 'changed.tar.gz'
+            archive.write_bytes((phase / '252-CI-SOURCE-BUNDLE.tar.gz').read_bytes() + b'changed')
+            output = pathlib.Path(directory) / 'diagnosis.json'
+            result = subprocess.run(['bash', str(script), '--diagnose-v1', '--source-bundle',
+                str(archive), '--baseline', str(phase / '252-BASELINE.json'), '--output', str(output)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('source_bundle_hash_mismatch', json.loads(output.read_text())['source_errors'])
+
     def test_archived_test_z_preserves_red_and_passing_test_d(self):
         with tempfile.TemporaryDirectory() as directory:
             output = pathlib.Path(directory) / 'diagnosis.json'
