@@ -277,7 +277,11 @@ begin_request() {
 api_get() {
   local endpoint="$1" target="$2" allow_missing="${3:-false}"
   check_budget 0
-  begin_request "https://api.github.com/repos/$REPO/$endpoint"
+  if [[ "$endpoint" == rate_limit ]]; then
+    begin_request 'https://api.github.com/rate_limit'
+  else
+    begin_request "https://api.github.com/repos/$REPO/$endpoint"
+  fi
   local response=0
   local api_error="$(mktemp /tmp/253-canary-api-error.XXXXXX)"
   if [[ "$endpoint" == rate_limit ]]; then gh api rate_limit > "$target" 2>"$api_error" || response=$?
@@ -511,8 +515,10 @@ WORKFLOW_RESPONSE="$(mktemp -t 253-recovery-workflow)"
 api_get rate_limit "$RATE_RESPONSE"
 CORE_LEFT="$(jq -r '.resources.core.remaining // 0' "$RATE_RESPONSE")"
 (( CORE_LEFT > 250 )) || fail "GitHub core API budget is at or below 250 (remaining=$CORE_LEFT)"
-api_get 'rulesets?includes_parents=true' "$RULES_RESPONSE"
+# Ruleset listings contain names and IDs, not the active rules for main.
+api_get 'rules/branches/main?per_page=100' "$RULES_RESPONSE"
 api_get "actions/workflows/$WORKFLOW_ID" "$WORKFLOW_RESPONSE"
+jq -e 'type == "array" and length < 100' "$RULES_RESPONSE" >/dev/null || fail 'effective branch rules are malformed or require additional charged pagination'
 jq -e '.id == 259268962 and .path == ".github/workflows/ci.yml" and .state == "active"' "$WORKFLOW_RESPONSE" >/dev/null || fail 'registered workflow identity differs from fresh GitHub response'
 jq -e '[.[] | select(.type=="required_status_checks") | .parameters.required_status_checks[].context] | sort == (["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"] | sort)' "$RULES_RESPONSE" >/dev/null || fail 'fresh effective required-check names differ from the frozen five-name contract'
 store_preflight "$RATE_RESPONSE" "$RATE_SOURCE" rate

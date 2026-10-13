@@ -489,12 +489,34 @@ export function runLogged(program, args, cwd, env, log, timeout) {
   } finally {
     fs.closeSync(fd);
   }
-  if (thrownError) return { exit_code: null, signal: null, error: thrownError.message };
-  return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null };
+  // Scrub Mix's development configuration output before a receipt hashes it.
+  // The persisted log is the input to every later digest check.
+  let redactedSecretFields = 0;
+  const original = fs.readFileSync(log, 'utf8');
+  const sanitized = original.replace(/((?:"?secret_key_base"?|:secret_key_base)\s*(?::|=>)\s*")((?:\\.|[^"\\])*)(")/g, (_match, prefix, value, suffix) => {
+    if (value === '[REDACTED]') return `${prefix}${value}${suffix}`;
+    redactedSecretFields += 1;
+    return `${prefix}[REDACTED]${suffix}`;
+  });
+  if (sanitized !== original) fs.writeFileSync(log, sanitized);
+  if (thrownError) return { exit_code: null, signal: null, error: thrownError.message, redacted_secret_fields: redactedSecretFields };
+  return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, redacted_secret_fields: redactedSecretFields };
 }
 
 export function attemptDirectory(baseDir, slotId, attemptNumber) {
   return path.join(baseDir, `${slotId}-attempt-${String(attemptNumber).padStart(2, '0')}`);
+}
+
+export function diagnosticEnvironment(project, databaseName, attemptDir, inheritedEnv = process.env) {
+  return {
+    ...inheritedEnv, MIX_ENV: 'dev',
+    // Never load an endpoint compiled for another attempt's port/database.
+    MIX_BUILD_PATH: path.join(fs.realpathSync(attemptDir), 'mix-build'),
+    PGHOST: inheritedEnv.PGHOST ?? '127.0.0.1',
+    PGPORT: inheritedEnv.PGPORT ?? '58624', PGUSER: inheritedEnv.PGUSER ?? 'postgres',
+    PGPASSWORD: inheritedEnv.PGPASSWORD ?? 'postgres', PGDATABASE: databaseName,
+    PORT: String(project.port), SIGRA_EXAMPLE_BIND: '127.0.0.1'
+  };
 }
 
 async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
@@ -530,12 +552,7 @@ async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
   const paths = Object.fromEntries(['setup_log', 'app_log', 'test_log', 'drop_log', 'playwright_report'].map((name) => [name, path.join(attemptDir, `${name.replaceAll('_', '-')}${name === 'playwright_report' ? '.json' : '.log'}`)]));
   const exampleDir = path.join(root, 'test/example');
   const playwrightDir = path.join(exampleDir, 'priv/playwright');
-  const appEnv = {
-    ...process.env, MIX_ENV: 'dev', PGHOST: process.env.PGHOST ?? '127.0.0.1',
-    PGPORT: process.env.PGPORT ?? '58624', PGUSER: process.env.PGUSER ?? 'postgres',
-    PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGDATABASE: databaseName,
-    PORT: String(project.port), SIGRA_EXAMPLE_BIND: '127.0.0.1'
-  };
+  const appEnv = diagnosticEnvironment(project, databaseName, attemptDir);
   let app = null;
   let terminalError = null;
   let reportPath = null;
@@ -589,6 +606,14 @@ async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
       Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
     attempt.database.drop_exit_code = drop.exit_code;
     if (drop.exit_code !== 0) terminalError = [terminalError, `database drop failed with exit ${drop.exit_code ?? 'null'}${drop.error ? `: ${drop.error}` : ''}`].filter(Boolean).join('; ');
+    // Compiled dependencies are temporary work, not retained phase evidence.
+    try {
+      fs.rmSync(appEnv.MIX_BUILD_PATH, { recursive: true, force: true });
+      attempt.build_directory_removed = !fs.existsSync(appEnv.MIX_BUILD_PATH);
+    } catch (error) {
+      attempt.build_directory_removed = false;
+      terminalError = [terminalError, `temporary Mix build cleanup failed: ${error.message}`].filter(Boolean).join('; ');
+    }
   }
   if (!fs.existsSync(paths.setup_log)) fs.writeFileSync(paths.setup_log, 'database setup was not started\n');
   if (!fs.existsSync(paths.app_log)) fs.writeFileSync(paths.app_log, 'application process was not started\n');
