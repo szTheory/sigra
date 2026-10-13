@@ -83,13 +83,20 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
 **Plans**: 8 plans across 4 waves; independent plan review passed; implementation and phase verification pending
+**Wave 1**
 - [ ] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
 - [ ] 253-03-PLAN.md — Example unit smoke internal gate ownership
 - [ ] 253-04-PLAN.md — Selected-body skip manifest and documentation parity
 - [ ] 253-05-PLAN.md — Five-seam execution records and complete native reports
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 253-06-PLAN.md — Browser producer artifacts and aggregate workflow wiring
+
+**Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 253-07-PLAN.md — Bounded hosted canary and independent source verification
+
+**Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 253-08-PLAN.md — Normal PR proof and honest requirement completion record
 
 ### Phase 254: Speed Up the Measured Slow Jobs
