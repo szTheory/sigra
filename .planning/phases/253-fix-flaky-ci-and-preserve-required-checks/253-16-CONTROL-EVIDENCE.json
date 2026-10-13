@@ -95,8 +95,9 @@
       "files": {
         "setup_log": {
           "path": "R-DIAG-CONTROL-DARK/attempt-01/setup-log.log",
-          "sha256": "aaddfa49dd1f202f0352a01112b01580fec9c9a32d73424a631ff881c95d9ec0",
-          "bytes": 134197
+          "sha256": "bdeae82ca5d649e956c6732a7dcdd4b1483864bf362a31af01cd0c1c60581b08",
+          "bytes": 134207,
+          "preserved_pre_scrub_blob": "refs/gsd/phase253-plan16-setup-log-prescrub:536c903a675a8d3ae0b95a0a78894c463f04ae88"
         },
         "app_log": {
           "path": "R-DIAG-CONTROL-DARK/attempt-01/app-log.log",
@@ -131,7 +132,8 @@
           "signal": null,
           "error": null,
           "redacted_secret_fields": 0,
-          "redacted_credential_blocks": 1
+          "redacted_credential_blocks": 1,
+          "marker_scrubbed_for_review": 1
         },
         "test_log": {
           "exit_code": null,
