@@ -1,0 +1,405 @@
+{
+  "schema_version": "sigra.phase253.partial-execution/v1",
+  "recorded_at": "2026-10-13T05:04:00.349908+00:00",
+  "status": "blocked",
+  "source_head": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+  "implementation_status": "partial",
+  "phase_verification_status": "not_started",
+  "completed_plan_count": 5,
+  "plan_count": 8,
+  "plans": {
+    "253-01": "complete",
+    "253-02": "halted",
+    "253-03": "complete",
+    "253-04": "complete",
+    "253-05": "complete",
+    "253-06": "complete",
+    "253-07": "halted",
+    "253-08": "blocked"
+  },
+  "requirements": {
+    "CIREL-01": "unsatisfied",
+    "CIREL-02": "unsatisfied"
+  },
+  "blockers": [
+    {
+      "plan": "253-02",
+      "missing": "Actual Playwright registration reproduction and readiness/state-collision/trace controls. Zero browser invocations ran.",
+      "next": "Repair isolated Mix/app startup; preserve the exhausted retry and original diagnosis. A new bounded execution needs a new explicit freeze.",
+      "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
+    },
+    {
+      "plan": "253-07",
+      "missing": "Verified full-pass, docs-only, failed, missing, skipped, cancelled hosted scenarios and independent verifier.",
+      "next": "Local fixture defects are repaired; no deterministic retry is allowed under the original freeze. Establish a new bounded proof plan before further dispatch.",
+      "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-FAILED-RUN-38347679431.json"
+    },
+    {
+      "plan": "253-07",
+      "missing": "Exact original bytes of the overwritten untracked Task 2 RED report, and valid RED-before-GREEN chronology for that task.",
+      "next": "Keep the loss and later broken-source negative control explicit; do not treat reconstructed bytes as exact recovery or waive the task gate.",
+      "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-SUMMARY.md"
+    },
+    {
+      "plan": "253-08",
+      "missing": "Normal production PR and docs-only PR proof.",
+      "next": "Resolve halted plans 253-02 and 253-07 before dispatch; phase verification has not begun.",
+      "evidence": "/tmp/sigra-253-final-plan-index.json"
+    }
+  ],
+  "next_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
+  "readiness": {
+    "executor_model": "gpt-6-luna",
+    "verifier_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "commit_docs": true,
+    "sub_repos": [],
+    "parallelization": true,
+    "context_window": 200000,
+    "branching_strategy": "none",
+    "phase_branch_template": "gsd/phase-{phase}-{slug}",
+    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "verifier_enabled": true,
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+    "phase_number": "253",
+    "padded_phase": "253",
+    "phase_name": "Fix Flaky CI and Preserve Required Checks",
+    "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+    "phase_req_ids": "CIREL-01, CIREL-02",
+    "plans": [
+      "253-01-PLAN.md",
+      "253-02-PLAN.md",
+      "253-03-PLAN.md",
+      "253-04-PLAN.md",
+      "253-05-PLAN.md",
+      "253-06-PLAN.md",
+      "253-07-PLAN.md",
+      "253-08-PLAN.md"
+    ],
+    "summaries": [
+      "253-01-SUMMARY.md",
+      "253-02-SUMMARY.md",
+      "253-03-SUMMARY.md",
+      "253-04-SUMMARY.md",
+      "253-05-SUMMARY.md",
+      "253-06-SUMMARY.md",
+      "253-07-SUMMARY.md"
+    ],
+    "incomplete_plans": [
+      "253-08-PLAN.md"
+    ],
+    "plan_count": 8,
+    "incomplete_count": 1,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "halted_plans": [
+      "253-02-PLAN.md",
+      "253-07-PLAN.md"
+    ],
+    "blocked_by": {
+      "253-08-PLAN.md": [
+        "253-02",
+        "253-07"
+      ]
+    },
+    "runnable_plans": [],
+    "runnable_count": 0,
+    "branch_name": null,
+    "milestone_version": "v1.50",
+    "milestone_name": "CI-SPEED-AND-RELIABILITY",
+    "milestone_slug": "ci-speed-and-reliability",
+    "state_exists": true,
+    "roadmap_exists": true,
+    "config_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "section_manifest": {
+      "workflow": "execute-phase",
+      "included": [
+        "regression-gate"
+      ],
+      "excluded": [
+        "partial-wave",
+        "gap-closure-artifacts"
+      ],
+      "read": [
+        "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+      ]
+    },
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "plan_index": {
+    "phase": "253",
+    "plans": [
+      {
+        "id": "253-01",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Correct the Phase 252 failure shortlist through a separate, source-bound diagnosis and retain the original replay.",
+        "files_modified": [
+          "scripts/ci/ci-run-metrics.sh",
+          "scripts/ci/ci-run-metrics.test.sh",
+          "scripts/ci/ci_metrics_security.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DIAGNOSIS.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-02",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Reproduce the current registration failure with pinned tools and signal-driven controls, then fix only an established test or CI cause.",
+        "files_modified": [
+          "scripts/ci/ci-registration-repro.sh",
+          "scripts/ci/ci-registration-repro.test.sh",
+          "test/example/priv/playwright/tests/admin-eval.spec.ts",
+          "test/example/priv/playwright/helpers/adminFlows.ts",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 3,
+        "has_summary": true,
+        "halted": true,
+        "blocked_by": []
+      },
+      {
+        "id": "253-03",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Make the internal release gate own the existing required unit smoke result.",
+        "files_modified": [
+          ".github/workflows/ci.yml",
+          "scripts/ci/honest-skip-verdict.sh",
+          "scripts/ci/honest-skip-verdict.test.sh"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-04",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Correct the browser skip inventory to describe what the workflow actually gates.",
+        "files_modified": [
+          ".github/ci-skip-manifest.tsv",
+          "MAINTAINING.md",
+          "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+          "scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-05",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Validate five browser producer records and every selected native Playwright report before the aggregate can pass.",
+        "files_modified": [
+          "scripts/ci/ci-browser-records.mjs",
+          "scripts/ci/ci-browser-records.test.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-06",
+        "wave": 2,
+        "depends_on": [
+          "253-03",
+          "253-04",
+          "253-05"
+        ],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Wire the five browser producer records and native reports into the existing terminal required check.",
+        "files_modified": [
+          ".github/workflows/ci.yml",
+          "scripts/ci/ci-measure-workflow.test.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-07",
+        "wave": 3,
+        "depends_on": [
+          "253-06"
+        ],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Prove the browser gate on a bounded hosted fixture with real success, failure and cancellation outcomes.",
+        "files_modified": [
+          "scripts/ci/ci-gate-canary.sh",
+          "scripts/ci/ci-gate-canary.test.sh",
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": true,
+        "blocked_by": []
+      },
+      {
+        "id": "253-08",
+        "wave": 4,
+        "depends_on": [
+          "253-02",
+          "253-07"
+        ],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Confirm required checks through normal PR CI and record exactly which reliability requirements the evidence proves.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PR-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-COMPLETION-RECORD.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [
+          "253-02",
+          "253-07"
+        ],
+        "ready": false
+      }
+    ],
+    "waves": {
+      "1": [
+        "253-01",
+        "253-02",
+        "253-03",
+        "253-04",
+        "253-05"
+      ],
+      "2": [
+        "253-06"
+      ],
+      "3": [
+        "253-07"
+      ],
+      "4": [
+        "253-08"
+      ]
+    },
+    "incomplete": [
+      "253-08"
+    ],
+    "runnable": [],
+    "ready_plans": [],
+    "has_checkpoints": false,
+    "warning": "Found 4 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract."
+  },
+  "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-POSTEXEC-CHECKS.json",
+  "planning_prior_bytes": {
+    "ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "bytes": 9669,
+        "sha256": "1c0e9e862bf95ec8f50d6b84125074ff41d20bc680d25db2132d744f16ef26cc",
+        "recoverable_ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "bytes": 772,
+        "sha256": "77eba6a7f35243b243afab7125ce5d303b7d31cfaca35da1733c71298325380e",
+        "recoverable_ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "bytes": 33508,
+        "sha256": "a0130080d05034b642f588225907ae46d676d48e4f1b1ca53235cab356ab4cfa",
+        "recoverable_ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "bytes": 11599,
+        "sha256": "61008d99d6381067780c0dea36e18f185effda38b4ae8bc26fad2f939ec1a7b0",
+        "recoverable_ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+        "git_readback_exact": true
+      }
+    ]
+  },
+  "canary": {
+    "run_id": "38347679431",
+    "conclusion": "failure",
+    "scenario_passes": 0,
+    "accounted_requests_and_reservations": 20,
+    "exact_http_request_count": "not_proven",
+    "job_records": 7,
+    "executed_jobs": 6,
+    "elapsed_seconds_at_close": 268,
+    "fixture_ref": "refs/heads/gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+    "retry_used": false,
+    "more_dispatches_allowed_under_original_freeze": false
+  },
+  "local_repairs": [
+    "Registration acceptance modes fail closed; six fabricated records rejected.",
+    "Fixture supplies synthetic identity only to the child process and keeps actual dispatch separate.",
+    "Verifier accounts for skipped auxiliary jobs and recomputes execution totals.",
+    "Watch status capture preserves shell errexit and permits terminal result collection.",
+    "Source matrix validation precedes independent verifier; final matrix validation includes its completed run.",
+    "Halted evidence is refused before any gh command."
+  ],
+  "remaining_budget_limitations": [
+    "The original 20 count includes reservations; gh auth status and gh run view --log-failed HTTP counts were not independently captured.",
+    "New code uses local gh auth token and direct log-archive GET; watcher reservation must still be proven sufficient before a new hosted freeze."
+  ],
+  "phase252_paths_unchanged": true,
+  "phase254_started": false,
+  "normal_pr_opened": false,
+  "full_phase_verifier_invoked": false
+}

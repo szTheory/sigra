@@ -4,25 +4,25 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: executing
-stopped_at: Phase 253 plans independently checked; ready to execute; implementation and phase verification pending
-last_updated: "2026-10-13T03:12:38.500Z"
-last_activity: 2026-10-13
-last_activity_desc: Phase 253 execution started
-state_head: f2d785d1f636140bf11190c46b08c3195d8895ec
+status: "blocked"
+stopped_at: "Phase 253: five plans complete; registration and hosted proof halted; final PR proof blocked"
+last_updated: "2026-10-13T05:04:00.349908+00:00"
+last_activity: "2026-10-13"
+last_activity_desc: "Phase 253 partial execution and local repairs recorded"
+state_head: "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 14
-  completed_plans: 6
-  percent: 25
+  completed_plans: 11
+  percent: 79
 milestone_status: active
-workflow_step: phase_execution_ready
+workflow_step: "resolve_execution_halts"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253
-resume_command: $gsd-execute-phase 253
+next_command: "$gsd-debug \"Phase 253 registration runner setup failure\""
+resume_command: "$gsd-debug \"Phase 253 registration runner setup failure\""
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -31,7 +31,10 @@ phase253_planning_status: passed
 phase253_plan_count: 8
 phase253_wave_count: 4
 phase253_task_count: 17
-phase253_implementation_status: not_started
+phase253_implementation_status: "partial"
+phase253_completed_plans: 5
+phase253_halted_plans: ["253-02", "253-07"]
+phase253_blocked_plans: ["253-08"]
 ---
 
 # Project State
@@ -45,19 +48,21 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 (Fix Flaky CI and Preserve Required Checks) — EXECUTING
-Plan: 1 of 8
-Status: Executing Phase 253
-Last activity: 2026-10-12 — Phase 253 execution started
-Progress: [███░░░░░░░] 25%
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — INCOMPLETE
+Plans: 5 of 8 complete; 02 and 07 halted; 08 blocked
+Status: Resolve registration setup and hosted proof gaps
+Last activity: 2026-10-13 — Partial execution and local regression checks recorded
+Progress: 11/14 currently planned milestone plans complete (79%); Phase 253 verification not started
 
 ## Next GSD command
 
-$gsd-execute-phase 253
+$gsd-debug "Phase 253 registration runner setup failure"
 
-Phase 252 implementation and phase verification are complete: six plans, 27/27 verified truths, CIMEAS-01 and CIMEAS-02 satisfied, 20/20 security controls, and both code-review findings independently repaired. The committed baseline covers PR, main-push and nightly populations; run 38317383419 supplies the complete instrumented PR sample. Later comparison runs have not started.
+Phase 253 plans 01, 03, 04, 05 and 06 are implemented and locally checked. Plan 02 halted before any browser invocation; its setup retry is exhausted and CIREL-01 is unsatisfied. Plan 07's only hosted run, 38347679431, failed with a source SHA mismatch; its original fixture, API responses and failed logs remain preserved. The local fixture defects have been repaired, but no hosted scenario is accepted and CIREL-02 remains unsatisfied. Plan 08 is blocked by both halted plans. Phase verification has not started; Phase 254 has not started.
 
-Phase 253 has eight independently checked plans, 17 tasks and four dependency waves. Both phase requirements and all 24 decisions are covered by executable tasks. init.execute-phase 253 recognizes eight incomplete plans, no halted plans and no reported prerequisite blocker. Registration root cause remains unknown; CIREL-01/02, implementation and phase verification are pending. Execute the diagnosis/reproduction and independent gate work under their frozen limits. Historical release-record maintenance does not block this route; no optimization is started.
+Repair the isolated registration runner first. Any new registration or hosted proof must use a newly established bounded plan and preserve the original failed evidence. Repeating execute-phase alone will skip the halted summaries and cannot complete plan 08. The original canary request ledger records 20 accounted/reserved calls; its exact HTTP request count is not proven. The overwritten Task 2 RED report is disclosed, with no exact-byte recovery or valid TDD chronology claim.
+
+Phase 252 remains complete and verified; all its paths and the archived baseline replay are unchanged. Historical release-record maintenance is separate and does not block this recovery route.
 
 ## Known unfinished work
 
@@ -67,6 +72,8 @@ Phase 253 has eight independently checked plans, 17 tasks and four dependency wa
 - Unrelated backlog and quick tasks remain open; none was silently marked complete.
 
 ## Evidence
+
+- Partial execution: `253-EXECUTION-RECORD.json`; fresh local checks: `253-POSTEXEC-CHECKS.json`; review repairs: `253-POSTEXEC-DISPOSITION.md`. Planning prior bytes are recoverable at 5ea3ef6267aabf885df51829f888fa1bf9c4dbc7 with exact read-backs in the execution record. Five implemented plans do not constitute completed phase verification.
 
 - Phase 253 planning: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLANNING-RECORD.json`; independent passed review: `253-PLAN-CHECK-02.md`; planning checks: `253-PLANNING-CHECKS.json`; routing checks: `253-PLANNING-ROUTING-CHECKS.json`; source coverage: `253-SOURCE-AUDIT.md`; research/patterns/validation: `253-RESEARCH.md`, `253-PATTERNS.md`, `253-VALIDATION.md`. SDK planning/session bytes remain recoverable at `dc492e044ae67da84bc2aa022c3aae9b7c25b53b`. Planning review is not phase acceptance.
 
@@ -98,9 +105,9 @@ Phase 253 has eight independently checked plans, 17 tasks and four dependency wa
 
 ## Session
 
-**Last session:** 2026-10-13T03:00:35.213Z
-**Stopped at:** Phase 253 plans independently checked; ready to execute; implementation and phase verification pending
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md
+**Last session:** 2026-10-13T05:04:00.349908+00:00
+**Stopped at:** Five plans complete; 253-02 and 253-07 halted; 253-08 blocked
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json
 
 ## Deferred Items
 

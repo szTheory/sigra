@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-13T03:04:29.907034+00:00",
-  "status": "Phase 253 planning complete and independently checked; implementation and phase verification not started.",
+  "timestamp": "2026-10-13T05:04:00.349908+00:00",
+  "status": "Phase 253 incomplete: five plans complete, two halted, final PR proof blocked.",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Eight plans, 17 tasks and four waves ready. Registration cause remains unknown; selected execution proof still required. Phase 252 remains complete and verified.",
-  "next_command": "$gsd-execute-phase 253",
-  "resume_command": "$gsd-execute-phase 253",
-  "next_action": "Execute Phase 253 plans under their fixed budgets; preserve requirement gaps when selected proof cannot be established.",
+  "current": "Registration controls have no browser execution; hosted canary failed; local repairs and regressions are committed.",
+  "next_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
+  "resume_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
+  "next_action": "Repair the isolated registration startup. Establish new bounded proof tasks before any new registration or hosted run.",
   "route": {
-    "immediate_gsd_command": "$gsd-execute-phase 253",
-    "resume_command": "$gsd-execute-phase 253",
+    "immediate_gsd_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
+    "resume_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 253,
       "name": "Fix Flaky CI and Preserve Required Checks",
-      "status": "planned",
-      "implementation_status": "not_started",
+      "status": "in_progress",
+      "implementation_status": "partial",
       "phase_verification_status": "not_started"
     },
     "readiness": {
@@ -49,34 +49,34 @@
         "253-07-PLAN.md",
         "253-08-PLAN.md"
       ],
-      "summaries": [],
+      "summaries": [
+        "253-01-SUMMARY.md",
+        "253-02-SUMMARY.md",
+        "253-03-SUMMARY.md",
+        "253-04-SUMMARY.md",
+        "253-05-SUMMARY.md",
+        "253-06-SUMMARY.md",
+        "253-07-SUMMARY.md"
+      ],
       "incomplete_plans": [
-        "253-01-PLAN.md",
-        "253-02-PLAN.md",
-        "253-03-PLAN.md",
-        "253-04-PLAN.md",
-        "253-05-PLAN.md",
-        "253-06-PLAN.md",
-        "253-07-PLAN.md",
         "253-08-PLAN.md"
       ],
       "plan_count": 8,
-      "incomplete_count": 8,
+      "incomplete_count": 1,
       "threat_id_duplicates": [],
       "threat_id_duplicate_count": 0,
-      "halted_plans": [],
-      "blocked_by": {},
-      "runnable_plans": [
-        "253-01-PLAN.md",
+      "halted_plans": [
         "253-02-PLAN.md",
-        "253-03-PLAN.md",
-        "253-04-PLAN.md",
-        "253-05-PLAN.md",
-        "253-06-PLAN.md",
-        "253-07-PLAN.md",
-        "253-08-PLAN.md"
+        "253-07-PLAN.md"
       ],
-      "runnable_count": 8,
+      "blocked_by": {
+        "253-08-PLAN.md": [
+          "253-02",
+          "253-07"
+        ]
+      },
+      "runnable_plans": [],
+      "runnable_count": 0,
       "branch_name": null,
       "milestone_version": "v1.50",
       "milestone_name": "CI-SPEED-AND-RELIABILITY",
@@ -108,7 +108,11 @@
       "agent_runtime": "codex",
       "project_title": "Sigra"
     },
-    "historical_verification_is_forward_blocker": false
+    "historical_verification_is_forward_blocker": false,
+    "blocked_plans": [
+      "253-02",
+      "253-07"
+    ]
   },
   "workflow": {
     "scope_confirmed": true,
@@ -745,9 +749,47 @@
       ],
       "readback_exact": true,
       "source_status_and_hashes_rechecked": true
+    },
+    "before_phase253_partial_closeout": {
+      "ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "status": "clean",
+          "bytes": 9669,
+          "sha256": "1c0e9e862bf95ec8f50d6b84125074ff41d20bc680d25db2132d744f16ef26cc",
+          "recoverable_ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/state.json",
+          "status": "clean",
+          "bytes": 772,
+          "sha256": "77eba6a7f35243b243afab7125ce5d303b7d31cfaca35da1733c71298325380e",
+          "recoverable_ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": "clean",
+          "bytes": 33508,
+          "sha256": "a0130080d05034b642f588225907ae46d676d48e4f1b1ca53235cab356ab4cfa",
+          "recoverable_ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "status": "clean",
+          "bytes": 11599,
+          "sha256": "61008d99d6381067780c0dea36e18f185effda38b4ae8bc26fad2f939ec1a7b0",
+          "recoverable_ref": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+          "git_readback_exact": true
+        }
+      ],
+      "readback_verified": true
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -765,10 +807,67 @@
     "tasks": 17,
     "waves": 4,
     "recorded_at": "2026-10-13T03:04:29.907034+00:00",
-    "implementation_status": "not_started",
+    "implementation_status": "partial",
     "phase_verification_status": "not_started",
     "requirements_closed": 0,
-    "next_command": "$gsd-execute-phase 253"
+    "next_command": "$gsd-debug \"Phase 253 registration runner setup failure\""
   },
-  "phase253_external_mutations_performed": false
+  "phase253_external_mutations_performed": true,
+  "phase253_execution": {
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+    "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-POSTEXEC-CHECKS.json",
+    "plans": {
+      "253-01": "complete",
+      "253-02": "halted",
+      "253-03": "complete",
+      "253-04": "complete",
+      "253-05": "complete",
+      "253-06": "complete",
+      "253-07": "halted",
+      "253-08": "blocked"
+    },
+    "blockers": [
+      {
+        "plan": "253-02",
+        "missing": "Actual Playwright registration reproduction and readiness/state-collision/trace controls. Zero browser invocations ran.",
+        "next": "Repair isolated Mix/app startup; preserve the exhausted retry and original diagnosis. A new bounded execution needs a new explicit freeze.",
+        "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
+      },
+      {
+        "plan": "253-07",
+        "missing": "Verified full-pass, docs-only, failed, missing, skipped, cancelled hosted scenarios and independent verifier.",
+        "next": "Local fixture defects are repaired; no deterministic retry is allowed under the original freeze. Establish a new bounded proof plan before further dispatch.",
+        "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-FAILED-RUN-38347679431.json"
+      },
+      {
+        "plan": "253-07",
+        "missing": "Exact original bytes of the overwritten untracked Task 2 RED report, and valid RED-before-GREEN chronology for that task.",
+        "next": "Keep the loss and later broken-source negative control explicit; do not treat reconstructed bytes as exact recovery or waive the task gate.",
+        "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-SUMMARY.md"
+      },
+      {
+        "plan": "253-08",
+        "missing": "Normal production PR and docs-only PR proof.",
+        "next": "Resolve halted plans 253-02 and 253-07 before dispatch; phase verification has not begun.",
+        "evidence": "/tmp/sigra-253-final-plan-index.json"
+      }
+    ],
+    "canary": {
+      "run_id": "38347679431",
+      "conclusion": "failure",
+      "scenario_passes": 0,
+      "accounted_requests_and_reservations": 20,
+      "exact_http_request_count": "not_proven",
+      "job_records": 7,
+      "executed_jobs": 6,
+      "elapsed_seconds_at_close": 268,
+      "fixture_ref": "refs/heads/gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+      "retry_used": false,
+      "more_dispatches_allowed_under_original_freeze": false
+    },
+    "requirements": {
+      "CIREL-01": "unsatisfied",
+      "CIREL-02": "unsatisfied"
+    }
+  }
 }

@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -25,9 +25,25 @@
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 253 of 4 · 25% · executing"
+    "command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
+    "label": "Repair registration runner",
+    "reason": "Phase 253: 5/8 plans complete; 02 and 07 halted; 08 blocked; phase verification not started"
   },
-  "updated_at": "2026-10-13T03:12:38.510Z"
+  "updated_at": "2026-10-13T05:04:00.349908+00:00",
+  "phase253_execution": {
+    "status": "blocked",
+    "implementation_status": "partial",
+    "phase_verification_status": "not_started",
+    "plans": {
+      "253-01": "complete",
+      "253-02": "halted",
+      "253-03": "complete",
+      "253-04": "complete",
+      "253-05": "complete",
+      "253-06": "complete",
+      "253-07": "halted",
+      "253-08": "blocked"
+    },
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json"
+  }
 }

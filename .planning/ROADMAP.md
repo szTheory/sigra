@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 planned; implementation and verification pending)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 partly implemented; execution proof blocked)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-execute-phase 253 — Eight plans in four waves independently checked; execution readiness reports no halted plans or prerequisite blocker. Implementation and phase verification pending.
+**Next command:** $gsd-debug "Phase 253 registration runner setup failure" — Five plans complete; registration reproduction and hosted canary halted; final PR proof blocked. Phase verification has not started.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -65,10 +65,10 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 - [x] 252-03-PLAN.md — Opt-in ExUnit timing and exit preservation
 - [x] 252-04-PLAN.md — Native Playwright JSON and completeness checks
 
-**Wave 3** *(blocked on Wave 2 completion)*
+**Wave 3** *(plan 07 halted after the first hosted run failed)*
 - [x] 252-05-PLAN.md — CI timing integration, cost rankings and failure shortlist
 
-**Wave 4** *(blocked on Wave 3 completion)*
+**Wave 4** *(blocked by halted plans 02 and 07)*
 - [x] 252-06-PLAN.md — Hosted baseline, reproducible report and later comparison contract
 
 ### Phase 253: Fix Flaky CI and Preserve Required Checks
@@ -82,21 +82,21 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 8 plans across 4 waves; independent plan review passed; implementation and phase verification pending
+**Plans**: 5/8 complete across 4 waves; plans 02 and 07 halted; plan 08 blocked; phase verification not started
 **Wave 1**
-- [ ] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
+- [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
-- [ ] 253-03-PLAN.md — Example unit smoke internal gate ownership
-- [ ] 253-04-PLAN.md — Selected-body skip manifest and documentation parity
-- [ ] 253-05-PLAN.md — Five-seam execution records and complete native reports
+- [x] 253-03-PLAN.md — Example unit smoke internal gate ownership
+- [x] 253-04-PLAN.md — Selected-body skip manifest and documentation parity
+- [x] 253-05-PLAN.md — Five-seam execution records and complete native reports
 
-**Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 253-06-PLAN.md — Browser producer artifacts and aggregate workflow wiring
+**Wave 2** *(required plans 03/04/05 complete; plan 06 complete)*
+- [x] 253-06-PLAN.md — Browser producer artifacts and aggregate workflow wiring
 
-**Wave 3** *(blocked on Wave 2 completion)*
+**Wave 3** *(plan 07 halted after the first hosted run failed)*
 - [ ] 253-07-PLAN.md — Bounded hosted canary and independent source verification
 
-**Wave 4** *(blocked on Wave 3 completion)*
+**Wave 4** *(blocked by halted plans 02 and 07)*
 - [ ] 253-08-PLAN.md — Normal PR proof and honest requirement completion record
 
 ### Phase 254: Speed Up the Measured Slow Jobs
@@ -132,7 +132,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 0/8 | Planned; verification pending | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 5/8 | Partial implementation; execution proof blocked; verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
