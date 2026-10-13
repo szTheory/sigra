@@ -711,7 +711,7 @@ hash="$(shasum -a 256 "$INCOMPLETE_DIR/raw/check-runs.json" | awk '{print $1}')"
 jq --arg hash "$hash" '.raw_sha256.check_runs=$hash' "$INCOMPLETE_DIR/manifest.json" >"${TMPDIR_ROOT}/incomplete-manifest.json"
 mv "${TMPDIR_ROOT}/incomplete-manifest.json" "$INCOMPLETE_DIR/manifest.json"
 PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$INCOMPLETE_DIR" --format json >"${TMPDIR_ROOT}/incomplete-result.json"
-if jq -e '.status=="unknown" and .eventual_required_wait_seconds==null and any(.diagnostics[]; .reason=="required_context_incomplete")' "${TMPDIR_ROOT}/incomplete-result.json" >/dev/null; then
+if jq -e '.status=="unknown" and .eventual_required_wait_seconds==null and any(.diagnostics[]; if type=="object" then .reason=="required_context_incomplete" else false end)' "${TMPDIR_ROOT}/incomplete-result.json" >/dev/null; then
   pass "a missing required-check timestamp yields unknown, never a numeric wait"
 else fail "incomplete context result=$(cat "${TMPDIR_ROOT}/incomplete-result.json")"; fi
 
@@ -741,12 +741,28 @@ else fail "foreign check rc=$foreign_rc result=$(cat "${TMPDIR_ROOT}/foreign-res
 
 CHANGED_DIR="${TMPDIR_ROOT}/changed-rules-family"
 cp -R "$SOURCE_DIR" "$CHANGED_DIR"
-jq '.required_rules_changed=true' "$CHANGED_DIR/manifest.json" >"${TMPDIR_ROOT}/changed-manifest.json"
+jq 'map(if .type=="required_status_checks" then .parameters.required_status_checks[0].context="Replacement required check" else . end)' "$CHANGED_DIR/raw/effective-rules.json" >"${TMPDIR_ROOT}/changed-effective-rules.json"
+mv "${TMPDIR_ROOT}/changed-effective-rules.json" "$CHANGED_DIR/raw/effective-rules.json"
+changed_rules_hash="$(shasum -a 256 "$CHANGED_DIR/raw/effective-rules.json" | awk '{print $1}')"
+jq --arg hash "$changed_rules_hash" '.raw_sha256.effective_rules=$hash' "$CHANGED_DIR/manifest.json" >"${TMPDIR_ROOT}/changed-manifest.json"
 mv "${TMPDIR_ROOT}/changed-manifest.json" "$CHANGED_DIR/manifest.json"
 PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$CHANGED_DIR" --format json >"${TMPDIR_ROOT}/changed-result.json"
-if jq -e '.status=="unknown" and .eventual_required_wait_seconds==null and any(.diagnostics[]; .=="required_rules_changed")' "${TMPDIR_ROOT}/changed-result.json" >/dev/null; then
-  pass "a changed effective rule set invalidates timing without replacing the endpoint"
+if jq -e '.status=="unknown" and .first_attempt_required_wait_seconds==null and .eventual_required_wait_seconds==null and any(.diagnostics[]; .=="required_rules_changed")' "${TMPDIR_ROOT}/changed-result.json" >/dev/null; then
+  pass "changed raw rules with a refreshed hash invalidate timing despite an approved, unchanged manifest"
 else fail "changed rules result=$(cat "${TMPDIR_ROOT}/changed-result.json")"; fi
+
+FAMILY_FALLBACK_DIR="${TMPDIR_ROOT}/family-branch-protection-fallback"
+cp -R "$SOURCE_DIR" "$FAMILY_FALLBACK_DIR"
+printf '%s\n' '[{"type":"required_status_checks","parameters":{"required_status_checks":[]}}]' >"$FAMILY_FALLBACK_DIR/raw/effective-rules.json"
+jq -n '{contexts:["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"]}' >"$FAMILY_FALLBACK_DIR/raw/branch-protection.json"
+fallback_rules_hash="$(shasum -a 256 "$FAMILY_FALLBACK_DIR/raw/effective-rules.json" | awk '{print $1}')"
+fallback_protection_hash="$(shasum -a 256 "$FAMILY_FALLBACK_DIR/raw/branch-protection.json" | awk '{print $1}')"
+jq --arg rules "$fallback_rules_hash" --arg protection "$fallback_protection_hash" '.raw_sha256.effective_rules=$rules | .raw_sha256.branch_protection=$protection | .required_context_source="branch_protection" | .required_rules_changed=false | .required_rules_diagnostics=[]' "$FAMILY_FALLBACK_DIR/manifest.json" >"${TMPDIR_ROOT}/fallback-manifest.json"
+mv "${TMPDIR_ROOT}/fallback-manifest.json" "$FAMILY_FALLBACK_DIR/manifest.json"
+PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$FAMILY_FALLBACK_DIR" --format json >"${TMPDIR_ROOT}/family-fallback-result.json" 2>"${TMPDIR_ROOT}/family-fallback.err"
+if jq -e '.status=="measured" and .first_attempt_required_wait_seconds==120 and .eventual_required_wait_seconds==120 and (.diagnostics|length)==0' "${TMPDIR_ROOT}/family-fallback-result.json" >/dev/null; then
+  pass "standalone family replay measures the approved contexts from classic branch protection"
+else fail "valid family fallback result=$(cat "${TMPDIR_ROOT}/family-fallback-result.json") stderr=$(cat "${TMPDIR_ROOT}/family-fallback.err")"; fi
 
 TAMPERED_DIR="${TMPDIR_ROOT}/tampered-family"
 cp -R "$SOURCE_DIR" "$TAMPERED_DIR"

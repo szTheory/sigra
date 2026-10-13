@@ -1181,7 +1181,7 @@ PY
 }
 
 replay_family() {
-  local bundle="$1" output_format="${2:-json}" required_changed run created check_data jobs_json contexts check_lines last_created wait runner diagnostics
+  local bundle="$1" output_format="${2:-json}" required_changed required_info derived_contexts manifest_contexts manifest_expected manifest_source rules_valid run created check_data jobs_json contexts check_lines last_created wait runner diagnostics
   [[ -d "$bundle" && -s "$bundle/manifest.json" ]] || fail source_bundle_missing
   [[ -s "$bundle/raw/run.json" && -s "$bundle/raw/jobs.json" && -s "$bundle/raw/check-runs.json" ]] || fail source_bundle_raw_input_missing
   jq -e '.schema_version == "sigra.ci-run-metrics/family-v1" and .repository == "szTheory/sigra" and .workflow == "ci.yml" and (.raw_sha256 | type == "object")' "$bundle/manifest.json" >/dev/null || fail source_manifest_invalid
@@ -1215,6 +1215,18 @@ replay_family() {
   [[ "$manifest_repo" == "$REPO" && "$manifest_run" == "$RUN_ID" && "$manifest_sha" == "$run_sha" && -n "$run_attempt" && "$manifest_attempt" == "$run_attempt" && "$(jq -r '.id // empty' "$bundle/raw/run.json")" == "$RUN_ID" && "$(jq -r '.repository.id // empty' "$bundle/raw/run.json")" == 1207487684 && "$run_event" == "pull_request" && "$run_workflow" == ".github/workflows/ci.yml" ]] || fail source_identity_mismatch
   ledger_sha="$(jq -r '.request_ledger_sha256 // empty' "$bundle/manifest.json")"
   [[ -n "$ledger_sha" && "$(sha256_file "$bundle/request-ledger.json")" == "$ledger_sha" ]] || fail request_ledger_hash_mismatch
+  required_info="$(derive_required_contexts "$bundle/raw/effective-rules.json" "$bundle/raw/branch-protection.json")"
+  derived_contexts="$(jq -c '.actual' <<<"$required_info")"
+  manifest_contexts="$(jq -c '.required_contexts // []' "$bundle/manifest.json")"
+  manifest_expected="$(jq -c '.approved_contexts // .expected_required_contexts // []' "$bundle/manifest.json")"
+  manifest_source="$(jq -r '.required_context_source // empty' "$bundle/manifest.json")"
+  required_changed="$(jq -r 'if has("required_rules_changed") then .required_rules_changed else true end' "$bundle/manifest.json")"
+  rules_valid=false
+  if [[ "$(jq -cn --argjson actual "$derived_contexts" --argjson expected "$(approved_required_contexts)" --argjson manifest_actual "$manifest_contexts" --argjson manifest_expected "$manifest_expected" --arg source "$manifest_source" --arg derived_source "$(jq -r '.source' <<<"$required_info")" --arg changed "$required_changed" '($actual|sort)==($expected|sort) and ($manifest_actual|sort)==($actual|sort) and ($manifest_expected|sort)==($expected|sort) and ($source=="" or $source==$derived_source) and $changed=="false"')" == true ]]; then
+    rules_valid=true
+  else
+    required_changed=true
+  fi
   local binding_json
   binding_json="$(PYTHONPATH="$ROOT/scripts/ci" python3 - "$bundle" "$manifest_repo" <<'PY'
 import hashlib,json,pathlib,sys
@@ -1239,7 +1251,6 @@ if set((endpoints.get(latest) or {})) != set(required): raise SystemExit('latest
 print(json.dumps({'endpoints':endpoints,'runner_seconds':runner},sort_keys=True,separators=(',',':')))
 PY
   )" || fail family_required_check_api_binding_invalid
-  required_changed="$(jq -r '.required_rules_changed' "$bundle/manifest.json")"
   contexts="$(jq -r '.required_contexts[]?' "$bundle/manifest.json")"
   run="$bundle/raw/run.json"
   created="$(jq -r '.created_at // empty' "$run")"
