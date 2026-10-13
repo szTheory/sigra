@@ -46,9 +46,6 @@ Choose small internal helper/schema/file boundaries, exact signal-driven fixture
 ### Folded Todos
 
 The already-linked `2026-09-15-admin-eval-webkit-registration-flake-recurrence.md` is investigated through current source/logs; its title and suggested fixes are not conclusions. The unit-owner omission and `2026-09-19-example-playwright-smoke-manifest-step-gate-inaccuracy.md` are directly within CIREL-02's ownership/skip proof. Neither is closed by discussion. Other keyword matches remain unpromoted and unchanged.
-</decisions>
-
-<canonical_refs>
 
 ## Deferred Ideas
 
@@ -60,8 +57,9 @@ The already-linked `2026-09-15-admin-eval-webkit-registration-flake-recurrence.m
 ### Reviewed Todos (not folded)
 
 Per-shard parallelization belongs to optimization; timing orphan history already has prior ownership; unrelated installer, auth, release and planning keyword matches remain unchanged. The missing 1.6 upgrade guide remains its separate task. Discussion closes no todo or requirement.
-</deferred>
+</user_constraints>
 
+<canonical_refs>
 ## Canonical References
 
 **Downstream agents MUST read these before planning or implementing.**
@@ -95,7 +93,7 @@ Per-shard parallelization belongs to optimization; timing orphan history already
 - [Playwright traces](https://playwright.dev/docs/trace-viewer#tracing-on-ci), [1.59.1 trace implementation](https://github.com/microsoft/playwright/blob/v1.59.1/packages/playwright/src/worker/testTracing.ts), [hydration](https://playwright.dev/docs/navigations#hydration), [authentication state](https://playwright.dev/docs/auth#basic-shared-account-in-all-tests), [JSON reporter](https://playwright.dev/docs/test-reporters#json-reporter), [test result](https://playwright.dev/docs/api/class-testresult).
 - [Example LiveView 1.1.28 lifecycle](https://phoenix-live-view.hexdocs.pm/1.1.28/Phoenix.LiveView.html#c:mount/3), [example Sandbox 3.13.5 source](https://github.com/elixir-ecto/ecto_sql/blob/v3.13.5/lib/ecto/adapters/sql/sandbox.ex), [library Sandbox 3.14.0](https://hexdocs.pm/ecto_sql/3.14.0/Ecto.Adapters.SQL.Sandbox.html), [Mix 1.19.5 test options](https://github.com/elixir-lang/elixir/blob/v1.19.5/lib/mix/lib/mix/tasks/test.ex), [Chromium order investigation](https://www.chromium.org/developers/testing/fixing-flaky-tests/fixing_flaky_unittests/).
 </canonical_refs>
-</user_constraints>
+
 <phase_requirements>
 ## Phase Requirements
 
