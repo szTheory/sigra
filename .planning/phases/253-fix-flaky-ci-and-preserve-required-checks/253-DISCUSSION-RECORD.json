@@ -4,7 +4,7 @@
   "phase_name": "Fix Flaky CI and Preserve Required Checks",
   "milestone": "v1.50",
   "recorded_at": "2026-10-13T02:05:49.770664+00:00",
-  "status": "discussion_context_written_review_pending",
+  "status": "discussion_context_ready_for_planning",
   "capture": {
     "captured_at": "2026-10-13T01:56:02.659645+00:00",
     "capture_head": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
@@ -883,8 +883,8 @@
   },
   "decision_authority": {
     "kind": "explicit_user_delegation",
-    "quoted_instruction": "goal is to fan out find set of recommendations that are coherent auto follow those",
-    "source": "current phase253 invocation",
+    "quoted_instruction": "find set of recommendations that are coherent auto follow those",
+    "source": "verbatim substring of current phase253 invocation",
     "confirmation_menu_answer": null,
     "defaults_adopted_by_delegation": true,
     "scope_expansion_authorized": false
@@ -1564,5 +1564,82 @@
   "external_mutations": false,
   "new_dependencies": 0,
   "historical_verification_is_forward_blocker": false,
-  "next_command": "$gsd-plan-phase 253"
+  "next_command": "$gsd-plan-phase 253",
+  "refinement_preservation": {
+    "ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+    "paths": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+        "sha256": "642c2c180fa8139fe537b2701230928fc587d09c862c2f6ae96f2461d11bdd7a",
+        "bytes": 25311,
+        "status": "clean",
+        "recoverable_ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-LOG.md",
+        "sha256": "504341d94cfb3aea7122e08b9e5dbd8421f444421f7fd2d8eed67e3e5370269f",
+        "bytes": 13290,
+        "status": "clean",
+        "recoverable_ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json",
+        "sha256": "07e24cd5e01b5869054d577d675b2ddced97be2e677aae6d7c91965282874067",
+        "bytes": 4194,
+        "status": "clean",
+        "recoverable_ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-RECORD.json",
+        "sha256": "c2a94bcec80d875ce4f0a64f3d4159bbe6e2a97fd8b85af35b5d6b5114961e68",
+        "bytes": 64966,
+        "status": "clean",
+        "recoverable_ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+        "git_readback_exact": true
+      }
+    ]
+  },
+  "synthesis_review": {
+    "reviewer": "phase253_assumptions",
+    "terminal_result_received": true,
+    "initial_material_findings": 2,
+    "material_findings_applied": 2,
+    "remaining_material_findings": 0,
+    "clarified_decisions": [
+      "D-14",
+      "D-23"
+    ],
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SYNTHESIS-REVIEW.md",
+    "phase_acceptance": false
+  },
+  "artifacts": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+      "sha256": "bee3668bc9a7bac5f93b9a695c99af26212178fa2fceeecfb982e58d4684389e",
+      "bytes": 25723
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json",
+      "sha256": "07e24cd5e01b5869054d577d675b2ddced97be2e677aae6d7c91965282874067",
+      "bytes": 4194
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-LOG.md",
+      "sha256": "b69d1525a8c8eeafe4602a2da6e166a3132939e5790308e5b5e4184c8402a4b3",
+      "bytes": 14199
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SYNTHESIS-REVIEW.md",
+      "sha256": "b9c9f2360ecde74ef640da83401376b504e55e87fff40eb3cf84269b9e476658",
+      "bytes": 1096
+    }
+  ]
 }

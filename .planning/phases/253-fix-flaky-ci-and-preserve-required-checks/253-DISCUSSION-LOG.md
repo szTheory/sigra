@@ -102,3 +102,12 @@ One existing todo already names resolves_phase 253. Its current investigation st
 ## Next Route
 
 After context creation, check `init.plan-phase 253`, then record `$gsd-plan-phase 253` in both state files and the handoff. No implementation, phase verification, CI mutation or auto-advance is included in discussion completion.
+
+## Final Adversarial Synthesis Review
+
+The assumptions analyzer reviewed the assembled context after all research returned. It found two material wording gaps; both were corrected before final context capture:
+
+- D-14 now requires the expected complete, nonempty native report for every selected full-workload browser body. A missing report cannot qualify through “where available”; documented docs-only body skips are the explicit exception.
+- D-23 now distinguishes the exact candidate PR head from its tested GitHub merge checkout/workflow revision and requires the result to bind both correctly.
+
+The remainder was judged coherent with scope, source preservation, the registration lead, finite budgets and the synthetic canary's limits. This is a discussion synthesis review, not phase acceptance. The prior draft's exact bytes are recoverable at the commit recorded in `253-DISCUSSION-RECORD.json`.

@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "phase": 253,
+  "captured_at": "2026-10-13T02:10:18.731881+00:00",
+  "status": "passed",
+  "scope": "discussion artifacts and preservation only",
+  "checks": [
+    {
+      "name": "six_standard_context_sections",
+      "passed": true
+    },
+    {
+      "name": "24_unique_sequential_decisions",
+      "passed": true
+    },
+    {
+      "name": "all_canonical_local_files_exist",
+      "passed": true
+    },
+    {
+      "name": "json_artifacts_parse",
+      "passed": true
+    },
+    {
+      "name": "native_reports_mandatory",
+      "passed": true
+    },
+    {
+      "name": "PR_head_and_tested_checkout_distinguished",
+      "passed": true
+    },
+    {
+      "name": "current_registration_cause_not_claimed",
+      "passed": true
+    },
+    {
+      "name": "synthesis_findings_applied",
+      "passed": true
+    },
+    {
+      "name": "delegation_not_fabricated_menu_answer",
+      "passed": true
+    },
+    {
+      "name": "no_implementation_or_acceptance",
+      "passed": true
+    },
+    {
+      "name": "eight_exact_prior_tracking_readbacks",
+      "passed": true
+    },
+    {
+      "name": "94_phase252_paths_unchanged",
+      "passed": true
+    },
+    {
+      "name": "planner_reports_context_and_no_plans",
+      "passed": true
+    },
+    {
+      "name": "auto_advance_and_chain_disabled",
+      "passed": true
+    },
+    {
+      "name": "CIREL_requirements_remain_unchecked",
+      "passed": true
+    },
+    {
+      "name": "no_trailing_whitespace",
+      "passed": true
+    },
+    {
+      "name": "record_artifact_hashes_match",
+      "passed": true
+    }
+  ],
+  "check_count": 17,
+  "implementation_started": false,
+  "phase_verification_status": "not_started",
+  "next_command": "$gsd-plan-phase 253",
+  "readiness": {
+    "researcher_model": "gpt-6-luna",
+    "planner_model": "gpt-6-sol",
+    "checker_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "granularity": "fine",
+    "research_enabled": true,
+    "plan_checker_enabled": true,
+    "nyquist_validation_enabled": true,
+    "commit_docs": true,
+    "text_mode": false,
+    "auto_advance": false,
+    "auto_chain_active": false,
+    "mode": "yolo",
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+    "expected_phase_dir": null,
+    "phase_number": "253",
+    "phase_name": "fix-flaky-ci-and-preserve-required-checks",
+    "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+    "padded_phase": "253",
+    "phase_req_ids": "CIREL-01, CIREL-02",
+    "phase_status": "Pending",
+    "has_research": false,
+    "has_context": true,
+    "context_scope": "complete",
+    "has_reviews": false,
+    "has_plans": false,
+    "plan_count": 0,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "planning_exists": true,
+    "roadmap_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "patterns_path": null,
+    "context_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+    "section_manifest": {
+      "workflow": "plan-phase",
+      "included": [],
+      "excluded": [
+        "reviews-prerequisite",
+        "prd-express-gate",
+        "adr-ingest-express-path",
+        "research-only-modifiers",
+        "research-only-early-exit",
+        "chunked-planning-mode"
+      ],
+      "read": []
+    },
+    "prior_verify_commands": [
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint",
+        "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records",
+        "command": "bash scripts/ci/ci-run-metrics.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter",
+        "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics",
+        "command": "bash scripts/ci/ci-exunit-timing.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-04-PLAN.md",
+        "task": "Task 1: Produce one JSON report per existing Playwright invocation",
+        "command": "node --test scripts/ci/ci-playwright-report.test.mjs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-05-PLAN.md",
+        "task": "Task 1: Retain timing and cache provenance from the existing CI owners",
+        "command": "node --test scripts/ci/ci-measure-workflow.test.mjs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay",
+        "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "task": "Task 3: Publish a concise source-linked baseline and reproducible commands",
+        "command": "bash scripts/ci/ci-measure-report.test.sh"
+      }
+    ],
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "artifact_hashes": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+      "sha256": "bee3668bc9a7bac5f93b9a695c99af26212178fa2fceeecfb982e58d4684389e"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json",
+      "sha256": "07e24cd5e01b5869054d577d675b2ddced97be2e677aae6d7c91965282874067"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-LOG.md",
+      "sha256": "b69d1525a8c8eeafe4602a2da6e166a3132939e5790308e5b5e4184c8402a4b3"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-RECORD.json",
+      "sha256": "27c3d906d9d47f61f049181774dec449f8e32cdadc5e148d3bd214402106f595"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SYNTHESIS-REVIEW.md",
+      "sha256": "b9c9f2360ecde74ef640da83401376b504e55e87fff40eb3cf84269b9e476658"
+    }
+  ]
+}
