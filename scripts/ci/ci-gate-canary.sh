@@ -123,7 +123,7 @@ log_request() {
   local endpoint="$1" kind="${2:-observed}" reserve="${3:-0}" temp="${REQUEST_LEDGER}.tmp"
   preserve_request_ledger
   jq --arg endpoint "$endpoint" --arg kind "$kind" --argjson reserve "$reserve" \
-    '.requests += [{sequence:(.requests|length)+1,endpoint:$endpoint,kind:$kind,reserved_calls:$reserve}]' \
+    '.requests += [{sequence:((.requests|length)+1),endpoint:$endpoint,kind:$kind,reserved_calls:$reserve}]' \
     "$REQUEST_LEDGER" > "$temp"
   mv "$temp" "$REQUEST_LEDGER"
 }
