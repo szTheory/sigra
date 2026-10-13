@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (roadmap approved; Phase 252 plan implementation complete, phase verification pending)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 discussion pending)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -25,14 +25,14 @@
 
 **Goal:** Make CI faster and more reliable while keeping useful tests and straightforward local reproduction.
 **Requirements:** 9 confirmed; each maps to exactly one phase.
-**Roadmap approval:** User-approved on 2026-10-12. Phase 252 plan implementation is complete; phase-level verification remains pending.
+**Roadmap approval:** User-approved on 2026-10-12. Phase 252 implementation and verification are complete; CIMEAS-01 and CIMEAS-02 are satisfied.
 **Research:** Broad ecosystem research skipped by the user; the project research default stays unchanged.
 
 The work follows four delivery boundaries: measure current CI, remove the selected flaky failures and protect required checks, optimize the measured costs, then finish the contributor commands and reproducible result report. The existing five browser-test jobs, runtime measurement script, and mix ci are starting points, not work to rebuild automatically.
 
 ## Next
 
-**Next command:** `$gsd-execute-phase 252` — all six implementation plans have summaries; continue through phase-level verification. Requirements remain pending until that verification is recorded. Do not advance to Phase 253 first.
+**Next command:** $gsd-discuss-phase 253 — Phase 253 readiness has no context, research or plans and no prerequisite blocker. Phase 252 verification passed.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 

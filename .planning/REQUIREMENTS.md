@@ -9,8 +9,8 @@
 
 ### Measurements
 
-- [ ] **CIMEAS-01:** Contributors can see the current CI baseline for pull requests, main pushes, and nightly runs, with waiting time, execution time, run conclusions, and reruns recorded separately.
-- [ ] **CIMEAS-02:** Maintainers can identify the largest runtime costs from saved job/step/test measurements, including setup and cache work, and use a ranked list to select improvements.
+- [x] **CIMEAS-01:** Contributors can see the current CI baseline for pull requests, main pushes, and nightly runs, with waiting time, execution time, run conclusions, and reruns recorded separately.
+- [x] **CIMEAS-02:** Maintainers can identify the largest runtime costs from saved job/step/test measurements, including setup and cache work, and use a ranked list to select improvements.
 - [ ] **CIMEAS-03:** Maintainers can replay the final before/after comparison from saved inputs and a documented calculation, with failures, cancellations, reruns, sample sizes, and limitations disclosed.
 
 ### Speed

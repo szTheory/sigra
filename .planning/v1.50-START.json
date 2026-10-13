@@ -83,7 +83,7 @@
   "phase_numbering": "continue at 252",
   "prior_milestone": "v1.49",
   "prior_readiness_gap_is_forward_blocker": false,
-  "implementation_started": false,
+  "implementation_started": true,
   "requirements_approved": true,
   "roadmap_approved": true,
   "requirements_path_exists": false,
@@ -105,9 +105,9 @@
     "latest_completed_milestone_from_runtime": "v1.47",
     "phase_numbering_authority": ".planning/milestones/v1.49-ROADMAP.md ends at 251; closed-with-known-gaps v1.49 is newer than runtime latest_completed_milestone v1.47."
   },
-  "pending_workflow_gate": "Phase 252 execution",
-  "next_command": "$gsd-execute-phase 252",
-  "next_action": "Execute six independently checked Phase 252 plans; implementation and phase verification have not started.",
+  "pending_workflow_gate": "Phase 253 discussion",
+  "next_command": "$gsd-discuss-phase 253",
+  "next_action": "Phase 252 verification passed; Phase 253 is pending with no context, research, plans, or reported prerequisite blocker.",
   "milestone_start_commit": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
   "continuation_prewrite": {
     "ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
@@ -154,77 +154,105 @@
     "approved": true
   },
   "next_readiness": {
-    "executor_model": "gpt-6-luna",
-    "verifier_model": "gpt-6-luna",
+    "researcher_model": "gpt-6-luna",
+    "planner_model": "gpt-6-sol",
+    "checker_model": "gpt-6-luna",
     "tdd_mode": false,
+    "granularity": "fine",
+    "research_enabled": true,
+    "plan_checker_enabled": true,
+    "nyquist_validation_enabled": true,
     "commit_docs": true,
-    "sub_repos": [],
-    "parallelization": true,
-    "context_window": 200000,
-    "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}",
-    "verifier_enabled": true,
+    "text_mode": false,
+    "auto_advance": false,
+    "auto_chain_active": false,
+    "mode": "yolo",
     "phase_found": true,
-    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci",
-    "phase_number": "252",
-    "padded_phase": "252",
-    "phase_name": "Measure Current CI",
-    "phase_slug": "measure-current-ci",
-    "phase_req_ids": "CIMEAS-01, CIMEAS-02",
-    "plans": [
-      "252-01-PLAN.md",
-      "252-02-PLAN.md",
-      "252-03-PLAN.md",
-      "252-04-PLAN.md",
-      "252-05-PLAN.md",
-      "252-06-PLAN.md"
-    ],
-    "summaries": [],
-    "incomplete_plans": [
-      "252-01-PLAN.md",
-      "252-02-PLAN.md",
-      "252-03-PLAN.md",
-      "252-04-PLAN.md",
-      "252-05-PLAN.md",
-      "252-06-PLAN.md"
-    ],
-    "plan_count": 6,
-    "incomplete_count": 6,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+    "expected_phase_dir": null,
+    "phase_number": "253",
+    "phase_name": "fix-flaky-ci-and-preserve-required-checks",
+    "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+    "padded_phase": "253",
+    "phase_req_ids": "CIREL-01, CIREL-02",
+    "phase_status": "Pending",
+    "has_research": false,
+    "has_context": false,
+    "context_scope": "complete",
+    "has_reviews": false,
+    "has_plans": false,
+    "plan_count": 0,
     "threat_id_duplicates": [],
     "threat_id_duplicate_count": 0,
-    "halted_plans": [],
-    "blocked_by": {},
-    "runnable_plans": [
-      "252-01-PLAN.md",
-      "252-02-PLAN.md",
-      "252-03-PLAN.md",
-      "252-04-PLAN.md",
-      "252-05-PLAN.md",
-      "252-06-PLAN.md"
-    ],
-    "runnable_count": 6,
-    "branch_name": null,
-    "milestone_version": "v1.50",
-    "milestone_name": "CI-SPEED-AND-RELIABILITY",
-    "milestone_slug": "ci-speed-and-reliability",
-    "state_exists": true,
+    "planning_exists": true,
     "roadmap_exists": true,
-    "config_exists": true,
     "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
     "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
-    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
     "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "patterns_path": null,
     "section_manifest": {
-      "workflow": "execute-phase",
+      "workflow": "plan-phase",
       "included": [],
       "excluded": [
-        "partial-wave",
-        "gap-closure-artifacts",
-        "regression-gate"
+        "reviews-prerequisite",
+        "prd-express-gate",
+        "adr-ingest-express-path",
+        "research-only-modifiers",
+        "research-only-early-exit",
+        "chunked-planning-mode"
       ],
       "read": []
     },
+    "prior_verify_commands": [
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint",
+        "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records",
+        "command": "bash scripts/ci/ci-run-metrics.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter",
+        "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics",
+        "command": "bash scripts/ci/ci-exunit-timing.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-04-PLAN.md",
+        "task": "Task 1: Produce one JSON report per existing Playwright invocation",
+        "command": "node --test scripts/ci/ci-playwright-report.test.mjs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-05-PLAN.md",
+        "task": "Task 1: Retain timing and cache provenance from the existing CI owners",
+        "command": "node --test scripts/ci/ci-measure-workflow.test.mjs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay",
+        "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "task": "Task 3: Publish a concise source-linked baseline and reproducible commands",
+        "command": "bash scripts/ci/ci-measure-report.test.sh"
+      }
+    ],
     "project_root": "/Users/jon/projects/sigra",
     "agents_installed": true,
     "missing_agents": [],
@@ -232,8 +260,8 @@
     "agent_runtime": "codex",
     "project_title": "Sigra"
   },
-  "workflow_step": "phase_execution_pending",
-  "dispatch": "Inline; user has not requested subagents.",
+  "workflow_step": "phase_discussion_pending",
+  "dispatch": "Typed sequential execution with independent validation, security, code review and goal verification.",
   "requirements_confirmation": {
     "user_response": "1",
     "selected_option": "Accept these requirements and create the roadmap.",
@@ -410,7 +438,63 @@
     "tasks": 15,
     "waves": 4,
     "recorded_at": "2026-10-12T17:12:51.574828+00:00",
-    "implementation_status": "not_started",
-    "phase_verification_status": "not_started"
+    "implementation_status": "complete",
+    "phase_verification_status": "passed"
+  },
+  "phase252_completion_record": ".planning/phases/252-measure-current-ci/252-COMPLETION-RECORD.json",
+  "closeout_prewrite": {
+    "ref": "48ec9126e06bef0effe5f8578fb592fe9851848b",
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "bytes": 8882,
+        "sha256": "babd3d39502dfdeaa89c836df32aad09f998aa6e4a6d448673a057fe910fc229",
+        "ref": "48ec9126e06bef0effe5f8578fb592fe9851848b",
+        "byte_exact_readback": true
+      },
+      {
+        "path": ".planning/state.json",
+        "bytes": 782,
+        "sha256": "13a8b5bca445e1f6b31fd0fa6954bd3fdc6279477722695c88d9e2e2e9bd1c6f",
+        "ref": "48ec9126e06bef0effe5f8578fb592fe9851848b",
+        "byte_exact_readback": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "bytes": 22594,
+        "sha256": "e7663f0b7c1ab245c58ef02ff6d07deb76622c56c9e0965917dc367fc3c3dac3",
+        "ref": "48ec9126e06bef0effe5f8578fb592fe9851848b",
+        "byte_exact_readback": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "bytes": 10682,
+        "sha256": "07d341f3f14df3b6c2ad738eb26f3f2d98e4de21c4799505c324c797e5c76475",
+        "ref": "48ec9126e06bef0effe5f8578fb592fe9851848b",
+        "byte_exact_readback": true
+      },
+      {
+        "path": ".planning/REQUIREMENTS.md",
+        "bytes": 5876,
+        "sha256": "0e7866f57b39675e8de369ee5210c8497dcfc9fe1c2ad65ee4dda525761eb906",
+        "ref": "48ec9126e06bef0effe5f8578fb592fe9851848b",
+        "byte_exact_readback": true
+      },
+      {
+        "path": ".planning/PROJECT.md",
+        "bytes": 197431,
+        "sha256": "7c3cf3e0b03014abfc7e16080ff71e8c7da9a60b160c91f6bb44031bc6215f09",
+        "ref": "48ec9126e06bef0effe5f8578fb592fe9851848b",
+        "byte_exact_readback": true
+      },
+      {
+        "path": ".planning/v1.50-START.json",
+        "bytes": 14732,
+        "sha256": "ec7b210fb03e53ad0838413dd988e14db2b2354b13a3674a56516a0273f166a8",
+        "ref": "48ec9126e06bef0effe5f8578fb592fe9851848b",
+        "byte_exact_readback": true
+      }
+    ],
+    "readback_verified": true
   }
 }

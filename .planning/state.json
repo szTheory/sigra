@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -25,9 +25,13 @@
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step (plan phase 253)",
-    "reason": "Phase 253 of 4 — needs a plan"
+    "command": "$gsd-discuss-phase 253",
+    "label": "Discuss Phase 253 \u2014 Fix Flaky CI and Preserve Required Checks",
+    "reason": "Phase 252 verification passed; Phase 253 is pending with no context, research, plans, or reported prerequisite blocker."
   },
-  "updated_at": "2026-10-13T01:25:18.685Z"
+  "updated_at": "2026-10-13T01:29:11.049895+00:00",
+  "current_phase": "253",
+  "workflow_step": "phase_discussion_pending",
+  "phase252_verification_status": "passed",
+  "historical_verification_is_forward_blocker": false
 }

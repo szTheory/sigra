@@ -33,7 +33,7 @@ cannot resolve.
 
 **Scope confirmed:** The user selected this direction on 2026-10-12. Skip broad ecosystem research for this milestone; keep the project's research default unchanged. Reuse the existing CI measurement script, five browser-test jobs, and `mix ci` where they fit. The prior CI audit is implemented history, not a new seed to repeat.
 
-**Current step:** All nine requirements and the four-phase roadmap (252–255) are approved. Phase 252 has six independently checked plans across four waves in `.planning/phases/252-measure-current-ci/`. Next: `$gsd-execute-phase 252`. Implementation and phase verification have not started.
+**Current step:** Phase 252 is implemented and verified (six plans, 27/27 truths; CIMEAS-01/02 satisfied). Phase 253 has no context or plans. Next: $gsd-discuss-phase 253. Seven requirements remain pending.
 
 **Boundaries:** v1.49 is closed with READY-01 unfinished; missing old release records do not block this work. The missing 1.6 upgrade guide remains a separate documentation task. This milestone starts no product feature or package release, changes no public API or authentication behavior, and does not weaken required checks.
 
@@ -785,10 +785,13 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Validated — v1.50, Phase 252
+
+- ✓ **CIMEAS-01:** Contributors can see the current CI baseline for pull requests, main pushes, and nightly runs, with waiting time, execution time, run conclusions, and reruns recorded separately. — Phase 252 verified.
+- ✓ **CIMEAS-02:** Maintainers can identify the largest runtime costs from saved job/step/test measurements, including setup and cache work, and use a ranked list to select improvements. — Phase 252 verified.
+
 ### Active — v1.50 CI-SPEED-AND-RELIABILITY
 
-- [ ] **CIMEAS-01:** Contributors can see the current CI baseline for pull requests, main pushes, and nightly runs, with waiting time, execution time, run conclusions, and reruns recorded separately.
-- [ ] **CIMEAS-02:** Maintainers can identify the largest runtime costs from saved job/step/test measurements, including setup and cache work, and use a ranked list to select improvements.
 - [ ] **CIMEAS-03:** Maintainers can replay the final before/after comparison from saved inputs and a documented calculation, with failures, cancellations, reruns, sample sizes, and limitations disclosed.
 - [ ] **CISPEED-01:** Contributors receive the required PR CI result at least 20% faster by median elapsed time than the newly captured baseline, using a comparison method fixed before optimization.
 - [ ] **CISPEED-02:** The same comparison shows no increase in total runner time per comparable PR or in the 95th-percentile wait for the required PR CI result.
@@ -1207,6 +1210,8 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
+| CI values tied to saved GitHub job/check/artifact/source identities | Prevent wrong-run timing, overwritten reports and unverified metadata claims | ✓ Verified Phase 252; archive replays identically |
+| Fixed later 20-pair comparison and disclosed unknowns | Prevent favorable replacements and distinguish one observation from a population estimate | ✓ Contract verified Phase 252; comparison not yet run |
 | Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | ✓ Validated v1.0 — no regret |
 | Phoenix context pattern for generated code | `MyApp.Auth` context follows DDD boundaries, is idiomatic Phoenix, and keeps the public API clean. | ✓ Validated v1.0 — no regret |
 | Assent over Ueberauth for OAuth | Framework-agnostic, PKCE/OIDC built-in, single package vs N strategy deps, actively maintained. | ✓ Validated v1.0 — shipped 5 strategy wrappers (Google/GitHub/Apple/Facebook/Generic); Assent's PKCE + OIDC + single-package design paid off |
@@ -1367,3 +1372,5 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 *Last updated: 2026-10-12 after starting v1.50 CI-SPEED-AND-RELIABILITY with user-confirmed scope.*
+
+*Last updated: 2026-10-12 after Phase 252 implementation and verification; Phase 253 discussion is next.*

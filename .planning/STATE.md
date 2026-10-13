@@ -5,10 +5,10 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
 status: planning
-stopped_at: Phase 252 complete, ready to plan Phase 253
-last_updated: "2026-10-13T01:25:18.676Z"
+stopped_at: Phase 252 complete and verified; Phase 253 discussion pending
+last_updated: "2026-10-13T01:29:11.049895+00:00"
 last_activity: 2026-10-12
-last_activity_desc: Phase 252 complete, transitioned to Phase 253
+last_activity_desc: Phase 252 verified; checked forward route to Phase 253 discussion
 state_head: 1cfb0a490425e5f37c9f36205def8955c97674f1
 progress:
   total_phases: 4
@@ -17,10 +17,12 @@ progress:
   completed_plans: 6
   percent: 25
 milestone_status: active
-workflow_step: phase_verification_pending
-verification_status: not_started
-next_command: $gsd-execute-phase 252
-resume_command: $gsd-execute-phase 252
+workflow_step: phase_discussion_pending
+verification_status: passed
+phase252_verification_status: passed
+phase253_verification_status: not_started
+next_command: $gsd-discuss-phase 253
+resume_command: $gsd-discuss-phase 253
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -34,23 +36,23 @@ roadmap_approved: true
 See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 **Core value:** Authentication that works out of the box, with a clear path for Phoenix adopters.
-**Current focus:** Phase 252 — Measure Current CI
+**Current focus:** Phase 253 — Fix Flaky CI and Preserve Required Checks
 
 ## Current position
 
 Phase: 253 — Fix Flaky CI and Preserve Required Checks
 Plan: Not started
-Status: Ready to plan
+Status: Ready to discuss
 Last activity: 2026-10-12 — Phase 252 complete, transitioned to Phase 253
 Progress: [███░░░░░░░] 25%
 
 ## Next GSD command
 
-$gsd-execute-phase 252
+$gsd-discuss-phase 253
 
-All six Phase 252 plan implementations and summaries are complete. Plan 252-06 saved the hosted run, all five passing required checks, the source bundle, the hash-validated baseline and the later comparison contract. The phase-level verification has not started, so all nine requirements remain Pending. Plan 252-05's original Threadline failure was resolved by a forced test-environment compile and its required full `mix ci` rerun passed; see `252-05-INTEGRATION-RECHECK.json` and `252-05-SUMMARY.md`. Research, pattern mapping and independent plan checks are complete.
+Phase 252 implementation and phase verification are complete: six plans, 27/27 verified truths, CIMEAS-01 and CIMEAS-02 satisfied, 20/20 security controls, and both code-review findings independently repaired. The committed baseline covers PR, main-push and nightly populations; run 38317383419 supplies the complete instrumented PR sample. Later comparison runs have not started.
 
-The broad-research skip choice and prior approvals stay in force. Old release-record failures are separate maintenance and do not block Phase 252. No missing old record is required from the user. Continue with `$gsd-execute-phase 252` for the phase-level verification route; do not advance to Phase 253 or mark Phase 252 requirements complete before verification.
+Phase 253 readiness was checked with init.plan-phase 253. It has no context, research or plans and reports no prerequisite blocker. Gather its context next. Historical release-record and stale-report maintenance remains separately recorded and does not block this forward route. Broad milestone research remains skipped as previously approved.
 
 ## Known unfinished work
 
@@ -61,7 +63,10 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Evidence
 
-- Phase 252 Plans 01–06 implementation and checks are complete; phase-level verification remains. Plan 06 evidence: `252-06-SUMMARY.md`, `252-CI-SOURCE-BUNDLE.tar.gz`, `252-BASELINE.json`, `252-BASELINE.md`, and `252-COMPARISON-CONTRACT.json`. Hosted evidence is draft PR #331 and run 38307191464, attempt 2; its five required contexts passed. Plan 05 evidence: `252-05-SUMMARY.md`, `252-05-MIX-CI-DIAGNOSTIC.json`, and `252-05-INTEGRATION-RECHECK.json`. Phase requirements stay unchecked until verification.
+- Phase 252 completion and routing: 252-COMPLETION-RECORD.json; verifier: 252-VERIFICATION.md (passed, 27/27); security: 252-SECURITY-AUDIT.json (20/20); validation: 252-VALIDATION.md; code review: 252-REVIEW-DISPOSITION.md and 252-REVIEW-FINAL-RECHECK.md (both findings fixed).
+- Baseline: 252-BASELINE.md, 252-BASELINE.json, 252-CI-SOURCE-BUNDLE.tar.gz; comparison method: 252-COMPARISON-CONTRACT.json. Hosted sample: draft PR #331, run 38317383419, all five required checks passed. Main ExUnit 2,683 rows and separate child 65 rows; total runner cost 2,042 seconds. Unknown overhead and one-sample limits remain explicit.
+- Prior tracking bytes preserved in 252-CLOSEOUT-PRESERVATION.json; exact SDK completion state committed at 48ec9126e06bef0effe5f8578fb592fe9851848b. Initial execution capture remains immutable and is superseded by the completion record.
+
 - The exact SDK state transition is preserved and read back at commit `2c50a2a213a7ca52f2733e694e4b8bc4a630796f`, with file hashes in `252-06-STATE-PRESERVATION.json`.
 - Final independent planning check: `252-PLAN-CHECK-03.md`; planning record/checks: `252-PLANNING-RECORD.json`, `252-PLANNING-CHECKS.json`, `252-PLANNING-ROUTING-CHECKS.json`. These are planning checks, not completed phase verification.
 
@@ -84,8 +89,8 @@ The broad-research skip choice and prior approvals stay in force. Old release-re
 
 ## Session
 
-**Last session:** 2026-10-12T21:36:27.637Z
-**Stopped at:** Phase 252 complete, ready to plan Phase 253
+**Last session:** 2026-10-13T01:29:11.049895+00:00
+**Stopped at:** Phase 252 complete and verified; Phase 253 discussion pending
 **Resume file:** None
 
 ## Deferred Items
@@ -110,15 +115,8 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 
 ## Decisions
 
-- [Phase 252]: Current effective required context names determine eligibility; ruleset IDs are provenance only.
-- [Phase 252]: Missing source-revision data keeps a multi-revision family at unknown timing.
-- [Phase 252]: workflow_dispatch and release-branch pushes remain separate from the primary PR, main-push and schedule cohorts
-- [Phase 252]: Expired, mismatched, unavailable or unsafe artifact inputs remain diagnostics and do not become timing rows
-- [Phase 252]: Keep the ExUnit timing report opt-in and test-only; reporting failures preserve the original test process exit.
-- [Phase 252]: Playwright JSON stays opt-in; excluded counts and unmeasured reporter overhead remain null, with CI wiring owned by Plan 252-05.
-- [Phase 252]: Replay keeps rankings for initial wait, required-context critical path, execution, and summed runner time separate.
-- [Phase 252]: Missing artifact identities, timestamps, cache results, and runtime versions remain unknown rather than being filled from configured pins.
-- [Phase 252]: Failure signatures require repeat source references; cancellation without superseding-run evidence stays unclassified.
-- [Phase 252]: The 20-pair comparison uses the measured baseline cache vector and freezes candidate identity and exact UTC dates before the first run.
-- [Phase 252]: ExUnit's five-pair historical overhead is retained separately; current ExUnit paired overhead and Playwright reporter overhead remain unknown and are not subtracted.
-- [Phase 252]: Hosted retry evidence and runner cost remain in the original source family; no replacement families or comparison-window extension are allowed.
+- Measurement values require matching GitHub source identities and saved hashes; missing inputs remain unknown.
+- Main and dependency-off ExUnit invocations stay separate so child output cannot replace the main suite.
+- Required-check changes produce unknown waits; original failures and actual physical job cost remain visible.
+- The later comparison uses 20 matched pairs in a predeclared 48-hour window, without replacement or window extension.
+- Reporter overhead and queue detail remain unknown when not measured; historical release gaps do not block current CI work.
