@@ -24,7 +24,7 @@ def object_sha(kind, data):
     return hashlib.sha1(f"{kind} {len(data)}\0".encode() + data).hexdigest()
 
 
-def git_fixture(root, oversized=False):
+def git_fixture(root, oversized=False, many_entries=0):
     root.mkdir()
     subprocess.run(["git", "init", "-q", str(root)], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.name", "Fixture"], check=True)
@@ -40,7 +40,12 @@ def git_fixture(root, oversized=False):
     parent = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
     (root / "app.txt").write_text("UTF-8 Δ\nterminal newline retained\n" + (("x" * (3 * 1024 * 1024)) if oversized else ""))
     (root / "binary.dat").write_bytes(b"\x00\xff\x10binary\n")
-    subprocess.run(["git", "-C", str(root), "add", "app.txt", "binary.dat", "tool.sh"], check=True)
+    for index in range(many_entries):
+        path = root / "bulk" / f"file-{index:04d}.txt"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text((f"file {index:04d} Δ\n" + "x" * 30000 + "\n") * 1)
+    paths = ["app.txt", "binary.dat", "tool.sh"] + (["bulk"] if many_entries else [])
+    subprocess.run(["git", "-C", str(root), "add", *paths], check=True)
     subprocess.run(["git", "-C", str(root), "commit", "-qm", "candidate"], check=True)
     source = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
     return parent, source
@@ -281,17 +286,62 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             manifest = json.loads(output.read_text())
             self.assertEqual(manifest["status"], "blocked")
-            self.assertGreater(manifest["projection"]["largest_tree_body_bytes"], 2 * 1024 * 1024)
+            self.assertGreater(sum(row["body_bytes"] for row in manifest["tree_requests"]
+                                   if row["variant"] == "candidate"), 2 * 1024 * 1024)
             self.assertFalse(manifest["projection"]["complete_product_delta_dropped"])
             checked = subprocess.run(["python3", str(PUBLISHER), "--check-manifest", str(output)],
                                      cwd=ROOT, text=True, capture_output=True)
             self.assertEqual(checked.returncode, 0, checked.stderr)
             self.assertIn('"valid": true', checked.stdout)
 
-    def make_local_publication(self, temp, flags=None):
+    def test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-publication-packed-") as temp:
+            temp_path = pathlib.Path(temp)
+            repo = temp_path / "repo"
+            parent, source = git_fixture(repo, many_entries=120)
+            output = temp_path / "proposal.json"
+            result = subprocess.run(["python3", str(PUBLISHER), "--prepare", "--candidate-source",
+                                     source, "--server-parent", parent, "--repo-root", str(repo),
+                                     "--output", str(output)], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            manifest = json.loads(output.read_text())
+            self.assertEqual(manifest["status"], "ready-local-proposal")
+            candidate = [row for row in manifest["tree_requests"] if row["name"].startswith("candidate")]
+            self.assertGreater(len(candidate), 1)
+            self.assertTrue(all(row["body_bytes"] <= 2 * 1024 * 1024 for row in manifest["tree_requests"]))
+            self.assertEqual(candidate[0]["base_tree_sha"], manifest["parent_tree_sha"])
+            self.assertTrue(all(candidate[i]["base_tree_sha"] == candidate[i - 1]["tree_sha"]
+                                for i in range(1, len(candidate))))
+            self.assertEqual(candidate[-1]["tree_sha"], manifest["candidate_tree_sha"])
+            self.assertEqual(manifest["projection"]["projected_total_requests"],
+                             1 + 12 + len(manifest["tree_requests"]) + manifest["projection"]["binary_blob_requests"])
+            checked = subprocess.run(["python3", str(PUBLISHER), "--check-manifest", str(output)],
+                                     cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(checked.returncode, 0, checked.stderr)
+
+    def test_manifest_rejects_broken_tree_base_chain_and_over_budget_chain(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-publication-chain-negative-") as temp:
+            temp_path = pathlib.Path(temp)
+            repo = temp_path / "repo"
+            parent, source = git_fixture(repo, many_entries=120)
+            output = temp_path / "proposal.json"
+            prepared = subprocess.run(["python3", str(PUBLISHER), "--prepare", "--candidate-source",
+                                       source, "--server-parent", parent, "--repo-root", str(repo),
+                                       "--output", str(output)], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(prepared.returncode, 0, prepared.stderr)
+            manifest = json.loads(output.read_text())
+            candidate = [row for row in manifest["tree_requests"] if row["name"].startswith("candidate")]
+            candidate[1]["base_tree_sha"] = "f" * 40
+            output.write_text(json.dumps(manifest))
+            rejected = subprocess.run(["python3", str(PUBLISHER), "--check-manifest", str(output)],
+                                      cwd=ROOT, text=True, capture_output=True)
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("tree chain", rejected.stderr)
+
+    def make_local_publication(self, temp, flags=None, many_entries=0):
         temp_path = pathlib.Path(temp)
         repo = temp_path / "repo"
-        parent, source = git_fixture(repo)
+        parent, source = git_fixture(repo, many_entries=many_entries)
         manifest_path = temp_path / "manifest.json"
         prepared = subprocess.run(["python3", str(PUBLISHER), "--prepare", "--candidate-source", source,
                                    "--server-parent", parent, "--repo-root", str(repo), "--output", str(manifest_path)],
@@ -403,6 +453,46 @@ class PublicationTests(unittest.TestCase):
             rejected = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt_path)],
                                       cwd=ROOT, text=True, capture_output=True)
             self.assertNotEqual(rejected.returncode, 0, "receipt verifier accepted a missing candidate ref readback")
+
+    def test_actual_transport_publishes_full_multifile_delta_through_bounded_tree_chain(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-object-publication-packed-") as temp:
+            repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.make_local_publication(
+                temp, many_entries=120)
+            self.assertGreater(sum(row["body_bytes"] for row in manifest["tree_requests"]
+                                   if row["variant"] == "candidate"), 2 * 1024 * 1024)
+            self.assertTrue(all(row["body_bytes"] <= 2 * 1024 * 1024 for row in manifest["tree_requests"]))
+            receipt_path = root / "publication-receipt.json"
+            result = subprocess.run(["python3", str(PUBLISHER), "--publish", "--manifest", str(manifest_path),
+                                     "--allocation", str(allocation), "--ledger", str(ledger_path),
+                                     "--receipt", str(receipt_path), "--repo-root", str(repo)],
+                                    cwd=ROOT, text=True, capture_output=True, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stderr + json.dumps(server.journal))
+            ledger = json.loads(ledger_path.read_text())
+            receipt = json.loads(receipt_path.read_text())
+            self.assertEqual(len(ledger["transactions"]), len(server.journal))
+            self.assertEqual(receipt["request_count"], len(server.journal))
+            self.assertLessEqual(receipt["request_count"], 24)
+            self.assertEqual([row["request_body_bytes"] for row in server.journal],
+                             [row["request_body_bytes"] or 0 for row in ledger["transactions"]])
+            self.assertTrue(all(row["charged"] for row in server.journal))
+            tree_posts = [row for row in server.journal if row["path"].endswith("/trees") and row["method"] == "POST"]
+            self.assertEqual(len(tree_posts), len(manifest["tree_requests"]))
+            self.assertTrue(all(row["request_body_bytes"] <= 2 * 1024 * 1024 for row in tree_posts))
+            first_ref_index = next(i for i, row in enumerate(server.journal) if row["path"].endswith("/refs"))
+            last_tree_index = max(i for i, row in enumerate(server.journal)
+                                  if row["path"].endswith("/trees") and row["method"] == "POST")
+            self.assertLess(last_tree_index, first_ref_index)
+            last_commit_index = max(i for i, row in enumerate(server.journal)
+                                    if "/commits/" in row["path"] or row["path"].endswith("/commits"))
+            self.assertLess(last_commit_index, first_ref_index)
+            local_entries = parse_local_tree(repo, manifest["candidate_helper_commit"])
+            self.assertEqual(server.tree_entries[manifest["candidate_tree_sha"]], local_entries)
+            for entry in local_entries.values():
+                if entry["type"] == "blob":
+                    self.assertEqual(base64.b64decode(server.blobs[entry["sha"]]["content"]),
+                                     subprocess.check_output(["git", "-C", str(repo), "cat-file", "blob", entry["sha"]]))
+            self.assertEqual(server.refs["gsd/253-replan-candidate"], manifest["candidate_helper_commit"])
+            self.assertEqual(server.refs["gsd/253-replan-fixture"], manifest["fixture_workflow_commit"])
 
     def test_exact_existing_ref_is_reused_only_with_matching_manifest_and_window_receipt(self):
         with tempfile.TemporaryDirectory(prefix="sigra-object-matching-ref-") as temp:
