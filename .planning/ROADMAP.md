@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:9/25 complete;15/18/19 complete;16/20ready;historicalfailedplans preserved;phaseverificationnot_started
+**Plans**:9/25 complete;15/18/19complete;16halted;20ready;phaseverificationnot_started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -129,7 +129,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 | 8 | 25 | Accepted-only historical-plan disposition and phase-verification route |
 
 - [x] 253-15-PLAN.md — Remaining native registration diagnostics
-- [ ] 253-16-PLAN.md — Real readiness/state/trace controls
+- [ ] 253-16-PLAN.md — halted: firstdarkcommand timedout,slotspent; Real readiness/state/trace controls
 - [ ] 253-17-PLAN.md — Cause assessment, scoped repair and fresh repeats
 - [x] 253-18-PLAN.md — Measured actual HTTP transport
 - [x] 253-19-PLAN.md — Independent source and transport verifier

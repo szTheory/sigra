@@ -33,7 +33,7 @@ phase253_wave_count: 8
 phase253_task_count: 54
 phase253_implementation_status: partial
 phase253_completed_plans: 9
-phase253_halted_plans: [253-02, 253-07, 253-09, 253-12]
+phase253_halted_plans: [253-02, 253-07, 253-09, 253-12, 253-16]
 phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
 
 phase253_recovery_plan_count: 6
@@ -56,7 +56,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 253 — incomplete
-Plans: 9/25 complete;15/18/19 complete;16 and20 ready; original failed plans preserved
+Plans: 9/25 complete;15/18/19 complete;16 halted;20 ready; original failed plans preserved
 Status: Executing additional recovery plans; both requirements remain open
 Last activity: 2026-10-13 — 11 new plans,24 tasks,8 waves; independent review passed
 Progress: 15/31 planned milestone plans complete(48%); full Phase253 verification not started
@@ -169,3 +169,7 @@ Plan18 completed:14 local HTTPS tests and hermetic canary contract passed;0GitHu
 ## Additional execution current route
 
 15/18/19 complete;9/25 actualimplementationplans complete. Userapproved original-logsanitization, committed25286d5d4;no pendingapproval. Fresh26Node/fiveShelltests andbothsavedregistrationreceiptsverified. Totalnativecharge121680ms across3launches,soleinfrastructure retryspent. Plan19:24verifier and15transporttests passed;0GitHubrequests.16/20ready,next16nativecontrols. Priorfailedsummaryrecoverableat25286d5d4;alloldfailure/freezes retained. Progressrecord253-ADDITIONAL-EXECUTION-PROGRESS-02.json. Next:$gsd-execute-phase 253 --gaps-only. Phaseverificationnot_started;requirementsopen.
+
+## Native control halt and independent work
+
+Plan16 halted after the firstdarkcombined command:121252ms exceeds120000ms;no native report,originaldrop timedout. OwnedtemporaryDBnowconfirmedabsent,separate112mscleanup,total243044ms across4browserlaunches;sharedretryspent.32localrunner/prohibitiontests pass;nativecontrolgate rejects. Remainingfivecontrol/nineacceptancecommandsunrun;nohumanapprovalcanreplaceproof.20independentready,next:$gsd-execute-phase 253 --gaps-only tofinishit. After20,next:$gsd-plan-phase 253 fornativecontrolfailure/recoveryplanning;nonewwindowauthorized. Progress:253-ADDITIONAL-EXECUTION-PROGRESS-03.json. Phaseverificationnot_started,requirementsopen.

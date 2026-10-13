@@ -26,10 +26,10 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 253 --gaps-only",
-    "label": "Execute native registration controls",
-    "reason": "15/18/19complete;16ready;logcleanupapprovedandcomplete"
+    "label": "Finish independent publication contracts",
+    "reason": "16nativecontrols halted;20ready;subsequentnativeworkneedsplanning"
   },
-  "updated_at": "2026-10-13T21:50:05.448514+00:00",
+  "updated_at": "2026-10-13T22:16:48.279003+00:00",
   "phase253_execution": {
     "status": "partial_ready_for_recovery",
     "implementation_status": "partial",
@@ -956,11 +956,10 @@
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "resume_command": "$gsd-execute-phase 253 --gaps-only",
   "phase253_additional_execution": {
-    "status": "ready_for_native_controls",
+    "status": "native_controls_halted_independent_publication_ready",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
-    "next_plan": "253-16",
+    "next_plan": "253-20",
     "ready_plans": [
-      "253-16",
       "253-20"
     ],
     "capture_head": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
@@ -973,7 +972,9 @@
       "253-18",
       "253-19"
     ],
-    "halted_plans": [],
+    "halted_plans": [
+      "253-16"
+    ],
     "registration": {
       "native_passes": [
         "admin-eval",
@@ -1008,7 +1009,7 @@
       "no_additional_native_commands": true
     },
     "pending_permission": null,
-    "progress_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-PROGRESS-02.json",
+    "progress_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-PROGRESS-03.json",
     "cleanup": {
       "user_approval": "Sanitize the original logs (recommended)",
       "status": "complete",
@@ -1016,6 +1017,28 @@
       "receipt": "253-15-APPROVED-LOG-SANITIZATION.json",
       "existing_commits_unchanged": true,
       "auto_review_plaintext_preservation_was_not_retried": true
+    },
+    "control_halt": {
+      "attempt_ms": 121252,
+      "per_command_limit_ms": 120000,
+      "over_limit_ms": 1252,
+      "cumulative_native_ms": 242932,
+      "post_halt_cleanup_ms": 112,
+      "cumulative_charge_including_cleanup_ms": 243044,
+      "physical_browser_launches": 4,
+      "shared_retry_remaining": 0,
+      "regular_control_slots_unexecuted": 5,
+      "acceptance_slots_unexecuted": 9,
+      "native_report_absent": true,
+      "original_cleanup_failed": true,
+      "owned_database_now_absent": true,
+      "native_gate_exit": 3,
+      "local_runner_and_prohibition_tests": 32,
+      "local_test_initial_parent_rerun": "Source-integrity guard rejected dirty cleanup record; corrected after exact commit, then32tests passed",
+      "native_record": "253-16-CONTROL-EVIDENCE.json",
+      "cleanup_record": "253-16-POST-HALT-CLEANUP.json",
+      "no_missing_proof_approval": true,
+      "no_new_window_authorized": true
     }
   }
 }
