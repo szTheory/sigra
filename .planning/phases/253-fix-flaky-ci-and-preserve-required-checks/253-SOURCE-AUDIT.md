@@ -58,6 +58,18 @@ Deferred Phase 254 optimization, Phase 255 broad runbook/comparison, public auth
 - Assumption-delta detector returned detected:false. No schema-relevant ORM paths were found. Graphify is disabled in project configuration.
 - No new dependency is selected. Plan 02 restores packages already pinned by the existing Playwright lockfile. The package legitimacy gate is resolved by the exact-version audit in 253-RESEARCH.md and 253-PACKAGE-AUDIT.json: all eleven audited locked packages returned OK; exact registry integrity matched the lockfile, and no audited postinstall was present. The unversioned latest-release SUS result and version-aware correction remain recorded. No install occurred during planning.
 
+## Research-resolution disposition
+
+The three research issues have resolved **planning treatments**, recorded in 253-RESEARCH.md under “Resolved Research Dispositions; Runtime Facts Pending.” This resolves the research-resolution planning gate without claiming that execution has found the answers. The source audit still marks coverage, not acceptance.
+
+| Missing runtime fact | Chosen owner and frozen probe | Negative or missing-proof outcome |
+|---|---|---|
+| Cause of the current registration failure | 253-01 task 2 uses the saved archive, with additional diagnostics capped at 60 requests/15 minutes. 253-02 tasks 1–3 freeze exact source/projects/order and run pinned browser/server, readiness/state and negative controls within D-19's ten invocations/20 minutes per signature and 60 minutes total. | Unproved, outside-boundary, non-reproduced or exhausted diagnosis stays `not_reproduced`/`diagnosis_incomplete`; 253-08 task 2 keeps CIREL-01 open under D-24. |
+| Actual hosted browser/example-app versions | 253-02 task 1 restores lockfile Playwright 1.59.1 and records command-observed versions and host/source identity before reproduction; 253-08 task 1 binds the normal PR evidence to actual checkout/workflow identity within its separate 120-request/60-minute limit. | Unavailable or mismatched host/source version makes that run unusable as comparable CIREL-01 proof. Archived hosted versions remain unknown unless retained evidence can establish them. |
+| Record/report survival and correct origin on dispatch and PR | 253-05/06 local contracts precede 253-07's six-scenario fixture plus independent verifier (45 jobs/60 minutes/120 requests); 253-08 task 1 separately proves a normal PR family within 120 requests/60 minutes. | Missing, empty, incomplete or wrong-origin native proof, unavailable run or exceeded budget leaves CIREL-02 open in 253-08 task 2. Fixture dispatch never stands in for production PR proof. |
+
+No application reproduction, hosted canary, production PR run or phase acceptance is asserted by this disposition. Actual runtime findings and any requirement gap remain execution outputs.
+
 ## Dependency and file-ownership graph
 
 | Wave | Plans | Output or dependency |

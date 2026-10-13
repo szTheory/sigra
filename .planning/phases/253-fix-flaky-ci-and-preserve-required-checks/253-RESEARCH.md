@@ -427,20 +427,13 @@ No application tests, GitHub API calls, CI dispatches or package installations w
 | A3 | A standard-library validator can consume required record/report data. | Standard Stack | Keep scope narrow and validate exact inputs. |
 | A4 | Lockfile Playwright 1.59.1 is intended for reproduction. | Standard Stack | Archived browser image/tool identity may differ; record both. |
 
-## Open Questions
+## Resolved Research Dispositions; Runtime Facts Pending
 
-1. **What causes the current admin registration failure?**
-   - What we know: retained runs identify registration failures; current helper is unchanged; source history identifies browser/platform leads.
-   - What's unclear: readiness, transport, state/order or harness cause on exact current source.
-   - Recommendation: early bounded reproduction with pinned tools, frozen selection, signal-driven controls and scoped trace. This does not block planning.
-2. **What are the actual hosted browser and example-app dependency versions?**
-   - What we know: lockfiles pin Playwright and example Mix dependencies; local ignored Playwright differs.
-   - What's unclear: archived hosted browser image and exact host runtime versions.
-   - Recommendation: capture at D-11 preflight; do not substitute root lock values.
-3. **Will the proposed records and reports survive dispatch and pull_request runs with correct identity?**
-   - What we know: current workflow has per-seam jobs and artifact actions; local source reveals a manifest mismatch.
-   - What's unclear: hosted artifact/job terminal behavior for proposed scenarios.
-   - Recommendation: local contracts, then D-21/D-22 fixture canary within its budget, followed by separate D-23 production PR proof.
+The research decisions below resolve how planning handles each missing fact. They do not resolve the underlying runtime facts, establish a fix, or satisfy CIREL-01 or CIREL-02. Execution must retain the original failures and mark missing proof as a requirement gap rather than infer a pass.
+
+1. **Current admin registration cause — planning decision resolved; cause unknown.** Retained runs identify registration failures and the unchanged helper, but do not distinguish readiness, transport, state/order or harness as the cause. Plan 253-02 tasks 1–3 own a frozen, pinned, real-browser/server reproduction across desktop Chromium, WebKit/mobile and dark Chromium, with isolated and preceding-order attempts, signal/state controls, scoped first-failure traces and a broken-wait negative control (D-03/D-04/D-08–D-11). Plan 253-01 task 2 first uses the saved archive, with any additional selected diagnostics capped at 60 HTTP requests or 15 minutes; D-19 caps reproduction at ten targeted invocations or twenty minutes per signature and sixty minutes total. A demonstrated in-boundary defect permits only a targeted fix followed by D-20 fresh repeats; an external cause, non-reproduction, incomplete diagnosis or exhausted budget leaves CIREL-01 open as `not_reproduced` or `diagnosis_incomplete` in Plan 253-02 task 3 and Plan 253-08 task 2, per D-24. No registration fix or no-flake conclusion is claimed here.
+2. **Hosted browser and example-app dependency versions — planning decision resolved; observed host versions unknown.** The example lockfiles specify Playwright 1.59.1, Ecto SQL 3.13.5 and LiveView 1.1.28; ignored local Playwright is 1.62.1. Those facts do not identify the archived hosted browser image or prove versions in any new host. Plan 253-02 task 1 owns the D-11 preflight: assert checkout/source identity, restore the existing Playwright lockfile installation in the execution checkout, and record command-observed Playwright/Ecto/LiveView versions for each host before relying on reproduction. Plan 253-08 task 1 separately binds normal PR evidence to the actual tested checkout and workflow revision under D-23's frozen limit of at most 120 requests/60 minutes. If a host version or source identity cannot be established, stop using that run as comparable proof and record the missing input; do not substitute root-lock values or treat the missing version as a pass for CIREL-01.
+3. **Hosted record/report survival and identity — planning decision resolved; hosted behavior unknown.** Local source shows five per-seam jobs and artifact actions, but cannot prove that proposed records and complete native reports survive a real dispatch or `pull_request` run. Plans 253-05/06 own local exact-five, report-completeness and origin-negative contracts. Plan 253-07 tasks 1–2 own D-21/D-22's sealed dispatch fixture and independent job/step/artifact verification for six scenarios, limited to 45 lightweight jobs, 60 minutes and 120 GitHub requests including the separate verifier and any allowed infrastructure rerun. Plan 253-08 task 1 owns one normal production PR family, with at most one diagnosed infrastructure rerun and its separate frozen limit of at most 120 requests/60 minutes (D-23). Dispatch evidence cannot establish real PR classification or required-check success. A missing, empty, incomplete or mismatched record/report, failed independent origin check, unavailable hosted run or exhausted budget remains missing CIREL-02 proof in Plan 253-08 task 2; no canary or production outcome is claimed here.
 
 ## Sources
 
