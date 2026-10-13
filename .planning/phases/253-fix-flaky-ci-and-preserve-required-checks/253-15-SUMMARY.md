@@ -1,6 +1,7 @@
 ---
 phase: 253-fix-flaky-ci-and-preserve-required-checks
 plan: '15'
+status: halted
 subsystem: registration-reliability
 tags: [registration, playwright, budget, native-evidence]
 dependency-graph:
