@@ -1,4 +1,5 @@
 ---
+status: halted
 phase: 253
 plan: 09
 subsystem: testing
@@ -53,7 +54,7 @@ coverage:
       - kind: integration
         ref: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json
         status: fail
-    human_judgment: true
+    human_judgment: false
     rationale: Mix setup failed before the application and browser started, so there is no registration result to assess.
 ---
 
@@ -133,3 +134,7 @@ Plan 09 is halted and its browser acceptance criteria are unmet. Before attempti
 - This summary file exists at the planned phase path.
 - All 16 listed task/evidence commits are ancestors of the current branch head.
 - The committed freeze and redacted terminal diagnostic paths exist.
+
+## Root reconciliation
+
+The prior exact summary bytes remain recoverable at a6f7650c42a25c069efbad6662506e82259da2cc. The halt is now a top-level status so GSD blocks Plans 10, 13, and 14. The metadata-only canonical ledger was inspected for key values and raw log text and committed at a6f7650c42a25c069efbad6662506e82259da2cc without redacting or changing its bytes. Its stale log hashes remain disclosed; this preservation does not repair native verification or grant another launch. See 253-09-METADATA-PRESERVATION-CHECK.json. The rejected credential-bearing snapshot was not committed.
