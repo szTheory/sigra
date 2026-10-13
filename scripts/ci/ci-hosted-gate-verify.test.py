@@ -403,6 +403,42 @@ class V2VerifierContractTests(unittest.TestCase):
                 with self.assertRaises(self.module.VerificationError):
                     self.module.verify_transport_v2(broken)
 
+    def test_dispatch_metrics_are_bound_to_exact_transmitted_request_bytes(self):
+        evidence = self.transport_fixture()
+        inputs = {"scenario": "full-pass", "candidate_sha": "a" * 40}
+        encoded = self.module.serialize_dispatch_inputs(inputs)
+        request_body = b'{"ref":"fixture","inputs":' + encoded + b'}'
+        transaction = evidence["transport_ledger"]["transactions"][0]
+        transaction.update(method="POST", route_id="dispatch", dispatch_inputs=inputs,
+            request_body_base64=base64.b64encode(request_body).decode(),
+            request_sha256=__import__("hashlib").sha256(request_body).hexdigest(),
+            input_key_count=len(inputs), input_unicode_scalars=len(encoded.decode()),
+            input_utf8_bytes=len(encoded), input_sha256=__import__("hashlib").sha256(encoded).hexdigest())
+        for record in (evidence["transport_receipts"][0], evidence["server_journal"][0]):
+            record.update(transaction)
+        evidence["transport_ledger"]["transactions"][1].update(sequence=2)
+        evidence["transport_receipts"][1].update(sequence=2)
+        evidence["server_journal"][1].update(sequence=2)
+        evidence["transport_ledger"]["transactions"][2].update(sequence=3)
+        evidence["transport_receipts"][2].update(sequence=3)
+        evidence["server_journal"][2].update(sequence=3)
+        evidence["budget"]["request_count"] = 3
+        broken = copy.deepcopy(evidence)
+        broken["transport_ledger"]["transactions"][0]["request_sha256"] = "0" * 64
+        broken["transport_receipts"][0]["request_sha256"] = "0" * 64
+        broken["server_journal"][0]["request_sha256"] = "0" * 64
+        with self.assertRaises(self.module.VerificationError):
+            self.module.verify_transport_v2(broken)
+
+    def test_rejects_zip_local_header_that_disagrees_with_central_metadata(self):
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+            bundle.writestr("canary-result.json", b'{"ok":true}')
+        payload = bytearray(archive.getvalue())
+        payload[14] ^= 0x01  # Local-header CRC; the central directory remains intact.
+        with self.assertRaises(self.module.VerificationError):
+            self.module.validate_single_result_zip(bytes(payload))
+
     def test_fresh_rules_require_complete_exact_five_native_sources(self):
         self.assertTrue(callable(getattr(self.module, "verify_effective_checks", None)),
                         "planned rules verifier must reconcile complete effective checks")
