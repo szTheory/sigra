@@ -5,7 +5,7 @@ The six new plans add bounded work to the original eight; they do not rewrite th
 | Source | ID | Required outcome or constraint | Covered by | Status |
 |---|---|---|---|---|
 | GOAL | Phase 253 | Selected current flake reproduced/fixed and real failures keep required checks red | 01, 03–06; recovery 09–14 | COVERED; pending execution |
-| GOAL | criterion 1 | Cause-backed reproduction, regression and repeat under fixed budget; honest no-flake only with adequate diagnostics | 01, recovery 09–10, 14 | COVERED |
+| GOAL | criterion 1 | Cause-backed reproduction, regression and repeat under one predeclared cumulative ledger; honest no-flake only with adequate diagnostics | 01, recovery 09–10, 14 | COVERED |
 | GOAL | criterion 2 | Zero retry, signal readiness, real app/database isolation | 02 halted; recovery 09–10 | COVERED |
 | GOAL | criterion 3 | Required names and useful owners remain, no check removal | 03–06; recovery 11–13 | COVERED |
 | GOAL | criterion 4 | Failure/cancellation/missing/skip cannot make gate green | 03–06; recovery 11–13 | COVERED |
@@ -39,12 +39,14 @@ The six new plans add bounded work to the original eight; they do not rewrite th
 | CONTEXT | D-16 | Real PR successful classifier true; body skips and manifest parity | 04, 07 local repair; 12 synthetic and 13 real PR | COVERED |
 | CONTEXT | D-17 | Preserve native exits/cancellation and negative fixtures | 03–06; 11–13 | COVERED |
 | CONTEXT | D-18 | Independently check job/step/artifact origin and digest | 11–14 | COVERED |
-| CONTEXT | D-19 | Predeclared signatures, diagnosis and reproduction ceilings | 09–10 | COVERED |
-| CONTEXT | D-20 | Three fresh affected-project repeats, five seam selections once | 10; 13 reuses equivalent PR coverage | COVERED |
+| CONTEXT | D-19 | One pre-browser ledger reserves three diagnostics, six controls and one flexible diagnosed retry; reproduction stays at or below ten launches and twenty charged minutes for the registration signature | 09–10 | COVERED |
+| CONTEXT | D-20 | Same ledger separately reserves up to nine fresh affected-project passes plus the one flexible retry if needed there; five frozen seam selections run once in the normal PR and are checked at completion | 09–10, 13–14 | COVERED |
 | CONTEXT | D-21 | Sealed registered-path dispatch fixture and candidate helper source | 11–12 | COVERED |
 | CONTEXT | D-22 | Six real canary scenarios, separate verifier and fixed ceiling | 11–12 | COVERED |
 | CONTEXT | D-23 | Normal production PR and real docs-only PR within separate frozen budget | 13 | COVERED |
 | CONTEXT | D-24 | Honest acceptance, single watcher, rate hard stop, no false no-flake | 09–14 | COVERED |
+
+The Plan 09 freeze now allocates all Plan 09–10 native registration work before its first browser action: 3 initial project diagnostics + 6 project/round control bundles = 9 D-19 launches at up to 2 minutes each (18 minutes). One independently diagnosed retry is reserved across both stages: if used in reproduction, D-19 reaches 10 launches/20 minutes; if used in post-fix acceptance, D-19 remains 9/18 and D-20 reaches 10 launches/40 minutes. D-20 separately authorizes 3 fresh post-fix passes per affected project; the same freeze reserves the three-project worst case of 9 fresh passes at up to 4 minutes each (36 minutes), plus that single retry only if it was not used earlier. One non-resetting ledger thus caps either branch at 19 total launches and at most 58 charged minutes, below the 60-minute total with at least 2 minutes unallocated; setup/browser/cleanup and failed attempts debit their slots. The post-diagnosis acceptance freeze binds source and affected-project subset only and cannot add capacity. A needed run that cannot fit stops with CIREL-01 open. Plan 10 verifies the target controls/repeats, Plan 13 supplies the preselected five native seam runs through the ordinary production PR, and Plan 14 joins both receipts for final CIREL-01 acceptance; Plan 10 cannot claim that final integration early.
 
 `CONTEXT.md` deferred ideas remain excluded: product/public API changes, UI redesign, generator changes, release or rules changes, broad upgrades, paid runners, Phase 254 optimization and Phase 255 reporting. The original requirement statuses remain open until real evidence passes. The API-coverage detector returned `detected:false` for the phase section plus all 14 plan bodies; these plans extend existing GitHub CI calls rather than introducing a new external API integration. Assumption-delta returned `detected:false`; no schema-relevant file pattern is planned. The project uses ASVS level 1 with high severity blocking; all six new plans include unique phase-wide threat IDs 17–28 and the reserved supply-chain row.
 
