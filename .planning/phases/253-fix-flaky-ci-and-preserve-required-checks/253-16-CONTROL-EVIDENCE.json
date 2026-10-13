@@ -1,6 +1,6 @@
 {
   "schema_version": "sigra.phase253.registration-control-evidence/v1",
-  "status": "running",
+  "status": "halted",
   "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json",
   "freeze_sha256": "db74f2f2b8dc9df71e67fddc7049024fb03b693478573c3e204020068b898a82",
   "source": {
@@ -51,7 +51,115 @@
     }
   ],
   "created_at": "2026-10-13T22:03:44.756Z",
-  "attempts": [],
+  "attempts": [
+    {
+      "slot_id": "R-DIAG-CONTROL-DARK",
+      "sequence": 1,
+      "stage": "first",
+      "project": "admin-eval-dark",
+      "argv": [
+        "--project=admin-eval-dark",
+        "--grep=(render bundle: board-mg-9/populated|registration waits for explicitly released LiveView readiness|registration stops when LiveView readiness is never released|registration fails when the readiness wait is deliberately broken|registration detects a deliberate same-account collision|registration retains the first forced assertion failure trace)",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure"
+      ],
+      "source_commit": "35b49354050660a0f808291e2422de108834ef87",
+      "source_blobs": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "9a97675dab6fd8f2d7037101eb3203b668f06de8",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "a9c9ff153634284c97a4428f8984015c91bccfbe",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      },
+      "started_monotonic_ns": "269363704920791",
+      "database": {
+        "name": "sigra_253_control_admin_eval_dark_mv78a7kk_28426",
+        "setup_exit_code": 0,
+        "drop_exit_code": null
+      },
+      "server": {
+        "port": 25313,
+        "http_status": 200,
+        "app_pid": 33119
+      },
+      "browser": {
+        "launched": true,
+        "exit_code": null
+      },
+      "observed_outcome": "halted",
+      "files": {
+        "setup_log": {
+          "path": "R-DIAG-CONTROL-DARK/attempt-01/setup-log.log",
+          "sha256": "aaddfa49dd1f202f0352a01112b01580fec9c9a32d73424a631ff881c95d9ec0",
+          "bytes": 134197
+        },
+        "app_log": {
+          "path": "R-DIAG-CONTROL-DARK/attempt-01/app-log.log",
+          "sha256": "07aee911372bd0db86b2f48f5f5d42ca3292b2ac75f8f77f5f473639839653fd",
+          "bytes": 21876
+        },
+        "test_log": {
+          "path": "R-DIAG-CONTROL-DARK/attempt-01/test-log.log",
+          "sha256": "73fb55013698da5c0566b0cc062e6beef45919a7c44aea74318dee189ffd0f05",
+          "bytes": 2409
+        },
+        "drop_log": {
+          "path": "R-DIAG-CONTROL-DARK/attempt-01/drop-log.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "traces": [],
+      "trace_assertion": [],
+      "transport_observations": [],
+      "registration": {
+        "server_post_confirmed": false
+      },
+      "toolchain": {
+        "playwright": "1.59.1",
+        "ecto_sql": "3.13.5",
+        "phoenix_live_view": "1.1.28"
+      },
+      "log_redactions": {
+        "setup_log": {
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "redacted_secret_fields": 0,
+          "redacted_credential_blocks": 1
+        },
+        "test_log": {
+          "exit_code": null,
+          "signal": "SIGKILL",
+          "error": "spawnSync /Users/jon/projects/sigra/test/example/priv/playwright/node_modules/.bin/playwright ETIMEDOUT",
+          "redacted_secret_fields": 0,
+          "redacted_credential_blocks": 0
+        },
+        "app_log": {
+          "redacted_secret_fields": 0,
+          "redacted_credential_blocks": 0
+        },
+        "drop_log": {
+          "exit_code": null,
+          "signal": "SIGKILL",
+          "error": "spawnSync mix ETIMEDOUT",
+          "redacted_secret_fields": 0,
+          "redacted_credential_blocks": 0
+        }
+      },
+      "build_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-registration-control-Cx1Guq/mix-build",
+      "build_directory_removed": true,
+      "ended_monotonic_ns": "269484956467916",
+      "execution_duration_ms": 121252,
+      "charged_duration_ms": 121252,
+      "terminal_diagnostic": "native Playwright JSON report is absent or empty; database drop failed with exit null"
+    }
+  ],
   "reservation": null,
   "pending_repair_regression": {
     "title": "registration regression passes after an evidenced repair",
@@ -59,13 +167,14 @@
   },
   "limits": {
     "prior_charge_ms": 121680,
-    "charged_duration_ms": 121680,
+    "charged_duration_ms": 242932,
     "reserved_ms": 0,
-    "physical_browser_launches": 3,
+    "physical_browser_launches": 4,
     "used_slots": [
       "R-DIAG-DESKTOP",
       "R-INFRA-RETRY-DESKTOP",
-      "R-DIAG-MOBILE"
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK"
     ],
     "max_physical_browser_launches": 18,
     "max_total_charged_ms": 3480000,
@@ -74,5 +183,6 @@
     "d20_reserved_slots": 9,
     "retry_count_used": 1,
     "retry_count_available": 0
-  }
+  },
+  "stop_reason": "native Playwright JSON report is absent or empty; database drop failed with exit null; native control exceeded its 120,000 ms command reservation; fresh database setup or drop did not succeed; native Playwright launch or CLI exit is missing; setup_log contains an unsanitized credential block or auth header; sanitized native drop log is empty; sanitized native playwright report is missing; native report must contain exactly one selected result for render bundle: board-mg-9/populated; native report must contain exactly one selected result for registration waits for explicitly released LiveView readiness; native report must contain exactly one selected result for registration stops when LiveView readiness is never released; native report must contain exactly one selected result for registration fails when the readiness wait is deliberately broken; native report must contain exactly one selected result for registration detects a deliberate same-account collision; native report must contain exactly one selected result for registration retains the first forced assertion failure trace; Playwright CLI exit does not match the frozen intended control failures; native command exceeded its frozen 120,000 ms slot"
 }
