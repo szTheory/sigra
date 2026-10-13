@@ -32,6 +32,11 @@ const ci = stripYamlComments(readRepoFile('.github/workflows/ci.yml'));
 const blocks = jobBlocks(ci);
 const NON_PR = /github\.event_name != 'pull_request'/;
 
+test('the terminal browser aggregate is absent from the docs-only body inventory', () => {
+  assert.equal(rows.filter((row) => row.id === 'example_playwright_smoke').length, 0,
+    'the unconditional terminal aggregate is not a docs-only browser body');
+});
+
 /**
  * Locate a STEP's own `if:` expression by its `id:` line, scoped to the text
  * before the next step boundary (` {6}- name:`) or the end of the block.
