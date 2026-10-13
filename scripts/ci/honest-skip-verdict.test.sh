@@ -63,7 +63,8 @@ script, workflow = sys.argv[1:]
 lanes = 'install_golden_contract library_tests library_tests_dep_off example_unit_smoke install_smoke upgrade_smoke example_unit_smoke example_http_smoke example_playwright_smoke generated_admin_playwright_smoke fast_checks'.split()
 class UnitOwner(unittest.TestCase):
     def invoke(self, unit, path=workflow):
-        args = ['bash', script, '--workflow', path, '--event', 'pull_request', '--docs-only', 'true', '--format', 'json']
+        args = ['bash', script, '--workflow', path, '--event', 'pull_request', '--docs-only', 'true',
+                '--classifier-result', 'success', '--format', 'json']
         for lane in lanes: args += ['--lane', lane+'='+ (unit if lane == 'example_unit_smoke' else 'success')]
         return subprocess.run(args, text=True, capture_output=True)
 
@@ -98,6 +99,26 @@ class UnitOwner(unittest.TestCase):
             if lane != 'example_unit_smoke': omitted_args += ['--lane', lane+'=success']
         omitted = subprocess.run(omitted_args, text=True, capture_output=True)
         self.assertNotEqual(omitted.returncode, 0)
+
+    def test_classifier_failure_cannot_authorize_docs_only_skips(self):
+        args = ['bash', script, '--workflow', workflow, '--event', 'pull_request', '--docs-only', 'true',
+                '--classifier-result', 'failure', '--format', 'json']
+        for lane in lanes: args += ['--lane', lane+'=success']
+        result = subprocess.run(args, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        verdict = json.loads(result.stdout)
+        self.assertEqual(verdict['verdict'], 'FAIL')
+        self.assertEqual(verdict['docs_only'], 'false')
+
+    def test_classifier_success_keeps_docs_only_pull_request_eligible(self):
+        args = ['bash', script, '--workflow', workflow, '--event', 'pull_request', '--docs-only', 'true',
+                '--classifier-result', 'success', '--format', 'json']
+        for lane in lanes: args += ['--lane', lane+'=success']
+        result = subprocess.run(args, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        verdict = json.loads(result.stdout)
+        self.assertEqual(verdict['verdict'], 'PASS')
+        self.assertEqual(verdict['docs_only'], 'true')
 unittest.main(argv=[sys.argv[0]], verbosity=2)
 PY
 }
@@ -479,13 +500,14 @@ else
   LEGACY_LINE="$(grep -n '^      - name: Verify required release CI lanes$' <<<"$CI_GATE_BLOCK" | head -1 | cut -d: -f1)"
   INVOKES_SCRIPT="$(grep -c 'honest-skip-verdict\.sh' <<<"$CI_GATE_BLOCK" || true)"
   HAS_DOCS_ONLY="$(grep -c 'DOCS_ONLY:' <<<"$CI_GATE_BLOCK" || true)"
+  HAS_CLASSIFIER_RESULT="$(grep -c 'CLASSIFIER_RESULT:' <<<"$CI_GATE_BLOCK" || true)"
   HAS_EVENT_NAME="$(grep -c 'EVENT_NAME:' <<<"$CI_GATE_BLOCK" || true)"
   HAS_PROBE="$(grep -c 'FORCE_ROT_PROBE:' <<<"$CI_GATE_BLOCK" || true)"
   if [[ -n "$VERDICT_LINE" && -n "$LEGACY_LINE" && "$VERDICT_LINE" -lt "$LEGACY_LINE" \
-        && "$INVOKES_SCRIPT" -ge 1 && "$HAS_DOCS_ONLY" -ge 1 && "$HAS_EVENT_NAME" -ge 1 && "$HAS_PROBE" -ge 1 ]]; then
+        && "$INVOKES_SCRIPT" -ge 1 && "$HAS_DOCS_ONLY" -ge 1 && "$HAS_CLASSIFIER_RESULT" -ge 1 && "$HAS_EVENT_NAME" -ge 1 && "$HAS_PROBE" -ge 1 ]]; then
     pass "T: ci-gate invokes honest-skip-verdict.sh before the legacy loop, env carries docs-only/event-name/probe keys"
   else
-    fail "T: verdict_line=${VERDICT_LINE:-<missing>} legacy_line=${LEGACY_LINE:-<missing>} invokes=${INVOKES_SCRIPT:-0} docs_only=${HAS_DOCS_ONLY:-0} event_name=${HAS_EVENT_NAME:-0} probe=${HAS_PROBE:-0}"
+    fail "T: verdict_line=${VERDICT_LINE:-<missing>} legacy_line=${LEGACY_LINE:-<missing>} invokes=${INVOKES_SCRIPT:-0} docs_only=${HAS_DOCS_ONLY:-0} classifier_result=${HAS_CLASSIFIER_RESULT:-0} event_name=${HAS_EVENT_NAME:-0} probe=${HAS_PROBE:-0}"
   fi
 fi
 
