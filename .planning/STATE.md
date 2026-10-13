@@ -4,25 +4,25 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "ready_to_execute"
-stopped_at: "Phase 253 recovery planning passed; plans 09 and 11 ready first"
-last_updated: "2026-10-13T14:04:38.077234+00:00"
-last_activity: "2026-10-13"
-last_activity_desc: "Six recovery plans passed independent review and planning checks"
-state_head: "32d3646159f279014b84c7bdb02e5e118f6c2e3b"
+status: executing
+stopped_at: Phase 253 recovery planning passed; plans 09 and 11 ready first
+last_updated: "2026-10-13T14:11:13.231Z"
+last_activity: 2026-10-13
+last_activity_desc: Phase 253 execution started
+state_head: cad3eae0701e4caf4d5c77486d83e3683a6d980f
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 20
-  completed_plans: 11
-  percent: 55
+  completed_plans: 13
+  percent: 25
 milestone_status: active
-workflow_step: "execute_recovery"
+workflow_step: execute_recovery
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: $gsd-execute-phase 253 --gaps-only
+resume_command: $gsd-execute-phase 253 --gaps-only
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -35,9 +35,7 @@ phase253_implementation_status: partial
 phase253_completed_plans: 5
 phase253_halted_plans: [253-02, 253-07]
 phase253_blocked_plans: [253-08]
-
 phase253_recovery_plan_count: 6
-
 phase253_recovery_task_count: 13
 ---
 
@@ -52,11 +50,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 (Fix Flaky CI and Preserve Required Checks) — INCOMPLETE
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — EXECUTING
 Plans: 5 of 14 complete; six recovery plans ready in four waves; original 02/07 halted and 08 blocked
-Status: Recovery planning passed; execute new plans only
-Last activity: 2026-10-13 — Six plans, thirteen tasks checked; no browser or hosted work launched
-Progress: 11/20 planned milestone plans complete (55%); Phase 253 verification not started
+Status: Executing Phase 253
+Last activity: 2026-10-13 — Phase 253 execution started
+Progress: 11/20 planned milestone plans complete ([███░░░░░░░] 25%); Phase 253 verification not started
 
 ## Next GSD command
 
