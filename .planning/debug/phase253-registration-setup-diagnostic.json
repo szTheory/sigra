@@ -89,6 +89,13 @@
     }
   ],
   "source_checkout_head": "ffb25ae928057560b9ab53c7f6ff3b35463f204c",
+  "cleanup": {
+    "database_drop_exit_codes": {
+      "admin-eval": 0,
+      "admin-eval-mobile": 0,
+      "admin-eval-dark": 0
+    }
+  },
   "historical_registration_evidence_unchanged": true,
   "historical_freeze_sha256": "9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994",
   "historical_evidence_sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51"

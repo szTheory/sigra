@@ -2,7 +2,7 @@
 status: investigating
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:28:37Z
+updated: 2026-10-13T12:31:22Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,22 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: The current runner can lose setup-failure evidence because set -e exits during deps.get or ecto.setup before project evidence is written; it also lacks a setup-only entrypoint for an independently bounded diagnostic.
-test: Inspect failure paths and add a setup-only runner contract with hermetic failure and budget tests; retain the three completed live startup results without another launch.
-expecting: A failure-injected setup test should produce terminal nonzero evidence, no browser invocation, and no retry; source identity checks should happen before output mutation.
-next_action: preserve the three live app logs and implement a bounded setup-only runner entrypoint with failure-path regression coverage; do not launch another app
+hypothesis: The runner loses setup failure evidence because `set -e` aborts at failed ecto.setup before the project evidence writer; it has no setup-only entrypoint, so retrying via the frozen browser mode would consume an exhausted budget.
+test: Add a setup-only entrypoint and hermetic failure-path tests, keeping the frozen browser mode and acceptance checks unchanged.
+expecting: A failed setup command writes its exact exit code and durable log path, with zero browser invocations, no automatic retry, and terminal output status.
+next_action: implement scripts/ci/ci-registration-setup-diagnostic.mjs and wire `--diagnose-setup --output` into the runner; run only hermetic tests afterward
+reasoning_checkpoint:
+  hypothesis: A nonzero setup command exits the current runner before its evidence writer because Bash errexit is active.
+  confirming_evidence:
+    - The script begins with `set -Eeuo pipefail` and runs `mix ecto.setup` as a bare command on line 119.
+    - The project evidence JSON writer is after ecto.setup, Phoenix readiness, and Playwright; the retained attempt recorded a compile failure with zero browser invocations and no raw compiler log.
+  falsification_test: A failure-injected setup command that exits nonzero but still writes the current runner's project evidence would disprove the early-abort explanation.
+  fix_rationale: A separate setup-only path records command outcomes immediately and never reaches Playwright, preserving an exact startup diagnostic without altering the exhausted frozen run.
+  blind_spots: The historical JOSE raw compiler error is unavailable and all three current real startup probes passed; the original compile root cause remains unknown.
+  candidate_causes:
+    - code: shell errexit before evidence write and output mutation before source validation
+    - environment: an earlier compile/include failure triggered the early-exit path, but its specific cause is not retained
+  and_gate: The evidence-loss symptom requires a setup command to fail and the code to exit before recording it; the original compile cause remains unresolved.
 bug_class: Bohrbug candidate (build/config startup failure)
 candidate_causes:
   - code: runner sets MIX_BUILD_PATH independently for each project after deps.get
@@ -97,6 +109,10 @@ source: Symptoms are already established in the preceding session and committed 
   checked: Third clean-clone build, database setup, Phoenix launch, HTTP probe, and frozen evidence identities
   found: Fresh build and ecto.setup exited 0; owned PID 42696 stayed alive, bound 127.0.0.1:25313, served HTTP 200 twice, and shut down on SIGTERM. Database log SHA-256 841a1e4aa7f80949bf0c2d3c4a9ef166d6459d2d3f120076539b8dd334761f4e; app log SHA-256 42efae226887df85f9bbc67648419604e6425c65168b6f9bbd2d50b9cd3de968. Original freeze/evidence SHA-256 remain 9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994 and b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51.
   implication: All three allowed app launches reached HTTP readiness; the historical JOSE failure remains unconfirmed because its raw log was not retained. No more live launches are permitted in this diagnostic.
+- timestamp: 2026-10-13T12:31:22Z
+  checked: Runner failure paths and temporary database cleanup
+  found: `set -e` can abort at ecto.setup before project evidence is written; the setup-only mode is absent; all three temporary databases dropped successfully with exit 0.
+  implication: Repair the independently demonstrable evidence-loss path without claiming the historical JOSE root cause.
 
 ## Resolution
 
