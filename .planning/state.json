@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -11,7 +11,7 @@
     {
       "number": "253",
       "name": "Fix Flaky CI and Preserve Required Checks",
-      "status": "in_progress"
+      "status": "pending"
     },
     {
       "number": "254",
@@ -25,50 +25,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 253",
-    "label": "Plan bounded Phase 253 recovery",
-    "reason": "Startup repair verified; browser controls and hosted scenarios remain unrun, with prior run limits exhausted."
+    "command": "/gsd:progress",
+    "label": "Show progress",
+    "reason": "Unsure of state — showing progress"
   },
-  "updated_at": "2026-10-13T13:00:28.983095+00:00",
-  "phase253_execution": {
-    "status": "blocked",
-    "implementation_status": "partial",
-    "phase_verification_status": "not_started",
-    "plans": {
-      "253-01": "complete",
-      "253-02": "halted",
-      "253-03": "complete",
-      "253-04": "complete",
-      "253-05": "complete",
-      "253-06": "complete",
-      "253-07": "halted",
-      "253-08": "blocked"
-    },
-    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json"
-  },
-  "phase253_registration_startup_debug": {
-    "status": "resolved_startup_only",
-    "session": ".planning/debug/resolved/phase253-registration-setup.md",
-    "evidence": ".planning/debug/phase253-setup-final-20261013T125238Z/manifest.json",
-    "code_commits": [
-      "4ffa9dcb12a8313ae847f35cbd5c543f4e27ed54",
-      "dd5859dc5cf4b45e7b8d57ebca7e2be4b3a94f32"
-    ],
-    "cause": "An aliased macOS temporary path broke the relative JOSE include link; setup failure could exit before saving its result.",
-    "verification": {
-      "cli_exit_code": 0,
-      "duration_seconds": 76,
-      "projects": 3,
-      "http_200": 3,
-      "database_drops": 3,
-      "browser_invocations": 0,
-      "fixture_tests_passed": 5,
-      "forged_evidence_cases_passed": 6,
-      "raw_log_bindings_verified": 12
-    },
-    "historical_registration_cause": "unknown",
-    "plan02_status": "halted",
-    "phase_verification_status": "not_started",
-    "next_command": "$gsd-plan-phase 253"
-  }
+  "updated_at": "2026-10-13T14:01:32.090Z"
 }

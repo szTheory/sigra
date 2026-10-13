@@ -4,25 +4,25 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "blocked"
+status: blocked
 stopped_at: "Phase 253: five plans complete; registration and hosted proof halted; final PR proof blocked"
-last_updated: "2026-10-13T13:00:28.983095+00:00"
-last_activity: "2026-10-13"
-last_activity_desc: "Registration startup debug resolved; bounded recovery planning next"
-state_head: "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7"
+last_updated: "2026-10-13T14:01:32.078Z"
+last_activity: 2026-10-13
+last_activity_desc: Registration startup debug resolved; bounded recovery planning next
+state_head: 17f23464cafaf867a45498e423003d10f7cdf857
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 14
+  total_plans: 20
   completed_plans: 11
-  percent: 79
+  percent: 25
 milestone_status: active
-workflow_step: "plan_execution_recovery"
+workflow_step: plan_execution_recovery
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-plan-phase 253"
-resume_command: "$gsd-plan-phase 253"
+next_command: $gsd-plan-phase 253
+resume_command: $gsd-plan-phase 253
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -31,10 +31,10 @@ phase253_planning_status: passed
 phase253_plan_count: 8
 phase253_wave_count: 4
 phase253_task_count: 17
-phase253_implementation_status: "partial"
+phase253_implementation_status: partial
 phase253_completed_plans: 5
-phase253_halted_plans: ["253-02", "253-07"]
-phase253_blocked_plans: ["253-08"]
+phase253_halted_plans: [253-02, 253-07]
+phase253_blocked_plans: [253-08]
 ---
 
 # Project State
@@ -48,11 +48,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 (Fix Flaky CI and Preserve Required Checks) — INCOMPLETE
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
 Plans: 5 of 8 complete; 02 and 07 halted; 08 blocked
 Status: Startup repair verified; plan bounded registration and hosted recovery
 Last activity: 2026-10-13 — Partial execution and local regression checks recorded
-Progress: 11/14 currently planned milestone plans complete (79%); Phase 253 verification not started
+Progress: 11/14 currently planned milestone plans complete ([███░░░░░░░] 25%); Phase 253 verification not started
 
 ## Next GSD command
 
