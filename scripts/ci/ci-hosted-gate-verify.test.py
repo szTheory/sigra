@@ -171,7 +171,7 @@ class HostedGateVerifierTests(unittest.TestCase):
         run.update(id=999, run_id=999)
         jobs = [{'id': 8, 'run_id': 999, 'run_attempt': 1, 'name': name,
                  'conclusion': 'success' if name == 'verifier' else 'skipped', 'steps': []}
-                for name in ('producer', 'Browser verdict', 'verifier')]
+                for name in ('producers', 'Browser verdict', 'verifier')]
         jobs[-1]['steps'] = [{'name': name, 'conclusion': 'success'} for name in
                             ('Verify immutable candidate verifier checkout', 'Verify retained source matrix independently')]
         document['separate_verifier'] = {'status': 'passed', 'job_conclusion': 'success', 'run_id': '999',

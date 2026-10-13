@@ -238,7 +238,7 @@ def verify_separate_verifier(evidence, source_count):
     require(document.get("total_count") == len(jobs), "separate hosted verifier job list is incomplete")
     names = [job.get("name") for job in jobs]
     expanded = [f"producer ({seam})" for seam in SEAMS] + ["Browser verdict", "verifier"]
-    require(sorted(names) in (sorted(expanded), sorted(["producer", "Browser verdict", "verifier"])),
+    require(sorted(names) in (sorted(expanded), sorted(["producers", "Browser verdict", "verifier"])),
             "separate hosted verifier job set is unexpected")
     require(all(job.get("run_id") == run.get("id") and job.get("run_attempt") == run.get("run_attempt")
                 and job.get("conclusion") == ("success" if job.get("name") == "verifier" else "skipped") for job in jobs),
