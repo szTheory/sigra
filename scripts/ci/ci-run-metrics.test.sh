@@ -41,6 +41,44 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT="${SCRIPT_DIR}/ci-run-metrics.sh"
 
+diagnosis_contract() {
+  python3 - "$SCRIPT" <<'PY'
+import hashlib, json, pathlib, subprocess, sys, tempfile, unittest
+
+script = pathlib.Path(sys.argv[1])
+root = script.parents[2]
+phase = root / '.planning/phases/252-measure-current-ci'
+
+class DiagnosisContract(unittest.TestCase):
+    def test_archived_test_z_preserves_red_and_passing_test_d(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = pathlib.Path(directory) / 'diagnosis.json'
+            result = subprocess.run(['bash', str(script), '--diagnose-v1', '--source-bundle',
+                str(phase / '252-CI-SOURCE-BUNDLE.tar.gz'), '--baseline',
+                str(phase / '252-BASELINE.json'), '--output', str(output)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, 'saved-family diagnosis must succeed: ' + result.stderr)
+            data = json.loads(output.read_text())
+            self.assertEqual(data['schema_version'], 'sigra.ci-diagnosis/v1')
+            self.assertEqual(data['source_bundle_sha256'], hashlib.sha256((phase / '252-CI-SOURCE-BUNDLE.tar.gz').read_bytes()).hexdigest())
+            for run in ('38314896976', '38316396580'):
+                records = [r for r in data['records'] if r['run_id'] == run]
+                selected = [r for r in records if r['step_name'] == 'CI run metrics self-test']
+                self.assertEqual(len(selected), 1)
+                record = selected[0]
+                self.assertEqual(record['original_native_outcome'], 'failure')
+                self.assertEqual(record['corrected_category'], 'historical_metrics_dependency_failure')
+                self.assertEqual(record['observed_test'], 'Test Z')
+                self.assertEqual(record['rejected_signature_status'], 'passing_test_d')
+                self.assertEqual(record['completeness'], 'complete')
+                self.assertTrue(record['log_sha256'])
+                self.assertTrue(any(r['completeness'] == 'incomplete' for r in records))
+
+unittest.main(argv=[sys.argv[0]], verbosity=2)
+PY
+}
+
+if [[ "${1:-}" == --diagnosis-only ]]; then diagnosis_contract; exit $?; fi
+
 if [[ ! -f "$SCRIPT" ]]; then
   echo "FATAL: script not found at ${SCRIPT}" >&2
   exit 2
@@ -519,6 +557,7 @@ if PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --redact-log "${TMPDIR_R
 
 echo ""
 echo "----------------------------------------"
+if diagnosis_contract; then pass 'Versioned diagnosis consumes the saved native family'; else fail 'Versioned diagnosis consumes the saved native family'; fi
 echo "Results: ${PASS} passed, ${FAIL} failed"
 echo "----------------------------------------"
 
