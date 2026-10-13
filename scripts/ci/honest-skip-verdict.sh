@@ -112,6 +112,19 @@ LANES=(
 )
 INPUT_PROVIDER_EXCLUSION="changes"
 
+unit_result_path_is_complete() {
+  local block env_count
+  block="$(awk '
+    /^  ci-gate:[[:space:]]*$/ { active=1; next }
+    active && /^  [A-Za-z0-9_.-]+:[[:space:]]*$/ { active=0 }
+    active { print }
+  ' "$WORKFLOW")"
+  env_count="$(grep -Fc 'EXAMPLE_UNIT_SMOKE: ${{ needs.example_unit_smoke.result }}' <<<"$block" || true)"
+  [[ "$env_count" == 2 ]] &&
+    grep -Fq -- '--lane example_unit_smoke="${EXAMPLE_UNIT_SMOKE}"' <<<"$block" &&
+    grep -Eq '^[[:space:]]+EXAMPLE_UNIT_SMOKE[[:space:]]+\\$' <<<"$block"
+}
+
 # Extract the ci-gate job's declared `needs:` ids straight from the workflow
 # text. Terminates the needs: block at the first line that is not a
 # "      - id" entry, and terminates the whole job block at the next
@@ -171,6 +184,8 @@ manifest_lookup() {
     $3 == id { print "1\t" $7; exit }
   ' "$MANIFEST"
 }
+
+unit_result_path_is_complete || fail "example_unit_smoke result path missing from ci-gate env, verdict arguments or legacy loop"
 
 # Non-vacuity (D-04): the manifest must yield at least four rows whose id
 # intersects the ten-lane set. The docs-only exemption was removed from
