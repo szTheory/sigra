@@ -47,6 +47,12 @@ def fixture():
         "run_id": 901,
         "run_attempt": 1,
         "budget": {"max_requests": 120, "request_count": 4, "max_jobs": 45, "actual_jobs": 6, "elapsed_seconds": 30},
+        "dispatch_inputs": {"scenario": "full-pass", "candidate_sha": candidate,
+                            "fixture_sha": workflow_sha, "fixture_blob": workflow_blob},
+        "transport_ledger": {"transactions": [
+            {"sequence": index, "method": "GET", "url": f"https://api.github.com/mock/{index}", "status": 200}
+            for index in range(1, 5)
+        ]},
         "run": {
             "id": 901,
             "run_id": 901,
@@ -191,6 +197,35 @@ class HostedGateVerifierTests(unittest.TestCase):
                     self.assertNotEqual(self.invoke(document).returncode, 0)
         document = fixture()
         document['budget']['actual_jobs'] = 5
+        self.assertNotEqual(self.invoke(document).returncode, 0)
+
+    def test_reconciles_actual_transport_transactions_and_dispatch_input_bounds(self):
+        document = fixture()
+        document["budget"]["request_count"] = 5
+        self.assertNotEqual(self.invoke(document).returncode, 0)
+        document = fixture()
+        document["transport_ledger"]["transactions"].append(
+            {"sequence": 5, "method": "GET", "url": "https://api.github.com/hidden-poll", "status": 200})
+        self.assertNotEqual(self.invoke(document).returncode, 0)
+        document = fixture()
+        document["dispatch_inputs"]["extra"] = "x"
+        document["dispatch_inputs"]["too_long"] = "x" * 65536
+        self.assertNotEqual(self.invoke(document).returncode, 0)
+
+    def test_rejects_oversized_artifact_and_extra_archive_member(self):
+        document = fixture()
+        document["artifacts"]["artifacts"][0]["size_in_bytes"] = 2 * 1024 * 1024 + 1
+        self.assertNotEqual(self.invoke(document).returncode, 0)
+        document = fixture()
+        raw = base64.b64decode(document["retained_artifact"]["archive_base64"])
+        with zipfile.ZipFile(io.BytesIO(raw)) as old:
+            result_bytes = old.read("canary-result.json")
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+            bundle.writestr("canary-result.json", result_bytes)
+            bundle.writestr("unexpected.txt", b"extra")
+        payload = archive.getvalue()
+        document["retained_artifact"]["archive_base64"] = base64.b64encode(payload).decode()
         self.assertNotEqual(self.invoke(document).returncode, 0)
 
     def test_rejects_wrong_run_attempt_and_source_identity(self):
