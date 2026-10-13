@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  ci-registration-repro.sh --run-frozen <freeze.json> --output <evidence.json>
+  ci-registration-repro.sh --verify-controls <evidence.json>
+  ci-registration-repro.sh --verify-acceptance <evidence.json>
+  ci-registration-repro.sh <mode> --help
+USAGE
+}
+
+for arg in "$@"; do
+  if [[ "$arg" == --help ]]; then usage; exit 0; fi
+done
+
+MODE="${1:-}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PHASE_DIR="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+FREEZE=""
+OUTPUT=""
+case "$MODE" in
+  --run-frozen)
+    FREEZE="${2:-}"
+    [[ "${3:-}" == --output && -n "${4:-}" ]] || { usage >&2; exit 2; }
+    OUTPUT="${4}"
+    ;;
+  --verify-controls|--verify-acceptance)
+    OUTPUT="${2:-}"
+    [[ -n "$OUTPUT" ]] || { usage >&2; exit 2; }
+    ;;
+  *) usage >&2; exit 2 ;;
+esac
+if [[ -n "$FREEZE" && "$FREEZE" != /* ]]; then FREEZE="$ROOT/$FREEZE"; fi
+if [[ -n "$OUTPUT" && "$OUTPUT" != /* ]]; then OUTPUT="$ROOT/$OUTPUT"; fi
+
+if [[ "$MODE" != --run-frozen ]]; then
+  node - "$MODE" "$OUTPUT" <<'NODE'
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const [mode, path] = process.argv.slice(2);
+const evidence = JSON.parse(fs.readFileSync(path, 'utf8'));
+assert.equal(evidence.schema_version, 'sigra.phase253.registration-evidence/v1');
+const status = evidence.status;
+if (mode === '--verify-controls') {
+  assert.ok(evidence.controls?.readiness?.delayed?.observed);
+  assert.ok(evidence.controls?.readiness?.missing?.observedFailure);
+  assert.ok(evidence.controls?.readiness?.brokenWait?.observedFailure);
+  assert.ok(evidence.controls?.stateCollision?.observedFailure);
+  assert.ok(evidence.controls?.trace?.firstFailure?.assertionPresent);
+  assert.ok(evidence.controls?.trace?.passing?.artifactAbsent);
+} else {
+  assert.ok(evidence.projects?.length === 3);
+  assert.ok(evidence.projects.every((project) => ['passed', 'failed', 'not_run'].includes(project.originalOutcome)));
+  assert.ok(['fixed', 'not_reproduced', 'diagnosis_incomplete'].includes(status));
+  if (status === 'fixed') assert.ok(evidence.fix?.freshRepeats?.length >= 3);
+  if (status === 'diagnosis_incomplete') assert.equal(evidence.requirements?.['CIREL-01'], 'unsatisfied');
+}
+console.log(`${mode}: ${status}`);
+NODE
+  exit 0
+fi
+
+[[ -f "$FREEZE" ]] || { echo "missing freeze: $FREEZE" >&2; exit 2; }
+if [[ -f "$OUTPUT" ]]; then
+  node - "$OUTPUT" <<'NODE'
+const fs = require('node:fs');
+const path = process.argv[2];
+const evidence = JSON.parse(fs.readFileSync(path, 'utf8'));
+if (evidence.status !== 'running') throw new Error(`refusing to overwrite terminal evidence: ${evidence.status}`);
+evidence.attempts.push(...evidence.projects.map((project) => ({
+  ...project,
+  classification: 'diagnosed_runner_infrastructure_failure',
+  diagnosis: 'The launcher process was not retained and the shared Mix build was compiled for a different port.'
+})));
+evidence.projects = [];
+evidence.limits.observedInvocations += evidence.attempts.length;
+fs.writeFileSync(path, JSON.stringify(evidence, null, 2) + '\n');
+NODE
+fi
+
+HEAD="$(git -C "$ROOT" rev-parse HEAD)"
+EXPECTED_HEAD="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.checkout_head)' "$FREEZE")"
+[[ "$HEAD" == "$EXPECTED_HEAD" ]] || { echo "checkout mismatch: expected $EXPECTED_HEAD, found $HEAD" >&2; exit 3; }
+git -C "$ROOT" diff --quiet && git -C "$ROOT" diff --cached --quiet || { echo 'tracked checkout changes are not allowed' >&2; exit 3; }
+HELPER_BLOB="$(git -C "$ROOT" hash-object test/example/priv/playwright/tests/admin-eval.spec.ts)"
+EXPECTED_HELPER="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.historical_helper_blob)' "$FREEZE")"
+[[ "$HELPER_BLOB" == "$EXPECTED_HELPER" ]] || { echo "helper identity mismatch: $HELPER_BLOB" >&2; exit 3; }
+WORKFLOW_BLOB="$(git -C "$ROOT" rev-parse HEAD:.github/workflows/ci.yml)"
+EXPECTED_WORKFLOW="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.workflow_blob)' "$FREEZE")"
+[[ "$WORKFLOW_BLOB" == "$EXPECTED_WORKFLOW" ]] || { echo "workflow identity mismatch: $WORKFLOW_BLOB" >&2; exit 3; }
+
+mkdir -p "$(dirname "$OUTPUT")"
+OUT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/sigra-253-registration.XXXXXX")"
+CHECKOUT="$OUT_DIR/checkout"
+mkdir "$CHECKOUT"
+START_EPOCH="$(date +%s)"
+STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+PROJECT_RESULTS='[]'
+PIDS=()
+cleanup() {
+  local pid
+  for pid in "${PIDS[@]:-}"; do kill "$pid" 2>/dev/null || true; done
+}
+trap cleanup EXIT INT TERM
+
+git clone --quiet --shared --no-checkout "$ROOT" "$CHECKOUT/repo"
+git -C "$CHECKOUT/repo" checkout --quiet --detach "$EXPECTED_HEAD"
+export HEX_HOME="$OUT_DIR/hex"
+mkdir -p "$HEX_HOME"
+PW="$CHECKOUT/repo/test/example/priv/playwright"
+cd "$PW"
+npm ci
+PW_VERSION="$(./node_modules/.bin/playwright --version | awk '{print $2}')"
+[[ "$PW_VERSION" == "1.59.1" ]] || { echo "Playwright version mismatch: $PW_VERSION" >&2; exit 4; }
+cd "$CHECKOUT/repo/test/example"
+MIX_ENV=dev mix deps.get --check-locked
+ECTO_VERSION="$(MIX_ENV=dev mix deps | awk '$1 == "*" && $2 == "ecto_sql" {version=$3} END {print version}')"
+LIVEVIEW_VERSION="$(MIX_ENV=dev mix deps | awk '$1 == "*" && $2 == "phoenix_live_view" {version=$3} END {print version}')"
+
+NOW="$(date -u +%Y%m%dT%H%M%SZ)"
+for project in admin-eval admin-eval-mobile admin-eval-dark; do
+  ELAPSED=$(( $(date +%s) - START_EPOCH ))
+  (( ELAPSED < 1200 )) || { echo '20-minute signature budget reached' >&2; break; }
+  case "$project" in
+    admin-eval) PORT=25311 ;;
+    admin-eval-mobile) PORT=25312 ;;
+    admin-eval-dark) PORT=25313 ;;
+  esac
+  DB="sigra_253_${NOW//[^a-zA-Z0-9]/}_${project//-/_}_$$"
+  APP_LOG="$OUT_DIR/${project}.app.log"
+  TEST_LOG="$OUT_DIR/${project}.test.log"
+  TRACE_DIR="$PW/test-results"
+  rm -rf "$TRACE_DIR"
+  export PGHOST=127.0.0.1 PGPORT=58624 PGUSER=postgres PGPASSWORD=postgres PGDATABASE="$DB"
+  export PORT SIGRA_EXAMPLE_BIND=127.0.0.1
+  export MIX_BUILD_PATH="$CHECKOUT/repo/test/example/_build/$project"
+  (cd "$CHECKOUT/repo/test/example" && MIX_ENV=dev mix ecto.setup) >"$OUT_DIR/${project}.db.log" 2>&1
+  (cd "$CHECKOUT/repo/test/example" && exec env MIX_ENV=dev mix phx.server) >"$APP_LOG" 2>&1 &
+  APP_PID=$!
+  PIDS+=("$APP_PID")
+  URL="http://127.0.0.1:$PORT"
+  READY=false
+  if curl --silent --show-error --fail --max-time 2 --retry 90 --retry-all-errors \
+    --retry-delay 0 --retry-max-time 90 "$URL/" -o /dev/null 2>/dev/null; then
+    READY=true
+  fi
+  TEST_EXIT=125
+  if [[ "$READY" == true ]]; then
+    set +e
+    CI=true SIGRA_EXAMPLE_URL="$URL" SIGRA_PLAYWRIGHT_JSON="$OUT_DIR/${project}.report.json" \
+      "$PW/node_modules/.bin/playwright" test tests/admin-eval.spec.ts \
+        --project="$project" --grep='render bundle: board-mg-9/populated' \
+        --retries=0 --trace=retain-on-failure >"$TEST_LOG" 2>&1
+    TEST_EXIT=$?
+    set -e
+  else
+    printf 'App server did not become HTTP-ready at %s\n' "$URL" >"$TEST_LOG"
+  fi
+  kill "$APP_PID" 2>/dev/null || true
+  wait "$APP_PID" 2>/dev/null || true
+  PIDS=()
+  cp -R "$TRACE_DIR" "$OUT_DIR/${project}.test-results" 2>/dev/null || true
+  (cd "$CHECKOUT/repo/test/example" && MIX_ENV=dev mix ecto.drop --quiet) >"$OUT_DIR/${project}.drop.log" 2>&1 || true
+  node - "$OUTPUT" "$project" "$PORT" "$DB" "$READY" "$TEST_EXIT" "$APP_LOG" "$TEST_LOG" "$OUT_DIR/${project}.report.json" "$OUT_DIR/${project}.test-results" "$PW_VERSION" "$ECTO_VERSION" "$LIVEVIEW_VERSION" "$OUT_DIR" <<'NODE'
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const [out, project, port, database, ready, exit, appLog, testLog, report, artifacts, playwright, ecto, liveview, root] = process.argv.slice(2);
+let evidence;
+if (fs.existsSync(out)) evidence = JSON.parse(fs.readFileSync(out, 'utf8'));
+else evidence = {
+  schema_version: 'sigra.phase253.registration-evidence/v1',
+  status: 'running',
+  source: { checkoutHead: 'de53d1c80f4a67b73a5e5078959c2c88ad75abe8', helperBlob: '6540493e78121f134867445dffc7010afcd85815', workflowBlob: 'dcc36d0df055f9b11f4de36252cb6b3d0f6c8c85' },
+  startedAt: new Date().toISOString(), projects: [], controls: {}, attempts: [],
+  limits: { maxInvocations: 10, maxMinutesPerSignature: 20, maxMinutesTotal: 60, observedInvocations: 0 }
+};
+const hash = (path) => fs.existsSync(path) ? crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex') : null;
+const artifactNames = fs.existsSync(artifacts) ? fs.readdirSync(artifacts, { recursive: true }).filter((name) => /trace\.zip$/.test(name)) : [];
+evidence.projects.push({
+  project, port: Number(port), database, serverReady: ready === 'true', testExitCode: Number(exit),
+  originalOutcome: Number(exit) === 0 ? 'passed' : 'failed', appLogPath: appLog, appLogSha256: hash(appLog),
+  testLogPath: testLog, testLogSha256: hash(testLog), reportPath: fs.existsSync(report) ? report : null,
+  reportSha256: hash(report), traceFiles: artifactNames, toolchain: { playwright, ectoSql: ecto, phoenixLiveView: liveview }
+});
+evidence.limits.observedInvocations += 1;
+evidence.status = 'running';
+fs.writeFileSync(out, JSON.stringify(evidence, null, 2) + '\n');
+NODE
+  OUTPUT_STATE="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).status)' "$OUTPUT")"
+  if [[ "$OUTPUT_STATE" == running ]]; then
+    node -e 'const fs=require("fs");const p=process.argv[1];const x=JSON.parse(fs.readFileSync(p));fs.writeFileSync(p,JSON.stringify(x,null,2)+"\n")' "$OUTPUT"
+  fi
+done
+
+END_EPOCH="$(date +%s)"
+node - "$OUTPUT" "$STARTED_AT" "$END_EPOCH" "$START_EPOCH" <<'NODE'
+const fs = require('node:fs');
+const path = process.argv[2];
+const evidence = JSON.parse(fs.readFileSync(path, 'utf8'));
+const elapsed = Number(process.argv[3]) - Number(process.argv[4]);
+evidence.completedAt = new Date().toISOString();
+evidence.durationSeconds = elapsed;
+evidence.status = evidence.projects.length === 3 && evidence.projects.every((p) => p.originalOutcome === 'passed') ? 'not_reproduced' : 'diagnosis_incomplete';
+evidence.requirements = { 'CIREL-01': 'unsatisfied' };
+evidence.diagnosis = { cause: 'unknown', claim: 'The bounded current-source run does not explain the retained historical failure.' };
+fs.writeFileSync(path, JSON.stringify(evidence, null, 2) + '\n');
+NODE
+echo "registration reproduction status: $(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).status)' "$OUTPUT")"
