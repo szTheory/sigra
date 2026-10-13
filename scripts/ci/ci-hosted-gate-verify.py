@@ -46,6 +46,29 @@ def read_evidence(path):
             and type(budget.get("actual_jobs")) is int and 0 <= budget["actual_jobs"] <= 45
             and type(budget.get("elapsed_seconds")) is int and 0 <= budget["elapsed_seconds"] <= 3600,
             "fixed hosted request, job, or time budget is missing or exceeded")
+    ledger = value.get("transport_ledger")
+    transactions = ledger.get("transactions") if isinstance(ledger, dict) else None
+    require(isinstance(transactions, list), "actual HTTP transport ledger is missing")
+    require(len(transactions) == budget["request_count"], "reported request count differs from actual transport ledger")
+    for sequence, transaction in enumerate(transactions, 1):
+        require(isinstance(transaction, dict) and transaction.get("sequence") == sequence
+                and transaction.get("method") in ("GET", "POST", "DELETE")
+                and isinstance(transaction.get("url"), str) and transaction["url"].startswith("https://")
+                and type(transaction.get("status")) is int and 100 <= transaction["status"] <= 599,
+                "transport ledger has an incomplete, duplicated, or uncharged HTTP transaction")
+        require(transaction["status"] not in (403, 429), "transport was rate limited; stop until GitHub reset")
+    observed = value.get("transport_trace")
+    if observed is not None:
+        require(isinstance(observed, list) and len(observed) == len(transactions),
+                "mocked transport trace contains an uncharged poll, page, redirect, or request")
+        for actual, charged in zip(observed, transactions):
+            require(isinstance(actual, dict) and all(actual.get(key) == charged.get(key)
+                    for key in ("sequence", "method", "url", "status")),
+                    "observed transport differs from the charged request ledger")
+    inputs = value.get("dispatch_inputs")
+    require(isinstance(inputs, dict) and len(inputs) <= 10
+            and sum(len(str(key)) + len(str(item)) for key, item in inputs.items()) <= 65535,
+            "dispatch input count or combined character limit exceeded")
     return value
 
 
@@ -167,6 +190,8 @@ def verify_scenario(receipt, scenario, evidence):
                 "conclusion": run["conclusion"], "artifacts": 0}
     require(len(matches) == 1, "expected exactly one same-run canary artifact")
     artifact = matches[0]
+    require(type(artifact.get("size_in_bytes")) is int and 0 <= artifact["size_in_bytes"] <= 2 * 1024 * 1024,
+            "compressed artifact exceeds the 2 MiB limit or has no trusted size")
     require(artifact.get("expired") is False and str(artifact.get("id")) == str(receipt.get("retained_artifact", {}).get("artifact_id")),
             "artifact is expired or does not match downloaded artifact ID")
     require(artifact.get("workflow_run", {}).get("id") == run["id"], "artifact API origin does not match producing run")
@@ -181,6 +206,7 @@ def verify_scenario(receipt, scenario, evidence):
     except (ValueError, base64.binascii.Error) as error:
         raise VerificationError("downloaded artifact archive encoding is invalid") from error
     archive_digest = sha256(archive_bytes)
+    require(len(archive_bytes) <= 2 * 1024 * 1024, "downloaded artifact exceeds the 2 MiB compressed limit")
     require(archive_digest == digest.removeprefix("sha256:"), "downloaded archive digest differs from GitHub API")
     require(retained.get("archive_sha256") == archive_digest, "recorded archive digest differs from downloaded bytes")
     files = retained.get("files")
@@ -194,6 +220,8 @@ def verify_scenario(receipt, scenario, evidence):
         with zipfile.ZipFile(io.BytesIO(archive_bytes)) as bundle:
             names = [name for name in bundle.namelist() if not name.endswith("/")]
             require(names == ["canary-result.json"], "downloaded archive has unexpected or duplicate files")
+            info = bundle.getinfo("canary-result.json")
+            require(info.file_size <= 4 * 1024 * 1024, "extracted artifact exceeds the 4 MiB limit")
             archived_result = bundle.read("canary-result.json")
     except (OSError, zipfile.BadZipFile, KeyError) as error:
         raise VerificationError(f"downloaded artifact archive is not a valid canary ZIP: {error}") from error

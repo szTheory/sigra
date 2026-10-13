@@ -8,6 +8,10 @@ FIXTURE="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/25
 help_output="$(bash "$SCRIPT" --help)"
 [[ "$help_output" == *"full-pass"* && "$help_output" == *"cancelled"* ]]
 bash "$SCRIPT" --check-only
+! rg -q 'gh run watch|WATCH_RESERVATION|watch_request_reservation' "$SCRIPT"
+rg -q 'POLL_INTERVAL=60' "$SCRIPT"
+rg -q -- '--max-redirs 0' "$SCRIPT"
+rg -q 'transport_ledger' "$SCRIPT"
 
 fixture_name="$(rg -c '^name: Phase 253 Gate Canary$' "$FIXTURE")"
 [[ "$fixture_name" == 1 ]]

@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PHASE_DIR="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
 FIXTURE="$PHASE_DIR/253-CANARY-WORKFLOW.yml"
-EVIDENCE="$PHASE_DIR/253-CANARY-EVIDENCE.json"
+EVIDENCE="$PHASE_DIR/253-RECOVERY-CANARY-RUNS.json"
 RATE_SOURCE="/tmp/sigra-253-canary-rate.json"
 RULES_SOURCE="/tmp/sigra-253-effective-rules.json"
 WORKFLOW_SOURCE="/tmp/sigra-253-registered-workflow.json"
@@ -13,7 +13,7 @@ WORKFLOW_ID="259268962"
 MAX_REQUESTS=120
 MAX_JOBS=45
 MAX_MINUTES=60
-WATCH_RESERVATION=8
+POLL_INTERVAL=60
 SCENARIO=""
 ALL_REMAINING=false
 CHECK_ONLY=false
@@ -22,7 +22,7 @@ CANARY_STARTED_EPOCH=0
 usage() {
   cat <<'EOF'
 Usage: ci-gate-canary.sh (--scenario NAME | --remaining-scenarios) [--evidence PATH]
-       ci-gate-canary.sh --check-only
+       ci-gate-canary.sh --check-only [--recovery-freeze PATH]
 
 Scenarios: full-pass, docs-only, actual-failure, missing-seam,
            unexpected-skip, cancelled
@@ -32,6 +32,12 @@ EOF
 }
 
 fail() { printf 'ci-gate-canary: FAIL: %s\n' "$*" >&2; exit 1; }
+
+TRANSPORT_LEDGER="$PHASE_DIR/253-RECOVERY-CANARY-TRANSPORT.json"
+MAX_INPUT_KEYS=10
+MAX_INPUT_CHARS=65535
+MAX_ARTIFACT_COMPRESSED=$((2 * 1024 * 1024))
+MAX_ARTIFACT_EXTRACTED=$((4 * 1024 * 1024))
 
 while (($#)); do
   case "$1" in
@@ -82,16 +88,15 @@ if [[ -f "$EVIDENCE" ]] && jq -e '.status == "halted" or ((.diagnostics // {}) |
   fail 'halted evidence requires a separately authorized new freeze; existing diagnostics cannot be retried'
 fi
 gh auth token >/dev/null 2>&1 || fail 'GitHub authentication is unavailable' 
-INITIAL_CALLS=3
 if [[ -f "$EVIDENCE" ]]; then
-  REQUEST_COUNT="$(jq -r '.budget.request_count // 3' "$EVIDENCE")"
+  REQUEST_COUNT="$(jq -r '.transport_ledger.transactions | length' "$EVIDENCE")"
   CANARY_STARTED_EPOCH="$(jq -r '.budget.started_epoch // 0' "$EVIDENCE")"
   FIXTURE_REF="$(jq -r '.expected.fixture_ref // empty' "$EVIDENCE")"
   CANDIDATE_SHA="$(jq -r '.expected.candidate_sha // empty' "$EVIDENCE")"
   FIXTURE_SHA="$(jq -r '.expected.workflow_sha // empty' "$EVIDENCE")"
   FIXTURE_BLOB="$(jq -r '.expected.workflow_blob // empty' "$EVIDENCE")"
 else
-  REQUEST_COUNT="$INITIAL_CALLS"
+  REQUEST_COUNT=0
   FIXTURE_REF=""
   CANDIDATE_SHA=""
   FIXTURE_SHA=""
@@ -107,14 +112,14 @@ check_budget() {
   fi
 }
 
-REQUEST_LEDGER="$PHASE_DIR/253-CANARY-REQUESTS.json"
+REQUEST_LEDGER="$TRANSPORT_LEDGER"
 
 preserve_request_ledger() {
   [[ -f "$REQUEST_LEDGER" ]] || return 0
   local sequence prior ref
-  sequence="$(jq '.requests | length' "$REQUEST_LEDGER")"
+  sequence="$(jq '.transactions | length' "$REQUEST_LEDGER")"
   prior="$(git hash-object -w "$REQUEST_LEDGER")"
-  ref="refs/gsd/phase253-07-canary-request-ledger/$sequence"
+  ref="refs/gsd/phase253-11-canary-transport-ledger/$sequence"
   if git show-ref --verify --quiet "$ref"; then
     [[ "$(git rev-parse "$ref")" == "$prior" ]] || fail "request ledger preservation ref changed: $ref"
   else
@@ -128,23 +133,47 @@ log_request() {
   local endpoint="$1" kind="${2:-observed}" reserve="${3:-0}" temp="${REQUEST_LEDGER}.tmp"
   preserve_request_ledger
   jq --arg endpoint "$endpoint" --arg kind "$kind" --argjson reserve "$reserve" \
-    '.requests += [{sequence:((.requests|length)+1),endpoint:$endpoint,kind:$kind,reserved_calls:$reserve}]' \
+    '.transactions += [{sequence:((.transactions|length)+1),method:(if $kind=="dispatch" then "POST" else "GET" end),url:$endpoint,status:0,kind:$kind}]' \
     "$REQUEST_LEDGER" > "$temp"
   mv "$temp" "$REQUEST_LEDGER"
+}
+
+finish_request() {
+  [[ -f "$REQUEST_LEDGER" ]] || return 0
+  local sequence="$1" status="$2" temp="${REQUEST_LEDGER}.tmp"
+  jq --argjson sequence "$sequence" --argjson status "$status" \
+    '(.transactions[] | select(.sequence==$sequence)).status=$status' "$REQUEST_LEDGER" > "$temp"
+  mv "$temp" "$REQUEST_LEDGER"
+}
+
+begin_request() {
+  REQUEST_COUNT=$((REQUEST_COUNT + 1))
+  check_budget 0
+  log_request "$1" "${2:-observed}"
+  LAST_REQUEST_SEQUENCE="$REQUEST_COUNT"
+  record_budget
 }
 
 api_get() {
   local endpoint="$1" target="$2"
   check_budget 0
-  ((REQUEST_COUNT += 1))
-  check_budget 0
-  if [[ "$endpoint" == rate_limit ]]; then
-    gh api rate_limit > "$target" || fail 'GitHub rate-limit API request failed'
-  else
-    gh api "repos/$REPO/$endpoint" > "$target" || fail "GitHub API request failed: $endpoint"
+  begin_request "https://api.github.com/repos/$REPO/$endpoint"
+  local response=0
+  local api_error="$(mktemp /tmp/253-canary-api-error.XXXXXX)"
+  if [[ "$endpoint" == rate_limit ]]; then gh api rate_limit > "$target" 2>"$api_error" || response=$?
+  else gh api "repos/$REPO/$endpoint" > "$target" 2>"$api_error" || response=$?; fi
+  local status=200
+  if (( response != 0 )); then
+    status=500
+    rg -qi 'HTTP[^0-9]*403|API rate limit exceeded' "$api_error" && status=403
+    rg -qi 'HTTP[^0-9]*429|secondary rate limit' "$api_error" && status=429
   fi
+  finish_request "$LAST_REQUEST_SEQUENCE" "$status"
+  (( status != 403 && status != 429 )) || fail "GitHub rate limit HTTP $status; stop until reported reset/retry time"
+  (( response == 0 )) || fail "GitHub API request failed (charged): $endpoint"
   jq -e . "$target" >/dev/null || fail "GitHub API returned invalid JSON for $endpoint"
-  log_request "GET $endpoint"
+  REQUEST_COUNT="$(jq '.transactions | length' "$REQUEST_LEDGER")"
+  check_budget 0
   record_budget
 }
 
@@ -155,8 +184,8 @@ record_budget() {
   elapsed=0
   if (( CANARY_STARTED_EPOCH > 0 )); then elapsed=$((now - CANARY_STARTED_EPOCH)); fi
   preserve_evidence
-  jq --argjson count "$REQUEST_COUNT" --argjson elapsed "$elapsed" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
-    '.budget.request_count=$count | .budget.elapsed_seconds=$elapsed | .preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "$temp"
+  jq --slurpfile ledger "$REQUEST_LEDGER" --argjson count "$REQUEST_COUNT" --argjson elapsed "$elapsed" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
+    '.budget.request_count=$count | .budget.elapsed_seconds=$elapsed | .transport_ledger=$ledger[0] | .preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "$temp"
   mv "$temp" "$EVIDENCE"
 }
 
@@ -166,7 +195,7 @@ preserve_evidence() {
   local blob sequence ref
   blob="$(git hash-object -w "$EVIDENCE")"
   sequence="$(jq '.preserved_revisions | length' "$EVIDENCE")"
-  ref="refs/gsd/phase253-07-canary-evidence/$sequence"
+  ref="refs/gsd/phase253-11-canary-evidence/$sequence"
   if git show-ref --verify --quiet "$ref"; then
     [[ "$(git rev-parse "$ref")" == "$blob" ]] || fail "evidence preservation ref changed: $ref"
   else
@@ -177,33 +206,83 @@ preserve_evidence() {
 }
 
 watch_run() {
-  local run_id="$1" description="$2" rate_file core_left started pid result watch_log
+  local run_id="$1" description="$2" rate_file core_left started run_target status conclusion lock_dir
   rate_file="$(mktemp /tmp/253-canary-watch-rate.XXXXXX.json)"
   api_get rate_limit "$rate_file"
   core_left="$(jq -r '.resources.core.remaining // 0' "$rate_file")"
   (( core_left > 250 )) || fail "GitHub core API budget is at or below 250 before watch (remaining=$core_left)"
-  check_budget "$WATCH_RESERVATION"
-  ((REQUEST_COUNT += WATCH_RESERVATION))
-  log_request "gh run watch $run_id --interval 60 ($description)" reserved "$WATCH_RESERVATION"
-  record_budget
-  started=$SECONDS
-  watch_log="$(mktemp /tmp/253-canary-watch.XXXXXX.log)"
-  gh run watch "$run_id" --repo szTheory/sigra --compact --interval 60 --exit-status >"$watch_log" 2>&1 &
-  pid=$!
-  result=0
-  while kill -0 "$pid" 2>/dev/null; do
-    if (( SECONDS - started >= 240 )); then
-      kill "$pid" 2>/dev/null || true
-      wait "$pid" 2>/dev/null || true
-      return 124
+  lock_dir="/tmp/253-canary-poll-$run_id.lock"
+  mkdir "$lock_dir" 2>/dev/null || fail "another poller already owns run $run_id"
+  started="$SECONDS"
+  run_target="$(mktemp /tmp/253-canary-terminal-run.XXXXXX.json)"
+  while :; do
+    check_budget 0
+    (( SECONDS - started < MAX_MINUTES * 60 )) || fail "60-minute canary ceiling reached while polling run $run_id"
+    api_get "actions/runs/$run_id" "$run_target"
+    status="$(jq -r '.status // empty' "$run_target")"
+    conclusion="$(jq -r '.conclusion // empty' "$run_target")"
+    if [[ "$status" == completed && -n "$conclusion" ]]; then
+      cp "$run_target" "$TERMINAL_RUN_JSON"
+      rmdir "$lock_dir"
+      return 0
     fi
-    sleep 5
+    sleep "$POLL_INTERVAL"
   done
-  if wait "$pid"; then result=0; else result=$?; fi
-  cat "$watch_log"
-  if rg -qi 'HTTP[^0-9]*(403|429)|API rate limit exceeded|secondary rate limit' "$watch_log"; then return 77; fi
-  check_budget 0
-  return "$result"
+}
+
+validate_dispatch_inputs() {
+  python3 - "$1" <<'PY'
+import json, sys
+value=json.loads(sys.argv[1])
+if not isinstance(value, dict) or len(value)>10 or sum(len(str(k))+len(str(v)) for k,v in value.items())>65535:
+    raise SystemExit('canary dispatch input count or combined character limit exceeded')
+PY
+}
+
+api_post_dispatch() {
+  local inputs="$1" branch="${FIXTURE_REF#refs/heads/}" rc=0 endpoint
+  endpoint="https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches"
+  begin_request "$endpoint" dispatch
+  jq -n --arg ref "$branch" --argjson inputs "$inputs" '{ref:$ref,inputs:$inputs}' > "${TMPDIR:-/tmp}/253-canary-dispatch-body.json"
+  gh api "repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches" --method POST --input "${TMPDIR:-/tmp}/253-canary-dispatch-body.json" >/dev/null 2>"${TMPDIR:-/tmp}/253-canary-dispatch-error.txt" || rc=$?
+  local status=204
+  if (( rc != 0 )); then
+    status="$(sed -nE 's/.*HTTP ([0-9]{3}).*/\1/p' "${TMPDIR:-/tmp}/253-canary-dispatch-error.txt" | head -n1)"
+    [[ "$status" =~ ^[0-9]{3}$ ]] || status=500
+  fi
+  finish_request "$LAST_REQUEST_SEQUENCE" "$status"
+  (( rc == 0 )) || fail "workflow dispatch failed with HTTP $status"
+  jq --argjson inputs "$inputs" '.dispatch_inputs=$inputs' "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
+}
+
+download_no_follow() {
+  local url="$1" target="$2" max_bytes="$3" token headers status location hop current
+  token="$(gh auth token)" || fail 'GitHub authentication is unavailable'
+  headers="$(mktemp /tmp/253-canary-download-headers.XXXXXX)"
+  current="$url"
+  for hop in 1 2 3 4; do
+    begin_request "$(python3 -c 'import sys; from urllib.parse import urlsplit,urlunsplit; u=urlsplit(sys.argv[1]); print(urlunsplit((u.scheme,u.netloc,u.path,"","")))' "$current")" download
+    local status_rc=0
+    if [[ "$hop" == 1 ]]; then
+      status="$(printf 'header = "Authorization: Bearer %s"\n' "$token" | curl --config - --silent --show-error --max-redirs 0 --request GET --max-time 30 --max-filesize "$max_bytes" -D "$headers" -o "$target" -w '%{http_code}' "$current" 2>/dev/null)" || status_rc=$?
+    else
+      status="$(curl --silent --show-error --max-redirs 0 --request GET --max-time 30 --max-filesize "$max_bytes" -D "$headers" -o "$target" -w '%{http_code}' "$current" 2>/dev/null)" || status_rc=$?
+    fi
+    [[ "$status" =~ ^[0-9]{3}$ ]] || status=500
+    finish_request "$LAST_REQUEST_SEQUENCE" "$status"
+    (( status_rc == 0 )) || return 1
+    if [[ "$status" =~ ^30[1278]$ ]]; then
+      location="$(awk 'tolower($1)=="location:" {sub(/\r$/, "", $2); print $2}' "$headers")"
+      [[ -n "$location" ]] || fail 'download redirect omitted Location'
+      bash "$ROOT/scripts/ci/ci-run-metrics.sh" --validate-redirect "$location" >/dev/null || fail 'download redirect host rejected'
+      current="$location"
+      continue
+    fi
+    [[ "$status" == 200 ]] || { [[ "$status" != 403 && "$status" != 429 ]] || fail "GitHub rate limited HTTP $status; stop until reset"; return 1; }
+    if (( max_bytes > 0 )); then [[ "$(wc -c < "$target" | tr -d ' ')" -le "$max_bytes" ]] || fail 'compressed download exceeds its byte limit'; fi
+    return 0
+  done
+  fail 'download redirect limit exceeded'
 }
 
 RATE_NOW="$RATE_SOURCE"
@@ -218,14 +297,7 @@ for pair in "rate:$RATE_SOURCE:253-CANARY-PREFLIGHT-rate.json" "rules:$RULES_SOU
   if [[ ! -e "$target" ]]; then cp "$source" "$target"; fi
   cmp -s "$source" "$target" || fail "frozen $label preflight bytes changed at $target"
 done
-if [[ ! -e "$REQUEST_LEDGER" ]]; then
-  jq -n --slurpfile rate "$RATE_SOURCE" --slurpfile rules "$RULES_SOURCE" --slurpfile workflow "$WORKFLOW_SOURCE" \
-    '{schema_version:"sigra.canary-request-ledger/v1",limit:120,requests:[
-      {sequence:1,source:"parent preflight",endpoint:"GET /rate_limit",response:$rate[0]},
-      {sequence:2,source:"parent preflight",endpoint:"GET /repos/szTheory/sigra/rules/branches/main",response:$rules[0]},
-      {sequence:3,source:"parent preflight",endpoint:"GET /repos/szTheory/sigra/actions/workflows/ci.yml",response:$workflow[0]}
-    ],watch_request_reservation_per_run:8,redirect_reservation_per_artifact_download:2}' > "$REQUEST_LEDGER"
-fi
+if [[ ! -e "$REQUEST_LEDGER" ]]; then jq -n '{schema_version:"sigra.canary-transport-ledger/v1",transactions:[]}' > "$REQUEST_LEDGER"; fi
 LEDGER_BLOB="$(git hash-object -w "$REQUEST_LEDGER")"
 LEDGER_REF="refs/gsd/phase253-07-canary-preflight"
 if git show-ref --verify --quiet "$LEDGER_REF"; then
@@ -238,7 +310,7 @@ fi
 if [[ -z "$CANDIDATE_SHA" ]]; then
   CANDIDATE_SHA="$(git rev-parse HEAD)"
   BRANCH_SUFFIX="$(date -u +%Y%m%dT%H%M%SZ)-$$"
-  FIXTURE_REF="refs/heads/gsd/253-gate-canary-fixture-$BRANCH_SUFFIX"
+  FIXTURE_REF="refs/heads/gsd/253-recovery-canary-fixture-$BRANCH_SUFFIX"
   FIXTURE_BLOB="$(git hash-object -w "$FIXTURE")"
   TMP_INDEX="$(mktemp /tmp/253-canary-index.XXXXXX)"
   rm -f "$TMP_INDEX"
@@ -249,21 +321,18 @@ if [[ -z "$CANDIDATE_SHA" ]]; then
   FIXTURE_SHA="$(printf 'Phase 253 Gate Canary fixture\n' | git commit-tree "$FIXTURE_TREE" -p "$CANDIDATE_SHA")"
   unset GIT_INDEX_FILE
   rm -f "$TMP_INDEX"
-  ((REQUEST_COUNT += 2)); check_budget "$WATCH_RESERVATION"
-  log_request "create-only push $FIXTURE_SHA to $FIXTURE_REF"
-  log_request "read back exact scoped ref $FIXTURE_REF"
+  git update-ref "$FIXTURE_REF" "$FIXTURE_SHA" 0000000000000000000000000000000000000000 || fail 'create-only local fixture ref already exists'
+  [[ "$(git rev-parse "$FIXTURE_REF")" == "$FIXTURE_SHA" ]] || fail 'sealed local fixture ref did not read back'
   FIXTURE_BRANCH="${FIXTURE_REF#refs/heads/}"
   CANARY_STARTED_EPOCH="$(date +%s)"
   jq -n --slurpfile rate "$RATE_SOURCE" --slurpfile rules "$RULES_SOURCE" --slurpfile workflow "$WORKFLOW_SOURCE" \
     --arg candidate "$CANDIDATE_SHA" --arg fixture_ref "$FIXTURE_REF" --arg fixture_sha "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" \
     --argjson request_count "$REQUEST_COUNT" --argjson started_epoch "$CANARY_STARTED_EPOCH" \
-    '{schema_version:"sigra.hosted-gate-canary/v1",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"pending",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{initial_rate_limit:$rate[0],effective_rules:$rules[0],registered_workflow:$workflow[0]},budget:{max_requests:120,request_count:$request_count,initial_requests:3,max_jobs:45,max_minutes:60,watch_request_reservation:8,started_epoch:$started_epoch,actual_jobs:0},preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
+    '{schema_version:"sigra.hosted-gate-canary/v1",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{initial_rate_limit:$rate[0],effective_rules:$rules[0],registered_workflow:$workflow[0]},budget:{max_requests:120,request_count:$request_count,max_jobs:45,max_minutes:60,started_epoch:$started_epoch,actual_jobs:0,elapsed_seconds:0},transport_ledger:{schema_version:"sigra.canary-transport-ledger/v1",transactions:[]},dispatch_inputs:{},preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
   preserve_evidence
   jq --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
     '.preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
   mv "${EVIDENCE}.tmp" "$EVIDENCE"
-  git push origin "$FIXTURE_SHA:$FIXTURE_REF" || fail 'create-only push of scoped fixture ref failed'
-  git ls-remote --exit-code origin "$FIXTURE_REF" | awk -v want="$FIXTURE_SHA" '$1 == want {ok=1} END {exit !ok}' || fail 'pushed fixture ref did not read back at the expected commit'
   git cat-file -e "$FIXTURE_SHA:.github/workflows/ci.yml" || fail 'fixture workflow blob is not in the immutable ref'
   FOUND_WORKFLOW_BLOB="$(git rev-parse "$FIXTURE_SHA:.github/workflows/ci.yml")"
   [[ "$FOUND_WORKFLOW_BLOB" == "$FIXTURE_BLOB" ]] || fail 'fixture workflow blob identity changed'
@@ -289,15 +358,13 @@ dispatch_scenario() {
   jq -e --arg name "$case_name" '.scenarios[$name] == null' "$EVIDENCE" >/dev/null || fail "scenario already has a receipt: $case_name"
   current_jobs="$(jq -r '.budget.actual_jobs // 0' "$EVIDENCE")"
   (( current_jobs + 6 <= MAX_JOBS )) || fail "dispatch would exceed the $MAX_JOBS-job ceiling"
-  [[ "$case_name" == full-pass ]] || check_budget "$WATCH_RESERVATION"
-  ((REQUEST_COUNT += 1))
-  check_budget "$WATCH_RESERVATION"
-  log_request "dispatch scenario=$case_name ref=$FIXTURE_BRANCH"
-  gh workflow run .github/workflows/ci.yml --repo "$REPO" --ref "$FIXTURE_BRANCH" \
-    -f "scenario=$case_name" -f "candidate_sha=$CANDIDATE_SHA" -f "fixture_sha=$FIXTURE_SHA" -f "fixture_blob=$FIXTURE_BLOB" || fail "dispatch failed for $case_name"
+  local input_json
+  input_json="$(jq -cn --arg scenario "$case_name" --arg candidate "$CANDIDATE_SHA" --arg fixture "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" \
+    '{scenario:$scenario,candidate_sha:$candidate,fixture_sha:$fixture,fixture_blob:$blob}')"
+  validate_dispatch_inputs "$input_json"
+  api_post_dispatch "$input_json" || fail "dispatch failed for $case_name"
   record_budget
   run_list="$(mktemp /tmp/253-canary-runs.XXXXXX.json)"
-  sleep 5
   api_get "actions/workflows/$WORKFLOW_ID/runs?event=workflow_dispatch&branch=$FIXTURE_BRANCH&per_page=100" "$run_list"
   run_id="$(jq -r --arg branch "$FIXTURE_BRANCH" --arg sha "$FIXTURE_SHA" --arg title "Phase 253 Gate Canary / $case_name /" '[.workflow_runs[] | select(.workflow_id==259268962 and .head_branch==$branch and .head_sha==$sha and .event=="workflow_dispatch" and (.display_title|startswith($title)))] | sort_by(.run_number) | last | .id // empty' "$run_list")"
   [[ -n "$run_id" ]] || fail "dispatch receipt not found for $case_name"
@@ -305,31 +372,30 @@ dispatch_scenario() {
     jq -e --argjson run_id "$run_id" --arg branch "$FIXTURE_BRANCH" --arg sha "$FIXTURE_SHA" \
       '.workflow_runs[] | select(.id==$run_id and .event=="workflow_dispatch" and .head_branch==$branch and .head_sha==$sha and .workflow_id==259268962)' \
       "$run_list" >/dev/null || fail 'refusing to cancel a run whose fixture identity is not exact'
-    ((REQUEST_COUNT += 1)); check_budget 0
-    log_request "gh run cancel identified fixture run id=$run_id" reserved 1
+    begin_request "https://api.github.com/repos/$REPO/actions/runs/$run_id/cancel" cancel
     record_budget
-    gh run cancel "$run_id" --repo "$REPO" || fail 'identified canary cancellation failed'
+    local cancel_rc=0
+    gh api "repos/$REPO/actions/runs/$run_id/cancel" --method POST >/dev/null || cancel_rc=$?
+    finish_request "$LAST_REQUEST_SEQUENCE" "$([[ $cancel_rc -eq 0 ]] && echo 202 || echo 500)"
+    (( cancel_rc == 0 )) || fail 'identified canary cancellation failed'
   fi
+  run_json="$(mktemp /tmp/253-canary-run.XXXXXX.json)"
+  TERMINAL_RUN_JSON="$run_json"
   local watch_status
   if watch_run "$run_id" "$case_name"; then watch_status=0; else watch_status=$?; fi
   record_budget
   (( watch_status != 124 )) || fail "watch exceeded its reserved four-minute window for $case_name"
   (( watch_status != 77 )) || fail "watch received a GitHub 403/429 rate-limit response; stop until reset"
-  run_json="$(mktemp /tmp/253-canary-run.XXXXXX.json)"
   jobs_json="$(mktemp /tmp/253-canary-jobs.XXXXXX.json)"
   artifacts_json="$(mktemp /tmp/253-canary-artifacts.XXXXXX.json)"
-  api_get "actions/runs/$run_id" "$run_json"
   api_get "actions/runs/$run_id/jobs?per_page=100" "$jobs_json"
   api_get "actions/runs/$run_id/artifacts?per_page=100" "$artifacts_json"
   local run_attempt conclusion
   run_attempt="$(jq -r '.run_attempt' "$run_json")"
   conclusion="$(jq -r '.conclusion // ""' "$run_json")"
   if [[ "$conclusion" == failure ]]; then
-    ((REQUEST_COUNT += 2)); check_budget 0
-    log_request "GET actions/runs/$run_id/logs including redirect" reserved 2
-    record_budget
     failed_logs="$(mktemp /tmp/253-canary-failed-logs.XXXXXX.zip)"
-    gh api "repos/$REPO/actions/runs/$run_id/logs" > "$failed_logs" || fail "failed-log retrieval failed for run $run_id"
+    download_no_follow "https://api.github.com/repos/$REPO/actions/runs/$run_id/logs" "$failed_logs" 0 || fail "failed-log retrieval failed for run $run_id"
   fi
   current_jobs="$(jq -r '.budget.actual_jobs // 0' "$EVIDENCE")"
   new_jobs="$(jq -r '[.jobs[] | select(.conclusion != "skipped")] | length' "$jobs_json")"
@@ -342,19 +408,20 @@ dispatch_scenario() {
     artifact_id="$(jq -r --arg name "gate-canary-$case_name-$run_id-$run_attempt" '[.artifacts[] | select(.name==$name and .expired==false)] | if length==1 then .[0].id else empty end' "$artifacts_json")"
     [[ -n "$artifact_id" ]] || fail "expected same-run retained artifact missing for $case_name"
     archive="$(mktemp /tmp/253-canary-artifact.XXXXXX.zip)"
-    ((REQUEST_COUNT += 2)); check_budget 0
-    log_request "GET artifact ZIP id=$artifact_id including redirect" observed 2
-    record_budget
-    gh api "repos/$REPO/actions/artifacts/$artifact_id/zip" > "$archive" || fail "artifact download failed for $case_name"
+    download_no_follow "https://api.github.com/repos/$REPO/actions/artifacts/$artifact_id/zip" "$archive" "$MAX_ARTIFACT_COMPRESSED" || fail "artifact download failed for $case_name"
     local artifact_data
     artifact_data="$(python3 - "$archive" <<'PY'
-import base64, hashlib, json, sys, zipfile
+import base64, hashlib, json, os, sys, zipfile
 archive_path=sys.argv[1]
+if os.path.getsize(archive_path) > 2 * 1024 * 1024:
+    raise SystemExit('compressed canary artifact exceeds 2 MiB')
 raw=open(archive_path,'rb').read()
 with zipfile.ZipFile(archive_path) as bundle:
     names=[name for name in bundle.namelist() if not name.endswith('/')]
     if names != ['canary-result.json']:
         raise SystemExit('unexpected canary artifact contents: '+repr(names))
+    if bundle.getinfo('canary-result.json').file_size > 4 * 1024 * 1024:
+        raise SystemExit('extracted canary result exceeds 4 MiB')
     content=bundle.read('canary-result.json')
 record=json.loads(content)
 print(json.dumps({'archive_sha256':hashlib.sha256(raw).hexdigest(),'archive_base64':base64.b64encode(raw).decode(),
@@ -386,22 +453,21 @@ PY
 )"
   current_jobs="$(jq -r '.budget.actual_jobs // 0' "$EVIDENCE")"
   (( current_jobs + 1 <= MAX_JOBS )) || fail "separate verifier would exceed the $MAX_JOBS-job ceiling"
-  ((REQUEST_COUNT += 1)); check_budget "$WATCH_RESERVATION"
-  log_request "dispatch separate verifier ref=$FIXTURE_BRANCH"
-  gh workflow run .github/workflows/ci.yml --repo "$REPO" --ref "$FIXTURE_BRANCH" \
-    -f 'scenario=verifier' -f "candidate_sha=$CANDIDATE_SHA" -f "fixture_sha=$FIXTURE_SHA" \
-    -f "fixture_blob=$FIXTURE_BLOB" -f "matrix_evidence=$MATRIX_B64" || fail 'separate verifier dispatch failed'
+  input_json="$(jq -cn --arg candidate "$CANDIDATE_SHA" --arg fixture "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" --arg matrix "$MATRIX_B64" \
+    '{scenario:"verifier",candidate_sha:$candidate,fixture_sha:$fixture,fixture_blob:$blob,matrix_evidence:$matrix}')"
+  validate_dispatch_inputs "$input_json"
+  api_post_dispatch "$input_json" || fail 'separate verifier dispatch failed'
   record_budget
   # The verifier run is found by its distinct workflow display title and exact fixture identity.
   VERIFY_LIST="$(mktemp /tmp/253-canary-verifier-runs.XXXXXX.json)"
-  sleep 5
   api_get "actions/workflows/$WORKFLOW_ID/runs?event=workflow_dispatch&branch=$FIXTURE_BRANCH&per_page=100" "$VERIFY_LIST"
   VERIFY_ID="$(jq -r --arg branch "$FIXTURE_BRANCH" --arg sha "$FIXTURE_SHA" '[.workflow_runs[] | select(.head_branch==$branch and .head_sha==$sha and .event=="workflow_dispatch" and (.display_title|startswith("Phase 253 Gate Canary / verifier /")))] | sort_by(.run_number) | last | .id // empty' "$VERIFY_LIST")"
   [[ -n "$VERIFY_ID" ]] || fail 'separate verifier run was not created'
+  VERIFY_RUN="$(mktemp /tmp/253-canary-verifier-run.XXXXXX.json)"
+  TERMINAL_RUN_JSON="$VERIFY_RUN"
   if watch_run "$VERIFY_ID" 'separate verifier'; then watch_status=0; else watch_status=$?; fi
   (( watch_status != 124 )) || fail 'separate verifier watch exceeded its reservation'
   (( watch_status != 77 )) || fail 'separate verifier watch received a GitHub 403/429; stop until reset'
-  VERIFY_RUN="$(mktemp /tmp/253-canary-verifier-run.XXXXXX.json)"
   VERIFY_JOBS="$(mktemp /tmp/253-canary-verifier-jobs.XXXXXX.json)"
   api_get "actions/runs/$VERIFY_ID" "$VERIFY_RUN"
   api_get "actions/runs/$VERIFY_ID/jobs?per_page=100" "$VERIFY_JOBS"

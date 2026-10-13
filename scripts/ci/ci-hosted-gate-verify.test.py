@@ -79,6 +79,7 @@ def fixture():
         "artifacts": {
             "total_count": 1,
             "artifacts": [{"id": 77, "name": "gate-canary-full-pass-901-1", "expired": False,
+                           "size_in_bytes": len(payload),
                            "digest": "sha256:" + __import__("hashlib").sha256(payload).hexdigest(),
                            "workflow_run": {"id": 901, "run_attempt": 1}}],
         },
@@ -126,7 +127,7 @@ def scenario_fixture(scenario, run_id):
     document['retained_artifact'].update(archive_base64=base64.b64encode(archive.getvalue()).decode(), archive_sha256=digest)
     document['retained_artifact']['files']['canary-result.json'].update(content=file_bytes,
         sha256=__import__('hashlib').sha256(file_bytes.encode()).hexdigest())
-    document['artifacts']['artifacts'][0].update(name=f'gate-canary-{scenario}-{run_id}-1', digest='sha256:' + digest,
+    document['artifacts']['artifacts'][0].update(name=f'gate-canary-{scenario}-{run_id}-1', size_in_bytes=len(archive.getvalue()), digest='sha256:' + digest,
                                                 workflow_run={'id': run_id, 'run_attempt': 1})
     return document
 
@@ -211,6 +212,45 @@ class HostedGateVerifierTests(unittest.TestCase):
         document["dispatch_inputs"]["extra"] = "x"
         document["dispatch_inputs"]["too_long"] = "x" * 65536
         self.assertNotEqual(self.invoke(document).returncode, 0)
+
+    def test_mocked_dispatch_poll_artifact_independent_verifier_path(self):
+        document = fixture()
+        urls = [
+            ("POST", "https://api.github.com/repos/szTheory/sigra/actions/workflows/259268962/dispatches", 204),
+            ("GET", "https://api.github.com/repos/szTheory/sigra/actions/runs?event=workflow_dispatch", 200),
+            ("GET", "https://api.github.com/repos/szTheory/sigra/actions/runs/901", 200),
+            ("GET", "https://api.github.com/repos/szTheory/sigra/actions/runs/901/jobs", 200),
+            ("GET", "https://api.github.com/repos/szTheory/sigra/actions/runs/901/artifacts", 200),
+            ("GET", "https://api.github.com/repos/szTheory/sigra/actions/artifacts/77/zip", 302),
+            ("GET", "https://productionresultssa123.blob.core.windows.net/result/archive", 200),
+        ]
+        document["transport_ledger"]["transactions"] = [
+            {"sequence": i, "method": method, "url": url, "status": status}
+            for i, (method, url, status) in enumerate(urls, 1)
+        ]
+        document["transport_trace"] = copy.deepcopy(document["transport_ledger"]["transactions"])
+        document["budget"]["request_count"] = len(urls)
+        result = self.invoke(document)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('"status": "verified"', result.stdout)
+
+    def test_rejects_hidden_page_redirect_and_rate_limited_transport(self):
+        base = fixture()
+        base["transport_trace"] = copy.deepcopy(base["transport_ledger"]["transactions"])
+        for extra in (
+            {"method": "GET", "url": "https://api.github.com/mock/hidden-poll", "status": 200},
+            {"method": "GET", "url": "https://api.github.com/mock/page-2", "status": 200},
+            {"method": "GET", "url": "https://productionresultssa123.blob.core.windows.net/second-hop", "status": 200},
+            {"method": "GET", "url": "https://api.github.com/mock/rate", "status": 429},
+        ):
+            document = copy.deepcopy(base)
+            if extra["status"] == 429:
+                document["transport_ledger"]["transactions"][0].update(extra, sequence=1)
+            else:
+                sequence = len(document["transport_trace"]) + 1
+                document["transport_trace"].append({"sequence": sequence, **extra})
+            with self.subTest(extra=extra):
+                self.assertNotEqual(self.invoke(document).returncode, 0)
 
     def test_rejects_oversized_artifact_and_extra_archive_member(self):
         document = fixture()
