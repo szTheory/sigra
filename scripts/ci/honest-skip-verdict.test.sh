@@ -56,6 +56,28 @@ SCRIPT="${SCRIPT_DIR}/honest-skip-verdict.sh"
 REAL_MANIFEST="$(cd "${SCRIPT_DIR}/../.." && pwd)/.github/ci-skip-manifest.tsv"
 REAL_WORKFLOW="$(cd "${SCRIPT_DIR}/../.." && pwd)/.github/workflows/ci.yml"
 
+unit_contract() {
+python3 - "$SCRIPT" "$REAL_WORKFLOW" <<'PY'
+import json, pathlib, subprocess, sys, unittest
+script, workflow = sys.argv[1:]
+lanes = 'install_golden_contract library_tests library_tests_dep_off example_unit_smoke install_smoke upgrade_smoke example_http_smoke example_playwright_smoke generated_admin_playwright_smoke fast_checks'.split()
+class UnitOwner(unittest.TestCase):
+    def test_unit_result_is_owned_by_actual_verdict(self):
+        args = ['bash', script, '--workflow', workflow, '--event', 'pull_request', '--docs-only', 'false', '--format', 'json']
+        for lane in lanes: args += ['--lane', lane+'=success']
+        result = subprocess.run(args, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('example_unit_smoke', [r['id'] for r in json.loads(result.stdout)['lanes']])
+        omitted_args = args[:10]
+        for lane in lanes:
+            if lane != 'example_unit_smoke': omitted_args += ['--lane', lane+'=success']
+        omitted = subprocess.run(omitted_args, text=True, capture_output=True)
+        self.assertNotEqual(omitted.returncode, 0)
+unittest.main(argv=[sys.argv[0]], verbosity=2)
+PY
+}
+if [[ "${1:-}" == --unit-contract ]]; then unit_contract; exit $?; fi
+
 if [[ ! -f "$SCRIPT" ]]; then
   echo "FATAL: script not found at ${SCRIPT}" >&2
   exit 2
