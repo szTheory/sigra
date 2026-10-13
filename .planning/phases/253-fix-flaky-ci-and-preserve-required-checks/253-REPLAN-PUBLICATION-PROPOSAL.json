@@ -1,19 +1,18 @@
 {
-  "blockers": [
-    "complete product tree delta exceeds the 2 MiB serialized tree body limit"
-  ],
-  "candidate_helper_commit": "2ba7733636b1472f38fbcf14cc027fad7f9b8323",
-  "candidate_source_commit": "d9e24f4774411535c43f2b7336db9f03755a0182",
+  "blockers": [],
+  "candidate_helper_commit": "7588b147d074e10fe9049e7e2706e56ecfdfcebb",
+  "candidate_source_commit": "778be9c15b9a7128936036ac292ce60e183edd5a",
+  "candidate_tree_sha": "e45a14bce1667b2944338788f2d5305ddf1c19f9",
   "commit_metadata": {
     "author": "Sigra Publication Bot",
     "committer": "Sigra Publication Bot",
-    "date_utc_second": "2026-10-13T22:42:13Z",
+    "date_utc_second": "2026-10-13T23:17:00Z",
     "email": "sigra-publication@users.noreply.github.com",
     "message_newline_terminated": true,
     "unsigned": true
   },
-  "docs_base_commit": "176898f40b2ddd7953d6ae9b4bed6e55e9ab5cf0",
-  "docs_head_commit": "158dc8fd25a037247ff157f5234b1568cf1c58ec",
+  "docs_base_commit": "326f9134a72a8a51682cc9f4ac08d555a2ce7210",
+  "docs_head_commit": "e1b50a161e54f31899c2e24fef34806d2d409330",
   "docs_head_path": "guides/reference/phase253-docs-only-proof.md",
   "docs_variants_local_only": [
     {
@@ -33,26 +32,28 @@
       "name": "docs-head"
     }
   ],
+  "fixture_tree_sha": "7cfe91e189081c288b8baa8643fea03693481441",
   "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
-  "fixture_workflow_commit": "1aac9b7a494a509d2c69f0a5374a5b41f15b1137",
+  "fixture_workflow_commit": "775f0fed4ab38226c22c5314c4e58bb19787f2d7",
   "parent_tree_sha": "e9d63071f0ab4ac8edba8a60a2503cc882cb5556",
   "product_tree_parity": {
     "candidate_product_files": 1462,
-    "candidate_product_tree": "319538e11f8275e2afa2e813e57b91fa6a9065b7",
+    "candidate_product_tree": "379074b0d277ac479d93b8d3f1a82ab6ed179c42",
     "parent_product_tree": "e9d63071f0ab4ac8edba8a60a2503cc882cb5556",
     "same_paths_modes_blobs": true,
     "source_product_files": 1462,
-    "source_product_tree": "319538e11f8275e2afa2e813e57b91fa6a9065b7"
+    "source_product_tree": "379074b0d277ac479d93b8d3f1a82ab6ed179c42"
   },
   "projection": {
     "binary_blob_requests": 0,
-    "candidate_fixture_request_reservation": 14,
     "complete_product_delta_dropped": false,
-    "largest_tree_body_bytes": 3019411,
+    "fixed_non_tree_requests": 12,
+    "largest_tree_body_bytes": 2084074,
     "max_requests": 24,
     "max_tree_body_bytes": 2097152,
     "parent_preflight_requests": 1,
-    "projected_total_requests": 15
+    "projected_total_requests": 16,
+    "tree_request_count": 3
   },
   "schema_version": "sigra.phase253.git-publication/v1",
   "server_object_receipts": [],
@@ -66,20 +67,38 @@
     "product_status_hex": ""
   },
   "source_git_status": "",
-  "source_sha": "d9e24f4774411535c43f2b7336db9f03755a0182",
-  "status": "blocked",
+  "source_sha": "778be9c15b9a7128936036ac292ce60e183edd5a",
+  "status": "ready-local-proposal",
   "tree_requests": [
     {
+      "base_tree_sha": "e9d63071f0ab4ac8edba8a60a2503cc882cb5556",
       "binary_blobs": 0,
-      "body_bytes": 3019411,
-      "changed_entries": 167,
-      "name": "candidate"
+      "body_bytes": 2084074,
+      "changed_entries": 91,
+      "name": "candidate-part-01",
+      "sequence": 1,
+      "tree_sha": "7ffa4f0755e1780e9cce4ca7c35d810f46342e81",
+      "variant": "candidate"
     },
     {
+      "base_tree_sha": "7ffa4f0755e1780e9cce4ca7c35d810f46342e81",
+      "binary_blobs": 0,
+      "body_bytes": 949228,
+      "changed_entries": 76,
+      "name": "candidate-part-02",
+      "sequence": 2,
+      "tree_sha": "e45a14bce1667b2944338788f2d5305ddf1c19f9",
+      "variant": "candidate"
+    },
+    {
+      "base_tree_sha": "e45a14bce1667b2944338788f2d5305ddf1c19f9",
       "binary_blobs": 0,
       "body_bytes": 17332,
       "changed_entries": 1,
-      "name": "fixture"
+      "name": "fixture",
+      "sequence": 1,
+      "tree_sha": "7cfe91e189081c288b8baa8643fea03693481441",
+      "variant": "fixture"
     }
   ],
   "workflow_path": ".github/workflows/phase-253-gate-canary.yml"
