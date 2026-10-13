@@ -642,6 +642,38 @@ def _utc(value: str):
     return datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
+def select_failure_context(raw: bytes, expected_sha256: str, line_offset: int = 0) -> dict:
+    """Choose the actual failure before sanitizing and applying a display cap."""
+    digest = hashlib.sha256(raw).hexdigest()
+    result = {'input_sha256': digest, 'source_line_start': None, 'source_line_end': None,
+              'text': '', 'truncated': False, 'completeness': 'incomplete', 'missing_details': []}
+    if digest != expected_sha256:
+        result['missing_details'] = ['log_hash_mismatch']
+        return result
+    rows = raw.decode('utf-8', 'replace').splitlines()
+    hits = []
+    for index, row in enumerate(rows):
+        content = re.sub(r'^\d{4}-\d\d-\d\dT\S+\s+', '', row).strip()
+        if re.match(r'(?:PASS:|Test [A-Z][0-9]*:)', content):
+            continue
+        if re.search(r'(?:^|\s)FAIL:|AssertionError|##\[error\]|command not found|Error:.*(?:expect|timeout)|Test timeout.*exceeded', content):
+            hits.append(index)
+    if not hits:
+        result['missing_details'] = ['failure_assertion_not_retained']
+        return result
+    # Each consumer gets a bounded, source-indexed context. The original input
+    # digest remains visible, and omitted ranges never imply a complete log.
+    start, end = max(0, hits[0] - 3), min(len(rows), hits[-1] + 4)
+    report = sanitize_failure_log('\n'.join(rows[start:end]).encode())
+    result.update(text=report['text'], source_line_start=start + 1 + line_offset,
+                  source_line_end=end + line_offset, truncated=report['truncated'])
+    if report['truncated'] or '[LOG EXCERPT TRUNCATED]' in report['text']:
+        result.update(truncated=True, missing_details=['selected_context_truncated'])
+    else:
+        result['completeness'] = 'complete'
+    return result
+
+
 def diagnose_snapshot(bundle: pathlib.Path, archive: pathlib.Path, baseline: pathlib.Path) -> dict:
     """A companion, never a rewrite of the immutable metrics replay."""
     saved = json.loads(baseline.read_text())
@@ -651,6 +683,8 @@ def diagnose_snapshot(bundle: pathlib.Path, archive: pathlib.Path, baseline: pat
     result = {'schema_version': 'sigra.ci-diagnosis/v1',
               'source_bundle_sha256': _digest(archive), 'baseline_sha256': _digest(baseline),
               'source_errors': sorted(set(errors)), 'records': [],
+              'acquisition': {'mode': 'offline_saved_archive', 'github_requests': 0,
+                              'additional_requests_ceiling': 60, 'additional_seconds_ceiling': 900},
               'cause_claim': 'observations_only; no current flake or application cause proved'}
     if errors:
         result['status'] = 'incomplete'
@@ -707,6 +741,13 @@ def diagnose_snapshot(bundle: pathlib.Path, archive: pathlib.Path, baseline: pat
                                 if start <= stamp and stamp.timestamp() < end.timestamp() + 1:
                                     relevant.append((number, line))
                             text = '\n'.join(line for _, line in relevant)
+                            selected_bytes = text.encode()
+                            record['selected_context'] = select_failure_context(selected_bytes,
+                                hashlib.sha256(selected_bytes).hexdigest(), relevant[0][0] - 1 if relevant else 0)
+                            # These are excerpts of the archived producer log, not
+                            # a newly acquired complete log or a native report.
+                            record['selected_context']['producer_input_sha256'] = log_ref['sha256']
+                            record['missing_details'].extend(record['selected_context']['missing_details'])
                             exits = re.findall(r'Process completed with exit code (\d+)', text)
                             if exits:
                                 record['observed_command_exit'] = int(exits[-1])
