@@ -13,6 +13,18 @@ const ids = [
 ];
 const blocks = Object.fromEntries(ids.map((id) => [id, jobBlock(workflow, id)]));
 
+test('browser records travel through unique artifacts into the mandatory native verdict', () => {
+  assert.ok(blocks.example_playwright_shard.includes('ci-browser-records.mjs --record'), 'browser producer must record actual selected outcomes');
+  assert.ok(blocks.example_playwright_shard.includes('browser-execution-${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}'));
+  assert.match(blocks.example_playwright_shard, /if-no-files-found: error/);
+  const aggregate = jobBlock(workflow, 'example_playwright_smoke');
+  assert.match(aggregate, /^    if: always\(\)$/m);
+  assert.ok(aggregate.includes('actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0'));
+  assert.ok(aggregate.includes('ci-browser-records.mjs --verify'));
+  assert.ok(aggregate.includes('--native-result "$SHARDS"'));
+  assert.match(aggregate, /merge-multiple: false/);
+});
+
 test('keeps one library mix ci owner and preserves required check names', () => {
   const owners = Object.entries(blocks).filter(([, block]) => /^\s+run: (?:MIX_ENV=test )?mix ci\s*$/m.test(block));
   assert.deepEqual(owners.map(([id]) => id), ['library_tests_shard']);

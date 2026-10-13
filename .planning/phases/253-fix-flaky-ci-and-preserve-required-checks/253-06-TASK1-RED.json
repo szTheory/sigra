@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-reporter=tap --test-name-pattern=\"browser records travel\" scripts/ci/ci-measure-workflow.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: browser records travel through unique artifacts into the mandatory native verdict\nnot ok 1 - browser records travel through unique artifacts into the mandatory native verdict\n  ---\n  duration_ms: 0.501625\n  type: 'test'\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-measure-workflow.test.mjs:16:1'\n  failureType: 'testCodeFailure'\n  error: 'browser producer must record actual selected outcomes'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: true\n  actual: false\n  operator: '=='\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-measure-workflow.test.mjs:17:10)\n    Test.runInAsyncScope (node:async_hooks:226:14)\n    Test.run (node:internal/test_runner/test:1402:25)\n    Test.start (node:internal/test_runner/test:1262:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 39.284541\n",
+  "targetTest": "browser records travel through unique artifacts into the mandatory native verdict",
+  "targetFile": "scripts/ci/ci-measure-workflow.test.mjs",
+  "expected": "actual producer record, unique artifact and separate aggregate intake are wired",
+  "actual": "producer record step absent",
+  "semanticAssessment": "Target reads actual workflow producer and fails at planned missing record invocation assertion."
+}
