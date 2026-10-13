@@ -26,6 +26,7 @@ key-files:
     - .planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION.json
     - .planning/phases/252-measure-current-ci/252-06-ACQUISITION-ATTEMPTS.json
     - .planning/phases/252-measure-current-ci/acquisition-attempts/
+    - .planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION-72c71eb.json
   modified:
     - scripts/ci/ci-exunit-timing.test.sh
     - scripts/ci/sigra-dep-off.sh
@@ -34,6 +35,12 @@ key-files:
     - test/support/ci_timing_formatter.ex
     - scripts/ci/ci-run-metrics.sh
     - scripts/ci/ci-run-metrics.test.sh
+    - scripts/ci/ci-run-metrics-replay.test.mjs
+    - scripts/ci/ci-run-metrics-comparison.test.sh
+    - scripts/ci/ci-metrics-security.test.py
+    - scripts/ci/ci_metrics_security.py
+    - scripts/ci/ci-measure-report.sh
+    - scripts/ci/ci-measure-report.test.sh
     - .github/workflows/ci.yml
     - .planning/phases/252-measure-current-ci/252-06-SUMMARY.md
 decisions:
@@ -44,12 +51,12 @@ metrics:
   duration: 84 minutes
   completed_date: 2026-10-12
   plan_head_before: 399f80d8c2f17120117d729a75d3e57f099ec9dc
-  plan_head_after: cae9eb2f8
-  commits: 51
+  plan_head_after: 72b6a3ead036ab8ec3cedb422b279a40ca86e285
+  commits: 57
 actuals:
   tokens: 8676277
   tasks: 3
-  commits: 51
+  commits: 57
 status: complete
 ---
 
@@ -191,3 +198,29 @@ No new producer change was needed, so PR #331 was not modified and no new CI run
 ## Security refresh self-check: PASSED
 
 The refreshed source bundle, baseline, report, comparison contract, acquisition ledger, durable request ledgers and write-ahead preservation record exist. Commits `282091eaa`, `362c84008`, `0cdc4e40f`, `a97017e50`, `654f771bf`, `c97bf641e` and `cae9eb2f8` are ancestors of the current branch. The refreshed archive replays byte-identically and archive-backed baseline verification returns `ready` with no diagnostics. Phase verification and independent security re-audit are still pending.
+
+## Independent security re-audit repair correction (2026-10-12)
+
+The subsequent independent audit found ten remaining gaps in alternate replay and comparison paths. The repairs below supersede the earlier security-table claims where they conflict. The security auditor still needs to recheck the implementation; no finding is self-closed here.
+
+| Findings | Repair | Behavioral evidence |
+| --- | --- | --- |
+| T01 | Family replay binds each API run to exactly one saved population row and checks its repository, run, attempt, expected attempt-jobs request, and check-run-to-physical-job graph. | Collector fixtures reject an unbound check ID and verify all five required context/job links. |
+| T02 | Every retained changed-path page has an exact path and SHA-256 in its family manifest, and its page URL must exist in the hashed API request ledger. | Missing, extra, modified, and unrequested page fixtures fail closed; refreshed archive replays offline. |
+| T06/T15 | Bounded failure-log redaction strips shell trace prefixes and `export`/`declare` assignments, removes environment dumps and arbitrary assignments, redacts credentials and URLs, and caps input/output bytes. | Trace-prefixed AWS secrets, exported values, declarations, environment dumps, large logs and useful diagnosis lines are covered. |
+| T08 | Both generic and selected-sample ExUnit readers require validated main and child invocation identities, valid result enums, integer/nonnegative counts, row/count reconciliation, and microsecond duration units. | Twelve security fixtures and eight ExUnit consumer tests pass; missing or empty main/child reports cannot count as complete timing. |
+| T12 | Generic timing rows are accepted only through the same full source-bound producer validator: API artifact owner/name, run/attempt/head, successful upload step/time, producer source and artifact-member bytes. | The old unbound generic timing path is now unknown; the selected PR's both-invocation reports remain accepted through the verified archive. |
+| T13 | Every ranking row must carry the requested API run ID, attempt, head SHA, repository identity, and numeric physical job ID. | Generic ranking fixture includes the authenticated identity; absent or mismatched identity is rejected. |
+| T16 | Workflow bytes are accepted only when the commit's `commit.tree.sha` equals the retrieved tree SHA and that tree binds the exact workflow blob bytes. | A commit/tree SHA mismatch fixture is rejected. |
+| T17 | Contract baseline archive SHA must equal the immutable archive supplied to evaluation. Every queued-run registration retains the exact API response bytes in a hash-chained record, and the evaluator checks them against reservation, run ID, head, event, null outcome, and the fixed 48-hour window. | Baseline digest mismatch, changed response bytes, changed run ID, duplicate reservation, altered chain and out-of-window fixtures fail. Candidate/window/future family IDs remain pending; no comparison runs started. |
+| T19 | Failure-log replay reads only the canonical contained path whose bytes match the saved hash. Report prose escapes Markdown delimiters and only links canonical GitHub repository URLs. | Traversal, alternate path, wrong hash, JavaScript/protocol-relative Markdown links, injected links and unsafe URL fixtures are rejected or rendered inert. |
+
+The repair commits are `e942dc76d` (shared security validators, collector/replay/report enforcement and adversarial tests), `a7932e425` (refreshed source archive, baseline, report and contract), and `72b6a3ead` (generic ranking fixture with required identity fields). The old evidence was verified byte-for-byte against the durable preservation record before refresh at `1a83fe30e`; it remains recoverable there.
+
+The current archive SHA-256 is `95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30`; baseline SHA-256 is `f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843`; report SHA-256 is `7d0f7fff31b0a266ecc0c76853f8e6a98a193860c97ddea866bca1c3f6018237`; contract SHA-256 is `8d3d0d991eff2955b9d8e29bd845df1d848150352ef808984350b801ed018d6c`. The comparison contract now records this exact archive digest and the prior digest used before the security refresh. Two replay outputs have identical SHA-256 `0e047cb23f8c33e4aa41cb03da7fc6043f46047ed49e26842f80d58b4501643a`; `--verify-baseline` returns `ready` with no diagnostics.
+
+Final focused checks: `python3 scripts/ci/ci-metrics-security.test.py` (12 passed), `python3 scripts/ci/exunit_timing_contract_test.py` (8 passed), `bash scripts/ci/ci-run-metrics.test.sh` (41 passed), `bash scripts/ci/ci-run-metrics-comparison.test.sh`, `bash scripts/ci/ci-measure-report.test.sh`, and `node --test scripts/ci/ci-run-metrics-replay.test.mjs scripts/ci/ci-measure-workflow.test.mjs` (5 passed). Shell syntax checks and `git diff --check` pass. No hosted run or comparison family was started because producer source did not change and no comparison is authorized in this phase. Requirements remain pending phase verification, and the parent security auditor must perform the independent re-audit.
+
+## Final security refresh self-check: PASSED
+
+The current archive, baseline, report and contract hashes above match disk; the source archive reproduces the baseline byte-for-byte and strict baseline verification passes. Commits `e942dc76d`, `a7932e425` and `72b6a3ead` are on the authorized `phase-244-playwright-measurement` branch. The only remaining action is the independent security audit and phase-level verification; this summary does not claim either has passed.
