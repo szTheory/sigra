@@ -5,7 +5,7 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
 status: "executing_recovery"
-stopped_at: "Plan 09 halted before browser; independent Plan 11 executing"
+stopped_at: "Plan 11 local checks passed; Plan 12 starts with preflight repairs"
 last_updated: "2026-10-13T14:04:38.077234+00:00"
 last_activity: "2026-10-13"
 last_activity_desc: "Six recovery plans passed independent review and planning checks"
@@ -14,8 +14,8 @@ progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 20
-  completed_plans: 11
-  percent: 55
+  completed_plans: 12
+  percent: 60
 milestone_status: active
 workflow_step: "execute_recovery"
 verification_status: not_started
@@ -32,7 +32,7 @@ phase253_plan_count: 14
 phase253_wave_count: 4
 phase253_task_count: 30
 phase253_implementation_status: partial
-phase253_completed_plans: 5
+phase253_completed_plans: 6
 phase253_halted_plans: [253-02, 253-07, 253-09]
 phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
 
@@ -53,8 +53,8 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 253 (Fix Flaky CI and Preserve Required Checks) — INCOMPLETE
-Plans: 5 of 14 complete; six recovery plans ready in four waves; original 02/07 halted and 08 blocked
-Status: Plan 09 halted before browser; independent Plan 11 executing
+Plans: 6 of 14 complete; recovery09 halted, 11 locally checked, 12 starting; 10/13/14 blocked
+Status: Plan 11 local checks passed; Plan 12 begins with preflight repairs
 Last activity: 2026-10-13 — Six plans, thirteen tasks checked; no browser or hosted work launched
 Progress: 11/20 planned milestone plans complete (55%); Phase 253 verification not started
 
@@ -148,3 +148,7 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 ## Recovery execution update
 
 Plan 09 stopped in setup: runtime port 25311 differs from compiled port 4011. Setup/drop both exited1; zero browsers launched; 3,768ms charged and D19-DIAG-01 spent. Native verification rejects failed cleanup and log digests made stale by key redaction. The exact metadata ledger contains no key values and is now durably committed and read back. GSD correctly blocks 10/13/14 behind halted09. Plan11 remains independent and is starting; Plan12 awaits11. Both requirements remain open and phase verification is not started. No GitHub requests occurred in this recovery execution.
+
+## Canary recovery update
+
+Plan11 local checks pass (16 Python tests, shell suite, frozen identity check). Its new fixture is local and unpushed. Root found two startup defects before hosted work: original preflight paths/refs are reused, and frozen candidate identity can bypass initialization of absent new evidence. Plan12 must repair and exercise these locally before any HTTP call/push, then preserve and seal updated source identities if necessary. The hosted budget has not started, no GitHub requests have occurred, and both requirements remain open. See 253-RECOVERY-EXECUTION-PROGRESS-02.json.

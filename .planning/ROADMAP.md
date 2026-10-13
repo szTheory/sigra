@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 5/14 complete; six checked recovery plans across four recovery waves; original 02/07 halted and 08 blocked; phase verification not started
+**Plans**: 6/14 complete; six checked recovery plans across four recovery waves; original 02/07 halted and 08 blocked; phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -110,7 +110,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 - [ ] 253-09-PLAN.md — New bounded registration diagnostics and native receipts
 - [ ] 253-10-PLAN.md — Real controls and cause-backed fresh target repeats
-- [ ] 253-11-PLAN.md — Exact charged request transport and new canary freeze
+- [x] 253-11-PLAN.md — Exact charged request transport and new canary freeze
 - [ ] 253-12-PLAN.md — Six hosted source scenarios and independent verifier
 - [ ] 253-13-PLAN.md — Normal and real docs-only draft PR evidence
 - [ ] 253-14-PLAN.md — Evidence-linked requirements and historical-plan reconciliation
