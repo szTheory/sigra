@@ -9,5 +9,12 @@
     "An occupied localhost fixture port is detected; no browser starts.",
     "An existing attempt directory is rejected without changing its saved marker."
   ],
+  "additionalFocusedCommand": "node --test --test-reporter=tap --test-name-pattern='readiness fails immediately|each diagnostic uses its own physical Mix build' scripts/ci/ci-registration-recovery.test.mjs",
+  "additionalFocusedExitCode": 0,
+  "additionalFocusedTestsPassed": 2,
+  "additionalChecks": [
+    "An app process that has already exited cannot be mistaken for HTTP readiness.",
+    "Inherited PORT and MIX_BUILD_PATH values from another compiled endpoint are overridden by the frozen project port and unique per-attempt build path."
+  ],
   "semanticAssessment": "The validation used copied saved native receipt files in temporary directories and hermetic localhost/process fixtures. No app, database, browser, new native slot, GitHub request, or external service was started."
 }

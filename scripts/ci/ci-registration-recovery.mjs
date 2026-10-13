@@ -736,7 +736,7 @@ export function portAvailable(port) {
   });
 }
 
-async function waitReady(child, url, deadline) {
+export async function waitReady(child, url, deadline) {
   while (Number(process.hrtime.bigint()) / 1e6 < deadline) {
     if (child.exitCode !== null || child.signalCode !== null) return null;
     const status = await httpStatus(url);

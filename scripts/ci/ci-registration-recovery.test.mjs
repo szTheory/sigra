@@ -125,6 +125,10 @@ test('port availability detects an occupied localhost fixture port without launc
   assert.equal(await recovery.portAvailable(port), true);
 });
 
+test('readiness fails immediately when the app child already exited before HTTP readiness', async () => {
+  assert.equal(await recovery.waitReady({ exitCode: 1, signalCode: null }, 'http://127.0.0.1:1/', Number(process.hrtime.bigint()) / 1e6 + 1000), null);
+});
+
 test('one-use infrastructure retry requires the independently reviewed Chromium bootstrap failure', () => {
   assert.equal(typeof recovery.validateInfrastructureRetry, 'function');
   if (typeof recovery.validateInfrastructureRetry !== 'function') return;
@@ -188,7 +192,7 @@ test('each diagnostic uses its own physical Mix build for setup, server and clea
   const first = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-first-'));
   const second = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-second-'));
   try {
-    const inherited = { ...process.env, MIX_BUILD_PATH: '/shared/compiled-at-port-4011' };
+    const inherited = { ...process.env, MIX_BUILD_PATH: '/shared/compiled-at-port-4011', PORT: '4011' };
     const one = recovery.diagnosticEnvironment({ port: 25311 }, 'first_database', first, inherited);
     const two = recovery.diagnosticEnvironment({ port: 25312 }, 'second_database', second, inherited);
     assert.equal(one.MIX_BUILD_PATH, path.join(fs.realpathSync(first), 'mix-build'));
@@ -197,6 +201,8 @@ test('each diagnostic uses its own physical Mix build for setup, server and clea
     assert.equal(fs.existsSync(one.MIX_BUILD_PATH), false);
     assert.equal(one.PORT, '25311');
     assert.equal(two.PORT, '25312');
+    assert.notEqual(one.PORT, inherited.PORT);
+    assert.notEqual(two.PORT, inherited.PORT);
     for (const command of ['setup', 'server', 'drop']) {
       const log = path.join(first, `${command}.log`);
       const receipt = runLogged(process.execPath, ['-e', 'process.stdout.write(JSON.stringify({build:process.env.MIX_BUILD_PATH,port:process.env.PORT,database:process.env.PGDATABASE}))'], root, one, log, 2000);
