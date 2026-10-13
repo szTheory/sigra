@@ -36,30 +36,10 @@ if [[ -n "$FREEZE" && "$FREEZE" != /* ]]; then FREEZE="$ROOT/$FREEZE"; fi
 if [[ -n "$OUTPUT" && "$OUTPUT" != /* ]]; then OUTPUT="$ROOT/$OUTPUT"; fi
 
 if [[ "$MODE" != --run-frozen ]]; then
-  node - "$MODE" "$OUTPUT" <<'NODE'
-const fs = require('node:fs');
-const assert = require('node:assert/strict');
-const [mode, path] = process.argv.slice(2);
-const evidence = JSON.parse(fs.readFileSync(path, 'utf8'));
-assert.equal(evidence.schema_version, 'sigra.phase253.registration-evidence/v1');
-const status = evidence.status;
-if (mode === '--verify-controls') {
-  assert.ok(evidence.controls?.readiness?.delayed?.observed);
-  assert.ok(evidence.controls?.readiness?.missing?.observedFailure);
-  assert.ok(evidence.controls?.readiness?.brokenWait?.observedFailure);
-  assert.ok(evidence.controls?.stateCollision?.observedFailure);
-  assert.ok(evidence.controls?.trace?.firstFailure?.assertionPresent);
-  assert.ok(evidence.controls?.trace?.passing?.artifactAbsent);
-} else {
-  assert.ok(evidence.projects?.length === 3);
-  assert.ok(evidence.projects.every((project) => ['passed', 'failed', 'not_run'].includes(project.originalOutcome)));
-  assert.ok(['fixed', 'not_reproduced', 'diagnosis_incomplete'].includes(status));
-  if (status === 'fixed') assert.ok(evidence.fix?.freshRepeats?.length >= 3);
-  if (status === 'diagnosis_incomplete') assert.equal(evidence.requirements?.['CIREL-01'], 'unsatisfied');
-}
-console.log(`${mode}: ${status}`);
-NODE
-  exit 0
+  # The halted runner has no producer for verified browser/control receipts.
+  # Claims in a caller-written JSON file are diagnostics, never acceptance.
+  echo "$MODE: native browser and control receipts validation is not implemented; registration acceptance remains unverified" >&2
+  exit 3
 fi
 
 [[ -f "$FREEZE" ]] || { echo "missing freeze: $FREEZE" >&2; exit 2; }
