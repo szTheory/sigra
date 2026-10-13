@@ -197,6 +197,7 @@ function createRevision(output, root = ROOT) {
   const oldEvidencePath = path.join(phaseDir, '253-RECOVERY-REGISTRATION-EVIDENCE.json');
   const terminalPath = path.join(phaseDir, '253-09-TERMINAL-DIAGNOSTIC.json');
   const capturePath = path.join(phaseDir, '253-ADDITIONAL-EXECUTION-CAPTURE.json');
+  const predecessorPath = path.join(phaseDir, '253-REPLAN-REGISTRATION-FREEZE.json');
   const oldFreeze = readJson(oldFreezePath);
   const oldEvidence = readJson(oldEvidencePath);
   const terminal = readJson(terminalPath);
@@ -224,6 +225,9 @@ function createRevision(output, root = ROOT) {
       rejected_original_log_hashes: terminal.redacted_logs.map((entry) => ({ path: entry.path, sha256: entry.sha256, accepted_as_native_receipt: false })),
       preceding_order: 'unknown', preceding_order_reason: 'The archived original preceding-order log is absent.'
     },
+    supersedes_zero_work_freeze: fs.existsSync(predecessorPath) && path.resolve(output) !== path.resolve(predecessorPath)
+      ? { path: path.relative(root, predecessorPath), sha256: fileHash(predecessorPath), native_work_started: false, preparation_work_started: false, capacity_added: false }
+      : null,
     preparation: { id: 'D19-COMMON-PREPARATION', max_duration_ms: 116232, charged_duration_ms: 0, allowed: ['npm ci using the existing lockfile', 'node --version', 'Playwright --version', 'mix --version', 'MIX_ENV=dev mix deps version observation'], prohibits: ['application boot', 'HTTP request', 'browser launch', 'endpoint compilation', 'database setup'] },
     ledger: {
       historical_charge_ms: 3768, spent_reservations: [{ id: 'D19-DIAG-01', browser_launches: 0, charged_ms: 3768, outcome: 'halted_setup_and_drop_exit_1' }],
@@ -699,7 +703,7 @@ function validateRevisionSource(root, freeze, evidenceFile = null) {
     [path.join(phaseDir, '253-RECOVERY-REGISTRATION-FREEZE.json'), freeze.historical.original_freeze_sha256],
     [path.join(phaseDir, '253-RECOVERY-REGISTRATION-EVIDENCE.json'), freeze.historical.original_evidence_sha256],
     [path.join(phaseDir, '253-09-TERMINAL-DIAGNOSTIC.json'), freeze.historical.terminal_diagnostic_sha256],
-    [path.join(phaseDir, '253-RECOVERY-REPLAN-CAPTURE.json'), freeze.historical.recovery_capture_sha256]
+    [path.resolve(root, freeze.historical.recovery_capture_path), freeze.historical.recovery_capture_sha256]
   ];
   for (const [file, expected] of identities) if (fileHash(file) !== expected) throw new Error(`historical registration bytes changed: ${path.relative(root, file)}`);
   return head;
@@ -856,8 +860,10 @@ function verifyRevisionData(evidence, freeze, baseDir) {
   const errors = [];
   if (evidence?.schema_version !== REPLAN_SCHEMA || evidence.freeze_sha256 !== freeze?.freeze_sha256) errors.push('evidence does not match the frozen revision');
   if (evidence.historical?.preceding_order !== 'unknown' || evidence.limits?.historical_charge_ms !== 3768) errors.push('historical uncertainty or spent charge was not preserved');
+  if (evidence.preparation_status !== 'passed') errors.push('common dependency preparation is missing or incomplete');
   if (!Array.isArray(evidence.attempts) || !Array.isArray(evidence.preparation_receipts)) errors.push('preparation or attempt ledger is absent');
   else {
+    if (evidence.attempts.length === 0) errors.push('no native diagnostic attempt is present');
     const ids = new Set();
     let browserLaunches = 0; let attemptCharge = 0;
     for (const attempt of evidence.attempts) {

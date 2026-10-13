@@ -51,8 +51,17 @@ test('the explicit revision CLI freezes before results and accepts a named diagn
   assert.equal(revision.ledger.slots[0].argv[0], '--project=admin-eval');
   assert.equal(revision.ledger.slots[1].id, 'R-DIAG-MOBILE');
 
+  const freezeHash = crypto.createHash('sha256').update(fs.readFileSync(freeze)).digest('hex');
+  fs.writeFileSync(evidence, JSON.stringify({
+    schema_version: 'sigra.phase253.registration-replan-evidence/v1', status: 'running',
+    freeze_path: path.relative(root, freeze), freeze_sha256: freezeHash,
+    historical: { preceding_order: 'unknown' }, preparation_status: 'passed', preparation_receipts: [], attempts: [],
+    limits: { historical_charge_ms: 3768, preparation_charge_ms: 0, charged_duration_ms: 3768, browser_launches: 0, used_slots: [] }
+  }));
   const verify = spawnSync(runner, ['--verify-diagnostic', evidence, '--revision'], { encoding: 'utf8' });
-  assert.notEqual(verify.status, 0, 'a missing result ledger must remain unverified');
+  assert.equal(verify.status, 3, 'a result ledger without a native diagnostic attempt must remain unverified');
+  assert.match(verify.stderr, /native diagnostic attempt/i);
+  assert.doesNotMatch(verify.stderr, /historical registration bytes changed/, 'the frozen prior capture must be read from its named path');
 });
 
 test('runner floors fractional millisecond process timeouts before spawnSync', () => {
