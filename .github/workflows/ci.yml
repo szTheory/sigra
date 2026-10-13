@@ -1452,6 +1452,20 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/admin-user-operations.spec.ts \
+            tests/impersonation.spec.ts \
+            tests/admin-audit.spec.ts \
+            tests/admin-theme.spec.ts \
+            tests/admin-coherence-sweep.spec.ts \
+            tests/admin-modal-interaction.spec.ts \
+            tests/admin-flow-platform-admin.spec.ts \
+            tests/admin-flow-support-investigator.spec.ts \
+            tests/admin-flow-org-admin.spec.ts \
+            --project=chromium \
+            --retries=0 \
+            --list --reporter=json > playwright-report/admin-behavior.selection.json
           SIGRA_PLAYWRIGHT_JSON=playwright-report/admin-behavior.json npx playwright test \
             tests/admin-user-operations.spec.ts \
             tests/impersonation.spec.ts \
@@ -1473,6 +1487,14 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark \
+            --retries=0 \
+            --list --reporter=json > playwright-report/admin-checkpoints.selection.json
           SIGRA_PLAYWRIGHT_JSON=playwright-report/admin-checkpoints.json npx playwright test \
             tests/admin-checkpoints.spec.ts \
             --project=admin-checkpoints-chromium \
@@ -1495,6 +1517,15 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep-invert '@snapshot' \
+            --retries=0 \
+            --list --reporter=json > playwright-report/design-gallery-pr-behavior.selection.json
           SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-pr-behavior.json npx playwright test \
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
@@ -1511,6 +1542,23 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep '@snapshot' \
+            --retries=0 \
+            --list --reporter=json > playwright-report/design-gallery-nonpr-snapshots.selection.json
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep-invert '@snapshot' \
+            --retries=0 \
+            --list --reporter=json > playwright-report/design-gallery-nonpr-behavior.selection.json
           SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-nonpr-snapshots.json npx playwright test \
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
@@ -1561,6 +1609,12 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/demo-showcase.spec.ts \
+            --project=demo-showcase-chromium \
+            --retries=0 \
+            --list --reporter=json > playwright-report/demo-showcase.selection.json
           SIGRA_PLAYWRIGHT_JSON=playwright-report/demo-showcase.json npx playwright test \
             tests/demo-showcase.spec.ts \
             --project=demo-showcase-chromium \
@@ -1568,7 +1622,7 @@ jobs:
 
       - name: Record selected browser execution
         id: browser_execution_record
-        if: always() && matrix.seam == 'non_admin_smoke'
+        if: always()
         env:
           CLASSIFIER_RESULT: ${{ needs.changes.result }}
           DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
@@ -1581,11 +1635,13 @@ jobs:
             --directory ci-browser-execution
 
       - name: Upload selected browser execution
-        if: always() && matrix.seam == 'non_admin_smoke'
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: browser-execution-${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ci-browser-execution/
+          path: |
+            ci-browser-execution/execution-record.json
+            ci-browser-execution/*.json
           retention-days: 7
           if-no-files-found: error
 
@@ -1652,8 +1708,8 @@ jobs:
       - name: Download selected browser records
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
-          name: browser-execution-non_admin_smoke-${{ github.run_id }}-${{ github.run_attempt }}
-          path: browser-execution-records/browser-execution-non_admin_smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          pattern: browser-execution-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: browser-execution-records
           merge-multiple: false
       - name: Validate selected native browser execution
         env:
@@ -1669,13 +1725,14 @@ jobs:
             classifier_result: process.env.CLASSIFIER_RESULT, docs_only: process.env.DOCS_ONLY};
           fs.writeFileSync('/tmp/browser-execution-identity.json', JSON.stringify(identity));
           NODE
-          node scripts/ci/ci-browser-records.mjs --verify-seam non_admin_smoke \
-            --directory "browser-execution-records/browser-execution-non_admin_smoke-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+          node scripts/ci/ci-browser-records.mjs --verify \
+            --directory browser-execution-records \
             --identity /tmp/browser-execution-identity.json --native-result "$SHARDS"
       - name: Aggregate every Playwright shard result
         env:
           RELEASE_GUARD: ${{ needs.release_ref_guard.result }}
           DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          CLASSIFIER_RESULT: ${{ needs.changes.result }}
           SHARDS: ${{ needs.example_playwright_shard.result }}
         run: |
           set -euo pipefail
@@ -1687,7 +1744,7 @@ jobs:
             echo "::error::example_playwright_shard=$SHARDS"
             exit 1
           fi
-          if [ "$DOCS_ONLY" = "true" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ "$CLASSIFIER_RESULT" = "success" ] && [ "$DOCS_ONLY" = "true" ]; then
             echo "docs-only fast path: every Playwright seam was skipped (all five shard browser bodies)"
           else
             echo "all five isolated Playwright shards passed"

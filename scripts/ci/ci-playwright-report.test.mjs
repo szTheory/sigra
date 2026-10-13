@@ -38,7 +38,7 @@ test('the five existing browser seam identifiers and selection commands stay in 
 
   const actualSeams = [...shard.matchAll(/^\s+- seam: ([a-z_]+)\s*$/gm)].map((match) => match[1]);
   assert.deepEqual(actualSeams, expectedSeams);
-  assert.equal((shard.match(/npx playwright test \\\n/g) ?? []).length, 7);
+  assert.equal((shard.match(/SIGRA_PLAYWRIGHT_JSON=playwright-report\/[^ ]+ npx playwright test \\\n/g) ?? []).length, 7);
   for (const selection of [
     'tests/admin-user-operations.spec.ts',
     'tests/admin-checkpoints.spec.ts',
@@ -49,7 +49,8 @@ test('the five existing browser seam identifiers and selection commands stay in 
   ]) {
     assert.ok(shard.includes(selection), `missing existing selection ${selection}`);
   }
-  assert.equal((shard.match(/--retries=0/g) ?? []).length, 7);
+  assert.equal((shard.match(/--retries=0/g) ?? []).length, 14);
+  assert.equal((shard.match(/--list --reporter=json/g) ?? []).length, 7);
 });
 
 function result(retry, status, duration, startTime = '2026-10-12T18:00:00.000Z') {
