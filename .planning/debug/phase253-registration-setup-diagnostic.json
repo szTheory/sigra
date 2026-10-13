@@ -1,9 +1,11 @@
 {
   "schema_version": "sigra.phase253.registration-setup-diagnostic/v1",
   "scope": "setup_only",
-  "status": "running",
+  "status": "manual_setup_probes_passed",
   "started_at": "2026-10-13T12:20:33Z",
   "deadline_at": "2026-10-13T12:40:33Z",
+  "completed_at": "2026-10-13T12:28:37Z",
+  "duration_seconds": 484,
   "limits": {
     "max_project_launches": 3,
     "max_duration_seconds": 1200,
@@ -89,6 +91,7 @@
     }
   ],
   "source_checkout_head": "ffb25ae928057560b9ab53c7f6ff3b35463f204c",
+  "preserved_log_dir": ".planning/debug/phase253-registration-setup-logs",
   "cleanup": {
     "database_drop_exit_codes": {
       "admin-eval": 0,
@@ -98,5 +101,13 @@
   },
   "historical_registration_evidence_unchanged": true,
   "historical_freeze_sha256": "9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994",
-  "historical_evidence_sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51"
+  "historical_evidence_sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51",
+  "runner_repair": {
+    "commit": "4ffa9dcb1",
+    "post_commit_test_command": "bash scripts/ci/ci-registration-repro.test.sh",
+    "post_commit_test_exit_code": 0,
+    "hermetic_setup_cases_passed": 4,
+    "real_new_entrypoint_invocation": "not_run_budget_exhausted",
+    "historical_jose_root_cause": "unknown"
+  }
 }

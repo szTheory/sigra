@@ -1,8 +1,8 @@
 ---
-status: investigating
+status: verifying
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:31:22Z
+updated: 2026-10-13T12:35:39Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,10 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: The runner loses setup failure evidence because `set -e` aborts at failed ecto.setup before the project evidence writer; it has no setup-only entrypoint, so retrying via the frozen browser mode would consume an exhausted budget.
-test: Add a setup-only entrypoint and hermetic failure-path tests, keeping the frozen browser mode and acceptance checks unchanged.
-expecting: A failed setup command writes its exact exit code and durable log path, with zero browser invocations, no automatic retry, and terminal output status.
-next_action: implement scripts/ci/ci-registration-setup-diagnostic.mjs and wire `--diagnose-setup --output` into the runner; run only hermetic tests afterward
+hypothesis: Setup failure evidence was lost because errexit aborted before the writer; the historical JOSE include cause remains unknown because its raw log is unavailable.
+test: Four hermetic tests cover setup failure, three fixture HTTP-ready ports, terminal-output refusal, source cleanliness, deadline, and process cleanup; three earlier real Phoenix launches reached HTTP 200.
+expecting: The repair is valid for the harness behavior, but real invocation of the new entrypoint requires a separate three-launch budget because this diagnostic already used all three launches.
+next_action: retain this session in verifying; if a new setup-only launch budget is explicitly established, run `scripts/ci/ci-registration-repro.sh --diagnose-setup --output <new evidence path>` against real Phoenix, then check all three ports and logs before resolving
 reasoning_checkpoint:
   hypothesis: A nonzero setup command exits the current runner before its evidence writer because Bash errexit is active.
   confirming_evidence:
@@ -116,7 +116,20 @@ source: Symptoms are already established in the preceding session and committed 
 
 ## Resolution
 
-root_cause:
-fix:
+root_cause: Confirmed harness defect: Bash errexit at a failed setup command could stop the frozen runner before writing the project result or raw compiler log; output mutation also preceded source identity checks. The exact historical JOSE compile cause is unconfirmed.
+fix: Added an independent setup-only diagnostic runner with immediate command receipts, bounded 20-minute/three-project execution, owned server cleanup, and zero browser commands; moved frozen output mutation behind source identity validation.
 verification:
+  target_test: {result: pass, command: "bash scripts/ci/ci-registration-repro.test.sh", cases: 4}
+  mutation_check: {result: skipped, reason: "No configured Stryker setup for shell/Node runner"}
+  no_op_deletion: {result: pass, deletion_justified_by_rca: false, note: "The change adds a diagnostic path and moves identity validation before output mutation; it does not short-circuit startup."}
+  adjacent_tests: {result: pass, suites_run: ["bash scripts/ci/ci-registration-repro.test.sh", "bash -n scripts/ci/ci-registration-repro.sh", "node --check scripts/ci/ci-registration-setup-diagnostic.mjs"]}
+  revert_and_reconfirm: {result: pending, reason: "The new entrypoint has no real Phoenix run after the three allowed live probes were consumed; only hermetic tests exercised the committed code."}
+  guardrail_verdict: pending_real_entrypoint_integration
+  live_setup_probes: "3/3 clean-clone database setups and Phoenix launches returned HTTP 200 on ports 25311, 25312, 25313 before the code repair; zero browser invocations."
 files_changed:
+  - scripts/ci/ci-registration-repro.sh
+  - scripts/ci/ci-registration-repro.test.sh
+  - scripts/ci/ci-registration-setup-diagnostic.mjs
+  - scripts/ci/ci-registration-setup-diagnostic.test.mjs
+code_commit: 4ffa9dcb1
+registration_acceptance: unverified; Plan 02 remains halted
