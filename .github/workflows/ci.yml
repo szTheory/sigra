@@ -1785,6 +1785,7 @@ jobs:
       - install_smoke
       - upgrade_smoke
       - example_http_smoke
+      - example_unit_smoke
       - example_playwright_smoke
       - generated_admin_playwright_smoke
       - fast_checks
@@ -1799,7 +1800,7 @@ jobs:
       - name: Checkout (honest-skip manifest)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       # GATE-03 (Phase 231 / D-02, D-05): runs BEFORE the legacy loop below,
-      # which stays byte-unchanged, so this diff is reviewable and today's
+      # which retains its verdict policy, so this diff is reviewable and today's
       # behaviour is provably non-regressing. Distinguishes a correctly
       # event-/diff-gated skip from a rotted one -- ci.yml's own legacy loop
       # treats every skip as a pass with no such distinction. Every GitHub
@@ -1815,6 +1816,7 @@ jobs:
           LIBRARY_TESTS_DEP_OFF: ${{ needs.library_tests_dep_off.result }}
           INSTALL_SMOKE: ${{ needs.install_smoke.result }}
           UPGRADE_SMOKE: ${{ needs.upgrade_smoke.result }}
+          EXAMPLE_UNIT_SMOKE: ${{ needs.example_unit_smoke.result }}
           EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
           EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
           GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
@@ -1827,6 +1829,7 @@ jobs:
             --lane library_tests_dep_off="${LIBRARY_TESTS_DEP_OFF}" \
             --lane install_smoke="${INSTALL_SMOKE}" \
             --lane upgrade_smoke="${UPGRADE_SMOKE}" \
+            --lane example_unit_smoke="${EXAMPLE_UNIT_SMOKE}" \
             --lane example_http_smoke="${EXAMPLE_HTTP_SMOKE}" \
             --lane example_playwright_smoke="${EXAMPLE_PLAYWRIGHT_SMOKE}" \
             --lane generated_admin_playwright_smoke="${GENERATED_ADMIN_PLAYWRIGHT_SMOKE}" \
@@ -1838,6 +1841,7 @@ jobs:
           LIBRARY_TESTS_DEP_OFF: ${{ needs.library_tests_dep_off.result }}
           INSTALL_SMOKE: ${{ needs.install_smoke.result }}
           UPGRADE_SMOKE: ${{ needs.upgrade_smoke.result }}
+          EXAMPLE_UNIT_SMOKE: ${{ needs.example_unit_smoke.result }}
           EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
           EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
           GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
@@ -1851,6 +1855,7 @@ jobs:
             LIBRARY_TESTS_DEP_OFF \
             INSTALL_SMOKE \
             UPGRADE_SMOKE \
+            EXAMPLE_UNIT_SMOKE \
             EXAMPLE_HTTP_SMOKE \
             EXAMPLE_PLAYWRIGHT_SMOKE \
             GENERATED_ADMIN_PLAYWRIGHT_SMOKE \

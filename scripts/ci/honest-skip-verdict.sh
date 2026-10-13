@@ -2,7 +2,7 @@
 # Phase 231 (GATE-03 / D-01, D-03, D-04): the honest-skip verdict.
 #
 # CONTRACT
-# Given github.event_name, the docs-only classifier's output, and the nine
+# Given github.event_name, the docs-only classifier's output, and the ten
 # ci-gate.needs lane results, decide whether every `skipped` lane was
 # skipped because it was correctly gated for THIS event, or because its
 # gate rotted. A rotted skip FAILS even though ci.yml:1831's own inline
@@ -14,7 +14,7 @@
 # allowlist of ids and gates, no re-derivation of docs-only classification,
 # no copy of MAINTAINING.md's prose. It reads .github/ci-skip-manifest.tsv,
 # whose own header block assigns the enumeration to that file and the
-# consequence to this script. The one fixed set here is the nine
+# consequence to this script. The one fixed set here is the ten
 # ci-gate.needs LANE IDS (ci.yml:1793-1802) -- that list exists only to
 # know which manifest rows are in scope, and it is cross-checked at
 # runtime against the workflow's own `needs:` block below, so a `needs:`
@@ -93,7 +93,7 @@ done
 [[ "$EVENT_IS_VALID" == true ]] || fail "unrecognized or empty --event '${EVENT:-<empty>}' (expected one of: ${VALID_EVENTS[*]}); refusing to default -- an unknown event must not silently take the permissive branch"
 
 # ---------------------------------------------------------------------------
-# The fixed nine-element ci-gate.needs lane list (ci.yml:1793-1802), written
+# The fixed ten-element ci-gate.needs lane list (ci.yml:1793-1802), written
 # once here as the sole hard-coded set this script owns. `changes` supplies
 # the docs_only input to the verdict and is deliberately excluded below: it
 # is not itself a gated lane, so it need not appear in this list.
@@ -105,6 +105,7 @@ LANES=(
   install_smoke
   upgrade_smoke
   example_http_smoke
+  example_unit_smoke
   example_playwright_smoke
   generated_admin_playwright_smoke
   fast_checks
@@ -172,7 +173,7 @@ manifest_lookup() {
 }
 
 # Non-vacuity (D-04): the manifest must yield at least four rows whose id
-# intersects the nine-lane set. The docs-only exemption was removed from
+# intersects the ten-lane set. The docs-only exemption was removed from
 # library_tests_dep_off, leaving upgrade_smoke, install_smoke,
 # example_http_smoke, and example_playwright_smoke.
 MANIFEST_HIT_COUNT=0
@@ -181,7 +182,7 @@ for lane in "${LANES[@]}"; do
   [[ -n "$row" ]] && MANIFEST_HIT_COUNT=$((MANIFEST_HIT_COUNT + 1))
 done
 if [[ "$MANIFEST_HIT_COUNT" -lt 4 ]]; then
-  fail "manifest ${MANIFEST} yielded only ${MANIFEST_HIT_COUNT} row(s) intersecting the nine ci-gate.needs lane ids (expected >= 4: upgrade_smoke, install_smoke, example_http_smoke, example_playwright_smoke) -- the parse broke, this is not a pass"
+  fail "manifest ${MANIFEST} yielded only ${MANIFEST_HIT_COUNT} row(s) intersecting the ten ci-gate.needs lane ids (expected >= 4: upgrade_smoke, install_smoke, example_http_smoke, example_playwright_smoke) -- the parse broke, this is not a pass"
 fi
 
 # ---------------------------------------------------------------------------

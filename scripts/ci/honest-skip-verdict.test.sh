@@ -7,7 +7,7 @@
 # stub at all -- unlike ci-demotion-observer.test.sh's recording `gh` stub.
 #
 # Test cases:
-#   A: shipped manifest, pull_request, all nine lanes success -> exit 0.
+#   A: shipped manifest, pull_request, all ten lanes success -> exit 0.
 #   B: upgrade_smoke skipped on pull_request -> exit 0, reported as a
 #      legitimate event-gated skip.
 #   C: upgrade_smoke skipped on push -> exit 1, reason names the lane AND
@@ -60,7 +60,7 @@ unit_contract() {
 python3 - "$SCRIPT" "$REAL_WORKFLOW" <<'PY'
 import json, pathlib, subprocess, sys, unittest
 script, workflow = sys.argv[1:]
-lanes = 'install_golden_contract library_tests library_tests_dep_off example_unit_smoke install_smoke upgrade_smoke example_http_smoke example_playwright_smoke generated_admin_playwright_smoke fast_checks'.split()
+lanes = 'install_golden_contract library_tests library_tests_dep_off example_unit_smoke install_smoke upgrade_smoke example_unit_smoke example_http_smoke example_playwright_smoke generated_admin_playwright_smoke fast_checks'.split()
 class UnitOwner(unittest.TestCase):
     def test_unit_result_is_owned_by_actual_verdict(self):
         args = ['bash', script, '--workflow', workflow, '--event', 'pull_request', '--docs-only', 'false', '--format', 'json']
@@ -113,6 +113,7 @@ BASE_LANE_JSON='{
   "install_smoke": "success",
   "upgrade_smoke": "success",
   "example_http_smoke": "success",
+  "example_unit_smoke": "success",
   "example_playwright_smoke": "success",
   "generated_admin_playwright_smoke": "success",
   "fast_checks": "success"
@@ -137,8 +138,8 @@ run_verdict_rc() {
   echo "$rc"
 }
 
-# ---- A: shipped manifest, pull_request, all nine success -> exit 0 --------
-echo "Test A: all nine lanes success on pull_request -> exit 0"
+# ---- A: shipped manifest, pull_request, all ten success -> exit 0 --------
+echo "Test A: all ten lanes success on pull_request -> exit 0"
 OUT_A="$(run_verdict "$BASE_LANE_JSON" --event pull_request --docs-only false)"
 RC_A="$(run_verdict_rc "$BASE_LANE_JSON" --event pull_request --docs-only false)"
 if [[ "$RC_A" -eq 0 ]] && ! grep -q "^  FAIL " <<<"$OUT_A"; then
@@ -237,7 +238,7 @@ fi
 echo "Test J: every lane result empty -> exit 1 (broken wiring, never a pass)"
 EMPTY_LANE_JSON='{
   "install_golden_contract": "", "library_tests": "", "library_tests_dep_off": "",
-  "install_smoke": "", "upgrade_smoke": "", "example_http_smoke": "",
+  "example_unit_smoke": "", "install_smoke": "", "upgrade_smoke": "", "example_http_smoke": "",
   "example_playwright_smoke": "", "generated_admin_playwright_smoke": "", "fast_checks": ""
 }'
 OUT_J="$(run_verdict "$EMPTY_LANE_JSON" --event pull_request --docs-only false)"
@@ -321,7 +322,7 @@ else
 fi
 
 # ---- P: --format json parses, one lane entry per lane + top-level verdict -
-echo "Test P: --format json parses with 9 lane entries and a top-level verdict"
+echo "Test P: --format json parses with 10 lane entries and a top-level verdict"
 printf '%s' "$BASE_LANE_JSON" > "$PAYLOAD_FILE"
 set +e
 OUT_P="$(bash "$SCRIPT" --manifest "$REAL_MANIFEST" --workflow "$REAL_WORKFLOW" \
@@ -329,8 +330,8 @@ OUT_P="$(bash "$SCRIPT" --manifest "$REAL_MANIFEST" --workflow "$REAL_WORKFLOW" 
 RC_P=$?
 set -e
 if [[ "$RC_P" -eq 0 ]] \
-   && jq -e '(.lanes | length) == 9 and .verdict == "PASS"' >/dev/null 2>&1 <<<"$OUT_P"; then
-  pass "P: valid JSON, 9 lane entries, top-level verdict PASS"
+   && jq -e '(.lanes | length) == 10 and .verdict == "PASS"' >/dev/null 2>&1 <<<"$OUT_P"; then
+  pass "P: valid JSON, 10 lane entries, top-level verdict PASS"
 else
   fail "P: rc=${RC_P}, output: ${OUT_P}"
 fi
@@ -347,7 +348,7 @@ if [[ -z "$SHIPPED_MANIFEST_IDS" ]]; then
   fail "Q: manifest extraction yielded nothing -- the parse broke, this is not a pass"
 else
   LANE_SET=(install_golden_contract library_tests library_tests_dep_off install_smoke \
-    upgrade_smoke example_http_smoke example_playwright_smoke \
+    upgrade_smoke example_unit_smoke example_http_smoke example_playwright_smoke \
     generated_admin_playwright_smoke fast_checks)
   HIT=0
   for id in "${LANE_SET[@]}"; do
@@ -383,7 +384,7 @@ if [[ -z "$SHIPPED_NEEDS" ]]; then
   fail "R: could not extract any ci-gate needs: entries -- the parse broke, this is not a pass"
 else
   LANE_SET=(install_golden_contract library_tests library_tests_dep_off install_smoke \
-    upgrade_smoke example_http_smoke example_playwright_smoke \
+    upgrade_smoke example_unit_smoke example_http_smoke example_playwright_smoke \
     generated_admin_playwright_smoke fast_checks)
   MISMATCH=""
   while IFS= read -r need; do
@@ -419,6 +420,7 @@ jobs:
       - install_smoke
       - upgrade_smoke
       - example_http_smoke
+      - example_unit_smoke
       - example_playwright_smoke
       - fast_checks
     if: always()
@@ -462,6 +464,7 @@ else
   fi
 fi
 
+if unit_contract; then pass "Unit owner actual verdict"; else fail "Unit owner actual verdict"; fi
 echo "Results: ${PASS} passed, ${FAIL} failed"
 if [[ "$FAIL" -gt 0 ]]; then
   echo "honest-skip-verdict.test: FAIL"
