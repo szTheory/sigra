@@ -11,6 +11,16 @@
     "browser_invocations": 0
   },
   "project_launches": [],
-  "experiments": [],
+  "experiments": [
+    {
+      "kind": "jose_compile_existing_deps_fresh_build",
+      "status": "passed",
+      "exit_code": 0,
+      "log_path": "/private/tmp/sigra-253-jose.Zs4CQD/compile.log",
+      "log_sha256": "d1a9e25db1be1368fc28445f4b44125d8747405bfa4d9ce73b0c4273282b1721",
+      "browser_invocations": 0,
+      "project_launches": 0
+    }
+  ],
   "historical_registration_evidence_unchanged": true
 }
