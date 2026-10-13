@@ -354,5 +354,77 @@ class CanaryCliTests(unittest.TestCase):
         self.assertIn("full-pass", result.stdout)
 
 
+class V2VerifierContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    def transport_fixture(self):
+        response = b'{"rules":[]}'
+        digest = __import__("hashlib").sha256(response).hexdigest()
+        entry = {
+            "sequence": 1, "method": "GET", "url": "https://api.github.com/repos/szTheory/sigra/rules/branches/main?per_page=100&page=1",
+            "requested_url": "https://api.github.com/repos/szTheory/sigra/rules/branches/main?per_page=100&page=1",
+            "route_id": "rules_main", "page_ordinal": 1, "hop_ordinal": 0, "state": "completed",
+            "actual_status": 200, "status": 200, "scrubbed_headers": {"content-type": "application/json", "content-length": str(len(response))},
+            "response_sha256": digest, "response_body_base64": base64.b64encode(response).decode(),
+            "request_sha256": "d" * 64, "source_sha256": "e" * 64, "window_id": "fixture-window",
+        }
+        return {"schema_version": "sigra.phase253.hosted-replan-evidence/v2",
+                "origin": {"kind": "measured-v2", "source_sha256": "e" * 64, "window_id": "fixture-window"},
+                "budget": {"request_count": 1, "max_requests": 117, "actual_jobs": 0, "max_jobs": 45, "elapsed_seconds": 1},
+                "transport_ledger": {"schema_version": "sigra.phase253.http-ledger/v2", "window_id": "fixture-window",
+                                     "source_sha256": "e" * 64, "transactions": [entry]},
+                "transport_receipts": [dict(entry)], "server_journal": [dict(entry)]}
+
+    def test_v2_transport_reconciles_receipt_status_headers_and_digests(self):
+        self.assertTrue(callable(getattr(self.module, "verify_transport_v2", None)),
+                        "planned transport verifier must reconcile measured v2 evidence")
+        evidence = self.transport_fixture()
+        self.module.verify_transport_v2(evidence)
+        for mutate in (
+            lambda e: e["transport_receipts"][0].update(actual_status=404),
+            lambda e: e["server_journal"][0].update(sequence=2),
+            lambda e: e["transport_ledger"]["transactions"][0].update(response_sha256="0" * 64),
+            lambda e: e["transport_receipts"][0]["scrubbed_headers"].update(**{"content-type": "text/plain"}),
+            lambda e: e["transport_ledger"]["transactions"][0].update(hop_ordinal=1),
+        ):
+            broken = self.transport_fixture()
+            mutate(broken)
+            with self.subTest(broken=broken):
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.verify_transport_v2(broken)
+
+    def test_fresh_rules_require_complete_exact_five_native_sources(self):
+        self.assertTrue(callable(getattr(self.module, "verify_effective_checks", None)),
+                        "planned rules verifier must reconcile complete effective checks")
+        names = ["Library tests", "Example unit smoke (ExUnit + ConnTest)",
+                 "Install smoke (fresh phx.new + sigra.install)",
+                 "Example HTTP smoke (boot + curl critical routes)",
+                 "Example Playwright smoke (full lifecycle)"]
+        evidence = self.transport_fixture()
+        evidence["effective_checks"] = {"endpoint": "/repos/szTheory/sigra/rules/branches/main",
+            "query": {"per_page": 100}, "complete": True, "terminal_page": 1,
+            "legacy_complete": True, "required": [
+                {"context": name, "app_id": 123, "integration_id": 123, "app_slug": "github-actions", "source": "workflow"}
+                for name in names]}
+        evidence["producer_checks"] = [{"name": name, "app_id": 123, "source": "workflow", "conclusion": "success"} for name in names]
+        self.module.verify_effective_checks(evidence)
+        for mutate in (
+            lambda e: e["effective_checks"].update(complete=False),
+            lambda e: e["effective_checks"]["required"].pop(),
+            lambda e: e["effective_checks"]["required"][0].update(app_id=None, integration_id=-1),
+            lambda e: e["producer_checks"][0].update(app_id=456),
+            lambda e: e["effective_checks"]["required"].append(dict(e["effective_checks"]["required"][0])),
+        ):
+            broken = copy.deepcopy(evidence)
+            mutate(broken)
+            with self.assertRaises(self.module.VerificationError):
+                self.module.verify_effective_checks(broken)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
