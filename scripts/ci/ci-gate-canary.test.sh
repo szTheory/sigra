@@ -176,4 +176,21 @@ rg -q '^api repos/szTheory/sigra/git/refs --method POST --input ' "$MOCK_CALLS"
 dispatch_calls="$(rg -c 'actions/workflows/259268962/dispatches' "$MOCK_CALLS" || echo 0)"
 [[ "$dispatch_calls" == 0 ]]
 
+# A full page cannot establish the complete required-check inventory. Fail
+# closed until any additional page can be fetched and charged explicitly.
+cp "$MOCK_RULES" "$tmp_dir/complete-rules.json"
+jq '. + [range(0;99) | {type:"deletion"}]' "$tmp_dir/complete-rules.json" > "$MOCK_RULES"
+if PATH="$tmp_dir/bin:$PATH" MOCK_RULES="$MOCK_RULES" MOCK_WORKFLOW="$MOCK_WORKFLOW" MOCK_CALLS="$MOCK_CALLS" MOCK_REF_STATE="$MOCK_REF_STATE" MOCK_BRANCH="$MOCK_BRANCH" MOCK_FIXTURE_SHA="$MOCK_FIXTURE_SHA" \
+  bash "$repo_dir/scripts/ci/ci-gate-canary.sh" --preflight-only \
+  --recovery-freeze "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" \
+  --evidence "$phase_dir/pagination-evidence.json" \
+  --requests "$phase_dir/pagination-requests.json" > "$tmp_dir/pagination.out" 2>&1; then
+  echo 'a full branch-rules page was accepted without accounting for later pages' >&2
+  exit 1
+fi
+rg -q 'additional charged pagination' "$tmp_dir/pagination.out"
+[[ "$(jq -r '.status' "$phase_dir/pagination-evidence.json")" == halted ]]
+[[ "$(jq -r '.transactions | length' "$phase_dir/pagination-requests.json")" == 3 ]]
+[[ "$(jq -r '.transactions[0].url' "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json")" == 'https://api.github.com/rate_limit' ]]
+
 echo 'ci-gate-canary tests passed'
