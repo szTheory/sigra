@@ -10,7 +10,21 @@
     "automatic_retries": 0,
     "browser_invocations": 0
   },
-  "project_launches": [],
+  "project_launches": [
+    {
+      "project": "admin-eval",
+      "port": 25311,
+      "database": "sigra_253_setup_debug_121",
+      "app_pid": 37873,
+      "process_alive_at_probe": true,
+      "curl_exit_code": 0,
+      "http_status": 200,
+      "shutdown": "SIGTERM acknowledged",
+      "app_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/admin-eval.app.log",
+      "app_log_sha256": "555dda006991ccacdcd57b58d863110c8722a4d24acbc7c766eb2141e7d5e3a1",
+      "browser_invocations": 0
+    }
+  ],
   "experiments": [
     {
       "kind": "jose_compile_existing_deps_fresh_build",

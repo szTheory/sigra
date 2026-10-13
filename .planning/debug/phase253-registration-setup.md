@@ -2,7 +2,7 @@
 status: investigating
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:24:00Z
+updated: 2026-10-13T12:25:16Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,10 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: Even after a clean scoped build and database setup, the runner's Phoenix launcher fails or binds the wrong port.
-test: Start the clean-clone Phoenix app once on port 25311, verify process ownership and HTTP response, then terminate it cleanly.
-expecting: No live child or no HTTP response would confirm the current launcher/readiness fault; stable HTTP response would rule it out for the first project.
-next_action: launch admin-eval once on port 25311 in the clean clone, probe HTTP readiness, and stop the owned process
+hypothesis: A second project with a distinct MIX_BUILD_PATH may compile or bind using stale configuration from the first project.
+test: Set up an independent database under a fresh admin-eval-mobile build path, launch Phoenix on port 25312, probe HTTP, and stop the owned process.
+expecting: A compile failure or wrong-port bind on the second project would confirm cross-project config/build coupling; HTTP 200 on 25312 would refute it for that project.
+next_action: run admin-eval-mobile database setup and one bounded Phoenix launch on port 25312, with no browser invocation
 bug_class: Bohrbug candidate (build/config startup failure)
 candidate_causes:
   - code: runner sets MIX_BUILD_PATH independently for each project after deps.get
@@ -85,6 +85,10 @@ source: Symptoms are already established in the preceding session and committed 
   checked: Full ecto.setup in fresh clone with scoped build and database
   found: Exit 0, database sigra_253_setup_debug_121 migrated and seeded; output log SHA-256 8dfe7f41cc51af794b6d33d5dbe0f238c5c42958b80144f9707e58d1ad935ec2.
   implication: Current clean-clone setup reaches database readiness; test owned Phoenix launch and HTTP next.
+- timestamp: 2026-10-13T12:25:16Z
+  checked: First clean-clone Phoenix launch and HTTP probe
+  found: Owned PID 37873 stayed alive, bound 127.0.0.1:25311, served HTTP 200 twice, and shut down on SIGTERM; app log SHA-256 555dda006991ccacdcd57b58d863110c8722a4d24acbc7c766eb2141e7d5e3a1.
+  implication: Current launcher works for admin-eval; distinct port/build projects remain untested.
 
 ## Resolution
 
