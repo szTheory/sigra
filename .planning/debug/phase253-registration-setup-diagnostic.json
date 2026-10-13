@@ -23,6 +23,21 @@
       "app_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/admin-eval.app.log",
       "app_log_sha256": "555dda006991ccacdcd57b58d863110c8722a4d24acbc7c766eb2141e7d5e3a1",
       "browser_invocations": 0
+    },
+    {
+      "project": "admin-eval-mobile",
+      "port": 25312,
+      "database": "sigra_253_setup_debug_mobile_121",
+      "setup_exit_code": 0,
+      "setup_log_sha256": "7ffb0fae4a4475eec9f9ff030a96cce2face4c23a364c6a30f4d51188f393476",
+      "app_pid": 41233,
+      "process_alive_at_probe": true,
+      "curl_exit_code": 0,
+      "http_status": 200,
+      "shutdown": "SIGTERM acknowledged",
+      "app_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/admin-eval-mobile.app.log",
+      "app_log_sha256": "fafa8587c914499f1ea0c375a0d4fa7fe25f788724076bcc821c53906dbc2240",
+      "browser_invocations": 0
     }
   ],
   "experiments": [
