@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 PHASE_DIR="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
 FIXTURE="$PHASE_DIR/253-RECOVERY-CANARY-WORKFLOW.yml"
 RECOVERY_FREEZE="$PHASE_DIR/253-RECOVERY-CANARY-FREEZE.json"
-EVIDENCE="$PHASE_DIR/253-RECOVERY-CANARY-RUNS.json"
-RATE_SOURCE="/tmp/sigra-253-canary-rate.json"
-RULES_SOURCE="/tmp/sigra-253-effective-rules.json"
-WORKFLOW_SOURCE="/tmp/sigra-253-registered-workflow.json"
+EVIDENCE="$PHASE_DIR/253-RECOVERY-CANARY-EVIDENCE.json"
+REQUESTS="$PHASE_DIR/253-RECOVERY-CANARY-REQUESTS.json"
+REQUEST_PRESERVED_REF=""
+REQUEST_PRESERVED_SHA=""
+REQUEST_PRESERVED_STATUS=""
+RATE_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-rate.json"
+RULES_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-effective-rules.json"
+WORKFLOW_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-registered-workflow.json"
 REPO="szTheory/sigra"
 WORKFLOW_ID="259268962"
 MAX_REQUESTS=120
@@ -20,11 +24,34 @@ ALL_REMAINING=false
 CHECK_ONLY=false
 FREEZE_TO_CHECK=""
 CANARY_STARTED_EPOCH=0
+PREFLIGHT_ONLY=false
+
+preserve_path() {
+  local path="$1" scope="$2" status_before sha_before blob ref status_after sha_after
+  [[ -f "$path" ]] || { PRESERVED_REF=""; PRESERVED_SHA=""; PRESERVED_STATUS=""; return 0; }
+  status_before="$(git status --porcelain=v1 -- "$path" | tr -d '\n')"
+  sha_before="$(shasum -a 256 "$path" | awk '{print $1}')"
+  blob="$(git hash-object -w "$path")"
+  ref="refs/gsd/phase253-12-canary-$scope/$sha_before"
+  if git show-ref --verify --quiet "$ref"; then
+    [[ "$(git rev-parse "$ref")" == "$blob" ]] || { echo "cannot preserve $path: content-addressed ref conflicts: $ref" >&2; exit 1; }
+  else
+    git update-ref "$ref" "$blob" || { echo "cannot preserve $path at $ref" >&2; exit 1; }
+  fi
+  [[ "$(git show "$ref" | shasum -a 256 | awk '{print $1}')" == "$sha_before" ]] || { echo "cannot preserve $path: exact-byte read-back failed" >&2; exit 1; }
+  status_after="$(git status --porcelain=v1 -- "$path" | tr -d '\n')"
+  sha_after="$(shasum -a 256 "$path" | awk '{print $1}')"
+  [[ "$status_before" == "$status_after" && "$sha_before" == "$sha_after" ]] || { echo "cannot preserve $path: source changed during preservation" >&2; exit 1; }
+  PRESERVED_REF="$ref"
+  PRESERVED_SHA="$sha_before"
+  PRESERVED_STATUS="$status_before"
+}
 
 usage() {
   cat <<'EOF'
-Usage: ci-gate-canary.sh (--scenario NAME | --remaining-scenarios) [--evidence PATH]
+Usage: ci-gate-canary.sh (--scenario NAME | --remaining-scenarios) [--evidence PATH] [--requests PATH]
        ci-gate-canary.sh --check-only [--recovery-freeze PATH]
+       ci-gate-canary.sh --preflight-only [--recovery-freeze PATH]
 
 Scenarios: full-pass, docs-only, actual-failure, missing-seam,
            unexpected-skip, cancelled
@@ -37,13 +64,17 @@ fail() {
   printf 'ci-gate-canary: FAIL: %s\n' "$*" >&2
   if [[ "$CHECK_ONLY" != true && -f "$EVIDENCE" ]]; then
     local failure_tmp="${EVIDENCE}.tmp"
-    jq --arg message "$*" '(.diagnostics //= []) | .status="halted" | .diagnostics += [{kind:"canary-stop",message:$message}]' \
+    preserve_path "$EVIDENCE" evidence
+    jq --arg message "$*" --arg ref "$PRESERVED_REF" --arg sha "$PRESERVED_SHA" --arg status "$PRESERVED_STATUS" \
+      --arg evidence_path "${EVIDENCE#${ROOT}/}" --arg request_path "${REQUESTS#${ROOT}/}" \
+      --arg request_ref "$REQUEST_PRESERVED_REF" --arg request_sha "$REQUEST_PRESERVED_SHA" --arg request_status "$REQUEST_PRESERVED_STATUS" \
+      '(.diagnostics //= []) | .status="halted" | .diagnostics += [{kind:"canary-stop",message:$message}] | .preserved_revisions += [{path:$evidence_path,ref:$ref,sha256:$sha,status:$status},{path:$request_path,ref:$request_ref,sha256:$request_sha,status:$request_status}]' \
       "$EVIDENCE" > "$failure_tmp" 2>/dev/null && mv "$failure_tmp" "$EVIDENCE"
   fi
   exit 1
 }
 
-TRANSPORT_LEDGER="$PHASE_DIR/253-RECOVERY-CANARY-TRANSPORT.json"
+TRANSPORT_LEDGER="$REQUESTS"
 MAX_INPUT_KEYS=10
 MAX_INPUT_CHARS=65535
 MAX_ARTIFACT_COMPRESSED=$((2 * 1024 * 1024))
@@ -54,8 +85,10 @@ while (($#)); do
     --scenario) (($# >= 2)) || fail '--scenario requires a value'; SCENARIO="$2"; shift 2 ;;
     --remaining-scenarios) ALL_REMAINING=true; shift ;;
     --evidence) (($# >= 2)) || fail '--evidence requires a path'; EVIDENCE="$2"; shift 2 ;;
+    --requests) (($# >= 2)) || fail '--requests requires a path'; REQUESTS="$2"; shift 2 ;;
     --check-only) CHECK_ONLY=true; shift ;;
     --recovery-freeze) (($# >= 2)) || fail '--recovery-freeze requires a path'; FREEZE_TO_CHECK="$2"; shift 2 ;;
+    --preflight-only) PREFLIGHT_ONLY=true; shift ;;
     --help|-h) usage; exit 0 ;;
     *) fail "unknown argument: $1" ;;
   esac
@@ -133,20 +166,31 @@ FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$FREEZE_TO_CHECK")"
 FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$FREEZE_TO_CHECK")"
 FROZEN_FIXTURE_BLOB="$(jq -r '.identity.fixture_workflow_blob' "$FREEZE_TO_CHECK")"
 
-[[ "$ALL_REMAINING" == true || -n "$SCENARIO" ]] || { usage >&2; exit 2; }
-[[ "$ALL_REMAINING" == false || -z "$SCENARIO" ]] || fail 'choose one scenario mode'
-valid_scenario() { case "$1" in full-pass|docs-only|actual-failure|missing-seam|unexpected-skip|cancelled) return 0;; *) return 1;; esac; }
-if [[ "$ALL_REMAINING" == false ]]; then valid_scenario "$SCENARIO" || fail "unknown scenario: $SCENARIO"; fi
-
 cd "$ROOT"
+normalize_repo_path() {
+  local value="$1" resolved
+  if [[ "$value" == /* ]]; then
+    resolved="$(cd "$(dirname "$value")" && pwd -P)/$(basename "$value")"
+  else
+    resolved="$ROOT/$value"
+  fi
+  [[ "$resolved" == "$ROOT/"* ]] || fail "evidence path must stay inside the repository: $value"
+  printf '%s\n' "$resolved"
+}
+EVIDENCE="$(normalize_repo_path "$EVIDENCE")"
+REQUESTS="$(normalize_repo_path "$REQUESTS")"
+[[ "$ALL_REMAINING" == true || -n "$SCENARIO" || "$PREFLIGHT_ONLY" == true ]] || { usage >&2; exit 2; }
+[[ "$ALL_REMAINING" == false || -z "$SCENARIO" ]] || fail 'choose one scenario mode'
+[[ "$PREFLIGHT_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" ) ]] || fail 'preflight-only mode cannot include a scenario'
+valid_scenario() { case "$1" in full-pass|docs-only|actual-failure|missing-seam|unexpected-skip|cancelled) return 0;; *) return 1;; esac; }
+if [[ "$PREFLIGHT_ONLY" == false && "$ALL_REMAINING" == false ]]; then valid_scenario "$SCENARIO" || fail "unknown scenario: $SCENARIO"; fi
+
 [[ "$(git rev-parse --show-toplevel)" == "$ROOT" ]] || fail 'checkout root changed'
-[[ -f "$FIXTURE" && -f "$RATE_SOURCE" && -f "$RULES_SOURCE" && -f "$WORKFLOW_SOURCE" ]] || fail 'frozen fixture or original preflight inputs are missing'
+[[ -f "$FIXTURE" ]] || fail 'frozen fixture is missing'
 [[ -f "$PHASE_DIR/253-PREHOST-REVIEW.md" ]] || fail 'pre-host review report is missing'
 if rg -n '^### CR-.*(ci-browser-records|honest-skip-verdict|ci-gate)' "$PHASE_DIR/253-PREHOST-REVIEW.md"; then
   fail 'pre-host review found a blocking issue in a canary gate helper'
 fi
-grep -Fq '259268962' "$WORKFLOW_SOURCE" || fail 'registered workflow identity differs from frozen source'
-jq -e '[.[] | select(.type=="required_status_checks") | .parameters.required_status_checks[].context] | sort == (["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"] | sort)' "$RULES_SOURCE" >/dev/null || fail 'effective required-check names differ from the frozen five-name contract'
 for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
   if rg -q 'Phase 253 Gate Canary' "$ROOT/$path"; then fail "distinct canary name is captured by downstream workflow filter $path"; fi
 done
@@ -158,13 +202,15 @@ if [[ -f "$EVIDENCE" ]] && jq -e '.status == "halted" or ((.diagnostics // {}) |
 fi
 gh auth token >/dev/null 2>&1 || fail 'GitHub authentication is unavailable' 
 if [[ -f "$EVIDENCE" ]]; then
-  REQUEST_COUNT="$(jq -r '.transport_ledger.transactions | length' "$EVIDENCE")"
+  [[ -f "$REQUESTS" ]] || fail 'recovery request ledger is missing for existing evidence'
+  REQUEST_COUNT="$(jq -r '.transactions | length' "$REQUESTS")"
   CANARY_STARTED_EPOCH="$(jq -r '.budget.started_epoch // 0' "$EVIDENCE")"
   FIXTURE_REF="$(jq -r '.expected.fixture_ref // empty' "$EVIDENCE")"
   CANDIDATE_SHA="$(jq -r '.expected.candidate_sha // empty' "$EVIDENCE")"
   FIXTURE_SHA="$(jq -r '.expected.workflow_sha // empty' "$EVIDENCE")"
   FIXTURE_BLOB="$(jq -r '.expected.workflow_blob // empty' "$EVIDENCE")"
 else
+  [[ ! -e "$REQUESTS" ]] || fail 'request ledger exists without its matching recovery evidence'
   REQUEST_COUNT=0
   FIXTURE_REF=""
   CANDIDATE_SHA=""
@@ -188,20 +234,13 @@ check_budget() {
   fi
 }
 
-REQUEST_LEDGER="$TRANSPORT_LEDGER"
+REQUEST_LEDGER="$REQUESTS"
 
 preserve_request_ledger() {
-  [[ -f "$REQUEST_LEDGER" ]] || return 0
-  local sequence prior ref
-  sequence="$(jq '.transactions | length' "$REQUEST_LEDGER")"
-  prior="$(git hash-object -w "$REQUEST_LEDGER")"
-  ref="refs/gsd/phase253-11-canary-transport-ledger/$sequence"
-  if git show-ref --verify --quiet "$ref"; then
-    [[ "$(git rev-parse "$ref")" == "$prior" ]] || fail "request ledger preservation ref changed: $ref"
-  else
-    git update-ref "$ref" "$prior"
-  fi
-  [[ "$(git show "$ref" | shasum -a 256 | awk '{print $1}')" == "$(shasum -a 256 "$REQUEST_LEDGER" | awk '{print $1}')" ]] || fail 'request ledger prior bytes failed read-back'
+  preserve_path "$REQUEST_LEDGER" requests
+  REQUEST_PRESERVED_REF="$PRESERVED_REF"
+  REQUEST_PRESERVED_SHA="$PRESERVED_SHA"
+  REQUEST_PRESERVED_STATUS="$PRESERVED_STATUS"
 }
 
 log_request() {
@@ -217,6 +256,7 @@ log_request() {
 finish_request() {
   [[ -f "$REQUEST_LEDGER" ]] || return 0
   local sequence="$1" status="$2" temp="${REQUEST_LEDGER}.tmp"
+  preserve_request_ledger
   jq --argjson sequence "$sequence" --argjson status "$status" \
     '(.transactions[] | select(.sequence==$sequence)).status=$status' "$REQUEST_LEDGER" > "$temp"
   mv "$temp" "$REQUEST_LEDGER"
@@ -261,24 +301,17 @@ record_budget() {
   if (( CANARY_STARTED_EPOCH > 0 )); then elapsed=$((now - CANARY_STARTED_EPOCH)); fi
   preserve_evidence
   jq --slurpfile ledger "$REQUEST_LEDGER" --argjson count "$REQUEST_COUNT" --argjson elapsed "$elapsed" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
-    '.budget.request_count=$count | .budget.elapsed_seconds=$elapsed | .transport_ledger=$ledger[0] | .preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "$temp"
+    --arg evidence_path "${EVIDENCE#${ROOT}/}" --arg request_path "${REQUEST_LEDGER#${ROOT}/}" \
+    --arg request_ref "$REQUEST_PRESERVED_REF" --arg request_sha "$REQUEST_PRESERVED_SHA" --arg request_status "$REQUEST_PRESERVED_STATUS" \
+    '.budget.request_count=$count | .budget.elapsed_seconds=$elapsed | .transport_ledger=$ledger[0] | .preserved_revisions += [{path:$evidence_path,ref:$ref,sha256:$sha,status:$status}] + (if $request_ref == "" then [] else [{path:$request_path,ref:$request_ref,sha256:$request_sha,status:$request_status}] end)' "$EVIDENCE" > "$temp"
   mv "$temp" "$EVIDENCE"
 }
 
 preserve_evidence() {
-  PRIOR_EVIDENCE_STATUS="$(git status --porcelain=v1 -- "$EVIDENCE" | tr -d '\n')"
-  PRIOR_EVIDENCE_SHA="$(shasum -a 256 "$EVIDENCE" | awk '{print $1}')"
-  local blob sequence ref
-  blob="$(git hash-object -w "$EVIDENCE")"
-  sequence="$(jq '.preserved_revisions | length' "$EVIDENCE")"
-  ref="refs/gsd/phase253-11-canary-evidence/$sequence"
-  if git show-ref --verify --quiet "$ref"; then
-    [[ "$(git rev-parse "$ref")" == "$blob" ]] || fail "evidence preservation ref changed: $ref"
-  else
-    git update-ref "$ref" "$blob"
-  fi
-  [[ "$(git show "$ref" | shasum -a 256 | awk '{print $1}')" == "$PRIOR_EVIDENCE_SHA" ]] || fail 'prior evidence bytes failed read-back'
-  PRIOR_EVIDENCE_REF="$ref"
+  preserve_path "$EVIDENCE" evidence
+  PRIOR_EVIDENCE_STATUS="$PRESERVED_STATUS"
+  PRIOR_EVIDENCE_SHA="$PRESERVED_SHA"
+  PRIOR_EVIDENCE_REF="$PRESERVED_REF"
 }
 
 watch_run() {
@@ -316,7 +349,7 @@ PY
 }
 
 api_post_dispatch() {
-  local inputs="$1" branch="${FIXTURE_REF#refs/heads/}" rc=0 endpoint input_keys input_chars sequence
+  local inputs="$1" branch="${FIXTURE_REF#refs/heads/}" rc=0 endpoint input_keys input_chars sequence request_prior_ref request_prior_sha request_prior_status
   endpoint="https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches"
   input_keys="$(jq 'keys|length' <<<"$inputs")"
   input_chars="$(python3 - "$inputs" <<'PY'
@@ -328,6 +361,15 @@ PY
   (( input_keys <= MAX_INPUT_KEYS && input_chars <= MAX_INPUT_CHARS )) || fail 'dispatch inputs exceed the frozen key or character limit'
   begin_request "$endpoint" dispatch
   sequence="$LAST_REQUEST_SEQUENCE"
+  preserve_request_ledger
+  request_prior_ref="$REQUEST_PRESERVED_REF"
+  request_prior_sha="$REQUEST_PRESERVED_SHA"
+  request_prior_status="$REQUEST_PRESERVED_STATUS"
+  preserve_evidence
+  jq --arg request_path "${REQUEST_LEDGER#${ROOT}/}" --arg request_ref "$request_prior_ref" --arg request_sha "$request_prior_sha" --arg request_status "$request_prior_status" \
+    --arg evidence_path "${EVIDENCE#${ROOT}/}" --arg evidence_ref "$PRIOR_EVIDENCE_REF" --arg evidence_sha "$PRIOR_EVIDENCE_SHA" --arg evidence_status "$PRIOR_EVIDENCE_STATUS" \
+    '.preserved_revisions += [{path:$request_path,ref:$request_ref,sha256:$request_sha,status:$request_status},{path:$evidence_path,ref:$evidence_ref,sha256:$evidence_sha,status:$evidence_status}]' \
+    "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
   jq --argjson sequence "$sequence" --argjson keys "$input_keys" --argjson chars "$input_chars" \
     '(.transactions[] | select(.sequence==$sequence)).input_keys=$keys | (.transactions[] | select(.sequence==$sequence)).input_chars=$chars' \
     "$REQUEST_LEDGER" > "${REQUEST_LEDGER}.tmp" && mv "${REQUEST_LEDGER}.tmp" "$REQUEST_LEDGER"
@@ -340,8 +382,12 @@ PY
   fi
   finish_request "$LAST_REQUEST_SEQUENCE" "$status"
   (( rc == 0 )) || fail "workflow dispatch failed with HTTP $status"
+  preserve_evidence
   jq --argjson inputs "$inputs" --argjson sequence "$sequence" --argjson keys "$input_keys" --argjson chars "$input_chars" \
-    '.dispatch_inputs=$inputs | .dispatch_input_metrics += [{sequence:$sequence,key_count:$keys,combined_chars:$chars}]' "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
+    --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
+    --arg evidence_path "${EVIDENCE#${ROOT}/}" \
+    '.dispatch_inputs=$inputs | .dispatch_input_metrics += [{sequence:$sequence,key_count:$keys,combined_chars:$chars}] | .preserved_revisions += [{path:$evidence_path,ref:$ref,sha256:$sha,status:$status}]' \
+    "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
 }
 
 download_no_follow() {
@@ -374,27 +420,72 @@ download_no_follow() {
   fail 'download redirect limit exceeded'
 }
 
+store_preflight() {
+  local source="$1" destination="$2" label="$3" prior_ref prior_sha prior_status
+  if [[ -e "$destination" ]]; then
+    preserve_path "$destination" "preflight-$label"
+    prior_ref="$PRESERVED_REF"
+    prior_sha="$PRESERVED_SHA"
+    prior_status="$PRESERVED_STATUS"
+    preserve_evidence
+    jq --arg path "$destination" --arg ref "$prior_ref" --arg sha "$prior_sha" --arg status "$prior_status" \
+      --arg evidence_ref "$PRIOR_EVIDENCE_REF" --arg evidence_sha "$PRIOR_EVIDENCE_SHA" --arg evidence_status "$PRIOR_EVIDENCE_STATUS" \
+      --arg evidence_path "${EVIDENCE#${ROOT}/}" \
+      '.preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status},{path:$evidence_path,ref:$evidence_ref,sha256:$evidence_sha,status:$evidence_status}]' \
+      "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
+  fi
+  cp "$source" "$destination"
+  cmp -s "$source" "$destination" || fail "fresh $label preflight did not read back exactly"
+}
+
+if [[ ! -e "$REQUEST_LEDGER" ]]; then
+  jq -n '{schema_version:"sigra.canary-transport-ledger/v1",transactions:[]}' > "$REQUEST_LEDGER"
+fi
+if [[ ! -e "$EVIDENCE" ]]; then
+  CANARY_STARTED_EPOCH="$(date +%s)"
+  jq -n --arg candidate "$CANDIDATE_SHA" --arg fixture_ref "$FIXTURE_REF" --arg fixture_sha "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" \
+    --argjson started_epoch "$CANARY_STARTED_EPOCH" \
+    '{schema_version:"sigra.hosted-gate-canary/v1",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{},budget:{max_requests:120,request_count:0,max_jobs:45,max_minutes:60,started_epoch:$started_epoch,actual_jobs:0,elapsed_seconds:0},transport_ledger:{schema_version:"sigra.canary-transport-ledger/v1",transactions:[]},dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
+else
+  CANARY_STARTED_EPOCH="$(jq -r '.budget.started_epoch // 0' "$EVIDENCE")"
+fi
+REQUEST_COUNT="$(jq -r '.transactions | length' "$REQUEST_LEDGER")"
+if (( CANARY_STARTED_EPOCH == 0 )); then CANARY_STARTED_EPOCH="$(date +%s)"; fi
+record_budget
+
+# Fresh read-only preflights share the immutable 120-request budget with all
+# dispatches, polling, cancellation, artifact downloads, and failure logs.
+RATE_RESPONSE="$(mktemp -t 253-recovery-rate)"
+RULES_RESPONSE="$(mktemp -t 253-recovery-rules)"
+WORKFLOW_RESPONSE="$(mktemp -t 253-recovery-workflow)"
+api_get rate_limit "$RATE_RESPONSE"
+CORE_LEFT="$(jq -r '.resources.core.remaining // 0' "$RATE_RESPONSE")"
+(( CORE_LEFT > 250 )) || fail "GitHub core API budget is at or below 250 (remaining=$CORE_LEFT)"
+api_get 'rulesets?includes_parents=true' "$RULES_RESPONSE"
+api_get "actions/workflows/$WORKFLOW_ID" "$WORKFLOW_RESPONSE"
+jq -e '.id == 259268962 and .path == ".github/workflows/ci.yml" and .state == "active"' "$WORKFLOW_RESPONSE" >/dev/null || fail 'registered workflow identity differs from fresh GitHub response'
+jq -e '[.[] | select(.type=="required_status_checks") | .parameters.required_status_checks[].context] | sort == (["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"] | sort)' "$RULES_RESPONSE" >/dev/null || fail 'fresh effective required-check names differ from the frozen five-name contract'
+store_preflight "$RATE_RESPONSE" "$RATE_SOURCE" rate
+store_preflight "$RULES_RESPONSE" "$RULES_SOURCE" rules
+store_preflight "$WORKFLOW_RESPONSE" "$WORKFLOW_SOURCE" workflow
+preserve_evidence
+jq --slurpfile rate "$RATE_RESPONSE" --slurpfile rules "$RULES_RESPONSE" --slurpfile workflow "$WORKFLOW_RESPONSE" \
+  --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
+  --arg evidence_path "${EVIDENCE#${ROOT}/}" \
+  '.preflight={initial_rate_limit:$rate[0],effective_rules:$rules[0],registered_workflow:$workflow[0]} | .preserved_revisions += [{path:$evidence_path,ref:$ref,sha256:$sha,status:$status}]' \
+  "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
+record_budget
+RATE_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-rate.json"
+RULES_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-effective-rules.json"
+WORKFLOW_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-registered-workflow.json"
+if [[ "$PREFLIGHT_ONLY" == true ]]; then
+  echo "ci-gate-canary: fresh preflight retained (requests=$REQUEST_COUNT/$MAX_REQUESTS; no ref mutation or dispatch)"
+  exit 0
+fi
+
 RATE_NOW="$RATE_SOURCE"
 CORE_LEFT="$(jq -r '.resources.core.remaining // 0' "$RATE_NOW")"
 (( CORE_LEFT > 250 )) || fail "GitHub core API budget is at or below 250 (remaining=$CORE_LEFT)"
-
-# Freeze the three parent preflight responses byte-for-byte and prove that the
-# repository evidence writer can survive the external scoped-ref push.
-for pair in "rate:$RATE_SOURCE:253-CANARY-PREFLIGHT-rate.json" "rules:$RULES_SOURCE:253-CANARY-PREFLIGHT-effective-rules.json" "workflow:$WORKFLOW_SOURCE:253-CANARY-PREFLIGHT-registered-workflow.json"; do
-  IFS=: read -r label source destination <<< "$pair"
-  target="$PHASE_DIR/$destination"
-  if [[ ! -e "$target" ]]; then cp "$source" "$target"; fi
-  cmp -s "$source" "$target" || fail "frozen $label preflight bytes changed at $target"
-done
-if [[ ! -e "$REQUEST_LEDGER" ]]; then jq -n '{schema_version:"sigra.canary-transport-ledger/v1",transactions:[]}' > "$REQUEST_LEDGER"; fi
-LEDGER_BLOB="$(git hash-object -w "$REQUEST_LEDGER")"
-LEDGER_REF="refs/gsd/phase253-07-canary-preflight"
-if git show-ref --verify --quiet "$LEDGER_REF"; then
-  [[ "$(git rev-parse "$LEDGER_REF")" == "$LEDGER_BLOB" ]] || fail 'existing canary preflight preservation ref has different bytes'
-else
-  git update-ref "$LEDGER_REF" "$LEDGER_BLOB"
-fi
-[[ "$(git show "$LEDGER_REF" | shasum -a 256 | awk '{print $1}')" == "$(shasum -a 256 "$REQUEST_LEDGER" | awk '{print $1}')" ]] || fail 'canary evidence writer read-back did not match exact request-ledger bytes'
 
 if [[ -z "$CANDIDATE_SHA" ]]; then
   CANDIDATE_SHA="$(git rev-parse HEAD)"
@@ -419,15 +510,15 @@ if [[ -z "$CANDIDATE_SHA" ]]; then
     --argjson request_count "$REQUEST_COUNT" --argjson started_epoch "$CANARY_STARTED_EPOCH" \
     '{schema_version:"sigra.hosted-gate-canary/v1",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{initial_rate_limit:$rate[0],effective_rules:$rules[0],registered_workflow:$workflow[0]},budget:{max_requests:120,request_count:$request_count,max_jobs:45,max_minutes:60,started_epoch:$started_epoch,actual_jobs:0,elapsed_seconds:0},transport_ledger:{schema_version:"sigra.canary-transport-ledger/v1",transactions:[]},dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
   preserve_evidence
-  jq --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
-    '.preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+  jq --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
+    '.preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
   mv "${EVIDENCE}.tmp" "$EVIDENCE"
   git cat-file -e "$FIXTURE_SHA:.github/workflows/ci.yml" || fail 'fixture workflow blob is not in the immutable ref'
   FOUND_WORKFLOW_BLOB="$(git rev-parse "$FIXTURE_SHA:.github/workflows/ci.yml")"
   [[ "$FOUND_WORKFLOW_BLOB" == "$FIXTURE_BLOB" ]] || fail 'fixture workflow blob identity changed'
   preserve_evidence
-  jq --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
-    '.expected.fixture_ref_state="verified" | .preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+  jq --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
+    '.expected.fixture_ref_state="verified" | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
   mv "${EVIDENCE}.tmp" "$EVIDENCE"
 else
   FOUND_WORKFLOW_BLOB="$(git rev-parse "$FIXTURE_SHA:.github/workflows/ci.yml" 2>/dev/null || true)"
@@ -523,8 +614,8 @@ PY
   fi
   preserve_evidence
   preserve_evidence
-  jq --arg scenario "$case_name" --slurpfile receipt "$receipt_tmp" --argjson count "$REQUEST_COUNT" --argjson jobs "$((current_jobs + new_jobs))" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
-    '.scenarios[$scenario]=$receipt[0] | .budget.request_count=$count | .budget.actual_jobs=$jobs | .preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+  jq --arg scenario "$case_name" --slurpfile receipt "$receipt_tmp" --argjson count "$REQUEST_COUNT" --argjson jobs "$((current_jobs + new_jobs))" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
+    '.scenarios[$scenario]=$receipt[0] | .budget.request_count=$count | .budget.actual_jobs=$jobs | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
   mv "${EVIDENCE}.tmp" "$EVIDENCE"
   python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --evidence "$EVIDENCE" --scenario "$case_name"
   record_budget
@@ -563,8 +654,8 @@ PY
   new_jobs="$(jq -r '[.jobs[] | select(.conclusion != "skipped")] | length' "$VERIFY_JOBS")"
   (( current_jobs + new_jobs <= MAX_JOBS )) || fail "separate verifier exceeded the $MAX_JOBS-job ceiling"
   preserve_evidence
-  jq --argjson id "$VERIFY_ID" --slurpfile run "$VERIFY_RUN" --slurpfile jobs "$VERIFY_JOBS" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
-    '.separate_verifier={status:"passed",run_id:($id|tostring),job_conclusion:$run[0].conclusion,run:$run[0],jobs:$jobs[0]} | .budget.actual_jobs+=([$jobs[0].jobs[] | select(.conclusion != "skipped")] | length) | .budget.request_count+=(0) | .preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+  jq --argjson id "$VERIFY_ID" --slurpfile run "$VERIFY_RUN" --slurpfile jobs "$VERIFY_JOBS" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
+    '.separate_verifier={status:"passed",run_id:($id|tostring),job_conclusion:$run[0].conclusion,run:$run[0],jobs:$jobs[0]} | .budget.actual_jobs+=([$jobs[0].jobs[] | select(.conclusion != "skipped")] | length) | .budget.request_count+=(0) | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
   mv "${EVIDENCE}.tmp" "$EVIDENCE"
   python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --evidence "$EVIDENCE" --scenario matrix
 fi

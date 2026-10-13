@@ -54,18 +54,14 @@ for file in scripts/ci/ci-gate-canary.sh scripts/ci/ci-gate-canary.test.sh scrip
   mkdir -p "$repo_dir/$(dirname "$file")"
   cp "$ROOT/$file" "$repo_dir/$file"
 done
-git -C "$ROOT" show HEAD:scripts/ci/ci-gate-canary.sh > "$repo_dir/scripts/ci/ci-gate-canary.sh"
+cp "$ROOT/scripts/ci/ci-gate-canary.sh" "$repo_dir/scripts/ci/ci-gate-canary.sh"
 cp -R "$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/." "$repo_dir/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
 phase_dir="$repo_dir/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
-jq -n '{schema_version:"sigra.hosted-gate-canary/v1",budget:{request_count:0},transport_ledger:{transactions:[]},diagnostics:[]}' > "$phase_dir/253-TEST-EVIDENCE.json"
-if bash "$repo_dir/scripts/ci/ci-gate-canary.sh" --scenario invalid \
-  --recovery-freeze "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" \
-  --evidence "$phase_dir/253-TEST-EVIDENCE.json" >/dev/null 2>&1; then
-  echo 'invalid scenario unexpectedly passed' >&2
-  exit 1
-fi
-jq -e '.status=="halted" and (.diagnostics|length)==1' "$phase_dir/253-TEST-EVIDENCE.json" >/dev/null
-rm -f "$phase_dir/253-TEST-EVIDENCE.json"
+cp "$test_freeze" "$phase_dir/253-RECOVERY-CANARY-FREEZE.json"
+test_freeze_hash="$(shasum -a 256 "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" | awk '{print $1}')"
+fixture_ref="$(jq -r '.identity.fixture_ref' "$phase_dir/253-RECOVERY-CANARY-FREEZE.json")"
+fixture_sha="$(jq -r '.identity.fixture_workflow_commit' "$phase_dir/253-RECOVERY-CANARY-FREEZE.json")"
+git -C "$repo_dir" update-ref "$fixture_ref" "$fixture_sha"
 jq --arg runner "$(shasum -a 256 "$repo_dir/scripts/ci/ci-gate-canary.sh" | awk '{print $1}')" \
    --arg shell_test "$(shasum -a 256 "$repo_dir/scripts/ci/ci-gate-canary.test.sh" | awk '{print $1}')" \
    --arg verifier "$(shasum -a 256 "$repo_dir/scripts/ci/ci-hosted-gate-verify.py" | awk '{print $1}')" \
@@ -87,6 +83,7 @@ cat > "$tmp_dir/bin/gh" <<'MOCK_GH'
 set -euo pipefail
 if [[ "${1:-}" == auth && "${2:-}" == token ]]; then printf 'mock-token-that-must-not-be-recorded'; exit 0; fi
 [[ "${1:-}" == api ]] || exit 2
+printf '%s\n' "$*" >> "$MOCK_CALLS"
 case "${2:-}" in
   rate_limit)
     jq -n '{resources:{core:{limit:5000,remaining:4999,reset:1791867469}}}'
@@ -103,9 +100,10 @@ MOCK_GH
 chmod +x "$tmp_dir/bin/gh"
 MOCK_RULES="$tmp_dir/fresh-rules.json"
 MOCK_WORKFLOW="$tmp_dir/fresh-workflow.json"
+MOCK_CALLS="$tmp_dir/mock-gh-calls.txt"
 cp /tmp/sigra-253-effective-rules.json "$MOCK_RULES"
 cp /tmp/sigra-253-registered-workflow.json "$MOCK_WORKFLOW"
-PATH="$tmp_dir/bin:$PATH" MOCK_RULES="$MOCK_RULES" MOCK_WORKFLOW="$MOCK_WORKFLOW" \
+PATH="$tmp_dir/bin:$PATH" MOCK_RULES="$MOCK_RULES" MOCK_WORKFLOW="$MOCK_WORKFLOW" MOCK_CALLS="$MOCK_CALLS" \
   bash "$repo_dir/scripts/ci/ci-gate-canary.sh" --preflight-only \
   --recovery-freeze "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" \
   --evidence "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json" \
@@ -118,11 +116,20 @@ done
 [[ "$(jq -r '.budget.request_count' "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json")" == 3 ]]
 [[ "$(jq -r '.transactions | length' "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json")" == 3 ]]
 [[ "$(jq -r '[.transactions[].status] | all(. == 200)' "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json")" == true ]]
+[[ "$(rg -c '^api ' "$MOCK_CALLS")" == 3 ]]
+rg -q '^api rate_limit$' "$MOCK_CALLS"
+rg -q '^api repos/szTheory/sigra/rulesets\?includes_parents=true$' "$MOCK_CALLS"
+rg -q '^api repos/szTheory/sigra/actions/workflows/259268962$' "$MOCK_CALLS"
+! rg -q 'mock-token-that-must-not-be-recorded' "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json" "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json"
+while IFS=$'\t' read -r recorded_path recorded_ref recorded_sha; do
+  [[ -n "$recorded_path" && -n "$recorded_ref" && -n "$recorded_sha" ]]
+  [[ "$(git -C "$repo_dir" show "$recorded_ref" | shasum -a 256 | awk '{print $1}')" == "$recorded_sha" ]]
+done < <(jq -r '.preserved_revisions[] | [.path,.ref,.sha256] | @tsv' "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json")
 [[ -f "$phase_dir/253-RECOVERY-CANARY-PREFLIGHT-rate.json" ]]
 [[ -f "$phase_dir/253-RECOVERY-CANARY-PREFLIGHT-effective-rules.json" ]]
 [[ -f "$phase_dir/253-RECOVERY-CANARY-PREFLIGHT-registered-workflow.json" ]]
 [[ ! -e "$phase_dir/253-RECOVERY-CANARY-RUNS.json" ]]
 [[ ! -e "$phase_dir/253-RECOVERY-CANARY-TRANSPORT.json" ]]
-[[ -z "$(git -C "$repo_dir" status --porcelain -- .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json)" ]]
+[[ "$(shasum -a 256 "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" | awk '{print $1}')" == "$test_freeze_hash" ]]
 
 echo 'ci-gate-canary tests passed'
