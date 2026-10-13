@@ -4,12 +4,12 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: executing
+status: ready_to_execute
 stopped_at: Phase 253 plans independently checked; ready to execute; implementation and phase verification pending
-last_updated: "2026-10-13T03:00:35.250Z"
-last_activity: 2026-10-12
-last_activity_desc: Phase 253 researched context captured; planning pending
-state_head: 21e6459b4eb7c32f4e779d2c37b734ab371a7509
+last_updated: "2026-10-13T03:04:29.907034+00:00"
+last_activity: 2026-10-13
+last_activity_desc: Phase 253 eight plans checked; ready to execute; implementation and verification pending
+state_head: dc492e044ae67da84bc2aa022c3aae9b7c25b53b
 progress:
   total_phases: 4
   completed_phases: 1
@@ -17,16 +17,21 @@ progress:
   completed_plans: 6
   percent: 25
 milestone_status: active
-workflow_step: phase_planning_pending
+workflow_step: phase_execution_ready
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-plan-phase 253
-resume_command: $gsd-plan-phase 253
+next_command: $gsd-execute-phase 253
+resume_command: $gsd-execute-phase 253
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
+phase253_planning_status: passed
+phase253_plan_count: 8
+phase253_wave_count: 4
+phase253_task_count: 17
+phase253_implementation_status: not_started
 ---
 
 # Project State
@@ -41,18 +46,18 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
-Plan: Not started
+Plan: 0 of 8 complete (planning checked)
 Status: Ready to execute
-Last activity: 2026-10-12 — Phase 253 researched context captured; implementation and verification pending
+Last activity: 2026-10-13 — Phase 253 planning checked; implementation and verification pending
 Progress: [███░░░░░░░] 25%
 
 ## Next GSD command
 
-$gsd-plan-phase 253
+$gsd-execute-phase 253
 
 Phase 252 implementation and phase verification are complete: six plans, 27/27 verified truths, CIMEAS-01 and CIMEAS-02 satisfied, 20/20 security controls, and both code-review findings independently repaired. The committed baseline covers PR, main-push and nightly populations; run 38317383419 supplies the complete instrumented PR sample. Later comparison runs have not started.
 
-Phase 253 context is captured from four specialist research passes, a final synthesis review and 24 delegated decisions. init.plan-phase 253 confirms context exists, no plans yet and no reported prerequisite blocker. Plan the corrected failure diagnosis, current registration investigation and complete required-gate ownership next. Registration root cause remains unknown; CIREL-01/02, implementation and phase verification are pending. Historical release-record maintenance does not block this route. Targeted phase research followed the current user request; persistent milestone research settings remain unchanged.
+Phase 253 has eight independently checked plans, 17 tasks and four dependency waves. Both phase requirements and all 24 decisions are covered by executable tasks. init.execute-phase 253 recognizes eight incomplete plans, no halted plans and no reported prerequisite blocker. Registration root cause remains unknown; CIREL-01/02, implementation and phase verification are pending. Execute the diagnosis/reproduction and independent gate work under their frozen limits. Historical release-record maintenance does not block this route; no optimization is started.
 
 ## Known unfinished work
 
@@ -62,6 +67,8 @@ Phase 253 context is captured from four specialist research passes, a final synt
 - Unrelated backlog and quick tasks remain open; none was silently marked complete.
 
 ## Evidence
+
+- Phase 253 planning: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLANNING-RECORD.json`; independent passed review: `253-PLAN-CHECK-02.md`; planning checks: `253-PLANNING-CHECKS.json`; routing checks: `253-PLANNING-ROUTING-CHECKS.json`; source coverage: `253-SOURCE-AUDIT.md`; research/patterns/validation: `253-RESEARCH.md`, `253-PATTERNS.md`, `253-VALIDATION.md`. SDK planning/session bytes remain recoverable at `dc492e044ae67da84bc2aa022c3aae9b7c25b53b`. Planning review is not phase acceptance.
 
 - Phase 253 context: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md` (commit `ba4b9e5eea403b892efe2fb02172a25caa55e10b`); discovery: `253-DISCOVERY.json`; discussion/review: `253-DISCUSSION-LOG.md`, `253-SYNTHESIS-REVIEW.md`; preservation and readiness: `253-DISCUSSION-RECORD.json`; 17 artifact checks: `253-DISCUSSION-CHECKS.json`. Current registration cause is unproved. Prior draft is recoverable at `87177118c66f6f1041a7c1727568ac19aeb3d990`; exact SDK session state at `42c558cd77386b7e92ec142fefe95064c39efec5`.
 

@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 planning pending)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 planned; implementation and verification pending)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-plan-phase 253 — Researched context is captured; readiness has context, no plans and no reported prerequisite blocker. Phase 253 implementation/verification are pending; Phase 252 verification passed.
+**Next command:** $gsd-execute-phase 253 — Eight plans in four waves independently checked; execution readiness reports no halted plans or prerequisite blocker. Implementation and phase verification pending.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -56,7 +56,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. The baseline and ranked findings can be reproduced with documented commands using the saved inputs; static timeout values or old audit conclusions are not used as runtime measurements.
   4. Before any optimization, the report fixes the comparison workloads, code revisions, cache conditions, runner class, sample sizes, percentile method, and finite collection/rate-limit budget. The 20% median improvement and non-increasing p95/runner-time targets stay unchanged.
 
-**Plans**: 6/6 plans complete across 4 waves (independent plan review passed; phase-level verification remains)
+**Plans**: 6/6 plans complete across 4 waves (implementation and phase verification passed)
 **Wave 1**
 - [x] 252-01-PLAN.md — Source-bound collection and offline replay
 
@@ -127,12 +127,12 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six plans in four waves; later plan counts are determined during their planning.
+**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans in four waves; Phase 253 has eight checked plans in four waves; Phase 254/255 plan counts remain pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 0/TBD | Not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 0/8 | Planned; verification pending | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

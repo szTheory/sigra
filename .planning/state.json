@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -11,7 +11,12 @@
     {
       "number": "253",
       "name": "Fix Flaky CI and Preserve Required Checks",
-      "status": "pending"
+      "status": "pending",
+      "planning_status": "passed",
+      "plans": 8,
+      "completed_plans": 0,
+      "implementation_status": "not_started",
+      "verification_status": "not_started"
     },
     {
       "number": "254",
@@ -25,9 +30,22 @@
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 253 of 4 · 25% · executing"
+    "command": "$gsd-execute-phase 253",
+    "label": "Execute Phase 253 \u2014 Fix Flaky CI and Preserve Required Checks",
+    "reason": "Eight plans independently checked; 24/24 decisions and 2/2 requirements covered; implementation and phase verification pending."
   },
-  "updated_at": "2026-10-13T03:00:06.545Z"
+  "updated_at": "2026-10-13T03:04:29.907034+00:00",
+  "current_phase": "253",
+  "workflow_step": "phase_execution_ready",
+  "phase253_context_status": "ready",
+  "phase253_planning_status": "passed",
+  "phase253_plan_count": 8,
+  "phase253_wave_count": 4,
+  "phase253_task_count": 17,
+  "phase253_implementation_status": "not_started",
+  "phase253_verification_status": "not_started",
+  "verification_status": "not_started",
+  "phase252_verification_status": "passed",
+  "historical_verification_is_forward_blocker": false,
+  "resume_command": "$gsd-execute-phase 253"
 }

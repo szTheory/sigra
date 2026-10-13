@@ -33,7 +33,7 @@ cannot resolve.
 
 **Scope confirmed:** The user selected this direction on 2026-10-12. Skip broad ecosystem research for this milestone; keep the project's research default unchanged. Reuse the existing CI measurement script, five browser-test jobs, and `mix ci` where they fit. The prior CI audit is implemented history, not a new seed to repeat.
 
-**Current step:** Phase 252 is implemented and verified (six plans, 27/27 truths; CIMEAS-01/02 satisfied). Phase 253 researched context is captured, with its registration cause still unknown; planning, implementation and verification remain pending. Next: $gsd-plan-phase 253. Seven requirements remain pending.
+**Current step:** Phase 252 is implemented and verified (six plans, 27/27 truths; CIMEAS-01/02 satisfied). Phase 253 has eight independently checked plans in four waves; registration cause, implementation and phase verification remain pending. Next: $gsd-execute-phase 253. Seven requirements remain pending.
 
 **Boundaries:** v1.49 is closed with READY-01 unfinished; missing old release records do not block this work. The missing 1.6 upgrade guide remains a separate documentation task. This milestone starts no product feature or package release, changes no public API or authentication behavior, and does not weaken required checks.
 
