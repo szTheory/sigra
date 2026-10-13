@@ -4,25 +4,25 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "blocked"
-stopped_at: "Recovery09/12 halted; local repairs pass; no runnable plans"
-last_updated: "2026-10-13T17:19:13.486386+00:00"
-last_activity: "2026-10-13"
-last_activity_desc: "Six recovery plans passed independent review and planning checks"
-state_head: "32d3646159f279014b84c7bdb02e5e118f6c2e3b"
+status: blocked
+stopped_at: Recovery09/12 halted; local repairs pass; no runnable plans
+last_updated: "2026-10-13T18:22:21.859Z"
+last_activity: 2026-10-13
+last_activity_desc: Six recovery plans passed independent review and planning checks
+state_head: e0a8dc06ddc9765827eb82742f5ff03083b9fc61
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 20
+  total_plans: 31
   completed_plans: 12
-  percent: 60
+  percent: 25
 milestone_status: active
-workflow_step: "plan_recovery"
+workflow_step: plan_recovery
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-plan-phase 253"
-resume_command: "$gsd-plan-phase 253"
+next_command: $gsd-plan-phase 253
+resume_command: $gsd-plan-phase 253
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -33,11 +33,17 @@ phase253_wave_count: 4
 phase253_task_count: 30
 phase253_implementation_status: partial
 phase253_completed_plans: 6
-phase253_halted_plans: [253-02, 253-07, 253-09, 253-12]
-phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
-
+phase253_halted_plans:
+  - 253-02
+  - 253-07
+  - 253-09
+  - 253-12
+phase253_blocked_plans:
+  - 253-08
+  - 253-10
+  - 253-13
+  - 253-14
 phase253_recovery_plan_count: 6
-
 phase253_recovery_task_count: 13
 ---
 
@@ -52,11 +58,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase:253 — INCOMPLETE
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
 Plans:6/14 complete;09/12 halted;10/13/14 blocked; original02/07 halted and08 blocked
 Status:No runnable plans; local runner repairs pass; new recovery planning required
 Last activity:2026-10-13 — Three executors returned; no browser or hosted job ran
-Progress:12/20 planned milestone plans complete(60%); phase verification not started
+Progress:12/20 planned milestone plans complete([███░░░░░░░] 25%); phase verification not started
 
 ## Next GSD command
 
