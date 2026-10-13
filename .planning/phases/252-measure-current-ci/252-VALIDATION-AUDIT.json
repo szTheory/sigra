@@ -16,9 +16,9 @@
       "bytes": 13068
     },
     "validation_revision_after_audit_append": {
-      "commit": "42040737b",
-      "sha256": "bb21efc1ef9add212893343d59ec48da2d6703740e9108f995b918a68097efcb",
-      "bytes": 13184
+      "commit": "4dfab0d17",
+      "sha256": "872d483b3caf5b9a40e49f4963db3f8e7aa8eaf000e191157628ed67268854f4",
+      "bytes": 15602
     },
     "pre_refresh_revision": {
       "commit": "18b6f23a41bb4232a9a1e2f58fb72aff1e061771",
@@ -31,9 +31,9 @@
       "read_back_byte_exact_from_head": true
     },
     "validation_refresh_revision": {
-      "pending_commit": true,
-      "sha256": "3f6cd5ff4ff2ed6dc377795a1cacb4c459a75bf526388a90f153f731e536a1d6",
-      "bytes": 15487
+      "commit": "720a56c8c",
+      "sha256": "e78986a4897841f941c2b4af227e95b4d8f4dc9802748ef47085e15b46643436",
+      "bytes": 15486
     }
   },
   "summary": {
@@ -336,6 +336,17 @@
     "no_github_polling_or_ci_dispatch": true,
     "requirements_status": "pending",
     "phase_goal_verification_status": "pending",
-    "next": "Root workflow: code review and goal verification within execute phase 252; do not route to phase 253."
+    "next": "Root workflow: code review and goal verification within execute phase 252; do not route to phase 253.",
+    "validation_doc_revision": {
+      "commit": "4dfab0d17",
+      "sha256": "872d483b3caf5b9a40e49f4963db3f8e7aa8eaf000e191157628ed67268854f4"
+    },
+    "verification_outputs": {
+      "baseline_status": "ready",
+      "baseline_diagnostics": [],
+      "replay_a_sha256": "0e047cb23f8c33e4aa41cb03da7fc6043f46047ed49e26842f80d58b4501643a",
+      "replay_b_sha256": "0e047cb23f8c33e4aa41cb03da7fc6043f46047ed49e26842f80d58b4501643a",
+      "replays_byte_identical": true
+    }
   }
 }
