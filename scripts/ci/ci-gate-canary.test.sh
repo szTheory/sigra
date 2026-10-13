@@ -37,5 +37,11 @@ for freeze in "$tmp_dir/wrong-sha.json" "$tmp_dir/old-ref.json" "$tmp_dir/over-b
     exit 1
   fi
 done
+jq -n '{schema_version:"sigra.hosted-gate-canary/v1",budget:{request_count:0},transport_ledger:{transactions:[]},diagnostics:[]}' > "$tmp_dir/evidence.json"
+if bash "$SCRIPT" --scenario invalid --recovery-freeze "$FREEZE" --evidence "$tmp_dir/evidence.json" >/dev/null 2>&1; then
+  echo 'invalid scenario unexpectedly passed' >&2
+  exit 1
+fi
+jq -e '.status=="halted" and (.diagnostics|length)==1' "$tmp_dir/evidence.json" >/dev/null
 
 echo 'ci-gate-canary tests passed'

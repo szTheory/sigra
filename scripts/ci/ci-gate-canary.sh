@@ -33,7 +33,15 @@ Runs only the sealed Phase 253 Gate Canary on a unique refs/heads/gsd/253-* bran
 EOF
 }
 
-fail() { printf 'ci-gate-canary: FAIL: %s\n' "$*" >&2; exit 1; }
+fail() {
+  printf 'ci-gate-canary: FAIL: %s\n' "$*" >&2
+  if [[ "$CHECK_ONLY" != true && -f "$EVIDENCE" ]]; then
+    local failure_tmp="${EVIDENCE}.tmp"
+    jq --arg message "$*" '(.diagnostics //= []) | .status="halted" | .diagnostics += [{kind:"canary-stop",message:$message}]' \
+      "$EVIDENCE" > "$failure_tmp" 2>/dev/null && mv "$failure_tmp" "$EVIDENCE"
+  fi
+  exit 1
+}
 
 TRANSPORT_LEDGER="$PHASE_DIR/253-RECOVERY-CANARY-TRANSPORT.json"
 MAX_INPUT_KEYS=10
