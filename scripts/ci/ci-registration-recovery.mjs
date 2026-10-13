@@ -247,7 +247,13 @@ function observedMixVersion(root, packageName) {
 }
 
 function createFreeze(output, root = ROOT) {
-  if (fs.existsSync(output)) throw new Error(`refusing to overwrite recovery freeze: ${output}`);
+  if (fs.existsSync(output)) {
+    const preservedRevision = path.join(root, PHASE_DIR, '253-RECOVERY-REGISTRATION-FREEZE-REVISION-04.json');
+    const preservedHash = '127c445addd23c59d871670e6b06f0b9c42714ecccecfb482e4b628483ce228a';
+    if (!fs.existsSync(preservedRevision) || fileHash(preservedRevision) !== preservedHash || fileHash(output) !== preservedHash) {
+      throw new Error(`refusing to overwrite an unpreserved recovery freeze: ${output}`);
+    }
+  }
   const head = checkCleanCandidate(root);
   const preflightPath = path.join(root, PHASE_DIR, '253-09-PREFLIGHT-SETUP.json');
   const preflight = readJson(preflightPath);
