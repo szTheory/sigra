@@ -4,37 +4,41 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: blocked
-stopped_at: "Phase 253: five plans complete; registration and hosted proof halted; final PR proof blocked"
-last_updated: "2026-10-13T14:01:32.078Z"
-last_activity: 2026-10-13
-last_activity_desc: Registration startup debug resolved; bounded recovery planning next
-state_head: 17f23464cafaf867a45498e423003d10f7cdf857
+status: "ready_to_execute"
+stopped_at: "Phase 253 recovery planning passed; plans 09 and 11 ready first"
+last_updated: "2026-10-13T14:04:38.077234+00:00"
+last_activity: "2026-10-13"
+last_activity_desc: "Six recovery plans passed independent review and planning checks"
+state_head: "32d3646159f279014b84c7bdb02e5e118f6c2e3b"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 20
   completed_plans: 11
-  percent: 25
+  percent: 55
 milestone_status: active
-workflow_step: plan_execution_recovery
+workflow_step: "execute_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-plan-phase 253
-resume_command: $gsd-plan-phase 253
+next_command: "$gsd-execute-phase 253 --gaps-only"
+resume_command: "$gsd-execute-phase 253 --gaps-only"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
 phase253_planning_status: passed
-phase253_plan_count: 8
+phase253_plan_count: 14
 phase253_wave_count: 4
-phase253_task_count: 17
+phase253_task_count: 30
 phase253_implementation_status: partial
 phase253_completed_plans: 5
 phase253_halted_plans: [253-02, 253-07]
 phase253_blocked_plans: [253-08]
+
+phase253_recovery_plan_count: 6
+
+phase253_recovery_task_count: 13
 ---
 
 # Project State
@@ -48,21 +52,21 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
-Plans: 5 of 8 complete; 02 and 07 halted; 08 blocked
-Status: Startup repair verified; plan bounded registration and hosted recovery
-Last activity: 2026-10-13 — Partial execution and local regression checks recorded
-Progress: 11/14 currently planned milestone plans complete ([███░░░░░░░] 25%); Phase 253 verification not started
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — INCOMPLETE
+Plans: 5 of 14 complete; six recovery plans ready in four waves; original 02/07 halted and 08 blocked
+Status: Recovery planning passed; execute new plans only
+Last activity: 2026-10-13 — Six plans, thirteen tasks checked; no browser or hosted work launched
+Progress: 11/20 planned milestone plans complete (55%); Phase 253 verification not started
 
 ## Next GSD command
 
-$gsd-plan-phase 253
+$gsd-execute-phase 253 --gaps-only
 
-Phase 253 plans 01, 03, 04, 05 and 06 are implemented and locally checked. Plan 02 halted before any browser invocation; its setup retry is exhausted and CIREL-01 is unsatisfied. Plan 07's only hosted run, 38347679431, failed with a source SHA mismatch; its original fixture, API responses and failed logs remain preserved. The local fixture defects have been repaired, but no hosted scenario is accepted and CIREL-02 remains unsatisfied. Plan 08 is blocked by both halted plans. Phase verification has not started; Phase 254 has not started.
+Six new recovery plans (09–14) passed independent review after one budget revision. Their first runnable plans are 09 and 11; the `--gaps-only` selection preserves original halted attempts and excludes blocked original 08. All new runs require new source and budget freezes before observing outcomes. Registration controls and targeted repeats share one ledger; hosted canary and both PR families have separate finite request/time ceilings. The normal PR supplies the five-seam integration proof once.
 
-The registration startup repair is verified: canonical temporary paths avoid the broken JOSE include link, and the setup-only command started all three apps, returned HTTP 200, and dropped their databases in 76 seconds. No browser invocation ran. Add bounded recovery plans next, preserving the existing eight plans and exhausted original freezes. Any new registration or hosted proof must use a newly established bounded plan and preserve the original failed evidence. Repeating execute-phase alone will skip the halted summaries and cannot complete plan 08. The original canary request ledger records 20 accounted/reserved calls; its exact HTTP request count is not proven. The overwritten Task 2 RED report is disclosed, with no exact-byte recovery or valid TDD chronology claim.
+The startup repair is verified on three real apps with HTTP 200 and database cleanup, but no registration browser run has been proved. Original 02 and 07 remain halted and original 08 remains blocked. Both requirements remain open and Phase 253 verification has not started. Plan 14 may add an explicit 08 supersession summary only after both requirements are accepted, preserving the original failed evidence. Then unfiltered `$gsd-execute-phase 253` can reach whole-phase verification. Phase 254 has not started.
 
-Phase 252 remains complete and verified; all its paths and the archived baseline replay are unchanged. Historical release-record maintenance is separate and does not block this recovery route.
+The original canary request count is still unproved, and the overwritten Task 2 RED bytes and missing original chronology remain disclosed. New proof does not retroactively repair either record. Phase 252 remains complete with all prior paths unchanged; historical release-record maintenance stays separate.
 
 ## Known unfinished work
 
@@ -72,6 +76,8 @@ Phase 252 remains complete and verified; all its paths and the archived baseline
 - Unrelated backlog and quick tasks remain open; none was silently marked complete.
 
 ## Evidence
+
+- Recovery planning: `253-RECOVERY-PLANNING-RECORD.json`; independent review: `253-RECOVERY-PLAN-CHECK-02.md`; planning checks: `253-RECOVERY-PLANNING-CHECKS.json`; routing checks: `253-RECOVERY-ROUTING-CHECKS.json`. Six plan schemas and structures valid, 24/24 decisions and 26/26 requirement/decision items covered. Planning success does not mean phase acceptance.
 
 - Startup debug resolved: `.planning/debug/resolved/phase253-registration-setup.md`; live setup receipt and 12 raw logs: `.planning/debug/phase253-setup-final-20261013T125238Z/manifest.json`. Fresh setup tests: 5 passed; forged-evidence checks: 6 passed. Original registration freeze/evidence and Phase 252 paths are unchanged. Startup verification does not prove registration behavior or complete Phase 253.
 
@@ -107,8 +113,8 @@ Phase 252 remains complete and verified; all its paths and the archived baseline
 
 ## Session
 
-**Last session:** 2026-10-13T13:00:28.983095+00:00
-**Stopped at:** Startup debug resolved; five plans complete, 02/07 halted, 08 blocked; recovery planning next
+**Last session:** 2026-10-13T14:04:38.077234+00:00
+**Stopped at:** Recovery planning passed; execute new plans 09–14 with --gaps-only
 **Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json
 
 ## Deferred Items

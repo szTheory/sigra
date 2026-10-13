@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-debug "Phase 253 registration runner setup failure" — Five plans complete; registration reproduction and hosted canary halted; final PR proof blocked. Phase verification has not started.
+**Next command:** $gsd-execute-phase 253 --gaps-only — Six recovery plans checked; original 02/07 halted and 08 blocked; phase verification has not started.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 5/8 complete across 4 waves; plans 02 and 07 halted; plan 08 blocked; phase verification not started
+**Plans**: 5/14 complete; six checked recovery plans across four recovery waves; original 02/07 halted and 08 blocked; phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -98,6 +98,22 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 **Wave 4** *(blocked by halted plans 02 and 07)*
 - [ ] 253-08-PLAN.md — Normal PR proof and honest requirement completion record
+
+**Recovery plans** *(execute with `--gaps-only`; original eight plans and terminal records remain preserved)*
+
+| Recovery wave | Plans | Work |
+|---|---|---|
+| 1 | 09, 11 | Native registration receipt path; charged canary transport and fresh freezes |
+| 2 | 10, 12 | Signal/state/trace controls and conditional repeats; six real canary scenarios |
+| 3 | 13 | Normal production PR and real docs-only PR proof |
+| 4 | 14 | Honest completion and accepted-only disposition of blocked original 08 |
+
+- [ ] 253-09-PLAN.md — New bounded registration diagnostics and native receipts
+- [ ] 253-10-PLAN.md — Real controls and cause-backed fresh target repeats
+- [ ] 253-11-PLAN.md — Exact charged request transport and new canary freeze
+- [ ] 253-12-PLAN.md — Six hosted source scenarios and independent verifier
+- [ ] 253-13-PLAN.md — Normal and real docs-only draft PR evidence
+- [ ] 253-14-PLAN.md — Evidence-linked requirements and historical-plan reconciliation
 
 ### Phase 254: Speed Up the Measured Slow Jobs
 
@@ -127,7 +143,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans in four waves; Phase 253 has eight checked plans in four waves; Phase 254/255 plan counts remain pending.
+**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans in four waves; Phase 253 retains eight original plans and six checked recovery plans in four recovery waves; Phase 254/255 plan counts remain pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
