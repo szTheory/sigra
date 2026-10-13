@@ -4,47 +4,44 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: blocked
-stopped_at: Recovery09/12 halted; local repairs pass; no runnable plans
-last_updated: "2026-10-13T18:22:21.859Z"
-last_activity: 2026-10-13
-last_activity_desc: Six recovery plans passed independent review and planning checks
-state_head: e0a8dc06ddc9765827eb82742f5ff03083b9fc61
+status: "ready_to_execute_recovery"
+stopped_at: "Additional recovery plans15–25 passed;15/18 ready"
+last_updated: "2026-10-13T18:24:48.788282+00:00"
+last_activity: "2026-10-13"
+last_activity_desc: "Eleven additional recovery plans passed independent review and planning checks"
+state_head: "409fb7afd8a14d9ee6755b9435cfad464b58fa73"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 31
   completed_plans: 12
-  percent: 25
+  percent: 39
 milestone_status: active
-workflow_step: plan_recovery
+workflow_step: "execute_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-plan-phase 253
-resume_command: $gsd-plan-phase 253
+next_command: "$gsd-execute-phase 253 --gaps-only"
+resume_command: "$gsd-execute-phase 253 --gaps-only"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
 phase253_planning_status: passed
-phase253_plan_count: 14
-phase253_wave_count: 4
-phase253_task_count: 30
+phase253_plan_count: 25
+phase253_wave_count: 8
+phase253_task_count: 54
 phase253_implementation_status: partial
 phase253_completed_plans: 6
-phase253_halted_plans:
-  - 253-02
-  - 253-07
-  - 253-09
-  - 253-12
-phase253_blocked_plans:
-  - 253-08
-  - 253-10
-  - 253-13
-  - 253-14
+phase253_halted_plans: [253-02, 253-07, 253-09, 253-12]
+phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
+
 phase253_recovery_plan_count: 6
+
 phase253_recovery_task_count: 13
+
+phase253_additional_recovery_plan_count: 11
+phase253_additional_recovery_task_count: 24
 ---
 
 # Project State
@@ -58,19 +55,19 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
-Plans:6/14 complete;09/12 halted;10/13/14 blocked; original02/07 halted and08 blocked
-Status:No runnable plans; local runner repairs pass; new recovery planning required
-Last activity:2026-10-13 — Three executors returned; no browser or hosted job ran
-Progress:12/20 planned milestone plans complete([███░░░░░░░] 25%); phase verification not started
+Phase: 253 — incomplete
+Plans: 6/25 complete; new15–25 checked,15/18 ready; old02/07/09/12 halted and08/10/13/14 blocked
+Status: Ready to execute additional recovery plans; both requirements remain open
+Last activity: 2026-10-13 — 11 new plans,24 tasks,8 waves; independent review passed
+Progress: 12/31 planned milestone plans complete(39%); full Phase253 verification not started
 
 ## Next GSD command
 
-$gsd-plan-phase 253
+$gsd-execute-phase 253 --gaps-only
 
-Plans09 and12 stopped before producing native acceptance proof. The registration runner now isolates its compiled build per attempt and scrubs signing-key values before hashing logs. The canary runner now queries effective rules for main and stops on incomplete pages. Local tests pass, but the old failed freezes/ledgers stay unchanged. New plans must bind corrected source, define available slots/time/calls, publish fixture Git objects, and prove actual HTTP accounting before real registration/hosted proof. Plans10/13/14 remain blocked. Both CIREL requirements are open; no phase verification or Phase254 work occurred.
+Run new15–25 in dependency order. They cover remaining registration diagnostics and controls, measured HTTP and Git object publication, six hosted gate scenarios, two real PR families and accepted-only reconciliation. Prior spent slots/charges, halted clocks/freezes and failed results stay preserved. Planning and local contract checks do not complete either reliability requirement. Phase254 remains pending.
 
-Execution closeout:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-CLOSEOUT.json. No user credential or manual test action is needed.
+Planning closeout: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json. No user credential or manual UAT is needed. After all recovery requirements are accepted, run unfiltered $gsd-execute-phase 253 for full phase verification.
 
 ## Known unfinished work
 
@@ -117,9 +114,9 @@ Execution closeout:.planning/phases/253-fix-flaky-ci-and-preserve-required-check
 
 ## Session
 
-**Last session:** 2026-10-13T14:04:38.077234+00:00
-**Stopped at:** Recovery09/12 halted; local repairs committed; route to new recovery planning
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-CLOSEOUT.json
+**Last session:** 2026-10-13T18:24:48.788282+00:00
+**Stopped at:** Additional recovery planning checked; next15/18 ready
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json
 
 ## Deferred Items
 
@@ -153,4 +150,10 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 
 Plan11 local work complete;09/12 halted; new source repairs are committed with RED-before-GREEN records. Registration tests12/12, hosted verifier16/16, canary shell suite, legacy setup5/5 and six forged-claim checks pass. Registration:0browserlaunches/3768ms charged. Canary:3charged API-command entries/0jobs/0dispatches/0remote-ref changes; actualHTTP headers/redirect counts still need proof. The wrong ruleset query does not show required checks were removed.
 
-Shared prior bytes are recoverable at 64ad6b727a9da7ea0da736f38870e677d37b6d76. The unrelated config model edit is preserved at refs/gsd/phase253-recovery-execution-unrelated-config and left unstaged. Native frozen proof remains rejected; requirements stay open. Next:$gsd-plan-phase 253.
+Shared prior bytes are recoverable at 64ad6b727a9da7ea0da736f38870e677d37b6d76. The unrelated config model edit is preserved at refs/gsd/phase253-recovery-execution-unrelated-config and left unstaged. Native frozen proof remains rejected; requirements stay open. Historical stop route was $gsd-plan-phase 253; the current route is above.
+
+## Latest additional recovery planning
+
+Plans15–25:11plans,24tasks,8waves. Independent review253-REPLAN-PLAN-CHECK-02.md passed;22schema/structure checks passed,24/24decisions and26/26requirement/decision items covered. Verify paths and failing directions:54commands,0blockers/0warnings. Initial review omitted four artifact metadata requests from arithmetic; deterministic full-table sum and fresh independent review confirm120. No numeric override, plan rewrite, source execution or new phase acceptance.
+
+Original14plans,94Phase252paths and all failed/freezes/ledgers remain byte-identical. Shared priorbytes: 409fb7afd8a14d9ee6755b9435cfad464b58fa73; exactSDKgenericstate preserved there before restoring full history. Unrelated config preserved at refs/gsd/phase253-recovery-execution-unrelated-config and left unstaged. Next: $gsd-execute-phase 253 --gaps-only.

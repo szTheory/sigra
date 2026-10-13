@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 partly implemented; execution proof blocked)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 partly implemented; additional recovery plans ready)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-plan-phase 253 — 09/12 halted; local repairs pass; no runnable plans; native registration/hosted proof and phase verification remain missing.
+**Next command:** $gsd-execute-phase 253 --gaps-only — additional recovery plans15–25 passed review;15/18 ready. Native proof and full phase verification remain pending.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:6/14 complete;09/12 halted;10/13/14 blocked; original02/07 halted and08 blocked; phase verification not started
+**Plans**:6/25 complete;11 additional recovery plans checked;15/18 ready; original02/07/09/12 halted and08/10/13/14 blocked; phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -115,6 +115,31 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 - [ ] 253-13-PLAN.md — Normal and real docs-only draft PR evidence
 - [ ] 253-14-PLAN.md — Evidence-linked requirements and historical-plan reconciliation
 
+**Additional recovery plans** *(15–25 passed independent review; old plans01–14 and failed records remain preserved)*
+
+| Recovery wave | Plans | Work |
+|---|---|---|
+| 1 | 15,18 | Remaining registration diagnostics; measured HTTP transport |
+| 2 | 16,19 | Native readiness/state/trace controls; independent source verifier |
+| 3 | 17,20 | Cause-backed repair and reserved repeats; counted Git object publication |
+| 4 | 21 | Normal/docs-only PR collector and completion verification contracts |
+| 5 | 22 | Final local candidate/fixture and explicit finite source/window freeze |
+| 6 | 23 | Six real hosted outcomes and separate hosted verifier |
+| 7 | 24 | Normal and real docs-only PR native required-check proof |
+| 8 | 25 | Accepted-only historical-plan disposition and phase-verification route |
+
+- [ ] 253-15-PLAN.md — Remaining native registration diagnostics
+- [ ] 253-16-PLAN.md — Real readiness/state/trace controls
+- [ ] 253-17-PLAN.md — Cause assessment, scoped repair and fresh repeats
+- [ ] 253-18-PLAN.md — Measured actual HTTP transport
+- [ ] 253-19-PLAN.md — Independent source and transport verifier
+- [ ] 253-20-PLAN.md — Counted server Git object/ref publication
+- [ ] 253-21-PLAN.md — Real PR collector and completion contracts
+- [ ] 253-22-PLAN.md — Final local source/window freeze
+- [ ] 253-23-PLAN.md — Six hosted outcomes and separate verifier
+- [ ] 253-24-PLAN.md — Normal and real docs-only PR proof
+- [ ] 253-25-PLAN.md — Accepted-only reconciliation and full phase verification route
+
 ### Phase 254: Speed Up the Measured Slow Jobs
 
 **Goal**: Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
@@ -143,12 +168,12 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans in four waves; Phase 253 retains eight original plans and six checked recovery plans in four recovery waves; Phase 254/255 plan counts remain pending.
+**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans in four waves; Phase 253 retains fourteen older plans and eleven additional checked recovery plans in eight recovery waves; Phase 254/255 plan counts remain pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 6/14 | Partial implementation; execution proof blocked; verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 6/25 | Partial implementation; additional recovery ready; verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

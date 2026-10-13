@@ -1,12 +1,12 @@
 {
   "schema_version": "sigra.phase253.partial-execution/v1",
   "recorded_at": "2026-10-13T17:19:13.486386+00:00",
-  "status": "blocked",
+  "status": "partial_ready_for_recovery",
   "source_head": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
   "implementation_status": "partial",
   "phase_verification_status": "not_started",
   "completed_plan_count": 6,
-  "plan_count": 14,
+  "plan_count": 25,
   "plans": {
     "253-01": "complete",
     "253-02": "halted",
@@ -53,7 +53,7 @@
       "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json"
     }
   ],
-  "next_command": "$gsd-plan-phase 253",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
   "readiness": {
     "executor_model": "gpt-6-luna",
     "verifier_model": "gpt-6-luna",
@@ -644,7 +644,18 @@
       "253-11-PLAN.md",
       "253-12-PLAN.md",
       "253-13-PLAN.md",
-      "253-14-PLAN.md"
+      "253-14-PLAN.md",
+      "253-15-PLAN.md",
+      "253-16-PLAN.md",
+      "253-17-PLAN.md",
+      "253-18-PLAN.md",
+      "253-19-PLAN.md",
+      "253-20-PLAN.md",
+      "253-21-PLAN.md",
+      "253-22-PLAN.md",
+      "253-23-PLAN.md",
+      "253-24-PLAN.md",
+      "253-25-PLAN.md"
     ],
     "summaries": [
       "253-01-SUMMARY.md",
@@ -662,10 +673,21 @@
       "253-08-PLAN.md",
       "253-10-PLAN.md",
       "253-13-PLAN.md",
-      "253-14-PLAN.md"
+      "253-14-PLAN.md",
+      "253-15-PLAN.md",
+      "253-16-PLAN.md",
+      "253-17-PLAN.md",
+      "253-18-PLAN.md",
+      "253-19-PLAN.md",
+      "253-20-PLAN.md",
+      "253-21-PLAN.md",
+      "253-22-PLAN.md",
+      "253-23-PLAN.md",
+      "253-24-PLAN.md",
+      "253-25-PLAN.md"
     ],
-    "plan_count": 14,
-    "incomplete_count": 4,
+    "plan_count": 25,
+    "incomplete_count": 15,
     "threat_id_duplicates": [],
     "threat_id_duplicate_count": 0,
     "halted_plans": [
@@ -691,8 +713,20 @@
         "253-12"
       ]
     },
-    "runnable_plans": [],
-    "runnable_count": 0,
+    "runnable_plans": [
+      "253-15-PLAN.md",
+      "253-16-PLAN.md",
+      "253-17-PLAN.md",
+      "253-18-PLAN.md",
+      "253-19-PLAN.md",
+      "253-20-PLAN.md",
+      "253-21-PLAN.md",
+      "253-22-PLAN.md",
+      "253-23-PLAN.md",
+      "253-24-PLAN.md",
+      "253-25-PLAN.md"
+    ],
+    "runnable_count": 11,
     "branch_name": null,
     "milestone_version": "v1.50",
     "milestone_name": "CI-SPEED-AND-RELIABILITY",
@@ -1053,6 +1087,294 @@
         "unresolved_dependencies": [
           "253-13"
         ]
+      },
+      {
+        "id": "253-15",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Run the repaired registration runner against a fresh frozen source, without reusing the spent diagnostic slot.",
+        "files_modified": [
+          "scripts/ci/ci-registration-repro.sh",
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/ci-registration-recovery.test.mjs",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": true
+      },
+      {
+        "id": "253-16",
+        "wave": 2,
+        "depends_on": [
+          "253-15"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove real readiness, collision/isolation and trace controls in all three affected projects.",
+        "files_modified": [
+          "test/example/priv/playwright/tests/admin-eval.spec.ts",
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/ci-registration-recovery.test.mjs",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-15"
+        ]
+      },
+      {
+        "id": "253-17",
+        "wave": 3,
+        "depends_on": [
+          "253-16"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Assess the observed cause, apply only a demonstrated test/CI repair, and verify fresh affected-project repeats.",
+        "files_modified": [
+          "test/example/priv/playwright/tests/admin-eval.spec.ts",
+          "test/example/priv/playwright/helpers/adminFlows.ts",
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/ci-registration-recovery.test.mjs",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-ACCEPTANCE-FREEZE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 3,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-16"
+        ]
+      },
+      {
+        "id": "253-18",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Use actual bounded HTTP transactions for hosted evidence, including headers, statuses, pages and redirects.",
+        "files_modified": [
+          "scripts/ci/ci-hosted-transport.py",
+          "scripts/ci/ci-hosted-transport.test.py",
+          "scripts/ci/ci-gate-canary.sh",
+          "scripts/ci/ci-gate-canary.test.sh"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": true
+      },
+      {
+        "id": "253-19",
+        "wave": 2,
+        "depends_on": [
+          "253-18"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Independently validate measured transport, exact effective check sources and bounded dispatch/artifact inputs.",
+        "files_modified": [
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py",
+          "scripts/ci/ci-gate-canary.sh",
+          "scripts/ci/ci-gate-canary.test.sh",
+          "scripts/ci/ci-hosted-transport.py",
+          "scripts/ci/ci-hosted-transport.test.py"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-18"
+        ]
+      },
+      {
+        "id": "253-20",
+        "wave": 3,
+        "depends_on": [
+          "253-19"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Publish frozen Git blobs, trees and commits with bounded REST calls before creating scoped refs.",
+        "files_modified": [
+          "scripts/ci/ci-git-publication.py",
+          "scripts/ci/ci-git-publication.test.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PUBLICATION-PROPOSAL.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-19"
+        ]
+      },
+      {
+        "id": "253-21",
+        "wave": 4,
+        "depends_on": [
+          "253-17",
+          "253-20"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prepare a bounded normal-PR and real docs-only PR collector before the final canary candidate is frozen.",
+        "files_modified": [
+          "scripts/ci/ci-pr-proof.sh",
+          "scripts/ci/ci-pr-proof.test.sh",
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-17",
+          "253-20"
+        ]
+      },
+      {
+        "id": "253-22",
+        "wave": 5,
+        "depends_on": [
+          "253-21"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Seal the final source, object manifest and new reviewed canary window before any hosted execution.",
+        "files_modified": [
+          "scripts/ci/ci-gate-canary.sh",
+          "scripts/ci/ci-gate-canary.test.sh",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-WORKFLOW.yml",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-PUBLICATION.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-21"
+        ]
+      },
+      {
+        "id": "253-23",
+        "wave": 6,
+        "depends_on": [
+          "253-22"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove six real hosted source outcomes and a separate hosted verifier within the new sealed canary window.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-REQUESTS.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-PUBLICATION-RECEIPT.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 3,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-22"
+        ]
+      },
+      {
+        "id": "253-24",
+        "wave": 7,
+        "depends_on": [
+          "253-23"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove normal production required checks and real docs-only classification on two unmerged PR families.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PR-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PR-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PR-REQUESTS.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PR-PUBLICATION-RECEIPT.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-23"
+        ]
+      },
+      {
+        "id": "253-25",
+        "wave": 8,
+        "depends_on": [
+          "253-24"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Reconcile accepted reliability proof while preserving every halted attempt and exposing a truthful whole-phase verification route.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-COMPLETION-RECORD.json",
+          "scripts/ci/ci-phase253-reconcile.mjs",
+          "scripts/ci/ci-phase253-reconcile.test.mjs",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-RECONCILIATION.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-SUPERSESSION-SUMMARIES.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-SUMMARY.md",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-SUMMARY.md",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-13-SUMMARY.md",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-14-SUMMARY.md"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-24"
+        ]
       }
     ],
     "waves": {
@@ -1063,32 +1385,77 @@
         "253-04",
         "253-05",
         "253-09",
-        "253-11"
+        "253-11",
+        "253-15",
+        "253-18"
       ],
       "2": [
         "253-06",
         "253-10",
-        "253-12"
+        "253-12",
+        "253-16",
+        "253-19"
       ],
       "3": [
         "253-07",
-        "253-13"
+        "253-13",
+        "253-17",
+        "253-20"
       ],
       "4": [
         "253-08",
-        "253-14"
+        "253-14",
+        "253-21"
+      ],
+      "5": [
+        "253-22"
+      ],
+      "6": [
+        "253-23"
+      ],
+      "7": [
+        "253-24"
+      ],
+      "8": [
+        "253-25"
       ]
     },
     "incomplete": [
       "253-08",
       "253-10",
       "253-13",
-      "253-14"
+      "253-14",
+      "253-15",
+      "253-16",
+      "253-17",
+      "253-18",
+      "253-19",
+      "253-20",
+      "253-21",
+      "253-22",
+      "253-23",
+      "253-24",
+      "253-25"
     ],
-    "runnable": [],
-    "ready_plans": [],
+    "runnable": [
+      "253-15",
+      "253-16",
+      "253-17",
+      "253-18",
+      "253-19",
+      "253-20",
+      "253-21",
+      "253-22",
+      "253-23",
+      "253-24",
+      "253-25"
+    ],
+    "ready_plans": [
+      "253-15",
+      "253-18"
+    ],
     "has_checkpoints": false,
-    "warning": "Found 6 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\", \"253-RECOVERY-PLAN-CHECK-01.md\", \"253-RECOVERY-PLAN-CHECK-02.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract."
+    "warning": "Found 12 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\", \"253-RECOVERY-PLAN-CHECK-01.md\", \"253-RECOVERY-PLAN-CHECK-02.md\", \"253-REPLAN-BUDGETS.md\", \"253-REPLAN-COVERAGE.md\", \"253-REPLAN-PLAN-CHECK-01.md\", \"253-REPLAN-PLAN-CHECK-02.md\", \"253-REPLAN-SOURCE-AUDIT.md\", \"253-REPLAN-VALIDATION.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract."
   },
   "recovery_execution": {
     "schema_version": "sigra.phase253.recovery-execution-closeout/v1",
@@ -1918,5 +2285,37 @@
       "remaining": "No08SUMMARY and no253VERIFICATION exist; do not reconcile or mark phase complete."
     }
   ],
-  "recovery_closeout_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-CLOSEOUT.json"
+  "recovery_closeout_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-CLOSEOUT.json",
+  "additional_recovery_planning": {
+    "status": "passed",
+    "recorded_at": "2026-10-13T18:24:48.788282+00:00",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json",
+    "plans": [
+      "253-15",
+      "253-16",
+      "253-17",
+      "253-18",
+      "253-19",
+      "253-20",
+      "253-21",
+      "253-22",
+      "253-23",
+      "253-24",
+      "253-25"
+    ],
+    "plan_count": 11,
+    "total_phase_plans": 25,
+    "tasks": 24,
+    "total_phase_tasks": 54,
+    "waves": 8,
+    "ready_plans": [
+      "253-15",
+      "253-18"
+    ],
+    "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PLAN-CHECK-02.md",
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "implementation_status": "partial",
+    "phase_verification_status": "not_started"
+  },
+  "current_planning_closeout": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json"
 }
