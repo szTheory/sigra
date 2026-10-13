@@ -1,0 +1,10 @@
+{
+  "command": "python3 scripts/ci/ci-git-publication.test.py PublicationTests.test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback",
+  "exitCode": 1,
+  "output": "test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback (__main__.PublicationTests.test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback) ... FAIL\n\n======================================================================\nFAIL: test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback (__main__.PublicationTests.test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-git-publication.test.py\", line 405, in test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback\n    self.assertNotEqual(rejected.returncode, 0, \"receipt verifier accepted a missing candidate ref readback\")\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 == 0 : receipt verifier accepted a missing candidate ref readback\n\n----------------------------------------------------------------------\nRan 1 test in 3.320s\n\nFAILED (failures=1)",
+  "targetTest": "test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback",
+  "targetFile": "scripts/ci/ci-git-publication.test.py",
+  "expected": "The verifier rejects a receipt missing the candidate ref row after successful measured object publication.",
+  "actual": "The test failed because --verify-publication accepted the tampered receipt with exit 0.",
+  "semanticAssessment": "The one-test unittest run reached the final semantic assertion after the object-aware HTTPS publication and ledger checks passed. The only failure demonstrates that receipt verification does not enforce candidate-ref proof coverage."
+}

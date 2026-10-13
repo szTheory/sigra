@@ -392,6 +392,18 @@ class PublicationTests(unittest.TestCase):
                                    cwd=ROOT, text=True, capture_output=True)
             self.assertEqual(check.returncode, 0, check.stderr)
 
+            # A ledger hash alone cannot prove both scoped refs were read back.
+            # Removing the candidate-ref receipt must invalidate publication evidence.
+            incomplete_receipt = json.loads(receipt_path.read_text())
+            incomplete_receipt["server_object_receipts"] = [
+                row for row in incomplete_receipt["server_object_receipts"]
+                if not (row.get("kind") == "ref" and row.get("variant") == "candidate")
+            ]
+            receipt_path.write_text(json.dumps(incomplete_receipt))
+            rejected = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt_path)],
+                                      cwd=ROOT, text=True, capture_output=True)
+            self.assertNotEqual(rejected.returncode, 0, "receipt verifier accepted a missing candidate ref readback")
+
     def test_exact_existing_ref_is_reused_only_with_matching_manifest_and_window_receipt(self):
         with tempfile.TemporaryDirectory(prefix="sigra-object-matching-ref-") as temp:
             repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.make_local_publication(temp)
