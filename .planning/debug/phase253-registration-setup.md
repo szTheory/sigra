@@ -2,7 +2,7 @@
 status: verifying
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:35:39Z
+updated: 2026-10-13T12:40:16Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,10 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: Setup failure evidence was lost because errexit aborted before the writer; the historical JOSE include cause remains unknown because its raw log is unavailable.
-test: Four hermetic tests cover setup failure, three fixture HTTP-ready ports, terminal-output refusal, source cleanliness, deadline, and process cleanup; three earlier real Phoenix launches reached HTTP 200.
-expecting: The repair is valid for the harness behavior, but real invocation of the new entrypoint requires a separate three-launch budget because this diagnostic already used all three launches.
-next_action: retain this session in verifying; if a new setup-only launch budget is explicitly established, run `scripts/ci/ci-registration-repro.sh --diagnose-setup --output <new evidence path>` against real Phoenix, then check all three ports and logs before resolving
+hypothesis: The committed setup-only entrypoint records each real setup outcome and raw log before any startup failure can exit; the historical JOSE include cause remains unknown because its raw log is unavailable.
+test: Run the committed `--diagnose-setup` entrypoint once against real Phoenix using the separate frozen three-launch, 1200-second, zero-browser budget.
+expecting: One final receipt records three distinct projects reaching HTTP 200 on ports 25311, 25312, and 25313, with raw setup and app logs retained; any failure remains terminal with no live retry.
+next_action: run `bash scripts/ci/ci-registration-repro.sh --diagnose-setup --output /private/tmp/sigra-253-setup-entrypoint-20261013T124016Z.json` once, then validate the receipt and all raw logs
 reasoning_checkpoint:
   hypothesis: A nonzero setup command exits the current runner before its evidence writer because Bash errexit is active.
   confirming_evidence:
