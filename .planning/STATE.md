@@ -4,25 +4,25 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "ready_to_execute_recovery"
-stopped_at: "Additional recovery plans15–25 passed;15/18 ready"
-last_updated: "2026-10-13T18:24:48.788282+00:00"
-last_activity: "2026-10-13"
-last_activity_desc: "Eleven additional recovery plans passed independent review and planning checks"
-state_head: "409fb7afd8a14d9ee6755b9435cfad464b58fa73"
+status: executing
+stopped_at: Additional recovery plans15–25 passed;15/18 ready
+last_updated: "2026-10-13T18:31:39.064Z"
+last_activity: 2026-10-13
+last_activity_desc: Phase 253 execution started
+state_head: 8fb2fed8de243d5131967761f4a4aafb32d87cb3
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 31
-  completed_plans: 12
-  percent: 39
+  completed_plans: 16
+  percent: 25
 milestone_status: active
-workflow_step: "execute_recovery"
+workflow_step: execute_recovery
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: $gsd-execute-phase 253 --gaps-only
+resume_command: $gsd-execute-phase 253 --gaps-only
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -33,13 +33,18 @@ phase253_wave_count: 8
 phase253_task_count: 54
 phase253_implementation_status: partial
 phase253_completed_plans: 6
-phase253_halted_plans: [253-02, 253-07, 253-09, 253-12]
-phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
-
+phase253_halted_plans:
+  - 253-02
+  - 253-07
+  - 253-09
+  - 253-12
+phase253_blocked_plans:
+  - 253-08
+  - 253-10
+  - 253-13
+  - 253-14
 phase253_recovery_plan_count: 6
-
 phase253_recovery_task_count: 13
-
 phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 ---
@@ -55,11 +60,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — incomplete
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — EXECUTING
 Plans: 6/25 complete; new15–25 checked,15/18 ready; old02/07/09/12 halted and08/10/13/14 blocked
-Status: Ready to execute additional recovery plans; both requirements remain open
-Last activity: 2026-10-13 — 11 new plans,24 tasks,8 waves; independent review passed
-Progress: 12/31 planned milestone plans complete(39%); full Phase253 verification not started
+Status: Executing Phase 253
+Last activity: 2026-10-13 — Phase 253 execution started
+Progress: 12/31 planned milestone plans complete([███░░░░░░░] 25%); full Phase253 verification not started
 
 ## Next GSD command
 
