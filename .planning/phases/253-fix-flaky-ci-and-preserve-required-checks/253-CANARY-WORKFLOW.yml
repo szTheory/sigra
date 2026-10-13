@@ -107,10 +107,7 @@ jobs:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
           FIXTURE_SHA: ${{ inputs.fixture_sha }}
           FIXTURE_BLOB: ${{ inputs.fixture_blob }}
-          GITHUB_SHA: ${{ inputs.candidate_sha }}
-          GITHUB_EVENT_NAME: ${{ inputs.scenario == 'docs-only' && 'pull_request' || 'workflow_dispatch' }}
-          GITHUB_WORKFLOW_REF: szTheory/sigra/.github/workflows/ci.yml@${{ github.ref_name }}
-          GITHUB_WORKFLOW_SHA: ${{ inputs.candidate_sha }}
+          NATIVE_PRODUCERS_RESULT: ${{ needs.producers.result }}
           CLASSIFIER_RESULT: ${{ inputs.scenario == 'docs-only' && 'success' || '' }}
           DOCS_ONLY: ${{ inputs.scenario == 'docs-only' && 'true' || 'false' }}
         run: |
@@ -193,7 +190,9 @@ jobs:
             const record = spawnSync(process.execPath,
               [path.resolve('candidate/scripts/ci/ci-browser-records.mjs'), '--record', '--directory', outputDir,
                 '--reports-directory', reportsDir, '--seam', seam],
-              {encoding: 'utf8', env: {...process.env, SELECTED_STEPS_JSON: JSON.stringify(steps)}});
+              {encoding: 'utf8', env: {...process.env, GITHUB_SHA: identity.source_sha,
+                GITHUB_EVENT_NAME: identity.event, GITHUB_WORKFLOW_SHA: identity.workflow_sha,
+                SELECTED_STEPS_JSON: JSON.stringify(steps)}});
             if (record.status !== 0) throw new Error(`candidate record helper failed for ${seam}: ${record.stderr}`);
           }
           function projectSetup(project) { return project.replace('admin-design-', 'admin-design-setup-'); }
@@ -206,10 +205,9 @@ jobs:
           const selected = {};
           for (const [seam, steps] of Object.entries(selectedSteps)) for (const [id, step] of Object.entries(steps)) selected[id] = step;
           process.env.SELECTED_STEPS_JSON = JSON.stringify(selected);
-          let nativeResult = scenario === 'actual-failure' ? 'failure' : 'success';
+          const nativeResult = process.env.NATIVE_PRODUCERS_RESULT;
           let exitCode = 0;
           try {
-            if (scenario === 'actual-failure') throw new Error('synthetic producer command failed with exit 17');
             helper.verifyDirectory(aggregate, identity, nativeResult);
           }
           catch (error) { console.error(`candidate browser records rejected synthetic source: ${error.message}`); exitCode = 1; }
@@ -297,7 +295,7 @@ jobs:
           payload = base64.b64decode(os.environ['MATRIX_EVIDENCE'], validate=True)
           Path('/tmp/253-canary-matrix.json').write_bytes(payload)
           PY
-          python3 scripts/ci/ci-hosted-gate-verify.py --evidence /tmp/253-canary-matrix.json --scenario matrix > /tmp/253-verifier-result.json
+          python3 scripts/ci/ci-hosted-gate-verify.py --evidence /tmp/253-canary-matrix.json --scenario sources > /tmp/253-verifier-result.json
           cat /tmp/253-verifier-result.json
       - name: Retain separate verifier result
         if: ${{ always() }}

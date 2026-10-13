@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -69,7 +70,10 @@ echo completion-can-be-captured
         for scenario in ('full-pass', 'docs-only', 'actual-failure', 'missing-seam', 'unexpected-skip'):
             with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as directory:
                 tmp = Path(directory)
-                (tmp / 'candidate').symlink_to(ROOT, target_is_directory=True)
+                shutil.copytree(ROOT / 'scripts/ci', tmp / 'candidate/scripts/ci', ignore=shutil.ignore_patterns('__pycache__'))
+                (tmp / 'candidate/.github/workflows').mkdir(parents=True)
+                shutil.copyfile(ROOT / '.github/workflows/ci.yml', tmp / 'candidate/.github/workflows/ci.yml')
+                shutil.copyfile(ROOT / '.github/ci-skip-manifest.tsv', tmp / 'candidate/.github/ci-skip-manifest.tsv')
                 for seam in SEAMS:
                     if scenario == 'missing-seam' and seam == 'admin_checkpoints':
                         continue

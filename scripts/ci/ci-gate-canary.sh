@@ -76,7 +76,12 @@ for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-autome
   if rg -q 'Phase 253 Gate Canary' "$ROOT/$path"; then fail "distinct canary name is captured by downstream workflow filter $path"; fi
 done
 
-gh auth status >/dev/null 2>&1 || fail 'GitHub authentication is unavailable'
+# Never let a rerun discard deterministic diagnostics or reuse a halted freeze.
+# This guard precedes every gh invocation, including local token lookup.
+if [[ -f "$EVIDENCE" ]] && jq -e '.status == "halted" or ((.diagnostics // {}) | length > 0)' "$EVIDENCE" >/dev/null; then
+  fail 'halted evidence requires a separately authorized new freeze; existing diagnostics cannot be retried'
+fi
+gh auth token >/dev/null 2>&1 || fail 'GitHub authentication is unavailable' 
 INITIAL_CALLS=3
 if [[ -f "$EVIDENCE" ]]; then
   REQUEST_COUNT="$(jq -r '.budget.request_count // 3' "$EVIDENCE")"
@@ -194,10 +199,7 @@ watch_run() {
     fi
     sleep 5
   done
-  set +e
-  wait "$pid"
-  result=$?
-  set -e
+  if wait "$pid"; then result=0; else result=$?; fi
   cat "$watch_log"
   if rg -qi 'HTTP[^0-9]*(403|429)|API rate limit exceeded|secondary rate limit' "$watch_log"; then return 77; fi
   check_budget 0
@@ -308,10 +310,8 @@ dispatch_scenario() {
     record_budget
     gh run cancel "$run_id" --repo "$REPO" || fail 'identified canary cancellation failed'
   fi
-  set +e
-  watch_run "$run_id" "$case_name"
-  local watch_status=$?
-  set -e
+  local watch_status
+  if watch_run "$run_id" "$case_name"; then watch_status=0; else watch_status=$?; fi
   record_budget
   (( watch_status != 124 )) || fail "watch exceeded its reserved four-minute window for $case_name"
   (( watch_status != 77 )) || fail "watch received a GitHub 403/429 rate-limit response; stop until reset"
@@ -326,14 +326,13 @@ dispatch_scenario() {
   conclusion="$(jq -r '.conclusion // ""' "$run_json")"
   if [[ "$conclusion" == failure ]]; then
     ((REQUEST_COUNT += 2)); check_budget 0
-    log_request "GET failed logs for run id=$run_id conclusion=failure including redirect" observed 2
+    log_request "GET actions/runs/$run_id/logs including redirect" reserved 2
     record_budget
-    failed_logs="$(mktemp /tmp/253-canary-failed-logs.XXXXXX.log)"
-    gh run view "$run_id" --repo "$REPO" --log-failed > "$failed_logs" 2>&1 || fail "failed-log retrieval failed for run $run_id"
-    cat "$failed_logs"
+    failed_logs="$(mktemp /tmp/253-canary-failed-logs.XXXXXX.zip)"
+    gh api "repos/$REPO/actions/runs/$run_id/logs" > "$failed_logs" || fail "failed-log retrieval failed for run $run_id"
   fi
   current_jobs="$(jq -r '.budget.actual_jobs // 0' "$EVIDENCE")"
-  new_jobs="$(jq -r '.total_count' "$jobs_json")"
+  new_jobs="$(jq -r '[.jobs[] | select(.conclusion != "skipped")] | length' "$jobs_json")"
   (( current_jobs + new_jobs <= MAX_JOBS )) || fail "hosted execution count exceeded $MAX_JOBS jobs"
   receipt_tmp="$(mktemp /tmp/253-canary-receipt.XXXXXX.json)"
   if [[ "$case_name" == cancelled ]]; then
@@ -379,7 +378,7 @@ PY
 for current_scenario in "${SCENARIOS[@]}"; do dispatch_scenario "$current_scenario"; done
 
 if [[ "$ALL_REMAINING" == true ]]; then
-  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --evidence "$EVIDENCE" --scenario matrix 2>/dev/null && fail 'matrix verifier passed before separate hosted verifier ran' || true
+  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --evidence "$EVIDENCE" --scenario sources || fail 'source matrix is incomplete before separate verifier dispatch'
   MATRIX_B64="$(python3 - "$EVIDENCE" <<'PY'
 import base64,sys
 print(base64.b64encode(open(sys.argv[1],'rb').read()).decode())
@@ -399,21 +398,18 @@ PY
   api_get "actions/workflows/$WORKFLOW_ID/runs?event=workflow_dispatch&branch=$FIXTURE_BRANCH&per_page=100" "$VERIFY_LIST"
   VERIFY_ID="$(jq -r --arg branch "$FIXTURE_BRANCH" --arg sha "$FIXTURE_SHA" '[.workflow_runs[] | select(.head_branch==$branch and .head_sha==$sha and .event=="workflow_dispatch" and (.display_title|startswith("Phase 253 Gate Canary / verifier /")))] | sort_by(.run_number) | last | .id // empty' "$VERIFY_LIST")"
   [[ -n "$VERIFY_ID" ]] || fail 'separate verifier run was not created'
-  set +e
-  watch_run "$VERIFY_ID" 'separate verifier'
-  watch_status=$?
-  set -e
+  if watch_run "$VERIFY_ID" 'separate verifier'; then watch_status=0; else watch_status=$?; fi
   (( watch_status != 124 )) || fail 'separate verifier watch exceeded its reservation'
   (( watch_status != 77 )) || fail 'separate verifier watch received a GitHub 403/429; stop until reset'
   VERIFY_RUN="$(mktemp /tmp/253-canary-verifier-run.XXXXXX.json)"
   VERIFY_JOBS="$(mktemp /tmp/253-canary-verifier-jobs.XXXXXX.json)"
   api_get "actions/runs/$VERIFY_ID" "$VERIFY_RUN"
   api_get "actions/runs/$VERIFY_ID/jobs?per_page=100" "$VERIFY_JOBS"
-  new_jobs="$(jq -r '.total_count' "$VERIFY_JOBS")"
+  new_jobs="$(jq -r '[.jobs[] | select(.conclusion != "skipped")] | length' "$VERIFY_JOBS")"
   (( current_jobs + new_jobs <= MAX_JOBS )) || fail "separate verifier exceeded the $MAX_JOBS-job ceiling"
   preserve_evidence
   jq --argjson id "$VERIFY_ID" --slurpfile run "$VERIFY_RUN" --slurpfile jobs "$VERIFY_JOBS" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
-    '.separate_verifier={status:"passed",run_id:($id|tostring),job_conclusion:$run[0].conclusion,run:$run[0],jobs:$jobs[0]} | .budget.actual_jobs+=(($jobs[0].total_count)//0) | .budget.request_count+=(0) | .preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+    '.separate_verifier={status:"passed",run_id:($id|tostring),job_conclusion:$run[0].conclusion,run:$run[0],jobs:$jobs[0]} | .budget.actual_jobs+=([$jobs[0].jobs[] | select(.conclusion != "skipped")] | length) | .budget.request_count+=(0) | .preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
   mv "${EVIDENCE}.tmp" "$EVIDENCE"
   python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --evidence "$EVIDENCE" --scenario matrix
 fi

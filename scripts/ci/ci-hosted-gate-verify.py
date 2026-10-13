@@ -42,9 +42,9 @@ def read_evidence(path):
     require(value.get("repository") == "szTheory/sigra", "wrong repository")
     budget = value.get("budget")
     require(isinstance(budget, dict) and budget.get("max_requests") == 120 and budget.get("max_jobs") == 45
-            and isinstance(budget.get("request_count"), int) and budget["request_count"] <= 120
-            and isinstance(budget.get("actual_jobs"), int) and budget["actual_jobs"] <= 45
-            and isinstance(budget.get("elapsed_seconds"), int) and budget["elapsed_seconds"] <= 3600,
+            and type(budget.get("request_count")) is int and 0 <= budget["request_count"] <= 120
+            and type(budget.get("actual_jobs")) is int and 0 <= budget["actual_jobs"] <= 45
+            and type(budget.get("elapsed_seconds")) is int and 0 <= budget["elapsed_seconds"] <= 3600,
             "fixed hosted request, job, or time budget is missing or exceeded")
     return value
 
@@ -114,7 +114,14 @@ def verify_scenario(receipt, scenario, evidence):
     jobs = jobs_doc["jobs"]
     require(jobs_doc.get("total_count") == len(jobs), "jobs response is incomplete")
     names = [job.get("name") for job in jobs if isinstance(job, dict)]
-    required_names = [f"producer ({seam})" for seam in SEAMS] + ["Browser verdict"]
+    required_names = [f"producer ({seam})" for seam in SEAMS] + ["Browser verdict", "verifier"]
+    require(sorted(names) == sorted(required_names), "hosted job set is missing, duplicated, or unexpected")
+    require(all(job.get("run_id") == run.get("id") and job.get("run_attempt") == run.get("run_attempt")
+                and job.get("conclusion") is not None for job in jobs), "hosted job run identity or terminal result mismatch")
+    auxiliary = next(job for job in jobs if job.get("name") == "verifier")
+    require(auxiliary.get("conclusion") == "skipped", "auxiliary verifier must be skipped in source scenarios")
+    executed = sum(job.get("conclusion") != "skipped" for job in jobs)
+    require(evidence["budget"]["actual_jobs"] >= executed, "reported job budget omits executed hosted jobs")
     if scenario == "cancelled":
         require(sorted(names) == sorted(required_names) and all(job.get("run_id") == run.get("id")
                 and job.get("run_attempt") == run.get("run_attempt") for job in jobs)
@@ -202,40 +209,60 @@ def verify_scenario(receipt, scenario, evidence):
             "artifact_digest": digest, "synthetic": record["synthetic"]}
 
 
+def verify_sources(evidence):
+    scenarios = evidence.get("scenarios")
+    require(isinstance(scenarios, dict), "scenario matrix missing")
+    require(set(scenarios) == set(SCENARIOS), "scenario matrix contains missing or unknown cases")
+    results = [verify_scenario(scenarios.get(name), name, evidence) for name in SCENARIOS]
+    count = sum(job.get("conclusion") != "skipped" for receipt in scenarios.values() for job in receipt["jobs"]["jobs"])
+    require(evidence["budget"]["actual_jobs"] >= count, "reported job budget omits source matrix executions")
+    return results, count
+
+
+def verify_separate_verifier(evidence, source_count):
+    verifier = evidence.get("separate_verifier")
+    require(isinstance(verifier, dict) and verifier.get("status") == "passed" and verifier.get("job_conclusion") == "success",
+            "separate hosted verifier job has not passed")
+    run = verifier.get("run")
+    expected = evidence.get("expected", {})
+    require(isinstance(run, dict) and str(run.get("id")) == str(verifier.get("run_id"))
+            and run.get("event") == "workflow_dispatch" and run.get("status") == "completed"
+            and run.get("conclusion") == "success" and run.get("workflow_id") == 259268962
+            and str(run.get("path", "")).split("@", 1)[0] == WORKFLOW_PATH and run.get("name") == FIXTURE_NAME
+            and run.get("head_branch") == expected.get("fixture_ref", "").removeprefix("refs/heads/")
+            and run.get("head_sha") == expected.get("workflow_sha"),
+            "separate hosted verifier run identity or conclusion mismatch")
+    document = verifier.get("jobs")
+    require(isinstance(document, dict) and isinstance(document.get("jobs"), list), "separate hosted verifier jobs missing")
+    jobs = document["jobs"]
+    require(document.get("total_count") == len(jobs), "separate hosted verifier job list is incomplete")
+    names = [job.get("name") for job in jobs]
+    expanded = [f"producer ({seam})" for seam in SEAMS] + ["Browser verdict", "verifier"]
+    require(sorted(names) in (sorted(expanded), sorted(["producer", "Browser verdict", "verifier"])),
+            "separate hosted verifier job set is unexpected")
+    require(all(job.get("run_id") == run.get("id") and job.get("run_attempt") == run.get("run_attempt")
+                and job.get("conclusion") == ("success" if job.get("name") == "verifier" else "skipped") for job in jobs),
+            "separate hosted verifier job identity or result mismatch")
+    job = next(job for job in jobs if job.get("name") == "verifier")
+    steps = job.get("steps")
+    require(isinstance(steps, list) and all(any(step.get("name") == name and step.get("conclusion") == "success"
+                for step in steps) for name in ["Verify immutable candidate verifier checkout", "Verify retained source matrix independently"]),
+            "separate verifier did not confirm its candidate checkout and source matrix")
+    require(evidence["budget"]["actual_jobs"] == source_count + 1, "executed job budget differs from hosted receipts")
+    return verifier
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--evidence", required=True, help="captured GitHub API and artifact receipt JSON")
-    parser.add_argument("--scenario", required=True, choices=(*SCENARIOS, "matrix"))
+    parser.add_argument("--scenario", required=True, choices=(*SCENARIOS, "sources", "matrix"))
     args = parser.parse_args()
     evidence = read_evidence(args.evidence)
-    if args.scenario == "matrix":
-        scenarios = evidence.get("scenarios")
-        require(isinstance(scenarios, dict), "scenario matrix missing")
-        results = [verify_scenario(scenarios.get(name), name, evidence) for name in SCENARIOS]
-        require(set(scenarios) == set(SCENARIOS), "scenario matrix contains missing or unknown cases")
-        require(evidence["budget"].get("actual_jobs") == 37, "six scenario runs plus the verifier must report 37 actual jobs")
-        verifier = evidence.get("separate_verifier")
-        require(isinstance(verifier, dict) and verifier.get("status") == "passed" and verifier.get("job_conclusion") == "success",
-                "separate hosted verifier job has not passed")
-        run = verifier.get("run")
-        expected = evidence.get("expected", {})
-        require(isinstance(run, dict) and run.get("event") == "workflow_dispatch" and run.get("status") == "completed"
-                and run.get("conclusion") == "success" and run.get("workflow_id") == 259268962
-                and str(run.get("path", "")).split("@", 1)[0] == WORKFLOW_PATH and run.get("name") == FIXTURE_NAME
-                and run.get("head_branch") == expected.get("fixture_ref", "").removeprefix("refs/heads/")
-                and run.get("head_sha") == expected.get("workflow_sha"),
-                "separate hosted verifier run identity or conclusion mismatch")
-        jobs = verifier.get("jobs")
-        require(isinstance(jobs, dict) and jobs.get("total_count") == 1 and isinstance(jobs.get("jobs"), list)
-                and len(jobs["jobs"]) == 1 and jobs["jobs"][0].get("conclusion") == "success"
-                and jobs["jobs"][0].get("run_id") == run.get("id")
-                and jobs["jobs"][0].get("run_attempt") == run.get("run_attempt"),
-                "separate hosted verifier job evidence is incomplete or unsuccessful")
-        verifier_steps = jobs["jobs"][0].get("steps")
-        require(isinstance(verifier_steps, list) and any(step.get("name") == "Verify immutable candidate verifier checkout"
-                and step.get("conclusion") == "success" for step in verifier_steps),
-                "separate verifier did not confirm its candidate checkout")
-        return {"status": "verified", "scenarios": results, "separate_verifier": verifier}
+    if args.scenario in ("sources", "matrix"):
+        results, count = verify_sources(evidence)
+        if args.scenario == "sources":
+            return {"status": "sources_verified", "scenarios": results, "executed_jobs": count}
+        return {"status": "verified", "scenarios": results, "separate_verifier": verify_separate_verifier(evidence, count)}
     receipt = evidence.get("scenarios", {}).get(args.scenario) if "scenarios" in evidence else evidence
     return verify_scenario(receipt, args.scenario, evidence)
 

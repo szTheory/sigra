@@ -86,6 +86,55 @@ def fixture():
     }
 
 
+def scenario_fixture(scenario, run_id):
+    document = fixture()
+    code = 0 if scenario in ('full-pass', 'docs-only') else 1
+    conclusion = 'cancelled' if scenario == 'cancelled' else 'success' if code == 0 else 'failure'
+    document['scenario'] = scenario
+    document['run_id'] = run_id
+    document['run'].update(id=run_id, run_id=run_id, conclusion=conclusion)
+    for job in document['jobs']['jobs']:
+        job['run_id'] = run_id
+        if job['name'] == 'Browser verdict':
+            job['conclusion'] = 'skipped' if scenario == 'cancelled' else conclusion
+            job['steps'][-1]['conclusion'] = conclusion
+        if scenario in ('actual-failure', 'cancelled') and job['name'] == 'producer (admin_behavior)':
+            job['conclusion'] = conclusion
+            job['steps'][0]['conclusion'] = conclusion
+    if scenario == 'cancelled':
+        document['artifacts'] = {'total_count': 0, 'artifacts': []}
+        return document
+    record = document['retained_artifact']['files']['canary-result.json']['json']
+    record.update(scenario=scenario, run_id=str(run_id), validator_exit_code=code,
+                  honest_skip_exit_code=code, status='passed' if code == 0 else 'rejected',
+                  actual_event='workflow_dispatch', logical_event='pull_request' if scenario == 'docs-only' else 'workflow_dispatch',
+                  classifier_result='success' if scenario == 'docs-only' else '', docs_only=scenario == 'docs-only',
+                  production_dispatch_exemption=False)
+    record['honest_skip_verdict'] = {'event': record['logical_event'], 'docs_only': 'true' if record['docs_only'] else 'false',
+                                    'verdict': 'PASS' if code == 0 else 'FAIL'}
+    file_bytes = json.dumps(record, sort_keys=True, separators=(',', ':')) + '\n'
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as bundle:
+        bundle.writestr('canary-result.json', file_bytes.encode())
+    digest = __import__('hashlib').sha256(archive.getvalue()).hexdigest()
+    document['retained_artifact'].update(archive_base64=base64.b64encode(archive.getvalue()).decode(), archive_sha256=digest)
+    document['retained_artifact']['files']['canary-result.json'].update(content=file_bytes,
+        sha256=__import__('hashlib').sha256(file_bytes.encode()).hexdigest())
+    document['artifacts']['artifacts'][0].update(name=f'gate-canary-{scenario}-{run_id}-1', digest='sha256:' + digest,
+                                                workflow_run={'id': run_id, 'run_attempt': 1})
+    return document
+
+
+def matrix_fixture():
+    document = fixture()
+    names = ('full-pass', 'docs-only', 'actual-failure', 'missing-seam', 'unexpected-skip', 'cancelled')
+    document['scenarios'] = {name: scenario_fixture(name, 901 + index) for index, name in enumerate(names)}
+    document['budget']['actual_jobs'] = sum(job['conclusion'] != 'skipped' for receipt in document['scenarios'].values()
+                                           for job in receipt['jobs']['jobs'])
+    document['separate_verifier'] = {'status': 'pending'}
+    return document
+
+
 class HostedGateVerifierTests(unittest.TestCase):
     def invoke(self, document):
         with tempfile.TemporaryDirectory() as tmp:
@@ -105,6 +154,44 @@ class HostedGateVerifierTests(unittest.TestCase):
             document['jobs']['jobs'][-1][field] = value
             with self.subTest(field=field):
                 self.assertNotEqual(self.invoke(document).returncode, 0)
+
+    def test_sources_can_pass_before_separate_verifier_but_matrix_cannot(self):
+        document = matrix_fixture()
+        document['scenario'] = 'sources'
+        result = self.invoke(document)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('sources_verified', result.stdout)
+        document['scenario'] = 'matrix'
+        self.assertNotEqual(self.invoke(document).returncode, 0)
+
+    def test_final_matrix_checks_separate_verifier_and_recounts_executions(self):
+        document = matrix_fixture()
+        document['scenario'] = 'matrix'
+        run = copy.deepcopy(document['run'])
+        run.update(id=999, run_id=999)
+        jobs = [{'id': 8, 'run_id': 999, 'run_attempt': 1, 'name': name,
+                 'conclusion': 'success' if name == 'verifier' else 'skipped', 'steps': []}
+                for name in ('producer', 'Browser verdict', 'verifier')]
+        jobs[-1]['steps'] = [{'name': name, 'conclusion': 'success'} for name in
+                            ('Verify immutable candidate verifier checkout', 'Verify retained source matrix independently')]
+        document['separate_verifier'] = {'status': 'passed', 'job_conclusion': 'success', 'run_id': '999',
+                                         'run': run, 'jobs': {'total_count': 3, 'jobs': jobs}}
+        document['budget']['actual_jobs'] += 1
+        result = self.invoke(document)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        document['budget']['actual_jobs'] -= 1
+        self.assertNotEqual(self.invoke(document).returncode, 0)
+
+    def test_rejects_negative_boolean_or_underreported_budget(self):
+        for field in ('request_count', 'actual_jobs', 'elapsed_seconds'):
+            for value in (-1, True):
+                document = fixture()
+                document['budget'][field] = value
+                with self.subTest(field=field, value=value):
+                    self.assertNotEqual(self.invoke(document).returncode, 0)
+        document = fixture()
+        document['budget']['actual_jobs'] = 5
+        self.assertNotEqual(self.invoke(document).returncode, 0)
 
     def test_rejects_wrong_run_attempt_and_source_identity(self):
         for field, value in (("run_attempt", 2), ("head_sha", "d" * 40)):
