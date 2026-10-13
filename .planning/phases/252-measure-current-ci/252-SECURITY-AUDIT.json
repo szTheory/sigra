@@ -1,32 +1,32 @@
 {
   "verdict": "OPEN_THREATS",
   "phase": 252,
-  "source_head": "5af2854a863c1081b54fe3ff71a965c1e64b4f12",
+  "source_head": "61b85304365c3ca06e3c7b45efbccfc436441892",
   "asvs_level": 1,
   "block_on": "high",
   "register_authored_at_plan_time": true,
   "counts": {
     "total": 20,
-    "closed": 10,
-    "open": 10,
-    "blocking_open": 9,
-    "nonblocking_open": 1,
-    "threats_open": 9
+    "closed": 17,
+    "open": 3,
+    "blocking_open": 3,
+    "nonblocking_open": 0,
+    "threats_open": 3
   },
   "threats": [
     {
       "id": "T-252-01",
       "severity": "high",
       "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci-run-metrics.sh:1215-1224; scripts/ci/ci_metrics_security.py:129-154",
-      "reason": "Family replay omits job run, attempt and repository bindings."
+      "evidence": "scripts/ci/ci-run-metrics.sh:922-931,1196-1209,1217-1259; scripts/ci/ci_metrics_security.py:179-213",
+      "reason": "Standalone family replay validates filtered checks but publishes wait from all required-name checks and aggregated jobs; collection overwrites API identity fields. Offline probe confirmed."
     },
     {
       "id": "T-252-02",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci-run-metrics.sh:686; scripts/ci/ci_metrics_security.py:48-72",
-      "reason": "Retained changed-path API pages have no response hashes."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci_metrics_security.py:22-176; scripts/ci/ci-run-metrics.sh:1333-1337",
+      "reason": "Retained populations, requests, source files, changed paths, ZIPs and members hash-verified."
     },
     {
       "id": "T-252-03",
@@ -52,9 +52,9 @@
     {
       "id": "T-252-06",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci_metrics_security.py:252-270; scripts/ci/ci-run-metrics.sh:729-733",
-      "reason": "Shell-traced environment assignments survive redaction; reproduced offline."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:335-400,408-415; scripts/ci/ci_metrics_security.py:340-370",
+      "reason": "Counted HTTPS redirects, ledgers omit signed URLs, bounded redacted logs."
     },
     {
       "id": "T-252-07",
@@ -66,9 +66,9 @@
     {
       "id": "T-252-08",
       "severity": "medium",
-      "status": "OPEN_NON_BLOCKING",
-      "evidence": "scripts/ci/exunit_timing_contract.py:46-84; scripts/ci/ci-run-metrics.sh:1611-1627",
-      "reason": "General ExUnit reader accepts empty complete reports and unchecked counts/results."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/exunit_timing_contract.py:35-84",
+      "reason": "Atomic producer; consumer rejects empty, malformed and inconsistent reports."
     },
     {
       "id": "T-252-09",
@@ -95,15 +95,15 @@
       "id": "T-252-12",
       "severity": "high",
       "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci-run-metrics.sh:1581-1608; scripts/ci/ci_metrics_security.py:157-202",
-      "reason": "General timing reader lacks API artifact-owner and producer-upload binding."
+      "evidence": "scripts/ci/ci-run-metrics.sh:1605-1637,1710; scripts/ci/ci-run-metrics.test.sh:360-379",
+      "reason": "Generic replay publishes cache, runner and runtime-version metadata before API producer-upload/attempt binding."
     },
     {
       "id": "T-252-13",
       "severity": "high",
       "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci-run-metrics.sh:1559-1573,1365",
-      "reason": "General rankings omit job run, attempt and head SHA checks."
+      "evidence": "scripts/ci/ci-run-metrics.sh:667-673,1582-1604; scripts/ci/ci_metrics_security.py:291-302",
+      "reason": "Ranking validator prefers locally injected source identity over conflicting API run/attempt/head fields. Offline probe confirmed."
     },
     {
       "id": "T-252-14",
@@ -115,23 +115,23 @@
     {
       "id": "T-252-15",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci_metrics_security.py:252-278; scripts/ci/ci-run-metrics.sh:729-733",
-      "reason": "Bounded logs still retain shell-traced environment secrets."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:262-273,733-739; scripts/ci/ci_metrics_security.py:340-370",
+      "reason": "Capped downloads and sanitized retained excerpts."
     },
     {
       "id": "T-252-16",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci_metrics_security.py:205-226; scripts/ci/ci-run-metrics.sh:1492-1509",
-      "reason": "Replay does not bind tree.sha to commit.commit.tree.sha; reproduced offline."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci_metrics_security.py:216-288; scripts/ci/ci-run-metrics.sh:1513-1533",
+      "reason": "Selected evidence checks owner/run/head/upload, merge parents, commit-tree-workflow blob and hashes."
     },
     {
       "id": "T-252-17",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json:10; scripts/ci/ci-run-metrics.sh:1792-1802,1084-1102; scripts/ci/ci_metrics_security.py:439",
-      "reason": "Contract retains old bundle SHA without evaluator equality check. Queued API response discarded; recorded digest only syntax checked."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci_metrics_security.py:437-572; scripts/ci/ci-run-metrics.sh:1820-1849",
+      "reason": "Contract actual archive digest, retained hashed queued responses, identity/chained reservation/window checked."
     },
     {
       "id": "T-252-18",
@@ -143,9 +143,9 @@
     {
       "id": "T-252-19",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci-run-metrics.sh:1642-1656; scripts/ci/ci-measure-report.sh:21-26,88",
-      "reason": "Log reference path not contained or bound to hash-verified log; Markdown allows non-HTTP link syntax."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci_metrics_security.py:305-314,340-396; scripts/ci/ci-run-metrics.sh:1665-1686; scripts/ci/ci-measure-report.sh:24-43",
+      "reason": "Canonical contained log/hash verification; redacted escaped prose and restricted links."
     },
     {
       "id": "T-252-SC",
@@ -159,22 +159,22 @@
   "accepted_risks": [],
   "files_written": [],
   "validation": [
-    "Archive-backed baseline replay ready; focused security 10, ExUnit 8, collector 41, comparison/report passed.",
-    "Offline probes reproduced traced-secret leakage and commit/tree mismatch acceptance."
+    "Archive baseline ready/no diagnostics, actual bundle and contract digest agree.",
+    "12 security,8 ExUnit,41 collector,comparison/report,9 Node passed; offline probes confirmed T01/T13."
   ],
-  "next": "Automated repair of all remaining controls, then independent re-audit; phase verification pending.",
-  "audited_at_utc": "2026-10-12T23:49:35.370798+00:00",
+  "next": "Repair remaining three controls, independent security re-audit, then phase verification.",
+  "audited_at_utc": "2026-10-13T00:13:14.371408+00:00",
   "prior_reports_preserved": [
     {
       "path": ".planning/phases/252-measure-current-ci/252-SECURITY.md",
-      "ref": "5af2854a863c1081b54fe3ff71a965c1e64b4f12",
-      "sha256": "98732d95ca28a9c2ebd4db8084668bd885420b713b6e902794a7b85e2106a760",
+      "ref": "61b85304365c3ca06e3c7b45efbccfc436441892",
+      "sha256": "b564e7ef8b79abefde4302ec489b84e85d0247b78186da5852807f406bfcb0d0",
       "byte_exact_readback": true
     },
     {
       "path": ".planning/phases/252-measure-current-ci/252-SECURITY-AUDIT.json",
-      "ref": "5af2854a863c1081b54fe3ff71a965c1e64b4f12",
-      "sha256": "141e9c67e081da9def74f02ce1349d3630e263c674c9f7d68e612d3150046791",
+      "ref": "61b85304365c3ca06e3c7b45efbccfc436441892",
+      "sha256": "59f0e4c5d45781de8571e69dd6d10ec8168ca3e4c663c45f477f5aad9ac8ef08",
       "byte_exact_readback": true
     }
   ]
