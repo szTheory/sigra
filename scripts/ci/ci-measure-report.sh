@@ -13,17 +13,20 @@ done
 [[ -s "$BASELINE" && -s "$CONTRACT" && -n "$OUTPUT" ]] || { echo "ci-measure-report: baseline, contract and output are required" >&2; exit 2; }
 PYTHONPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" python3 - "$BASELINE" "$CONTRACT" "$OUTPUT" <<'PY'
 import html, json, pathlib, re, sys
-from ci_metrics_security import safe_markdown_url
+from ci_metrics_security import escape_markdown_text, safe_markdown_url
 baseline=json.loads(pathlib.Path(sys.argv[1]).read_text())
 contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
 output=pathlib.Path(sys.argv[3])
+expected_bundle=(contract.get('baseline_identity') or {}).get('source_bundle_sha256')
+if not expected_bundle or baseline.get('source_bundle_sha256') != expected_bundle:
+    raise SystemExit('ci-measure-report: contract baseline source bundle digest does not match baseline')
 identity=baseline.get('measured_pr_identity') or {}
 def safe_text(value):
     text=str(value if value is not None else 'unknown')
     text=re.sub(r"\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b", '[REDACTED TOKEN]', text)
     text=re.sub(r"(?i)\bBearer\s+[^\s,;]+", 'Bearer [REDACTED]', text)
     text=re.sub(r'https?://[^\s<>\]\[()]+', '[URL REDACTED]', text)
-    return html.escape(text, quote=False).replace('|', '&#124;').replace('\\', '&#92;').replace('\n', ' ')
+    return escape_markdown_text(html.unescape(text))
 def safe_link(value, label):
     url=safe_markdown_url(value)
     return f"[{safe_text(label)}](<{url}>)" if url else f"{safe_text(label)} (link unavailable)"
@@ -33,7 +36,7 @@ def sanitize_structure(value, key=''):
     if isinstance(value, list):
         return [sanitize_structure(v,key) for v in value]
     if isinstance(value, str):
-        if key in ('html_url','source_url','log_reference'):
+        if key in ('html_url','source_url'):
             return safe_markdown_url(value)
         if key == 'pull_request' and value.startswith('https://'):
             return safe_markdown_url(value)
@@ -47,19 +50,19 @@ full=baseline.get('instrumented_full_pr') or {}
 def show(value, unit=''):
     if value is None: return 'unknown'
     if isinstance(value, dict):
-        if value.get('status') in ('unknown','insufficient_data','unmeasured'): return 'unknown ('+str(value.get('reason') or value.get('status'))+')'
+        if value.get('status') in ('unknown','insufficient_data','unmeasured'): return 'unknown ('+safe_text(value.get('reason') or value.get('status'))+')'
         value=value.get('seconds',value.get('total_seconds',value.get('total')))
         if value is None: return 'unknown'
-    return f"{value:g}{unit}"
+    return safe_text(f"{value:g}{unit}")
 exunit_invocations=full.get('test_costs',{}).get('exunit_invocations',[])
-exunit_invocation_text='; '.join(f"{x.get('invocation','unknown')}: {x.get('tests','unknown')} tests, {show(x.get('test_duration_sum_us'),'µs')}" for x in exunit_invocations) or 'invocation reports unavailable'
+exunit_invocation_text='; '.join(f"{safe_text(x.get('invocation','unknown'))}: {safe_text(x.get('tests','unknown'))} tests, {show(x.get('test_duration_sum_us'),'µs')}" for x in exunit_invocations) or 'invocation reports unavailable'
 def section_rank(data):
     rows=data.get('rows') or []
-    return '\n'.join(f"- {row.get('identity','unknown')} — {show(row.get('seconds'),'s')} (run {row.get('run_id','unknown')}, attempt {row.get('attempt','unknown')})" for row in rows[:5]) or '- unknown (no complete source timestamps)'
+    return '\n'.join(f"- {safe_text(row.get('identity','unknown'))} — {show(row.get('seconds'),'s')} (run {safe_text(row.get('run_id','unknown'))}, attempt {safe_text(row.get('attempt','unknown'))})" for row in rows[:5]) or '- unknown (no complete source timestamps)'
 def population(name, label):
     p=baseline.get('populations',{}).get(name,{})
     return f"- **{safe_text(label)}:** {safe_text(p.get('run_count',0))} selected of {safe_text(p.get('api_total_count','unknown'))} API runs; outcomes `{safe_text(json.dumps(p.get('outcomes',{}),sort_keys=True))}`; capped={safe_text(p.get('population_capped','unknown'))}"
-required='\n'.join(f"- `{c}` (ruleset IDs: {', '.join(str(x.get('ruleset_id')) for x in baseline.get('required_rule_provenance',[]) if x.get('context')==c) or 'unknown'})" for c in baseline.get('required_contexts',[])) or '- unknown (effective enforcement snapshot missing)'
+required='\n'.join(f"- `{safe_text(c)}` (ruleset IDs: {', '.join(safe_text(x.get('ruleset_id')) for x in baseline.get('required_rule_provenance',[]) if x.get('context')==c) or 'unknown'})" for c in baseline.get('required_contexts',[])) or '- unknown (effective enforcement snapshot missing)'
 def run_line(r):
     label=f"{r.get('event')} run {r.get('id')} attempt {r.get('run_attempt','unknown')} — {r.get('conclusion','unknown')}"
     return f"- {safe_link(r.get('html_url'),label)} — SHA `{safe_text(r.get('head_sha','unknown'))}`, workload `{safe_text(r.get('workload','unknown'))}`"
@@ -77,7 +80,7 @@ def versions_text():
     for event in events:
         actual=versions.get(event,{})
         pins=configured.get(event,{})
-        lines.append(f"- **{event}:** configured `{json.dumps(pins,sort_keys=True)}`; observed `{json.dumps(actual,sort_keys=True)}`")
+        lines.append(f"- **{safe_text(event)}:** configured `{safe_text(json.dumps(pins,sort_keys=True))}`; observed `{safe_text(json.dumps(actual,sort_keys=True))}`")
     return '\n'.join(lines)
 missing=[]
 if baseline.get('instrumented_full_pr',{}).get('complete') is not True:
@@ -85,7 +88,7 @@ if baseline.get('instrumented_full_pr',{}).get('complete') is not True:
 if baseline.get('required_result_wait',{}).get('status')!='measured': missing.append(baseline.get('required_result_wait',{}).get('reason','required result endpoint unavailable'))
 failures=baseline.get('failure_signatures',{})
 if failures.get('signatures'):
-    failure_text='\n'.join(f"- {safe_text(x.get('signature'))} — {safe_text(x.get('occurrences'))} observations: " + ', '.join(safe_link(r.get('log_reference'), f"run {r.get('run_id')} attempt {r.get('attempt')}") for r in x.get('references',[])) for x in failures['signatures'][:3])
+    failure_text='\n'.join(f"- {safe_text(x.get('signature'))} — {safe_text(x.get('occurrences'))} observations: " + ', '.join(f"run {safe_text(r.get('run_id'))} attempt {safe_text(r.get('attempt'))}" for r in x.get('references',[])) for x in failures['signatures'][:3])
 else:
     failure_text=f"- {safe_text(failures.get('status','unknown'))}: {', '.join(safe_text(x) for x in failures.get('missing_inputs',[])[:3]) or 'no recurring signature was identified in the bounded sample'}"
 attempts=baseline.get('instrumented_full_pr',{}).get('run_attempts') or []
@@ -93,14 +96,14 @@ attempt_lines=[]
 for attempt in attempts:
     failed=[j for j in attempt.get('jobs',[]) if j.get('conclusion') in ('failure','timed_out','cancelled')]
     skipped=sum(1 for j in attempt.get('jobs',[]) if j.get('conclusion')=='skipped')
-    detail=', '.join(f"{j.get('name')} `{j.get('conclusion')}` ({show(j.get('runner_seconds'),'s')})" for j in failed) if failed else 'no failed, timed out or cancelled jobs'
-    attempt_lines.append(f"- Attempt {attempt.get('attempt','unknown')}: {show(attempt.get('runner_seconds'),'s')} summed runner time; {detail}; {skipped} skipped jobs.")
+    detail=', '.join(f"{safe_text(j.get('name'))} &#96;{safe_text(j.get('conclusion'))}&#96; &#40;{show(j.get('runner_seconds'),'s')}&#41;" for j in failed) if failed else 'no failed, timed out or cancelled jobs'
+    attempt_lines.append(f"- Attempt {safe_text(attempt.get('attempt','unknown'))}: {show(attempt.get('runner_seconds'),'s')} summed runner time; {detail}; {safe_text(skipped)} skipped jobs.")
 attempt_text='\n'.join(attempt_lines) or '- unknown (attempt job records were not retained)'
 window=contract.get('window') or {}
-window_dates=f"`{window.get('start_utc')}` to `{window.get('end_utc')}`" if window.get('start_utc') and window.get('end_utc') else 'unset; freeze exact UTC start/end after candidate identity and before the first comparison run'
+window_dates=f"`{safe_text(window.get('start_utc'))}` to `{safe_text(window.get('end_utc'))}`" if window.get('start_utc') and window.get('end_utc') else 'unset; freeze exact UTC start/end after candidate identity and before the first comparison run'
 text=f'''# Current CI baseline
 
-Cutoff: `{baseline.get('cutoff_utc','unknown')}`; collected `{baseline.get('captured_at_utc','unknown')}` from collector checkout `{baseline.get('source_sha','unknown')}` and collector workflow SHA-256 `{baseline.get('workflow_sha256','unknown')}`. Immutable source bundle SHA-256: `{bundle_hash}`. Replay source identity: `{baseline.get('source_sha256',{}).get('pull_request','unknown')}` (PR population hash), `{baseline.get('source_sha256',{}).get('request_ledger','unknown')}` (request ledger hash). Status: **{baseline.get('status','unknown')}**. This snapshot is bounded to 100 runs per event and a 30-day window; capped/expired or undetailed records remain unknown.
+Cutoff: `{safe_text(baseline.get('cutoff_utc','unknown'))}`; collected `{safe_text(baseline.get('captured_at_utc','unknown'))}` from collector checkout `{safe_text(baseline.get('source_sha','unknown'))}` and collector workflow SHA-256 `{safe_text(baseline.get('workflow_sha256','unknown'))}`. Immutable source bundle SHA-256: `{safe_text(bundle_hash)}`. Replay source identity: `{safe_text(baseline.get('source_sha256',{}).get('pull_request','unknown'))}` (PR population hash), `{safe_text(baseline.get('source_sha256',{}).get('request_ledger','unknown'))}` (request ledger hash). Status: **{safe_text(baseline.get('status','unknown'))}**. This snapshot is bounded to 100 runs per event and a 30-day window; capped/expired or undetailed records remain unknown.
 
 ## Separate populations
 
@@ -108,11 +111,11 @@ Cutoff: `{baseline.get('cutoff_utc','unknown')}`; collected `{baseline.get('capt
 {population('push_main','Main pushes')}
 {population('schedule','Nightly schedule')}
 
-PR workload classes: full `{baseline.get('cohorts',{}).get('full',{}).get('n',0)}` measured / `{baseline.get('cohorts',{}).get('full',{}).get('run_count',0)}` selected; docs-only `{baseline.get('cohorts',{}).get('docs_only',{}).get('n',0)}` measured / `{baseline.get('cohorts',{}).get('docs_only',{}).get('run_count',0)}` selected. Missing changed-file detail is unknown, not docs-only.
+PR workload classes: full `{safe_text(baseline.get('cohorts',{}).get('full',{}).get('n',0))}` measured / `{safe_text(baseline.get('cohorts',{}).get('full',{}).get('run_count',0))}` selected; docs-only `{safe_text(baseline.get('cohorts',{}).get('docs_only',{}).get('n',0))}` measured / `{safe_text(baseline.get('cohorts',{}).get('docs_only',{}).get('run_count',0))}` selected. Missing changed-file detail is unknown, not docs-only.
 
 ## Required result and cost
 
-The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial per-job queue wait is {show(queue_pr.get('total_seconds'),'s')} summed across {queue_pr.get('n','unknown')} job attempts (not a workflow wall time); dependency gaps remain {show(baseline.get('dag_dependency_gaps',{}).get('pull_request'))}; required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{full.get('status','unknown')}`. Across its retained attempts, runner cost is {show(full.get('job_cost_seconds'),'s')}; timing producer jobs account for {show(full.get('instrumentation_producer_job_seconds'),'s')}; ExUnit invocation reports are {exunit_invocation_text} (total {show(full.get('test_costs',{}).get('exunit_test_duration_us'),'µs')}) and Playwright tests total {show(full.get('test_costs',{}).get('playwright_test_duration_ms'),'ms')}. Run [{identity.get('producing_run_id','unknown')} attempt {identity.get('run_attempt','unknown')}]({identity.get('source_url') or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{identity.get('pull_request_number','unknown')}]({identity.get('pull_request') or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{identity.get('application_sha','unknown')}`; producer checked-out source revision `{identity.get('producer_source_sha','unknown')}`; workflow file SHA-256 `{identity.get('workflow_file_sha256','unknown')}`; workload identity SHA-256 `{identity.get('workload_revision_sha256','unknown')}`. These are distinct revisions and digests.
+The endpoint is the last successful completion of all currently enforced contexts, not workflow close. Pure queue time is {show(baseline.get('pure_queue_seconds'),'s')}; initial per-job queue wait is {show(queue_pr.get('total_seconds'),'s')} summed across {safe_text(queue_pr.get('n','unknown'))} job attempts (not a workflow wall time); dependency gaps remain {show(baseline.get('dag_dependency_gaps',{}).get('pull_request'))}; required-result wait is {show(baseline.get('required_result_wait'), 's')}. A full source-bound instrumented PR sample is `{safe_text(full.get('status','unknown'))}`. Across its retained attempts, runner cost is {show(full.get('job_cost_seconds'),'s')}; timing producer jobs account for {show(full.get('instrumentation_producer_job_seconds'),'s')}; ExUnit invocation reports are {safe_text(exunit_invocation_text)} (total {show(full.get('test_costs',{}).get('exunit_test_duration_us'),'µs')}) and Playwright tests total {show(full.get('test_costs',{}).get('playwright_test_duration_ms'),'ms')}. Run [{safe_text(identity.get('producing_run_id','unknown'))} attempt {safe_text(identity.get('run_attempt','unknown'))}]({safe_markdown_url(identity.get('source_url')) or 'https://github.com/szTheory/sigra/actions'}) came from draft PR [#{safe_text(identity.get('pull_request_number','unknown'))}]({safe_markdown_url(identity.get('pull_request')) or 'https://github.com/szTheory/sigra/pulls'}). Application/workflow revision `{safe_text(identity.get('application_sha','unknown'))}`; producer checked-out source revision `{safe_text(identity.get('producer_source_sha','unknown'))}`; workflow file SHA-256 `{safe_text(identity.get('workflow_file_sha256','unknown'))}`; workload identity SHA-256 `{safe_text(identity.get('workload_revision_sha256','unknown'))}`. These are distinct revisions and digests.
 
 Currently enforced required names, with ruleset IDs as provenance:
 {required}
@@ -137,21 +140,21 @@ Main pushes:
 Nightly schedule:
 {section_rank(rank_runner.get('nightly',{}))}
 
-Wait includes time until the required-result endpoint; runner cost sums actual job execution across attempts. They are different measures. Dependency gaps are {show(baseline.get('dag_dependency_gaps',{}).get('pull_request',{}))}. Step categories: setup `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('setup'))}`, cache restore/download `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('cache_restore_download'))}`, compile `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('compile'))}`, database `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('database_startup'))}`, app boot `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('app_boot'))}`, tests `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('test_execution'))}. Cache: `{json.dumps(baseline.get('cache_outcome',{}),sort_keys=True)}`. Runner image: `{json.dumps(baseline.get('runner_image',{}).get('pull_request',{}),sort_keys=True)}`.
+Wait includes time until the required-result endpoint; runner cost sums actual job execution across attempts. They are different measures. Dependency gaps are {show(baseline.get('dag_dependency_gaps',{}).get('pull_request',{}))}. Step categories: setup `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('setup'))}`, cache restore/download `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('cache_restore_download'))}`, compile `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('compile'))}`, database `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('database_startup'))}`, app boot `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('app_boot'))}`, tests `{show(baseline.get('stage_costs',{}).get('pull_request',{}).get('test_execution'))}. Cache: `{safe_text(json.dumps(baseline.get('cache_outcome',{}),sort_keys=True))}`. Runner image: `{safe_text(json.dumps(baseline.get('runner_image',{}).get('pull_request',{}),sort_keys=True))}`.
 
 ## Tool versions and measurement overhead
 
 Configured pins are not command-observed versions:
 {versions_text()}
 
-ExUnit overhead: `{json.dumps(exunit,sort_keys=True)}`. Playwright reporter overhead: `{json.dumps(pw,sort_keys=True)}`. If either value is unmeasured or null, the report keeps it unknown. Both future comparison conditions must use the same timing instrumentation; no overhead estimate is subtracted from the improvement target.
+ExUnit overhead: `{safe_text(json.dumps(exunit,sort_keys=True))}`. Playwright reporter overhead: `{safe_text(json.dumps(pw,sort_keys=True))}`. If either value is unmeasured or null, the report keeps it unknown. Both future comparison conditions must use the same timing instrumentation; no overhead estimate is subtracted from the improvement target.
 
 ## Current failures
 
 At most twelve failed families were inspected; no more than three recurring signatures are shown:
 {failure_text}
 
-The selected full PR family completed required checks on attempt `{baseline.get('instrumented_full_pr',{}).get('attempt','unknown')}`. Its complete attempt history is:
+The selected full PR family completed required checks on attempt `{safe_text(baseline.get('instrumented_full_pr',{}).get('attempt','unknown'))}`. Its complete attempt history is:
 
 {attempt_text}
 
@@ -161,9 +164,9 @@ The selected full PR family completed required checks on attempt `{baseline.get(
 
 ## Frozen later comparison
 
-Contract status `{contract.get('status','unknown')}`; fixed `{contract.get('pair_count','unknown')} pairs / {contract.get('primary_family_count','unknown')} families`, `{contract.get('window_duration_hours','unknown')}-hour window; dates {window_dates}. The comparison needs 20 equivalent successful pairs, at least 20% lower median required-result wait, non-increasing nearest-rank p95 and total runner cost. With 20 pairs p95 is the 19th sorted value and is a fragile tail estimate, not a population guarantee. No 40-family comparison is scheduled by this phase.
+Contract status `{safe_text(contract.get('status','unknown'))}`; fixed `{safe_text(contract.get('pair_count','unknown'))} pairs / {safe_text(contract.get('primary_family_count','unknown'))} families`, `{safe_text(contract.get('window_duration_hours','unknown'))}-hour window; dates {window_dates}. The comparison needs 20 equivalent successful pairs, at least 20% lower median required-result wait, non-increasing nearest-rank p95 and total runner cost. With 20 pairs p95 is the 19th sorted value and is a fragile tail estimate, not a population guarantee. No 40-family comparison is scheduled by this phase.
 
-Known missing inputs: {', '.join(missing) if missing else 'none recorded'}.
+Known missing inputs: {', '.join(safe_text(x) for x in missing) if missing else 'none recorded'}.
 
 ## Reproduce
 

@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 python3 - "$TMP" <<'PY'
-import hashlib,json,pathlib,sys
+import base64,hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1])
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def snapshot(name, source_sha, workflow_sha, role, factor):
@@ -34,17 +34,23 @@ registrations=[]; previous='0'*64
 for index,reservation in enumerate(reservations):
     import hashlib
     source_sha='base-app' if reservation['family_role']=='before' else 'candidate-app'
-    row={'sequence':index,'previous_sha256':previous,**reservation,'head_sha':source_sha,'pull_request_head_sha':source_sha,'api_run_sha256':'f'*64}
+    api_run={'id':reservation['run_id'],'event':'pull_request','path':'.github/workflows/ci.yml','head_sha':source_sha,'created_at':reservation['created_at'],'status':'in_progress','conclusion':None,'pull_requests':[{'number':331,'head':{'sha':source_sha},'base':{'sha':'base-ref'}}]}
+    api_raw=json.dumps(api_run,sort_keys=True,separators=(',',':')).encode()
+    row={'sequence':index,'previous_sha256':previous,**reservation,'head_sha':source_sha,'pull_request_head_sha':source_sha,'pull_request_number':331,'pull_request_base_sha':'base-ref','event':'pull_request','workflow_path':'.github/workflows/ci.yml','api_run_sha256':hashlib.sha256(api_raw).hexdigest(),'api_run_response_b64':base64.b64encode(api_raw).decode()}
     row['record_sha256']=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     registrations.append(row); previous=row['record_sha256']
-contract={'status':'ready','pair_count':20,'primary_family_count':40,'family_reservations':reservations,'family_registrations':registrations,'window_duration_hours':48,'baseline_application_sha':'base-app','baseline_workload_revision_sha256':'workload-sha','baseline_workflow_sha256':'base-workflow','candidate_identity':{'application_sha':'candidate-app','workflow_revision':'candidate-app','workload_revision_sha256':'workload-sha','workflow_file_sha256':'candidate-workflow'},'window':{'start_utc':'2026-10-13T10:00:00Z','end_utc':'2026-10-15T10:00:00Z'},'cache_stratum_allocation':[{'stratum_id':'warm','pair_count':20}],'instrumentation_overhead':{'exunit':{'status':'measured','value':7},'playwright':{'status':'unmeasured','reason':'not available'}}}
+baseline_source=root/'baseline-source-bundle.tar.gz'; baseline_source.write_bytes(b'authenticated baseline bundle')
+contract={'status':'ready','pair_count':20,'primary_family_count':40,'family_reservations':reservations,'family_registrations':registrations,'window_duration_hours':48,'baseline_application_sha':'base-app','baseline_identity':{'source_bundle_sha256':hashlib.sha256(baseline_source.read_bytes()).hexdigest()},'baseline_workload_revision_sha256':'workload-sha','baseline_workflow_sha256':'base-workflow','candidate_identity':{'application_sha':'candidate-app','workflow_revision':'candidate-app','workload_revision_sha256':'workload-sha','workflow_file_sha256':'candidate-workflow'},'window':{'start_utc':'2026-10-13T10:00:00Z','end_utc':'2026-10-15T10:00:00Z'},'cache_stratum_allocation':[{'stratum_id':'warm','pair_count':20}],'instrumentation_overhead':{'exunit':{'status':'measured','value':7},'playwright':{'status':'unmeasured','reason':'not available'}}}
 (root/'registrations.json').write_text(json.dumps({'schema_version':'sigra.ci-comparison-registration/v1','contract_sha256':hashlib.sha256(json.dumps({k:v for k,v in contract.items() if k not in ('family_registrations','registration_ledger_sha256')},sort_keys=True,separators=(',',':')).encode()).hexdigest(),'records':registrations}))
 contract.pop('family_registrations')
 (root/'contract.json').write_text(json.dumps(contract))
 PY
-run_eval() { bash "$ROOT/scripts/ci/ci-run-metrics.sh" --evaluate-comparison --contract "$TMP/contract.json" --registrations "$TMP/registrations.json" --before-bundle "$TMP/before" --after-bundle "$TMP/after" --format json; }
+run_eval() { bash "$ROOT/scripts/ci/ci-run-metrics.sh" --evaluate-comparison --contract "$TMP/contract.json" --registrations "$TMP/registrations.json" --before-bundle "$TMP/before" --after-bundle "$TMP/after" --baseline-source-bundle "$TMP/baseline-source-bundle.tar.gz" --format json; }
 run_eval >"$TMP/pass.json"
 jq -e '.status=="pass" and .metrics.pair_count==20 and .metrics.comparable_successful_pairs==20 and .metrics.baseline_median_seconds==10.5 and .metrics.baseline_p95_seconds==19 and .metrics.candidate_median_seconds==5.25 and .metrics.candidate_p95_seconds==9.5 and .metrics.baseline_runner_seconds==200 and .metrics.candidate_runner_seconds==200 and (.metrics.overhead_disclosure.playwright.status=="unmeasured")' "$TMP/pass.json" >/dev/null
+printf 'substituted baseline' >"$TMP/baseline-source-bundle.tar.gz"
+run_eval >"$TMP/baseline-bundle-mismatch.json"
+jq -e '.status=="insufficient_data" and any(.diagnostics[];.reason=="baseline_source_bundle_hash_mismatch")' "$TMP/baseline-bundle-mismatch.json" >/dev/null
 python3 - "$TMP/after/manifest.json" <<'PY'
 import json,pathlib,sys
 p=pathlib.Path(sys.argv[1]); d=json.loads(p.read_text()); d['comparison_families'][0]['run_id']=9999; p.write_text(json.dumps(d))

@@ -85,6 +85,7 @@ LOG_TO_REDACT=""
 REDACTED_OUTPUT=""
 VERIFY_BASELINE=false
 BASELINE_FILE=""
+BASELINE_SOURCE_BUNDLE=""
 API_STARTED=0
 API_REQUESTS=0
 API_STOP_REASON=""
@@ -135,6 +136,7 @@ while [[ $# -gt 0 ]]; do
     --producer-source-sha) PRODUCER_SOURCE_SHA="$2"; shift 2;;
     --contract) CONTRACT_FILE="$2"; shift 2;;
     --before-bundle) BEFORE_BUNDLE="$2"; shift 2;;
+    --baseline-source-bundle) BASELINE_SOURCE_BUNDLE="$2"; shift 2;;
     --after-bundle) AFTER_BUNDLE="$2"; shift 2;;
     --registrations) REGISTRATIONS_FILE="$2"; shift 2;;
     --preflight) PREFLIGHT=true; shift;;
@@ -667,10 +669,11 @@ collect_window() {
           jobs_status="${API_STOP_REASON:-attempt_jobs_unavailable}"
           break
         fi
-        cp "$jobs_file" "$family_dir/jobs-attempt-${attempt}.json"
-        attempts_json="$(jq -cn --argjson prior "$attempts_json" --argjson attempt "$attempt" --arg path "raw/families/$id/jobs-attempt-${attempt}.json" --arg hash "$(sha256_file "$jobs_file")" '$prior + {($attempt|tostring):{path:$path,sha256:$hash}}')"
+        jq --argjson run_id "$id" --argjson attempt "$attempt" --arg head_sha "$(jq -r '.head_sha' <<<"$run")" --arg repository "$REPO" --argjson repository_id "$(jq -r '.repository.id // 0' <<<"$run")" '.jobs |= map(. + {source_run_id:$run_id,source_run_attempt:$attempt,source_head_sha:$head_sha,source_repository:$repository,source_repository_id:$repository_id})' "$jobs_file" >"$family_dir/jobs-attempt-${attempt}.json"
+        attempts_json="$(jq -cn --argjson prior "$attempts_json" --argjson attempt "$attempt" --arg path "raw/families/$id/jobs-attempt-${attempt}.json" --arg hash "$(sha256_file "$family_dir/jobs-attempt-${attempt}.json")" '$prior + {($attempt|tostring):{path:$path,sha256:$hash}}')"
       done
       paths_status=unavailable
+      changed_path_pages='[]'
       paths_json='[]'
       local paths_file="$tmp/family-${id}-paths.json"
       printf '[]\n' >"$paths_file"
@@ -684,6 +687,7 @@ collect_window() {
           jq -cn --slurpfile before "$paths_file" --slurpfile current "$changed_file" '$before[0] + $current[0]' >"$paths_file.tmp"
           mv "$paths_file.tmp" "$paths_file"
           cp "$changed_file" "$family_dir/changed-paths-page-${page}.json"
+          changed_path_pages="$(jq -cn --argjson prior "$changed_path_pages" --argjson page "$page" --arg path "raw/families/$id/changed-paths-page-${page}.json" --arg sha256 "$(sha256_file "$family_dir/changed-paths-page-${page}.json")" '$prior + [{page:$page,path:$path,sha256:$sha256}]')"
           (( $(jq 'length' "$changed_file") == 100 )) || { paths_status=complete; break; }
           (( API_REQUESTS + 1 + reserve <= 600 )) || { paths_status=detail_unavailable_budget; break; }
           page=$((page+1))
@@ -797,7 +801,7 @@ collect_window() {
       fi
       details_file="$tmp/family-${id}-detail.json"
       jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --slurpfile paths "$paths_file" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths:$paths[0],changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}' >"$details_file" || fail "family_detail_json_invalid:${id}"
-      jq -n --slurpfile detail "$details_file" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --arg metadata_hash "$(if [[ -s "$family_dir/artifacts-metadata.json" ]]; then sha256_file "$family_dir/artifacts-metadata.json"; fi)" --argjson attempts "$attempts_json" --argjson producer_refs "$producer_refs" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_metadata_sha256:(if $metadata_hash=="" then null else $metadata_hash end),artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),producer_commits:$producer_refs,artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
+      jq -n --slurpfile detail "$details_file" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --arg metadata_hash "$(if [[ -s "$family_dir/artifacts-metadata.json" ]]; then sha256_file "$family_dir/artifacts-metadata.json"; fi)" --argjson attempts "$attempts_json" --argjson producer_refs "$producer_refs" --argjson changed_path_pages "$changed_path_pages" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,changed_path_pages:$changed_path_pages,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_metadata_sha256:(if $metadata_hash=="" then null else $metadata_hash end),artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),producer_commits:$producer_refs,artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
       jq -cn --slurpfile prior "$enrichments_file" --slurpfile detail "$details_file" '$prior[0] + [$detail[0]]' >"$enrichments_file.tmp"
       mv "$enrichments_file.tmp" "$enrichments_file"
       api_write_ledger collecting
@@ -921,8 +925,8 @@ collect_family() {
       printf '%s\n' "$API_UNKNOWN" >"$SOURCE_BUNDLE/missing-capabilities.json"
       return 1
     fi
-    cp "$tmp/jobs-attempt-${attempt_num}.json" "$SOURCE_BUNDLE/raw/jobs-attempt-${attempt_num}.json"
-    all_jobs="$(jq -cn --argjson attempt "$attempt_num" --argjson prior "$all_jobs" --slurpfile current "$tmp/jobs-attempt-${attempt_num}.json" '$prior + (($current[0].jobs // []) | map(. + {attempt:$attempt}))')"
+    jq --argjson run_id "$RUN_ID" --argjson attempt "$attempt_num" --arg head_sha "$(jq -r '.head_sha' "$SOURCE_BUNDLE/raw/run.json")" --arg repository "$REPO" --argjson repository_id "$(jq -r '.repository.id // 0' "$SOURCE_BUNDLE/raw/run.json")" '.jobs |= map(. + {run_id:$run_id,run_attempt:$attempt,head_sha:$head_sha,source_run_id:$run_id,source_run_attempt:$attempt,source_head_sha:$head_sha,source_repository:$repository,source_repository_id:$repository_id})' "$tmp/jobs-attempt-${attempt_num}.json" >"$SOURCE_BUNDLE/raw/jobs-attempt-${attempt_num}.json"
+    all_jobs="$(jq -cn --argjson attempt "$attempt_num" --argjson prior "$all_jobs" --slurpfile current "$SOURCE_BUNDLE/raw/jobs-attempt-${attempt_num}.json" '$prior + (($current[0].jobs // []) | map(. + {attempt:$attempt}))')"
   done
   jq -cn --argjson jobs "$all_jobs" '{jobs:$jobs}' >"$SOURCE_BUNDLE/raw/jobs.json"
   if ! api_get "/repos/${REPO}/commits/${source_sha}/check-runs?per_page=100" "$tmp/check-runs.json"; then
@@ -1090,7 +1094,8 @@ contract_path,ledger_path,run_path,out_path=map(pathlib.Path,(sys.argv[1],sys.ar
 reservation_id=sys.argv[3]
 contract=json.loads(contract_path.read_text()); run=json.loads(run_path.read_text())
 ledger=json.loads(ledger_path.read_text()) if ledger_path.exists() else None
-created=register_comparison_run(contract,reservation_id,run,ledger,hashlib.sha256(run_path.read_bytes()).hexdigest())
+raw=run_path.read_bytes()
+created=register_comparison_run(contract,reservation_id,run,ledger,hashlib.sha256(raw).hexdigest(),raw)
 fd=os.open(out_path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
 with os.fdopen(fd,'w') as stream:
     json.dump(created,stream,sort_keys=True,separators=(',',':')); stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
@@ -1143,7 +1148,8 @@ import hashlib,json,pathlib,sys
 from ci_metrics_security import validate_producer_commit,validate_workflow_source
 root=pathlib.Path(sys.argv[1]); sha=sys.argv[2]
 run=json.loads((root/'raw/run.json').read_text()); commit=json.loads((root/'raw/commit.json').read_text()); tree=json.loads((root/'raw/tree.json').read_text()); workflow=(root/'raw/ci.yml').read_bytes()
-errors=validate_producer_commit(sha,commit,run)+validate_workflow_source(sha,tree,workflow,hashlib.sha256(workflow).hexdigest())
+expected_tree_sha=(commit.get('commit') or {}).get('tree',{}).get('sha')
+errors=validate_producer_commit(sha,commit,run)+validate_workflow_source(sha,tree,workflow,hashlib.sha256(workflow).hexdigest(),expected_tree_sha)
 if errors: raise SystemExit(','.join(errors))
 files={p.relative_to(root).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/'raw').iterdir() if p.is_file()}
 request_hash=hashlib.sha256((root/'request-ledger.json').read_bytes()).hexdigest()
@@ -1187,6 +1193,20 @@ replay_family() {
   run_workflow="$(jq -r '.path // empty' "$bundle/raw/run.json")"
   run_attempt="$(jq -r '.run_attempt // 1' "$bundle/raw/run.json")"
   [[ "$manifest_repo" == "$REPO" && "$manifest_run" == "$RUN_ID" && "$manifest_sha" == "$run_sha" && "$manifest_attempt" == "$run_attempt" && "$run_event" == "pull_request" && "$run_workflow" == ".github/workflows/ci.yml" ]] || fail source_identity_mismatch
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$bundle" "$manifest_repo" "$manifest_attempt" <<'PY' || fail family_required_check_api_binding_invalid
+import json,pathlib,sys
+from ci_metrics_security import validate_check_bindings
+root=pathlib.Path(sys.argv[1]); repo=sys.argv[2]; attempt=int(sys.argv[3])
+run=json.loads((root/'raw/run.json').read_text())
+if repo!='szTheory/sigra': raise SystemExit('family_repository_identity_invalid')
+attempt_file=root/f'raw/jobs-attempt-{attempt}.json'
+jobs=json.loads(attempt_file.read_text()).get('jobs',[])
+job_ids={str(job.get('id')) for job in jobs}
+all_checks=json.loads((root/'raw/check-runs.json').read_text()).get('check_runs',[])
+checks=[check for check in all_checks if str(check.get('external_id','')) in job_ids or str(check.get('id')) in job_ids]
+errors=validate_check_bindings(run,attempt,jobs,checks,(json.loads((root/'manifest.json').read_text()).get('required_contexts') or []))
+if errors: raise SystemExit(','.join(errors))
+PY
   required_changed="$(jq -r '.required_rules_changed' "$bundle/manifest.json")"
   contexts="$(jq -r '.required_contexts[]?' "$bundle/manifest.json")"
   run="$bundle/raw/run.json"
@@ -1310,7 +1330,7 @@ root = pathlib.Path(sys.argv[1]); project = pathlib.Path(sys.argv[2]); manifest 
 sys.path.insert(0, str(project/'scripts'/'ci'))
 sys.path.insert(0, str(root/'source'))
 from exunit_timing_contract import validate as validate_exunit_timing
-from ci_metrics_security import deduplicate_physical_jobs, validate_check_bindings, validate_producer_binding, validate_producer_commit, validate_workflow_source, verify_snapshot_hashes
+from ci_metrics_security import deduplicate_physical_jobs, validate_check_bindings, validate_general_job_identity, validate_producer_binding, validate_producer_commit, validate_workflow_source, verified_failure_log, verify_snapshot_hashes
 integrity_errors=verify_snapshot_hashes(root)
 if integrity_errors:
     print(json.dumps({'status':'unknown','diagnostics':integrity_errors},sort_keys=True),file=sys.stderr)
@@ -1506,7 +1526,8 @@ def source_bound_full_pr(run, runid):
                 tree=json.loads(tree_path.read_text())
             except Exception: diagnostics.append('producer_merge_commit_evidence_invalid'); continue
             diagnostics.extend(validate_producer_commit(producer_sha,commit,run))
-            diagnostics.extend(validate_workflow_source(producer_sha,tree,workflow_path.read_bytes(),ref.get('workflow_sha256')))
+            expected_tree_sha=(commit.get('commit') or {}).get('tree',{}).get('sha')
+            diagnostics.extend(validate_workflow_source(producer_sha,tree,workflow_path.read_bytes(),ref.get('workflow_sha256'),expected_tree_sha))
         if len(producer_sources)>1:
             diagnostics.append('producer_source_revision_mismatch')
         if diagnostics: return None, sorted(set(diagnostics))
@@ -1552,6 +1573,8 @@ latest_instrumented_pr=(max(full_pr_runs,key=lambda r:(r.get('created_at',''),in
 for pop,key in events.items():
     for run in manifest.get('populations',{}).get(pop,{}).get('runs',[]):
         runid=str(run.get('id','')); created=epoch(run.get('created_at'))
+        if manifest.get('repository')!='szTheory/sigra':
+            raise SystemExit('snapshot_repository_identity_invalid')
         seen_physical_job_ids=set()
         if run.get('conclusion') in ('failure','timed_out','cancelled','skipped'):
             failure_candidates.append({'event':key,'run':run,'created_epoch':created if created is not None else -1})
@@ -1563,6 +1586,8 @@ for pop,key in events.items():
             try: jobs=json.loads(jobfile.read_text()).get('jobs',[])
             except Exception: continue
             for job in jobs:
+                if validate_general_job_identity(run,int(attempt),job,manifest['repository']):
+                    continue
                 jid=str(job.get('id','')); started=epoch(job.get('started_at')); ended=epoch(job.get('completed_at'))
                 if not jid or jid in seen_physical_job_ids: continue
                 seen_physical_job_ids.add(jid)
@@ -1598,36 +1623,37 @@ for pop,key in events.items():
                 configured[key]=meta.get('configured_versions',{})
                 observed[key]=meta.get('observed_versions',{})
                 cache.update(meta.get('cache_outcome',{}))
-                timing=family/'timing'
-                for path in timing.glob('*.json'):
-                    if path.name in ('ci-measurement-metadata.json','ci-exunit-timing-main.json','ci-exunit-timing-threadline-guard.json'): continue
-                    try: report=json.loads(path.read_text())
-                    except Exception: continue
-                    if report.get('seam')!=seam or not report.get('complete'): continue
-                    for row in report.get('tests',[]):
-                        test_rows.append({'source':'playwright','identity':f"{runid}:{expected_attempt}:{seam}:{row.get('test_id')}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'seam':seam,'test_id':row.get('test_id'),'name':row.get('title'),'duration_ms':row.get('duration_ms'),'suite_elapsed_ms':report.get('suite_elapsed_ms'),'sum_test_duration_ms':report.get('sum_test_duration_ms')})
-                    overhead['playwright']=report.get('reporter_overhead',overhead['playwright'])
+                # Playwright rows are consumed only by source_bound_full_pr below,
+                # which binds every row to the API artifact, upload job, attempt and source.
                 exunit_reports=[]; exunit_main={}
-                for invocation,filename in [('main','ci-exunit-timing-main.json'),('threadline_guard','ci-exunit-timing-threadline-guard.json')]:
-                    exunit_path=timing/filename
-                    if not exunit_path.is_file(): continue
-                    try: report=json.loads(exunit_path.read_text())
-                    except Exception: report={}
-                    metadata_reports=meta.get('exunit_reports') or []
-                    if (report.get('complete') is True and report.get('unit')=='microsecond' and report.get('invocation')==invocation
-                        and {'invocation':invocation,'path':filename} in metadata_reports
-                        and isinstance(report.get('tests'),list)
-                        and all(row.get('invocation')==invocation and isinstance(row.get('duration_us'),int) and row['duration_us']>=0 for row in report.get('tests',[]))
-                        and report.get('test_duration_sum_us')==sum(row['duration_us'] for row in report.get('tests',[]))):
-                        exunit_reports.append({'invocation':invocation,'tests':len(report['tests']),'test_duration_sum_us':report['test_duration_sum_us'],'suite_elapsed_us':report.get('suite_elapsed_us')})
-                        for row in report.get('tests',[]): test_rows.append({'source':'exunit','identity':f"{runid}:{expected_attempt}:{invocation}:{row.get('test_id')}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'invocation':invocation,'test_id':row.get('test_id'),'name':row.get('name'),'duration_us':row.get('duration_us')})
-                        if invocation=='main': exunit_main=report
-                if len(exunit_reports)==2 and [x['invocation'] for x in exunit_reports]==['main','threadline_guard']:
-                    exunit={'invocations':exunit_reports,'test_duration_sum_us':sum(x['test_duration_sum_us'] for x in exunit_reports),'instrumentation_overhead_us':exunit_main.get('instrumentation_overhead_us')}
-                    overhead['exunit']={'status':'measured','instrumentation_overhead_us':exunit.get('instrumentation_overhead_us'),'method':exunit_main.get('instrumentation_overhead_method')}
+                try:
+                    metadata=json.loads(metadata_path.read_text())
+                    evidence=json.loads((family/'artifact-evidence.json').read_text())
+                    artifact_name=metadata.get('timing_artifact_name')
+                    artifact_entry=next((item for item in evidence if (item.get('artifact') or {}).get('name')==artifact_name and (item.get('result') or {}).get('status')=='accepted'),None)
+                    attempt_jobs=json.loads((family/f'jobs-attempt-{expected_attempt}.json').read_text()).get('jobs',[])
+                    producer=next((job for job in attempt_jobs if job.get('name')=='Library tests shard'),None)
+                    producer_errors=(validate_producer_binding(run,producer,artifact_entry['artifact'],metadata,'Library tests shard')
+                                     if producer and artifact_entry else ['producer_api_artifact_or_job_missing'])
+                    reports={}
+                    for invocation,filename in [('main','ci-exunit-timing-main.json'),('threadline_guard','ci-exunit-timing-threadline-guard.json')]:
+                        exunit_path=timing/filename
+                        if exunit_path.is_file(): reports[invocation]=json.loads(exunit_path.read_text())
+                    artifact_names={name:artifact_name for name in ('main','threadline_guard')}
+                    validation=validate_exunit_timing(metadata,reports,artifact_names,runid,expected_attempt)
+                    if not producer_errors and validation['valid']:
+                        exunit_reports=validation['reports']; exunit_main=validation['normalized']['main']
+                        for row in validation['tests']:
+                            test_rows.append({'source':'exunit','identity':f"{runid}:{expected_attempt}:{row['identity']}",'run_id':runid,'attempt':expected_attempt,'sha':expected_sha,'invocation':row['invocation'],'test_id':row['test_id'],'name':row.get('name'),'duration_us':row['duration_us'],'result':row['result']})
+                        exunit={'invocations':exunit_reports,'test_duration_sum_us':sum(x['test_duration_sum_us'] for x in exunit_reports),'instrumentation_overhead_us':exunit_main.get('instrumentation_overhead_us')}
+                        overhead['exunit']={'status':'measured','instrumentation_overhead_us':exunit.get('instrumentation_overhead_us'),'method':exunit_main.get('instrumentation_overhead_method')}
+                except (OSError,ValueError,TypeError,KeyError):
+                    pass
         if pop=='pull_request' and run.get('workload')=='full' and run.get('conclusion')=='success' and run.get('id')==latest_instrumented_pr:
             sample,diagnostics=source_bound_full_pr(run,runid)
-            if sample: instrumented_full_candidates.append(sample)
+            if sample:
+                instrumented_full_candidates.append(sample)
+                overhead['playwright']={'status':'measured','seams':sample.get('playwright_reporter_overhead')}
             elif diagnostics: run['_instrumentation_diagnostics']=diagnostics
 failures=[]
 for event in events.values():
@@ -1640,8 +1666,11 @@ for item in failures:
     if logpath.is_file() and detailpath.is_file():
         try:
             detail=json.loads(detailpath.read_text()); logdiag=next((d.get('result',{}) for d in detail.get('artifact_diagnostics',[]) if d.get('kind')=='failed_job_log'),{})
-            if logdiag.get('status')=='retained_redacted' and hashlib.sha256(logpath.read_bytes()).hexdigest()==logdiag.get('sha256'):
-                ref=logdiag.get('path'); diagnostic='available'
+            candidate=logdiag.get('path')
+            expected_path=f'raw/families/{runid}/failed-job.log'
+            if logdiag.get('status')=='retained_redacted' and candidate==expected_path:
+                verified_failure_log(root,candidate,logdiag.get('sha256'))
+                ref=candidate; diagnostic='available'
         except Exception: pass
     category='unknown_failure'; signature=None
     if conclusion=='skipped': category='expected_skip' if run.get('workload')=='docs_only' or run.get('observed_expected_skip') is True else 'unexpected_skip'
@@ -1649,7 +1678,8 @@ for item in failures:
     elif conclusion in ('timed_out',): category='infrastructure_failure'
     elif not (run.get('attempt_jobs') or {}): category='missing_job'
     elif ref:
-        text=(root/ref).read_text(errors='replace') if (root/ref).is_file() else ''
+        try: text=verified_failure_log(root,ref,logdiag.get('sha256')).decode('utf-8','replace')
+        except Exception: text=''
         if re.search(r'(?i)(expect\(|assertionerror|assert\s+)',text):
             category='application_test_failure'
             match=re.search(r'(?im)^.*(?:expect\(|assertionerror|assert\s+).*$' ,text)
@@ -1776,11 +1806,12 @@ if [[ "$EVALUATE_COMPARISON" == true ]]; then
   after_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-after.XXXXXX")"
   replay_snapshot "$BEFORE_BUNDLE" >"$before_json"
   replay_snapshot "$AFTER_BUNDLE" >"$after_json"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" "$REGISTRATIONS_FILE" <<'PY'
-import datetime, json, math, pathlib, sys
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" "$REGISTRATIONS_FILE" "$BASELINE_SOURCE_BUNDLE" <<'PY'
+import datetime, hashlib, json, math, pathlib, sys
 from ci_metrics_security import validate_comparison_reservations
 contract, before, after = map(lambda p: json.loads(pathlib.Path(p).read_text()), sys.argv[1:4])
 registrations = json.loads(pathlib.Path(sys.argv[4]).read_text()) if sys.argv[4] else None
+baseline_bundle_path=pathlib.Path(sys.argv[5]) if sys.argv[5] else None
 issues=[]; families=[]; paired=[]
 def issue(code, detail=None):
     row={'reason':code}
@@ -1789,6 +1820,13 @@ def issue(code, detail=None):
 if contract.get('status') != 'ready': issue('contract_not_ready',contract.get('status'))
 if contract.get('pair_count') != 20 or contract.get('primary_family_count') != 40: issue('contract_sample_size_invalid')
 if contract.get('window_duration_hours') != 48: issue('contract_window_invalid')
+expected_bundle=(contract.get('baseline_identity') or {}).get('source_bundle_sha256')
+if not expected_bundle:
+    issue('baseline_source_bundle_identity_missing')
+elif baseline_bundle_path is None or not baseline_bundle_path.is_file():
+    issue('baseline_source_bundle_required')
+elif hashlib.sha256(baseline_bundle_path.read_bytes()).hexdigest()!=expected_bundle:
+    issue('baseline_source_bundle_hash_mismatch')
 before_identity=before.get('measured_pr_identity') or {}
 after_identity=after.get('measured_pr_identity') or {}
 candidate=contract.get('candidate_identity') or {}

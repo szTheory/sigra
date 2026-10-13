@@ -373,10 +373,10 @@ if jq -e '. as $r |
   ($r.instrumented_full_pr.complete == false and $r.instrumented_full_pr.status == "insufficient_data") and
   ($r.cohorts.docs_only.status == "measured" and $r.cohorts.docs_only.n == 1) and
   ([$r.test_rows[]|select(.source=="exunit")]|length)==0 and
-  ([$r.test_rows[]|select(.source=="playwright")]|length)==1 and
-  $r.test_rows[0].suite_elapsed_ms == 125 and $r.test_rows[0].sum_test_duration_ms == 100
+  ([$r.test_rows[]|select(.source=="playwright")]|length)==0 and
+  ($r.test_rows|length)==0
 ' "${TMPDIR_ROOT}/snapshot-replay.json" >/dev/null; then
-  pass "replay separates rankings, stages, cache, runtime and zero-sample unknowns"
+  pass "replay separates rankings and costs while refusing unbound generic timing evidence"
 else fail "replay metrics missing or fabricated: $(jq -c '{ranked_by_wait,ranked_by_runner,stage_costs,cache_outcome,runner_image,configured_versions,observed_versions,reporter_overhead,test_rows,cohorts}' "${TMPDIR_ROOT}/snapshot-replay.json" 2>/dev/null)"; fi
 
 echo "Test V3: current failures stay bounded and one-off red evidence is not called flaky"
@@ -566,9 +566,9 @@ case "$endpoint" in
   /repos/szTheory/sigra/branches/main/protection/required_status_checks) echo '{"contexts":["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"]}';;
   /repos/szTheory/sigra/rules/branches/main) echo '[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"Library tests"},{"context":"Example unit smoke (ExUnit + ConnTest)"},{"context":"Install smoke (fresh phx.new + sigra.install)"},{"context":"Example HTTP smoke (boot + curl critical routes)"},{"context":"Example Playwright smoke (full lifecycle)"}]}}]';;
   /repos/szTheory/sigra/rulesets\?per_page=100) echo '[{"id":8123,"name":"main-checks","target":"branch","enforcement":"active"}]';;
-  /repos/szTheory/sigra/actions/runs/38144377407) echo '{"id":38144377407,"head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","event":"pull_request","path":".github/workflows/ci.yml","run_attempt":1,"created_at":"2026-10-10T10:00:00Z"}';;
+  /repos/szTheory/sigra/actions/runs/38144377407) echo '{"id":38144377407,"head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","event":"pull_request","path":".github/workflows/ci.yml","run_attempt":1,"created_at":"2026-10-10T10:00:00Z","repository":{"id":1207487684},"pull_requests":[{"number":331,"head":{"sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","repo":{"id":1207487684}},"base":{"sha":"30e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","repo":{"id":1207487684}}}]}';;
   /repos/szTheory/sigra/actions/runs/38144377407/attempts/1/jobs\?per_page=100) echo '{"jobs":[{"id":1101,"name":"Library tests","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1102,"name":"Example unit smoke (ExUnit + ConnTest)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1103,"name":"Install smoke (fresh phx.new + sigra.install)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1104,"name":"Example HTTP smoke (boot + curl critical routes)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"},{"id":1105,"name":"Example Playwright smoke (full lifecycle)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","conclusion":"success"}]}';;
-  /repos/szTheory/sigra/commits/40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8/check-runs\?per_page=100) echo '{"check_runs":[{"id":2101,"external_id":"1101","name":"Library tests","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z"},{"id":2102,"external_id":"1102","name":"Example unit smoke (ExUnit + ConnTest)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z"},{"id":2103,"external_id":"1103","name":"Install smoke (fresh phx.new + sigra.install)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z"},{"id":2104,"external_id":"1104","name":"Example HTTP smoke (boot + curl critical routes)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z"},{"id":2105,"external_id":"1105","name":"Example Playwright smoke (full lifecycle)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z"}]}';;
+  /repos/szTheory/sigra/commits/40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8/check-runs\?per_page=100) echo '{"check_runs":[{"id":2101,"external_id":"1101","name":"Library tests","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3101}},{"id":2102,"external_id":"1102","name":"Example unit smoke (ExUnit + ConnTest)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3102}},{"id":2103,"external_id":"1103","name":"Install smoke (fresh phx.new + sigra.install)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3103}},{"id":2104,"external_id":"1104","name":"Example HTTP smoke (boot + curl critical routes)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3104}},{"id":2105,"external_id":"1105","name":"Example Playwright smoke (full lifecycle)","head_sha":"40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8","status":"completed","conclusion":"success","started_at":"2026-10-10T10:01:00Z","completed_at":"2026-10-10T10:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":3105}}]}';;
   *) echo "unhandled endpoint: $endpoint" >&2; exit 1;;
 esac
 GHAPI
@@ -666,10 +666,10 @@ mv "${TMPDIR_ROOT}/unbound-checks.json" "$UNBOUND_DIR/raw/check-runs.json"
 hash="$(shasum -a 256 "$UNBOUND_DIR/raw/check-runs.json" | awk '{print $1}')"
 jq --arg hash "$hash" '.raw_sha256.check_runs=$hash' "$UNBOUND_DIR/manifest.json" >"${TMPDIR_ROOT}/unbound-manifest.json"
 mv "${TMPDIR_ROOT}/unbound-manifest.json" "$UNBOUND_DIR/manifest.json"
-PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$UNBOUND_DIR" --format json >"${TMPDIR_ROOT}/unbound-result.json"
-if jq -e '.status=="unknown" and .eventual_required_wait_seconds==null and any(.diagnostics[]; .reason=="required_context_unbound")' "${TMPDIR_ROOT}/unbound-result.json" >/dev/null; then
+if PATH="${STUB_BIN_DIR}:/opt/homebrew/bin:/usr/bin:/bin" bash "$SCRIPT" --replay --source-bundle "$UNBOUND_DIR" --format json >"${TMPDIR_ROOT}/unbound-result.json" 2>"${TMPDIR_ROOT}/unbound.err"; then unbound_rc=0; else unbound_rc=$?; fi
+if [[ "$unbound_rc" -ne 0 ]] && grep -q 'family_required_check_api_binding_invalid' "${TMPDIR_ROOT}/unbound.err"; then
   pass "check-run to job ID mismatch is reported as required_context_unbound"
-else fail "unbound context result=$(cat "${TMPDIR_ROOT}/unbound-result.json")"; fi
+else fail "unbound context rc=$unbound_rc result=$(cat "${TMPDIR_ROOT}/unbound-result.json") stderr=$(cat "${TMPDIR_ROOT}/unbound.err")"; fi
 
 CHANGED_DIR="${TMPDIR_ROOT}/changed-rules-family"
 cp -R "$SOURCE_DIR" "$CHANGED_DIR"
@@ -695,12 +695,12 @@ else fail "tampered rc=$tampered_rc error=$(cat "${TMPDIR_ROOT}/tampered.err")";
 echo "Test R: first-attempt and eventual endpoints stay separate while every rerun job contributes cost"
 MULTI_DIR="${TMPDIR_ROOT}/multi-attempt-family"
 cp -R "$SOURCE_DIR" "$MULTI_DIR"
-jq '{jobs:[.jobs[] | .id += 100 | .attempt=2 | .started_at="2026-10-10T10:03:00Z" | .completed_at="2026-10-10T10:04:00Z"]}' "$MULTI_DIR/raw/jobs.json" >"$MULTI_DIR/raw/jobs-attempt-2.json"
+jq '{jobs:[.jobs[] | .id += 100 | .attempt=2 | .run_attempt=2 | .source_run_attempt=2 | .started_at="2026-10-10T10:03:00Z" | .completed_at="2026-10-10T10:04:00Z"]}' "$MULTI_DIR/raw/jobs.json" >"$MULTI_DIR/raw/jobs-attempt-2.json"
 jq -s '{jobs:(.[0].jobs + .[1].jobs)}' "$MULTI_DIR/raw/jobs.json" "$MULTI_DIR/raw/jobs-attempt-2.json" >"${TMPDIR_ROOT}/multi-jobs.json"
 mv "${TMPDIR_ROOT}/multi-jobs.json" "$MULTI_DIR/raw/jobs.json"
 jq '(.run_attempt)=2' "$MULTI_DIR/raw/run.json" >"${TMPDIR_ROOT}/multi-run.json"
 mv "${TMPDIR_ROOT}/multi-run.json" "$MULTI_DIR/raw/run.json"
-jq '(.check_runs) as $checks | .check_runs += ($checks | map(.id -= 900 | .external_id="attempt-2" | .started_at="2026-10-10T10:03:00Z" | .completed_at="2026-10-10T10:04:00Z"))' "$MULTI_DIR/raw/check-runs.json" >"${TMPDIR_ROOT}/multi-checks.json"
+jq '(.check_runs) as $checks | .check_runs += ($checks | map(.id -= 900 | .external_id=((.external_id|tonumber)+100|tostring) | .started_at="2026-10-10T10:03:00Z" | .completed_at="2026-10-10T10:04:00Z"))' "$MULTI_DIR/raw/check-runs.json" >"${TMPDIR_ROOT}/multi-checks.json"
 mv "${TMPDIR_ROOT}/multi-checks.json" "$MULTI_DIR/raw/check-runs.json"
 run_hash="$(shasum -a 256 "$MULTI_DIR/raw/run.json" | awk '{print $1}')"
 jobs_hash="$(shasum -a 256 "$MULTI_DIR/raw/jobs.json" | awk '{print $1}')"

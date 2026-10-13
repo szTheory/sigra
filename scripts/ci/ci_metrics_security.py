@@ -6,6 +6,7 @@ import hashlib
 import json
 import pathlib
 import re
+import base64
 import urllib.parse
 import zipfile
 
@@ -40,6 +41,17 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
         if not _matches(path, hashes.get(key)):
             diagnostics.append(f"snapshot_hash_mismatch:{key}")
 
+    try:
+        ledger = json.loads((bundle / "request-ledger.json").read_text())
+        requests = set(ledger.get("requests", []))
+        repository = manifest.get("repository")
+        population_runs = []
+        for event in ("pull_request", "push_main", "schedule"):
+            data = json.loads((bundle / "raw" / "populations" / f"{event}.json").read_text())
+            population_runs.extend(data.get("runs", []))
+    except (OSError, ValueError, TypeError):
+        requests, population_runs, repository = set(), [], None
+
     for name, expected in (manifest.get("source_file_sha256") or {}).items():
         path = bundle / "source" / name
         if not path.resolve().is_relative_to((bundle / "source").resolve()) or not _matches(path, expected):
@@ -54,7 +66,30 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
         except (OSError, ValueError):
             diagnostics.append(f"family_manifest_invalid:{family.name}")
             continue
+        run_path = family / "run.json"
+        try:
+            family_run = json.loads(run_path.read_text())
+            matches = [row for row in population_runs if str(row.get("id")) == str(family_run.get("id"))]
+            identity_keys = ("id", "head_sha", "event", "path", "run_attempt", "created_at", "pull_requests")
+            if len(matches) != 1 or any(matches[0].get(key) != family_run.get(key) for key in identity_keys):
+                diagnostics.append(f"family_run_population_binding_invalid:{family.name}")
+            if repository != "szTheory/sigra" or facts.get("run_id") != family_run.get("id"):
+                diagnostics.append(f"family_repository_or_run_identity_invalid:{family.name}")
+        except (OSError, ValueError, TypeError):
+            family_run = {}
+            diagnostics.append(f"family_run_identity_invalid:{family.name}")
         refs = [("run", facts.get("source_run_sha256"), family / "run.json")]
+        for item in facts.get("changed_path_pages", []):
+            rel = item.get("path", "")
+            path = bundle / rel
+            if (not rel or not path.resolve().is_relative_to(bundle.resolve())
+                    or not _matches(path, item.get("sha256"))):
+                diagnostics.append(f"changed_path_page_hash_mismatch:{family.name}:{item.get('page', 'unknown')}")
+        actual_pages = sorted(family.glob("changed-paths-page-*.json"))
+        referenced = {str(item.get("path", "")) for item in facts.get("changed_path_pages", [])}
+        expected_pages = {path.relative_to(bundle).as_posix() for path in actual_pages}
+        if referenced != expected_pages:
+            diagnostics.append(f"changed_path_page_hash_reference_set_mismatch:{family.name}")
         if facts.get("artifact_metadata_sha256"):
             refs.append(("artifact_metadata", facts["artifact_metadata_sha256"], family / "artifacts-metadata.json"))
         if facts.get("check_runs_sha256"):
@@ -65,8 +100,19 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
         for attempt, ref in (facts.get("attempt_jobs") or {}).items():
             rel = ref.get("path") or f"raw/families/{family.name}/jobs-attempt-{attempt}.json"
             path = bundle / rel
-            if not path.resolve().is_relative_to(bundle.resolve()) or not _matches(path, ref.get("sha256")):
+            expected_rel = f"raw/families/{family.name}/jobs-attempt-{attempt}.json"
+            request = f"/repos/{repository}/actions/runs/{family_run.get('id')}/attempts/{attempt}/jobs?per_page=100"
+            if (rel != expected_rel or not path.resolve().is_relative_to(bundle.resolve())
+                    or not _matches(path, ref.get("sha256")) or request not in requests):
                 diagnostics.append(f"family_attempt_hash_mismatch:{family.name}:{attempt}")
+        for item in facts.get("changed_path_pages", []):
+            try:
+                pr_number = family_run["pull_requests"][0]["number"]
+                expected_request = f"/repos/{repository}/pulls/{pr_number}/files?per_page=100&page={item.get('page')}"
+            except (KeyError, IndexError, TypeError):
+                expected_request = ""
+            if expected_request not in requests:
+                diagnostics.append(f"changed_path_page_api_request_missing:{family.name}:{item.get('page', 'unknown')}")
         for label, digest, path in refs:
             if not _matches(path, digest):
                 diagnostics.append(f"family_source_hash_mismatch:{family.name}:{label}")
@@ -121,6 +167,10 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
                         payload = archive.read(member)
                     if not extracted.is_file() or extracted.read_bytes() != payload:
                         diagnostics.append(f"artifact_extracted_member_mismatch:{family.name}:{artifact_id}:{member}")
+                # Every JSON member the collector may consume must have a recorded digest,
+                # and later readers must use the bytes returned from this verified ZIP.
+                if recorded_json_members != all_extracted_json:
+                    diagnostics.append(f"artifact_json_members_not_fully_hash_bound:{family.name}:{artifact_id}")
             except (OSError, ValueError, KeyError, zipfile.BadZipFile):
                 diagnostics.append(f"artifact_member_verification_failed:{family.name}:{artifact_id}")
     return sorted(set(diagnostics))
@@ -130,6 +180,8 @@ def validate_check_bindings(run: dict, attempt: int, jobs: list[dict], checks: l
     diagnostics = []
     run_id = str(run.get("id"))
     head_sha = run.get("head_sha")
+    repository_id = ((run.get("repository") or {}).get("id")
+                     or (((run.get("pull_requests") or [{}])[0].get("head") or {}).get("repo") or {}).get("id"))
     for name in required:
         matching_jobs = [j for j in jobs if j.get("name") == name]
         matching_checks = [c for c in checks if c.get("name") == name]
@@ -138,11 +190,18 @@ def validate_check_bindings(run: dict, attempt: int, jobs: list[dict], checks: l
             job, check = matching_jobs[0], matching_checks[0]
             check_url = urllib.parse.urlsplit(job.get("check_run_url", ""))
             check_id = check_url.path.rstrip("/").split("/")[-1]
+            job_id = str(job.get("id"))
+            mapped_to_job = str(check.get("external_id", "")) == job_id or (check_id == str(check.get("id")) == job_id)
             valid = (
-                str(job.get("run_id")) == run_id
-                and int(job.get("run_attempt", -1)) == int(attempt)
-                and job.get("head_sha") == head_sha
-                and str(job.get("id")) == check_id == str(check.get("id"))
+                str(job.get("source_run_id", job.get("run_id"))) == run_id
+                and int(job.get("source_run_attempt", job.get("run_attempt", -1))) == int(attempt)
+                and str(job.get("source_run_id", job.get("run_id"))) == run_id
+                and job.get("source_head_sha", job.get("head_sha")) == head_sha
+                and job.get("source_repository", "szTheory/sigra") == "szTheory/sigra"
+                and job.get("source_repository_id", 1207487684) == 1207487684
+                and repository_id == 1207487684
+                and job.get("source_head_sha", job.get("head_sha")) == head_sha
+                and mapped_to_job
                 and check.get("head_sha") == head_sha
                 and check.get("status") == "completed"
                 and check.get("conclusion") == "success"
@@ -216,14 +275,43 @@ def validate_producer_commit(source_sha: str, commit: dict, run: dict) -> list[s
     return []
 
 
-def validate_workflow_source(source_sha: str, tree: dict, workflow_bytes: bytes, expected_sha256: str) -> list[str]:
+def validate_workflow_source(source_sha: str, tree: dict, workflow_bytes: bytes, expected_sha256: str, expected_tree_sha: str | None = None) -> list[str]:
     entries = [item for item in tree.get("tree", []) if item.get("path") == ".github/workflows/ci.yml" and item.get("type") == "blob"]
     blob_sha = hashlib.sha1(b"blob " + str(len(workflow_bytes)).encode() + b"\0" + workflow_bytes).hexdigest()
-    if tree.get("sha") is None or not re.fullmatch(r"[0-9a-f]{40}", source_sha or ""):
+    commit_tree_sha = expected_tree_sha or tree.get("_expected_commit_tree_sha")
+    if (tree.get("sha") is None or not re.fullmatch(r"[0-9a-f]{40}", source_sha or "")
+            or not re.fullmatch(r"[0-9a-f]{40}", str(tree.get("sha") or ""))
+            or (commit_tree_sha is not None and tree.get("sha") != commit_tree_sha)):
         return ["producer_workflow_tree_origin_unverified"]
     if len(entries) != 1 or entries[0].get("sha") != blob_sha or hashlib.sha256(workflow_bytes).hexdigest() != expected_sha256:
         return ["producer_workflow_source_hash_mismatch"]
     return []
+
+
+def validate_general_job_identity(run: dict, attempt: int, job: dict, repository: str = "szTheory/sigra") -> list[str]:
+    """Require a ranking row to be tied to its requested run/attempt/repository/head."""
+    expected_repo_id = 1207487684 if repository == "szTheory/sigra" else None
+    repo = job.get("source_repository") or job.get("repository") or repository
+    valid = (
+        str(job.get("source_run_id", job.get("run_id", ""))) == str(run.get("id"))
+        and str(job.get("source_run_attempt", job.get("run_attempt", ""))) == str(attempt)
+        and job.get("source_head_sha", job.get("head_sha")) == run.get("head_sha")
+        and (repo == repository or (repo is None and job.get("source_repository_id") == expected_repo_id))
+        and str(job.get("id", "")).isdigit()
+    )
+    return [] if valid else ["ranking_job_run_attempt_head_repository_binding_invalid"]
+
+
+def verified_failure_log(root: pathlib.Path, relative: str, expected_sha256: str) -> bytes:
+    """Return a retained log only when its path is contained and bytes match the audited hash."""
+    root = pathlib.Path(root).resolve()
+    rel = pathlib.PurePosixPath(relative or "")
+    if not relative or rel.is_absolute() or ".." in rel.parts:
+        raise ValueError("failure_log_path_invalid")
+    path = (root / pathlib.Path(*rel.parts)).resolve()
+    if not path.is_relative_to(root) or not _matches(path, expected_sha256):
+        raise ValueError("failure_log_hash_or_containment_invalid")
+    return path.read_bytes()
 
 
 def verified_zip_members(archive_path: pathlib.Path, expected_archive_sha256: str, member_hashes: dict) -> dict[str, bytes]:
@@ -256,7 +344,11 @@ def sanitize_failure_log(raw: bytes, max_input_bytes: int = 1024 * 1024, max_out
     output = []
     env_count = 0
     for line in text.splitlines():
-        if re.match(r"^\s*(?:export\s+)?[A-Za-z_][A-Za-z0-9_]*\s*=", line) or re.search(r"(?i)(?:printenv|env\s+dump|github_env|environment variables)", line):
+        candidate = re.sub(r"^\s*(?:(?:\+{1,}|\$|>)+\s*)?", "", line)
+        candidate = re.sub(r"^(?:declare\s+(?:-[A-Za-z]+|--)|export)\s+", "", candidate)
+        if (re.match(r"^[A-Za-z_][A-Za-z0-9_]*\s*=", candidate)
+                or re.match(r"^[A-Za-z_][A-Za-z0-9_]*\s+.+$", candidate) and "=" in candidate.split(" ", 1)[-1]
+                or re.search(r"(?i)(?:\bprintenv\b|\benv\s+(?:dump|--all|\||$)|\benv\s*$|\bdeclare\s+-p\b|\bcompgen\s+-e\b|\bgithub_env\b|environment variables|^set\s*$|set\s+-o\s+posix)", candidate)):
             if not env_count:
                 output.append("[ENVIRONMENT DUMP REDACTED]")
             env_count += 1
@@ -290,6 +382,18 @@ def safe_markdown_url(value: str) -> str | None:
         return None
     except (TypeError, ValueError):
         return None
+
+
+def escape_markdown_text(value: object) -> str:
+    """Render untrusted data as inert text in a Markdown report."""
+    text = str(value if value is not None else "unknown")
+    replacements = {
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "`": "&#96;",
+        "[": "&#91;", "]": "&#93;", "(": "&#40;", ")": "&#41;",
+        "!": "&#33;", "*": "&#42;", "_": "&#95;", "|": "&#124;",
+        "\\": "&#92;", "#": "&#35;", "\n": " ", "\r": " ",
+    }
+    return "".join(replacements.get(char, char) for char in text)
 
 
 class CoreRequestBudget:
@@ -330,7 +434,7 @@ def comparison_contract_sha256(contract: dict) -> str:
     return hashlib.sha256(json.dumps(frozen, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, ledger: dict | None = None, api_run_sha256: str | None = None) -> dict:
+def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, ledger: dict | None = None, api_run_sha256: str | None = None, api_run_response_bytes: bytes | None = None) -> dict:
     """Create an append-only identity record without reading the API outcome fields."""
     reservations = [x for x in contract.get("family_reservations", []) if x.get("reservation_id") == reservation_id]
     if len(reservations) != 1:
@@ -358,6 +462,14 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
         raise ValueError("comparison_registration_contract_hash_mismatch")
     if any(x.get("reservation_id") == reservation_id or str(x.get("run_id")) == str(api_run["id"]) for x in previous_rows):
         raise ValueError("comparison_registration_duplicate")
+    raw_api = api_run_response_bytes if api_run_response_bytes is not None else json.dumps(api_run, sort_keys=True, separators=(",", ":")).encode()
+    if hashlib.sha256(raw_api).hexdigest() != api_run_sha256:
+        raise ValueError("comparison_registration_api_response_hash_mismatch")
+    try:
+        if json.loads(raw_api) != api_run:
+            raise ValueError("comparison_registration_api_response_content_mismatch")
+    except (ValueError, TypeError) as error:
+        raise ValueError("comparison_registration_api_response_invalid") from error
     identity = {
         "reservation_id": reservation_id,
         "pair_id": reservation["pair_id"],
@@ -371,6 +483,7 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
         "pull_request_head_sha": pr.get("head", {}).get("sha"),
         "pull_request_base_sha": pr.get("base", {}).get("sha"),
         "api_run_sha256": api_run_sha256,
+        "api_run_response_b64": base64.b64encode(raw_api).decode("ascii"),
     }
     record = {"sequence": len(previous_rows), "previous_sha256": previous_rows[-1]["record_sha256"] if previous_rows else "0" * 64, **identity}
     record["record_sha256"] = hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -400,6 +513,20 @@ def validate_comparison_reservations(contract: dict, families: list[dict], sourc
             diagnostics.append("comparison_registration_chain_invalid")
         previous = row.get("record_sha256", "")
         registration_by_key[row.get("reservation_id")] = row
+        try:
+            raw = base64.b64decode(row.get("api_run_response_b64", ""), validate=True)
+            api_run = json.loads(raw)
+            valid_raw = hashlib.sha256(raw).hexdigest() == row.get("api_run_sha256")
+            valid_raw = valid_raw and str(api_run.get("id")) == str(row.get("run_id"))
+            valid_raw = valid_raw and api_run.get("status") in ("queued", "in_progress") and api_run.get("conclusion") is None
+            valid_raw = valid_raw and api_run.get("created_at") == row.get("created_at") and api_run.get("head_sha") == row.get("head_sha")
+            valid_raw = valid_raw and api_run.get("event") == "pull_request" and api_run.get("path") == ".github/workflows/ci.yml"
+            valid_raw = valid_raw and len(api_run.get("pull_requests") or []) == 1
+            valid_raw = valid_raw and api_run["pull_requests"][0].get("head", {}).get("sha") == row.get("pull_request_head_sha")
+        except (ValueError, TypeError, KeyError):
+            valid_raw = False
+        if not valid_raw:
+            diagnostics.append("comparison_registration_api_response_invalid")
     window = contract.get("window") or {}
     if not window.get("start_utc") or not window.get("end_utc"):
         diagnostics.append("comparison_window_not_predeclared")
