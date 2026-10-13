@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:6/25 complete;11 additional recovery plans checked;15/18 ready; original02/07/09/12 halted and08/10/13/14 blocked; phase verification not started
+**Plans**:7/25 complete;18 complete;15 halted pending scoped log cleanup;19 ready; historical failed/blocked plans preserved;phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -131,7 +131,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 - [ ] 253-15-PLAN.md — Remaining native registration diagnostics
 - [ ] 253-16-PLAN.md — Real readiness/state/trace controls
 - [ ] 253-17-PLAN.md — Cause assessment, scoped repair and fresh repeats
-- [ ] 253-18-PLAN.md — Measured actual HTTP transport
+- [x] 253-18-PLAN.md — Measured actual HTTP transport
 - [ ] 253-19-PLAN.md — Independent source and transport verifier
 - [ ] 253-20-PLAN.md — Counted server Git object/ref publication
 - [ ] 253-21-PLAN.md — Real PR collector and completion contracts
@@ -173,7 +173,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 6/25 | Partial implementation; additional recovery ready; verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 7/25 | Partial implementation;19ready;15cleanup pending;verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

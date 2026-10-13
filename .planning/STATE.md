@@ -14,8 +14,8 @@ progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 31
-  completed_plans: 12
-  percent: 39
+  completed_plans: 13
+  percent: 42
 milestone_status: active
 workflow_step: "execute_recovery"
 verification_status: not_started
@@ -32,7 +32,7 @@ phase253_plan_count: 25
 phase253_wave_count: 8
 phase253_task_count: 54
 phase253_implementation_status: partial
-phase253_completed_plans: 6
+phase253_completed_plans: 7
 phase253_halted_plans: [253-02, 253-07, 253-09, 253-12]
 phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
 
@@ -56,10 +56,10 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 253 — incomplete
-Plans: 6/25 complete; new15–25 checked,15/18 ready; old02/07/09/12 halted and08/10/13/14 blocked
+Plans: 7/25 complete;18 complete;15 halted pending scoped log cleanup;19 ready; original failed plans preserved
 Status: Executing additional recovery plans; both requirements remain open
 Last activity: 2026-10-13 — 11 new plans,24 tasks,8 waves; independent review passed
-Progress: 12/31 planned milestone plans complete(39%); full Phase253 verification not started
+Progress: 13/31 planned milestone plans complete(42%); full Phase253 verification not started
 
 ## Next GSD command
 
@@ -161,3 +161,7 @@ Original14plans,94Phase252paths and all failed/freezes/ledgers remain byte-ident
 ## Additional recovery execution started
 
 Command: $gsd-execute-phase 253 --gaps-only. New15/18 are ready; sequential execution starts with15. Earlier failed records remain unchanged. Capture:253-ADDITIONAL-EXECUTION-CAPTURE.json; exact SDK transition:96e4bbbc3caecd0d1e5320dd3d271dff098a3a58. No new browser or hosted result exists yet.
+
+## Additional execution progress
+
+Plan18 completed:14 local HTTPS tests and hermetic canary contract passed;0GitHub requests. Desktop/mobile registration passed in the reserved retry and mobile slot,121680ms total across3new launches including the firstfailed desktop. Sharedretryspent. Plan15 stayshalted pending permission to replace credential-bearing original setup logs with committed sanitized copies and then rerun the complete local suite. Old logs unchanged. Independent19 is ready. Progressrecord:253-ADDITIONAL-EXECUTION-PROGRESS-01.json. Next:$gsd-execute-phase 253 --gaps-only; phaseverificationnot_started.
