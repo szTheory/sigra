@@ -3,7 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PHASE_DIR="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
-FIXTURE="$PHASE_DIR/253-CANARY-WORKFLOW.yml"
+FIXTURE="$PHASE_DIR/253-RECOVERY-CANARY-WORKFLOW.yml"
+RECOVERY_FREEZE="$PHASE_DIR/253-RECOVERY-CANARY-FREEZE.json"
 EVIDENCE="$PHASE_DIR/253-RECOVERY-CANARY-RUNS.json"
 RATE_SOURCE="/tmp/sigra-253-canary-rate.json"
 RULES_SOURCE="/tmp/sigra-253-effective-rules.json"
@@ -17,6 +18,7 @@ POLL_INTERVAL=60
 SCENARIO=""
 ALL_REMAINING=false
 CHECK_ONLY=false
+FREEZE_TO_CHECK=""
 CANARY_STARTED_EPOCH=0
 
 usage() {
@@ -45,6 +47,7 @@ while (($#)); do
     --remaining-scenarios) ALL_REMAINING=true; shift ;;
     --evidence) (($# >= 2)) || fail '--evidence requires a path'; EVIDENCE="$2"; shift 2 ;;
     --check-only) CHECK_ONLY=true; shift ;;
+    --recovery-freeze) (($# >= 2)) || fail '--recovery-freeze requires a path'; FREEZE_TO_CHECK="$2"; shift 2 ;;
     --help|-h) usage; exit 0 ;;
     *) fail "unknown argument: $1" ;;
   esac
@@ -52,6 +55,7 @@ done
 
 if [[ "$CHECK_ONLY" == true ]]; then
   [[ -f "$FIXTURE" ]] || fail "fixture workflow missing: $FIXTURE"
+  [[ -n "$FREEZE_TO_CHECK" && -f "$FREEZE_TO_CHECK" ]] || fail 'a recovery freeze file is required for check-only'
   [[ -f "$ROOT/scripts/ci/ci-browser-records.mjs" && -f "$ROOT/scripts/ci/honest-skip-verdict.sh" ]] || fail 'candidate shared gate helpers missing'
   python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --help >/dev/null
   grep -Fq 'name: Phase 253 Gate Canary' "$FIXTURE" || fail 'fixture workflow name changed'
@@ -60,9 +64,66 @@ if [[ "$CHECK_ONLY" == true ]]; then
   for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
     ! rg -q 'Phase 253 Gate Canary' "$ROOT/$path" || fail "fixture name matches a downstream workflow filter: $path"
   done
+  python3 - "$ROOT" "$FIXTURE" "$FREEZE_TO_CHECK" <<'PY'
+import hashlib, json, re, subprocess, sys
+from pathlib import Path
+root, workflow, freeze_path = map(Path, sys.argv[1:])
+freeze=json.loads(freeze_path.read_text(encoding='utf-8'))
+expected_scenarios={"full-pass":"success","docs-only":"success","actual-failure":"failure",
+                    "missing-seam":"failure","unexpected-skip":"failure","cancelled":"cancelled"}
+if freeze.get("schema_version") != "sigra.recovery-canary-freeze/v1": raise SystemExit('freeze schema mismatch')
+identity=freeze.get("identity", {})
+candidate=identity.get("candidate_helper_commit", "")
+fixture=identity.get("fixture_workflow_commit", "")
+blob=identity.get("fixture_workflow_blob", "")
+ref=identity.get("fixture_ref", "")
+if not re.fullmatch(r"[0-9a-f]{40}", candidate): raise SystemExit('candidate helper commit is invalid')
+if not re.fullmatch(r"[0-9a-f]{40}", fixture) or not re.fullmatch(r"[0-9a-f]{40}", blob): raise SystemExit('fixture commit or blob is invalid')
+if not ref.startswith('refs/heads/gsd/253-recovery-canary-fixture-') or '20261013T044113Z-67104' in ref: raise SystemExit('fixture ref is reused or outside the recovery namespace')
+actual_ref=subprocess.run(['git','rev-parse','--verify',ref],cwd=root,text=True,capture_output=True)
+if actual_ref.returncode or actual_ref.stdout.strip()!=fixture: raise SystemExit('create-only fixture ref does not resolve to frozen commit')
+if subprocess.run(['git','merge-base','--is-ancestor',candidate,'HEAD'],cwd=root).returncode: raise SystemExit('candidate helper commit is not in the current history')
+if subprocess.run(['git','merge-base','--is-ancestor',candidate,fixture],cwd=root).returncode: raise SystemExit('fixture commit is not based on the candidate helper commit')
+actual_blob=subprocess.run(['git','rev-parse',f'{fixture}:.github/workflows/ci.yml'],cwd=root,text=True,capture_output=True)
+if actual_blob.returncode or actual_blob.stdout.strip()!=blob: raise SystemExit('fixture blob does not match frozen workflow content')
+if identity.get("old_failed_run_id") != "38347679431" or identity.get("old_failed_fixture_ref") == ref or identity.get("old_failed_fixture_blob") == blob: raise SystemExit('old failed run/ref/blob was reused or lost')
+scenarios=freeze.get('scenarios')
+if not isinstance(scenarios,dict) or {item.get('name'):item.get('expected_outcome') for item in scenarios.get('cases',[])} != expected_scenarios: raise SystemExit('six frozen scenario names/outcomes changed')
+bounds=freeze.get('bounds',{})
+if bounds != {"max_requests":120,"max_actual_tiny_jobs":45,"max_minutes":60,"max_infrastructure_retries":1,"max_dispatch_input_keys":10,"max_dispatch_input_chars":65535,"max_artifact_compressed_bytes":2097152,"max_artifact_extracted_bytes":4194304}: raise SystemExit('finite canary bounds are missing or changed')
+if scenarios.get('count') != 6 or scenarios.get('optional_infrastructure_retry') != 1: raise SystemExit('scenario count or retry policy is invalid')
+if freeze.get('required_checks') != ["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"]: raise SystemExit('required check names differ from the five-name contract')
+if freeze.get('workflow',{}).get('permissions') != {"contents":"read"} or freeze['workflow'].get('trigger') != ['workflow_dispatch']: raise SystemExit('fixture permissions or trigger are not read-only dispatch-only')
+if freeze.get('workflow',{}).get('jobs') != {"tiny_producers":5,"verdict":1,"independent_verifier":1,"observer_trigger":False}: raise SystemExit('fixture workflow job topology or observer trigger changed')
+if freeze.get('historical',{}).get('previous_accounted_or_reserved_requests') != 20 or freeze['historical'].get('previous_exact_http_count_proven') is not False: raise SystemExit('historical 20-call ledger was misrepresented as exact')
+source_hashes=freeze.get('source_sha256',{})
+for name, digest in source_hashes.items():
+    path=root/name
+    if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest: raise SystemExit(f'source hash mismatch: {name}')
+if set(source_hashes) != {"scripts/ci/ci-gate-canary.sh","scripts/ci/ci-gate-canary.test.sh","scripts/ci/ci-hosted-gate-verify.py","scripts/ci/ci-hosted-gate-verify.test.py"}: raise SystemExit('freeze source hash set is incomplete or unexpected')
+text=workflow.read_text(encoding='utf-8')
+if len(re.findall(r'^name: Phase 253 Gate Canary$',text,re.M))!=1 or re.search(r'^  (push|pull_request|schedule|workflow_run):',text,re.M): raise SystemExit('fixture has an unapproved trigger or name')
+try:
+    import yaml
+    parsed=yaml.safe_load(text)
+except Exception as error:
+    raise SystemExit(f'fixture YAML is invalid: {error}')
+triggers=parsed.get('on',parsed.get(True))
+jobs=parsed.get('jobs',{})
+if not isinstance(triggers,dict) or list(triggers)!=['workflow_dispatch'] or parsed.get('permissions')!={"contents":"read"}: raise SystemExit('fixture must be dispatch-only with read-only top-level permissions')
+if set(jobs)!={'producers','verdict','verifier'} or jobs['producers'].get('strategy',{}).get('matrix',{}).get('seam')!=['non_admin_smoke','admin_behavior','admin_checkpoints','design_gallery','demo_showcase']: raise SystemExit('fixture does not contain the five frozen tiny producers, verdict and verifier')
+if jobs['verifier'].get('permissions')!={"contents":"read","actions":"read"}: raise SystemExit('independent verifier permissions exceed read-only scope')
+PY
   echo 'ci-gate-canary: local fixture contract passed'
   exit 0
 fi
+
+[[ -n "$FREEZE_TO_CHECK" && -f "$FREEZE_TO_CHECK" ]] || fail 'hosted execution requires the separately reviewed recovery freeze'
+bash "$0" --check-only --recovery-freeze "$FREEZE_TO_CHECK" >/dev/null || fail 'recovery freeze failed local check-only validation'
+FROZEN_CANDIDATE_SHA="$(jq -r '.identity.candidate_helper_commit' "$FREEZE_TO_CHECK")"
+FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$FREEZE_TO_CHECK")"
+FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$FREEZE_TO_CHECK")"
+FROZEN_FIXTURE_BLOB="$(jq -r '.identity.fixture_workflow_blob' "$FREEZE_TO_CHECK")"
 
 [[ "$ALL_REMAINING" == true || -n "$SCENARIO" ]] || { usage >&2; exit 2; }
 [[ "$ALL_REMAINING" == false || -z "$SCENARIO" ]] || fail 'choose one scenario mode'
@@ -102,6 +163,13 @@ else
   FIXTURE_SHA=""
   FIXTURE_BLOB=""
 fi
+if [[ -n "$FIXTURE_REF" && ( "$FIXTURE_REF" != "$FROZEN_FIXTURE_REF" || "$CANDIDATE_SHA" != "$FROZEN_CANDIDATE_SHA" || "$FIXTURE_SHA" != "$FROZEN_FIXTURE_SHA" || "$FIXTURE_BLOB" != "$FROZEN_FIXTURE_BLOB" ) ]]; then
+  fail 'existing execution evidence does not match this new recovery freeze'
+fi
+CANDIDATE_SHA="$FROZEN_CANDIDATE_SHA"
+FIXTURE_REF="$FROZEN_FIXTURE_REF"
+FIXTURE_SHA="$FROZEN_FIXTURE_SHA"
+FIXTURE_BLOB="$FROZEN_FIXTURE_BLOB"
 [[ "$REQUEST_COUNT" =~ ^[0-9]+$ ]] || fail 'frozen request ledger is malformed'
 
 check_budget() {
@@ -240,9 +308,21 @@ PY
 }
 
 api_post_dispatch() {
-  local inputs="$1" branch="${FIXTURE_REF#refs/heads/}" rc=0 endpoint
+  local inputs="$1" branch="${FIXTURE_REF#refs/heads/}" rc=0 endpoint input_keys input_chars sequence
   endpoint="https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches"
+  input_keys="$(jq 'keys|length' <<<"$inputs")"
+  input_chars="$(python3 - "$inputs" <<'PY'
+import json,sys
+value=json.loads(sys.argv[1])
+print(sum(len(str(k))+len(str(v)) for k,v in value.items()))
+PY
+)"
+  (( input_keys <= MAX_INPUT_KEYS && input_chars <= MAX_INPUT_CHARS )) || fail 'dispatch inputs exceed the frozen key or character limit'
   begin_request "$endpoint" dispatch
+  sequence="$LAST_REQUEST_SEQUENCE"
+  jq --argjson sequence "$sequence" --argjson keys "$input_keys" --argjson chars "$input_chars" \
+    '(.transactions[] | select(.sequence==$sequence)).input_keys=$keys | (.transactions[] | select(.sequence==$sequence)).input_chars=$chars' \
+    "$REQUEST_LEDGER" > "${REQUEST_LEDGER}.tmp" && mv "${REQUEST_LEDGER}.tmp" "$REQUEST_LEDGER"
   jq -n --arg ref "$branch" --argjson inputs "$inputs" '{ref:$ref,inputs:$inputs}' > "${TMPDIR:-/tmp}/253-canary-dispatch-body.json"
   gh api "repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches" --method POST --input "${TMPDIR:-/tmp}/253-canary-dispatch-body.json" >/dev/null 2>"${TMPDIR:-/tmp}/253-canary-dispatch-error.txt" || rc=$?
   local status=204
@@ -252,7 +332,8 @@ api_post_dispatch() {
   fi
   finish_request "$LAST_REQUEST_SEQUENCE" "$status"
   (( rc == 0 )) || fail "workflow dispatch failed with HTTP $status"
-  jq --argjson inputs "$inputs" '.dispatch_inputs=$inputs' "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
+  jq --argjson inputs "$inputs" --argjson sequence "$sequence" --argjson keys "$input_keys" --argjson chars "$input_chars" \
+    '.dispatch_inputs=$inputs | .dispatch_input_metrics += [{sequence:$sequence,key_count:$keys,combined_chars:$chars}]' "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
 }
 
 download_no_follow() {
@@ -328,7 +409,7 @@ if [[ -z "$CANDIDATE_SHA" ]]; then
   jq -n --slurpfile rate "$RATE_SOURCE" --slurpfile rules "$RULES_SOURCE" --slurpfile workflow "$WORKFLOW_SOURCE" \
     --arg candidate "$CANDIDATE_SHA" --arg fixture_ref "$FIXTURE_REF" --arg fixture_sha "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" \
     --argjson request_count "$REQUEST_COUNT" --argjson started_epoch "$CANARY_STARTED_EPOCH" \
-    '{schema_version:"sigra.hosted-gate-canary/v1",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{initial_rate_limit:$rate[0],effective_rules:$rules[0],registered_workflow:$workflow[0]},budget:{max_requests:120,request_count:$request_count,max_jobs:45,max_minutes:60,started_epoch:$started_epoch,actual_jobs:0,elapsed_seconds:0},transport_ledger:{schema_version:"sigra.canary-transport-ledger/v1",transactions:[]},dispatch_inputs:{},preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
+    '{schema_version:"sigra.hosted-gate-canary/v1",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{initial_rate_limit:$rate[0],effective_rules:$rules[0],registered_workflow:$workflow[0]},budget:{max_requests:120,request_count:$request_count,max_jobs:45,max_minutes:60,started_epoch:$started_epoch,actual_jobs:0,elapsed_seconds:0},transport_ledger:{schema_version:"sigra.canary-transport-ledger/v1",transactions:[]},dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
   preserve_evidence
   jq --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" \
     '.preserved_revisions += [{ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
@@ -405,7 +486,7 @@ dispatch_scenario() {
     jq -n --slurpfile run "$run_json" --slurpfile jobs "$jobs_json" --slurpfile artifacts "$artifacts_json" \
       --arg run_id "$run_id" --argjson attempt "$run_attempt" '{run_id:$run_id,run_attempt:$attempt,run:$run[0],jobs:$jobs[0],artifacts:$artifacts[0]}' > "$receipt_tmp"
   else
-    artifact_id="$(jq -r --arg name "gate-canary-$case_name-$run_id-$run_attempt" '[.artifacts[] | select(.name==$name and .expired==false)] | if length==1 then .[0].id else empty end' "$artifacts_json")"
+    artifact_id="$(jq -r --arg name "gate-canary-$case_name-$run_id-$run_attempt" '[.artifacts[] | select(.name==$name and .expired==false and (.size_in_bytes|type)=="number" and .size_in_bytes<=2097152)] | if length==1 then .[0].id else empty end' "$artifacts_json")"
     [[ -n "$artifact_id" ]] || fail "expected same-run retained artifact missing for $case_name"
     archive="$(mktemp /tmp/253-canary-artifact.XXXXXX.zip)"
     download_no_follow "https://api.github.com/repos/$REPO/actions/artifacts/$artifact_id/zip" "$archive" "$MAX_ARTIFACT_COMPRESSED" || fail "artifact download failed for $case_name"

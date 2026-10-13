@@ -69,6 +69,17 @@ def read_evidence(path):
     require(isinstance(inputs, dict) and len(inputs) <= 10
             and sum(len(str(key)) + len(str(item)) for key, item in inputs.items()) <= 65535,
             "dispatch input count or combined character limit exceeded")
+    dispatches = [item for item in transactions if item.get("method") == "POST" and item.get("url", "").endswith("/dispatches")]
+    metrics = value.get("dispatch_input_metrics", [])
+    require(isinstance(metrics, list) and len(metrics) == len(dispatches),
+            "not every workflow dispatch has a bounded input receipt")
+    for metric, transaction in zip(metrics, dispatches):
+        require(isinstance(metric, dict) and metric.get("sequence") == transaction.get("sequence")
+                and type(metric.get("key_count")) is int and 0 <= metric["key_count"] <= 10
+                and type(metric.get("combined_chars")) is int and 0 <= metric["combined_chars"] <= 65535
+                and transaction.get("input_keys") == metric["key_count"]
+                and transaction.get("input_chars") == metric["combined_chars"],
+                "workflow dispatch input receipt is missing, unbounded, or differs from transport")
     return value
 
 

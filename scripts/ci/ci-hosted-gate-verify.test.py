@@ -49,6 +49,7 @@ def fixture():
         "budget": {"max_requests": 120, "request_count": 4, "max_jobs": 45, "actual_jobs": 6, "elapsed_seconds": 30},
         "dispatch_inputs": {"scenario": "full-pass", "candidate_sha": candidate,
                             "fixture_sha": workflow_sha, "fixture_blob": workflow_blob},
+        "dispatch_input_metrics": [],
         "transport_ledger": {"transactions": [
             {"sequence": index, "method": "GET", "url": f"https://api.github.com/mock/{index}", "status": 200}
             for index in range(1, 5)
@@ -228,11 +229,15 @@ class HostedGateVerifierTests(unittest.TestCase):
             {"sequence": i, "method": method, "url": url, "status": status}
             for i, (method, url, status) in enumerate(urls, 1)
         ]
+        document["transport_ledger"]["transactions"][0].update(input_keys=4, input_chars=178)
+        document["dispatch_input_metrics"] = [{"sequence": 1, "key_count": 4, "combined_chars": 178}]
         document["transport_trace"] = copy.deepcopy(document["transport_ledger"]["transactions"])
         document["budget"]["request_count"] = len(urls)
         result = self.invoke(document)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('"status": "verified"', result.stdout)
+        document["dispatch_input_metrics"] = []
+        self.assertNotEqual(self.invoke(document).returncode, 0)
 
     def test_rejects_hidden_page_redirect_and_rate_limited_transport(self):
         base = fixture()
@@ -241,6 +246,7 @@ class HostedGateVerifierTests(unittest.TestCase):
             {"method": "GET", "url": "https://api.github.com/mock/hidden-poll", "status": 200},
             {"method": "GET", "url": "https://api.github.com/mock/page-2", "status": 200},
             {"method": "GET", "url": "https://productionresultssa123.blob.core.windows.net/second-hop", "status": 200},
+            {"method": "GET", "url": "https://api.github.com/mock/rate", "status": 403},
             {"method": "GET", "url": "https://api.github.com/mock/rate", "status": 429},
         ):
             document = copy.deepcopy(base)
@@ -266,6 +272,15 @@ class HostedGateVerifierTests(unittest.TestCase):
             bundle.writestr("unexpected.txt", b"extra")
         payload = archive.getvalue()
         document["retained_artifact"]["archive_base64"] = base64.b64encode(payload).decode()
+        self.assertNotEqual(self.invoke(document).returncode, 0)
+        document = fixture()
+        result_bytes = document["retained_artifact"]["files"]["canary-result.json"]["content"].encode()
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+            bundle.writestr("canary-result.json", result_bytes + b" " * (4 * 1024 * 1024 + 1 - len(result_bytes)))
+        payload = archive.getvalue()
+        document["retained_artifact"]["archive_base64"] = base64.b64encode(payload).decode()
+        document["artifacts"]["artifacts"][0]["size_in_bytes"] = len(payload)
         self.assertNotEqual(self.invoke(document).returncode, 0)
 
     def test_rejects_wrong_run_attempt_and_source_identity(self):
