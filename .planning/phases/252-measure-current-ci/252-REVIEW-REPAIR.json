@@ -3,8 +3,9 @@
   "review_findings": ["CR-01", "WR-01"],
   "status": "implemented_pending_independent_recheck",
   "implementation_commit": "6edd186ec",
+  "followup_implementation_commit": "9894630d7",
   "files": {
-    "scripts/ci/ci-run-metrics.sh": "199a390fc82e16aeeddeaafe55bc518d1b1dc8f04e948e9751f5aa5cab021ebe",
+    "scripts/ci/ci-run-metrics.sh": "c2236c9a6ae20159652071d69a3ec84514e237f86d29f5a3691d2358d66b49f1",
     "scripts/ci/ci-run-metrics.test.sh": "fd9d41e5dba93a105100ee08301290c561a7ef0da1a48e211fdda2745a5df130"
   },
   "repairs": {
@@ -13,7 +14,7 @@
       "fixture": "Window collector uses branch-protection fallback for all five contexts. Offline replay rewrites effective-rule bytes and matching source hash while preserving the approved manifest identity; the reader returns unknown required wait and incomplete instrumented sample."
     },
     "WR-01": {
-      "behavior": "Artifact metadata starts at pending_download. The result becomes accepted only after download, archive SHA-256 match, and safe extraction. Failed downloads are recorded as unknown with their literal reason; the request ledger retains the stop reason.",
+      "behavior": "Artifact metadata starts at pending_download. The result becomes accepted only after download, archive SHA-256 match, and safe extraction. Failed downloads are recorded as unknown with their literal reason; the request ledger retains the stop reason. Metadata that is expired or fails identity/digest checks keeps its specific diagnostic and is never mislabeled as a download failure.",
       "fixture": "Public window collector receives a deterministic HTTP 503 from the file host and records unknown/download_unavailable, with an incomplete request ledger and no verified artifact claim."
     }
   },
@@ -40,6 +41,12 @@
     }
   ],
   "evidence_preservation": {
+    "prior_repair_record_commit": "621581afc",
+    "prior_repair_record_sha256": "eb627e3be681a1910c5706acd5b4b9bd3e4252b3ede74ef84b46f21e5fb23a18",
+    "prior_repair_record_readback_sha256": "eb627e3be681a1910c5706acd5b4b9bd3e4252b3ede74ef84b46f21e5fb23a18",
+    "prior_updated_summary_commit": "7630a0ef5",
+    "prior_updated_summary_sha256": "58a1b55c90fb3e9130a7e1ff521c2d5bfe14f30137fd658b5ca5a67d779a3669",
+    "prior_updated_summary_readback_sha256": "58a1b55c90fb3e9130a7e1ff521c2d5bfe14f30137fd658b5ca5a67d779a3669",
     "prior_summary_commit": "6edd186ec",
     "prior_summary_sha256": "24ce1943ab1d0becdca779b24bfdf0c6adf0cf75c95be123278d97720019cf2a",
     "git_show_readback_sha256": "24ce1943ab1d0becdca779b24bfdf0c6adf0cf75c95be123278d97720019cf2a",
