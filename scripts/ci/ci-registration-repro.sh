@@ -5,6 +5,7 @@ usage() {
   cat <<'USAGE'
 Usage:
   ci-registration-repro.sh --run-frozen <freeze.json> --output <evidence.json>
+  ci-registration-repro.sh --diagnose-setup --output <evidence.json>
   ci-registration-repro.sh --verify-controls <evidence.json>
   ci-registration-repro.sh --verify-acceptance <evidence.json>
   ci-registration-repro.sh <mode> --help
@@ -26,6 +27,10 @@ case "$MODE" in
     [[ "${3:-}" == --output && -n "${4:-}" ]] || { usage >&2; exit 2; }
     OUTPUT="${4}"
     ;;
+  --diagnose-setup)
+    [[ "${2:-}" == --output && -n "${3:-}" && -z "${4:-}" ]] || { usage >&2; exit 2; }
+    OUTPUT="${3}"
+    ;;
   --verify-controls|--verify-acceptance)
     OUTPUT="${2:-}"
     [[ -n "$OUTPUT" ]] || { usage >&2; exit 2; }
@@ -35,6 +40,10 @@ esac
 if [[ -n "$FREEZE" && "$FREEZE" != /* ]]; then FREEZE="$ROOT/$FREEZE"; fi
 if [[ -n "$OUTPUT" && "$OUTPUT" != /* ]]; then OUTPUT="$ROOT/$OUTPUT"; fi
 
+if [[ "$MODE" == --diagnose-setup ]]; then
+  exec node "$ROOT/scripts/ci/ci-registration-setup-diagnostic.mjs" --root "$ROOT" --output "$OUTPUT"
+fi
+
 if [[ "$MODE" != --run-frozen ]]; then
   # The halted runner has no producer for verified browser/control receipts.
   # Claims in a caller-written JSON file are diagnostics, never acceptance.
@@ -43,6 +52,17 @@ if [[ "$MODE" != --run-frozen ]]; then
 fi
 
 [[ -f "$FREEZE" ]] || { echo "missing freeze: $FREEZE" >&2; exit 2; }
+HEAD="$(git -C "$ROOT" rev-parse HEAD)"
+EXPECTED_HEAD="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.checkout_head)' "$FREEZE")"
+[[ "$HEAD" == "$EXPECTED_HEAD" ]] || { echo "checkout mismatch: expected $EXPECTED_HEAD, found $HEAD" >&2; exit 3; }
+git -C "$ROOT" diff --quiet && git -C "$ROOT" diff --cached --quiet || { echo 'tracked checkout changes are not allowed' >&2; exit 3; }
+HELPER_BLOB="$(git -C "$ROOT" hash-object test/example/priv/playwright/tests/admin-eval.spec.ts)"
+EXPECTED_HELPER="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.historical_helper_blob)' "$FREEZE")"
+[[ "$HELPER_BLOB" == "$EXPECTED_HELPER" ]] || { echo "helper identity mismatch: $HELPER_BLOB" >&2; exit 3; }
+WORKFLOW_BLOB="$(git -C "$ROOT" rev-parse HEAD:.github/workflows/ci.yml)"
+EXPECTED_WORKFLOW="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.workflow_blob)' "$FREEZE")"
+[[ "$WORKFLOW_BLOB" == "$EXPECTED_WORKFLOW" ]] || { echo "workflow identity mismatch: $WORKFLOW_BLOB" >&2; exit 3; }
+
 if [[ -f "$OUTPUT" ]]; then
   node - "$OUTPUT" <<'NODE'
 const fs = require('node:fs');
@@ -59,17 +79,6 @@ evidence.limits.observedInvocations += evidence.attempts.length;
 fs.writeFileSync(path, JSON.stringify(evidence, null, 2) + '\n');
 NODE
 fi
-
-HEAD="$(git -C "$ROOT" rev-parse HEAD)"
-EXPECTED_HEAD="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.checkout_head)' "$FREEZE")"
-[[ "$HEAD" == "$EXPECTED_HEAD" ]] || { echo "checkout mismatch: expected $EXPECTED_HEAD, found $HEAD" >&2; exit 3; }
-git -C "$ROOT" diff --quiet && git -C "$ROOT" diff --cached --quiet || { echo 'tracked checkout changes are not allowed' >&2; exit 3; }
-HELPER_BLOB="$(git -C "$ROOT" hash-object test/example/priv/playwright/tests/admin-eval.spec.ts)"
-EXPECTED_HELPER="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.historical_helper_blob)' "$FREEZE")"
-[[ "$HELPER_BLOB" == "$EXPECTED_HELPER" ]] || { echo "helper identity mismatch: $HELPER_BLOB" >&2; exit 3; }
-WORKFLOW_BLOB="$(git -C "$ROOT" rev-parse HEAD:.github/workflows/ci.yml)"
-EXPECTED_WORKFLOW="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).source.workflow_blob)' "$FREEZE")"
-[[ "$WORKFLOW_BLOB" == "$EXPECTED_WORKFLOW" ]] || { echo "workflow identity mismatch: $WORKFLOW_BLOB" >&2; exit 3; }
 
 mkdir -p "$(dirname "$OUTPUT")"
 OUT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/sigra-253-registration.XXXXXX")"

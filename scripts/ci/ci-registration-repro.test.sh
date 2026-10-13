@@ -24,10 +24,31 @@ console.log('registration freeze: PASS');
 NODE
 
 test -x "$RUNNER" || { echo 'registration runner is missing or not executable' >&2; exit 1; }
-for mode in --run-frozen --verify-controls --verify-acceptance; do
+for mode in --run-frozen --diagnose-setup --verify-controls --verify-acceptance; do
   "$RUNNER" "$mode" --help >/dev/null
 done
 echo 'registration runner modes: PASS'
+
+node --test "$ROOT/scripts/ci/ci-registration-setup-diagnostic.test.mjs"
+
+node - "$RUNNER" <<'NODE'
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+const output = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-setup-entry-')), 'terminal.json');
+try {
+  fs.writeFileSync(output, '{"status":"terminal"}\n');
+  const original = fs.readFileSync(output);
+  const result = spawnSync(process.argv[2], ['--diagnose-setup', '--output', output], { encoding: 'utf8' });
+  assert.equal(result.status, 2);
+  assert.deepEqual(fs.readFileSync(output), original);
+  console.log('setup-only runner preserves terminal evidence: PASS');
+} finally {
+  fs.rmSync(path.dirname(output), { recursive: true, force: true });
+}
+NODE
 
 # Exercise the real verifier entrypoints, rather than their help output. Until
 # native browser/control receipts exist, self-reported fields cannot pass.
