@@ -1,6 +1,6 @@
 {
   "created_at": "2026-10-13T22:11:43.907438+00:00",
-  "status": "pending",
+  "status": "complete",
   "database": "sigra_253_control_admin_eval_dark_mv78a7kk_28426",
   "owner_evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json",
   "owner_evidence_sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746",
@@ -10,5 +10,16 @@
   "bounded_cleanup_seconds": 20,
   "additional_browser_launches": 0,
   "api_requests": 0,
-  "no_new_execution_window": true
+  "no_new_execution_window": true,
+  "exit_code": 0,
+  "database_absent_confirmed": true,
+  "cleanup_duration_ms": 112,
+  "cumulative_charge_ms_including_post_halt_cleanup": 243044,
+  "prior_pending_record_commit": "04395475c07f5f2805f3d8f6ffdef1ea1e99825c",
+  "prior_pending_record_sha256": "d91cbc8cbfc226d8ffe8666766128b15a020694ecdf08e55f47e0bb8108266cd",
+  "prior_readback_exact": true,
+  "completed_at": "2026-10-13T22:11:47.132495+00:00",
+  "stdout": "SET\nDROP DATABASE\nf\n",
+  "stderr": "",
+  "original_native_slot_still_failed": true
 }
