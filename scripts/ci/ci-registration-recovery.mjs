@@ -145,7 +145,21 @@ function refreshInfrastructureRetry(predecessorFile, outputFile, root = ROOT) {
   if (!predecessor.retry_context || predecessor.infrastructure_retry?.count !== 1) throw new Error('source freeze does not carry the one reviewed infrastructure retry');
   const marker = path.resolve(root, predecessor.infrastructure_retry.used_marker_path);
   if (fs.existsSync(marker)) throw new Error('the shared infrastructure retry has already been consumed; source cannot be refreshed');
-  validateRevisionSource(root, predecessor);
+  if (predecessor.freeze_sha256 !== revisionFreezeDigest(predecessor)) throw new Error('prior retry source freeze digest is invalid');
+  const priorReservations = path.resolve(root, predecessor.infrastructure_retry.reservation_path);
+  if (fileHash(priorReservations) !== predecessor.infrastructure_retry.reservation_sha256) throw new Error('shared retry reservation bytes changed before source refresh');
+  const oldMarker = path.resolve(root, predecessor.infrastructure_retry.used_marker_path);
+  if (fs.existsSync(oldMarker)) throw new Error('the shared infrastructure retry has already been consumed; source cannot be refreshed');
+  const phaseDir = path.join(root, PHASE_DIR);
+  for (const [file, digest] of [
+    [path.resolve(root, predecessor.retry_context.original_evidence_path), predecessor.retry_context.original_evidence_sha256],
+    [path.resolve(root, predecessor.retry_context.original_freeze_path), predecessor.retry_context.original_freeze_sha256],
+    [path.resolve(root, predecessor.retry_context.review_path), predecessor.retry_context.review_sha256],
+    [path.join(phaseDir, '253-RECOVERY-REGISTRATION-FREEZE.json'), predecessor.historical.original_freeze_sha256],
+    [path.join(phaseDir, '253-RECOVERY-REGISTRATION-EVIDENCE.json'), predecessor.historical.original_evidence_sha256],
+    [path.join(phaseDir, '253-09-TERMINAL-DIAGNOSTIC.json'), predecessor.historical.terminal_diagnostic_sha256],
+    [path.resolve(root, predecessor.historical.recovery_capture_path), predecessor.historical.recovery_capture_sha256]
+  ]) if (fileHash(file) !== digest) throw new Error(`preserved retry source evidence changed: ${path.relative(root, file)}`);
   assertRevisionCheckout(root);
   const freeze = structuredClone(predecessor);
   freeze.supersedes_retry_source = { path: path.relative(root, predecessorFile), sha256: fileHash(predecessorFile), source_commit: predecessor.source.checkout_head, native_attempts: 0, retry_reservation_preserved: true };
