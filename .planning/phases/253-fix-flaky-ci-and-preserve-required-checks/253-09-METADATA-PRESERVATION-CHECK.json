@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-10-13T15:49:45.334629+00:00",
+  "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+  "sha256": "17a7f9b3f0a30be002d177b70924a7efdc3dcaa5e047525951830d47ebfbfc18",
+  "bytes": 4725,
+  "raw_log_bodies": false,
+  "sensitive_field_names_found": 0,
+  "credential_patterns_found": 0,
+  "contains": [
+    "file hashes",
+    "relative file paths",
+    "source identities",
+    "attempt exits",
+    "timing and budget counters"
+  ],
+  "original_stale_log_digests_retained": true,
+  "native_diagnostic_status": "rejected",
+  "preservation_action": "commit only the inspected existing metadata JSON; no unredacted logs or log snapshots staged",
+  "prior_rejection": "pre-redaction evidence snapshot rejected as credential-bearing; this inspection demonstrates the existing metadata JSON has no key values",
+  "summary_status_parser_issue": "metrics.status halted was not detected by phase-plan-index; add top-level status halted after original summary bytes recoverable"
+}

@@ -1,14 +1,14 @@
 {
   "schema_version": "sigra.phase253.registration-recovery-evidence/v1",
-  "status": "running",
+  "status": "halted",
   "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
-  "freeze_sha256": "e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00",
+  "freeze_sha256": "e662f7fe9045b576320b8885126c726c00d650261991e1d46db35d02bf868308",
   "source": {
-    "checkout_head": "bad08bac460034530292390bad7db4f7ee3c08e3",
+    "checkout_head": "6be4b5332060595ebd528122a9f6d030bcc8788b",
     "blobs": {
       "scripts/ci/ci-registration-repro.sh": "2da1ba66a7a56270a9c7e3d619edb0162aa6b91b",
-      "scripts/ci/ci-registration-recovery.mjs": "45732de66fe239344f9ba936c2ff69af472da7d9",
-      "scripts/ci/ci-registration-recovery.test.mjs": "ee404233c96106a84760eb144d30063850be9d66",
+      "scripts/ci/ci-registration-recovery.mjs": "c068464e71ddf12daad7a498c4f478a29a9028fb",
+      "scripts/ci/ci-registration-recovery.test.mjs": "549421c4d91643b0ddad70d2dee116ac55d91b11",
       "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
       "test/example/priv/playwright/tests/admin-eval.spec.ts": "6540493e78121f134867445dffc7010afcd85815",
       "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
@@ -22,13 +22,95 @@
     "order_reason": "The archived record names the failed project and selected test but has no preceding test order."
   },
   "started_at": "2026-10-13T14:56:50.594Z",
-  "attempts": [],
+  "attempts": [
+    {
+      "slot_id": "D19-DIAG-01",
+      "sequence": 1,
+      "stage": "D19",
+      "project": "admin-eval",
+      "source_commit": "6be4b5332060595ebd528122a9f6d030bcc8788b",
+      "started_monotonic_ns": "246370480249333",
+      "prelaunch_setup_ms": 1667,
+      "server": {
+        "port": 25311,
+        "http_status": null
+      },
+      "database": {
+        "name": "sigra_253_recovery_admin_eval_mv6uldvc_45246",
+        "setup_exit_code": 1,
+        "drop_exit_code": 1
+      },
+      "browser": {
+        "launched": false,
+        "exit_code": null
+      },
+      "observed_outcome": "setup_failed",
+      "files": {
+        "setup_log": {
+          "path": "D19-DIAG-01-attempt-01/setup-log.log",
+          "sha256": "b2327bc55d750569c79666044ed8c49248ef798ff7d4c6fa5149f79a93a635a6",
+          "bytes": 2231
+        },
+        "app_log": {
+          "path": "D19-DIAG-01-attempt-01/app-log.log",
+          "sha256": "be710de0b509fb27809254ea9d38bd6b5ee96905053431fbb8edab7d3aa93117",
+          "bytes": 36
+        },
+        "test_log": {
+          "path": "D19-DIAG-01-attempt-01/test-log.log",
+          "sha256": "2970504b5aea9867a4fdb0cc69e5a22c72d1423a9ef73f08835bb8f4e0e1a2ae",
+          "bytes": 101
+        },
+        "drop_log": {
+          "path": "D19-DIAG-01-attempt-01/drop-log.log",
+          "sha256": "b2327bc55d750569c79666044ed8c49248ef798ff7d4c6fa5149f79a93a635a6",
+          "bytes": 2231
+        },
+        "playwright_report": null,
+        "traces": []
+      },
+      "toolchain": {
+        "ecto_sql": "3.13.5",
+        "phoenix_live_view": "1.1.28",
+        "playwright_version": "1.59.1",
+        "ecto_sql_version": "3.13.5",
+        "phoenix_live_view_version": "1.1.28"
+      },
+      "ended_monotonic_ns": "246372580254541",
+      "execution_duration_ms": 2101,
+      "charged_duration_ms": 3768,
+      "terminal_diagnostic": "database setup failed with exit 1; database drop failed with exit 1"
+    }
+  ],
   "limits": {
     "browser_launches": 0,
-    "charged_duration_ms": 0,
-    "d19_charged_duration_ms": 0,
+    "charged_duration_ms": 3768,
+    "d19_charged_duration_ms": 3768,
     "retry_count": 0,
     "max_launches": 19,
     "max_charged_duration_ms": 3480000
-  }
+  },
+  "prior_zero_launch_starts": [
+    {
+      "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
+      "freeze_sha256": "e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00",
+      "source_commit": "bad08bac460034530292390bad7db4f7ee3c08e3",
+      "preservation_commit": "6079a15aa"
+    }
+  ],
+  "preflight_failures": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RUNNER-PREFLIGHT-FAILURE.json",
+      "sha256": "4edd9fa286ef148268a0016dbe282618d9890f9ce53ece23b7c9f177cf8932b0",
+      "charged_duration_ms": 146,
+      "browser_launches": 0
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RUNNER-DIRECTORY-COLLISION.json",
+      "sha256": "b7136b9c95d04528283b22a8192b2ee2514bbf2d84c5c062f4f3ffefa2304bc4",
+      "charged_duration_ms": 177,
+      "browser_launches": 0
+    }
+  ],
+  "stop_reason": "native receipt verification failed: admin-eval: database drop did not succeed"
 }
