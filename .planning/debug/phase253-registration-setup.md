@@ -2,7 +2,7 @@
 status: verifying
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:44:34Z
+updated: 2026-10-13T12:48:35Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,10 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: The `/var/folders` alias in the selected temp work directory makes Mix's relative JOSE include symlink point at a nonexistent path because the source is canonicalized to `/private/var/folders`.
-test: JOSE-only differential compile with identical copied source and aliased versus canonical MIX_BUILD_PATH; inspect the generated include symlink.
-expecting: Aliased build path fails on an absent header and a broken symlink; canonical build path compiles and resolves the same header.
-next_action: canonicalize both setup-only workDir and frozen-runner OUT_DIR before deriving checkout/build paths; add an alias-path regression test and run local suites, without repeating live Phoenix
+hypothesis: Canonical temp paths now let Mix create valid relative dependency links in both runners; the one allowed real entrypoint attempt remains a terminal failed receipt from before this fix.
+test: Pre-fix symlinked-TMPDIR regression was RED; after canonicalization it and four adjacent fixture tests are GREEN, while the JOSE-only path differential establishes the actual compiler mechanism.
+expecting: A separately frozen final setup-only real-entrypoint run reaches HTTP 200 for all three project ports and retains raw logs without browser invocations.
+next_action: have the orchestrator establish a new explicit final setup-only freeze and preserve this checkpoint; only then run one new `--diagnose-setup` invocation with a fresh /private/tmp output, max three launches/1200 seconds/zero browser/zero retries
 reasoning_checkpoint:
   hypothesis: Mix writes a broken relative JOSE include symlink when the runner supplies an aliased `/var/folders` build path while the dependency source resolves to `/private/var/folders`; JOSE Record.extract then fails with enoent.
   confirming_evidence:
@@ -121,23 +121,29 @@ source: Symptoms are already established in the preceding session and committed 
   checked: JOSE-only differential compilation using identical source and aliased versus canonical MIX_BUILD_PATH
   found: `os.tmpdir()` returns `/var/folders/...`, whose real path is `/private/var/folders/...`. Aliased build failed with JOSE header enoent and a broken include symlink; canonical build compiled 113 Erlang and 8 Elixir files and its header link resolves. Raw compile logs have SHA-256 cbf06d4bcd3e1c183d6d5b6b7caa982ca17dca53e7cd5ce3ef73e82c9df3a3dd (red) and 1b18d3ea7eda3bc01e9d66e8b141172be0197b55117549b7fb6ddbed7d0be1fa (green).
   implication: Temp-path aliasing, not the independent build itself, caused the reproducible JOSE include failure. Canonicalize temp roots in both entrypoints.
+- timestamp: 2026-10-13T12:48:35Z
+  checked: Regression test before and after canonical temp-root fix; adjacent runner tests and preserved evidence identities
+  found: New symlinked-TMPDIR test failed before the fix on an aliased `MIX_BUILD_PATH`, then passed after `fs.realpathSync` in setup-only mode and `pwd -P` in the original runner. Full scoped suite passed 5/5 fixture tests and verifier checks; shell and Node syntax checks passed. Original freeze/evidence hashes remain 9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994 and b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51. Failed-entrypoint receipt remains e91526eea5fb48f11c834b60f3b33da788c094a457d6e93c3eca0369877486bd.
+  implication: Local code-level and dependency-only checks support the fix, but setup completion in the actual entrypoint awaits a separately bounded real run.
 
 ## Resolution
 
 root_cause: Confirmed two runner defects: Bash errexit at failed setup lost the project result/raw log; and a `/var/folders` temp-root alias produced a broken relative JOSE include symlink when Mix resolved the source under `/private/var/folders`. The historical retry lacks raw logs, so its exact cause cannot be proven retrospectively.
-fix: Added an independent setup-only diagnostic runner with immediate command receipts, bounded 20-minute/three-project execution, owned server cleanup, and zero browser commands; moved frozen output mutation behind source identity validation.
+fix: Added an independent setup-only diagnostic with immediate command receipts and zero browser commands; moved frozen output mutation behind source identity validation; canonicalized temporary roots in both runners before deriving Mix build paths.
 verification:
-  target_test: {result: pass, command: "bash scripts/ci/ci-registration-repro.test.sh", cases: 4}
+  target_test: {result: pass, command: "bash scripts/ci/ci-registration-repro.test.sh", cases: 5, pre_fix_result: red_for_symlinked_TMPDIR}
   mutation_check: {result: skipped, reason: "No configured Stryker setup for shell/Node runner"}
-  no_op_deletion: {result: pass, deletion_justified_by_rca: false, note: "The change adds a diagnostic path and moves identity validation before output mutation; it does not short-circuit startup."}
+  no_op_deletion: {result: pass, deletion_justified_by_rca: false, note: "Canonicalization changes only temp path spelling and does not skip setup or startup."}
   adjacent_tests: {result: pass, suites_run: ["bash scripts/ci/ci-registration-repro.test.sh", "bash -n scripts/ci/ci-registration-repro.sh", "node --check scripts/ci/ci-registration-setup-diagnostic.mjs"]}
-  revert_and_reconfirm: {result: failed, reason: "The one allowed real entrypoint invocation reproduced a missing JOSE include under its external build path; no live retry is permitted."}
-  guardrail_verdict: rejected_pending_local_diagnosis
+  revert_and_reconfirm: {result: pass_local, bug_returned_on_pre_fix: true, fixed_on_apply: true, note: "Same symlinked-TMPDIR regression was red before canonicalization and green after; no live rerun was made."}
+  guardrail_verdict: pending_final_real_entrypoint
   live_setup_probes: "3/3 clean-clone database setups and Phoenix launches returned HTTP 200 on ports 25311, 25312, 25313 before the code repair; zero browser invocations."
 files_changed:
   - scripts/ci/ci-registration-repro.sh
   - scripts/ci/ci-registration-repro.test.sh
   - scripts/ci/ci-registration-setup-diagnostic.mjs
   - scripts/ci/ci-registration-setup-diagnostic.test.mjs
-code_commit: 4ffa9dcb1
+code_commits: [4ffa9dcb1, c91a85c0d, dd5859dc5]
+failed_entrypoint_evidence_commit: e17c1fa4f
+local_compile_evidence_commit: f16fd670c
 registration_acceptance: unverified; Plan 02 remains halted
