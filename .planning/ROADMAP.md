@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-execute-phase 253 --gaps-only — Six recovery plans checked; original 02/07 halted and 08 blocked; phase verification has not started.
+**Next command:** $gsd-plan-phase 253 — 09/12 halted; local repairs pass; no runnable plans; native registration/hosted proof and phase verification remain missing.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 6/14 complete; six checked recovery plans across four recovery waves; original 02/07 halted and 08 blocked; phase verification not started
+**Plans**:6/14 complete;09/12 halted;10/13/14 blocked; original02/07 halted and08 blocked; phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -99,7 +99,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 **Wave 4** *(blocked by halted plans 02 and 07)*
 - [ ] 253-08-PLAN.md — Normal PR proof and honest requirement completion record
 
-**Recovery plans** *(execute with `--gaps-only`; original eight plans and terminal records remain preserved)*
+**Recovery plans** *(09/12 halted; new planning required before any further execution; original plans and terminal records remain preserved)*
 
 | Recovery wave | Plans | Work |
 |---|---|---|
@@ -108,10 +108,10 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 | 3 | 13 | Normal production PR and real docs-only PR proof |
 | 4 | 14 | Honest completion and accepted-only disposition of blocked original 08 |
 
-- [ ] 253-09-PLAN.md — New bounded registration diagnostics and native receipts
+- [ ] 253-09-PLAN.md — Halted before browser; corrected local build isolation awaits new frozen proof
 - [ ] 253-10-PLAN.md — Real controls and cause-backed fresh target repeats
 - [x] 253-11-PLAN.md — Exact charged request transport and new canary freeze
-- [ ] 253-12-PLAN.md — Six hosted source scenarios and independent verifier
+- [ ] 253-12-PLAN.md — Halted in required-check query; corrected local preflight awaits new frozen hosted proof
 - [ ] 253-13-PLAN.md — Normal and real docs-only draft PR evidence
 - [ ] 253-14-PLAN.md — Evidence-linked requirements and historical-plan reconciliation
 
@@ -148,7 +148,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 5/8 | Partial implementation; execution proof blocked; verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 6/14 | Partial implementation; execution proof blocked; verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

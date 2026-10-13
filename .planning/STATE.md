@@ -4,9 +4,9 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "executing_recovery"
-stopped_at: "Plan 11 local checks passed; Plan 12 starts with preflight repairs"
-last_updated: "2026-10-13T14:04:38.077234+00:00"
+status: "blocked"
+stopped_at: "Recovery09/12 halted; local repairs pass; no runnable plans"
+last_updated: "2026-10-13T17:19:13.486386+00:00"
 last_activity: "2026-10-13"
 last_activity_desc: "Six recovery plans passed independent review and planning checks"
 state_head: "32d3646159f279014b84c7bdb02e5e118f6c2e3b"
@@ -17,12 +17,12 @@ progress:
   completed_plans: 12
   percent: 60
 milestone_status: active
-workflow_step: "execute_recovery"
+workflow_step: "plan_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: "$gsd-plan-phase 253"
+resume_command: "$gsd-plan-phase 253"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -33,7 +33,7 @@ phase253_wave_count: 4
 phase253_task_count: 30
 phase253_implementation_status: partial
 phase253_completed_plans: 6
-phase253_halted_plans: [253-02, 253-07, 253-09]
+phase253_halted_plans: [253-02, 253-07, 253-09, 253-12]
 phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
 
 phase253_recovery_plan_count: 6
@@ -52,21 +52,19 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 (Fix Flaky CI and Preserve Required Checks) — INCOMPLETE
-Plans: 6 of 14 complete; recovery09 halted, 11 locally checked, 12 starting; 10/13/14 blocked
-Status: Plan 11 local checks passed; Plan 12 begins with preflight repairs
-Last activity: 2026-10-13 — Six plans, thirteen tasks checked; no browser or hosted work launched
-Progress: 11/20 planned milestone plans complete (55%); Phase 253 verification not started
+Phase:253 — INCOMPLETE
+Plans:6/14 complete;09/12 halted;10/13/14 blocked; original02/07 halted and08 blocked
+Status:No runnable plans; local runner repairs pass; new recovery planning required
+Last activity:2026-10-13 — Three executors returned; no browser or hosted job ran
+Progress:12/20 planned milestone plans complete(60%); phase verification not started
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only
+$gsd-plan-phase 253
 
-Six new recovery plans (09–14) passed independent review after one budget revision. Their first runnable plans are 09 and 11; the `--gaps-only` selection preserves original halted attempts and excludes blocked original 08. All new runs require new source and budget freezes before observing outcomes. Registration controls and targeted repeats share one ledger; hosted canary and both PR families have separate finite request/time ceilings. The normal PR supplies the five-seam integration proof once.
+Plans09 and12 stopped before producing native acceptance proof. The registration runner now isolates its compiled build per attempt and scrubs signing-key values before hashing logs. The canary runner now queries effective rules for main and stops on incomplete pages. Local tests pass, but the old failed freezes/ledgers stay unchanged. New plans must bind corrected source, define available slots/time/calls, publish fixture Git objects, and prove actual HTTP accounting before real registration/hosted proof. Plans10/13/14 remain blocked. Both CIREL requirements are open; no phase verification or Phase254 work occurred.
 
-The startup repair is verified on three real apps with HTTP 200 and database cleanup, but no registration browser run has been proved. Original 02 and 07 remain halted and original 08 remains blocked. Both requirements remain open and Phase 253 verification has not started. Plan 14 may add an explicit 08 supersession summary only after both requirements are accepted, preserving the original failed evidence. Then unfiltered `$gsd-execute-phase 253` can reach whole-phase verification. Phase 254 has not started.
-
-The original canary request count is still unproved, and the overwritten Task 2 RED bytes and missing original chronology remain disclosed. New proof does not retroactively repair either record. Phase 252 remains complete with all prior paths unchanged; historical release-record maintenance stays separate.
+Execution closeout:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-CLOSEOUT.json. No user credential or manual test action is needed.
 
 ## Known unfinished work
 
@@ -114,8 +112,8 @@ The original canary request count is still unproved, and the overwritten Task 2 
 ## Session
 
 **Last session:** 2026-10-13T14:04:38.077234+00:00
-**Stopped at:** Recovery planning passed; execute new plans 09–14 with --gaps-only
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json
+**Stopped at:** Recovery09/12 halted; local repairs committed; route to new recovery planning
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-CLOSEOUT.json
 
 ## Deferred Items
 
@@ -145,10 +143,8 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 - The later comparison uses 20 matched pairs in a predeclared 48-hour window, without replacement or window extension.
 - Reporter overhead and queue detail remain unknown when not measured; historical release gaps do not block current CI work.
 
-## Recovery execution update
+## Latest recovery execution evidence
 
-Plan 09 stopped in setup: runtime port 25311 differs from compiled port 4011. Setup/drop both exited1; zero browsers launched; 3,768ms charged and D19-DIAG-01 spent. Native verification rejects failed cleanup and log digests made stale by key redaction. The exact metadata ledger contains no key values and is now durably committed and read back. GSD correctly blocks 10/13/14 behind halted09. Plan11 remains independent and is starting; Plan12 awaits11. Both requirements remain open and phase verification is not started. No GitHub requests occurred in this recovery execution.
+Plan11 local work complete;09/12 halted; new source repairs are committed with RED-before-GREEN records. Registration tests12/12, hosted verifier16/16, canary shell suite, legacy setup5/5 and six forged-claim checks pass. Registration:0browserlaunches/3768ms charged. Canary:3charged API-command entries/0jobs/0dispatches/0remote-ref changes; actualHTTP headers/redirect counts still need proof. The wrong ruleset query does not show required checks were removed.
 
-## Canary recovery update
-
-Plan11 local checks pass (16 Python tests, shell suite, frozen identity check). Its new fixture is local and unpushed. Root found two startup defects before hosted work: original preflight paths/refs are reused, and frozen candidate identity can bypass initialization of absent new evidence. Plan12 must repair and exercise these locally before any HTTP call/push, then preserve and seal updated source identities if necessary. The hosted budget has not started, no GitHub requests have occurred, and both requirements remain open. See 253-RECOVERY-EXECUTION-PROGRESS-02.json.
+Shared prior bytes are recoverable at 64ad6b727a9da7ea0da736f38870e677d37b6d76. The unrelated config model edit is preserved at refs/gsd/phase253-recovery-execution-unrelated-config and left unstaged. Native frozen proof remains rejected; requirements stay open. Next:$gsd-plan-phase 253.
