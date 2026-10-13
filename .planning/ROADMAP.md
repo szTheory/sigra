@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:10/25 complete;15/18/19/20implemented;16halted;native/hosted proof missing;phaseverificationnot_started
+**Plans**: 10/25 complete; Plans 15, 18, 19, and 20 implemented; Plan 16 halted; native and hosted results missing; phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -129,11 +129,11 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 | 8 | 25 | Accepted-only historical-plan disposition and phase-verification route |
 
 - [x] 253-15-PLAN.md — Remaining native registration diagnostics
-- [ ] 253-16-PLAN.md — halted: firstdarkcommand timedout,slotspent; Real readiness/state/trace controls
+- [ ] 253-16-PLAN.md — Halted: first combined dark/control command timed out; native readiness, state, and trace controls remain incomplete
 - [ ] 253-17-PLAN.md — Cause assessment, scoped repair and fresh repeats
 - [x] 253-18-PLAN.md — Measured actual HTTP transport
 - [x] 253-19-PLAN.md — Independent source and transport verifier
-- [x] 253-20-PLAN.md — Local Git publication helper; complete tree fits16/24requests; hosted availability unproven
+- [x] 253-20-PLAN.md — Local Git publication helper; complete tree fits 16 of 24 requests; GitHub availability unproven
 - [ ] 253-21-PLAN.md — Real PR collector and completion contracts
 - [ ] 253-22-PLAN.md — Final local source/window freeze
 - [ ] 253-23-PLAN.md — Six hosted outcomes and separate verifier
@@ -173,7 +173,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 10/25 | Partial implementation;16halted;recovery planning required;verificationnot_started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 10/25 | Partial implementation; Plan 16 halted; recovery planning required; verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

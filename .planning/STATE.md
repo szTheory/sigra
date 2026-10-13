@@ -8,7 +8,7 @@ status: "native_controls_halted_recovery_planning_required"
 stopped_at: "Additional execution halted at native dark/control timeout; independent local helper work complete"
 last_updated: "2026-10-13T23:26:23.648776+00:00"
 last_activity: "2026-10-13"
-last_activity_desc: "Plans15/18/19/20 implemented; first dark/control command timed out;105 focused tests passed"
+last_activity_desc: "Plans 15, 18, 19, and 20 implemented; first dark/control command timed out; 105 focused tests passed"
 state_head: "a1a1887e116fc34dbbdfc4186347467ffad33f91"
 progress:
   total_phases: 4
@@ -56,10 +56,10 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 253 — incomplete
-Plans: 10/25 complete;15/18/19/20 implemented;16 halted; original failed plans preserved
+Plans: 10/25 complete; Plans 15, 18, 19, and 20 implemented; Plan 16 halted; original failed plans preserved
 Status: Native dark/control timeout needs recovery planning; both reliability requirements remain open
-Last activity: 2026-10-13T23:26:23.648776+00:00 —105 focused tests passed; publication proposal fits16/24requests
-Progress: 16/31 planned milestone plans complete(52%); full Phase253 verification not started
+Last activity: 2026-10-13T23:26:23.648776+00:00 — 105 focused tests passed; publication proposal fits 16 of 24 requests
+Progress: 16/31 planned milestone plans complete (52%); full Phase 253 verification not started
 
 ## Next GSD command
 
@@ -67,7 +67,7 @@ $gsd-plan-phase 253
 
 Add recovery plans for the missing native dark/control results. The first combined dark command timed out before producing its Playwright results file; its slot and the shared retry are spent. Five controls and nine conditional acceptance commands remain unrun under the stop condition. Preserve all old failures and define finite usable capacity without reopening spent slots. No manual UAT or missing-proof approval is needed.
 
-The independent transport, verifier and publication helpers passed local checks. The complete publication tree fits three requests and16/24total requests; fresh server object/ref availability and hosted/PR proof remain unproven. Phase254 remains pending.
+The independent transport, verifier and publication helpers passed local checks. The complete publication tree fits three tree requests and 16 total requests out of the 24-request allowance; fresh server object/ref availability and hosted/PR proof remain unproven. Phase 254 remains pending.
 
 Execution closeout: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json`; checks: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CHECKS.json`; fresh planning readiness: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-ROUTING-CHECKS.json`. When both requirements are accepted and no plans remain blocked, run unfiltered $gsd-execute-phase 253 for full phase verification.
 
@@ -178,6 +178,6 @@ Plan16 halted after the firstdarkcombined command:121252ms exceeds120000ms;no na
 
 ## Additional recovery execution closeout
 
-Plans15/18/19/20 are complete at the implementation level. Plan16 is halted:121252ms exceeded120000ms and no native report was produced. Separate112ms database cleanup succeeded; total charged work is243044ms and four physical browser launches. Current desktop/mobile passes do not establish the historical cause or complete the missing dark/control results. Saved failed ledgers remain unchanged. The approved two-log sanitization is recorded at25286d5d4. No GitHub requests or remote mutations were made in this invocation.
+Plans 15, 18, 19, and 20 are complete at the implementation level. Plan 16 is halted: 121,252 ms exceeded the 120,000 ms limit and no native report was produced. Separate database cleanup succeeded in 112 ms; total charged work is 243,044 ms across four physical browser launches. Current desktop/mobile passes do not establish the historical cause or complete the missing dark/control results. Saved failed ledgers remain unchanged. The approved two-log sanitization is recorded at commit 25286d5d4. No GitHub requests or remote mutations were made in this invocation.
 
-The next command is $gsd-plan-phase 253. Fresh init.plan-phase253 found existing context/research and no prerequisite blocker; init.execute-phase253 found zero runnable plans. Full phase verification has not started.
+The next command is $gsd-plan-phase 253. Fresh init.plan-phase 253 found existing context and research with no prerequisite blocker; init.execute-phase 253 found zero runnable plans. Full phase verification has not started.
