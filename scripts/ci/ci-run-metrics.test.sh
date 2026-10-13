@@ -825,7 +825,7 @@ case "$endpoint" in
     if [[ "${GH_API_MODE:-}" == transient && ! -e "${GH_API_FAIL_ONCE_FILE:-/nonexistent}" ]]; then touch "$GH_API_FAIL_ONCE_FILE"; echo 'HTTP 503 temporary service failure' >&2; exit 1; fi
     if [[ "${GH_API_MODE:-}" == core ]]; then echo '{"resources":{"core":{"remaining":250,"reset":1900000000}}}'; else echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}'; fi;;
   *'/rules/branches/main') echo '[{"type":"required_status_checks","parameters":{"required_status_checks":[]}}]';;
-  *'/branches/main/protection/required_status_checks') echo '{"status":"not_configured","http_status":404}';;
+  *'/branches/main/protection/required_status_checks') echo '{"contexts":["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"]}';;
   *'/rulesets?per_page=100') echo '[]';;
   /repos/szTheory/sigra/actions/runs/*/attempts/*/jobs\?*)
     run_id="$(printf '%s' "$endpoint" | sed -nE 's#^.*/actions/runs/([0-9]+)/attempts/.*#\1#p')"
@@ -879,7 +879,10 @@ elif [[ "$url" == https://api.github.com/*/actions/jobs/*/logs ]]; then
   printf 'HTTP/1.1 302 Found\r\nLocation: https://pipelines.actions.githubusercontent.com/job-log/run?sig=SIGNED_LOG_SENTINEL\r\n\r\n' >"$headers"
   : >"$output"; printf '302'; exit 0
 elif [[ "$url" == https://pipelines.actions.githubusercontent.com/* ]]; then
-  if [[ "$url" == */job-log/* ]]; then
+  if [[ "$url" == */download/file* && "${WINDOW_ARTIFACT_DOWNLOAD_FAIL:-}" == 1 ]]; then
+    printf 'HTTP/1.1 503 Service Unavailable\r\n\r\n' >"$headers"
+    : >"$output"; printf '503'; exit 0
+  elif [[ "$url" == */job-log/* ]]; then
     if [[ "${WINDOW_LOG_FAIL:-}" == 1 ]]; then
       printf 'HTTP/1.1 500 Internal Server Error\r\n\r\n' >"$headers"
       : >"$output"; printf '500'; exit 0
@@ -914,6 +917,7 @@ WINDOW_LOG_FAIL=1 PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect
 window_rc=$?
 set -e
 if [[ "$window_rc" -eq 0 ]] \
+  && jq -e '.required_context_source=="branch_protection" and .required_rules_changed==false and (.required_contexts|sort)==(.expected_required_contexts|sort) and (.required_rule_provenance|length)==5' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
   && jq -e '.status == "complete" and .cutoff_utc == "2026-10-12T00:00:00Z" and .populations.pull_request.api_total_count == 125 and .populations.pull_request.population_capped == true and (.populations.pull_request.selected_run_ids|length)==100 and .populations.pull_request.selected_run_ids[-1]==5099 and .populations.push_main.population_exhausted == true and .populations.schedule.population_exhausted == true and (.populations.manual.records|length)==1 and (.populations.release_push.records|length)==1 and (.populations.release_push.records[0].head_branch=="release/1.0") and (.populations.pull_request.runs[0].created_at|startswith("2026-09-12"))' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
   && jq -e '.populations.manual.records|length==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
   && jq -e '([.populations.pull_request.runs[]|select(.id==5000 and .workload=="docs_only")]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5001 and .conclusion=="failure" and .workload=="full" and .detail_status=="complete" and (.attempt_jobs|keys|length)==2)]|length)==1 and ([.populations.pull_request.runs[]|select(.id==5002 and .workload=="unknown")]|length)==1' "$WINDOW_BUNDLE/manifest.json" >/dev/null \
@@ -933,7 +937,34 @@ if [[ "$window_rc" -eq 0 ]] \
 else
   fail "window collect rc=$window_rc stderr=$(cat "${TMPDIR_ROOT}/window-collect.err") manifest_status=$(jq -c '{status,request_count,stop_reason,artifact:.populations.pull_request.runs[]?|select(.id==5001)|.artifact_diagnostics}' "$WINDOW_BUNDLE/manifest.json" 2>/dev/null) family=$(cat "$WINDOW_BUNDLE/raw/families/5001/manifest.json" 2>/dev/null)"
 fi
-unset GH_TOKEN WINDOW_ARTIFACT_MODE WINDOW_ARTIFACT_DIGEST WINDOW_ARTIFACT_ZIP CI_METRICS_TEST_MODE
+# A replay must re-derive the required set from the saved API source even if a
+# tampered manifest and matching raw-source hash try to bless a changed context.
+TAMPER_RULES_BUNDLE="${TMPDIR_ROOT}/window-rules-tampered"
+cp -R "$WINDOW_BUNDLE" "$TAMPER_RULES_BUNDLE"
+printf '%s\n' '[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"Library tests"},{"context":"Replacement required check"}]}}]' >"$TAMPER_RULES_BUNDLE/raw/effective-rules.json"
+changed_rules_hash="$(shasum -a 256 "$TAMPER_RULES_BUNDLE/raw/effective-rules.json" | awk '{print $1}')"
+jq --arg hash "$changed_rules_hash" '.source_sha256.effective_rules=$hash | .required_contexts=["Library tests","Replacement required check"] | .required_rules_changed=false' "$TAMPER_RULES_BUNDLE/manifest.json" >"$TAMPER_RULES_BUNDLE/manifest.json.tmp"
+mv "$TAMPER_RULES_BUNDLE/manifest.json.tmp" "$TAMPER_RULES_BUNDLE/manifest.json"
+PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --replay --source-bundle "$TAMPER_RULES_BUNDLE" --format json >"${TMPDIR_ROOT}/tampered-rules.json" 2>"${TMPDIR_ROOT}/tampered-rules.err"
+if jq -e '.required_result_wait.status=="unknown" and .required_result_wait.reason=="required_rules_changed_or_unverified" and .instrumented_full_pr.complete==false' "${TMPDIR_ROOT}/tampered-rules.json" >/dev/null; then
+  pass "offline replay rejects a changed required-check set despite a matching raw-source hash"
+else fail "changed required checks yielded a measurement: $(jq -c '{required_result_wait,instrumented_full_pr}' "${TMPDIR_ROOT}/tampered-rules.json")"; fi
+
+# Public collection records a failed artifact download as unknown and retains
+# the literal stop reason in the bounded request ledger.
+WINDOW_FAIL_BUNDLE="${TMPDIR_ROOT}/window-artifact-download-failure"
+set +e
+WINDOW_ARTIFACT_DOWNLOAD_FAIL=1 PATH="${WINDOW_API_BIN}:${HOST_PATH}" bash "$SCRIPT" --collect --cutoff 2026-10-12T00:00:00Z --source-bundle "$WINDOW_FAIL_BUNDLE" >"${TMPDIR_ROOT}/window-artifact-fail.out" 2>"${TMPDIR_ROOT}/window-artifact-fail.err"
+window_artifact_fail_rc=$?
+set -e
+if [[ "$window_artifact_fail_rc" -ne 0 ]] \
+  && jq -e '.status=="incomplete" and .stop_reason=="download_unavailable" and any(.unknown_inputs[]?; .reason=="download_unavailable" and .endpoint=="artifact:5001")' "$WINDOW_FAIL_BUNDLE/request-ledger.json" >/dev/null \
+  && jq -e 'any(.artifact_diagnostics[]?; .kind=="artifact" and .result.status=="unknown" and .result.diagnostic=="download_unavailable")' "$WINDOW_FAIL_BUNDLE/raw/families/5001/manifest.json" >/dev/null \
+  && ! jq -e 'any(.artifact_diagnostics[]?; .kind=="artifact" and .result.status=="verified")' "$WINDOW_FAIL_BUNDLE/raw/families/5001/manifest.json" >/dev/null; then
+  pass "failed artifact download remains unknown with the stop reason retained"
+else fail "artifact download failure was overstated: rc=$window_artifact_fail_rc family=$(cat "$WINDOW_FAIL_BUNDLE/raw/families/5001/manifest.json" 2>/dev/null) ledger=$(cat "$WINDOW_FAIL_BUNDLE/request-ledger.json" 2>/dev/null)"; fi
+
+unset GH_TOKEN WINDOW_ARTIFACT_MODE WINDOW_ARTIFACT_DIGEST WINDOW_ARTIFACT_ZIP WINDOW_ARTIFACT_DOWNLOAD_FAIL CI_METRICS_TEST_MODE
 
 echo "Test Z: legacy dependency-off-only timing cannot satisfy full-suite coverage"
 if python3 "$SCRIPT_DIR/exunit_timing_contract_test.py" >"${TMPDIR_ROOT}/exunit-contract.out" 2>"${TMPDIR_ROOT}/exunit-contract.err"; then

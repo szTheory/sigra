@@ -501,6 +501,25 @@ sha256_file() {
   else sha256sum "$1" | awk '{print $1}'; fi
 }
 
+approved_required_contexts() {
+  printf '%s\n' '["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"]'
+}
+
+derive_required_contexts() {
+  local effective="$1" protection="$2" rules_json='[]' protection_json='{}'
+  [[ -s "$effective" ]] && rules_json="$(cat "$effective")"
+  [[ -s "$protection" ]] && protection_json="$(cat "$protection")"
+  jq -cn --argjson approved "$(approved_required_contexts)" --argjson rules "$rules_json" --argjson protection "$protection_json" '
+    ($rules // []) as $ruleset_rules |
+    ([$ruleset_rules[]? | select(.type=="required_status_checks") | .parameters.required_status_checks[]?.context] | unique) as $effective_contexts |
+    ([$protection.contexts[]?] | unique) as $branch_contexts |
+    (if ($effective_contexts|length)>0 then $effective_contexts else $branch_contexts end) as $actual |
+    (if ($effective_contexts|length)>0 then "effective_rules" else "branch_protection" end) as $source |
+    (if $source=="effective_rules" then [$ruleset_rules[]? | select(.type=="required_status_checks") | . as $rule | $rule.parameters.required_status_checks[]?.context as $context | {context:$context,ruleset_id:$rule.ruleset_id,ruleset_source:$rule.ruleset_source,source:"effective_rules"}]
+      else [$branch_contexts[] | {context:.,ruleset_id:null,ruleset_source:null,source:"branch_protection"}] end) as $provenance |
+    {expected:$approved,actual:$actual,source:$source,provenance:$provenance,changed:(($actual|sort)!=($approved|sort)),diagnostics:(if ($actual|sort)==($approved|sort) then [] else [{reason:"required_rules_changed",expected:$approved,actual:$actual,source:$source}] end)}'
+}
+
 collect_window() {
   [[ "$REPO" == "szTheory/sigra" ]] || fail "collect_repo_mismatch"
   [[ "$WORKFLOW" == "ci.yml" ]] || fail "collect_workflow_mismatch"
@@ -509,7 +528,7 @@ collect_window() {
   jq -en --arg cutoff "$CUTOFF" 'try ($cutoff|fromdateiso8601) catch false' >/dev/null || fail "cutoff_invalid"
   [[ ! -e "$SOURCE_BUNDLE" ]] || fail "source_bundle_already_exists"
 
-  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha workflow_blob tree_sha request_hash selection_hash request_count manual_json release_json source_hashes required_contexts required_provenance active_rules manual_hash release_hash producer_refs producer_sha producer_dir producer_tree_sha producer_parent_valid workflow_content producer_meta
+  local lock="${SOURCE_BUNDLE}.lock" stage="${SOURCE_BUNDLE}.staging" tmp since cutoff_epoch total_count page page_file page_count selected_json selected_count population_name event branch endpoint runs_json capped exhausted stop_reason detail_note manifest_status workflow_sha workflow_blob tree_sha request_hash selection_hash request_count manual_json release_json source_hashes required_contexts required_provenance required_info active_rules manual_hash release_hash producer_refs producer_sha producer_dir producer_tree_sha producer_parent_valid workflow_content producer_meta
   mkdir -p "$(dirname "$SOURCE_BUNDLE")"
   [[ ! -e "$stage" ]] || fail "source_bundle_staging_exists"
   mkdir "$lock" 2>/dev/null || fail "source_bundle_locked"
@@ -713,8 +732,8 @@ collect_window() {
           if [[ -n "$artifact_row" ]]; then
             artifact_id="$(jq -r '.id' <<<"$artifact_row")"
             expected_digest="$(jq -r '.digest // empty' <<<"$artifact_row")"
-            artifact_status="$(jq -c -n --argjson artifact "$artifact_row" --argjson run "$run" 'if $artifact.expired==true then {status:"expired_input",diagnostic:"expired_input"} elif (($artifact.id|type)!="number" or ($artifact.id|floor)!=$artifact.id) then {status:"unknown",diagnostic:"artifact_id_invalid"} elif (($artifact.digest//"")|test("^sha256:[0-9a-f]{64}$")|not) then {status:"unknown",diagnostic:"artifact_digest_unavailable"} elif (($artifact.workflow_run.id|tostring)!=($run.id|tostring) or $artifact.workflow_run.head_sha!=$run.head_sha) then {status:"unknown",diagnostic:"artifact_origin_mismatch"} else {status:"verified",artifact_id:$artifact.id,run_id:$run.id,source_sha:$run.head_sha,digest:$artifact.digest} end')"
-            if [[ "$(jq -r '.status' <<<"$artifact_status")" == verified ]] && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${artifact_id}/zip" "$artifact_zip" "artifact:${id}"; then
+            artifact_status="$(jq -c -n --argjson artifact "$artifact_row" --argjson run "$run" 'if $artifact.expired==true then {status:"expired_input",diagnostic:"expired_input"} elif (($artifact.id|type)!="number" or ($artifact.id|floor)!=$artifact.id) then {status:"unknown",diagnostic:"artifact_id_invalid"} elif (($artifact.digest//"")|test("^sha256:[0-9a-f]{64}$")|not) then {status:"unknown",diagnostic:"artifact_digest_unavailable"} elif (($artifact.workflow_run.id|tostring)!=($run.id|tostring) or $artifact.workflow_run.head_sha!=$run.head_sha) then {status:"unknown",diagnostic:"artifact_origin_mismatch"} else {status:"pending_download",artifact_id:$artifact.id,run_id:$run.id,source_sha:$run.head_sha,digest:$artifact.digest} end')"
+            if [[ "$(jq -r '.status' <<<"$artifact_status")" == pending_download ]] && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${artifact_id}/zip" "$artifact_zip" "artifact:${id}"; then
               local actual_digest
               actual_digest="sha256:$(sha256_file "$artifact_zip")"
               if [[ "$actual_digest" == "$expected_digest" ]] && extract_timing_archive "$artifact_zip" "$artifact_out" >"$tmp/extract-${id}.json" 2>"$tmp/extract-${id}.err"; then
@@ -724,7 +743,7 @@ collect_window() {
                 rm -rf "$artifact_zip" "$artifact_out"
               fi
             else
-              artifact_record="$artifact_status"
+              artifact_record="$(jq -cn --arg reason "${API_STOP_REASON:-artifact_download_unavailable}" '{status:"unknown",diagnostic:$reason}')"
             fi
           else
             artifact_record='{"status":"unknown","diagnostic":"artifact_unavailable"}'
@@ -835,8 +854,9 @@ collect_window() {
   workflow_sha="$(sha256_file "$ROOT/.github/workflows/ci.yml")"
   tree_sha="$(git rev-parse HEAD 2>/dev/null || echo unavailable)"
   source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg security "$(sha256_file "$stage/source/ci_metrics_security.py")" --arg exunit_contract "$(sha256_file "$stage/source/exunit_timing_contract.py")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" --arg mix "$(sha256_file "$stage/source/mix.exs")" --arg dep_off "$(sha256_file "$stage/source/sigra-dep-off.sh")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"ci_metrics_security.py":$security,"exunit_timing_contract.py":$exunit_contract,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test,"mix.exs":$mix,"sigra-dep-off.sh":$dep_off}')"
-  required_contexts="$(jq -c '[.[]? | select(.type=="required_status_checks") | .parameters.required_status_checks[]?.context] | unique' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
-  required_provenance="$(jq -c '[.[]? | select(.type=="required_status_checks") | {context:.parameters.required_status_checks[]?.context,ruleset_id:.ruleset_id,ruleset_source:.ruleset_source}]' "$stage/raw/effective-rules.json" 2>/dev/null || echo '[]')"
+  required_info="$(derive_required_contexts "$stage/raw/effective-rules.json" "$stage/raw/branch-protection.json")"
+  required_contexts="$(jq -c '.actual' <<<"$required_info")"
+  required_provenance="$(jq -c '.provenance' <<<"$required_info")"
   active_rules="$(jq -c '[.[]? | select(.enforcement=="active") | {id,name,target,enforcement}] | sort_by(.id)' "$stage/raw/rulesets.json" 2>/dev/null || echo '[]')"
   api_write_ledger "$manifest_status"
   request_hash="$(sha256_file "$API_LEDGER")"
@@ -846,7 +866,7 @@ collect_window() {
   night_hash="$(sha256_file "$stage/raw/populations/schedule.json")"
   manual_hash="$(sha256_file "$stage/raw/populations/manual.json")"
   release_hash="$(sha256_file "$stage/raw/populations/release_push.json")"
-  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg captured "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg workflow_blob "$workflow_blob" --arg source_hashes "$source_hashes" --argjson required_contexts "$required_contexts" --argjson required_provenance "$required_provenance" --argjson active_rules "$active_rules" --arg request_hash "$request_hash" --arg selection_hash "$selection_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --arg manual_hash "$manual_hash" --arg release_hash "$release_hash" --arg rate_hash "$(sha256_file "$stage/raw/rate-limit.json")" --arg rules_hash "$(sha256_file "$stage/raw/effective-rules.json")" --arg protection_hash "$(sha256_file "$stage/raw/branch-protection.json")" --arg rulesets_hash "$(sha256_file "$stage/raw/rulesets.json")" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,captured_at_utc:$captured,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,workflow_blob_sha:$workflow_blob,required_contexts:$required_contexts,required_rule_provenance:$required_provenance,active_rulesets:$active_rules,source_file_sha256:($source_hashes|fromjson),source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash,manual:$manual_hash,release_push:$release_hash,rate_limit:$rate_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
+  jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg captured "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg workflow_blob "$workflow_blob" --arg source_hashes "$source_hashes" --argjson required_contexts "$required_contexts" --argjson required_expected "$(jq -c '.expected' <<<"$required_info")" --argjson required_changed "$(jq -c '.changed' <<<"$required_info")" --argjson required_diagnostics "$(jq -c '.diagnostics' <<<"$required_info")" --arg required_source "$(jq -r '.source' <<<"$required_info")" --argjson required_provenance "$required_provenance" --argjson active_rules "$active_rules" --arg request_hash "$request_hash" --arg selection_hash "$selection_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --arg manual_hash "$manual_hash" --arg release_hash "$release_hash" --arg rate_hash "$(sha256_file "$stage/raw/rate-limit.json")" --arg rules_hash "$(sha256_file "$stage/raw/effective-rules.json")" --arg protection_hash "$(sha256_file "$stage/raw/branch-protection.json")" --arg rulesets_hash "$(sha256_file "$stage/raw/rulesets.json")" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,captured_at_utc:$captured,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,workflow_blob_sha:$workflow_blob,required_contexts:$required_contexts,expected_required_contexts:$required_expected,required_context_source:$required_source,required_rules_changed:$required_changed,required_rules_diagnostics:$required_diagnostics,required_rule_provenance:$required_provenance,active_rulesets:$active_rules,source_file_sha256:($source_hashes|fromjson),source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash,manual:$manual_hash,release_push:$release_hash,rate_limit:$rate_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
   sync 2>/dev/null || true
   rm -rf "$tmp"
   API_TEMP_DIR=""
@@ -934,13 +954,12 @@ collect_family() {
   else
     cp "$tmp/check-runs.json" "$SOURCE_BUNDLE/raw/check-runs.json"
   fi
-  local approved required actual required_json rules_changed job_cost last_required diagnostics attempt_hashes
-  approved='["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"]'
-  actual="$(jq -c '[.[]? | select(.type == "required_status_checks") | .parameters.required_status_checks[]?.context] | unique' "$tmp/effective-rules.json")"
-  [[ "$actual" != "null" ]] || actual='[]'
-  required_json="$(jq -cn --argjson current "$actual" --argjson approved "$approved" '$current')"
-  rules_changed=false
-  [[ "$(jq -cn --argjson a "$actual" --argjson b "$approved" '$a|sort == ($b|sort)')" == true ]] || rules_changed=true
+  local approved required actual required_json rules_changed required_info job_cost last_required diagnostics attempt_hashes
+  approved="$(approved_required_contexts)"
+  required_info="$(derive_required_contexts "$tmp/effective-rules.json" "$tmp/branch-protection.json")"
+  actual="$(jq -c '.actual' <<<"$required_info")"
+  required_json="$actual"
+  rules_changed="$(jq -r '.changed' <<<"$required_info")"
   cp "$tmp/rate-limit.json" "$SOURCE_BUNDLE/raw/rate-limit.json"
   cp "$tmp/branch-protection.json" "$SOURCE_BUNDLE/raw/branch-protection.json"
   cp "$tmp/effective-rules.json" "$SOURCE_BUNDLE/raw/effective-rules.json"
@@ -952,7 +971,7 @@ collect_family() {
   # Bundle every raw response with hashes before computing any timing.
   jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --argjson run_id "$RUN_ID" \
     --argjson attempt "$attempt_id" --arg sha "$source_sha" --argjson rules "$required_json" \
-    --argjson expected "$approved" --argjson rules_changed "$rules_changed" \
+    --argjson expected "$approved" --argjson rules_changed "$rules_changed" --arg required_source "$(jq -r '.source' <<<"$required_info")" --argjson rules_diagnostics "$(jq -c '.diagnostics' <<<"$required_info")" \
     --argjson rulesets "$(jq -c '[.[]? | select(.enforcement=="active") | {id,name,target,enforcement}]' "$SOURCE_BUNDLE/raw/rulesets.json")" \
     --arg branch "$(jq -r '.head_branch // empty' "$run")" --arg url "$(jq -r '.html_url // empty' "$run")" \
     --arg conclusion "$(jq -r '.conclusion // empty' "$run")" --argjson all_attempts "$attempt_id" \
@@ -963,7 +982,7 @@ collect_family() {
     --arg protection_hash "$(sha256_file "$SOURCE_BUNDLE/raw/branch-protection.json")" \
     --arg rulesets_hash "$(sha256_file "$SOURCE_BUNDLE/raw/rulesets.json")" \
     --arg rate_hash "$(sha256_file "$SOURCE_BUNDLE/raw/rate-limit.json")" --argjson attempt_hashes "$attempt_hashes" \
-    '{schema_version:"sigra.ci-run-metrics/family-v1",repository:$repo,workflow:$workflow,event:"pull_request",branch:$branch,run_id:$run_id,attempt:$attempt,attempts_collected:$all_attempts,source_sha:$sha,revisions:[{source_sha:$sha,run_id:$run_id,attempt:$attempt,associated_pull_requests:[]}],run_url:$url,literal_conclusion:$conclusion,required_contexts:$rules,approved_contexts:$expected,active_rulesets:$rulesets,required_rules_changed:$rules_changed,raw_sha256:($attempt_hashes + {run:$run_hash,jobs:$jobs_hash,check_runs:$checks_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash,rate_limit:$rate_hash})}' >"$SOURCE_BUNDLE/manifest.json"
+    '{schema_version:"sigra.ci-run-metrics/family-v1",repository:$repo,workflow:$workflow,event:"pull_request",branch:$branch,run_id:$run_id,attempt:$attempt,attempts_collected:$all_attempts,source_sha:$sha,revisions:[{source_sha:$sha,run_id:$run_id,attempt:$attempt,associated_pull_requests:[]}],run_url:$url,literal_conclusion:$conclusion,required_contexts:$rules,approved_contexts:$expected,required_context_source:$required_source,required_rules_changed:$rules_changed,required_rules_diagnostics:$rules_diagnostics,active_rulesets:$rulesets,raw_sha256:($attempt_hashes + {run:$run_hash,jobs:$jobs_hash,check_runs:$checks_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash,rate_limit:$rate_hash})}' >"$SOURCE_BUNDLE/manifest.json"
   rm -rf "$tmp"
   api_write_ledger complete
   jq --arg sha256 "$(sha256_file "$SOURCE_BUNDLE/request-ledger.json")" '.request_ledger_sha256=$sha256' "$SOURCE_BUNDLE/manifest.json" >"$SOURCE_BUNDLE/manifest.json.tmp"
@@ -1001,7 +1020,7 @@ run_preflight() {
   gh_version="$(GH_NO_UPDATE_NOTIFIER=1 gh --version 2>/dev/null | head -1 || echo unavailable)"
   pins="$(tr '\n' ';' <.tool-versions 2>/dev/null || echo unavailable)"
   toolchain="$(jq -cn --arg gh_path "$(command -v gh || echo unavailable)" --arg gh "$gh_version" --arg bash "$BASH_VERSION" --arg jq "$(jq --version 2>/dev/null || echo unavailable)" --arg project_pins "$pins" '{gh_path:$gh_path,gh:$gh,bash:$bash,jq:$jq,project_runtime_pins:$project_pins}')"
-  approved='["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)","Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"]'
+  approved="$(approved_required_contexts)"
   missing='[]'
   status=ready
   if ! api_get rate_limit "$tmp/rate-limit.json"; then
@@ -1035,14 +1054,9 @@ run_preflight() {
     fi
   fi
   [[ -n "${ruleset_provenance:-}" ]] || ruleset_provenance='[]'
-  current='[]'
-  if [[ -s "$tmp/effective-rules.json" ]]; then
-    current="$(jq -c '[.[]? | select(.type == "required_status_checks") | .parameters.required_status_checks[]?.context] | unique' "$tmp/effective-rules.json" 2>/dev/null || echo '[]')"
-  fi
-  if [[ "$current" == '[]' && -s "$tmp/branch-protection.json" ]]; then
-    current="$(jq -c '[.contexts[]?] | unique' "$tmp/branch-protection.json" 2>/dev/null || echo '[]')"
-  fi
-  if [[ "$status" == ready && "$(jq -cn --argjson a "$current" --argjson b "$approved" '$a|sort == ($b|sort)')" != true ]]; then
+  required_info="$(derive_required_contexts "$tmp/effective-rules.json" "$tmp/branch-protection.json")"
+  current="$(jq -c '.actual' <<<"$required_info")"
+  if [[ "$status" == ready && "$(jq -r '.changed' <<<"$required_info")" == true ]]; then
     status=blocked
     missing="$(jq -cn --argjson expected "$approved" --argjson actual "$current" '[{reason:"required_rules_changed",expected:$expected,actual:$actual}]')"
   fi
@@ -1331,6 +1345,19 @@ integrity_errors=verify_snapshot_hashes(root)
 if integrity_errors:
     print(json.dumps({'status':'unknown','diagnostics':integrity_errors},sort_keys=True),file=sys.stderr)
     raise SystemExit(1)
+approved_required_contexts=['Library tests','Example unit smoke (ExUnit + ConnTest)','Install smoke (fresh phx.new + sigra.install)','Example HTTP smoke (boot + curl critical routes)','Example Playwright smoke (full lifecycle)']
+try:
+    effective=json.loads((root/'raw'/'effective-rules.json').read_text())
+    protection=json.loads((root/'raw'/'branch-protection.json').read_text())
+    effective_contexts=sorted({x['context'] for rule in effective if rule.get('type')=='required_status_checks' for x in (rule.get('parameters') or {}).get('required_status_checks',[]) if isinstance(x,dict) and isinstance(x.get('context'),str)})
+    branch_contexts=sorted({x for x in protection.get('contexts',[]) if isinstance(x,str)})
+    derived_contexts=effective_contexts or branch_contexts
+except (OSError,ValueError,TypeError,AttributeError):
+    derived_contexts=[]
+snapshot_rules_valid=(derived_contexts==sorted(approved_required_contexts)
+    and manifest.get('required_contexts')==derived_contexts
+    and manifest.get('expected_required_contexts') in (None,approved_required_contexts)
+    and manifest.get('required_rules_changed') in (None,False))
 events = {'pull_request':'pull_request','push_main':'main','schedule':'nightly'}
 stages = ['setup','cache_restore_download','compile','database_startup','app_boot','test_execution','artifact_upload','other']
 wait_rows={k:[] for k in events.values()}; runner_rows={k:[] for k in events.values()}; stage_values={k:{s:[] for s in stages} for k in events.values()}
@@ -1353,6 +1380,8 @@ def result(vals, unit):
     return {'status':'measured','n':len(vals),'unit':unit,'total':round(sum(vals),6),'limitation':'single_observation' if len(vals)==1 else None} if vals else {'status':'unknown','n':0,'unit':unit,'total':None,'reason':'no_complete_source_timestamps'}
 def source_bound_full_pr(run, runid):
     """Read current artifact-evidence bundles and bind timings to their producing jobs."""
+    if not snapshot_rules_valid:
+        return None, ['required_rules_changed_or_unverified']
     family=root/'raw'/'families'/runid
     diagnostics=[]
     try:
@@ -1661,7 +1690,7 @@ initial_wait={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':r
 critical_wait={k:rank(rows) for k,rows in wait_rows.items()}
 job_execution={k:rank([{'identity':r['identity'],'run_id':r['run_id'],'attempt':r['attempt'],'job_id':r['job_id'],'seconds':r['seconds']} for r in rows]) for k,rows in runner_rows.items()}
 out={'ranked_by_wait':{k:rank(v) for k,v in wait_rows.items()},'ranked_by_runner':{k:rank(v) for k,v in runner_rows.items()},'initial_wait':initial_wait,'critical_path_wait':critical_wait,'job_execution':job_execution,'dag_dependency_gaps':{k:{'status':'unknown','n':0,'reason':'dependency_edges_not_exposed_by_saved_job_api'} for k in events.values()},'stage_costs':{k:{s:result(v,'seconds') for s,v in values.items()} for k,values in stage_values.items()},'cache_outcome':cache or {'library_deps':'unknown','example_deps':'unknown','browser_binaries':'unknown'},'runner_image':{k:images.get(k,image_defaults) for k in events.values()},'configured_versions':{k:configured.get(k,configured_defaults) for k in events.values()},'observed_versions':{k:observed.get(k,observed_defaults) for k in events.values()},'test_rows':sorted(test_rows,key=lambda r:r['identity']),'reporter_overhead':overhead,'instrumentation_baseline':instrumentation_baseline,'cohorts':cohorts,'failure_analysis':failure_analysis,'failure_signatures':failure_analysis['failure_signatures'],'diagnostics_status':failure_analysis['diagnostics_status'],'failure_class':failure_bins}
-out['required_result_wait']={'status':'unknown','n':0,'seconds':None,'reason':'no_complete_source_bound_full_pr_required_check_endpoint'}
+out['required_result_wait']={'status':'unknown','n':0,'seconds':None,'reason':('required_rules_changed_or_unverified' if not snapshot_rules_valid else 'no_complete_source_bound_full_pr_required_check_endpoint')}
 out['instrumented_full_pr']={'complete':False,'status':'insufficient_data','diagnostics':['no_source_bound_full_pr_family_has_all_required_contexts_and_both_test_timing_artifacts'],'producing_run_id':None,'source_sha':None,'attempt':None,'job_cost_seconds':None,'step_costs':None,'test_costs':None}
 if required_wait_candidates:
     wait=sorted(required_wait_candidates,key=lambda x:(x['created_at'],int(x['run_id'])))[-1]
@@ -1731,9 +1760,9 @@ baseline_for_compare=baseline.copy(); bundle_hash=baseline_for_compare.pop('sour
 if not isinstance(bundle_hash,str) or not bundle_hash: fail('source_bundle_hash_missing')
 elif not bundle_input.is_file() or hashlib.sha256(bundle_input.read_bytes()).hexdigest()!=bundle_hash: fail('source_bundle_hash_mismatch')
 if baseline_for_compare != replay: fail('baseline_replay_mismatch')
-if sorted(manifest.get('required_contexts') or []) != sorted(expected): fail('required_context_set_changed',manifest.get('required_contexts'))
+if sorted(manifest.get('required_contexts') or []) != sorted(expected) or manifest.get('required_rules_changed') is True or manifest.get('required_context_source') not in (None,'effective_rules','branch_protection'): fail('required_context_set_changed',manifest.get('required_contexts'))
 provenance=manifest.get('required_rule_provenance') or []
-if {x.get('context') for x in provenance} != set(expected) or any(not isinstance(x.get('ruleset_id'),int) for x in provenance): fail('required_context_provenance_incomplete')
+if {x.get('context') for x in provenance} != set(expected) or (manifest.get('required_context_source') in (None,'effective_rules') and any(not isinstance(x.get('ruleset_id'),int) for x in provenance)) or (manifest.get('required_context_source')=='branch_protection' and any(x.get('source')!='branch_protection' for x in provenance)): fail('required_context_provenance_incomplete')
 for event,key in [('pull_request','pull_request'),('main_push','push_main'),('nightly','schedule')]:
     pop=manifest.get('populations',{}).get(key,{})
     if (pop.get('api_total_count') or 0)>0:
