@@ -135,12 +135,15 @@ export function verifyNativeAttempt(attempt, freeze, baseDir) {
     if (slot.project !== attempt.project) fail('attempt project does not match its frozen slot');
     if (slot.sequence !== attempt.sequence) fail('attempt order does not match its frozen slot');
     if (!Number.isFinite(attempt.charged_duration_ms) || attempt.charged_duration_ms < 0 || attempt.charged_duration_ms > slot.max_duration_ms) fail('attempt exceeds or omits its reserved slot time');
+    const expectedSetupMs = slot.sequence === 1 ? freeze.ledger.prelaunch_setup?.duration_ms : 0;
+    if (attempt.prelaunch_setup_ms !== expectedSetupMs) fail('prelaunch dependency setup charge differs from its frozen receipt');
   }
   if (attempt.source_commit !== freeze.source.checkout_head) fail('attempt source commit differs from the freeze');
   const startNs = BigInt(attempt.started_monotonic_ns ?? 0);
   const endNs = BigInt(attempt.ended_monotonic_ns ?? 0);
   if (startNs <= 0n || endNs <= startNs) fail('attempt monotonic start/end timestamps are missing or invalid');
-  else if (Math.ceil(Number(endNs - startNs) / 1e6) !== attempt.charged_duration_ms) fail('attempt charged duration does not match its monotonic timestamps');
+  else if (Math.ceil(Number(endNs - startNs) / 1e6) !== attempt.execution_duration_ms) fail('attempt execution duration does not match its monotonic timestamps');
+  if (attempt.charged_duration_ms !== attempt.execution_duration_ms + (attempt.prelaunch_setup_ms ?? 0)) fail('attempt total charge omits or duplicates prelaunch setup');
   for (const name of ['setup_log', 'app_log', 'test_log', 'drop_log']) {
     const reference = attempt.files?.[name];
     const file = confinedFile(baseDir, reference);
@@ -246,6 +249,14 @@ function observedMixVersion(root, packageName) {
 function createFreeze(output, root = ROOT) {
   if (fs.existsSync(output)) throw new Error(`refusing to overwrite recovery freeze: ${output}`);
   const head = checkCleanCandidate(root);
+  const preflightPath = path.join(root, PHASE_DIR, '253-09-PREFLIGHT-SETUP.json');
+  const preflight = readJson(preflightPath);
+  if (preflight.schema_version !== 'sigra.phase253.registration-preflight/v1' || preflight.status !== 'passed' || preflight.exit_code !== 0 || preflight.playwright_version !== '1.59.1') {
+    throw new Error('measured lockfile Playwright restore is missing or failed');
+  }
+  if (Math.ceil(Number(BigInt(preflight.ended_monotonic_ns) - BigInt(preflight.started_monotonic_ns)) / 1e6) !== preflight.duration_ms) {
+    throw new Error('preflight setup receipt duration does not match its monotonic timestamps');
+  }
   const lock = readJson(path.join(root, 'test/example/priv/playwright/package-lock.json'));
   const playwrightVersion = lock.packages?.['node_modules/@playwright/test']?.version;
   if (playwrightVersion !== '1.59.1' || lock.packages?.['node_modules/playwright']?.version !== '1.59.1') {
@@ -366,6 +377,7 @@ function createFreeze(output, root = ROOT) {
     },
     ledger: {
       slots, max_launches: 19, max_charged_duration_ms: TOTAL_CAP_MS,
+      prelaunch_setup: { path: path.relative(root, preflightPath), sha256: fileHash(preflightPath), duration_ms: preflight.duration_ms, charged_to_slot: 'D19-DIAG-01' },
       d19: { max_launches: 10, max_charged_duration_ms: D19_CAP_MS, diagnostic_and_control_slots: 9, max_minutes_per_slot: 2 },
       d20: { max_launches: 10, max_charged_duration_ms: 40 * 60 * 1000, acceptance_slots: 9, max_minutes_per_slot: 4 },
       retry: { count: 1, requires_independent_diagnosis: true, maximum_charged_minutes: 4, charged_to_occurrence_stage: true },
@@ -457,17 +469,19 @@ async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
   checkFrozenSource(root, freeze);
 
   const project = PROJECTS.find((item) => item.name === slot.project);
+  const prelaunchSetupMs = slot.sequence === 1 ? freeze.ledger.prelaunch_setup.duration_ms : 0;
+  if (prelaunchSetupMs >= slot.max_duration_ms) throw new Error('prelaunch dependency restore consumed the entire first diagnostic slot');
   const baseDir = `${evidenceFile}.raw`;
   const attemptDir = path.join(baseDir, slot.id);
   fs.mkdirSync(attemptDir, { recursive: false });
   const startNs = process.hrtime.bigint().toString();
   const startMs = Number(process.hrtime.bigint()) / 1e6;
-  const deadline = startMs + slot.max_duration_ms;
+  const deadline = startMs + slot.max_duration_ms - prelaunchSetupMs;
   const stamp = Date.now().toString(36);
   const databaseName = `sigra_253_recovery_${project.name.replaceAll('-', '_')}_${stamp}_${process.pid}`.toLowerCase();
   const attempt = {
     slot_id: slot.id, sequence: slot.sequence, stage: slot.stage, project: project.name,
-    source_commit: freeze.source.checkout_head, started_monotonic_ns: startNs,
+    source_commit: freeze.source.checkout_head, started_monotonic_ns: startNs, prelaunch_setup_ms: prelaunchSetupMs,
     server: { port: project.port, http_status: null },
     database: { name: databaseName, setup_exit_code: null, drop_exit_code: null },
     browser: { launched: false, exit_code: null },
@@ -547,7 +561,8 @@ async function executeOne(freeze, freezeHash, evidence, evidenceFile, root) {
   attempt.files.playwright_report = reportPath ? referenceFor(baseDir, reportPath) : null;
   attempt.files.traces = traceFiles.map((file) => referenceFor(baseDir, file)).filter(Boolean);
   attempt.ended_monotonic_ns = process.hrtime.bigint().toString();
-  attempt.charged_duration_ms = Math.ceil((Number(attempt.ended_monotonic_ns) - Number(attempt.started_monotonic_ns)) / 1e6);
+  attempt.execution_duration_ms = Math.ceil((Number(attempt.ended_monotonic_ns) - Number(attempt.started_monotonic_ns)) / 1e6);
+  attempt.charged_duration_ms = attempt.execution_duration_ms + prelaunchSetupMs;
   attempt.terminal_diagnostic = terminalError;
   evidence.attempts.push(attempt);
   evidence.limits.browser_launches += attempt.browser.launched ? 1 : 0;
@@ -627,9 +642,11 @@ function verifyDiagnosticFile(evidenceFile, root = ROOT) {
     const oldFreeze = path.join(root, PHASE_DIR, '253-REPRO-FREEZE.json');
     const oldEvidence = path.join(root, PHASE_DIR, '253-REGISTRATION-EVIDENCE.json');
     const setupReceipt = path.join(root, freeze.historical.startup_receipt_path);
+    const preflightReceipt = path.resolve(root, freeze.ledger.prelaunch_setup.path);
     if (fileHash(oldFreeze) !== freeze.historical.original_freeze_sha256) throw new Error('original registration freeze bytes changed');
     if (fileHash(oldEvidence) !== freeze.historical.original_evidence_sha256) throw new Error('original registration evidence bytes changed');
     if (!freeze.historical.startup_receipt_sha256 || fileHash(setupReceipt) !== freeze.historical.startup_receipt_sha256) throw new Error('previous setup receipt bytes changed or were not frozen');
+    if (fileHash(preflightReceipt) !== freeze.ledger.prelaunch_setup.sha256) throw new Error('prelaunch setup receipt bytes changed');
   } catch (error) {
     const result = { ok: false, errors: [error.message] };
     console.error(`native diagnostic receipt rejected: ${error.message}`);

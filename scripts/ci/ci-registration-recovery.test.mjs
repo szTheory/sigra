@@ -52,7 +52,7 @@ function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 
     historical: { original_evidence_sha256: 'historical-evidence-hash', preceding_order: 'unknown' },
     ledger: {
       max_launches: 19, max_charged_duration_ms: 58 * 60 * 1000,
-      d19: { max_charged_duration_ms: 20 * 60 * 1000 },
+      d19: { max_charged_duration_ms: 20 * 60 * 1000 }, prelaunch_setup: { duration_ms: 0 },
       slots: [{ id: 'D19-DIAG-01', sequence: 1, kind: slotKind, stage: 'D19', project, max_duration_ms: 120_000 }]
     }
   };
@@ -71,7 +71,8 @@ function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 
   };
   const attempt = {
     slot_id: 'D19-DIAG-01', sequence: 1, stage: 'D19', project, source_commit: 'candidate-abc',
-    started_monotonic_ns: '1000000000', ended_monotonic_ns: '16000000000', charged_duration_ms: 15_000, server: { http_status: 200 },
+    started_monotonic_ns: '1000000000', ended_monotonic_ns: '16000000000', execution_duration_ms: 15_000,
+    prelaunch_setup_ms: 0, charged_duration_ms: 15_000, server: { http_status: 200 },
     database: { name: 'sigra_253_recovery_admin_eval_fixture', drop_exit_code: 0 },
     browser: { launched: true, exit_code: outcome === 'passed' ? 0 : 1 },
     observed_outcome: outcome, files, toolchain: {
