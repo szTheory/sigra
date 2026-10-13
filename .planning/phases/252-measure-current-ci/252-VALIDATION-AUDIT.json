@@ -2,7 +2,7 @@
   "schema_version": "sigra.phase-validation-audit/v1",
   "phase": 252,
   "name": "measure-current-ci",
-  "audited_at_utc": "2026-10-12T22:00:00Z",
+  "audited_at_utc": "2026-10-13T00:31:51.644825Z",
   "status": "validated",
   "nyquist_compliant": true,
   "capture": {
@@ -19,6 +19,21 @@
       "commit": "42040737b",
       "sha256": "bb21efc1ef9add212893343d59ec48da2d6703740e9108f995b918a68097efcb",
       "bytes": 13184
+    },
+    "pre_refresh_revision": {
+      "commit": "18b6f23a41bb4232a9a1e2f58fb72aff1e061771",
+      "validation_path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
+      "validation_sha256": "bb21efc1ef9add212893343d59ec48da2d6703740e9108f995b918a68097efcb",
+      "validation_bytes": 13184,
+      "audit_path": ".planning/phases/252-measure-current-ci/252-VALIDATION-AUDIT.json",
+      "audit_sha256": "e4928a2e2bf946965d8cc6210b9be20d4e105601172d9052a55ad92e44756c00",
+      "audit_bytes": 10506,
+      "read_back_byte_exact_from_head": true
+    },
+    "validation_refresh_revision": {
+      "pending_commit": true,
+      "sha256": "3f6cd5ff4ff2ed6dc377795a1cacb4c459a75bf526388a90f153f731e536a1d6",
+      "bytes": 15487
     }
   },
   "summary": {
@@ -136,7 +151,7 @@
       "resolution_ref": "recheck"
     }
   ],
-  "next": "$gsd-verify-work 252 (phase verification only; requirements remain pending)",
+  "next": "Root workflow continues code review and goal verification within execute phase 252; requirements remain pending.",
   "recheck": {
     "date": "2026-10-12",
     "prior_audit_revision_preserved": {
@@ -250,5 +265,77 @@
     "requirements_status": "pending",
     "phase_verification_status": "pending",
     "next": "$gsd-verify-work 252"
+  },
+  "final_security_refresh": {
+    "source_head": "05d4bf293d5e0277ad0c1b1e5acc164609033fc1",
+    "scope_file_count": 21,
+    "security_audit": {
+      "verdict": "SECURED",
+      "closed": 20,
+      "total": 20,
+      "open": 0,
+      "blocking_open": 0,
+      "accepted_risks": 0,
+      "unregistered_flags": 0
+    },
+    "tests": [
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci/ci-metrics-security.test.py",
+        "result": "14 passed"
+      },
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci/exunit_timing_contract_test.py",
+        "result": "8 passed"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "result": "44 passed, 0 failed; includes embedded comparison contracts"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh",
+        "result": "passed"
+      },
+      {
+        "command": "bash scripts/ci/ci-measure-report.test.sh",
+        "result": "passed"
+      },
+      {
+        "command": "node --test scripts/ci/ci-run-metrics-replay.test.mjs scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-playwright-report.test.mjs",
+        "result": "13 passed, 0 failed"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+        "result": "status ready, no diagnostics"
+      }
+    ],
+    "artifacts": {
+      "source_archive_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "baseline_sha256": "f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843",
+      "report_sha256": "7d0f7fff31b0a266ecc0c76853f8e6a98a193860c97ddea866bca1c3f6018237",
+      "comparison_contract_sha256": "8d3d0d991eff2955b9d8e29bd845df1d848150352ef808984350b801ed018d6c"
+    },
+    "offline_replays": {
+      "count": 2,
+      "byte_identical": true,
+      "sha256": "0e047cb23f8c33e4aa41cb03da7fc6043f46047ed49e26842f80d58b4501643a"
+    },
+    "retained_hosted_measurement": {
+      "run_id": 38317383419,
+      "attempt": 1,
+      "required_contexts_passed": 5,
+      "main_rows": 2683,
+      "main_duration_us": 18811928,
+      "threadline_guard_rows": 65,
+      "threadline_guard_duration_us": 129529,
+      "source_bound": true
+    },
+    "not_repeated": [
+      "full MIX_ENV=test mix ci",
+      "ci-exunit-timing process harness"
+    ],
+    "no_github_polling_or_ci_dispatch": true,
+    "requirements_status": "pending",
+    "phase_goal_verification_status": "pending",
+    "next": "Root workflow: code review and goal verification within execute phase 252; do not route to phase 253."
   }
 }
