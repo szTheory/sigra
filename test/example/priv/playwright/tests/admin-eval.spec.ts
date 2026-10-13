@@ -21,11 +21,11 @@
  */
 
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, type Page, type Request, type Response, type TestInfo } from '@playwright/test';
+import { test, expect, type Browser, type Page, type Request, type Response, type TestInfo } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { TEST_PASSWORD } from '../helpers/fixtures';
 import { renderSha256 } from '../lib/eval/canonicalize.ts';
 import {
@@ -139,9 +139,14 @@ function writeBundleLocal(opts: WriteBundleOpts): string {
 
 // ── Reuse waitForLiveViewReady VERBATIM from admin-design.spec.ts (D-03) ──────
 
-async function waitForLiveViewReady(page: Page) {
-  await page.waitForSelector('[data-phx-session].phx-connected', {
+async function waitForLiveViewReady(
+  page: Page,
+  selector = '[data-phx-session].phx-connected',
+  timeout?: number,
+) {
+  await page.waitForSelector(selector, {
     state: 'attached',
+    ...(timeout === undefined ? {} : { timeout }),
   });
   await page.evaluate(async () => { await (document as any).fonts.ready; });
   const ok = await page.evaluate(() => (document as any).fonts.check('16px "Space Grotesk"'));
@@ -150,12 +155,17 @@ async function waitForLiveViewReady(page: Page) {
 
 // ── Admin registration (platform-admin+…@example.test prefix) ─────────────────
 
-async function registerUser(page: Page, email: string, password: string) {
+async function registerUser(
+  page: Page,
+  email: string,
+  password: string,
+  readiness: { selector?: string; timeout?: number } = {},
+) {
   // D-09: waitUntil:'domcontentloaded' on first-nav goto prevents the ~16min hung-on-load
   // flake (16 first-nav failures observed in 216-09). waitForLiveViewReady gates on
   // phx-connected + Space Grotesk ready after each goto.
   await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
-  await waitForLiveViewReady(page);
+  await waitForLiveViewReady(page, readiness.selector, readiness.timeout);
   await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   let registrationRequest: { method: string; path: string } | null = null;
@@ -225,6 +235,167 @@ async function registerUser(page: Page, email: string, password: string) {
   // Check the short-lived success flash before waiting on web fonts; LiveView
   // readiness is still required before the caller navigates into the admin UI.
   await waitForLiveViewReady(page);
+}
+
+function registrationControlAccount(testInfo: TestInfo): string {
+  const project = testInfo.project.name.replace(/^admin-eval-?/, '').replace(/[^a-z0-9]+/gi, '') || 'desktop';
+  return `platform-admin+sigra-253-control-${project.toLowerCase()}@example.test`;
+}
+
+async function withRegistrationControlContext(
+  browser: Browser,
+  testInfo: TestInfo,
+  action: (page: Page) => Promise<void>,
+) {
+  const context = await browser.newContext();
+  const runId = process.env.SIGRA_CONTROL_RUN_ID;
+  testInfo.annotations.push({
+    type: 'sigra-registration-control-context',
+    description: `${runId}:${randomUUID()}`,
+  });
+  try {
+    await action(await context.newPage());
+  } finally {
+    await context.close();
+  }
+}
+
+function annotateRegistrationControl(testInfo: TestInfo, result: Record<string, unknown>) {
+  testInfo.annotations.push({
+    type: 'sigra-registration-control-result',
+    description: JSON.stringify(result),
+  });
+}
+
+const CONTROL_STAGE = process.env.SIGRA_REGISTRATION_CONTROL_STAGE;
+
+// Opt-in controls are outside the ordinary suite's registration beforeEach. The native
+// runner sets the stage explicitly; with no flag, ordinary selection and test bodies stay
+// unchanged.
+if (CONTROL_STAGE === 'first') {
+  test('registration waits for explicitly released LiveView readiness', async ({ browser }, testInfo) => {
+    await withRegistrationControlContext(browser, testInfo, async (page) => {
+      let release!: () => void;
+      let observed!: () => void;
+      const releaseSignal = new Promise<void>((resolve) => { release = resolve; });
+      const websocketObserved = new Promise<void>((resolve) => { observed = resolve; });
+      let postsBeforeRelease = 0;
+      let registrationPosts = 0;
+      page.on('request', (request) => {
+        const url = new URL(request.url());
+        if (request.method() === 'POST' && url.pathname === '/users/log_in') {
+          registrationPosts += 1;
+          if (!releaseState.released) postsBeforeRelease += 1;
+        }
+      });
+      const releaseState = { released: false };
+      await page.routeWebSocket(/\/live\/websocket(?:\?|$)/, async (socket) => {
+        observed();
+        await releaseSignal;
+        releaseState.released = true;
+        socket.connectToServer();
+      });
+      await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
+      await websocketObserved;
+      await page.getByRole('textbox', { name: 'Email', exact: true }).fill(registrationControlAccount(testInfo));
+      await page.getByLabel('Password', { exact: true }).fill(TEST_PASSWORD);
+      await page.getByRole('button', { name: /Create an account/ }).click();
+      expect(registrationPosts, 'no server registration POST may pass the held LiveView signal').toBe(0);
+      release();
+      await waitForLiveViewReady(page);
+      await page.getByRole('button', { name: /Create an account/ }).click();
+      await expect(page.getByRole('alert')).toContainText('Account created successfully!');
+      await expect(page).not.toHaveURL(/\/users\/register(?:\?.*)?$/);
+      await waitForLiveViewReady(page);
+      annotateRegistrationControl(testInfo, {
+        websocket_route_observed: true,
+        readiness_released_by_signal: true,
+        posts_before_release: postsBeforeRelease,
+        server_registration_posts: registrationPosts,
+      });
+    });
+  });
+
+  test('registration stops when LiveView readiness is never released', async ({ browser }, testInfo) => {
+    await withRegistrationControlContext(browser, testInfo, async (page) => {
+      let routeObserved!: () => void;
+      const websocketObserved = new Promise<void>((resolve) => { routeObserved = resolve; });
+      await page.routeWebSocket(/\/live\/websocket(?:\?|$)/, () => { routeObserved(); });
+      await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
+      await websocketObserved;
+      // The websocket route deliberately remains unconnected. This real LiveView signal
+      // cannot become phx-connected, so the original readiness assertion must fail.
+      await waitForLiveViewReady(page, '[data-phx-session].phx-connected', 1_500);
+    });
+  });
+
+  test('registration fails when the readiness wait is deliberately broken', async ({ browser }, testInfo) => {
+    await withRegistrationControlContext(browser, testInfo, async (page) => {
+      await registerUser(page, registrationControlAccount(testInfo), TEST_PASSWORD, {
+        selector: '[data-phx-session].phx-connected[data-sigra-never-connected]',
+        timeout: 1_500,
+      });
+    });
+  });
+
+  test('registration detects a deliberate same-account collision', async ({ browser }, testInfo) => {
+    const email = registrationControlAccount(testInfo);
+    const emailDigest = createHash('sha256').update(email).digest('hex');
+    await withRegistrationControlContext(browser, testInfo, async (firstPage) => {
+      await registerUser(firstPage, email, TEST_PASSWORD);
+    });
+    await withRegistrationControlContext(browser, testInfo, async (page) => {
+      await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
+      await waitForLiveViewReady(page);
+      await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);
+      await page.getByLabel('Password', { exact: true }).fill(TEST_PASSWORD);
+      await page.getByRole('button', { name: /Create an account/ }).click();
+      await expect(page.getByText('If this email is available, your account has been created. Please check your email.')).toBeVisible();
+      annotateRegistrationControl(testInfo, {
+        collision_email_sha256: emailDigest,
+        first_registration_succeeded: true,
+        duplicate_response_confirmed: true,
+      });
+    });
+  });
+
+  test('registration retains the first forced assertion failure trace', async ({ browser }, testInfo) => {
+    await withRegistrationControlContext(browser, testInfo, async (page) => {
+      const requestPaths: string[] = [];
+      page.on('request', (request) => {
+        const url = new URL(request.url());
+        if (request.method() === 'POST' && url.pathname === '/users/log_in') requestPaths.push(url.pathname);
+      });
+      await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
+      await waitForLiveViewReady(page);
+      await page.getByRole('textbox', { name: 'Email', exact: true }).fill(registrationControlAccount(testInfo));
+      await page.getByRole('button', { name: /Create an account/ }).click();
+      await page.locator('#registration_form').evaluate((form: HTMLFormElement) => form.submit());
+      await page.waitForURL((url) => url.pathname === '/users/log_in', { waitUntil: 'domcontentloaded' });
+      annotateRegistrationControl(testInfo, { navigation_started: true, submit_post_path: requestPaths[0] ?? null });
+      await expect(page).toHaveURL(/\/sigra-control-forced-assertion-must-fail$/);
+    });
+  });
+}
+
+if (CONTROL_STAGE === 'second') {
+  test('registration starts from a fresh database and context', async ({ browser }, testInfo) => {
+    await withRegistrationControlContext(browser, testInfo, async (page) => {
+      const email = registrationControlAccount(testInfo);
+      await registerUser(page, email, TEST_PASSWORD);
+      annotateRegistrationControl(testInfo, {
+        prior_collision_account_email_sha256: createHash('sha256').update(email).digest('hex'),
+        fresh_database_account_created: true,
+      });
+    });
+  });
+
+  test('registration discards trace after a passing control', async ({ browser }, testInfo) => {
+    await withRegistrationControlContext(browser, testInfo, async (page) => {
+      await registerUser(page, adminEvalEmail(testInfo), TEST_PASSWORD);
+      annotateRegistrationControl(testInfo, { passing_registration: true, trace_expected: false });
+    });
+  });
 }
 
 let registrationSequence = 0;
