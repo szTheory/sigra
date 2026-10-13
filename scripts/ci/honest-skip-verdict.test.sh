@@ -58,10 +58,35 @@ REAL_WORKFLOW="$(cd "${SCRIPT_DIR}/../.." && pwd)/.github/workflows/ci.yml"
 
 unit_contract() {
 python3 - "$SCRIPT" "$REAL_WORKFLOW" <<'PY'
-import json, pathlib, subprocess, sys, unittest
+import json, pathlib, subprocess, sys, tempfile, unittest
 script, workflow = sys.argv[1:]
 lanes = 'install_golden_contract library_tests library_tests_dep_off example_unit_smoke install_smoke upgrade_smoke example_unit_smoke example_http_smoke example_playwright_smoke generated_admin_playwright_smoke fast_checks'.split()
 class UnitOwner(unittest.TestCase):
+    def invoke(self, unit, path=workflow):
+        args = ['bash', script, '--workflow', path, '--event', 'pull_request', '--docs-only', 'true', '--format', 'json']
+        for lane in lanes: args += ['--lane', lane+'='+ (unit if lane == 'example_unit_smoke' else 'success')]
+        return subprocess.run(args, text=True, capture_output=True)
+
+    def test_unit_body_omission_cannot_produce_green(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory)/'ci.yml'
+            source = pathlib.Path(workflow).read_text()
+            line = '            --lane example_unit_smoke="${EXAMPLE_UNIT_SMOKE}" \\\n'
+            self.assertIn(line, source)
+            path.write_text(source.replace(line, ''))
+            result = self.invoke('success', str(path))
+            self.assertNotEqual(result.returncode, 0, 'a dropped unit-result argument must fail ownership parity')
+            self.assertIn('example_unit_smoke', result.stderr)
+
+    def test_unit_negative_outcomes_are_preserved(self):
+        for outcome in ('failure', 'cancelled', 'skipped', ''):
+            with self.subTest(outcome=outcome):
+                result = self.invoke(outcome)
+                self.assertNotEqual(result.returncode, 0)
+                row = next(r for r in json.loads(result.stdout)['lanes'] if r['id']=='example_unit_smoke')
+                self.assertEqual(row['result'], outcome)
+                self.assertEqual(row['verdict'], 'FAIL')
+
     def test_unit_result_is_owned_by_actual_verdict(self):
         args = ['bash', script, '--workflow', workflow, '--event', 'pull_request', '--docs-only', 'false', '--format', 'json']
         for lane in lanes: args += ['--lane', lane+'=success']
