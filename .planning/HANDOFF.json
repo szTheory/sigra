@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-13T14:04:38.077234+00:00",
+  "timestamp": "2026-10-13T15:51:34.021349+00:00",
   "status": "Phase 253 recovery plans ready; implementation partial and phase verification not started.",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
@@ -977,7 +977,7 @@
       }
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PLANNING-RECORD.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-PROGRESS-01.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -1150,5 +1150,62 @@
     "phase_verification_status": "not_started",
     "browser_invocations": 0,
     "github_requests": 0
+  },
+  "phase253_recovery_execution": {
+    "status": "in_progress",
+    "updated_at": "2026-10-13T15:51:34.021349+00:00",
+    "current_plan": "253-11",
+    "plans": {
+      "253-09": "halted",
+      "253-10": "blocked_by_253-09",
+      "253-11": "starting",
+      "253-12": "awaits_253-11",
+      "253-13": "blocked_by_253-09",
+      "253-14": "blocked_by_253-09"
+    },
+    "registration": {
+      "browser_launches": 0,
+      "charged_ms": 3768,
+      "spent_slot": "D19-DIAG-01",
+      "blocker": "Runtime endpoint port 25311 differs from compiled port 4011; setup and drop exited1",
+      "native_evidence": "rejected: failed drop and stale hashes after log redaction",
+      "metadata_preservation": "a6f7650c42a25c069efbad6662506e82259da2cc",
+      "metadata_preservation_blocker_resolved": true
+    },
+    "requirements_accepted": false,
+    "phase_verification": "not_started",
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "evidence": [
+      "253-09-SUMMARY.md",
+      "253-09-TERMINAL-DIAGNOSTIC.json",
+      "253-09-ROOT-RECONCILIATION.json",
+      "253-09-METADATA-PRESERVATION-CHECK.json"
+    ],
+    "prior_shared_bytes": [
+      {
+        "path": ".planning/STATE.md",
+        "ref": "259029731f590b3d8abc441aef36afb13f9af176",
+        "sha256": "baa07fef89053e61da3e1d27a07689a36cf1c9bcc300d798392de7ff0a3b6296",
+        "exact_readback": true
+      },
+      {
+        "path": ".planning/state.json",
+        "ref": "259029731f590b3d8abc441aef36afb13f9af176",
+        "sha256": "522b5914e753fc7202bb36115778960147798e40ada697a926c4edbc0092ea2b",
+        "exact_readback": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "ref": "259029731f590b3d8abc441aef36afb13f9af176",
+        "sha256": "7c521896340cc59362c4845e89ef7be79ee68059f6afb4d286e0ea303fda3384",
+        "exact_readback": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+        "ref": "259029731f590b3d8abc441aef36afb13f9af176",
+        "sha256": "9513c8747db3cf41936c802107b8aa3c62caa37b57998660aeec5bcb99914f25",
+        "exact_readback": true
+      }
+    ]
   }
 }

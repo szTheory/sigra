@@ -5,7 +5,7 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
 status: "executing_recovery"
-stopped_at: "Recovery execution started; Plan 09 first, Plan 11 next"
+stopped_at: "Plan 09 halted before browser; independent Plan 11 executing"
 last_updated: "2026-10-13T14:04:38.077234+00:00"
 last_activity: "2026-10-13"
 last_activity_desc: "Six recovery plans passed independent review and planning checks"
@@ -33,8 +33,8 @@ phase253_wave_count: 4
 phase253_task_count: 30
 phase253_implementation_status: partial
 phase253_completed_plans: 5
-phase253_halted_plans: [253-02, 253-07]
-phase253_blocked_plans: [253-08]
+phase253_halted_plans: [253-02, 253-07, 253-09]
+phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14]
 
 phase253_recovery_plan_count: 6
 
@@ -54,7 +54,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 Phase: 253 (Fix Flaky CI and Preserve Required Checks) — INCOMPLETE
 Plans: 5 of 14 complete; six recovery plans ready in four waves; original 02/07 halted and 08 blocked
-Status: Recovery execution in progress; Plan 09 first, Plan 11 next
+Status: Plan 09 halted before browser; independent Plan 11 executing
 Last activity: 2026-10-13 — Six plans, thirteen tasks checked; no browser or hosted work launched
 Progress: 11/20 planned milestone plans complete (55%); Phase 253 verification not started
 
@@ -144,3 +144,7 @@ Two current records were acknowledged through the audit writer; 52 earlier ackno
 - Required-check changes produce unknown waits; original failures and actual physical job cost remain visible.
 - The later comparison uses 20 matched pairs in a predeclared 48-hour window, without replacement or window extension.
 - Reporter overhead and queue detail remain unknown when not measured; historical release gaps do not block current CI work.
+
+## Recovery execution update
+
+Plan 09 stopped in setup: runtime port 25311 differs from compiled port 4011. Setup/drop both exited1; zero browsers launched; 3,768ms charged and D19-DIAG-01 spent. Native verification rejects failed cleanup and log digests made stale by key redaction. The exact metadata ledger contains no key values and is now durably committed and read back. GSD correctly blocks 10/13/14 behind halted09. Plan11 remains independent and is starting; Plan12 awaits11. Both requirements remain open and phase verification is not started. No GitHub requests occurred in this recovery execution.
