@@ -1,6 +1,6 @@
 {
   "schema_version": "sigra.phase253.registration-replan-evidence/v1",
-  "status": "running",
+  "status": "halted",
   "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-FREEZE-REVISION-03.json",
   "freeze_sha256": "0a418e66508a60e75b3db74a35a563b9c5313032cfc7e3a889f041e76628ca6e",
   "source": {
@@ -134,6 +134,93 @@
       "charged_duration_ms": 46803,
       "build_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-EVIDENCE-REVISION-03.json.raw/R-INFRA-RETRY-DESKTOP/attempt-01/mix-build",
       "terminal_diagnostic": null
+    },
+    {
+      "slot_id": "R-DIAG-MOBILE",
+      "sequence": 2,
+      "stage": "D19",
+      "project": "admin-eval-mobile",
+      "argv": [
+        "--project=admin-eval-mobile",
+        "--grep=render bundle: board-mg-9/populated",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure"
+      ],
+      "source_commit": "c8704d40653bf32a6070f584d78dcdc9952b132a",
+      "source_blobs": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "45e7def930556285f160f80ac09c390d91085691",
+        "scripts/ci/ci-registration-recovery.test.mjs": "2dbc1825b0c8b4f32201661d3a4e0af8734282ba",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "6540493e78121f134867445dffc7010afcd85815",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      },
+      "started_monotonic_ns": "259451469798625",
+      "database": {
+        "name": "sigra_253_recovery_admin_eval_mobile_mv72dr71_23519",
+        "setup_exit_code": 0,
+        "drop_exit_code": 0
+      },
+      "server": {
+        "port": 25312,
+        "http_status": 200,
+        "app_pid": 27347
+      },
+      "browser": {
+        "launched": true,
+        "exit_code": 0
+      },
+      "observed_outcome": "passed",
+      "registration": {
+        "server_post_confirmed": true,
+        "success_flash_asserted": true
+      },
+      "files": {
+        "playwright_report": {
+          "path": "R-DIAG-MOBILE/attempt-01/playwright-report.json",
+          "sha256": "fa5a4bb8cef942e7b2e7b036ed95b46f68d2ffcb59baf75029d0f3eb6998766d",
+          "bytes": 14515
+        },
+        "traces": [],
+        "setup_log": {
+          "path": "R-DIAG-MOBILE/attempt-01/setup-log.log",
+          "sha256": "3d0da2f6e7cf7fb9896506948de2ef48ef87ad9a30467a358357da660bbbd9f4",
+          "bytes": 135739
+        },
+        "app_log": {
+          "path": "R-DIAG-MOBILE/attempt-01/app-log.log",
+          "sha256": "4938d2c89f0104f3d45eac3c2a73828b2f23de8b135f8172a3c0fe28cef3ba63",
+          "bytes": 21231
+        },
+        "test_log": {
+          "path": "R-DIAG-MOBILE/attempt-01/test-log.log",
+          "sha256": "9a94d6899dc46c4e38b66c3511433e6bbb28a35dd95522ddbadccddab07afa36",
+          "bytes": 848
+        },
+        "drop_log": {
+          "path": "R-DIAG-MOBILE/attempt-01/drop-log.log",
+          "sha256": "efc486d18e2b9db1e5b8ba803c6605e61451666139cbb8ff244fc398f9b3ad3e",
+          "bytes": 36
+        }
+      },
+      "toolchain": {
+        "node": "v26.10.0",
+        "playwright": "1.59.1",
+        "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]",
+        "ecto_sql": "3.13.5",
+        "phoenix_live_view": "1.1.28"
+      },
+      "build_directory_removed": true,
+      "ended_monotonic_ns": "259492461991041",
+      "execution_duration_ms": 40993,
+      "charged_duration_ms": 40993,
+      "build_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-MOBILE-CONTINUATION-EVIDENCE.json.raw/R-DIAG-MOBILE/attempt-01/mix-build",
+      "terminal_diagnostic": null
     }
   ],
   "toolchain": {
@@ -146,15 +233,16 @@
   "limits": {
     "historical_charge_ms": 33884,
     "preparation_charge_ms": 0,
-    "charged_duration_ms": 80687,
-    "browser_launches": 1,
+    "charged_duration_ms": 121680,
+    "browser_launches": 2,
     "used_slots": [
-      "R-INFRA-RETRY-DESKTOP"
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE"
     ],
     "max_charged_duration_ms": 3480000,
     "max_new_browser_launches": 18
   },
-  "stop_reason": null,
+  "stop_reason": "native revision receipt verification failed: evidence does not match the frozen revision",
   "continuation_parent": {
     "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-EVIDENCE-REVISION-03.json",
     "sha256": "9760b94ac3068919c1a2a1e31e69736a101eefacdb5ffb6928eb278a9e3cbdee",
