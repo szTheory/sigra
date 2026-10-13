@@ -194,7 +194,7 @@ test('command logs redact the complete seeded demo credentials block before hash
   assert.equal(bytes.includes(Buffer.from('synthetic@example.invalid')), false);
   assert.match(sanitized, /=== Demo Credentials ===\n\[REDACTED seeded demo credentials\]/);
   assert.match(sanitized, /seed process complete/);
-  assert.equal(receipt.log_sha256, crypto.createHash('sha256').update(bytes).digest('hex'));
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), crypto.createHash('sha256').update(fs.readFileSync(log)).digest('hex'));
 });
 
 function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {

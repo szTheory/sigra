@@ -761,6 +761,44 @@ async function stopApp(child) {
   }
 }
 
+function sanitizeCommandLog(log) {
+  const original = fs.readFileSync(log, 'utf8');
+  let redactedSecretFields = 0;
+  const withoutSigningKeys = original.replace(/((?:"?secret_key_base"?|:secret_key_base)\s*(?::|=>)\s*")((?:\\.|[^"\\])*)(")/g, (_match, prefix, value, suffix) => {
+    if (value === '[REDACTED]') return `${prefix}${value}${suffix}`;
+    redactedSecretFields += 1;
+    return `${prefix}[REDACTED]${suffix}`;
+  });
+
+  let redactedCredentialBlocks = 0;
+  const lines = withoutSigningKeys.split(/(?<=\n)/);
+  const sanitizedLines = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!/^\s*=== Demo Credentials ===\s*(?:\r?\n)?$/.test(line)) {
+      sanitizedLines.push(line);
+      continue;
+    }
+
+    sanitizedLines.push(line);
+    const next = lines[index + 1] ?? '';
+    if (next.trim() === '[REDACTED seeded demo credentials]') {
+      sanitizedLines.push(next);
+      index += 1;
+      continue;
+    }
+
+    redactedCredentialBlocks += 1;
+    let cursor = index + 1;
+    while (cursor < lines.length && lines[cursor].trim() !== '') cursor += 1;
+    sanitizedLines.push('[REDACTED seeded demo credentials]\n');
+    index = cursor - 1;
+  }
+  const sanitized = sanitizedLines.join('');
+  if (sanitized !== original) fs.writeFileSync(log, sanitized);
+  return { redacted_secret_fields: redactedSecretFields, redacted_credential_blocks: redactedCredentialBlocks };
+}
+
 export function runLogged(program, args, cwd, env, log, timeout) {
   const fd = fs.openSync(log, 'w');
   let result;
@@ -772,18 +810,10 @@ export function runLogged(program, args, cwd, env, log, timeout) {
   } finally {
     fs.closeSync(fd);
   }
-  // Scrub Mix's development configuration output before a receipt hashes it.
-  // The persisted log is the input to every later digest check.
-  let redactedSecretFields = 0;
-  const original = fs.readFileSync(log, 'utf8');
-  const sanitized = original.replace(/((?:"?secret_key_base"?|:secret_key_base)\s*(?::|=>)\s*")((?:\\.|[^"\\])*)(")/g, (_match, prefix, value, suffix) => {
-    if (value === '[REDACTED]') return `${prefix}${value}${suffix}`;
-    redactedSecretFields += 1;
-    return `${prefix}[REDACTED]${suffix}`;
-  });
-  if (sanitized !== original) fs.writeFileSync(log, sanitized);
-  if (thrownError) return { exit_code: null, signal: null, error: thrownError.message, redacted_secret_fields: redactedSecretFields };
-  return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, redacted_secret_fields: redactedSecretFields };
+  // Sanitize before any receipt computes a digest over this persisted log.
+  const redactions = sanitizeCommandLog(log);
+  if (thrownError) return { exit_code: null, signal: null, error: thrownError.message, ...redactions };
+  return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, ...redactions };
 }
 
 function revisionFreezeDigest(freeze) {
@@ -920,7 +950,7 @@ function prepareRevision(freezeFile, evidenceFile, root = ROOT) {
     const before = process.hrtime.bigint();
     const result = runLogged(item.command, item.args, item.cwd, item.env, log, remaining);
     const duration = Math.ceil(Number(process.hrtime.bigint() - before) / 1e6);
-    const receipt = { name: item.name, argv: [item.command, ...item.args], exit_code: result.exit_code, duration_ms: duration, log: receiptFile(`${evidenceFile}.raw`, item.name, log), redacted_secret_fields: result.redacted_secret_fields };
+    const receipt = { name: item.name, argv: [item.command, ...item.args], exit_code: result.exit_code, duration_ms: duration, log: receiptFile(`${evidenceFile}.raw`, item.name, log), redacted_secret_fields: result.redacted_secret_fields, redacted_credential_blocks: result.redacted_credential_blocks };
     evidence.preparation_receipts.push(receipt);
     evidence.limits.preparation_charge_ms += duration;
     evidence.limits.charged_duration_ms += duration;
@@ -1085,7 +1115,7 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
     source_commit: freeze.source.checkout_head, source_blobs: freeze.source.blobs,
     started_monotonic_ns: started.toString(), database: { name: db, setup_exit_code: null, drop_exit_code: null },
     server: { port: project.port, http_status: null }, browser: { launched: false, exit_code: null },
-    observed_outcome: 'setup_failed', registration: { server_post_confirmed: false, success_flash_asserted: false }, files: {}, toolchain: evidence.toolchain
+    observed_outcome: 'setup_failed', registration: { server_post_confirmed: false, success_flash_asserted: false }, files: {}, log_redactions: {}, toolchain: evidence.toolchain
   };
   const paths = Object.fromEntries(['setup_log', 'app_log', 'test_log', 'drop_log'].map((name) => [name, path.join(attemptDir, `${name.replaceAll('_', '-')}.log`)]));
   const reportPath = path.join(attemptDir, 'playwright-report.json');
@@ -1094,6 +1124,7 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
   let app = null; let terminalError = null;
   try {
     const setup = runLogged('mix', ['ecto.setup'], exampleDir, env, paths.setup_log, Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
+    attempt.log_redactions.setup_log = setup;
     attempt.database.setup_exit_code = setup.exit_code;
     if (setup.exit_code !== 0) throw new Error(`database setup failed with exit ${setup.exit_code ?? 'null'}${setup.error ? `: ${setup.error}` : ''}`);
     const fd = fs.openSync(paths.app_log, 'w');
@@ -1111,6 +1142,7 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
       'test', 'tests/admin-eval.spec.ts', `--project=${project.name}`, `--grep=${slot.title}`,
       '--retries=0', '--workers=1', '--trace=retain-on-failure', `--output=${path.join(attemptDir, 'playwright-output')}`
     ], playwrightDir, { ...env, CI: 'true', SIGRA_EXAMPLE_URL: `http://127.0.0.1:${project.port}`, SIGRA_PLAYWRIGHT_JSON: reportPath }, paths.test_log, Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
+    attempt.log_redactions.test_log = browser;
     attempt.browser.exit_code = browser.exit_code;
     attempt.observed_outcome = browser.exit_code === 0 ? 'passed' : 'failed';
     attempt.files.playwright_report = receiptFile(rawBase, 'Playwright report', reportPath);
@@ -1130,7 +1162,9 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
   } catch (error) { terminalError = error.message; }
   finally {
     await stopApp(app);
+    if (fs.existsSync(paths.app_log)) attempt.log_redactions.app_log = sanitizeCommandLog(paths.app_log);
     const drop = runLogged('mix', ['ecto.drop', '--quiet'], exampleDir, env, paths.drop_log, Math.max(1, deadline - Number(process.hrtime.bigint()) / 1e6));
+    attempt.log_redactions.drop_log = drop;
     attempt.database.drop_exit_code = drop.exit_code;
     if (drop.exit_code !== 0) terminalError = [terminalError, `database drop failed with exit ${drop.exit_code ?? 'null'}`].filter(Boolean).join('; ');
     try { fs.rmSync(env.MIX_BUILD_PATH, { recursive: true, force: true }); attempt.build_directory_removed = !fs.existsSync(env.MIX_BUILD_PATH); }
@@ -1139,6 +1173,7 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
   for (const [name, file] of Object.entries(paths)) {
     if (!fs.existsSync(file)) fs.writeFileSync(file, `${name} command did not start${terminalError ? `: ${terminalError}` : ''}\n`);
     else if (!fs.statSync(file).size) fs.writeFileSync(file, `${name} command produced no output\n`);
+    attempt.log_redactions[name] ??= sanitizeCommandLog(file);
     attempt.files[name] = receiptFile(rawBase, name, file);
   }
   attempt.ended_monotonic_ns = process.hrtime.bigint().toString();
