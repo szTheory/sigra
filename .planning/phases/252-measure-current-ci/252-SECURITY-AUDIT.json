@@ -1,180 +1,180 @@
 {
-  "verdict": "OPEN_THREATS",
+  "verdict": "SECURED",
   "phase": 252,
-  "source_head": "61b85304365c3ca06e3c7b45efbccfc436441892",
+  "source_head": "05d4bf293d5e0277ad0c1b1e5acc164609033fc1",
   "asvs_level": 1,
   "block_on": "high",
   "register_authored_at_plan_time": true,
   "counts": {
     "total": 20,
-    "closed": 17,
-    "open": 3,
-    "blocking_open": 3,
+    "closed": 20,
+    "open": 0,
+    "blocking_open": 0,
     "nonblocking_open": 0,
-    "threats_open": 3
+    "threats_open": 0
   },
   "threats": [
     {
       "id": "T-252-01",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci-run-metrics.sh:922-931,1196-1209,1217-1259; scripts/ci/ci_metrics_security.py:179-213",
-      "reason": "Standalone family replay validates filtered checks but publishes wait from all required-name checks and aggregated jobs; collection overwrites API identity fields. Offline probe confirmed."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:922-931,1197-1223,1239-1274; scripts/ci/ci_metrics_security.py:297-366",
+      "reason": "Native API jobs preserved; every required check bound to verified attempt jobs before endpoint/cost publication; conflicts rejected."
     },
     {
       "id": "T-252-02",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci_metrics_security.py:22-176; scripts/ci/ci-run-metrics.sh:1333-1337",
-      "reason": "Retained populations, requests, source files, changed paths, ZIPs and members hash-verified."
+      "evidence": "scripts/ci/ci_metrics_security.py:22-176; scripts/ci/ci-run-metrics.sh:1330-1333",
+      "reason": "All retained populations, requests, changed paths, ZIPs/members/extracted bytes hash-checked."
     },
     {
       "id": "T-252-03",
       "severity": "medium",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-run-metrics.sh:329,345,409-413",
-      "reason": "Ledger excludes bearer headers and signed redirect URLs."
+      "evidence": "scripts/ci/ci-run-metrics.sh:408-415,426-450",
+      "reason": "Ledgers omit bearer headers and signed redirects."
     },
     {
       "id": "T-252-04",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-run-metrics.sh:194-203,761-766",
-      "reason": "Artifact API ID/digest/run/head SHA checked before ZIP acceptance."
+      "evidence": "scripts/ci/ci-run-metrics.sh:196-205,715-721,761-770",
+      "reason": "API artifact ID, digest, producing run and head checked."
     },
     {
       "id": "T-252-05",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-run-metrics.sh:206-253",
-      "reason": "ZIP bounds and traversal/absolute/symlink/duplicate rejection present."
+      "evidence": "scripts/ci/ci-run-metrics.sh:208-255",
+      "reason": "ZIP path, type, count and byte limits enforced."
     },
     {
       "id": "T-252-06",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-run-metrics.sh:335-400,408-415; scripts/ci/ci_metrics_security.py:340-370",
-      "reason": "Counted HTTPS redirects, ledgers omit signed URLs, bounded redacted logs."
+      "evidence": "scripts/ci/ci-run-metrics.sh:335-400,408-415; scripts/ci/ci_metrics_security.py:405-435",
+      "reason": "Validated counted HTTPS hops; retained logs bounded/redacted."
     },
     {
       "id": "T-252-07",
       "severity": "medium",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-run-metrics.sh:322-328,370-379,438-445",
-      "reason": "Every request debits budgets; rate-limit hard stop and bounded transient retry."
+      "evidence": "scripts/ci/ci-run-metrics.sh:322-330,372-379,435-449",
+      "reason": "Request/time/core budgets enforced before calls; rate limits stop; retries counted."
     },
     {
       "id": "T-252-08",
       "severity": "medium",
       "status": "CLOSED",
-      "evidence": "scripts/ci/exunit_timing_contract.py:35-84",
-      "reason": "Atomic producer; consumer rejects empty, malformed and inconsistent reports."
+      "evidence": "test/support/ci_timing_formatter.ex:119-134,174-186; scripts/ci/exunit_timing_contract.py:35-84",
+      "reason": "Atomic producer; consumers reject empty, malformed or inconsistent reports."
     },
     {
       "id": "T-252-09",
       "severity": "medium",
       "status": "CLOSED",
       "evidence": "test/support/ci_timing_formatter.ex:43-68,119-134",
-      "reason": "Output contains identity/result/duration, no assertions/environment."
+      "reason": "Timing rows exclude assertion and environment values."
     },
     {
       "id": "T-252-10",
       "severity": "medium",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-playwright-report.mjs:71-97,122-170,209-215",
-      "reason": "Playwright shape/identity/results/timing/summary checked."
+      "evidence": "scripts/ci/ci-playwright-report.mjs:71-97,121-175,209-223",
+      "reason": "Native report shape, identity, results, timing and counts validated."
     },
     {
       "id": "T-252-11",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-playwright-report.mjs:260-293",
-      "reason": "Explicit CLI destinations; report is data."
+      "evidence": "scripts/ci/ci-playwright-report.mjs:260-299",
+      "reason": "Explicit CLI destinations and atomic output; report paths treated as data."
     },
     {
       "id": "T-252-12",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci-run-metrics.sh:1605-1637,1710; scripts/ci/ci-run-metrics.test.sh:360-379",
-      "reason": "Generic replay publishes cache, runner and runtime-version metadata before API producer-upload/attempt binding."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:1354-1530,1602-1610,1663-1675; scripts/ci/ci_metrics_security.py:192-237",
+      "reason": "All metadata claims require complete artifact/upload-job/attempt/source proof."
     },
     {
       "id": "T-252-13",
       "severity": "high",
-      "status": "OPEN_BLOCKING",
-      "evidence": "scripts/ci/ci-run-metrics.sh:667-673,1582-1604; scripts/ci/ci_metrics_security.py:291-302",
-      "reason": "Ranking validator prefers locally injected source identity over conflicting API run/attempt/head fields. Offline probe confirmed."
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:667-673,1577-1600; scripts/ci/ci_metrics_security.py:267-294",
+      "reason": "Native job conflicts rejected before ranking; local labels cannot override API identity."
     },
     {
       "id": "T-252-14",
       "severity": "medium",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-run-metrics.sh:1633-1665",
-      "reason": "Literal outcomes and run/attempt/log references retained."
+      "evidence": "scripts/ci/ci-run-metrics.sh:1611-1649",
+      "reason": "Literal failures and verified source references retained; missing evidence unknown."
     },
     {
       "id": "T-252-15",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-run-metrics.sh:262-273,733-739; scripts/ci/ci_metrics_security.py:340-370",
-      "reason": "Capped downloads and sanitized retained excerpts."
+      "evidence": "scripts/ci/ci-run-metrics.sh:262-273,733-739; scripts/ci/ci_metrics_security.py:405-435",
+      "reason": "Only bounded redacted failed-log excerpts retained."
     },
     {
       "id": "T-252-16",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci_metrics_security.py:216-288; scripts/ci/ci-run-metrics.sh:1513-1533",
-      "reason": "Selected evidence checks owner/run/head/upload, merge parents, commit-tree-workflow blob and hashes."
+      "evidence": "scripts/ci/ci_metrics_security.py:192-264; scripts/ci/ci-run-metrics.sh:1509-1527",
+      "reason": "Artifact owner/run/head/upload, merge parents, commit/tree/workflow blob and hashes bound."
     },
     {
       "id": "T-252-17",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci_metrics_security.py:437-572; scripts/ci/ci-run-metrics.sh:1820-1849",
-      "reason": "Contract actual archive digest, retained hashed queued responses, identity/chained reservation/window checked."
+      "evidence": "scripts/ci/ci_metrics_security.py:502-637; scripts/ci/ci-run-metrics.sh:1776-1801",
+      "reason": "Actual archive digest and frozen contract checked; retained queued API bytes, chained registration, reservations/window validated."
     },
     {
       "id": "T-252-18",
       "severity": "medium",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci-measure-report.sh:58-65,86-88,115",
-      "reason": "Ranking/failure references and literal outcomes retained."
+      "evidence": "scripts/ci/ci-run-metrics.sh:1611-1651; scripts/ci/ci-measure-report.sh:59-69,89-100",
+      "reason": "Rankings and signatures retain run/attempt references and literal outcomes."
     },
     {
       "id": "T-252-19",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/ci_metrics_security.py:305-314,340-396; scripts/ci/ci-run-metrics.sh:1665-1686; scripts/ci/ci-measure-report.sh:24-43",
-      "reason": "Canonical contained log/hash verification; redacted escaped prose and restricted links."
+      "evidence": "scripts/ci/ci_metrics_security.py:370-379,405-461; scripts/ci/ci-run-metrics.sh:1618-1639; scripts/ci/ci-measure-report.sh:24-43",
+      "reason": "Canonical contained hashed logs; escaped redacted prose with restricted links."
     },
     {
       "id": "T-252-SC",
       "severity": "high",
       "status": "CLOSED",
-      "evidence": "scripts/ci/sigra-dep-off.sh:29; .github/workflows/ci.yml:448",
-      "reason": "No manifest/lock change; existing locked dependencies used."
+      "evidence": "git diff --name-only 282091eaa^ HEAD; scripts/ci/sigra-dep-off.sh:29",
+      "reason": "No new dependency manifests, lockfiles or install changes."
     }
   ],
   "unregistered_flags": [],
   "accepted_risks": [],
   "files_written": [],
   "validation": [
-    "Archive baseline ready/no diagnostics, actual bundle and contract digest agree.",
-    "12 security,8 ExUnit,41 collector,comparison/report,9 Node passed; offline probes confirmed T01/T13."
+    "14 security,44 collector,8 ExUnit,comparison/report,5 Node tests passed.",
+    "Whole CLI foreign checks/native identity/forged metadata reject; archive baseline ready/no diagnostics; matching bundle/baseline/contract digests."
   ],
-  "next": "Repair remaining three controls, independent security re-audit, then phase verification.",
-  "audited_at_utc": "2026-10-13T00:13:14.371408+00:00",
+  "next": "Refresh validation coverage, code review, and goal verification; phase requirements remain pending.",
+  "audited_at_utc": "2026-10-13T00:31:51.644825+00:00",
   "prior_reports_preserved": [
     {
       "path": ".planning/phases/252-measure-current-ci/252-SECURITY.md",
-      "ref": "61b85304365c3ca06e3c7b45efbccfc436441892",
-      "sha256": "b564e7ef8b79abefde4302ec489b84e85d0247b78186da5852807f406bfcb0d0",
+      "ref": "05d4bf293d5e0277ad0c1b1e5acc164609033fc1",
+      "sha256": "f36eba80c8ebeefcf522badb8c452489c7e540317a3cb57aa6922e32ba19e684",
       "byte_exact_readback": true
     },
     {
       "path": ".planning/phases/252-measure-current-ci/252-SECURITY-AUDIT.json",
-      "ref": "61b85304365c3ca06e3c7b45efbccfc436441892",
-      "sha256": "59f0e4c5d45781de8571e69dd6d10ec8168ca3e4c663c45f477f5aad9ac8ef08",
+      "ref": "05d4bf293d5e0277ad0c1b1e5acc164609033fc1",
+      "sha256": "8b29aff829e6243a983bc74b7aba6da4ecd3862644ecc480b742778e7f4e4a92",
       "byte_exact_readback": true
     }
   ]
