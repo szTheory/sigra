@@ -28,3 +28,42 @@ for mode in --run-frozen --verify-controls --verify-acceptance; do
   "$RUNNER" "$mode" --help >/dev/null
 done
 echo 'registration runner modes: PASS'
+
+# Exercise the real verifier entrypoints, rather than their help output. Until
+# native browser/control receipts exist, self-reported fields cannot pass.
+node - "$RUNNER" <<'NODE'
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+const runner = process.argv[2];
+const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-registration-verifier-'));
+try {
+  for (const status of ['fixed', 'not_reproduced', 'diagnosis_incomplete']) {
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-evidence/v1', status,
+      projects: Array.from({ length: 3 }, () => ({ originalOutcome: 'failed' })),
+      controls: {
+        readiness: { delayed: { observed: true }, missing: { observedFailure: true }, brokenWait: { observedFailure: true } },
+        stateCollision: { observedFailure: true },
+        trace: { firstFailure: { assertionPresent: true }, passing: { artifactAbsent: true } }
+      },
+      fix: { freshRepeats: [true, true, true] },
+      requirements: { 'CIREL-01': 'unsatisfied' }
+    };
+    const input = path.join(directory, `${status}.json`);
+    fs.writeFileSync(input, JSON.stringify(evidence));
+    const original = fs.readFileSync(input);
+    for (const mode of ['--verify-controls', '--verify-acceptance']) {
+      const result = spawnSync(runner, [mode, input], { encoding: 'utf8' });
+      assert.equal(result.status, 3, `${mode} must reject self-reported ${status}: ${result.stdout} ${result.stderr}`);
+      assert.match(result.stderr, /native browser and control receipts.*not implemented/);
+      assert.deepEqual(fs.readFileSync(input), original, 'verifying must preserve evidence');
+    }
+  }
+  console.log('registration verifiers reject forged claims: PASS (6 cases)');
+} finally {
+  fs.rmSync(directory, { recursive: true, force: true });
+}
+NODE
