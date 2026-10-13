@@ -82,6 +82,7 @@ fi
 
 mkdir -p "$(dirname "$OUTPUT")"
 OUT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/sigra-253-registration.XXXXXX")"
+OUT_DIR="$(cd "$OUT_DIR" && pwd -P)"
 CHECKOUT="$OUT_DIR/checkout"
 mkdir "$CHECKOUT"
 START_EPOCH="$(date +%s)"

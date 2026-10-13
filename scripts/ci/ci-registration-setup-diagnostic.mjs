@@ -110,7 +110,8 @@ async function main() {
   const start = Date.now();
   const deadline = start + MAX_MS;
   const artifactDir = `${output}.logs`;
-  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-setup-'));
+  // Mix creates relative dependency links; macOS TMPDIR may spell /private/var as /var.
+  const workDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-setup-')));
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.mkdirSync(artifactDir);
   const evidence = {
