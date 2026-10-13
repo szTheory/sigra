@@ -2,7 +2,7 @@
 status: investigating
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:26:40Z
+updated: 2026-10-13T12:28:37Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,10 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: The third project may expose a compile or port-binding failure not seen in the first two isolated builds.
-test: Set up an independent database under a fresh admin-eval-dark build path, launch Phoenix on port 25313, probe HTTP, and stop the owned process.
-expecting: A nonzero compile/setup or no HTTP 200 would localize the third-project failure; success would mean the original startup failure is not currently reproduced across any project.
-next_action: run admin-eval-dark database setup and the third, final bounded Phoenix launch on port 25313, with no browser invocation
+hypothesis: The current runner can lose setup-failure evidence because set -e exits during deps.get or ecto.setup before project evidence is written; it also lacks a setup-only entrypoint for an independently bounded diagnostic.
+test: Inspect failure paths and add a setup-only runner contract with hermetic failure and budget tests; retain the three completed live startup results without another launch.
+expecting: A failure-injected setup test should produce terminal nonzero evidence, no browser invocation, and no retry; source identity checks should happen before output mutation.
+next_action: preserve the three live app logs and implement a bounded setup-only runner entrypoint with failure-path regression coverage; do not launch another app
 bug_class: Bohrbug candidate (build/config startup failure)
 candidate_causes:
   - code: runner sets MIX_BUILD_PATH independently for each project after deps.get
@@ -93,6 +93,10 @@ source: Symptoms are already established in the preceding session and committed 
   checked: Second clean-clone build, database setup, Phoenix launch and HTTP probe
   found: Fresh build and ecto.setup exited 0; owned PID 41233 stayed alive, bound 127.0.0.1:25312, served HTTP 200 twice, and shut down on SIGTERM. Database log SHA-256 7ffb0fae4a4475eec9f9ff030a96cce2face4c23a364c6a30f4d51188f393476; app log SHA-256 fafa8587c914499f1ea0c375a0d4fa7fe25f788724076bcc821c53906dbc2240.
   implication: The second project's distinct build did not reproduce stale PORT or missing JOSE include.
+- timestamp: 2026-10-13T12:28:37Z
+  checked: Third clean-clone build, database setup, Phoenix launch, HTTP probe, and frozen evidence identities
+  found: Fresh build and ecto.setup exited 0; owned PID 42696 stayed alive, bound 127.0.0.1:25313, served HTTP 200 twice, and shut down on SIGTERM. Database log SHA-256 841a1e4aa7f80949bf0c2d3c4a9ef166d6459d2d3f120076539b8dd334761f4e; app log SHA-256 42efae226887df85f9bbc67648419604e6425c65168b6f9bbd2d50b9cd3de968. Original freeze/evidence SHA-256 remain 9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994 and b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51.
+  implication: All three allowed app launches reached HTTP readiness; the historical JOSE failure remains unconfirmed because its raw log was not retained. No more live launches are permitted in this diagnostic.
 
 ## Resolution
 

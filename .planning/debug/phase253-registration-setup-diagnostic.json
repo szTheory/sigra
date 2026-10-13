@@ -38,6 +38,21 @@
       "app_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/admin-eval-mobile.app.log",
       "app_log_sha256": "fafa8587c914499f1ea0c375a0d4fa7fe25f788724076bcc821c53906dbc2240",
       "browser_invocations": 0
+    },
+    {
+      "project": "admin-eval-dark",
+      "port": 25313,
+      "database": "sigra_253_setup_debug_dark_121",
+      "setup_exit_code": 0,
+      "setup_log_sha256": "841a1e4aa7f80949bf0c2d3c4a9ef166d6459d2d3f120076539b8dd334761f4e",
+      "app_pid": 42696,
+      "process_alive_at_probe": true,
+      "curl_exit_code": 0,
+      "http_status": 200,
+      "shutdown": "SIGTERM acknowledged",
+      "app_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/admin-eval-dark.app.log",
+      "app_log_sha256": "42efae226887df85f9bbc67648419604e6425c65168b6f9bbd2d50b9cd3de968",
+      "browser_invocations": 0
     }
   ],
   "experiments": [
@@ -73,5 +88,8 @@
       "project_launches": 0
     }
   ],
-  "historical_registration_evidence_unchanged": true
+  "source_checkout_head": "ffb25ae928057560b9ab53c7f6ff3b35463f204c",
+  "historical_registration_evidence_unchanged": true,
+  "historical_freeze_sha256": "9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994",
+  "historical_evidence_sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51"
 }
