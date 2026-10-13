@@ -202,6 +202,24 @@ function createRevision(output, root = ROOT) {
   const oldEvidence = readJson(oldEvidencePath);
   const terminal = readJson(terminalPath);
   const capture = readJson(capturePath);
+  const existingEvidencePath = path.join(phaseDir, '253-REPLAN-REGISTRATION-EVIDENCE.json');
+  let supersededRevision = null;
+  if (fs.existsSync(existingEvidencePath)) {
+    const previousEvidence = readJson(existingEvidencePath);
+    const previousFreezePath = path.resolve(root, previousEvidence.freeze_path ?? '');
+    const previousFreeze = readJson(previousFreezePath);
+    if (!Array.isArray(previousEvidence.attempts) || previousEvidence.attempts.length !== 0
+      || previousEvidence.limits?.browser_launches !== 0 || previousEvidence.limits?.used_slots?.length !== 0
+      || previousEvidence.preparation_status !== 'passed') {
+      throw new Error('only a zero-native-launch preparation ledger can transfer to a corrected source freeze');
+    }
+    supersededRevision = {
+      freeze_path: path.relative(root, previousFreezePath), freeze_sha256: fileHash(previousFreezePath),
+      evidence_path: path.relative(root, existingEvidencePath), evidence_sha256: fileHash(existingEvidencePath),
+      source_commit: previousFreeze.source.checkout_head, preparation_charge_ms: previousEvidence.limits.preparation_charge_ms,
+      native_attempts: 0, browser_launches: 0, capacity_added: false
+    };
+  }
   if (terminal.status !== 'halted' || terminal.attempt?.slot !== 'D19-DIAG-01' || terminal.attempt?.browser_launched !== false || terminal.attempt?.charged_duration_ms !== 3768) {
     throw new Error('the original terminal diagnostic does not prove the spent 3,768 ms zero-launch slot');
   }
@@ -228,7 +246,8 @@ function createRevision(output, root = ROOT) {
     supersedes_zero_work_freeze: fs.existsSync(predecessorPath) && path.resolve(output) !== path.resolve(predecessorPath)
       ? { path: path.relative(root, predecessorPath), sha256: fileHash(predecessorPath), native_work_started: false, preparation_work_started: false, capacity_added: false }
       : null,
-    preparation: { id: 'D19-COMMON-PREPARATION', max_duration_ms: 116232, charged_duration_ms: 0, allowed: ['npm ci using the existing lockfile', 'node --version', 'Playwright --version', 'mix --version', 'MIX_ENV=dev mix deps version observation'], prohibits: ['application boot', 'HTTP request', 'browser launch', 'endpoint compilation', 'database setup'] },
+    supersedes_source_revision: supersededRevision,
+    preparation: { id: 'D19-COMMON-PREPARATION', max_duration_ms: 116232, charged_duration_ms: supersededRevision?.preparation_charge_ms ?? 0, inherited_from: supersededRevision?.freeze_path ?? null, allowed: ['npm ci using the existing lockfile', 'node --version', 'Playwright --version', 'mix --version', 'MIX_ENV=dev mix deps version observation'], prohibits: ['application boot', 'HTTP request', 'browser launch', 'endpoint compilation', 'database setup'] },
     ledger: {
       historical_charge_ms: 3768, spent_reservations: [{ id: 'D19-DIAG-01', browser_launches: 0, charged_ms: 3768, outcome: 'halted_setup_and_drop_exit_1' }],
       slots: slots.regular, acceptance_slots: slots.acceptance,
@@ -709,7 +728,7 @@ function validateRevisionSource(root, freeze, evidenceFile = null) {
   return head;
 }
 
-function loadRevisionEvidence(freezeFile, evidenceFile, root) {
+function loadRevisionEvidence(freezeFile, evidenceFile, root, { allowRebind = false } = {}) {
   const freeze = readJson(freezeFile);
   if (freeze.schema_version !== REPLAN_FREEZE_SCHEMA || freeze.status !== 'frozen_before_results'
     || freeze.freeze_sha256 !== revisionFreezeDigest(freeze)) throw new Error('registration revision freeze is malformed or has an invalid digest');
@@ -718,7 +737,27 @@ function loadRevisionEvidence(freezeFile, evidenceFile, root) {
   let evidence;
   if (fs.existsSync(evidenceFile)) {
     evidence = readJson(evidenceFile);
-    if (evidence.schema_version !== REPLAN_SCHEMA || evidence.freeze_sha256 !== freezeHash) throw new Error('registration evidence does not match the committed revision freeze');
+    if (evidence.schema_version !== REPLAN_SCHEMA) throw new Error('registration evidence schema does not match the revision runner');
+    if (evidence.freeze_sha256 !== freezeHash) {
+      const prior = freeze.supersedes_source_revision;
+      if (!allowRebind || !prior || path.resolve(root, prior.evidence_path) !== path.resolve(evidenceFile)
+        || fileHash(evidenceFile) !== prior.evidence_sha256 || evidence.freeze_sha256 !== prior.freeze_sha256
+        || evidence.source?.checkout_head !== prior.source_commit
+        || evidence.attempts?.length !== 0 || evidence.limits?.browser_launches !== 0
+        || evidence.limits?.used_slots?.length !== 0 || evidence.limits?.preparation_charge_ms !== prior.preparation_charge_ms
+        || freeze.preparation.charged_duration_ms !== prior.preparation_charge_ms) {
+        throw new Error('registration evidence does not match the committed revision freeze');
+      }
+      const priorFreezePath = path.resolve(root, prior.freeze_path);
+      if (fileHash(priorFreezePath) !== prior.freeze_sha256) throw new Error('superseded source freeze bytes changed');
+      evidence.source_revisions ??= [];
+      evidence.source_revisions.push({ stage: 'preparation', freeze_path: prior.freeze_path, freeze_sha256: prior.freeze_sha256, source_commit: prior.source_commit, charged_duration_ms: prior.preparation_charge_ms });
+      evidence.source_revisions.push({ stage: 'diagnostic', freeze_path: path.relative(root, freezeFile), freeze_sha256: freezeHash, source_commit: freeze.source.checkout_head, charged_duration_ms: 0 });
+      evidence.freeze_path = path.relative(root, freezeFile);
+      evidence.freeze_sha256 = freezeHash;
+      evidence.source = { checkout_head: freeze.source.checkout_head, blobs: freeze.source.blobs };
+      writeJson(evidenceFile, evidence);
+    }
     if (!['running', 'diagnosis_incomplete', 'halted'].includes(evidence.status)) throw new Error('registration evidence has an unsupported status');
   } else {
     evidence = {
@@ -859,6 +898,7 @@ export function verifyRevisionAttempt(attempt, freeze, baseDir) {
 function verifyRevisionData(evidence, freeze, baseDir) {
   const errors = [];
   if (evidence?.schema_version !== REPLAN_SCHEMA || evidence.freeze_sha256 !== freeze?.freeze_sha256) errors.push('evidence does not match the frozen revision');
+  if (evidence?.source?.checkout_head !== freeze?.source?.checkout_head || JSON.stringify(evidence?.source?.blobs) !== JSON.stringify(freeze?.source?.blobs)) errors.push('evidence source identity differs from the frozen revision');
   if (evidence.historical?.preceding_order !== 'unknown' || evidence.limits?.historical_charge_ms !== 3768) errors.push('historical uncertainty or spent charge was not preserved');
   if (evidence.preparation_status !== 'passed') errors.push('common dependency preparation is missing or incomplete');
   if (!Array.isArray(evidence.attempts) || !Array.isArray(evidence.preparation_receipts)) errors.push('preparation or attempt ledger is absent');
@@ -890,7 +930,7 @@ function verifyRevisionData(evidence, freeze, baseDir) {
 }
 
 async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
-  const { freeze, freezeHash, evidence } = loadRevisionEvidence(freezeFile, evidenceFile, root);
+  const { freeze, freezeHash, evidence } = loadRevisionEvidence(freezeFile, evidenceFile, root, { allowRebind: true });
   if (evidence.status !== 'running') throw new Error(`refusing to continue terminal evidence: ${evidence.status}`);
   if (evidence.preparation_status !== 'passed') throw new Error('common dependency preparation has not passed');
   const slot = freeze.ledger.slots.find((item) => item.id === slotId);
@@ -904,9 +944,8 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
   validateRevisionSource(root, freeze, evidenceFile);
   const project = REPLAN_PROJECTS.find((item) => item.name === slot.project);
   const rawBase = `${evidenceFile}.raw`;
-  const attemptDir = path.join(rawBase, slot.id, 'attempt-01');
-  fs.mkdirSync(attemptDir, { recursive: false });
   const started = process.hrtime.bigint();
+  const attemptDir = createAttemptDirectory(rawBase, slot.id, 1);
   const deadline = Number(started) / 1e6 + slot.max_duration_ms;
   const unique = `${Date.now().toString(36)}_${process.pid}`;
   const db = `sigra_253_recovery_${project.name.replaceAll('-', '_')}_${unique}`.toLowerCase();
@@ -1015,6 +1054,13 @@ function verifyRevisionFile(evidenceFile, root = ROOT) {
 
 export function attemptDirectory(baseDir, slotId, attemptNumber) {
   return path.join(baseDir, `${slotId}-attempt-${String(attemptNumber).padStart(2, '0')}`);
+}
+
+export function createAttemptDirectory(baseDir, slotId, attemptNumber = 1) {
+  if (!/^[A-Z0-9-]+$/.test(slotId) || !Number.isInteger(attemptNumber) || attemptNumber < 1) throw new Error('invalid frozen attempt directory identity');
+  const directory = path.join(baseDir, slotId, `attempt-${String(attemptNumber).padStart(2, '0')}`);
+  fs.mkdirSync(directory, { recursive: true });
+  return directory;
 }
 
 export function diagnosticEnvironment(project, databaseName, attemptDir, inheritedEnv = process.env) {

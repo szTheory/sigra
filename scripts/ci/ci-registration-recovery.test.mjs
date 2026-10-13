@@ -85,6 +85,15 @@ test('browser attempt output gets a unique directory beside preserved preflight 
   assert.equal(fs.existsSync(attempt), false);
 });
 
+test('revision attempt directory creates the missing slot parent before any native setup', () => {
+  assert.equal(typeof recovery.createAttemptDirectory, 'function');
+  if (typeof recovery.createAttemptDirectory !== 'function') return;
+  const base = path.join(temporary, 'new-revision-output');
+  const attempt = recovery.createAttemptDirectory(base, 'R-DIAG-DESKTOP');
+  assert.equal(fs.existsSync(attempt), true);
+  assert.equal(path.relative(base, attempt), path.join('R-DIAG-DESKTOP', 'attempt-01'));
+});
+
 test('each diagnostic uses its own physical Mix build for setup, server and cleanup', () => {
   const first = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-first-'));
   const second = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-second-'));
