@@ -77,6 +77,17 @@ const section = honestSkipSection(maintaining);
 const documentedIds = documentedActiveIds(section);
 const expectedIds = expectedActiveIds(rows);
 
+test('missing stale and duplicate active ids cannot satisfy documentation parity', () => {
+  const target = [...expectedIds][0];
+  const line = `- \`${target}\``;
+  assert.ok(section.includes(line));
+  const missing = documentedActiveIds(section.replace(line, ''));
+  assert.ok(!missing.has(target));
+  const stale = documentedActiveIds(section.replace(line, '- `stale_browser_body`'));
+  assert.ok([...stale].some((id) => !expectedIds.has(id)));
+  assert.throws(() => documentedActiveIds(section.replace(line, `${line}\n${line}`)), /duplicate/);
+});
+
 test('the manifest and honest-skip section are non-vacuously available', () => {
   assert.ok(
     rows.length >= MANIFEST_ROWS_FLOOR,

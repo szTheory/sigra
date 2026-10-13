@@ -313,6 +313,10 @@ question from Tier A/B. Gated:
   `if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' && needs.changes.outputs.docs_only != 'true' }}`
   — gated at job level, permitted because it is not a ruleset-required context (D-08).
 
+**Browser eligibility:** browser body skips require the actual `pull_request` event, a
+successful `changes` classifier, and exactly `docs_only == 'true'`. False, empty, failed,
+or non-PR claims run the full selected body. The terminal aggregate always runs.
+
 **Fail-open polarity:** an empty, missing, or non-`'true'` `docs_only` output runs every heavy
 step and job above. Only an explicit `docs_only == 'true'` skips them.
 
