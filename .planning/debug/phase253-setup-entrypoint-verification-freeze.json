@@ -1,0 +1,43 @@
+{
+  "schema_version": "sigra.phase253.setup-entrypoint-verification-freeze/v1",
+  "status": "frozen_before_results",
+  "scope": "Verify the new setup-only entrypoint against real Phoenix; no registration browser execution",
+  "frozen_at": "2026-10-13T12:38:00Z",
+  "source_head_at_freeze": "061e77771e7db259a84d3ad1850eee2c757e2270",
+  "repair_commit": "4ffa9dcb12a8313ae847f35cbd5c543f4e27ed54",
+  "prior_diagnostic": {
+    "record": ".planning/debug/phase253-registration-setup-diagnostic.json",
+    "launches_used": 3,
+    "launches_limit": 3,
+    "unchanged": true
+  },
+  "limits": {
+    "max_project_launches": 3,
+    "max_duration_seconds": 1200,
+    "automatic_retries": 0,
+    "browser_invocations": 0
+  },
+  "output": "temporary directory outside .planning, then immutable committed final receipt and raw logs",
+  "terminal_output_overwrite_allowed": false,
+  "preservation": [
+    {
+      "path": ".planning/debug/phase253-registration-setup.md",
+      "sha256": "97853db50ad2d0bb4d3523e0dffd5a43885f946ce188deac1a04b7b81b3cdca2",
+      "bytes": 12966,
+      "recoverable_ref": "061e77771e7db259a84d3ad1850eee2c757e2270",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/debug/phase253-registration-setup-diagnostic.json",
+      "sha256": "8315977f44d92d8c183d012d49be370ff02e2f5dce3e6ea6fd004cf37dbd2291",
+      "bytes": 4285,
+      "recoverable_ref": "061e77771e7db259a84d3ad1850eee2c757e2270",
+      "readback_exact": true
+    }
+  ],
+  "stop_conditions": [
+    "Stop on any nonzero setup result and retain receipt/log bytes.",
+    "No live retry or additional launches after three launches.",
+    "Do not change or reuse the exhausted original browser freeze."
+  ]
+}
