@@ -83,6 +83,7 @@ function parseArgs(argv) {
   if (argv[0] === '--create-infrastructure-retry' && argv[1] === '--freeze' && argv[2] && argv[3] === '--evidence' && argv[4] && argv[5] === '--review' && argv[6] && argv[7] === '--output' && argv[8] && argv[9] === '--reservation' && argv[10] && argv.length === 11) {
     return { mode: 'create-infrastructure-retry', predecessor: path.resolve(argv[2]), evidence: path.resolve(argv[4]), review: path.resolve(argv[6]), output: path.resolve(argv[8]), reservation: path.resolve(argv[10]) };
   }
+  if (argv[0] === '--refresh-infrastructure-retry' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'refresh-infrastructure-retry', predecessor: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--create-freeze' && argv[1] === '--output' && argv[2] && argv.length === 3) {
     return { mode: 'create-freeze', output: path.resolve(argv[2]) };
   }
@@ -136,6 +137,24 @@ function createInfrastructureRetry(predecessorFile, evidenceFile, reviewFile, ou
   delete freeze.freeze_sha256; freeze.freeze_sha256 = revisionFreezeDigest(freeze);
   writeJson(outputFile, freeze);
   return { freeze, reservation };
+}
+
+function refreshInfrastructureRetry(predecessorFile, outputFile, root = ROOT) {
+  if (fs.existsSync(outputFile)) throw new Error('refusing to overwrite an infrastructure retry source freeze');
+  const predecessor = readJson(predecessorFile);
+  if (!predecessor.retry_context || predecessor.infrastructure_retry?.count !== 1) throw new Error('source freeze does not carry the one reviewed infrastructure retry');
+  const marker = path.resolve(root, predecessor.infrastructure_retry.used_marker_path);
+  if (fs.existsSync(marker)) throw new Error('the shared infrastructure retry has already been consumed; source cannot be refreshed');
+  validateRevisionSource(root, predecessor);
+  assertRevisionCheckout(root);
+  const freeze = structuredClone(predecessor);
+  freeze.supersedes_retry_source = { path: path.relative(root, predecessorFile), sha256: fileHash(predecessorFile), source_commit: predecessor.source.checkout_head, native_attempts: 0, retry_reservation_preserved: true };
+  freeze.source.checkout_head = git(['-C', root, 'rev-parse', 'HEAD']);
+  freeze.source.blobs = sourceBlobs(root, freeze.source.checkout_head);
+  delete freeze.freeze_sha256;
+  freeze.freeze_sha256 = revisionFreezeDigest(freeze);
+  writeJson(outputFile, freeze);
+  return freeze;
 }
 
 function checkCleanCandidate(root) {
@@ -826,6 +845,7 @@ function loadRevisionEvidence(freezeFile, evidenceFile, root, { allowRebind = fa
       source: { checkout_head: freeze.source.checkout_head, blobs: freeze.source.blobs },
       historical: { ...freeze.historical, preceding_order: 'unknown' },
       preparation_receipts: [], attempts: [],
+      toolchain: freeze.retry_context ? readJson(path.resolve(root, freeze.retry_context.original_evidence_path)).toolchain : undefined,
       limits: { historical_charge_ms: freeze.ledger.historical_charge_ms, preparation_charge_ms: 0, charged_duration_ms: freeze.ledger.historical_charge_ms, browser_launches: 0, used_slots: [], max_charged_duration_ms: freeze.ledger.max_charged_duration_ms, max_new_browser_launches: freeze.ledger.max_new_browser_launches }
     };
     fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
@@ -1386,6 +1406,11 @@ async function main() {
   if (args.mode === 'create-infrastructure-retry') {
     const result = createInfrastructureRetry(args.predecessor, args.evidence, args.review, args.output, args.reservation);
     console.log(`one-use infrastructure retry frozen: ${path.relative(ROOT, args.output)} (${result.freeze.source.checkout_head})`);
+    return;
+  }
+  if (args.mode === 'refresh-infrastructure-retry') {
+    const freeze = refreshInfrastructureRetry(args.predecessor, args.output);
+    console.log(`infrastructure retry source revision refreshed without new capacity: ${path.relative(ROOT, args.output)} (${freeze.source.checkout_head})`);
     return;
   }
   if (args.mode === 'prepare-revision') {
