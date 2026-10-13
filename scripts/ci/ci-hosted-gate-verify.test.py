@@ -61,13 +61,14 @@ def fixture():
             "conclusion": "success",
         },
         "jobs": {
-            "total_count": 6,
+            "total_count": 7,
             "jobs": [
                 {"id": index + 1, "run_id": 901, "run_attempt": 1, "name": f"producer ({seam})", "conclusion": "success", "steps": [{"name": "Run the named synthetic tiny command", "conclusion": "success"}]}
                 for index, seam in enumerate(("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase"))
             ] + [{"id": 6, "run_id": 901, "run_attempt": 1, "name": "Browser verdict", "conclusion": "success", "steps": [
                 {"name": "Verify immutable fixture and candidate checkout identities", "conclusion": "success"},
-                {"name": "Shared browser record validator", "conclusion": "success"}]}],
+                {"name": "Shared browser record validator", "conclusion": "success"}]},
+                {"id": 7, "run_id": 901, "run_attempt": 1, "name": "verifier", "conclusion": "skipped", "steps": []}],
         },
         "artifacts": {
             "total_count": 1,
@@ -97,6 +98,13 @@ class HostedGateVerifierTests(unittest.TestCase):
         result = self.invoke(fixture())
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('"status": "verified"', result.stdout)
+
+    def test_rejects_running_or_wrong_origin_auxiliary_verifier(self):
+        for field, value in [('conclusion', 'success'), ('run_id', 902), ('run_attempt', 2)]:
+            document = fixture()
+            document['jobs']['jobs'][-1][field] = value
+            with self.subTest(field=field):
+                self.assertNotEqual(self.invoke(document).returncode, 0)
 
     def test_rejects_wrong_run_attempt_and_source_identity(self):
         for field, value in (("run_attempt", 2), ("head_sha", "d" * 40)):
