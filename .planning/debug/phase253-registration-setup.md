@@ -2,7 +2,7 @@
 status: verifying
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:41:24Z
+updated: 2026-10-13T12:44:34Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,22 +11,22 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: The setup-only entrypoint's external MIX_BUILD_PATH differs from the three earlier successful probes and causes JOSE include files to be absent from its compiled dependency path.
-test: Compare the failed receipt and log against the prior successful probe configuration, then reproduce only the dependency compile with local build-path variants; do not launch Phoenix or rerun the frozen entrypoint.
-expecting: The external path fails with a missing build/lib/jose/include header while an in-project build path retains it, or evidence disproves the path hypothesis.
-next_action: inspect the prior probe build paths and JOSE/Mix include layout, then run a bounded dependency-only differential check if needed
+hypothesis: The `/var/folders` alias in the selected temp work directory makes Mix's relative JOSE include symlink point at a nonexistent path because the source is canonicalized to `/private/var/folders`.
+test: JOSE-only differential compile with identical copied source and aliased versus canonical MIX_BUILD_PATH; inspect the generated include symlink.
+expecting: Aliased build path fails on an absent header and a broken symlink; canonical build path compiles and resolves the same header.
+next_action: canonicalize both setup-only workDir and frozen-runner OUT_DIR before deriving checkout/build paths; add an alias-path regression test and run local suites, without repeating live Phoenix
 reasoning_checkpoint:
-  hypothesis: A nonzero setup command exits the current runner before its evidence writer because Bash errexit is active.
+  hypothesis: Mix writes a broken relative JOSE include symlink when the runner supplies an aliased `/var/folders` build path while the dependency source resolves to `/private/var/folders`; JOSE Record.extract then fails with enoent.
   confirming_evidence:
-    - The script begins with `set -Eeuo pipefail` and runs `mix ecto.setup` as a bare command on line 119.
-    - The project evidence JSON writer is after ecto.setup, Phoenix readiness, and Playwright; the retained attempt recorded a compile failure with zero browser invocations and no raw compiler log.
-  falsification_test: A failure-injected setup command that exits nonzero but still writes the current runner's project evidence would disprove the early-abort explanation.
-  fix_rationale: A separate setup-only path records command outcomes immediately and never reaches Playwright, preserving an exact startup diagnostic without altering the exhausted frozen run.
-  blind_spots: The historical JOSE raw compiler error is unavailable and all three current real startup probes passed; the original compile root cause remains unknown.
+    - The one allowed real entrypoint run failed at `build-admin-eval/lib/jose/include/jose_jwt.hrl` with enoent and retained its raw log.
+    - The same JOSE source compiled with canonical `/private/var/folders/...` MIX_BUILD_PATH but failed with aliased `/var/folders/...`; the latter generated a broken relative include symlink.
+  falsification_test: If the canonical build path still produced a broken JOSE include link or failed to compile, the alias explanation would be false.
+  fix_rationale: Canonicalize each temp root before deriving MIX_BUILD_PATH and checkout paths so Mix computes a valid relative link between the source and build directories.
+  blind_spots: The original historical retry lacks its raw log; no additional real Phoenix entrypoint run is allowed under the just-used freeze.
   candidate_causes:
-    - code: shell errexit before evidence write and output mutation before source validation
-    - environment: an earlier compile/include failure triggered the early-exit path, but its specific cause is not retained
-  and_gate: The evidence-loss symptom requires a setup command to fail and the code to exit before recording it; the original compile cause remains unresolved.
+    - code: runner passes noncanonical temp-root path into MIX_BUILD_PATH
+    - environment: macOS TMPDIR uses `/var/folders`, an alias of `/private/var/folders`
+  and_gate: yes; the broken link requires both the noncanonical path supplied by the runner and the host's aliased temp directory.
 bug_class: Bohrbug candidate (build/config startup failure)
 candidate_causes:
   - code: runner sets MIX_BUILD_PATH independently for each project after deps.get
@@ -117,10 +117,14 @@ source: Symptoms are already established in the preceding session and committed 
   checked: Single frozen setup-only entrypoint run and exact preservation of final receipt/raw logs
   found: Entry 3e23c7cbd invoked once and stopped after admin-eval ecto.setup exited 1; zero Phoenix launches and zero browser invocations. Raw log reports missing external-build `lib/jose/include/jose_jwt.hrl`; cleanup reports missing `jose_jwk.hrl`. Receipt and five raw logs were copied byte-identically and committed at e17c1fa4f under `.planning/debug/phase253-setup-entrypoint-20261013T124016Z/`; receipt SHA-256 e91526eea5fb48f11c834b60f3b33da788c094a457d6e93c3eca0369877486bd.
   implication: Evidence retention works, but real startup remains failed; investigate the external build path without another live run.
+- timestamp: 2026-10-13T12:44:34Z
+  checked: JOSE-only differential compilation using identical source and aliased versus canonical MIX_BUILD_PATH
+  found: `os.tmpdir()` returns `/var/folders/...`, whose real path is `/private/var/folders/...`. Aliased build failed with JOSE header enoent and a broken include symlink; canonical build compiled 113 Erlang and 8 Elixir files and its header link resolves. Raw compile logs have SHA-256 cbf06d4bcd3e1c183d6d5b6b7caa982ca17dca53e7cd5ce3ef73e82c9df3a3dd (red) and 1b18d3ea7eda3bc01e9d66e8b141172be0197b55117549b7fb6ddbed7d0be1fa (green).
+  implication: Temp-path aliasing, not the independent build itself, caused the reproducible JOSE include failure. Canonicalize temp roots in both entrypoints.
 
 ## Resolution
 
-root_cause: Confirmed harness defect: Bash errexit at a failed setup command could stop the frozen runner before writing the project result or raw compiler log; output mutation also preceded source identity checks. The exact historical JOSE compile cause is unconfirmed.
+root_cause: Confirmed two runner defects: Bash errexit at failed setup lost the project result/raw log; and a `/var/folders` temp-root alias produced a broken relative JOSE include symlink when Mix resolved the source under `/private/var/folders`. The historical retry lacks raw logs, so its exact cause cannot be proven retrospectively.
 fix: Added an independent setup-only diagnostic runner with immediate command receipts, bounded 20-minute/three-project execution, owned server cleanup, and zero browser commands; moved frozen output mutation behind source identity validation.
 verification:
   target_test: {result: pass, command: "bash scripts/ci/ci-registration-repro.test.sh", cases: 4}
