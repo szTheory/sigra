@@ -32,25 +32,26 @@ Planning contract only. No implementation, reproduction, repeat, canary or produ
 
 ## Behavior Verification Map
 
-The planner replaces this behavior map with exact task IDs, waves, created paths, threat IDs and commands before the plan-checker gate.
+The exact prior clean bytes were read back from commit c87dfb3b5ea73d64708537a3b43aafaa60348bf9 immediately before this scoped edit (SHA-256 f5e56c0382c6d4843d0a7e689b1db1acfe5de26427dc568b1961e785698804a5). The source audit retains that recovery identity. All rows are pending execution.
 
-| Requirement | Behavior | Test type | Existing command or planned proof | Status |
-|-------------|----------|-----------|-----------------------------------|--------|
-| CIREL-01 | Legacy replay unchanged; actual failed producer/step selected before display cap | Offline contract | `bash scripts/ci/ci-run-metrics.test.sh`; legacy `--verify-baseline` with Phase 252 archive | pending |
-| CIREL-01 | Registration condition reproduced on pinned source; readiness/state/trace negative controls | Browser integration | Freeze exact current spec/projects/order before results; scope trace capture | pending |
-| CIREL-01 | Proven fix survives fresh targeted repeats | Browser integration | Three fresh invocations per affected project; conditional narrow ExUnit seeds 101/202/303 | pending |
-| CIREL-02 | Unit smoke included in internal gate ownership | Offline contract | `bash scripts/ci/honest-skip-verdict.test.sh` | pending |
-| CIREL-02 | Manifest describes actual body boundaries | Offline contract | p10/p21 Node tests plus exact mismatch negative fixture | pending |
-| CIREL-02 | Exactly five producer records with complete expected native reports | Offline contract | New stdlib validator tests; missing/duplicate/identity/skip/report negative fixtures | pending |
-| CIREL-02 | Failures, missing bodies and real cancellation prevent green | Hosted fixture | Six scenarios and separate verifier on sealed fixture ref | pending |
-| CIREL-02 | All five required names pass on normal PR head/tested revision | Hosted integration | One production pull_request family; independently verified jobs/artifact origins | pending |
+| Requirement | Task / wave | Created proof and behavior | Automated command or bounded run | Threat ref | Status |
+|-------------|-------------|----------------------------|----------------------------------|------------|--------|
+| CIREL-01 | 253-01 T1–T2 / W1 | 253-DIAGNOSIS.json corrects Test D/Test Z, keeps full replay and per-producer unknowns | `bash scripts/ci/ci-run-metrics.test.sh && bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json` | T-253-01, T-253-02 | pending |
+| CIREL-01 | 253-02 T1 / W1 | 253-REPRO-FREEZE.json precedes 253-REGISTRATION-EVIDENCE.json for all three projects | `bash scripts/ci/ci-registration-repro.test.sh && bash scripts/ci/ci-registration-repro.sh --run-frozen .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json` | T-253-03, T-253-04 | pending |
+| CIREL-01 | 253-02 T2–T3 / W1 | Signal/state/trace negatives; cause-backed fix and fresh repeats or explicit gap | `bash scripts/ci/ci-registration-repro.sh --verify-controls .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json`; then `--verify-acceptance` on same evidence | T-253-03, T-253-04 | pending |
+| CIREL-02 | 253-03 T1–T2 / W1 | Unit smoke needs/result/verdict and failure/cancel/skip fixtures | `bash scripts/ci/honest-skip-verdict.test.sh` | T-253-05, T-253-06 | pending |
+| CIREL-02 | 253-04 T1–T2 / W1 | Actual selected-body manifest/MAINTAINING parity and old aggregate mismatch fixture | `node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs` | T-253-07, T-253-08 | pending |
+| CIREL-02 | 253-05 T1–T2 / W1 | ci-browser-records.mjs exact five, empty/byte-variant/identity/report negatives | `node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs` | T-253-09, T-253-10 | pending |
+| CIREL-02 | 253-06 T1–T2 / W2 | ci.yml unique records and complete selected native reports reach aggregate | `node --test scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-browser-records.test.mjs`; p10/p21 and honest-skip contracts | T-253-11, T-253-12 | pending |
+| CIREL-02 | 253-07 T1–T2 / W3 | 253-CANARY-EVIDENCE.json holds six hosted outcomes and independent verifier | `bash scripts/ci/ci-gate-canary.test.sh`, `python3 scripts/ci/ci-hosted-gate-verify.test.py`; then bounded `ci-gate-canary.sh --scenario full-pass` and `--remaining-scenarios` | T-253-13, T-253-14 | pending |
+| CIREL-01, CIREL-02 | 253-08 T1–T2 / W4 | 253-PR-EVIDENCE.json normal PR proof and 253-COMPLETION-RECORD.json honest statuses | `python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PR-EVIDENCE.json`; then completion mode on 253-COMPLETION-RECORD.json | T-253-15, T-253-16 | pending |
 
 ## Wave 0 Requirements
 
-- Extend existing metrics contracts for late failure context, passing banner, expected negative output, partial jobs, changed hashes and truncation.
-- Add stdlib producer-record/native-report validator and negative tests before workflow wiring.
-- Add signal-controlled delayed/missing readiness, collision/isolation and first-failure trace controls before claiming a registration fix.
-- Implement finite acquisition/reproduction/canary/PR budget ledgers and evidence verifier before hosted acceptance.
+- W1/253-01 extends metrics contracts for late failure context, passing banner, expected negative output, partial jobs, changed hashes and truncation.
+- W1/253-05 adds producer-record/native-report validator and negatives before W2/253-06 wiring.
+- W1/253-02 adds signal-controlled delayed/missing readiness, collision/isolation and first-failure trace controls before any fix claim.
+- W1/253-02 and W3/253-07 create separate finite acquisition/reproduction/canary ledgers and verifier before W4/253-08 production acceptance.
 - Existing frameworks suffice; no dependency is added.
 
 ## Fixed Budgets and Acceptance
