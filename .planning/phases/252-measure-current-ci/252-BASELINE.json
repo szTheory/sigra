@@ -21014,7 +21014,7 @@
     }
   },
   "schema_version": "sigra.ci-run-metrics/snapshot-v1",
-  "source_bundle_sha256": "e0e662a8e546c95386651a33407341b23046524d50083eb740d1b2689e37640a",
+  "source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
   "source_file_sha256": {
     "ci-playwright-report.mjs": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
     "ci-playwright-report.test.mjs": "6ef30793de2e492daba4bd9928ccf5116ddaa0864f79cc1372863a19d98fc616",

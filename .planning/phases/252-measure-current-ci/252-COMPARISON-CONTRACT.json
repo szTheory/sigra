@@ -7,7 +7,7 @@
     "run_attempt": 1,
     "run_id": 38317383419,
     "run_url": "https://github.com/szTheory/sigra/actions/runs/38317383419",
-    "source_bundle_sha256": "5478c3337881eac2285764d57f35fe103191cb5eea1814fc3dd8b36357758d29",
+    "source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
     "workflow_file_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
     "workflow_revision": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
     "workload_revision_sha256": "2f4ece52eb21e9a065a61a943036c88632a2b93b33117db6d992b18b93ca06aa"
@@ -64,6 +64,13 @@
     "workload_revision_sha256": null
   },
   "comparison_readiness": "awaiting_candidate_identity_and_predeclared_window",
+  "evidence_refresh": {
+    "baseline_verified": true,
+    "comparison_runs_started": false,
+    "previous_source_bundle_sha256": "5478c3337881eac2285764d57f35fe103191cb5eea1814fc3dd8b36357758d29",
+    "reason": "security repair added authenticated changed-path page hashes and complete offline source replay validation before any comparison families were run",
+    "source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30"
+  },
   "instrumentation": {
     "comparison_rule": "Use the same instrumentation identities on both runner paths. Preserve overhead disclosures; do not subtract overhead estimates from the improvement target.",
     "exunit": {
