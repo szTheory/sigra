@@ -57,6 +57,9 @@ done
 cp "$ROOT/scripts/ci/ci-gate-canary.sh" "$repo_dir/scripts/ci/ci-gate-canary.sh"
 cp -R "$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/." "$repo_dir/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
 phase_dir="$repo_dir/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+# Simulate a new run only inside the test clone. Saved live halted records in
+# ROOT must remain unchanged; copying them would test a halted-run resume.
+rm -f "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json" "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json"
 cp "$test_freeze" "$phase_dir/253-RECOVERY-CANARY-FREEZE.json"
 test_freeze_hash="$(shasum -a 256 "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" | awk '{print $1}')"
 fixture_ref="$(jq -r '.identity.fixture_ref' "$phase_dir/253-RECOVERY-CANARY-FREEZE.json")"
@@ -89,6 +92,9 @@ case "${2:-}" in
     jq -n '{resources:{core:{limit:5000,remaining:4999,reset:1791867469}}}'
     ;;
   'repos/szTheory/sigra/rulesets?includes_parents=true')
+    printf '%s\n' '[{"id":14941512,"name":"main","target":"branch","enforcement":"active"},{"id":23574716,"name":"tag-namespace","target":"tag","enforcement":"active"}]'
+    ;;
+  'repos/szTheory/sigra/rules/branches/main?per_page=100')
     cat "$MOCK_RULES"
     ;;
   repos/szTheory/sigra/actions/workflows/259268962)
@@ -122,8 +128,8 @@ MOCK_CALLS="$tmp_dir/mock-gh-calls.txt"
 MOCK_REF_STATE="$tmp_dir/remote-ref-created"
 MOCK_BRANCH="$(jq -r '.identity.fixture_ref | sub("^refs/heads/"; "")' "$phase_dir/253-RECOVERY-CANARY-FREEZE.json")"
 MOCK_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$phase_dir/253-RECOVERY-CANARY-FREEZE.json")"
-cp /tmp/sigra-253-effective-rules.json "$MOCK_RULES"
-cp /tmp/sigra-253-registered-workflow.json "$MOCK_WORKFLOW"
+jq '{type:"required_status_checks",parameters:{required_status_checks:[.required_checks[] | {context:.,integration_id:null}]}} | [.]' "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" > "$MOCK_RULES"
+printf '%s\n' '{"id":259268962,"path":".github/workflows/ci.yml","state":"active"}' > "$MOCK_WORKFLOW"
 PATH="$tmp_dir/bin:$PATH" MOCK_RULES="$MOCK_RULES" MOCK_WORKFLOW="$MOCK_WORKFLOW" MOCK_CALLS="$MOCK_CALLS" MOCK_REF_STATE="$MOCK_REF_STATE" MOCK_BRANCH="$MOCK_BRANCH" MOCK_FIXTURE_SHA="$MOCK_FIXTURE_SHA" \
   bash "$repo_dir/scripts/ci/ci-gate-canary.sh" --preflight-only \
   --recovery-freeze "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" \
@@ -139,7 +145,8 @@ done
 [[ "$(jq -r '[.transactions[].status] | all(. == 200)' "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json")" == true ]]
 [[ "$(rg -c '^api ' "$MOCK_CALLS")" == 3 ]]
 rg -q '^api rate_limit$' "$MOCK_CALLS"
-rg -q '^api repos/szTheory/sigra/rulesets\?includes_parents=true$' "$MOCK_CALLS"
+rg -q '^api repos/szTheory/sigra/rules/branches/main\?per_page=100$' "$MOCK_CALLS"
+! rg -q '^api repos/szTheory/sigra/rulesets' "$MOCK_CALLS"
 rg -q '^api repos/szTheory/sigra/actions/workflows/259268962$' "$MOCK_CALLS"
 ! rg -q 'mock-token-that-must-not-be-recorded' "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json" "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json"
 while IFS=$'\t' read -r recorded_path recorded_ref recorded_sha; do

@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { attemptDirectory, runLogged, verifyDiagnosticData, verifyNativeAttempt } from './ci-registration-recovery.mjs';
+import * as recovery from './ci-registration-recovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const runner = path.join(root, 'scripts/ci/ci-registration-repro.sh');
@@ -56,6 +57,43 @@ test('browser attempt output gets a unique directory beside preserved preflight 
   assert.notEqual(attempt, slotDirectory);
   assert.equal(fs.readFileSync(path.join(slotDirectory, 'runner-preflight-error.log'), 'utf8'), 'preserved exact runner error\n');
   assert.equal(fs.existsSync(attempt), false);
+});
+
+test('each diagnostic uses its own physical Mix build for setup, server and cleanup', () => {
+  const first = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-first-'));
+  const second = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-second-'));
+  try {
+    const inherited = { ...process.env, MIX_BUILD_PATH: '/shared/compiled-at-port-4011' };
+    const one = recovery.diagnosticEnvironment({ port: 25311 }, 'first_database', first, inherited);
+    const two = recovery.diagnosticEnvironment({ port: 25312 }, 'second_database', second, inherited);
+    assert.equal(one.MIX_BUILD_PATH, path.join(fs.realpathSync(first), 'mix-build'));
+    assert.equal(two.MIX_BUILD_PATH, path.join(fs.realpathSync(second), 'mix-build'));
+    assert.notEqual(one.MIX_BUILD_PATH, two.MIX_BUILD_PATH);
+    assert.equal(fs.existsSync(one.MIX_BUILD_PATH), false);
+    assert.equal(one.PORT, '25311');
+    assert.equal(two.PORT, '25312');
+    for (const command of ['setup', 'server', 'drop']) {
+      const log = path.join(first, `${command}.log`);
+      const receipt = runLogged(process.execPath, ['-e', 'process.stdout.write(JSON.stringify({build:process.env.MIX_BUILD_PATH,port:process.env.PORT,database:process.env.PGDATABASE}))'], root, one, log, 2000);
+      assert.equal(receipt.exit_code, 0);
+      assert.deepEqual(JSON.parse(fs.readFileSync(log, 'utf8')), { build: one.MIX_BUILD_PATH, port: '25311', database: 'first_database' });
+    }
+  } finally {
+    fs.rmSync(first, { recursive: true, force: true });
+    fs.rmSync(second, { recursive: true, force: true });
+  }
+});
+
+test('command logs remove development signing keys before a receipt hashes their bytes', () => {
+  const log = path.join(temporary, 'development-key.log');
+  const receipt = runLogged(process.execPath, ['-e', 'process.stdout.write("Mix config: secret_key_base: " + JSON.stringify("synthetic-development-key") + "\\n")'], root, process.env, log, 2000);
+  assert.equal(receipt.exit_code, 0);
+  assert.equal(receipt.redacted_secret_fields, 1);
+  const bytes = fs.readFileSync(log);
+  assert.equal(bytes.includes(Buffer.from('synthetic-development-key')), false);
+  assert.match(bytes.toString(), /secret_key_base: "\[REDACTED\]"/);
+  const digest = crypto.createHash('sha256').update(bytes).digest('hex');
+  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(log)).digest('hex'), digest);
 });
 
 function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {
