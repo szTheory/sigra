@@ -82,6 +82,7 @@ class HostedTransportWireTests(unittest.TestCase):
             "max_pages": 2,
             "max_hops": 2,
             "repository": "szTheory/sigra",
+            "download_hosts": [],
             "mode": "hermetic-test",
             "test_origin": f"https://localhost:{port}",
             "test_ca_file": str(self.cert),
@@ -111,7 +112,39 @@ class HostedTransportWireTests(unittest.TestCase):
         self.assertEqual(self.server.journal[0]["path"], "/probe")
         self.assertEqual(receipt["actual_status"], 202)
         self.assertEqual(ledger["transactions"][0]["actual_status"], 202)
+        self.assertEqual(receipt["scrubbed_headers"]["content-type"], "application/json")
+        self.assertEqual(receipt["response_sha256"], __import__("hashlib").sha256(b'{"ready":true}').hexdigest())
         self.assertEqual(self.body_path.read_bytes(), b'{"ready":true}')
+
+    def test_native_statuses_are_retained_without_inference(self):
+        for status in (204, 404, 500):
+            with self.subTest(status=status):
+                self.ledger.unlink(missing_ok=True)
+                self.output_path.unlink(missing_ok=True)
+                self.server.journal.clear()
+                self.server.responses = [(status, [("Content-Type", "application/json")], b'{"status":"wire"}')]
+                result = self.run_runner()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                receipt = json.loads(self.output_path.read_text())
+                ledger = json.loads(self.ledger.read_text())
+                self.assertEqual(receipt["actual_status"], status)
+                self.assertEqual(ledger["transactions"][0]["actual_status"], status)
+
+    def test_connection_failure_still_spends_a_pending_sequence(self):
+        held = socket.socket()
+        held.bind(("127.0.0.1", 0))
+        port = held.getsockname()[1]
+        held.close()
+        allocation = json.loads(self.allocation_path.read_text())
+        allocation["test_origin"] = f"https://localhost:{port}"
+        self.allocation_path.write_text(json.dumps(allocation))
+        result = self.run_runner()
+        self.assertNotEqual(result.returncode, 0)
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual(len(ledger["transactions"]), 1)
+        self.assertIsNone(ledger["transactions"][0]["actual_status"])
+        self.assertEqual(ledger["transactions"][0]["state"], "failed")
+        self.assertEqual(self.server.journal, [])
 
     def test_declined_budget_never_reaches_the_https_server(self):
         allocation = json.loads(self.allocation_path.read_text())
@@ -120,7 +153,8 @@ class HostedTransportWireTests(unittest.TestCase):
         result = self.run_runner()
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(self.server.journal, [])
-        self.assertFalse(self.ledger.exists())
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual(ledger["terminal_stop"]["code"], "request_budget_exhausted")
 
     def test_redirects_are_individually_charged_and_signed_query_is_not_retained(self):
         port = self.server.server_address[1]
@@ -145,8 +179,141 @@ class HostedTransportWireTests(unittest.TestCase):
         self.assertNotIn("fixture-secret", ledger_text + receipt_text)
         ledger = json.loads(ledger_text)
         self.assertEqual([item["actual_status"] for item in ledger["transactions"]], [302, 200])
+        self.assertEqual([item["hop_ordinal"] for item in ledger["transactions"]], [0, 1])
         self.assertEqual(ledger["transactions"][0]["scrubbed_headers"]["location"]["has_query"], True)
         self.assertEqual(self.body_path.read_bytes(), b"archive-bytes")
+        self.assertTrue(all(item["authorization"] is None for item in self.server.journal))
+
+    def test_all_redirect_statuses_are_measured_without_automatic_follow(self):
+        port = self.server.server_address[1]
+        for status in (301, 302, 307, 308):
+            with self.subTest(status=status):
+                self.ledger.unlink(missing_ok=True)
+                self.output_path.unlink(missing_ok=True)
+                self.server.journal.clear()
+                self.server.responses = [
+                    (status, [("Location", f"https://localhost:{port}/download?signature=private")], b""),
+                    (200, [("Content-Type", "application/octet-stream")], b"archive"),
+                ]
+                result = subprocess.run(
+                    ["python3", str(ROOT / "scripts/ci/ci-hosted-transport.py"), "--follow-download",
+                     "--allocation", str(self.allocation_path), "--ledger", str(self.ledger),
+                     "--request", str(self.request_path), "--output", str(self.output_path),
+                     "--body-output", str(self.body_path)],
+                    cwd=ROOT, text=True, capture_output=True, timeout=10,
+                    env={**os.environ, "GH_TOKEN": "ghp_testtoken-not-forwarded"},
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                ledger = json.loads(self.ledger.read_text())
+                self.assertEqual([row["actual_status"] for row in ledger["transactions"]], [status, 200])
+                self.assertTrue(all(row["charged"] for row in self.server.journal))
+                self.assertTrue(all(row["authorization"] is None for row in self.server.journal))
+                self.assertNotIn("signature=private", self.ledger.read_text() + self.output_path.read_text())
+
+    def test_redirect_budget_exhaustion_charges_only_the_frozen_hops(self):
+        port = self.server.server_address[1]
+        allocation = json.loads(self.allocation_path.read_text())
+        allocation["max_hops"] = 1
+        self.allocation_path.write_text(json.dumps(allocation))
+        self.server.responses = [
+            (302, [("Location", f"https://localhost:{port}/download?one=secret")], b""),
+            (307, [("Location", f"https://localhost:{port}/third?two=secret")], b""),
+        ]
+        result = subprocess.run(
+            ["python3", str(ROOT / "scripts/ci/ci-hosted-transport.py"), "--follow-download",
+             "--allocation", str(self.allocation_path), "--ledger", str(self.ledger),
+             "--request", str(self.request_path), "--output", str(self.output_path)],
+            cwd=ROOT, text=True, capture_output=True, timeout=10,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(len(self.server.journal), 2)
+        self.assertTrue(all(row["charged"] for row in self.server.journal))
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual([row["actual_status"] for row in ledger["transactions"]], [302, 307])
+        self.assertEqual(ledger["terminal_stop"]["code"], "redirect_budget_exhausted")
+        self.assertNotIn("secret", self.ledger.read_text() + self.output_path.read_text())
+
+    def test_unapproved_redirect_is_stopped_before_a_second_socket_request(self):
+        self.server.responses = [(302, [("Location", "https://attacker.example/download?sig=secret")], b"")]
+        result = subprocess.run(
+            ["python3", str(ROOT / "scripts/ci/ci-hosted-transport.py"), "--follow-download",
+             "--allocation", str(self.allocation_path), "--ledger", str(self.ledger),
+             "--request", str(self.request_path), "--output", str(self.output_path)],
+            cwd=ROOT, text=True, capture_output=True, timeout=10,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(len(self.server.journal), 1)
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual(ledger["terminal_stop"]["code"], "redirect_rejected")
+
+    def test_pages_are_explicit_charged_requests_and_cycles_stop_at_the_frozen_limit(self):
+        port = self.server.server_address[1]
+        self.server.responses = [
+            (200, [("Content-Type", "application/json"),
+                   ("Link", f'<https://localhost:{port}/page/2>; rel="next"')], b'{"page":1}'),
+            (200, [("Content-Type", "application/json"),
+                   ("Link", f'<https://localhost:{port}/page/3>; rel="next"')], b'{"page":2}'),
+        ]
+        self.request_path.write_text(json.dumps({"method": "GET", "route_id": "test_page", "page_ordinal": 1}))
+        result = subprocess.run(
+            ["python3", str(ROOT / "scripts/ci/ci-hosted-transport.py"), "--fetch-pages",
+             "--allocation", str(self.allocation_path), "--ledger", str(self.ledger),
+             "--request", str(self.request_path), "--output", str(self.output_path)],
+            cwd=ROOT, text=True, capture_output=True, timeout=10,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(len(self.server.journal), 2)
+        self.assertTrue(all(item["charged"] for item in self.server.journal))
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual([item["page_ordinal"] for item in ledger["transactions"]], [1, 2])
+        self.assertIsNotNone(ledger["terminal_stop"], result.stderr)
+        self.assertEqual(ledger["terminal_stop"]["code"], "page_budget_or_cycle", result.stderr)
+
+    def test_live_allocation_rejects_hermetic_test_origin_before_socket_use(self):
+        allocation = json.loads(self.allocation_path.read_text())
+        allocation["mode"] = "live"
+        self.allocation_path.write_text(json.dumps(allocation))
+        result = self.run_runner()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.server.journal, [])
+        self.assertFalse(self.ledger.exists())
+
+    def test_two_page_response_charges_both_wire_requests(self):
+        port = self.server.server_address[1]
+        self.server.responses = [
+            (200, [("Content-Type", "application/json"),
+                   ("Link", f'<https://localhost:{port}/page/2>; rel="next"')], b'{"page":1}'),
+            (200, [("Content-Type", "application/json")], b'{"page":2}'),
+        ]
+        self.request_path.write_text(json.dumps({"method": "GET", "route_id": "test_page", "page_ordinal": 1}))
+        result = subprocess.run(
+            ["python3", str(ROOT / "scripts/ci/ci-hosted-transport.py"), "--fetch-pages",
+             "--allocation", str(self.allocation_path), "--ledger", str(self.ledger),
+             "--request", str(self.request_path), "--output", str(self.output_path),
+             "--body-output", str(self.body_path)],
+            cwd=ROOT, text=True, capture_output=True, timeout=10,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual(len(ledger["transactions"]), 2)
+        self.assertEqual([row["page_ordinal"] for row in ledger["transactions"]], [1, 2])
+        self.assertTrue(all(row["charged"] for row in self.server.journal))
+        self.assertEqual(json.loads(self.body_path.read_text()), [{"page": 1}, {"page": 2}])
+
+    def test_concurrent_requests_cannot_overspend_the_last_slot(self):
+        allocation = json.loads(self.allocation_path.read_text())
+        allocation["max_requests"] = 1
+        self.allocation_path.write_text(json.dumps(allocation))
+        command = ["bash", str(RUNNER), "--transport-probe", "--allocation", str(self.allocation_path),
+                   "--ledger", str(self.ledger), "--request", str(self.request_path),
+                   "--output", str(self.output_path)]
+        first = subprocess.Popen(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        second = subprocess.Popen(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        first.communicate(timeout=10)
+        second.communicate(timeout=10)
+        self.assertEqual(sorted([first.returncode, second.returncode]), [0, 1])
+        self.assertEqual(len(self.server.journal), 1)
+        self.assertEqual(len(json.loads(self.ledger.read_text())["transactions"]), 1)
 
     def test_rate_and_auth_hard_stops_prevent_a_later_network_request(self):
         for status in (401, 403, 429):

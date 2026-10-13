@@ -1,0 +1,751 @@
+#!/usr/bin/env python3
+"""Bounded, one-request-at-a-time HTTPS transport for Phase 253 evidence."""
+
+from __future__ import annotations
+
+import argparse
+import contextlib
+import fcntl
+import hashlib
+import http.client
+import json
+import os
+import re
+import ssl
+import subprocess
+import tempfile
+import time
+from pathlib import Path
+from urllib.parse import parse_qs, quote, urlsplit, urlunsplit
+
+
+SCHEMA = "sigra.phase253.http-ledger/v2"
+API_HOST = "api.github.com"
+DEFAULT_REPO = "szTheory/sigra"
+MAX_REQUEST_BYTES = 2 * 1024 * 1024
+MAX_ALLOCATION_BYTES = 64 * 1024
+SAFE_HEADERS = {
+    "content-type", "content-length", "date", "etag", "last-modified",
+    "x-github-request-id", "x-ratelimit-limit", "x-ratelimit-remaining",
+    "x-ratelimit-reset", "x-ratelimit-resource", "retry-after",
+}
+ROUTES = {
+    "rate_limit": ("GET", "/rate_limit", "json"),
+    "rules_main": ("GET", "/repos/{repo}/rules/branches/main", "json"),
+    "workflow": ("GET", "/repos/{repo}/actions/workflows/{workflow_id}", "json"),
+    "workflow_runs": ("GET", "/repos/{repo}/actions/workflows/{workflow_id}/runs", "json"),
+    "run": ("GET", "/repos/{repo}/actions/runs/{run_id}", "json"),
+    "run_jobs": ("GET", "/repos/{repo}/actions/runs/{run_id}/jobs", "json"),
+    "run_artifacts": ("GET", "/repos/{repo}/actions/runs/{run_id}/artifacts", "json"),
+    "cancel_run": ("POST", "/repos/{repo}/actions/runs/{run_id}/cancel", "json"),
+    "dispatch": ("POST", "/repos/{repo}/actions/workflows/{workflow_id}/dispatches", "json"),
+    "get_ref": ("GET", "/repos/{repo}/git/ref/heads/{branch}", "json"),
+    "create_ref": ("POST", "/repos/{repo}/git/refs", "json"),
+    "artifact_zip": ("GET", "/repos/{repo}/actions/artifacts/{artifact_id}/zip", "download"),
+    "run_logs": ("GET", "/repos/{repo}/actions/runs/{run_id}/logs", "download"),
+    "job_logs": ("GET", "/repos/{repo}/actions/jobs/{job_id}/logs", "download"),
+    "test_probe": ("GET", "/probe", "test"),
+    "test_page": ("GET", "/page/{page_ordinal}", "test"),
+}
+
+
+class TransportError(Exception):
+    def __init__(self, code: str, message: str, exit_code: int = 1):
+        super().__init__(message)
+        self.code = code
+        self.exit_code = exit_code
+
+
+def _json(path: Path, limit: int) -> tuple[dict, bytes]:
+    raw = path.read_bytes()
+    if len(raw) > limit:
+        raise TransportError("input_too_large", "transport input exceeds its fixed size limit")
+    try:
+        value = json.loads(raw)
+    except (ValueError, UnicodeDecodeError) as exc:
+        raise TransportError("invalid_json", "transport input is not valid JSON") from exc
+    if not isinstance(value, dict):
+        raise TransportError("invalid_shape", "transport input must be a JSON object")
+    return value, raw
+
+
+def _atomic_json(path: Path, value) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    fd, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temp_name, path)
+        dir_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(temp_name)
+
+
+def _preserve(path: Path) -> dict | None:
+    if not path.exists():
+        return None
+    try:
+        import subprocess as sp
+        status = sp.run(["git", "status", "--porcelain=v1", "--", str(path)], text=True,
+                        capture_output=True, check=False).stdout.rstrip("\n")
+        before = path.read_bytes()
+        digest = hashlib.sha256(before).hexdigest()
+        if status.strip():
+            blob = sp.run(["git", "hash-object", "-w", str(path)], text=True, capture_output=True)
+            if blob.returncode:
+                raise TransportError("preservation_failed", "could not preserve the prior dirty ledger")
+            ref = f"refs/gsd/phase253-http-ledger/{digest}"
+            existing = sp.run(["git", "show-ref", "--verify", "--hash", ref], text=True, capture_output=True)
+            if existing.returncode:
+                update = sp.run(["git", "update-ref", ref, blob.stdout.strip()], capture_output=True)
+                if update.returncode:
+                    raise TransportError("preservation_failed", "could not anchor the prior dirty ledger")
+            readback = sp.run(["git", "show", ref], capture_output=True)
+            if readback.returncode or hashlib.sha256(readback.stdout).hexdigest() != digest:
+                raise TransportError("preservation_failed", "prior dirty ledger read-back did not match")
+            if path.read_bytes() != before or sp.run(["git", "status", "--porcelain=v1", "--", str(path)],
+                    text=True, capture_output=True).stdout.rstrip("\n") != status:
+                raise TransportError("preservation_failed", "prior ledger changed during preservation")
+            return {"path": str(path), "status": status, "sha256": digest, "ref": ref}
+        return {"path": str(path), "status": "clean", "sha256": digest, "ref": None}
+    except FileNotFoundError:
+        # A hermetic fixture outside a Git checkout has no prior version to anchor.
+        return {"path": str(path), "status": "untracked-fixture", "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "ref": None}
+
+
+def _scrub_text(value: str, secrets: list[str]) -> str:
+    for secret in secrets:
+        if secret:
+            value = value.replace(secret, "[REDACTED]")
+    value = re.sub(r"(?i)\b(gh[pousr]_[A-Za-z0-9_]{10,}|github_pat_[A-Za-z0-9_]{10,})", "[REDACTED]", value)
+    value = re.sub(r"(?i)(authorization|cookie|set-cookie)\s*[:=]\s*[^\s,;]+", r"\1=[REDACTED]", value)
+    value = re.sub(r'''(?i)(["']?(?:access_token|token|secret|password|client_secret)["']?\s*:\s*["'])[^"']*(["'])''',
+                   r"\1[REDACTED]\2", value)
+    value = re.sub(r"(?i)(https?://[^\s\"'<>?#]+)\?[^\s\"'<>#]*", r"\1?[REDACTED]", value)
+    return value
+
+
+def _safe_location(raw: str) -> dict:
+    try:
+        parsed = urlsplit(raw)
+        port = parsed.port
+        if (parsed.scheme.lower() != "https" or not parsed.hostname or parsed.username or parsed.password
+                or parsed.fragment or (port is not None and not (1 <= port <= 65535)) or not parsed.path.startswith("/")):
+            raise ValueError
+        return {"host": parsed.hostname.lower(), "port": port, "path": parsed.path, "has_query": bool(parsed.query)}
+    except (ValueError, TypeError):
+        raise TransportError("malformed_location", "response Location is malformed")
+
+
+def scrub_receipt(headers, body: bytes, secrets: list[str], raw_headers: list[tuple[str, str]]) -> tuple[dict, bytes]:
+    counts = {}
+    for name, _ in raw_headers:
+        lowered = name.lower()
+        counts[lowered] = counts.get(lowered, 0) + 1
+    for key in ("location", "link", "content-length", "content-type", "retry-after"):
+        if counts.get(key, 0) > 1:
+            raise TransportError("duplicate_header", f"response has duplicate {key} headers")
+
+    safe = {}
+    links = []
+    for name, value in headers:
+        key = name.lower()
+        if key == "location":
+            safe["location"] = _safe_location(value)
+        elif key == "link":
+            for segment in value.split(","):
+                match = re.match(r"\s*<([^>]*)>\s*(.*)", segment)
+                if not match:
+                    raise TransportError("malformed_link", "response Link header is malformed")
+                target, attributes = match.groups()
+                safe_target = _safe_location(target) if target.startswith("https://") else None
+                rel = re.search(r'(?:^|;)\s*rel="?([A-Za-z0-9_-]+)', attributes)
+                links.append({"destination": safe_target, "rel": rel.group(1) if rel else None})
+            safe["link"] = links
+        elif key in SAFE_HEADERS:
+            safe[key] = _scrub_text(value, secrets)
+
+    text = body.decode("utf-8", errors="replace")
+    scrubbed = _scrub_text(text, secrets).encode("utf-8")
+    return safe, scrubbed
+
+
+def _positive(value, name: str, maximum: int) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1 or value > maximum:
+        raise TransportError("invalid_route_parameter", f"{name} must be an integer from 1 through {maximum}")
+    return value
+
+
+def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str]:
+    route_id = request.get("route_id")
+    if route_id not in ROUTES:
+        raise TransportError("route_rejected", "route ID is not approved")
+    expected_method, template, kind = ROUTES[route_id]
+    method = request.get("method")
+    if method != expected_method:
+        raise TransportError("method_rejected", "HTTP method is not approved for this route")
+    if kind == "test":
+        if allocation.get("mode") != "hermetic-test":
+            raise TransportError("test_origin_rejected", "test-only route is forbidden by a live allocation")
+        origin = urlsplit(str(allocation.get("test_origin", "")))
+        if (origin.scheme != "https" or origin.hostname not in {"localhost", "127.0.0.1"}
+                or origin.port is None or origin.username or origin.password or origin.query or origin.fragment):
+            raise TransportError("test_origin_rejected", "hermetic test origin must be local HTTPS")
+        if route_id == "test_page":
+            page = _positive(request.get("page_ordinal"), "page_ordinal", allocation.get("max_pages", 1))
+            template = template.format(page_ordinal=page)
+        return origin.hostname, origin.port, None, template
+
+    if allocation.get("mode") != "live":
+        raise TransportError("live_allocation_required", "GitHub routes require a live frozen allocation")
+    params = request.get("params", {})
+    if not isinstance(params, dict):
+        raise TransportError("invalid_route_parameter", "route parameters must be an object")
+    repo = allocation.get("repository", DEFAULT_REPO)
+    if repo != DEFAULT_REPO:
+        raise TransportError("repository_rejected", "allocation repository is not the approved repository")
+    values = {"repo": repo}
+    for name in ("workflow_id", "run_id", "artifact_id", "job_id"):
+        if f"{{{name}}}" in template:
+            values[name] = str(_positive(params.get(name), name, 10**16))
+    if "{branch}" in template:
+        branch = params.get("branch")
+        if not isinstance(branch, str) or not re.fullmatch(r"[A-Za-z0-9._/-]{1,160}", branch) or ".." in branch.split("/"):
+            raise TransportError("invalid_route_parameter", "branch is not a safe route component")
+        values["branch"] = quote(branch, safe="/-._")
+    try:
+        path = template.format(**values)
+    except KeyError as exc:
+        raise TransportError("invalid_route_parameter", "required route parameter is missing") from exc
+    query = request.get("query", {})
+    if not isinstance(query, dict):
+        raise TransportError("invalid_route_parameter", "query must be an object")
+    permitted = {
+        "rules_main": {"per_page", "page"}, "workflow_runs": {"event", "branch", "per_page", "page"},
+        "run_jobs": {"per_page", "page"}, "run_artifacts": {"per_page", "page"},
+    }.get(route_id, set())
+    if set(query) - permitted:
+        raise TransportError("query_rejected", "route query contains an unapproved key")
+    query_parts = []
+    for key, value in query.items():
+        if key in {"per_page", "page"}:
+            number = _positive(value, key, 100)
+            query_parts.append(f"{key}={number}")
+        elif key == "event" and value == "workflow_dispatch":
+            query_parts.append("event=workflow_dispatch")
+        elif key == "branch" and route_id == "workflow_runs":
+            if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9._/-]{1,160}", value):
+                raise TransportError("invalid_route_parameter", "branch query is malformed")
+            query_parts.append("branch=" + quote(value, safe="/-._"))
+        else:
+            raise TransportError("query_rejected", "route query value is not approved")
+    if query_parts:
+        path += "?" + "&".join(query_parts)
+    body = request.get("body")
+    if method == "POST":
+        if not isinstance(body, dict):
+            raise TransportError("invalid_body", "POST route requires a JSON object body")
+        body_bytes = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode()
+        if len(body_bytes) > MAX_REQUEST_BYTES:
+            raise TransportError("request_body_too_large", "request body exceeds the fixed 2 MiB limit")
+    else:
+        if body is not None:
+            raise TransportError("invalid_body", "GET route cannot carry a body")
+        body_bytes = None
+    return API_HOST, 443, body_bytes, path
+
+
+def _validate_allocation(allocation: dict) -> None:
+    if allocation.get("schema_version") != "sigra.phase253.http-allocation/v1":
+        raise TransportError("allocation_schema", "allocation schema is not recognized")
+    mode = allocation.get("mode")
+    if mode not in {"live", "hermetic-test"}:
+        raise TransportError("allocation_mode", "allocation mode must be live or hermetic-test")
+    common = {"schema_version", "window_id", "source_sha256", "max_requests", "max_elapsed_seconds",
+              "max_response_bytes", "max_pages", "max_hops", "repository", "mode", "download_hosts"}
+    test_only = {"test_origin", "test_ca_file"}
+    allowed = common | test_only if mode == "hermetic-test" else common
+    if set(allocation) - allowed:
+        raise TransportError("allocation_field_rejected", "allocation contains unapproved fields")
+    if mode == "live" and set(allocation) & test_only:
+        raise TransportError("test_origin_rejected", "live allocations cannot name test origins or certificates")
+    if not isinstance(allocation.get("window_id"), str) or not allocation["window_id"] or len(allocation["window_id"]) > 128:
+        raise TransportError("allocation_incomplete", "allocation window identity is missing or malformed")
+    if not isinstance(allocation.get("source_sha256"), str) or not re.fullmatch(r"[a-f0-9]{64}", allocation["source_sha256"]):
+        raise TransportError("allocation_incomplete", "source digest is malformed")
+    for field, upper in (("max_elapsed_seconds", 3600), ("max_response_bytes", 4 * 1024 * 1024),
+                         ("max_pages", 100), ("max_hops", 2)):
+        value = allocation.get(field)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 1 or value > upper:
+            raise TransportError("allocation_limit_invalid", f"{field} must be from one through {upper}")
+    max_requests = allocation.get("max_requests")
+    min_requests = 0 if mode == "hermetic-test" else 1
+    if isinstance(max_requests, bool) or not isinstance(max_requests, int) or not min_requests <= max_requests <= (117 if mode == "live" else 100):
+        raise TransportError("allocation_limit_invalid", "max_requests is outside its approved allocation range")
+    if allocation.get("repository", DEFAULT_REPO) != DEFAULT_REPO:
+        raise TransportError("repository_rejected", "allocation repository is not the approved repository")
+    if mode == "live":
+        hosts = allocation.get("download_hosts")
+        if not isinstance(hosts, list) or len(set(hosts)) != len(hosts):
+            raise TransportError("download_host_allocation", "live allocation requires a unique trusted download-host list")
+        for host in hosts:
+            if host != "pipelines.actions.githubusercontent.com" and not re.fullmatch(
+                    r"productionresultssa[0-9]+\.blob\.core\.windows\.net", str(host)):
+                raise TransportError("download_host_allocation", "live allocation contains a host outside the trusted policy")
+    elif not allocation.get("test_origin") or not allocation.get("test_ca_file"):
+        raise TransportError("test_origin_rejected", "hermetic allocation requires its local TLS origin and test CA")
+
+
+def _load_ledger(path: Path, allocation: dict, allocation_hash: str) -> dict:
+    if path.exists():
+        ledger, _ = _json(path, 8 * 1024 * 1024)
+        if (ledger.get("schema_version") != SCHEMA or ledger.get("window_id") != allocation["window_id"]
+                or ledger.get("allocation_sha256") != allocation_hash
+                or ledger.get("source_sha256") != allocation["source_sha256"]):
+            raise TransportError("ledger_identity_mismatch", "ledger window, allocation or source identity changed")
+        if ledger.get("terminal_stop"):
+            raise TransportError("terminal_stop", "ledger records a terminal stop; no more network requests are allowed")
+        if any(entry.get("state") == "pending" for entry in ledger.get("transactions", [])):
+            raise TransportError("incomplete_pending", "ledger contains an incomplete charged request")
+        return ledger
+    return {"schema_version": SCHEMA, "window_id": allocation["window_id"],
+            "allocation_sha256": allocation_hash, "source_sha256": allocation["source_sha256"],
+            "transactions": [], "terminal_stop": None, "preserved_revisions": []}
+
+
+def _lock(path: Path):
+    lock_path = Path(str(path) + ".lock")
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    stream = lock_path.open("a+")
+    fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
+    return stream
+
+
+def _connect(host: str, port: int, allocation: dict) -> http.client.HTTPSConnection:
+    context = ssl.create_default_context()
+    if allocation.get("mode") == "hermetic-test":
+        ca_file = allocation.get("test_ca_file")
+        if not ca_file or not Path(ca_file).is_file():
+            raise TransportError("test_ca_missing", "hermetic TLS certificate is unavailable")
+        context.load_verify_locations(cafile=ca_file)
+    return http.client.HTTPSConnection(host, port, timeout=30, context=context)
+
+
+def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
+                output_path: Path, body_output: Path | None = None,
+                destination: tuple[str, int, str] | None = None) -> tuple[dict, str | None, bytes, list[tuple[str, str]]]:
+    allocation, allocation_raw = _json(allocation_path, MAX_ALLOCATION_BYTES)
+    request, _ = _json(request_path, MAX_REQUEST_BYTES)
+    _validate_allocation(allocation)
+    host, port, body, path = _route(request, allocation)
+    if destination is not None:
+        host, port, path = destination
+        if not host or not (1 <= port <= 65535) or not path.startswith("/") or "#" in path or "\r" in path or "\n" in path:
+            raise TransportError("redirect_rejected", "redirect destination is malformed")
+    if host != API_HOST and allocation.get("mode") != "hermetic-test":
+        raise TransportError("origin_rejected", "live transport is restricted to api.github.com")
+
+    allocation_hash = hashlib.sha256(allocation_raw).hexdigest()
+    start_ns = time.monotonic_ns()
+    lock = _lock(ledger_path)
+    try:
+        ledger = _load_ledger(ledger_path, allocation, allocation_hash)
+        if len(ledger["transactions"]) >= allocation["max_requests"]:
+            ledger["terminal_stop"] = {"code": "request_budget_exhausted", "at_monotonic_ns": start_ns}
+            _atomic_json(ledger_path, ledger)
+            raise TransportError("request_budget_exhausted", "request allocation is exhausted")
+        elapsed = (start_ns - ledger.get("started_monotonic_ns", start_ns)) / 1e9
+        if elapsed >= allocation["max_elapsed_seconds"]:
+            ledger["terminal_stop"] = {"code": "time_budget_exhausted", "at_monotonic_ns": start_ns}
+            _atomic_json(ledger_path, ledger)
+            raise TransportError("time_budget_exhausted", "request allocation time limit is exhausted")
+        prior = _preserve(ledger_path)
+        if prior:
+            ledger["preserved_revisions"].append(prior)
+        ledger.setdefault("started_monotonic_ns", start_ns)
+        sequence = len(ledger["transactions"]) + 1
+        entry = {"sequence": sequence, "request_kind": request.get("request_kind", request["route_id"]),
+                 "method": request["method"], "route_id": request["route_id"], "host": host,
+                 "page_ordinal": request.get("page_ordinal"), "hop_ordinal": request.get("hop_ordinal"),
+                 "state": "pending", "started_monotonic_ns": start_ns, "ended_monotonic_ns": None,
+                 "actual_status": None, "scrubbed_headers": {}, "response_sha256": None,
+                 "raw_observation_sha256": None, "response_bytes": None, "scrubbed_response_bytes": None}
+        ledger["transactions"].append(entry)
+        _atomic_json(ledger_path, ledger)
+    finally:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        lock.close()
+
+    token = ""
+    if host == API_HOST:
+        token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
+        if not token:
+            result = subprocess.run(["gh", "auth", "token"], text=True, capture_output=True, check=False, timeout=10)
+            token = result.stdout.strip() if result.returncode == 0 else ""
+        if not token:
+            _finish_failure(ledger_path, sequence, "authentication_unavailable", "GitHub authentication is unavailable")
+            raise TransportError("authentication_unavailable", "GitHub authentication is unavailable")
+
+    headers = {"Accept": "application/vnd.github+json" if host == API_HOST else "application/json",
+               "Connection": "close", "User-Agent": "sigra-phase253-transport"}
+    secrets = [token]
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    if body is not None:
+        headers["Content-Type"] = "application/json"
+
+    connection = None
+    actual_status = None
+    response_headers = []
+    response_body = b""
+    error_code = None
+    error_message = None
+    deadline = time.monotonic() + 30
+    try:
+        connection = _connect(host, port, allocation)
+        connection.timeout = max(0.1, deadline - time.monotonic())
+        connection.request(request["method"], path, body=body, headers=headers)
+        response = connection.getresponse()
+        actual_status = response.status
+        response_headers = response.getheaders()
+        cap = allocation["max_response_bytes"]
+        chunks = []
+        byte_count = 0
+        while byte_count <= cap:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                error_code = "request_deadline"
+                error_message = "request exceeded its 30-second deadline"
+                break
+            if connection.sock is not None:
+                connection.sock.settimeout(remaining)
+            chunk = response.read(min(65536, cap + 1 - byte_count))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            byte_count += len(chunk)
+        response_body = b"".join(chunks)
+        if len(response_body) > cap:
+            error_code = "response_too_large"
+            error_message = "response exceeded its frozen byte limit"
+        if time.monotonic() > deadline:
+            error_code = "request_deadline"
+            error_message = "request exceeded its 30-second deadline"
+    except (OSError, ssl.SSLError, http.client.HTTPException, TimeoutError) as exc:
+        error_code = "connection_failure"
+        error_message = _scrub_text(type(exc).__name__, secrets)
+    finally:
+        if connection is not None:
+            connection.close()
+
+    if actual_status is not None:
+        try:
+            safe_headers, scrubbed_body = scrub_receipt(response_headers, response_body, secrets, response_headers)
+        except TransportError as exc:
+            safe_headers, scrubbed_body = {}, b""
+            error_code, error_message = exc.code, exc.code
+    else:
+        safe_headers, scrubbed_body = {}, b""
+    core_remaining = safe_headers.get("x-ratelimit-remaining") if safe_headers.get("x-ratelimit-resource") == "core" else None
+    hard_stop = actual_status in {401, 403, 429} or (core_remaining is not None and str(core_remaining).isdigit() and int(core_remaining) <= 250)
+    if error_code:
+        hard_stop = True
+    end_ns = time.monotonic_ns()
+    lock = _lock(ledger_path)
+    try:
+        ledger = _load_ledger_allow_pending(ledger_path, allocation, allocation_hash)
+        entry = next(item for item in ledger["transactions"] if item["sequence"] == sequence)
+        entry.update({"state": "failed" if error_code else "complete", "ended_monotonic_ns": end_ns,
+                      "actual_status": actual_status, "scrubbed_headers": safe_headers,
+                      "response_sha256": hashlib.sha256(scrubbed_body).hexdigest() if actual_status is not None else None,
+                      "raw_observation_sha256": hashlib.sha256(response_body).hexdigest() if actual_status is not None else None,
+                      "response_bytes": len(response_body), "scrubbed_response_bytes": len(scrubbed_body),
+                      "error": {"code": error_code, "message": error_message} if error_code else None})
+        if hard_stop:
+            ledger["terminal_stop"] = {"code": error_code or f"http_{actual_status}" if actual_status in {401, 403, 429} else "core_budget_stop",
+                                       "status": actual_status, "retry_after": safe_headers.get("retry-after"),
+                                       "rate_limit_reset": safe_headers.get("x-ratelimit-reset"),
+                                       "at_monotonic_ns": end_ns}
+        _atomic_json(ledger_path, ledger)
+    finally:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        lock.close()
+
+    receipt = {"schema_version": "sigra.phase253.http-receipt/v1", "window_id": allocation["window_id"],
+               "allocation_sha256": allocation_hash, "source_sha256": allocation["source_sha256"],
+               "sequence": sequence, "route_id": request["route_id"], "host": host,
+               "page_ordinal": request.get("page_ordinal"), "hop_ordinal": request.get("hop_ordinal"),
+               "actual_status": actual_status, "scrubbed_headers": safe_headers,
+               "response_sha256": hashlib.sha256(scrubbed_body).hexdigest() if actual_status is not None else None,
+               "raw_observation_sha256": hashlib.sha256(response_body).hexdigest() if actual_status is not None else None,
+               "response_bytes": len(response_body), "scrubbed_response_bytes": len(scrubbed_body),
+               "error": {"code": error_code, "message": error_message} if error_code else None,
+               "terminal_stop": hard_stop}
+    _atomic_json(output_path, receipt)
+    route_kind = ROUTES[request["route_id"]][2]
+    retained_body = response_body if route_kind == "download" else scrubbed_body
+    if body_output is not None and actual_status is not None and not error_code:
+        body_output.parent.mkdir(parents=True, exist_ok=True)
+        body_output.write_bytes(retained_body)
+    if error_code:
+        raise TransportError(error_code, error_message or "request failed")
+    raw_location = [value for name, value in response_headers if name.lower() == "location"]
+    if hard_stop:
+        stop = (ledger.get("terminal_stop") or {}).get("code", "terminal_stop")
+        raise TransportError(stop, "HTTP response requires a terminal stop")
+    return receipt, raw_location[0] if raw_location else None, scrubbed_body, response_headers
+
+
+def _approved_redirect(location: str, allocation: dict) -> tuple[str, int, str]:
+    try:
+        parsed = urlsplit(location)
+        port = parsed.port
+    except ValueError as exc:
+        raise TransportError("redirect_rejected", "redirect URL is malformed") from exc
+    if (parsed.scheme.lower() != "https" or not parsed.hostname or parsed.username or parsed.password
+            or parsed.fragment or not parsed.path.startswith("/") or "\r" in location or "\n" in location):
+        raise TransportError("redirect_rejected", "redirect URL contains a forbidden component")
+    host = parsed.hostname.lower()
+    if allocation.get("mode") == "hermetic-test":
+        test_origin = urlsplit(allocation["test_origin"])
+        if host != test_origin.hostname or port != test_origin.port:
+            raise TransportError("redirect_rejected", "hermetic redirect left its exact local test origin")
+    else:
+        if port not in (None, 443) or host not in allocation.get("download_hosts", []):
+            raise TransportError("redirect_rejected", "redirect host is outside the frozen download-host list")
+        trusted = host == "pipelines.actions.githubusercontent.com" or bool(
+            re.fullmatch(r"productionresultssa[0-9]+\.blob\.core\.windows\.net", host))
+        if not trusted:
+            raise TransportError("redirect_rejected", "redirect host does not match the trusted download policy")
+    target = urlunsplit(("", "", parsed.path, parsed.query, ""))
+    return host, port or 443, target
+
+
+def follow_download(allocation_path: Path, ledger_path: Path, request_path: Path,
+                    output_path: Path, body_output: Path | None = None) -> dict:
+    request, _ = _json(request_path, MAX_REQUEST_BYTES)
+    allocation, _ = _json(allocation_path, MAX_ALLOCATION_BYTES)
+    _route(request, allocation)
+    kind = ROUTES[request["route_id"]][2]
+    if request["method"] != "GET" or kind not in {"download", "test"}:
+        raise TransportError("redirect_route_rejected", "redirect following is limited to approved GET download routes")
+    max_hops = allocation.get("max_hops", 0)
+    if isinstance(max_hops, bool) or not isinstance(max_hops, int) or max_hops < 0 or max_hops > 2:
+        raise TransportError("hop_budget_invalid", "download hop allocation must be from zero through two")
+    hop = 0
+    seen = set()
+    destination = None
+    while True:
+        hop_request = dict(request)
+        hop_request["hop_ordinal"] = hop
+        temp_fd, temp_name = tempfile.mkstemp(prefix="ci-http-hop-request-")
+        os.close(temp_fd)
+        temp_request = Path(temp_name)
+        try:
+            temp_request.write_text(json.dumps(hop_request))
+            receipt, location, _, _ = request_one(allocation_path, ledger_path, temp_request,
+                                                   output_path, body_output, destination)
+        finally:
+            temp_request.unlink(missing_ok=True)
+        if receipt["actual_status"] not in {301, 302, 303, 307, 308}:
+            return receipt
+        if location is None or hop >= max_hops:
+            _terminalize(ledger_path, "redirect_budget_exhausted", receipt["actual_status"])
+            raise TransportError("redirect_budget_exhausted", "redirect is missing Location or exceeds its frozen hop count")
+        try:
+            destination = _approved_redirect(location, allocation)
+        except TransportError as exc:
+            _terminalize(ledger_path, exc.code, receipt["actual_status"])
+            raise
+        key = (destination[0], destination[1], destination[2])
+        if key in seen:
+            _terminalize(ledger_path, "redirect_cycle", receipt["actual_status"])
+            raise TransportError("redirect_cycle", "redirect destination repeated")
+        seen.add(key)
+        hop += 1
+
+
+def _terminalize(path: Path, code: str, status: int | None) -> None:
+    lock = _lock(path)
+    try:
+        ledger, _ = _json(path, 8 * 1024 * 1024)
+        ledger["terminal_stop"] = {"code": code, "status": status, "at_monotonic_ns": time.monotonic_ns()}
+        _atomic_json(path, ledger)
+    finally:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        lock.close()
+
+
+def fetch_pages(allocation_path: Path, ledger_path: Path, request_path: Path,
+                output_path: Path, body_output: Path | None = None) -> dict:
+    initial, _ = _json(request_path, MAX_REQUEST_BYTES)
+    allocation, _ = _json(allocation_path, MAX_ALLOCATION_BYTES)
+    _route(initial, allocation)
+    if initial.get("method") != "GET" or initial.get("route_id") not in {"workflow_runs", "rules_main", "run_jobs", "run_artifacts", "test_page"}:
+        raise TransportError("pagination_route_rejected", "route is not an approved paginated GET")
+    max_pages = allocation.get("max_pages", 0)
+    if isinstance(max_pages, bool) or not isinstance(max_pages, int) or max_pages < 1 or max_pages > 100:
+        raise TransportError("page_budget_invalid", "page allocation must be from one through one hundred")
+    pages, receipts, seen = [], [], set()
+    page = 1
+    while True:
+        current = dict(initial)
+        current["page_ordinal"] = page
+        if current["route_id"] != "test_page":
+            query = dict(current.get("query", {}))
+            query["page"] = page
+            current["query"] = query
+        temp_fd, temp_name = tempfile.mkstemp(prefix="ci-http-page-request-")
+        os.close(temp_fd)
+        temp_request = Path(temp_name)
+        try:
+            temp_request.write_text(json.dumps(current))
+            receipt, _, raw_body, raw_headers = request_one(
+                allocation_path, ledger_path, temp_request, output_path, None
+            )
+            receipts.append(receipt)
+            try:
+                parsed_body = json.loads(raw_body.decode("utf-8", errors="replace"))
+            except (ValueError, UnicodeDecodeError) as exc:
+                _terminalize(ledger_path, "invalid_page_json", receipt["actual_status"])
+                raise TransportError("invalid_page_json", "paginated response was not valid JSON") from exc
+            pages.append(parsed_body)
+            links = [value for name, value in raw_headers if name.lower() == "link"]
+            if len(links) > 1:
+                _terminalize(ledger_path, "malformed_link", receipt["actual_status"])
+                raise TransportError("malformed_link", "response contains duplicate Link headers")
+            try:
+                next_url = _next_page_url(links[0], current, allocation) if links else None
+            except TransportError as exc:
+                _terminalize(ledger_path, exc.code, receipt["actual_status"])
+                raise
+            if next_url is None:
+                break
+            if next_url in seen or page >= max_pages:
+                _terminalize(ledger_path, "page_budget_or_cycle", receipt["actual_status"])
+                raise TransportError("page_budget_or_cycle", "pagination repeated a destination or exceeded its frozen page count")
+            seen.add(next_url)
+            page += 1
+        finally:
+            temp_request.unlink(missing_ok=True)
+    route_id = initial["route_id"]
+    if route_id == "rules_main":
+        aggregate = [item for item in pages for item in item] if all(isinstance(item, list) for item in pages) else pages
+    else:
+        collection_key = {"workflow_runs": "workflow_runs", "run_jobs": "jobs",
+                          "run_artifacts": "artifacts"}.get(route_id)
+        if collection_key:
+            aggregate = dict(pages[-1])
+            aggregate[collection_key] = [item for page_data in pages for item in page_data.get(collection_key, [])]
+        else:
+            aggregate = pages
+    result = {"schema_version": "sigra.phase253.http-pages/v1", "page_count": len(pages),
+              "receipts": receipts}
+    _atomic_json(output_path, result)
+    if body_output is not None:
+        _atomic_json(body_output, aggregate)
+    return result
+
+
+def _next_page_url(link_value: str, request: dict, allocation: dict) -> str | None:
+    segments = re.split(r",\s*(?=<)", link_value)
+    next_targets = []
+    for segment in segments:
+        match = re.fullmatch(r'\s*<([^>]*)>\s*((?:;\s*[A-Za-z0-9_-]+=(?:"[^"]*"|[^;\s]+))*)\s*', segment)
+        if not match:
+            raise TransportError("malformed_link", "response Link header is malformed")
+        target, attrs = match.groups()
+        rel = re.search(r'(?:^|;)\s*rel="?([A-Za-z0-9_-]+)', attrs)
+        if rel and rel.group(1) == "next":
+            next_targets.append(target)
+    if not next_targets:
+        return None
+    if len(next_targets) != 1:
+        raise TransportError("malformed_link", "response Link header has duplicate next destinations")
+    target = next_targets[0]
+    parsed = urlsplit(target)
+    if allocation.get("mode") == "hermetic-test":
+        origin = urlsplit(allocation["test_origin"])
+        valid = parsed.scheme == "https" and parsed.hostname == origin.hostname and parsed.port == origin.port
+        expected_path = f"/page/{request.get('page_ordinal', 0) + 1}"
+        if not valid or parsed.path != expected_path or parsed.query or parsed.fragment or parsed.username or parsed.password:
+            raise TransportError("pagination_destination_rejected", "test pagination link left its typed local page route")
+        return target
+    if parsed.scheme != "https" or parsed.hostname != API_HOST or parsed.port not in (None, 443) or parsed.username or parsed.password or parsed.fragment:
+        raise TransportError("pagination_destination_rejected", "pagination link must stay on api.github.com")
+    _, _, _, expected_path = _route(request, allocation)
+    if parsed.path != expected_path.split("?", 1)[0]:
+        raise TransportError("pagination_destination_rejected", "pagination link changed its approved API route")
+    query = parse_qs(parsed.query, keep_blank_values=True, strict_parsing=True)
+    if set(query) - {"page", "per_page", "event", "branch"} or any(len(values) != 1 for values in query.values()):
+        raise TransportError("pagination_destination_rejected", "pagination link has an unapproved or repeated query key")
+    page_value = query.get("page", [None])[0]
+    if not page_value or not page_value.isdigit() or int(page_value) != request.get("page_ordinal", 0) + 1:
+        raise TransportError("pagination_destination_rejected", "pagination link did not advance exactly one page")
+    return urlunsplit(("https", API_HOST, parsed.path, parsed.query, ""))
+
+
+def _load_ledger_allow_pending(path: Path, allocation: dict, allocation_hash: str) -> dict:
+    ledger, _ = _json(path, 8 * 1024 * 1024)
+    if (ledger.get("schema_version") != SCHEMA or ledger.get("window_id") != allocation["window_id"]
+            or ledger.get("allocation_sha256") != allocation_hash or ledger.get("source_sha256") != allocation["source_sha256"]):
+        raise TransportError("ledger_identity_mismatch", "ledger identity changed while request was active")
+    return ledger
+
+
+def _finish_failure(path: Path, sequence: int, code: str, message: str) -> None:
+    lock = _lock(path)
+    try:
+        ledger, _ = _json(path, 8 * 1024 * 1024)
+        entry = next(item for item in ledger["transactions"] if item["sequence"] == sequence)
+        now = time.monotonic_ns()
+        entry.update({"state": "failed", "ended_monotonic_ns": now, "error": {"code": code, "message": message}})
+        ledger["terminal_stop"] = {"code": code, "at_monotonic_ns": now}
+        _atomic_json(path, ledger)
+    finally:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        lock.close()
+
+
+def _cli() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--allocation", required=True)
+    parser.add_argument("--ledger", required=True)
+    parser.add_argument("--request", required=True)
+    parser.add_argument("--output", required=True)
+    parser.add_argument("--body-output")
+    parser.add_argument("--check-only", action="store_true")
+    parser.add_argument("--follow-download", action="store_true")
+    parser.add_argument("--fetch-pages", action="store_true")
+    args = parser.parse_args()
+    try:
+        if args.check_only:
+            allocation, _ = _json(Path(args.allocation), MAX_ALLOCATION_BYTES)
+            _validate_allocation(allocation)
+            request, _ = _json(Path(args.request), MAX_REQUEST_BYTES)
+            _route(request, allocation)
+            return 0
+        arguments = (Path(args.allocation), Path(args.ledger), Path(args.request), Path(args.output),
+                     Path(args.body_output) if args.body_output else None)
+        if args.follow_download:
+            follow_download(*arguments)
+        elif args.fetch_pages:
+            fetch_pages(*arguments)
+        else:
+            request_one(*arguments)
+        return 0
+    except TransportError as exc:
+        print(f"ci-hosted-transport: {exc.code}: {exc}", file=__import__("sys").stderr)
+        return exc.exit_code
+
+
+if __name__ == "__main__":
+    raise SystemExit(_cli())
