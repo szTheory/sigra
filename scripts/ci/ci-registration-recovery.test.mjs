@@ -333,14 +333,14 @@ test('revision CLI rejects forged, mismatched, duplicated, and over-budget saved
   } finally { fs.rmSync(exitMismatch.base, { recursive: true, force: true }); }
 });
 
-test('the real shell refuses to restart a terminal native receipt before setup or browser work', () => {
+test('the real shell rejects stale frozen source before setup or browser work', () => {
   const phase = path.join(root, '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks');
   const result = spawnSync(runner, [
     '--run-revision', path.join(phase, '253-15-INFRASTRUCTURE-RETRY-FREEZE-REVISION-03.json'),
     '--slot', 'R-DIAG-CONTROL-DARK', '--output', acceptedEvidence
   ], { encoding: 'utf8' });
   assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
-  assert.match(result.stderr, /refusing to continue terminal evidence/);
+  assert.match(result.stderr, /source identity mismatch/);
 });
 
 test('the dirty config must still match its exact preserved bytes and SHA-256', () => {
