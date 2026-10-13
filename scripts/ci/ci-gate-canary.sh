@@ -25,6 +25,7 @@ CHECK_ONLY=false
 FREEZE_TO_CHECK=""
 CANARY_STARTED_EPOCH=0
 PREFLIGHT_ONLY=false
+PUBLISH_REF_ONLY=false
 
 preserve_path() {
   local path="$1" scope="$2" status_before sha_before blob ref status_after sha_after
@@ -52,6 +53,7 @@ usage() {
 Usage: ci-gate-canary.sh (--scenario NAME | --remaining-scenarios) [--evidence PATH] [--requests PATH]
        ci-gate-canary.sh --check-only [--recovery-freeze PATH]
        ci-gate-canary.sh --preflight-only [--recovery-freeze PATH]
+       ci-gate-canary.sh --publish-ref-only [--recovery-freeze PATH]
 
 Scenarios: full-pass, docs-only, actual-failure, missing-seam,
            unexpected-skip, cancelled
@@ -86,6 +88,7 @@ while (($#)); do
     --remaining-scenarios) ALL_REMAINING=true; shift ;;
     --evidence) (($# >= 2)) || fail '--evidence requires a path'; EVIDENCE="$2"; shift 2 ;;
     --requests) (($# >= 2)) || fail '--requests requires a path'; REQUESTS="$2"; shift 2 ;;
+    --publish-ref-only) PUBLISH_REF_ONLY=true; shift ;;
     --check-only) CHECK_ONLY=true; shift ;;
     --recovery-freeze) (($# >= 2)) || fail '--recovery-freeze requires a path'; FREEZE_TO_CHECK="$2"; shift 2 ;;
     --preflight-only) PREFLIGHT_ONLY=true; shift ;;
@@ -179,11 +182,12 @@ normalize_repo_path() {
 }
 EVIDENCE="$(normalize_repo_path "$EVIDENCE")"
 REQUESTS="$(normalize_repo_path "$REQUESTS")"
-[[ "$ALL_REMAINING" == true || -n "$SCENARIO" || "$PREFLIGHT_ONLY" == true ]] || { usage >&2; exit 2; }
+[[ "$ALL_REMAINING" == true || -n "$SCENARIO" || "$PREFLIGHT_ONLY" == true || "$PUBLISH_REF_ONLY" == true ]] || { usage >&2; exit 2; }
 [[ "$ALL_REMAINING" == false || -z "$SCENARIO" ]] || fail 'choose one scenario mode'
 [[ "$PREFLIGHT_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" ) ]] || fail 'preflight-only mode cannot include a scenario'
+[[ "$PUBLISH_REF_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" && "$PREFLIGHT_ONLY" == false ) ]] || fail 'publish-ref-only mode cannot include another execution mode'
 valid_scenario() { case "$1" in full-pass|docs-only|actual-failure|missing-seam|unexpected-skip|cancelled) return 0;; *) return 1;; esac; }
-if [[ "$PREFLIGHT_ONLY" == false && "$ALL_REMAINING" == false ]]; then valid_scenario "$SCENARIO" || fail "unknown scenario: $SCENARIO"; fi
+if [[ "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false && "$ALL_REMAINING" == false ]]; then valid_scenario "$SCENARIO" || fail "unknown scenario: $SCENARIO"; fi
 
 [[ "$(git rev-parse --show-toplevel)" == "$ROOT" ]] || fail 'checkout root changed'
 [[ -f "$FIXTURE" ]] || fail 'frozen fixture is missing'
@@ -248,7 +252,7 @@ log_request() {
   local endpoint="$1" kind="${2:-observed}" reserve="${3:-0}" temp="${REQUEST_LEDGER}.tmp"
   preserve_request_ledger
   jq --arg endpoint "$endpoint" --arg kind "$kind" --argjson reserve "$reserve" \
-    '.transactions += [{sequence:((.transactions|length)+1),method:(if $kind=="dispatch" then "POST" else "GET" end),url:$endpoint,status:0,kind:$kind}]' \
+    '.transactions += [{sequence:((.transactions|length)+1),method:(if $kind=="dispatch" or $kind=="create_ref" then "POST" else "GET" end),url:$endpoint,status:0,kind:$kind}]' \
     "$REQUEST_LEDGER" > "$temp"
   mv "$temp" "$REQUEST_LEDGER"
 }
@@ -271,7 +275,7 @@ begin_request() {
 }
 
 api_get() {
-  local endpoint="$1" target="$2"
+  local endpoint="$1" target="$2" allow_missing="${3:-false}"
   check_budget 0
   begin_request "https://api.github.com/repos/$REPO/$endpoint"
   local response=0
@@ -283,9 +287,15 @@ api_get() {
     status=500
     rg -qi 'HTTP[^0-9]*403|API rate limit exceeded' "$api_error" && status=403
     rg -qi 'HTTP[^0-9]*429|secondary rate limit' "$api_error" && status=429
+    rg -qi 'HTTP[^0-9]*404|Not Found' "$api_error" && status=404
   fi
   finish_request "$LAST_REQUEST_SEQUENCE" "$status"
   (( status != 403 && status != 429 )) || fail "GitHub rate limit HTTP $status; stop until reported reset/retry time"
+  if [[ "$status" == 404 && "$allow_missing" == true ]]; then
+    REQUEST_COUNT="$(jq '.transactions | length' "$REQUEST_LEDGER")"
+    record_budget
+    return 1
+  fi
   (( response == 0 )) || fail "GitHub API request failed (charged): $endpoint"
   jq -e . "$target" >/dev/null || fail "GitHub API returned invalid JSON for $endpoint"
   REQUEST_COUNT="$(jq '.transactions | length' "$REQUEST_LEDGER")"
@@ -312,6 +322,46 @@ preserve_evidence() {
   PRIOR_EVIDENCE_STATUS="$PRESERVED_STATUS"
   PRIOR_EVIDENCE_SHA="$PRESERVED_SHA"
   PRIOR_EVIDENCE_REF="$PRESERVED_REF"
+}
+
+api_post_create_ref() {
+  local branch="$1" sha="$2" target="$3" endpoint="https://api.github.com/repos/$REPO/git/refs" rc=0 status=201
+  begin_request "$endpoint" create_ref
+  jq -n --arg ref "refs/heads/$branch" --arg sha "$sha" '{ref:$ref,sha:$sha}' > "${TMPDIR:-/tmp}/253-canary-create-ref-body.json"
+  gh api "repos/$REPO/git/refs" --method POST --input "${TMPDIR:-/tmp}/253-canary-create-ref-body.json" > "$target" 2> "${TMPDIR:-/tmp}/253-canary-create-ref-error.txt" || rc=$?
+  if (( rc != 0 )); then
+    status="$(sed -nE 's/.*HTTP ([0-9]{3}).*/\1/p' "${TMPDIR:-/tmp}/253-canary-create-ref-error.txt" | head -n1)"
+    [[ "$status" =~ ^[0-9]{3}$ ]] || status=500
+  fi
+  finish_request "$LAST_REQUEST_SEQUENCE" "$status"
+  (( status != 403 && status != 429 )) || fail "GitHub rate limit HTTP $status; stop until reported reset/retry time"
+  (( rc == 0 )) || fail "create-only fixture ref failed with HTTP $status; refusing any update or retry"
+  jq -e . "$target" >/dev/null || fail 'GitHub create-ref response was not valid JSON'
+  REQUEST_COUNT="$(jq '.transactions | length' "$REQUEST_LEDGER")"
+  check_budget 0
+  record_budget
+}
+
+publish_fixture_ref() {
+  local ref_endpoint="git/ref/heads/$FIXTURE_BRANCH" remote_ref state remote_response
+  remote_ref="$(mktemp -t 253-canary-remote-ref)"
+  if api_get "$ref_endpoint" "$remote_ref" true; then
+    jq -e --arg ref "$FIXTURE_REF" --arg sha "$FIXTURE_SHA" '.ref==$ref and .object.sha==$sha' "$remote_ref" >/dev/null || fail 'remote fixture ref exists with a different identity; refusing to update it'
+    state='present-exact'
+  else
+    remote_response="$(mktemp -t 253-canary-create-ref-response)"
+    api_post_create_ref "$FIXTURE_BRANCH" "$FIXTURE_SHA" "$remote_response"
+    jq -e --arg ref "$FIXTURE_REF" --arg sha "$FIXTURE_SHA" '.ref==$ref and .object.sha==$sha' "$remote_response" >/dev/null || fail 'created fixture ref response did not match the sealed commit'
+    api_get "$ref_endpoint" "$remote_ref"
+    jq -e --arg ref "$FIXTURE_REF" --arg sha "$FIXTURE_SHA" '.ref==$ref and .object.sha==$sha' "$remote_ref" >/dev/null || fail 'remote fixture ref did not read back the exact sealed commit'
+    state='created-and-read-back'
+  fi
+  preserve_evidence
+  jq --arg ref "$FIXTURE_REF" --arg sha "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" --arg state "$state" \
+    --arg evidence_path "${EVIDENCE#${ROOT}/}" --arg prior_ref "$PRIOR_EVIDENCE_REF" --arg prior_sha "$PRIOR_EVIDENCE_SHA" --arg prior_status "$PRIOR_EVIDENCE_STATUS" \
+    '.expected.remote_fixture_ref_state=$state | .expected.remote_fixture_ref=$ref | .expected.remote_fixture_sha=$sha | .expected.remote_workflow_blob=$blob | .preserved_revisions += [{path:$evidence_path,ref:$prior_ref,sha256:$prior_sha,status:$prior_status}]' \
+    "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
+  record_budget
 }
 
 watch_run() {
@@ -527,6 +577,11 @@ fi
 record_budget
 
 FIXTURE_BRANCH="${FIXTURE_REF#refs/heads/}"
+publish_fixture_ref
+if [[ "$PUBLISH_REF_ONLY" == true ]]; then
+  echo "ci-gate-canary: remote fixture ref verified (requests=$REQUEST_COUNT/$MAX_REQUESTS; no workflow dispatch)"
+  exit 0
+fi
 if [[ "$ALL_REMAINING" == true ]]; then
   SCENARIOS=(docs-only actual-failure missing-seam unexpected-skip cancelled)
 else

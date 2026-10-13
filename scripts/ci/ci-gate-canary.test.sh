@@ -94,6 +94,24 @@ case "${2:-}" in
   repos/szTheory/sigra/actions/workflows/259268962)
     cat "$MOCK_WORKFLOW"
     ;;
+  repos/szTheory/sigra/git/ref/heads/*)
+    if [[ -f "$MOCK_REF_STATE" ]]; then
+      jq -n --arg ref "refs/heads/$MOCK_BRANCH" --arg sha "$MOCK_FIXTURE_SHA" '{ref:$ref,object:{sha:$sha,type:"commit"}}'
+    else
+      echo 'HTTP 404 Not Found' >&2
+      exit 1
+    fi
+    ;;
+  repos/szTheory/sigra/git/refs)
+    input_file=""
+    while (($#)); do
+      if [[ "$1" == --input ]]; then input_file="$2"; shift 2; else shift; fi
+    done
+    [[ -n "$input_file" ]]
+    jq -e --arg ref "refs/heads/$MOCK_BRANCH" --arg sha "$MOCK_FIXTURE_SHA" '.ref==$ref and .sha==$sha' "$input_file" >/dev/null
+    touch "$MOCK_REF_STATE"
+    jq -n --arg ref "refs/heads/$MOCK_BRANCH" --arg sha "$MOCK_FIXTURE_SHA" '{ref:$ref,object:{sha:$sha,type:"commit"}}'
+    ;;
   *) echo "unexpected mocked GitHub request: $*" >&2; exit 2 ;;
 esac
 MOCK_GH
@@ -101,9 +119,12 @@ chmod +x "$tmp_dir/bin/gh"
 MOCK_RULES="$tmp_dir/fresh-rules.json"
 MOCK_WORKFLOW="$tmp_dir/fresh-workflow.json"
 MOCK_CALLS="$tmp_dir/mock-gh-calls.txt"
+MOCK_REF_STATE="$tmp_dir/remote-ref-created"
+MOCK_BRANCH="$(jq -r '.identity.fixture_ref | sub("^refs/heads/"; "")' "$phase_dir/253-RECOVERY-CANARY-FREEZE.json")"
+MOCK_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$phase_dir/253-RECOVERY-CANARY-FREEZE.json")"
 cp /tmp/sigra-253-effective-rules.json "$MOCK_RULES"
 cp /tmp/sigra-253-registered-workflow.json "$MOCK_WORKFLOW"
-PATH="$tmp_dir/bin:$PATH" MOCK_RULES="$MOCK_RULES" MOCK_WORKFLOW="$MOCK_WORKFLOW" MOCK_CALLS="$MOCK_CALLS" \
+PATH="$tmp_dir/bin:$PATH" MOCK_RULES="$MOCK_RULES" MOCK_WORKFLOW="$MOCK_WORKFLOW" MOCK_CALLS="$MOCK_CALLS" MOCK_REF_STATE="$MOCK_REF_STATE" MOCK_BRANCH="$MOCK_BRANCH" MOCK_FIXTURE_SHA="$MOCK_FIXTURE_SHA" \
   bash "$repo_dir/scripts/ci/ci-gate-canary.sh" --preflight-only \
   --recovery-freeze "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" \
   --evidence "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json" \
@@ -131,5 +152,21 @@ done < <(jq -r '.preserved_revisions[] | [.path,.ref,.sha256] | @tsv' "$phase_di
 [[ ! -e "$phase_dir/253-RECOVERY-CANARY-RUNS.json" ]]
 [[ ! -e "$phase_dir/253-RECOVERY-CANARY-TRANSPORT.json" ]]
 [[ "$(shasum -a 256 "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" | awk '{print $1}')" == "$test_freeze_hash" ]]
+
+started_epoch="$(jq -r '.budget.started_epoch' "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json")"
+PATH="$tmp_dir/bin:$PATH" MOCK_RULES="$MOCK_RULES" MOCK_WORKFLOW="$MOCK_WORKFLOW" MOCK_CALLS="$MOCK_CALLS" MOCK_REF_STATE="$MOCK_REF_STATE" MOCK_BRANCH="$MOCK_BRANCH" MOCK_FIXTURE_SHA="$MOCK_FIXTURE_SHA" \
+  bash "$repo_dir/scripts/ci/ci-gate-canary.sh" --publish-ref-only \
+  --recovery-freeze "$phase_dir/253-RECOVERY-CANARY-FREEZE.json" \
+  --evidence "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json" \
+  --requests "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json"
+[[ -f "$MOCK_REF_STATE" ]]
+[[ "$(jq -r '.budget.started_epoch' "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json")" == "$started_epoch" ]]
+[[ "$(jq -r '.budget.request_count' "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json")" == 9 ]]
+[[ "$(jq -r '.transactions | length' "$phase_dir/253-RECOVERY-CANARY-REQUESTS.json")" == 9 ]]
+[[ "$(jq -r '.expected.remote_fixture_ref_state' "$phase_dir/253-RECOVERY-CANARY-EVIDENCE.json")" == created-and-read-back ]]
+[[ "$(rg -c '^api ' "$MOCK_CALLS")" == 9 ]]
+rg -q '^api repos/szTheory/sigra/git/refs --method POST --input ' "$MOCK_CALLS"
+dispatch_calls="$(rg -c 'actions/workflows/259268962/dispatches' "$MOCK_CALLS" || echo 0)"
+[[ "$dispatch_calls" == 0 ]]
 
 echo 'ci-gate-canary tests passed'
