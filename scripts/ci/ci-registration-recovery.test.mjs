@@ -173,6 +173,30 @@ test('command logs remove development signing keys before a receipt hashes their
   assert.equal(crypto.createHash('sha256').update(fs.readFileSync(log)).digest('hex'), digest);
 });
 
+test('command logs redact the complete seeded demo credentials block before hashing', () => {
+  const log = path.join(temporary, 'synthetic-demo-credentials.log');
+  const output = [
+    'migration complete',
+    '',
+    '=== Demo Credentials ===',
+    '[synthetic] synthetic@example.invalid SYNTHETIC-SEEDED-PASSWORD (fixture)',
+    '',
+    'seed process complete',
+    ''
+  ].join('\n');
+  const receipt = runLogged(process.execPath, ['-e', `process.stdout.write(${JSON.stringify(output)})`], root, process.env, log, 2000);
+  const bytes = fs.readFileSync(log);
+  const sanitized = bytes.toString();
+
+  assert.equal(receipt.exit_code, 0);
+  assert.equal(receipt.redacted_credential_blocks, 1);
+  assert.equal(bytes.includes(Buffer.from('SYNTHETIC-SEEDED-PASSWORD')), false);
+  assert.equal(bytes.includes(Buffer.from('synthetic@example.invalid')), false);
+  assert.match(sanitized, /=== Demo Credentials ===\n\[REDACTED seeded demo credentials\]/);
+  assert.match(sanitized, /seed process complete/);
+  assert.equal(receipt.log_sha256, crypto.createHash('sha256').update(bytes).digest('hex'));
+});
+
 function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-native-fixture-'));
   const hash = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
