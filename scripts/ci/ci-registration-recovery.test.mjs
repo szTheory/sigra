@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { verifyDiagnosticData, verifyNativeAttempt } from './ci-registration-recovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const runner = path.join(root, 'scripts/ci/ci-registration-repro.sh');
@@ -33,6 +35,132 @@ test('the original controls and acceptance verification modes remain unavailable
     const result = spawnSync(runner, [mode, evidence], { encoding: 'utf8' });
     assert.equal(result.status, 3, `${mode}: ${result.stdout}\n${result.stderr}`);
   }
+});
+
+function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-native-fixture-'));
+  const hash = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const write = (name, contents) => {
+    const file = path.join(base, name);
+    fs.writeFileSync(file, contents);
+    return { path: name, sha256: hash(file), bytes: fs.statSync(file).size };
+  };
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-recovery-freeze/v1', status: 'frozen_before_results',
+    source: { checkout_head: 'candidate-abc', blobs: { 'scripts/ci/ci-registration-recovery.mjs': 'blob-abc' } },
+    selection: { test_title: 'render bundle: board-mg-9/populated', projects: ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'] },
+    historical: { original_evidence_sha256: 'historical-evidence-hash', preceding_order: 'unknown' },
+    ledger: {
+      max_launches: 19, max_charged_duration_ms: 58 * 60 * 1000,
+      d19: { max_charged_duration_ms: 20 * 60 * 1000 },
+      slots: [{ id: 'D19-DIAG-01', sequence: 1, kind: slotKind, stage: 'D19', project, max_duration_ms: 120_000 }]
+    }
+  };
+  const report = {
+    suites: [{ file: 'tests/admin-eval.spec.ts', specs: [{
+      title: 'render bundle: board-mg-9/populated', file: 'tests/admin-eval.spec.ts',
+      tests: [{ projectName: project, results: [{ status: outcome === 'passed' ? 'expected' : 'failed' }] }]
+    }] }]
+  };
+  const files = {
+    setup_log: write('setup.log', 'database setup complete\n'),
+    app_log: write('app.log', 'Phoenix server started\n'),
+    test_log: write('test.log', 'Playwright completed\n'),
+    drop_log: write('drop.log', 'database dropped\n'),
+    playwright_report: write('report.json', JSON.stringify(report))
+  };
+  const attempt = {
+    slot_id: 'D19-DIAG-01', sequence: 1, stage: 'D19', project, source_commit: 'candidate-abc',
+    started_monotonic_ns: '1000000000', ended_monotonic_ns: '16000000000', charged_duration_ms: 15_000, server: { http_status: 200 },
+    database: { name: 'sigra_253_recovery_admin_eval_fixture', drop_exit_code: 0 },
+    browser: { launched: true, exit_code: outcome === 'passed' ? 0 : 1 },
+    observed_outcome: outcome, files, toolchain: {
+      playwright_version: '1.59.1', ecto_sql_version: '3.13.5', phoenix_live_view_version: '1.1.28'
+    }, traces: []
+  };
+  if (outcome !== 'passed') attempt.files.traces = [write('trace.zip', 'trace bytes')];
+  return { base, freeze, attempt, hash };
+}
+
+test('native receipt accepts the selected project only with matching report, logs, exit and drop', () => {
+  const fixture = nativeFixture();
+  try {
+    assert.deepEqual(verifyNativeAttempt(fixture.attempt, fixture.freeze, fixture.base), { ok: true, errors: [] });
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('diagnostic ledger accepts one accurately charged, source-bound native attempt', () => {
+  const fixture = nativeFixture();
+  try {
+    const freeze = { ...fixture.freeze, freeze_sha256: 'freeze-bytes-hash' };
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-recovery-evidence/v1', status: 'running',
+      freeze_sha256: 'freeze-bytes-hash', source: structuredClone(freeze.source),
+      historical: { original_evidence_sha256: 'historical-evidence-hash', preceding_order: 'unknown' },
+      attempts: [fixture.attempt],
+      limits: { browser_launches: 1, charged_duration_ms: 15_000, max_launches: 19, max_charged_duration_ms: 58 * 60 * 1000 }
+    };
+    assert.equal(verifyDiagnosticData(evidence, freeze, fixture.base).ok, true);
+
+    evidence.limits.browser_launches = 0;
+    const forgedCounter = verifyDiagnosticData(evidence, freeze, fixture.base);
+    assert.equal(forgedCounter.ok, false);
+    assert.ok(forgedCounter.errors.some((message) => message.includes('launch counter')));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('native receipt rejects source drift, a wrong project, and a missing report', () => {
+  for (const mutate of [
+    (item) => { item.source_commit = 'different-source'; },
+    (item) => { item.project = 'admin-eval-dark'; },
+    (item) => { item.files.playwright_report = null; }
+  ]) {
+    const fixture = nativeFixture();
+    try {
+      mutate(fixture.attempt);
+      assert.equal(verifyNativeAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false);
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+});
+
+test('native receipt rejects an empty report, absent database drop and changed log digest', () => {
+  for (const mutate of [
+    (item, fixture) => {
+      const ref = item.files.playwright_report;
+      fs.writeFileSync(path.join(fixture.base, ref.path), JSON.stringify({ suites: [] }));
+      ref.sha256 = fixture.hash(path.join(fixture.base, ref.path));
+    },
+    (item) => { item.database.drop_exit_code = null; },
+    (item, fixture) => { fs.appendFileSync(path.join(fixture.base, item.files.test_log.path), 'changed\n'); }
+  ]) {
+    const fixture = nativeFixture();
+    try {
+      mutate(fixture.attempt, fixture);
+      assert.equal(verifyNativeAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false);
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+});
+
+test('native receipt rejects a failed browser without a retained failure trace', () => {
+  const fixture = nativeFixture({ outcome: 'failed' });
+  try {
+    fixture.attempt.files.traces = [];
+    const result = verifyNativeAttempt(fixture.attempt, fixture.freeze, fixture.base);
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some((message) => message.includes('retained native trace')));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('native receipt rejects uncharged controls and attempts over the slot limit', () => {
+  const control = nativeFixture({ slotKind: 'control' });
+  try { assert.equal(verifyNativeAttempt(control.attempt, control.freeze, control.base).ok, false); }
+  finally { fs.rmSync(control.base, { recursive: true, force: true }); }
+
+  const tooLong = nativeFixture();
+  try {
+    tooLong.attempt.charged_duration_ms = 120_001;
+    assert.equal(verifyNativeAttempt(tooLong.attempt, tooLong.freeze, tooLong.base).ok, false);
+  } finally { fs.rmSync(tooLong.base, { recursive: true, force: true }); }
 });
 
 test.after(() => fs.rmSync(temporary, { recursive: true, force: true }));

@@ -4,6 +4,8 @@ set -Eeuo pipefail
 usage() {
   cat <<'USAGE'
 Usage:
+  ci-registration-repro.sh --run-recovery <freeze.json> --output <new-evidence.json>
+  ci-registration-repro.sh --verify-diagnostic <evidence.json>
   ci-registration-repro.sh --run-frozen <freeze.json> --output <evidence.json>
   ci-registration-repro.sh --diagnose-setup --output <evidence.json>
   ci-registration-repro.sh --verify-controls <evidence.json>
@@ -27,6 +29,15 @@ case "$MODE" in
     [[ "${3:-}" == --output && -n "${4:-}" ]] || { usage >&2; exit 2; }
     OUTPUT="${4}"
     ;;
+  --run-recovery)
+    FREEZE="${2:-}"
+    [[ "${3:-}" == --output && -n "${4:-}" ]] || { usage >&2; exit 2; }
+    OUTPUT="${4}"
+    ;;
+  --verify-diagnostic)
+    OUTPUT="${2:-}"
+    [[ -n "$OUTPUT" && -z "${3:-}" ]] || { usage >&2; exit 2; }
+    ;;
   --diagnose-setup)
     [[ "${2:-}" == --output && -n "${3:-}" && -z "${4:-}" ]] || { usage >&2; exit 2; }
     OUTPUT="${3}"
@@ -40,6 +51,14 @@ esac
 if [[ -n "$FREEZE" && "$FREEZE" != /* ]]; then FREEZE="$ROOT/$FREEZE"; fi
 if [[ -n "$OUTPUT" && "$OUTPUT" != /* ]]; then OUTPUT="$ROOT/$OUTPUT"; fi
 
+if [[ "$MODE" == --run-recovery ]]; then
+  exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --run-recovery "$FREEZE" --output "$OUTPUT"
+fi
+
+if [[ "$MODE" == --verify-diagnostic ]]; then
+  exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --verify-diagnostic "$OUTPUT"
+fi
+
 if [[ "$MODE" == --diagnose-setup ]]; then
   exec node "$ROOT/scripts/ci/ci-registration-setup-diagnostic.mjs" --root "$ROOT" --output "$OUTPUT"
 fi
@@ -50,6 +69,11 @@ if [[ "$MODE" != --run-frozen ]]; then
   echo "$MODE: native browser and control receipts validation is not implemented; registration acceptance remains unverified" >&2
   exit 3
 fi
+
+# The original registration freeze exhausted its allowance. Recovery browser work
+# must use a new committed freeze and a separate evidence ledger.
+echo 'the original registration freeze is exhausted; use --run-recovery with a new recovery freeze' >&2
+exit 3
 
 [[ -f "$FREEZE" ]] || { echo "missing freeze: $FREEZE" >&2; exit 2; }
 HEAD="$(git -C "$ROOT" rev-parse HEAD)"
