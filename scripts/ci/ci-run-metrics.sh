@@ -733,17 +733,21 @@ collect_window() {
             artifact_id="$(jq -r '.id' <<<"$artifact_row")"
             expected_digest="$(jq -r '.digest // empty' <<<"$artifact_row")"
             artifact_status="$(jq -c -n --argjson artifact "$artifact_row" --argjson run "$run" 'if $artifact.expired==true then {status:"expired_input",diagnostic:"expired_input"} elif (($artifact.id|type)!="number" or ($artifact.id|floor)!=$artifact.id) then {status:"unknown",diagnostic:"artifact_id_invalid"} elif (($artifact.digest//"")|test("^sha256:[0-9a-f]{64}$")|not) then {status:"unknown",diagnostic:"artifact_digest_unavailable"} elif (($artifact.workflow_run.id|tostring)!=($run.id|tostring) or $artifact.workflow_run.head_sha!=$run.head_sha) then {status:"unknown",diagnostic:"artifact_origin_mismatch"} else {status:"pending_download",artifact_id:$artifact.id,run_id:$run.id,source_sha:$run.head_sha,digest:$artifact.digest} end')"
-            if [[ "$(jq -r '.status' <<<"$artifact_status")" == pending_download ]] && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${artifact_id}/zip" "$artifact_zip" "artifact:${id}"; then
-              local actual_digest
-              actual_digest="sha256:$(sha256_file "$artifact_zip")"
-              if [[ "$actual_digest" == "$expected_digest" ]] && extract_timing_archive "$artifact_zip" "$artifact_out" >"$tmp/extract-${id}.json" 2>"$tmp/extract-${id}.err"; then
-                artifact_record="$(jq -cn --arg archive_sha256 "${actual_digest#sha256:}" --slurpfile accepted "$tmp/extract-${id}.json" '$accepted[0] + {archive_sha256:$archive_sha256}')"
+            if [[ "$(jq -r '.status' <<<"$artifact_status")" == pending_download ]]; then
+              if api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${artifact_id}/zip" "$artifact_zip" "artifact:${id}"; then
+                local actual_digest
+                actual_digest="sha256:$(sha256_file "$artifact_zip")"
+                if [[ "$actual_digest" == "$expected_digest" ]] && extract_timing_archive "$artifact_zip" "$artifact_out" >"$tmp/extract-${id}.json" 2>"$tmp/extract-${id}.err"; then
+                  artifact_record="$(jq -cn --arg archive_sha256 "${actual_digest#sha256:}" --slurpfile accepted "$tmp/extract-${id}.json" '$accepted[0] + {archive_sha256:$archive_sha256}')"
+                else
+                  artifact_record="$(jq -cn --arg reason "$(if [[ "$actual_digest" != "$expected_digest" ]]; then echo artifact_digest_mismatch; else cat "$tmp/extract-${id}.err"; fi)" '{status:"unknown",diagnostic:$reason}')"
+                  rm -rf "$artifact_zip" "$artifact_out"
+                fi
               else
-                artifact_record="$(jq -cn --arg reason "$(if [[ "$actual_digest" != "$expected_digest" ]]; then echo artifact_digest_mismatch; else cat "$tmp/extract-${id}.err"; fi)" '{status:"unknown",diagnostic:$reason}')"
-                rm -rf "$artifact_zip" "$artifact_out"
+                artifact_record="$(jq -cn --arg reason "${API_STOP_REASON:-artifact_download_unavailable}" '{status:"unknown",diagnostic:$reason}')"
               fi
             else
-              artifact_record="$(jq -cn --arg reason "${API_STOP_REASON:-artifact_download_unavailable}" '{status:"unknown",diagnostic:$reason}')"
+              artifact_record="$artifact_status"
             fi
           else
             artifact_record='{"status":"unknown","diagnostic":"artifact_unavailable"}'
