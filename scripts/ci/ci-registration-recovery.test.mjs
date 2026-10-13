@@ -12,6 +12,32 @@ import * as recovery from './ci-registration-recovery.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const runner = path.join(root, 'scripts/ci/ci-registration-repro.sh');
 const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-recovery-red-'));
+const acceptedEvidence = path.join(root, '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json');
+
+function copyAcceptedReceipt(label, mutateEvidence = () => {}, mutateReport = null) {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), `sigra-253-saved-${label}-`));
+  const evidencePath = path.join(base, 'evidence.json');
+  const rawSource = `${acceptedEvidence}.raw`;
+  const rawPath = `${evidencePath}.raw`;
+  fs.copyFileSync(acceptedEvidence, evidencePath);
+  fs.cpSync(rawSource, rawPath, { recursive: true });
+  const evidence = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
+  mutateEvidence(evidence, rawPath);
+  if (mutateReport && evidence.attempts?.[0]?.files?.playwright_report) {
+    const reference = evidence.attempts[0].files.playwright_report;
+    const reportPath = path.join(rawPath, reference.path);
+    const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    const updateDigest = mutateReport(report, evidence.attempts[0]);
+    fs.writeFileSync(reportPath, JSON.stringify(report));
+    if (updateDigest) reference.sha256 = crypto.createHash('sha256').update(fs.readFileSync(reportPath)).digest('hex');
+  }
+  fs.writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+  return { base, evidencePath, evidence };
+}
+
+function verifySavedReceipt(evidencePath) {
+  return spawnSync(runner, ['--verify-diagnostic', evidencePath, '--revision'], { encoding: 'utf8' });
+}
 
 test('diagnostic verification rejects caller-written success without native receipts', () => {
   const evidence = path.join(temporary, 'forged-success.json');
@@ -195,6 +221,96 @@ test('command logs redact the complete seeded demo credentials block before hash
   assert.match(sanitized, /=== Demo Credentials ===\n\[REDACTED seeded demo credentials\]/);
   assert.match(sanitized, /seed process complete/);
   assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), crypto.createHash('sha256').update(fs.readFileSync(log)).digest('hex'));
+});
+
+test('the saved desktop and mobile native Playwright receipts verify through the real shell CLI', () => {
+  const fixture = copyAcceptedReceipt('native-positive');
+  try {
+    const result = verifySavedReceipt(fixture.evidencePath);
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /2\/2 plan15 diagnostics; 2 launches; 121680 ms charged/);
+    assert.deepEqual(fixture.evidence.attempts.map((attempt) => attempt.observed_outcome), ['passed', 'passed']);
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('revision CLI rejects slot usage counters that do not match native attempts', () => {
+  const fixture = copyAcceptedReceipt('slot-count-drift', (evidence) => { evidence.limits.used_slots = []; });
+  try {
+    const result = verifySavedReceipt(fixture.evidencePath);
+    assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stderr, /slot/i);
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('revision CLI rejects forged, mismatched, duplicated, and over-budget saved receipts', () => {
+  const findSelectedSpec = (report) => {
+    const visit = (suite) => {
+      for (const spec of suite.specs ?? []) {
+        if (spec.title === 'render bundle: board-mg-9/populated') return spec;
+      }
+      for (const child of suite.suites ?? []) {
+        const found = visit(child);
+        if (found) return found;
+      }
+      return null;
+    };
+    return report.suites.map(visit).find(Boolean);
+  };
+  const cases = [
+    ['singleton wrong project', (evidence) => { evidence.attempts = [evidence.attempts[0]]; evidence.attempts[0].project = 'admin-eval-dark'; }],
+    ['duplicate spent slot', (evidence) => { evidence.attempts.push(structuredClone(evidence.attempts[0])); }],
+    ['source commit drift', (evidence) => { evidence.source.checkout_head = 'different-source'; }],
+    ['source blob drift', (evidence) => { evidence.source.blobs['scripts/ci/ci-registration-recovery.mjs'] = 'different-blob'; }],
+    ['over-counted launches', (evidence) => { evidence.limits.browser_launches += 1; }],
+    ['over-time charge', (evidence) => { evidence.attempts[0].charged_duration_ms = 120001; }],
+    ['missing database drop', (evidence) => { evidence.attempts[0].database.drop_exit_code = null; }],
+    ['missing browser report', (evidence) => { evidence.attempts[0].files.playwright_report = null; }],
+    ['changed sanitized log digest', (evidence, rawPath) => { fs.appendFileSync(path.join(rawPath, evidence.attempts[0].files.setup_log.path), 'changed after receipt\n'); }]
+  ];
+
+  for (const [label, mutateEvidence] of cases) {
+    const fixture = copyAcceptedReceipt(label.replaceAll(' ', '-'), mutateEvidence);
+    try {
+      const result = verifySavedReceipt(fixture.evidencePath);
+      assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+
+  const reportCases = [
+    ['byte-variant selected title', (report) => { findSelectedSpec(report).title += '\u200b'; return true; }],
+    ['native expectedStatus mismatch', (report) => { findSelectedSpec(report).tests[0].expectedStatus = 'skipped'; return true; }],
+    ['native result status mismatch', (report) => { findSelectedSpec(report).tests[0].results[0].status = 'failed'; return true; }],
+    ['empty native report', (report) => { report.suites = []; return true; }]
+  ];
+  for (const [label, mutateReport] of reportCases) {
+    const fixture = copyAcceptedReceipt(label.replaceAll(' ', '-'), () => {}, mutateReport);
+    try {
+      const result = verifySavedReceipt(fixture.evidencePath);
+      assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+
+  const exitMismatch = copyAcceptedReceipt('cli-exit-disagreement', (evidence) => { evidence.attempts[0].browser.exit_code = 1; });
+  try {
+    const result = verifySavedReceipt(exitMismatch.evidencePath);
+    assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
+  } finally { fs.rmSync(exitMismatch.base, { recursive: true, force: true }); }
+});
+
+test('the real shell refuses to restart a terminal native receipt before setup or browser work', () => {
+  const phase = path.join(root, '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks');
+  const result = spawnSync(runner, [
+    '--run-revision', path.join(phase, '253-15-INFRASTRUCTURE-RETRY-FREEZE-REVISION-03.json'),
+    '--slot', 'R-DIAG-CONTROL-DARK', '--output', acceptedEvidence
+  ], { encoding: 'utf8' });
+  assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
+  assert.match(result.stderr, /refusing to continue terminal evidence/);
+});
+
+test('the dirty config must still match its exact preserved bytes and SHA-256', () => {
+  assert.equal(typeof recovery.assertDirtyConfigPreserved, 'function');
+  if (typeof recovery.assertDirtyConfigPreserved !== 'function') return;
+  assert.doesNotThrow(() => recovery.assertDirtyConfigPreserved(root));
 });
 
 function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {
