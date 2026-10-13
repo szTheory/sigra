@@ -25,6 +25,37 @@ test('browser records travel through unique artifacts into the mandatory native 
   assert.match(aggregate, /merge-multiple: false/);
 });
 
+function assertCompleteBrowserWiring(source) {
+  const shard = jobBlock(source, 'example_playwright_shard');
+  const aggregate = jobBlock(source, 'example_playwright_smoke');
+  assert.ok(shard && aggregate, 'producer and aggregate must remain present');
+  assert.match(shard, /id: browser_execution_record\s+if: always\(\)\s+env:/, 'all producers must record their terminal outcomes');
+  assert.match(aggregate, /ci-browser-records\.mjs --verify \\/, 'aggregate must validate the complete set');
+  assert.match(aggregate, /pattern: browser-execution-\*-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}/);
+  assert.match(aggregate, /merge-multiple: false/);
+  for (const path of ['admin-behavior', 'admin-checkpoints', 'design-gallery-pr-behavior',
+    'design-gallery-nonpr-snapshots', 'design-gallery-nonpr-behavior', 'non-admin-smoke', 'demo-showcase']) {
+    assert.ok(shard.includes(`--list --reporter=json > playwright-report/${path}.selection.json`), `${path} requires pre-execution inventory`);
+  }
+  assert.ok(shard.includes('CLASSIFIER_RESULT: ${{ needs.changes.result }}'));
+  assert.ok(shard.includes('SELECTED_STEPS_JSON: ${{ toJSON(steps) }}'));
+  assert.match(shard, /fail-fast: false/);
+  assert.ok(aggregate.includes('--native-result "$SHARDS"'));
+}
+
+test('all five browser producers supply pre-execution inventory and native terminal outcomes', () => {
+  assertCompleteBrowserWiring(workflow);
+});
+
+test('missing record, artifact, inventory or native dependency fails source wiring', () => {
+  for (const malformed of [workflow.replace('id: browser_execution_record', 'id: missing_record'),
+    workflow.replace('pattern: browser-execution-*', 'pattern: missing-records-*'),
+    workflow.replace('--native-result "$SHARDS"', '--native-result "success"'),
+    workflow.replace('demo-showcase.selection.json', 'missing-selection.json')]) {
+    assert.throws(() => assertCompleteBrowserWiring(malformed));
+  }
+});
+
 test('keeps one library mix ci owner and preserves required check names', () => {
   const owners = Object.entries(blocks).filter(([, block]) => /^\s+run: (?:MIX_ENV=test )?mix ci\s*$/m.test(block));
   assert.deepEqual(owners.map(([id]) => id), ['library_tests_shard']);
