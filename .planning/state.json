@@ -26,10 +26,10 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 253 --gaps-only",
-    "label": "Continue independent hosted evidence contracts",
-    "reason": "19ready;15blocked by pending scoped log cleanup approval"
+    "label": "Execute native registration controls",
+    "reason": "15/18/19complete;16ready;logcleanupapprovedandcomplete"
   },
-  "updated_at": "2026-10-13T19:48:07.786846+00:00",
+  "updated_at": "2026-10-13T21:50:05.448514+00:00",
   "phase253_execution": {
     "status": "partial_ready_for_recovery",
     "implementation_status": "partial",
@@ -956,11 +956,12 @@
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "resume_command": "$gsd-execute-phase 253 --gaps-only",
   "phase253_additional_execution": {
-    "status": "wave01_partial",
+    "status": "ready_for_native_controls",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
-    "next_plan": "253-19",
+    "next_plan": "253-16",
     "ready_plans": [
-      "253-19"
+      "253-16",
+      "253-20"
     ],
     "capture_head": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
     "sdk_transition_commit": "96e4bbbc3caecd0d1e5320dd3d271dff098a3a58",
@@ -968,11 +969,11 @@
     "verification_status": "not_started",
     "source_capture": "253-ADDITIONAL-EXECUTION-CAPTURE.json",
     "completed_plans": [
-      "253-18"
+      "253-15",
+      "253-18",
+      "253-19"
     ],
-    "halted_plans": [
-      "253-15"
-    ],
+    "halted_plans": [],
     "registration": {
       "native_passes": [
         "admin-eval",
@@ -998,18 +999,23 @@
       "remaining_regular_commands": 6,
       "remaining_acceptance_commands": 9,
       "native_registration_status": "diagnosis_incomplete",
-      "plan_status": "halted_pending_log_cleanup_and_complete_tests",
+      "plan_status": "complete",
       "verified_sanitized_evidence": "253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
       "verified_sanitized_sha256": "a2ca73dbdad8b4e00766d28b98f7841a9ac2233e7c481ea7fda309b5a310fdfb",
-      "original_order": "unknown"
+      "original_order": "unknown",
+      "local_tests": 26,
+      "shell_tests": 5,
+      "no_additional_native_commands": true
     },
-    "pending_permission": {
-      "action": "Replace original desktop and mobile setup logs with committed sanitized copies, without new exact plaintext credential preservation",
-      "reason": "AGENTS exact-byte gate versus auto-review rejection of plaintext seeded credentials in Git objects",
-      "question_status": "awaiting_answer",
-      "no_original_logs_rewritten": true,
-      "existing_local_commits_remain_unchanged": true
-    },
-    "progress_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-PROGRESS-01.json"
+    "pending_permission": null,
+    "progress_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-PROGRESS-02.json",
+    "cleanup": {
+      "user_approval": "Sanitize the original logs (recommended)",
+      "status": "complete",
+      "commit": "25286d5d4",
+      "receipt": "253-15-APPROVED-LOG-SANITIZATION.json",
+      "existing_commits_unchanged": true,
+      "auto_review_plaintext_preservation_was_not_retried": true
+    }
   }
 }
