@@ -44,6 +44,12 @@ The companion corrects two historical Test D signatures to the actual Test Z fai
 | 1: archived Test Z diagnosis | d8d507b70 | 0e806c830 |
 | 2: context and uncertainty | e7ecae3f7 | e46c616a82 |
 
+
+Canonical task commit rows for scope checking (no acceptance status change):
+
+1. **Task 1: archived Test Z diagnosis** — RED `d8d507b70`, GREEN `0e806c830`.
+2. **Task 2: context and uncertainty** — RED `e7ecae3f7`, GREEN `e46c616a82`.
+
 ## TDD Gate Compliance
 
 Both target assertions failed intentionally before implementation. Both unchanged unittest reports were accepted as RED_EVIDENCE_OK. Their semantic assessments and original outputs are in 253-01-TASK1-RED.json and 253-01-TASK2-RED.json.

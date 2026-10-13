@@ -38,6 +38,12 @@ ci-gate now owns Example unit smoke in its dependency, both environment maps, ve
 | 1 | 91018cd82 | b4eb2f7ed |
 | 2 | 2c64bcdbe | b0ab759baa |
 
+
+Canonical task commit rows for scope checking (no acceptance status change):
+
+1. **Task 1: unit gate ownership** — RED `91018cd82`, GREEN `b4eb2f7ed`.
+2. **Task 2: unit failure controls** — RED `2c64bcdbe`, GREEN `b0ab759baa`.
+
 ## TDD Gate Compliance
 
 Both intended target assertions failed before implementation and produced RED_EVIDENCE_OK. Reports preserve the native outputs and semantic assessments.

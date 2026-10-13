@@ -39,13 +39,19 @@ Each of five producers retains its selected native step outcomes, pre-execution 
 | 1 | a87e635db | a44a49ba6 |
 | 2 | efaa57161 | 9b27d48d31 |
 
+
+Canonical task commit rows for scope checking (no acceptance status change):
+
+1. **Task 1: producer records and artifacts** — RED `a87e635db`, GREEN `a44a49ba6`.
+2. **Task 2: mandatory aggregate intake** — RED `efaa57161`, GREEN `9b27d48d31`.
+
 ## TDD Gate Compliance
 
 Both actual-workflow target assertions failed before implementation and their unchanged TAP reports produced RED_EVIDENCE_OK. Missing record/artifact/inventory and falsely hard-coded native success source fixtures fail the wiring guard.
 
 ## Deviations from Plan
 
-The existing native reporter test now counts seven execution commands separately from seven required list-only inventories, preserving its original selection and zero-retry assertions. The installed GSD router lacks ui.safety-gate even though the hook advertises it; the canonical installed UI checker was run directly on the roadmap section and returned hasUI=false. No UI is in this phase.
+The existing native reporter test now counts seven execution commands separately from seven required list-only inventories, preserving its original selection and zero-retry assertions. The first hook call used the wrong `query` prefix. The supported `check ui.safety-gate 253 --raw` returns frontend=false, hasUiFiles=false and block=false. Its initial no-task-commit-rows warning came from the table format in these summaries; canonical rows were added during closeout. The direct roadmap check also returned hasUI=false. No UI is in this phase.
 
 ## Issues Encountered
 

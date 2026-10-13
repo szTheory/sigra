@@ -43,7 +43,7 @@ coverage:
       - kind: integration
         ref: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json
         status: unknown
-    human_judgment: true
+    human_judgment: false
     rationale: The isolated example app never became HTTP ready, so no browser result proves the registration behavior.
 duration: 14min
 completed: 2026-10-13
@@ -66,11 +66,11 @@ status: halted
 
 - Froze the exact `board-mg-9/populated` selection across `admin-eval`, `admin-eval-mobile`, and `admin-eval-dark`, with retries set to zero and the 10-invocation, 20-minute-per-signature, and 60-minute-total limits recorded before results.
 - Confirmed the current helper blob matches the historical blob `6540493e78121f134867445dffc7010afcd85815`. The retained records name three failed admin-eval jobs and the latest failed test, but leave the cause unknown.
-- Restored Playwright 1.59.1 from the existing lockfile in a temporary clean checkout. Observed Ecto SQL 3.13.5 and Phoenix LiveView 1.1.28. The shell freeze checks and acceptance-record check pass.
+- Restored Playwright 1.59.1 from the existing lockfile in a temporary clean checkout. Observed Ecto SQL 3.13.5 and Phoenix LiveView 1.1.28. The shell freeze checks passed. The former acceptance-record checker returned zero, but review showed that it trusted caller-written fields; that result does not establish acceptance.
 
 ## Task Commits
 
-1. **Task 1 partial diagnostics:** `810b6c3be` (`chore(253-02): preserve bounded registration diagnostics`). This commit preserves the freeze and setup evidence; Task 1 acceptance criteria were not met.
+1. **Task 1: partial diagnostics** `810b6c3be` (`chore(253-02): preserve bounded registration diagnostics`). This commit preserves the freeze and setup evidence; Task 1 acceptance criteria were not met.
 
 No Task 2 or Task 3 commit was made. There is no RED evidence or RED commit for the planned TDD controls.
 
@@ -100,7 +100,7 @@ No actual registration test, readiness control, state-collision control, or trac
 
 - `bash -n scripts/ci/ci-registration-repro.sh scripts/ci/ci-registration-repro.test.sh` — passed.
 - `bash scripts/ci/ci-registration-repro.test.sh` — passed.
-- `bash scripts/ci/ci-registration-repro.sh --verify-acceptance .../253-REGISTRATION-EVIDENCE.json` — returned `diagnosis_incomplete` and preserved CIREL-01 as unsatisfied.
+- `bash scripts/ci/ci-registration-repro.sh --verify-acceptance .../253-REGISTRATION-EVIDENCE.json` — formerly returned `diagnosis_incomplete`; this permissive checker was rejected in review. Both acceptance modes now exit 3 until real browser/control receipts can be validated.
 - Frozen real-app diagnostic command — did not reach a Playwright invocation. The recorded failures are in `253-REGISTRATION-EVIDENCE.json`.
 - `--verify-controls` and the retry-wrapper prohibition test were not run because the browser controls were not implemented or exercised.
 
@@ -119,3 +119,7 @@ This plan is halted and CIREL-01 remains open. The next executor must repair the
 ## Self-Check: PASSED
 
 The four diagnostic artifacts and this summary exist, and task artifact commit `810b6c3be` is an ancestor of HEAD. The plan remains halted because the browser reproduction and two control tasks did not run.
+
+## Review correction
+
+CR-01 is repaired by refusing unsupported acceptance checks. Six forged-evidence CLI cases now exit 3 and preserve the input bytes. Actual RED `4db305d75` precedes fix `59c907378`. This closes false acceptance, not the registration reproduction gap; no browser or control run was added.

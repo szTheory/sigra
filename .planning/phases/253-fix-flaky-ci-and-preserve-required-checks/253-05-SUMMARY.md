@@ -39,6 +39,12 @@ The dependency-free CLI requires five exact seam directories, source/run/attempt
 | 1 | 0be786753 | 189535006 |
 | 2 | 2488f43fd | 15ec8fec4c |
 
+
+Canonical task commit rows for scope checking (no acceptance status change):
+
+1. **Task 1: five-seam record validator** — RED `0be786753`, GREEN `189535006`.
+2. **Task 2: complete native reports** — RED `2488f43fd`, GREEN `15ec8fec4c`.
+
 ## TDD Gate Compliance
 
 Both real CLI targets failed on intended absent behavior before implementation and produced RED_EVIDENCE_OK with unchanged TAP and semantic assessment records.

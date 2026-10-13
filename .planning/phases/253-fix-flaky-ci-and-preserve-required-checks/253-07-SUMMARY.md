@@ -106,6 +106,13 @@ The following six commits were measured between the plan ledger base and candida
 
 The plan metadata commit is separate.
 
+
+Canonical task commit rows for scope checking (no acceptance status change):
+
+1. **Task 1: partial canary implementation, hosted acceptance not met** — `56170a130`, `5fbf4babb`, `4bc7c4249`, `8459c10df`.
+2. **Task 2: later verifier tests, no accepted RED chronology** — `258eb98a1`, `4cc96210a`.
+3. **Task 1: review repairs only, hosted acceptance remains halted** — RED `a7685bcfb`, repairs `b0bed87cf`, `7da6766eb`.
+
 ## Files Created/Modified
 
 - `scripts/ci/ci-gate-canary.sh` and its shell test — bounded fixture creation, dispatch, cancellation identity checks, request/job/time accounting, and evidence preservation.

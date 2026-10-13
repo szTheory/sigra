@@ -38,6 +38,12 @@ The skip inventory names the actual selected browser steps rather than the alway
 | 1 | acdfd5ce9 | 56992d70f |
 | 2 | bc812ddd5 | 78bc6ce015 |
 
+
+Canonical task commit rows for scope checking (no acceptance status change):
+
+1. **Task 1: browser skip parity** — test `acdfd5ce9`, implementation `56992d70f`; initial RED classification caveat above applies.
+2. **Task 2: documentation parity** — RED `bc812ddd5`, GREEN `78bc6ce015`.
+
 ## TDD Gate Compliance
 
 The initial default Node reporter was unsupported and rejected as INVALID_RED. Its original bytes remain in 253-04-TASK1-RED.json. The unchanged target rerun with TAP was accepted as RED_EVIDENCE_OK, as was Task 2's classifier assertion.
