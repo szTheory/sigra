@@ -123,3 +123,9 @@ The four diagnostic artifacts and this summary exist, and task artifact commit `
 ## Review correction
 
 CR-01 is repaired by refusing unsupported acceptance checks. Six forged-evidence CLI cases now exit 3 and preserve the input bytes. Actual RED `4db305d75` precedes fix `59c907378`. This closes false acceptance, not the registration reproduction gap; no browser or control run was added.
+
+## Startup debug follow-up (2026-10-13)
+
+The startup harness is now repaired and independently verified. macOS temporary path aliases broke Mix's relative JOSE include link; both runner entrypoints now use canonical paths. The setup-only diagnostic also saves setup exit codes and raw logs before stopping. Its final real Phoenix run completed in 76 seconds: three successful setups, three HTTP 200 responses, three database drops, and zero browser invocations. Five setup regression tests and six forged-evidence checks pass.
+
+Evidence: `.planning/debug/phase253-setup-final-20261013T125238Z/manifest.json`; resolved investigation: `.planning/debug/resolved/phase253-registration-setup.md`. The original freeze and failed registration evidence remain byte-identical. This repairs startup, not the historical registration failure: reproduction and readiness/state-collision/trace controls remain unrun, CIREL-01 remains open, and Plan 02 stays halted. Next command: `$gsd-plan-phase 253` to add bounded recovery plans before further execution.

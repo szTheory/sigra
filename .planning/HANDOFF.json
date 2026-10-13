@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-13T06:51:09.733671+00:00",
+  "timestamp": "2026-10-13T13:00:28.983095+00:00",
   "status": "Phase 253 incomplete: five plans complete, two halted, final PR proof blocked.",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Registration controls have no browser execution; hosted canary failed; local repairs and regressions are committed.",
-  "next_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
-  "resume_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
-  "next_action": "Repair the isolated registration startup. Establish new bounded proof tasks before any new registration or hosted run.",
+  "current": "Registration startup repair verified on three real Phoenix apps; registration controls and hosted proof remain incomplete.",
+  "next_command": "$gsd-plan-phase 253",
+  "resume_command": "$gsd-plan-phase 253",
+  "next_action": "Add bounded recovery plans for the unrun registration reproduction/controls and hosted canary. Preserve all eight existing plans and their failed evidence; establish new freezes before execution.",
   "route": {
-    "immediate_gsd_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
-    "resume_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
+    "immediate_gsd_command": "$gsd-plan-phase 253",
+    "resume_command": "$gsd-plan-phase 253",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 253,
@@ -21,86 +21,107 @@
       "phase_verification_status": "not_started"
     },
     "readiness": {
-      "executor_model": "gpt-6-luna",
-      "verifier_model": "gpt-6-luna",
+      "researcher_model": "gpt-6-luna",
+      "planner_model": "gpt-6-sol",
+      "checker_model": "gpt-6-luna",
       "tdd_mode": false,
+      "granularity": "fine",
+      "research_enabled": true,
+      "plan_checker_enabled": true,
+      "nyquist_validation_enabled": true,
       "commit_docs": true,
-      "sub_repos": [],
-      "parallelization": true,
-      "context_window": 200000,
-      "branching_strategy": "none",
-      "phase_branch_template": "gsd/phase-{phase}-{slug}",
-      "milestone_branch_template": "gsd/{milestone}-{slug}",
-      "verifier_enabled": true,
+      "text_mode": false,
+      "auto_advance": false,
+      "auto_chain_active": false,
+      "mode": "yolo",
       "phase_found": true,
       "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+      "expected_phase_dir": null,
       "phase_number": "253",
-      "padded_phase": "253",
-      "phase_name": "Fix Flaky CI and Preserve Required Checks",
+      "phase_name": "fix-flaky-ci-and-preserve-required-checks",
       "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+      "padded_phase": "253",
       "phase_req_ids": "CIREL-01, CIREL-02",
-      "plans": [
-        "253-01-PLAN.md",
-        "253-02-PLAN.md",
-        "253-03-PLAN.md",
-        "253-04-PLAN.md",
-        "253-05-PLAN.md",
-        "253-06-PLAN.md",
-        "253-07-PLAN.md",
-        "253-08-PLAN.md"
-      ],
-      "summaries": [
-        "253-01-SUMMARY.md",
-        "253-02-SUMMARY.md",
-        "253-03-SUMMARY.md",
-        "253-04-SUMMARY.md",
-        "253-05-SUMMARY.md",
-        "253-06-SUMMARY.md",
-        "253-07-SUMMARY.md"
-      ],
-      "incomplete_plans": [
-        "253-08-PLAN.md"
-      ],
+      "phase_status": "In Progress",
+      "has_research": true,
+      "has_context": true,
+      "context_scope": "complete",
+      "has_reviews": false,
+      "has_plans": true,
       "plan_count": 8,
-      "incomplete_count": 1,
       "threat_id_duplicates": [],
       "threat_id_duplicate_count": 0,
-      "halted_plans": [
-        "253-02-PLAN.md",
-        "253-07-PLAN.md"
-      ],
-      "blocked_by": {
-        "253-08-PLAN.md": [
-          "253-02",
-          "253-07"
-        ]
-      },
-      "runnable_plans": [],
-      "runnable_count": 0,
-      "branch_name": null,
-      "milestone_version": "v1.50",
-      "milestone_name": "CI-SPEED-AND-RELIABILITY",
-      "milestone_slug": "ci-speed-and-reliability",
-      "state_exists": true,
+      "planning_exists": true,
       "roadmap_exists": true,
-      "config_exists": true,
       "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
       "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
-      "config_path": "/Users/jon/projects/sigra/.planning/config.json",
       "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+      "patterns_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PATTERNS.md",
+      "context_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+      "research_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RESEARCH.md",
       "section_manifest": {
-        "workflow": "execute-phase",
-        "included": [
-          "regression-gate"
-        ],
+        "workflow": "plan-phase",
+        "included": [],
         "excluded": [
-          "partial-wave",
-          "gap-closure-artifacts"
+          "reviews-prerequisite",
+          "prd-express-gate",
+          "adr-ingest-express-path",
+          "research-only-modifiers",
+          "research-only-early-exit",
+          "chunked-planning-mode"
         ],
-        "read": [
-          "gsd-core/workflows/execute-phase/steps/regression-gate.md"
-        ]
+        "read": []
       },
+      "prior_verify_commands": [
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+          "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint",
+          "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+          "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records",
+          "command": "bash scripts/ci/ci-run-metrics.test.sh"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+          "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter",
+          "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+          "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics",
+          "command": "bash scripts/ci/ci-exunit-timing.test.sh"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-04-PLAN.md",
+          "task": "Task 1: Produce one JSON report per existing Playwright invocation",
+          "command": "node --test scripts/ci/ci-playwright-report.test.mjs"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-05-PLAN.md",
+          "task": "Task 1: Retain timing and cache provenance from the existing CI owners",
+          "command": "node --test scripts/ci/ci-measure-workflow.test.mjs"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+          "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay",
+          "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+          "task": "Task 3: Publish a concise source-linked baseline and reproducible commands",
+          "command": "bash scripts/ci/ci-measure-report.test.sh"
+        }
+      ],
       "project_root": "/Users/jon/projects/sigra",
       "agents_installed": true,
       "missing_agents": [],
@@ -115,7 +136,9 @@
     "halted_dependencies": [
       "253-02",
       "253-07"
-    ]
+    ],
+    "planning_choice": "Add recovery plans; preserve existing plans and original failed records.",
+    "reason": "Phase 253 remains in progress with context/research; no required phase verification has completed."
   },
   "workflow": {
     "scope_confirmed": true,
@@ -138,7 +161,7 @@
       254,
       255
     ],
-    "next_required_gate": "Resolve registration and hosted proof halts before normal PR proof or phase verification",
+    "next_required_gate": "New bounded recovery plans before registration/browser or hosted proof runs",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -153,7 +176,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "resolve_execution_halts",
+    "workflow_step": "plan_execution_recovery",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -821,6 +844,52 @@
         }
       ],
       "readback_verified": true
+    },
+    "before_registration_debug_closeout": {
+      "ref": "7b5af8c7955160045acd6355cc933fb7344edb7b",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "status": "clean",
+          "bytes": 10673,
+          "sha256": "289a7a1683161e7d2b8b6129a067b432c0671d2b5f30b869a35e30947569363d",
+          "recoverable_ref": "7b5af8c7955160045acd6355cc933fb7344edb7b",
+          "readback_exact": true
+        },
+        {
+          "path": ".planning/state.json",
+          "status": "clean",
+          "bytes": 1369,
+          "sha256": "1d37b6e131d3113cd96d11e836a16fd34fa3eff58584de7c25be73a6047be83b",
+          "recoverable_ref": "7b5af8c7955160045acd6355cc933fb7344edb7b",
+          "readback_exact": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": "clean",
+          "bytes": 39096,
+          "sha256": "7b92df2af865648bced3946e100c253da61cca9b6afa1257c618115084f4fe32",
+          "recoverable_ref": "7b5af8c7955160045acd6355cc933fb7344edb7b",
+          "readback_exact": true
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+          "status": "clean",
+          "bytes": 15317,
+          "sha256": "955d1af3756741bf6cc7f746ddb12664c49346b2b3bd6818a6430778e72b6dbd",
+          "recoverable_ref": "7b5af8c7955160045acd6355cc933fb7344edb7b",
+          "readback_exact": true
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-SUMMARY.md",
+          "status": "clean",
+          "bytes": 7718,
+          "sha256": "fe2940b37182c9ebb043796d9d15b5fa5d109c9062eb33afbf552f746d3c5dc3",
+          "recoverable_ref": "7b5af8c7955160045acd6355cc933fb7344edb7b",
+          "readback_exact": true
+        }
+      ],
+      "readback_verified": true
     }
   },
   "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
@@ -844,7 +913,7 @@
     "implementation_status": "partial",
     "phase_verification_status": "not_started",
     "requirements_closed": 0,
-    "next_command": "$gsd-debug \"Phase 253 registration runner setup failure\""
+    "next_command": "$gsd-plan-phase 253"
   },
   "phase253_external_mutations_performed": true,
   "phase253_execution": {
@@ -864,7 +933,7 @@
       {
         "plan": "253-02",
         "missing": "Actual Playwright registration reproduction and readiness/state-collision/trace controls. Zero browser invocations ran.",
-        "next": "Repair isolated Mix/app startup; preserve the exhausted retry and original diagnosis. A new bounded execution needs a new explicit freeze.",
+        "next": "Startup is repaired and verified. Add a new bounded registration reproduction/control plan and freeze; preserve the exhausted original retry and diagnosis.",
         "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
       },
       {
@@ -903,5 +972,30 @@
       "CIREL-01": "unsatisfied",
       "CIREL-02": "unsatisfied"
     }
+  },
+  "phase253_registration_startup_debug": {
+    "status": "resolved_startup_only",
+    "session": ".planning/debug/resolved/phase253-registration-setup.md",
+    "evidence": ".planning/debug/phase253-setup-final-20261013T125238Z/manifest.json",
+    "code_commits": [
+      "4ffa9dcb12a8313ae847f35cbd5c543f4e27ed54",
+      "dd5859dc5cf4b45e7b8d57ebca7e2be4b3a94f32"
+    ],
+    "cause": "An aliased macOS temporary path broke the relative JOSE include link; setup failure could exit before saving its result.",
+    "verification": {
+      "cli_exit_code": 0,
+      "duration_seconds": 76,
+      "projects": 3,
+      "http_200": 3,
+      "database_drops": 3,
+      "browser_invocations": 0,
+      "fixture_tests_passed": 5,
+      "forged_evidence_cases_passed": 6,
+      "raw_log_bindings_verified": 12
+    },
+    "historical_registration_cause": "unknown",
+    "plan02_status": "halted",
+    "phase_verification_status": "not_started",
+    "next_command": "$gsd-plan-phase 253"
   }
 }

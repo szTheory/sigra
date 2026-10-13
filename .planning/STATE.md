@@ -6,9 +6,9 @@ current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
 status: "blocked"
 stopped_at: "Phase 253: five plans complete; registration and hosted proof halted; final PR proof blocked"
-last_updated: "2026-10-13T05:04:00.349908+00:00"
+last_updated: "2026-10-13T13:00:28.983095+00:00"
 last_activity: "2026-10-13"
-last_activity_desc: "Phase 253 partial execution and local repairs recorded"
+last_activity_desc: "Registration startup debug resolved; bounded recovery planning next"
 state_head: "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7"
 progress:
   total_phases: 4
@@ -17,12 +17,12 @@ progress:
   completed_plans: 11
   percent: 79
 milestone_status: active
-workflow_step: "resolve_execution_halts"
+workflow_step: "plan_execution_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-debug \"Phase 253 registration runner setup failure\""
-resume_command: "$gsd-debug \"Phase 253 registration runner setup failure\""
+next_command: "$gsd-plan-phase 253"
+resume_command: "$gsd-plan-phase 253"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -50,17 +50,17 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 Phase: 253 (Fix Flaky CI and Preserve Required Checks) — INCOMPLETE
 Plans: 5 of 8 complete; 02 and 07 halted; 08 blocked
-Status: Resolve registration setup and hosted proof gaps
+Status: Startup repair verified; plan bounded registration and hosted recovery
 Last activity: 2026-10-13 — Partial execution and local regression checks recorded
 Progress: 11/14 currently planned milestone plans complete (79%); Phase 253 verification not started
 
 ## Next GSD command
 
-$gsd-debug "Phase 253 registration runner setup failure"
+$gsd-plan-phase 253
 
 Phase 253 plans 01, 03, 04, 05 and 06 are implemented and locally checked. Plan 02 halted before any browser invocation; its setup retry is exhausted and CIREL-01 is unsatisfied. Plan 07's only hosted run, 38347679431, failed with a source SHA mismatch; its original fixture, API responses and failed logs remain preserved. The local fixture defects have been repaired, but no hosted scenario is accepted and CIREL-02 remains unsatisfied. Plan 08 is blocked by both halted plans. Phase verification has not started; Phase 254 has not started.
 
-Repair the isolated registration runner first. Any new registration or hosted proof must use a newly established bounded plan and preserve the original failed evidence. Repeating execute-phase alone will skip the halted summaries and cannot complete plan 08. The original canary request ledger records 20 accounted/reserved calls; its exact HTTP request count is not proven. The overwritten Task 2 RED report is disclosed, with no exact-byte recovery or valid TDD chronology claim.
+The registration startup repair is verified: canonical temporary paths avoid the broken JOSE include link, and the setup-only command started all three apps, returned HTTP 200, and dropped their databases in 76 seconds. No browser invocation ran. Add bounded recovery plans next, preserving the existing eight plans and exhausted original freezes. Any new registration or hosted proof must use a newly established bounded plan and preserve the original failed evidence. Repeating execute-phase alone will skip the halted summaries and cannot complete plan 08. The original canary request ledger records 20 accounted/reserved calls; its exact HTTP request count is not proven. The overwritten Task 2 RED report is disclosed, with no exact-byte recovery or valid TDD chronology claim.
 
 Phase 252 remains complete and verified; all its paths and the archived baseline replay are unchanged. Historical release-record maintenance is separate and does not block this recovery route.
 
@@ -72,6 +72,8 @@ Phase 252 remains complete and verified; all its paths and the archived baseline
 - Unrelated backlog and quick tasks remain open; none was silently marked complete.
 
 ## Evidence
+
+- Startup debug resolved: `.planning/debug/resolved/phase253-registration-setup.md`; live setup receipt and 12 raw logs: `.planning/debug/phase253-setup-final-20261013T125238Z/manifest.json`. Fresh setup tests: 5 passed; forged-evidence checks: 6 passed. Original registration freeze/evidence and Phase 252 paths are unchanged. Startup verification does not prove registration behavior or complete Phase 253.
 
 - Partial execution: `253-EXECUTION-RECORD.json`; fresh local checks: `253-POSTEXEC-CHECKS.json`; review repairs: `253-POSTEXEC-DISPOSITION.md`. Planning prior bytes are recoverable at 5ea3ef6267aabf885df51829f888fa1bf9c4dbc7 with exact read-backs in the execution record. Five implemented plans do not constitute completed phase verification.
 
@@ -105,8 +107,8 @@ Phase 252 remains complete and verified; all its paths and the archived baseline
 
 ## Session
 
-**Last session:** 2026-10-13T05:04:00.349908+00:00
-**Stopped at:** Five plans complete; 253-02 and 253-07 halted; 253-08 blocked
+**Last session:** 2026-10-13T13:00:28.983095+00:00
+**Stopped at:** Startup debug resolved; five plans complete, 02/07 halted, 08 blocked; recovery planning next
 **Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json
 
 ## Deferred Items
