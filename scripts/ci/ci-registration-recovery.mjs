@@ -281,7 +281,7 @@ function createFreeze(output, root = ROOT) {
     max_duration_ms: PROJECT_SLOT_MS,
     selection: { spec: 'tests/admin-eval.spec.ts', test_title: oldFreeze.selection.grep, project: project.name }
   }));
-  for (const project of PROJECTS) for (const [round, namedCases] of [
+  const controlRounds = [
     ['first', [
       { title: 'registration waits for explicitly released LiveView readiness', expected: 'pass after signal release' },
       { title: 'registration stops when LiveView readiness is never released', expected: 'bounded expected failure' },
@@ -294,12 +294,13 @@ function createFreeze(output, root = ROOT) {
       { title: 'registration discards trace after a passing control', expected: 'pass and no trace artifact' },
       { title: 'registration regression passes after an evidenced repair', expected: 'pass only after a cause-backed repair; otherwise slot expires' }
     ]]
-  ].entries()) {
+  ];
+  for (const [round, namedCases] of controlRounds) for (const project of PROJECTS) {
     slots.push({
       id: `D19-CONTROL-${String(slots.length - 2).padStart(2, '0')}`,
       sequence: slots.length + 1,
       kind: 'control', stage: 'D19', project: project.name,
-      round: round === 0 ? 'first' : 'second', named_cases: namedCases,
+      round, named_cases: namedCases,
       max_duration_ms: PROJECT_SLOT_MS,
       selection: { spec: 'tests/admin-eval.spec.ts', project: project.name, body: 'Plan 10 frozen named browser control bundle' }
     });
@@ -375,9 +376,16 @@ function createFreeze(output, root = ROOT) {
       preceding_order: 'unknown',
       preceding_order_reason: 'The archived record names the failed project and selected test but has no preceding test order.'
     },
+    supersedes_unlaunched_freeze: {
+      path: `${PHASE_DIR}/253-RECOVERY-REGISTRATION-FREEZE-REVISION-01.json`,
+      sha256: 'b20adf12b7b07ede9d11a85fd813d90c6c3f4bd7fcdf38eaf564797f06baf5db',
+      commit: '31c966de7f5f4486cf936e83d38406764a1130bb',
+      reason: 'Control slots were reordered to run the first bundle across the frozen project order before any second bundle; no browser ran under the superseded revision.'
+    },
     ledger: {
       slots, max_launches: 19, max_charged_duration_ms: TOTAL_CAP_MS,
       prelaunch_setup: { path: path.relative(root, preflightPath), sha256: fileHash(preflightPath), duration_ms: preflight.duration_ms, charged_to_slot: 'D19-DIAG-01' },
+      control_round_order: ['first bundle: admin-eval, admin-eval-mobile, admin-eval-dark', 'second bundle: admin-eval, admin-eval-mobile, admin-eval-dark'],
       d19: { max_launches: 10, max_charged_duration_ms: D19_CAP_MS, diagnostic_and_control_slots: 9, max_minutes_per_slot: 2 },
       d20: { max_launches: 10, max_charged_duration_ms: 40 * 60 * 1000, acceptance_slots: 9, max_minutes_per_slot: 4 },
       retry: { count: 1, requires_independent_diagnosis: true, maximum_charged_minutes: 4, charged_to_occurrence_stage: true },
@@ -643,10 +651,13 @@ function verifyDiagnosticFile(evidenceFile, root = ROOT) {
     const oldEvidence = path.join(root, PHASE_DIR, '253-REGISTRATION-EVIDENCE.json');
     const setupReceipt = path.join(root, freeze.historical.startup_receipt_path);
     const preflightReceipt = path.resolve(root, freeze.ledger.prelaunch_setup.path);
+    const supersededFreeze = path.join(root, freeze.supersedes_unlaunched_freeze.path);
     if (fileHash(oldFreeze) !== freeze.historical.original_freeze_sha256) throw new Error('original registration freeze bytes changed');
     if (fileHash(oldEvidence) !== freeze.historical.original_evidence_sha256) throw new Error('original registration evidence bytes changed');
     if (!freeze.historical.startup_receipt_sha256 || fileHash(setupReceipt) !== freeze.historical.startup_receipt_sha256) throw new Error('previous setup receipt bytes changed or were not frozen');
     if (fileHash(preflightReceipt) !== freeze.ledger.prelaunch_setup.sha256) throw new Error('prelaunch setup receipt bytes changed');
+    if (fileHash(supersededFreeze) !== freeze.supersedes_unlaunched_freeze.sha256) throw new Error('superseded unlaunched freeze bytes changed');
+    if (run('git', ['-C', root, 'merge-base', '--is-ancestor', freeze.supersedes_unlaunched_freeze.commit, git(['-C', root, 'rev-parse', 'HEAD'])]).status !== 0) throw new Error('superseded freeze preservation commit is not in history');
   } catch (error) {
     const result = { ok: false, errors: [error.message] };
     console.error(`native diagnostic receipt rejected: ${error.message}`);
