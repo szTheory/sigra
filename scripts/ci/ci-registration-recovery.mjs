@@ -858,6 +858,7 @@ function loadRevisionEvidence(freezeFile, evidenceFile, root, { allowRebind = fa
       schema_version: REPLAN_SCHEMA, status: 'running', freeze_path: path.relative(root, freezeFile), freeze_sha256: freezeHash,
       source: { checkout_head: freeze.source.checkout_head, blobs: freeze.source.blobs },
       historical: { ...freeze.historical, preceding_order: 'unknown' },
+      preparation_status: freeze.retry_context ? 'passed' : 'not_started',
       preparation_receipts: [], attempts: [],
       toolchain: freeze.retry_context ? readJson(path.resolve(root, freeze.retry_context.original_evidence_path)).toolchain : undefined,
       limits: { historical_charge_ms: freeze.ledger.historical_charge_ms, preparation_charge_ms: 0, charged_duration_ms: freeze.ledger.historical_charge_ms, browser_launches: 0, used_slots: [], max_charged_duration_ms: freeze.ledger.max_charged_duration_ms, max_new_browser_launches: freeze.ledger.max_new_browser_launches }
