@@ -2,7 +2,7 @@
 status: verifying
 trigger: 'Phase 253 registration runner setup failure'
 created: 2026-10-13T12:16:53Z
-updated: 2026-10-13T12:40:16Z
+updated: 2026-10-13T12:41:24Z
 goal: find_and_fix
 scope: runner startup only; no registration reproduction budget reset
 capture_head: 38a4ecf89424638242e1807900fb8a0b64bc2d43
@@ -11,10 +11,10 @@ capture_status: clean
 
 ## Current Focus
 
-hypothesis: The committed setup-only entrypoint records each real setup outcome and raw log before any startup failure can exit; the historical JOSE include cause remains unknown because its raw log is unavailable.
-test: Run the committed `--diagnose-setup` entrypoint once against real Phoenix using the separate frozen three-launch, 1200-second, zero-browser budget.
-expecting: One final receipt records three distinct projects reaching HTTP 200 on ports 25311, 25312, and 25313, with raw setup and app logs retained; any failure remains terminal with no live retry.
-next_action: run `bash scripts/ci/ci-registration-repro.sh --diagnose-setup --output /private/tmp/sigra-253-setup-entrypoint-20261013T124016Z.json` once, then validate the receipt and all raw logs
+hypothesis: The setup-only entrypoint's external MIX_BUILD_PATH differs from the three earlier successful probes and causes JOSE include files to be absent from its compiled dependency path.
+test: Compare the failed receipt and log against the prior successful probe configuration, then reproduce only the dependency compile with local build-path variants; do not launch Phoenix or rerun the frozen entrypoint.
+expecting: The external path fails with a missing build/lib/jose/include header while an in-project build path retains it, or evidence disproves the path hypothesis.
+next_action: inspect the prior probe build paths and JOSE/Mix include layout, then run a bounded dependency-only differential check if needed
 reasoning_checkpoint:
   hypothesis: A nonzero setup command exits the current runner before its evidence writer because Bash errexit is active.
   confirming_evidence:
@@ -113,6 +113,10 @@ source: Symptoms are already established in the preceding session and committed 
   checked: Runner failure paths and temporary database cleanup
   found: `set -e` can abort at ecto.setup before project evidence is written; the setup-only mode is absent; all three temporary databases dropped successfully with exit 0.
   implication: Repair the independently demonstrable evidence-loss path without claiming the historical JOSE root cause.
+- timestamp: 2026-10-13T12:41:24Z
+  checked: Single frozen setup-only entrypoint run and exact preservation of final receipt/raw logs
+  found: Entry 3e23c7cbd invoked once and stopped after admin-eval ecto.setup exited 1; zero Phoenix launches and zero browser invocations. Raw log reports missing external-build `lib/jose/include/jose_jwt.hrl`; cleanup reports missing `jose_jwk.hrl`. Receipt and five raw logs were copied byte-identically and committed at e17c1fa4f under `.planning/debug/phase253-setup-entrypoint-20261013T124016Z/`; receipt SHA-256 e91526eea5fb48f11c834b60f3b33da788c094a457d6e93c3eca0369877486bd.
+  implication: Evidence retention works, but real startup remains failed; investigate the external build path without another live run.
 
 ## Resolution
 
@@ -123,8 +127,8 @@ verification:
   mutation_check: {result: skipped, reason: "No configured Stryker setup for shell/Node runner"}
   no_op_deletion: {result: pass, deletion_justified_by_rca: false, note: "The change adds a diagnostic path and moves identity validation before output mutation; it does not short-circuit startup."}
   adjacent_tests: {result: pass, suites_run: ["bash scripts/ci/ci-registration-repro.test.sh", "bash -n scripts/ci/ci-registration-repro.sh", "node --check scripts/ci/ci-registration-setup-diagnostic.mjs"]}
-  revert_and_reconfirm: {result: pending, reason: "The new entrypoint has no real Phoenix run after the three allowed live probes were consumed; only hermetic tests exercised the committed code."}
-  guardrail_verdict: pending_real_entrypoint_integration
+  revert_and_reconfirm: {result: failed, reason: "The one allowed real entrypoint invocation reproduced a missing JOSE include under its external build path; no live retry is permitted."}
+  guardrail_verdict: rejected_pending_local_diagnosis
   live_setup_probes: "3/3 clean-clone database setups and Phoenix launches returned HTTP 200 on ports 25311, 25312, 25313 before the code repair; zero browser invocations."
 files_changed:
   - scripts/ci/ci-registration-repro.sh
