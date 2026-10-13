@@ -1534,6 +1534,16 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/golden-path.spec.ts \
+            tests/ga-uat-shift-left.spec.ts \
+            tests/passkeys-hooks.spec.ts \
+            tests/organizations.spec.ts \
+            tests/passkey-login.spec.ts \
+            tests/passkey-options.spec.ts \
+            --retries=0 \
+            --list --reporter=json > playwright-report/non-admin-smoke.selection.json
           SIGRA_PLAYWRIGHT_JSON=playwright-report/non-admin-smoke.json npx playwright test \
             tests/golden-path.spec.ts \
             tests/ga-uat-shift-left.spec.ts \
@@ -1555,6 +1565,29 @@ jobs:
             tests/demo-showcase.spec.ts \
             --project=demo-showcase-chromium \
             --retries=0
+
+      - name: Record selected browser execution
+        id: browser_execution_record
+        if: always() && matrix.seam == 'non_admin_smoke'
+        env:
+          CLASSIFIER_RESULT: ${{ needs.changes.result }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          SELECTED_STEPS_JSON: ${{ toJSON(steps) }}
+          MATRIX_SEAM: ${{ matrix.seam }}
+        run: |
+          node scripts/ci/ci-browser-records.mjs --record \
+            --seam "$MATRIX_SEAM" \
+            --reports-directory test/example/priv/playwright/playwright-report \
+            --directory ci-browser-execution
+
+      - name: Upload selected browser execution
+        if: always() && matrix.seam == 'non_admin_smoke'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: browser-execution-${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ci-browser-execution/
+          retention-days: 7
+          if-no-files-found: error
 
       - name: Dump isolated example app log
         if: failure()
@@ -1614,6 +1647,31 @@ jobs:
     needs: [release_ref_guard, changes, example_playwright_shard]
     if: always()
     steps:
+      - name: Checkout browser record validator
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download selected browser records
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: browser-execution-non_admin_smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          path: browser-execution-records/browser-execution-non_admin_smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          merge-multiple: false
+      - name: Validate selected native browser execution
+        env:
+          CLASSIFIER_RESULT: ${{ needs.changes.result }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          SHARDS: ${{ needs.example_playwright_shard.result }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const identity = {run_id: process.env.GITHUB_RUN_ID, run_attempt: process.env.GITHUB_RUN_ATTEMPT,
+            source_sha: process.env.GITHUB_SHA, event: process.env.GITHUB_EVENT_NAME,
+            workflow_ref: process.env.GITHUB_WORKFLOW_REF, workflow_sha: process.env.GITHUB_WORKFLOW_SHA,
+            classifier_result: process.env.CLASSIFIER_RESULT, docs_only: process.env.DOCS_ONLY};
+          fs.writeFileSync('/tmp/browser-execution-identity.json', JSON.stringify(identity));
+          NODE
+          node scripts/ci/ci-browser-records.mjs --verify-seam non_admin_smoke \
+            --directory "browser-execution-records/browser-execution-non_admin_smoke-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --identity /tmp/browser-execution-identity.json --native-result "$SHARDS"
       - name: Aggregate every Playwright shard result
         env:
           RELEASE_GUARD: ${{ needs.release_ref_guard.result }}
