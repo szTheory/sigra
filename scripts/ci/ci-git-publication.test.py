@@ -329,14 +329,32 @@ class PublicationTests(unittest.TestCase):
                                        source, "--server-parent", parent, "--repo-root", str(repo),
                                        "--output", str(output)], cwd=ROOT, text=True, capture_output=True)
             self.assertEqual(prepared.returncode, 0, prepared.stderr)
-            manifest = json.loads(output.read_text())
-            candidate = [row for row in manifest["tree_requests"] if row["name"].startswith("candidate")]
-            candidate[1]["base_tree_sha"] = "f" * 40
-            output.write_text(json.dumps(manifest))
-            rejected = subprocess.run(["python3", str(PUBLISHER), "--check-manifest", str(output)],
-                                      cwd=ROOT, text=True, capture_output=True)
-            self.assertNotEqual(rejected.returncode, 0)
-            self.assertIn("tree chain", rejected.stderr)
+            original = json.loads(output.read_text())
+            mutations = {
+                "broken base": lambda value: next(row for row in value["tree_requests"]
+                                                    if row["variant"] == "candidate" and row["sequence"] == 2).__setitem__("base_tree_sha", "f" * 40),
+                "tampered SHA": lambda value: next(row for row in value["tree_requests"]
+                                                     if row["variant"] == "candidate" and row["sequence"] == 1).__setitem__("tree_sha", "f" * 40),
+                "over-budget projection": lambda value: value["projection"].update({
+                    "tree_request_count": len(value["tree_requests"]) + 8,
+                    "projected_total_requests": 1 + 12 + len(value["tree_requests"]) + 8
+                    + value["projection"]["binary_blob_requests"]}),
+                "single oversized request": lambda value: (value["tree_requests"][0].update({"body_bytes": 2 * 1024 * 1024 + 1}),
+                                                              value["projection"].update({"largest_tree_body_bytes": 2 * 1024 * 1024 + 1})),
+            }
+            def remove_middle_candidate(value):
+                value["tree_requests"].pop(1)
+                value["projection"]["tree_request_count"] -= 1
+                value["projection"]["projected_total_requests"] -= 1
+            mutations["incomplete chain"] = remove_middle_candidate
+            for label, mutate in mutations.items():
+                with self.subTest(label=label):
+                    value = json.loads(json.dumps(original))
+                    mutate(value)
+                    output.write_text(json.dumps(value))
+                    rejected = subprocess.run(["python3", str(PUBLISHER), "--check-manifest", str(output)],
+                                              cwd=ROOT, text=True, capture_output=True)
+                    self.assertNotEqual(rejected.returncode, 0, label)
 
     def make_local_publication(self, temp, flags=None, many_entries=0):
         temp_path = pathlib.Path(temp)
