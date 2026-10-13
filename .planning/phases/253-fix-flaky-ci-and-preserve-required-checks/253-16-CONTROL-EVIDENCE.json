@@ -1,0 +1,78 @@
+{
+  "schema_version": "sigra.phase253.registration-control-evidence/v1",
+  "status": "running",
+  "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json",
+  "freeze_sha256": "db74f2f2b8dc9df71e67fddc7049024fb03b693478573c3e204020068b898a82",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "35b49354050660a0f808291e2422de108834ef87",
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+      "scripts/ci/ci-registration-recovery.mjs": "9a97675dab6fd8f2d7037101eb3203b668f06de8",
+      "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "a9c9ff153634284c97a4428f8984015c91bccfbe",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    }
+  },
+  "prior_artifacts": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
+      "sha256": "a2ca73dbdad8b4e00766d28b98f7841a9ac2233e7c481ea7fda309b5a310fdfb",
+      "role": "accepted sanitized Plan 15 retry and mobile proof"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-FREEZE-REVISION-03.json",
+      "sha256": "0a418e66508a60e75b3db74a35a563b9c5313032cfc7e3a889f041e76628ca6e",
+      "role": "Plan 15 source freeze"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+      "sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960",
+      "role": "immutable initial failed desktop receipt"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-REVIEW.json",
+      "sha256": "fd84291efe6a38673888e9d6e677219f6bc7ef1ae6ea6cfa061a3b4437f3bcbc",
+      "role": "independent infrastructure retry classification"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-SHARED-RETRY-USED.json",
+      "sha256": "a36f4625aad92e02521acc95013e7db18b36a7d2d8b454c3559ca2f02ce98ef9",
+      "role": "consumed one-use shared retry marker"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+      "sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122",
+      "role": "earlier historical 3,768 ms failure receipt"
+    }
+  ],
+  "created_at": "2026-10-13T22:03:44.756Z",
+  "attempts": [],
+  "reservation": null,
+  "pending_repair_regression": {
+    "title": "registration regression passes after an evidenced repair",
+    "state": "pending_phase253_17_documented_cause"
+  },
+  "limits": {
+    "prior_charge_ms": 121680,
+    "charged_duration_ms": 121680,
+    "reserved_ms": 0,
+    "physical_browser_launches": 3,
+    "used_slots": [
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE"
+    ],
+    "max_physical_browser_launches": 18,
+    "max_total_charged_ms": 3480000,
+    "d19_cap_ms": 1200000,
+    "d20_reserved_cap_ms": 2160000,
+    "d20_reserved_slots": 9,
+    "retry_count_used": 1,
+    "retry_count_available": 0
+  }
+}
