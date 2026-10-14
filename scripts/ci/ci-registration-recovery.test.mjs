@@ -5528,3 +5528,115 @@ test('R5 accepted evidence verifies by git ancestry and object reads after a lat
     assert.throws(() => recovery.verifyFrozenSourceBindingR5(dir, notAncestor, { terminal: true }), /ancestor/i);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+// ---- 253-84 Task 1: load acceptance verifier and honest target predicate ----
+const ACCEPT_SCHEMA = 'sigra.phase253.load-acceptance-evidence/v1';
+const ACCEPT_PHASE = ['.planning', 'phases', '253-fix-flaky-ci-and-preserve-required-checks'].join('/');
+const ACCEPT_IDS = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'].flatMap((project) => [1, 2, 3].map((n) => `D20-ACCEPT-${project}-${n}`));
+
+function acceptanceFixture(mutate = () => {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-accept-'));
+  const put = (name, text) => { const file = path.join(dir, name); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, text); return { path: name, sha256: crypto.createHash('sha256').update(text).digest('hex') }; };
+  const controls = put(`${ACCEPT_PHASE}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json`, '{"controls":true}\n');
+  const diagnosis = put(`${ACCEPT_PHASE}/253-DIAGNOSIS.json`, '{"status":"incomplete"}\n');
+  const loader = put(`${ACCEPT_PHASE}/loader.json`, '{"loader":1}\n');
+  const redReceipt = put('receipts/red.log', 'FAIL before repair\n');
+  const greenReceipt = put('receipts/green.log', 'PASS after repair\n');
+  const freeze = put(`${ACCEPT_PHASE}/253-LOAD-RECOVERY-ACCEPTANCE-FREEZE.json`, '{"freeze":1}\n');
+  const evidence = {
+    schema_version: ACCEPT_SCHEMA, status: 'diagnosis_incomplete', target_status: 'open', integration_pending: true,
+    controls: { ...controls, stage: 'complete' },
+    observed_cause: { summary: 'selected failures unproved', sources: [{ ...diagnosis, proves: 'observations only' }] },
+    historical_cause: { status: 'diagnosis_incomplete', missing: ['original preceding-order log'], causal_link: null },
+    repairs: [{ id: 'node20-loader', defect_class: 'node20_loader_collection', source: loader, explains_historical_cause: false }],
+    acceptance: { freeze: null, reserved_ids: ACCEPT_IDS, attempts: [], retry_available: 0 }
+  };
+  const ctx = { dir, put, evidence, freeze, diagnosis, redReceipt, greenReceipt };
+  mutate(ctx);
+  return ctx;
+}
+const demonstrated = (ctx) => {
+  ctx.evidence.historical_cause = {
+    status: 'demonstrated', missing: [],
+    causal_link: {
+      original: { ...ctx.diagnosis }, seam: 'registration helper shares account across rows',
+      red: { source_blob: 'a'.repeat(40), receipt: ctx.redReceipt, exit_code: 1, before_repair: true },
+      repair: { defect_class: 'registration_harness_seam', source_blob: 'b'.repeat(40), diff_sha256: 'c'.repeat(64) },
+      green: { source_blob: 'b'.repeat(40), receipt: ctx.greenReceipt, exit_code: 0 }
+    }
+  };
+};
+const acceptedAttempts = (ctx) => ACCEPT_IDS.map((id) => ({ id, project: id.replace(/^D20-ACCEPT-/, '').replace(/-\d$/, ''), outcome: 'passed', fresh: true, host_awake: true, charged_duration_ms: 90_000 }));
+const verifyAccept = (ctx, stage = 'progress', requireTarget = false) => recovery.verifyLoadAcceptanceData(ctx.evidence, { root: ctx.dir, stage, requireTarget, verifyControls: () => true });
+
+test('acceptance: a truthful open record passes progress but is never an accepted target', () => {
+  const ctx = acceptanceFixture();
+  try {
+    assert.equal(verifyAccept(ctx, 'progress').ok, true);
+    assert.equal(verifyAccept(ctx, 'complete', true).ok, false);
+    assert.equal(verifyAccept(ctx, 'complete', false).ok, false);
+    assert.equal(verifyAccept(ctx, 'progress', true).ok, false);
+  } finally { fs.rmSync(ctx.dir, { recursive: true, force: true }); }
+});
+
+test('acceptance: a fabricated cause, caller boolean or runner repair never establishes the historical explanation', () => {
+  const fabricated = acceptanceFixture((c) => { c.evidence.historical_cause = { status: 'demonstrated', cause_proved: true, missing: [], causal_link: null }; c.evidence.target_status = 'accepted'; });
+  const loaderAsCause = acceptanceFixture((c) => { demonstrated(c); c.evidence.historical_cause.causal_link.repair.defect_class = 'node20_loader_collection'; });
+  const repairClaim = acceptanceFixture((c) => { c.evidence.repairs[0].explains_historical_cause = true; });
+  const tamperedSource = acceptanceFixture((c) => { c.evidence.observed_cause.sources[0].sha256 = '0'.repeat(64); });
+  const noRed = acceptanceFixture((c) => { demonstrated(c); c.evidence.historical_cause.causal_link.red.exit_code = 0; });
+  const badRedReceipt = acceptanceFixture((c) => { demonstrated(c); c.evidence.historical_cause.causal_link.red.receipt.sha256 = '1'.repeat(64); });
+  const unknownRepair = acceptanceFixture((c) => { c.evidence.repairs[0].defect_class = 'invented'; });
+  try {
+    for (const ctx of [fabricated, loaderAsCause, repairClaim, tamperedSource, noRed, badRedReceipt, unknownRepair]) {
+      assert.equal(verifyAccept(ctx, 'progress').ok, false);
+      assert.equal(verifyAccept(ctx, 'complete', true).ok, false);
+    }
+  } finally { for (const ctx of [fabricated, loaderAsCause, repairClaim, tamperedSource, noRed, badRedReceipt, unknownRepair]) fs.rmSync(ctx.dir, { recursive: true, force: true }); }
+});
+
+test('acceptance: control evidence that does not reopen as complete rejects the record', () => {
+  const ctx = acceptanceFixture();
+  try {
+    assert.equal(recovery.verifyLoadAcceptanceData(ctx.evidence, { root: ctx.dir, stage: 'progress', requireTarget: false, verifyControls: () => false }).ok, false);
+    const mismatch = acceptanceFixture((c) => { c.evidence.controls.sha256 = '2'.repeat(64); });
+    assert.equal(verifyAccept(mismatch, 'progress').ok, false);
+    fs.rmSync(mismatch.dir, { recursive: true, force: true });
+  } finally { fs.rmSync(ctx.dir, { recursive: true, force: true }); }
+});
+
+test('acceptance: no launch is permitted without a demonstrated cause, and an accepted target needs three fresh passes per affected project in frozen order', () => {
+  const early = acceptanceFixture((c) => { c.evidence.acceptance.attempts = [{ id: ACCEPT_IDS[0], project: 'admin-eval', outcome: 'passed', fresh: true, host_awake: true, charged_duration_ms: 1000 }]; });
+  const good = acceptanceFixture((c) => {
+    demonstrated(c);
+    c.evidence.status = 'complete'; c.evidence.target_status = 'accepted';
+    c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+    c.evidence.acceptance.attempts = acceptedAttempts(c);
+  });
+  const reordered = acceptanceFixture((c) => { demonstrated(c); c.evidence.status = 'complete'; c.evidence.target_status = 'accepted'; c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']; c.evidence.acceptance.attempts = acceptedAttempts(c).reverse(); });
+  const retried = acceptanceFixture((c) => { demonstrated(c); c.evidence.status = 'complete'; c.evidence.target_status = 'accepted'; c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval']; c.evidence.acceptance.attempts = [...acceptedAttempts(c).slice(0, 3), { ...acceptedAttempts(c)[0] }]; });
+  const asleep = acceptanceFixture((c) => { demonstrated(c); c.evidence.status = 'complete'; c.evidence.target_status = 'accepted'; c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']; c.evidence.acceptance.attempts = acceptedAttempts(c).map((a, i) => (i === 4 ? { ...a, host_awake: false } : a)); });
+  try {
+    assert.equal(verifyAccept(early, 'progress').ok, false);
+    assert.equal(verifyAccept(good, 'complete', true).ok, true, verifyAccept(good, 'complete', true).errors.join('; '));
+    assert.equal(verifyAccept(good, 'progress', false).ok, true);
+    for (const ctx of [reordered, retried, asleep]) assert.equal(verifyAccept(ctx, 'complete', true).ok, false);
+  } finally { for (const ctx of [early, good, reordered, retried, asleep]) fs.rmSync(ctx.dir, { recursive: true, force: true }); }
+});
+
+test('acceptance: the CLI parses both LOAD_CHECKS argv forms and they agree on the committed record', () => {
+  const python = fs.readFileSync(path.join(root, 'scripts/ci/ci-hosted-gate-verify.py'), 'utf8');
+  assert.match(python, /"load_acceptance": \["--verify-load-acceptance", "\{path\}", "--require-target-accepted"\]/);
+  const evidence = path.join(root, ACCEPT_PHASE, '253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json');
+  if (!fs.existsSync(evidence)) return; // created by the same task after RED
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const run = (...args) => spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: 'utf8' });
+  const bare = run('--verify-load-acceptance', evidence, '--require-target-accepted');
+  const staged = run('--verify-load-acceptance', evidence, '--stage', 'complete', '--require-target-accepted');
+  const progress = run('--verify-load-acceptance', evidence, '--stage', 'progress');
+  assert.equal(progress.status, 0, progress.stderr);
+  assert.equal(staged.status, bare.status, 'both forms agree');
+  assert.notEqual(bare.status, 0, 'an open target is never accepted');
+  assert.doesNotMatch(bare.stderr, /Unknown|usage/i);
+  assert.match(bare.stderr, /target|accepted|cause/i);
+});

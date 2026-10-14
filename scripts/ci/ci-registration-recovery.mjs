@@ -107,6 +107,13 @@ function parseArgs(argv) {
   if (argv[0] === '--prepare-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'prepare-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--run-load-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv.length === 6) return { mode: 'run-load-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]) };
   if (argv[0] === '--verify-load-recovery' && argv[1] && argv[2] === '--stage' && ['first', 'progress', 'complete'].includes(argv[3]) && argv.length === 4) return { mode: 'verify-load-recovery', evidence: path.resolve(argv[1]), stage: argv[3] };
+  if (argv[0] === '--verify-load-acceptance' && argv[1]) {
+    const rest = argv.slice(2);
+    const requireTarget = rest.includes('--require-target-accepted');
+    const staged = rest[0] === '--stage' && ['progress', 'complete'].includes(rest[1]) ? rest[1] : null;
+    const tail = rest.filter((arg, index) => !(staged && index < 2) && arg !== '--require-target-accepted');
+    if (tail.length === 0 && (staged || requireTarget)) return { mode: 'verify-load-acceptance', evidence: path.resolve(argv[1]), stage: staged ?? 'complete', requireTarget };
+  }
   if (argv[0] === '--check-load-recovery-freeze' && argv[1] && argv.length === 2) return { mode: 'check-load-recovery-freeze', freeze: path.resolve(argv[1]) };
   if (argv[0] === '--create-control-recovery' && argv[1] === '--output' && argv[2] && argv.length === 3) {
     return { mode: 'create-control-recovery', output: path.resolve(argv[2]) };
@@ -6938,6 +6945,120 @@ export function verifyLoadRecoveryFileR5(evidenceFile, stage, root = ROOT, deps 
   } catch (error) { console.error(`R5 native load recovery evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
 }
 
+// ---- 253-84: load acceptance verifier and honest target predicate (D-04/D-20/D-24) ----
+const LOAD_ACCEPT_SCHEMA = 'sigra.phase253.load-acceptance-evidence/v1';
+const LOAD_ACCEPT_FREEZE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-ACCEPTANCE-FREEZE.json`;
+const LOAD_ACCEPT_EVIDENCE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json`;
+// Each repair proves only its own defect. None of these classes can ever be the historical registration cause.
+const LOAD_ACCEPT_RUNNER_REPAIR_CLASSES = [
+  'node20_loader_collection', 'control_port_mismatch', 'host_sleep_runner', 'r3_control_design', 'r3_library_enumeration',
+  'r3_deadline_sizing', 'r3_diagnostics', 'r4_validator_double_count', 'r5_account_count_query', 'exhausted_budget', 'current_passing_diagnostic'
+];
+const LOAD_ACCEPT_CAUSAL_REPAIR_CLASSES = ['registration_harness_seam', 'registration_test_defect', 'registration_ci_defect'];
+const LOAD_ACCEPT_PROJECTS = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+const LOAD_ACCEPT_IDS = LOAD_ACCEPT_PROJECTS.flatMap((project) => [1, 2, 3].map((repeat) => `D20-ACCEPT-${project}-${repeat}`));
+const LOAD_ACCEPT_STATUSES = ['diagnosis_incomplete', 'ready', 'running', 'halted', 'complete'];
+
+function acceptanceSourceErrors(root, ref, label) {
+  const errors = [];
+  if (!ref || typeof ref.path !== 'string' || !/^[0-9a-f]{64}$/.test(ref.sha256 ?? '')) return [`${label} lacks a path and sha256`];
+  const file = path.resolve(root, ref.path);
+  if (file !== root && !file.startsWith(`${root}${path.sep}`)) return [`${label} escapes the repository`];
+  if (fileHash(file) !== ref.sha256) errors.push(`${label} does not reopen at its recorded sha256`);
+  return errors;
+}
+
+export function verifyLoadAcceptanceData(evidence, { root = ROOT, stage = 'complete', requireTarget = false, verifyControls = null } = {}) {
+  const errors = [];
+  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) return { ok: false, errors: ['load acceptance evidence is missing or malformed'] };
+  if (evidence.schema_version !== LOAD_ACCEPT_SCHEMA) errors.push('load acceptance schema mismatch');
+  if (!LOAD_ACCEPT_STATUSES.includes(evidence.status)) errors.push('load acceptance status is unknown');
+  if (!['open', 'accepted'].includes(evidence.target_status)) errors.push('target_status must be open or accepted');
+  if (evidence.integration_pending !== true) errors.push('PR integration and phase verification must remain integration_pending');
+  // The completed R5 controls are re-opened, never trusted from an embedded claim.
+  const controls = evidence.controls;
+  if (controls?.path !== LOAD_R5_EVIDENCE_PATH || controls?.stage !== 'complete') errors.push('controls must link the R5 native evidence at stage complete');
+  else {
+    errors.push(...acceptanceSourceErrors(root, controls, 'R5 controls evidence'));
+    const reopen = verifyControls ?? (() => verifyLoadRecoveryFileR5(path.resolve(root, LOAD_R5_EVIDENCE_PATH), 'complete', root).ok);
+    let reopened = false;
+    try { reopened = reopen() === true; } catch { reopened = false; }
+    if (!reopened) errors.push('the R5 controls evidence does not reopen as complete');
+  }
+  for (const [index, source] of (evidence.observed_cause?.sources ?? []).entries()) errors.push(...acceptanceSourceErrors(root, source, `observed_cause source ${index}`));
+  if (!Array.isArray(evidence.observed_cause?.sources) || evidence.observed_cause.sources.length === 0) errors.push('observed_cause must cite reopenable sources');
+  const known = new Set([...LOAD_ACCEPT_RUNNER_REPAIR_CLASSES, ...LOAD_ACCEPT_CAUSAL_REPAIR_CLASSES]);
+  for (const repair of Array.isArray(evidence.repairs) ? evidence.repairs : []) {
+    if (!known.has(repair?.defect_class)) errors.push(`repair ${repair?.id} has an unknown defect class`);
+    if (repair?.explains_historical_cause !== false) errors.push(`repair ${repair?.id} claims or omits whether it explains the historical cause; a repair proves only its own defect`);
+    errors.push(...acceptanceSourceErrors(root, repair?.source, `repair ${repair?.id} source`));
+  }
+  if (!Array.isArray(evidence.repairs)) errors.push('repairs must be a list');
+  const cause = evidence.historical_cause;
+  let demonstrated = false;
+  if (!cause || !['diagnosis_incomplete', 'not_reproduced', 'demonstrated'].includes(cause.status)) errors.push('historical_cause status is unknown');
+  else if (cause.status === 'demonstrated') {
+    // A caller boolean is never trusted: only a re-opened red-before / repair / green-after link counts.
+    const link = cause.causal_link;
+    const before = errors.length;
+    if (!link) errors.push('a demonstrated cause requires a causal red/repair/green link');
+    else {
+      errors.push(...acceptanceSourceErrors(root, link.original, 'original failure record'));
+      if (typeof link.seam !== 'string' || link.seam.length < 8) errors.push('the responsible harness seam is not identified');
+      const red = link.red; const repair = link.repair; const green = link.green;
+      if (!/^[0-9a-f]{40}$/.test(red?.source_blob ?? '') || red?.before_repair !== true || !Number.isInteger(red?.exit_code) || red.exit_code === 0) errors.push('the red-before counterexample must fail on preserved exact source');
+      errors.push(...acceptanceSourceErrors(root, red?.receipt, 'red receipt'));
+      if (!LOAD_ACCEPT_CAUSAL_REPAIR_CLASSES.includes(repair?.defect_class)) errors.push('the repair is a runner/infrastructure repair or unknown class and cannot be the historical cause');
+      if (!/^[0-9a-f]{40}$/.test(repair?.source_blob ?? '') || !/^[0-9a-f]{64}$/.test(repair?.diff_sha256 ?? '')) errors.push('the repair lacks source blob and diff hashes');
+      if (green?.exit_code !== 0 || green?.source_blob !== repair?.source_blob) errors.push('the green-after run must pass on the repaired source');
+      errors.push(...acceptanceSourceErrors(root, green?.receipt, 'green receipt'));
+    }
+    demonstrated = errors.length === before;
+  }
+  const acceptance = evidence.acceptance ?? {};
+  const attempts = Array.isArray(acceptance.attempts) ? acceptance.attempts : [];
+  if (JSON.stringify(acceptance.reserved_ids) !== JSON.stringify(LOAD_ACCEPT_IDS)) errors.push('the nine D-20 acceptance reservations changed');
+  if (acceptance.retry_available !== 0) errors.push('acceptance has no retry');
+  if (attempts.length > 0 && !demonstrated) errors.push('no proved cause means no acceptance launch');
+  if (attempts.length > 0) {
+    errors.push(...acceptanceSourceErrors(root, acceptance.freeze, 'acceptance freeze'));
+    const seen = new Set();
+    let lastIndex = -1;
+    for (const attempt of attempts) {
+      const index = LOAD_ACCEPT_IDS.indexOf(attempt?.id);
+      if (index < 0 || seen.has(attempt.id)) errors.push(`acceptance ID ${attempt?.id} is unknown or reused`);
+      if (index <= lastIndex) errors.push(`acceptance ID ${attempt?.id} is out of frozen order`);
+      lastIndex = Math.max(lastIndex, index); seen.add(attempt?.id);
+      if (attempt?.outcome !== 'passed' || attempt.fresh !== true || attempt.host_awake !== true || !(attempt.charged_duration_ms > 0 && attempt.charged_duration_ms <= 240_000)) errors.push(`acceptance attempt ${attempt?.id} is not a fresh awake pass within 240000 ms`);
+    }
+  }
+  if (evidence.target_status === 'accepted') {
+    if (!demonstrated) errors.push('an accepted target requires a demonstrated cause');
+    if (evidence.status !== 'complete') errors.push('an accepted target requires a complete record');
+    const affected = acceptance.affected_projects;
+    if (!Array.isArray(affected) || affected.length === 0 || affected.some((project) => !LOAD_ACCEPT_PROJECTS.includes(project))) errors.push('the affected project subset is missing or unknown');
+    else {
+      const expected = LOAD_ACCEPT_IDS.filter((id) => affected.some((project) => id.startsWith(`D20-ACCEPT-${project}-`)));
+      if (JSON.stringify(attempts.map((attempt) => attempt.id)) !== JSON.stringify(expected)) errors.push('accepted target needs exactly three fresh passes per affected project in frozen order');
+      if (attempts.some((attempt) => attempt.project !== String(attempt.id).replace(/^D20-ACCEPT-/, '').replace(/-\d$/, ''))) errors.push('an acceptance attempt project differs from its reservation');
+    }
+  }
+  const accepted = errors.length === 0 && evidence.target_status === 'accepted';
+  if (requireTarget && !accepted) errors.push(`the target is not accepted (target_status ${evidence.target_status}, historical cause ${cause?.status ?? 'unknown'})`);
+  if (stage === 'complete' && evidence.target_status !== 'accepted') errors.push('stage complete requires a resolved target');
+  return { ok: errors.length === 0, errors };
+}
+
+export function verifyLoadAcceptanceFile(evidenceFile, stage, requireTarget, root = ROOT, deps = {}) {
+  try {
+    if (path.resolve(evidenceFile) !== path.resolve(root, LOAD_ACCEPT_EVIDENCE_PATH)) throw new Error('verification accepts only the reviewed load acceptance evidence path');
+    const result = verifyLoadAcceptanceData(readJson(evidenceFile), { root, stage, requireTarget, ...deps });
+    if (!result.ok) console.error(`load acceptance evidence rejected:\n- ${result.errors.join('\n- ')}`);
+    else console.log(`load acceptance verified at stage ${stage}${requireTarget ? ' (target accepted)' : ''}`);
+    return result;
+  } catch (error) { console.error(`load acceptance evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
+}
+
 export const loadR5RunDefaults = Object.freeze({
   validate: validateLoadRecoveryFreezeR5, runTree: runLoggedTree, spawnApp: spawn, waitReady, portAvailable, stopApp,
   probeHost: probeHostSleepSafety, readApproval: readCommittedApprovalR5, checkDiagnostic: readCommittedDiagnostic, holderAlive: processAlive, diagnosticFile: null,
@@ -7395,6 +7516,10 @@ async function main() {
     const r5 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R5_EVIDENCE_PATH);
     const verify = r5 ? verifyLoadRecoveryFileR5 : r4 ? verifyLoadRecoveryFileR4 : r3 ? verifyLoadRecoveryFileR3 : r2 ? verifyLoadRecoveryFileR2 : verifyLoadRecoveryFile;
     if (!verify(args.evidence, args.stage).ok) process.exitCode = 3;
+    return;
+  }
+  if (args.mode === 'verify-load-acceptance') {
+    if (!verifyLoadAcceptanceFile(args.evidence, args.stage, args.requireTarget).ok) process.exitCode = 3;
     return;
   }
   if (args.mode === 'create-control-recovery') {
