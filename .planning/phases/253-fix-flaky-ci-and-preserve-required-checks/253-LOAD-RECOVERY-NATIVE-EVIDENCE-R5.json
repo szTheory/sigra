@@ -1,7 +1,7 @@
 {
   "schema_version": "sigra.phase253.registration-load-recovery-evidence/v5",
   "revision": "r5",
-  "status": "second_partial",
+  "status": "complete",
   "context_identity": "per_row_union",
   "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json",
   "freeze_sha256": "a2e273396e986e5ddf7488104829c59930780d21ade8d2fa1fc0ea4f3e1f1312",
@@ -1733,6 +1733,479 @@
       "fresh_state_receipts": {
         "admin-eval-mobile": "1bd742423d99e8657f5c27325ccc3f8d2d5e467edba404f9f7feb278d1b6516d"
       }
+    },
+    {
+      "slot_id": "CR5-DARK-SECOND",
+      "sequence": 4,
+      "stage": "second",
+      "project": "admin-eval-dark",
+      "projects": [
+        "admin-eval-dark"
+      ],
+      "argv": [
+        "--config=playwright.registration-recovery.config.ts",
+        "--project=admin-eval-dark",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure"
+      ],
+      "source_commit": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "source_blobs": {
+        "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+        "scripts/ci/ci-registration-recovery.mjs": "8d391654e21dbe3941e4c08fb7d773ffe0e61793",
+        "scripts/ci/ci-registration-recovery.test.mjs": "d8e7790ca8ff9accacccacf6fc0dc376ce3fa478",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "583b24f1cd5d8de5009a83cf6bf41be0dd2c3d4c",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "d99167c6cd8732a9e0413a8aa46312b9f3057dfb",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+        "test/example/priv/playwright/helpers/registrationControls.mjs": "8cae01dbff446bc9c08f83f26bdf72255888938a",
+        "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+        "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+        "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+        "scripts/ci/ci-playwright-load.test.mjs": "6d7e6b43c1f33a7da43e2331084352c838f6313c",
+        "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+        "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+        "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+        "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19",
+        "lib/sigra/auth.ex": "be5bc9a87a9e0e6d32e596d8483bc920204605fb",
+        "test/example/lib/example/accounts.ex": "3d127dbdf125bf81df45f723304115f8d511ea0e",
+        "test/example/lib/example/accounts/user.ex": "a0d58adebfa4a7f870413929d1c71acc46a31f67",
+        "test/example/lib/example_web/live/registration_live.ex": "d278c9d58134f36975905c84530d3c4476a47aa3",
+        "priv/templates/sigra.install/core/registration_live.ex": "5159d86b40769c49bd2fcb1b9259f837f9962edf",
+        "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex": "54264c0d05fb5739e208f68a1f08b186bc87923c",
+        "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs": "9c84c1d406a00c934e61b3780462297a48332f7b",
+        "scripts/ci/ci-registration-control-audit.test.mjs": "1893a4628c36758f196bc69f38c5a65f21be9e59",
+        "scripts/ci/fixtures/r3-mirrored-context-annotations.json": "0bf00f501204d6ea7e85e8c580958253ae1c2e6d",
+        "scripts/ci/ci-registration-recovery.pg.test.mjs": "c2f49464adbfa28a9ed3983c44e5231e481b8bf3",
+        "test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs": "0e4661d88f2deb0b6317866e864bb5e6a925d19c"
+      },
+      "started_monotonic_ns": "353750686057708",
+      "database": {
+        "name": "sigra_253_control_load_cr5_dark_second_mv8miwvz_13922",
+        "setup_exit_code": 0,
+        "drop_exit_code": 0,
+        "connection": {
+          "host": "127.0.0.1",
+          "port": "58624",
+          "user": "postgres",
+          "maintenance_database": "postgres"
+        },
+        "absence_receipt": {
+          "schema_version": "sigra.phase253.owned-database-absence/v1",
+          "database": "sigra_253_control_load_cr5_dark_second_mv8miwvz_13922",
+          "argv": [
+            "psql",
+            "-X",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-v",
+            "target=sigra_253_control_load_cr5_dark_second_mv8miwvz_13922",
+            "-A",
+            "-t",
+            "-h",
+            "127.0.0.1",
+            "-p",
+            "58624",
+            "-U",
+            "postgres",
+            "-d",
+            "postgres"
+          ],
+          "query": "SELECT count(*) FROM pg_database WHERE datname = :'target';\n",
+          "query_sha256": "d76f9fd3d185921e92633a206f1d792fccbf9785275063ecd3231d334fd4a59c",
+          "connection": {
+            "host": "127.0.0.1",
+            "port": "58624",
+            "user": "postgres",
+            "maintenance_database": "postgres"
+          },
+          "exit_code": 0,
+          "signal": null,
+          "timed_out": false,
+          "error": null,
+          "started_monotonic_ns": "353780358946083",
+          "ended_monotonic_ns": "353780379099041",
+          "duration_ms": 21,
+          "stdout_count": 0,
+          "log_bytes": 2,
+          "log_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "absence_stderr_sidecar": {
+          "path": "database-absence.log.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "truncated": false,
+          "first_line": ""
+        }
+      },
+      "server": {
+        "port": 25313,
+        "http_status": 200,
+        "app_pid": 15696
+      },
+      "browser": {
+        "launched": true,
+        "exit_code": 0
+      },
+      "playwright_cli": {
+        "launched": true,
+        "exit_code": 0
+      },
+      "lifecycle": {
+        "playwright_cli_processes": 1,
+        "rows": 2,
+        "worker_indexes": [
+          0
+        ],
+        "cli_pid": 15728,
+        "context_ids": [
+          "cr5-dark-second-a0139dc5-5aff-43a5-a947-25f3dff77856:99cd0809-8e97-4203-b3c4-6c6d5b19b456",
+          "cr5-dark-second-a0139dc5-5aff-43a5-a947-25f3dff77856:2272dd38-a259-43fe-ab7e-a28993f60647"
+        ],
+        "projects_run": [
+          "admin-eval-dark"
+        ]
+      },
+      "observed_outcome": "native_rows_accepted",
+      "files": {
+        "prior_collision_absence": {
+          "path": "CR5-DARK-SECOND/attempt-01/prior-collision-absence.log",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "prior_collision_absence_stderr": {
+          "path": "CR5-DARK-SECOND/attempt-01/prior-collision-absence.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "traces": [],
+        "playwright_report": {
+          "path": "CR5-DARK-SECOND/attempt-01/playwright-report.json",
+          "sha256": "21f0db26054b33b4c3af11041adf94c6eb9af647c3db522ed78667a642f13573",
+          "bytes": 7374
+        },
+        "created_account": {
+          "path": "CR5-DARK-SECOND/attempt-01/created-account.log",
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+          "bytes": 2
+        },
+        "created_account_stderr": {
+          "path": "CR5-DARK-SECOND/attempt-01/created-account.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "setup_log": {
+          "path": "CR5-DARK-SECOND/attempt-01/setup-log.log",
+          "sha256": "0b27ce50b915a7af4f6eab0ff6a1509de1a820cd1e4f7501228d726f7c89d2bc",
+          "bytes": 134150
+        },
+        "app_log": {
+          "path": "CR5-DARK-SECOND/attempt-01/app-log.log",
+          "sha256": "b84bf29c3a3166093fa411d8d2343a170601dc2f681a270e7367f7ddd1719259",
+          "bytes": 35848
+        },
+        "test_log": {
+          "path": "CR5-DARK-SECOND/attempt-01/test-log.log",
+          "sha256": "fb16a5dc912b625fc987dc5adb624cdc5430d47bec07016047d30da3f7bf0461",
+          "bytes": 304
+        },
+        "drop_log": {
+          "path": "CR5-DARK-SECOND/attempt-01/drop-log.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "database_absence": {
+          "path": "CR5-DARK-SECOND/attempt-01/database-absence.log",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        },
+        "database_absence_stderr": {
+          "path": "CR5-DARK-SECOND/attempt-01/database-absence.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "traces": [],
+      "registration": {
+        "server_post_confirmed": true
+      },
+      "toolchain": {
+        "playwright": "1.59.1",
+        "ecto_sql": "3.13.5",
+        "phoenix_live_view": "1.1.28"
+      },
+      "build_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-bxA2De/mix-build",
+      "stage_deadlines": {
+        "setup_ms": 60000,
+        "command_ms": 75000,
+        "work_ms": 60000,
+        "cleanup_ms": 15000,
+        "cleanup_reserved": true
+      },
+      "host": {
+        "platform": "darwin",
+        "sleep_assertion_held": true,
+        "sleep_assertion_argv": [
+          "/usr/bin/caffeinate",
+          "-i",
+          "-s",
+          "-m",
+          "-w",
+          "13922"
+        ],
+        "suspension_detected": false,
+        "holder_alive_at_end": true
+      },
+      "host_awake": {
+        "holder_pid": 15242,
+        "ac_power": true,
+        "assertions_sha256": "a592d9cb06aa3820682afeb484f9e613b77964778d4c0c83f1313a0ded05802f",
+        "checked_at": "2026-10-14T21:30:25.918Z"
+      },
+      "assertion_failure_observed": false,
+      "diagnostics": {
+        "jsonl": {
+          "path": "CR5-DARK-SECOND/attempt-01/diagnostics/tests.jsonl",
+          "sha256": "e6b351ac49787943444d4f98cf105adeb6baf534948388b6d52989ecbb7293bf",
+          "bytes": 676
+        },
+        "error_contexts": [],
+        "per_test": [
+          {
+            "project": "admin-eval-dark",
+            "title": "registration starts from a fresh database and context",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          },
+          {
+            "project": "admin-eval-dark",
+            "title": "registration discards trace after a passing control",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          }
+        ],
+        "truncated_tail": false
+      },
+      "per_test_rows": [
+        {
+          "project": "admin-eval-dark",
+          "title": "registration starts from a fresh database and context",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 1792
+        },
+        {
+          "project": "admin-eval-dark",
+          "title": "registration discards trace after a passing control",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 1655
+        }
+      ],
+      "setup_timing": {
+        "started_monotonic_ns": "353750686057708",
+        "ended_monotonic_ns": "353773352294875",
+        "execution_ms": 22667,
+        "wall_ms": 22666
+      },
+      "setup_charge_ms": 22667,
+      "setup": {
+        "pid": 15301,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 22593,
+        "wall_duration_ms": 22593,
+        "suspended": false,
+        "max_tick_gap_ms": 2,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 1
+      },
+      "prior_collision_absence": {
+        "schema_version": "sigra.phase253.owned-account-count/v2",
+        "database": "sigra_253_control_load_cr5_dark_second_mv8miwvz_13922",
+        "account_email_sha256": "32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d",
+        "argv": [
+          "psql",
+          "-X",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-v",
+          "target=<redacted-account>",
+          "-A",
+          "-t",
+          "-h",
+          "127.0.0.1",
+          "-p",
+          "58624",
+          "-U",
+          "postgres",
+          "-d",
+          "sigra_253_control_load_cr5_dark_second_mv8miwvz_13922"
+        ],
+        "query": "SELECT count(*) FROM \"auth\".users WHERE email = :'target';\n",
+        "query_sha256": "5fbc1804c5774c2997d026efe90622357192f53821cf135269200a3a55145376",
+        "schema_binding": {
+          "name": "auth",
+          "sources": [
+            {
+              "path": "test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs",
+              "blob": "0e4661d88f2deb0b6317866e864bb5e6a925d19c"
+            },
+            {
+              "path": "test/example/lib/example/accounts/user.ex",
+              "blob": "a0d58adebfa4a7f870413929d1c71acc46a31f67"
+            }
+          ]
+        },
+        "connection": {
+          "host": "127.0.0.1",
+          "port": "58624",
+          "user": "postgres",
+          "maintenance_database": "postgres"
+        },
+        "exit_code": 0,
+        "timed_out": false,
+        "error": null,
+        "started_monotonic_ns": "353774364729125",
+        "ended_monotonic_ns": "353774386712166",
+        "duration_ms": 22,
+        "count": 0,
+        "log_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "log_bytes": 2,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_bytes": 0,
+        "stderr_truncated": false,
+        "stderr_first_line": ""
+      },
+      "browser_command_argv": [
+        "test",
+        "tests/admin-eval.spec.ts",
+        "--config=playwright.registration-recovery.config.ts",
+        "--project=admin-eval-dark",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure",
+        "--output=/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-bxA2De/playwright-output"
+      ],
+      "test_command": {
+        "pid": 15728,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 4250,
+        "wall_duration_ms": 4249,
+        "suspended": false,
+        "max_tick_gap_ms": 2,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "created_account": {
+        "schema_version": "sigra.phase253.owned-account-count/v2",
+        "database": "sigra_253_control_load_cr5_dark_second_mv8miwvz_13922",
+        "account_email_sha256": "32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d",
+        "argv": [
+          "psql",
+          "-X",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-v",
+          "target=<redacted-account>",
+          "-A",
+          "-t",
+          "-h",
+          "127.0.0.1",
+          "-p",
+          "58624",
+          "-U",
+          "postgres",
+          "-d",
+          "sigra_253_control_load_cr5_dark_second_mv8miwvz_13922"
+        ],
+        "query": "SELECT count(*) FROM \"auth\".users WHERE email = :'target';\n",
+        "query_sha256": "5fbc1804c5774c2997d026efe90622357192f53821cf135269200a3a55145376",
+        "schema_binding": {
+          "name": "auth",
+          "sources": [
+            {
+              "path": "test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs",
+              "blob": "0e4661d88f2deb0b6317866e864bb5e6a925d19c"
+            },
+            {
+              "path": "test/example/lib/example/accounts/user.ex",
+              "blob": "a0d58adebfa4a7f870413929d1c71acc46a31f67"
+            }
+          ]
+        },
+        "connection": {
+          "host": "127.0.0.1",
+          "port": "58624",
+          "user": "postgres",
+          "maintenance_database": "postgres"
+        },
+        "exit_code": 0,
+        "timed_out": false,
+        "error": null,
+        "started_monotonic_ns": "353778638872000",
+        "ended_monotonic_ns": "353778661907291",
+        "duration_ms": 24,
+        "count": 1,
+        "log_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "log_bytes": 2,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_bytes": 0,
+        "stderr_truncated": false,
+        "stderr_first_line": ""
+      },
+      "log_redactions_app": {
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "drop_command": {
+        "pid": 15769,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 649,
+        "wall_duration_ms": 648,
+        "suspended": false,
+        "max_tick_gap_ms": 2,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "build_directory_removed": true,
+      "ended_monotonic_ns": "353780472104875",
+      "execution_duration_ms": 29787,
+      "wall_duration_ms": 29786,
+      "command_timing": {
+        "started_monotonic_ns": "353773352294875",
+        "ended_monotonic_ns": "353780472104875",
+        "execution_ms": 7120,
+        "wall_ms": 7120
+      },
+      "command_charge_ms": 7120,
+      "charged_duration_ms": 29787,
+      "collision_receipts": {},
+      "fresh_state_receipts": {
+        "admin-eval-dark": "32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d"
+      }
     }
   ],
   "preparation": {
@@ -1824,6 +2297,24 @@
       "ref": "refs/gsd/phase253-load-recovery-native-evidence/3ad5ea014e78abbc1a7ef16962b068a242fd2b8d929d84b66b4f5fc7e4d0228e",
       "bytes": 76142,
       "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+      "status": "",
+      "sha256": "b2028d6e43d6cea73c31821a0879645e49551a5e1b26238b8f6417e5794c2a36",
+      "blob": "ca3a6a8af991f31cb59fc03e9aaa1c4b24b3c9c3",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/b2028d6e43d6cea73c31821a0879645e49551a5e1b26238b8f6417e5794c2a36",
+      "bytes": 94472,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+      "sha256": "8c73ed9823d942f39d49eed5c306a409bfb641484d2fc0414c6442092c7cd626",
+      "blob": "7340a720c570d6c6616bf1972033f48eefc21ad9",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/8c73ed9823d942f39d49eed5c306a409bfb641484d2fc0414c6442092c7cd626",
+      "bytes": 95181,
+      "read_back_exact": true
     }
   ],
   "prior_terminal_halts": [
@@ -1861,8 +2352,8 @@
     "prior_charge_ms": 2359703,
     "preparation_charge_ms": 889,
     "preparation_remaining_ms": 9111,
-    "charged_duration_ms": 2431344,
-    "physical_playwright_cli_launches": 11,
+    "charged_duration_ms": 2461131,
+    "physical_playwright_cli_launches": 12,
     "used_slots": [
       "D19-DIAG-01",
       "R-DIAG-DESKTOP",
@@ -1876,7 +2367,8 @@
       "CR4-DESKTOP-MOBILE-FIRST",
       "CR4-DESKTOP-SECOND",
       "CR5-DESKTOP-SECOND",
-      "CR5-MOBILE-SECOND"
+      "CR5-MOBILE-SECOND",
+      "CR5-DARK-SECOND"
     ],
     "max_d19_ms": 2924703,
     "max_total_ms": 5264703,
