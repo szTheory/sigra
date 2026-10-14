@@ -1338,6 +1338,12 @@ def verify_canary_matrix(evidence):
             "scenarios": results, "separate_verifier": verify_separate_verifier(evidence, source_jobs), "executed_jobs": executed}
 
 
+LITERAL_LIMITATIONS = (
+    "historical failed native and hosted outcomes remain failures and are never rewritten as successful execution",
+    "the chronology of the historical failures is lost and is not reconstructed",
+    "the preceding execution order of the original failures is missing",
+    "the actual HTTP request count of old hosted run 38347679431 is unknown; it is not asserted to be 120",
+)
 LINKS = (
     ("phase252_replay", "original Phase252 replay"), ("phase252_diagnosis", "original Phase252 diagnosis"),
     ("load_controls", "native load controls"), ("load_acceptance", "accepted target and fresh repeats"),
@@ -1443,6 +1449,7 @@ def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_che
     if require_accepted and status != "accepted":
         raise VerificationError("accepted-only completion failed: " + "; ".join(gaps or ["not every linked proof is live and accepted"]))
     return {"status": status, "gaps": gaps, "linked": sorted(opened), "phase_verification": "not_started",
+            "limitations": list(LITERAL_LIMITATIONS),
             "requirements": {"CIREL-01": "accepted" if status == "accepted" else "open",
                              "CIREL-02": "accepted" if status == "accepted" else "open"}}
 

@@ -701,6 +701,15 @@ class CompletionContractTests(unittest.TestCase):
         return self.module.verify_completion(evidence, require_accepted=require_accepted, root=self.root,
                                              load_checker=lambda kind, path: (code, "stub checker"))
 
+    def test_old_failures_chronology_order_and_http_count_stay_literal_limitations(self):
+        for omit in ((), ("canary",)):
+            record = self.verify(self.evidence(omit=omit))
+            text = " ".join(record["limitations"])
+            self.assertEqual(len(record["limitations"]), 4)
+            for needle in ("remain failures", "chronology", "execution order", "38347679431", "unknown"):
+                self.assertIn(needle, text)
+            self.assertNotIn("accepted_by", text)
+
     def test_every_linked_live_proof_present_and_reopened_is_accepted(self):
         result = self.verify(self.evidence(), require_accepted=True)
         self.assertEqual(result["status"], "accepted")

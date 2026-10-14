@@ -614,6 +614,8 @@ class PRProofContractTests(unittest.TestCase):
             "unknown run": lambda d: d["artifacts"][0].update(name=d["artifacts"][0]["name"].replace("7001", "7099")),
             "case variant": lambda d: d["artifacts"][0].update(name=d["artifacts"][0]["name"].replace("browser", "Browser")),
             "trailing space": lambda d: d["artifacts"][0].update(name=d["artifacts"][0]["name"] + " "),
+            "cyrillic lookalike": lambda d: d["artifacts"][1].update(name=d["artifacts"][1]["name"].replace("a", "\u0430", 1)),
+            "nfd seam": lambda d: d["artifacts"][1].update(name=unicodedata.normalize("NFD", d["artifacts"][1]["name"].replace("e", "\u00e9", 1))),
             "extra seam": lambda d: d["artifacts"].append(dict(d["artifacts"][0], id=999, name="browser-execution-extra-7001-1")),
             "expired": lambda d: d["artifacts"][0].update(expired=True),
             "other run": lambda d: d["artifacts"][0]["workflow_run"].update(id=1),
