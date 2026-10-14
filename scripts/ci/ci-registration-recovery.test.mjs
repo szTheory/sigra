@@ -4324,3 +4324,137 @@ test('the approval recorder CLI routes R4 paths to the R4 recorder and a reject 
   assert.match(result.stderr, /decision/i);
   assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before);
 });
+
+// ---------------------------------------------------------------------------------------------
+// R5 (253-79): schema-qualified account count with redacted psql stderr.
+// ---------------------------------------------------------------------------------------------
+const R5_EMAIL = 'platform-admin+sigra-253-control-abc123-collision@example.test';
+const R5_ENV = { PGHOST: '127.0.0.1', PGPORT: '55432', PGUSER: 'postgres', PGPASSWORD: 'synthetic-not-retained-r5' };
+const R5_MIGRATION = 'test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs';
+const R5_USER = 'test/example/lib/example/accounts/user.ex';
+
+function r5Double({ stdout = '0\n', stderr = '', status = 0, calls = [] } = {}) {
+  return (program, args, options) => { calls.push({ program, args, options }); return { status, signal: null, stdout, stderr, error: undefined }; };
+}
+
+function r5SchemaTree({ migration, user }) {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r5-schema-'));
+  for (const [rel, text] of [[R5_MIGRATION, migration], [R5_USER, user]]) {
+    fs.mkdirSync(path.dirname(path.join(base, rel)), { recursive: true });
+    fs.writeFileSync(path.join(base, rel), text);
+  }
+  return base;
+}
+
+test('R5 account schema is derived from the two frozen sources and must agree', () => {
+  assert.equal(recovery.accountSchemaR5(root), 'auth');
+  const good = { migration: '  @auth_prefix "auth"\n', user: '  @schema_prefix "auth"\n' };
+  const cases = {
+    missing_migration: { ...good, migration: '  @other "auth"\n' },
+    missing_user: { ...good, user: '  @other "auth"\n' },
+    duplicated_migration: { ...good, migration: '  @auth_prefix "auth"\n  @auth_prefix "auth"\n' },
+    duplicated_user: { ...good, user: '  @schema_prefix "auth"\n  @schema_prefix "auth"\n' },
+    malformed: { migration: '  @auth_prefix "Au;th"\n', user: '  @schema_prefix "Au;th"\n' },
+    quoted_injection: { migration: '  @auth_prefix "a\\"b"\n', user: '  @schema_prefix "a\\"b"\n' },
+    too_long: { migration: `  @auth_prefix "${'a'.repeat(64)}"\n`, user: `  @schema_prefix "${'a'.repeat(64)}"\n` },
+    disagreeing: { migration: '  @auth_prefix "auth"\n', user: '  @schema_prefix "accounts"\n' }
+  };
+  assert.equal(recovery.accountSchemaR5(r5SchemaTree(good)), 'auth');
+  for (const [name, files] of Object.entries(cases)) {
+    const base = r5SchemaTree(files);
+    try { assert.throws(() => recovery.accountSchemaR5(base), /account schema/i, name); } finally { fs.rmSync(base, { recursive: true, force: true }); }
+  }
+});
+
+test('R5 count queries the schema-qualified users table and leaves the legacy query untouched', () => {
+  const calls = [];
+  const log = path.join(temporary, 'r5-count.log');
+  const receipt = recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double({ calls }) });
+  const query = "SELECT count(*) FROM \"auth\".users WHERE email = :'target';\n";
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].options.input, query);
+  assert.equal(receipt.query, query);
+  assert.equal(receipt.query_sha256, crypto.createHash('sha256').update(query).digest('hex'));
+  assert.equal(receipt.schema_version, 'sigra.phase253.owned-account-count/v2');
+  assert.equal(receipt.schema_binding.name, 'auth');
+  assert.deepEqual(receipt.schema_binding.sources.map((item) => item.path), [R5_MIGRATION, R5_USER]);
+  assert.ok(receipt.schema_binding.sources.every((item) => /^[0-9a-f]{40}$/.test(item.blob)));
+  assert.equal(receipt.count, 0);
+  assert.equal(receipt.exit_code, 0);
+  assert.equal(JSON.stringify(receipt).includes(R5_EMAIL), false);
+  assert.equal(JSON.stringify(receipt).includes(R5_ENV.PGPASSWORD), false);
+  assert.throws(() => recovery.captureOwnedAccountCountR5({ database: 'sigra_test', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Date.now() + 1000, run: r5Double() }), /synthetic control namespace/);
+  assert.throws(() => recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: 'someone@example.com', env: R5_ENV, cwd: root, root, log, deadline: Date.now() + 1000, run: r5Double() }), /synthetic control namespace/);
+  // Legacy capture keeps its v1 receipt and unqualified query.
+  const legacyCalls = [];
+  const legacy = recovery.captureOwnedAccountCount({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double({ calls: legacyCalls }) });
+  assert.equal(legacy.schema_version, 'sigra.phase253.owned-account-count/v1');
+  assert.equal(legacy.query, "SELECT count(*) FROM users WHERE email = :'target';\n");
+  assert.equal(legacy.schema_binding, undefined);
+});
+
+test('R5 count keeps bounded redacted psql stderr in a sibling log and the receipt', () => {
+  const log = path.join(temporary, 'r5-count-fail.log');
+  const stderr = `ERROR:  relation "users" does not exist for ${R5_EMAIL} using ${R5_ENV.PGPASSWORD}\nLINE 1: SELECT count(*) FROM users\n`;
+  const receipt = recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double({ status: 3, stdout: '', stderr }) });
+  assert.equal(receipt.exit_code, 3);
+  assert.equal(receipt.count, null);
+  assert.match(receipt.stderr_first_line, /^ERROR:  relation "users" does not exist/);
+  assert.equal(receipt.stderr_truncated, false);
+  const sidecar = fs.readFileSync(`${log}.stderr.log`, 'utf8');
+  for (const text of [sidecar, JSON.stringify(receipt)]) {
+    assert.equal(text.includes(R5_EMAIL), false);
+    assert.equal(text.includes(R5_ENV.PGPASSWORD), false);
+  }
+  assert.match(sidecar, /<redacted-account>/);
+  assert.match(sidecar, /<redacted-credential>/);
+  assert.equal(receipt.stderr_sha256, crypto.createHash('sha256').update(sidecar).digest('hex'));
+  assert.equal(receipt.stderr_bytes, Buffer.byteLength(sidecar));
+  const long = recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double({ status: 3, stdout: '', stderr: `ERROR:  ${'x'.repeat(10_000)}\n` }) });
+  assert.equal(long.stderr_truncated, true);
+  assert.ok(long.stderr_bytes <= 4096);
+  assert.ok(long.stderr_first_line.length <= 512);
+  assert.equal(fs.statSync(`${log}.stderr.log`).size, long.stderr_bytes);
+});
+
+test('R5 verifier names the psql error and rejects wrong query, schema, email and credential forms', () => {
+  const log = path.join(temporary, 'r5-verify.log');
+  const digest = crypto.createHash('sha256').update(R5_EMAIL).digest('hex');
+  const capture = (extra = {}) => recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double(extra) });
+  const frozen = { query: "SELECT count(*) FROM \"auth\".users WHERE email = :'target';\n", schema: 'auth' };
+  const windowFor = (receipt) => ({ database: { name: receipt.database }, started_monotonic_ns: (BigInt(receipt.started_monotonic_ns) - 1000n).toString(), ended_monotonic_ns: (BigInt(receipt.ended_monotonic_ns) + 1000n).toString() });
+  const verify = (receipt, count = 0, attempt = windowFor(receipt), account = frozen) => recovery.verifyAccountCountReceiptR5(receipt, attempt, digest, count, 'prior', account);
+  const clean0 = capture();
+  assert.deepEqual(verify(clean0, 0), []);
+  const clean1 = capture({ stdout: '1\n' });
+  assert.deepEqual(verify(clean1, 1), []);
+  assert.ok(verify(clean1, 0).some((message) => /account count is 1, expected 0/.test(message)));
+  const failed = capture({ status: 3, stdout: '', stderr: 'ERROR:  relation "users" does not exist\n' });
+  assert.ok(verify(failed, 0).some((message) => message.includes('did not exit cleanly (exit 3): ERROR:  relation')));
+  assert.ok(verify(clean0, 0, windowFor(clean0), { ...frozen, query: "SELECT count(*) FROM users WHERE email = :'target';\n" }).some((message) => /query/.test(message)));
+  assert.ok(verify(clean0, 0, windowFor(clean0), { ...frozen, schema: 'public' }).some((message) => /schema/.test(message)));
+  assert.ok(verify({ ...clean0, error: `leak ${R5_EMAIL}` }, 0).some((message) => /email/i.test(message)));
+  assert.ok(verify({ ...clean0, error: 'PGPASSWORD=hunter2' }, 0).some((message) => /credential/i.test(message)));
+  assert.ok(verify({ ...clean0, error: 'password=hunter2' }, 0).some((message) => /credential/i.test(message)));
+  const legacy = recovery.captureOwnedAccountCount({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double() });
+  assert.ok(verify(legacy, 0).some((message) => /missing/.test(message)));
+});
+
+test('R5 absence capture returns the byte-identical shared receipt plus a redacted stderr sidecar', () => {
+  const log = path.join(temporary, 'r5-absence.log');
+  const database = 'sigra_253_control_r5_abc_2';
+  const deadline = Number(process.hrtime.bigint()) / 1e6 + 5000;
+  const wrapped = recovery.captureOwnedDatabaseAbsenceR5({ database, env: R5_ENV, cwd: root, log, deadline, run: r5Double({ stderr: `NOTICE: ${R5_ENV.PGPASSWORD}\n` }) });
+  assert.ok(wrapped.receipt && wrapped.stderr_sidecar);
+  assert.equal(wrapped.receipt.schema_version, 'sigra.phase253.owned-database-absence/v1');
+  const shared = captureOwnedDatabaseAbsence({ database, env: R5_ENV, cwd: root, log: path.join(temporary, 'r5-absence-shared.log'), deadline, run: r5Double() });
+  const strip = (receipt) => { const { started_monotonic_ns, ended_monotonic_ns, duration_ms, ...rest } = receipt; return rest; };
+  assert.deepEqual(strip(wrapped.receipt), strip(shared));
+  const sidecar = fs.readFileSync(`${log}.stderr.log`, 'utf8');
+  assert.equal(sidecar.includes(R5_ENV.PGPASSWORD), false);
+  assert.match(sidecar, /<redacted-credential>/);
+  assert.equal(wrapped.stderr_sidecar.sha256, crypto.createHash('sha256').update(sidecar).digest('hex'));
+  assert.equal(wrapped.stderr_sidecar.bytes, Buffer.byteLength(sidecar));
+  assert.equal(wrapped.stderr_sidecar.truncated, false);
+  assert.equal(fs.readFileSync(log, 'utf8'), '0\n');
+});
