@@ -4858,7 +4858,7 @@ function checkLoadRecoveryFreezeFileR3(freezeFile, root = ROOT) {
 }
 
 export function initializeLoadRecoveryEvidenceR3(freezeFile, evidenceFile, root = ROOT, deps = {}) {
-  const d = { validate: validateLoadRecoveryFreezeR3, readApproval: loadR3UnwiredApproval, ...deps };
+  const d = { validate: validateLoadRecoveryFreezeR3, readApproval: readCommittedApprovalR3, ...deps };
   if (fs.existsSync(evidenceFile)) throw new Error('refusing to overwrite additive R3 native load recovery evidence');
   const freeze = readJson(freezeFile);
   d.validate(root, freeze);
@@ -4900,7 +4900,7 @@ export function verifyNativeLoadAttemptR3(attempt, freeze, baseDir) {
   const adjusted = { ...attempt, charged_duration_ms: Math.max(attempt.execution_duration_ms ?? 0, attempt.wall_duration_ms ?? 0) };
   errors.push(...verifyNativeLoadAttempt(adjusted, effective, baseDir).errors);
   attempt.collision_receipts = adjusted.collision_receipts; attempt.fresh_state_receipts = adjusted.fresh_state_receipts;
-  errors.push(...verifyAttemptAccountingR3(attempt, effective.ledger.slots.find((item) => item.id === attempt.slot_id), baseDir));
+  errors.push(...verifyAttemptAccountingR3(attempt, effective.ledger.slots.find((item) => item.id === attempt.slot_id), baseDir), ...verifyHostAwakeR3(attempt));
   return { ok: errors.length === 0, errors };
 }
 
@@ -4929,6 +4929,7 @@ function verifyAttemptAccountingR3(attempt, slot, baseDir) {
     if (attempt.command_charge_ms > slot.command_ms) errors.push(`command overran its frozen ${slot.command_ms} ms window`);
   }
   if (!Number.isSafeInteger(attempt.charged_duration_ms) || attempt.charged_duration_ms > slot.max_duration_ms) errors.push(`native slot exceeded its frozen ${slot.max_duration_ms} ms reservation`);
+  if (attempt.charged_duration_ms < Math.max(attempt.execution_duration_ms ?? 0, attempt.wall_duration_ms ?? 0)) errors.push('native slot charge does not include its complete measured duration');
   const diagnostics = verifyAttemptDiagnosticsR3(attempt, baseDir);
   errors.push(...diagnostics.errors);
   if (diagnostics.ok && attempt.diagnostics?.jsonl) {
@@ -5004,7 +5005,7 @@ export function verifyLoadRecoveryEvidenceDataR3(evidence, freeze, baseDir, stag
 
 // The halted original of an infrastructure retry is not accepted proof, but it stays honest, charged and counted.
 function verifyInfrastructureHaltedAttemptR3(attempt, freeze, baseDir) {
-  const errors = verifyAttemptAccountingR3(attempt, (freeze?.ledger?.slots ?? []).find((item) => item.id === attempt.slot_id), baseDir);
+  const errors = [...verifyAttemptAccountingR3(attempt, (freeze?.ledger?.slots ?? []).find((item) => item.id === attempt.slot_id), baseDir), ...verifyHostAwakeR3(attempt)];
   const hostFault = attempt.host?.suspension_detected === true || attempt.host?.holder_alive_at_end === false || (attempt.lifecycle?.rows === 0 && Boolean(attempt.setup?.error));
   if (!hostFault) errors.push('infrastructure halt carries no host-sleep, lost-holder or host-failure evidence');
   if (attempt.assertion_failure_observed === true) errors.push('an observed assertion failure is never an infrastructure halt');
@@ -5040,7 +5041,7 @@ function perTestRowsFromJsonl(text) {
 
 // Bounded preparation: toolchain version probes only (no app boot, warmup, Playwright CLI, or browser install).
 export async function prepareLoadRecoveryR3(freezeFile, evidenceFile, root = ROOT, deps = {}) {
-  const d = { validate: validateLoadRecoveryFreezeR3, readApproval: loadR3UnwiredApproval, runTree: runLoggedTree, ...deps };
+  const d = { validate: validateLoadRecoveryFreezeR3, readApproval: readCommittedApprovalR3, runTree: runLoggedTree, ...deps };
   const freeze = readJson(freezeFile);
   d.validate(root, freeze);
   d.readApproval(root, freezeFile, freeze);
@@ -5075,14 +5076,58 @@ export async function prepareLoadRecoveryR3(freezeFile, evidenceFile, root = ROO
   return { status: evidence.status, preparation_charge_ms: duration };
 }
 
-function loadR3UnwiredApproval() {
-  throw new Error('the R3 budget approval reader is not wired');
+// Only the two decisions that grant capacity are ever recorded; a reject (or anything else) writes nothing.
+export function recordBudgetApprovalR3({ decision, budgetFile, freezeFile, outputFile, decisionText }, root = ROOT, { enforcePaths = true, now = () => new Date().toISOString() } = {}) {
+  if (!Object.hasOwn(LOAD_R3_CAP_TABLE, decision ?? '')) throw new Error(`decision ${JSON.stringify(decision)} grants no capacity: only approve or approve-without-retry are recorded`);
+  if (typeof decisionText !== 'string' || !decisionText.trim()) throw new Error('the approval record needs Jon\'s decision text verbatim');
+  if (enforcePaths && (path.resolve(budgetFile) !== path.resolve(root, LOAD_R3_BUDGET_PATH) || path.resolve(freezeFile) !== path.resolve(root, LOAD_R3_FREEZE_PATH)
+    || path.resolve(outputFile) !== path.resolve(root, LOAD_R3_APPROVAL_PATH))) throw new Error('budget approval must use the reviewed R3 budget, freeze and approval paths');
+  const freeze = readJson(freezeFile);
+  if (enforcePaths) validateLoadRecoveryFreezeR3(root, freeze);
+  const budgetHash = fileHash(budgetFile);
+  if (!budgetHash || freeze.budget?.sha256 !== budgetHash) throw new Error('the R3 budget document differs from the freeze binding');
+  const record = {
+    schema_version: LOAD_R3_APPROVAL_SCHEMA, decision, decided_by: 'Jon (operator), recorded by executor from checkpoint response', decision_text: decisionText,
+    budget_sha256: budgetHash, freeze_sha256: fileHash(freezeFile), caps: { ...LOAD_R3_CAP_TABLE[decision] }, retry_granted: decision === 'approve' ? 1 : 0, recorded_at: now()
+  };
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
+  fs.writeFileSync(outputFile, `${JSON.stringify(record, null, 2)}\n`, { flag: 'wx' });
+  return record;
+}
+
+// Capacity is usable only through a record that is committed in HEAD and bound to the R3 budget document and freeze.
+// The R2 approval has another schema, path and cap table, so it can never unlock an R3 run.
+export function readCommittedApprovalR3(root, freezeFile, freeze) {
+  const file = path.join(root, LOAD_R3_APPROVAL_PATH);
+  if (!fs.existsSync(file)) throw new Error('R3 budget approval record is absent: capacity exists only after Jon\'s decision is recorded');
+  const tracked = run('git', ['-C', root, 'ls-files', '--error-unmatch', '--', LOAD_R3_APPROVAL_PATH]);
+  const inHead = run('git', ['-C', root, 'cat-file', '-e', `HEAD:${LOAD_R3_APPROVAL_PATH}`]);
+  if (tracked.status !== 0 || inHead.status !== 0) throw new Error('R3 budget approval record is not committed in HEAD');
+  const bytes = fs.readFileSync(file);
+  if (!bytes.equals(readGitBlob(root, `HEAD:${LOAD_R3_APPROVAL_PATH}`))) throw new Error('R3 budget approval record differs from its committed bytes');
+  const record = JSON.parse(bytes.toString('utf8'));
+  if (record.schema_version !== LOAD_R3_APPROVAL_SCHEMA || !Object.hasOwn(LOAD_R3_CAP_TABLE, record.decision ?? '')) throw new Error('R3 budget approval record is malformed or carries an unrecognised decision');
+  const budgetHash = fileHash(path.join(root, LOAD_R3_BUDGET_PATH));
+  if (!budgetHash || record.budget_sha256 !== budgetHash || freeze?.budget?.sha256 !== budgetHash) throw new Error('R3 budget approval is not bound to the frozen budget document hash');
+  if (record.freeze_sha256 !== fileHash(freezeFile)) throw new Error('R3 budget approval is not bound to this freeze file hash');
+  if (JSON.stringify(record.caps) !== JSON.stringify(LOAD_R3_CAP_TABLE[record.decision]) || record.retry_granted !== (record.decision === 'approve' ? 1 : 0)) throw new Error('R3 budget approval caps differ from the reviewed table');
+  return record;
+}
+
+function verifyHostAwakeR3(attempt) {
+  const errors = [];
+  const proof = attempt?.host_awake;
+  if (!proof || !Number.isInteger(proof.holder_pid) || proof.ac_power !== true || !/^[0-9a-f]{64}$/.test(proof.assertions_sha256 ?? '') || typeof proof.checked_at !== 'string') {
+    errors.push('R3 attempt receipt lacks its host_awake proof (AC power, caffeinate holder and pmset assertion snapshot hash)');
+  }
+  if (attempt?.host?.suspended === true) errors.push('R3 attempt receipt records a suspended host');
+  return errors;
 }
 
 export async function runLoadRecoverySlotR3(freezeFile, slotId, evidenceFile, root = ROOT, deps = {}) {
   const d = {
     validate: validateLoadRecoveryFreezeR3, runTree: runLoggedTree, spawnApp: spawn, waitReady, portAvailable, stopApp,
-    probeHost: probeHostSleepSafety, readApproval: loadR3UnwiredApproval, checkDiagnostic: readCommittedDiagnostic, holderAlive: processAlive, diagnosticFile: null,
+    probeHost: probeHostSleepSafety, readApproval: readCommittedApprovalR3, checkDiagnostic: readCommittedDiagnostic, holderAlive: processAlive, diagnosticFile: null,
     captureAbsence: captureOwnedDatabaseAbsence, captureAccount: captureOwnedAccountCount, sanitizeTrace: sanitizeTraceFile,
     monotonicNs: () => process.hrtime.bigint(), wallMs: () => Date.now(),
     skipPreservation: false, enforcePaths: true, enforceNode: true, ...deps
@@ -5096,9 +5141,8 @@ export async function runLoadRecoverySlotR3(freezeFile, slotId, evidenceFile, ro
   const freezeHash = fileHash(freezeFile);
   const regular = freeze.ledger?.slots?.slice(0, 4) ?? [];
   const isRetry = slotId === LOAD_R3_RETRY_ID;
-  const slot = regular.find((item) => item.id === slotId);
-  if (isRetry) throw new Error('the infrastructure retry is added by 253-60 task 3');
-  if (!slot) throw new Error('only the four frozen unused R3 load recovery slots and the one infrastructure retry may run');
+  let slot = regular.find((item) => item.id === slotId);
+  if (!slot && !isRetry) throw new Error('only the four frozen unused R3 load recovery slots and the one infrastructure retry may run');
   d.validate(root, freeze);
   const approval = d.readApproval(root, freezeFile, freeze);
   const caps = Object.hasOwn(LOAD_R3_CAP_TABLE, approval.decision ?? '') ? LOAD_R3_CAP_TABLE[approval.decision] : null;
@@ -5107,18 +5151,30 @@ export async function runLoadRecoverySlotR3(freezeFile, slotId, evidenceFile, ro
   const evidence = readJson(evidenceFile);
   if (evidence.schema_version !== LOAD_R3_SCHEMA || evidence.freeze_sha256 !== freezeHash) throw new Error('R3 native load evidence does not match the committed freeze');
   const limits = evidence.limits;
-  if (!['ready', 'first_complete', 'second_partial'].includes(evidence.status) || evidence.reservation) throw new Error(`refusing to use terminal or reserved R3 recovery evidence: ${evidence.status}`);
-  if (limits.used_slots.includes(slot.id)) throw new Error(`reservation ${slot.id} was already consumed`);
+  let diagnostic = null;
+  if (isRetry) {
+    if (evidence.status !== 'halted_infrastructure' || evidence.reservation) throw new Error(`the infrastructure retry needs halted_infrastructure evidence, found ${evidence.status}`);
+    if (limits.used_slots.includes(LOAD_R3_RETRY_ID) || limits.infra_retry?.used !== 0 || evidence.infrastructure_retry?.used || !evidence.infrastructure_retry?.eligible) throw new Error('the infrastructure retry was already used or is not eligible');
+    if (approval.retry_granted !== 1 || limits.infra_retry.granted !== 1) throw new Error('the approved budget grants no infrastructure retry');
+    slot = loadR3EffectiveRetrySlot(freeze.ledger.slots, evidence.infrastructure_retry.halted_slot);
+  } else {
+    if (!['ready', 'first_complete', 'second_partial'].includes(evidence.status) || evidence.reservation) throw new Error(`refusing to use terminal or reserved R3 recovery evidence: ${evidence.status}`);
+    if (limits.used_slots.includes(slot.id)) throw new Error(`reservation ${slot.id} was already consumed`);
+  }
   if (limits.retry_used !== 1 || limits.retry_available !== 0 || limits.prior_charge_ms !== freeze.ledger.prior_charge_ms
     || limits.charged_duration_ms < freeze.ledger.prior_charge_ms) throw new Error('counter reset or reopened retry detected before setup');
   if (limits.max_d19_ms !== Math.min(caps.d19_cap_ms, freeze.ledger.caps.approve.d19_cap_ms) || limits.max_total_ms !== Math.min(caps.shared_cap_ms, freeze.ledger.caps.approve.shared_cap_ms)
     || limits.max_physical_playwright_cli_launches !== caps.physical_cli_max) throw new Error('approval caps differ from the evidence ledger');
   const accepted = loadR3AcceptedAttempts(evidence);
   const pending = regular.slice(accepted.length);
-  if (!pending[0] || pending[0].id !== slot.id) throw new Error('slots must run in frozen order, each exactly once');
-  const retryReserved = approval.retry_granted === 1 && limits.infra_retry?.used === 0 ? freeze.ledger.slots[4].max_duration_ms : 0;
-  const reservedMs = pending.reduce((sum, item) => sum + item.max_duration_ms, 0) + retryReserved;
-  const reservedLaunches = pending.length + (retryReserved ? 1 : 0);
+  if (!pending[0] || pending[0].id !== (isRetry ? slot.retry_of : slot.id)) throw new Error('slots must run in frozen order, each exactly once');
+  // Checked after the free refusals above and before any spawn or charge.
+  if (isRetry) diagnostic = d.checkDiagnostic(root, d.diagnosticFile);
+  // The retry re-runs the halted slot in place, so its own window replaces that slot's reservation.
+  const reservedSlots = isRetry ? [slot, ...pending.slice(1)] : pending;
+  const retryReserved = !isRetry && approval.retry_granted === 1 && limits.infra_retry?.used === 0 ? freeze.ledger.slots[4].max_duration_ms : 0;
+  const reservedMs = reservedSlots.reduce((sum, item) => sum + item.max_duration_ms, 0) + retryReserved;
+  const reservedLaunches = reservedSlots.length + (retryReserved ? 1 : 0);
   if (slot.max_duration_ms !== slot.setup_ms + slot.command_ms || slot.command_ms !== slot.work_ms + slot.cleanup_ms
     || limits.charged_duration_ms + limits.preparation_remaining_ms + reservedMs > limits.max_d19_ms
     || limits.physical_playwright_cli_launches + reservedLaunches > limits.max_d19_physical_playwright_cli_launches
@@ -5129,7 +5185,7 @@ export async function runLoadRecoverySlotR3(freezeFile, slotId, evidenceFile, ro
   // The host proof runs before the predebit so an unsafe host costs no reservation.
   const { awake, host_awake: hostAwake } = await d.probeHost();
   try {
-    return await runHeldLoadRecoverySlotR3({ d, root, freeze, slot, evidence, evidenceFile, project, awake, hostAwake, diagnostic: null });
+    return await runHeldLoadRecoverySlotR3({ d, root, freeze, slot, evidence, evidenceFile, project, awake, hostAwake, diagnostic });
   } finally { awake.release(); }
 }
 
@@ -5349,6 +5405,11 @@ async function main() {
     if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R3_FREEZE_PATH)) throw new Error('R3 load recovery freeze output must use the reviewed phase artifact path');
     const freeze = createLoadRecoveryFreezeR3(args.output);
     console.log(`R3 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; eight spent; no capacity granted)`);
+    return;
+  }
+  if (args.mode === 'record-budget-approval' && (path.resolve(args.freeze) === path.resolve(ROOT, LOAD_R3_FREEZE_PATH) || path.resolve(args.budget) === path.resolve(ROOT, LOAD_R3_BUDGET_PATH))) {
+    const record = recordBudgetApprovalR3({ decision: args.decision, budgetFile: args.budget, freezeFile: args.freeze, outputFile: args.output, decisionText: args.decisionText });
+    console.log(`R3 budget approval recorded (${record.decision}; retry_granted=${record.retry_granted}; shared cap ${record.caps.shared_cap_ms} ms): ${path.relative(ROOT, args.output)}`);
     return;
   }
   if (args.mode === 'record-budget-approval') {

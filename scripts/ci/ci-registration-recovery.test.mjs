@@ -2822,7 +2822,7 @@ test('an R3 approve-without-retry grants no retry, a budget mismatch refuses to 
     assert.equal(record.retry_granted, 0);
     assert.deepEqual(record.caps, R3_APPROVE_NO_RETRY.caps);
     fs.rmSync(r.approval);
-    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir), /reviewed R3 budget, freeze and approval paths/i);
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: path.join(r.dir, 'elsewhere.json'), decisionText: 'x' }, r.dir), /reviewed R3 budget, freeze and approval paths/i);
     fs.writeFileSync(r.budget, '# budgets r3 (edited)\n');
     assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
     assert.equal(fs.existsSync(r.approval), false);
