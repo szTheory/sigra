@@ -59,6 +59,7 @@ const CONTROL_RECOVERY_PRIOR = [
   { file: `${PHASE_DIR}/253-16-CONTROL-EVIDENCE.json`, slot: 'R-DIAG-CONTROL-DARK', expected: 121252 },
   { file: `${PHASE_DIR}/253-16-POST-HALT-CLEANUP.json`, expected: 112 }
 ];
+const CONTROL_RECOVERY_TIMEOUT_ASSESSMENT = `${PHASE_DIR}/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json`;
 const CONTROL_RECOVERY_RESERVED = [
   ['CR-DARK-FIRST', 'R-CONTROL-FIRST-DESKTOP', ['admin-eval-dark'], 'first'],
   ['CR-DESKTOP-MOBILE-FIRST', 'R-CONTROL-FIRST-MOBILE', ['admin-eval', 'admin-eval-mobile'], 'first'],
@@ -1431,6 +1432,7 @@ function readControlRecoveryHistory(root) {
   const accepted = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[2].file));
   const failedDark = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[3].file));
   const cleanup = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[4].file));
+  const timeoutAssessment = readJson(path.join(root, CONTROL_RECOVERY_TIMEOUT_ASSESSMENT));
   const charges = [
     terminal.attempt?.charged_duration_ms,
     original.preparation_receipts?.reduce((sum, receipt) => sum + Number(receipt.duration_ms || 0), 0),
@@ -1453,15 +1455,19 @@ function readControlRecoveryHistory(root) {
     || failedDark.status !== 'halted' || failedDark.attempts?.length !== 1
     || failedDark.attempts[0]?.slot_id !== 'R-DIAG-CONTROL-DARK'
     || failedDark.attempts[0]?.charged_duration_ms !== 121252
-    || failedDark.native_report_present !== false
+    || timeoutAssessment.native_report_present !== false
+    || timeoutAssessment.native_duration_ms !== 121252
+    || timeoutAssessment.cleanup_duration_ms !== 112
+    || timeoutAssessment.cumulative_charge_ms !== 243044
     || failedDark.limits?.retry_count_used !== 1 || failedDark.limits?.retry_count_available !== 0
     || cleanup.original_native_slot_still_failed !== true || cleanup.database_absent_confirmed !== true
     || cleanup.cleanup_duration_ms !== 112 || cleanup.cumulative_charge_ms_including_post_halt_cleanup !== 243044) {
     throw new Error('preserved native history differs from the exact failed/accepted charge and retry records');
   }
-  const artifacts = CONTROL_RECOVERY_PRIOR.map(({ file }) => ({ path: file, sha256: fileHash(path.join(root, file)) }));
+  const artifacts = [...CONTROL_RECOVERY_PRIOR.map(({ file }) => file), CONTROL_RECOVERY_TIMEOUT_ASSESSMENT]
+    .map((file) => ({ path: file, sha256: fileHash(path.join(root, file)) }));
   if (artifacts.some((item) => !item.sha256)) throw new Error('a prior native record is missing an exact byte identity');
-  return { ledger, artifacts, terminal, original, accepted, failedDark, cleanup, charges };
+  return { ledger, artifacts, terminal, original, accepted, failedDark, cleanup, timeoutAssessment, charges };
 }
 
 export function createControlRecoveryFreeze(outputFile, root = ROOT) {
