@@ -3,6 +3,12 @@
   "status": "halted",
   "native_outcome": "failed",
   "native_acceptance": false,
+  "prior_assessment_revision": {
+    "commit": "2135be352",
+    "blob": "999e44242297795d67739ec2fda06069198455a4",
+    "sha256": "dff91ce511856f36413e3530a6502d4c82e946cfebe4e4800e7cc3505cd39727",
+    "git_show_readback_exact": true
+  },
   "source_commit": "35b49354050660a0f808291e2422de108834ef87",
   "native_evidence_sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746",
   "cleanup_evidence_sha256": "956b43875a7431e52b3683954d7ebf8d2f72ac9a52665d7cf6594a4349fa1f11",
@@ -88,6 +94,34 @@
     "account_source_mismatch": "Saved source uses the same project-derived account for the delayed positive and deliberate collision. This proves account-role reuse; it does not establish the historical registration failure cause.",
     "transport": "No native transport observation is recorded. WebSocket is explicitly routed; long-poll bypass is unproved.",
     "native_final_error": null,
-    "native_report": null
+    "native_report": null,
+    "offline_red": {
+      "command": "node --test --test-name-pattern='shared held-registration|shared control isolates|shared control reuses' scripts/ci/ci-registration-control-audit.test.mjs",
+      "tests": 3,
+      "passed_before_repair": 1,
+      "failed_before_repair": 2,
+      "counterexamples": [
+        {
+          "test": "shared held-registration control releases readiness before submit",
+          "expected": ["hold", "fill", "release", "ready", "submit", "success"],
+          "observed": ["hold", "fill", "submit-while-held", "release", "ready", "submit", "success"]
+        },
+        {
+          "test": "shared control isolates the positive account from the deliberate collision account",
+          "expected": "distinct accounts by purpose",
+          "observed": "platform-admin+sigra-253-control-dark@example.test reused for held-positive and collision"
+        }
+      ]
+    },
+    "shared_implementation": {
+      "module": "test/example/priv/playwright/helpers/registrationControls.mjs",
+      "exports": ["registrationControlAccount", "runHeldRegistrationControl"],
+      "node_test_import": "../../test/example/priv/playwright/helpers/registrationControls.mjs",
+      "playwright_spec_import": "../helpers/registrationControls.mjs via dynamic import inside opt-in callbacks",
+      "verification_command": "node --test scripts/ci/ci-registration-control-audit.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+      "verification_tests_passed": 11,
+      "local_node_version": "v26.10.0",
+      "ci_runtime_target": "Node 20"
+    }
   }
 }

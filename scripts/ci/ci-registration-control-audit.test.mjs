@@ -5,6 +5,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import {
+  registrationControlAccount,
+  runHeldRegistrationControl,
+} from '../../test/example/priv/playwright/helpers/registrationControls.mjs';
 
 const CLI = path.resolve('scripts/ci/ci-registration-control-audit.mjs');
 const PROJECT = 'sigra_253_control_admin_eval_dark_mv78a7kk_28426';
@@ -153,4 +157,45 @@ test('assessment checker rejects altered hashes, changed evidence, and native-ac
   assessment.native_outcome = 'passed';
   fs.writeFileSync(f.assessmentPath, JSON.stringify(assessment));
   assert.notEqual(run(['--check-assessment', f.assessmentPath], f.root).status, 0);
+});
+
+test('shared held-registration control releases readiness before submit', async () => {
+  const events = [];
+  const annotations = [];
+  let released = false;
+  let posts = 0;
+  const page = {
+    click() {
+      events.push(released ? 'submit' : 'submit-while-held');
+      if (released) posts += 1;
+    },
+  };
+  await runHeldRegistrationControl({
+    page,
+    waitForHold: async () => { events.push('hold'); },
+    fill: async () => { events.push('fill'); },
+    submit: async (actualPage) => actualPage.click(),
+    assertNoPostWhileHeld: async () => { assert.equal(posts, 0); },
+    release: () => { released = true; events.push('release'); },
+    waitUntilReady: async () => { events.push('ready'); },
+    assertSuccess: async () => { events.push('success'); },
+    annotate: (stage) => annotations.push(stage),
+  });
+  assert.deepEqual(events, ['hold', 'fill', 'release', 'ready', 'submit', 'success']);
+  assert.deepEqual(annotations, [
+    'connection_hold_observed', 'fill', 'connection_released', 'readiness_ready', 'submit', 'original_assertion',
+  ]);
+  assert.equal(posts, 1);
+});
+
+test('shared control isolates the positive account from the deliberate collision account', () => {
+  const positive = registrationControlAccount('admin-eval-dark', 'held-positive');
+  const collision = registrationControlAccount('admin-eval-dark', 'collision');
+  assert.notEqual(positive, collision);
+});
+
+test('shared control reuses exactly one account within the deliberate collision', () => {
+  const firstCollision = registrationControlAccount('admin-eval-dark', 'collision');
+  const secondCollision = registrationControlAccount('admin-eval-dark', 'collision');
+  assert.equal(firstCollision, secondCollision);
 });
