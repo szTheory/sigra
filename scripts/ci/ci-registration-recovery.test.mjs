@@ -126,6 +126,17 @@ test('control recovery ledger refuses altered charges, reopened retries, or dupl
   }
 });
 
+test('bounded process runner terminates a stalled child and its grandchild and records the real timeout', async () => {
+  const log = path.join(temporary, 'stalled-tree.log');
+  const childScript = 'require("node:child_process").spawn(process.execPath,["-e",' + JSON.stringify('setTimeout(()=>process.stdout.write("grandchild-finished\\n"),1800)') + '],{stdio:["ignore",1,2]}); setTimeout(()=>{},5000)';
+  const result = await recovery.runLoggedTree(process.execPath, ['-e', childScript], root, process.env, log, 350, 100);
+  await new Promise((resolve) => setTimeout(resolve, 1900));
+  assert.equal(result.timed_out, true);
+  assert.notEqual(result.signal, null);
+  assert.ok(result.duration_ms >= 350);
+  assert.equal(fs.readFileSync(log, 'utf8').includes('grandchild-finished'), false);
+});
+
 test('the explicit revision CLI freezes before results and accepts a named diagnostic slot', () => {
   const freeze = path.join(temporary, 'registration-revision.json');
   const evidence = path.join(temporary, 'registration-revision-evidence.json');

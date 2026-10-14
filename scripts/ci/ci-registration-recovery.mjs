@@ -14,6 +14,8 @@ const REPLAN_SCHEMA = 'sigra.phase253.registration-replan-evidence/v1';
 const REPLAN_FREEZE_SCHEMA = 'sigra.phase253.registration-replan-freeze/v1';
 const CONTROL_SCHEMA = 'sigra.phase253.registration-control-evidence/v1';
 const CONTROL_FREEZE_SCHEMA = 'sigra.phase253.registration-control-freeze/v1';
+const CONTROL_RECOVERY_SCHEMA = 'sigra.phase253.registration-control-recovery-evidence/v1';
+const CONTROL_RECOVERY_FREEZE_SCHEMA = 'sigra.phase253.registration-control-recovery-freeze/v1';
 const PHASE_DIR = '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks';
 const PROJECTS = [
   { name: 'admin-eval', port: 25311 },
@@ -48,6 +50,22 @@ const DIRTY_CONFIG = {
 };
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const CONTROL_SOURCE_FILES = SOURCE_FILES.filter((file) => file !== 'scripts/ci/ci-registration-recovery.test.mjs');
+const CONTROL_RECOVERY_FREEZE_PATH = `${PHASE_DIR}/253-CONTROL-RECOVERY-NATIVE-FREEZE.json`;
+const CONTROL_RECOVERY_EVIDENCE_PATH = `${PHASE_DIR}/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json`;
+const CONTROL_RECOVERY_PRIOR = [
+  { file: `${PHASE_DIR}/253-09-TERMINAL-DIAGNOSTIC.json`, expected: 3768 },
+  { file: `${PHASE_DIR}/253-REPLAN-REGISTRATION-EVIDENCE.json`, preparationOnly: 3743, desktop: 26373 },
+  { file: `${PHASE_DIR}/253-15-VERIFIED-REGISTRATION-EVIDENCE.json`, slots: ['R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE'], expected: [46803, 40993] },
+  { file: `${PHASE_DIR}/253-16-CONTROL-EVIDENCE.json`, slot: 'R-DIAG-CONTROL-DARK', expected: 121252 },
+  { file: `${PHASE_DIR}/253-16-POST-HALT-CLEANUP.json`, expected: 112 }
+];
+const CONTROL_RECOVERY_RESERVED = [
+  ['CR-DARK-FIRST', 'R-CONTROL-FIRST-DESKTOP', ['admin-eval-dark'], 'first'],
+  ['CR-DESKTOP-MOBILE-FIRST', 'R-CONTROL-FIRST-MOBILE', ['admin-eval', 'admin-eval-mobile'], 'first'],
+  ['CR-DESKTOP-SECOND', 'R-CONTROL-SECOND-DESKTOP', ['admin-eval'], 'second'],
+  ['CR-MOBILE-SECOND', 'R-CONTROL-SECOND-MOBILE', ['admin-eval-mobile'], 'second'],
+  ['CR-DARK-SECOND', 'R-CONTROL-SECOND-DARK', ['admin-eval-dark'], 'second']
+];
 
 const sha256 = (data) => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = (file) => fs.existsSync(file) && fs.statSync(file).isFile()
@@ -73,6 +91,21 @@ const git = (args) => {
 };
 
 function parseArgs(argv) {
+  if (argv[0] === '--create-control-recovery' && argv[1] === '--output' && argv[2] && argv.length === 3) {
+    return { mode: 'create-control-recovery', output: path.resolve(argv[2]) };
+  }
+  if (argv[0] === '--init-control-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) {
+    return { mode: 'init-control-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
+  }
+  if (argv[0] === '--run-control-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv.length === 6) {
+    return { mode: 'run-control-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]) };
+  }
+  if (argv[0] === '--verify-control-recovery' && argv[1] && argv[2] === '--stage' && ['dark', 'first', 'complete'].includes(argv[3]) && argv.length === 4) {
+    return { mode: 'verify-control-recovery', evidence: path.resolve(argv[1]), stage: argv[3] };
+  }
+  if (argv[0] === '--check-control-recovery-freeze' && argv[1] && argv.length === 2) {
+    return { mode: 'check-control-recovery-freeze', freeze: path.resolve(argv[1]) };
+  }
   if (argv[0] === '--freeze-controls' && argv[1] === '--prior' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) {
     return { mode: 'freeze-controls', prior: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   }
@@ -834,6 +867,56 @@ export function runLogged(program, args, cwd, env, log, timeout) {
   return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, ...redactions };
 }
 
+export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGraceMs = 250) {
+  return new Promise((resolve) => {
+    const started = process.hrtime.bigint();
+    const fd = fs.openSync(log, 'w');
+    let child;
+    let settled = false;
+    let timedOut = false;
+    let error = null;
+    let signal = null;
+    let exitCode = null;
+    let killTimer = null;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadlineTimer);
+      clearTimeout(killTimer);
+      fs.closeSync(fd);
+      const redactions = sanitizeCommandLog(log);
+      resolve({
+        exit_code: exitCode, signal, error, timed_out: timedOut,
+        duration_ms: Math.ceil(Number(process.hrtime.bigint() - started) / 1e6),
+        ...redactions
+      });
+    };
+    const terminateGroup = (name) => {
+      if (!child?.pid) return;
+      try { process.kill(-child.pid, name); } catch {
+        try { child.kill(name); } catch { /* already exited */ }
+      }
+    };
+    const deadlineTimer = setTimeout(() => {
+      timedOut = true;
+      terminateGroup('SIGTERM');
+      killTimer = setTimeout(() => terminateGroup('SIGKILL'), Math.max(1, cleanupGraceMs));
+    }, Math.max(1, Math.floor(timeoutMs)));
+    try {
+      child = spawn(program, args, { cwd, env, stdio: ['ignore', fd, fd], detached: true });
+      child.once('error', (cause) => { error = cause.message; });
+      child.once('exit', (code, childSignal) => {
+        exitCode = code;
+        signal = childSignal;
+      });
+      child.once('close', finish);
+    } catch (cause) {
+      error = cause.message;
+      finish();
+    }
+  });
+}
+
 function revisionFreezeDigest(freeze) {
   return sha256(JSON.stringify(Object.fromEntries(Object.entries(freeze).filter(([key]) => key !== 'freeze_sha256'))));
 }
@@ -1289,6 +1372,431 @@ function controlSlotDefinitions() {
     });
   }
   return slots;
+}
+
+export function buildControlRecoveryLedger(input) {
+  const expectedSpent = ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK'];
+  const expectedCharges = [3768, 3743, 26373, 46803, 40993, 121252, 112];
+  const errors = [];
+  if (!Array.isArray(input?.charges) || JSON.stringify(input.charges) !== JSON.stringify(expectedCharges)) errors.push('historical charges do not match the exact carried source receipts');
+  if (input?.physicalPlaywrightLaunches !== 4) errors.push('historical Playwright CLI launch count must remain four');
+  if (JSON.stringify(input?.spentReservations) !== JSON.stringify(expectedSpent)) errors.push('spent reservation inventory differs from the five closed invocations');
+  if (input?.retryUsed !== 1 || input?.retryAvailable !== 0) errors.push('shared retry inventory must remain used 1, available 0');
+  if (input?.preparationMaximumMs !== 116232 || input?.preparationUsedMs !== 3743) errors.push('preparation allowance differs from the preserved measured balance');
+  if (errors.length) throw new Error(errors.join('; '));
+  const priorCharge = input.charges.reduce((sum, value) => sum + value, 0);
+  const slots = CONTROL_RECOVERY_RESERVED.map(([id, maps_from, projects, stage], index) => ({
+    id, sequence: index + 1, maps_from, projects, project: projects, stage, max_duration_ms: PROJECT_SLOT_MS,
+    launch_unit: 'playwright_cli_process'
+  }));
+  const preparationRemaining = input.preparationMaximumMs - input.preparationUsedMs;
+  const d19Max = priorCharge + preparationRemaining + slots.length * PROJECT_SLOT_MS;
+  const totalMax = d19Max + 9 * 240_000 + 3 * 60_000;
+  if (priorCharge !== 243044 || preparationRemaining !== 112489 || d19Max !== 955533 || totalMax !== 3295533) {
+    throw new Error('recovery charge arithmetic differs from the reviewed finite allocation');
+  }
+  return {
+    prior_charge_ms: priorCharge,
+    prior_playwright_cli_launches: input.physicalPlaywrightLaunches,
+    spent_reservations: expectedSpent,
+    retry_used: input.retryUsed,
+    retry_available: input.retryAvailable,
+    preparation_remaining_ms: preparationRemaining,
+    slots,
+    launch_unit: 'playwright_cli_process',
+    engine_worker_lifecycle_accounting: 'separate_from_playwright_cli_launches',
+    d19_max_ms: d19Max,
+    conditional_acceptance_slots: 9,
+    conditional_acceptance_ms: 2160000,
+    optional_seed_checks_ms: 180000,
+    total_max_ms: totalMax,
+    physical_cli_launch_max: 18,
+    invocation_reservations_total: 19,
+    cleanup_reserve_per_command_ms: 15000,
+    regular_command_ms: PROJECT_SLOT_MS
+  };
+}
+
+function controlRecoveryFreezeDigest(freeze) {
+  return sha256(JSON.stringify(Object.fromEntries(Object.entries(freeze).filter(([key]) => key !== 'freeze_sha256'))));
+}
+
+function controlRecoverySourceBlobs(root, head) {
+  return Object.fromEntries(SOURCE_FILES.map((file) => [file, git(['-C', root, 'rev-parse', `${head}:${file}`])]));
+}
+
+function readControlRecoveryHistory(root) {
+  const terminal = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[0].file));
+  const original = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[1].file));
+  const accepted = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[2].file));
+  const failedDark = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[3].file));
+  const cleanup = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[4].file));
+  const charges = [
+    terminal.limits?.charged_duration_ms,
+    original.preparation_receipts?.reduce((sum, receipt) => sum + Number(receipt.duration_ms || 0), 0),
+    original.attempts?.[0]?.charged_duration_ms,
+    accepted.attempts?.find((item) => item.slot_id === 'R-INFRA-RETRY-DESKTOP')?.charged_duration_ms,
+    accepted.attempts?.find((item) => item.slot_id === 'R-DIAG-MOBILE')?.charged_duration_ms,
+    failedDark.attempts?.[0]?.charged_duration_ms,
+    cleanup.cleanup_duration_ms
+  ];
+  const ledger = buildControlRecoveryLedger({
+    charges, physicalPlaywrightLaunches: accepted.limits?.browser_launches + original.limits?.browser_launches + failedDark.limits?.physical_browser_launches,
+    spentReservations: ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK'],
+    retryUsed: accepted.limits?.retry_count_used, retryAvailable: accepted.limits?.retry_count_available,
+    preparationMaximumMs: 116232, preparationUsedMs: charges[1]
+  });
+  if (terminal.limits?.charged_duration_ms !== 3768 || original.status !== 'halted'
+    || original.attempts?.length !== 1 || original.limits?.browser_launches !== 1
+    || accepted.status !== 'diagnosis_incomplete' || accepted.attempts?.length !== 2
+    || accepted.attempts.some((item, index) => item.slot_id !== ledger.spent_reservations[index + 2] || item.charged_duration_ms !== charges[index + 3])
+    || failedDark.status !== 'halted' || failedDark.attempts?.length !== 1
+    || failedDark.attempts[0]?.slot_id !== 'R-DIAG-CONTROL-DARK'
+    || failedDark.attempts[0]?.charged_duration_ms !== 121252
+    || failedDark.attempts[0]?.native_report_present !== false
+    || failedDark.limits?.retry_count_used !== 1 || failedDark.limits?.retry_count_available !== 0
+    || cleanup.original_native_slot_still_failed !== true || cleanup.database_absent_confirmed !== true
+    || cleanup.cleanup_duration_ms !== 112 || cleanup.cumulative_charge_ms_including_post_halt_cleanup !== 243044) {
+    throw new Error('preserved native history differs from the exact failed/accepted charge and retry records');
+  }
+  const artifacts = CONTROL_RECOVERY_PRIOR.map(({ file }) => ({ path: file, sha256: fileHash(path.join(root, file)) }));
+  if (artifacts.some((item) => !item.sha256)) throw new Error('a prior native record is missing an exact byte identity');
+  return { ledger, artifacts, terminal, original, accepted, failedDark, cleanup, charges };
+}
+
+export function createControlRecoveryFreeze(outputFile, root = ROOT) {
+  if (fs.existsSync(outputFile)) throw new Error('refusing to overwrite the additive native control recovery freeze');
+  assertRevisionCheckout(root);
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const history = readControlRecoveryHistory(root);
+  const firstPattern = `(${FIRST_CONTROLS.join('|')})`;
+  const darkPattern = `(${[CONTROL_BOARD_TITLE, ...FIRST_CONTROLS].join('|')})`;
+  const secondPattern = `(${CONTROL_SECOND_ACTIVE.join('|')})`;
+  const browserArgs = (projects, pattern) => [
+    ...projects.map((project) => `--project=${project}`), `--grep=${pattern}`,
+    '--workers=1', '--retries=0', '--trace=retain-on-failure'
+  ];
+  const slots = [
+    { ...history.ledger.slots[0], project: 'admin-eval-dark', selected_titles: [CONTROL_BOARD_TITLE, ...FIRST_CONTROLS], expected: { [CONTROL_BOARD_TITLE]: 'pass', ...Object.fromEntries(FIRST_CONTROLS.map((title) => [title, CONTROL_EXPECTED_FAILURE_MARKERS[title] ? 'expected_failure' : 'pass'])) }, argv: browserArgs(['admin-eval-dark'], darkPattern) },
+    { ...history.ledger.slots[1], selected_titles: FIRST_CONTROLS, expected: Object.fromEntries(FIRST_CONTROLS.map((title) => [title, CONTROL_EXPECTED_FAILURE_MARKERS[title] ? 'expected_failure' : 'pass'])), argv: browserArgs(['admin-eval', 'admin-eval-mobile'], firstPattern) },
+    ...history.ledger.slots.slice(2).map((slot) => ({ ...slot, project: slot.projects[0], selected_titles: CONTROL_SECOND_ACTIVE, expected: Object.fromEntries(CONTROL_SECOND_ACTIVE.map((title) => [title, 'pass'])), argv: browserArgs(slot.projects, secondPattern) }))
+  ];
+  const freeze = {
+    schema_version: CONTROL_RECOVERY_FREEZE_SCHEMA,
+    status: 'frozen_before_results',
+    plan: '253-27',
+    frozen_at: new Date().toISOString(),
+    source: { repository: 'szTheory/sigra', checkout_head: head, blobs: controlRecoverySourceBlobs(root, head) },
+    historical: {
+      artifacts: history.artifacts,
+      carried_charge_ms: history.ledger.prior_charge_ms,
+      physical_playwright_cli_launches: 4,
+      spent_reservations: history.ledger.spent_reservations,
+      spent_retry: { used: 1, available: 0 },
+      failed_dark: { slot_id: 'R-DIAG-CONTROL-DARK', charged_ms: 121252, native_report_present: false, cleanup_ms: 112, database_absent: true },
+      preceding_order: 'unknown',
+      original_dark_failure_remains_failed: true
+    },
+    ledger: {
+      prior_charge_ms: history.ledger.prior_charge_ms,
+      prior_playwright_cli_launches: 4,
+      spent_reservations: history.ledger.spent_reservations,
+      preparation_remaining_ms: history.ledger.preparation_remaining_ms,
+      preparation_maximum_ms: 112489,
+      retry_used: 1,
+      retry_available: 0,
+      slots,
+      d19: { cap_ms: 1200000, max_with_remaining_preparation: history.ledger.d19_max_ms },
+      d20: { acceptance_slots_reserved: 9, each_max_duration_ms: 240000, reserved_ms: 2160000, retry_available: false },
+      shared_cap_ms: 3480000,
+      total_with_optional_seed_checks_ms: history.ledger.total_max_ms,
+      physical_cli_launch_max: 18,
+      invocation_reservations_total: 19,
+      launch_unit: 'playwright_cli_process',
+      engine_worker_lifecycle_accounting: 'separate_from_playwright_cli_launches',
+      cleanup_reserve_ms: 15000,
+      regular_command_ms: PROJECT_SLOT_MS,
+      no_retry: true
+    },
+    selection: {
+      spec: 'tests/admin-eval.spec.ts',
+      original_title: CONTROL_BOARD_TITLE,
+      first_titles: FIRST_CONTROLS,
+      second_titles: CONTROL_SECOND_ACTIVE,
+      deliberate_expected_failure_markers: CONTROL_EXPECTED_FAILURE_MARKERS,
+      project_configuration: ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'],
+      workers: 1, fully_parallel: false, retries: 0, trace: 'retain-on-failure'
+    },
+    tools: {
+      node: process.version,
+      playwright: readJson(path.join(root, 'test/example/priv/playwright/node_modules/@playwright/test/package.json')).version,
+      expected_playwright: '1.59.1',
+      mix: history.accepted.toolchain.mix,
+      ecto_sql: history.accepted.toolchain.ecto_sql,
+      phoenix_live_view: history.accepted.toolchain.phoenix_live_view
+    },
+    exclusions: ['no browser installation', 'no extra Playwright diagnostic launch', 'no retry', 'no acceptance command in Plan 27', 'no historical cause inferred from the failed dark run'],
+    stop_conditions: ['source or history digest mismatch', 'unexpected assertion or missing native report', 'database drop/build cleanup/report/trace sanitation failure', 'command exceeds 120000 ms', 'stalled owned process group remains alive']
+  };
+  if (freeze.tools.playwright !== '1.59.1') throw new Error('installed Playwright differs from the locked 1.59.1 required by the recovery freeze');
+  freeze.freeze_sha256 = controlRecoveryFreezeDigest(freeze);
+  writeJson(outputFile, freeze);
+  return freeze;
+}
+
+function validateControlRecoveryFreeze(root, freeze) {
+  assertDirtyConfigPreserved(root);
+  if (freeze?.schema_version !== CONTROL_RECOVERY_FREEZE_SCHEMA || freeze.status !== 'frozen_before_results'
+    || freeze.freeze_sha256 !== controlRecoveryFreezeDigest(freeze)) throw new Error('native control recovery freeze is malformed or its digest is invalid');
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  if (run('git', ['-C', root, 'merge-base', '--is-ancestor', freeze.source.checkout_head, head]).status !== 0) throw new Error('frozen recovery source commit is not an ancestor of this checkout');
+  for (const [file, expected] of Object.entries(freeze.source.blobs ?? {})) {
+    if (git(['-C', root, 'hash-object', file]) !== expected) throw new Error(`frozen recovery source identity mismatch for ${file}`);
+  }
+  for (const artifact of freeze.historical.artifacts ?? []) {
+    if (fileHash(path.join(root, artifact.path)) !== artifact.sha256) throw new Error(`preserved native history changed: ${artifact.path}`);
+  }
+  const history = readControlRecoveryHistory(root);
+  if (JSON.stringify(history.ledger.slots.map((slot) => [slot.id, slot.maps_from])) !== JSON.stringify(freeze.ledger.slots.map((slot) => [slot.id, slot.maps_from]))) throw new Error('frozen reservation mapping differs from the reviewed unused slots');
+  return head;
+}
+
+export function initializeControlRecoveryEvidence(freezeFile, evidenceFile, root = ROOT) {
+  if (fs.existsSync(evidenceFile)) throw new Error('refusing to overwrite additive native control recovery evidence');
+  const freeze = readJson(freezeFile);
+  validateControlRecoveryFreeze(root, freeze);
+  const evidence = {
+    schema_version: CONTROL_RECOVERY_SCHEMA,
+    status: 'ready',
+    freeze_path: path.relative(root, freezeFile),
+    freeze_sha256: fileHash(freezeFile),
+    source: structuredClone(freeze.source),
+    historical: structuredClone(freeze.historical),
+    created_at: new Date().toISOString(),
+    attempts: [],
+    reservation: null,
+    preserved_revisions: [],
+    limits: {
+      prior_charge_ms: freeze.ledger.prior_charge_ms,
+      preparation_charge_ms: 0,
+      preparation_remaining_ms: freeze.ledger.preparation_remaining_ms,
+      charged_duration_ms: freeze.ledger.prior_charge_ms,
+      physical_playwright_cli_launches: freeze.ledger.prior_playwright_cli_launches,
+      used_slots: [...freeze.ledger.spent_reservations],
+      max_d19_ms: freeze.ledger.d19.max_with_remaining_preparation,
+      max_total_ms: freeze.ledger.shared_cap_ms,
+      max_physical_playwright_cli_launches: freeze.ledger.physical_cli_launch_max,
+      retry_used: 1,
+      retry_available: 0
+    }
+  };
+  fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  writeJson(evidenceFile, evidence);
+  return evidence;
+}
+
+function preserveControlRecoveryEvidenceRevision(evidenceFile, root, evidence) {
+  const relative = path.relative(root, evidenceFile);
+  const bytes = fs.readFileSync(evidenceFile);
+  const statusResult = run('git', ['-C', root, 'status', '--porcelain=v1', '--', relative]);
+  if (statusResult.status !== 0) throw new Error('cannot capture evidence source status before replacement');
+  const status = statusResult.stdout.trimEnd();
+  const sha256Value = sha256(bytes);
+  const blob = git(['-C', root, 'hash-object', '-w', '--', relative]);
+  const ref = `refs/gsd/phase253-control-recovery-native-evidence/${sha256Value}`;
+  const updated = run('git', ['-C', root, 'update-ref', ref, blob]);
+  if (updated.status !== 0) throw new Error(`cannot preserve exact evidence revision under ${ref}: ${updated.stderr.trim()}`);
+  if (!readGitBlob(root, ref).equals(bytes)) throw new Error(`exact evidence revision read-back failed for ${ref}`);
+  evidence.preserved_revisions.push({ path: relative, status, sha256: sha256Value, blob, ref, bytes: bytes.length, read_back_exact: true });
+  return evidence;
+}
+
+function writeControlRecoveryEvidence(evidenceFile, root, evidence) {
+  if (fs.existsSync(evidenceFile)) preserveControlRecoveryEvidenceRevision(evidenceFile, root, evidence);
+  writeJson(evidenceFile, evidence);
+}
+
+export function verifyControlRecoveryEvidenceData(evidence, freeze, baseDir, stage = 'complete', freezeFileHash = freeze?.freeze_sha256) {
+  const errors = [];
+  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) return { ok: false, errors: ['native control recovery evidence is missing or malformed'] };
+  if (freeze?.schema_version !== CONTROL_RECOVERY_FREEZE_SCHEMA || freeze.freeze_sha256 !== controlRecoveryFreezeDigest(freeze)
+    || evidence.freeze_sha256 !== freezeFileHash) errors.push('evidence does not match the immutable recovery freeze');
+  if (evidence.schema_version !== CONTROL_RECOVERY_SCHEMA || JSON.stringify(evidence.source) !== JSON.stringify(freeze.source)) errors.push('evidence source identity differs from the frozen commit and blobs');
+  if (evidence.reservation || evidence.status === 'running') errors.push('evidence contains an unresolved predebit reservation');
+  if (evidence.limits?.retry_used !== 1 || evidence.limits?.retry_available !== 0) errors.push('the spent shared retry was reopened or miscounted');
+  if (evidence.limits?.prior_charge_ms !== 243044 || evidence.limits?.preparation_remaining_ms !== 112489) errors.push('carried historical charge or preparation balance changed');
+  if (evidence.limits?.max_total_ms !== 3480000 || evidence.limits?.max_physical_playwright_cli_launches !== 18) errors.push('shared time or physical CLI launch ceiling changed');
+  const attempts = Array.isArray(evidence.attempts) ? evidence.attempts : [];
+  const count = stage === 'dark' ? 1 : stage === 'first' ? 2 : stage === 'complete' ? 5 : -1;
+  if (count < 0 || attempts.length !== count) errors.push(`stage ${stage} requires exactly ${count} accepted new native command receipts`);
+  const slots = freeze.ledger.slots.slice(0, Math.max(0, count));
+  if (attempts.some((attempt, index) => attempt.slot_id !== slots[index]?.id)) errors.push('new commands do not match the exact unused reservation order');
+  const usedSlots = [...freeze.ledger.spent_reservations, ...attempts.map((attempt) => attempt.slot_id)];
+  if (JSON.stringify(evidence.limits?.used_slots) !== JSON.stringify(usedSlots)) errors.push('used reservation ledger differs from historical receipts and actual attempts');
+  const measured = freeze.ledger.prior_charge_ms + attempts.reduce((sum, attempt) => sum + (Number(attempt.charged_duration_ms) || 0), 0) + (Number(evidence.limits?.preparation_charge_ms) || 0);
+  if (evidence.limits?.charged_duration_ms !== measured) errors.push('cumulative charge does not equal preserved history, preparation and measured command receipts');
+  const launches = freeze.ledger.prior_playwright_cli_launches + attempts.filter((attempt) => attempt.playwright_cli?.launched === true).length;
+  if (evidence.limits?.physical_playwright_cli_launches !== launches || launches > freeze.ledger.physical_cli_launch_max) errors.push('physical Playwright CLI launch count differs from native receipts or exceeds its frozen ceiling');
+  if (measured > freeze.ledger.d19.cap_ms || measured > freeze.ledger.shared_cap_ms) errors.push('D-19 or shared time limit was exceeded');
+  if (stage === 'dark' || stage === 'first' || stage === 'complete') {
+    for (const attempt of attempts) errors.push(...verifyNativeControlAttempt(attempt, freeze, baseDir).errors);
+  }
+  if (stage === 'dark' && evidence.status !== 'dark_complete') errors.push('dark command status is not accepted');
+  if (stage !== 'dark' && evidence.status !== (stage === 'first' ? 'first_complete' : 'complete')) errors.push(`${stage} command status is not accepted`);
+  return { ok: errors.length === 0, errors };
+}
+
+async function runControlRecoverySlot(freezeFile, slotId, evidenceFile, root = ROOT) {
+  if (path.resolve(freezeFile) !== path.resolve(root, CONTROL_RECOVERY_FREEZE_PATH)
+    || path.resolve(evidenceFile) !== path.resolve(root, CONTROL_RECOVERY_EVIDENCE_PATH)) throw new Error('control recovery accepts only the reviewed phase freeze and additive evidence paths');
+  const freeze = readJson(freezeFile);
+  validateControlRecoveryFreeze(root, freeze);
+  const freezeHash = fileHash(freezeFile);
+  if (!fs.existsSync(evidenceFile)) throw new Error('native control recovery evidence must be initialized and committed before launch');
+  const evidence = readJson(evidenceFile);
+  if (evidence.schema_version !== CONTROL_RECOVERY_SCHEMA || evidence.freeze_sha256 !== freezeHash) throw new Error('native control evidence does not match the committed freeze');
+  if (evidence.status !== 'ready' || evidence.reservation) throw new Error(`refusing to use terminal or reserved recovery evidence: ${evidence.status}`);
+  const slot = freeze.ledger.slots.find((item) => item.id === slotId);
+  if (!slot || slot.id !== 'CR-DARK-FIRST') throw new Error('Plan 27 may consume only the frozen CR-DARK-FIRST reservation');
+  if (evidence.limits.used_slots.includes(slot.id)) throw new Error(`reservation ${slot.id} was already consumed`);
+  const reserve = slot.max_duration_ms;
+  const firstFourRemaining = freeze.ledger.slots.filter((item) => !evidence.limits.used_slots.includes(item.id)).length;
+  if (reserve !== 120000 || evidence.limits.charged_duration_ms + reserve + 9 * 240000 > freeze.ledger.shared_cap_ms
+    || evidence.limits.charged_duration_ms + firstFourRemaining * reserve > freeze.ledger.d19.cap_ms
+    || evidence.limits.physical_playwright_cli_launches + firstFourRemaining + 9 > freeze.ledger.physical_cli_launch_max) {
+    throw new Error('complete remaining D-19 and conditional D-20 reservations do not fit frozen limits');
+  }
+  const project = PROJECTS.find((item) => item.name === slot.project);
+  if (!project || !(await portAvailable(project.port))) throw new Error(`frozen port ${project?.port ?? 'unknown'} is occupied before native setup`);
+  const rawDir = `${evidenceFile}.raw`;
+  const rawAttempt = createAttemptDirectory(rawDir, slot.id, 1);
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-control-recovery-'));
+  const started = process.hrtime.bigint();
+  const commandDeadline = Number(started) / 1e6 + reserve;
+  const cleanupReserve = freeze.ledger.cleanup_reserve_ms;
+  const workDeadline = commandDeadline - cleanupReserve;
+  const database = `sigra_253_control_dark_${Date.now().toString(36)}_${process.pid}`.toLowerCase();
+  const env = diagnosticEnvironment(project, database, tempRoot);
+  const tempPaths = Object.fromEntries(['setup_log', 'app_log', 'test_log', 'drop_log'].map((name) => [name, path.join(tempRoot, `${name.replaceAll('_', '-')}.log`)]));
+  const reportTemp = path.join(tempRoot, 'playwright-report.json');
+  const attempt = {
+    slot_id: slot.id, sequence: slot.sequence, stage: slot.stage, project: slot.project, argv: slot.argv,
+    source_commit: freeze.source.checkout_head, source_blobs: freeze.source.blobs,
+    started_monotonic_ns: started.toString(), database: { name: database, setup_exit_code: null, drop_exit_code: null },
+    server: { port: project.port, http_status: null, app_pid: null },
+    browser: { launched: false, exit_code: null }, playwright_cli: { launched: false, exit_code: null },
+    observed_outcome: 'setup_failed', files: {}, traces: [], trace_assertion: [], transport_observations: [],
+    registration: { server_post_confirmed: false },
+    toolchain: { playwright: null, ecto_sql: freeze.tools.ecto_sql, phoenix_live_view: freeze.tools.phoenix_live_view },
+    build_path: env.MIX_BUILD_PATH,
+    stage_deadlines: { command_ms: reserve, work_ms: reserve - cleanupReserve, cleanup_ms: cleanupReserve, cleanup_reserved: true }
+  };
+  evidence.status = 'running';
+  evidence.reservation = { slot_id: slot.id, mapped_from: slot.maps_from, reserved_ms: reserve, predebited_at: new Date().toISOString(), source_commit: freeze.source.checkout_head };
+  evidence.limits.used_slots.push(slot.id);
+  writeControlRecoveryEvidence(evidenceFile, root, evidence);
+  let app = null;
+  let terminalError = null;
+  const playwrightDir = path.join(root, 'test/example/priv/playwright');
+  try {
+    const setup = await runLoggedTree('mix', ['ecto.setup'], path.join(root, 'test/example'), env, tempPaths.setup_log, workDeadline - Number(process.hrtime.bigint()) / 1e6);
+    attempt.setup = setup;
+    attempt.database.setup_exit_code = setup.exit_code;
+    if (setup.exit_code !== 0 || setup.timed_out) throw new Error(`fresh control database setup failed${setup.timed_out ? ' at its work deadline' : ` with exit ${setup.exit_code ?? 'null'}`}`);
+    const appFd = fs.openSync(tempPaths.app_log, 'w');
+    try { app = spawn('mix', ['phx.server'], { cwd: path.join(root, 'test/example'), env, stdio: ['ignore', appFd, appFd], detached: true }); }
+    finally { fs.closeSync(appFd); }
+    attempt.server.app_pid = app.pid ?? null;
+    attempt.server.http_status = app.pid ? await waitReady(app, `http://127.0.0.1:${project.port}/`, workDeadline) : null;
+    if (attempt.server.http_status !== 200) throw new Error('fresh control app did not return HTTP 200 before the reserved work deadline');
+    const installed = readJson(path.join(playwrightDir, 'node_modules/@playwright/test/package.json')).version;
+    if (installed !== freeze.tools.expected_playwright) throw new Error(`installed Playwright ${installed} differs from the frozen ${freeze.tools.expected_playwright}`);
+    attempt.toolchain.playwright = installed;
+    attempt.browser.launched = true;
+    attempt.playwright_cli.launched = true;
+    const args = ['test', freeze.selection.spec, ...slot.argv, `--output=${path.join(tempRoot, 'playwright-output')}`];
+    attempt.browser_command_argv = args;
+    const browser = await runLoggedTree(path.join(playwrightDir, 'node_modules/.bin/playwright'), args, playwrightDir, {
+      ...env, CI: 'true', SIGRA_EXAMPLE_URL: `http://127.0.0.1:${project.port}`,
+      SIGRA_PLAYWRIGHT_JSON: reportTemp, SIGRA_REGISTRATION_CONTROL_STAGE: 'first',
+      SIGRA_CONTROL_RUN_ID: `${slot.id.toLowerCase()}-${crypto.randomUUID()}`,
+      SIGRA_CONTROL_ACCOUNT_PREFIX: 'platform-admin+sigra-253-control',
+      PLAYWRIGHT_HTML_OUTPUT_DIR: path.join(tempRoot, 'html-report')
+    }, tempPaths.test_log, workDeadline - Number(process.hrtime.bigint()) / 1e6);
+    attempt.test_command = browser;
+    attempt.browser.exit_code = browser.exit_code;
+    attempt.playwright_cli.exit_code = browser.exit_code;
+    if (browser.timed_out) throw new Error('native Playwright command reached the reserved work deadline');
+    if (!fs.existsSync(reportTemp) || fs.statSync(reportTemp).size === 0) throw new Error('native Playwright JSON report is absent or empty');
+    const report = readJson(reportTemp);
+    const tests = playReportTests(report);
+    for (const item of tests) {
+      for (const attachment of item.attachments ?? []) {
+        if (attachment.name !== 'trace' && !String(attachment.path ?? '').endsWith('trace.zip')) continue;
+        if (!attachment.path || !fs.existsSync(attachment.path)) throw new Error(`native trace attachment for ${item.title} is missing`);
+        const target = path.join(rawAttempt, `trace-${attempt.traces.length + 1}.zip`);
+        const trace = sanitizeTraceFile(attachment.path, target);
+        const receipt = receiptFile(rawDir, 'sanitized native trace', target);
+        attempt.traces.push({ ...receipt, title: item.title, sanitization: trace });
+        attachment.path = path.relative(root, target);
+      }
+    }
+    attempt.files.traces = attempt.traces;
+    const safeReport = path.join(rawAttempt, 'playwright-report.json');
+    fs.writeFileSync(safeReport, `${JSON.stringify(sanitizeReportText(report), null, 2)}\n`, { flag: 'wx' });
+    attempt.files.playwright_report = receiptFile(rawDir, 'sanitized native Playwright report', safeReport);
+    const appBeforeSanitize = fs.existsSync(tempPaths.app_log) ? fs.readFileSync(tempPaths.app_log, 'utf8') : '';
+    attempt.registration.server_post_confirmed = /POST \/users\/log_in/.test(appBeforeSanitize);
+    attempt.transport_observations = tests.map((item) => ({ title: item.title, context_ids: controlAnnotations(item, 'sigra-registration-control-context'), result: controlAnnotations(item, 'sigra-registration-control-result') }));
+    attempt.native_selection = { project: project.name, spec: freeze.selection.spec, selected_titles: slot.selected_titles, expected_cli_exit: 1 };
+    attempt.observed_outcome = 'native_report_pending_validation';
+  } catch (error) {
+    terminalError = error.message;
+  } finally {
+    await stopApp(app);
+    if (fs.existsSync(tempPaths.app_log)) attempt.log_redactions_app = sanitizeCommandLog(tempPaths.app_log);
+    const cleanupRemaining = commandDeadline - Number(process.hrtime.bigint()) / 1e6;
+    if (cleanupRemaining <= 0) terminalError = [terminalError, 'owned cleanup exceeded the 120,000 ms command limit'].filter(Boolean).join('; ');
+    const drop = await runLoggedTree('mix', ['ecto.drop', '--quiet'], path.join(root, 'test/example'), env, tempPaths.drop_log, Math.max(1, Math.min(7000, cleanupRemaining - 5000)));
+    attempt.database.drop_exit_code = drop.exit_code;
+    attempt.drop_command = drop;
+    if (drop.exit_code !== 0 || drop.timed_out) terminalError = [terminalError, `database drop failed${drop.timed_out ? ' at cleanup deadline' : ` with exit ${drop.exit_code ?? 'null'}`}`].filter(Boolean).join('; ');
+    try { fs.rmSync(env.MIX_BUILD_PATH, { recursive: true, force: true }); attempt.build_directory_removed = !fs.existsSync(env.MIX_BUILD_PATH); }
+    catch (error) { attempt.build_directory_removed = false; terminalError = [terminalError, `physical Mix build cleanup failed: ${error.message}`].filter(Boolean).join('; '); }
+  }
+  for (const name of ['setup_log', 'app_log', 'test_log', 'drop_log']) {
+    if (!fs.existsSync(tempPaths[name])) fs.writeFileSync(tempPaths[name], `${name} command did not start${terminalError ? `: ${terminalError}` : ''}\n`);
+    const target = path.join(rawAttempt, `${name.replaceAll('_', '-')}.log`);
+    fs.copyFileSync(tempPaths[name], target, fs.constants.COPYFILE_EXCL);
+    attempt.files[name] = receiptFile(rawDir, `sanitized ${name}`, target);
+  }
+  attempt.ended_monotonic_ns = process.hrtime.bigint().toString();
+  attempt.execution_duration_ms = Math.ceil(Number(BigInt(attempt.ended_monotonic_ns) - BigInt(attempt.started_monotonic_ns)) / 1e6);
+  attempt.charged_duration_ms = attempt.execution_duration_ms;
+  if (attempt.charged_duration_ms > reserve) terminalError = [terminalError, 'native command exceeded its frozen 120,000 ms command reservation'].filter(Boolean).join('; ');
+  const validation = verifyNativeControlAttempt(attempt, freeze, rawDir);
+  if (!validation.ok) terminalError = [terminalError, ...validation.errors].filter(Boolean).join('; ');
+  evidence.reservation = null;
+  evidence.limits.charged_duration_ms += attempt.charged_duration_ms;
+  if (attempt.playwright_cli.launched) evidence.limits.physical_playwright_cli_launches += 1;
+  evidence.attempts.push(attempt);
+  if (terminalError) {
+    evidence.status = 'halted'; evidence.stop_reason = terminalError; attempt.observed_outcome = 'halted';
+  } else {
+    evidence.status = 'dark_complete'; attempt.observed_outcome = 'native_dark_and_first_controls_accepted';
+  }
+  writeControlRecoveryEvidence(evidenceFile, root, evidence);
+  fs.rmSync(tempRoot, { recursive: true, force: true });
+  if (!terminalError) {
+    const verified = verifyControlRecoveryEvidenceData(evidence, freeze, rawDir, 'dark', freezeHash);
+    if (!verified.ok) {
+      evidence.status = 'halted'; evidence.stop_reason = verified.errors.join('; ');
+      writeControlRecoveryEvidence(evidenceFile, root, evidence);
+      throw new Error(`native dark receipt rejected: ${verified.errors.join('; ')}`);
+    }
+  }
+  if (terminalError) throw new Error(terminalError);
+  return { status: evidence.status, slot: slot.id, charged_duration_ms: attempt.charged_duration_ms, physical_playwright_cli_launches: evidence.limits.physical_playwright_cli_launches };
 }
 
 function controlFreezeDigest(freeze) {
@@ -1862,6 +2370,33 @@ function verifyControlFile(evidenceFile, stage, root = ROOT) {
   } catch (error) { console.error(`native control evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
 }
 
+function verifyControlRecoveryFile(evidenceFile, stage, root = ROOT) {
+  try {
+    if (path.resolve(evidenceFile) !== path.resolve(root, CONTROL_RECOVERY_EVIDENCE_PATH)) throw new Error('verification accepts only the additive Plan 27 native evidence path');
+    const evidence = readJson(evidenceFile);
+    const freezeFile = path.resolve(root, evidence.freeze_path ?? '');
+    if (freezeFile !== path.resolve(root, CONTROL_RECOVERY_FREEZE_PATH)) throw new Error('native evidence does not point to the reviewed recovery freeze');
+    const freeze = readJson(freezeFile);
+    validateControlRecoveryFreeze(root, freeze);
+    const result = verifyControlRecoveryEvidenceData(evidence, freeze, `${evidenceFile}.raw`, stage, fileHash(freezeFile));
+    if (!result.ok) console.error(`native control recovery evidence rejected:\n- ${result.errors.join('\n- ')}`);
+    else console.log(`native control recovery verified: ${evidence.attempts.length} new command; ${evidence.limits.physical_playwright_cli_launches}/18 CLI launches; ${evidence.limits.charged_duration_ms} ms cumulative; retry_available=0`);
+    return result;
+  } catch (error) { console.error(`native control recovery evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
+}
+
+function checkControlRecoveryFreezeFile(freezeFile, root = ROOT) {
+  try {
+    if (path.resolve(freezeFile) !== path.resolve(root, CONTROL_RECOVERY_FREEZE_PATH)) throw new Error('freeze check accepts only the additive Plan 27 path');
+    validateControlRecoveryFreeze(root, readJson(freezeFile));
+    console.log('native control recovery freeze verified: source, historical bytes, five unused mappings, carried charges and retry count match');
+    return { ok: true, errors: [] };
+  } catch (error) {
+    console.error(`native control recovery freeze rejected: ${error.message}`);
+    return { ok: false, errors: [error.message] };
+  }
+}
+
 export function attemptDirectory(baseDir, slotId, attemptNumber) {
   return path.join(baseDir, `${slotId}-attempt-${String(attemptNumber).padStart(2, '0')}`);
 }
@@ -2118,6 +2653,34 @@ function verifyDiagnosticFile(evidenceFile, root = ROOT) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.mode === 'create-control-recovery') {
+    if (path.resolve(args.output) !== path.resolve(ROOT, CONTROL_RECOVERY_FREEZE_PATH)) throw new Error('control recovery freeze output must use the reviewed phase artifact path');
+    const freeze = createControlRecoveryFreeze(args.output);
+    console.log(`control recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; five new reservations; retry unavailable)`);
+    return;
+  }
+  if (args.mode === 'init-control-recovery') {
+    if (path.resolve(args.freeze) !== path.resolve(ROOT, CONTROL_RECOVERY_FREEZE_PATH)
+      || path.resolve(args.output) !== path.resolve(ROOT, CONTROL_RECOVERY_EVIDENCE_PATH)) throw new Error('control recovery evidence must use the reviewed phase artifact paths');
+    const evidence = initializeControlRecoveryEvidence(args.freeze, args.output);
+    console.log(`native control recovery ledger initialized before setup: ${path.relative(ROOT, args.output)} (${evidence.limits.charged_duration_ms} ms carried; retry_available=0)`);
+    return;
+  }
+  if (args.mode === 'check-control-recovery-freeze') {
+    const result = checkControlRecoveryFreezeFile(args.freeze);
+    if (!result.ok) process.exitCode = 3;
+    return;
+  }
+  if (args.mode === 'run-control-recovery') {
+    const result = await runControlRecoverySlot(args.freeze, args.slot, args.output);
+    console.log(JSON.stringify(result));
+    return;
+  }
+  if (args.mode === 'verify-control-recovery') {
+    const result = verifyControlRecoveryFile(args.evidence, args.stage);
+    if (!result.ok) process.exitCode = 3;
+    return;
+  }
   if (args.mode === 'create-revision') {
     const freeze = createRevision(args.output);
     console.log(`registration revision frozen before results: ${path.relative(ROOT, args.output)} (${freeze.source.checkout_head})`);
