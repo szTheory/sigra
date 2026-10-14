@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 10/25 complete; Plans 15, 18, 19, and 20 implemented; Plan 16 halted; native and hosted results missing; phase verification not started
+**Plans**: 10/35 implemented; Plans 26–35 reviewed and awaiting execution; old failed plans preserved; phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -139,6 +139,47 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 - [ ] 253-23-PLAN.md — Six hosted outcomes and separate verifier
 - [ ] 253-24-PLAN.md — Normal and real docs-only PR proof
 - [ ] 253-25-PLAN.md — Accepted-only reconciliation and full phase verification route
+
+**Control recovery plans** *(26–35 passed independent review with one informational advisory; all old failed outcomes remain unchanged)*
+
+**Recovery wave 1** *(ready first)*
+
+- [ ] 253-26-PLAN.md — Diagnose the stopped native command and repair demonstrated control contracts offline.
+
+**Recovery wave 2** *(blocked on preceding recovery dependencies)*
+
+- [ ] 253-27-PLAN.md — Freeze the five unused command reservations and prove one repaired dark diagnostic/control path.
+
+**Recovery wave 3** *(blocked on preceding recovery dependencies)*
+
+- [ ] 253-28-PLAN.md — Complete the remaining native signal, collision, isolation and trace controls.
+
+**Recovery wave 4** *(blocked on preceding recovery dependencies)*
+
+- [ ] 253-29-PLAN.md — Establish the selected cause and accept only genuine fresh post-fix repetitions.
+
+**Recovery wave 5** *(blocked on preceding recovery dependencies)*
+
+- [ ] 253-30-PLAN.md — Prepare real normal/docs PR collection and full completion predicates before source freezing.
+
+**Recovery wave 6** *(blocked on Plan 30)*
+
+- [ ] 253-31-PLAN.md — Prepare accepted-only historical disposition using the actual installed SDK.
+- [ ] 253-32-PLAN.md — Complete final registered-path canary assembly and regenerate exact candidate publication.
+
+**Recovery wave 7** *(blocked on preceding recovery dependencies)*
+
+- [ ] 253-33-PLAN.md — Prove six actual hosted outcomes and a separate verifier inside the sealed canary allocation.
+
+**Recovery wave 8** *(blocked on preceding recovery dependencies)*
+
+- [ ] 253-34-PLAN.md — Prove real normal production and docs-only PR required checks under one allocation.
+
+**Recovery wave 9** *(blocked on preceding recovery dependencies)*
+
+- [ ] 253-35-PLAN.md — Record accepted reliability proof and prepare honest historical disposition plus full-verification routing.
+
+Cross-cutting constraints: preserve original Phase 252 and failed Phase 253 records; carry spent charges and retry without reset; zero browser retries and signal-driven readiness; retain five required-check names; native and hosted proof required before accepted-only historical dispositions.
 
 ### Phase 254: Speed Up the Measured Slow Jobs
 
