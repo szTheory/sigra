@@ -4,50 +4,68 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "native_halted_recovery_planning_required"
+status: native_halted_recovery_planning_required
 stopped_at: "Plan27 halted: canonicalize cannot load ESM parse5 under Node20; no selected tests ran"
-last_updated: "2026-10-14T01:30:01.883389+00:00"
-last_activity: "2026-10-13"
-last_activity_desc: "Plan26 completed offline; Plan27 native load failure preserved; dependent plans stopped"
-state_head: "6e7a08945b6940d613626c56fa81b37e9a4350c2"
+last_updated: "2026-10-14T02:23:52.967Z"
+last_activity: "2026-10-14T01:30:01.883389+00:00 — failed 33,409 ms command saved; cumulative 276,453 ms across five launches, with no retry available"
+state_head: fd35b20a3957804fa9bb45cc02735f5a7a6e039b
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 41
+  total_plans: 53
   completed_plans: 17
-  percent: 41
+  percent: 25
 milestone_status: active
-workflow_step: "plan_recovery"
+workflow_step: plan_recovery
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-plan-phase 253"
-resume_command: "$gsd-plan-phase 253"
+next_command: $gsd-plan-phase 253
+resume_command: $gsd-plan-phase 253
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
-phase253_planning_status: "passed_with_informational_advisory"
+phase253_planning_status: passed_with_informational_advisory
 phase253_plan_count: 35
 phase253_wave_count: 9
 phase253_task_count: 76
 phase253_implementation_status: partial
 phase253_completed_plans: 11
-phase253_halted_plans: ["253-02", "253-07", "253-09", "253-12", "253-16", "253-27"]
-phase253_blocked_plans: ["253-08", "253-10", "253-13", "253-14", "253-17", "253-21", "253-22", "253-23", "253-24", "253-25", "253-28", "253-29", "253-30", "253-31", "253-32", "253-33", "253-34", "253-35"]
-
+phase253_halted_plans:
+  - 253-02
+  - 253-07
+  - 253-09
+  - 253-12
+  - 253-16
+  - 253-27
+phase253_blocked_plans:
+  - 253-08
+  - 253-10
+  - 253-13
+  - 253-14
+  - 253-17
+  - 253-21
+  - 253-22
+  - 253-23
+  - 253-24
+  - 253-25
+  - 253-28
+  - 253-29
+  - 253-30
+  - 253-31
+  - 253-32
+  - 253-33
+  - 253-34
+  - 253-35
 phase253_recovery_plan_count: 6
-
 phase253_recovery_task_count: 13
-
 phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
-
 phase253_control_recovery_plan_count: 10
-
 phase253_control_recovery_task_count: 22
-
 phase253_ready_plans: []
+last_activity_desc: Plan26 completed offline; Plan27 native load failure preserved; dependent plans stopped
 ---
 
 # Project State
@@ -61,15 +79,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-
-Phase: 253 — incomplete; native recovery halted
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
 Plans: 11/35 implemented; Plan 26 complete offline, Plan 27 halted (0/2 tasks), Plans 28–35 blocked
 Status: No runnable plans; Node 20 parse5 loading and missing portable proof need recovery planning
 Last activity: 2026-10-14T01:30:01.883389+00:00 — failed 33,409 ms command saved; cumulative 276,453 ms across five launches, with no retry available
-Progress: 17/41 planned milestone plans implemented (41%); whole-phase verification not started
+Progress: 17/41 planned milestone plans implemented ([███░░░░░░░] 25%); whole-phase verification not started
 
 ## Next GSD command
-
 
 $gsd-plan-phase 253
 
