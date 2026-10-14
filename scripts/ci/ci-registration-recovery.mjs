@@ -455,7 +455,7 @@ function checkFrozenSource(root, freeze) {
   return head;
 }
 
-function playReportTests(report) {
+export function playReportTests(report) {
   const found = [];
   const visit = (suite) => {
     for (const spec of suite.specs ?? []) {
@@ -2151,6 +2151,27 @@ function controlAnnotations(result, type) {
   return [...(result.annotations ?? []), ...(result.result_annotations ?? [])].filter((item) => item.type === type).map((item) => item.description ?? '');
 }
 
+// R4 context identity (D-24). Playwright 1.59 mirrors every test-level annotation into results[].annotations, so the legacy
+// controlAnnotations concatenation counts each browser-context id twice. The R4 per-row set is the ordered, deduplicated union
+// of both levels; dedupe never crosses rows (crossRowContextReuseR4 compares distinct rows only).
+export function controlContextIdentitiesR4(result) {
+  const ids = [...(result?.annotations ?? []), ...(result?.result_annotations ?? [])]
+    .filter((item) => item.type === 'sigra-registration-control-context').map((item) => item.description ?? '');
+  return [...new Set(ids)];
+}
+
+export function crossRowContextReuseR4(rows) {
+  const owner = new Map();
+  for (const [index, row] of rows.entries()) {
+    const label = row.label ?? `${row.project ?? ''} / ${row.title ?? index}`;
+    for (const id of controlContextIdentitiesR4(row.result ?? row)) {
+      if (owner.has(id) && owner.get(id) !== label) return ['two selected rows reused the same browser-context identity'];
+      owner.set(id, label);
+    }
+  }
+  return [];
+}
+
 const SAFE_DEMO_CREDENTIAL_MARKER = '[REDACTED seeded demo credentials]';
 const DEMO_CREDENTIALS_HEADER = '=== Demo Credentials ===';
 
@@ -3420,7 +3441,8 @@ function verifyAccountCountReceipt(receipt, attempt, expectedDigest, expectedCou
   return errors;
 }
 
-export function verifyNativeLoadAttempt(attempt, freeze, baseDir) {
+export function verifyNativeLoadAttempt(attempt, freeze, baseDir, options = {}) {
+  const perRowUnion = options?.contextIdentity === 'per_row_union';
   const errors = [];
   const fail = (message) => errors.push(message);
   if (!attempt || typeof attempt !== 'object') return { ok: false, errors: ['native load attempt is missing'] };
@@ -3482,7 +3504,7 @@ export function verifyNativeLoadAttempt(attempt, freeze, baseDir) {
       if (result.expected_status !== 'passed' || result.status !== 'failed' || result.summary_status !== 'unexpected') fail(`${label} did not produce its expected native assertion failure`);
       if (!controlTestError(result).includes(CONTROL_EXPECTED_FAILURE_MARKERS[pair.title])) fail(`${label} failure report omits its frozen original assertion marker`);
     } else if (result.expected_status !== 'passed' || result.status !== 'passed' || result.summary_status !== 'expected') fail(`${label} did not pass natively as frozen`);
-    const contexts = controlAnnotations(result, 'sigra-registration-control-context');
+    const contexts = perRowUnion ? controlContextIdentitiesR4(result) : controlAnnotations(result, 'sigra-registration-control-context');
     if (pair.title !== CONTROL_BOARD_TITLE && (!contexts.length || contexts.some((value) => !/^[a-z0-9-]+:[a-f0-9-]{36}$/i.test(value)))) fail(`${label} omitted its fresh browser-context identity`);
   }
   const failures = rows.filter((row) => slot.project_selections.find((item) => item.project === row.project).expected[row.title] === 'expected_failure');
@@ -3522,8 +3544,12 @@ export function verifyNativeLoadAttempt(attempt, freeze, baseDir) {
     if (attempt.prior_collision_absence && attempt.created_account && BigInt(attempt.prior_collision_absence.ended_monotonic_ns || 0) > BigInt(attempt.created_account.started_monotonic_ns || 0)) fail('absence query must precede the created-account query');
     if (!fresh[project]) fail('second slot has no fresh-state result');
   } else if (Object.keys(collisions).length !== slot.projects.length) fail('all three projects need their own native same-account collision receipt');
-  const contextIds = rows.flatMap((row) => controlAnnotations(row.result, 'sigra-registration-control-context'));
-  if (new Set(contextIds).size !== contextIds.length) fail('two selected rows reused the same browser-context identity');
+  if (perRowUnion) {
+    for (const message of crossRowContextReuseR4(rows.map((row) => ({ label: `${row.project} / ${row.title}`, result: row.result })))) fail(message);
+  } else {
+    const contextIds = rows.flatMap((row) => controlAnnotations(row.result, 'sigra-registration-control-context'));
+    if (new Set(contextIds).size !== contextIds.length) fail('two selected rows reused the same browser-context identity');
+  }
   if (failures.some((row) => row.title === 'registration waits for explicitly released LiveView readiness')) fail('the held readiness control must pass after its explicit release');
   if (attempt.playwright_cli?.exit_code !== slot.expected_cli_exit) fail(`Playwright CLI exit does not match the frozen ${slot.expected_cli_exit}`);
   if (!attempt.lifecycle || attempt.lifecycle.rows !== pairs.length || !(attempt.lifecycle.worker_indexes?.length >= 1)) fail('process, worker and context lifecycle receipt is incomplete');
