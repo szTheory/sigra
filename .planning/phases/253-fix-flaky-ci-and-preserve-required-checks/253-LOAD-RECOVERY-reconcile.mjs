@@ -247,6 +247,18 @@ export function evaluateCompletion({ completionPath, verifier = null }) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Task 2 RED skeleton: contract, bundle and application exports exist but answer nothing.
+// ---------------------------------------------------------------------------------------------
+export const CONTRACT_NAME = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT.json";
+export function buildContract() { return null; }
+export function serializeContract() { return null; }
+export function loadContract() { return null; }
+export function renderDisposition() { return null; }
+export function prepareDispositions() { return null; }
+export function applyBundle() { return null; }
+export function checkIndex() { return null; }
+
+// ---------------------------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------------------------
 function parseArgs(argv) {
