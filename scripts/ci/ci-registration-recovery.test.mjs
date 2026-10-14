@@ -4458,3 +4458,228 @@ test('R5 absence capture returns the byte-identical shared receipt plus a redact
   assert.equal(wrapped.stderr_sidecar.truncated, false);
   assert.equal(fs.readFileSync(log, 'utf8'), '0\n');
 });
+
+// ---- Phase 253 plan 79 task 2: R5 ledger, R4-lineage history reader and carried first window ----
+const R5_SPENT = [...R4_SPENT, 'CR4-DESKTOP-MOBILE-FIRST', 'CR4-DESKTOP-SECOND'];
+const R5_CHARGES = [...R4_CHARGES, 821, 92810, 43535];
+const R5_IDS = ['CR5-DESKTOP-SECOND', 'CR5-MOBILE-SECOND', 'CR5-DARK-SECOND'];
+const R5_APPROVE_CAPS = { new_allowance_ms: 565000, d19_cap_ms: 2924703, d19_launch_max: 13, shared_cap_ms: 5264703, physical_cli_max: 22 };
+const R5_APPROVE_NO_RETRY_CAPS = { new_allowance_ms: 430000, d19_cap_ms: 2789703, d19_launch_max: 12, shared_cap_ms: 5129703, physical_cli_max: 21 };
+const r5LedgerInput = () => ({
+  charges: [...R5_CHARGES], physicalPlaywrightLaunches: 9, spentReservations: [...R5_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationUsedMs: 5141 + 822 + 821
+});
+const R4_EVIDENCE_REL = `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json`;
+const R4_FIRST_COMMIT = '0596dd97a77acafc7dff68b48cba437f3c7e5183';
+const R4_FIRST_SHA = '084377320bce81ac6c84ca1adca847805861cc8815572453b407132eb3b24193';
+
+test('R5 ledger carries 2359703 ms, nine launches and eleven spent identities, with the reviewed R5 caps', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR5(r5LedgerInput());
+  assert.equal(R5_CHARGES.reduce((sum, value) => sum + value, 0), 2359703);
+  assert.equal(ledger.prior_charge_ms, 2359703);
+  assert.equal(ledger.prior_playwright_cli_launches, 9);
+  assert.deepEqual(ledger.spent_reservations, R5_SPENT);
+  assert.equal(ledger.spent_reservations.length, 11);
+  assert.equal(ledger.preparation_used_ms, 6784);
+  assert.equal(ledger.retry_used, 1);
+  assert.equal(ledger.retry_available, 0);
+  assert.deepEqual(ledger.expired_identities.slice(-1), ['CR4-INFRA-RETRY']);
+  assert.deepEqual(ledger.retired_identities.slice(-2), ['CR4-MOBILE-SECOND', 'CR4-DARK-SECOND']);
+  assert.ok(!R5_SPENT.some((id) => ledger.expired_identities.includes(id) || ledger.retired_identities.includes(id)), 'a spent identity is never also expired or retired');
+  assert.deepEqual(ledger.caps.approve, R5_APPROVE_CAPS);
+  assert.deepEqual(ledger.caps['approve-without-retry'], R5_APPROVE_NO_RETRY_CAPS);
+  assert.equal(ledger.required_rows, 22);
+  assert.equal(ledger.required_new_rows, 6);
+  assert.equal(ledger.carried_rows, 16);
+  const doc = fs.readFileSync(path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), 'utf8');
+  for (const caps of [R5_APPROVE_CAPS, R5_APPROVE_NO_RETRY_CAPS]) {
+    for (const value of [caps.new_allowance_ms, caps.d19_cap_ms, caps.shared_cap_ms]) assert.ok(doc.includes(String(value)), `the R5 budget document states ${value}`);
+  }
+});
+
+test('R5 ledger rejects any other carried input', () => {
+  for (const mutate of [
+    (input) => { input.charges[16] = 43534; },
+    (input) => { input.charges[14] = 820; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.charges = [...R4_CHARGES]; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations = [...R4_SPENT]; },
+    (input) => { input.spentReservations.reverse(); },
+    (input) => { input.physicalPlaywrightLaunches = 8; },
+    (input) => { input.preparationUsedMs = 5963; }
+  ]) {
+    const input = r5LedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedgerR5(input), /historical|retry|reservation|launch|preparation|carried/i);
+  }
+  assert.throws(() => recovery.buildLoadRecoveryLedgerR5(r4LedgerInput()), /historical|launch|reservation|preparation|carried/i);
+  assert.throws(() => recovery.buildLoadRecoveryLedgerR4(r5LedgerInput()), /historical|launch|reservation|preparation|carried/i, 'the R4 builder still refuses the R5 inputs');
+});
+
+test('R5 slots are the three R4 second windows under new identities plus one 135000 ms infrastructure retry', () => {
+  const r4 = recovery.loadRecoverySlotDefinitionsR4();
+  const r5 = recovery.loadRecoverySlotDefinitionsR5();
+  assert.deepEqual(r5.map((slot) => slot.id), [...R5_IDS, 'CR5-INFRA-RETRY']);
+  assert.deepEqual(r5.map((slot) => slot.maps_from), ['CR4-DESKTOP-SECOND', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND', 'CR5-INFRA-RETRY']);
+  assert.deepEqual(r5.slice(0, 3).map((slot) => slot.rows), [2, 2, 2]);
+  for (const [index, slot] of r5.slice(0, 3).entries()) {
+    const strip = ({ id, maps_from, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    assert.deepEqual(strip(slot), strip(r4[index + 1]), `selection, projects, argv, ports and windows of ${slot.id} equal ${r4[index + 1].id}`);
+    assert.equal(slot.expected_cli_exit, 0);
+    assert.deepEqual([slot.setup_ms, slot.work_ms, slot.cleanup_ms, slot.command_ms, slot.max_duration_ms], [60000, 60000, 15000, 75000, 135000]);
+  }
+  assert.equal(r5[3].retry, true);
+  assert.equal(r5[3].max_duration_ms, 135000);
+  assert.equal(r5[3].rows, 0);
+  const ledger = recovery.buildLoadRecoveryLedgerR5(r5LedgerInput());
+  const closed = [...ledger.spent_reservations, ...ledger.expired_identities, ...ledger.retired_identities];
+  assert.equal(r5.filter((slot) => closed.includes(slot.id)).length, 0, 'no runnable R5 slot reuses a closed identity');
+});
+
+// A disposable copy of the R4 lineage (evidence, freeze, approval, budget, summary and raw receipts) beside an injected older history.
+function r5LineageCopy() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r5-lineage-')));
+  const lineage = {};
+  for (const [name, file] of Object.entries({
+    evidence: '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json', freeze: '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json',
+    approval: '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json', budget: '253-LOAD-RECOVERY-BUDGETS-R4.md', summary: '253-73-SUMMARY.md'
+  })) {
+    fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+    fs.copyFileSync(path.join(root, PHASE_REL, file), path.join(dir, PHASE_REL, file));
+    lineage[name] = { file: `${PHASE_REL}/${file}`, sha256: sha(fs.readFileSync(path.join(dir, PHASE_REL, file))) };
+  }
+  fs.cpSync(path.join(root, `${R4_EVIDENCE_REL}.raw`), path.join(dir, `${R4_EVIDENCE_REL}.raw`), { recursive: true });
+  const olderHistory = () => ({ charges: [...R4_CHARGES], artifacts: [{ path: 'older/record', sha256: 'a'.repeat(64) }], frozenBlobs: {}, control: { accepted: { toolchain: { mix: '1.19.5' } } } });
+  const rewriteEvidence = (mutate) => {
+    const file = path.join(dir, lineage.evidence.file);
+    const evidence = JSON.parse(fs.readFileSync(file, 'utf8')); mutate(evidence);
+    fs.writeFileSync(file, `${JSON.stringify(evidence, null, 2)}\n`);
+    lineage.evidence = { ...lineage.evidence, sha256: sha(fs.readFileSync(file)) };
+  };
+  return { dir, lineage, deps: { olderHistory, lineage, skipPreservedRevisions: true }, rewriteEvidence, clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('the R5 history reader re-hashes the R4 lineage and reads the carried 2359703 ms ledger from preserved bytes', () => {
+  const r = r5LineageCopy();
+  try {
+    const history = recovery.readLoadHistoryR5(r.dir, r.deps);
+    assert.deepEqual(history.ledger, recovery.buildLoadRecoveryLedgerR5(r5LedgerInput()));
+    assert.deepEqual(history.charges, R5_CHARGES);
+    const halt = history.terminalHalt;
+    assert.equal(halt.slot_id, 'CR4-DESKTOP-SECOND');
+    assert.equal(halt.plan, '253-73');
+    assert.equal(halt.cause, 'runner_account_count_unqualified_schema');
+    assert.equal(halt.terminal, true);
+    assert.equal(halt.infrastructure, false);
+    assert.equal(halt.retryable, false);
+    assert.equal(halt.charged, true);
+    assert.equal(halt.charged_ms, 43535);
+    assert.equal(halt.preparation_ms, 821);
+    assert.equal(halt.stop_reason, JSON.parse(fs.readFileSync(path.join(root, R4_EVIDENCE_REL), 'utf8')).stop_reason);
+    assert.deepEqual(halt.summary, { file: `${PHASE_REL}/253-73-SUMMARY.md`, sha256: '1ccc0d9700cca753f31d16d2b489527d3b29a9459a794edc1123489fe30fddcf' });
+    assert.deepEqual(halt.expired_identities, ['CR4-INFRA-RETRY']);
+    assert.deepEqual(halt.retired_identities, ['CR4-MOBILE-SECOND', 'CR4-DARK-SECOND']);
+    const paths = history.artifacts.map((item) => item.path);
+    for (const name of ['253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json', '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json', '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json', '253-LOAD-RECOVERY-BUDGETS-R4.md', '253-73-SUMMARY.md']) {
+      assert.ok(paths.includes(`${PHASE_REL}/${name}`), name);
+    }
+    assert.ok(paths.some((item) => item.startsWith(`${R4_EVIDENCE_REL}.raw/`) && item.endsWith('/playwright-report.json')), 'the accepted R4 report is re-hashed as lineage');
+    assert.ok(paths.includes('older/record'), 'the older lineage is carried');
+    assert.ok(history.artifacts.every((item) => /^[0-9a-f]{64}$/.test(item.sha256)));
+  } finally { r.clean(); }
+});
+
+test('the R5 history reader refuses changed R4 evidence, freeze, approval, budget, summary or raw receipts and a wrong carried ledger', () => {
+  const attemptDirs = (r) => fs.readdirSync(path.join(r.dir, `${R4_EVIDENCE_REL}.raw`)).filter((name) => name.startsWith('CR4-DESKTOP-MOBILE-FIRST'));
+  assert.ok(attemptDirs(r5LineageCopy()).length >= 1);
+  for (const [label, mutate, pattern] of [
+    ['evidence', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.evidence.file), ' '), /R4 evidence/i],
+    ['freeze', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.freeze.file), ' '), /R4 freeze/i],
+    ['approval', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.approval.file), ' '), /R4 approval/i],
+    ['budget', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.budget.file), ' '), /R4 budget/i],
+    ['summary', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.summary.file), ' '), /R4 summary/i],
+    ['raw report', (r) => fs.appendFileSync(path.join(r.dir, `${R4_EVIDENCE_REL}.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/playwright-report.json`), ' '), /raw/i],
+    ['raw log', (r) => fs.appendFileSync(path.join(r.dir, `${R4_EVIDENCE_REL}.raw/CR4-DESKTOP-SECOND/attempt-01/setup-log.log`), 'x'), /raw/i],
+    ['wrong first charge', (r) => r.rewriteEvidence((e) => { e.attempts[0].charged_duration_ms = 92809; }), /receipt differs/i],
+    ['wrong halted charge', (r) => r.rewriteEvidence((e) => { e.attempts[1].charged_duration_ms = 43534; }), /receipt differs/i],
+    ['wrong order', (r) => r.rewriteEvidence((e) => { e.attempts.reverse(); }), /receipt differs/i],
+    ['third attempt', (r) => r.rewriteEvidence((e) => { e.attempts.push(structuredClone(e.attempts[1])); }), /receipt differs/i],
+    ['infrastructure outcome', (r) => r.rewriteEvidence((e) => { e.attempts[1].observed_outcome = 'halted_infrastructure'; }), /receipt differs/i],
+    ['launched halted slot', (r) => r.rewriteEvidence((e) => { e.attempts[1].playwright_cli.launched = true; }), /receipt differs/i],
+    ['wrong absence exit', (r) => r.rewriteEvidence((e) => { e.attempts[1].prior_collision_absence.exit_code = 0; }), /receipt differs/i],
+    ['wrong absence query', (r) => r.rewriteEvidence((e) => { e.attempts[1].prior_collision_absence.query = 'SELECT 1;\n'; }), /receipt differs/i],
+    ['wrong launches', (r) => r.rewriteEvidence((e) => { e.limits.physical_playwright_cli_launches = 8; }), /receipt differs/i],
+    ['wrong preparation', (r) => r.rewriteEvidence((e) => { e.preparation.duration_ms = 822; }), /receipt differs/i],
+    ['wrong spent list', (r) => r.rewriteEvidence((e) => { e.limits.used_slots.pop(); }), /receipt differs/i],
+    ['used infrastructure retry', (r) => r.rewriteEvidence((e) => { e.limits.infra_retry.used = 1; }), /receipt differs/i],
+    ['status', (r) => r.rewriteEvidence((e) => { e.status = 'complete'; }), /receipt differs/i]
+  ]) {
+    const r = r5LineageCopy();
+    try {
+      mutate(r);
+      assert.throws(() => recovery.readLoadHistoryR5(r.dir, r.deps), pattern, label);
+    } finally { r.clean(); }
+  }
+});
+
+test('the R5 history reader reads the real preserved R4 lineage, including its preserved revision refs', () => {
+  const history = recovery.readLoadHistoryR5(root);
+  assert.equal(history.ledger.prior_charge_ms, 2359703);
+  assert.equal(history.ledger.prior_playwright_cli_launches, 9);
+  assert.deepEqual(history.ledger.caps, recovery.buildLoadRecoveryLedgerR5(r5LedgerInput()).caps);
+  assert.equal(history.terminalHalt.charged_ms, 43535);
+  assert.deepEqual(Object.values(history.lineage).map((record) => record.sha256), [
+    '6162ed6e9dad947223912ce739ee250d2c6218a5b514f86b0e7f9224a536cdbd', 'abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346',
+    '6f866bb38a9eca091bd56dbed88eda5aab135fc5dcb87e45ea53589f9c7de911', '865561402eb87f160aaf746fba9121bb5b9cad936f64d86ada5e9a585ad099c3',
+    '1ccc0d9700cca753f31d16d2b489527d3b29a9459a794edc1123489fe30fddcf'
+  ]);
+});
+
+test('the carried first window binds the committed first_complete R4 revision with exact keys', () => {
+  const binding = recovery.carriedFirstWindowR5(root);
+  assert.equal(binding.revision_commit, R4_FIRST_COMMIT);
+  assert.equal(binding.revision_sha256, R4_FIRST_SHA);
+  assert.equal(binding.evidence_path, R4_EVIDENCE_REL);
+  assert.equal(binding.evidence_sha256, '6162ed6e9dad947223912ce739ee250d2c6218a5b514f86b0e7f9224a536cdbd');
+  assert.equal(binding.r4_freeze_sha256, 'abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346');
+  assert.equal(binding.r4_checkout_head, '4fdbc82b4a988f34eed066c1687f854a049dd03d');
+  assert.equal(binding.rows, 16);
+  assert.match(binding.attempt_sha256, /^[0-9a-f]{64}$/);
+  assert.deepEqual(Object.keys(binding.collision_receipts).sort(), ['admin-eval', 'admin-eval-dark', 'admin-eval-mobile']);
+  assert.match(binding.database, /^sigra_253_control_load_cr4_desktop_mobile_first_/);
+  assert.equal(binding.context_ids.length, 18);
+  assert.equal(new Set(binding.context_ids).size, 18);
+  assert.ok(binding.raw_files.length >= 5 && binding.raw_files.every((item) => typeof item.path === 'string' && /^[0-9a-f]{64}$/.test(item.sha256)));
+  const halted = JSON.parse(fs.readFileSync(path.join(root, R4_EVIDENCE_REL), 'utf8'));
+  const revision = JSON.parse(execGit(R4_FIRST_COMMIT, R4_EVIDENCE_REL));
+  assert.equal(JSON.stringify(halted.attempts[0]), JSON.stringify(revision.attempts[0]));
+});
+
+function execGit(commit, file) { return spawnSync('git', ['-C', root, 'cat-file', 'blob', `${commit}:${file}`], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }).stdout; }
+
+test('the carried first window refuses a tampered revision, a changed attempt and a changed raw file', () => {
+  const r = r5LineageCopy();
+  try {
+    const base = { evidenceFile: path.join(r.dir, r.lineage.evidence.file), freezeFile: path.join(r.dir, r.lineage.freeze.file), rawBase: path.join(r.dir, `${R4_EVIDENCE_REL}.raw`) };
+    assert.equal(recovery.carriedFirstWindowR5(root, base).rows, 16);
+    const bytes = execGit(R4_FIRST_COMMIT, R4_EVIDENCE_REL);
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base, readRevisionBytes: () => Buffer.from(`${bytes} `) }), /revision|sha256|first_complete/i, 'tampered revision bytes');
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base, revisionSha256: 'f'.repeat(64) }), /revision|sha256/i, 'wrong pinned revision hash');
+    const statusEdited = JSON.parse(bytes); statusEdited.status = 'complete';
+    const editedBytes = Buffer.from(`${JSON.stringify(statusEdited, null, 2)}\n`);
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base, readRevisionBytes: () => editedBytes, revisionSha256: sha(editedBytes) }), /first_complete/i, 'a status other than first_complete');
+    const changedAttempt = JSON.parse(bytes); changedAttempt.attempts[0].charged_duration_ms += 1;
+    const changedBytes = Buffer.from(`${JSON.stringify(changedAttempt, null, 2)}\n`);
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base, readRevisionBytes: () => changedBytes, revisionSha256: sha(changedBytes) }), /attempt|ok|verif|charge|account/i, 'a revision attempt that no longer verifies');
+    r.rewriteEvidence((e) => { e.attempts[0].queue_marker = 'changed'; });
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base }), /attempt/i, 'halted evidence attempt differs from the revision attempt');
+  } finally { r.clean(); }
+  const raw = r5LineageCopy();
+  try {
+    const base = { evidenceFile: path.join(raw.dir, raw.lineage.evidence.file), freezeFile: path.join(raw.dir, raw.lineage.freeze.file), rawBase: path.join(raw.dir, `${R4_EVIDENCE_REL}.raw`) };
+    fs.appendFileSync(path.join(base.rawBase, 'CR4-DESKTOP-MOBILE-FIRST/attempt-01/playwright-report.json'), ' ');
+    assert.throws(() => recovery.carriedFirstWindowR5(root, base), /raw|sha|differ|hash|report/i, 'changed raw report');
+  } finally { raw.clean(); }
+});
