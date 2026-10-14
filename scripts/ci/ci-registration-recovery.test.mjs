@@ -2777,6 +2777,310 @@ test('the R3 run refuses any freeze or evidence outside the reviewed R3 paths', 
   } finally { h.clean(); }
 });
 
+// ---- Phase 253 plan 60 task 3: R3 budget-approval binding, host probe, retry eligibility, halt rows and terminal evidence ----
+function approvalRepoR3() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-approval-r3-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R3.md');
+  fs.writeFileSync(budget, '# budgets r3\n');
+  const freezeFile = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json');
+  const freeze = { schema_version: 'sigra.phase253.registration-load-recovery-freeze/v3', budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R3.md`, sha256: sha(fs.readFileSync(budget)) } };
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze)}\n`);
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  return { dir, budget, freezeFile, freeze, approval: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('recording an R3 approval is exclusive, writes the v2 record bound to the R3 budget and freeze, and anything but approve writes nothing', () => {
+  const r = approvalRepoR3();
+  try {
+    for (const decision of ['reject', 'maybe', undefined]) {
+      assert.throws(() => recovery.recordBudgetApprovalR3({ decision, budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no' }, r.dir, { enforcePaths: false }), /decision|grants no capacity/i);
+      assert.equal(fs.existsSync(r.approval), false);
+    }
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: '  ' }, r.dir, { enforcePaths: false }), /decision text/i);
+    const record = recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'approve exactly as written' }, r.dir, { enforcePaths: false, now: () => '2026-10-14T09:00:00.000Z' });
+    const onDisk = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    assert.deepEqual(onDisk, record);
+    assert.equal(onDisk.schema_version, 'sigra.phase253.load-recovery-budget-approval/v2');
+    assert.equal(onDisk.decision, 'approve');
+    assert.equal(onDisk.decision_text, 'approve exactly as written');
+    assert.equal(onDisk.budget_sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(onDisk.freeze_sha256, sha(fs.readFileSync(r.freezeFile)));
+    assert.deepEqual(onDisk.caps, R3_APPROVE.caps);
+    assert.equal(onDisk.retry_granted, 1);
+    assert.equal(onDisk.recorded_at, '2026-10-14T09:00:00.000Z');
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'again' }, r.dir, { enforcePaths: false }), /EEXIST|exist|exclusive/i);
+    assert.equal(JSON.parse(fs.readFileSync(r.approval, 'utf8')).decision, 'approve', 'the first record is never overwritten');
+  } finally { r.clean(); }
+});
+
+test('an R3 approve-without-retry grants no retry, a budget mismatch refuses to record, and the R3 recorder pins its reviewed paths', () => {
+  const r = approvalRepoR3();
+  try {
+    const record = recovery.recordBudgetApprovalR3({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no retry' }, r.dir, { enforcePaths: false });
+    assert.equal(record.retry_granted, 0);
+    assert.deepEqual(record.caps, R3_APPROVE_NO_RETRY.caps);
+    fs.rmSync(r.approval);
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir), /reviewed R3 budget, freeze and approval paths/i);
+    fs.writeFileSync(r.budget, '# budgets r3 (edited)\n');
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
+    assert.equal(fs.existsSync(r.approval), false);
+  } finally { r.clean(); }
+});
+
+test('the approval recorder CLI routes the R3 freeze path and still refuses a reject decision without writing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json');
+  assert.equal(fs.existsSync(out), false, 'no R3 approval exists before Jon decides');
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R3.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out), false);
+});
+
+test('an R3 run needs a committed v2 approval bound to the R3 budget and freeze, and the R2 approval is refused', () => {
+  const r = approvalRepoR3();
+  try {
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /absent|missing/i);
+    recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'ok' }, r.dir, { enforcePaths: false });
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /committed/i);
+    gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'approval');
+    const good = recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze);
+    assert.equal(good.decision, 'approve');
+    assert.equal(good.retry_granted, 1);
+    fs.writeFileSync(r.approval, `${fs.readFileSync(r.approval, 'utf8')} `);
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /committed|differs/i);
+    gitIn(r.dir, 'checkout', '--', '.');
+    const edited = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    const commit = (value, message) => { fs.writeFileSync(r.approval, `${JSON.stringify(value, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', message); };
+    commit({ ...edited, budget_sha256: 'f'.repeat(64) }, 'bad budget');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /budget/i);
+    commit({ ...edited, freeze_sha256: 'f'.repeat(64) }, 'bad freeze');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /freeze/i);
+    commit({ ...edited, caps: { ...edited.caps, d19_cap_ms: edited.caps.d19_cap_ms + 1 } }, 'bad caps');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /caps/i);
+    commit({ ...edited, schema_version: 'sigra.phase253.load-recovery-budget-approval/v1', caps: { new_allowance_ms: 645000, d19_cap_ms: 2687596, d19_launch_max: 11, shared_cap_ms: 5027596, physical_cli_max: 20 } }, 'r2 approval shape');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i, 'the R2 approval can never unlock R3');
+    commit({ ...edited, decision: 'reject' }, 'reject');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i);
+  } finally { r.clean(); }
+});
+
+test('an R3 run refuses before the predebit when approval is missing, unwired or the host proof fails', async () => {
+  for (const [label, overrides, pattern] of [
+    ['approval absent', { readApproval: () => { throw new Error('R3 budget approval record is absent'); } }, /approval/i],
+    ['host proof fails', { probeHost: async () => { throw new Error('host is not on AC power'); } }, /AC power/i]
+  ]) {
+    const h = loadHarnessR3();
+    try {
+      const before = h.read();
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, { ...h.makeDeps(), ...overrides }), pattern, label);
+      assert.deepEqual(h.read(), before, `${label}: no reservation, used slot or charge`);
+      assert.equal(h.calls.filter((call) => call[0] === 'tree' || call[0] === 'app').length, 0, label);
+    } finally { h.clean(); }
+  }
+  const h = loadHarnessR3();
+  try {
+    const { readApproval: _unused, ...withoutApproval } = h.makeDeps(); // eslint-disable-line no-unused-vars
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, withoutApproval), /approval/i, 'the default reader demands a committed R3 approval');
+    assert.deepEqual(h.calls, []);
+  } finally { h.clean(); }
+});
+
+test('the approval decides the ceilings that the R3 run enforces', async () => {
+  const mismatch = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(mismatch.freezeFile, R3_FIRST, mismatch.evidenceFile, mismatch.checkout, mismatch.makeDeps({ approval: R3_APPROVE_NO_RETRY })), /approval caps differ/i);
+    assert.deepEqual(mismatch.calls, []);
+  } finally { mismatch.clean(); }
+  const noRetry = loadHarnessR3();
+  try {
+    noRetry.writeEvidence(R3_APPROVE_NO_RETRY);
+    const result = await recovery.runLoadRecoverySlotR3(noRetry.freezeFile, R3_FIRST, noRetry.evidenceFile, noRetry.checkout, noRetry.makeDeps({ approval: R3_APPROVE_NO_RETRY }));
+    assert.equal(result.rows, 16);
+    assert.equal(noRetry.read().limits.max_total_ms, 5160682);
+  } finally { noRetry.clean(); }
+  const tight = loadHarnessR3();
+  try {
+    const evidence = tight.read(); evidence.limits.charged_duration_ms += 20000;
+    fs.writeFileSync(tight.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(tight.freezeFile, R3_FIRST, tight.evidenceFile, tight.checkout, tight.makeDeps()), /do not fit approved limits/i);
+    assert.deepEqual(tight.calls, []);
+  } finally { tight.clean(); }
+});
+
+test('the R3 verifier rejects a receipt without its host proof, a suspended host, a wrong charge sum and missing diagnostics', async () => {
+  const h = loadHarnessR3();
+  try {
+    await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    assert.deepEqual(evidence.attempts[0].host_awake, { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' });
+    const verify = (mutate) => { const copy = structuredClone(evidence); mutate(copy.attempts[0]); return r3Verify(h, copy); };
+    assert.equal(verify(() => {}).ok, true);
+    for (const [name, mutate, pattern] of [
+      ['no host_awake', (a) => { delete a.host_awake; }, /host_awake/],
+      ['not on AC', (a) => { a.host_awake.ac_power = false; }, /host_awake/],
+      ['no assertion hash', (a) => { a.host_awake.assertions_sha256 = 'x'; }, /host_awake/],
+      ['suspended true', (a) => { a.host.suspended = true; }, /suspended/],
+      ['suspension detected', (a) => { a.host.suspension_detected = true; }, /suspension/],
+      ['charge below the larger clock', (a) => { a.wall_duration_ms = a.charged_duration_ms + 10; }, /charge/],
+      ['charge is not the sum', (a) => { a.charged_duration_ms += 1; }, /setup charge plus the command charge/],
+      ['setup charge forged', (a) => { a.setup_charge_ms += 1; a.charged_duration_ms += 1; }, /setup charge is not max/],
+      ['command window forged', (a) => { a.command_timing.execution_ms += 1; }, /command/],
+      ['deadlines forged', (a) => { a.stage_deadlines.work_ms = 105000; }, /stage deadlines/],
+      ['no diagnostics', (a) => { a.diagnostics = null; }, /per-test JSONL/],
+      ['diagnostics without jsonl', (a) => { a.diagnostics.jsonl = null; }, /per-test JSONL/],
+      ['forged per-test rows', (a) => { a.per_test_rows[0].status = 'forged'; }, /per_test_rows/]
+    ]) {
+      const verdict = verify(mutate);
+      assert.equal(verdict.ok, false, name);
+      assert.match(verdict.errors.join(';'), pattern, name);
+    }
+    const tampered = structuredClone(evidence);
+    const jsonl = path.join(`${h.evidenceFile}.raw`, tampered.attempts[0].diagnostics.jsonl.path);
+    const original = fs.readFileSync(jsonl);
+    fs.appendFileSync(jsonl, ' ');
+    assert.match(r3Verify(h, tampered).errors.join(';'), /sha256/i, 'a changed JSONL no longer matches its receipt');
+    fs.writeFileSync(jsonl, original);
+  } finally { h.clean(); }
+});
+
+test('a host sleep halts as halted_infrastructure with per-test rows, stays charged and counted, and blocks every regular slot until the retry', async () => {
+  const h = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })), /work deadline|suspension/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].observed_outcome, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.eligible, true);
+    assert.equal(evidence.infrastructure_retry.halted_slot, R3_FIRST);
+    assert.equal(evidence.infrastructure_retry.cause, 'host_sleep');
+    assert.equal(evidence.infrastructure_halts.length, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.equal(evidence.limits.charged_duration_ms, 2150682 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+    assert.deepEqual(Object.keys(evidence.stop_record.per_test_rows[0]).sort(), ['duration_ms', 'first_error_line', 'project', 'status', 'title']);
+    assert.equal(r3Verify(h, evidence).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+  } finally { h.clean(); }
+});
+
+test('CR3-INFRA-RETRY runs once, needs a committed diagnostic and a granted retry, and re-runs the identical frozen selection', async () => {
+  const h = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /halted_infrastructure|infrastructure/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })));
+    const callsBefore = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /diagnostic/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', checkDiagnostic: () => { throw new Error('diagnostic is not committed'); } })), /not committed/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', approval: R3_APPROVE_NO_RETRY })), /retry|caps/i);
+    assert.equal(h.calls.length, callsBefore, 'every refusal happens before any spawn');
+
+    const result = await recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' }));
+    assert.equal(result.rows, 16);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.attempts[1].slot_id, 'CR3-INFRA-RETRY');
+    assert.equal(evidence.attempts[1].retry_of, R3_FIRST);
+    assert.deepEqual(evidence.attempts[1].argv, evidence.attempts[0].argv);
+    assert.deepEqual(evidence.attempts[1].diagnostics.per_test.length, 16);
+    assert.equal(evidence.infrastructure_retry.used, true);
+    assert.deepEqual(evidence.infrastructure_retry.diagnostic, { file: 'diag.json', sha256: 'd'.repeat(64) });
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.deepEqual(evidence.limits.used_slots, [...R3_SPENT, R3_FIRST, 'CR3-INFRA-RETRY']);
+    assert.equal(evidence.limits.charged_duration_ms, 2150682 + evidence.attempts[0].charged_duration_ms + evidence.attempts[1].charged_duration_ms);
+    const verdict = r3Verify(h, evidence);
+    assert.deepEqual(verdict.errors, [], 'the original stays in attempts and the pair counts as one slot outcome');
+
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = drifted.attempts[1].argv.filter((arg) => arg !== '--project=admin-eval-dark');
+    assert.equal(r3Verify(h, drifted).ok, false, 'a retry with another selection is rejected');
+    const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
+    assert.equal(r3Verify(h, noDiagnostic).ok, false, 'a retry without a recorded diagnostic is rejected');
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure|already/i, 'the retry is usable once');
+  } finally { h.clean(); }
+});
+
+test('the R3 retry is never available after an assertion failure, a setup failure without suspension, a non-suspension overrun, a second infrastructure halt or approve-without-retry', async () => {
+  const cases = [
+    ['assertion failure', { cliExit: 0 }],
+    ['assertion row failure with a suspension flag', { suspendFlag: true, failRow: true }],
+    ['setup failure without suspension', { setupExit: 1 }],
+    ['non-suspension setup overrun', { setupMs: 61000 }],
+    ['non-suspension deadline kill', { cliTimedOut: true }]
+  ];
+  for (const [label, options] of cases) {
+    const h = loadHarnessR3();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps(options)), undefined, label);
+      assert.equal(h.read().status, 'halted', label);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i, label);
+    } finally { h.clean(); }
+  }
+
+  const second = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(second.freezeFile, R3_FIRST, second.evidenceFile, second.checkout, second.makeDeps({ suspendBrowser: true })));
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(second.freezeFile, 'CR3-INFRA-RETRY', second.evidenceFile, second.checkout, second.makeDeps({ diagnosticFile: 'diag.json', suspendBrowser: true })));
+    const evidence = second.read();
+    assert.equal(evidence.status, 'halted', 'a second infrastructure halt is terminal');
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.stop_record.slot_id, 'CR3-INFRA-RETRY');
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { second.clean(); }
+
+  const withoutRetry = loadHarnessR3();
+  try {
+    withoutRetry.writeEvidence(R3_APPROVE_NO_RETRY);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(withoutRetry.freezeFile, R3_FIRST, withoutRetry.evidenceFile, withoutRetry.checkout, withoutRetry.makeDeps({ approval: R3_APPROVE_NO_RETRY, suspendBrowser: true })));
+    assert.equal(withoutRetry.read().status, 'halted', 'no retry was granted, so the infrastructure halt is terminal');
+  } finally { withoutRetry.clean(); }
+});
+
+test('a suspension during setup and a lost caffeinate holder are infrastructure halts that never launched the CLI or lost the host', async () => {
+  const setupSleep = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(setupSleep.freezeFile, R3_FIRST, setupSleep.evidenceFile, setupSleep.checkout, setupSleep.makeDeps({ setupSuspended: true, setupExit: 1 })));
+    const evidence = setupSleep.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].playwright_cli.launched, false);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 7);
+    assert.deepEqual(evidence.stop_record.per_test_rows, []);
+    assert.equal(evidence.stop_record.cli_launched, false);
+  } finally { setupSleep.clean(); }
+  const lost = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(lost.freezeFile, R3_FIRST, lost.evidenceFile, lost.checkout, lost.makeDeps({ holderAlive: () => false })), /holder/i);
+    const evidence = lost.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.cause, 'holder_lost');
+    assert.equal(evidence.attempts[0].host.holder_alive_at_end, false);
+  } finally { lost.clean(); }
+});
+
+test('R3 accepted evidence verifies by git ancestry and object reads after a later committed runner change, while a live check still demands the working tree', () => {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-terminal-r3-')));
+  try {
+    gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'freeze point');
+    const frozenHead = gitIn(dir, 'rev-parse', 'HEAD');
+    const freeze = { source: { checkout_head: frozenHead, blobs: { 'runner.mjs': gitIn(dir, 'rev-parse', `${frozenHead}:runner.mjs`) } } };
+    assert.equal(recovery.verifyFrozenSourceBindingR3(dir, freeze, { terminal: false }), frozenHead);
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true; export const later = 1;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'later runner change');
+    assert.throws(() => recovery.verifyFrozenSourceBindingR3(dir, freeze, { terminal: false }), /identity mismatch/i, 'init, prepare and run demand working-tree equality');
+    assert.equal(recovery.verifyFrozenSourceBindingR3(dir, freeze, { terminal: true }), gitIn(dir, 'rev-parse', 'HEAD'), 'accepted evidence is not silently invalidated');
+    const forged = structuredClone(freeze); forged.source.blobs['runner.mjs'] = '0'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR3(dir, forged, { terminal: true }), /blob mismatch/i);
+    const notAncestor = structuredClone(freeze); notAncestor.source.checkout_head = '1'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR3(dir, notAncestor, { terminal: true }), /ancestor/i);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
 test.after(() => {
   net.Socket.prototype.connect = originalConnect;
   net.Server.prototype.listen = originalListen;
