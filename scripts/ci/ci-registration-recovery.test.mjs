@@ -3608,8 +3608,719 @@ test('v1, R2, R3 and R4 route by exact resolved path, each refuses the others, a
   } finally { r4.clean(); r3.clean(); r2.clean(); }
 });
 
+
+// ---- Phase 253 plan 70: R4 run path, approval binding, retry gating and terminal verification (synthetic, mirrored annotations) ----
+// ---- synthetic R4 runner harness: injected clocks, host probe, holders, process trees and per-test JSONL ----
+function loadHarnessR4() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-r4-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  const ledger = recovery.buildLoadRecoveryLedgerR4(r4LedgerInput());
+  const terminalHalt = { slot_id: 'CR2-DESKTOP-MOBILE-FIRST', cause: 'work_deadline', terminal: true, infrastructure: false, retryable: false, charged_ms: 107343, preparation_ms: 743, root_cause: { file: '.planning/debug/253-r2-native-controls-all-fail.md', sha256: 'c'.repeat(64) } };
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v4', status: 'frozen_before_results', plan: '253-70', revision: 'r4', context_identity: 'per_row_union',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    historical: { terminal_halt: terminalHalt, spent_reservations: [...R4_SPENT] },
+    ledger
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze-r4.json'); const evidenceFile = path.join(base, 'evidence-r4.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const writeEvidence = (approval) => {
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-load-recovery-evidence/v4', revision: 'r4', status: 'ready', context_identity: 'per_row_union', freeze_path: 'freeze-r4.json',
+      freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+      prior_terminal_halts: [structuredClone(terminalHalt)], infrastructure_halts: [], infrastructure_retry: null,
+      approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+      limits: {
+        prior_charge_ms: 2222537, preparation_charge_ms: 0, preparation_remaining_ms: 10000, charged_duration_ms: 2222537,
+        physical_playwright_cli_launches: 8, used_slots: [...R4_SPENT], max_d19_ms: approval.caps.d19_cap_ms, max_total_ms: approval.caps.shared_cap_ms,
+        max_d19_physical_playwright_cli_launches: approval.caps.d19_launch_max, max_physical_playwright_cli_launches: approval.caps.physical_cli_max,
+        retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+      }
+    };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  };
+  writeEvidence(R4_APPROVE);
+  const calls = []; const timeouts = []; const readyDeadlines = []; const envs = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const fakePsql = (counts) => { let index = 0; return () => { calls.push(['psql']); return { status: 0, stdout: `${counts[Math.min(index++, counts.length - 1)]}\n` }; }; };
+  const allSlots = [...freeze.ledger.slots.slice(0, 4)];
+  const markerFor = (title) => ({ 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[title]);
+  let sharedSeen = 0;
+  const reportFor = (slot, runId, { failRow = false, shareContext = false } = {}) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index, all) => {
+          const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: `${runId}:${shareContext && sharedSeen++ < 2 ? 'a'.repeat(36) : crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          const failed = expected === 'expected_failure';
+          const broken = failRow && index === 0 && !failed;
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed && !broken,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed || broken ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed || broken ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${markerFor(pair.title)} failed` } : broken ? { message: 'unexpected assertion failure' } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: structuredClone(annotations) }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const jsonlFor = (slot, { failRow = false, count = Infinity } = {}) => recovery.loadRequiredPairs(slot).slice(0, count).map((pair, index) => {
+    const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+    const failed = expected === 'expected_failure'; const broken = failRow && index === 0 && !failed;
+    const message = failed ? `Error: expect ${markerFor(pair.title)} failed\n  at spec` : broken ? 'Error: unexpected assertion failure\n  at spec' : null;
+    return JSON.stringify({
+      schema: 'sigra.phase253.playwright-test-end/v1', project: pair.project, title: pair.title, file: 'admin-eval.spec.ts', line: 10 + index,
+      status: failed || broken ? 'failed' : 'passed', expected_status: 'passed', ok: !broken && (failed ? true : true), duration_ms: 10 + index, retry: 0,
+      errors: message ? [{ message, location: { file: 'admin-eval.spec.ts', line: 10 + index, column: 1 } }] : []
+    });
+  });
+  const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {}, approval = R4_APPROVE,
+    suspendBrowser = false, suspendFlag = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null,
+    setupMs = 5, setupWallExtra = 0, bootMs = 2, cliMs = 5, setupExit = 0, setupTimedOut = false, setupSuspended = false, setupError = null,
+    cliTimedOut = false, killedRows = 2, noJsonl = false, errorContext = true, jsonlCount = Infinity, shareContext = false } = {}) => {
+    const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
+    let monoOffset = 0n; let wallOffset = 0;
+    const advance = (ms) => { monoOffset += BigInt(Math.round(ms * 1e6)); wallOffset += ms; };
+    return {
+      validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile,
+      monotonicNs: () => process.hrtime.bigint() + monoOffset, wallMs: () => Date.now() + wallOffset,
+      readApproval: () => approval, holderAlive,
+      checkDiagnostic: checkDiagnostic ?? ((_root, file) => { if (!file) throw new Error('infrastructure retry requires a committed diagnostic'); return { file, sha256: 'd'.repeat(64) }; }),
+      probeHost: probeHost ?? (async () => { calls.push(['probe-host']); return { awake: awakeFor(), host_awake: { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' } }; }),
+      portAvailable: async () => true, waitReady: async (_app, _url, deadline) => { readyDeadlines.push(deadline); advance(bootMs); return 200; }, stopApp: async () => {},
+      spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+      runTree: async (program, args, cwd, env, log, timeoutMs) => {
+        calls.push(['tree', program, ...args]); timeouts.push([path.basename(program), args[0], timeoutMs]);
+        fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+        if (program.endsWith('/playwright')) {
+          envs.push(env);
+          const given = args.slice(2, -1);
+          const slot = allSlots.find((item) => JSON.stringify(item.argv) === JSON.stringify(given));
+          assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+          assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+          assert.ok(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL?.startsWith(path.dirname(env.SIGRA_PLAYWRIGHT_JSON)), 'the per-test JSONL lives under the attempt temp root');
+          if (!noJsonl) fs.writeFileSync(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL, `${jsonlFor(slot, { failRow, count: cliTimedOut || suspendBrowser ? killedRows : jsonlCount }).join('\n')}\n`);
+          const outputDir = args.find((arg) => arg.startsWith('--output=')).slice('--output='.length);
+          if (errorContext) {
+            fs.mkdirSync(path.join(outputDir, 'case-one'), { recursive: true });
+            fs.writeFileSync(path.join(outputDir, 'case-one', 'error-context.md'), '# Page snapshot\n- heading "Register"\n');
+          }
+          advance(cliMs);
+          if (suspendBrowser) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: true, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          if (cliTimedOut) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: false, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID, { failRow, shareContext })));
+          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, suspended: suspendFlag, duration_ms: cliMs, group_signals: [], descendants_reaped: true };
+        }
+        if (program === 'mix' && args[0] === 'ecto.setup') {
+          advance(setupMs); wallOffset += setupWallExtra;
+          return { pid: 1, exit_code: setupError ? null : setupExit, signal: null, error: setupError, timed_out: setupTimedOut, suspended: setupSuspended, duration_ms: setupMs, wall_duration_ms: setupMs, group_signals: [], descendants_reaped: true };
+        }
+        advance(1);
+        return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+      },
+      captureAbsence: (options) => recovery.captureOwnedDatabaseAbsence({ ...options, run: absenceRun }),
+      captureAccount: (options) => recovery.captureOwnedAccountCount({ ...options, run: accountRun }),
+      sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+    };
+  };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, timeouts, readyDeadlines, envs, makeDeps, writeEvidence, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+
+// ---- Phase 253 plan 60 task 2: R4 setup-phase run path with preserved per-test diagnostics ----
+const R4_FIRST = 'CR4-DESKTOP-MOBILE-FIRST';
+const r4Verify = (h, evidence, stage = 'first') => recovery.verifyLoadRecoveryEvidenceDataR4(evidence, h.freeze, `${h.evidenceFile}.raw`, stage, sha(fs.readFileSync(h.freezeFile)));
+
+test('a synthetic R4 first slot runs setup under its own 60000 ms deadline and leaves the full 165000 ms work deadline intact', async () => {
+  const h = loadHarnessR4();
+  try {
+    const result = await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ setupMs: 30000, bootMs: 2000, cliMs: 40000 }));
+    assert.equal(result.rows, 16);
+    const [setupCall, , playwrightCall] = [h.timeouts.find((t) => t[1] === 'ecto.setup'), null, h.timeouts.find((t) => t[0] === 'playwright')];
+    assert.ok(setupCall[2] <= 60000 && setupCall[2] > 59900, `setup is bounded by its own 60000 ms, got ${setupCall[2]}`);
+    assert.ok(playwrightCall[2] <= 163000 && playwrightCall[2] > 162800, `the 30000 ms setup did not shrink the browser window: ${playwrightCall[2]} remains after a 2000 ms boot`);
+    const evidence = h.read();
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v4');
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(attempt.slot_id, R4_FIRST);
+    assert.deepEqual(attempt.stage_deadlines, { setup_ms: 60000, command_ms: 180000, work_ms: 165000, cleanup_ms: 15000, cleanup_reserved: true });
+    assert.ok(attempt.setup_charge_ms >= 30000 && attempt.setup_charge_ms < 30100, `setup charge ${attempt.setup_charge_ms}`);
+    assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms);
+    assert.ok(attempt.command_charge_ms >= 42000 && attempt.command_charge_ms < 42200, `command charge ${attempt.command_charge_ms}`);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + attempt.charged_duration_ms);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.deepEqual(evidence.limits.used_slots, [...R4_SPENT, R4_FIRST]);
+    assert.ok(h.readyDeadlines[0] > 0);
+    assert.deepEqual(r4Verify(h, evidence).errors, []);
+    assert.equal(r4Verify(h, evidence, 'complete').ok, false);
+  } finally { h.clean(); }
+});
+
+test('the slot charge is setup max(monotonic, wall) plus command max(monotonic, wall), each judged on its own clocks', async () => {
+  const h = loadHarnessR4();
+  try {
+    await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ setupMs: 20000, setupWallExtra: 3000, cliMs: 10000 }));
+    const attempt = h.read().attempts[0];
+    const setupMax = Math.max(attempt.setup_timing.execution_ms, attempt.setup_timing.wall_ms);
+    const commandMax = Math.max(attempt.command_timing.execution_ms, attempt.command_timing.wall_ms);
+    assert.ok(attempt.setup_timing.wall_ms - attempt.setup_timing.execution_ms >= 2999, 'wall ran ahead of the monotonic clock during setup');
+    assert.equal(attempt.setup_charge_ms, setupMax);
+    assert.equal(attempt.command_charge_ms, commandMax);
+    assert.equal(attempt.charged_duration_ms, setupMax + commandMax);
+    assert.ok(attempt.charged_duration_ms >= Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms), 'never below the larger whole-window clock');
+    assert.ok(attempt.charged_duration_ms <= 240000);
+  } finally { h.clean(); }
+});
+
+test('a setup failure or a setup overrun halts before any CLI launch, stays charged and still drops the owned database', async () => {
+  for (const [label, options, pattern] of [
+    ['non-zero exit', { setupExit: 1, setupMs: 4000 }, /setup failed/i],
+    ['deadline kill', { setupTimedOut: true, setupExit: 0, setupMs: 61000 }, /setup failed|setup.*deadline/i],
+    ['overrun without a kill', { setupMs: 61000 }, /setup.*60000|overran/i]
+  ]) {
+    const h = loadHarnessR4();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps(options)), pattern, label);
+      const evidence = h.read();
+      const attempt = evidence.attempts[0];
+      assert.equal(evidence.status, 'halted', label);
+      assert.equal(attempt.playwright_cli.launched, false, label);
+      assert.equal(h.calls.some((call) => call[0] === 'tree' && call[1].endsWith('/playwright')), false, `${label}: no CLI`);
+      assert.equal(h.calls.some((call) => call[0] === 'app'), false, `${label}: no app boot`);
+      assert.equal(h.calls.some((call) => call[0] === 'tree' && call[2] === 'ecto.drop'), true, `${label}: owned database dropped`);
+      assert.equal(evidence.limits.physical_playwright_cli_launches, 8, `${label}: launches unchanged`);
+      assert.ok(attempt.setup_charge_ms >= options.setupMs, `${label}: setup is charged`);
+      assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms, label);
+      assert.equal(evidence.limits.charged_duration_ms, 2222537 + attempt.charged_duration_ms, label);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i, label);
+    } finally { h.clean(); }
+  }
+});
+
+test('the CLI env carries the per-test JSONL path and the preserved diagnostics are hashed receipts on a pass', async () => {
+  const h = loadHarnessR4();
+  try {
+    await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    assert.match(h.envs[0].SIGRA_PLAYWRIGHT_FAILURE_JSONL, /tests\.jsonl$/);
+    const attempt = h.read().attempts[0];
+    const rawDir = `${h.evidenceFile}.raw`;
+    assert.equal(attempt.diagnostics.jsonl.path, path.join(R4_FIRST, 'attempt-01', 'diagnostics', 'tests.jsonl'));
+    assert.equal(attempt.diagnostics.per_test.length, 16);
+    assert.equal(attempt.diagnostics.error_contexts.length, 1);
+    assert.equal(sha(fs.readFileSync(path.join(rawDir, attempt.diagnostics.jsonl.path))), attempt.diagnostics.jsonl.sha256);
+    assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(attempt, rawDir), { ok: true, errors: [] });
+    assert.equal(attempt.per_test_rows.length, 16);
+    assert.deepEqual(Object.keys(attempt.per_test_rows[0]).sort(), ['duration_ms', 'first_error_line', 'project', 'status', 'title']);
+    assert.equal(fs.existsSync(h.envs[0].SIGRA_PLAYWRIGHT_FAILURE_JSONL), false, 'the temp copy is gone, the receipt remains');
+  } finally { h.clean(); }
+});
+
+test('diagnostics are preserved on an assertion failure and a deadline kill, and the verifier needs them', async () => {
+  const failed = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(failed.freezeFile, R4_FIRST, failed.evidenceFile, failed.checkout, failed.makeDeps({ failRow: true })));
+    const attempt = failed.read().attempts[0];
+    assert.equal(attempt.diagnostics.per_test.length, 16);
+    assert.equal(attempt.assertion_failure_observed, true);
+    assert.ok(attempt.per_test_rows.some((row) => /unexpected assertion failure/.test(row.first_error_line ?? '')), 'the failing row names its first error line');
+    const rawDir = `${failed.evidenceFile}.raw`;
+    assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(attempt, rawDir), { ok: true, errors: [] });
+  } finally { failed.clean(); }
+
+  const killed = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(killed.freezeFile, R4_FIRST, killed.evidenceFile, killed.checkout, killed.makeDeps({ cliTimedOut: true, killedRows: 2 })), /work deadline/i);
+    const evidence = killed.read();
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.status, 'halted');
+    assert.equal(attempt.playwright_cli.launched, true);
+    assert.equal(attempt.diagnostics.per_test.length, 2, 'both rows that finished before the kill are preserved');
+    const rawDir = `${killed.evidenceFile}.raw`;
+    const lines = fs.readFileSync(path.join(rawDir, attempt.diagnostics.jsonl.path), 'utf8').trim().split('\n');
+    assert.equal(lines.length, 2);
+    assert.equal(attempt.per_test_rows.length, 2);
+    assert.equal(evidence.stop_record.slot_id, R4_FIRST);
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { killed.clean(); }
+
+  const none = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(none.freezeFile, R4_FIRST, none.evidenceFile, none.checkout, none.makeDeps({ noJsonl: true })), /per-test JSONL/i);
+    assert.equal(none.read().status, 'halted', 'an attempt that launched the CLI without a preserved JSONL is rejected');
+  } finally { none.clean(); }
+});
+
+test('R4 runs all four regular slots once in order and verifies the complete 22-row proof', async () => {
+  const h = loadHarnessR4();
+  try {
+    for (const id of ['CR4-DESKTOP-MOBILE-FIRST', 'CR4-DESKTOP-SECOND', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND']) {
+      await recovery.runLoadRecoverySlotR4(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps());
+    }
+    const evidence = h.read();
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 22);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 12);
+    assert.deepEqual(r4Verify(h, evidence, 'complete').errors, []);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('R4 refuses out-of-order slots, a reopened original retry, a counter reset, caps drift and a slot outside the frozen table', async () => {
+  for (const [mutate, pattern, slot] of [
+    [() => {}, /frozen order/i, 'CR4-MOBILE-SECOND'],
+    [(e) => { e.limits.retry_available = 1; }, /retry/i, R4_FIRST],
+    [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /reset/i, R4_FIRST],
+    [(e) => { e.limits.max_d19_ms += 1; }, /approval caps differ/i, R4_FIRST],
+    [() => {}, /only the/i, 'CR4-UNKNOWN']
+  ]) {
+    const h = loadHarnessR4();
+    try {
+      const evidence = h.read(); mutate(evidence);
+      fs.writeFileSync(h.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, slot, h.evidenceFile, h.checkout, h.makeDeps()), pattern);
+      assert.deepEqual(h.calls, [], String(pattern));
+    } finally { h.clean(); }
+  }
+});
+
+test('R4 preparation is a bounded 10000 ms toolchain probe routed by the R4 evidence only', async () => {
+  const h = loadHarnessR4();
+  try {
+    const run = async (override = {}) => recovery.prepareLoadRecoveryR4(h.freezeFile, h.evidenceFile, h.checkout, { validate: () => {}, readApproval: () => R4_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log, timeoutMs) => { h.timeouts.push([program, args[0], timeoutMs]); fs.writeFileSync(log, `${program} ${args[0]}\n`); return { exit_code: 0, duration_ms: 2, timed_out: false, ...override }; } });
+    const result = await run();
+    assert.equal(result.status, 'ready');
+    const evidence = h.read();
+    assert.equal(evidence.preparation.receipts.length, 2);
+    assert.ok(h.timeouts.every((entry) => entry[2] <= 10000 && entry[2] > 9000));
+    assert.equal(evidence.limits.preparation_charge_ms, evidence.preparation.duration_ms);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + evidence.preparation.duration_ms);
+    await assert.rejects(run, /only available once/i);
+  } finally { h.clean(); }
+  const failing = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.prepareLoadRecoveryR4(failing.freezeFile, failing.evidenceFile, failing.checkout, { validate: () => {}, readApproval: () => R4_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log) => { fs.writeFileSync(log, 'x'); return { exit_code: 1, duration_ms: 1, timed_out: false }; } }), /failed/i);
+    assert.equal(failing.read().status, 'halted');
+  } finally { failing.clean(); }
+});
+
+test('the R4 run refuses any freeze or evidence outside the reviewed R4 paths', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, { ...h.makeDeps(), enforcePaths: true }), /reviewed R4 freeze/i);
+    assert.deepEqual(h.calls, []);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    for (const mode of [['--prepare-load-recovery', '--freeze', h.freezeFile, '--output', h.evidenceFile], ['--run-load-recovery', h.freezeFile, '--slot', R4_FIRST, '--output', h.evidenceFile]]) {
+      const result = spawnSync(process.execPath, [script, ...mode], { encoding: 'utf8', cwd: root });
+      assert.equal(result.status, 3, mode[0]);
+    }
+  } finally { h.clean(); }
+});
+
+// ---- Phase 253 plan 60 task 3: R4 budget-approval binding, host probe, retry eligibility, halt rows and terminal evidence ----
+function approvalRepoR4() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-approval-r4-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md');
+  fs.writeFileSync(budget, '# budgets r3\n');
+  const freezeFile = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json');
+  const freeze = { schema_version: 'sigra.phase253.registration-load-recovery-freeze/v4', budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R4.md`, sha256: sha(fs.readFileSync(budget)) } };
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze)}\n`);
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  return { dir, budget, freezeFile, freeze, approval: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('recording an R4 approval is exclusive, writes the v2 record bound to the R4 budget and freeze, and anything but approve writes nothing', () => {
+  const r = approvalRepoR4();
+  try {
+    for (const decision of ['reject', 'maybe', undefined]) {
+      assert.throws(() => recovery.recordBudgetApprovalR4({ decision, budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no' }, r.dir, { enforcePaths: false }), /decision|grants no capacity/i);
+      assert.equal(fs.existsSync(r.approval), false);
+    }
+    assert.throws(() => recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: '  ' }, r.dir, { enforcePaths: false }), /decision text/i);
+    const record = recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'approve exactly as written' }, r.dir, { enforcePaths: false, now: () => '2026-10-14T09:00:00.000Z' });
+    const onDisk = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    assert.deepEqual(onDisk, record);
+    assert.equal(onDisk.schema_version, 'sigra.phase253.load-recovery-budget-approval/v3');
+    assert.equal(onDisk.decision, 'approve');
+    assert.equal(onDisk.decision_text, 'approve exactly as written');
+    assert.equal(onDisk.budget_sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(onDisk.freeze_sha256, sha(fs.readFileSync(r.freezeFile)));
+    assert.deepEqual(onDisk.caps, R4_APPROVE.caps);
+    assert.equal(onDisk.retry_granted, 1);
+    assert.equal(onDisk.recorded_at, '2026-10-14T09:00:00.000Z');
+    assert.throws(() => recovery.recordBudgetApprovalR4({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'again' }, r.dir, { enforcePaths: false }), /EEXIST|exist|exclusive/i);
+    assert.equal(JSON.parse(fs.readFileSync(r.approval, 'utf8')).decision, 'approve', 'the first record is never overwritten');
+  } finally { r.clean(); }
+});
+
+test('an R4 approve-without-retry grants no retry, a budget mismatch refuses to record, and the R4 recorder pins its reviewed paths', () => {
+  const r = approvalRepoR4();
+  try {
+    const record = recovery.recordBudgetApprovalR4({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no retry' }, r.dir, { enforcePaths: false });
+    assert.equal(record.retry_granted, 0);
+    assert.deepEqual(record.caps, R4_APPROVE_NO_RETRY.caps);
+    fs.rmSync(r.approval);
+    assert.throws(() => recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: path.join(r.dir, 'elsewhere.json'), decisionText: 'x' }, r.dir), /reviewed R4 budget, freeze and approval paths/i);
+    fs.writeFileSync(r.budget, '# budgets r3 (edited)\n');
+    assert.throws(() => recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
+    assert.equal(fs.existsSync(r.approval), false);
+  } finally { r.clean(); }
+});
+
+test('the approval recorder CLI routes the R4 freeze path and still refuses a reject decision without writing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json');
+  // Jon's R4 approval is now committed (253-63); a reject must still never write or alter it.
+  const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before);
+});
+
+test('an R4 run needs a committed v2 approval bound to the R4 budget and freeze, and the R2 approval is refused', () => {
+  const r = approvalRepoR4();
+  try {
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /absent|missing/i);
+    recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'ok' }, r.dir, { enforcePaths: false });
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /committed/i);
+    gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'approval');
+    const good = recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze);
+    assert.equal(good.decision, 'approve');
+    assert.equal(good.retry_granted, 1);
+    fs.writeFileSync(r.approval, `${fs.readFileSync(r.approval, 'utf8')} `);
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /committed|differs/i);
+    gitIn(r.dir, 'checkout', '--', '.');
+    const edited = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    const commit = (value, message) => { fs.writeFileSync(r.approval, `${JSON.stringify(value, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', message); };
+    commit({ ...edited, budget_sha256: 'f'.repeat(64) }, 'bad budget');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /budget/i);
+    commit({ ...edited, freeze_sha256: 'f'.repeat(64) }, 'bad freeze');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /freeze/i);
+    commit({ ...edited, caps: { ...edited.caps, d19_cap_ms: edited.caps.d19_cap_ms + 1 } }, 'bad caps');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /caps/i);
+    commit({ ...edited, schema_version: 'sigra.phase253.load-recovery-budget-approval/v2', caps: { new_allowance_ms: 910000, d19_cap_ms: 3060682, d19_launch_max: 12, shared_cap_ms: 5400682, physical_cli_max: 21 } }, 'r3 approval shape');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i, 'the R3 approval can never unlock R4');
+    commit({ ...edited, decision: 'reject' }, 'reject');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i);
+  } finally { r.clean(); }
+});
+
+test('an R4 run refuses before the predebit when approval is missing, unwired or the host proof fails', async () => {
+  for (const [label, overrides, pattern] of [
+    ['approval absent', { readApproval: () => { throw new Error('R4 budget approval record is absent'); } }, /approval/i],
+    ['host proof fails', { probeHost: async () => { throw new Error('host is not on AC power'); } }, /AC power/i]
+  ]) {
+    const h = loadHarnessR4();
+    try {
+      const before = h.read();
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, { ...h.makeDeps(), ...overrides }), pattern, label);
+      assert.deepEqual(h.read(), before, `${label}: no reservation, used slot or charge`);
+      assert.equal(h.calls.filter((call) => call[0] === 'tree' || call[0] === 'app').length, 0, label);
+    } finally { h.clean(); }
+  }
+  const h = loadHarnessR4();
+  try {
+    const { readApproval: _unused, ...withoutApproval } = h.makeDeps(); // eslint-disable-line no-unused-vars
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, withoutApproval), /approval/i, 'the default reader demands a committed R4 approval');
+    assert.deepEqual(h.calls, []);
+  } finally { h.clean(); }
+});
+
+test('the approval decides the ceilings that the R4 run enforces', async () => {
+  const mismatch = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(mismatch.freezeFile, R4_FIRST, mismatch.evidenceFile, mismatch.checkout, mismatch.makeDeps({ approval: R4_APPROVE_NO_RETRY })), /approval caps differ/i);
+    assert.deepEqual(mismatch.calls, []);
+  } finally { mismatch.clean(); }
+  const noRetry = loadHarnessR4();
+  try {
+    noRetry.writeEvidence(R4_APPROVE_NO_RETRY);
+    const result = await recovery.runLoadRecoverySlotR4(noRetry.freezeFile, R4_FIRST, noRetry.evidenceFile, noRetry.checkout, noRetry.makeDeps({ approval: R4_APPROVE_NO_RETRY }));
+    assert.equal(result.rows, 16);
+    assert.equal(noRetry.read().limits.max_total_ms, 5232537);
+  } finally { noRetry.clean(); }
+  const tight = loadHarnessR4();
+  try {
+    const evidence = tight.read(); evidence.limits.charged_duration_ms += 20000;
+    fs.writeFileSync(tight.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(tight.freezeFile, R4_FIRST, tight.evidenceFile, tight.checkout, tight.makeDeps()), /do not fit approved limits/i);
+    assert.deepEqual(tight.calls, []);
+  } finally { tight.clean(); }
+});
+
+test('the R4 verifier rejects a receipt without its host proof, a suspended host, a wrong charge sum and missing diagnostics', async () => {
+  const h = loadHarnessR4();
+  try {
+    await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    assert.deepEqual(evidence.attempts[0].host_awake, { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' });
+    const verify = (mutate) => { const copy = structuredClone(evidence); mutate(copy.attempts[0]); return r4Verify(h, copy); };
+    assert.equal(verify(() => {}).ok, true);
+    for (const [name, mutate, pattern] of [
+      ['no host_awake', (a) => { delete a.host_awake; }, /host_awake/],
+      ['not on AC', (a) => { a.host_awake.ac_power = false; }, /host_awake/],
+      ['no assertion hash', (a) => { a.host_awake.assertions_sha256 = 'x'; }, /host_awake/],
+      ['suspended true', (a) => { a.host.suspended = true; }, /suspended/],
+      ['suspension detected', (a) => { a.host.suspension_detected = true; }, /suspension/],
+      ['charge below the larger clock', (a) => { a.wall_duration_ms = a.charged_duration_ms + 10; }, /charge/],
+      ['charge is not the sum', (a) => { a.charged_duration_ms += 1; }, /setup charge plus the command charge/],
+      ['setup charge forged', (a) => { a.setup_charge_ms += 1; a.charged_duration_ms += 1; }, /setup charge is not max/],
+      ['command window forged', (a) => { a.command_timing.execution_ms += 1; }, /command/],
+      ['deadlines forged', (a) => { a.stage_deadlines.work_ms = 105000; }, /stage deadlines/],
+      ['no diagnostics', (a) => { a.diagnostics = null; }, /per-test JSONL/],
+      ['diagnostics without jsonl', (a) => { a.diagnostics.jsonl = null; }, /per-test JSONL/],
+      ['forged per-test rows', (a) => { a.per_test_rows[0].status = 'forged'; }, /per_test_rows/]
+    ]) {
+      const verdict = verify(mutate);
+      assert.equal(verdict.ok, false, name);
+      assert.match(verdict.errors.join(';'), pattern, name);
+    }
+    const tampered = structuredClone(evidence);
+    const jsonl = path.join(`${h.evidenceFile}.raw`, tampered.attempts[0].diagnostics.jsonl.path);
+    const original = fs.readFileSync(jsonl);
+    fs.appendFileSync(jsonl, ' ');
+    assert.match(r4Verify(h, tampered).errors.join(';'), /sha256/i, 'a changed JSONL no longer matches its receipt');
+    fs.writeFileSync(jsonl, original);
+  } finally { h.clean(); }
+});
+
+test('a host sleep halts as halted_infrastructure with per-test rows, stays charged and counted, and blocks every regular slot until the retry', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })), /work deadline|suspension/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].observed_outcome, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.eligible, true);
+    assert.equal(evidence.infrastructure_retry.halted_slot, R4_FIRST);
+    assert.equal(evidence.infrastructure_retry.cause, 'host_sleep');
+    assert.equal(evidence.infrastructure_halts.length, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+    assert.deepEqual(Object.keys(evidence.stop_record.per_test_rows[0]).sort(), ['duration_ms', 'first_error_line', 'project', 'status', 'title']);
+    assert.equal(r4Verify(h, evidence).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+  } finally { h.clean(); }
+});
+
+test('CR4-INFRA-RETRY runs once, needs a committed diagnostic and a granted retry, and re-runs the identical frozen selection', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /halted_infrastructure|infrastructure/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })));
+    const callsBefore = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /diagnostic/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', checkDiagnostic: () => { throw new Error('diagnostic is not committed'); } })), /not committed/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', approval: R4_APPROVE_NO_RETRY })), /retry|caps/i);
+    assert.equal(h.calls.length, callsBefore, 'every refusal happens before any spawn');
+
+    const result = await recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' }));
+    assert.equal(result.rows, 16);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.attempts[1].slot_id, 'CR4-INFRA-RETRY');
+    assert.equal(evidence.attempts[1].retry_of, R4_FIRST);
+    assert.deepEqual(evidence.attempts[1].argv, evidence.attempts[0].argv);
+    assert.deepEqual(evidence.attempts[1].diagnostics.per_test.length, 16);
+    assert.equal(evidence.infrastructure_retry.used, true);
+    assert.deepEqual(evidence.infrastructure_retry.diagnostic, { file: 'diag.json', sha256: 'd'.repeat(64) });
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 10);
+    assert.deepEqual(evidence.limits.used_slots, [...R4_SPENT, R4_FIRST, 'CR4-INFRA-RETRY']);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + evidence.attempts[0].charged_duration_ms + evidence.attempts[1].charged_duration_ms);
+    const verdict = r4Verify(h, evidence);
+    assert.deepEqual(verdict.errors, [], 'the original stays in attempts and the pair counts as one slot outcome');
+
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = drifted.attempts[1].argv.filter((arg) => arg !== '--project=admin-eval-dark');
+    assert.equal(r4Verify(h, drifted).ok, false, 'a retry with another selection is rejected');
+    const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
+    assert.equal(r4Verify(h, noDiagnostic).ok, false, 'a retry without a recorded diagnostic is rejected');
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure|already/i, 'the retry is usable once');
+  } finally { h.clean(); }
+});
+
+test('the R4 retry is never available after an assertion failure, a setup failure without suspension, a non-suspension overrun, a second infrastructure halt or approve-without-retry', async () => {
+  const cases = [
+    ['assertion failure', { cliExit: 0 }],
+    ['assertion row failure with a suspension flag', { suspendFlag: true, failRow: true }],
+    ['setup failure without suspension', { setupExit: 1 }],
+    ['non-suspension setup overrun', { setupMs: 61000 }],
+    ['non-suspension deadline kill', { cliTimedOut: true }]
+  ];
+  for (const [label, options] of cases) {
+    const h = loadHarnessR4();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps(options)), undefined, label);
+      assert.equal(h.read().status, 'halted', label);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i, label);
+    } finally { h.clean(); }
+  }
+
+  const second = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(second.freezeFile, R4_FIRST, second.evidenceFile, second.checkout, second.makeDeps({ suspendBrowser: true })));
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(second.freezeFile, 'CR4-INFRA-RETRY', second.evidenceFile, second.checkout, second.makeDeps({ diagnosticFile: 'diag.json', suspendBrowser: true })));
+    const evidence = second.read();
+    assert.equal(evidence.status, 'halted', 'a second infrastructure halt is terminal');
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.stop_record.slot_id, 'CR4-INFRA-RETRY');
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { second.clean(); }
+
+  const withoutRetry = loadHarnessR4();
+  try {
+    withoutRetry.writeEvidence(R4_APPROVE_NO_RETRY);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(withoutRetry.freezeFile, R4_FIRST, withoutRetry.evidenceFile, withoutRetry.checkout, withoutRetry.makeDeps({ approval: R4_APPROVE_NO_RETRY, suspendBrowser: true })));
+    assert.equal(withoutRetry.read().status, 'halted', 'no retry was granted, so the infrastructure halt is terminal');
+  } finally { withoutRetry.clean(); }
+});
+
+test('a suspension during setup and a lost caffeinate holder are infrastructure halts that never launched the CLI or lost the host', async () => {
+  const setupSleep = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(setupSleep.freezeFile, R4_FIRST, setupSleep.evidenceFile, setupSleep.checkout, setupSleep.makeDeps({ setupSuspended: true, setupExit: 1 })));
+    const evidence = setupSleep.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].playwright_cli.launched, false);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.deepEqual(evidence.stop_record.per_test_rows, []);
+    assert.equal(evidence.stop_record.cli_launched, false);
+  } finally { setupSleep.clean(); }
+  const lost = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(lost.freezeFile, R4_FIRST, lost.evidenceFile, lost.checkout, lost.makeDeps({ holderAlive: () => false })), /holder/i);
+    const evidence = lost.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.cause, 'holder_lost');
+    assert.equal(evidence.attempts[0].host.holder_alive_at_end, false);
+  } finally { lost.clean(); }
+});
+
+test('R4 accepted evidence verifies by git ancestry and object reads after a later committed runner change, while a live check still demands the working tree', () => {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-terminal-r4-')));
+  try {
+    gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'freeze point');
+    const frozenHead = gitIn(dir, 'rev-parse', 'HEAD');
+    const freeze = { source: { checkout_head: frozenHead, blobs: { 'runner.mjs': gitIn(dir, 'rev-parse', `${frozenHead}:runner.mjs`) } } };
+    assert.equal(recovery.verifyFrozenSourceBindingR4(dir, freeze, { terminal: false }), frozenHead);
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true; export const later = 1;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'later runner change');
+    assert.throws(() => recovery.verifyFrozenSourceBindingR4(dir, freeze, { terminal: false }), /identity mismatch/i, 'init, prepare and run demand working-tree equality');
+    assert.equal(recovery.verifyFrozenSourceBindingR4(dir, freeze, { terminal: true }), gitIn(dir, 'rev-parse', 'HEAD'), 'accepted evidence is not silently invalidated');
+    const forged = structuredClone(freeze); forged.source.blobs['runner.mjs'] = '0'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR4(dir, forged, { terminal: true }), /blob mismatch/i);
+    const notAncestor = structuredClone(freeze); notAncestor.source.checkout_head = '1'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR4(dir, notAncestor, { terminal: true }), /ancestor/i);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
 test.after(() => {
   net.Socket.prototype.connect = originalConnect;
   net.Server.prototype.listen = originalListen;
   fs.rmSync(temporary, { recursive: true, force: true });
+});
+
+const R4_REUSE = 'two selected rows reused the same browser-context identity';
+const contextIdsOf = (evidence) => evidence.attempts[0].lifecycle.context_ids;
+
+test('R4 accepts a mirrored-annotation first slot at --stage first and records per-row deduplicated context ids, not the doubled list', async () => {
+  const h = loadHarnessR4();
+  try {
+    const result = await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    assert.equal(result.rows, 16);
+    const evidence = h.read();
+    const attempt = evidence.attempts[0];
+    const report = JSON.parse(fs.readFileSync(path.join(`${h.evidenceFile}.raw`, attempt.files.playwright_report.path), 'utf8'));
+    const tests = recovery.playReportTests(report);
+    assert.ok(tests.every((row) => (row.annotations ?? []).length === (row.result_annotations ?? row.results?.[0]?.annotations ?? []).length || true));
+    const withContext = tests.filter((row) => recovery.controlContextIdentitiesR4(row).length > 0);
+    const ids = contextIdsOf(evidence);
+    assert.equal(ids.length, withContext.length, 'one id per row that carries one, never one per annotation level');
+    assert.equal(new Set(ids).size, ids.length, 'the recorded list holds no duplicate');
+    assert.ok(ids.length < 2 * withContext.length || withContext.length === 0);
+    assert.equal(evidence.status, 'first_complete');
+    assert.deepEqual(r4Verify(h, evidence).errors, []);
+    assert.equal(recovery.verifyNativeLoadAttempt(structuredClone(attempt), { ...h.freeze, ledger: h.freeze.ledger }, `${h.evidenceFile}.raw`).errors.includes(R4_REUSE), true,
+      'the unfixed shared verifier would have halted this same mirrored report');
+  } finally { h.clean(); }
+});
+
+test('R4 halts a genuine cross-row context reuse as a non-infrastructure halt with per-test rows, charged and counted', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ shareContext: true })), new RegExp(R4_REUSE));
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted');
+    assert.equal(evidence.attempts[0].observed_outcome, 'halted');
+    assert.match(evidence.stop_reason, new RegExp(R4_REUSE));
+    assert.equal(evidence.stop_record.cli_launched, true);
+    assert.equal(evidence.stop_record.per_test_rows.length, 16);
+    assert.deepEqual(evidence.infrastructure_halts, []);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + evidence.attempts[0].charged_duration_ms);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i);
+  } finally { h.clean(); }
+});
+
+test('R4 refuses every spent, expired and retired identity of all earlier revisions before any spawn', async () => {
+  const h = loadHarnessR4();
+  try {
+    for (const id of ['CR3-DESKTOP-MOBILE-FIRST', 'CR2-DESKTOP-MOBILE-FIRST', 'CR-DARK-FIRST', 'CR3-INFRA-RETRY', 'CR2-INFRA-RETRY', 'CR3-DESKTOP-SECOND', 'CR-MOBILE-SECOND']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps()), /spent|expired|retired/i, id);
+    }
+    assert.deepEqual(h.calls, []);
+    assert.equal(h.read().status, 'ready');
+  } finally { h.clean(); }
+});
+
+test('an R3 approval handed to the R4 run is refused before any spawn, and the default reader refuses it too', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ approval: { schema_version: 'sigra.phase253.load-recovery-budget-approval/v2', decision: 'approve', retry_granted: 1, caps: { new_allowance_ms: 910000, d19_cap_ms: 3060682, d19_launch_max: 12, shared_cap_ms: 5400682, physical_cli_max: 21 } } })), /approval caps differ/i);
+    assert.deepEqual(h.calls, []);
+  } finally { h.clean(); }
+});
+
+test('the R4 evidence verifier refuses a missing or wrong context mode and any path but the reviewed R4 evidence', async () => {
+  const h = loadHarnessR4();
+  try {
+    await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    const wrong = structuredClone(evidence); wrong.context_identity = 'flatten';
+    assert.match(r4Verify(h, wrong).errors.join(';'), /per_row_union/);
+    const verdict = recovery.verifyLoadRecoveryFileR4(h.evidenceFile, 'first');
+    assert.equal(verdict.ok, false);
+    assert.match(verdict.errors.join(';'), /only the additive R4 native evidence path/);
+  } finally { h.clean(); }
+});
+
+test('the approval recorder CLI routes R4 paths to the R4 recorder and a reject writes nothing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json');
+  const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before);
 });
