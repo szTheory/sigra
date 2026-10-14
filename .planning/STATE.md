@@ -4,25 +4,25 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "control_recovery_execution_in_progress"
-stopped_at: "Recovery plans 26–35 passed independent review; execution begins with Plan 26"
-last_updated: "2026-10-14T00:52:15.809811+00:00"
+status: "native_halted_recovery_planning_required"
+stopped_at: "Plan27 halted: canonicalize cannot load ESM parse5 under Node20; no selected tests ran"
+last_updated: "2026-10-14T01:30:01.883389+00:00"
 last_activity: "2026-10-13"
-last_activity_desc: "Ten additive recovery plans reviewed; no new implementation or phase acceptance"
-state_head: "c14e563aa9679922865de2fd08e3471cc7c6a67a"
+last_activity_desc: "Plan26 completed offline; Plan27 native load failure preserved; dependent plans stopped"
+state_head: "6e7a08945b6940d613626c56fa81b37e9a4350c2"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 41
-  completed_plans: 16
-  percent: 39
+  completed_plans: 17
+  percent: 41
 milestone_status: active
-workflow_step: "execute_recovery"
+workflow_step: "plan_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: "$gsd-plan-phase 253"
+resume_command: "$gsd-plan-phase 253"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -33,8 +33,8 @@ phase253_wave_count: 9
 phase253_task_count: 76
 phase253_implementation_status: partial
 phase253_completed_plans: 11
-phase253_halted_plans: [253-02, 253-07, 253-09, 253-12, 253-16]
-phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14, 253-17, 253-21, 253-22, 253-23, 253-24, 253-25]
+phase253_halted_plans: ["253-02", "253-07", "253-09", "253-12", "253-16", "253-27"]
+phase253_blocked_plans: ["253-08", "253-10", "253-13", "253-14", "253-17", "253-21", "253-22", "253-23", "253-24", "253-25", "253-28", "253-29", "253-30", "253-31", "253-32", "253-33", "253-34", "253-35"]
 
 phase253_recovery_plan_count: 6
 
@@ -47,7 +47,7 @@ phase253_control_recovery_plan_count: 10
 
 phase253_control_recovery_task_count: 22
 
-phase253_ready_plans: ["253-27"]
+phase253_ready_plans: []
 ---
 
 # Project State
@@ -61,21 +61,21 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — incomplete; recovery planning complete
-Plans: 11/35 implemented; new Plans 27–35 await execution; original halted and blocked plans preserved
-Status: Ready to execute Plan 27; both CI reliability requirements remain open
-Last activity: 2026-10-14T00:52:15.809811+00:00 — independent review found no blockers or warnings; one command-path advisory remains
-Progress: 16/41 planned milestone plans implemented (39%); whole-phase verification not started
+
+Phase: 253 — incomplete; native recovery halted
+Plans: 11/35 implemented; Plan26 complete offline, Plan27 halted (0/2 tasks), Plans28–35 blocked
+Status: No runnable plans; Node20 parse5 loading and missing portable proof need recovery planning
+Last activity: 2026-10-14T01:30:01.883389+00:00 — failed33,409ms command saved; cumulative276,453ms/five launches/retry0
+Progress: 17/41 planned milestone plans implemented (41%); whole-phase verification not started
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only
 
-Execute ten new recovery plans in nine waves, beginning with Plan 27's bounded native runner. Planning passed 20 schema/structure checks, all 24 decisions and both requirement coverage checks. Independent review addressed the Node 20 shared-module blocker; the command-path probe did not establish resolution, so implemented commands still need execution-time checks.
+$gsd-plan-phase 253
 
-The failed dark/control run remains failed. Carry 243,044 ms and four browser-command launches; the retry is spent. The new plans use only 112,489 ms of unused preparation, five unused 120-second control commands and nine conditional 240-second acceptance commands. Native and hosted results, both real PR families and accepted-only historical dispositions remain missing. No browser or GitHub work occurred in this planning pass. Phase 254 remains pending.
+The saved dark command failed before test collection: canonicalize.ts loads ESM-only parse5 through CommonJS under the frozen Node20 runner. Plan a compatible module-loading correction, source-bound freeze and missing portable runner contracts using only four unused regular commands and nine conditional acceptance commands. The spent retry and CR-DARK-FIRST cannot be reopened. Both reliability requirements and whole-phase verification remain open.
 
-Planning record: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLANNING-RECORD.json`; independent review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLAN-CHECK-02.md`; final checks: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-FINAL-CHECKS.json`; routing checks: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ROUTING-CHECKS.json`. Once all required results are accepted and the historical plan dispositions pass, run unfiltered $gsd-execute-phase 253 for whole-phase verification.
+Current native total276453ms/five physical CLI launches; setup/drop exited0 and temporary build was removed, but no dark result was accepted. Local41/41Node20 tests pass; native verifier exits3 and correctly rejects the receipt. Diagnostic:253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json; closeout:253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json; route:253-CONTROL-RECOVERY-EXECUTION-ROUTING.json. Phase254 remains pending.
 
 ## Known unfinished work
 
@@ -122,9 +122,9 @@ Planning record: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks
 
 ## Session
 
-**Last session:** 2026-10-13T23:26:23.648776+00:00
-**Stopped at:** Native control timeout; independent local implementation complete
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json
+**Last session:** 2026-10-14T01:30:01.883389+00:00
+**Stopped at:** Native spec collection failed on parse5; next recovery planning
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json
 
 ## Deferred Items
 
@@ -199,3 +199,7 @@ Command: $gsd-execute-phase 253 --gaps-only. Start with Plan 26 offline control 
 ## Control recovery execution progress
 
 Plan26 offline implementation complete: Node20 acceptance11/11, assessment checker valid. Shared helper repairs held readiness order and positive/collision account reuse; historical registration cause remains unproved. Plan27 ready next. Record:253-CONTROL-RECOVERY-EXECUTION-PROGRESS-01.json. Native total243044ms/four launched commands/retry0 and both requirements remain open; whole-phase verification not started. Next:$gsd-execute-phase 253 --gaps-only.
+
+## Control recovery execution closeout
+
+Plan26 complete offline; Plan27 halted after one33,409ms command, no selected native tests. All older failed outcomes remain unchanged. Cumulative276453ms/five launches/retry0. Fresh41Node20 tests pass and native verifier rejects. Four unused regular/nine conditional acceptance commands remain reserved, not runnable without a new plan. Shared prior bytes are exactly recoverable at 6e7a08945b6940d613626c56fa81b37e9a4350c2. Both requirements and full phase verification remain open. Next:$gsd-plan-phase 253.

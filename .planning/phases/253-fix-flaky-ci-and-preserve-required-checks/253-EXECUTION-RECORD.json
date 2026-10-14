@@ -1,8 +1,8 @@
 {
   "schema_version": "sigra.phase253.partial-execution/v1",
-  "recorded_at": "2026-10-14T01:09:47.494491+00:00",
-  "status": "control_recovery_execution_in_progress",
-  "source_head": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
+  "recorded_at": "2026-10-14T01:30:01.883389+00:00",
+  "status": "native_halted_recovery_planning_required",
+  "source_head": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
   "implementation_status": "partial",
   "phase_verification_status": "not_started",
   "completed_plan_count": 11,
@@ -74,7 +74,7 @@
       "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json"
     }
   ],
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_command": "$gsd-plan-phase 253",
   "readiness": {
     "executor_model": "gpt-6-luna",
     "verifier_model": "gpt-6-luna",
@@ -2658,10 +2658,11 @@
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json"
   },
   "current_readiness": {
-    "ready_plans": [
-      "253-27"
-    ],
-    "phase_verification": "not_started"
+    "runnable_count": 0,
+    "ready_plans": [],
+    "blocked_count": 18,
+    "halted_count": 6,
+    "complete_implementation_count": 11
   },
   "current_plan_index": {
     "phase": "253",
@@ -3314,10 +3315,9 @@
         "files_deleted": [],
         "agent_hint": null,
         "task_count": 2,
-        "has_summary": false,
-        "halted": false,
-        "blocked_by": [],
-        "ready": true
+        "has_summary": true,
+        "halted": true,
+        "blocked_by": []
       },
       {
         "id": "253-28",
@@ -3336,11 +3336,10 @@
         "task_count": 2,
         "has_summary": false,
         "halted": false,
-        "blocked_by": [],
-        "ready": false,
-        "unresolved_dependencies": [
+        "blocked_by": [
           "253-27"
-        ]
+        ],
+        "ready": false
       },
       {
         "id": "253-29",
@@ -3364,7 +3363,9 @@
         "task_count": 3,
         "has_summary": false,
         "halted": false,
-        "blocked_by": [],
+        "blocked_by": [
+          "253-27"
+        ],
         "ready": false,
         "unresolved_dependencies": [
           "253-28"
@@ -3393,7 +3394,9 @@
         "task_count": 2,
         "has_summary": false,
         "halted": false,
-        "blocked_by": [],
+        "blocked_by": [
+          "253-27"
+        ],
         "ready": false,
         "unresolved_dependencies": [
           "253-29"
@@ -3418,7 +3421,9 @@
         "task_count": 2,
         "has_summary": false,
         "halted": false,
-        "blocked_by": [],
+        "blocked_by": [
+          "253-27"
+        ],
         "ready": false,
         "unresolved_dependencies": [
           "253-30"
@@ -3448,7 +3453,9 @@
         "task_count": 2,
         "has_summary": false,
         "halted": false,
-        "blocked_by": [],
+        "blocked_by": [
+          "253-27"
+        ],
         "ready": false,
         "unresolved_dependencies": [
           "253-30"
@@ -3473,7 +3480,9 @@
         "task_count": 3,
         "has_summary": false,
         "halted": false,
-        "blocked_by": [],
+        "blocked_by": [
+          "253-27"
+        ],
         "ready": false,
         "unresolved_dependencies": [
           "253-32"
@@ -3500,7 +3509,9 @@
         "task_count": 2,
         "has_summary": false,
         "halted": false,
-        "blocked_by": [],
+        "blocked_by": [
+          "253-27"
+        ],
         "ready": false,
         "unresolved_dependencies": [
           "253-33",
@@ -3527,7 +3538,9 @@
         "task_count": 2,
         "has_summary": false,
         "halted": false,
-        "blocked_by": [],
+        "blocked_by": [
+          "253-27"
+        ],
         "ready": false,
         "unresolved_dependencies": [
           "253-34",
@@ -3601,7 +3614,6 @@
       "253-23",
       "253-24",
       "253-25",
-      "253-27",
       "253-28",
       "253-29",
       "253-30",
@@ -3611,28 +3623,16 @@
       "253-34",
       "253-35"
     ],
-    "runnable": [
-      "253-27",
-      "253-28",
-      "253-29",
-      "253-30",
-      "253-31",
-      "253-32",
-      "253-33",
-      "253-34",
-      "253-35"
-    ],
-    "ready_plans": [
-      "253-27"
-    ],
+    "runnable": [],
+    "ready_plans": [],
     "has_checkpoints": false,
     "warning": "Found 14 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-01.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-02.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\", \"253-RECOVERY-PLAN-CHECK-01.md\", \"253-RECOVERY-PLAN-CHECK-02.md\", \"253-REPLAN-BUDGETS.md\", \"253-REPLAN-COVERAGE.md\", \"253-REPLAN-PLAN-CHECK-01.md\", \"253-REPLAN-PLAN-CHECK-02.md\", \"253-REPLAN-SOURCE-AUDIT.md\", \"253-REPLAN-VALIDATION.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract."
   },
   "current_blockers": [
-    "Native dark/first/second readiness/state/trace results inside the remaining finite allocation.",
-    "Demonstrated selected cause/repair and fresh repeats, or adequately reviewed no-flake evidence; historical cause/order remains unknown.",
-    "Fresh source publication and six actual hosted outcomes plus a separate verifier.",
-    "Normal production and real docs-only PR required-check results, accepted-only historical dispositions and whole-phase verification."
+    "Plan a Node20-compatible parse5 loading correction and prove module collection offline before spending any remaining native command.",
+    "Plan explicit tests for sanitized markers and quiet successful cleanup; retain source identities and reject actual credentials/missing cleanup proof.",
+    "Complete inherited portable checks and bind all invoked shared helper bytes in any new freeze.",
+    "Use only unused reservations after a separately reviewed plan; no retry/reopened CR-DARK-FIRST, budget reset, or retrospective pass."
   ],
   "additional_execution_closeout_preservation": {
     "source_head": "a1a1887e116fc34dbbdfc4186347467ffad33f91",
@@ -3713,7 +3713,7 @@
     "all_25_plan_sources_unchanged": true
   },
   "additional_execution_closeout_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "resume_command": "$gsd-plan-phase 253",
   "control_recovery_planning": {
     "schema_version": "sigra.phase253.control-recovery-planning/v1",
     "recorded_at": "2026-10-14T00:52:15.809811+00:00",
@@ -4030,111 +4030,88 @@
     {
       "path": ".planning/STATE.md",
       "status": "clean",
-      "sha256": "fc394daa3ec76dbaf84c24b04b64a443be4bc73abfc2e98198f500057a76f3bb",
-      "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
-      "readback_exact": true,
-      "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "edf71cf158c769461974f57ee64adf50143811ed2626419396459ed9ddcc32b9",
+      "bytes": 18692,
+      "readback_exact": true
     },
     {
       "path": ".planning/state.json",
       "status": "clean",
-      "sha256": "8ab38a5fa7eaed620aa5d90b07d3509ed043f872a23dac1c9e5af94d62968dd4",
-      "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
-      "readback_exact": true,
-      "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "9cf41c0a82ebc69312ec58663657e3f97a37985720c998e6fc17f36177ea9c80",
+      "bytes": 61045,
+      "readback_exact": true
     },
     {
       "path": ".planning/HANDOFF.json",
       "status": "clean",
-      "sha256": "2fa1e35e42686b658e95fb95c8ed73828bd18b8565e54be9601d9526a6e11710",
-      "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
-      "readback_exact": true,
-      "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "63e77f00e4a5dca2783373ddf28313521ddfc8803282da70227d9c13b0156cda",
+      "bytes": 162755,
+      "readback_exact": true
     },
     {
       "path": ".planning/ROADMAP.md",
       "status": "clean",
-      "sha256": "3a1a1218606b299c3edefda2064c1672f09a5d70f6597499eeaab7c6e940fd01",
-      "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
-      "readback_exact": true,
-      "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "8a553c6ebe1e492c258d9d4e3e5f2091ae380d634561cdda354e0c1f38165e30",
+      "bytes": 16712,
+      "readback_exact": true
     },
     {
       "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
       "status": "clean",
-      "sha256": "f6072c0146c81049d0fbf58e720cb392a973cf4ee31312bdafdb3531accaa375",
-      "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
-      "readback_exact": true,
-      "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "5e847b684ebbcf2515e87fac5a81d55de4506650b95856755487606c332d2f8b",
+      "bytes": 152324,
+      "readback_exact": true
     }
   ],
   "control_recovery_execution": {
-    "schema": "sigra.phase253.control-recovery-execution-progress/v1",
-    "recorded_at": "2026-10-14T01:09:47.494491+00:00",
-    "source_head": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-    "completed_plan": "253-26",
-    "completed_plan_count": 11,
+    "status": "native_halted_recovery_planning_required",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
+    "next_command": "$gsd-plan-phase 253",
+    "completed_plans": 11,
     "plan_count": 35,
-    "active_plan": "253-27",
-    "ready_plans": [
+    "halted_plans": [
+      "253-02",
+      "253-07",
+      "253-09",
+      "253-12",
+      "253-16",
       "253-27"
     ],
-    "test_results": {
-      "node20": "20.18.1",
-      "tests": 11,
-      "failed": 0,
-      "assessment_checker_exit": 0
-    },
-    "phase_verification": "not_started",
+    "blocked_plans": [
+      "253-08",
+      "253-10",
+      "253-13",
+      "253-14",
+      "253-17",
+      "253-21",
+      "253-22",
+      "253-23",
+      "253-24",
+      "253-25",
+      "253-28",
+      "253-29",
+      "253-30",
+      "253-31",
+      "253-32",
+      "253-33",
+      "253-34",
+      "253-35"
+    ],
+    "ready_plans": [],
+    "native_total_ms": 276453,
+    "physical_browser_launches": 5,
+    "retry_available": 0,
     "requirements_open": [
       "CIREL-01",
       "CIREL-02"
     ],
-    "native_charge_ms": 243044,
-    "physical_browser_launches": 4,
-    "retry_available": 0,
-    "gitHub_requests_this_invocation": 0,
-    "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "prior_shared_bytes": [
-      {
-        "path": ".planning/STATE.md",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "b92089e96fc94aa2b9a92fe165ce56bda9a5d63c7a5295dc6ca7ef3d861f61cf",
-        "readback_exact": true
-      },
-      {
-        "path": ".planning/state.json",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "e25b6724f17b2d4709cdd61dbebc997ea6b8bb8d46dc7d0dba429bd2edfe1237",
-        "readback_exact": true
-      },
-      {
-        "path": ".planning/HANDOFF.json",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "2dc5fc45a72db15b5b99bf00ae09fd5054cf124811b816898252a168c7adfc7a",
-        "readback_exact": true
-      },
-      {
-        "path": ".planning/ROADMAP.md",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "21f2b0dd16877233dd553f97f82c231c2d22c263cc40c250a366019d44029df0",
-        "readback_exact": true
-      },
-      {
-        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "06a9d9435afc9e9a692b2697ee3672b85e4f5a86147f30ba693583946d2dd9a7",
-        "readback_exact": true
-      }
-    ],
-    "probe_corrections": [
-      "audit --check rejected; correct --check-assessment succeeds",
-      "query ui.safety-gate and query ui safety-gate rejected; top-level ui safety-gate used"
-    ],
-    "postmerge_gate": {
-      "build": "no configured/build language-sniff command applicable; no product build run",
-      "test": "scoped Node20 offline acceptance, 11/11, no redundant mix ci/native launches"
-    },
-    "stage": "offline_implementation_complete_native_proof_pending"
-  }
+    "phase_verification": "not_started",
+    "diagnostic": "253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json"
+  },
+  "control_recovery_execution_closeout": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json"
 }

@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-14T01:09:47.494491+00:00",
-  "status": "control_recovery_execution_in_progress",
+  "timestamp": "2026-10-14T01:30:01.883389+00:00",
+  "status": "native_halted_recovery_planning_required",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "11/35 plans implemented; Plan 26 offline controls complete; next Plan27 bounded native recovery; phase verification not started",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Execute Plan27 with carried charges and no retry; never reopen failed native commands",
+  "current": "11/35 plans implemented; Plan26 complete, Plan27 halted, Plans28\u201335 blocked; both requirements open; phase verification not started",
+  "next_command": "$gsd-plan-phase 253",
+  "resume_command": "$gsd-plan-phase 253",
+  "next_action": "No ready/runnable plans. Canonicalize cannot load parse5 under the frozen Node20 runner. Plan a correction and the missing portable contracts using only remaining allocations.",
   "route": {
-    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only",
+    "immediate_gsd_command": "$gsd-plan-phase 253",
+    "resume_command": "$gsd-plan-phase 253",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 253,
@@ -1333,7 +1333,7 @@
       254,
       255
     ],
-    "next_required_gate": "Execute Plan 26, then follow Plans 27\u201335 dependencies under their accepted planning contracts",
+    "next_required_gate": "Plan a Node20-compatible parse5 load correction and remaining proof without reopening spent commands",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -1348,7 +1348,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "execute_recovery",
+    "workflow_step": "plan_recovery",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -1369,13 +1369,14 @@
     "phase253_plan_count": 35,
     "phase253_wave_count": 9,
     "phase253_task_count": 76,
-    "phase253_completed_plans": 10,
+    "phase253_completed_plans": 11,
     "phase253_halted_plans": [
       "253-02",
       "253-07",
       "253-09",
       "253-12",
-      "253-16"
+      "253-16",
+      "253-27"
     ],
     "phase253_blocked_plans": [
       "253-08",
@@ -1387,7 +1388,15 @@
       "253-22",
       "253-23",
       "253-24",
-      "253-25"
+      "253-25",
+      "253-28",
+      "253-29",
+      "253-30",
+      "253-31",
+      "253-32",
+      "253-33",
+      "253-34",
+      "253-35"
     ],
     "phase253_execution_dispatch": "Three typed sequential recovery executors returned:09halted,11localcomplete,12halted; rootlocalrepairs tested.",
     "phase253_recovery_plan_count": 6,
@@ -1396,7 +1405,8 @@
     "phase253_replan_task_count": 24,
     "phase253_remaining_plans": 25,
     "phase253_control_recovery_plan_count": 10,
-    "phase253_control_recovery_task_count": 22
+    "phase253_control_recovery_task_count": 22,
+    "phase253_ready_plans": []
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -2366,7 +2376,7 @@
       "shared_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-SHARED-PRESERVATION.json"
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-PROGRESS-01.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3993,72 +4003,48 @@
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
   "phase253_control_recovery_execution": {
-    "schema": "sigra.phase253.control-recovery-execution-progress/v1",
-    "recorded_at": "2026-10-14T01:09:47.494491+00:00",
-    "source_head": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-    "completed_plan": "253-26",
-    "completed_plan_count": 11,
+    "status": "native_halted_recovery_planning_required",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
+    "next_command": "$gsd-plan-phase 253",
+    "completed_plans": 11,
     "plan_count": 35,
-    "active_plan": "253-27",
-    "ready_plans": [
+    "halted_plans": [
+      "253-02",
+      "253-07",
+      "253-09",
+      "253-12",
+      "253-16",
       "253-27"
     ],
-    "test_results": {
-      "node20": "20.18.1",
-      "tests": 11,
-      "failed": 0,
-      "assessment_checker_exit": 0
-    },
-    "phase_verification": "not_started",
+    "blocked_plans": [
+      "253-08",
+      "253-10",
+      "253-13",
+      "253-14",
+      "253-17",
+      "253-21",
+      "253-22",
+      "253-23",
+      "253-24",
+      "253-25",
+      "253-28",
+      "253-29",
+      "253-30",
+      "253-31",
+      "253-32",
+      "253-33",
+      "253-34",
+      "253-35"
+    ],
+    "ready_plans": [],
+    "native_total_ms": 276453,
+    "physical_browser_launches": 5,
+    "retry_available": 0,
     "requirements_open": [
       "CIREL-01",
       "CIREL-02"
     ],
-    "native_charge_ms": 243044,
-    "physical_browser_launches": 4,
-    "retry_available": 0,
-    "gitHub_requests_this_invocation": 0,
-    "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "prior_shared_bytes": [
-      {
-        "path": ".planning/STATE.md",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "b92089e96fc94aa2b9a92fe165ce56bda9a5d63c7a5295dc6ca7ef3d861f61cf",
-        "readback_exact": true
-      },
-      {
-        "path": ".planning/state.json",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "e25b6724f17b2d4709cdd61dbebc997ea6b8bb8d46dc7d0dba429bd2edfe1237",
-        "readback_exact": true
-      },
-      {
-        "path": ".planning/HANDOFF.json",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "2dc5fc45a72db15b5b99bf00ae09fd5054cf124811b816898252a168c7adfc7a",
-        "readback_exact": true
-      },
-      {
-        "path": ".planning/ROADMAP.md",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "21f2b0dd16877233dd553f97f82c231c2d22c263cc40c250a366019d44029df0",
-        "readback_exact": true
-      },
-      {
-        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
-        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
-        "sha256": "06a9d9435afc9e9a692b2697ee3672b85e4f5a86147f30ba693583946d2dd9a7",
-        "readback_exact": true
-      }
-    ],
-    "probe_corrections": [
-      "audit --check rejected; correct --check-assessment succeeds",
-      "query ui.safety-gate and query ui safety-gate rejected; top-level ui safety-gate used"
-    ],
-    "postmerge_gate": {
-      "build": "no configured/build language-sniff command applicable; no product build run",
-      "test": "scoped Node20 offline acceptance, 11/11, no redundant mix ci/native launches"
-    },
-    "stage": "offline_implementation_complete_native_proof_pending"
+    "phase_verification": "not_started",
+    "diagnostic": "253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json"
   }
 }

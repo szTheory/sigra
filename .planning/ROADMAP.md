@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-plan-phase 253 — dark/control results are missing after the native timeout; all runnable local plans finished. Both reliability requirements and full phase verification remain open.
+**Next command:** $gsd-plan-phase 253 — Plan27 failed before test collection because canonicalize cannot load ESM parse5 under Node20. No plans are runnable. Both requirements and phase verification remain open.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 10/35 implemented; Plans 26–35 reviewed and awaiting execution; old failed plans preserved; phase verification not started
+**Plans**: 11/35 implemented; Plan26 complete offline; Plan27 halted on parse5 load; Plans28–35 blocked; old failures preserved; phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -148,7 +148,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 **Recovery wave 2** *(blocked on preceding recovery dependencies)*
 
-- [ ] 253-27-PLAN.md — Freeze the five unused command reservations and prove one repaired dark diagnostic/control path.
+- [ ] 253-27-PLAN.md — Halted: Node20 parse5 load failure before selected tests; 33409ms charged, no retry; Task2 not started.
 
 **Recovery wave 3** *(blocked on preceding recovery dependencies)*
 
@@ -209,12 +209,12 @@ Cross-cutting constraints: preserve original Phase 252 and failed Phase 253 reco
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans in four waves; Phase 253 retains fourteen older plans and eleven additional checked recovery plans in eight recovery waves; Phase 254/255 plan counts remain pending.
+**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans in four waves; Phase 253 has35preserved plans including ten control recovery plans in nine waves;11implemented,6halted,18blocked; Phase 254/255 plan counts remain pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 10/25 | Partial implementation; Plan 16 halted; recovery planning required; verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 11/35 | Partial implementation; Plan27 halted; recovery planning required; verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
