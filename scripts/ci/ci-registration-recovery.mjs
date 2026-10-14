@@ -1441,7 +1441,7 @@ function readControlRecoveryHistory(root) {
     cleanup.cleanup_duration_ms
   ];
   const ledger = buildControlRecoveryLedger({
-    charges, physicalPlaywrightLaunches: accepted.limits?.browser_launches + original.limits?.browser_launches + failedDark.limits?.physical_browser_launches,
+    charges, physicalPlaywrightLaunches: failedDark.limits?.physical_browser_launches,
     spentReservations: ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK'],
     retryUsed: failedDark.limits?.retry_count_used, retryAvailable: failedDark.limits?.retry_count_available,
     preparationMaximumMs: 116232, preparationUsedMs: charges[1]
