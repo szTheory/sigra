@@ -1355,14 +1355,14 @@ LOAD_CHECKS = {
     "load_acceptance": ["--verify-load-acceptance", "{path}", "--require-target-accepted"],
 }
 
-# With the production checker, completion may re-open only the R4 native controls and the acceptance evidence; the halted
-# v1, R2 and R3 native evidence (and the halted 253-40 record) can never satisfy these links. argv above is unchanged.
+# With the production checker, completion may re-open only the R5 native controls and the acceptance evidence; the halted
+# v1, R2, R3 and R4 native evidence (and the halted 253-40 record) can never satisfy these links. argv above is unchanged.
 LOAD_PATHS = {
-    "load_controls": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+    "load_controls": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
     "load_acceptance": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json",
 }
 LOAD_PATH_ERRORS = {
-    "load_controls": "load_controls must link the R4 native evidence",
+    "load_controls": "load_controls must link the R5 native evidence",
     "load_acceptance": "load_acceptance must link the accepted load acceptance evidence",
 }
 
