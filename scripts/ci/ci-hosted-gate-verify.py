@@ -1366,26 +1366,67 @@ LOAD_PATH_ERRORS = {
     "load_acceptance": "load_acceptance must link the accepted load acceptance evidence",
 }
 
+# 253-90 (D-24): a human-approved not_reproduced disposition is verifiable as "dispositioned", never as "accepted". The two
+# optional links are not in LINKS, so they can never make a record accepted; both or neither must be present.
+DISPOSITION_LINKS = ("load_target_disposition", "load_target_disposition_approval")
+DISPOSITION_PATHS = {
+    "load_target_disposition": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION.json",
+    "load_target_disposition_approval": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json",
+}
+DISPOSITION_PATH_ERRORS = {
+    "load_target_disposition": "load_target_disposition must link the reviewed target disposition record",
+    "load_target_disposition_approval": "load_target_disposition_approval must link the reviewed target disposition approval record",
+}
+# The runner re-opens the committed disposition and approval itself; the acceptance evidence path is the checked argument.
+DISPOSITION_CHECK = ["--verify-load-acceptance", "{path}", "--require-target-disposition"]
+DISPOSITION_GAP = "disposition:CIREL-01:not_reproduced (Jon-approved disposition; target neither reproduced nor fixed)"
+DISPOSITION_LIMITATION = ("the selected registration flake was not reproduced; CIREL-01 is partial under a human-approved "
+                          "not_reproduced disposition")
+STRICT_REJECTION_EXIT = 3
+
 
 def _default_checker(kind, path):
     script = Path(__file__).with_name("ci-registration-recovery.mjs")
     node = shutil.which("node")
     if node is None:
         return 127, "node unavailable"
-    argv = [node, str(script), *[part.format(path=path) for part in LOAD_CHECKS[kind]]]
+    template = DISPOSITION_CHECK if kind == "load_target_disposition" else LOAD_CHECKS[kind]
+    argv = [node, str(script), *[part.format(path=path) for part in template]]
     result = subprocess.run(argv, capture_output=True, text=True, timeout=300, check=False)
     return result.returncode, (result.stderr or result.stdout)[:400]
 
 
 @fail_closed
-def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_checker=None):
+def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_checker=None, require_dispositioned=False):
     """Re-open every linked proof; embedded acceptance claims are never trusted."""
     require(isinstance(evidence, dict) and evidence.get("schema_version") == COMPLETION_SCHEMA
             and evidence.get("repository") == REPOSITORY, "completion evidence schema or repository mismatch")
     links = evidence.get("links")
-    require(isinstance(links, dict) and set(links) <= {key for key, _ in LINKS}, "completion links are malformed or unknown")
+    require(isinstance(links, dict) and set(links) <= {key for key, _ in LINKS} | set(DISPOSITION_LINKS),
+            "completion links are malformed or unknown")
+    require(not require_accepted or not require_dispositioned, "--require-accepted and --require-dispositioned are mutually exclusive")
+    require(sum(key in links for key in DISPOSITION_LINKS) in (0, len(DISPOSITION_LINKS)),
+            "the target disposition and its approval must be linked together")
     checker = load_checker or _default_checker
     gaps, opened, windows, synthetic = [], {}, {}, False
+    disposition_opened = {}
+    for key in DISPOSITION_LINKS:
+        link = links.get(key)
+        if link is None:
+            continue
+        require(isinstance(link, dict) and set(link) == {"path", "sha256"} and isinstance(link["path"], str)
+                and isinstance(link["sha256"], str) and SHA64.fullmatch(link["sha256"]), f"link {key} is malformed")
+        target = Path(link["path"])
+        target = target if target.is_absolute() else Path(root) / target
+        if load_checker is None:
+            require(target.resolve() == (Path(root) / DISPOSITION_PATHS[key]).resolve(), DISPOSITION_PATH_ERRORS[key])
+        try:
+            raw = target.read_bytes()
+        except OSError as error:
+            raise VerificationError(f"linked proof cannot be re-opened: {key}") from error
+        require(sha256(raw) == link["sha256"], f"linked proof bytes differ from their recorded SHA-256: {key}")
+        disposition_opened[key] = (target, raw)
+    dispositioned = False
     for key, label in LINKS:
         link = links.get(key)
         if link is None:
@@ -1411,11 +1452,23 @@ def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_che
         if key not in opened:
             continue
         code, detail = checker(key, str(opened[key][0]))
+        route_disposition = False
         if code != 0:
-            raise VerificationError(f"strict native checker rejected {key}: {detail}")
+            if not (key == "load_acceptance" and code == STRICT_REJECTION_EXIT and disposition_opened):
+                raise VerificationError(f"strict native checker rejected {key}: {detail}")
+            disposition_code, disposition_detail = checker("load_target_disposition", str(opened[key][0]))
+            if disposition_code != 0:
+                raise VerificationError(f"target disposition rejected for {key}: {disposition_detail}")
+            route_disposition = True
         document = json.loads(opened[key][1].decode("utf-8", "strict"))
         require(isinstance(document, dict) and document, f"{key} evidence is empty")
-        if key == "load_acceptance":
+        if route_disposition:
+            historical = document.get("historical_cause") if isinstance(document.get("historical_cause"), dict) else {}
+            require(document.get("target_status") == "open" and historical.get("status") == "diagnosis_incomplete",
+                    "a target disposition applies only to an open, diagnosis_incomplete acceptance record")
+            dispositioned = True
+            gaps.append(DISPOSITION_GAP)
+        elif key == "load_acceptance":
             assessment = document.get("assessment") if isinstance(document.get("assessment"), dict) else {}
             if assessment.get("kind") == "justified_no_flake":
                 selected, explained = assessment.get("selected_failures"), assessment.get("explained_failures")
@@ -1458,13 +1511,24 @@ def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_che
     claimed = evidence.get("accepted") is True or evidence.get("status") in ("accepted", "complete", "passed")
     if claimed and gaps:
         raise VerificationError("embedded acceptance claim contradicts the re-opened links: " + "; ".join(gaps))
-    status = "accepted" if not gaps and not synthetic and len(opened) == len(LINKS) else "open"
+    complete = not synthetic and len(opened) == len(LINKS)
+    status = "accepted" if not gaps and complete else "open"
+    live = complete and not [gap for gap in gaps if gap != DISPOSITION_GAP]
     if require_accepted and status != "accepted":
         raise VerificationError("accepted-only completion failed: " + "; ".join(gaps or ["not every linked proof is live and accepted"]))
-    return {"status": status, "gaps": gaps, "linked": sorted(opened), "phase_verification": "not_started",
-            "limitations": list(LITERAL_LIMITATIONS),
-            "requirements": {"CIREL-01": "accepted" if status == "accepted" else "open",
-                             "CIREL-02": "accepted" if status == "accepted" else "open"}}
+    if require_dispositioned:
+        if dispositioned and live:
+            status = "dispositioned"
+        elif status != "accepted":
+            raise VerificationError("dispositioned completion failed: " + "; ".join(gaps or ["not every linked proof is live and accepted"]))
+    cirel_01 = "accepted" if status == "accepted" else ("partial_not_reproduced" if dispositioned else "open")
+    result = {"status": status, "gaps": gaps, "linked": sorted(opened), "phase_verification": "not_started",
+              "limitations": list(LITERAL_LIMITATIONS),
+              "requirements": {"CIREL-01": cirel_01, "CIREL-02": "accepted" if status == "accepted" or live else "open"}}
+    if dispositioned:
+        result["dispositioned"] = True
+        result["limitations"].append(DISPOSITION_LIMITATION)
+    return result
 
 
 def main():
@@ -1473,7 +1537,9 @@ def main():
     parser.add_argument("--mode", choices=("legacy", "transport", "preflight", "canary", "pr", "completion"), default="legacy")
     parser.add_argument("--family", choices=("normal", "docs-only", "both"), default="normal")
     parser.add_argument("--docs-evidence", help="docs-only PR evidence when --mode pr --family both")
-    parser.add_argument("--require-accepted", action="store_true")
+    strictness = parser.add_mutually_exclusive_group()
+    strictness.add_argument("--require-accepted", action="store_true")
+    strictness.add_argument("--require-dispositioned", action="store_true")
     parser.add_argument("--scenario", choices=(*SCENARIOS, "sources", "matrix"), default="full-pass")
     args = parser.parse_args()
     if args.mode == "legacy":
@@ -1492,7 +1558,8 @@ def main():
             return verify_pr_pair(first, read_json_file(args.docs_evidence))
         return verify_pr_family(first, args.family)
     if args.mode == "completion":
-        return verify_completion(read_json_file(args.evidence), require_accepted=args.require_accepted)
+        return verify_completion(read_json_file(args.evidence), require_accepted=args.require_accepted,
+                                 require_dispositioned=args.require_dispositioned)
     evidence = read_replan_evidence(args.evidence)
     transport_result = verify_transport_v2(evidence)
     if args.mode == "transport":

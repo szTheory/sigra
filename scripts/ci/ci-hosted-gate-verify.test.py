@@ -1060,7 +1060,8 @@ class CompletionDispositionTests(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             document = self.documents.get(key, {"bound": relative}) if key != "load_controls" else {"bound": relative}
             path.write_text(json.dumps(document))
-            evidence["links"][key] = {"path": relative, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        for key, relative in wanted.items():
+            evidence["links"][key] = {"path": relative, "sha256": hashlib.sha256((self.root / relative).read_bytes()).hexdigest()}
         return evidence
 
     def test_the_cli_flags_are_mutually_exclusive(self):
