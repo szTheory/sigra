@@ -1420,6 +1420,259 @@ test('a host sleep inside the browser command halts the slot, charges the wall t
   } finally { Date.now = realNow; h.clean(); }
 });
 
+// ---- Plan 48: R2 load-recovery revision (synthetic subprocess boundaries; no native work) ----
+const R2_SPENT = [...LOAD_SPENT, 'CR-DESKTOP-MOBILE-FIRST'];
+const R2_CHARGES = [...LOAD_CHARGES, 655, 1765488];
+const r2LedgerInput = () => ({
+  charges: [...R2_CHARGES], physicalPlaywrightLaunches: 6, spentReservations: [...R2_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationUsedMs: 4398
+});
+const R2_APPROVE = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v1', decision: 'approve', retry_granted: 1,
+  caps: { new_allowance_ms: 645000, d19_cap_ms: 2687596, d19_launch_max: 11, shared_cap_ms: 5027596, physical_cli_max: 20 }
+};
+const R2_APPROVE_NO_RETRY = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v1', decision: 'approve-without-retry', retry_granted: 0,
+  caps: { new_allowance_ms: 525000, d19_cap_ms: 2567596, d19_launch_max: 10, shared_cap_ms: 4907596, physical_cli_max: 19 }
+};
+
+test('R2 ledger carries 2042596 ms, six launches and seven spent identities, with the reviewed R2 caps', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR2(r2LedgerInput());
+  assert.equal(ledger.prior_charge_ms, 2042596);
+  assert.equal(ledger.prior_playwright_cli_launches, 6);
+  assert.deepEqual(ledger.spent_reservations, R2_SPENT);
+  assert.equal(ledger.preparation_used_ms, 4398);
+  assert.equal(ledger.preparation_reserve_ms, 30000);
+  assert.equal(ledger.retry_used, 1);
+  assert.equal(ledger.retry_available, 0);
+  assert.deepEqual(ledger.caps.approve, R2_APPROVE.caps);
+  assert.deepEqual(ledger.caps['approve-without-retry'], R2_APPROVE_NO_RETRY.caps);
+  assert.equal(ledger.required_rows, 22);
+});
+
+test('R2 ledger rejects any other carried input', () => {
+  for (const mutate of [
+    (input) => { input.charges[9] = 1765487; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.charges[8] = 654; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations.reverse(); },
+    (input) => { input.physicalPlaywrightLaunches = 5; },
+    (input) => { input.preparationUsedMs = 3743; }
+  ]) {
+    const input = r2LedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedgerR2(input), /historical|retry|reservation|launch|preparation|carried/i);
+  }
+});
+
+test('R2 slots keep the identical 22-row selection under CR2-DESKTOP-MOBILE-FIRST plus the three unused seconds and one retry declaration', () => {
+  const v1 = recovery.loadRecoverySlotDefinitions();
+  const r2 = recovery.loadRecoverySlotDefinitionsR2();
+  assert.deepEqual(r2.map((slot) => slot.id), ['CR2-DESKTOP-MOBILE-FIRST', 'CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND', 'CR2-INFRA-RETRY']);
+  assert.equal(r2[0].maps_from, 'CR-DESKTOP-MOBILE-FIRST');
+  for (const [index, slot] of v1.entries()) {
+    const { id: _id, maps_from: _maps, ...rest } = slot;
+    const { id: _rid, maps_from: _rmaps, ...restR2 } = r2[index];
+    assert.deepEqual(restR2, rest, `selection of ${slot.id} must be byte-identical to the frozen one`);
+  }
+  assert.deepEqual(r2.slice(0, 4).map((slot) => slot.rows), [16, 2, 2, 2]);
+  assert.equal(r2[0].expected_cli_exit, 1);
+  const retry = r2[4];
+  assert.equal(retry.max_duration_ms, 120000);
+  assert.equal(retry.selection ?? null, null);
+  assert.equal(retry.project_selections, undefined);
+  assert.equal(retry.rows, 0);
+  assert.equal(r2.slice(0, 4).reduce((sum, slot) => sum + slot.rows, 0), 22);
+});
+
+test('v1 and R2 evidence are never accepted by the other revision, and the R2 modes refuse any other path', () => {
+  const v1 = loadHarness();
+  const r2 = loadHarnessR2();
+  try {
+    assert.equal(recovery.verifyLoadRecoveryEvidenceData(r2.read(), r2.freeze, `${r2.evidenceFile}.raw`, 'first', sha(fs.readFileSync(r2.freezeFile))).ok, false);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(v1.read(), v1.freeze, `${v1.evidenceFile}.raw`, 'first', sha(fs.readFileSync(v1.freezeFile))).ok, false);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    const stray = path.join(temporary, 'stray-r2-freeze.json');
+    const created = spawnSync(process.execPath, [script, '--create-load-recovery-r2', '--output', stray], { encoding: 'utf8', cwd: root });
+    assert.equal(created.status, 3);
+    assert.match(created.stderr, /reviewed phase artifact path/);
+    assert.equal(fs.existsSync(stray), false);
+    const checked = spawnSync(process.execPath, [script, '--check-load-recovery-freeze', stray], { encoding: 'utf8', cwd: root });
+    assert.equal(checked.status, 3);
+  } finally { v1.clean(); r2.clean(); }
+});
+
+test('R2 freeze creation and validation refuse a candidate without the preserved native records', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'load-r2' });
+  try {
+    const out = path.join(fixture.root, 'out-freeze-r2.json');
+    assert.throws(() => recovery.createLoadRecoveryFreezeR2(out, fixture.root));
+    assert.equal(fs.existsSync(out), false);
+    assert.throws(() => recovery.validateLoadRecoveryFreezeR2(fixture.root, { schema_version: 'x' }), /malformed|digest/i);
+  } finally { fixture.cleanup?.(); }
+});
+
+// ---- synthetic R2 runner harness ----
+function loadHarnessR2() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-r2-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  const ledger = recovery.buildLoadRecoveryLedgerR2(r2LedgerInput());
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v2', status: 'frozen_before_results', plan: '253-48', revision: 'r2',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    historical: { infrastructure_halt: { slot_id: 'CR-DESKTOP-MOBILE-FIRST', cause: 'host_sleep', retryable: false, charged_ms: 1765488, fix_commit: 'cf578a567e4c01e6e9e904c2ca8c01bec85345d0', root_cause: { file: '.planning/debug/resolved/253-native-deadline-not-enforced.md', sha256: 'c'.repeat(64) } } },
+    ledger
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze-r2.json'); const evidenceFile = path.join(base, 'evidence-r2.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const writeEvidence = (approval) => {
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-load-recovery-evidence/v2', revision: 'r2', status: 'ready', freeze_path: 'freeze-r2.json',
+      freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+      infrastructure_halts: [structuredClone(freeze.historical.infrastructure_halt)], infrastructure_retry: null,
+      approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+      limits: {
+        prior_charge_ms: 2042596, preparation_charge_ms: 0, preparation_remaining_ms: 30000, charged_duration_ms: 2042596,
+        physical_playwright_cli_launches: 6, used_slots: [...R2_SPENT], max_d19_ms: approval.caps.d19_cap_ms, max_total_ms: approval.caps.shared_cap_ms,
+        max_d19_physical_playwright_cli_launches: approval.caps.d19_launch_max, max_physical_playwright_cli_launches: approval.caps.physical_cli_max,
+        retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+      }
+    };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  };
+  writeEvidence(R2_APPROVE);
+  const calls = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const fakePsql = (counts) => { let index = 0; return () => { calls.push(['psql']); return { status: 0, stdout: `${counts[Math.min(index++, counts.length - 1)]}\n` }; }; };
+  const allSlots = [...freeze.ledger.slots.slice(0, 4)];
+  const reportFor = (slot, runId, { failRow = false } = {}) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index) => {
+          let expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: `${runId}:${crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          let failed = expected === 'expected_failure';
+          const marker = { 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[pair.title];
+          const broken = failRow && index === 0 && !failed;
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed && !broken,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed || broken ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed || broken ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${marker} failed` } : broken ? { message: 'unexpected assertion failure' } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: [] }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {}, approval = R2_APPROVE,
+    suspendBrowser = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null } = {}) => {
+    const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
+    return {
+      validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile,
+      readApproval: () => approval, holderAlive,
+      checkDiagnostic: checkDiagnostic ?? ((_root, file) => ({ file, sha256: 'd'.repeat(64) })),
+      probeHost: probeHost ?? (async () => { calls.push(['probe-host']); return { awake: awakeFor(), host_awake: { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' } }; }),
+      portAvailable: async () => true, waitReady: async () => 200, stopApp: async () => {},
+      spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+      runTree: async (program, args, cwd, env, log, timeoutMs) => {
+        calls.push(['tree', program, ...args]);
+        fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+        if (program.endsWith('/playwright')) {
+          const given = args.slice(2, -1);
+          const slot = allSlots.find((item) => JSON.stringify(item.argv) === JSON.stringify(given));
+          assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+          assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+          if (suspendBrowser) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: true, duration_ms: 5, wall_duration_ms: 5, group_signals: ['SIGTERM'], descendants_reaped: true };
+          fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID, { failRow })));
+          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, duration_ms: 5, group_signals: [], descendants_reaped: true };
+        }
+        return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+      },
+      captureAbsence: (options) => recovery.captureOwnedDatabaseAbsence({ ...options, run: absenceRun }),
+      captureAccount: (options) => recovery.captureOwnedAccountCount({ ...options, run: accountRun }),
+      sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+    };
+  };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, makeDeps, writeEvidence, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+
+test('every spent identity, including CR-DESKTOP-MOBILE-FIRST, is refused by the R2 runner before any spawn', async () => {
+  const h = loadHarnessR2();
+  try {
+    for (const id of [...R2_SPENT, 'R-CONTROL-FIRST-DESKTOP']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps()), /spent|only the/i, id);
+    }
+    assert.deepEqual(h.calls, []);
+    assert.equal(h.read().status, 'ready');
+  } finally { h.clean(); }
+});
+
+test('a synthetic R2 first slot writes an R2 ledger that the first-stage verifier accepts', async () => {
+  const h = loadHarnessR2();
+  try {
+    const result = await recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    assert.equal(result.rows, 16);
+    assert.equal(h.calls.filter((call) => call[0] === 'tree' && call[1].endsWith('/playwright')).length, 1);
+    const evidence = h.read();
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v2');
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 7);
+    assert.deepEqual(evidence.limits.used_slots, [...R2_SPENT, 'CR2-DESKTOP-MOBILE-FIRST']);
+    assert.equal(evidence.limits.charged_duration_ms, 2042596 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(evidence.attempts[0].files.traces.length, 9);
+    const verdict = recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile)));
+    assert.deepEqual(verdict.errors, []);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'complete', sha(fs.readFileSync(h.freezeFile))).ok, false);
+  } finally { h.clean(); }
+});
+
+test('R2 runs all four regular slots once in order and verifies the complete 22-row proof', async () => {
+  const h = loadHarnessR2();
+  try {
+    for (const id of ['CR2-DESKTOP-MOBILE-FIRST', 'CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND']) {
+      await recovery.runLoadRecoverySlotR2(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps());
+    }
+    const evidence = h.read();
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 22);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 10);
+    const verdict = recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'complete', sha(fs.readFileSync(h.freezeFile)));
+    assert.deepEqual(verdict.errors, []);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('R2 refuses out-of-order slots, a reopened original retry, a counter reset and a slot outside the frozen table', async () => {
+  for (const [mutate, pattern, slot] of [
+    [() => {}, /frozen order/i, 'CR-MOBILE-SECOND'],
+    [(e) => { e.limits.retry_available = 1; }, /retry/i, 'CR2-DESKTOP-MOBILE-FIRST'],
+    [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /reset/i, 'CR2-DESKTOP-MOBILE-FIRST'],
+    [() => {}, /only the/i, 'CR-UNKNOWN']
+  ]) {
+    const h = loadHarnessR2();
+    try {
+      const evidence = h.read(); mutate(evidence);
+      fs.writeFileSync(h.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, slot, h.evidenceFile, h.checkout, h.makeDeps()), pattern);
+      assert.deepEqual(h.calls, [], String(pattern));
+    } finally { h.clean(); }
+  }
+});
+
 test('ordinary registration runner contracts opened no server or socket', () => {
   assert.deepEqual(networkAttempts, []);
 });
