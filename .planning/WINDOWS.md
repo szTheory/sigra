@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 9
+open_count: 10
 waived_count: 0
 fixed_count: 1
-total_count: 10
-last_updated: 2026-10-12T19:32:31.564Z
+total_count: 11
+last_updated: 2026-10-14T01:22:50.770Z
 ---
 
 # Broken Windows Ledger
@@ -25,6 +25,7 @@ last_updated: 2026-10-12T19:32:31.564Z
 | 8 | 247 | unrun-verify | .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs |  | Plan 08 final readiness validator passed: valid=true with exact-source CI 37800067568 and authenticated dry-run 37803817504; PR #224 remains open and unpublished. | fixed |  | 2026-10-08T03:27:53Z | 2026-10-08T16:04:05.483Z |
 | 9 | 251 | deviation | .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs | 361 | Updated Nyquist expectations after marking all 12 Phase 251 validation rows proven; regenerated audit from current validation state. | open |  | 2026-10-11T23:08:18.790Z |  |
 | 10 | 252 | deviation | test/sigra/audit/forwarders/threadline_test.exs |  | Full mix ci remains blocked by six Threadline optional-dependency tests outside Plan 252-05; diagnostic is in 252-05-MIX-CI-DIAGNOSTIC.json. | open |  | 2026-10-12T19:32:31.564Z |  |
+| 11 | 253 | unrun-verify | .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-PLAN.md |  | Plan 27 Task 2 portable verification was not run because the CR-DARK-FIRST native command failed terminally and dependent work stopped. | open |  | 2026-10-14T01:22:50.770Z |  |
 
 ````json
 [
@@ -150,6 +151,19 @@ last_updated: 2026-10-12T19:32:31.564Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-10-12T19:32:31.564Z",
+    "resolved_at": null,
+    "milestone": "v1.50"
+  },
+  {
+    "id": 11,
+    "kind": "unrun-verify",
+    "phase": "253",
+    "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-PLAN.md",
+    "line": null,
+    "description": "Plan 27 Task 2 portable verification was not run because the CR-DARK-FIRST native command failed terminally and dependent work stopped.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-10-14T01:22:50.770Z",
     "resolved_at": null,
     "milestone": "v1.50"
   }
