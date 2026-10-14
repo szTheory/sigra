@@ -1432,7 +1432,7 @@ function readControlRecoveryHistory(root) {
   const failedDark = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[3].file));
   const cleanup = readJson(path.join(root, CONTROL_RECOVERY_PRIOR[4].file));
   const charges = [
-    terminal.limits?.charged_duration_ms,
+    terminal.attempt?.charged_duration_ms,
     original.preparation_receipts?.reduce((sum, receipt) => sum + Number(receipt.duration_ms || 0), 0),
     original.attempts?.[0]?.charged_duration_ms,
     accepted.attempts?.find((item) => item.slot_id === 'R-INFRA-RETRY-DESKTOP')?.charged_duration_ms,
@@ -1443,17 +1443,17 @@ function readControlRecoveryHistory(root) {
   const ledger = buildControlRecoveryLedger({
     charges, physicalPlaywrightLaunches: accepted.limits?.browser_launches + original.limits?.browser_launches + failedDark.limits?.physical_browser_launches,
     spentReservations: ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK'],
-    retryUsed: accepted.limits?.retry_count_used, retryAvailable: accepted.limits?.retry_count_available,
+    retryUsed: failedDark.limits?.retry_count_used, retryAvailable: failedDark.limits?.retry_count_available,
     preparationMaximumMs: 116232, preparationUsedMs: charges[1]
   });
-  if (terminal.limits?.charged_duration_ms !== 3768 || original.status !== 'halted'
+  if (terminal.attempt?.charged_duration_ms !== 3768 || original.status !== 'halted'
     || original.attempts?.length !== 1 || original.limits?.browser_launches !== 1
     || accepted.status !== 'diagnosis_incomplete' || accepted.attempts?.length !== 2
     || accepted.attempts.some((item, index) => item.slot_id !== ledger.spent_reservations[index + 2] || item.charged_duration_ms !== charges[index + 3])
     || failedDark.status !== 'halted' || failedDark.attempts?.length !== 1
     || failedDark.attempts[0]?.slot_id !== 'R-DIAG-CONTROL-DARK'
     || failedDark.attempts[0]?.charged_duration_ms !== 121252
-    || failedDark.attempts[0]?.native_report_present !== false
+    || failedDark.native_report_present !== false
     || failedDark.limits?.retry_count_used !== 1 || failedDark.limits?.retry_count_available !== 0
     || cleanup.original_native_slot_still_failed !== true || cleanup.database_absent_confirmed !== true
     || cleanup.cleanup_duration_ms !== 112 || cleanup.cumulative_charge_ms_including_post_halt_cleanup !== 243044) {
