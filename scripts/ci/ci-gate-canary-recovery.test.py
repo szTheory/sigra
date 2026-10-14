@@ -36,30 +36,64 @@ class CanaryRecoveryTests(unittest.TestCase):
             self.assertFalse((tmp / 'calls').exists(), result.stderr)
             self.assertEqual(evidence.read_bytes(), original)
 
-    def test_expected_watch_failure_returns_without_changing_errexit(self):
+    def _run_watch(self, tmp, body, api_get):
+        """Run the real watch_run function with stubbed transport inside a hermetic TMPDIR."""
         source = RUNNER.read_text()
         function = re.search(r'^watch_run\(\) \{.*?^\}', source, re.M | re.S).group(0)
-        stubs = '''set -euo pipefail
-api_get() { printf '{"resources":{"core":{"remaining":5000}}}' > "$2"; }
-check_budget() { :; }
-log_request() { :; }
-record_budget() { :; }
-gh() { return 1; }
-sleep() { command sleep 0.01; }
-REQUEST_COUNT=0
-WATCH_RESERVATION=8
-'''
-        result = subprocess.run(['bash', '-c', stubs + function + '''
+        stubs = (
+            'set -euo pipefail\n'
+            # BSD mktemp only substitutes trailing X characters; route legacy /tmp templates
+            # into the hermetic TMPDIR so a stale literal name collides here, not in /tmp.
+            'mktemp() { local a=() x; for x in "$@"; do a+=("${x/#\\/tmp\\//$TMPDIR/}"); done; command mktemp "${a[@]}"; }\n'
+            'WORK_DIR="$(mktemp -d "$TMPDIR/253-canary-test.XXXXXX")"\n'
+            + api_get +
+            'check_budget() { :; }\n'
+            'fail() { echo "FAIL: $*" >&2; exit 1; }\n'
+            'sleep() { command sleep 0.01; }\n'
+            'MAX_MINUTES=60\nPOLL_INTERVAL=0\n'
+            'TERMINAL_RUN_JSON="$WORK_DIR/terminal-run.json"\n'
+        )
+        env = {**os.environ, 'TMPDIR': str(tmp)}
+        return subprocess.run(['bash', '-c', stubs + function + body], text=True, capture_output=True, env=env, timeout=60), function
+
+    def test_expected_watch_failure_returns_without_changing_errexit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            for stale in ('253-canary-watch-rate.XXXXXX.json', '253-canary-terminal-run.XXXXXX.json'):
+                (tmp / stale).write_text('stale')
+            (tmp / '253-canary-poll-901.lock').mkdir()  # another poller already owns the run
+            result, function = self._run_watch(tmp, '''
 watch_status=0
-if watch_run 901 fixture; then watch_status=0; else watch_status=$?; fi
+if (watch_run 901 fixture); then watch_status=0; else watch_status=$?; fi
 [[ "$watch_status" == 1 ]]
 [[ "$-" == *e* ]]
 echo completion-can-be-captured
-'''], text=True, capture_output=True)
+''', 'api_get() { printf \'{"resources":{"core":{"remaining":5000}}}\' > "$2"; }\n')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('completion-can-be-captured', result.stdout)
+        self.assertIn('another poller already owns run 901', result.stderr)
+        self.assertNotIn('File exists', result.stderr)
         self.assertNotIn('set +e', function)
         self.assertNotIn('set -e', function)
+
+    def test_terminal_run_is_captured_with_stale_temp_names_present(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            for stale in ('253-canary-watch-rate.XXXXXX.json', '253-canary-terminal-run.XXXXXX.json'):
+                (tmp / stale).write_text('stale')
+            api_get = (
+                'api_get() { case "$1" in rate_limit) printf \'{"resources":{"core":{"remaining":5000}}}\' > "$2" ;;'
+                ' *) printf \'{"status":"completed","conclusion":"success"}\' > "$2" ;; esac; }\n')
+            result, _ = self._run_watch(tmp, '''
+watch_run 901 fixture
+[[ "$-" == *e* ]]
+jq -e '.conclusion == "success"' "$TERMINAL_RUN_JSON" >/dev/null
+echo terminal-run-captured
+''', api_get)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('terminal-run-captured', result.stdout)
+            self.assertNotIn('File exists', result.stderr)
+            self.assertFalse((tmp / '253-canary-poll-901.lock').exists())
 
     def test_fixture_uses_actual_github_identity_as_input_only(self):
         workflow = yaml.safe_load(FIXTURE.read_text())

@@ -124,6 +124,11 @@ if [[ "$TRANSPORT_PROBE" == true ]]; then
   exec python3 "$ROOT/scripts/ci/ci-hosted-transport.py" "${args[@]}"
 fi
 
+# One private (mode 700) per-run directory holds every temporary request/receipt/response file.
+# BSD mktemp only substitutes trailing X characters, so no template below carries a suffix.
+WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/253-canary.XXXXXX")"
+trap 'rm -rf "$WORK_DIR"' EXIT
+
 if [[ "$CHECK_ONLY" == true ]]; then
   [[ -f "$FIXTURE" ]] || fail "fixture workflow missing: $FIXTURE"
   [[ -n "$FREEZE_TO_CHECK" && -f "$FREEZE_TO_CHECK" ]] || fail 'a recovery freeze file is required for check-only'
@@ -235,7 +240,7 @@ fi
 if [[ -f "$EVIDENCE" ]] && ! jq -e '.schema_version=="sigra.phase253.hosted-replan-evidence/v2"' "$EVIDENCE" >/dev/null 2>&1; then
   fail 'the existing evidence is historical v1/v2 disclosure; new acceptance needs a separate measured-v2 evidence path and allocation'
 fi
-startup_request="$(mktemp /tmp/253-canary-startup-request.XXXXXX.json)"
+startup_request="$(mktemp "$WORK_DIR/startup-request.XXXXXX")"
 jq -n '{method:"GET",route_id:"rate_limit"}' > "$startup_request"
 python3 "$ROOT/scripts/ci/ci-hosted-transport.py" --check-only --allocation "$LIVE_ALLOCATION" \
   --ledger "$REQUESTS" --request "$startup_request" --output /dev/null || fail 'frozen HTTP allocation failed local transport validation'
@@ -284,12 +289,12 @@ preserve_evidence() {
 
 publish_fixture_ref() {
   local ref_endpoint="git/ref/heads/$FIXTURE_BRANCH" remote_ref state remote_response
-  remote_ref="$(mktemp -t 253-canary-remote-ref)"
+  remote_ref="$(mktemp "$WORK_DIR/remote-ref.XXXXXX")"
   if api_get "$ref_endpoint" "$remote_ref" true; then
     jq -e --arg ref "$FIXTURE_REF" --arg sha "$FIXTURE_SHA" '.ref==$ref and .object.sha==$sha' "$remote_ref" >/dev/null || fail 'remote fixture ref exists with a different identity; refusing to update it'
     state='present-exact'
   else
-    remote_response="$(mktemp -t 253-canary-create-ref-response)"
+    remote_response="$(mktemp "$WORK_DIR/create-ref-response.XXXXXX")"
     api_post_create_ref "$FIXTURE_BRANCH" "$FIXTURE_SHA" "$remote_response"
     jq -e --arg ref "$FIXTURE_REF" --arg sha "$FIXTURE_SHA" '.ref==$ref and .object.sha==$sha' "$remote_response" >/dev/null || fail 'created fixture ref response did not match the sealed commit'
     api_get "$ref_endpoint" "$remote_ref"
@@ -306,14 +311,14 @@ publish_fixture_ref() {
 
 watch_run() {
   local run_id="$1" description="$2" rate_file core_left started run_target status conclusion lock_dir
-  rate_file="$(mktemp /tmp/253-canary-watch-rate.XXXXXX.json)"
+  rate_file="$(mktemp "$WORK_DIR/watch-rate.XXXXXX")"
   api_get rate_limit "$rate_file"
   core_left="$(jq -r '.resources.core.remaining // 0' "$rate_file")"
   (( core_left > 250 )) || fail "GitHub core API budget is at or below 250 before watch (remaining=$core_left)"
-  lock_dir="/tmp/253-canary-poll-$run_id.lock"
+  lock_dir="${TMPDIR:-/tmp}/253-canary-poll-$run_id.lock"
   mkdir "$lock_dir" 2>/dev/null || fail "another poller already owns run $run_id"
   started="$SECONDS"
-  run_target="$(mktemp /tmp/253-canary-terminal-run.XXXXXX.json)"
+  run_target="$(mktemp "$WORK_DIR/terminal-run.XXXXXX")"
   while :; do
     check_budget 0
     (( SECONDS - started < MAX_MINUTES * 60 )) || fail "60-minute canary ceiling reached while polling run $run_id"
@@ -341,12 +346,12 @@ PY
 
 TRANSPORT_MODULE="$ROOT/scripts/ci/ci-hosted-transport.py"
 REQUEST_LEDGER="$REQUESTS"
-HTTP_RECEIPT_DIR="$(mktemp -d /tmp/253-canary-http-receipts.XXXXXX)"
+HTTP_RECEIPT_DIR="$(mktemp -d "$WORK_DIR/http-receipts.XXXXXX")"
 
 transport_call() {
   route="$1"; method="$2"; target="$3"; params="$4"; query="$5"; body="$6"; mode="$7"
-  request_file="$(mktemp /tmp/253-canary-http-request.XXXXXX.json)"
-  receipt_file="$(mktemp /tmp/253-canary-http-receipt.XXXXXX.json)"
+  request_file="$(mktemp "$WORK_DIR/http-request.XXXXXX")"
+  receipt_file="$(mktemp "$WORK_DIR/http-receipt.XXXXXX")"
   jq -n --arg route "$route" --arg method "$method" --argjson params "$params" --argjson query "$query" --argjson body "$body" \
     '{route_id:$route,method:$method,params:$params,query:$query,page_ordinal:1,hop_ordinal:0,body:(if $body==null then null else $body end)}' > "$request_file"
   rc=0
@@ -466,11 +471,11 @@ record_budget
 
 # Fresh read-only preflights share the immutable 117-new-request budget with all
 # dispatches, polling, cancellation, artifact downloads, and failure logs.
-RATE_RESPONSE="$(mktemp -t 253-recovery-rate)"
-RULES_RESPONSE="$(mktemp -t 253-recovery-rules)"
-WORKFLOW_RESPONSE="$(mktemp -t 253-recovery-workflow)"
-LEGACY_RESPONSE="$(mktemp -t 253-recovery-legacy-protection)"
-CHECK_RUNS_RESPONSE="$(mktemp -t 253-recovery-check-runs)"
+RATE_RESPONSE="$(mktemp "$WORK_DIR/recovery-rate.XXXXXX")"
+RULES_RESPONSE="$(mktemp "$WORK_DIR/recovery-rules.XXXXXX")"
+WORKFLOW_RESPONSE="$(mktemp "$WORK_DIR/recovery-workflow.XXXXXX")"
+LEGACY_RESPONSE="$(mktemp "$WORK_DIR/recovery-legacy-protection.XXXXXX")"
+CHECK_RUNS_RESPONSE="$(mktemp "$WORK_DIR/recovery-check-runs.XXXXXX")"
 api_get rate_limit "$RATE_RESPONSE"
 CORE_LEFT="$(jq -r '.resources.core.remaining // 0' "$RATE_RESPONSE")"
 (( CORE_LEFT > 250 )) || fail "GitHub core API budget is at or below 250 (remaining=$CORE_LEFT)"
@@ -526,7 +531,7 @@ if [[ -z "$CANDIDATE_SHA" ]]; then
   BRANCH_SUFFIX="$(date -u +%Y%m%dT%H%M%SZ)-$$"
   FIXTURE_REF="refs/heads/gsd/253-replan-canary-fixture-$BRANCH_SUFFIX"
   FIXTURE_BLOB="$(git hash-object -w "$FIXTURE")"
-  TMP_INDEX="$(mktemp /tmp/253-canary-index.XXXXXX)"
+  TMP_INDEX="$(mktemp "$WORK_DIR/index.XXXXXX")"
   rm -f "$TMP_INDEX"
   export GIT_INDEX_FILE="$TMP_INDEX"
   git read-tree "$CANDIDATE_SHA"
@@ -583,7 +588,7 @@ dispatch_scenario() {
   validate_dispatch_inputs "$input_json"
   api_post_dispatch "$input_json" || fail "dispatch failed for $case_name"
   record_budget
-  run_list="$(mktemp /tmp/253-canary-runs.XXXXXX.json)"
+  run_list="$(mktemp "$WORK_DIR/runs.XXXXXX")"
   api_get "actions/workflows/$WORKFLOW_ID/runs?event=workflow_dispatch&branch=$FIXTURE_BRANCH&per_page=100" "$run_list"
   run_id="$(jq -r --arg branch "$FIXTURE_BRANCH" --arg sha "$FIXTURE_SHA" --arg title "Phase 253 Gate Canary / $case_name /" '[.workflow_runs[] | select(.workflow_id==259268962 and .head_branch==$branch and .head_sha==$sha and .event=="workflow_dispatch" and (.display_title|startswith($title)))] | sort_by(.run_number) | last | .id // empty' "$run_list")"
   [[ -n "$run_id" ]] || fail "dispatch receipt not found for $case_name"
@@ -594,35 +599,35 @@ dispatch_scenario() {
     transport_call cancel_run POST /dev/null "$(jq -cn --argjson id "$run_id" '{run_id:$id}')" '{}' null one || fail 'identified canary cancellation failed'
     [[ "$LAST_REQUEST_STATUS" == 202 ]] || fail "identified canary cancellation returned HTTP $LAST_REQUEST_STATUS"
   fi
-  run_json="$(mktemp /tmp/253-canary-run.XXXXXX.json)"
+  run_json="$(mktemp "$WORK_DIR/run.XXXXXX")"
   TERMINAL_RUN_JSON="$run_json"
   local watch_status
   if watch_run "$run_id" "$case_name"; then watch_status=0; else watch_status=$?; fi
   record_budget
   (( watch_status != 124 )) || fail "watch exceeded its reserved four-minute window for $case_name"
   (( watch_status != 77 )) || fail "watch received a GitHub 403/429 rate-limit response; stop until reset"
-  jobs_json="$(mktemp /tmp/253-canary-jobs.XXXXXX.json)"
-  artifacts_json="$(mktemp /tmp/253-canary-artifacts.XXXXXX.json)"
+  jobs_json="$(mktemp "$WORK_DIR/jobs.XXXXXX")"
+  artifacts_json="$(mktemp "$WORK_DIR/artifacts.XXXXXX")"
   api_get "actions/runs/$run_id/jobs?per_page=100" "$jobs_json"
   api_get "actions/runs/$run_id/artifacts?per_page=100" "$artifacts_json"
   local run_attempt conclusion
   run_attempt="$(jq -r '.run_attempt' "$run_json")"
   conclusion="$(jq -r '.conclusion // ""' "$run_json")"
   if [[ "$conclusion" == failure ]]; then
-    failed_logs="$(mktemp /tmp/253-canary-failed-logs.XXXXXX.zip)"
+    failed_logs="$(mktemp "$WORK_DIR/failed-logs.XXXXXX")"
     download_no_follow "https://api.github.com/repos/$REPO/actions/runs/$run_id/logs" "$failed_logs" 0 || fail "failed-log retrieval failed for run $run_id"
   fi
   current_jobs="$(jq -r '.budget.actual_jobs // 0' "$EVIDENCE")"
   new_jobs="$(jq -r '[.jobs[] | select(.conclusion != "skipped")] | length' "$jobs_json")"
   (( current_jobs + new_jobs <= MAX_JOBS )) || fail "hosted execution count exceeded $MAX_JOBS jobs"
-  receipt_tmp="$(mktemp /tmp/253-canary-receipt.XXXXXX.json)"
+  receipt_tmp="$(mktemp "$WORK_DIR/receipt.XXXXXX")"
   if [[ "$case_name" == cancelled ]]; then
     jq -n --slurpfile run "$run_json" --slurpfile jobs "$jobs_json" --slurpfile artifacts "$artifacts_json" \
       --arg run_id "$run_id" --argjson attempt "$run_attempt" '{run_id:$run_id,run_attempt:$attempt,run:$run[0],jobs:$jobs[0],artifacts:$artifacts[0]}' > "$receipt_tmp"
   else
     artifact_id="$(jq -r --arg name "gate-canary-$case_name-$run_id-$run_attempt" '[.artifacts[] | select(.name==$name and .expired==false and (.size_in_bytes|type)=="number" and .size_in_bytes<=2097152)] | if length==1 then .[0].id else empty end' "$artifacts_json")"
     [[ -n "$artifact_id" ]] || fail "expected same-run retained artifact missing for $case_name"
-    archive="$(mktemp /tmp/253-canary-artifact.XXXXXX.zip)"
+    archive="$(mktemp "$WORK_DIR/artifact.XXXXXX")"
     download_no_follow "https://api.github.com/repos/$REPO/actions/artifacts/$artifact_id/zip" "$archive" "$MAX_ARTIFACT_COMPRESSED" || fail "artifact download failed for $case_name"
     local artifact_data
     artifact_data="$(python3 - "$archive" <<'PY'
@@ -674,16 +679,16 @@ PY
   api_post_dispatch "$input_json" || fail 'separate verifier dispatch failed'
   record_budget
   # The verifier run is found by its distinct workflow display title and exact fixture identity.
-  VERIFY_LIST="$(mktemp /tmp/253-canary-verifier-runs.XXXXXX.json)"
+  VERIFY_LIST="$(mktemp "$WORK_DIR/verifier-runs.XXXXXX")"
   api_get "actions/workflows/$WORKFLOW_ID/runs?event=workflow_dispatch&branch=$FIXTURE_BRANCH&per_page=100" "$VERIFY_LIST"
   VERIFY_ID="$(jq -r --arg branch "$FIXTURE_BRANCH" --arg sha "$FIXTURE_SHA" '[.workflow_runs[] | select(.head_branch==$branch and .head_sha==$sha and .event=="workflow_dispatch" and (.display_title|startswith("Phase 253 Gate Canary / verifier /")))] | sort_by(.run_number) | last | .id // empty' "$VERIFY_LIST")"
   [[ -n "$VERIFY_ID" ]] || fail 'separate verifier run was not created'
-  VERIFY_RUN="$(mktemp /tmp/253-canary-verifier-run.XXXXXX.json)"
+  VERIFY_RUN="$(mktemp "$WORK_DIR/verifier-run.XXXXXX")"
   TERMINAL_RUN_JSON="$VERIFY_RUN"
   if watch_run "$VERIFY_ID" 'separate verifier'; then watch_status=0; else watch_status=$?; fi
   (( watch_status != 124 )) || fail 'separate verifier watch exceeded its reservation'
   (( watch_status != 77 )) || fail 'separate verifier watch received a GitHub 403/429; stop until reset'
-  VERIFY_JOBS="$(mktemp /tmp/253-canary-verifier-jobs.XXXXXX.json)"
+  VERIFY_JOBS="$(mktemp "$WORK_DIR/verifier-jobs.XXXXXX")"
   api_get "actions/runs/$VERIFY_ID" "$VERIFY_RUN"
   api_get "actions/runs/$VERIFY_ID/jobs?per_page=100" "$VERIFY_JOBS"
   new_jobs="$(jq -r '[.jobs[] | select(.conclusion != "skipped")] | length' "$VERIFY_JOBS")"
