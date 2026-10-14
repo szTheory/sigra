@@ -5640,3 +5640,199 @@ test('acceptance: the CLI parses both LOAD_CHECKS argv forms and they agree on t
   assert.doesNotMatch(bare.stderr, /Unknown|usage/i);
   assert.match(bare.stderr, /target|accepted|cause/i);
 });
+
+// ---- 253-89: target disposition predicate (D-04/D-24), hermetic fixtures ----
+const DISP_EVIDENCE = `${ACCEPT_PHASE}/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json`;
+const DISP_FILE = `${ACCEPT_PHASE}/253-LOAD-RECOVERY-TARGET-DISPOSITION.json`;
+const DISP_APPROVAL = `${ACCEPT_PHASE}/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json`;
+const DISP_NOW = () => '2026-10-14T00:00:00.000Z';
+
+function dispositionFixture({ approve = true, evidenceMutate = () => {} } = {}) {
+  const ctx = acceptanceFixture(evidenceMutate);
+  const evidenceFile = path.join(ctx.dir, DISP_EVIDENCE);
+  fs.writeFileSync(evidenceFile, `${JSON.stringify(ctx.evidence, null, 2)}\n`);
+  ctx.evidenceFile = evidenceFile;
+  ctx.dispFile = path.join(ctx.dir, DISP_FILE);
+  ctx.approvalFile = path.join(ctx.dir, DISP_APPROVAL);
+  ctx.deps = {
+    verifyControls: () => true,
+    git: {
+      tracked: (r, rel) => fs.existsSync(path.join(r, rel)) && !ctx.untracked?.has(rel),
+      inHead: (r, rel) => fs.existsSync(path.join(r, rel)) && !ctx.untracked?.has(rel),
+      headBytes: (r, rel) => (ctx.head?.[rel] ?? fs.readFileSync(path.join(r, rel)))
+    }
+  };
+  if (approve) {
+    recovery.createTargetDisposition({ evidenceFile, outputFile: ctx.dispFile }, ctx.dir, { now: DISP_NOW, verifyControls: () => true });
+    recovery.recordTargetDispositionApproval({ decision: 'approve', dispositionFile: ctx.dispFile, outputFile: ctx.approvalFile, decisionText: 'Approve (Recommended)' }, ctx.dir, { now: DISP_NOW });
+  }
+  ctx.verify = () => recovery.verifyRequireTargetDisposition(evidenceFile, ctx.dir, ctx.deps);
+  ctx.readDisp = () => readJsonFile(ctx.dispFile);
+  ctx.rewriteDisp = (mutate) => {
+    const d = ctx.readDisp(); mutate(d);
+    fs.writeFileSync(ctx.dispFile, `${JSON.stringify(d, null, 2)}\n`);
+    ctx.forgeApproval();
+  };
+  ctx.forgeApproval = (patch = {}) => {
+    const a = {
+      schema_version: 'sigra.phase253.load-target-disposition-approval/v1', decision: 'approve', decision_text: 'Approve (Recommended)',
+      disposition_sha256: fileSha(ctx.dispFile), acceptance_evidence_sha256: fileSha(evidenceFile), recorded_at: DISP_NOW(), ...patch
+    };
+    fs.writeFileSync(ctx.approvalFile, `${JSON.stringify(a, null, 2)}\n`);
+  };
+  return ctx;
+}
+const readJsonFile = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
+const fileSha = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+const cleanup = (...ctxs) => { for (const c of ctxs) fs.rmSync(c.dir, { recursive: true, force: true }); };
+
+test('disposition: an approved, committed, hash-bound not_reproduced record passes and names its route', () => {
+  const ctx = dispositionFixture();
+  try {
+    const result = ctx.verify();
+    assert.equal(result.ok, true, result.errors?.join('; '));
+    assert.equal(result.route, 'disposition');
+    const d = ctx.readDisp();
+    assert.equal(d.status, 'not_reproduced');
+    assert.equal(d.automatic, false);
+    assert.equal(d.historical_cause.cause, null);
+    assert.equal(d.historical_cause.causal_link, null);
+    assert.deepEqual(d.historical_cause.missing, ctx.evidence.historical_cause.missing, 'missing items copied verbatim');
+    assert.equal(d.acceptance_evidence.sha256, fileSha(ctx.evidenceFile));
+    assert.equal(d.requirements['CIREL-01'].satisfied, false);
+    assert.equal(d.requirements['CIREL-01'].status, 'partial');
+    assert.equal(d.roadmap_sc1_no_flake_clause.applies, false);
+    assert.equal(d.qualifies_as_no_flake, false);
+    assert.equal(d.acceptance_slots.length, 9);
+    assert.ok(d.acceptance_slots.every((slot) => slot.status === 'expired_unused'));
+    assert.ok(d.supporting_evidence_not_proof.repairs.every((group) => group.explains_historical_cause === false));
+  } finally { cleanup(ctx); }
+});
+
+test('disposition: no approval, a non-approve decision, or an uncommitted/tampered record exits the failing route', () => {
+  const missing = dispositionFixture(); fs.rmSync(missing.approvalFile);
+  const rejected = dispositionFixture(); rejected.forgeApproval({ decision: 'reject' });
+  const untracked = dispositionFixture(); untracked.untracked = new Set([DISP_APPROVAL]);
+  const dispUntracked = dispositionFixture(); dispUntracked.untracked = new Set([DISP_FILE]);
+  const tampered = dispositionFixture(); tampered.head = { [DISP_FILE]: Buffer.from('{"original":true}\n') };
+  const approvalTampered = dispositionFixture(); approvalTampered.head = { [DISP_APPROVAL]: Buffer.from('{"original":true}\n') };
+  const mismatchedApproval = dispositionFixture(); mismatchedApproval.forgeApproval({ disposition_sha256: '0'.repeat(64) });
+  const approvalEvidence = dispositionFixture(); approvalEvidence.forgeApproval({ acceptance_evidence_sha256: '1'.repeat(64) });
+  const all = [missing, rejected, untracked, dispUntracked, tampered, approvalTampered, mismatchedApproval, approvalEvidence];
+  try {
+    for (const ctx of all) assert.equal(ctx.verify().ok, false);
+  } finally { cleanup(...all); }
+});
+
+test('disposition: evidence edited after the disposition, or a wrong schema or status, is rejected', () => {
+  const edited = dispositionFixture();
+  const schema = dispositionFixture();
+  const status = dispositionFixture();
+  try {
+    const evidence = readJsonFile(edited.evidenceFile); evidence.observed_cause.summary = 'edited later';
+    fs.writeFileSync(edited.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    assert.equal(edited.verify().ok, false);
+    schema.rewriteDisp((d) => { d.schema_version = 'other/v1'; });
+    assert.equal(schema.verify().ok, false);
+    status.rewriteDisp((d) => { d.status = 'accepted'; });
+    assert.equal(status.verify().ok, false);
+  } finally { cleanup(edited, schema, status); }
+});
+
+test('disposition: a record that over-claims a cause, a satisfied requirement, no-flake qualification or an attempt is rejected', () => {
+  const cases = {
+    cause: (d) => { d.historical_cause.cause = 'registration helper shares account'; },
+    link: (d) => { d.historical_cause.causal_link = { seam: 'x' }; },
+    demonstrated: (d) => { d.historical_cause.status = 'demonstrated'; },
+    satisfied: (d) => { d.requirements['CIREL-01'].satisfied = true; },
+    statusSatisfied: (d) => { d.requirements['CIREL-01'].status = 'satisfied'; },
+    statusAccepted: (d) => { d.requirements['CIREL-01'].status = 'accepted'; },
+    statusFixed: (d) => { d.requirements['CIREL-01'].status = 'reproduced_and_fixed'; },
+    applies: (d) => { d.roadmap_sc1_no_flake_clause.applies = true; },
+    qualifies: (d) => { d.qualifies_as_no_flake = true; },
+    roadmapQualifies: (d) => { d.roadmap_sc1_no_flake_clause.qualifies_as_no_flake = true; },
+    automatic: (d) => { d.automatic = true; },
+    attempt: (d) => { d.acceptance_attempts = [{ id: 'D20-ACCEPT-admin-eval-1' }]; },
+    slotUsed: (d) => { d.acceptance_slots[0].status = 'passed'; },
+    missingDropped: (d) => { d.historical_cause.missing = []; }
+  };
+  const ctxs = Object.entries(cases).map(([name, mutate]) => { const ctx = dispositionFixture(); ctx.name = name; ctx.rewriteDisp(mutate); return ctx; });
+  try {
+    for (const ctx of ctxs) assert.equal(ctx.verify().ok, false, `over-claim ${ctx.name} must be rejected`);
+  } finally { cleanup(...ctxs); }
+});
+
+test('disposition: the evidence itself must still be an open, diagnosis_incomplete record with no attempts', () => {
+  const accepted = dispositionFixture({ approve: false, evidenceMutate: (c) => {
+    demonstrated(c);
+    c.evidence.status = 'complete'; c.evidence.target_status = 'accepted';
+    c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+    c.evidence.acceptance.attempts = acceptedAttempts(c);
+  } });
+  const notIncomplete = dispositionFixture({ approve: false, evidenceMutate: (c) => { c.evidence.historical_cause.status = 'not_reproduced'; } });
+  const withAttempt = dispositionFixture({ approve: false, evidenceMutate: (c) => { c.evidence.acceptance.attempts = [{ id: ACCEPT_IDS[0], project: 'admin-eval', outcome: 'passed', fresh: true, host_awake: true, charged_duration_ms: 1000 }]; } });
+  const badControls = dispositionFixture();
+  try {
+    assert.throws(() => recovery.createTargetDisposition({ evidenceFile: notIncomplete.evidenceFile, outputFile: notIncomplete.dispFile }, notIncomplete.dir, { now: DISP_NOW, verifyControls: () => true }), /diagnosis_incomplete|progress|open/i);
+    assert.throws(() => recovery.createTargetDisposition({ evidenceFile: withAttempt.evidenceFile, outputFile: withAttempt.dispFile }, withAttempt.dir, { now: DISP_NOW, verifyControls: () => true }), /attempt|cause|progress/i);
+    assert.throws(() => recovery.createTargetDisposition({ evidenceFile: accepted.evidenceFile, outputFile: accepted.dispFile }, accepted.dir, { now: DISP_NOW, verifyControls: () => true }), /diagnosis_incomplete|open|accepted/i);
+    badControls.deps.verifyControls = () => false;
+    assert.equal(badControls.verify().ok, false, 'controls that do not reopen reject the disposition route');
+  } finally { cleanup(accepted, notIncomplete, withAttempt, badControls); }
+});
+
+test('disposition: the accepted-target route still passes under the new flag, and the old flag is unchanged', () => {
+  const good = dispositionFixture({ approve: false, evidenceMutate: (c) => {
+    demonstrated(c);
+    c.evidence.status = 'complete'; c.evidence.target_status = 'accepted';
+    c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+    c.evidence.acceptance.attempts = acceptedAttempts(c);
+  } });
+  const open = dispositionFixture({ approve: false });
+  try {
+    const result = good.verify();
+    assert.equal(result.ok, true, result.errors?.join('; '));
+    assert.equal(result.route, 'accepted');
+    assert.equal(verifyAccept(good, 'complete', true).ok, true);
+    assert.equal(open.verify().ok, false, 'an open target with no disposition is not resolved');
+    assert.equal(verifyAccept(open, 'complete', true).ok, false, '--require-target-accepted semantics unchanged on an open target');
+  } finally { cleanup(good, open); }
+});
+
+test('disposition: the create and approval recorders are exclusive-create and approve-only', () => {
+  const ctx = dispositionFixture();
+  const bare = dispositionFixture({ approve: false });
+  try {
+    assert.throws(() => recovery.createTargetDisposition({ evidenceFile: ctx.evidenceFile, outputFile: ctx.dispFile }, ctx.dir, { now: DISP_NOW, verifyControls: () => true }), /EEXIST|exist/i);
+    assert.throws(() => recovery.recordTargetDispositionApproval({ decision: 'approve', dispositionFile: ctx.dispFile, outputFile: ctx.approvalFile, decisionText: 'again' }, ctx.dir, { now: DISP_NOW }), /EEXIST|exist/i);
+    recovery.createTargetDisposition({ evidenceFile: bare.evidenceFile, outputFile: bare.dispFile }, bare.dir, { now: DISP_NOW, verifyControls: () => true });
+    for (const decision of ['reject', 'hunt', '', undefined]) {
+      assert.throws(() => recovery.recordTargetDispositionApproval({ decision, dispositionFile: bare.dispFile, outputFile: bare.approvalFile, decisionText: 'x' }, bare.dir, { now: DISP_NOW }), /approve/i);
+      assert.equal(fs.existsSync(bare.approvalFile), false, 'a non-approve decision writes nothing');
+    }
+    assert.throws(() => recovery.recordTargetDispositionApproval({ decision: 'approve', dispositionFile: bare.dispFile, outputFile: path.join(bare.dir, 'elsewhere.json'), decisionText: 'x' }, bare.dir, { now: DISP_NOW }), /path/i);
+    const record = readJsonFile(ctx.approvalFile);
+    assert.equal(record.decision, 'approve');
+    assert.equal(record.decision_text, 'Approve (Recommended)');
+    assert.equal(record.disposition_sha256, fileSha(ctx.dispFile));
+    assert.equal(record.acceptance_evidence_sha256, fileSha(ctx.evidenceFile));
+    assert.equal(record.recorded_at, DISP_NOW());
+  } finally { cleanup(ctx, bare); }
+});
+
+test('disposition: the CLI rejects --require-target-disposition combined with --require-target-accepted and leaves LOAD_CHECKS unchanged', () => {
+  const python = fs.readFileSync(path.join(root, 'scripts/ci/ci-hosted-gate-verify.py'), 'utf8');
+  assert.match(python, /"load_acceptance": \["--verify-load-acceptance", "\{path\}", "--require-target-accepted"\]/);
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const evidence = path.join(root, ACCEPT_PHASE, '253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json');
+  const both = spawnSync(process.execPath, [script, '--verify-load-acceptance', evidence, '--require-target-disposition', '--require-target-accepted'], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(both.status, 0);
+  assert.match(both.stderr, /usage/i);
+  const parse = (...args) => spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: 'utf8' });
+  const badCreate = parse('--create-target-disposition', '--evidence', evidence);
+  assert.notEqual(badCreate.status, 0);
+  assert.match(badCreate.stderr, /usage/i);
+  const badApproval = parse('--record-target-disposition-approval', '--decision', 'reject', '--disposition', 'x', '--output', 'y');
+  assert.notEqual(badApproval.status, 0);
+  assert.doesNotMatch(badApproval.stderr, /^$/);
+});
