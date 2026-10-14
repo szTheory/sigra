@@ -11,9 +11,12 @@ export function registrationControlAccount(projectName, purpose) {
   return `platform-admin+sigra-253-control-${project.toLowerCase()}-${purpose}@example.test`;
 }
 
-/** @param {{page: unknown, waitForHold: Function, fill: Function, submit: Function, assertNoPostWhileHeld: Function, release: Function, waitUntilReady: Function, assertSuccess: Function, annotate?: Function}} options */
+/** @param {{page: unknown, waitForHold: Function, fill: Function, submit: Function, assertNoPostWhileHeld: Function, release: Function, waitUntilReady: Function, refillAfterReady: Function, assertSuccess: Function, annotate?: Function}} options */
 export async function runHeldRegistrationControl(options) {
   const { page } = options;
+  if (typeof options.refillAfterReady !== 'function') {
+    throw new TypeError('runHeldRegistrationControl requires refillAfterReady: the join re-render can reset unfocused form fields');
+  }
   await options.waitForHold(page);
   options.annotate?.('connection_hold_observed');
   await options.fill(page);
@@ -23,6 +26,8 @@ export async function runHeldRegistrationControl(options) {
   options.annotate?.('connection_released');
   await options.waitUntilReady(page);
   options.annotate?.('readiness_ready');
+  await options.refillAfterReady(page);
+  options.annotate?.('readiness_refill');
   await options.submit(page);
   options.annotate?.('submit');
   await options.assertSuccess(page);

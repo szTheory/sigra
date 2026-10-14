@@ -178,14 +178,33 @@ test('shared held-registration control releases readiness before submit', async 
     assertNoPostWhileHeld: async () => { assert.equal(posts, 0); },
     release: () => { released = true; events.push('release'); },
     waitUntilReady: async () => { events.push('ready'); },
+    refillAfterReady: async () => { events.push('refill'); },
     assertSuccess: async () => { events.push('success'); },
     annotate: (stage) => annotations.push(stage),
   });
-  assert.deepEqual(events, ['hold', 'fill', 'release', 'ready', 'submit', 'success']);
+  assert.deepEqual(events, ['hold', 'fill', 'release', 'ready', 'refill', 'submit', 'success']);
   assert.deepEqual(annotations, [
-    'connection_hold_observed', 'fill', 'connection_released', 'readiness_ready', 'submit', 'original_assertion',
+    'connection_hold_observed', 'fill', 'connection_released', 'readiness_ready', 'readiness_refill', 'submit', 'original_assertion',
   ]);
   assert.equal(posts, 1);
+});
+
+test('shared held-registration control requires refillAfterReady before any page interaction', async () => {
+  const events = [];
+  await assert.rejects(
+    runHeldRegistrationControl({
+      page: {},
+      waitForHold: async () => { events.push('hold'); },
+      fill: async () => { events.push('fill'); },
+      submit: async () => { events.push('submit'); },
+      assertNoPostWhileHeld: async () => {},
+      release: () => {},
+      waitUntilReady: async () => {},
+      assertSuccess: async () => {},
+    }),
+    TypeError,
+  );
+  assert.deepEqual(events, []);
 });
 
 test('shared control isolates the positive account from the deliberate collision account', () => {

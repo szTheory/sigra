@@ -279,6 +279,7 @@ if (CONTROL_STAGE === 'first') {
       const longpollReleaseSignal = new Promise<void>((resolve) => { releaseLongpoll = resolve; });
       let postsBeforeRelease = 0;
       let registrationPosts = 0;
+      let emailEmptyAfterReady = false;
       let longpollRequests = 0;
       let heldLongpollRequests = 0;
       let websocketRouteObserved = false;
@@ -335,6 +336,16 @@ if (CONTROL_STAGE === 'first') {
           releaseLongpoll();
         },
         waitUntilReady: async (heldPage: Page) => { await waitForLiveViewReady(heldPage); },
+        refillAfterReady: async (heldPage: Page) => {
+          const heldEmail = registrationControlAccount(testInfo.project.name, 'held-positive');
+          const emailBox = heldPage.getByRole('textbox', { name: 'Email', exact: true });
+          const passwordBox = heldPage.getByLabel('Password', { exact: true });
+          emailEmptyAfterReady = (await emailBox.inputValue()) === '';
+          await emailBox.fill(heldEmail);
+          await passwordBox.fill(TEST_PASSWORD);
+          await expect(emailBox).toHaveValue(heldEmail);
+          await expect(passwordBox).toHaveValue(TEST_PASSWORD);
+        },
         assertSuccess: async (heldPage: Page) => {
           await expect(heldPage.getByRole('alert')).toContainText('Account created successfully!');
           await expect(heldPage).not.toHaveURL(/\/users\/register(?:\?.*)?$/);
@@ -349,6 +360,7 @@ if (CONTROL_STAGE === 'first') {
         readiness_released_by_signal: true,
         posts_before_release: postsBeforeRelease,
         server_registration_posts: registrationPosts,
+        email_value_after_ready_was_empty: emailEmptyAfterReady,
         longpoll_requests_observed: longpollRequests,
         longpoll_requests_held_until_release: heldLongpollRequests,
         stage_order: stageOrder,
