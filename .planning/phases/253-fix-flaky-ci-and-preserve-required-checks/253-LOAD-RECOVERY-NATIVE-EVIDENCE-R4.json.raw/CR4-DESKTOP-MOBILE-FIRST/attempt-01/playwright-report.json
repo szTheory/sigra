@@ -1,0 +1,1451 @@
+{
+  "config": {
+    "configFile": "/Users/jon/projects/sigra/test/example/priv/playwright/playwright.registration-recovery.config.ts",
+    "rootDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval",
+        "name": "admin-eval",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-mobile",
+        "name": "admin-eval-mobile",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-dark",
+        "name": "admin-eval-dark",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-report.json"
+        }
+      ],
+      [
+        "/Users/jon/projects/sigra/test/example/priv/playwright/lib/reporters/failure-jsonl.mjs",
+        {
+          "outputFile": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/tests.jsonl"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "admin-eval.spec.ts",
+      "file": "admin-eval.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "registration waits for explicitly released LiveView readiness",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:b0df05b8-0ab2-42d7-86d7-6dd44f69a99c"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval",
+              "projectName": "admin-eval",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3114,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:16.453Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:b0df05b8-0ab2-42d7-86d7-6dd44f69a99c"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-48bf73c2f6bcdd2482cb",
+          "file": "admin-eval.spec.ts",
+          "line": 271,
+          "column": 7
+        },
+        {
+          "title": "registration stops when LiveView readiness is never released",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:99c78e1d-38b0-4824-a10e-45c7313c3a57"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval",
+              "projectName": "admin-eval",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1929,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n",
+                    "stack": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 14,
+                      "line": 147
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 145 |\u001b[39m   timeout\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m,\u001b[39m\n \u001b[90m 146 |\u001b[39m ) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 147 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m {\n \u001b[90m     |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 148 |\u001b[39m     state\u001b[33m:\u001b[39m \u001b[32m'attached'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 149 |\u001b[39m     \u001b[33m...\u001b[39m(timeout \u001b[33m===\u001b[39m undefined \u001b[33m?\u001b[39m {} \u001b[33m:\u001b[39m { timeout })\u001b[33m,\u001b[39m\n \u001b[90m 150 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 14,
+                        "line": 147
+                      },
+                      "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n\n  145 |   timeout?: number,\n  146 | ) {\n> 147 |   await page.waitForSelector(selector, {\n      |              ^\n  148 |     state: 'attached',\n  149 |     ...(timeout === undefined ? {} : { timeout }),\n  150 |   });\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:19.781Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:99c78e1d-38b0-4824-a10e-45c7313c3a57"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 14,
+                    "line": 147
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-bc2971631f416a377d1f",
+          "file": "admin-eval.spec.ts",
+          "line": 371,
+          "column": 7
+        },
+        {
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:fefe6f99-13a8-4d2d-8474-da4c315848ab"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval",
+              "projectName": "admin-eval",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1978,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n",
+                    "stack": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 14,
+                      "line": 147
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 145 |\u001b[39m   timeout\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m,\u001b[39m\n \u001b[90m 146 |\u001b[39m ) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 147 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m {\n \u001b[90m     |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 148 |\u001b[39m     state\u001b[33m:\u001b[39m \u001b[32m'attached'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 149 |\u001b[39m     \u001b[33m...\u001b[39m(timeout \u001b[33m===\u001b[39m undefined \u001b[33m?\u001b[39m {} \u001b[33m:\u001b[39m { timeout })\u001b[33m,\u001b[39m\n \u001b[90m 150 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 14,
+                        "line": 147
+                      },
+                      "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n\n\n  145 |   timeout?: number,\n  146 | ) {\n> 147 |   await page.waitForSelector(selector, {\n      |              ^\n  148 |     state: 'attached',\n  149 |     ...(timeout === undefined ? {} : { timeout }),\n  150 |   });\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:22.078Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:fefe6f99-13a8-4d2d-8474-da4c315848ab"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-2.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 14,
+                    "line": 147
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-c4747a704f68489af417",
+          "file": "admin-eval.spec.ts",
+          "line": 384,
+          "column": 7
+        },
+        {
+          "title": "registration detects a deliberate same-account collision",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:5561756f-89bd-4c6e-9104-caffc2ac8e41"
+                },
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:a927716a-8bc1-42ec-bc7b-3cf0004a0c18"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"collision_email_sha256\":\"e828059b220dbc7b2f8d4dc7ae3a52a9b62f482c2d7dac3d903206c3fcedac61\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval",
+              "projectName": "admin-eval",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3992,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:24.453Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:5561756f-89bd-4c6e-9104-caffc2ac8e41"
+                    },
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:a927716a-8bc1-42ec-bc7b-3cf0004a0c18"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"collision_email_sha256\":\"e828059b220dbc7b2f8d4dc7ae3a52a9b62f482c2d7dac3d903206c3fcedac61\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-a27493c444033d4ddbe1",
+          "file": "admin-eval.spec.ts",
+          "line": 394,
+          "column": 7
+        },
+        {
+          "title": "registration retains the first forced assertion failure trace",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:d1567222-df75-4cb6-a0df-a4b42bb907b6"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval",
+              "projectName": "admin-eval",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3619,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 26,
+                      "line": 433
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 431 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL((url) \u001b[33m=>\u001b[39m url\u001b[33m.\u001b[39mpathname \u001b[33m===\u001b[39m \u001b[32m'/users/log_in'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 432 |\u001b[39m       annotateRegistrationControl(testInfo\u001b[33m,\u001b[39m { navigation_started\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m submit_post_path\u001b[33m:\u001b[39m requestPaths[\u001b[35m0\u001b[39m] \u001b[33m?\u001b[39m\u001b[33m?\u001b[39m \u001b[36mnull\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 433 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m1\u001b[39m_500 })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 434 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 435 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 436 |\u001b[39m }\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 26,
+                        "line": 433
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n\n\n  431 |       await page.waitForURL((url) => url.pathname === '/users/log_in', { waitUntil: 'domcontentloaded' });\n  432 |       annotateRegistrationControl(testInfo, { navigation_started: true, submit_post_path: requestPaths[0] ?? null });\n> 433 |       await expect(page).toHaveURL(/\\/sigra-control-forced-assertion-must-fail$/, { timeout: 1_500 });\n      |                          ^\n  434 |     });\n  435 |   });\n  436 | }\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:28.521Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:d1567222-df75-4cb6-a0df-a4b42bb907b6"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-3.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 26,
+                    "line": 433
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-dcfd42826309f47081bf",
+          "file": "admin-eval.spec.ts",
+          "line": 416,
+          "column": 7
+        },
+        {
+          "title": "registration waits for explicitly released LiveView readiness",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:40ff8627-aefa-4d6b-a92c-950fe8929834"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-mobile",
+              "projectName": "admin-eval-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4658,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:32.584Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:40ff8627-aefa-4d6b-a92c-950fe8929834"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-5835d57cca1d6a0543ea",
+          "file": "admin-eval.spec.ts",
+          "line": 271,
+          "column": 7
+        },
+        {
+          "title": "registration stops when LiveView readiness is never released",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:cfb7d813-ed05-4658-bb6e-6470cc494101"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-mobile",
+              "projectName": "admin-eval-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2119,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n",
+                    "stack": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 14,
+                      "line": 147
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 145 |\u001b[39m   timeout\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m,\u001b[39m\n \u001b[90m 146 |\u001b[39m ) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 147 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m {\n \u001b[90m     |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 148 |\u001b[39m     state\u001b[33m:\u001b[39m \u001b[32m'attached'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 149 |\u001b[39m     \u001b[33m...\u001b[39m(timeout \u001b[33m===\u001b[39m undefined \u001b[33m?\u001b[39m {} \u001b[33m:\u001b[39m { timeout })\u001b[33m,\u001b[39m\n \u001b[90m 150 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 14,
+                        "line": 147
+                      },
+                      "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n\n  145 |   timeout?: number,\n  146 | ) {\n> 147 |   await page.waitForSelector(selector, {\n      |              ^\n  148 |     state: 'attached',\n  149 |     ...(timeout === undefined ? {} : { timeout }),\n  150 |   });\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:37.552Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:cfb7d813-ed05-4658-bb6e-6470cc494101"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-mobile/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-mobile/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-4.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 14,
+                    "line": 147
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-93db1efc171b5b3f5da4",
+          "file": "admin-eval.spec.ts",
+          "line": 371,
+          "column": 7
+        },
+        {
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:4b2f6f22-c0fd-492a-83ce-af6c3b7ed28a"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-mobile",
+              "projectName": "admin-eval-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2296,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n",
+                    "stack": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 14,
+                      "line": 147
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 145 |\u001b[39m   timeout\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m,\u001b[39m\n \u001b[90m 146 |\u001b[39m ) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 147 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m {\n \u001b[90m     |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 148 |\u001b[39m     state\u001b[33m:\u001b[39m \u001b[32m'attached'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 149 |\u001b[39m     \u001b[33m...\u001b[39m(timeout \u001b[33m===\u001b[39m undefined \u001b[33m?\u001b[39m {} \u001b[33m:\u001b[39m { timeout })\u001b[33m,\u001b[39m\n \u001b[90m 150 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 14,
+                        "line": 147
+                      },
+                      "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n\n\n  145 |   timeout?: number,\n  146 | ) {\n> 147 |   await page.waitForSelector(selector, {\n      |              ^\n  148 |     state: 'attached',\n  149 |     ...(timeout === undefined ? {} : { timeout }),\n  150 |   });\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:40.031Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:4b2f6f22-c0fd-492a-83ce-af6c3b7ed28a"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-mobile/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-mobile/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-5.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 14,
+                    "line": 147
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-7588788fbc1199e213f0",
+          "file": "admin-eval.spec.ts",
+          "line": 384,
+          "column": 7
+        },
+        {
+          "title": "registration detects a deliberate same-account collision",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:e3bfb4d4-c682-4e7a-9f55-9a2004cb1aaa"
+                },
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:3fd91f5c-d4ba-4e83-a4b7-1b91ce282998"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"collision_email_sha256\":\"1bd742423d99e8657f5c27325ccc3f8d2d5e467edba404f9f7feb278d1b6516d\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-mobile",
+              "projectName": "admin-eval-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4944,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:42.856Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:e3bfb4d4-c682-4e7a-9f55-9a2004cb1aaa"
+                    },
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:3fd91f5c-d4ba-4e83-a4b7-1b91ce282998"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"collision_email_sha256\":\"1bd742423d99e8657f5c27325ccc3f8d2d5e467edba404f9f7feb278d1b6516d\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-942b2c785efd15ed72a5",
+          "file": "admin-eval.spec.ts",
+          "line": 394,
+          "column": 7
+        },
+        {
+          "title": "registration retains the first forced assertion failure trace",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:52f43c54-95ef-4e2c-a1cb-c57da7e6265b"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-mobile",
+              "projectName": "admin-eval-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3729,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 26,
+                      "line": 433
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 431 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL((url) \u001b[33m=>\u001b[39m url\u001b[33m.\u001b[39mpathname \u001b[33m===\u001b[39m \u001b[32m'/users/log_in'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 432 |\u001b[39m       annotateRegistrationControl(testInfo\u001b[33m,\u001b[39m { navigation_started\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m submit_post_path\u001b[33m:\u001b[39m requestPaths[\u001b[35m0\u001b[39m] \u001b[33m?\u001b[39m\u001b[33m?\u001b[39m \u001b[36mnull\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 433 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m1\u001b[39m_500 })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 434 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 435 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 436 |\u001b[39m }\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 26,
+                        "line": 433
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n\n\n  431 |       await page.waitForURL((url) => url.pathname === '/users/log_in', { waitUntil: 'domcontentloaded' });\n  432 |       annotateRegistrationControl(testInfo, { navigation_started: true, submit_post_path: requestPaths[0] ?? null });\n> 433 |       await expect(page).toHaveURL(/\\/sigra-control-forced-assertion-must-fail$/, { timeout: 1_500 });\n      |                          ^\n  434 |     });\n  435 |   });\n  436 | }\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:48.007Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:52f43c54-95ef-4e2c-a1cb-c57da7e6265b"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-mobile/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-mobile/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-6.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 26,
+                    "line": 433
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-5ec24489e4ce2b9313f4",
+          "file": "admin-eval.spec.ts",
+          "line": 416,
+          "column": 7
+        },
+        {
+          "title": "registration waits for explicitly released LiveView readiness",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:3bb145ea-af7a-4042-af0f-ebea0eec3d67"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-dark",
+              "projectName": "admin-eval-dark",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2949,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:52.082Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:3bb145ea-af7a-4042-af0f-ebea0eec3d67"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-b2e1d1a3348d236c23ad",
+          "file": "admin-eval.spec.ts",
+          "line": 271,
+          "column": 7
+        },
+        {
+          "title": "registration stops when LiveView readiness is never released",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:27527bc2-963b-4658-961e-1026834734b8"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-dark",
+              "projectName": "admin-eval-dark",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2137,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n",
+                    "stack": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 14,
+                      "line": 147
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 145 |\u001b[39m   timeout\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m,\u001b[39m\n \u001b[90m 146 |\u001b[39m ) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 147 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m {\n \u001b[90m     |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 148 |\u001b[39m     state\u001b[33m:\u001b[39m \u001b[32m'attached'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 149 |\u001b[39m     \u001b[33m...\u001b[39m(timeout \u001b[33m===\u001b[39m undefined \u001b[33m?\u001b[39m {} \u001b[33m:\u001b[39m { timeout })\u001b[33m,\u001b[39m\n \u001b[90m 150 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 14,
+                        "line": 147
+                      },
+                      "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n\n  145 |   timeout?: number,\n  146 | ) {\n> 147 |   await page.waitForSelector(selector, {\n      |              ^\n  148 |     state: 'attached',\n  149 |     ...(timeout === undefined ? {} : { timeout }),\n  150 |   });\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:55.202Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:27527bc2-963b-4658-961e-1026834734b8"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-dark/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-dark/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-7.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 14,
+                    "line": 147
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-46701c3260f2f438aa0a",
+          "file": "admin-eval.spec.ts",
+          "line": 371,
+          "column": 7
+        },
+        {
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:03d9ffc6-b06a-4308-8376-8c6b27898174"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-dark",
+              "projectName": "admin-eval-dark",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5305,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n",
+                    "stack": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 14,
+                      "line": 147
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 145 |\u001b[39m   timeout\u001b[33m?\u001b[39m\u001b[33m:\u001b[39m number\u001b[33m,\u001b[39m\n \u001b[90m 146 |\u001b[39m ) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 147 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m {\n \u001b[90m     |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 148 |\u001b[39m     state\u001b[33m:\u001b[39m \u001b[32m'attached'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 149 |\u001b[39m     \u001b[33m...\u001b[39m(timeout \u001b[33m===\u001b[39m undefined \u001b[33m?\u001b[39m {} \u001b[33m:\u001b[39m { timeout })\u001b[33m,\u001b[39m\n \u001b[90m 150 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 14,
+                        "line": 147
+                      },
+                      "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')\u001b[22m\n\n\n  145 |   timeout?: number,\n  146 | ) {\n> 147 |   await page.waitForSelector(selector, {\n      |              ^\n  148 |     state: 'attached',\n  149 |     ...(timeout === undefined ? {} : { timeout }),\n  150 |   });\n    at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)\n    at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:30:57.727Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:03d9ffc6-b06a-4308-8376-8c6b27898174"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-dark/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-dark/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-8.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 14,
+                    "line": 147
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-71cd84c910a93cfcc964",
+          "file": "admin-eval.spec.ts",
+          "line": 384,
+          "column": 7
+        },
+        {
+          "title": "registration detects a deliberate same-account collision",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:8a3ec241-b6db-4742-b16a-390a408f3d56"
+                },
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:a18145a6-c89a-4b3d-b10b-68ac33d5d214"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"collision_email_sha256\":\"32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-dark",
+              "projectName": "admin-eval-dark",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4683,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:31:03.702Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:8a3ec241-b6db-4742-b16a-390a408f3d56"
+                    },
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:a18145a6-c89a-4b3d-b10b-68ac33d5d214"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"collision_email_sha256\":\"32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-43a642ea15c813ba831d",
+          "file": "admin-eval.spec.ts",
+          "line": 394,
+          "column": 7
+        },
+        {
+          "title": "registration retains the first forced assertion failure trace",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:1232dd97-9498-4216-a32c-8bb9c54487b0"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-dark",
+              "projectName": "admin-eval-dark",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4228,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5",
+                    "location": {
+                      "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                      "column": 26,
+                      "line": 433
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 431 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL((url) \u001b[33m=>\u001b[39m url\u001b[33m.\u001b[39mpathname \u001b[33m===\u001b[39m \u001b[32m'/users/log_in'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 432 |\u001b[39m       annotateRegistrationControl(testInfo\u001b[33m,\u001b[39m { navigation_started\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m submit_post_path\u001b[33m:\u001b[39m requestPaths[\u001b[35m0\u001b[39m] \u001b[33m?\u001b[39m\u001b[33m?\u001b[39m \u001b[36mnull\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 433 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[35m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m1\u001b[39m_500 })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 434 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 435 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 436 |\u001b[39m }\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                        "column": 26,
+                        "line": 433
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/sigra-control-forced-assertion-must-fail$/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:25311/users/log_in\"\u001b[39m\nTimeout: 1500ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 1500ms\u001b[22m\n\u001b[2m    5 × unexpected value \"http://127.0.0.1:25311/users/log_in\"\u001b[22m\n\n\n  431 |       await page.waitForURL((url) => url.pathname === '/users/log_in', { waitUntil: 'domcontentloaded' });\n  432 |       annotateRegistrationControl(testInfo, { navigation_started: true, submit_post_path: requestPaths[0] ?? null });\n> 433 |       await expect(page).toHaveURL(/\\/sigra-control-forced-assertion-must-fail$/, { timeout: 1_500 });\n      |                          ^\n  434 |     });\n  435 |   });\n  436 | }\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26\n    at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)\n    at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T18:31:08.515Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:1232dd97-9498-4216-a32c-8bb9c54487b0"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-dark/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-dark/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-9.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts",
+                    "column": 26,
+                    "line": 433
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-a5db4614c3eee71a0314",
+          "file": "admin-eval.spec.ts",
+          "line": 416,
+          "column": 7
+        }
+      ],
+      "suites": [
+        {
+          "title": "Admin eval — render matrix, probes, bundles",
+          "file": "admin-eval.spec.ts",
+          "line": 639,
+          "column": 6,
+          "specs": [
+            {
+              "title": "render bundle: board-mg-9/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7249,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-14T18:31:14.019Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-411c7c9cafac7bae94b0",
+              "file": "admin-eval.spec.ts",
+              "line": 671,
+              "column": 11
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-14T18:30:16.176Z",
+    "duration": 65348.212,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 9,
+    "flaky": 0
+  }
+}
