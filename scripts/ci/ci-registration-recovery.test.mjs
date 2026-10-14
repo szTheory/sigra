@@ -944,6 +944,304 @@ test('an empty drop log with a wrong digest or failed drop exit is not proven by
   } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
 });
 
+// ---- Plan 39: four-slot load recovery contracts (synthetic subprocess boundaries; no native work) ----
+const LOAD_CHARGES = [3768, 3743, 26373, 46803, 40993, 121252, 112, 33409];
+const LOAD_SPENT = ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK', 'CR-DARK-FIRST'];
+const loadLedgerInput = () => ({
+  charges: [...LOAD_CHARGES], physicalPlaywrightLaunches: 5, spentReservations: [...LOAD_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationMaximumMs: 116232, preparationUsedMs: 3743
+});
+
+test('load recovery ledger starts at 276453 ms, five launches and six spent identities with exactly four unused mappings', () => {
+  const ledger = recovery.buildLoadRecoveryLedger(loadLedgerInput());
+  assert.equal(ledger.prior_charge_ms, 276453);
+  assert.equal(ledger.prior_playwright_cli_launches, 5);
+  assert.deepEqual(ledger.spent_reservations, LOAD_SPENT);
+  assert.deepEqual(ledger.slots.map(({ id, maps_from, projects }) => [id, maps_from, projects]), [
+    ['CR-DESKTOP-MOBILE-FIRST', 'R-CONTROL-FIRST-MOBILE', ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']],
+    ['CR-DESKTOP-SECOND', 'R-CONTROL-SECOND-DESKTOP', ['admin-eval']],
+    ['CR-MOBILE-SECOND', 'R-CONTROL-SECOND-MOBILE', ['admin-eval-mobile']],
+    ['CR-DARK-SECOND', 'R-CONTROL-SECOND-DARK', ['admin-eval-dark']]
+  ]);
+  assert.ok(ledger.slots.every((slot) => slot.max_duration_ms === 120000 && slot.work_ms === 105000 && slot.cleanup_ms === 15000));
+  assert.deepEqual(ledger.slots.map((slot) => slot.rows), [16, 2, 2, 2]);
+  assert.equal(ledger.required_rows, 22);
+  assert.equal(ledger.d19_max_ms, 868942);
+  assert.equal(ledger.total_max_ms, 3208942);
+  assert.equal(ledger.physical_cli_launch_max, 18);
+});
+
+test('load recovery ledger rejects altered charges, reopened retries, reset counters and reopened spent slots', () => {
+  for (const mutate of [
+    (input) => { input.charges[7] = 33408; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations.push('CR-DESKTOP-MOBILE-FIRST'); },
+    (input) => { input.physicalPlaywrightLaunches = 4; },
+    (input) => { input.preparationUsedMs = 0; }
+  ]) {
+    const input = loadLedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedger(input), /historical|retry|reservation|launch|preparation/i);
+  }
+});
+
+test('the 22 required project and title rows are the exact 16 + 2 + 2 + 2 packing, with no CLI grep', () => {
+  const slots = recovery.loadRecoverySlotDefinitions();
+  const pairs = slots.flatMap((slot) => recovery.loadRequiredPairs(slot));
+  assert.equal(pairs.length, 22);
+  assert.equal(new Set(pairs.map((item) => `${item.project}|${item.title}`)).size, 22);
+  const first = recovery.loadRequiredPairs(slots[0]);
+  for (const project of ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']) {
+    assert.equal(first.filter((item) => item.project === project && item.title !== 'render bundle: board-mg-9/populated').length, 5);
+  }
+  assert.equal(first.filter((item) => item.title === 'render bundle: board-mg-9/populated').map((item) => item.project).join(), 'admin-eval-dark');
+  for (const slot of slots) {
+    assert.ok(slot.argv.every((arg) => !/^(-g|--grep)/.test(arg)), 'CLI grep would override the per-project selection');
+    assert.equal(slot.argv.filter((arg) => arg.startsWith('--project=')).length, slot.projects.length);
+    assert.ok(slot.argv.includes('--workers=1') && slot.argv.includes('--retries=0') && slot.argv.includes('--trace=retain-on-failure'));
+  }
+  assert.deepEqual(slots.map((slot) => slot.expected_cli_exit), [1, 0, 0, 0]);
+  assert.equal(new Set(slots.flatMap((slot) => Object.values(slot.collision_account_sha256))).size, 3);
+});
+
+test('project collision accounts match the shared browser helper exactly', async () => {
+  const helper = await import(path.join(root, 'test/example/priv/playwright/helpers/registrationControls.mjs'));
+  for (const project of ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']) {
+    for (const purpose of ['held-positive', 'broken-readiness-positive', 'forced-trace-positive', 'collision']) {
+      assert.equal(recovery.loadControlAccount(project, purpose), helper.registrationControlAccount(project, purpose));
+    }
+  }
+});
+
+test('the scoped config inherits every production setting and only narrows projects with a per-project grep', () => {
+  const config = fs.readFileSync(path.join(root, 'test/example/priv/playwright/playwright.registration-recovery.config.ts'), 'utf8');
+  assert.match(config, /import productionConfig from '\.\/playwright\.config';/);
+  assert.match(config, /\.\.\.productionConfig,\s*\n\s*projects: selected/);
+  assert.match(config, /\{ \.\.\.project, grep: exactTitles/);
+  for (const forbidden of [/\bworkers\s*:/, /\bretries\s*:/, /\btimeout\s*:/, /\bfullyParallel\s*:/, /\buse\s*:/, /\breporter\s*:/, /\bdevices\b/, /\bcolorScheme\b/, /test\.fail/]) {
+    assert.doesNotMatch(config, forbidden);
+  }
+  assert.match(config, /requires SIGRA_REGISTRATION_CONTROL_STAGE=first\|second/);
+});
+
+// ---- synthetic four-slot runner harness ----
+function loadHarness() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  const ledgerBase = recovery.buildLoadRecoveryLedger(loadLedgerInput());
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v1', status: 'frozen_before_results', plan: '253-39',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    ledger: {
+      prior_charge_ms: 276453, prior_playwright_cli_launches: 5, spent_reservations: [...LOAD_SPENT], preparation_remaining_ms: 112489,
+      retry_used: 1, retry_available: 0, slots: ledgerBase.slots, d19: { cap_ms: 1200000, max_with_remaining_preparation: 868942 },
+      shared_cap_ms: 3480000, physical_cli_launch_max: 18, cleanup_reserve_ms: 15000
+    }
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze.json'); const evidenceFile = path.join(base, 'evidence.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const evidence = {
+    schema_version: 'sigra.phase253.registration-load-recovery-evidence/v1', status: 'ready', freeze_path: 'freeze.json',
+    freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), attempts: [], reservation: null, preserved_revisions: [],
+    limits: {
+      prior_charge_ms: 276453, preparation_charge_ms: 0, preparation_remaining_ms: 112489, charged_duration_ms: 276453,
+      physical_playwright_cli_launches: 5, used_slots: [...LOAD_SPENT], max_d19_ms: 868942, max_total_ms: 3480000,
+      max_physical_playwright_cli_launches: 18, retry_used: 1, retry_available: 0
+    }
+  };
+  fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+  fs.mkdirSync(`${evidenceFile}.raw`);
+  const calls = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const fakePsql = (counts) => { let index = 0; return (program, args) => { calls.push(['psql', args.find((item) => item.startsWith('target=')) ? 'account-or-db' : 'x']); return { status: 0, stdout: `${counts[Math.min(index++, counts.length - 1)]}\n` }; }; };
+  const reportFor = (slot, runId) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index) => {
+          const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: `${runId}:${crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          const failed = expected === 'expected_failure';
+          const marker = { 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[pair.title];
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${marker} failed` } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: [] }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {} } = {}) => {
+  const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
+  return {
+    validate, enforcePaths: false, enforceNode: false, skipPreservation: true,
+    portAvailable: async () => true, waitReady: async () => 200, stopApp: async () => {},
+    spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+    runTree: async (program, args, cwd, env, log, timeoutMs) => {
+      calls.push(['tree', program, ...args]);
+      fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+      if (program.endsWith('/playwright')) {
+        const slot = freeze.ledger.slots.find((item) => env.SIGRA_CONTROL_RUN_ID.startsWith(item.id.toLowerCase()));
+        assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+        assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+        fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID)));
+        return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, duration_ms: 5, group_signals: [], descendants_reaped: true };
+      }
+      return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+    },
+    captureAbsence: (options) => recovery.captureOwnedDatabaseAbsence({ ...options, run: absenceRun }),
+    captureAccount: (options) => recovery.captureOwnedAccountCount({ ...options, run: accountRun }),
+    sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+  }; };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, makeDeps, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+const sha = (data) => crypto.createHash('sha256').update(data).digest('hex');
+
+test('one unused slot runs exactly one Playwright CLI process and records 16 exact first rows', async () => {
+  const h = loadHarness();
+  try {
+    const result = await recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    assert.equal(result.rows, 16);
+    assert.equal(h.calls.filter((call) => call[0] === 'tree' && call[1].endsWith('/playwright')).length, 1);
+    assert.equal(h.calls.filter((call) => call[0] === 'tree' && call[1] === 'mix' && call[2] === 'ecto.setup').length, 1);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 6);
+    assert.deepEqual(evidence.limits.used_slots, [...LOAD_SPENT, 'CR-DESKTOP-MOBILE-FIRST']);
+    assert.equal(evidence.limits.charged_duration_ms, 276453 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(evidence.attempts[0].lifecycle.rows, 16);
+    assert.equal(evidence.attempts[0].lifecycle.playwright_cli_processes, 1);
+    assert.equal(evidence.attempts[0].files.traces.length, 9);
+    const verdict = recovery.verifyLoadRecoveryEvidenceData(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile)));
+    assert.deepEqual(verdict.errors, []);
+    assert.equal(h.calls.filter((call) => call[0] === 'psql').length, 1, 'first slot needs only the database absence proof');
+  } finally { h.clean(); }
+});
+
+test('all four slots run once in order, each second slot proves its collision account absent then created', async () => {
+  const h = loadHarness();
+  try {
+    for (const slot of recovery.loadRecoverySlotDefinitions()) await recovery.runLoadRecoverySlot(h.freezeFile, slot.id, h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 22);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    for (const attempt of evidence.attempts.slice(1)) {
+      assert.equal(attempt.prior_collision_absence.count, 0);
+      assert.equal(attempt.created_account.count, 1);
+      assert.equal(attempt.prior_collision_absence.account_email_sha256, h.freeze.ledger.slots[attempt.sequence - 1].collision_account_sha256[attempt.project]);
+    }
+    const verdict = recovery.verifyLoadRecoveryEvidenceData(evidence, h.freeze, `${h.evidenceFile}.raw`, 'complete', sha(fs.readFileSync(h.freezeFile)));
+    assert.deepEqual(verdict.errors, []);
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('the spent CR-DARK-FIRST slot and every spent identity are refused before any setup', async () => {
+  const h = loadHarness();
+  try {
+    for (const id of ['CR-DARK-FIRST', 'R-DIAG-CONTROL-DARK', 'R-CONTROL-FIRST-DESKTOP']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps()), /spent|only the four/i);
+    }
+    assert.deepEqual(h.calls, []);
+    assert.equal(h.read().status, 'ready');
+  } finally { h.clean(); }
+});
+
+test('reopened retry, counter reset, out-of-order slot and source drift reject before setup', async () => {
+  for (const [mutate, pattern, slot, validate] of [
+    [(e) => { e.limits.retry_available = 1; }, /retry/i, 'CR-DESKTOP-MOBILE-FIRST'],
+    [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /counter reset|reset/i, 'CR-DESKTOP-MOBILE-FIRST'],
+    [(e) => { e.limits.used_slots.push('CR-DESKTOP-MOBILE-FIRST'); }, /already consumed/i, 'CR-DESKTOP-MOBILE-FIRST'],
+    [() => {}, /frozen order/i, 'CR-MOBILE-SECOND'],
+    [() => {}, /source identity/i, 'CR-DESKTOP-MOBILE-FIRST', () => { throw new Error('frozen load recovery source identity mismatch for scripts/x'); }]
+  ]) {
+    const h = loadHarness();
+    try {
+      const evidence = h.read(); mutate(evidence);
+      fs.writeFileSync(h.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+      await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, slot, h.evidenceFile, h.checkout, h.makeDeps(validate ? { validate } : {})), pattern);
+      assert.deepEqual(h.calls, [], String(pattern));
+    } finally { h.clean(); }
+  }
+});
+
+test('an unexpected native result is charged, halts the ledger and refuses a further command', async () => {
+  const h = loadHarness();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ cliExit: 0 })), /exit does not match/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted');
+    assert.ok(evidence.limits.charged_duration_ms > 276453);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 6);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceData(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile))).ok, false);
+    const before = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved/i);
+    assert.equal(h.calls.length, before);
+  } finally { h.clean(); }
+});
+
+test('a prior collision account that already exists in the new database halts before browser work', async () => {
+  const h = loadHarness();
+  try {
+    await recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    const treeBefore = h.calls.filter((call) => call[0] === 'tree' && call[1].endsWith('/playwright')).length;
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps({ accountCounts: [1] })), /not absent/i);
+    assert.equal(h.calls.filter((call) => call[0] === 'tree' && call[1].endsWith('/playwright')).length, treeBefore);
+    assert.equal(h.read().status, 'halted');
+  } finally { h.clean(); }
+});
+
+test('native load attempt verification rejects corrupted receipts one predicate at a time', async () => {
+  const h = loadHarness();
+  try {
+    await recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    const raw = `${h.evidenceFile}.raw`;
+    const good = h.read().attempts[0];
+    assert.equal(recovery.verifyNativeLoadAttempt(structuredClone(good), h.freeze, raw).ok, true);
+    for (const [name, mutate, pattern] of [
+      ['argv', (a) => { a.argv.push('--grep=x'); }, /argv|grep/i],
+      ['cli exit', (a) => { a.playwright_cli.exit_code = 0; }, /exit/i],
+      ['two processes', (a) => { a.lifecycle.playwright_cli_processes = 2; }, /one physical/i],
+      ['overrun', (a) => { a.charged_duration_ms = 120001; }, /120,000|charge/i],
+      ['source', (a) => { a.source_commit = 'c'.repeat(40); }, /source/i],
+      ['trace count', (a) => { a.files.traces.pop(); }, /trace count/i],
+      ['wrong database namespace', (a) => { a.database.name = 'other_db'; }, /namespace/i],
+      ['lifecycle', (a) => { a.lifecycle.worker_indexes = []; }, /lifecycle/i]
+    ]) {
+      const attempt = structuredClone(good); mutate(attempt);
+      const verdict = recovery.verifyNativeLoadAttempt(attempt, h.freeze, raw);
+      assert.equal(verdict.ok, false, name);
+      assert.match(verdict.errors.join(';'), pattern, name);
+    }
+    const spent = structuredClone(good); spent.slot_id = 'CR-DARK-FIRST';
+    assert.equal(recovery.verifyNativeLoadAttempt(spent, h.freeze, raw).ok, false);
+  } finally { h.clean(); }
+});
+
+test('load recovery freeze creation and checks refuse a candidate without the preserved native records', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'load' });
+  try {
+    const out = path.join(fixture.root, 'out-freeze.json');
+    assert.throws(() => recovery.createLoadRecoveryFreeze(out, fixture.root));
+    assert.equal(fs.existsSync(out), false);
+    assert.throws(() => recovery.validateLoadRecoveryFreeze(fixture.root, { schema_version: 'x' }), /malformed|digest/i);
+  } finally { fixture.cleanup?.(); }
+});
+
 test('ordinary registration runner contracts opened no server or socket', () => {
   assert.deepEqual(networkAttempts, []);
 });

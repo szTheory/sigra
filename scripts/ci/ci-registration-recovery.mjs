@@ -92,6 +92,12 @@ const git = (args) => {
 };
 
 function parseArgs(argv) {
+  if (argv[0] === '--create-load-recovery' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery', output: path.resolve(argv[2]) };
+  if (argv[0] === '--init-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'init-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
+  if (argv[0] === '--prepare-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'prepare-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
+  if (argv[0] === '--run-load-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv.length === 6) return { mode: 'run-load-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]) };
+  if (argv[0] === '--verify-load-recovery' && argv[1] && argv[2] === '--stage' && ['first', 'complete'].includes(argv[3]) && argv.length === 4) return { mode: 'verify-load-recovery', evidence: path.resolve(argv[1]), stage: argv[3] };
+  if (argv[0] === '--check-load-recovery-freeze' && argv[1] && argv.length === 2) return { mode: 'check-load-recovery-freeze', freeze: path.resolve(argv[1]) };
   if (argv[0] === '--create-control-recovery' && argv[1] === '--output' && argv[2] && argv.length === 3) {
     return { mode: 'create-control-recovery', output: path.resolve(argv[2]) };
   }
@@ -449,7 +455,7 @@ function playReportTests(report) {
         for (const result of test.results ?? []) {
           found.push({ title: spec.title, file: spec.file ?? suite.file ?? '', project: test.projectName ?? '',
             expected_status: test.expectedStatus ?? null, summary_status: test.status ?? null,
-            status: result.status, duration: result.duration, result_count: test.results?.length ?? 0,
+            status: result.status, duration: result.duration, worker_index: result.workerIndex ?? null, result_count: test.results?.length ?? 0,
             error: result.error ?? null, attachments: result.attachments ?? [],
             annotations: test.annotations ?? [], result_annotations: result.annotations ?? [] });
         }
@@ -2879,8 +2885,748 @@ function verifyDiagnosticFile(evidenceFile, root = ROOT) {
   return result;
 }
 
+// ---- Phase 253 plan 39: four-slot load-recovery runner (additive; legacy modes untouched) ----
+const LOAD_RECOVERY_SCHEMA = 'sigra.phase253.registration-load-recovery-evidence/v1';
+const LOAD_RECOVERY_FREEZE_SCHEMA = 'sigra.phase253.registration-load-recovery-freeze/v1';
+const LOAD_RECOVERY_FREEZE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-FREEZE.json`;
+const LOAD_RECOVERY_EVIDENCE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json`;
+const LOAD_RECOVERY_CONFIG = 'test/example/priv/playwright/playwright.registration-recovery.config.ts';
+const LOAD_PLAYWRIGHT_DIR = 'test/example/priv/playwright';
+const LOAD_SPENT = ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK', 'CR-DARK-FIRST'];
+const LOAD_CHARGES = [3768, 3743, 26373, 46803, 40993, 121252, 112, 33409];
+const LOAD_NODE = 'v20.18.1';
+const LOAD_FAILED27 = {
+  freeze: { file: `${PHASE_DIR}/253-CONTROL-RECOVERY-NATIVE-FREEZE.json`, sha256: 'bef539ef0803a5e035266fd2d5334b02dc87893c285114e7f70cbec3b46a0778' },
+  evidence: { file: `${PHASE_DIR}/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json`, sha256: 'e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0' }
+};
+const LOAD_EXTRA_HISTORY = [
+  `${PHASE_DIR}/253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json`,
+  `${PHASE_DIR}/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json`,
+  `${PHASE_DIR}/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json`
+];
+const LOAD_EXTRA_SOURCES = [
+  'test/example/priv/playwright/helpers/registrationControls.mjs',
+  'test/example/priv/playwright/lib/eval/canonicalize.ts',
+  'test/example/priv/playwright/lib/eval/canonicalize.test.ts',
+  'test/example/priv/playwright/lib/eval/bundle.ts',
+  'scripts/ci/ci-playwright-load.test.mjs',
+  'scripts/ci/fixtures/registration-native-tree.mjs',
+  LOAD_RECOVERY_CONFIG
+];
+const LOAD_IMPORT_ENTRIES = ['test/example/priv/playwright/tests/admin-eval.spec.ts', LOAD_RECOVERY_CONFIG];
+const LOAD_RUNTIME_PACKAGES = ['@playwright/test', 'playwright', 'playwright-core', 'parse5'];
+const LOAD_TRANSFORM_FILES = ['lib/transform/transform.js', 'lib/common/testLoader.js', 'lib/common/configLoader.js'];
+const LOAD_SLOT_TABLE = [
+  ['CR-DESKTOP-MOBILE-FIRST', 'R-CONTROL-FIRST-MOBILE', ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'], 'first'],
+  ['CR-DESKTOP-SECOND', 'R-CONTROL-SECOND-DESKTOP', ['admin-eval'], 'second'],
+  ['CR-MOBILE-SECOND', 'R-CONTROL-SECOND-MOBILE', ['admin-eval-mobile'], 'second'],
+  ['CR-DARK-SECOND', 'R-CONTROL-SECOND-DARK', ['admin-eval-dark'], 'second']
+];
+const LOAD_ACCOUNT_PURPOSES = ['held-positive', 'broken-readiness-positive', 'forced-trace-positive', 'collision'];
+
+// Mirrors helpers/registrationControls.mjs registrationControlAccount (equality is a tested contract).
+export function loadControlAccount(projectName, purpose) {
+  if (!LOAD_ACCOUNT_PURPOSES.includes(purpose)) throw new TypeError(`Unknown registration control account purpose: ${purpose}`);
+  const project = String(projectName).replace(/^admin-eval-?/, '').replace(/[^a-z0-9]+/gi, '') || 'desktop';
+  return `platform-admin+sigra-253-control-${project.toLowerCase()}-${purpose}@example.test`;
+}
+const loadAccountDigest = (project, purpose) => sha256(loadControlAccount(project, purpose));
+
+export function loadRecoverySlotDefinitions() {
+  return LOAD_SLOT_TABLE.map(([id, maps_from, projects, stage], index) => {
+    const titlesFor = (project) => stage === 'first'
+      ? (project === 'admin-eval-dark' ? [CONTROL_BOARD_TITLE, ...FIRST_CONTROLS] : [...FIRST_CONTROLS])
+      : [...CONTROL_SECOND_ACTIVE];
+    const project_selections = projects.map((project) => ({
+      project, titles: titlesFor(project),
+      expected: Object.fromEntries(titlesFor(project).map((title) => [title, CONTROL_EXPECTED_FAILURE_MARKERS[title] ? 'expected_failure' : 'pass']))
+    }));
+    const rows = project_selections.reduce((sum, item) => sum + item.titles.length, 0);
+    return {
+      id, sequence: index + 1, maps_from, stage, projects, project: projects[0],
+      port: PROJECTS.find((item) => item.name === projects[0]).port,
+      max_duration_ms: PROJECT_SLOT_MS, work_ms: 105_000, cleanup_ms: 15_000,
+      launch_unit: 'playwright_cli_process', config: LOAD_RECOVERY_CONFIG,
+      argv: [`--config=${path.basename(LOAD_RECOVERY_CONFIG)}`, ...projects.map((project) => `--project=${project}`), '--workers=1', '--retries=0', '--trace=retain-on-failure'],
+      control_stage: stage, project_selections, rows,
+      expected_cli_exit: stage === 'first' ? 1 : 0,
+      collision_account_sha256: Object.fromEntries(projects.map((project) => [project, loadAccountDigest(project, 'collision')]))
+    };
+  });
+}
+
+export function loadRequiredPairs(slot) {
+  return slot.project_selections.flatMap((item) => item.titles.map((title) => ({ spec: 'admin-eval.spec.ts', project: item.project, title })));
+}
+
+export function buildLoadRecoveryLedger(input) {
+  const errors = [];
+  if (!Array.isArray(input?.charges) || JSON.stringify(input.charges) !== JSON.stringify(LOAD_CHARGES)) errors.push('historical charges do not match the exact eight carried components');
+  if (input?.physicalPlaywrightLaunches !== 5) errors.push('historical Playwright CLI launch count must be exactly five');
+  if (JSON.stringify(input?.spentReservations) !== JSON.stringify(LOAD_SPENT)) errors.push('spent reservation inventory must be the six closed identities');
+  if (input?.retryUsed !== 1 || input?.retryAvailable !== 0) errors.push('retry must remain used 1, available 0');
+  if (input?.preparationMaximumMs !== 116232 || input?.preparationUsedMs !== 3743) errors.push('preparation allowance differs from the preserved measured balance');
+  if (errors.length) throw new Error(errors.join('; '));
+  const priorCharge = input.charges.reduce((sum, value) => sum + value, 0);
+  const slots = loadRecoverySlotDefinitions();
+  const preparationRemaining = input.preparationMaximumMs - input.preparationUsedMs;
+  const d19Max = priorCharge + preparationRemaining + slots.length * PROJECT_SLOT_MS;
+  const totalMax = d19Max + 9 * 240_000 + 3 * 60_000;
+  if (priorCharge !== 276453 || preparationRemaining !== 112489 || d19Max !== 868942 || totalMax !== 3208942
+    || slots.reduce((sum, slot) => sum + slot.rows, 0) !== 22 || slots[0].rows !== 16 || slots.slice(1).some((slot) => slot.rows !== 2)) {
+    throw new Error('load recovery arithmetic or row packing differs from the reviewed finite allocation');
+  }
+  return {
+    prior_charge_ms: priorCharge, prior_playwright_cli_launches: 5, spent_reservations: [...LOAD_SPENT],
+    retry_used: 1, retry_available: 0, preparation_remaining_ms: preparationRemaining, slots,
+    launch_unit: 'playwright_cli_process', engine_worker_lifecycle_accounting: 'separate_from_playwright_cli_launches',
+    d19_max_ms: d19Max, conditional_acceptance_slots: 9, conditional_acceptance_ms: 2_160_000, optional_seed_checks_ms: 180_000,
+    total_max_ms: totalMax, physical_cli_launch_max: 18, cleanup_reserve_per_command_ms: 15_000, regular_command_ms: PROJECT_SLOT_MS,
+    required_rows: 22
+  };
+}
+
+function loadFreezeDigest(freeze) {
+  return sha256(JSON.stringify(Object.fromEntries(Object.entries(freeze).filter(([key]) => key !== 'freeze_sha256'))));
+}
+
+// Static import closure of the runtime entrypoints: relative static/dynamic imports and requires.
+export function discoverLoadImportClosure(root, entries = LOAD_IMPORT_ENTRIES) {
+  const found = new Set(); const queue = [...entries];
+  const pattern = /(?:from\s+|import\s*\(\s*|require\s*\(\s*|import\s+)['"](\.{1,2}\/[^'"]+)['"]/g;
+  while (queue.length) {
+    const file = queue.shift();
+    if (found.has(file)) continue;
+    const absolute = path.join(root, file);
+    if (!fs.existsSync(absolute)) throw new Error(`import closure source is missing: ${file}`);
+    found.add(file);
+    const text = fs.readFileSync(absolute, 'utf8');
+    for (const match of text.matchAll(pattern)) {
+      const base = path.posix.normalize(path.posix.join(path.posix.dirname(file), match[1]));
+      const candidate = ['', '.ts', '.mjs', '.js', '.json', '/index.ts'].map((suffix) => base + suffix)
+        .find((item) => fs.existsSync(path.join(root, item)) && fs.statSync(path.join(root, item)).isFile());
+      if (!candidate) throw new Error(`unresolved relative import ${match[1]} from ${file}`);
+      if (!candidate.includes('node_modules/')) queue.push(candidate);
+    }
+  }
+  return [...found].sort();
+}
+
+export function loadSourceFileList(root) {
+  return [...new Set([...SOURCE_FILES, ...LOAD_EXTRA_SOURCES, ...discoverLoadImportClosure(root)])];
+}
+
+function loadRuntimeIdentity(root) {
+  const pw = path.join(root, LOAD_PLAYWRIGHT_DIR);
+  const lock = readJson(path.join(pw, 'package-lock.json'));
+  const packages = {};
+  for (const name of LOAD_RUNTIME_PACKAGES) {
+    const entry = lock.packages?.[`node_modules/${name}`];
+    const installedFile = path.join(pw, 'node_modules', name, 'package.json');
+    if (!entry?.integrity || !fs.existsSync(installedFile)) throw new Error(`locked or installed metadata missing for ${name}`);
+    const installed = readJson(installedFile);
+    if (installed.version !== entry.version) throw new Error(`installed ${name} ${installed.version} differs from locked ${entry.version}`);
+    packages[name] = { version: entry.version, integrity: entry.integrity, installed_package_json_sha256: fileHash(installedFile) };
+  }
+  const transform = Object.fromEntries(LOAD_TRANSFORM_FILES.map((file) => [file, fileHash(path.join(pw, 'node_modules/playwright', file))]));
+  if (Object.values(transform).some((value) => !value)) throw new Error('pinned Playwright transform source is missing');
+  if (packages['@playwright/test'].version !== '1.59.1' || packages.parse5.version !== '8.0.1') throw new Error('locked Playwright or parse5 version changed');
+  return { packages, transform_sha256: transform };
+}
+
+function readLoadHistory(root) {
+  const control = readControlRecoveryHistory(root);
+  const failed27Freeze = readJson(path.join(root, LOAD_FAILED27.freeze.file));
+  const failed27 = readJson(path.join(root, LOAD_FAILED27.evidence.file));
+  if (fileHash(path.join(root, LOAD_FAILED27.freeze.file)) !== LOAD_FAILED27.freeze.sha256
+    || fileHash(path.join(root, LOAD_FAILED27.evidence.file)) !== LOAD_FAILED27.evidence.sha256) throw new Error('failed Plan 27 freeze or evidence bytes changed');
+  const attempt = failed27.attempts?.[0];
+  if (failed27.status !== 'halted' || failed27.attempts?.length !== 1 || attempt?.slot_id !== 'CR-DARK-FIRST'
+    || attempt.charged_duration_ms !== 33409 || attempt.playwright_cli?.launched !== true
+    || failed27.limits?.charged_duration_ms !== 276453 || failed27.limits?.physical_playwright_cli_launches !== 5
+    || JSON.stringify(failed27.limits?.used_slots) !== JSON.stringify(LOAD_SPENT)
+    || failed27.limits?.retry_used !== 1 || failed27.limits?.retry_available !== 0) throw new Error('failed Plan 27 receipt differs from the six-spent, 276453 ms, five-launch ledger');
+  const rawDir = `${path.join(root, LOAD_FAILED27.evidence.file)}.raw`;
+  for (const [name, reference] of Object.entries(attempt.files ?? {})) {
+    for (const item of Array.isArray(reference) ? reference : [reference]) {
+      const file = confinedFile(rawDir, item);
+      if (!file || fileHash(file) !== item.sha256) throw new Error(`failed Plan 27 raw readback differs: ${name}`);
+    }
+  }
+  for (const revision of failed27.preserved_revisions ?? []) {
+    if (sha256(readGitBlob(root, revision.ref)) !== revision.sha256) throw new Error(`failed Plan 27 preserved revision readback differs: ${revision.ref}`);
+  }
+  const charges = [...control.charges, attempt.charged_duration_ms];
+  const ledger = buildLoadRecoveryLedger({
+    charges, physicalPlaywrightLaunches: failed27.limits.physical_playwright_cli_launches, spentReservations: failed27.limits.used_slots,
+    retryUsed: failed27.limits.retry_used, retryAvailable: failed27.limits.retry_available,
+    preparationMaximumMs: 116232, preparationUsedMs: charges[1]
+  });
+  const historicalFiles = [...control.artifacts.map((item) => item.path), LOAD_FAILED27.freeze.file, LOAD_FAILED27.evidence.file, ...LOAD_EXTRA_HISTORY];
+  const artifacts = historicalFiles.map((file) => ({ path: file, sha256: fileHash(path.join(root, file)) }));
+  if (artifacts.some((item) => !item.sha256)) throw new Error('a historical record is missing an exact byte identity');
+  const frozenBlobs = {
+    failed27: failed27Freeze.source.blobs,
+    control16: readJson(path.join(root, LOAD_EXTRA_HISTORY[2])).source.blobs
+  };
+  if (Object.keys(frozenBlobs.control16).length !== 9) throw new Error('original control freeze must retain nine frozen blob hashes');
+  for (const set of Object.values(frozenBlobs)) for (const blob of Object.values(set)) {
+    if (run('git', ['-C', root, 'cat-file', '-t', blob]).stdout.trim() !== 'blob') throw new Error(`historical frozen blob is not retrievable: ${blob}`);
+  }
+  return { control, ledger, artifacts, failed27, frozenBlobs, charges };
+}
+
+export function createLoadRecoveryFreeze(outputFile, root = ROOT) {
+  if (fs.existsSync(outputFile)) throw new Error('refusing to overwrite the additive native load recovery freeze');
+  if (process.version !== LOAD_NODE) throw new Error(`load recovery must be frozen under Node ${LOAD_NODE}`);
+  assertRevisionCheckout(root);
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const history = readLoadHistory(root);
+  const files = loadSourceFileList(root);
+  const blobs = Object.fromEntries(files.map((file) => [file, git(['-C', root, 'rev-parse', `${head}:${file}`])]));
+  const control = history.control;
+  const freeze = {
+    schema_version: LOAD_RECOVERY_FREEZE_SCHEMA, status: 'frozen_before_results', plan: '253-39', frozen_at: new Date().toISOString(),
+    source: { repository: 'szTheory/sigra', checkout_head: head, blobs },
+    runtime: loadRuntimeIdentity(root),
+    historical: {
+      artifacts: history.artifacts, frozen_blob_sets: history.frozenBlobs, carried_charge_ms: history.ledger.prior_charge_ms,
+      carried_components_ms: history.charges, physical_playwright_cli_launches: 5, spent_reservations: [...LOAD_SPENT],
+      spent_retry: { used: 1, available: 0 }, preceding_order: 'unknown', actual_http_old_hosted: 'unknown',
+      failed_dark: { slot_id: 'R-DIAG-CONTROL-DARK', charged_ms: 121252 },
+      failed_cr_dark_first: { slot_id: 'CR-DARK-FIRST', charged_ms: 33409, selected_results: 0, retry_or_reuse: 'forbidden' }
+    },
+    ledger: {
+      prior_charge_ms: history.ledger.prior_charge_ms, prior_playwright_cli_launches: 5, spent_reservations: [...LOAD_SPENT],
+      preparation_remaining_ms: 112489, preparation_maximum_ms: 112489, retry_used: 1, retry_available: 0,
+      slots: history.ledger.slots,
+      d19: { cap_ms: 1_200_000, max_with_remaining_preparation: 868942 },
+      d20: { acceptance_slots_reserved: 9, each_max_duration_ms: 240000, reserved_ms: 2_160_000, retry_available: false },
+      shared_cap_ms: 3_480_000, total_with_optional_seed_checks_ms: 3208942, physical_cli_launch_max: 18,
+      launch_unit: 'playwright_cli_process', engine_worker_lifecycle_accounting: 'separate_from_playwright_cli_launches',
+      cleanup_reserve_ms: 15000, regular_command_ms: PROJECT_SLOT_MS, no_retry: true, required_rows: 22
+    },
+    selection: {
+      spec: 'tests/admin-eval.spec.ts', config: path.basename(LOAD_RECOVERY_CONFIG), original_title: CONTROL_BOARD_TITLE,
+      first_titles: FIRST_CONTROLS, second_titles: CONTROL_SECOND_ACTIVE, deliberate_expected_failure_markers: CONTROL_EXPECTED_FAILURE_MARKERS,
+      cli_grep_forbidden: true, workers: 1, fully_parallel: false, retries: 0, trace: 'retain-on-failure'
+    },
+    tools: {
+      node: process.version, expected_node: LOAD_NODE, playwright: '1.59.1', parse5: '8.0.1',
+      mix: control.accepted.toolchain.mix, ecto_sql: control.accepted.toolchain.ecto_sql, phoenix_live_view: control.accepted.toolchain.phoenix_live_view
+    },
+    exclusions: ['no browser installation', 'no hidden --list or version CLI', 'no warmup', 'no duplicate full suite', 'no retry', 'no reuse of CR-DARK-FIRST', 'no acceptance command in Plan 39', 'no native or hosted work in Plan 39'],
+    stop_conditions: ['source or history digest mismatch', 'unexpected assertion or missing native report', 'database drop/build cleanup/report/trace sanitation failure', 'command exceeds 120000 ms', 'stalled owned process group remains alive']
+  };
+  freeze.freeze_sha256 = loadFreezeDigest(freeze);
+  writeJson(outputFile, freeze);
+  return freeze;
+}
+
+export function validateLoadRecoveryFreeze(root, freeze) {
+  assertDirtyConfigPreserved(root);
+  if (freeze?.schema_version !== LOAD_RECOVERY_FREEZE_SCHEMA || freeze.status !== 'frozen_before_results'
+    || freeze.freeze_sha256 !== loadFreezeDigest(freeze)) throw new Error('native load recovery freeze is malformed or its digest is invalid');
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  if (run('git', ['-C', root, 'merge-base', '--is-ancestor', freeze.source.checkout_head, head]).status !== 0) throw new Error('frozen load recovery source commit is not an ancestor of this checkout');
+  for (const [file, expected] of Object.entries(freeze.source.blobs ?? {})) {
+    if (git(['-C', root, 'hash-object', file]) !== expected) throw new Error(`frozen load recovery source identity mismatch for ${file}`);
+  }
+  for (const required of [...SOURCE_FILES, ...LOAD_EXTRA_SOURCES]) if (!freeze.source.blobs?.[required]) throw new Error(`freeze omits required source ${required}`);
+  for (const file of discoverLoadImportClosure(root)) if (!freeze.source.blobs?.[file]) throw new Error(`freeze omits actual imported runtime source ${file}`);
+  for (const artifact of freeze.historical?.artifacts ?? []) {
+    if (fileHash(path.join(root, artifact.path)) !== artifact.sha256) throw new Error(`preserved native history changed: ${artifact.path}`);
+  }
+  if (JSON.stringify(freeze.runtime) !== JSON.stringify(loadRuntimeIdentity(root))) throw new Error('locked/installed runtime or pinned transform identity changed');
+  const history = readLoadHistory(root);
+  const canonical = loadRecoverySlotDefinitions();
+  if (JSON.stringify(freeze.ledger?.slots) !== JSON.stringify(canonical) || JSON.stringify(history.ledger.slots) !== JSON.stringify(canonical)) throw new Error('frozen reservation mapping differs from the reviewed four unused slots');
+  for (const slot of freeze.ledger.slots) if (slot.argv.some((arg) => /^(-g|--grep)(=|$)/.test(arg))) throw new Error('frozen argv carries a CLI grep that would override per-project selection');
+  const l = freeze.ledger;
+  if (l.prior_charge_ms !== 276453 || l.prior_playwright_cli_launches !== 5 || l.retry_used !== 1 || l.retry_available !== 0
+    || l.d19?.max_with_remaining_preparation !== 868942 || l.total_with_optional_seed_checks_ms !== 3208942
+    || l.shared_cap_ms !== 3480000 || l.physical_cli_launch_max !== 18 || JSON.stringify(l.spent_reservations) !== JSON.stringify(LOAD_SPENT)) throw new Error('frozen ledger totals differ from the reviewed allocation');
+  return head;
+}
+
+function checkLoadRecoveryFreezeFile(freezeFile, root = ROOT) {
+  try {
+    if (path.resolve(freezeFile) !== path.resolve(root, LOAD_RECOVERY_FREEZE_PATH)) throw new Error('freeze check accepts only the additive Plan 39 path');
+    validateLoadRecoveryFreeze(root, readJson(freezeFile));
+    console.log('native load recovery freeze verified: source closure, history blobs, runtime identity, four unused slots, 276453 ms/5 launches/6 spent match');
+    return { ok: true, errors: [] };
+  } catch (error) {
+    console.error(`native load recovery freeze rejected: ${error.message}`);
+    return { ok: false, errors: [error.message] };
+  }
+}
+
+export function initializeLoadRecoveryEvidence(freezeFile, evidenceFile, root = ROOT) {
+  if (fs.existsSync(evidenceFile)) throw new Error('refusing to overwrite additive native load recovery evidence');
+  const freeze = readJson(freezeFile);
+  validateLoadRecoveryFreeze(root, freeze);
+  const evidence = {
+    schema_version: LOAD_RECOVERY_SCHEMA, status: 'ready',
+    freeze_path: path.relative(root, freezeFile), freeze_sha256: fileHash(freezeFile),
+    source: structuredClone(freeze.source), historical: structuredClone(freeze.historical),
+    created_at: new Date().toISOString(), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+    limits: {
+      prior_charge_ms: freeze.ledger.prior_charge_ms, preparation_charge_ms: 0, preparation_remaining_ms: freeze.ledger.preparation_remaining_ms,
+      charged_duration_ms: freeze.ledger.prior_charge_ms, physical_playwright_cli_launches: freeze.ledger.prior_playwright_cli_launches,
+      used_slots: [...freeze.ledger.spent_reservations], max_d19_ms: freeze.ledger.d19.max_with_remaining_preparation,
+      max_total_ms: freeze.ledger.shared_cap_ms, max_physical_playwright_cli_launches: freeze.ledger.physical_cli_launch_max,
+      retry_used: 1, retry_available: 0
+    }
+  };
+  fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  writeJson(evidenceFile, evidence);
+  return evidence;
+}
+
+const ACCOUNT_COUNT_SCHEMA = 'sigra.phase253.owned-account-count/v1';
+const ACCOUNT_COUNT_QUERY = "SELECT count(*) FROM users WHERE email = :'target';\n";
+
+// Bounded psql count of one synthetic control account in the slot's own owned database.
+// The password stays in the environment; the receipt keeps only the account digest.
+export function captureOwnedAccountCount({ database, email, env, cwd, log, deadline, run: runner = spawnSync }) {
+  if (!OWNED_CONTROL_DATABASE.test(database ?? '')) throw new Error('refusing to query a database outside the synthetic control namespace');
+  if (!/^platform-admin\+sigra-253-control-[a-z0-9]+-[a-z-]+@example\.test$/.test(email ?? '')) throw new Error('refusing to query an account outside the synthetic control namespace');
+  const connection = databaseConnectionIdentity(env);
+  if (!connection.host || !connection.port || !connection.user) throw new Error('account query needs PGHOST, PGPORT and PGUSER');
+  const argv = ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-v', `target=${email}`, '-A', '-t', '-h', connection.host, '-p', connection.port, '-U', connection.user, '-d', database];
+  const started = process.hrtime.bigint();
+  const timeout = Math.max(1, Math.floor(deadline - Number(started) / 1e6));
+  let result = null; let thrown = null;
+  try { result = runner(argv[0], argv.slice(1), { cwd, env: { ...env, PGDATABASE: database }, input: ACCOUNT_COUNT_QUERY, encoding: 'utf8', timeout, killSignal: 'SIGKILL', maxBuffer: 65536 }); }
+  catch (error) { thrown = error; }
+  const ended = process.hrtime.bigint();
+  const stdout = typeof result?.stdout === 'string' ? result.stdout : '';
+  fs.writeFileSync(log, stdout);
+  return {
+    schema_version: ACCOUNT_COUNT_SCHEMA, database, account_email_sha256: sha256(email),
+    argv: argv.map((item) => (item.startsWith('target=') ? 'target=<redacted-account>' : item)), query: ACCOUNT_COUNT_QUERY,
+    connection, exit_code: result?.status ?? null, timed_out: result?.error?.code === 'ETIMEDOUT',
+    error: thrown?.message ?? result?.error?.message ?? null,
+    started_monotonic_ns: started.toString(), ended_monotonic_ns: ended.toString(), duration_ms: Math.ceil(Number(ended - started) / 1e6),
+    count: /^\d+\n$/.test(stdout) ? Number(stdout.trim()) : null, log_sha256: sha256(stdout), log_bytes: Buffer.byteLength(stdout)
+  };
+}
+
+function verifyAccountCountReceipt(receipt, attempt, expectedDigest, expectedCount, label) {
+  const errors = [];
+  if (!receipt || receipt.schema_version !== ACCOUNT_COUNT_SCHEMA) return [`${label} account receipt is missing`];
+  if (receipt.database !== attempt.database?.name) errors.push(`${label} account receipt is for another database`);
+  if (receipt.account_email_sha256 !== expectedDigest) errors.push(`${label} account receipt digest is not the project's frozen collision account`);
+  if (receipt.exit_code !== 0 || receipt.timed_out || receipt.error !== null) errors.push(`${label} account query did not exit cleanly`);
+  if (receipt.count !== expectedCount) errors.push(`${label} account count is ${receipt.count}, expected ${expectedCount}`);
+  if (JSON.stringify(receipt).match(/password/i)) errors.push(`${label} account receipt retains credential material`);
+  try {
+    const started = BigInt(receipt.started_monotonic_ns); const ended = BigInt(receipt.ended_monotonic_ns);
+    if (started < BigInt(attempt.started_monotonic_ns) || ended > BigInt(attempt.ended_monotonic_ns) || ended <= started) errors.push(`${label} account query ran outside the charged window`);
+  } catch { errors.push(`${label} account query monotonic bounds are missing`); }
+  return errors;
+}
+
+export function verifyNativeLoadAttempt(attempt, freeze, baseDir) {
+  const errors = [];
+  const fail = (message) => errors.push(message);
+  if (!attempt || typeof attempt !== 'object') return { ok: false, errors: ['native load attempt is missing'] };
+  const slot = freeze.ledger.slots.find((item) => item.id === attempt.slot_id);
+  if (!slot) return { ok: false, errors: ['attempt does not identify a frozen load recovery slot'] };
+  if (slot.id === 'CR-DARK-FIRST') return { ok: false, errors: ['the spent CR-DARK-FIRST slot cannot carry an accepted attempt'] };
+  if (attempt.sequence !== slot.sequence || attempt.stage !== slot.stage || attempt.project !== slot.project
+    || JSON.stringify(attempt.projects) !== JSON.stringify(slot.projects)) fail('attempt identity differs from its frozen slot');
+  if (JSON.stringify(attempt.argv) !== JSON.stringify(slot.argv)) fail('native Playwright argv differs from the frozen project selection');
+  if (attempt.argv?.some((arg) => /^(-g|--grep)(=|$)/.test(arg))) fail('a CLI grep overrides the per-project selection');
+  if (!Number.isSafeInteger(attempt.charged_duration_ms) || attempt.charged_duration_ms < 0 || attempt.charged_duration_ms > slot.max_duration_ms) fail('native command exceeded its 120,000 ms reservation');
+  if (attempt.source_commit !== freeze.source.checkout_head || JSON.stringify(attempt.source_blobs) !== JSON.stringify(freeze.source.blobs)) fail('attempt does not match the frozen source commit and blobs');
+  let started = 0n; let ended = 0n;
+  try { started = BigInt(attempt.started_monotonic_ns); ended = BigInt(attempt.ended_monotonic_ns); } catch { /* reported below */ }
+  if (started <= 0n || ended <= started || Math.ceil(Number(ended - started) / 1e6) !== attempt.execution_duration_ms) fail('native command monotonic duration is missing or inconsistent');
+  if (attempt.charged_duration_ms !== attempt.execution_duration_ms) fail('native command charge does not include its complete measured duration');
+  if (attempt.database?.setup_exit_code !== 0 || attempt.database?.drop_exit_code !== 0) fail('fresh database setup or drop did not succeed');
+  if (!OWNED_CONTROL_DATABASE.test(attempt.database?.name ?? '')) fail('database identity is outside the synthetic control namespace');
+  if (attempt.server?.http_status !== 200 || !Number.isInteger(attempt.server?.app_pid)) fail('server readiness or app process identity is missing');
+  if (attempt.playwright_cli?.launched !== true || !Number.isInteger(attempt.playwright_cli?.exit_code) || attempt.browser?.launched !== true) fail('native Playwright CLI launch or exit is missing');
+  if (attempt.lifecycle?.playwright_cli_processes !== 1) fail('a slot must consume exactly one physical Playwright CLI process');
+  if (attempt.build_directory_removed !== true || !attempt.build_path?.endsWith('/mix-build')) fail('fresh physical Mix build was not removed');
+  const absence = verifyDatabaseAbsenceReceipt(attempt.database?.absence_receipt, attempt, baseDir);
+  for (const message of absence.errors) fail(`independent database absence: ${message}`);
+  for (const name of ['setup_log', 'app_log', 'test_log', 'drop_log', 'playwright_report']) {
+    const reference = attempt.files?.[name]; const file = confinedFile(baseDir, reference);
+    if (!file || !fs.existsSync(file)) { fail(`sanitized native ${name.replaceAll('_', ' ')} is missing`); continue; }
+    if (!reference.sha256 || fileHash(file) !== reference.sha256) fail(`sanitized native ${name.replaceAll('_', ' ')} digest mismatch`);
+    if (!fs.statSync(file).size && !(name === 'drop_log' && reference.sha256 === EMPTY_SHA256 && attempt.database?.drop_exit_code === 0 && absence.ok)) fail(`sanitized native ${name.replaceAll('_', ' ')} is empty`);
+    if (name.endsWith('_log')) {
+      const sanitation = validateSanitizedCommandLog(fs.readFileSync(file, 'utf8'));
+      if (!sanitation.ok) fail(`${name} contains an unsanitized credential block or auth header: ${sanitation.errors.join('; ')}`);
+    }
+  }
+  let tests = [];
+  const reportFile = confinedFile(baseDir, attempt.files?.playwright_report);
+  if (reportFile && fs.existsSync(reportFile)) {
+    try {
+      const report = readJson(reportFile);
+      if (!Array.isArray(report.suites) || !Array.isArray(report.errors)) fail('native Playwright JSON report is structurally incomplete');
+      tests = playReportTests(report);
+      if (!tests.length) fail('native Playwright JSON report is empty');
+      if (report.errors.length) fail('native Playwright report contains top-level errors');
+    } catch (error) { fail(`native Playwright JSON report could not be parsed: ${error.message}`); }
+  }
+  const pairs = loadRequiredPairs(slot);
+  if (tests.length !== pairs.length) fail(`native report has ${tests.length} rows, the frozen slot requires exactly ${pairs.length}`);
+  const rows = [];
+  for (const pair of pairs) {
+    const matching = tests.filter((item) => item.title === pair.title && item.project === pair.project && path.basename(item.file) === pair.spec);
+    if (matching.length !== 1) { fail(`native report must contain exactly one result for ${pair.project} / ${pair.title}`); continue; }
+    const result = matching[0];
+    const label = `${pair.project} / ${pair.title}`;
+    rows.push({ ...pair, result });
+    if (result.result_count !== 1 || ['skipped', 'interrupted', 'flaky'].includes(result.summary_status) || result.status === 'skipped') fail(`${label} was skipped, retried, interrupted, or has multiple native results`);
+    const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+    if (expected === 'expected_failure') {
+      if (result.expected_status !== 'passed' || result.status !== 'failed' || result.summary_status !== 'unexpected') fail(`${label} did not produce its expected native assertion failure`);
+      if (!controlTestError(result).includes(CONTROL_EXPECTED_FAILURE_MARKERS[pair.title])) fail(`${label} failure report omits its frozen original assertion marker`);
+    } else if (result.expected_status !== 'passed' || result.status !== 'passed' || result.summary_status !== 'expected') fail(`${label} did not pass natively as frozen`);
+    const contexts = controlAnnotations(result, 'sigra-registration-control-context');
+    if (pair.title !== CONTROL_BOARD_TITLE && (!contexts.length || contexts.some((value) => !/^[a-z0-9-]+:[a-f0-9-]{36}$/i.test(value)))) fail(`${label} omitted its fresh browser-context identity`);
+  }
+  const failures = rows.filter((row) => slot.project_selections.find((item) => item.project === row.project).expected[row.title] === 'expected_failure');
+  const traces = attempt.files?.traces ?? [];
+  if (traces.length !== failures.length) fail('retained native trace count does not exactly match the frozen expected-failure rows');
+  for (const trace of traces) {
+    const file = confinedFile(baseDir, trace);
+    if (!file || !fs.existsSync(file) || !trace.sha256 || fileHash(file) !== trace.sha256 || fs.statSync(file).size < 22) fail('native failure trace is absent, empty, or has a digest mismatch');
+  }
+  for (const row of rows.filter((item) => item.title === 'registration retains the first forced assertion failure trace')) {
+    const trace = traces.find((item) => item.title === row.title && item.project === row.project);
+    if (!trace?.sanitization?.navigation || !trace.sanitization.submission) fail(`${row.project}: forced failure trace omits navigation or actual submit/click actions`);
+    if (!controlTestError(row.result).includes('toHaveURL')) fail(`${row.project}: forced first assertion evidence lacks its original assertion`);
+  }
+  const appRef = attempt.files?.app_log && confinedFile(baseDir, attempt.files.app_log);
+  const appText = appRef && fs.existsSync(appRef) ? fs.readFileSync(appRef, 'utf8') : '';
+  if (!appText.includes('POST /users/log_in')) fail('no server-confirmed registration submission is present in the app log');
+  const parse = (result, type) => controlAnnotations(result, type).map((value) => { try { return JSON.parse(value); } catch { return null; } }).filter(Boolean);
+  const collisions = {}; const fresh = {};
+  for (const row of rows) {
+    if (row.title === 'registration detects a deliberate same-account collision') {
+      const found = parse(row.result, 'sigra-registration-control-result').find((item) => item.first_registration_succeeded === true && item.duplicate_response_confirmed === true);
+      if (!found || found.collision_email_sha256 !== slot.collision_account_sha256[row.project]) fail(`${row.project}: same-account collision lacks its persisted-first-registration receipt for this project's own account`);
+      else collisions[row.project] = found.collision_email_sha256;
+    }
+    if (row.title === 'registration starts from a fresh database and context') {
+      const found = parse(row.result, 'sigra-registration-control-result').find((item) => item.fresh_database_account_created === true);
+      if (!found || found.prior_collision_account_email_sha256 !== slot.collision_account_sha256[row.project]) fail(`${row.project}: fresh-state pass lacks the project's prior collision account digest`);
+      else fresh[row.project] = found.prior_collision_account_email_sha256;
+    }
+    if (row.title === 'registration discards trace after a passing control' && traces.some((item) => item.project === row.project && item.title === row.title)) fail('passing control retained a trace');
+  }
+  if (slot.stage === 'second') {
+    const project = slot.project; const digest = slot.collision_account_sha256[project];
+    errors.push(...verifyAccountCountReceipt(attempt.prior_collision_absence, attempt, digest, 0, 'prior collision absence before browser work'));
+    errors.push(...verifyAccountCountReceipt(attempt.created_account, attempt, digest, 1, 'created account after registration'));
+    if (attempt.prior_collision_absence && attempt.created_account && BigInt(attempt.prior_collision_absence.ended_monotonic_ns || 0) > BigInt(attempt.created_account.started_monotonic_ns || 0)) fail('absence query must precede the created-account query');
+    if (!fresh[project]) fail('second slot has no fresh-state result');
+  } else if (Object.keys(collisions).length !== slot.projects.length) fail('all three projects need their own native same-account collision receipt');
+  const contextIds = rows.flatMap((row) => controlAnnotations(row.result, 'sigra-registration-control-context'));
+  if (new Set(contextIds).size !== contextIds.length) fail('two selected rows reused the same browser-context identity');
+  if (failures.some((row) => row.title === 'registration waits for explicitly released LiveView readiness')) fail('the held readiness control must pass after its explicit release');
+  if (attempt.playwright_cli?.exit_code !== slot.expected_cli_exit) fail(`Playwright CLI exit does not match the frozen ${slot.expected_cli_exit}`);
+  if (!attempt.lifecycle || attempt.lifecycle.rows !== pairs.length || !(attempt.lifecycle.worker_indexes?.length >= 1)) fail('process, worker and context lifecycle receipt is incomplete');
+  attempt.collision_receipts = collisions; attempt.fresh_state_receipts = fresh;
+  return { ok: errors.length === 0, errors };
+}
+
+export function verifyLoadRecoveryEvidenceData(evidence, freeze, baseDir, stage = 'complete', freezeFileHash = freeze?.freeze_sha256) {
+  const errors = [];
+  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) return { ok: false, errors: ['native load recovery evidence is missing or malformed'] };
+  if (freeze?.schema_version !== LOAD_RECOVERY_FREEZE_SCHEMA || freeze.freeze_sha256 !== loadFreezeDigest(freeze) || evidence.freeze_sha256 !== freezeFileHash) errors.push('evidence does not match the immutable load recovery freeze');
+  if (evidence.schema_version !== LOAD_RECOVERY_SCHEMA || JSON.stringify(evidence.source) !== JSON.stringify(freeze?.source)) errors.push('evidence source identity differs from the frozen commit and blobs');
+  if (evidence.reservation || ['running', 'halted'].includes(evidence.status)) errors.push('evidence contains an unresolved predebit reservation or a halted status');
+  if (evidence.limits?.retry_used !== 1 || evidence.limits?.retry_available !== 0) errors.push('the spent shared retry was reopened or miscounted');
+  if (evidence.limits?.prior_charge_ms !== 276453 || evidence.limits?.preparation_remaining_ms !== 112489) errors.push('carried historical charge or preparation balance changed');
+  if (evidence.limits?.max_total_ms !== 3480000 || evidence.limits?.max_physical_playwright_cli_launches !== 18) errors.push('shared time or physical CLI launch ceiling changed');
+  const attempts = Array.isArray(evidence.attempts) ? evidence.attempts : [];
+  const count = stage === 'first' ? 1 : stage === 'complete' ? 4 : -1;
+  if (count < 0 || attempts.length !== count) errors.push(`stage ${stage} requires exactly ${count} accepted new native command receipts`);
+  const slots = (freeze?.ledger?.slots ?? []).slice(0, Math.max(0, count));
+  if (attempts.some((attempt, index) => attempt.slot_id !== slots[index]?.id)) errors.push('new commands do not match the exact unused reservation order');
+  if (attempts.some((attempt) => LOAD_SPENT.includes(attempt.slot_id))) errors.push('a spent reservation was reopened');
+  const usedSlots = [...(freeze?.ledger?.spent_reservations ?? []), ...attempts.map((attempt) => attempt.slot_id)];
+  if (JSON.stringify(evidence.limits?.used_slots) !== JSON.stringify(usedSlots)) errors.push('used reservation ledger differs from historical receipts and actual attempts');
+  const measured = (freeze?.ledger?.prior_charge_ms ?? 0) + attempts.reduce((sum, attempt) => sum + (Number(attempt.charged_duration_ms) || 0), 0) + (Number(evidence.limits?.preparation_charge_ms) || 0);
+  if (evidence.limits?.charged_duration_ms !== measured) errors.push('cumulative charge does not equal preserved history, preparation and measured command receipts');
+  if ((evidence.limits?.preparation_charge_ms ?? 0) > 112489) errors.push('preparation exceeded its remaining allowance');
+  const launches = (freeze?.ledger?.prior_playwright_cli_launches ?? 0) + attempts.filter((attempt) => attempt.playwright_cli?.launched === true).length;
+  if (evidence.limits?.physical_playwright_cli_launches !== launches || launches > (freeze?.ledger?.physical_cli_launch_max ?? -1)) errors.push('physical Playwright CLI launch count differs from native receipts or exceeds its frozen ceiling');
+  if (measured > (freeze?.ledger?.d19?.cap_ms ?? -1) || measured > (freeze?.ledger?.shared_cap_ms ?? -1)) errors.push('D-19 or shared time limit was exceeded');
+  for (const attempt of attempts) errors.push(...verifyNativeLoadAttempt(attempt, freeze, baseDir).errors.map((message) => `${attempt.slot_id}: ${message}`));
+  attempts.forEach((attempt, index) => {
+    if (attempts.slice(0, index).some((prior) => prior.database?.name === attempt.database?.name)) errors.push('two native slots reused the same physical database identity');
+  });
+  if (stage === 'first' && evidence.status !== 'first_complete') errors.push('first command status is not accepted');
+  if (stage === 'complete') {
+    if (evidence.status !== 'complete') errors.push('complete status is not accepted');
+    const total = attempts.reduce((sum, attempt) => sum + (attempt.lifecycle?.rows ?? 0), 0);
+    if (total !== 22) errors.push(`native rows total ${total}, the complete proof requires 22`);
+    for (const attempt of attempts.slice(1)) {
+      const prior = attempts[0]?.collision_receipts?.[attempt.project];
+      if (!prior || prior !== attempt.fresh_state_receipts?.[attempt.project] || attempts[0].database?.name === attempt.database?.name) errors.push(`${attempt.project}: fresh database does not prove the prior collision account absent before recreating it`);
+    }
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+function preserveLoadRecoveryEvidenceRevision(evidenceFile, root, evidence) {
+  const relative = path.relative(root, evidenceFile);
+  const bytes = fs.readFileSync(evidenceFile);
+  const status = run('git', ['-C', root, 'status', '--porcelain=v1', '--', relative]);
+  if (status.status !== 0) throw new Error('cannot capture evidence source status before replacement');
+  const digest = sha256(bytes);
+  const blob = git(['-C', root, 'hash-object', '-w', '--', relative]);
+  const ref = `refs/gsd/phase253-load-recovery-native-evidence/${digest}`;
+  const updated = run('git', ['-C', root, 'update-ref', ref, blob]);
+  if (updated.status !== 0) throw new Error(`cannot preserve exact evidence revision under ${ref}: ${updated.stderr.trim()}`);
+  if (!readGitBlob(root, ref).equals(bytes)) throw new Error(`exact evidence revision read-back failed for ${ref}`);
+  evidence.preserved_revisions.push({ path: relative, status: status.stdout.trimEnd(), sha256: digest, blob, ref, bytes: bytes.length, read_back_exact: true });
+}
+
+function writeLoadRecoveryEvidence(evidenceFile, root, evidence, deps) {
+  if (fs.existsSync(evidenceFile) && !deps.skipPreservation) preserveLoadRecoveryEvidenceRevision(evidenceFile, root, evidence);
+  if (fs.existsSync(evidenceFile)) fs.rmSync(evidenceFile);
+  writeJson(evidenceFile, evidence);
+}
+
+// Bounded preparation: toolchain version probes only (no app boot, warmup, Playwright CLI, or browser install).
+export async function prepareLoadRecovery(freezeFile, evidenceFile, root = ROOT, deps = {}) {
+  const d = { validate: validateLoadRecoveryFreeze, runTree: runLoggedTree, ...deps };
+  const freeze = readJson(freezeFile);
+  d.validate(root, freeze);
+  const evidence = readJson(evidenceFile);
+  if (evidence.schema_version !== LOAD_RECOVERY_SCHEMA || evidence.freeze_sha256 !== fileHash(freezeFile)) throw new Error('evidence does not match the committed freeze');
+  if (evidence.status !== 'ready' || evidence.reservation || evidence.preparation) throw new Error('preparation is only available once, from ready evidence');
+  if (evidence.attempts.length || evidence.limits.physical_playwright_cli_launches !== freeze.ledger.prior_playwright_cli_launches) throw new Error('preparation must precede every new native command');
+  const reserve = evidence.limits.preparation_remaining_ms;
+  evidence.status = 'running';
+  evidence.reservation = { kind: 'preparation', reserved_ms: reserve, predebited_at: new Date().toISOString() };
+  writeLoadRecoveryEvidence(evidenceFile, root, evidence, d);
+  const dir = path.join(`${evidenceFile}.raw`, 'preparation'); fs.mkdirSync(dir, { recursive: true });
+  const exampleDir = path.join(root, 'test/example'); const env = { ...process.env, MIX_ENV: 'dev' };
+  const commands = [['mix_version', 'mix', ['--version']], ['host_dependency_versions', 'mix', ['deps']]];
+  const started = process.hrtime.bigint(); const receipts = []; let failed = null;
+  for (const [name, program, args] of commands) {
+    const remaining = reserve - Math.ceil(Number(process.hrtime.bigint() - started) / 1e6);
+    if (remaining <= 0) { failed = 'preparation reached its predebited allowance'; break; }
+    const log = path.join(dir, `${name}.log`);
+    const result = await d.runTree(program, args, exampleDir, env, log, remaining);
+    receipts.push({ name, argv: [program, ...args], exit_code: result.exit_code, duration_ms: result.duration_ms, log: referenceFor(`${evidenceFile}.raw`, log) });
+    if (result.exit_code !== 0 || result.timed_out) { failed = `${name} failed`; break; }
+  }
+  const duration = Math.ceil(Number(process.hrtime.bigint() - started) / 1e6);
+  evidence.reservation = null; evidence.preparation = { receipts, duration_ms: duration, status: failed ? 'failed' : 'passed' };
+  evidence.limits.preparation_charge_ms = duration; evidence.limits.preparation_remaining_ms = Math.max(0, reserve - duration);
+  evidence.limits.charged_duration_ms += duration;
+  evidence.status = failed || duration > reserve ? 'halted' : 'ready';
+  if (evidence.status === 'halted') evidence.stop_reason = failed ?? 'preparation exceeded its allowance';
+  writeLoadRecoveryEvidence(evidenceFile, root, evidence, d);
+  if (evidence.status === 'halted') throw new Error(evidence.stop_reason);
+  return { status: evidence.status, preparation_charge_ms: duration };
+}
+
+export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root = ROOT, deps = {}) {
+  const d = {
+    validate: validateLoadRecoveryFreeze, runTree: runLoggedTree, spawnApp: spawn, waitReady, portAvailable, stopApp,
+    captureAbsence: captureOwnedDatabaseAbsence, captureAccount: captureOwnedAccountCount, sanitizeTrace: sanitizeTraceFile,
+    skipPreservation: false, enforcePaths: true, enforceNode: true, ...deps
+  };
+  if (slotId === 'CR-DARK-FIRST' || LOAD_SPENT.includes(slotId)) throw new Error(`reservation ${slotId} is permanently spent and cannot be run or retried`);
+  if (d.enforcePaths && (path.resolve(freezeFile) !== path.resolve(root, LOAD_RECOVERY_FREEZE_PATH) || path.resolve(evidenceFile) !== path.resolve(root, LOAD_RECOVERY_EVIDENCE_PATH))) throw new Error('load recovery accepts only the reviewed phase freeze and additive evidence paths');
+  if (d.enforceNode && process.version !== LOAD_NODE) throw new Error(`load recovery native commands require Node ${LOAD_NODE}`);
+  const freeze = readJson(freezeFile);
+  const freezeHash = fileHash(freezeFile);
+  const slot = freeze.ledger?.slots?.find((item) => item.id === slotId);
+  if (!slot || !LOAD_SLOT_TABLE.some(([id]) => id === slotId)) throw new Error('only the four frozen unused load recovery slots may run');
+  d.validate(root, freeze);
+  if (!fs.existsSync(evidenceFile)) throw new Error('native load recovery evidence must be initialized and committed before launch');
+  const evidence = readJson(evidenceFile);
+  if (evidence.schema_version !== LOAD_RECOVERY_SCHEMA || evidence.freeze_sha256 !== freezeHash) throw new Error('native load evidence does not match the committed freeze');
+  if (!['ready', 'first_complete', 'second_partial'].includes(evidence.status) || evidence.reservation) throw new Error(`refusing to use terminal or reserved recovery evidence: ${evidence.status}`);
+  if (evidence.limits.used_slots.includes(slot.id)) throw new Error(`reservation ${slot.id} was already consumed`);
+  if (evidence.limits.retry_used !== 1 || evidence.limits.retry_available !== 0 || evidence.limits.prior_charge_ms !== freeze.ledger.prior_charge_ms
+    || evidence.limits.charged_duration_ms < freeze.ledger.prior_charge_ms) throw new Error('counter reset or reopened retry detected before setup');
+  const nextSlot = freeze.ledger.slots[evidence.attempts.length];
+  if (!nextSlot || nextSlot.id !== slot.id) throw new Error('slots must run in frozen order, each exactly once');
+  const reserve = slot.max_duration_ms;
+  const unusedRegular = freeze.ledger.slots.filter((item) => !evidence.limits.used_slots.includes(item.id)).length;
+  if (reserve !== 120000 || evidence.limits.charged_duration_ms + reserve + 9 * 240000 > freeze.ledger.shared_cap_ms
+    || evidence.limits.charged_duration_ms + unusedRegular * reserve > freeze.ledger.d19.cap_ms
+    || evidence.limits.physical_playwright_cli_launches + unusedRegular + 9 > freeze.ledger.physical_cli_launch_max) throw new Error('remaining D-19 and conditional D-20 reservations do not fit frozen limits');
+  if (!(await d.portAvailable(slot.port))) throw new Error(`frozen port ${slot.port} is occupied before native setup`);
+  const project = PROJECTS.find((item) => item.name === slot.project);
+  const rawDir = `${evidenceFile}.raw`;
+  const rawAttempt = createAttemptDirectory(rawDir, slot.id, 1);
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-recovery-'));
+  const started = process.hrtime.bigint();
+  const nowMs = () => Number(process.hrtime.bigint()) / 1e6;
+  const commandDeadline = Number(started) / 1e6 + reserve;
+  const workDeadline = commandDeadline - slot.cleanup_ms;
+  const database = `sigra_253_control_load_${slot.id.toLowerCase().replaceAll('-', '_')}_${Date.now().toString(36)}_${process.pid}`.toLowerCase();
+  const env = diagnosticEnvironment(project, database, tempRoot);
+  const tempPaths = Object.fromEntries(['setup_log', 'app_log', 'test_log', 'drop_log'].map((name) => [name, path.join(tempRoot, `${name.replaceAll('_', '-')}.log`)]));
+  const reportTemp = path.join(tempRoot, 'playwright-report.json');
+  const attempt = {
+    slot_id: slot.id, sequence: slot.sequence, stage: slot.stage, project: slot.project, projects: slot.projects, argv: slot.argv,
+    source_commit: freeze.source.checkout_head, source_blobs: freeze.source.blobs, started_monotonic_ns: started.toString(),
+    database: { name: database, setup_exit_code: null, drop_exit_code: null, connection: databaseConnectionIdentity(env) },
+    server: { port: slot.port, http_status: null, app_pid: null }, browser: { launched: false, exit_code: null },
+    playwright_cli: { launched: false, exit_code: null }, lifecycle: { playwright_cli_processes: 0, rows: 0, worker_indexes: [] },
+    observed_outcome: 'setup_failed', files: {}, traces: [], registration: { server_post_confirmed: false },
+    toolchain: { playwright: null, ecto_sql: freeze.tools.ecto_sql, phoenix_live_view: freeze.tools.phoenix_live_view },
+    build_path: env.MIX_BUILD_PATH, stage_deadlines: { command_ms: reserve, work_ms: slot.work_ms, cleanup_ms: slot.cleanup_ms, cleanup_reserved: true }
+  };
+  evidence.status = 'running';
+  evidence.reservation = { slot_id: slot.id, mapped_from: slot.maps_from, reserved_ms: reserve, predebited_at: new Date().toISOString(), source_commit: freeze.source.checkout_head };
+  evidence.limits.used_slots.push(slot.id);
+  writeLoadRecoveryEvidence(evidenceFile, root, evidence, d);
+  let app = null; let terminalError = null;
+  const playwrightDir = path.join(root, LOAD_PLAYWRIGHT_DIR);
+  try {
+    const setup = await d.runTree('mix', ['ecto.setup'], path.join(root, 'test/example'), env, tempPaths.setup_log, workDeadline - nowMs());
+    attempt.setup = setup; attempt.database.setup_exit_code = setup.exit_code;
+    if (setup.exit_code !== 0 || setup.timed_out) throw new Error(`fresh database setup failed${setup.timed_out ? ' at its work deadline' : ` with exit ${setup.exit_code ?? 'null'}`}`);
+    const appFd = fs.openSync(tempPaths.app_log, 'w');
+    try { app = d.spawnApp('mix', ['phx.server'], { cwd: path.join(root, 'test/example'), env, stdio: ['ignore', appFd, appFd], detached: true }); }
+    finally { fs.closeSync(appFd); }
+    attempt.server.app_pid = app.pid ?? null;
+    attempt.server.http_status = app.pid ? await d.waitReady(app, `http://127.0.0.1:${slot.port}/`, workDeadline) : null;
+    if (attempt.server.http_status !== 200) throw new Error('fresh app did not return HTTP 200 before the reserved work deadline');
+    const installed = readJson(path.join(playwrightDir, 'node_modules/@playwright/test/package.json')).version;
+    if (installed !== freeze.tools.playwright) throw new Error(`installed Playwright ${installed} differs from the frozen ${freeze.tools.playwright}`);
+    attempt.toolchain.playwright = installed;
+    if (slot.stage === 'second') {
+      const absenceLog = path.join(tempRoot, 'prior-collision-absence.log');
+      attempt.prior_collision_absence = d.captureAccount({ database, email: loadControlAccount(slot.project, 'collision'), env, cwd: path.join(root, 'test/example'), log: absenceLog, deadline: workDeadline });
+      attempt.files.prior_collision_absence = receiptFile(rawDir, 'prior collision absence', (() => { const target = path.join(rawAttempt, 'prior-collision-absence.log'); fs.copyFileSync(absenceLog, target, fs.constants.COPYFILE_EXCL); return target; })());
+      if (attempt.prior_collision_absence.count !== 0) throw new Error('prior collision account is not absent from the newly created database');
+    }
+    attempt.browser.launched = true; attempt.playwright_cli.launched = true; attempt.lifecycle.playwright_cli_processes = 1;
+    const args = ['test', freeze.selection.spec, ...slot.argv, `--output=${path.join(tempRoot, 'playwright-output')}`];
+    attempt.browser_command_argv = args;
+    const browser = await d.runTree(path.join(playwrightDir, 'node_modules/.bin/playwright'), args, playwrightDir, {
+      ...env, CI: 'true', SIGRA_EXAMPLE_URL: `http://127.0.0.1:${slot.port}`, SIGRA_PLAYWRIGHT_JSON: reportTemp,
+      SIGRA_REGISTRATION_CONTROL_STAGE: slot.control_stage, SIGRA_CONTROL_RUN_ID: `${slot.id.toLowerCase()}-${crypto.randomUUID()}`,
+      SIGRA_CONTROL_ACCOUNT_PREFIX: 'platform-admin+sigra-253-control', PLAYWRIGHT_HTML_OUTPUT_DIR: path.join(tempRoot, 'html-report')
+    }, tempPaths.test_log, workDeadline - nowMs());
+    attempt.test_command = browser; attempt.browser.exit_code = browser.exit_code; attempt.playwright_cli.exit_code = browser.exit_code; attempt.lifecycle.cli_pid = browser.pid ?? null;
+    if (browser.timed_out) throw new Error('native Playwright command reached the reserved work deadline');
+    if (!fs.existsSync(reportTemp) || fs.statSync(reportTemp).size === 0) throw new Error('native Playwright JSON report is absent or empty');
+    const report = readJson(reportTemp);
+    const tests = playReportTests(report);
+    for (const item of tests) for (const attachment of item.attachments ?? []) {
+      if (attachment.name !== 'trace' && !String(attachment.path ?? '').endsWith('trace.zip')) continue;
+      if (!attachment.path || !fs.existsSync(attachment.path)) throw new Error(`native trace attachment for ${item.title} is missing`);
+      const target = path.join(rawAttempt, `trace-${attempt.traces.length + 1}.zip`);
+      const trace = d.sanitizeTrace(attachment.path, target);
+      attempt.traces.push({ ...receiptFile(rawDir, 'sanitized native trace', target), title: item.title, project: item.project, sanitization: trace });
+      attachment.path = path.relative(root, target);
+    }
+    attempt.files.traces = attempt.traces;
+    const safeReport = path.join(rawAttempt, 'playwright-report.json');
+    fs.writeFileSync(safeReport, `${JSON.stringify(sanitizeReportText(report), null, 2)}\n`, { flag: 'wx' });
+    attempt.files.playwright_report = receiptFile(rawDir, 'sanitized native Playwright report', safeReport);
+    attempt.lifecycle.rows = tests.length;
+    attempt.lifecycle.worker_indexes = [...new Set(tests.flatMap((item) => (Number.isInteger(item.worker_index) ? [item.worker_index] : [])))].sort((a, b) => a - b);
+    attempt.lifecycle.context_ids = tests.flatMap((item) => controlAnnotations(item, 'sigra-registration-control-context'));
+    attempt.lifecycle.projects_run = [...new Set(tests.map((item) => item.project))];
+    attempt.registration.server_post_confirmed = /POST \/users\/log_in/.test(fs.existsSync(tempPaths.app_log) ? fs.readFileSync(tempPaths.app_log, 'utf8') : '');
+    if (slot.stage === 'second') {
+      const createdLog = path.join(tempRoot, 'created-account.log');
+      attempt.created_account = d.captureAccount({ database, email: loadControlAccount(slot.project, 'collision'), env, cwd: path.join(root, 'test/example'), log: createdLog, deadline: commandDeadline - slot.cleanup_ms + 5000 });
+      attempt.files.created_account = receiptFile(rawDir, 'created account', (() => { const target = path.join(rawAttempt, 'created-account.log'); fs.copyFileSync(createdLog, target, fs.constants.COPYFILE_EXCL); return target; })());
+    }
+    attempt.observed_outcome = 'native_report_pending_validation';
+  } catch (error) { terminalError = error.message; }
+  finally {
+    await d.stopApp(app);
+    if (fs.existsSync(tempPaths.app_log)) attempt.log_redactions_app = sanitizeCommandLog(tempPaths.app_log);
+    const cleanupRemaining = commandDeadline - nowMs();
+    if (cleanupRemaining <= 0) terminalError = [terminalError, 'owned cleanup exceeded the 120,000 ms command limit'].filter(Boolean).join('; ');
+    const drop = await d.runTree('mix', ['ecto.drop', '--quiet'], path.join(root, 'test/example'), env, tempPaths.drop_log, Math.max(1, Math.min(7000, cleanupRemaining - 5000)));
+    attempt.database.drop_exit_code = drop.exit_code; attempt.drop_command = drop;
+    if (drop.exit_code !== 0 || drop.timed_out) terminalError = [terminalError, `database drop failed${drop.timed_out ? ' at cleanup deadline' : ` with exit ${drop.exit_code ?? 'null'}`}`].filter(Boolean).join('; ');
+    if (drop.exit_code === 0 && !drop.timed_out) {
+      try { attempt.database.absence_receipt = d.captureAbsence({ database, env, cwd: path.join(root, 'test/example'), log: path.join(tempRoot, 'database-absence.log'), deadline: commandDeadline }); }
+      catch (error) { terminalError = [terminalError, `independent database absence query failed: ${error.message}`].filter(Boolean).join('; '); }
+    }
+    try { fs.rmSync(env.MIX_BUILD_PATH, { recursive: true, force: true }); attempt.build_directory_removed = !fs.existsSync(env.MIX_BUILD_PATH); }
+    catch (error) { attempt.build_directory_removed = false; terminalError = [terminalError, `physical Mix build cleanup failed: ${error.message}`].filter(Boolean).join('; '); }
+  }
+  for (const name of ['setup_log', 'app_log', 'test_log', 'drop_log']) {
+    if (!fs.existsSync(tempPaths[name])) fs.writeFileSync(tempPaths[name], `${name} command did not start${terminalError ? `: ${terminalError}` : ''}\n`);
+    const target = path.join(rawAttempt, `${name.replaceAll('_', '-')}.log`);
+    fs.copyFileSync(tempPaths[name], target, fs.constants.COPYFILE_EXCL);
+    attempt.files[name] = receiptFile(rawDir, `sanitized ${name}`, target);
+  }
+  const absenceTemp = path.join(tempRoot, 'database-absence.log');
+  if (fs.existsSync(absenceTemp)) {
+    const target = path.join(rawAttempt, 'database-absence.log');
+    fs.copyFileSync(absenceTemp, target, fs.constants.COPYFILE_EXCL);
+    attempt.files.database_absence = receiptFile(rawDir, 'owned database absence query log', target);
+  }
+  attempt.ended_monotonic_ns = process.hrtime.bigint().toString();
+  attempt.execution_duration_ms = Math.ceil(Number(BigInt(attempt.ended_monotonic_ns) - BigInt(attempt.started_monotonic_ns)) / 1e6);
+  attempt.charged_duration_ms = attempt.execution_duration_ms;
+  if (attempt.charged_duration_ms > reserve) terminalError = [terminalError, 'native command exceeded its frozen 120,000 ms command reservation'].filter(Boolean).join('; ');
+  const validation = verifyNativeLoadAttempt(attempt, freeze, rawDir);
+  if (!validation.ok) terminalError = [terminalError, ...validation.errors].filter(Boolean).join('; ');
+  evidence.reservation = null;
+  evidence.limits.charged_duration_ms += attempt.charged_duration_ms;
+  if (attempt.playwright_cli.launched) evidence.limits.physical_playwright_cli_launches += 1;
+  evidence.attempts.push(attempt);
+  if (terminalError) { evidence.status = 'halted'; evidence.stop_reason = terminalError; attempt.observed_outcome = 'halted'; }
+  else {
+    evidence.status = evidence.attempts.length === 4 ? 'complete' : evidence.attempts.length === 1 ? 'first_complete' : 'second_partial';
+    attempt.observed_outcome = 'native_rows_accepted';
+  }
+  writeLoadRecoveryEvidence(evidenceFile, root, evidence, d);
+  fs.rmSync(tempRoot, { recursive: true, force: true });
+  if (terminalError) throw new Error(terminalError);
+  return { status: evidence.status, slot: slot.id, rows: attempt.lifecycle.rows, charged_duration_ms: attempt.charged_duration_ms, physical_playwright_cli_launches: evidence.limits.physical_playwright_cli_launches };
+}
+
+function verifyLoadRecoveryFile(evidenceFile, stage, root = ROOT) {
+  try {
+    if (path.resolve(evidenceFile) !== path.resolve(root, LOAD_RECOVERY_EVIDENCE_PATH)) throw new Error('verification accepts only the additive Plan 39 native evidence path');
+    const evidence = readJson(evidenceFile);
+    const freezeFile = path.resolve(root, evidence.freeze_path ?? '');
+    if (freezeFile !== path.resolve(root, LOAD_RECOVERY_FREEZE_PATH)) throw new Error('native evidence does not point to the reviewed load recovery freeze');
+    const freeze = readJson(freezeFile);
+    validateLoadRecoveryFreeze(root, freeze);
+    const result = verifyLoadRecoveryEvidenceData(evidence, freeze, `${evidenceFile}.raw`, stage, fileHash(freezeFile));
+    if (!result.ok) console.error(`native load recovery evidence rejected:\n- ${result.errors.join('\n- ')}`);
+    else console.log(`native load recovery verified: ${evidence.attempts.length}/4 commands; ${evidence.limits.physical_playwright_cli_launches}/18 CLI launches; ${evidence.limits.charged_duration_ms} ms cumulative; retry_available=0`);
+    return result;
+  } catch (error) { console.error(`native load recovery evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.mode === 'create-load-recovery') {
+    if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_RECOVERY_FREEZE_PATH)) throw new Error('load recovery freeze output must use the reviewed phase artifact path');
+    const freeze = createLoadRecoveryFreeze(args.output);
+    console.log(`load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; four unused reservations; retry unavailable)`);
+    return;
+  }
+  if (args.mode === 'init-load-recovery') {
+    if (path.resolve(args.freeze) !== path.resolve(ROOT, LOAD_RECOVERY_FREEZE_PATH) || path.resolve(args.output) !== path.resolve(ROOT, LOAD_RECOVERY_EVIDENCE_PATH)) throw new Error('load recovery evidence must use the reviewed phase artifact paths');
+    const evidence = initializeLoadRecoveryEvidence(args.freeze, args.output);
+    console.log(`native load recovery ledger initialized before setup: ${path.relative(ROOT, args.output)} (${evidence.limits.charged_duration_ms} ms carried; ${evidence.limits.used_slots.length} spent reservations; retry_available=0)`);
+    return;
+  }
+  if (args.mode === 'check-load-recovery-freeze') { if (!checkLoadRecoveryFreezeFile(args.freeze).ok) process.exitCode = 3; return; }
+  if (args.mode === 'prepare-load-recovery') { console.log(JSON.stringify(await prepareLoadRecovery(args.freeze, args.output))); return; }
+  if (args.mode === 'run-load-recovery') { console.log(JSON.stringify(await runLoadRecoverySlot(args.freeze, args.slot, args.output))); return; }
+  if (args.mode === 'verify-load-recovery') { if (!verifyLoadRecoveryFile(args.evidence, args.stage).ok) process.exitCode = 3; return; }
   if (args.mode === 'create-control-recovery') {
     if (path.resolve(args.output) !== path.resolve(ROOT, CONTROL_RECOVERY_FREEZE_PATH)) throw new Error('control recovery freeze output must use the reviewed phase artifact path');
     const freeze = createControlRecoveryFreeze(args.output);

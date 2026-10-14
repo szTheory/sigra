@@ -89,6 +89,25 @@ const out = (o) => process.stdout.write('\n@@RESULT@@' + JSON.stringify(o) + '\n
     const errors = [];
     const suite = await loadTestFile(path.join(PW, 'tests/admin-eval.spec.ts'), config, errors);
     out({ errors, titles: suite.allTests().map((t) => t.title), denied });
+  } else if (mode === 'recovery-summary') {
+    const { loadConfigFromFile } = require(path.join(PW, 'node_modules/playwright/lib/common/configLoader.js'));
+    const { loadTestFile } = require(path.join(PW, 'node_modules/playwright/lib/common/testLoader.js'));
+    const config = await loadConfigFromFile(path.join(PW, process.env.LOAD_CONFIG));
+    const errors = [];
+    const suite = await loadTestFile(path.join(PW, 'tests/admin-eval.spec.ts'), config, errors);
+    const titles = suite.allTests().map((t) => t.title);
+    const projects = {};
+    for (const p of config.projects) {
+      const project = p.project;
+      projects[project.name] = {
+        use: JSON.parse(JSON.stringify(project.use)), retries: project.retries, timeout: project.timeout,
+        testMatch: String(project.testMatch), testDir: project.testDir, outputDir: project.outputDir,
+        expect: project.expect, workers: p.workers, fullyParallel: p.fullyParallel,
+        selected: titles.filter((title) => project.grep.test(title)),
+      };
+    }
+    out({ errors, projects, workers: config.config.workers, fullyParallel: config.config.fullyParallel,
+      reporter: config.config.reporter, projectNames: config.projects.map((p) => p.project.name), denied });
   } else if (mode === 'bundle') {
     // bundle.ts uses import.meta.url, so it only loads as ESM: the caller copies it into a
     // type:module tree. Loading the real config first registers Playwright's ESM loader.
@@ -250,4 +269,48 @@ test('unstaged collection registers no controls but keeps the original board tit
   const titles = collect(undefined);
   for (const title of [...FIRST_TITLES, ...SECOND_TITLES]) assert.ok(!titles.includes(title), title);
   assert.equal(titles.filter((x) => x === ORIGINAL_BOARD_TITLE).length, 1);
+});
+
+function recoverySummary(stage) {
+  return runWorker('recovery-summary', { LOAD_CONFIG: 'playwright.registration-recovery.config.ts', SIGRA_REGISTRATION_CONTROL_STAGE: stage });
+}
+const EVAL_PROJECTS = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+
+test('recovery config collects the exact first-stage rows per project: 5 + 5 + 6 = 16', () => {
+  const summary = recoverySummary('first');
+  assert.deepEqual(summary.errors, []);
+  assert.deepEqual(summary.projectNames, EVAL_PROJECTS);
+  assert.deepEqual(summary.projects['admin-eval'].selected, FIRST_TITLES);
+  assert.deepEqual(summary.projects['admin-eval-mobile'].selected, FIRST_TITLES);
+  assert.deepEqual(summary.projects['admin-eval-dark'].selected, [...FIRST_TITLES, ORIGINAL_BOARD_TITLE]);
+});
+
+test('recovery config collects exactly the two second-stage rows in each project', () => {
+  const summary = recoverySummary('second');
+  assert.deepEqual(summary.errors, []);
+  for (const name of EVAL_PROJECTS) assert.deepEqual(summary.projects[name].selected, SECOND_TITLES, name);
+});
+
+test('recovery config inherits production device, theme, use, worker, retry, timeout and reporter settings', () => {
+  const production = runWorker('recovery-summary', { LOAD_CONFIG: 'playwright.config.ts' });
+  const recovery = recoverySummary('first');
+  assert.equal(recovery.workers, production.workers);
+  assert.equal(recovery.fullyParallel, production.fullyParallel);
+  assert.deepEqual(recovery.reporter, production.reporter);
+  for (const name of EVAL_PROJECTS) {
+    for (const key of ['use', 'retries', 'timeout', 'testMatch', 'testDir', 'outputDir', 'expect', 'workers', 'fullyParallel']) {
+      assert.deepEqual(recovery.projects[name][key], production.projects[name][key], `${name}.${key}`);
+    }
+  }
+  assert.equal(recovery.projects['admin-eval-dark'].use.colorScheme, 'dark');
+  assert.equal(recovery.projects['admin-eval-mobile'].use.isMobile, true);
+});
+
+test('recovery config fails closed without an explicit control stage', () => {
+  const res = spawnSync(process.execPath, ['-e', WORKER], {
+    cwd: tmpdir(), encoding: 'utf8', timeout: 60_000,
+    env: { PATH: process.env.PATH, HOME: process.env.HOME, LOAD_PW_DIR: PW_DIR, LOAD_MODE: 'recovery-summary', LOAD_CONFIG: 'playwright.registration-recovery.config.ts' },
+  });
+  assert.notEqual(res.status, 0);
+  assert.match(res.stdout + res.stderr, /requires SIGRA_REGISTRATION_CONTROL_STAGE=first\|second/);
 });
