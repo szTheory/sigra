@@ -93,6 +93,12 @@ const git = (args) => {
 
 function parseArgs(argv) {
   if (argv[0] === '--create-load-recovery' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery', output: path.resolve(argv[2]) };
+  if (argv[0] === '--record-budget-approval' && argv[1] === '--decision' && argv[2] && argv[3] === '--budget' && argv[4] && argv[5] === '--freeze' && argv[6] && argv[7] === '--output' && argv[8]
+    && (argv.length === 9 || (argv.length === 11 && argv[9] === '--decision-text' && argv[10]))) {
+    return { mode: 'record-budget-approval', decision: argv[2], budget: path.resolve(argv[4]), freeze: path.resolve(argv[6]), output: path.resolve(argv[8]), decisionText: argv.length === 11 ? argv[10] : '' };
+  }
+  if (argv[0] === '--preflight-host-sleep' && argv.length === 1) return { mode: 'preflight-host-sleep' };
+  if (argv[0] === '--run-load-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv[6] === '--diagnostic' && argv[7] && argv.length === 8) return { mode: 'run-load-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]), diagnostic: path.resolve(argv[7]) };
   if (argv[0] === '--create-load-recovery-r2' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r2', output: path.resolve(argv[2]) };
   if (argv[0] === '--init-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'init-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--prepare-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'prepare-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
@@ -3941,9 +3947,101 @@ function checkLoadRecoveryFreezeFileR2(freezeFile, root = ROOT) {
   }
 }
 
-// Fail-closed until the committed budget-approval gate is wired (plan 48 task 2).
-function readCommittedApproval() { throw new Error('R2 budget-approval gate is not available'); }
-async function probeHostSleepSafety() { throw new Error('R2 host-sleep preflight is not available'); }
+export function recordBudgetApproval({ decision, budgetFile, freezeFile, outputFile, decisionText }, root = ROOT, { enforcePaths = true, now = () => new Date().toISOString() } = {}) {
+  if (!Object.hasOwn(LOAD_R2_CAP_TABLE, decision ?? '')) throw new Error(`decision ${JSON.stringify(decision)} grants no capacity: only approve or approve-without-retry are recorded`);
+  if (typeof decisionText !== 'string' || !decisionText.trim()) throw new Error('the approval record needs Jon\'s decision text verbatim');
+  if (enforcePaths && (path.resolve(budgetFile) !== path.resolve(root, LOAD_R2_BUDGET_PATH) || path.resolve(freezeFile) !== path.resolve(root, LOAD_R2_FREEZE_PATH)
+    || path.resolve(outputFile) !== path.resolve(root, LOAD_R2_APPROVAL_PATH))) throw new Error('budget approval must use the reviewed R2 budget, freeze and approval paths');
+  const freeze = readJson(freezeFile);
+  if (enforcePaths) validateLoadRecoveryFreezeR2(root, freeze);
+  const budgetHash = fileHash(budgetFile);
+  if (!budgetHash || freeze.budget?.sha256 !== budgetHash) throw new Error('the R2 budget document differs from the freeze binding');
+  const record = {
+    schema_version: LOAD_R2_APPROVAL_SCHEMA, decision, decided_by: 'Jon (operator), recorded by executor from checkpoint response', decision_text: decisionText,
+    budget_sha256: budgetHash, freeze_sha256: fileHash(freezeFile), caps: { ...LOAD_R2_CAP_TABLE[decision] }, retry_granted: decision === 'approve' ? 1 : 0, recorded_at: now()
+  };
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
+  fs.writeFileSync(outputFile, `${JSON.stringify(record, null, 2)}\n`, { flag: 'wx' });
+  return record;
+}
+
+// Capacity is usable only through a record that is committed in HEAD and bound to this budget document and freeze.
+export function readCommittedApproval(root, freezeFile, freeze) {
+  const file = path.join(root, LOAD_R2_APPROVAL_PATH);
+  if (!fs.existsSync(file)) throw new Error('R2 budget approval record is absent: capacity exists only after Jon\'s decision is recorded');
+  const tracked = run('git', ['-C', root, 'ls-files', '--error-unmatch', '--', LOAD_R2_APPROVAL_PATH]);
+  const inHead = run('git', ['-C', root, 'cat-file', '-e', `HEAD:${LOAD_R2_APPROVAL_PATH}`]);
+  if (tracked.status !== 0 || inHead.status !== 0) throw new Error('R2 budget approval record is not committed in HEAD');
+  const bytes = fs.readFileSync(file);
+  if (!bytes.equals(readGitBlob(root, `HEAD:${LOAD_R2_APPROVAL_PATH}`))) throw new Error('R2 budget approval record differs from its committed bytes');
+  const record = JSON.parse(bytes.toString('utf8'));
+  if (record.schema_version !== LOAD_R2_APPROVAL_SCHEMA || !Object.hasOwn(LOAD_R2_CAP_TABLE, record.decision ?? '')) throw new Error('R2 budget approval record is malformed or carries an unrecognised decision');
+  const budgetHash = fileHash(path.join(root, LOAD_R2_BUDGET_PATH));
+  if (!budgetHash || record.budget_sha256 !== budgetHash || freeze?.budget?.sha256 !== budgetHash) throw new Error('R2 budget approval is not bound to the frozen budget document hash');
+  if (record.freeze_sha256 !== fileHash(freezeFile)) throw new Error('R2 budget approval is not bound to this freeze file hash');
+  if (JSON.stringify(record.caps) !== JSON.stringify(LOAD_R2_CAP_TABLE[record.decision]) || record.retry_granted !== (record.decision === 'approve' ? 1 : 0)) throw new Error('R2 budget approval caps differ from the reviewed table');
+  return record;
+}
+
+export function readCommittedDiagnostic(root, file) {
+  if (!file || typeof file !== 'string') throw new Error('infrastructure retry requires --diagnostic <committed diagnostic file>');
+  const relative = path.isAbsolute(file) ? path.relative(root, file) : path.normalize(file);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('the infrastructure diagnostic must live inside the checkout');
+  const tracked = run('git', ['-C', root, 'ls-files', '--error-unmatch', '--', relative]);
+  const inHead = run('git', ['-C', root, 'cat-file', '-e', `HEAD:${relative}`]);
+  if (tracked.status !== 0 || inHead.status !== 0 || !fs.existsSync(path.join(root, relative))) throw new Error(`the infrastructure diagnostic is not committed in HEAD: ${relative}`);
+  const bytes = fs.readFileSync(path.join(root, relative));
+  if (!bytes.equals(readGitBlob(root, `HEAD:${relative}`))) throw new Error(`the infrastructure diagnostic differs from its committed bytes: ${relative}`);
+  return { file: relative, sha256: sha256(bytes) };
+}
+
+function processAlive(pid) {
+  try { process.kill(pid, 0); return true; } catch (cause) { return cause.code === 'EPERM'; }
+}
+
+function pmsetAssertionNames(text, pid) {
+  const names = [];
+  for (const match of String(text).matchAll(/^\s*pid\s+(\d+)\([^)]*\):\s*\[[^\]]*\]\s+\S+\s+(\w+)\s+named:/gm)) {
+    if (Number(match[1]) === pid) names.push(match[2]);
+  }
+  return names;
+}
+
+// Native windows must not start unless the host is provably kept awake (253-40 lost ~29 minutes to
+// maintenance sleep): AC power (caffeinate -s only applies on AC), the runner-owned holder alive, and
+// pmset listing that holder with both sleep-prevention assertions. A failure releases the holder and throws.
+export async function probeHostSleepSafety({
+  platform = process.platform, pmset = (args) => run('/usr/bin/pmset', args, { timeout: 5000 }), holdAwake = holdHostAwake,
+  isAlive = processAlive, now = Date.now, sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); }), waitMs = 3000, pollMs = 250
+} = {}) {
+  if (platform !== 'darwin') throw new Error('R2 native windows require a macOS (darwin) host: AC power and sleep assertions cannot be proven here');
+  const battery = pmset(['-g', 'batt']);
+  if (battery.status !== 0 || !/Now drawing from 'AC Power'/.test(battery.stdout ?? '')) throw new Error('R2 native windows require AC power (caffeinate -s only applies on AC); pmset -g batt did not report AC Power');
+  const awake = holdAwake();
+  const fail = (message) => { awake.release(); throw new Error(message); };
+  if (!awake.held || !Number.isInteger(awake.pid)) fail('the runner-owned caffeinate sleep-assertion holder was not started');
+  if (!isAlive(awake.pid)) fail('the runner-owned caffeinate holder is not running');
+  const started = now();
+  let text = '';
+  for (;;) {
+    const result = pmset(['-g', 'assertions']);
+    text = result.stdout ?? '';
+    const names = pmsetAssertionNames(text, awake.pid);
+    const missing = ['PreventSystemSleep', 'PreventUserIdleSystemSleep'].filter((name) => !names.includes(name));
+    if (result.status === 0 && !missing.length) break;
+    if (now() - started >= waitMs) fail(`pmset -g assertions does not list the holder pid ${awake.pid} with ${missing.join(' and ')}`);
+    await sleep(pollMs);
+  }
+  if (!isAlive(awake.pid)) fail('the runner-owned caffeinate holder is not running');
+  return { awake, host_awake: { holder_pid: awake.pid, ac_power: true, assertions_sha256: sha256(text), checked_at: new Date().toISOString() } };
+}
+
+export async function preflightHostSleep(options = {}) {
+  const { awake, host_awake: hostAwake } = await probeHostSleepSafety(options);
+  awake.release();
+  return JSON.stringify(hostAwake);
+}
+
 
 export function initializeLoadRecoveryEvidenceR2(freezeFile, evidenceFile, root = ROOT, deps = {}) {
   const d = { validate: validateLoadRecoveryFreezeR2, readApproval: readCommittedApproval, ...deps };
@@ -4015,7 +4113,7 @@ function loadR2AcceptedAttempts(evidence) {
 export async function runLoadRecoverySlotR2(freezeFile, slotId, evidenceFile, root = ROOT, deps = {}) {
   const d = {
     validate: validateLoadRecoveryFreezeR2, runTree: runLoggedTree, spawnApp: spawn, waitReady, portAvailable, stopApp,
-    probeHost: probeHostSleepSafety, readApproval: readCommittedApproval,
+    probeHost: probeHostSleepSafety, readApproval: readCommittedApproval, checkDiagnostic: readCommittedDiagnostic, holderAlive: processAlive, diagnosticFile: null,
     captureAbsence: captureOwnedDatabaseAbsence, captureAccount: captureOwnedAccountCount, sanitizeTrace: sanitizeTraceFile,
     skipPreservation: false, enforcePaths: true, enforceNode: true, ...deps
   };
@@ -4025,28 +4123,41 @@ export async function runLoadRecoverySlotR2(freezeFile, slotId, evidenceFile, ro
   const freeze = readJson(freezeFile);
   const freezeHash = fileHash(freezeFile);
   const regular = freeze.ledger?.slots?.slice(0, 4) ?? [];
-  const slot = regular.find((item) => item.id === slotId);
-  if (!slot) throw new Error('only the four frozen unused R2 load recovery slots may run');
+  const isRetry = slotId === LOAD_R2_RETRY_ID;
+  let slot = regular.find((item) => item.id === slotId);
+  if (!slot && !isRetry) throw new Error('only the four frozen unused R2 load recovery slots and the one infrastructure retry may run');
   d.validate(root, freeze);
   const approval = d.readApproval(root, freezeFile, freeze);
-  const caps = LOAD_R2_CAP_TABLE[approval.decision];
+  const caps = Object.hasOwn(LOAD_R2_CAP_TABLE, approval.decision ?? '') ? LOAD_R2_CAP_TABLE[approval.decision] : null;
   if (!caps) throw new Error('budget approval carries an unknown decision');
   if (!fs.existsSync(evidenceFile)) throw new Error('R2 native load recovery evidence must be initialized and committed before launch');
   const evidence = readJson(evidenceFile);
   if (evidence.schema_version !== LOAD_R2_SCHEMA || evidence.freeze_sha256 !== freezeHash) throw new Error('R2 native load evidence does not match the committed freeze');
-  if (!['ready', 'first_complete', 'second_partial'].includes(evidence.status) || evidence.reservation) throw new Error(`refusing to use terminal or reserved R2 recovery evidence: ${evidence.status}`);
-  if (evidence.limits.used_slots.includes(slot.id)) throw new Error(`reservation ${slot.id} was already consumed`);
   const limits = evidence.limits;
+  let diagnostic = null;
+  if (isRetry) {
+    if (evidence.status !== 'halted_infrastructure' || evidence.reservation) throw new Error(`the infrastructure retry needs halted_infrastructure evidence, found ${evidence.status}`);
+    if (limits.used_slots.includes(LOAD_R2_RETRY_ID) || limits.infra_retry?.used !== 0 || evidence.infrastructure_retry?.used || !evidence.infrastructure_retry?.eligible) throw new Error('the infrastructure retry was already used or is not eligible');
+    if (approval.retry_granted !== 1 || limits.infra_retry.granted !== 1) throw new Error('the approved budget grants no infrastructure retry');
+    slot = loadR2EffectiveRetrySlot(freeze.ledger.slots, evidence.infrastructure_retry.halted_slot);
+  } else {
+    if (!['ready', 'first_complete', 'second_partial'].includes(evidence.status) || evidence.reservation) throw new Error(`refusing to use terminal or reserved R2 recovery evidence: ${evidence.status}`);
+    if (limits.used_slots.includes(slot.id)) throw new Error(`reservation ${slot.id} was already consumed`);
+  }
   if (limits.retry_used !== 1 || limits.retry_available !== 0 || limits.prior_charge_ms !== freeze.ledger.prior_charge_ms
     || limits.charged_duration_ms < freeze.ledger.prior_charge_ms) throw new Error('counter reset or reopened retry detected before setup');
   if (limits.max_d19_ms !== Math.min(caps.d19_cap_ms, freeze.ledger.caps.approve.d19_cap_ms) || limits.max_total_ms !== Math.min(caps.shared_cap_ms, freeze.ledger.caps.approve.shared_cap_ms)
     || limits.max_physical_playwright_cli_launches !== caps.physical_cli_max) throw new Error('approval caps differ from the evidence ledger');
   const accepted = loadR2AcceptedAttempts(evidence);
   const nextSlot = regular[accepted.length];
-  if (!nextSlot || nextSlot.id !== slot.id) throw new Error('slots must run in frozen order, each exactly once');
+  if (!nextSlot || nextSlot.id !== (isRetry ? slot.retry_of : slot.id)) throw new Error('slots must run in frozen order, each exactly once');
+  if (isRetry) {
+    // Checked after the free refusals above and before any spawn or charge.
+    diagnostic = d.checkDiagnostic(root, d.diagnosticFile);
+  }
   const reserve = slot.max_duration_ms;
   const remaining = regular.length - accepted.length;
-  const retryReserved = approval.retry_granted === 1 && limits.infra_retry?.used === 0 ? 1 : 0;
+  const retryReserved = !isRetry && approval.retry_granted === 1 && limits.infra_retry?.used === 0 ? 1 : 0;
   if (reserve !== PROJECT_SLOT_MS
     || limits.charged_duration_ms + limits.preparation_remaining_ms + remaining * reserve + retryReserved * reserve > limits.max_d19_ms
     || limits.physical_playwright_cli_launches + remaining + retryReserved > limits.max_d19_physical_playwright_cli_launches
@@ -4057,11 +4168,20 @@ export async function runLoadRecoverySlotR2(freezeFile, slotId, evidenceFile, ro
   // The host proof runs before the predebit so an unsafe host costs no reservation.
   const { awake, host_awake: hostAwake } = await d.probeHost();
   try {
-    return await runHeldLoadRecoverySlotR2({ d, root, freeze, slot, evidence, evidenceFile, reserve, project, awake, hostAwake });
+    return await runHeldLoadRecoverySlotR2({ d, root, freeze, slot, evidence, evidenceFile, reserve, project, awake, hostAwake, diagnostic });
   } finally { awake.release(); }
 }
 
-async function runHeldLoadRecoverySlotR2({ d, root, freeze, slot, evidence, evidenceFile, reserve, project, awake, hostAwake }) {
+function loadR2AssertionFailure(slot, tests) {
+  return loadRequiredPairs(slot).some((pair) => {
+    const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+    const found = tests.filter((item) => item.title === pair.title && item.project === pair.project);
+    if (found.length !== 1) return false;
+    return expected === 'expected_failure' ? found[0].status === 'passed' : found[0].status !== 'passed';
+  });
+}
+
+async function runHeldLoadRecoverySlotR2({ d, root, freeze, slot, evidence, evidenceFile, reserve, project, awake, hostAwake, diagnostic }) {
   const rawDir = `${evidenceFile}.raw`;
   const rawAttempt = createAttemptDirectory(rawDir, slot.id, 1);
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-r2-'));
@@ -4085,8 +4205,8 @@ async function runHeldLoadRecoverySlotR2({ d, root, freeze, slot, evidence, evid
     observed_outcome: 'setup_failed', files: {}, traces: [], registration: { server_post_confirmed: false },
     toolchain: { playwright: null, ecto_sql: freeze.tools.ecto_sql, phoenix_live_view: freeze.tools.phoenix_live_view },
     build_path: env.MIX_BUILD_PATH, stage_deadlines: { command_ms: reserve, work_ms: slot.work_ms, cleanup_ms: slot.cleanup_ms, cleanup_reserved: true },
-    host: { platform: awake.platform, sleep_assertion_held: awake.held, sleep_assertion_argv: awake.argv ?? null, suspension_detected: false },
-    host_awake: hostAwake
+    host: { platform: awake.platform, sleep_assertion_held: awake.held, sleep_assertion_argv: awake.argv ?? null, suspension_detected: false, holder_alive_at_end: null },
+    host_awake: hostAwake, assertion_failure_observed: false, ...(slot.retry ? { retry_of: slot.retry_of } : {})
   };
   evidence.status = 'running';
   evidence.reservation = { slot_id: slot.id, mapped_from: slot.maps_from, reserved_ms: reserve, predebited_at: new Date().toISOString(), source_commit: freeze.source.checkout_head };
@@ -4127,6 +4247,7 @@ async function runHeldLoadRecoverySlotR2({ d, root, freeze, slot, evidence, evid
     if (!fs.existsSync(reportTemp) || fs.statSync(reportTemp).size === 0) throw new Error('native Playwright JSON report is absent or empty');
     const report = readJson(reportTemp);
     const tests = playReportTests(report);
+    attempt.assertion_failure_observed = loadR2AssertionFailure(slot, tests);
     for (const item of tests) for (const attachment of item.attachments ?? []) {
       if (attachment.name !== 'trace' && !String(attachment.path ?? '').endsWith('trace.zip')) continue;
       if (!attachment.path || !fs.existsSync(attachment.path)) throw new Error(`native trace attachment for ${item.title} is missing`);
@@ -4185,15 +4306,34 @@ async function runHeldLoadRecoverySlotR2({ d, root, freeze, slot, evidence, evid
   attempt.host.suspension_detected = [attempt.setup, attempt.test_command, attempt.drop_command].some((result) => result?.suspended === true)
     || Math.abs(attempt.wall_duration_ms - attempt.execution_duration_ms) > TREE_SUSPEND_GAP_MS;
   if (attempt.host.suspension_detected) terminalError = [terminalError, 'host suspension (system sleep or a stalled runner event loop) was detected during the native window, so its timings cannot be accepted'].filter(Boolean).join('; ');
+  attempt.host.holder_alive_at_end = Number.isInteger(hostAwake?.holder_pid) ? Boolean(d.holderAlive(hostAwake.holder_pid)) : null;
+  if (attempt.host.holder_alive_at_end === false) terminalError = [terminalError, 'the caffeinate sleep-assertion holder was lost during the native window (holder not running), so sleep was no longer prevented'].filter(Boolean).join('; ');
   if (attempt.charged_duration_ms > reserve) terminalError = [terminalError, 'native command exceeded its frozen 120,000 ms command reservation'].filter(Boolean).join('; ');
-  const validation = verifyNativeLoadAttempt(attempt, freeze, rawDir);
+  const validation = verifyNativeLoadAttemptR2(attempt, freeze, rawDir);
   if (!validation.ok) terminalError = [terminalError, ...validation.errors].filter(Boolean).join('; ');
   evidence.reservation = null;
   evidence.limits.charged_duration_ms += attempt.charged_duration_ms;
   if (attempt.playwright_cli.launched) evidence.limits.physical_playwright_cli_launches += 1;
   evidence.attempts.push(attempt);
-  if (terminalError) { evidence.status = 'halted'; evidence.stop_reason = terminalError; attempt.observed_outcome = 'halted'; }
-  else {
+  if (slot.retry) {
+    evidence.limits.infra_retry.used = 1;
+    evidence.infrastructure_retry = { ...evidence.infrastructure_retry, used: true, diagnostic };
+  }
+  if (terminalError) {
+    // Only a host fault (suspension, lost caffeinate holder, host failure before any test ran) with no observed
+    // assertion failure is infrastructure, and only the first one is retry-eligible; everything else is terminal.
+    const cause = attempt.host.suspension_detected ? 'host_sleep'
+      : attempt.host.holder_alive_at_end === false ? 'holder_lost'
+        : (attempt.lifecycle.rows === 0 && attempt.setup?.error ? 'host_failure' : null);
+    const retryable = Boolean(cause) && !attempt.assertion_failure_observed && !slot.retry
+      && evidence.approval?.retry_granted === 1 && evidence.limits.infra_retry?.used === 0;
+    if (cause) evidence.infrastructure_halts.push({ slot_id: slot.id, cause, retryable, charged_ms: attempt.charged_duration_ms, assertion_failure_observed: attempt.assertion_failure_observed });
+    evidence.stop_reason = terminalError;
+    if (retryable) {
+      evidence.status = 'halted_infrastructure'; attempt.observed_outcome = 'halted_infrastructure';
+      evidence.infrastructure_retry = { eligible: true, halted_slot: slot.id, cause, used: false, diagnostic: null };
+    } else { evidence.status = 'halted'; attempt.observed_outcome = 'halted'; }
+  } else {
     attempt.observed_outcome = 'native_rows_accepted';
     const count = loadR2AcceptedAttempts(evidence).length;
     evidence.status = count === 4 ? 'complete' : count === 1 ? 'first_complete' : 'second_partial';
@@ -4204,13 +4344,49 @@ async function runHeldLoadRecoverySlotR2({ d, root, freeze, slot, evidence, evid
   return { status: evidence.status, slot: slot.id, rows: attempt.lifecycle.rows, charged_duration_ms: attempt.charged_duration_ms, physical_playwright_cli_launches: evidence.limits.physical_playwright_cli_launches };
 }
 
+function verifyHostAwakeR2(attempt) {
+  const errors = [];
+  const proof = attempt?.host_awake;
+  if (!proof || !Number.isInteger(proof.holder_pid) || proof.ac_power !== true || !/^[0-9a-f]{64}$/.test(proof.assertions_sha256 ?? '') || typeof proof.checked_at !== 'string') {
+    errors.push('R2 attempt receipt lacks its host_awake proof (AC power, caffeinate holder and pmset assertion snapshot hash)');
+  }
+  if (attempt?.host?.suspended === true) errors.push('R2 attempt receipt records a suspended host');
+  return errors;
+}
+
+// An accepted R2 attempt: the Plan 39 predicates, judged against the effective slot (a retry carries the halted slot's selection),
+// plus the host-awake proof. The charge must stay max(execution, wall), which the Plan 39 predicates already enforce.
+export function verifyNativeLoadAttemptR2(attempt, freeze, baseDir) {
+  const errors = [];
+  let effective = freeze;
+  if (attempt?.slot_id === LOAD_R2_RETRY_ID) {
+    try {
+      const slot = loadR2EffectiveRetrySlot(freeze.ledger.slots, attempt.retry_of);
+      effective = { ...freeze, ledger: { ...freeze.ledger, slots: [...freeze.ledger.slots.slice(0, 4), slot] } };
+    } catch (error) { return { ok: false, errors: [error.message] }; }
+  }
+  errors.push(...verifyNativeLoadAttempt(attempt, effective, baseDir).errors, ...verifyHostAwakeR2(attempt));
+  return { ok: errors.length === 0, errors };
+}
+
+// The halted original of an infrastructure retry is not accepted proof, but it stays honest, charged and counted.
+function verifyInfrastructureHaltedAttemptR2(attempt) {
+  const errors = verifyHostAwakeR2(attempt);
+  if (attempt.charged_duration_ms !== Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms ?? 0)) errors.push('infrastructure-halted charge does not include its complete measured duration');
+  const hostFault = attempt.host?.suspension_detected === true || attempt.host?.holder_alive_at_end === false || (attempt.lifecycle?.rows === 0 && Boolean(attempt.setup?.error));
+  if (!hostFault) errors.push('infrastructure halt carries no host-sleep, lost-holder or host-failure evidence');
+  if (attempt.assertion_failure_observed === true) errors.push('an observed assertion failure is never an infrastructure halt');
+  if (!OWNED_CONTROL_DATABASE.test(attempt.database?.name ?? '')) errors.push('database identity is outside the synthetic control namespace');
+  return errors;
+}
+
 export function verifyLoadRecoveryEvidenceDataR2(evidence, freeze, baseDir, stage = 'complete', freezeFileHash = freeze?.freeze_sha256) {
   const errors = [];
   if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) return { ok: false, errors: ['R2 native load recovery evidence is missing or malformed'] };
   if (freeze?.schema_version !== LOAD_R2_FREEZE_SCHEMA || freeze.freeze_sha256 !== loadFreezeDigest(freeze) || evidence.freeze_sha256 !== freezeFileHash) errors.push('evidence does not match the immutable R2 load recovery freeze');
   if (evidence.schema_version !== LOAD_R2_SCHEMA || JSON.stringify(evidence.source) !== JSON.stringify(freeze?.source)) errors.push('evidence source identity differs from the frozen commit and blobs');
   if (evidence.reservation || ['running', 'halted', 'halted_infrastructure'].includes(evidence.status)) errors.push('evidence contains an unresolved predebit reservation or a halted status');
-  const caps = LOAD_R2_CAP_TABLE[evidence.approval?.decision];
+  const caps = Object.hasOwn(LOAD_R2_CAP_TABLE, evidence.approval?.decision ?? '') ? LOAD_R2_CAP_TABLE[evidence.approval.decision] : null;
   if (!caps) errors.push('evidence carries no recognised budget approval decision');
   const limits = evidence.limits ?? {};
   if (limits.retry_used !== 1 || limits.retry_available !== 0) errors.push('the spent original retry was reopened or miscounted');
@@ -4219,10 +4395,29 @@ export function verifyLoadRecoveryEvidenceDataR2(evidence, freeze, baseDir, stag
     || limits.max_d19_physical_playwright_cli_launches !== caps.d19_launch_max)) errors.push('approved time or physical CLI launch ceiling changed');
   if (JSON.stringify(evidence.infrastructure_halts?.[0]) !== JSON.stringify(freeze?.historical?.infrastructure_halt)) errors.push('the 253-40 host-sleep infrastructure halt is not preserved in the ledger');
   const attempts = Array.isArray(evidence.attempts) ? evidence.attempts : [];
+  // An infrastructure-halted original plus its accepted retry is one slot outcome; the original stays in attempts.
+  const outcomes = []; const haltedOriginals = [];
+  for (let index = 0; index < attempts.length; index += 1) {
+    const attempt = attempts[index];
+    if (attempt.observed_outcome !== 'halted_infrastructure') { outcomes.push(attempt); continue; }
+    haltedOriginals.push(attempt);
+    errors.push(...verifyInfrastructureHaltedAttemptR2(attempt).map((message) => `${attempt.slot_id} (infrastructure halt): ${message}`));
+    const retry = attempts[index + 1];
+    if (!retry || retry.slot_id !== LOAD_R2_RETRY_ID || retry.retry_of !== attempt.slot_id) { errors.push(`infrastructure-halted ${attempt.slot_id} has no accepted ${LOAD_R2_RETRY_ID} outcome`); continue; }
+    if (JSON.stringify(retry.argv) !== JSON.stringify(attempt.argv) || JSON.stringify(retry.projects) !== JSON.stringify(attempt.projects)) errors.push('the retry did not carry the identical frozen selection');
+    outcomes.push(retry); index += 1;
+  }
+  const retryOutcomes = outcomes.filter((attempt) => attempt.slot_id === LOAD_R2_RETRY_ID);
+  if (retryOutcomes.length !== haltedOriginals.length || retryOutcomes.length > 1) errors.push('at most one infrastructure retry, paired with one infrastructure-halted original, is allowed');
+  if (retryOutcomes.length === 1) {
+    const record = evidence.infrastructure_retry;
+    if (evidence.approval?.retry_granted !== 1 || limits.infra_retry?.granted !== 1 || limits.infra_retry?.used !== 1) errors.push('the infrastructure retry was used without a granted, single-use approval');
+    if (record?.used !== true || record.halted_slot !== retryOutcomes[0].retry_of || !/^[0-9a-f]{64}$/.test(record.diagnostic?.sha256 ?? '') || typeof record.diagnostic?.file !== 'string') errors.push('the infrastructure retry lacks its committed diagnostic record');
+  } else if (limits.infra_retry?.used !== 0) errors.push('retry usage is recorded without a retry outcome');
   const count = stage === 'first' ? 1 : stage === 'complete' ? 4 : -1;
-  if (count < 0 || attempts.length !== count) errors.push(`stage ${stage} requires exactly ${count} accepted new native command receipts`);
+  if (count < 0 || outcomes.length !== count) errors.push(`stage ${stage} requires exactly ${count} accepted new native command outcomes`);
   const slots = (freeze?.ledger?.slots ?? []).slice(0, Math.max(0, count));
-  if (attempts.some((attempt, index) => attempt.slot_id !== slots[index]?.id)) errors.push('new commands do not match the exact unused reservation order');
+  if (outcomes.some((attempt, index) => (attempt.slot_id === LOAD_R2_RETRY_ID ? attempt.retry_of : attempt.slot_id) !== slots[index]?.id)) errors.push('new commands do not match the exact unused reservation order');
   if (attempts.some((attempt) => LOAD_R2_SPENT.includes(attempt.slot_id))) errors.push('a spent reservation was reopened');
   const usedSlots = [...(freeze?.ledger?.spent_reservations ?? []), ...attempts.map((attempt) => attempt.slot_id)];
   if (JSON.stringify(limits.used_slots) !== JSON.stringify(usedSlots)) errors.push('used reservation ledger differs from historical receipts and actual attempts');
@@ -4232,18 +4427,18 @@ export function verifyLoadRecoveryEvidenceDataR2(evidence, freeze, baseDir, stag
   const launches = (freeze?.ledger?.prior_playwright_cli_launches ?? 0) + attempts.filter((attempt) => attempt.playwright_cli?.launched === true).length;
   if (limits.physical_playwright_cli_launches !== launches || (caps && launches > caps.physical_cli_max)) errors.push('physical Playwright CLI launch count differs from native receipts or exceeds its approved ceiling');
   if (caps && (measured > caps.d19_cap_ms || measured > caps.shared_cap_ms)) errors.push('approved D-19 or shared time limit was exceeded');
-  for (const attempt of attempts) errors.push(...verifyNativeLoadAttempt(attempt, freeze, baseDir).errors.map((message) => `${attempt.slot_id}: ${message}`));
+  for (const attempt of outcomes) errors.push(...verifyNativeLoadAttemptR2(attempt, freeze, baseDir).errors.map((message) => `${attempt.slot_id}: ${message}`));
   attempts.forEach((attempt, index) => {
     if (attempts.slice(0, index).some((prior) => prior.database?.name === attempt.database?.name)) errors.push('two native slots reused the same physical database identity');
   });
   if (stage === 'first' && evidence.status !== 'first_complete') errors.push('first command status is not accepted');
   if (stage === 'complete') {
     if (evidence.status !== 'complete') errors.push('complete status is not accepted');
-    const total = attempts.reduce((sum, attempt) => sum + (attempt.lifecycle?.rows ?? 0), 0);
+    const total = outcomes.reduce((sum, attempt) => sum + (attempt.lifecycle?.rows ?? 0), 0);
     if (total !== 22) errors.push(`native rows total ${total}, the complete proof requires 22`);
-    for (const attempt of attempts.slice(1)) {
-      const prior = attempts[0]?.collision_receipts?.[attempt.project];
-      if (!prior || prior !== attempt.fresh_state_receipts?.[attempt.project] || attempts[0].database?.name === attempt.database?.name) errors.push(`${attempt.project}: fresh database does not prove the prior collision account absent before recreating it`);
+    for (const attempt of outcomes.slice(1)) {
+      const prior = outcomes[0]?.collision_receipts?.[attempt.project];
+      if (!prior || prior !== attempt.fresh_state_receipts?.[attempt.project] || outcomes[0].database?.name === attempt.database?.name) errors.push(`${attempt.project}: fresh database does not prove the prior collision account absent before recreating it`);
     }
   }
   return { ok: errors.length === 0, errors };
@@ -4278,6 +4473,12 @@ async function main() {
     console.log(`R2 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; seven spent; no capacity granted)`);
     return;
   }
+  if (args.mode === 'record-budget-approval') {
+    const record = recordBudgetApproval({ decision: args.decision, budgetFile: args.budget, freezeFile: args.freeze, outputFile: args.output, decisionText: args.decisionText });
+    console.log(`R2 budget approval recorded (${record.decision}; retry_granted=${record.retry_granted}; shared cap ${record.caps.shared_cap_ms} ms): ${path.relative(ROOT, args.output)}`);
+    return;
+  }
+  if (args.mode === 'preflight-host-sleep') { console.log(await preflightHostSleep()); return; }
   const isR2Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R2_FREEZE_PATH);
   if (args.mode === 'init-load-recovery') {
     if (isR2Freeze(args.freeze)) {
@@ -4307,7 +4508,8 @@ async function main() {
     return;
   }
   if (args.mode === 'run-load-recovery') {
-    if (isR2Freeze(args.freeze)) { console.log(JSON.stringify(await runLoadRecoverySlotR2(args.freeze, args.slot, args.output))); return; }
+    if (isR2Freeze(args.freeze)) { console.log(JSON.stringify(await runLoadRecoverySlotR2(args.freeze, args.slot, args.output, ROOT, { diagnosticFile: args.diagnostic ?? null }))); return; }
+    if (args.diagnostic) throw new Error('--diagnostic is only valid for the R2 infrastructure retry');
     console.log(JSON.stringify(await runLoadRecoverySlot(args.freeze, args.slot, args.output)));
     return;
   }

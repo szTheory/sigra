@@ -1584,7 +1584,7 @@ function loadHarnessR2() {
     return {
       validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile,
       readApproval: () => approval, holderAlive,
-      checkDiagnostic: checkDiagnostic ?? ((_root, file) => ({ file, sha256: 'd'.repeat(64) })),
+      checkDiagnostic: checkDiagnostic ?? ((_root, file) => { if (!file) throw new Error('infrastructure retry requires a committed diagnostic'); return { file, sha256: 'd'.repeat(64) }; }),
       probeHost: probeHost ?? (async () => { calls.push(['probe-host']); return { awake: awakeFor(), host_awake: { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' } }; }),
       portAvailable: async () => true, waitReady: async () => 200, stopApp: async () => {},
       spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
