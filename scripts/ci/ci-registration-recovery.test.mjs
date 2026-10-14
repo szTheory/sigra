@@ -1579,7 +1579,7 @@ function loadHarnessR2() {
   });
   const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
   const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {}, approval = R2_APPROVE,
-    suspendBrowser = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null } = {}) => {
+    suspendBrowser = false, suspendFlag = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null } = {}) => {
     const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
     return {
       validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile,
@@ -1598,7 +1598,7 @@ function loadHarnessR2() {
           assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
           if (suspendBrowser) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: true, duration_ms: 5, wall_duration_ms: 5, group_signals: ['SIGTERM'], descendants_reaped: true };
           fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID, { failRow })));
-          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, duration_ms: 5, group_signals: [], descendants_reaped: true };
+          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, suspended: suspendFlag, duration_ms: 5, group_signals: [], descendants_reaped: true };
         }
         return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
       },
@@ -1671,6 +1671,324 @@ test('R2 refuses out-of-order slots, a reopened original retry, a counter reset 
       assert.deepEqual(h.calls, [], String(pattern));
     } finally { h.clean(); }
   }
+});
+
+// ---- Plan 48 task 2: budget approval, host-sleep preflight, infrastructure retry, terminal-evidence binding ----
+const gitIn = (cwd, ...args) => {
+  const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
+  assert.equal(result.status, 0, `git ${args.join(' ')}: ${result.stderr}`);
+  return result.stdout.trim();
+};
+function approvalRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-approval-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  const phase = ['.planning', 'phases', '253-fix-flaky-ci-and-preserve-required-checks'].join('/');
+  fs.mkdirSync(path.join(dir, phase), { recursive: true });
+  const budget = path.join(dir, phase, '253-LOAD-RECOVERY-BUDGETS-R2.md');
+  fs.writeFileSync(budget, '# budgets r2\n');
+  const freezeFile = path.join(dir, phase, '253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json');
+  const freeze = { schema_version: 'sigra.phase253.registration-load-recovery-freeze/v2', budget: { file: `${phase}/253-LOAD-RECOVERY-BUDGETS-R2.md`, sha256: sha(fs.readFileSync(budget)) } };
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze)}\n`);
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  return { dir, phase, budget, freezeFile, freeze, approval: path.join(dir, phase, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('recording a budget approval is exclusive, binds the budget and freeze hashes, and a reject writes nothing', () => {
+  const r = approvalRepo();
+  try {
+    assert.throws(() => recovery.recordBudgetApproval({ decision: 'reject', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no' }, r.dir, { enforcePaths: false }), /reject|grants no capacity|decision/i);
+    assert.throws(() => recovery.recordBudgetApproval({ decision: 'maybe', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /decision/i);
+    assert.equal(fs.existsSync(r.approval), false);
+    const record = recovery.recordBudgetApproval({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'approve exactly as written' }, r.dir, { enforcePaths: false, now: () => '2026-10-14T08:00:00.000Z' });
+    const onDisk = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    assert.deepEqual(onDisk, record);
+    assert.equal(onDisk.schema_version, 'sigra.phase253.load-recovery-budget-approval/v1');
+    assert.equal(onDisk.decision, 'approve');
+    assert.equal(onDisk.decided_by, 'Jon (operator), recorded by executor from checkpoint response');
+    assert.equal(onDisk.decision_text, 'approve exactly as written');
+    assert.equal(onDisk.budget_sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(onDisk.freeze_sha256, sha(fs.readFileSync(r.freezeFile)));
+    assert.deepEqual(onDisk.caps, R2_APPROVE.caps);
+    assert.equal(onDisk.retry_granted, 1);
+    assert.equal(onDisk.recorded_at, '2026-10-14T08:00:00.000Z');
+    assert.throws(() => recovery.recordBudgetApproval({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'again' }, r.dir, { enforcePaths: false }), /EEXIST|exist|exclusive/i);
+    assert.equal(JSON.parse(fs.readFileSync(r.approval, 'utf8')).decision, 'approve', 'the first record is never overwritten');
+  } finally { r.clean(); }
+});
+
+test('an approval for approve-without-retry grants no infrastructure retry and a budget mismatch refuses to record', () => {
+  const r = approvalRepo();
+  try {
+    const record = recovery.recordBudgetApproval({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no retry' }, r.dir, { enforcePaths: false });
+    assert.equal(record.retry_granted, 0);
+    assert.deepEqual(record.caps, R2_APPROVE_NO_RETRY.caps);
+    fs.rmSync(r.approval);
+    fs.writeFileSync(r.budget, '# budgets r2 (edited)\n');
+    assert.throws(() => recovery.recordBudgetApproval({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
+    assert.equal(fs.existsSync(r.approval), false);
+  } finally { r.clean(); }
+});
+
+test('a run needs a committed approval record bound to the budget document and the freeze', () => {
+  const r = approvalRepo();
+  try {
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /absent|missing/i);
+    recovery.recordBudgetApproval({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'ok' }, r.dir, { enforcePaths: false });
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /committed/i);
+    gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'approval');
+    const good = recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze);
+    assert.equal(good.decision, 'approve');
+    assert.equal(good.retry_granted, 1);
+    fs.writeFileSync(r.approval, `${fs.readFileSync(r.approval, 'utf8')} `);
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /committed|differs/i);
+    gitIn(r.dir, 'checkout', '--', '.');
+    const edited = JSON.parse(fs.readFileSync(r.approval, 'utf8')); edited.budget_sha256 = 'f'.repeat(64);
+    fs.writeFileSync(r.approval, `${JSON.stringify(edited, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'bad budget');
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /budget/i);
+    edited.budget_sha256 = sha(fs.readFileSync(r.budget)); edited.freeze_sha256 = 'f'.repeat(64);
+    fs.writeFileSync(r.approval, `${JSON.stringify(edited, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'bad freeze');
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /freeze/i);
+    edited.freeze_sha256 = sha(fs.readFileSync(r.freezeFile)); edited.caps = { ...edited.caps, d19_cap_ms: edited.caps.d19_cap_ms + 1 };
+    fs.writeFileSync(r.approval, `${JSON.stringify(edited, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'bad caps');
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /caps/i);
+  } finally { r.clean(); }
+});
+
+const PMSET_AC = "Now drawing from 'AC Power'\n -InternalBattery-0 (id=1)\t100%; charged; 0:00 remaining present: true\n";
+const PMSET_BATTERY = "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=1)\t80%; discharging; 3:00 remaining present: true\n";
+const pmsetAssertions = (pid, names = ['PreventUserIdleSystemSleep', 'PreventSystemSleep']) => `Assertion status system-wide:\n   PreventUserIdleSystemSleep    1\nListed by owning process:\n${names.map((name) => `   pid ${pid}(caffeinate): [0x0001] 00:00:05 ${name} named: "caffeinate command-line tool"`).join('\n')}\n`;
+function hostProbeHarness({ batt = PMSET_AC, assertions = pmsetAssertions(4321), alive = true, holderPid = 4321 } = {}) {
+  const events = [];
+  let clock = 0;
+  return {
+    events,
+    options: {
+      platform: 'darwin',
+      pmset: (args) => { events.push(['pmset', args.join(' ')]); return { status: 0, stdout: args[1] === 'batt' ? batt : assertions }; },
+      holdAwake: () => { events.push(['hold']); return { held: true, platform: 'darwin', pid: holderPid, argv: ['/usr/bin/caffeinate'], release: () => events.push(['release']) }; },
+      isAlive: () => alive,
+      now: () => { clock += 1500; return clock; },
+      sleep: async () => {},
+      waitMs: 3000
+    }
+  };
+}
+
+test('the host preflight proves AC power, the caffeinate holder and both pmset assertions, and records their hash', async () => {
+  const h = hostProbeHarness();
+  const result = await recovery.probeHostSleepSafety(h.options);
+  assert.equal(result.host_awake.holder_pid, 4321);
+  assert.equal(result.host_awake.ac_power, true);
+  assert.equal(result.host_awake.assertions_sha256, sha(pmsetAssertions(4321)));
+  assert.match(result.host_awake.checked_at, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(result.awake.held, true);
+  assert.deepEqual(h.events.map((event) => event[0]).filter((kind) => kind !== 'pmset'), ['hold']);
+  assert.ok(h.events.findIndex((event) => event[0] === 'pmset' && event[1] === '-g batt') < h.events.findIndex((event) => event[0] === 'hold'), 'AC power is proven before the holder starts');
+  result.awake.release();
+});
+
+test('the host preflight refuses, and releases any holder, for battery power, a dead holder or missing assertions', async () => {
+  const battery = hostProbeHarness({ batt: PMSET_BATTERY });
+  await assert.rejects(() => recovery.probeHostSleepSafety(battery.options), /AC power/i);
+  assert.equal(battery.events.some((event) => event[0] === 'hold'), false, 'no holder is started on battery');
+
+  for (const [name, options, pattern] of [
+    ['dead holder', { alive: false }, /holder.*not running|not running/i],
+    ['other pid', { assertions: pmsetAssertions(9999) }, /assertion/i],
+    ['missing PreventSystemSleep', { assertions: pmsetAssertions(4321, ['PreventUserIdleSystemSleep']) }, /PreventSystemSleep/],
+    ['missing PreventUserIdleSystemSleep', { assertions: pmsetAssertions(4321, ['PreventSystemSleep']) }, /PreventUserIdleSystemSleep/]
+  ]) {
+    const h = hostProbeHarness(options);
+    await assert.rejects(() => recovery.probeHostSleepSafety(h.options), pattern, name);
+    assert.deepEqual(h.events.filter((event) => event[0] !== 'pmset').map((event) => event[0]), ['hold', 'release'], `${name}: holder released`);
+  }
+  await assert.rejects(() => recovery.probeHostSleepSafety({ ...hostProbeHarness().options, platform: 'linux' }), /macOS|darwin/i);
+});
+
+test('an R2 run refuses before the predebit when approval is missing or the host proof fails', async () => {
+  for (const [label, overrides, pattern] of [
+    ['approval absent', { readApproval: () => { throw new Error('R2 budget approval record is absent'); } }, /approval/i],
+    ['host proof fails', { probeHost: async () => { throw new Error('host is not on AC power'); } }, /AC power/i]
+  ]) {
+    const h = loadHarnessR2();
+    try {
+      const before = h.read();
+      await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, { ...h.makeDeps(), ...overrides }), pattern, label);
+      assert.deepEqual(h.read(), before, `${label}: no reservation, used slot or charge`);
+      assert.equal(h.calls.filter((call) => call[0] === 'tree' || call[0] === 'app').length, 0, label);
+    } finally { h.clean(); }
+  }
+});
+
+test('the approval decides the ceilings that the run enforces', async () => {
+  const h = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ approval: R2_APPROVE_NO_RETRY })), /approval caps differ/i);
+    assert.deepEqual(h.calls, []);
+  } finally { h.clean(); }
+});
+
+test('the R2 verifier rejects a receipt without its host_awake proof and any suspended receipt', async () => {
+  const h = loadHarnessR2();
+  try {
+    await recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    assert.deepEqual(evidence.attempts[0].host_awake, { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' });
+    const verify = (mutate) => { const copy = structuredClone(evidence); mutate(copy.attempts[0]); return recovery.verifyLoadRecoveryEvidenceDataR2(copy, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile))); };
+    assert.equal(verify(() => {}).ok, true);
+    for (const [name, mutate, pattern] of [
+      ['no host_awake', (a) => { delete a.host_awake; }, /host_awake/],
+      ['not on AC', (a) => { a.host_awake.ac_power = false; }, /host_awake/],
+      ['no assertion hash', (a) => { a.host_awake.assertions_sha256 = 'x'; }, /host_awake/],
+      ['suspended true', (a) => { a.host.suspended = true; }, /suspended/],
+      ['suspension detected', (a) => { a.host.suspension_detected = true; }, /suspension/],
+      ['charge below the larger clock', (a) => { a.wall_duration_ms = a.charged_duration_ms + 10; }, /charge/]
+    ]) {
+      const verdict = verify(mutate);
+      assert.equal(verdict.ok, false, name);
+      assert.match(verdict.errors.join(';'), pattern, name);
+    }
+  } finally { h.clean(); }
+});
+
+test('a host sleep halts as halted_infrastructure, stays charged and counted, and blocks every regular slot until the retry', async () => {
+  const h = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })), /work deadline|suspension/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].observed_outcome, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.eligible, true);
+    assert.equal(evidence.infrastructure_retry.halted_slot, 'CR2-DESKTOP-MOBILE-FIRST');
+    assert.equal(evidence.infrastructure_retry.cause, 'host_sleep');
+    assert.equal(evidence.infrastructure_halts.length, 2);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 7);
+    assert.equal(evidence.limits.charged_duration_ms, 2042596 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile))).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+  } finally { h.clean(); }
+});
+
+test('CR2-INFRA-RETRY runs once, needs a committed diagnostic and a granted retry, and re-runs the identical frozen selection', async () => {
+  const h = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /halted_infrastructure|infrastructure/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })));
+    const callsBefore = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /diagnostic/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', checkDiagnostic: () => { throw new Error('diagnostic is not committed'); } })), /not committed/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', approval: R2_APPROVE_NO_RETRY })), /retry|caps/i);
+    assert.equal(h.calls.length, callsBefore, 'every refusal happens before any spawn');
+
+    const result = await recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' }));
+    assert.equal(result.rows, 16);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.attempts[1].slot_id, 'CR2-INFRA-RETRY');
+    assert.equal(evidence.attempts[1].retry_of, 'CR2-DESKTOP-MOBILE-FIRST');
+    assert.deepEqual(evidence.attempts[1].argv, evidence.attempts[0].argv);
+    assert.equal(evidence.infrastructure_retry.used, true);
+    assert.deepEqual(evidence.infrastructure_retry.diagnostic, { file: 'diag.json', sha256: 'd'.repeat(64) });
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.deepEqual(evidence.limits.used_slots, [...R2_SPENT, 'CR2-DESKTOP-MOBILE-FIRST', 'CR2-INFRA-RETRY']);
+    assert.equal(evidence.limits.charged_duration_ms, 2042596 + evidence.attempts[0].charged_duration_ms + evidence.attempts[1].charged_duration_ms);
+    const freezeHash = sha(fs.readFileSync(h.freezeFile));
+    const verdict = recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', freezeHash);
+    assert.deepEqual(verdict.errors, [], 'the original stays in attempts and the pair counts as one slot outcome');
+
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = drifted.attempts[1].argv.filter((arg) => arg !== '--project=admin-eval-dark');
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(drifted, h.freeze, `${h.evidenceFile}.raw`, 'first', freezeHash).ok, false, 'a retry with another selection is rejected');
+    const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(noDiagnostic, h.freeze, `${h.evidenceFile}.raw`, 'first', freezeHash).ok, false, 'a retry without a recorded diagnostic is rejected');
+
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure|already/i, 'the retry is usable once');
+  } finally { h.clean(); }
+});
+
+test('the retry is never available after an assertion failure, a non-suspension halt, a second infrastructure halt or approve-without-retry', async () => {
+  const noSuspension = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(noSuspension.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', noSuspension.evidenceFile, noSuspension.checkout, noSuspension.makeDeps({ cliExit: 0 })), /exit does not match/i);
+    assert.equal(noSuspension.read().status, 'halted');
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(noSuspension.freezeFile, 'CR2-INFRA-RETRY', noSuspension.evidenceFile, noSuspension.checkout, noSuspension.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i);
+  } finally { noSuspension.clean(); }
+
+  const assertion = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(assertion.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', assertion.evidenceFile, assertion.checkout, assertion.makeDeps({ suspendFlag: true, failRow: true })));
+    assert.equal(assertion.read().status, 'halted', 'a suspension that also shows an assertion failure is terminal');
+  } finally { assertion.clean(); }
+
+  const second = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(second.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', second.evidenceFile, second.checkout, second.makeDeps({ suspendBrowser: true })));
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(second.freezeFile, 'CR2-INFRA-RETRY', second.evidenceFile, second.checkout, second.makeDeps({ diagnosticFile: 'diag.json', suspendBrowser: true })));
+    const evidence = second.read();
+    assert.equal(evidence.status, 'halted', 'a second infrastructure halt is terminal');
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.attempts.length, 2);
+  } finally { second.clean(); }
+
+  const withoutRetry = loadHarnessR2();
+  try {
+    withoutRetry.writeEvidence(R2_APPROVE_NO_RETRY);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(withoutRetry.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', withoutRetry.evidenceFile, withoutRetry.checkout, withoutRetry.makeDeps({ approval: R2_APPROVE_NO_RETRY, suspendBrowser: true })));
+    assert.equal(withoutRetry.read().status, 'halted', 'no retry was granted, so the infrastructure halt is terminal');
+  } finally { withoutRetry.clean(); }
+});
+
+test('a lost caffeinate holder at the end of the window is an infrastructure halt', async () => {
+  const h = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ holderAlive: () => false })), /holder/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.cause, 'holder_lost');
+    assert.equal(evidence.attempts[0].host.holder_alive_at_end, false);
+  } finally { h.clean(); }
+});
+
+test('accepted evidence verifies by git ancestry and object reads after a later committed runner change, while a live check still demands the working tree', () => {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-terminal-')));
+  try {
+    gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const fixed = true;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'fixed runner');
+    const fixed = gitIn(dir, 'rev-parse', 'HEAD');
+    fs.writeFileSync(path.join(dir, 'other.txt'), 'x\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'freeze point');
+    const frozenHead = gitIn(dir, 'rev-parse', 'HEAD');
+    const freeze = { source: { checkout_head: frozenHead, blobs: { 'runner.mjs': gitIn(dir, 'rev-parse', `${frozenHead}:runner.mjs`) } }, fixed_runner: { commit: fixed } };
+    assert.equal(recovery.verifyFrozenSourceBindingR2(dir, freeze, { terminal: false }), frozenHead);
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const fixed = true; export const later = 1;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'later runner change');
+    assert.throws(() => recovery.verifyFrozenSourceBindingR2(dir, freeze, { terminal: false }), /identity mismatch/i, 'a live check still demands working-tree equality');
+    assert.equal(recovery.verifyFrozenSourceBindingR2(dir, freeze, { terminal: true }), gitIn(dir, 'rev-parse', 'HEAD'), 'accepted evidence is not silently invalidated');
+    const forged = structuredClone(freeze); forged.source.blobs['runner.mjs'] = '0'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR2(dir, forged, { terminal: true }), /blob mismatch/i, 'nor silently re-accepted when the frozen blob differs');
+    const notAncestor = structuredClone(freeze); notAncestor.fixed_runner.commit = frozenHead; notAncestor.source.checkout_head = fixed;
+    assert.throws(() => recovery.verifyFrozenSourceBindingR2(dir, notAncestor, { terminal: true }), /ancestor|blob mismatch/i);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the standalone host preflight prints nothing to the ledger and releases its holder', async () => {
+  const h = hostProbeHarness();
+  const line = await recovery.preflightHostSleep(h.options);
+  const parsed = JSON.parse(line);
+  assert.equal(parsed.holder_pid, 4321);
+  assert.equal(parsed.ac_power, true);
+  assert.deepEqual(h.events.map((event) => event[0]).filter((kind) => kind !== 'pmset'), ['hold', 'release']);
+});
+
+test('the approval recorder CLI refuses a reject decision and writes nothing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(temporary, 'approval-reject.json');
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(temporary, 'b.md'), '--freeze', path.join(temporary, 'f.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out), false);
 });
 
 test('ordinary registration runner contracts opened no server or socket', () => {
