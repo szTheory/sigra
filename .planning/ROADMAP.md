@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 partly implemented; native dark/control recovery planning required)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 partly implemented; reviewed load recovery plans ready)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-plan-phase 253 — Plan27 failed before test collection because canonicalize cannot load ESM parse5 under Node20. No plans are runnable. Both requirements and phase verification remain open.
+**Next command:** $gsd-execute-phase 253 --gaps-only — Execute the 12 reviewed recovery plans. Both requirements and phase verification remain open.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 11/35 implemented; Plan 26 complete offline; Plan 27 halted on parse5 load; Plans 28–35 blocked; old failures preserved; phase verification not started
+**Plans**: 11/47 implemented; 12 new recovery plans reviewed; first ready Plans 36, 37, 42, 43; six prior halts preserved; whole-phase verification not started
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -181,6 +181,49 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 Cross-cutting constraints: preserve original Phase 252 and failed Phase 253 records; carry spent charges and retry without reset; zero browser retries and signal-driven readiness; retain five required-check names; native and hosted proof required before accepted-only historical dispositions.
 
+**Load recovery plans** *(36–47 passed independent review; all original plans and failed receipts remain preserved)*
+
+**Load recovery wave 1** *(ready first)*
+
+- [ ] 253-36-PLAN.md — Repair actual Node 20 transformed spec loading and awaited canonical DOM hashing.
+- [ ] 253-37-PLAN.md — Validate safe redaction and require independent exact database absence receipts.
+- [ ] 253-42-PLAN.md — Implement real normal/docs PR collector and full completion contracts.
+- [ ] 253-43-PLAN.md — Implement accepted-only historical disposition against the installed SDK.
+
+**Load recovery wave 2** *(blocked on earlier recovery dependencies)*
+
+- [ ] 253-38-PLAN.md — Make runner contracts portable and test cumulative limits and descendant cleanup.
+
+**Load recovery wave 3** *(blocked on earlier recovery dependencies)*
+
+- [ ] 253-39-PLAN.md — Implement and freeze the four remaining control allocations with complete source identities.
+
+**Load recovery wave 4** *(blocked on earlier recovery dependencies)*
+
+- [ ] 253-40-PLAN.md — Run all mandatory controls in four bounded native commands.
+
+**Load recovery wave 5** *(blocked on earlier recovery dependencies)*
+
+- [ ] 253-41-PLAN.md — Record actual cause, any evidenced repair, and nine conditional fresh acceptance passes.
+
+**Load recovery wave 6** *(blocked on earlier recovery dependencies)*
+
+- [ ] 253-44-PLAN.md — Assemble final hosted candidate and regenerate exact source publication.
+
+**Load recovery wave 7** *(blocked on earlier recovery dependencies)*
+
+- [ ] 253-45-PLAN.md — Prove six actual hosted outcomes and independent verifier.
+
+**Load recovery wave 8** *(blocked on earlier recovery dependencies)*
+
+- [ ] 253-46-PLAN.md — Prove normal and docs-only PR native required checks.
+
+**Load recovery wave 9** *(blocked on earlier recovery dependencies)*
+
+- [ ] 253-47-PLAN.md — Prepare accepted-only completion/disposition bundle and whole-phase verification route.
+
+Cross-cutting constraints: preserve all failed records and spent allocations; first prove actual Node 20 collection offline; use only four remaining regular commands and nine conditional acceptance commands; retain all three-project controls and required-check names; require independent native/hosted proof before dispositions or whole-phase completion.
+
 ### Phase 254: Speed Up the Measured Slow Jobs
 
 **Goal**: Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
@@ -209,12 +252,12 @@ Cross-cutting constraints: preserve original Phase 252 and failed Phase 253 reco
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans in four waves; Phase 253 has 35 preserved plans including ten control recovery plans in nine waves; 11 implemented, 6 halted, 18 blocked; Phase 254/255 plan counts remain pending.
+**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans; Phase 253 has 47 preserved plans, including 12 new load recovery plans in nine waves; 11 implemented, six halted, 18 originals blocked, four new plans ready first. Phase 254/255 remain pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 11/35 | Partial implementation; Plan 27 halted; recovery planning required; verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 11/47 | Partial implementation; recovery plans reviewed and ready; verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

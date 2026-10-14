@@ -1,12 +1,12 @@
 {
   "schema_version": "sigra.phase253.partial-execution/v1",
-  "recorded_at": "2026-10-14T01:30:01.883389+00:00",
-  "status": "native_halted_recovery_planning_required",
+  "recorded_at": "2026-10-14T02:26:45.898798+00:00",
+  "status": "partial_implementation_recovery_ready",
   "source_head": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
   "implementation_status": "partial",
   "phase_verification_status": "not_started",
   "completed_plan_count": 11,
-  "plan_count": 35,
+  "plan_count": 47,
   "plans": {
     "253-01": "complete",
     "253-02": "halted",
@@ -33,16 +33,28 @@
     "253-23": "blocked",
     "253-24": "blocked",
     "253-25": "blocked",
-    "253-26": "ready",
-    "253-27": "planned",
-    "253-28": "planned",
-    "253-29": "planned",
-    "253-30": "planned",
-    "253-31": "planned",
-    "253-32": "planned",
-    "253-33": "planned",
-    "253-34": "planned",
-    "253-35": "planned"
+    "253-26": "complete",
+    "253-27": "halted",
+    "253-28": "blocked",
+    "253-29": "blocked",
+    "253-30": "blocked",
+    "253-31": "blocked",
+    "253-32": "blocked",
+    "253-33": "blocked",
+    "253-34": "blocked",
+    "253-35": "blocked",
+    "253-36": "ready",
+    "253-37": "ready",
+    "253-38": "waiting_dependencies",
+    "253-39": "waiting_dependencies",
+    "253-40": "waiting_dependencies",
+    "253-41": "waiting_dependencies",
+    "253-42": "ready",
+    "253-43": "ready",
+    "253-44": "waiting_dependencies",
+    "253-45": "waiting_dependencies",
+    "253-46": "waiting_dependencies",
+    "253-47": "waiting_dependencies"
   },
   "requirements": {
     "CIREL-01": "unsatisfied",
@@ -74,7 +86,7 @@
       "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json"
     }
   ],
-  "next_command": "$gsd-plan-phase 253",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
   "readiness": {
     "executor_model": "gpt-6-luna",
     "verifier_model": "gpt-6-luna",
@@ -2406,7 +2418,7 @@
     "implementation_status": "partial",
     "phase_verification_status": "not_started"
   },
-  "current_planning_closeout": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLANNING-RECORD.json",
+  "current_planning_closeout": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PLANNING-RECORD.json",
   "additional_execution": {
     "schema_version": "sigra.phase253.additional-execution-closeout/v1",
     "recorded_at": "2026-10-13T23:26:23.648776+00:00",
@@ -2658,9 +2670,16 @@
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json"
   },
   "current_readiness": {
-    "runnable_count": 0,
-    "ready_plans": [],
-    "blocked_count": 18,
+    "runnable_count": 12,
+    "ready_plans": [
+      "253-36",
+      "253-37",
+      "253-42",
+      "253-43"
+    ],
+    "incomplete_count": 30,
+    "blocked_original_count": 18,
+    "waiting_new_dependency_count": 8,
     "halted_count": 6,
     "complete_implementation_count": 11
   },
@@ -3546,6 +3565,308 @@
           "253-34",
           "253-31"
         ]
+      },
+      {
+        "id": "253-36",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Load the actual transformed admin-eval spec and canonicalizer under frozen Node20 before spending another native command.",
+        "files_modified": [
+          "test/example/priv/playwright/lib/eval/canonicalize.ts",
+          "test/example/priv/playwright/lib/eval/bundle.ts",
+          "test/example/priv/playwright/lib/eval/canonicalize.test.ts",
+          "test/example/priv/playwright/tests/admin-eval.spec.ts",
+          "scripts/ci/ci-playwright-load.test.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": true
+      },
+      {
+        "id": "253-37",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Accept only the exact safe redaction marker and independently prove owned database absence after quiet cleanup.",
+        "files_modified": [
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/ci-registration-recovery.test.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": true
+      },
+      {
+        "id": "253-38",
+        "wave": 2,
+        "depends_on": [
+          "253-37"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Make registration runner contracts pass in an ordinary clean candidate tree without local phase records or refs.",
+        "files_modified": [
+          "scripts/ci/ci-registration-recovery.test.mjs",
+          "scripts/ci/ci-registration-repro.test.sh",
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/fixtures/registration-native-tree.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-37"
+        ]
+      },
+      {
+        "id": "253-39",
+        "wave": 3,
+        "depends_on": [
+          "253-36",
+          "253-38"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Freeze and implement only the four unused native control windows, with complete current and historical source binding.",
+        "files_modified": [
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/ci-registration-recovery.test.mjs",
+          "test/example/priv/playwright/playwright.registration-recovery.config.ts",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-36",
+          "253-38"
+        ]
+      },
+      {
+        "id": "253-40",
+        "wave": 4,
+        "depends_on": [
+          "253-39"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Run all remaining real signal, collision, fresh-state and first-failure trace controls within the four frozen windows.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/RECEIPT.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-SECOND/attempt-01/RECEIPT.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-MOBILE-SECOND/attempt-01/RECEIPT.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DARK-SECOND/attempt-01/RECEIPT.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-39"
+        ]
+      },
+      {
+        "id": "253-41",
+        "wave": 5,
+        "depends_on": [
+          "253-40"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Require a demonstrated selected cause and genuine fresh post-fix repeats, preserving an honest halt when proof is incomplete.",
+        "files_modified": [
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/ci-registration-recovery.test.mjs",
+          "test/example/priv/playwright/tests/admin-eval.spec.ts",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 3,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-40"
+        ]
+      },
+      {
+        "id": "253-42",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Implement real normal/docs PR collection and full requirement predicates before freezing any published source.",
+        "files_modified": [
+          "scripts/ci/ci-pr-proof.sh",
+          "scripts/ci/ci-pr-proof.test.sh",
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py",
+          "scripts/ci/ci-hosted-transport.py",
+          "scripts/ci/ci-hosted-transport.test.py"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": true
+      },
+      {
+        "id": "253-43",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove accepted-only historical disposition with the actual current SDK without changing any original plan or failed summary.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": true
+      },
+      {
+        "id": "253-44",
+        "wave": 6,
+        "depends_on": [
+          "253-41",
+          "253-42"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Finish the registered-path hosted canary adapter and regenerate the full publication graph from final committed product source.",
+        "files_modified": [
+          "scripts/ci/ci-gate-canary.sh",
+          "scripts/ci/ci-gate-canary.test.sh",
+          "scripts/ci/ci-git-publication.py",
+          "scripts/ci/ci-git-publication.test.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-41",
+          "253-42"
+        ]
+      },
+      {
+        "id": "253-45",
+        "wave": 7,
+        "depends_on": [
+          "253-44"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove six actual hosted canary outcomes and a separately run independent verifier within the single frozen window.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 3,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-44"
+        ]
+      },
+      {
+        "id": "253-46",
+        "wave": 8,
+        "depends_on": [
+          "253-45"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove one normal and one genuine docs-only PR family with preserved required names and once-only original integration coverage.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-DOCS-PUBLICATION-RECEIPT.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-45"
+        ]
+      },
+      {
+        "id": "253-47",
+        "wave": 9,
+        "depends_on": [
+          "253-46",
+          "253-43"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Reopen complete requirements and prepare only accepted historical disposition, then route root to whole-phase verification.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-COMPLETION-RECORD.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-SUPERSESSION-SUMMARIES.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-46",
+          "253-43"
+        ]
       }
     ],
     "waves": {
@@ -3559,7 +3880,11 @@
         "253-11",
         "253-15",
         "253-18",
-        "253-26"
+        "253-26",
+        "253-36",
+        "253-37",
+        "253-42",
+        "253-43"
       ],
       "2": [
         "253-06",
@@ -3567,40 +3892,48 @@
         "253-12",
         "253-16",
         "253-19",
-        "253-27"
+        "253-27",
+        "253-38"
       ],
       "3": [
         "253-07",
         "253-13",
         "253-17",
         "253-20",
-        "253-28"
+        "253-28",
+        "253-39"
       ],
       "4": [
         "253-08",
         "253-14",
         "253-21",
-        "253-29"
+        "253-29",
+        "253-40"
       ],
       "5": [
         "253-22",
-        "253-30"
+        "253-30",
+        "253-41"
       ],
       "6": [
         "253-23",
         "253-31",
-        "253-32"
+        "253-32",
+        "253-44"
       ],
       "7": [
         "253-24",
-        "253-33"
+        "253-33",
+        "253-45"
       ],
       "8": [
         "253-25",
-        "253-34"
+        "253-34",
+        "253-46"
       ],
       "9": [
-        "253-35"
+        "253-35",
+        "253-47"
       ]
     },
     "incomplete": [
@@ -3621,18 +3954,51 @@
       "253-32",
       "253-33",
       "253-34",
-      "253-35"
+      "253-35",
+      "253-36",
+      "253-37",
+      "253-38",
+      "253-39",
+      "253-40",
+      "253-41",
+      "253-42",
+      "253-43",
+      "253-44",
+      "253-45",
+      "253-46",
+      "253-47"
     ],
-    "runnable": [],
-    "ready_plans": [],
+    "runnable": [
+      "253-36",
+      "253-37",
+      "253-38",
+      "253-39",
+      "253-40",
+      "253-41",
+      "253-42",
+      "253-43",
+      "253-44",
+      "253-45",
+      "253-46",
+      "253-47"
+    ],
+    "ready_plans": [
+      "253-36",
+      "253-37",
+      "253-42",
+      "253-43"
+    ],
     "has_checkpoints": false,
-    "warning": "Found 14 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-01.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-02.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\", \"253-RECOVERY-PLAN-CHECK-01.md\", \"253-RECOVERY-PLAN-CHECK-02.md\", \"253-REPLAN-BUDGETS.md\", \"253-REPLAN-COVERAGE.md\", \"253-REPLAN-PLAN-CHECK-01.md\", \"253-REPLAN-PLAN-CHECK-02.md\", \"253-REPLAN-SOURCE-AUDIT.md\", \"253-REPLAN-VALIDATION.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract."
+    "warning": "Found 15 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-01.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-02.md\", \"253-LOAD-RECOVERY-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\", \"253-RECOVERY-PLAN-CHECK-01.md\", \"253-RECOVERY-PLAN-CHECK-02.md\", \"253-REPLAN-BUDGETS.md\", \"253-REPLAN-COVERAGE.md\", \"253-REPLAN-PLAN-CHECK-01.md\", \"253-REPLAN-PLAN-CHECK-02.md\", \"253-REPLAN-SOURCE-AUDIT.md\", \"253-REPLAN-VALIDATION.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract."
   },
   "current_blockers": [
-    "Plan a Node20-compatible parse5 loading correction and prove module collection offline before spending any remaining native command.",
-    "Plan explicit tests for sanitized markers and quiet successful cleanup; retain source identities and reject actual credentials/missing cleanup proof.",
-    "Complete inherited portable checks and bind all invoked shared helper bytes in any new freeze.",
-    "Use only unused reservations after a separately reviewed plan; no retry/reopened CR-DARK-FIRST, budget reset, or retrospective pass."
+    "Node 20 actual transformed spec loading and async hash semantics",
+    "safe redaction marker and independent exact database absence receipts",
+    "hermetic runner contracts including WINDOWS.md entry 11",
+    "complete source freeze and four remaining native controls, then conditional cause-backed repeats",
+    "final code publication, six actual hosted scenarios and independent verifier",
+    "normal and docs-only PR native required checks and accepted-only dispositions",
+    "unfiltered whole-phase verification"
   ],
   "additional_execution_closeout_preservation": {
     "source_head": "a1a1887e116fc34dbbdfc4186347467ffad33f91",
@@ -3713,7 +4079,7 @@
     "all_25_plan_sources_unchanged": true
   },
   "additional_execution_closeout_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json",
-  "resume_command": "$gsd-plan-phase 253",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
   "control_recovery_planning": {
     "schema_version": "sigra.phase253.control-recovery-planning/v1",
     "recorded_at": "2026-10-14T00:52:15.809811+00:00",
@@ -4113,5 +4479,352 @@
     "phase_verification": "not_started",
     "diagnostic": "253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json"
   },
-  "control_recovery_execution_closeout": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json"
+  "control_recovery_execution_closeout": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
+  "load_recovery_planning": {
+    "schema": "sigra.phase253.load-recovery-planning-record/v1",
+    "recorded_at": "2026-10-14T02:26:45.898798+00:00",
+    "command": "$gsd-plan-phase 253",
+    "status": "planning_complete_recovery_ready",
+    "planning_mode": "standard append-only recovery; new gap_closure:true plans and explicitly scoped follow-up",
+    "user_choice": "Add recovery plans for the remaining work (recommended)",
+    "capture_head": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+    "capture_commit": "6308a7815",
+    "preflight_commit": "cb5340d38",
+    "draft_preservation_commit": "9cc0488f4bafd0bb9b2ace76f43688a3cb0509ec",
+    "draft_revision_commit": "cfe1733795ac5ac8ab97165e8d543074c6fc1386",
+    "artifact_manifest_commit": "bee720ff110d1cf5f5be5298ebe7d16fa891c849",
+    "review_commit": "fd35b20a3957804fa9bb45cc02735f5a7a6e039b",
+    "sdk_transition_commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+    "new_plans": [
+      "253-36",
+      "253-37",
+      "253-38",
+      "253-39",
+      "253-40",
+      "253-41",
+      "253-42",
+      "253-43",
+      "253-44",
+      "253-45",
+      "253-46",
+      "253-47"
+    ],
+    "new_plan_count": 12,
+    "new_task_count": 26,
+    "new_wave_count": 9,
+    "plan_count": 47,
+    "task_count": 102,
+    "completed_implementation_plans": [
+      "253-01",
+      "253-03",
+      "253-04",
+      "253-05",
+      "253-06",
+      "253-11",
+      "253-15",
+      "253-18",
+      "253-19",
+      "253-20",
+      "253-26"
+    ],
+    "completed_implementation_count": 11,
+    "halted_plans": [
+      "253-02",
+      "253-07",
+      "253-09",
+      "253-12",
+      "253-16",
+      "253-27"
+    ],
+    "blocked_original_plans": [
+      "253-08",
+      "253-10",
+      "253-13",
+      "253-14",
+      "253-17",
+      "253-21",
+      "253-22",
+      "253-23",
+      "253-24",
+      "253-25",
+      "253-28",
+      "253-29",
+      "253-30",
+      "253-31",
+      "253-32",
+      "253-33",
+      "253-34",
+      "253-35"
+    ],
+    "ready_plans": [
+      "253-36",
+      "253-37",
+      "253-42",
+      "253-43"
+    ],
+    "remaining_new_plans_waiting_on_dependencies": 8,
+    "sdk_incomplete_count": 30,
+    "sdk_runnable_count": 12,
+    "sdk_runnable_semantics": "All 12 new plans are reachable through ordinary dependencies; only four are ready in the first wave.",
+    "independent_review": {
+      "status": "passed",
+      "blockers": 0,
+      "warnings": 0,
+      "override": false,
+      "report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PLAN-CHECK-01.md",
+      "report_sha256": "f6da2e21f46a2ec12967f74d529b4d7dd362faa334ab28ec43cb323cb31acb99",
+      "role": "gsd-plan-checker",
+      "model": "gpt-6-luna",
+      "effort": "low"
+    },
+    "planner_dispatch": {
+      "role": "gsd-planner",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "typed": true
+    },
+    "research": "used existing; current source and SDK audit added without replacing original research",
+    "requirements_coverage": [
+      "CIREL-01",
+      "CIREL-02"
+    ],
+    "decision_coverage": {
+      "passed": true,
+      "skipped": false,
+      "total": 24,
+      "covered": 24,
+      "uncovered": [],
+      "message": "All trackable CONTEXT.md decisions are covered by plans."
+    },
+    "post_planning_gate": {
+      "passed": true,
+      "covered": 26,
+      "total": 26
+    },
+    "command_probe_limitation": "not_applicable: no claim of SDK path resolution/failure direction check; direct binding audit and independent review separate",
+    "shared_prior_bytes": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+        "blob": "aae42ceb20b1914b07419c1539a5c55799acf492",
+        "sha256": "ffdd553eedfc6f30ba139767b8881e83570faa3501c0647b2a9d560dc2128418",
+        "bytes": 19009,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+        "blob": "15c5f1d38293ae52a079c470df7fe4aa9f90369a",
+        "sha256": "b2be1f149dc9567b29ff1abe10bfdff977cd2a69ea8a1d648045fd8061113bc0",
+        "bytes": 752,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+        "blob": "e5f02d8b4c6a00bdbc1efd90986c22fe7e88e458",
+        "sha256": "08bb06eac62934d3fad85303a4f38bf668f2af5ca800b300693733f0badaccbd",
+        "bytes": 161405,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+        "blob": "0ad98502d4d8283dce65664a01760a91a04e27df",
+        "sha256": "3722c0bd077132a89aea38fce8042208f5f810df2a4e4ea3402e20b36f8016a4",
+        "bytes": 16770,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+        "status": "clean",
+        "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+        "blob": "e0b17b2577f3a0ca8626939e01582045901dbd4a",
+        "sha256": "d9761ecea84a7926d81c955271fe5de7af9f90605d9cfd2ad9e4bb966d656aec",
+        "bytes": 150704,
+        "readback_exact": true
+      }
+    ],
+    "pre_sdk_shared_prior_bytes": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "commit": "bee720ff110d1cf5f5be5298ebe7d16fa891c849",
+        "blob": "9354455d5551a8d80b93771ae8024d3210fe4da6",
+        "sha256": "f5c4e734eaccac58d5dbc96ffc07d3800c097a46febcc63f89f5593d136a94dc",
+        "bytes": 18832,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "commit": "bee720ff110d1cf5f5be5298ebe7d16fa891c849",
+        "blob": "fafa4abe4109391e8e2fd0063753d1bf07472d7b",
+        "sha256": "7561e7c47cc21f5fcd76797f313f80102f44e2233902c697ef29f9b4d0efacbd",
+        "bytes": 59546,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "commit": "bee720ff110d1cf5f5be5298ebe7d16fa891c849",
+        "blob": "e5f02d8b4c6a00bdbc1efd90986c22fe7e88e458",
+        "sha256": "08bb06eac62934d3fad85303a4f38bf668f2af5ca800b300693733f0badaccbd",
+        "bytes": 161405,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "commit": "bee720ff110d1cf5f5be5298ebe7d16fa891c849",
+        "blob": "0ad98502d4d8283dce65664a01760a91a04e27df",
+        "sha256": "3722c0bd077132a89aea38fce8042208f5f810df2a4e4ea3402e20b36f8016a4",
+        "bytes": 16770,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+        "status": "clean",
+        "commit": "bee720ff110d1cf5f5be5298ebe7d16fa891c849",
+        "blob": "e0b17b2577f3a0ca8626939e01582045901dbd4a",
+        "sha256": "d9761ecea84a7926d81c955271fe5de7af9f90605d9cfd2ad9e4bb966d656aec",
+        "bytes": 150704,
+        "readback_exact": true
+      }
+    ],
+    "old_planning_capture_count": 424,
+    "unchanged_except_shared": 419,
+    "shared_refreshed": [
+      ".planning/STATE.md",
+      ".planning/state.json",
+      ".planning/HANDOFF.json",
+      ".planning/ROADMAP.md",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json"
+    ],
+    "product_paths_unchanged": 353,
+    "original35plans_unchanged": true,
+    "phase252_paths_unchanged": true,
+    "failed_evidence_unchanged": true,
+    "source_freezes_unchanged": true,
+    "native_accounting": {
+      "carried_ms": 276453,
+      "physical_cli_launches": 5,
+      "spent_reservations": 6,
+      "retry_used": 1,
+      "retry_available": 0,
+      "preparation_remaining_ms": 112489,
+      "unused_regular_commands": 4,
+      "regular_cap_ms": 120000,
+      "conditional_acceptance_commands": 9,
+      "acceptance_cap_ms": 240000,
+      "d19_remaining_potential_total_ms": 868942,
+      "shared_remaining_potential_total_ms": 3208942,
+      "d19_cap_ms": 1200000,
+      "shared_cap_ms": 3480000,
+      "physical_cli_max": 18,
+      "allocation_expanded": false
+    },
+    "remaining_proof": [
+      "Node 20 actual transformed spec loading and async hash semantics",
+      "safe redaction marker and independent exact database absence receipts",
+      "hermetic runner contracts including WINDOWS.md entry 11",
+      "complete source freeze and four remaining native controls, then conditional cause-backed repeats",
+      "final code publication, six actual hosted scenarios and independent verifier",
+      "normal and docs-only PR native required checks and accepted-only dispositions",
+      "unfiltered whole-phase verification"
+    ],
+    "native_commands": 0,
+    "github_requests": 0,
+    "remote_mutations": 0,
+    "branch_changes": 0,
+    "requirements": {
+      "CIREL-01": "open",
+      "CIREL-02": "open"
+    },
+    "implementation_status": "partial",
+    "phase_verification": "not_started",
+    "full_phase_verifier_invoked": false,
+    "phase_complete_invoked": false,
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only",
+    "whole_phase_verification_command": "$gsd-execute-phase 253",
+    "next_route_reason": "Execute the 12 reviewed recovery plans, beginning with offline Node 20 loading, safe log/cleanup receipts, PR proof contracts and accepted-only SDK disposition contracts. Native and hosted proof remain required.",
+    "next_readiness": {
+      "phase": 253,
+      "plan_count": 47,
+      "incomplete_count": 30,
+      "runnable_count": 12,
+      "ready_plans": [
+        "253-36",
+        "253-37",
+        "253-42",
+        "253-43"
+      ]
+    },
+    "phase254_started": false,
+    "auto_advance": false,
+    "auto_chain_sync": "already false; config unchanged",
+    "config": {
+      "path": ".planning/config.json",
+      "status": " M",
+      "sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+      "ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
+      "blob": "ab8aa3007f17294e2f224d4ac8482522b79bda24",
+      "readback_exact": true,
+      "leave_unstaged": true
+    },
+    "human_actions_pending": [],
+    "async_jobs": []
+  },
+  "load_recovery_planning_prior_bytes": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+      "blob": "aae42ceb20b1914b07419c1539a5c55799acf492",
+      "sha256": "ffdd553eedfc6f30ba139767b8881e83570faa3501c0647b2a9d560dc2128418",
+      "bytes": 19009,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+      "blob": "15c5f1d38293ae52a079c470df7fe4aa9f90369a",
+      "sha256": "b2be1f149dc9567b29ff1abe10bfdff977cd2a69ea8a1d648045fd8061113bc0",
+      "bytes": 752,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+      "blob": "e5f02d8b4c6a00bdbc1efd90986c22fe7e88e458",
+      "sha256": "08bb06eac62934d3fad85303a4f38bf668f2af5ca800b300693733f0badaccbd",
+      "bytes": 161405,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+      "blob": "0ad98502d4d8283dce65664a01760a91a04e27df",
+      "sha256": "3722c0bd077132a89aea38fce8042208f5f810df2a4e4ea3402e20b36f8016a4",
+      "bytes": 16770,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "status": "clean",
+      "commit": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+      "blob": "e0b17b2577f3a0ca8626939e01582045901dbd4a",
+      "sha256": "d9761ecea84a7926d81c955271fe5de7af9f90605d9cfd2ad9e4bb966d656aec",
+      "bytes": 150704,
+      "readback_exact": true
+    }
+  ]
 }
