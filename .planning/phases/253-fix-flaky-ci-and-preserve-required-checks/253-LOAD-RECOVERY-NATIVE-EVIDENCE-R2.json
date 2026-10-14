@@ -1,7 +1,7 @@
 {
   "schema_version": "sigra.phase253.registration-load-recovery-evidence/v2",
   "revision": "r2",
-  "status": "ready",
+  "status": "halted",
   "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json",
   "freeze_sha256": "b26d5a0cbfca38cbdc3fbf4931ce2fd0ba0cfc35df295e4fe820a259eaab43b1",
   "source": {
@@ -213,10 +213,332 @@
     }
   },
   "created_at": "2026-10-14T15:05:16.512Z",
-  "attempts": [],
-  "preparation": null,
+  "attempts": [
+    {
+      "slot_id": "CR2-DESKTOP-MOBILE-FIRST",
+      "sequence": 1,
+      "stage": "first",
+      "project": "admin-eval",
+      "projects": [
+        "admin-eval",
+        "admin-eval-mobile",
+        "admin-eval-dark"
+      ],
+      "argv": [
+        "--config=playwright.registration-recovery.config.ts",
+        "--project=admin-eval",
+        "--project=admin-eval-mobile",
+        "--project=admin-eval-dark",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure"
+      ],
+      "source_commit": "f6a1ad99c1fcfa069faf09416f08bcef75fc352a",
+      "source_blobs": {
+        "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+        "scripts/ci/ci-registration-recovery.mjs": "de8912201e93dcd0f43731b24a6969617b0fc8fd",
+        "scripts/ci/ci-registration-recovery.test.mjs": "1a300dafc6ab4a1475bfd2c160f3afbe897d4a2f",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "16be503276de510cc6304e481b2755d9fb5968ca",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+        "test/example/priv/playwright/helpers/registrationControls.mjs": "775c796152bf123b251abbcdde11897d572f37bd",
+        "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+        "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+        "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+        "scripts/ci/ci-playwright-load.test.mjs": "a57a8a56496a33c9f8b0a1fc24e0b48f1a31a66e",
+        "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+        "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+        "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+        "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19"
+      },
+      "started_monotonic_ns": "330650886522541",
+      "database": {
+        "name": "sigra_253_control_load_cr2_desktop_mobile_first_mv88rsz1_55603",
+        "setup_exit_code": 0,
+        "drop_exit_code": 0,
+        "connection": {
+          "host": "127.0.0.1",
+          "port": "58624",
+          "user": "postgres",
+          "maintenance_database": "postgres"
+        },
+        "absence_receipt": {
+          "schema_version": "sigra.phase253.owned-database-absence/v1",
+          "database": "sigra_253_control_load_cr2_desktop_mobile_first_mv88rsz1_55603",
+          "argv": [
+            "psql",
+            "-X",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-v",
+            "target=sigra_253_control_load_cr2_desktop_mobile_first_mv88rsz1_55603",
+            "-A",
+            "-t",
+            "-h",
+            "127.0.0.1",
+            "-p",
+            "58624",
+            "-U",
+            "postgres",
+            "-d",
+            "postgres"
+          ],
+          "query": "SELECT count(*) FROM pg_database WHERE datname = :'target';\n",
+          "query_sha256": "d76f9fd3d185921e92633a206f1d792fccbf9785275063ecd3231d334fd4a59c",
+          "connection": {
+            "host": "127.0.0.1",
+            "port": "58624",
+            "user": "postgres",
+            "maintenance_database": "postgres"
+          },
+          "exit_code": 0,
+          "signal": null,
+          "timed_out": false,
+          "error": null,
+          "started_monotonic_ns": "330757930777875",
+          "ended_monotonic_ns": "330757967154166",
+          "duration_ms": 37,
+          "stdout_count": 0,
+          "log_bytes": 2,
+          "log_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      },
+      "server": {
+        "port": 25311,
+        "http_status": 200,
+        "app_pid": 67415
+      },
+      "browser": {
+        "launched": true,
+        "exit_code": null
+      },
+      "playwright_cli": {
+        "launched": true,
+        "exit_code": null
+      },
+      "lifecycle": {
+        "playwright_cli_processes": 1,
+        "rows": 0,
+        "worker_indexes": [],
+        "cli_pid": 68509
+      },
+      "observed_outcome": "halted",
+      "files": {
+        "setup_log": {
+          "path": "CR2-DESKTOP-MOBILE-FIRST/attempt-01/setup-log.log",
+          "sha256": "bb5744ec54562559d23a7ab9921f6cb0a3d289f3f5395c27da2a61451390e5c1",
+          "bytes": 134171
+        },
+        "app_log": {
+          "path": "CR2-DESKTOP-MOBILE-FIRST/attempt-01/app-log.log",
+          "sha256": "d19385cbbe2cea5ae4087ff267ced80f0700b55104026487fd7a3ff855f076dc",
+          "bytes": 47765
+        },
+        "test_log": {
+          "path": "CR2-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log",
+          "sha256": "9025e3c0942df3bf922d1814e5efcca26239e4f2de9faf6d21e633e1a15b05e4",
+          "bytes": 1107
+        },
+        "drop_log": {
+          "path": "CR2-DESKTOP-MOBILE-FIRST/attempt-01/drop-log.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "database_absence": {
+          "path": "CR2-DESKTOP-MOBILE-FIRST/attempt-01/database-absence.log",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        }
+      },
+      "traces": [],
+      "registration": {
+        "server_post_confirmed": false
+      },
+      "toolchain": {
+        "playwright": "1.59.1",
+        "ecto_sql": "3.13.5",
+        "phoenix_live_view": "1.1.28"
+      },
+      "build_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r2-AbNob1/mix-build",
+      "stage_deadlines": {
+        "command_ms": 120000,
+        "work_ms": 105000,
+        "cleanup_ms": 15000,
+        "cleanup_reserved": true
+      },
+      "host": {
+        "platform": "darwin",
+        "sleep_assertion_held": true,
+        "sleep_assertion_argv": [
+          "/usr/bin/caffeinate",
+          "-i",
+          "-s",
+          "-m",
+          "-w",
+          "55603"
+        ],
+        "suspension_detected": false,
+        "holder_alive_at_end": true
+      },
+      "host_awake": {
+        "holder_pid": 56500,
+        "ac_power": true,
+        "assertions_sha256": "68890d88e17a059da54e79c9ab240f5f790823eae0c2924cb4283ae70b6adfcc",
+        "checked_at": "2026-10-14T15:05:26.124Z"
+      },
+      "assertion_failure_observed": false,
+      "setup": {
+        "pid": 56608,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 24793,
+        "wall_duration_ms": 24792,
+        "suspended": false,
+        "max_tick_gap_ms": 2,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 1
+      },
+      "browser_command_argv": [
+        "test",
+        "tests/admin-eval.spec.ts",
+        "--config=playwright.registration-recovery.config.ts",
+        "--project=admin-eval",
+        "--project=admin-eval-mobile",
+        "--project=admin-eval-dark",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure",
+        "--output=/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r2-AbNob1/playwright-output"
+      ],
+      "test_command": {
+        "pid": 68509,
+        "exit_code": null,
+        "signal": "SIGTERM",
+        "error": null,
+        "timed_out": true,
+        "aborted": false,
+        "duration_ms": 78357,
+        "wall_duration_ms": 78357,
+        "suspended": false,
+        "max_tick_gap_ms": 4,
+        "group_signals": [
+          "SIGTERM"
+        ],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "log_redactions_app": {
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "drop_command": {
+        "pid": 9029,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 891,
+        "wall_duration_ms": 890,
+        "suspended": false,
+        "max_tick_gap_ms": 2,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "build_directory_removed": true,
+      "ended_monotonic_ns": "330758228862083",
+      "execution_duration_ms": 107343,
+      "wall_duration_ms": 107343,
+      "charged_duration_ms": 107343,
+      "collision_receipts": {},
+      "fresh_state_receipts": {}
+    }
+  ],
+  "preparation": {
+    "receipts": [
+      {
+        "name": "mix_version",
+        "argv": [
+          "mix",
+          "--version"
+        ],
+        "exit_code": 0,
+        "duration_ms": 303,
+        "log": {
+          "path": "preparation/mix_version.log",
+          "sha256": "b397a3a12486d231c46786345365488f7c6350837a12db10b3aa142b53e8300a",
+          "bytes": 136
+        }
+      },
+      {
+        "name": "host_dependency_versions",
+        "argv": [
+          "mix",
+          "deps"
+        ],
+        "exit_code": 0,
+        "duration_ms": 439,
+        "log": {
+          "path": "preparation/host_dependency_versions.log",
+          "sha256": "9bb67b6beb3c360c954336f94dba0160334d693fa6cc4bc0153893c8a159eb01",
+          "bytes": 4351
+        }
+      }
+    ],
+    "duration_ms": 743,
+    "status": "passed"
+  },
   "reservation": null,
-  "preserved_revisions": [],
+  "preserved_revisions": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+      "status": "",
+      "sha256": "c584f74d8beca9edf36d49b4600deeb10dba8cf5648e02c25419158b19d3f1df",
+      "blob": "9496d2fd2d010d68a3b3052235b089654423d448",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/c584f74d8beca9edf36d49b4600deeb10dba8cf5648e02c25419158b19d3f1df",
+      "bytes": 14054,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+      "sha256": "f73cf2523b3e9f404c71dd27c514584babe5be60a1ba15c753657bd4c7c1895d",
+      "blob": "1b5e087a76ab5807951aa7dad795f1dec974ca0c",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/f73cf2523b3e9f404c71dd27c514584babe5be60a1ba15c753657bd4c7c1895d",
+      "bytes": 14638,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+      "sha256": "25bbf2dd526d021425780a75ad352474edd1d8d90e8e95fed386a60cd21a4c16",
+      "blob": "d422616449f53d0f182d0e946b94e03e408a5bd1",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/25bbf2dd526d021425780a75ad352474edd1d8d90e8e95fed386a60cd21a4c16",
+      "bytes": 15925,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+      "sha256": "9c6b5a6b113fdff28dbdbf94685fcee42743d00c71a9cfe4a070dffceed309e9",
+      "blob": "d781a348106c18f483a1bba5e8b0950599582093",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/9c6b5a6b113fdff28dbdbf94685fcee42743d00c71a9cfe4a070dffceed309e9",
+      "bytes": 16776,
+      "read_back_exact": true
+    }
+  ],
   "infrastructure_halts": [
     {
       "slot_id": "CR-DESKTOP-MOBILE-FIRST",
@@ -238,10 +560,10 @@
   },
   "limits": {
     "prior_charge_ms": 2042596,
-    "preparation_charge_ms": 0,
-    "preparation_remaining_ms": 30000,
-    "charged_duration_ms": 2042596,
-    "physical_playwright_cli_launches": 6,
+    "preparation_charge_ms": 743,
+    "preparation_remaining_ms": 29257,
+    "charged_duration_ms": 2150682,
+    "physical_playwright_cli_launches": 7,
     "used_slots": [
       "D19-DIAG-01",
       "R-DIAG-DESKTOP",
@@ -249,7 +571,8 @@
       "R-DIAG-MOBILE",
       "R-DIAG-CONTROL-DARK",
       "CR-DARK-FIRST",
-      "CR-DESKTOP-MOBILE-FIRST"
+      "CR-DESKTOP-MOBILE-FIRST",
+      "CR2-DESKTOP-MOBILE-FIRST"
     ],
     "max_d19_ms": 2687596,
     "max_total_ms": 5027596,
@@ -261,5 +584,6 @@
       "granted": 1,
       "used": 0
     }
-  }
+  },
+  "stop_reason": "native Playwright command reached the reserved work deadline; native Playwright CLI launch or exit is missing; sanitized native playwright report is missing; native report has 0 rows, the frozen slot requires exactly 16; native report must contain exactly one result for admin-eval / registration waits for explicitly released LiveView readiness; native report must contain exactly one result for admin-eval / registration stops when LiveView readiness is never released; native report must contain exactly one result for admin-eval / registration fails when the readiness wait is deliberately broken; native report must contain exactly one result for admin-eval / registration detects a deliberate same-account collision; native report must contain exactly one result for admin-eval / registration retains the first forced assertion failure trace; native report must contain exactly one result for admin-eval-mobile / registration waits for explicitly released LiveView readiness; native report must contain exactly one result for admin-eval-mobile / registration stops when LiveView readiness is never released; native report must contain exactly one result for admin-eval-mobile / registration fails when the readiness wait is deliberately broken; native report must contain exactly one result for admin-eval-mobile / registration detects a deliberate same-account collision; native report must contain exactly one result for admin-eval-mobile / registration retains the first forced assertion failure trace; native report must contain exactly one result for admin-eval-dark / render bundle: board-mg-9/populated; native report must contain exactly one result for admin-eval-dark / registration waits for explicitly released LiveView readiness; native report must contain exactly one result for admin-eval-dark / registration stops when LiveView readiness is never released; native report must contain exactly one result for admin-eval-dark / registration fails when the readiness wait is deliberately broken; native report must contain exactly one result for admin-eval-dark / registration detects a deliberate same-account collision; native report must contain exactly one result for admin-eval-dark / registration retains the first forced assertion failure trace; all three projects need their own native same-account collision receipt; Playwright CLI exit does not match the frozen 1; process, worker and context lifecycle receipt is incomplete"
 }
