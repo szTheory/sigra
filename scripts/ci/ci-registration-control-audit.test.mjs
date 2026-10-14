@@ -218,3 +218,35 @@ test('shared control reuses exactly one account within the deliberate collision'
   const secondCollision = registrationControlAccount('admin-eval-dark', 'collision');
   assert.equal(firstCollision, secondCollision);
 });
+
+const SPEC_PATH = 'test/example/priv/playwright/tests/admin-eval.spec.ts';
+const POSITIVE_TITLE = "test('registration waits for explicitly released LiveView readiness'";
+const COLLISION_TITLE = "test('registration detects a deliberate same-account collision'";
+
+function testBody(spec, title) {
+  const start = spec.indexOf(title);
+  assert.notEqual(start, -1, `missing ${title}`);
+  const next = spec.indexOf('\n  test(', start + title.length);
+  return spec.slice(start, next === -1 ? undefined : next);
+}
+
+function assertRepairedSpec(spec) {
+  const positive = testBody(spec, POSITIVE_TITLE);
+  const stage = positive.match(/refillAfterReady: async[\s\S]*?\n        \},\n/);
+  assert.ok(stage, 'positive control must define refillAfterReady');
+  assert.match(stage[0], /toHaveValue/);
+  assert.match(positive, /email_value_after_ready_was_empty/);
+  const collision = testBody(spec, COLLISION_TITLE);
+  assert.ok(collision.includes('If this email is available, your account has been created. Please check your email.'));
+  assert.ok(!collision.includes('has already been taken'));
+}
+
+test('static spec pin: repaired positive control and unchanged collision expectation', () => {
+  assertRepairedSpec(fs.readFileSync(SPEC_PATH, 'utf8'));
+});
+
+test('static spec pin discriminates against the preserved R2 spec blob', () => {
+  const r2 = spawnSync('git', ['cat-file', 'blob', '16be503276de510cc6304e481b2755d9fb5968ca'], { encoding: 'utf8' });
+  assert.equal(r2.status, 0, r2.stderr);
+  assert.throws(() => assertRepairedSpec(r2.stdout));
+});
