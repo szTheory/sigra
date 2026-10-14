@@ -5257,3 +5257,273 @@ test('the R5 file verifier re-verifies the carried window on every call and judg
     assert.deepEqual(seen, [{ terminal: false }], 'a ready ledger still demands working-tree equality');
   } finally { h.clean(); }
 });
+
+// ---- Phase 253 plan 80 task 3: R5 budget-approval binding, host probe, retry eligibility, halt rows and terminal evidence ----
+function approvalRepoR5() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-approval-r5-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md');
+  fs.writeFileSync(budget, '# budgets r5\n');
+  const freezeFile = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json');
+  const freeze = { schema_version: 'sigra.phase253.registration-load-recovery-freeze/v5', budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R5.md`, sha256: sha(fs.readFileSync(budget)) } };
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze)}\n`);
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  return { dir, budget, freezeFile, freeze, approval: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R5.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('recording an R5 approval is exclusive, writes the v4 record bound to the R5 budget and freeze, and anything but approve writes nothing', () => {
+  const r = approvalRepoR5();
+  try {
+    for (const decision of ['reject', 'maybe', undefined]) {
+      assert.throws(() => recovery.recordBudgetApprovalR5({ decision, budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no' }, r.dir, { enforcePaths: false }), /decision|grants no capacity/i);
+      assert.equal(fs.existsSync(r.approval), false);
+    }
+    assert.throws(() => recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: '  ' }, r.dir, { enforcePaths: false }), /decision text/i);
+    const record = recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'approve exactly as written' }, r.dir, { enforcePaths: false, now: () => '2026-10-14T09:00:00.000Z' });
+    const onDisk = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    assert.deepEqual(onDisk, record);
+    assert.equal(onDisk.schema_version, 'sigra.phase253.load-recovery-budget-approval/v4');
+    assert.equal(onDisk.decision_text, 'approve exactly as written');
+    assert.equal(onDisk.budget_sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(onDisk.freeze_sha256, sha(fs.readFileSync(r.freezeFile)));
+    assert.deepEqual(onDisk.caps, R5_APPROVE_CAPS);
+    assert.equal(onDisk.retry_granted, 1);
+    assert.throws(() => recovery.recordBudgetApprovalR5({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'again' }, r.dir, { enforcePaths: false }), /EEXIST|exist|exclusive/i);
+    assert.equal(JSON.parse(fs.readFileSync(r.approval, 'utf8')).decision, 'approve', 'the first record is never overwritten');
+    fs.rmSync(r.approval);
+    const noRetry = recovery.recordBudgetApprovalR5({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no retry' }, r.dir, { enforcePaths: false });
+    assert.equal(noRetry.retry_granted, 0);
+    assert.deepEqual(noRetry.caps, R5_APPROVE_NO_RETRY_CAPS);
+    fs.rmSync(r.approval);
+    assert.throws(() => recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: path.join(r.dir, 'elsewhere.json'), decisionText: 'x' }, r.dir), /reviewed R5 budget, freeze and approval paths/i);
+    fs.writeFileSync(r.budget, '# budgets r5 (edited)\n');
+    assert.throws(() => recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
+    assert.equal(fs.existsSync(r.approval), false);
+  } finally { r.clean(); }
+});
+
+test('the approval recorder CLI matches the R5 paths before R4 and a reject writes nothing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R5.json');
+  const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before, 'the real R5 approval is Jon\'s decision to record, never the executor\'s');
+  const wrongPaths = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'approve', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json'), '--output', path.join(os.tmpdir(), 'r5-elsewhere-approval.json'), '--decision-text', 'x'], { encoding: 'utf8', cwd: root });
+  assert.equal(wrongPaths.status, 3);
+  assert.match(wrongPaths.stderr, /reviewed R5 budget, freeze and approval paths/i);
+  assert.equal(fs.existsSync(path.join(os.tmpdir(), 'r5-elsewhere-approval.json')), false);
+});
+
+test('an R5 run needs a committed v4 approval bound to the R5 budget and freeze, and the R4, R3 and R2 approvals are refused', () => {
+  const r = approvalRepoR5();
+  try {
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /absent/i);
+    recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'ok' }, r.dir, { enforcePaths: false });
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /committed/i);
+    gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'approval');
+    assert.equal(recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze).retry_granted, 1);
+    fs.writeFileSync(r.approval, `${fs.readFileSync(r.approval, 'utf8')} `);
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /committed|differs/i);
+    gitIn(r.dir, 'checkout', '--', '.');
+    const edited = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    const commit = (value, message) => { fs.writeFileSync(r.approval, `${JSON.stringify(value, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', message); };
+    commit({ ...edited, budget_sha256: 'f'.repeat(64) }, 'bad budget');
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /budget/i);
+    commit({ ...edited, freeze_sha256: 'f'.repeat(64) }, 'bad freeze');
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /freeze/i);
+    commit({ ...edited, caps: { ...edited.caps, d19_cap_ms: edited.caps.d19_cap_ms + 1 } }, 'bad caps');
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /caps/i);
+    for (const schema of ['v3', 'v2', 'v1']) {
+      commit({ ...edited, schema_version: `sigra.phase253.load-recovery-budget-approval/${schema}`, caps: { ...R4_APPROVE.caps } }, `earlier ${schema} approval`);
+      assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i, `a ${schema} approval can never unlock R5`);
+    }
+    commit({ ...edited, decision: 'reject' }, 'reject');
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i);
+  } finally { r.clean(); }
+});
+
+test('an R5 run refuses before the predebit when approval is missing, an earlier approval is handed in, the default reader finds nothing or the host proof fails', async () => {
+  for (const [label, overrides, pattern] of [
+    ['approval absent', { readApproval: () => { throw new Error('R5 budget approval record is absent'); } }, /approval/i],
+    ['R4 approval handed to R5', { readApproval: () => R4_APPROVE }, /not an R5 \(v4\) record/i],
+    ['host proof fails', { probeHost: async () => { throw new Error('host is not on AC power'); } }, /AC power/i]
+  ]) {
+    const h = loadHarnessR5();
+    try {
+      const before = h.read();
+      await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, { ...h.makeDeps(), ...overrides }), pattern, label);
+      assert.deepEqual(h.read(), before, `${label}: no reservation, used slot or charge`);
+      assert.equal(h.calls.filter((call) => call[0] === 'tree' || call[0] === 'app').length, 0, label);
+    } finally { h.clean(); }
+  }
+  const h = loadHarnessR5();
+  try {
+    const { readApproval: _unused, ...withoutApproval } = h.makeDeps(); // eslint-disable-line no-unused-vars
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, withoutApproval), /approval/i, 'the default reader demands a committed R5 approval');
+    assert.deepEqual(h.calls, []);
+    assert.equal(recovery.loadR5RunDefaults.checkDiagnostic, recovery.readCommittedDiagnostic);
+  } finally { h.clean(); }
+});
+
+test('the host probe runs before the predebit and the approval decides the ceilings that the R5 run enforces', async () => {
+  const order = loadHarnessR5();
+  try {
+    let evidenceAtProbe = null;
+    await recovery.runLoadRecoverySlotR5(order.freezeFile, 'CR5-DESKTOP-SECOND', order.evidenceFile, order.checkout, { ...order.makeDeps(), probeHost: async () => { evidenceAtProbe = order.read(); throw new Error('probe seen'); } }).catch(() => {});
+    assert.equal(evidenceAtProbe.reservation, null, 'nothing was predebited when the host probe ran');
+    assert.deepEqual(evidenceAtProbe.limits.used_slots, R5_SPENT);
+  } finally { order.clean(); }
+  const mismatch = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(mismatch.freezeFile, 'CR5-DESKTOP-SECOND', mismatch.evidenceFile, mismatch.checkout, mismatch.makeDeps({ approval: R5_APPROVE_NO_RETRY })), /approval caps differ/i);
+    assert.deepEqual(mismatch.calls, []);
+  } finally { mismatch.clean(); }
+  const noRetry = loadHarnessR5();
+  try {
+    noRetry.writeEvidence(R5_APPROVE_NO_RETRY);
+    const result = await recovery.runLoadRecoverySlotR5(noRetry.freezeFile, 'CR5-DESKTOP-SECOND', noRetry.evidenceFile, noRetry.checkout, noRetry.makeDeps({ approval: R5_APPROVE_NO_RETRY }));
+    assert.equal(result.rows, 2);
+    assert.equal(noRetry.read().limits.max_total_ms, 5129703);
+  } finally { noRetry.clean(); }
+  const tight = loadHarnessR5();
+  try {
+    const evidence = tight.read(); evidence.limits.charged_duration_ms += 20000;
+    fs.writeFileSync(tight.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(tight.freezeFile, 'CR5-DESKTOP-SECOND', tight.evidenceFile, tight.checkout, tight.makeDeps()), /do not fit approved limits/i);
+    assert.deepEqual(tight.calls, []);
+  } finally { tight.clean(); }
+  const spent = loadHarnessR5();
+  try {
+    for (const id of [...R5_SPENT.slice(-3), 'CR4-INFRA-RETRY', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND', 'CR3-DESKTOP-SECOND', 'CR2-DARK-SECOND', 'CR-DARK-FIRST', 'CR3-MADE-UP']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR5(spent.freezeFile, id, spent.evidenceFile, spent.checkout, spent.makeDeps()), /spent|expired|retired|earlier revision|only the three/i, id);
+    }
+    assert.deepEqual(spent.calls, [], 'every closed identity is refused before any spawn');
+  } finally { spent.clean(); }
+});
+
+test('a host sleep halts as halted_infrastructure with per-test rows, stays charged and counted, and CR5-INFRA-RETRY runs once on the identical selection', async () => {
+  const h = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /halted_infrastructure|infrastructure/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })), /work deadline|suspension/i);
+    const halted = h.read();
+    assert.equal(halted.status, 'halted_infrastructure');
+    assert.equal(halted.infrastructure_retry.eligible, true);
+    assert.equal(halted.infrastructure_retry.cause, 'host_sleep');
+    assert.equal(halted.limits.physical_playwright_cli_launches, 10);
+    assert.equal(halted.limits.charged_duration_ms, 2359703 + halted.attempts[0].charged_duration_ms);
+    assert.equal(halted.stop_record.cli_launched, true);
+    assert.equal(halted.stop_record.per_test_rows.length, 2);
+    assert.equal(r5Verify(h, halted).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-MOBILE-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+    const callsBefore = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /diagnostic/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', checkDiagnostic: () => { throw new Error('diagnostic is not committed'); } })), /not committed/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', approval: R5_APPROVE_NO_RETRY })), /retry|caps/i);
+    assert.equal(h.calls.length, callsBefore, 'every refusal happens before any spawn');
+
+    const result = await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' }));
+    assert.equal(result.rows, 2);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'second_partial');
+    assert.equal(evidence.attempts[1].slot_id, 'CR5-INFRA-RETRY');
+    assert.equal(evidence.attempts[1].retry_of, 'CR5-DESKTOP-SECOND');
+    assert.deepEqual(evidence.attempts[1].argv, evidence.attempts[0].argv);
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.deepEqual(evidence.limits.used_slots, [...R5_SPENT, 'CR5-DESKTOP-SECOND', 'CR5-INFRA-RETRY']);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 11);
+    assert.deepEqual(r5Verify(h, evidence).errors, [], 'the halted original stays in attempts and the pair counts as one slot outcome');
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = drifted.attempts[1].argv.filter((arg) => arg !== '--project=admin-eval-dark');
+    assert.equal(r5Verify(h, drifted).ok, false);
+    const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
+    assert.equal(r5Verify(h, noDiagnostic).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure|already/i, 'the retry is usable once');
+    await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-MOBILE-SECOND', h.evidenceFile, h.checkout, h.makeDeps());
+    await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps());
+    const complete = h.read();
+    assert.equal(complete.status, 'complete');
+    assert.deepEqual(r5Verify(h, complete, 'complete').errors, []);
+  } finally { h.clean(); }
+});
+
+test('the R5 retry is never available after an assertion failure, a count-query failure, a validator rejection, a setup failure without suspension, a non-suspension overrun, a second infrastructure halt or approve-without-retry', async () => {
+  const cases = [
+    ['assertion failure', { failRow: true }],
+    ['assertion row failure with a suspension flag', { suspendFlag: true, failRow: true }],
+    ['count query failure', { accountFail: R5_COUNT_ERROR }],
+    ['validator rejection (CLI exit)', { cliExit: 1 }],
+    ['setup failure without suspension', { setupExit: 1 }],
+    ['non-suspension setup overrun', { setupMs: 61000 }],
+    ['non-suspension deadline kill', { cliTimedOut: true }]
+  ];
+  for (const [label, options] of cases) {
+    const h = loadHarnessR5();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps(options)), undefined, label);
+      const evidence = h.read();
+      assert.equal(evidence.status, 'halted', label);
+      assert.deepEqual(evidence.infrastructure_halts, [], label);
+      assert.equal(evidence.stop_record.cli_launched, evidence.attempts[0].playwright_cli.launched, label);
+      if (evidence.attempts[0].playwright_cli.launched) assert.ok(Array.isArray(evidence.stop_record.per_test_rows) && evidence.stop_record.per_test_rows.length > 0, `${label}: every launched stop lists per_test_rows`);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i, label);
+    } finally { h.clean(); }
+  }
+  const second = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(second.freezeFile, 'CR5-DESKTOP-SECOND', second.evidenceFile, second.checkout, second.makeDeps({ suspendBrowser: true })));
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(second.freezeFile, 'CR5-INFRA-RETRY', second.evidenceFile, second.checkout, second.makeDeps({ diagnosticFile: 'diag.json', suspendBrowser: true })));
+    const evidence = second.read();
+    assert.equal(evidence.status, 'halted', 'a second infrastructure halt is terminal');
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.stop_record.slot_id, 'CR5-INFRA-RETRY');
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { second.clean(); }
+  const withoutRetry = loadHarnessR5();
+  try {
+    withoutRetry.writeEvidence(R5_APPROVE_NO_RETRY);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(withoutRetry.freezeFile, 'CR5-DESKTOP-SECOND', withoutRetry.evidenceFile, withoutRetry.checkout, withoutRetry.makeDeps({ approval: R5_APPROVE_NO_RETRY, suspendBrowser: true })));
+    assert.equal(withoutRetry.read().status, 'halted', 'no retry was granted, so the infrastructure halt is terminal');
+  } finally { withoutRetry.clean(); }
+});
+
+test('a suspension during setup and a lost caffeinate holder are R5 infrastructure halts that never launched the CLI or lost the host', async () => {
+  const setupSleep = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(setupSleep.freezeFile, 'CR5-DESKTOP-SECOND', setupSleep.evidenceFile, setupSleep.checkout, setupSleep.makeDeps({ setupSuspended: true, setupExit: 1 })));
+    const evidence = setupSleep.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].playwright_cli.launched, false);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.deepEqual(evidence.stop_record.per_test_rows, []);
+  } finally { setupSleep.clean(); }
+  const lost = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(lost.freezeFile, 'CR5-DESKTOP-SECOND', lost.evidenceFile, lost.checkout, lost.makeDeps({ holderAlive: () => false })), /holder/i);
+    const evidence = lost.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.cause, 'holder_lost');
+  } finally { lost.clean(); }
+});
+
+test('R5 accepted evidence verifies by git ancestry and object reads after a later committed runner change, while a live check still demands the working tree', () => {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-terminal-r5-')));
+  try {
+    gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'freeze point');
+    const frozenHead = gitIn(dir, 'rev-parse', 'HEAD');
+    const freeze = { source: { checkout_head: frozenHead, blobs: { 'runner.mjs': gitIn(dir, 'rev-parse', `${frozenHead}:runner.mjs`) } } };
+    assert.equal(recovery.verifyFrozenSourceBindingR5(dir, freeze, { terminal: false }), frozenHead);
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true; export const later = 1;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'later runner change');
+    assert.throws(() => recovery.verifyFrozenSourceBindingR5(dir, freeze, { terminal: false }), /identity mismatch/i, 'init, prepare and run demand working-tree equality');
+    assert.equal(recovery.verifyFrozenSourceBindingR5(dir, freeze, { terminal: true }), gitIn(dir, 'rev-parse', 'HEAD'), 'accepted evidence is not silently invalidated');
+    const forged = structuredClone(freeze); forged.source.blobs['runner.mjs'] = '0'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR5(dir, forged, { terminal: true }), /blob mismatch/i);
+    const notAncestor = structuredClone(freeze); notAncestor.source.checkout_head = '1'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR5(dir, notAncestor, { terminal: true }), /ancestor/i);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
