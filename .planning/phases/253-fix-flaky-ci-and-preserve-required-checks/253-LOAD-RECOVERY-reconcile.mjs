@@ -308,7 +308,7 @@ function readOrNull(path) {
   }
 }
 
-function describeSummary(repoRoot, phaseDir, id, { requireReceipts }) {
+function describeSummary(repoRoot, phaseDir, id, { requireReceipts, frozenReceipts = {} }) {
   const file = join(phaseDir, `253-${id}-SUMMARY.md`);
   const bytes = readFileSync(file);
   const text = bytes.toString("utf8");
@@ -320,7 +320,7 @@ function describeSummary(repoRoot, phaseDir, id, { requireReceipts }) {
   for (const path of wanted) {
     const content = readOrNull(join(repoRoot, path));
     if (content === null) missing.push(path);
-    else receipts.push({ path, sha256: sha256(content) });
+    else receipts.push({ path, sha256: frozenReceipts[path] ?? sha256(content) });
   }
   if (requireReceipts && missing.length > 0) throw new Error(`halted plan 253-${id} receipts are missing: ${missing.join(", ")}`);
   return { plan: `253-${id}`, summary: { path: `${PHASE_DIR_REL}/253-${id}-SUMMARY.md`, sha256: sha256(bytes), status: fm.status ?? null }, receipts, ...(missing.length > 0 ? { missing_receipts: missing } : {}) };
@@ -418,7 +418,7 @@ function buildContractV1({ repoRoot = REPO_ROOT } = {}) {
 // run. R2 is ADDITIVE: it keeps the v1 contract file, the v1 builder and the v1 default untouched, and
 // re-points every never-executed responsibility to the new proof owners 253-48..253-56.
 // ---------------------------------------------------------------------------------------------
-export const REVISIONS = Object.freeze(["v1", "r2"]);
+export const REVISIONS = Object.freeze(["v1", "r2", "r3"]);
 export const CONTRACT_NAME_R2 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R2.json";
 export const CONTRACT_SCHEMA_R2 = "sigra.phase253.load-recovery-reconciliation-contract/r2";
 export const COMPLETED_IDS_R2 = Object.freeze([...COMPLETED_IDS, "36", "37", "38", "39", "42", "43"].sort());
@@ -459,6 +459,13 @@ const HALTED_PROOF_MAP_R2 = Object.freeze({
   "40": ["48", "51"],
 });
 const PAD = (n) => String(n).padStart(2, "0");
+// Plan 253-43's receipts include THIS helper and its test, which later additive revisions (R3, plan
+// 253-61) must edit. The R2 contract is committed and byte-pinned, so the two tooling receipts are held
+// at the hashes recorded when R2 was generated instead of tracking the live, legitimately-edited bytes.
+const FROZEN_TOOLING_RECEIPTS_R2 = Object.freeze({
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "52cc160d701a8dd15958500b1b3a1d97b84f2d4611b7d664278545d532bae0c0",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "b1c7fc715e5b08811a0b97893ede45e7947bd90da356856515867177401eaa3c",
+});
 
 function pinFile(repoRoot, relPath, label) {
   const bytes = readOrNull(join(repoRoot, relPath));
@@ -484,7 +491,7 @@ function buildContractR2({ repoRoot = REPO_ROOT } = {}) {
   const byNumber = (a, b) => a.plan.localeCompare(b.plan);
   const completed = [...v1.completed_plans];
   for (const id of ["36", "37", "38", "39", "42", "43"]) {
-    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false });
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false, frozenReceipts: FROZEN_TOOLING_RECEIPTS_R2 });
     if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
     completed.push(described);
   }
@@ -559,15 +566,163 @@ function buildContractR2({ repoRoot = REPO_ROOT } = {}) {
   };
 }
 
+// ---------------------------------------------------------------------------------------------
+// R3 revision (plan 253-61): 253-51 halted on a non-infrastructure native control failure, so 253-52..56
+// can never run. R3 is ADDITIVE over v1 and R2 (both files, builders and the v1 default stay untouched)
+// and re-points every never-executed responsibility to the R3 proof owners 253-57..253-68.
+// ---------------------------------------------------------------------------------------------
+export const CONTRACT_NAME_R3 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R3.json";
+export const CONTRACT_SCHEMA_R3 = "sigra.phase253.load-recovery-reconciliation-contract/r3";
+export const COMPLETED_IDS_R3 = Object.freeze([...COMPLETED_IDS_R2, "48", "49", "50"].sort());
+export const HALTED_IDS_R3 = Object.freeze([...HALTED_IDS_R2, "51"]);
+export const NEVER_RAN_IDS_R3 = Object.freeze(["52", "53", "54", "55", "56"]);
+export const UNSTARTED_IDS_R3 = Object.freeze([...UNSTARTED_IDS_R2, ...NEVER_RAN_IDS_R3].sort());
+export const NEVER_RAN_REASON_R3 = "dependency 253-51 halted on a non-infrastructure native control failure";
+const NATIVE_OWNERS_R3 = ["36", "37", "38", "39", "48", "57", "58", "59", "60", "62", "63", "64"];
+const COMPLETION_OWNERS_R3 = ["43", "50", "61", "68"];
+const RESPONSIBILITY_MAP_R3 = Object.freeze({
+  "08": { owners: ["42", "67"], links: PR_LINKS },
+  "13": { owners: ["42", "67"], links: PR_LINKS },
+  "21": { owners: ["42", "67"], links: PR_LINKS },
+  "30": { owners: ["42", "67"], links: PR_LINKS },
+  "34": { owners: ["42", "67"], links: PR_LINKS },
+  "24": { owners: ["67"], links: PR_LINKS },
+  "10": { owners: NATIVE_OWNERS_R3, links: CAUSE_LINKS },
+  "17": { owners: NATIVE_OWNERS_R3, links: CAUSE_LINKS },
+  "28": { owners: NATIVE_OWNERS_R3, links: CAUSE_LINKS },
+  "29": { owners: NATIVE_OWNERS_R3, links: CAUSE_LINKS },
+  "14": { owners: COMPLETION_OWNERS_R3, links: COMPLETION_LINK_KEYS },
+  "25": { owners: COMPLETION_OWNERS_R3, links: COMPLETION_LINK_KEYS },
+  "31": { owners: COMPLETION_OWNERS_R3, links: COMPLETION_LINK_KEYS },
+  "35": { owners: COMPLETION_OWNERS_R3, links: COMPLETION_LINK_KEYS },
+  "22": { owners: ["65"], links: ["publication"] },
+  "32": { owners: ["65"], links: ["publication"] },
+  "23": { owners: ["66"], links: ["canary"] },
+  "33": { owners: ["66"], links: ["canary"] },
+  "41": { owners: ["48", "62", "63", "64"], links: CAUSE_LINKS },
+  "44": { owners: ["65"], links: ["publication"] },
+  "45": { owners: ["66"], links: ["canary"] },
+  "46": { owners: ["67"], links: PR_LINKS },
+  "47": { owners: ["50", "61", "68"], links: COMPLETION_LINK_KEYS },
+  "52": { owners: ["62", "63", "64"], links: CAUSE_LINKS },
+  "53": { owners: ["65"], links: ["publication"] },
+  "54": { owners: ["66"], links: ["canary"] },
+  "55": { owners: ["67"], links: PR_LINKS },
+  "56": { owners: ["61", "68"], links: COMPLETION_LINK_KEYS },
+});
+const HALTED_PROOF_MAP_R3 = Object.freeze({
+  "02": NATIVE_OWNERS_R3, "07": ["18", "19", "20", "42", "65", "66"], "09": NATIVE_OWNERS_R3,
+  "12": ["18", "19", "20", "42", "65", "66"], "16": NATIVE_OWNERS_R3, "27": NATIVE_OWNERS_R3,
+  "40": ["48", "62", "63"],
+  "51": ["57", "58", "59", "60", "62", "63"],
+});
+
+function buildContractR3({ repoRoot = REPO_ROOT } = {}) {
+  const phaseDir = join(repoRoot, PHASE_DIR_REL);
+  const r2 = buildContractR2({ repoRoot });
+  const partition = [...COMPLETED_IDS_R3, ...HALTED_IDS_R3, ...UNSTARTED_IDS_R3].sort();
+  if (JSON.stringify(partition) !== JSON.stringify(ids(1, 56).map(PAD))) {
+    throw new Error("R3 completed, halted and unstarted ids do not partition the 56 pre-R3 plans");
+  }
+  const classOf = (id) => (COMPLETED_IDS_R3.includes(id) ? "completed" : HALTED_IDS_R3.includes(id) ? "halted" : "unstarted_blocked");
+  const originals = [...r2.originals];
+  for (let n = 48; n <= 56; n += 1) {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    originals.push({ plan: `253-${PAD(n)}`, class: classOf(PAD(n)), plan_path: `${PHASE_DIR_REL}/${file}`, plan_sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") });
+  }
+  for (const original of originals) original.class = classOf(original.plan.slice(4));
+  const byNumber = (a, b) => a.plan.localeCompare(b.plan);
+  const completed = [...r2.completed_plans];
+  for (const id of ["48", "49", "50"]) {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    completed.push(described);
+  }
+  completed.sort(byNumber);
+  const halted = [...r2.halted_plans];
+  const halted51 = describeSummary(repoRoot, phaseDir, "51", { requireReceipts: true });
+  if (halted51.summary.status !== "halted") throw new Error(`halted plan 253-51 summary status is ${halted51.summary.status}`);
+  halted.push(halted51);
+  const closeout = JSON.parse(readFileSync(join(phaseDir, "253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json"), "utf8"));
+  const responsibilities = UNSTARTED_IDS_R3.map((id) => {
+    const mapping = RESPONSIBILITY_MAP_R3[id];
+    if (!mapping) throw new Error(`no R3 mapping for 253-${id}`);
+    for (const owner of mapping.owners) {
+      if (!existsSync(join(phaseDir, `253-${owner}-PLAN.md`))) throw new Error(`proof owner plan 253-${owner} is missing`);
+      if (HALTED_IDS_R3.includes(owner) || UNSTARTED_IDS_R3.includes(owner)) throw new Error(`proof owner 253-${owner} is a halted or never-executed plan`);
+    }
+    const text = readFileSync(join(phaseDir, `253-${id}-PLAN.md`), "utf8");
+    const fm = frontmatter(text);
+    const neverRan40 = NEVER_RAN_IDS_R2.includes(id);
+    const neverRan51 = NEVER_RAN_IDS_R3.includes(id);
+    const blockedBy = neverRan51 ? ["253-51"] : neverRan40 ? ["253-40"] : closeout.blocked_plans[`253-${id}`];
+    if (!Array.isArray(blockedBy) || blockedBy.length === 0) throw new Error(`253-${id} has no recorded blocking halt`);
+    return {
+      plan: `253-${id}`,
+      disposition_path: `${PHASE_DIR_REL}/253-${id}-SUMMARY.md`,
+      original_plan_sha256: originals.find((o) => o.plan === `253-${id}`).plan_sha256,
+      objective: objectiveOf(text),
+      requirements: parseList(fm.requirements),
+      depends_on: parseList(fm.depends_on),
+      blocked_by: blockedBy,
+      owners: mapping.owners.map((owner) => `253-${owner}`),
+      required_links: [...mapping.links],
+      disposition: { ...DISPOSITION_FIELDS },
+      ...(neverRan40 ? { never_ran_reason: NEVER_RAN_REASON } : {}),
+      ...(neverRan51 ? { never_ran_reason: NEVER_RAN_REASON_R3 } : {}),
+      successor_revision: "R3",
+    };
+  });
+  const haltedProof = Object.fromEntries(HALTED_IDS_R3.map((id) => [`253-${id}`, HALTED_PROOF_MAP_R3[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+  }
+  const planPins = ids(1, 68).map((n) => {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    return { plan: `253-${PAD(n)}`, path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
+  });
+  const summaryPins = [...ids(36, 43), ...ids(48, 51)].filter((n) => existsSync(join(phaseDir, `253-${PAD(n)}-SUMMARY.md`))).map((n) => {
+    const file = `253-${PAD(n)}-SUMMARY.md`;
+    return { plan: `253-${PAD(n)}`, path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "summary") };
+  });
+  return {
+    schema: CONTRACT_SCHEMA_R3,
+    revision: "r3",
+    phase: PHASE,
+    phase_dir: PHASE_DIR_REL,
+    v1_contract: r2.v1_contract,
+    r2_contract: { path: `${PHASE_DIR_REL}/${CONTRACT_NAME_R2}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${CONTRACT_NAME_R2}`, "R2 contract") },
+    sdk: r2.sdk,
+    capture: r2.capture,
+    plan_pins: planPins,
+    summary_pins: summaryPins,
+    originals,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
+    responsibilities,
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-accepted",
+      targets: "only the twenty-eight previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-68",
+      then_run: "$gsd-execute-phase 253 (unfiltered; security, review, Nyquist, regression and goal verification)",
+      never: ["filtered completion", "phase.complete before whole-phase verification", "editing an original plan", "editing a halted summary", "claiming an old task ran", "writing status: blocked"],
+    },
+  };
+}
+
 export function buildContract({ repoRoot = REPO_ROOT, revision = "v1" } = {}) {
   if (revision === "v1") return buildContractV1({ repoRoot });
   if (revision === "r2") return buildContractR2({ repoRoot });
+  if (revision === "r3") return buildContractR3({ repoRoot });
   throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
 }
 
 export function contractPathFor(revision = "v1") {
   if (!REVISIONS.includes(revision)) throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
-  return join(HERE, revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
+  return join(HERE, revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
 }
 
 export function serializeContract(contract) {
@@ -634,7 +789,7 @@ export function renderDisposition({ responsibility, completion, links, verifier,
     "on purpose. CIREL-01 and CIREL-02 are accepted by the linked completion evidence, not by this plan.",
     "",
     ...(responsibility.never_ran_reason
-      ? [`This plan never ran because its ${responsibility.never_ran_reason}. Its R2 successor is ${responsibility.owners.join(", ")}.`, ""]
+      ? [`This plan never ran because its ${responsibility.never_ran_reason}. Its ${responsibility.successor_revision ?? "R2"} successor is ${responsibility.owners.join(", ")}.`, ""]
       : []),
     "## Remaining",
     "",
