@@ -4683,3 +4683,198 @@ test('the carried first window refuses a tampered revision, a changed attempt an
     assert.throws(() => recovery.carriedFirstWindowR5(root, base), /raw|sha|differ|hash|report/i, 'changed raw report');
   } finally { raw.clean(); }
 });
+
+// ---- Phase 253 plan 79 task 3: R5 freeze, cap table, evidence init and path routing ----
+const R5_TOOLING = ['scripts/ci/ci-registration-recovery.mjs', 'scripts/ci/ci-registration-recovery.test.mjs', 'scripts/ci/ci-registration-recovery.pg.test.mjs'];
+const R5_MIGRATION_FILE = 'test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs';
+const R5_APPROVE = { schema_version: 'sigra.phase253.load-recovery-budget-approval/v4', decision: 'approve', retry_granted: 1, caps: R5_APPROVE_CAPS };
+const R5_APPROVE_NO_RETRY = { schema_version: 'sigra.phase253.load-recovery-budget-approval/v4', decision: 'approve-without-retry', retry_granted: 0, caps: R5_APPROVE_NO_RETRY_CAPS };
+const R5_FREEZE_SCHEMA_COUNT_QUERY = "SELECT count(*) FROM \"auth\".users WHERE email = :'target';\n";
+
+function r5FreezeRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r5-freeze-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  const put = (relative, text) => { const target = path.join(dir, relative); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, text); };
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R5.md`, '# budgets r5\n');
+  for (const file of ['src/a.txt', 'src/b.txt', R5_MIGRATION_FILE, ...R5_TOOLING]) put(file, `${file} current\n`);
+  put('lineage/x.txt', 'x\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  const blob = (file) => gitIn(dir, 'rev-parse', `HEAD:${file}`).trim();
+  const r4Blobs = { 'src/a.txt': blob('src/a.txt'), 'src/b.txt': blob('src/b.txt'), ...Object.fromEntries(R5_TOOLING.slice(0, 2).map((file) => [file, 'f'.repeat(40)])) };
+  const carried = {
+    revision_commit: R4_FIRST_COMMIT, revision_sha256: R4_FIRST_SHA, evidence_path: R4_EVIDENCE_REL, evidence_sha256: '6162ed6e9dad947223912ce739ee250d2c6218a5b514f86b0e7f9224a536cdbd',
+    attempt_sha256: 'b'.repeat(64), r4_freeze_sha256: 'abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346', r4_checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d',
+    rows: 16, collision_receipts: { 'admin-eval': 'c'.repeat(64) }, database: 'sigra_253_control_synthetic', context_ids: ['ctx-1'], raw_files: [{ path: 'raw/x', sha256: 'd'.repeat(64) }]
+  };
+  const history = {
+    ledger: recovery.buildLoadRecoveryLedgerR5(r5LedgerInput()), charges: [...R5_CHARGES],
+    terminalHalt: { slot_id: 'CR4-DESKTOP-SECOND', plan: '253-73', cause: 'runner_account_count_unqualified_schema', terminal: true, infrastructure: false, retryable: false, charged: true, charged_ms: 43535, preparation_ms: 821, stop_reason: 'synthetic', expired_identities: ['CR4-INFRA-RETRY'], retired_identities: ['CR4-MOBILE-SECOND', 'CR4-DARK-SECOND'] },
+    artifacts: [{ path: 'lineage/x.txt', sha256: sha('x\n') }], frozenBlobs: {},
+    control: { accepted: { toolchain: { mix: '1.19.5', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' } } }
+  };
+  const deps = {
+    enforceNode: false, assertCheckout: () => {}, assertConfig: () => {}, readHistory: () => history, carriedFirst: () => structuredClone(carried),
+    sourceFiles: () => ['src/a.txt', 'src/b.txt', R5_MIGRATION_FILE, ...R5_TOOLING], requiredSources: () => ['src/a.txt'], importClosure: () => ['src/a.txt', 'src/b.txt'],
+    runtimeIdentity: () => ({ packages: {}, transform_sha256: {} }),
+    r4Source: () => ({ checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d', blobs: structuredClone(r4Blobs) }),
+    r4Blob: (checkout, head, file) => blob(file),
+    accountSchema: () => ({ name: 'auth', sources: [{ path: R5_MIGRATION_FILE, blob: blob(R5_MIGRATION_FILE) }, { path: 'src/a.txt', blob: blob('src/a.txt') }] })
+  };
+  return { dir, history, carried, deps, r4Blobs, blob, out: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json'), budget: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('R5 freeze records the exact keys, caps and source delta, and init produces a ready ledger whose caps equal the R5 budget document', () => {
+  const r = r5FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR5(r.out, r.dir, r.deps);
+    assert.equal(freeze.schema_version, 'sigra.phase253.registration-load-recovery-freeze/v5');
+    assert.equal(freeze.revision, 'r5');
+    assert.equal(freeze.context_identity, 'per_row_union');
+    assert.equal(typeof freeze.account_count.schema, 'string');
+    assert.equal(freeze.account_count.schema, 'auth');
+    assert.equal(freeze.account_count.query, R5_FREEZE_SCHEMA_COUNT_QUERY);
+    assert.equal(freeze.account_count.query_sha256, sha(R5_FREEZE_SCHEMA_COUNT_QUERY));
+    assert.deepEqual(freeze.account_count.schema_sources.map((item) => item.path), [R5_MIGRATION_FILE, 'src/a.txt']);
+    assert.equal(freeze.carried_first_window.revision_sha256, R4_FIRST_SHA);
+    assert.deepEqual(freeze.carried_first_window, r.carried);
+    assert.deepEqual(freeze.source_delta_from_r4, { changed: R5_TOOLING.slice(0, 2), added: [R5_TOOLING[2], R5_MIGRATION_FILE], r4_checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d' });
+    for (const file of [R5_TOOLING[2], R5_MIGRATION_FILE]) assert.ok(freeze.source.blobs[file], `${file} is pinned`);
+    assert.deepEqual(freeze.historical.spent_reservations, R5_SPENT);
+    assert.deepEqual(freeze.historical.carried_components_ms, R5_CHARGES);
+    assert.deepEqual(freeze.ledger.caps.approve, R5_APPROVE_CAPS);
+    assert.deepEqual(freeze.ledger.caps['approve-without-retry'], R5_APPROVE_NO_RETRY_CAPS);
+    assert.deepEqual(freeze.ledger.slots.map((slot) => slot.id), [...R5_IDS, 'CR5-INFRA-RETRY']);
+    assert.equal(freeze.ledger.slots.slice(0, 3).reduce((sum, slot) => sum + slot.rows, 0), 6);
+    assert.equal(freeze.ledger.carried_rows, 16);
+    assert.equal(freeze.ledger.required_rows, 22);
+    assert.ok(freeze.stop_conditions.includes('account count query exits non-zero'));
+    assert.ok(freeze.stop_conditions.includes('carried first window binding fails re-verification'));
+    assert.throws(() => recovery.createLoadRecoveryFreezeR5(r.out, r.dir, r.deps), /overwrite/i);
+
+    assert.equal(recovery.validateLoadRecoveryFreezeR5(r.dir, JSON.parse(fs.readFileSync(r.out, 'utf8')), { deps: r.deps }), gitIn(r.dir, 'rev-parse', 'HEAD').trim());
+    const evidenceFile = path.join(r.dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json');
+    const evidence = recovery.initializeLoadRecoveryEvidenceR5(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R5_APPROVE });
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v5');
+    assert.equal(evidence.status, 'ready');
+    assert.equal(evidence.context_identity, 'per_row_union');
+    assert.deepEqual(evidence.carried_first_window, freeze.carried_first_window);
+    assert.equal(evidence.limits.charged_duration_ms, 2359703);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.deepEqual(evidence.limits.used_slots, R5_SPENT);
+    assert.equal(evidence.limits.max_d19_ms, R5_APPROVE_CAPS.d19_cap_ms);
+    assert.equal(evidence.limits.max_total_ms, R5_APPROVE_CAPS.shared_cap_ms);
+    assert.equal(evidence.limits.max_physical_playwright_cli_launches, R5_APPROVE_CAPS.physical_cli_max);
+    assert.equal(evidence.limits.max_d19_physical_playwright_cli_launches, R5_APPROVE_CAPS.d19_launch_max);
+    assert.deepEqual(evidence.limits.infra_retry, { granted: 1, used: 0 });
+    assert.deepEqual(evidence.attempts, []);
+    assert.equal(fs.existsSync(`${evidenceFile}.raw`), true);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR5(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R5_APPROVE }), /overwrite/i);
+    const noRetry = recovery.initializeLoadRecoveryEvidenceR5(r.out, path.join(r.dir, 'e2.json'), r.dir, { validate: () => {}, readApproval: () => R5_APPROVE_NO_RETRY });
+    assert.equal(noRetry.limits.max_total_ms, 5129703);
+    assert.equal(noRetry.limits.max_physical_playwright_cli_launches, 21);
+    assert.deepEqual(noRetry.limits.infra_retry, { granted: 0, used: 0 });
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR5(r.out, path.join(r.dir, 'e3.json'), r.dir, { validate: () => {}, readApproval: () => ({ decision: 'reject', retry_granted: 0 }) }), /grants no capacity/i);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR5(r.out, path.join(r.dir, 'e4.json'), r.dir, { validate: () => {} }), /approval/i, 'the committed approval reader is wired and finds no record');
+    assert.equal(fs.existsSync(path.join(r.dir, 'e4.json')), false);
+    const doc = fs.readFileSync(path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), 'utf8');
+    for (const caps of [R5_APPROVE_CAPS, R5_APPROVE_NO_RETRY_CAPS]) for (const value of [caps.d19_cap_ms, caps.shared_cap_ms]) assert.ok(doc.includes(String(value)), String(value));
+  } finally { r.clean(); }
+});
+
+test('R5 freeze creation refuses a non-tooling blob that differs from R4 and a migration that differs at the R4 checkout', () => {
+  const r = r5FreezeRepo();
+  try {
+    const drift = { ...r.deps, r4Source: () => ({ checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d', blobs: { ...r.r4Blobs, 'src/a.txt': '1'.repeat(40) } }) };
+    assert.throws(() => recovery.createLoadRecoveryFreezeR5(r.out, r.dir, drift), /differs from the R4 frozen blob/i);
+    const migration = { ...r.deps, r4Blob: () => '2'.repeat(40) };
+    assert.throws(() => recovery.createLoadRecoveryFreezeR5(r.out, r.dir, migration), /R4 checkout/i);
+    const tampered = { ...r.deps, carriedFirst: () => { throw new Error('carried first window binding fails re-verification'); } };
+    assert.throws(() => recovery.createLoadRecoveryFreezeR5(r.out, r.dir, tampered), /carried first window/i);
+    assert.equal(fs.existsSync(r.out), false);
+  } finally { r.clean(); }
+});
+
+test('R5 init refuses any spent, expired or retired identity before writing', () => {
+  const r = r5FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR5(r.out, r.dir, r.deps);
+    for (const id of ['CR4-DESKTOP-SECOND', 'CR4-INFRA-RETRY', 'CR4-MOBILE-SECOND']) {
+      const bad = structuredClone(freeze); bad.ledger.slots[0].id = id;
+      const file = path.join(r.dir, `bad-${id}.json`); fs.writeFileSync(file, JSON.stringify(bad));
+      const target = path.join(r.dir, `evidence-${id}.json`);
+      assert.throws(() => recovery.initializeLoadRecoveryEvidenceR5(file, target, r.dir, { validate: () => {}, readApproval: () => R5_APPROVE }), /spent|expired|retired/i, id);
+      assert.equal(fs.existsSync(target), false);
+    }
+  } finally { r.clean(); }
+});
+
+test('R5 freeze validation rejects a changed budget document, ledger, digest, context mode, account count, carried window, source blob or lineage record', () => {
+  const r = r5FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR5(r.out, r.dir, r.deps);
+    const check = (value, deps = r.deps) => recovery.validateLoadRecoveryFreezeR5(r.dir, value, { deps });
+    const redigest = (value) => { value.freeze_sha256 = sha(JSON.stringify(Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'freeze_sha256')))); return value; };
+    const variant = (mutate) => { const value = structuredClone(freeze); mutate(value); return redigest(value); };
+    assert.throws(() => check({ schema_version: 'x' }), /malformed|digest/i);
+    assert.throws(() => check({ ...structuredClone(freeze), schema_version: 'sigra.phase253.registration-load-recovery-freeze/v4' }), /malformed|digest/i);
+    assert.throws(() => check(variant((value) => { value.context_identity = 'legacy_flatten'; })), /malformed|digest/i);
+    assert.throws(() => check(variant((value) => { value.ledger.caps.approve.shared_cap_ms += 1; })), /ledger/i);
+    assert.throws(() => check(variant((value) => { value.historical.carried_components_ms[16] -= 1; })), /carried|historical|allocation|ledger/i);
+    assert.throws(() => check(variant((value) => { value.historical.artifacts[0].sha256 = 'f'.repeat(64); })), /preserved R5 history|history changed/i);
+    assert.throws(() => check(variant((value) => { value.source.blobs['src/a.txt'] = '0'.repeat(40); })), /identity mismatch/i);
+    assert.throws(() => check(variant((value) => { delete value.source.blobs['src/a.txt']; })), /omits required source|identity/i);
+    assert.throws(() => check(variant((value) => { delete value.source.blobs['src/b.txt']; })), /omits actual imported runtime source/i);
+    assert.throws(() => check(variant((value) => { value.ledger.slots[0].argv.push('--grep=x'); })), /ledger|grep/i);
+    assert.throws(() => check(variant((value) => { value.account_count.schema = 'public'; })), /account count/i);
+    assert.throws(() => check(variant((value) => { value.account_count.schema = { name: 'auth' }; })), /account count/i);
+    assert.throws(() => check(variant((value) => { value.account_count.query = 'SELECT count(*) FROM users;\n'; })), /account count/i);
+    assert.throws(() => check(variant((value) => { value.account_count.schema_sources[0].blob = '3'.repeat(40); })), /account count|schema source/i);
+    assert.throws(() => check(variant((value) => { value.carried_first_window.revision_sha256 = 'e'.repeat(64); })), /carried first window/i);
+    assert.throws(() => check(variant((value) => { value.carried_first_window.rows = 15; })), /carried first window/i);
+    assert.throws(() => check(variant((value) => { value.source_delta_from_r4.r4_checkout_head = '5'.repeat(40); })), /source delta|R4 checkout/i);
+    assert.throws(() => check(variant((value) => { value.source.blobs['src/a.txt'] = r.blob('src/b.txt'); })), /identity mismatch|differs from the R4 frozen blob/i);
+    assert.throws(() => check(freeze, { ...r.deps, carriedFirst: () => ({ ...r.carried, attempt_sha256: 'a'.repeat(64) }) }), /carried first window/i, 're-verification differs in non-terminal mode');
+    const unreachable = () => { throw new Error('must not be consulted in terminal mode'); };
+    assert.equal(recovery.validateLoadRecoveryFreezeR5(r.dir, freeze, { terminal: true, deps: { ...r.deps, carriedFirst: unreachable, readHistory: unreachable } }), gitIn(r.dir, 'rev-parse', 'HEAD').trim());
+    fs.appendFileSync(r.budget, 'edited\n');
+    assert.throws(() => check(freeze), /budget document differs/i);
+  } finally { r.clean(); }
+});
+
+test('R5 freeze blobs pin the R4 source list plus the real-Postgres test and the auth-tables migration', () => {
+  const extras = recovery.LOAD_R5_EXTRA_SOURCES;
+  assert.deepEqual(extras, [...recovery.LOAD_R4_EXTRA_SOURCES, 'scripts/ci/ci-registration-recovery.pg.test.mjs', R5_MIGRATION_FILE]);
+  for (const file of extras) assert.equal(fs.existsSync(path.join(root, file)), true, file);
+  const list = recovery.loadR5SourceFileList(root);
+  for (const file of [...recovery.loadR4SourceFileList(root), ...extras]) assert.ok(list.includes(file), file);
+});
+
+test('R5 paths route to their own revision and every other revision refuses them', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const crash = /TypeError|ReferenceError|SyntaxError|is not a function|Cannot read properties|ERR_MODULE_NOT_FOUND/;
+  const run = (...args) => spawnSync(process.execPath, [script, ...args], { encoding: 'utf8', cwd: root });
+  const r5Freeze = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json');
+  const r5Evidence = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json');
+  const r4Freeze = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json');
+  const r4Evidence = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+  const result = (label, outcome, status, pattern) => {
+    assert.equal(outcome.status, status, `${label}: ${outcome.stdout}${outcome.stderr}`);
+    assert.match(outcome.stderr, pattern, label);
+    assert.doesNotMatch(outcome.stderr, crash, label);
+  };
+  result('R5 freeze check', run('--check-load-recovery-freeze', r5Freeze), 3, /R5 native load recovery freeze rejected:/);
+  result('R4 freeze check', run('--check-load-recovery-freeze', r4Freeze), 3, /R4 native load recovery freeze rejected:/);
+  result('R5 verify', run('--verify-load-recovery', r5Evidence, '--stage', 'first'), 3, /R5 native load recovery evidence rejected:/);
+  result('R4 verify', run('--verify-load-recovery', r4Evidence, '--stage', 'first'), 3, /R4 native load recovery evidence rejected:/);
+  const elsewhere = path.join(os.tmpdir(), 'not-a-reviewed-freeze.json');
+  const other = run('--check-load-recovery-freeze', elsewhere);
+  assert.equal(other.status, 3);
+  assert.doesNotMatch(other.stderr, /R5 native load recovery/);
+  // The R5 evidence path is refused by the other revisions' file verifiers.
+  assert.equal(recovery.verifyLoadRecoveryFileR4(r5Evidence, 'first', root).ok, false);
+  assert.equal(recovery.verifyLoadRecoveryFileR5(r4Evidence, 'first', root).ok, false);
+  const create = run('--create-load-recovery-r5', '--output', path.join(os.tmpdir(), 'elsewhere-r5-freeze.json'));
+  assert.equal(create.status === 0, false, 'freeze creation accepts only the reviewed R5 path');
+  assert.match(create.stderr, /reviewed phase artifact path/);
+  assert.equal(fs.existsSync(path.join(os.tmpdir(), 'elsewhere-r5-freeze.json')), false);
+});
