@@ -5150,3 +5150,110 @@ test('R5 progress verification accepts 0 to 2 outcomes with a valid carried bind
     assert.match(r5Verify(h, reordered).errors.join('\n'), /exact unused reservation order/i);
   } finally { h.clean(); }
 });
+
+// ---- Phase 253 plan 80 task 2: the 22-row proof across the carried and new rows ----
+async function runAllR5(h, options = {}) {
+  for (const id of R5_RUN_IDS) await recovery.runLoadRecoverySlotR5(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps(typeof options === 'function' ? options(id) : options));
+  return h.read();
+}
+
+// Re-seals a freeze after a binding edit so only the cross-window rule under test can fail.
+function r5Resealed(h, evidence, mutate) {
+  const freeze = structuredClone(h.freeze); mutate(freeze); delete freeze.freeze_sha256; freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const resealed = structuredClone(evidence); resealed.carried_first_window = structuredClone(freeze.carried_first_window);
+  const file = path.join(h.base, 'resealed-freeze.json'); fs.writeFileSync(file, `${JSON.stringify(freeze)}\n`); resealed.freeze_sha256 = sha(fs.readFileSync(file));
+  return recovery.verifyLoadRecoveryEvidenceDataR5(resealed, freeze, `${h.evidenceFile}.raw`, 'complete', resealed.freeze_sha256, { carried: freeze.carried_first_window });
+}
+
+test('R5 runs all three second windows once in order and verifies 6 new plus 16 carried rows = 22', async () => {
+  const h = loadHarnessR5();
+  try {
+    const evidence = await runAllR5(h);
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 6);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 12);
+    assert.deepEqual(evidence.limits.used_slots, [...R5_SPENT, ...R5_RUN_IDS]);
+    assert.deepEqual(r5Verify(h, evidence, 'complete').errors, []);
+    assert.equal(r5Verify(h, evidence, 'progress').ok, false, 'three outcomes are not progress');
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('the R5 complete stage refuses a context id carried from the first window, a repeated database and a mismatched fresh-state digest', async () => {
+  const carriedId = (() => { const h = loadHarnessR5(); try { return h.freeze.carried_first_window.context_ids[3]; } finally { h.clean(); } })();
+  const reused = loadHarnessR5();
+  try {
+    const evidence = await runAllR5(reused, (id) => (id === 'CR5-MOBILE-SECOND' ? { reuseContext: carriedId } : {}));
+    assert.match(r5Verify(reused, evidence, 'complete').errors.join('\n'), /carried from the first window/i);
+  } finally { reused.clean(); }
+
+  const h = loadHarnessR5();
+  try {
+    const evidence = await runAllR5(h);
+    const dbCarried = structuredClone(evidence); dbCarried.attempts[1].database.name = h.freeze.carried_first_window.database;
+    assert.match(r5Verify(h, dbCarried, 'complete').errors.join('\n'), /carried first window database/i);
+    const dbRepeat = structuredClone(evidence); dbRepeat.attempts[2].database.name = dbRepeat.attempts[0].database.name;
+    assert.match(r5Verify(h, dbRepeat, 'complete').errors.join('\n'), /same physical database/i);
+    const project = evidence.attempts[0].project;
+    assert.match(r5Resealed(h, evidence, (freeze) => { freeze.carried_first_window.collision_receipts[project] = '9'.repeat(64); }).errors.join('\n'), /fresh database does not prove the prior collision account absent/i);
+    assert.match(r5Resealed(h, evidence, (freeze) => { delete freeze.carried_first_window.collision_receipts[project]; }).errors.join('\n'), /fresh database does not prove the prior collision account absent/i);
+  } finally { h.clean(); }
+});
+
+test('the R5 complete stage refuses a tampered carried binding, a wrong row total and every drift of order, counters, caps and identities', async () => {
+  const h = loadHarnessR5();
+  try {
+    const evidence = await runAllR5(h);
+    for (const field of ['revision_sha256', 'revision_commit', 'attempt_sha256', 'evidence_sha256', 'r4_freeze_sha256']) {
+      const forged = structuredClone(h.freeze.carried_first_window); forged[field] = field === 'revision_commit' ? '1'.repeat(40) : '0'.repeat(64);
+      assert.match(r5Verify(h, evidence, 'complete', forged).errors.join('\n'), /carried first window binding fails re-verification/i, field);
+    }
+    const rawForged = structuredClone(h.freeze.carried_first_window); rawForged.raw_files = [{ path: 'x', sha256: '0'.repeat(64) }];
+    assert.match(r5Verify(h, evidence, 'complete', rawForged).errors.join('\n'), /fails re-verification/i);
+    assert.match(r5Verify(h, evidence, 'complete', null).errors.join('\n'), /fails re-verification/i, 'no live re-verification means no acceptance');
+    const rows = structuredClone(evidence); rows.attempts[2].lifecycle.rows = 1;
+    assert.match(r5Verify(h, rows, 'complete').errors.join('\n'), /requires 22/);
+    const mutations = [
+      [(e) => { e.attempts.reverse(); }, /exact unused reservation order/i],
+      [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /carried historical charge|cumulative charge/i],
+      [(e) => { e.limits.max_d19_ms += 1; }, /ceiling changed/i],
+      [(e) => { e.limits.retry_available = 1; }, /retry/i],
+      [(e) => { e.attempts.push(structuredClone(e.attempts[0])); e.attempts[3].slot_id = 'CR5-FOURTH'; }, /exactly 3|order|used reservation/i],
+      [(e) => { e.attempts[0].slot_id = 'CR4-DESKTOP-SECOND'; }, /earlier revision|spent/i],
+      [(e) => { e.attempts[0].slot_id = 'CR3-DESKTOP-SECOND'; }, /earlier revision|spent/i],
+      [(e) => { e.attempts[0].slot_id = 'CR-DARK-FIRST'; }, /earlier revision|spent/i],
+      [(e) => { e.status = 'second_partial'; }, /status/i]
+    ];
+    for (const [mutate, pattern] of mutations) {
+      const mutated = structuredClone(evidence); mutate(mutated);
+      assert.match(r5Verify(h, mutated, 'complete').errors.join('\n'), pattern);
+    }
+  } finally { h.clean(); }
+});
+
+test('the R5 file verifier re-verifies the carried window on every call and judges progress and complete evidence by git objects', async () => {
+  const h = loadHarnessR5();
+  const seen = [];
+  try {
+    const evidence = await runAllR5(h);
+    fs.mkdirSync(path.join(h.checkout, PHASE_REL), { recursive: true });
+    const evidenceFile = path.join(h.checkout, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json');
+    const freezeFile = path.join(h.checkout, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json');
+    fs.copyFileSync(h.freezeFile, freezeFile); fs.cpSync(`${h.evidenceFile}.raw`, `${evidenceFile}.raw`, { recursive: true });
+    const onDisk = { ...evidence, freeze_path: `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json` };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(onDisk, null, 2)}\n`);
+    const deps = { validate: (_root, _freeze, options) => { seen.push(options); }, carriedFirst: () => structuredClone(h.freeze.carried_first_window) };
+    const result = recovery.verifyLoadRecoveryFileR5(evidenceFile, 'complete', h.checkout, deps);
+    assert.deepEqual(seen, [{ terminal: true }], 'complete evidence is judged by git objects, not the working tree');
+    assert.deepEqual(result.errors, []);
+    const staleFreeze = recovery.verifyLoadRecoveryFileR5(evidenceFile, 'complete', h.checkout, { ...deps, carriedFirst: () => ({ ...h.freeze.carried_first_window, revision_sha256: '0'.repeat(64) }) });
+    assert.match(staleFreeze.errors.join('\n'), /fails re-verification/);
+    const broken = recovery.verifyLoadRecoveryFileR5(evidenceFile, 'complete', h.checkout, { ...deps, carriedFirst: () => { throw new Error('raw file differs'); } });
+    assert.equal(broken.ok, false);
+    assert.match(broken.errors.join('\n'), /carried first window binding fails re-verification: raw file differs/);
+    onDisk.status = 'ready'; onDisk.attempts = []; fs.writeFileSync(evidenceFile, `${JSON.stringify(onDisk)}\n`);
+    seen.length = 0;
+    recovery.verifyLoadRecoveryFileR5(evidenceFile, 'progress', h.checkout, deps);
+    assert.deepEqual(seen, [{ terminal: false }], 'a ready ledger still demands working-tree equality');
+  } finally { h.clean(); }
+});
