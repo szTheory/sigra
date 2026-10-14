@@ -1,0 +1,504 @@
+{
+  "schema_version": "sigra.phase253.registration-load-recovery-evidence/v4",
+  "revision": "r4",
+  "status": "ready",
+  "context_identity": "per_row_union",
+  "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json",
+  "freeze_sha256": "abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+      "scripts/ci/ci-registration-recovery.mjs": "b5455cf9c868b4b875e41cb271da58da24bd43d4",
+      "scripts/ci/ci-registration-recovery.test.mjs": "d3771dfe47429b27f2db6be28ae387d91ea46167",
+      "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "test/example/priv/playwright/playwright.config.ts": "583b24f1cd5d8de5009a83cf6bf41be0dd2c3d4c",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "d99167c6cd8732a9e0413a8aa46312b9f3057dfb",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+      "test/example/priv/playwright/helpers/registrationControls.mjs": "8cae01dbff446bc9c08f83f26bdf72255888938a",
+      "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+      "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+      "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+      "scripts/ci/ci-playwright-load.test.mjs": "6d7e6b43c1f33a7da43e2331084352c838f6313c",
+      "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+      "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+      "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+      "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19",
+      "lib/sigra/auth.ex": "be5bc9a87a9e0e6d32e596d8483bc920204605fb",
+      "test/example/lib/example/accounts.ex": "3d127dbdf125bf81df45f723304115f8d511ea0e",
+      "test/example/lib/example/accounts/user.ex": "a0d58adebfa4a7f870413929d1c71acc46a31f67",
+      "test/example/lib/example_web/live/registration_live.ex": "d278c9d58134f36975905c84530d3c4476a47aa3",
+      "priv/templates/sigra.install/core/registration_live.ex": "5159d86b40769c49bd2fcb1b9259f837f9962edf",
+      "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex": "54264c0d05fb5739e208f68a1f08b186bc87923c",
+      "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs": "9c84c1d406a00c934e61b3780462297a48332f7b",
+      "scripts/ci/ci-registration-control-audit.test.mjs": "1893a4628c36758f196bc69f38c5a65f21be9e59",
+      "scripts/ci/fixtures/r3-mirrored-context-annotations.json": "0bf00f501204d6ea7e85e8c580958253ae1c2e6d"
+    }
+  },
+  "historical": {
+    "artifacts": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+        "sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+        "sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
+        "sha256": "a2ca73dbdad8b4e00766d28b98f7841a9ac2233e7c481ea7fda309b5a310fdfb"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json",
+        "sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-POST-HALT-CLEANUP.json",
+        "sha256": "956b43875a7431e52b3683954d7ebf8d2f72ac9a52665d7cf6594a4349fa1f11"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json",
+        "sha256": "bdb1b9d5aa0dc8fb6422708228276ade641b60cc91db1fca556e3f788e264a40"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-FREEZE.json",
+        "sha256": "bef539ef0803a5e035266fd2d5334b02dc87893c285114e7f70cbec3b46a0778"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+        "sha256": "e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json",
+        "sha256": "a4e313b6276ddbc8a2b71a1acdfcd2744fa0e360bbc018ceed5d86b5d8b464e4"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
+        "sha256": "977b940b11fd4e304fc01be5e523cb34f1424440fd5bf218a14793872ca9a230"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json",
+        "sha256": "db74f2f2b8dc9df71e67fddc7049024fb03b693478573c3e204020068b898a82"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json",
+        "sha256": "ec63a2410927d8f92e96b3eb4d166bcd4d8ff11061941508050e164c0d669b76"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE.json",
+        "sha256": "98030037d8136b3732ca01dbe1f127181526a61a82961b270feddb7ca849cafa"
+      },
+      {
+        "path": ".planning/debug/resolved/253-native-deadline-not-enforced.md",
+        "sha256": "fecd1d177c20097d56486912866f7fadf0f6aa8b649882fa924acd183916c055"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/setup-log.log",
+        "sha256": "82f994858bf4f2fd53585c6000eea16ffa267c689b6c3caf5d82d41c03bebc5a"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/app-log.log",
+        "sha256": "bc9cbca3a576631c10d8416ebfc0a391ad7ba901089f36543363ba98135f1cf9"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log",
+        "sha256": "e4c03d59ba5ca79dc142dceef2db6e04e7e9bd74defb9a7a27b5037cc260fff7"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/drop-log.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/preparation/mix_version.log",
+        "sha256": "b397a3a12486d231c46786345365488f7c6350837a12db10b3aa142b53e8300a"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/preparation/host_dependency_versions.log",
+        "sha256": "9bb67b6beb3c360c954336f94dba0160334d693fa6cc4bc0153893c8a159eb01"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+        "sha256": "be47d624e0587459671ce5bc5c25739d39dba5e5cfddea3dab2a04c6fd0b4035"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json",
+        "sha256": "b26d5a0cbfca38cbdc3fbf4931ce2fd0ba0cfc35df295e4fe820a259eaab43b1"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json",
+        "sha256": "d5c85aaae1faad8e28607cba08aac48f05a072c97947d943a74f176b9d1763b8"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS-R2.md",
+        "sha256": "9bb278db0f990c6bf251118bf8ccb60764ed74e9b99742dbec2be65b7d186461"
+      },
+      {
+        "path": ".planning/debug/253-r2-native-controls-all-fail.md",
+        "sha256": "6a67823032622095d96b829599d4690f74249254111a6c915c7ee86a5b4b103d"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/setup-log.log",
+        "sha256": "bb5744ec54562559d23a7ab9921f6cb0a3d289f3f5395c27da2a61451390e5c1"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/app-log.log",
+        "sha256": "d19385cbbe2cea5ae4087ff267ced80f0700b55104026487fd7a3ff855f076dc"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log",
+        "sha256": "9025e3c0942df3bf922d1814e5efcca26239e4f2de9faf6d21e633e1a15b05e4"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/drop-log.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/database-absence.log",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/preparation/mix_version.log",
+        "sha256": "b397a3a12486d231c46786345365488f7c6350837a12db10b3aa142b53e8300a"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/preparation/host_dependency_versions.log",
+        "sha256": "9bb67b6beb3c360c954336f94dba0160334d693fa6cc4bc0153893c8a159eb01"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json",
+        "sha256": "b264928d022e337be21015416ac81e8bdb3049f7b7b48511fc603d09e764378e"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json",
+        "sha256": "effaef5139fff83a0b3cda6a2d7d9f36f4fac5888942f9dd151ed101b2216284"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json",
+        "sha256": "724e4472eaf1b292133857f077fc2e4bbd35b19ef30fe222d424755b2726b8f9"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS-R3.md",
+        "sha256": "dabbcf59bab20a432d7fd328c2555180561b0beae02736476408e28196bed78c"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip",
+        "sha256": "4a567004f1173cb257a5d552578dd4700a6b6afec26b9730f7d901f8b29e38f4"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-2.zip",
+        "sha256": "49c30125ac70000f20a1e59bfdda322c3207b22d6fcb86fbd5b893602dfc6807"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-3.zip",
+        "sha256": "4c0c0783ad655a8360b417ee81671eac92a3ac4c0956f316bc9d4167dbb9c477"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-4.zip",
+        "sha256": "0865fbb2f5b689153a15ff07f58f44ddfb46aa7b5a57b11e11fdf87817dde30b"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-5.zip",
+        "sha256": "2b86313fa111c60ea3f8e6e38b8d208a3b4ada64429d1d06d17953fc954a32ae"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-6.zip",
+        "sha256": "1b081e3cfc9f8bdaa77e6024c5dc7ec3b142375d0e5acb869d5be31694b0d359"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-7.zip",
+        "sha256": "270e0f785f3bb9fdf32fe2e9f2b4f3f28ad0fef103f9d96074d3feaa5ca42215"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-8.zip",
+        "sha256": "18bc26b06eece2d3a73f4bfc8dc8871a2751ff890773357911539767e5bc3dde"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-9.zip",
+        "sha256": "db71cd9cf25725d3f90384f2b32822dbf0359d8c6cca456800e2361128517e8c"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/playwright-report.json",
+        "sha256": "ef73675158c0e260eefff8d0d3b672cb63546dc7da74fc1d49c556f46a62f53c"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/setup-log.log",
+        "sha256": "40392d1d6a7f11b629c7249cee23b05fe048bcf3b6d0ae787baaecce16994bfd"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/app-log.log",
+        "sha256": "87a7464bf26ce31cd62f3f8d3c3e4d14a89956f8224ae10b9f86390552c00152"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log",
+        "sha256": "05f0999057755d9cc32cfa3a264e9984ec5af30e50bd4ced237fc73e97bf373d"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/drop-log.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/database-absence.log",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl",
+        "sha256": "05d06bae552fb37b09d868f8dbc0109f02459dc97fd28a179231313292c0ffa3"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-01.md",
+        "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-02.md",
+        "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-03.md",
+        "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-04.md",
+        "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-05.md",
+        "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-06.md",
+        "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-07.md",
+        "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-08.md",
+        "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-09.md",
+        "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/preparation/mix_version.log",
+        "sha256": "b397a3a12486d231c46786345365488f7c6350837a12db10b3aa142b53e8300a"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/preparation/host_dependency_versions.log",
+        "sha256": "9bb67b6beb3c360c954336f94dba0160334d693fa6cc4bc0153893c8a159eb01"
+      }
+    ],
+    "frozen_blob_sets": {
+      "failed27": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "572fd804c91d05f7d3e40c40977a7302ca4d1af3",
+        "scripts/ci/ci-registration-recovery.test.mjs": "6a7e243fdc4fadcf871574a4870bc63a26408dac",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "b9c3e564918699599ef89cb65cface046761d195",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      },
+      "control16": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "9a97675dab6fd8f2d7037101eb3203b668f06de8",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "a9c9ff153634284c97a4428f8984015c91bccfbe",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      },
+      "halted_253_40": {
+        "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+        "scripts/ci/ci-registration-recovery.mjs": "65c6d89122ba1973816812899382292474781e77",
+        "scripts/ci/ci-registration-recovery.test.mjs": "df2d0646cc507fbe5f4de31191c5df84611f16c8",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "16be503276de510cc6304e481b2755d9fb5968ca",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+        "test/example/priv/playwright/helpers/registrationControls.mjs": "775c796152bf123b251abbcdde11897d572f37bd",
+        "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+        "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+        "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+        "scripts/ci/ci-playwright-load.test.mjs": "a57a8a56496a33c9f8b0a1fc24e0b48f1a31a66e",
+        "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+        "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+        "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+        "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19"
+      }
+    },
+    "carried_charge_ms": 2222537,
+    "carried_components_ms": [
+      3768,
+      3743,
+      26373,
+      46803,
+      40993,
+      121252,
+      112,
+      33409,
+      655,
+      1765488,
+      743,
+      107343,
+      822,
+      71033
+    ],
+    "physical_playwright_cli_launches": 8,
+    "spent_reservations": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK",
+      "CR-DARK-FIRST",
+      "CR-DESKTOP-MOBILE-FIRST",
+      "CR2-DESKTOP-MOBILE-FIRST",
+      "CR3-DESKTOP-MOBILE-FIRST"
+    ],
+    "expired_identities": [
+      "CR2-INFRA-RETRY",
+      "CR3-INFRA-RETRY"
+    ],
+    "retired_identities": [
+      "CR-DESKTOP-SECOND",
+      "CR-MOBILE-SECOND",
+      "CR-DARK-SECOND",
+      "CR3-DESKTOP-SECOND",
+      "CR3-MOBILE-SECOND",
+      "CR3-DARK-SECOND"
+    ],
+    "spent_retry": {
+      "used": 1,
+      "available": 0
+    },
+    "terminal_halt": {
+      "slot_id": "CR3-DESKTOP-MOBILE-FIRST",
+      "plan": "253-63",
+      "cause": "runner_validator_mirrored_context_annotations",
+      "terminal": true,
+      "infrastructure": false,
+      "retryable": false,
+      "charged": true,
+      "charged_ms": 71033,
+      "preparation_ms": 822,
+      "stop_reason": "two selected rows reused the same browser-context identity",
+      "summary": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab"
+      },
+      "expired_identities": [
+        "CR3-INFRA-RETRY"
+      ],
+      "retired_identities": [
+        "CR3-DESKTOP-SECOND",
+        "CR3-MOBILE-SECOND",
+        "CR3-DARK-SECOND"
+      ]
+    },
+    "halted_lineage": {
+      "evidence": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json",
+        "sha256": "b264928d022e337be21015416ac81e8bdb3049f7b7b48511fc603d09e764378e"
+      },
+      "freeze": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json",
+        "sha256": "effaef5139fff83a0b3cda6a2d7d9f36f4fac5888942f9dd151ed101b2216284"
+      },
+      "approval": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json",
+        "sha256": "724e4472eaf1b292133857f077fc2e4bbd35b19ef30fe222d424755b2726b8f9"
+      },
+      "budget": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS-R3.md",
+        "sha256": "dabbcf59bab20a432d7fd328c2555180561b0beae02736476408e28196bed78c"
+      },
+      "summary": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab"
+      }
+    }
+  },
+  "created_at": "2026-10-14T18:29:40.835Z",
+  "attempts": [],
+  "preparation": null,
+  "reservation": null,
+  "preserved_revisions": [],
+  "prior_terminal_halts": [
+    {
+      "slot_id": "CR3-DESKTOP-MOBILE-FIRST",
+      "plan": "253-63",
+      "cause": "runner_validator_mirrored_context_annotations",
+      "terminal": true,
+      "infrastructure": false,
+      "retryable": false,
+      "charged": true,
+      "charged_ms": 71033,
+      "preparation_ms": 822,
+      "stop_reason": "two selected rows reused the same browser-context identity",
+      "summary": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab"
+      },
+      "expired_identities": [
+        "CR3-INFRA-RETRY"
+      ],
+      "retired_identities": [
+        "CR3-DESKTOP-SECOND",
+        "CR3-MOBILE-SECOND",
+        "CR3-DARK-SECOND"
+      ]
+    }
+  ],
+  "infrastructure_halts": [],
+  "infrastructure_retry": null,
+  "approval": {
+    "decision": "approve",
+    "retry_granted": 1
+  },
+  "limits": {
+    "prior_charge_ms": 2222537,
+    "preparation_charge_ms": 0,
+    "preparation_remaining_ms": 10000,
+    "charged_duration_ms": 2222537,
+    "physical_playwright_cli_launches": 8,
+    "used_slots": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK",
+      "CR-DARK-FIRST",
+      "CR-DESKTOP-MOBILE-FIRST",
+      "CR2-DESKTOP-MOBILE-FIRST",
+      "CR3-DESKTOP-MOBILE-FIRST"
+    ],
+    "max_d19_ms": 3132537,
+    "max_total_ms": 5472537,
+    "max_d19_physical_playwright_cli_launches": 13,
+    "max_physical_playwright_cli_launches": 22,
+    "retry_used": 1,
+    "retry_available": 0,
+    "infra_retry": {
+      "granted": 1,
+      "used": 0
+    }
+  }
+}
