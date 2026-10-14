@@ -63,9 +63,9 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 
 Phase: 253 — incomplete; native recovery halted
-Plans: 11/35 implemented; Plan26 complete offline, Plan27 halted (0/2 tasks), Plans28–35 blocked
-Status: No runnable plans; Node20 parse5 loading and missing portable proof need recovery planning
-Last activity: 2026-10-14T01:30:01.883389+00:00 — failed33,409ms command saved; cumulative276,453ms/five launches/retry0
+Plans: 11/35 implemented; Plan 26 complete offline, Plan 27 halted (0/2 tasks), Plans 28–35 blocked
+Status: No runnable plans; Node 20 parse5 loading and missing portable proof need recovery planning
+Last activity: 2026-10-14T01:30:01.883389+00:00 — failed 33,409 ms command saved; cumulative 276,453 ms across five launches, with no retry available
 Progress: 17/41 planned milestone plans implemented (41%); whole-phase verification not started
 
 ## Next GSD command
@@ -75,7 +75,7 @@ $gsd-plan-phase 253
 
 The saved dark command failed before test collection: canonicalize.ts loads ESM-only parse5 through CommonJS under the frozen Node20 runner. Plan a compatible module-loading correction, source-bound freeze and missing portable runner contracts using only four unused regular commands and nine conditional acceptance commands. The spent retry and CR-DARK-FIRST cannot be reopened. Both reliability requirements and whole-phase verification remain open.
 
-Current native total276453ms/five physical CLI launches; setup/drop exited0 and temporary build was removed, but no dark result was accepted. Local41/41Node20 tests pass; native verifier exits3 and correctly rejects the receipt. Diagnostic:253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json; closeout:253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json; route:253-CONTROL-RECOVERY-EXECUTION-ROUTING.json. Phase254 remains pending.
+Current native total: 276,453 ms across five physical CLI launches; setup/drop exited0 and temporary build was removed, but no dark result was accepted. Local 41/41 Node 20 tests pass; native verifier exits 3 and correctly rejects the receipt. Diagnostic:253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json; closeout:253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json; route:253-CONTROL-RECOVERY-EXECUTION-ROUTING.json. Phase254 remains pending.
 
 ## Known unfinished work
 
@@ -202,4 +202,4 @@ Plan26 offline implementation complete: Node20 acceptance11/11, assessment check
 
 ## Control recovery execution closeout
 
-Plan26 complete offline; Plan27 halted after one33,409ms command, no selected native tests. All older failed outcomes remain unchanged. Cumulative276453ms/five launches/retry0. Fresh41Node20 tests pass and native verifier rejects. Four unused regular/nine conditional acceptance commands remain reserved, not runnable without a new plan. Shared prior bytes are exactly recoverable at 6e7a08945b6940d613626c56fa81b37e9a4350c2. Both requirements and full phase verification remain open. Next:$gsd-plan-phase 253.
+Plan 26 complete offline; Plan 27 halted after one 33,409 ms command, no selected native tests. All older failed outcomes remain unchanged. Cumulative 276,453 ms across five launches, with no retry available. Fresh 41 Node 20 tests pass and native verifier rejects. Four unused regular commands and nine conditional acceptance commands remain reserved, not runnable without a new plan. Shared prior bytes are exactly recoverable at 6e7a08945b6940d613626c56fa81b37e9a4350c2. Both requirements and full phase verification remain open. Next: $gsd-plan-phase 253.
