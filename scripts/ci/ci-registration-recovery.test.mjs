@@ -2158,6 +2158,433 @@ test('verifyAttemptDiagnosticsR3 rejects a launched attempt lacking, tampering o
   assert.equal(escape.ok, false);
 });
 
+// ---- Phase 253 plan 60 task 1: R3 ledger, R2-lineage history reader and freeze ----
+const R3_SPENT = [...R2_SPENT, 'CR2-DESKTOP-MOBILE-FIRST'];
+const R3_CHARGES = [...R2_CHARGES, 743, 107343];
+const r3LedgerInput = () => ({
+  charges: [...R3_CHARGES], physicalPlaywrightLaunches: 7, spentReservations: [...R3_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationUsedMs: 5141
+});
+const R3_APPROVE = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v2', decision: 'approve', retry_granted: 1,
+  caps: { new_allowance_ms: 910000, d19_cap_ms: 3060682, d19_launch_max: 12, shared_cap_ms: 5400682, physical_cli_max: 21 }
+};
+const R3_APPROVE_NO_RETRY = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v2', decision: 'approve-without-retry', retry_granted: 0,
+  caps: { new_allowance_ms: 670000, d19_cap_ms: 2820682, d19_launch_max: 11, shared_cap_ms: 5160682, physical_cli_max: 20 }
+};
+const PHASE_REL = ['.planning', 'phases', '253-fix-flaky-ci-and-preserve-required-checks'].join('/');
+
+test('R3 ledger carries 2150682 ms, seven launches and eight spent identities, with the reviewed R3 caps', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR3(r3LedgerInput());
+  assert.equal(ledger.prior_charge_ms, 2150682);
+  assert.equal(2042596 + 743 + 107343, 2150682);
+  assert.equal(ledger.prior_playwright_cli_launches, 7);
+  assert.deepEqual(ledger.spent_reservations, R3_SPENT);
+  assert.equal(ledger.spent_reservations.length, 8);
+  assert.equal(ledger.preparation_used_ms, 5141);
+  assert.equal(ledger.preparation_reserve_ms, 10000);
+  assert.equal(ledger.retry_used, 1);
+  assert.equal(ledger.retry_available, 0);
+  assert.deepEqual(ledger.expired_identities, ['CR2-INFRA-RETRY']);
+  assert.deepEqual(ledger.retired_identities, ['CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND']);
+  assert.deepEqual(ledger.caps.approve, R3_APPROVE.caps);
+  assert.deepEqual(ledger.caps['approve-without-retry'], R3_APPROVE_NO_RETRY.caps);
+  assert.equal(ledger.required_rows, 22);
+  assert.equal(ledger.headroom_ms, 15000);
+});
+
+test('R3 caps follow the reviewed arithmetic: preparation, four regular windows, one retry and explicit headroom', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR3(r3LedgerInput());
+  assert.equal(ledger.caps.approve.new_allowance_ms, 10000 + 240000 + 3 * 135000 + 240000 + 15000);
+  assert.equal(ledger.caps.approve.d19_cap_ms, 2150682 + 910000);
+  assert.equal(ledger.caps.approve.shared_cap_ms, 3060682 + 9 * 240000 + 3 * 60000);
+  assert.equal(ledger.caps.approve.d19_launch_max, 7 + 5);
+  assert.equal(ledger.caps.approve.physical_cli_max, 12 + 9);
+  assert.equal(ledger.caps['approve-without-retry'].new_allowance_ms, 910000 - 240000);
+  assert.equal(ledger.caps['approve-without-retry'].physical_cli_max, 20);
+});
+
+test('R3 ledger rejects any other carried input', () => {
+  for (const mutate of [
+    (input) => { input.charges[11] = 107342; },
+    (input) => { input.charges[10] = 742; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.charges = [...R2_CHARGES]; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations = [...R2_SPENT]; },
+    (input) => { input.spentReservations.reverse(); },
+    (input) => { input.physicalPlaywrightLaunches = 6; },
+    (input) => { input.preparationUsedMs = 4398; }
+  ]) {
+    const input = r3LedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedgerR3(input), /historical|retry|reservation|launch|preparation|carried/i);
+  }
+});
+
+test('R3 slots keep the identical 22-row selection under new identities, with setup separated from the browser window', () => {
+  const v1 = recovery.loadRecoverySlotDefinitions();
+  const r3 = recovery.loadRecoverySlotDefinitionsR3();
+  assert.deepEqual(r3.map((slot) => slot.id), ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND', 'CR3-INFRA-RETRY']);
+  assert.deepEqual(r3.map((slot) => slot.maps_from), ['CR2-DESKTOP-MOBILE-FIRST', 'CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND', 'CR3-INFRA-RETRY']);
+  const timing = ({ setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms }) => ({ setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms });
+  assert.deepEqual(timing(r3[0]), { setup_ms: 60000, work_ms: 165000, cleanup_ms: 15000, command_ms: 180000, max_duration_ms: 240000 });
+  for (const slot of r3.slice(1, 4)) assert.deepEqual(timing(slot), { setup_ms: 60000, work_ms: 60000, cleanup_ms: 15000, command_ms: 75000, max_duration_ms: 135000 }, slot.id);
+  assert.equal(r3[4].max_duration_ms, 240000);
+  assert.equal(r3[4].retry, true);
+  assert.equal(r3[4].selection ?? null, null);
+  assert.equal(r3[4].rows, 0);
+  for (const [index, slot] of v1.entries()) {
+    const strip = ({ id, maps_from, setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    assert.deepEqual(strip(r3[index]), strip(slot), `selection, projects, argv, ports and expected CLI exit of ${slot.id} are byte-identical`);
+  }
+  assert.deepEqual(r3.slice(0, 4).map((slot) => slot.rows), [16, 2, 2, 2]);
+  assert.equal(r3.slice(0, 4).reduce((sum, slot) => sum + slot.rows, 0), 22);
+  assert.equal(r3[0].expected_cli_exit, 1);
+});
+
+function r3LineageRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r3-lineage-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  const put = (relative, text) => { const target = path.join(dir, relative); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, text); return target; };
+  const evidenceRel = `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json`;
+  const logRel = 'CR2-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log';
+  const prepRel = 'preparation/mix_version.log';
+  put(`${evidenceRel}.raw/${logRel}`, 'synthetic test log\n'); put(`${evidenceRel}.raw/${prepRel}`, 'Mix 1.19\n');
+  const reference = (rel, text) => ({ path: rel, sha256: sha(text), bytes: Buffer.byteLength(text) });
+  const evidence = {
+    status: 'halted', attempts: [{ slot_id: 'CR2-DESKTOP-MOBILE-FIRST', charged_duration_ms: 107343, observed_outcome: 'halted', files: { test_log: reference(logRel, 'synthetic test log\n') } }],
+    preparation: { duration_ms: 743, receipts: [{ name: 'mix_version', log: reference(prepRel, 'Mix 1.19\n') }] },
+    limits: { prior_charge_ms: 2042596, preparation_charge_ms: 743, charged_duration_ms: 2150682, physical_playwright_cli_launches: 7, used_slots: [...R3_SPENT], retry_used: 1, retry_available: 0, infra_retry: { granted: 1, used: 0 } },
+    infrastructure_retry: null, preserved_revisions: []
+  };
+  put(evidenceRel, `${JSON.stringify(evidence, null, 2)}\n`);
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json`, '{"synthetic":"r2 freeze"}\n');
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json`, '{"synthetic":"r2 approval"}\n');
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R2.md`, '# r2 budget\n');
+  put('.planning/debug/253-r2-native-controls-all-fail.md', '# root cause\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'lineage');
+  const hashOf = (rel) => sha(fs.readFileSync(path.join(dir, rel)));
+  const lineage = {
+    evidence: { file: evidenceRel, sha256: hashOf(evidenceRel) }, freeze: { file: `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json`, sha256: hashOf(`${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json`) },
+    approval: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json`, sha256: hashOf(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json`) },
+    budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R2.md`, sha256: hashOf(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R2.md`) }
+  };
+  const olderHistory = () => ({ artifacts: [{ path: 'older/record', sha256: 'a'.repeat(64) }], frozenBlobs: {}, control: { accepted: { toolchain: { mix: '1.19.5' } } } });
+  return { dir, evidenceRel, logRel, lineage, evidence, deps: { olderHistory, lineage, skipPreservedRevisions: true }, put, clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('the R3 history reader re-hashes the R2 lineage and reads the carried 2150682 ms ledger from preserved bytes', () => {
+  const r = r3LineageRepo();
+  try {
+    const history = recovery.readLoadHistoryR3(r.dir, r.deps);
+    assert.deepEqual(history.ledger, recovery.buildLoadRecoveryLedgerR3(r3LedgerInput()));
+    assert.deepEqual(history.charges, R3_CHARGES);
+    assert.equal(history.terminalHalt.slot_id, 'CR2-DESKTOP-MOBILE-FIRST');
+    assert.equal(history.terminalHalt.charged_ms, 107343);
+    assert.equal(history.terminalHalt.preparation_ms, 743);
+    assert.equal(history.terminalHalt.terminal, true);
+    assert.equal(history.terminalHalt.infrastructure, false);
+    assert.equal(history.terminalHalt.retryable, false);
+    assert.equal(history.terminalHalt.root_cause.file, '.planning/debug/253-r2-native-controls-all-fail.md');
+    assert.equal(history.terminalHalt.root_cause.sha256, sha('# root cause\n'));
+    assert.deepEqual(history.terminalHalt.expired_identities, ['CR2-INFRA-RETRY']);
+    const paths = history.artifacts.map((item) => item.path);
+    for (const name of ['253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json', '253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json', '253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json', '253-LOAD-RECOVERY-BUDGETS-R2.md']) {
+      assert.ok(paths.includes(`${PHASE_REL}/${name}`), name);
+    }
+    assert.ok(paths.includes(`${r.evidenceRel}.raw/${r.logRel}`), 'every R2 raw receipt is re-hashed');
+    assert.ok(paths.includes('older/record'), 'the older lineage is carried');
+    assert.ok(history.artifacts.every((item) => /^[0-9a-f]{64}$/.test(item.sha256)));
+  } finally { r.clean(); }
+});
+
+test('the R3 history reader refuses changed R2 evidence, freeze, approval, budget or raw receipts, a missing root cause and a wrong carried ledger', () => {
+  for (const [label, mutate, pattern] of [
+    ['evidence', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.evidence.file), ' '), /R2 evidence/i],
+    ['freeze', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.freeze.file), ' '), /R2 freeze/i],
+    ['approval', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.approval.file), ' '), /R2 approval/i],
+    ['budget', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.budget.file), ' '), /R2 budget/i],
+    ['raw receipt', (r) => fs.appendFileSync(path.join(r.dir, `${r.evidenceRel}.raw/${r.logRel}`), 'tampered'), /raw/i],
+    ['root cause missing', (r) => fs.rmSync(path.join(r.dir, '.planning/debug/253-r2-native-controls-all-fail.md')), /root.cause/i],
+    ['root cause uncommitted edit', (r) => fs.appendFileSync(path.join(r.dir, '.planning/debug/253-r2-native-controls-all-fail.md'), 'edit'), /root.cause/i],
+    ['wrong charge', (r) => {
+      const evidence = structuredClone(r.evidence); evidence.attempts[0].charged_duration_ms = 107342;
+      fs.writeFileSync(path.join(r.dir, r.lineage.evidence.file), `${JSON.stringify(evidence, null, 2)}\n`);
+      r.deps.lineage = { ...r.lineage, evidence: { ...r.lineage.evidence, sha256: sha(fs.readFileSync(path.join(r.dir, r.lineage.evidence.file))) } };
+    }, /2150682|107343|receipt differs/i]
+  ]) {
+    const r = r3LineageRepo();
+    try {
+      mutate(r);
+      assert.throws(() => recovery.readLoadHistoryR3(r.dir, r.deps), pattern, label);
+    } finally { r.clean(); }
+  }
+});
+
+function r3FreezeRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r3-freeze-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'lineage'), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R3.md');
+  fs.writeFileSync(budget, '# budgets r3\n');
+  fs.writeFileSync(path.join(dir, 'src/a.txt'), 'a\n'); fs.writeFileSync(path.join(dir, 'src/b.txt'), 'b\n'); fs.writeFileSync(path.join(dir, 'lineage/x.txt'), 'x\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  const history = {
+    ledger: recovery.buildLoadRecoveryLedgerR3(r3LedgerInput()), charges: [...R3_CHARGES],
+    terminalHalt: { slot_id: 'CR2-DESKTOP-MOBILE-FIRST', cause: 'work_deadline', terminal: true, infrastructure: false, retryable: false, charged_ms: 107343, preparation_ms: 743, root_cause: { file: '.planning/debug/253-r2-native-controls-all-fail.md', sha256: 'c'.repeat(64) } },
+    artifacts: [{ path: 'lineage/x.txt', sha256: sha('x\n') }], frozenBlobs: {},
+    control: { accepted: { toolchain: { mix: '1.19.5', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' } } }
+  };
+  const deps = {
+    enforceNode: false, assertCheckout: () => {}, assertConfig: () => {}, readHistory: () => history, sourceFiles: () => ['src/a.txt', 'src/b.txt'],
+    requiredSources: () => ['src/a.txt'], importClosure: () => ['src/a.txt', 'src/b.txt'], runtimeIdentity: () => ({ packages: {}, transform_sha256: {} })
+  };
+  return { dir, budget, history, deps, out: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('R3 freeze creation, check and init produce a ready ledger whose caps equal the R3 budget document', () => {
+  const r = r3FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR3(r.out, r.dir, r.deps);
+    assert.equal(freeze.schema_version, 'sigra.phase253.registration-load-recovery-freeze/v3');
+    assert.equal(freeze.revision, 'r3');
+    assert.equal(freeze.status, 'frozen_before_results');
+    assert.equal(freeze.budget.sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(freeze.budget.grants_capacity, false);
+    assert.equal(freeze.ledger.required_rows, 22);
+    assert.deepEqual(freeze.historical.terminal_halt, r.history.terminalHalt);
+    assert.deepEqual(freeze.historical.spent_reservations, R3_SPENT);
+    assert.deepEqual(freeze.ledger.caps.approve, R3_APPROVE.caps);
+    assert.deepEqual(freeze.ledger.caps['approve-without-retry'], R3_APPROVE_NO_RETRY.caps);
+    assert.deepEqual(freeze.ledger.slots.map((slot) => slot.id), ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND', 'CR3-INFRA-RETRY']);
+    assert.throws(() => recovery.createLoadRecoveryFreezeR3(r.out, r.dir, r.deps), /overwrite/i);
+
+    const head = recovery.validateLoadRecoveryFreezeR3(r.dir, JSON.parse(fs.readFileSync(r.out, 'utf8')), { deps: r.deps });
+    assert.equal(head, gitIn(r.dir, 'rev-parse', 'HEAD'));
+
+    const evidenceFile = path.join(r.dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json');
+    const evidence = recovery.initializeLoadRecoveryEvidenceR3(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R3_APPROVE });
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v3');
+    assert.equal(evidence.status, 'ready');
+    assert.equal(evidence.limits.charged_duration_ms, 2150682);
+    assert.equal(evidence.limits.prior_charge_ms, 2150682);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 7);
+    assert.deepEqual(evidence.limits.used_slots, R3_SPENT);
+    assert.equal(evidence.limits.preparation_remaining_ms, 10000);
+    assert.equal(evidence.limits.max_d19_ms, R3_APPROVE.caps.d19_cap_ms);
+    assert.equal(evidence.limits.max_total_ms, R3_APPROVE.caps.shared_cap_ms);
+    assert.equal(evidence.limits.max_physical_playwright_cli_launches, R3_APPROVE.caps.physical_cli_max);
+    assert.equal(evidence.limits.max_d19_physical_playwright_cli_launches, R3_APPROVE.caps.d19_launch_max);
+    assert.deepEqual(evidence.limits.infra_retry, { granted: 1, used: 0 });
+    assert.deepEqual(evidence.prior_terminal_halts, [r.history.terminalHalt]);
+    assert.deepEqual(evidence.infrastructure_halts, []);
+    assert.equal(fs.existsSync(`${evidenceFile}.raw`), true);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR3(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R3_APPROVE }), /overwrite/i);
+  } finally { r.clean(); }
+});
+
+test('R3 freeze validation rejects a changed budget document, ledger, digest, source blob, lineage record or missing required source', () => {
+  const r = r3FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR3(r.out, r.dir, r.deps);
+    const check = (value, deps = r.deps) => recovery.validateLoadRecoveryFreezeR3(r.dir, value, { deps });
+    const redigest = (value) => { value.freeze_sha256 = sha(JSON.stringify(Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'freeze_sha256')))); return value; };
+    assert.throws(() => check({ schema_version: 'x' }), /malformed|digest/i);
+    assert.throws(() => check({ ...structuredClone(freeze), schema_version: 'sigra.phase253.registration-load-recovery-freeze/v2' }), /malformed|digest/i);
+    const ledger = structuredClone(freeze); ledger.ledger.caps.approve.shared_cap_ms += 1; redigest(ledger);
+    assert.throws(() => check(ledger), /ledger/i);
+    const lineage = structuredClone(freeze); lineage.historical.artifacts[0].sha256 = 'f'.repeat(64); redigest(lineage);
+    assert.throws(() => check(lineage), /preserved R3 history|lineage|history changed/i);
+    const blob = structuredClone(freeze); blob.source.blobs['src/a.txt'] = '0'.repeat(40); redigest(blob);
+    assert.throws(() => check(blob), /identity mismatch/i);
+    const missing = structuredClone(freeze); delete missing.source.blobs['src/a.txt']; redigest(missing);
+    assert.throws(() => check(missing), /omits required source|identity/i);
+    const omitted = structuredClone(freeze); delete omitted.source.blobs['src/b.txt']; redigest(omitted);
+    assert.throws(() => check(omitted), /omits actual imported runtime source/i);
+    fs.appendFileSync(r.budget, 'edited\n');
+    assert.throws(() => check(freeze), /budget document differs/i);
+  } finally { r.clean(); }
+});
+
+test('R3 freeze blobs pin the R2 source list plus the product, diagnostics and audit sources', () => {
+  const extras = recovery.LOAD_R3_EXTRA_SOURCES;
+  assert.deepEqual(extras, [
+    'lib/sigra/auth.ex',
+    'test/example/lib/example/accounts.ex',
+    'test/example/lib/example/accounts/user.ex',
+    'test/example/lib/example_web/live/registration_live.ex',
+    'priv/templates/sigra.install/core/registration_live.ex',
+    'test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex',
+    'test/example/priv/playwright/lib/reporters/failure-jsonl.mjs',
+    'scripts/ci/ci-registration-control-audit.test.mjs'
+  ]);
+  for (const file of extras) assert.equal(fs.existsSync(path.join(root, file)), true, file);
+  const list = recovery.loadR3SourceFileList(root);
+  for (const file of [...recovery.loadSourceFileList(root), ...extras]) assert.ok(list.includes(file), file);
+});
+
+test('v1, R2 and R3 evidence are never accepted by another revision, and the R3 modes refuse any other path', () => {
+  const r3 = loadHarnessR3();
+  const r2 = loadHarnessR2();
+  try {
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR3(r2.read(), r2.freeze, `${r2.evidenceFile}.raw`, 'first', sha(fs.readFileSync(r2.freezeFile))).ok, false);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(r3.read(), r3.freeze, `${r3.evidenceFile}.raw`, 'first', sha(fs.readFileSync(r3.freezeFile))).ok, false);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    const stray = path.join(temporary, 'stray-r3-freeze.json');
+    const created = spawnSync(process.execPath, [script, '--create-load-recovery-r3', '--output', stray], { encoding: 'utf8', cwd: root });
+    assert.equal(created.status, 3);
+    assert.match(created.stderr, /reviewed phase artifact path/);
+    assert.equal(fs.existsSync(stray), false);
+    for (const mode of [['--check-load-recovery-freeze', stray], ['--init-load-recovery', '--freeze', stray, '--output', path.join(temporary, 'e.json')], ['--verify-load-recovery', stray, '--stage', 'first']]) {
+      const result = spawnSync(process.execPath, [script, ...mode], { encoding: 'utf8', cwd: root });
+      assert.equal(result.status, 3, mode[0]);
+    }
+  } finally { r3.clean(); r2.clean(); }
+});
+
+test('every spent, expired and retired identity is refused by the R3 runner before any spawn', async () => {
+  const h = loadHarnessR3();
+  try {
+    for (const id of [...R3_SPENT, 'CR2-INFRA-RETRY', 'CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND', 'R-CONTROL-FIRST-DESKTOP']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps()), /spent|expired|retired|only the/i, id);
+    }
+    assert.deepEqual(h.calls, []);
+    assert.equal(h.read().status, 'ready');
+  } finally { h.clean(); }
+});
+
+// ---- synthetic R3 runner harness: injected clocks, host probe, holders, process trees and per-test JSONL ----
+function loadHarnessR3() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-r3-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  const ledger = recovery.buildLoadRecoveryLedgerR3(r3LedgerInput());
+  const terminalHalt = { slot_id: 'CR2-DESKTOP-MOBILE-FIRST', cause: 'work_deadline', terminal: true, infrastructure: false, retryable: false, charged_ms: 107343, preparation_ms: 743, root_cause: { file: '.planning/debug/253-r2-native-controls-all-fail.md', sha256: 'c'.repeat(64) } };
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v3', status: 'frozen_before_results', plan: '253-60', revision: 'r3',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    historical: { terminal_halt: terminalHalt, spent_reservations: [...R3_SPENT] },
+    ledger
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze-r3.json'); const evidenceFile = path.join(base, 'evidence-r3.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const writeEvidence = (approval) => {
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-load-recovery-evidence/v3', revision: 'r3', status: 'ready', freeze_path: 'freeze-r3.json',
+      freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+      prior_terminal_halts: [structuredClone(terminalHalt)], infrastructure_halts: [], infrastructure_retry: null,
+      approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+      limits: {
+        prior_charge_ms: 2150682, preparation_charge_ms: 0, preparation_remaining_ms: 10000, charged_duration_ms: 2150682,
+        physical_playwright_cli_launches: 7, used_slots: [...R3_SPENT], max_d19_ms: approval.caps.d19_cap_ms, max_total_ms: approval.caps.shared_cap_ms,
+        max_d19_physical_playwright_cli_launches: approval.caps.d19_launch_max, max_physical_playwright_cli_launches: approval.caps.physical_cli_max,
+        retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+      }
+    };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  };
+  writeEvidence(R3_APPROVE);
+  const calls = []; const timeouts = []; const readyDeadlines = []; const envs = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const fakePsql = (counts) => { let index = 0; return () => { calls.push(['psql']); return { status: 0, stdout: `${counts[Math.min(index++, counts.length - 1)]}\n` }; }; };
+  const allSlots = [...freeze.ledger.slots.slice(0, 4)];
+  const markerFor = (title) => ({ 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[title]);
+  const reportFor = (slot, runId, { failRow = false } = {}) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index) => {
+          const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: `${runId}:${crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          const failed = expected === 'expected_failure';
+          const broken = failRow && index === 0 && !failed;
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed && !broken,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed || broken ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed || broken ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${markerFor(pair.title)} failed` } : broken ? { message: 'unexpected assertion failure' } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: [] }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const jsonlFor = (slot, { failRow = false, count = Infinity } = {}) => recovery.loadRequiredPairs(slot).slice(0, count).map((pair, index) => {
+    const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+    const failed = expected === 'expected_failure'; const broken = failRow && index === 0 && !failed;
+    const message = failed ? `Error: expect ${markerFor(pair.title)} failed\n  at spec` : broken ? 'Error: unexpected assertion failure\n  at spec' : null;
+    return JSON.stringify({
+      schema: 'sigra.phase253.playwright-test-end/v1', project: pair.project, title: pair.title, file: 'admin-eval.spec.ts', line: 10 + index,
+      status: failed || broken ? 'failed' : 'passed', expected_status: 'passed', ok: !broken && (failed ? true : true), duration_ms: 10 + index, retry: 0,
+      errors: message ? [{ message, location: { file: 'admin-eval.spec.ts', line: 10 + index, column: 1 } }] : []
+    });
+  });
+  const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {}, approval = R3_APPROVE,
+    suspendBrowser = false, suspendFlag = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null,
+    setupMs = 5, bootMs = 2, cliMs = 5, setupExit = 0, setupTimedOut = false, setupSuspended = false, setupError = null,
+    cliTimedOut = false, killedRows = 2, noJsonl = false, errorContext = true, jsonlCount = Infinity } = {}) => {
+    const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
+    let monoOffset = 0n; let wallOffset = 0;
+    const advance = (ms) => { monoOffset += BigInt(Math.round(ms * 1e6)); wallOffset += ms; };
+    return {
+      validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile,
+      monotonicNs: () => process.hrtime.bigint() + monoOffset, wallMs: () => Date.now() + wallOffset,
+      readApproval: () => approval, holderAlive,
+      checkDiagnostic: checkDiagnostic ?? ((_root, file) => { if (!file) throw new Error('infrastructure retry requires a committed diagnostic'); return { file, sha256: 'd'.repeat(64) }; }),
+      probeHost: probeHost ?? (async () => { calls.push(['probe-host']); return { awake: awakeFor(), host_awake: { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' } }; }),
+      portAvailable: async () => true, waitReady: async (_app, _url, deadline) => { readyDeadlines.push(deadline); advance(bootMs); return 200; }, stopApp: async () => {},
+      spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+      runTree: async (program, args, cwd, env, log, timeoutMs) => {
+        calls.push(['tree', program, ...args]); timeouts.push([path.basename(program), args[0], timeoutMs]);
+        fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+        if (program.endsWith('/playwright')) {
+          envs.push(env);
+          const given = args.slice(2, -1);
+          const slot = allSlots.find((item) => JSON.stringify(item.argv) === JSON.stringify(given));
+          assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+          assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+          assert.ok(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL?.startsWith(path.dirname(env.SIGRA_PLAYWRIGHT_JSON)), 'the per-test JSONL lives under the attempt temp root');
+          if (!noJsonl) fs.writeFileSync(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL, `${jsonlFor(slot, { failRow, count: cliTimedOut || suspendBrowser ? killedRows : jsonlCount }).join('\n')}\n`);
+          const outputDir = args.find((arg) => arg.startsWith('--output=')).slice('--output='.length);
+          if (errorContext) {
+            fs.mkdirSync(path.join(outputDir, 'case-one'), { recursive: true });
+            fs.writeFileSync(path.join(outputDir, 'case-one', 'error-context.md'), '# Page snapshot\n- heading "Register"\n');
+          }
+          advance(cliMs);
+          if (suspendBrowser) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: true, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          if (cliTimedOut) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: false, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID, { failRow })));
+          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, suspended: suspendFlag, duration_ms: cliMs, group_signals: [], descendants_reaped: true };
+        }
+        if (program === 'mix' && args[0] === 'ecto.setup') {
+          advance(setupMs);
+          return { pid: 1, exit_code: setupError ? null : setupExit, signal: null, error: setupError, timed_out: setupTimedOut, suspended: setupSuspended, duration_ms: setupMs, wall_duration_ms: setupMs, group_signals: [], descendants_reaped: true };
+        }
+        advance(1);
+        return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+      },
+      captureAbsence: (options) => recovery.captureOwnedDatabaseAbsence({ ...options, run: absenceRun }),
+      captureAccount: (options) => recovery.captureOwnedAccountCount({ ...options, run: accountRun }),
+      sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+    };
+  };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, timeouts, readyDeadlines, envs, makeDeps, writeEvidence, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+
 test.after(() => {
   net.Socket.prototype.connect = originalConnect;
   net.Server.prototype.listen = originalListen;
