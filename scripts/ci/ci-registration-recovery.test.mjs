@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
+import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
@@ -9,36 +10,25 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { attemptDirectory, captureOwnedDatabaseAbsence, runLogged, validateSanitizedCommandLog, verifyDiagnosticData, verifyNativeAttempt, verifyRevisionFreezeBinding } from './ci-registration-recovery.mjs';
 import * as recovery from './ci-registration-recovery.mjs';
+import { createRegistrationNativeTreeFixture, fixtureFileSha256, SELECTED_TITLE, SYNTHETIC_LABEL } from './fixtures/registration-native-tree.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const runner = path.join(root, 'scripts/ci/ci-registration-repro.sh');
 const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-recovery-red-'));
-const acceptedEvidence = path.join(root, '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json');
 
-function copyAcceptedReceipt(label, mutateEvidence = () => {}, mutateReport = null) {
-  const base = fs.mkdtempSync(path.join(os.tmpdir(), `sigra-253-saved-${label}-`));
-  const evidencePath = path.join(base, 'evidence.json');
-  const rawSource = `${acceptedEvidence}.raw`;
-  const rawPath = `${evidencePath}.raw`;
-  fs.copyFileSync(acceptedEvidence, evidencePath);
-  fs.cpSync(rawSource, rawPath, { recursive: true });
-  const evidence = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
-  mutateEvidence(evidence, rawPath);
-  if (mutateReport && evidence.attempts?.[0]?.files?.playwright_report) {
-    const reference = evidence.attempts[0].files.playwright_report;
-    const reportPath = path.join(rawPath, reference.path);
-    const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-    const updateDigest = mutateReport(report, evidence.attempts[0]);
-    fs.writeFileSync(reportPath, JSON.stringify(report));
-    if (updateDigest) reference.sha256 = crypto.createHash('sha256').update(fs.readFileSync(reportPath)).digest('hex');
-  }
-  fs.writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
-  return { base, evidencePath, evidence };
-}
-
-function verifySavedReceipt(evidencePath) {
-  return spawnSync(runner, ['--verify-diagnostic', evidencePath, '--revision'], { encoding: 'utf8' });
-}
+// Ordinary runner contracts must never open a server or socket (D-11). Any attempt is
+// recorded and refused; the final test of this file asserts the record stays empty.
+const networkAttempts = [];
+const originalConnect = net.Socket.prototype.connect;
+const originalListen = net.Server.prototype.listen;
+net.Socket.prototype.connect = function guardedConnect(...args) {
+  networkAttempts.push(['connect', JSON.stringify(args[0])]);
+  throw new Error('ordinary registration runner contracts must not open sockets');
+};
+net.Server.prototype.listen = function guardedListen(...args) {
+  networkAttempts.push(['listen', JSON.stringify(args[0])]);
+  throw new Error('ordinary registration runner contracts must not start servers');
+};
 
 test('diagnostic verification rejects caller-written success without native receipts', () => {
   const evidence = path.join(temporary, 'forged-success.json');
@@ -137,13 +127,17 @@ test('bounded process runner terminates a stalled child and its grandchild and r
   assert.equal(fs.readFileSync(log, 'utf8').includes('grandchild-finished'), false);
 });
 
-test('the explicit revision CLI freezes before results and accepts a named diagnostic slot', () => {
-  const freeze = path.join(temporary, 'registration-revision.json');
-  const evidence = path.join(temporary, 'registration-revision-evidence.json');
-  const create = spawnSync(runner, ['--create-revision', '--output', freeze], { encoding: 'utf8' });
+test('the legacy revision freeze entrypoint refuses a clean candidate and spent records without native work', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'legacy-create' });
+  try {
+    const freeze = path.join(fixture.base, 'registration-revision.json');
+    const create = fixture.run(['--create-revision', '--output', freeze]);
 
-  assert.equal(create.status, 3, 'a terminal ledger cannot be reopened by the old generic revision entrypoint');
-  assert.match(create.stderr, /zero-native-launch preparation ledger/i);
+    assert.equal(create.status, 3, `${create.stdout}\n${create.stderr}`);
+    assert.match(create.stderr, /preserved config status|zero-native-launch preparation ledger/i);
+    assert.equal(fs.existsSync(freeze), false);
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
 });
 
 test('runner floors fractional millisecond process timeouts before spawnSync', () => {
@@ -187,18 +181,54 @@ test('revision attempt directory collisions preserve existing native artifacts',
   assert.equal(fs.readFileSync(marker, 'utf8'), 'preserve the existing attempt');
 });
 
-test('port availability detects an occupied localhost fixture port without launching a browser', async () => {
-  const server = net.createServer();
-  await new Promise((resolve, reject) => server.once('error', reject).listen(0, '127.0.0.1', resolve));
-  const { port } = server.address();
-  try {
-    assert.equal(await recovery.portAvailable(port), false);
-  } finally { await new Promise((resolve) => server.close(resolve)); }
-  assert.equal(await recovery.portAvailable(port), true);
+function fakeSocketFactory(script) {
+  return () => {
+    const socket = new EventEmitter();
+    socket.destroyed = false;
+    socket.destroy = () => { socket.destroyed = true; };
+    socket.setTimeout = (_ms, callback) => { socket.timeoutCallback = callback; };
+    process.nextTick(() => script(socket));
+    return socket;
+  };
+}
+
+test('port availability reads an injected connect seam and opens no socket', async () => {
+  const occupied = await recovery.portAvailable(25311, { connect: fakeSocketFactory((socket) => socket.emit('connect')) });
+  const refused = await recovery.portAvailable(25311, { connect: fakeSocketFactory((socket) => socket.emit('error', Object.assign(new Error('refused'), { code: 'ECONNREFUSED' }))) });
+  const unknown = await recovery.portAvailable(25311, { connect: fakeSocketFactory((socket) => socket.emit('error', Object.assign(new Error('boom'), { code: 'EACCES' }))) });
+  const stalled = await recovery.portAvailable(25311, { connect: fakeSocketFactory((socket) => socket.timeoutCallback()) });
+
+  assert.equal(occupied, false, 'a successful connect means the fixture port is occupied');
+  assert.equal(refused, true, 'ECONNREFUSED means the port is free');
+  assert.equal(unknown, false, 'any other error is not proof of availability');
+  assert.equal(stalled, false, 'a stalled probe is not proof of availability');
+  assert.deepEqual(networkAttempts, []);
 });
 
 test('readiness fails immediately when the app child already exited before HTTP readiness', async () => {
-  assert.equal(await recovery.waitReady({ exitCode: 1, signalCode: null }, 'http://127.0.0.1:1/', Number(process.hrtime.bigint()) / 1e6 + 1000), null);
+  const probes = [];
+  const result = await recovery.waitReady({ exitCode: 1, signalCode: null }, 'http://127.0.0.1:1/', Number(process.hrtime.bigint()) / 1e6 + 1000, { probe: async (url) => { probes.push(url); return 200; } });
+  assert.equal(result, null);
+  assert.deepEqual(probes, []);
+});
+
+test('readiness polls an injected probe on an injected clock until HTTP 200 or the deadline', async () => {
+  let clock = 1000;
+  const sleeps = [];
+  const options = (statuses) => ({
+    now: () => clock,
+    sleep: async (ms) => { sleeps.push(ms); clock += ms; },
+    probe: async () => statuses.shift() ?? null
+  });
+  const ready = await recovery.waitReady({ exitCode: null, signalCode: null }, 'http://127.0.0.1:1/', 1600, options([null, 503, 200]));
+  assert.equal(ready, 200);
+  assert.equal(sleeps.length, 2);
+
+  clock = 1000; sleeps.length = 0;
+  const expired = await recovery.waitReady({ exitCode: null, signalCode: null }, 'http://127.0.0.1:1/', 1100, options([]));
+  assert.equal(expired, null);
+  assert.ok(sleeps.reduce((sum, ms) => sum + ms, 0) <= 100, 'readiness never sleeps past its deadline');
+  assert.deepEqual(networkAttempts, []);
 });
 
 test('one-use infrastructure retry requires the independently reviewed Chromium bootstrap failure', () => {
@@ -236,16 +266,30 @@ test('one-use infrastructure retry requires the independently reviewed Chromium 
     assert.equal(recovery.validateInfrastructureRetry(record, review).ok, false);
   }
 
-  const phase = path.join(root, '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks');
-  const freeze = path.join(temporary, 'reviewed-infrastructure-retry.json');
-  const reservation = path.join(temporary, 'reviewed-infrastructure-retry-reservation.json');
-  const create = spawnSync(runner, ['--create-infrastructure-retry', '--freeze', path.join(phase, '253-REPLAN-REGISTRATION-FREEZE-REVISION-03.json'), '--evidence', path.join(phase, '253-REPLAN-REGISTRATION-EVIDENCE.json'), '--review', path.join(phase, '253-15-INFRASTRUCTURE-RETRY-REVIEW.json'), '--output', freeze, '--reservation', reservation], { encoding: 'utf8' });
-  assert.equal(create.status, 0, `${create.stdout}\n${create.stderr}`);
-  const retryFreeze = JSON.parse(fs.readFileSync(freeze, 'utf8'));
-  assert.equal(retryFreeze.infrastructure_retry.count, 1);
-  assert.equal(retryFreeze.ledger.historical_charge_ms, 33884);
-  assert.deepEqual(retryFreeze.ledger.slots.map((slot) => slot.id), ['R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE']);
-  assert.equal(JSON.parse(fs.readFileSync(reservation, 'utf8')).status, 'reserved');
+});
+
+test('the infrastructure retry entrypoint rejects mismatched or ineligible preserved evidence in a clean candidate', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'retry' });
+  try {
+    const output = path.join(fixture.base, 'retry-freeze.json');
+    const reservation = path.join(fixture.base, 'retry-reservation.json');
+    const review = path.join(fixture.base, 'retry-review.json');
+    const create = () => fixture.run(['--create-infrastructure-retry', '--freeze', fixture.freezePath, '--evidence', fixture.evidencePath, '--review', review, '--output', output, '--reservation', reservation]);
+
+    fs.writeFileSync(review, `${JSON.stringify({ evidence_sha256: 'f'.repeat(64), status: 'independently_classified_infrastructure' })}\n`);
+    const mismatched = create();
+    assert.equal(mismatched.status, 3, `${mismatched.stdout}\n${mismatched.stderr}`);
+    assert.match(mismatched.stderr, /digest does not match preserved bytes/);
+
+    fs.writeFileSync(review, `${JSON.stringify({ evidence_sha256: fixtureFileSha256(fixture.evidencePath), status: 'independently_classified_infrastructure', retry_used: false, shared_retry_allowance: 1 })}\n`);
+    const ineligible = create();
+    assert.equal(ineligible.status, 3, `${ineligible.stdout}\n${ineligible.stderr}`);
+    assert.match(ineligible.stderr, /infrastructure retry rejected/);
+
+    assert.equal(fs.existsSync(output), false);
+    assert.equal(fs.existsSync(reservation), false);
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
 });
 
 test('revision evidence binds to the freeze file digest while validating its internal digest separately', () => {
@@ -323,44 +367,66 @@ test('command logs redact the complete seeded demo credentials block before hash
   assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), crypto.createHash('sha256').update(fs.readFileSync(log)).digest('hex'));
 });
 
-test('the saved desktop and mobile native Playwright receipts verify through the real shell CLI', () => {
-  const fixture = copyAcceptedReceipt('native-positive');
+test('a complete synthetic committed tree verifies through the real shell CLI with zero native commands', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'native-positive' });
   try {
-    const result = verifySavedReceipt(fixture.evidencePath);
+    const result = fixture.verify();
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
-    assert.match(result.stdout, /2\/2 plan15 diagnostics; 2 launches; 121680 ms charged/);
-    assert.deepEqual(fixture.evidence.attempts.map((attempt) => attempt.observed_outcome), ['passed', 'passed']);
-  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+    assert.match(result.stdout, /2\/2 plan15 diagnostics; 2 launches; 32000 ms charged/);
+    assert.match(result.stdout, new RegExp(SYNTHETIC_LABEL.replace('/', '\\/')));
+    assert.deepEqual(fixture.readEvidence().attempts.map((attempt) => attempt.observed_outcome), ['passed', 'passed']);
+    assert.deepEqual(fixture.stubCalls(), [], 'verification must not run setup, browser or database commands');
+    assert.equal(fixture.git(['status', '--porcelain']), '', 'verification leaves the committed candidate clean');
+  } finally { fixture.cleanup(); }
+});
+
+test('the synthetic fixture never reads active phase records, refs or the checkout under test', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'isolation' });
+  try {
+    assert.notEqual(fs.realpathSync(fixture.root), fs.realpathSync(root));
+    assert.equal(fixture.git(['for-each-ref', '--format=%(refname)']).split('\n').filter((ref) => ref.startsWith('refs/gsd/')).length, 0);
+    assert.equal(fixture.git(['log', '--format=%ae']).split('\n').every((email) => email.endsWith('@example.invalid')), true);
+    const historical = JSON.stringify(fixture.readFreeze().historical);
+    assert.equal(historical.includes('de53d1c80f4a67b73a5e5078959c2c88ad75abe8'), false);
+    assert.equal(fixture.readFreeze().source.repository, 'synthetic/native-fixture');
+    assert.equal(fixture.readFreeze().provenance.synthetic_native_fixture, SYNTHETIC_LABEL);
+    assert.equal(fixture.readEvidence().provenance.accepted_as_native_proof, false);
+  } finally { fixture.cleanup(); }
 });
 
 test('revision CLI rejects null, empty, and fake evidence before trusting caller status', () => {
-  const cases = [
-    ['null', 'null\n'],
-    ['empty', '{}\n'],
-    ['fake', `${JSON.stringify({ schema_version: 'sigra.phase253.registration-replan-evidence/v1', status: 'diagnosis_incomplete', attempts: [], limits: { browser_launches: 2, charged_duration_ms: 121680 } })}\n`]
-  ];
-  for (const [label, contents] of cases) {
-    const evidence = path.join(temporary, `forged-${label}.json`);
-    fs.writeFileSync(evidence, contents);
-    const result = verifySavedReceipt(evidence);
-    assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
-  }
+  const fixture = createRegistrationNativeTreeFixture({ label: 'forged-inventory' });
+  try {
+    const cases = [
+      ['null', 'null\n'],
+      ['empty', '{}\n'],
+      ['fake', `${JSON.stringify({ schema_version: 'sigra.phase253.registration-replan-evidence/v1', status: 'diagnosis_incomplete', attempts: [], limits: { browser_launches: 2, charged_duration_ms: 121680 } })}\n`]
+    ];
+    for (const [label, contents] of cases) {
+      const evidence = path.join(fixture.base, `forged-${label}.json`);
+      fs.writeFileSync(evidence, contents);
+      const result = fixture.run(['--verify-diagnostic', evidence, '--revision']);
+      assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
+    }
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
 });
 
 test('revision CLI rejects slot usage counters that do not match native attempts', () => {
-  const fixture = copyAcceptedReceipt('slot-count-drift', (evidence) => { evidence.limits.used_slots = []; });
+  const fixture = createRegistrationNativeTreeFixture({ label: 'slot-count-drift' });
   try {
-    const result = verifySavedReceipt(fixture.evidencePath);
+    fixture.rewriteEvidence((evidence) => { evidence.limits.used_slots = []; });
+    const result = fixture.verify();
     assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
     assert.match(result.stderr, /slot/i);
-  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  } finally { fixture.cleanup(); }
 });
 
 test('revision CLI rejects forged, mismatched, duplicated, and over-budget saved receipts', () => {
   const findSelectedSpec = (report) => {
     const visit = (suite) => {
       for (const spec of suite.specs ?? []) {
-        if (spec.title === 'render bundle: board-mg-9/populated') return spec;
+        if (spec.title === SELECTED_TITLE) return spec;
       }
       for (const child of suite.suites ?? []) {
         const found = visit(child);
@@ -371,75 +437,121 @@ test('revision CLI rejects forged, mismatched, duplicated, and over-budget saved
     return report.suites.map(visit).find(Boolean);
   };
   const cases = [
-    ['singleton wrong project', (evidence) => { evidence.attempts = [evidence.attempts[0]]; evidence.attempts[0].project = 'admin-eval-dark'; }],
-    ['duplicate spent slot', (evidence) => { evidence.attempts.push(structuredClone(evidence.attempts[0])); }],
-    ['source commit drift', (evidence) => { evidence.source.checkout_head = 'different-source'; }],
-    ['source blob drift', (evidence) => { evidence.source.blobs['scripts/ci/ci-registration-recovery.mjs'] = 'different-blob'; }],
-    ['over-counted launches', (evidence) => { evidence.limits.browser_launches += 1; }],
-    ['over-time charge', (evidence) => { evidence.attempts[0].charged_duration_ms = 120001; }],
-    ['missing database drop', (evidence) => { evidence.attempts[0].database.drop_exit_code = null; }],
-    ['missing browser report', (evidence) => { evidence.attempts[0].files.playwright_report = null; }],
-    ['changed sanitized log digest', (evidence, rawPath) => { fs.appendFileSync(path.join(rawPath, evidence.attempts[0].files.setup_log.path), 'changed after receipt\n'); }]
+    ['singleton wrong project', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts = [evidence.attempts[0]]; evidence.attempts[0].project = 'admin-eval-dark'; }), /attempt identity differs from its frozen slot/],
+    ['duplicate spent slot', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts.push(structuredClone(evidence.attempts[0])); }), /was reused/],
+    ['source commit drift', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.source.checkout_head = 'different-source'; }), /evidence source identity differs/],
+    ['source blob drift', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.source.blobs['scripts/ci/ci-registration-recovery.mjs'] = 'different-blob'; }), /evidence source identity differs/],
+    ['over-counted launches', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.browser_launches += 1; }), /browser launch count differs/],
+    ['over-time charge', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].charged_duration_ms = 120001; }), /exceeded its frozen 120,000 ms command/],
+    ['missing database drop', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].database.drop_exit_code = null; }), /database setup or drop did not succeed/],
+    ['missing browser report', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].files.playwright_report = null; }), /native Playwright report is missing/],
+    ['changed sanitized log digest', (fixture) => fixture.appendRaw('R-DIAG-DESKTOP', 'setup_log', 'changed after receipt\n'), /native setup_log digest mismatch/],
+    ['byte-variant selected title', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { findSelectedSpec(report).title += '\u200b'; }), /exactly one byte-exact selected/],
+    ['native expectedStatus mismatch', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { findSelectedSpec(report).tests[0].expectedStatus = 'skipped'; }), /expectedStatus and result status disagree/],
+    ['native result status mismatch', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { findSelectedSpec(report).tests[0].results[0].status = 'failed'; }), /expectedStatus and result status disagree/],
+    ['empty native report', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.suites = []; }), /contains no results/],
+    ['cli exit disagreement', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].browser.exit_code = 1; }), /disagrees with the Playwright process exit/]
   ];
 
-  for (const [label, mutateEvidence] of cases) {
-    const fixture = copyAcceptedReceipt(label.replaceAll(' ', '-'), mutateEvidence);
+  for (const [label, mutate, reason] of cases) {
+    const fixture = createRegistrationNativeTreeFixture({ label: label.replaceAll(' ', '-') });
     try {
-      const result = verifySavedReceipt(fixture.evidencePath);
+      assert.equal(fixture.verify().status, 0, `${label}: the unmutated fixture is the positive control`);
+      mutate(fixture);
+      const result = fixture.verify();
       assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
-    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+      assert.match(result.stderr, reason, `${label} must be rejected for its own predicate`);
+      assert.doesNotMatch(result.stderr, /ENOENT|preserved config/, `${label} must not be rejected by an unrelated setup fault`);
+      assert.deepEqual(fixture.stubCalls(), [], label);
+    } finally { fixture.cleanup(); }
   }
+});
 
-  const reportCases = [
-    ['byte-variant selected title', (report) => { findSelectedSpec(report).title += '\u200b'; return true; }],
-    ['native expectedStatus mismatch', (report) => { findSelectedSpec(report).tests[0].expectedStatus = 'skipped'; return true; }],
-    ['native result status mismatch', (report) => { findSelectedSpec(report).tests[0].results[0].status = 'failed'; return true; }],
-    ['empty native report', (report) => { report.suites = []; return true; }]
-  ];
-  for (const [label, mutateReport] of reportCases) {
-    const fixture = copyAcceptedReceipt(label.replaceAll(' ', '-'), () => {}, mutateReport);
-    try {
-      const result = verifySavedReceipt(fixture.evidencePath);
-      assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
-    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
-  }
-
-  const exitMismatch = copyAcceptedReceipt('cli-exit-disagreement', (evidence) => { evidence.attempts[0].browser.exit_code = 1; });
+test('the real shell refuses a run in a clean candidate before setup or browser work, and a stale frozen blob is rejected', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'stale-source' });
   try {
-    const result = verifySavedReceipt(exitMismatch.evidencePath);
-    assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
-  } finally { fs.rmSync(exitMismatch.base, { recursive: true, force: true }); }
+    const output = path.join(fixture.base, 'run-output.json');
+    const refused = fixture.run(['--run-revision', fixture.freezePath, '--slot', 'R-DIAG-DESKTOP', '--output', output]);
+    assert.equal(refused.status, 3, `${refused.stdout}\n${refused.stderr}`);
+    assert.match(refused.stderr, /preserved config status/);
+    assert.equal(fs.existsSync(output), false);
+
+    const file = 'scripts/ci/ci-registration-recovery.mjs';
+    fixture.rewriteFreeze((freeze) => { freeze.source.blobs[file] = 'a'.repeat(40); });
+    fixture.rewriteEvidence((evidence) => { evidence.source.blobs[file] = 'a'.repeat(40); });
+    const stale = fixture.verify();
+    assert.equal(stale.status, 3, `${stale.stdout}\n${stale.stderr}`);
+    assert.match(stale.stderr, /frozen Git source blob mismatch/);
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
 });
 
-test('the real shell rejects stale frozen source before setup or browser work', () => {
-  const phase = path.join(root, '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks');
-  const result = spawnSync(runner, [
-    '--run-revision', path.join(phase, '253-15-INFRASTRUCTURE-RETRY-FREEZE-REVISION-03.json'),
-    '--slot', 'R-DIAG-CONTROL-DARK', '--output', acceptedEvidence
-  ], { encoding: 'utf8' });
-  assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
-  assert.match(result.stderr, /source identity mismatch/);
-});
-
-test('the dirty config must still match its exact preserved bytes and SHA-256', () => {
+test('the dirty config rule is exact when a checkout carries it and absent for a clean candidate', () => {
   assert.equal(typeof recovery.assertDirtyConfigPreserved, 'function');
-  if (typeof recovery.assertDirtyConfigPreserved !== 'function') return;
-  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-config-integrity-'));
+  const fixture = createRegistrationNativeTreeFixture({ label: 'config-integrity' });
   try {
-    const configDir = path.join(fixture, '.planning');
-    fs.mkdirSync(configDir, { recursive: true });
-    const configPath = path.join(configDir, 'config.json');
-    const bytes = spawnSync('git', ['-C', root, 'cat-file', 'blob', 'refs/gsd/phase253-recovery-execution-unrelated-config'], { encoding: null });
-    assert.equal(bytes.status, 0);
-    fs.writeFileSync(configPath, bytes.stdout);
-    assert.equal(spawnSync('git', ['-C', fixture, 'init', '--quiet']).status, 0);
-    const blob = spawnSync('git', ['-C', fixture, 'hash-object', '-w', configPath], { encoding: 'utf8' });
-    assert.equal(blob.status, 0);
-    assert.equal(spawnSync('git', ['-C', fixture, 'update-ref', 'refs/gsd/phase253-recovery-execution-unrelated-config', blob.stdout.trim()]).status, 0);
-    assert.doesNotThrow(() => recovery.assertDirtyConfigPreserved(fixture));
+    assert.doesNotThrow(() => recovery.assertDirtyConfigPreserved(fixture.root), 'a clean candidate has no dirty-config requirement');
+
+    const configPath = path.join(fixture.root, '.planning/config.json');
+    fs.writeFileSync(configPath, '{"synthetic":"committed"}\n');
+    fixture.commitAll('synthetic committed config');
+    const dirtyBytes = '{"synthetic":"operator edit"}\n';
+    fs.writeFileSync(configPath, dirtyBytes);
+    const blob = fixture.git(['hash-object', '-w', configPath]);
+    const ref = 'refs/synthetic-fixture/preserved-config';
+    fixture.git(['update-ref', ref, blob]);
+    const identity = {
+      path: '.planning/config.json', status: ' M', porcelain: ' M .planning/config.json', ref, blob,
+      sha256: crypto.createHash('sha256').update(dirtyBytes).digest('hex')
+    };
+
+    assert.throws(() => recovery.assertDirtyConfigPreserved(fixture.root), /authorized SHA-256 and Git blob/, 'a dirty config must match the real authorized identity');
+    assert.doesNotThrow(() => recovery.assertDirtyConfigPreserved(fixture.root, identity));
     fs.appendFileSync(configPath, '\n');
-    assert.throws(() => recovery.assertDirtyConfigPreserved(fixture), /authorized SHA-256 and Git blob/);
-  } finally { fs.rmSync(fixture, { recursive: true, force: true }); }
+    assert.throws(() => recovery.assertDirtyConfigPreserved(fixture.root, identity), /authorized SHA-256 and Git blob/);
+  } finally { fixture.cleanup(); }
+});
+
+test('synthetic evidence is labeled and rejected by the accepted-only saved-native audit mode', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'accepted-only' });
+  try {
+    const snapshot = () => crypto.createHash('sha256').update(JSON.stringify([
+      fs.readFileSync(fixture.evidencePath, 'utf8'), fs.readFileSync(fixture.freezePath, 'utf8'),
+      fs.readdirSync(fixture.rawDir, { recursive: true }).sort()
+    ])).digest('hex');
+    const before = snapshot();
+
+    const labeled = fixture.verifySavedNative();
+    assert.equal(labeled.status, 3, `${labeled.stdout}\n${labeled.stderr}`);
+    assert.match(labeled.stderr, /synthetic native fixture/i);
+    assert.equal(snapshot(), before, 'the audit mode is read-only');
+
+    // Stripping the marker does not make fixture history acceptable: its temporary Git identity is still synthetic.
+    fixture.rewriteFreeze((freeze) => { delete freeze.provenance; });
+    fixture.rewriteEvidence((evidence) => { delete evidence.provenance; });
+    const ordinary = fixture.verify();
+    assert.equal(ordinary.status, 0, `${ordinary.stdout}\n${ordinary.stderr}`);
+    assert.doesNotMatch(ordinary.stdout, /synthetic-native-fixture/);
+    const stripped = fixture.verifySavedNative();
+    assert.equal(stripped.status, 3, `${stripped.stdout}\n${stripped.stderr}`);
+    assert.match(stripped.stderr, /synthetic/i);
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
+});
+
+test('the saved-native audit mode is declared but never invoked by ordinary CI, and no ordinary contract reads active phase records', () => {
+  const declared = fs.readFileSync(path.join(root, 'scripts/ci/ci-registration-recovery.mjs'), 'utf8');
+  assert.match(declared, /--verify-saved-native/);
+  const workflows = path.join(root, '.github/workflows');
+  if (fs.existsSync(workflows)) {
+    for (const name of fs.readdirSync(workflows)) {
+      assert.equal(fs.readFileSync(path.join(workflows, name), 'utf8').includes('--verify-saved-native'), false, `${name} must not invoke the saved-history audit`);
+    }
+  }
+  const activePhaseRecords = new RegExp(['\\.planning', 'phases', '253-'].join('/'));
+  for (const file of ['scripts/ci/ci-registration-recovery.test.mjs', 'scripts/ci/ci-registration-repro.test.sh']) {
+    assert.doesNotMatch(fs.readFileSync(path.join(root, file), 'utf8'), activePhaseRecords, `${file} must not read active phase records`);
+  }
 });
 
 function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {
@@ -734,4 +846,12 @@ test('an empty drop log with a wrong digest or failed drop exit is not proven by
   } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
 });
 
-test.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
+test('ordinary registration runner contracts opened no server or socket', () => {
+  assert.deepEqual(networkAttempts, []);
+});
+
+test.after(() => {
+  net.Socket.prototype.connect = originalConnect;
+  net.Server.prototype.listen = originalListen;
+  fs.rmSync(temporary, { recursive: true, force: true });
+});
