@@ -6528,7 +6528,7 @@ export function loadR5SourceFileList(root) {
   return [...new Set([...loadR4SourceFileList(root), ...LOAD_R5_EXTRA_SOURCES])];
 }
 
-function verifyFrozenSourceBindingR5(root, freeze, { terminal = false } = {}) {
+export function verifyFrozenSourceBindingR5(root, freeze, { terminal = false } = {}) {
   const head = git(['-C', root, 'rev-parse', 'HEAD']);
   const frozen = freeze?.source?.checkout_head;
   if (!frozen || run('git', ['-C', root, 'merge-base', '--is-ancestor', frozen, head]).status !== 0) throw new Error('frozen R5 source commit is not an ancestor of this checkout');
@@ -6711,6 +6711,26 @@ export function readCommittedApprovalR5(root, freezeFile, freeze) {
   if (!budgetHash || record.budget_sha256 !== budgetHash || freeze?.budget?.sha256 !== budgetHash) throw new Error('R5 budget approval is not bound to the frozen budget document hash');
   if (record.freeze_sha256 !== fileHash(freezeFile)) throw new Error('R5 budget approval is not bound to this freeze file hash');
   if (JSON.stringify(record.caps) !== JSON.stringify(LOAD_R5_CAP_TABLE[record.decision]) || record.retry_granted !== (record.decision === 'approve' ? 1 : 0)) throw new Error('R5 budget approval caps differ from the reviewed table');
+  return record;
+}
+
+// Only the two decisions that grant capacity are ever recorded; a reject (or anything else) writes nothing.
+// The record is Jon's decision (253-83), never the executor's: this plan adds the recorder but never calls it against the real R5 files.
+export function recordBudgetApprovalR5({ decision, budgetFile, freezeFile, outputFile, decisionText }, root = ROOT, { enforcePaths = true, now = () => new Date().toISOString() } = {}) {
+  if (!Object.hasOwn(LOAD_R5_CAP_TABLE, decision ?? '')) throw new Error(`decision ${JSON.stringify(decision)} grants no capacity: only approve or approve-without-retry are recorded`);
+  if (typeof decisionText !== 'string' || !decisionText.trim()) throw new Error('the approval record needs Jon\'s decision text verbatim');
+  if (enforcePaths && (path.resolve(budgetFile) !== path.resolve(root, LOAD_R5_BUDGET_PATH) || path.resolve(freezeFile) !== path.resolve(root, LOAD_R5_FREEZE_PATH)
+    || path.resolve(outputFile) !== path.resolve(root, LOAD_R5_APPROVAL_PATH))) throw new Error('budget approval must use the reviewed R5 budget, freeze and approval paths');
+  const freeze = readJson(freezeFile);
+  if (enforcePaths) validateLoadRecoveryFreezeR5(root, freeze);
+  const budgetHash = fileHash(budgetFile);
+  if (!budgetHash || freeze.budget?.sha256 !== budgetHash) throw new Error('the R5 budget document differs from the freeze binding');
+  const record = {
+    schema_version: LOAD_R5_APPROVAL_SCHEMA, decision, decided_by: 'Jon (operator), recorded by executor from checkpoint response', decision_text: decisionText,
+    budget_sha256: budgetHash, freeze_sha256: fileHash(freezeFile), caps: { ...LOAD_R5_CAP_TABLE[decision] }, retry_granted: decision === 'approve' ? 1 : 0, recorded_at: now()
+  };
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
+  fs.writeFileSync(outputFile, `${JSON.stringify(record, null, 2)}\n`, { flag: 'wx' });
   return record;
 }
 
@@ -6981,7 +7001,7 @@ export async function runLoadRecoverySlotR5(freezeFile, slotId, evidenceFile, ro
   const approval = d.readApproval(root, freezeFile, freeze);
   const caps = Object.hasOwn(LOAD_R5_CAP_TABLE, approval.decision ?? '') ? LOAD_R5_CAP_TABLE[approval.decision] : null;
   if (!caps) throw new Error('budget approval carries an unknown decision');
-  if (approval.schema_version !== LOAD_R5_APPROVAL_SCHEMA || JSON.stringify(approval.caps) !== JSON.stringify(caps)) throw new Error('budget approval is not an R5 (v3) record: approval caps differ from the reviewed R5 table');
+  if (approval.schema_version !== LOAD_R5_APPROVAL_SCHEMA || JSON.stringify(approval.caps) !== JSON.stringify(caps)) throw new Error('budget approval is not an R5 (v4) record: approval caps differ from the reviewed R5 table');
   if (!fs.existsSync(evidenceFile)) throw new Error('R5 native load recovery evidence must be initialized and committed before launch');
   const evidence = readJson(evidenceFile);
   if (evidence.schema_version !== LOAD_R5_SCHEMA || evidence.freeze_sha256 !== freezeHash) throw new Error('R5 native load evidence does not match the committed freeze');
@@ -7270,6 +7290,12 @@ async function main() {
     if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R5_FREEZE_PATH)) throw new Error('R5 load recovery freeze output must use the reviewed phase artifact path');
     const freeze = createLoadRecoveryFreezeR5(args.output);
     console.log(`R5 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; ${freeze.ledger.spent_reservations.length} spent; carried first window bound; no capacity granted)`);
+    return;
+  }
+  // R5 paths are matched before the R4 branch so an R5 doc/freeze can never be recorded against the R4 table.
+  if (args.mode === 'record-budget-approval' && (path.resolve(args.freeze) === path.resolve(ROOT, LOAD_R5_FREEZE_PATH) || path.resolve(args.budget) === path.resolve(ROOT, LOAD_R5_BUDGET_PATH))) {
+    const record = recordBudgetApprovalR5({ decision: args.decision, budgetFile: args.budget, freezeFile: args.freeze, outputFile: args.output, decisionText: args.decisionText });
+    console.log(`R5 budget approval recorded (${record.decision}; retry_granted=${record.retry_granted}; shared cap ${record.caps.shared_cap_ms} ms): ${path.relative(ROOT, args.output)}`);
     return;
   }
   // R4 paths are matched before the R3 branch so an R4 doc/freeze can never be recorded against the R3 table.

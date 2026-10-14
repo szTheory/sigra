@@ -5436,7 +5436,7 @@ test('a host sleep halts as halted_infrastructure with per-test rows, stays char
     assert.deepEqual(evidence.limits.used_slots, [...R5_SPENT, 'CR5-DESKTOP-SECOND', 'CR5-INFRA-RETRY']);
     assert.equal(evidence.limits.physical_playwright_cli_launches, 11);
     assert.deepEqual(r5Verify(h, evidence).errors, [], 'the halted original stays in attempts and the pair counts as one slot outcome');
-    const drifted = structuredClone(evidence); drifted.attempts[1].argv = drifted.attempts[1].argv.filter((arg) => arg !== '--project=admin-eval-dark');
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = [...drifted.attempts[1].argv, '--workers=2'];
     assert.equal(r5Verify(h, drifted).ok, false);
     const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
     assert.equal(r5Verify(h, noDiagnostic).ok, false);
@@ -5465,7 +5465,8 @@ test('the R5 retry is never available after an assertion failure, a count-query 
       await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps(options)), undefined, label);
       const evidence = h.read();
       assert.equal(evidence.status, 'halted', label);
-      assert.deepEqual(evidence.infrastructure_halts, [], label);
+      assert.ok(evidence.infrastructure_halts.every((halt) => halt.retryable === false), `${label}: nothing opened the retry`);
+      assert.equal(evidence.infrastructure_retry, null, label);
       assert.equal(evidence.stop_record.cli_launched, evidence.attempts[0].playwright_cli.launched, label);
       if (evidence.attempts[0].playwright_cli.launched) assert.ok(Array.isArray(evidence.stop_record.per_test_rows) && evidence.stop_record.per_test_rows.length > 0, `${label}: every launched stop lists per_test_rows`);
       await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i, label);
