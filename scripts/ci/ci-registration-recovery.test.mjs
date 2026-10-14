@@ -2832,11 +2832,12 @@ test('an R3 approve-without-retry grants no retry, a budget mismatch refuses to 
 test('the approval recorder CLI routes the R3 freeze path and still refuses a reject decision without writing', () => {
   const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
   const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json');
-  assert.equal(fs.existsSync(out), false, 'no R3 approval exists before Jon decides');
+  // Jon's R3 approval is now committed (253-63); a reject must still never write or alter it.
+  const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
   const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R3.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
   assert.equal(result.status, 3);
   assert.match(result.stderr, /decision/i);
-  assert.equal(fs.existsSync(out), false);
+  assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before);
 });
 
 test('an R3 run needs a committed v2 approval bound to the R3 budget and freeze, and the R2 approval is refused', () => {
