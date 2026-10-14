@@ -6872,6 +6872,29 @@ export function verifyLoadRecoveryEvidenceDataR5(evidence, freeze, baseDir, stag
   if (limits.physical_playwright_cli_launches !== launches || (caps && launches > caps.physical_cli_max)) errors.push('physical Playwright CLI launch count differs from native receipts or exceeds its approved ceiling');
   if (caps && (measured > caps.d19_cap_ms || measured > caps.shared_cap_ms)) errors.push('approved D-19 or shared time limit was exceeded');
   for (const attempt of outcomes) errors.push(...verifyNativeLoadAttemptR5(attempt, freeze, baseDir).errors.map((message) => `${attempt.slot_id}: ${message}`));
+  // The carried first window and the new second windows are judged as one ledger: distinct databases, a fresh-state digest that
+  // equals the carried collision receipt, and browser-context identities that are unique across the union of carried and new rows.
+  attempts.forEach((attempt, index) => {
+    if (attempts.slice(0, index).some((prior) => prior.database?.name === attempt.database?.name)) errors.push('two native slots reused the same physical database identity');
+    if (binding?.database && attempt.database?.name === binding.database) errors.push('a new native slot reused the carried first window database');
+  });
+  for (const attempt of outcomes) {
+    const prior = binding?.collision_receipts?.[attempt.project];
+    if (!prior || prior !== attempt.fresh_state_receipts?.[attempt.project]) errors.push(`${attempt.project}: fresh database does not prove the prior collision account absent before recreating it`);
+  }
+  const contextRows = [];
+  for (const attempt of outcomes) {
+    const reportFile = confinedFile(baseDir, attempt.files?.playwright_report);
+    if (!reportFile || !fs.existsSync(reportFile)) continue; // reported by the attempt verifier
+    try { for (const result of playReportTests(readJson(reportFile))) contextRows.push({ label: `${attempt.slot_id} / ${result.project} / ${result.title}`, result }); } catch { /* reported by the attempt verifier */ }
+  }
+  errors.push(...crossRowContextReuseR4(contextRows));
+  const carriedIds = new Set(binding?.context_ids ?? []);
+  if (contextRows.some((row) => controlContextIdentitiesR4(row.result).some((id) => carriedIds.has(id)))) errors.push('a new row reused a browser-context identity carried from the first window');
+  if (stage === 'complete') {
+    const total = outcomes.reduce((sum, attempt) => sum + (attempt.lifecycle?.rows ?? 0), 0) + (Number(binding?.rows) || 0);
+    if (total !== 22) errors.push(`native rows total ${total} (carried ${binding?.rows ?? 0} plus new), the complete proof requires 22`);
+  }
   const expectedStatus = stage === 'complete' ? 'complete' : outcomes.length === 0 ? 'ready' : 'second_partial';
   if (evidence.status !== expectedStatus) errors.push(`evidence status ${evidence.status} does not match ${outcomes.length} accepted new outcomes (expected ${expectedStatus})`);
   return { ok: errors.length === 0, errors };
