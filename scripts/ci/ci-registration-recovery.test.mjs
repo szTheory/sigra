@@ -4979,7 +4979,7 @@ function loadHarnessR5() {
     const psqlRun = (program, args, options) => {
       calls.push(['psql']); psqlInputs.push(String(options?.input ?? ''));
       if (String(options?.input).includes('pg_database')) return { status: 0, stdout: `${absenceCounts[Math.min(absenceIndex++, absenceCounts.length - 1)]}\n`, stderr: '' };
-      if (accountFail) return { status: 3, stdout: '', stderr: `${accountFail}\nLINE 1: SELECT count(*) FROM "auth".users WHERE email = '${R5_EMAIL}'\n` };
+      if (accountFail) return { status: 3, stdout: '', stderr: `${accountFail}\nLINE 1: SELECT count(*) FROM "auth".users WHERE email = '${args.find((arg) => arg.startsWith('target='))?.slice(7)}'\n` };
       return { status: 0, stdout: `${accountCounts[Math.min(accountIndex++, accountCounts.length - 1)]}\n`, stderr: '' };
     };
     let monoOffset = 0n; let wallOffset = 0;
@@ -5097,7 +5097,8 @@ test('a failed count query halts as a non-infrastructure attempt that names the 
     assert.deepEqual(evidence.infrastructure_halts, []);
     const sidecar = fs.readFileSync(path.join(`${h.evidenceFile}.raw`, attempt.files.prior_collision_absence_stderr.path), 'utf8');
     assert.match(sidecar, /relation "auth\.users" does not exist/);
-    assert.equal(sidecar.includes(R5_EMAIL), false, 'the sidecar is redacted');
+    assert.equal(/platform-admin\+sigra-253-control/.test(sidecar), false, 'the sidecar is redacted');
+    assert.match(sidecar, /<redacted-account>/);
     await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'x' })), /halted_infrastructure|retry|terminal|halted/i);
     await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-MOBILE-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
   } finally { h.clean(); }
