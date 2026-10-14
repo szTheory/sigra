@@ -102,6 +102,7 @@ function parseArgs(argv) {
   if (argv[0] === '--create-load-recovery-r2' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r2', output: path.resolve(argv[2]) };
   if (argv[0] === '--create-load-recovery-r3' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r3', output: path.resolve(argv[2]) };
   if (argv[0] === '--create-load-recovery-r4' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r4', output: path.resolve(argv[2]) };
+  if (argv[0] === '--create-load-recovery-r5' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r5', output: path.resolve(argv[2]) };
   if (argv[0] === '--init-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'init-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--prepare-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'prepare-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--run-load-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv.length === 6) return { mode: 'run-load-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]) };
@@ -6516,6 +6517,247 @@ export function carriedFirstWindowR5(root, deps = {}) {
   };
 }
 
+// ---- Phase 253 plan 79 task 3: R5 freeze, evidence initialisation and approval reader (modeled on R4; R4 stays untouched) ----
+// The R5 source list is the R4 list plus the real-Postgres integration test and the auth-tables migration that fixes the count schema.
+export const LOAD_R5_EXTRA_SOURCES = [...LOAD_R4_EXTRA_SOURCES, 'scripts/ci/ci-registration-recovery.pg.test.mjs', ACCOUNT_SCHEMA_SOURCES_R5.migration];
+// The only pinned blobs allowed to differ from (or be absent in) the R4 freeze: the runner revision and its two tests.
+const LOAD_R5_TOOLING = ['scripts/ci/ci-registration-recovery.mjs', 'scripts/ci/ci-registration-recovery.test.mjs', 'scripts/ci/ci-registration-recovery.pg.test.mjs'];
+const LOAD_R5_CLOSED_NOTE = 'no reuse of any of the eleven spent identities';
+
+export function loadR5SourceFileList(root) {
+  return [...new Set([...loadR4SourceFileList(root), ...LOAD_R5_EXTRA_SOURCES])];
+}
+
+function verifyFrozenSourceBindingR5(root, freeze, { terminal = false } = {}) {
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const frozen = freeze?.source?.checkout_head;
+  if (!frozen || run('git', ['-C', root, 'merge-base', '--is-ancestor', frozen, head]).status !== 0) throw new Error('frozen R5 source commit is not an ancestor of this checkout');
+  for (const [file, expected] of Object.entries(freeze.source.blobs ?? {})) {
+    if (terminal) {
+      // Accepted evidence stays verifiable after later committed runner changes: bind by git objects, not the working tree.
+      const blob = run('git', ['-C', root, 'rev-parse', `${frozen}:${file}`]);
+      if (blob.status !== 0 || blob.stdout.trim() !== expected || run('git', ['-C', root, 'cat-file', '-t', expected]).stdout.trim() !== 'blob') throw new Error(`frozen R5 source blob mismatch at the frozen commit for ${file}`);
+    } else if (git(['-C', root, 'hash-object', file]) !== expected) throw new Error(`frozen R5 source identity mismatch for ${file}`);
+  }
+  return head;
+}
+
+function verifyFrozenHistoryBindingR5(root, freeze, { terminal = false } = {}) {
+  const frozen = freeze.source.checkout_head;
+  for (const artifact of freeze.historical?.artifacts ?? []) {
+    const actual = terminal ? sha256(readFrozenBytesR2(root, frozen, artifact.path)) : fileHash(path.join(root, artifact.path));
+    if (actual !== artifact.sha256) throw new Error(`preserved R5 history changed: ${artifact.path}`);
+  }
+  const budget = terminal ? sha256(readFrozenBytesR2(root, frozen, LOAD_R5_BUDGET_PATH)) : fileHash(path.join(root, LOAD_R5_BUDGET_PATH));
+  if (freeze.budget?.file !== LOAD_R5_BUDGET_PATH || !budget || freeze.budget.sha256 !== budget) throw new Error('the R5 budget document differs from the frozen binding');
+}
+
+function canonicalLedgerR5(freeze) {
+  return buildLoadRecoveryLedgerR5({
+    charges: freeze.historical?.carried_components_ms, physicalPlaywrightLaunches: freeze.historical?.physical_playwright_cli_launches,
+    spentReservations: freeze.historical?.spent_reservations, retryUsed: freeze.historical?.spent_retry?.used,
+    retryAvailable: freeze.historical?.spent_retry?.available, preparationUsedMs: LOAD_R5_PREPARATION_USED_MS
+  });
+}
+
+// Seams are injectable so the freeze flow runs offline in a temporary committed checkout.
+function loadR5FreezeDeps(deps = {}) {
+  return {
+    enforceNode: true, assertCheckout: assertRevisionCheckout, assertConfig: assertDirtyConfigPreserved, readHistory: readLoadHistoryR5, carriedFirst: carriedFirstWindowR5,
+    sourceFiles: loadR5SourceFileList, requiredSources: () => [...SOURCE_FILES, ...LOAD_EXTRA_SOURCES, ...LOAD_R4_EXTRA_SOURCES, ...LOAD_R5_EXTRA_SOURCES],
+    importClosure: discoverLoadImportClosure, runtimeIdentity: loadRuntimeIdentity, accountSchema: accountSchemaSourcesR5,
+    r4Source: (root) => { const frozen = readJson(path.join(root, LOAD_R5_LINEAGE.freeze.file)); return { checkout_head: frozen.source.checkout_head, blobs: frozen.source.blobs }; },
+    r4Blob: (root, head, file) => git(['-C', root, 'rev-parse', `${head}:${file}`]), ...deps
+  };
+}
+
+// Every non-tooling blob must equal the R4 frozen blob; a newly pinned product file must equal its blob at the R4 checkout.
+function sourceDeltaR5(root, blobs, d) {
+  const r4 = d.r4Source(root);
+  const changed = []; const addedTooling = []; const addedProduct = [];
+  for (const [file, blob] of Object.entries(blobs)) {
+    const tooling = LOAD_R5_TOOLING.includes(file);
+    if (Object.hasOwn(r4.blobs, file)) {
+      if (blob === r4.blobs[file]) continue;
+      if (!tooling) throw new Error(`pinned blob differs from the R4 frozen blob: ${file}`);
+      changed.push(file);
+    } else if (tooling) addedTooling.push(file);
+    else if (blob !== d.r4Blob(root, r4.checkout_head, file)) throw new Error(`newly pinned file differs from its blob at the R4 checkout: ${file}`);
+    else addedProduct.push(file);
+  }
+  return { changed, added: [...addedTooling, ...addedProduct], r4_checkout_head: r4.checkout_head };
+}
+
+export function createLoadRecoveryFreezeR5(outputFile, root = ROOT, deps = {}) {
+  const d = loadR5FreezeDeps(deps);
+  if (fs.existsSync(outputFile)) throw new Error('refusing to overwrite the additive R5 load recovery freeze');
+  if (d.enforceNode && process.version !== LOAD_NODE) throw new Error(`load recovery must be frozen under Node ${LOAD_NODE}`);
+  d.assertCheckout(root);
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const history = d.readHistory(root);
+  const carried = d.carriedFirst(root);
+  for (const artifact of history.artifacts) {
+    if (sha256(readFrozenBytesR2(root, head, artifact.path)) !== artifact.sha256) throw new Error(`R5 lineage record is not committed at HEAD: ${artifact.path}`);
+  }
+  const budgetHash = fileHash(path.join(root, LOAD_R5_BUDGET_PATH));
+  if (!budgetHash || sha256(readFrozenBytesR2(root, head, LOAD_R5_BUDGET_PATH)) !== budgetHash) throw new Error('the R5 budget document is missing or not committed at HEAD');
+  const files = d.sourceFiles(root);
+  const blobs = Object.fromEntries(files.map((file) => [file, git(['-C', root, 'rev-parse', `${head}:${file}`])]));
+  const delta = sourceDeltaR5(root, blobs, d);
+  const schema = d.accountSchema(root);
+  const query = accountCountQueryR5(schema.name);
+  const freeze = {
+    schema_version: LOAD_R5_FREEZE_SCHEMA, status: 'frozen_before_results', plan: '253-82', revision: 'r5', frozen_at: new Date().toISOString(),
+    context_identity: LOAD_R4_CONTEXT_MODE,
+    source: { repository: 'szTheory/sigra', checkout_head: head, blobs },
+    runtime: d.runtimeIdentity(root),
+    historical: {
+      artifacts: history.artifacts, frozen_blob_sets: history.frozenBlobs, carried_charge_ms: history.ledger.prior_charge_ms,
+      carried_components_ms: history.charges, physical_playwright_cli_launches: LOAD_R5_CARRIED_LAUNCHES, spent_reservations: [...LOAD_R5_SPENT],
+      expired_identities: [...LOAD_R5_EXPIRED], retired_identities: [...LOAD_R5_RETIRED],
+      spent_retry: { used: 1, available: 0 }, terminal_halt: history.terminalHalt, halted_lineage: structuredClone(history.lineage ?? LOAD_R5_LINEAGE)
+    },
+    budget: { file: LOAD_R5_BUDGET_PATH, sha256: budgetHash, grants_capacity: false },
+    ledger: history.ledger,
+    carried_first_window: carried,
+    // account_count.schema is the schema NAME (a string); the per-attempt count receipts keep their own object under schema_binding.
+    account_count: { schema: schema.name, schema_sources: schema.sources, query, query_sha256: sha256(query) },
+    source_delta_from_r4: delta,
+    setup_accounting: {
+      setup_ms: LOAD_R3_SETUP_MS, separately_bounded: true, separately_charged: true, command_deadline_starts_after_setup: true,
+      setup_charge: 'max(monotonic, wall)', command_charge: 'max(monotonic, wall)', slot_charge: 'setup_charge + command_charge'
+    },
+    diagnostics: { per_test_jsonl_required_when_cli_launched: true, env: 'SIGRA_PLAYWRIGHT_FAILURE_JSONL', error_context_preserved: true, psql_stderr_sidecar: true },
+    selection: {
+      spec: 'tests/admin-eval.spec.ts', config: path.basename(LOAD_RECOVERY_CONFIG), original_title: CONTROL_BOARD_TITLE,
+      first_titles: FIRST_CONTROLS, second_titles: CONTROL_SECOND_ACTIVE, deliberate_expected_failure_markers: CONTROL_EXPECTED_FAILURE_MARKERS,
+      cli_grep_forbidden: true, workers: 1, fully_parallel: false, retries: 0, trace: 'retain-on-failure'
+    },
+    tools: {
+      node: process.version, expected_node: LOAD_NODE, playwright: '1.59.1', parse5: '8.0.1',
+      mix: history.control?.accepted?.toolchain?.mix, ecto_sql: history.control?.accepted?.toolchain?.ecto_sql, phoenix_live_view: history.control?.accepted?.toolchain?.phoenix_live_view
+    },
+    exclusions: ['no browser installation', 'no hidden --list or version CLI', 'no warmup', 'no duplicate full suite', LOAD_R5_CLOSED_NOTE, 'no reuse of the expired CR2/CR3/CR4 infrastructure retries or the retired CR-*-SECOND, CR3-*-SECOND and CR4-MOBILE/DARK-SECOND identities', 'no re-run of the carried accepted first window', 'no native or hosted work without a committed Jon approval record bound to the R5 budget document and this freeze', 'no capacity granted by this freeze'],
+    stop_conditions: ['source or history digest mismatch', 'unexpected assertion or missing native report', 'database drop/build cleanup/report/trace sanitation failure', 'setup exceeds 60000 ms', 'command exceeds its frozen command_ms', 'host suspension detected', 'stalled owned process group remains alive', 'AC power, caffeinate holder or pmset assertion proof missing before predebit', 'a launched attempt lacks its per-test JSONL receipt', 'two different rows share a browser-context identity', 'account count query exits non-zero', 'carried first window binding fails re-verification']
+  };
+  freeze.freeze_sha256 = loadFreezeDigest(freeze);
+  writeJson(outputFile, freeze);
+  return freeze;
+}
+
+export function validateLoadRecoveryFreezeR5(root, freeze, { terminal = false, deps = {} } = {}) {
+  const d = loadR5FreezeDeps(deps);
+  d.assertConfig(root);
+  if (freeze?.schema_version !== LOAD_R5_FREEZE_SCHEMA || freeze.status !== 'frozen_before_results' || freeze.context_identity !== LOAD_R4_CONTEXT_MODE
+    || freeze.freeze_sha256 !== loadFreezeDigest(freeze)) throw new Error('R5 native load recovery freeze is malformed or its digest is invalid');
+  const head = verifyFrozenSourceBindingR5(root, freeze, { terminal });
+  for (const required of d.requiredSources()) if (!freeze.source.blobs?.[required]) throw new Error(`freeze omits required source ${required}`);
+  if (!terminal) for (const file of d.importClosure(root)) if (!freeze.source.blobs?.[file]) throw new Error(`freeze omits actual imported runtime source ${file}`);
+  verifyFrozenHistoryBindingR5(root, freeze, { terminal });
+  if (JSON.stringify(freeze.ledger) !== JSON.stringify(canonicalLedgerR5(freeze))) throw new Error('frozen R5 ledger differs from the reviewed carried allocation');
+  for (const slot of freeze.ledger.slots.slice(0, 3)) if (slot.argv.some((arg) => /^(-g|--grep)(=|$)/.test(arg))) throw new Error('frozen argv carries a CLI grep that would override per-project selection');
+  const closed = [...freeze.historical.spent_reservations, ...freeze.historical.expired_identities, ...freeze.historical.retired_identities];
+  if (freeze.ledger.slots.some((slot) => closed.includes(slot.id))) throw new Error('a frozen slot reuses a spent, expired or retired identity');
+  const account = freeze.account_count;
+  if (typeof account?.schema !== 'string' || account.query !== accountCountQueryR5(account.schema) || account.query_sha256 !== sha256(String(account.query))) {
+    throw new Error('frozen account count query or schema differs from the reviewed schema-qualified query');
+  }
+  for (const source of account.schema_sources ?? []) {
+    if (freeze.source.blobs?.[source.path] !== source.blob) throw new Error(`frozen account count schema source is not pinned at its blob: ${source.path}`);
+  }
+  if ((account.schema_sources ?? []).length !== 2) throw new Error('frozen account count must record exactly the migration and user schema sources');
+  const carried = freeze.carried_first_window;
+  if (carried?.revision_commit !== LOAD_R5_CARRY_COMMIT || carried.revision_sha256 !== LOAD_R5_CARRY_SHA256 || carried.rows !== LOAD_R5_CARRIED_ROWS
+    || carried.r4_checkout_head !== LOAD_R5_CARRY_R4_HEAD || carried.evidence_path !== LOAD_R4_EVIDENCE_PATH) {
+    throw new Error('carried first window binding differs from the reviewed first_complete R4 revision');
+  }
+  if (JSON.stringify(sourceDeltaR5(root, freeze.source.blobs, d)) !== JSON.stringify(freeze.source_delta_from_r4)) throw new Error('frozen source delta from R4 differs from the pinned blobs');
+  if (!terminal) {
+    if (JSON.stringify(freeze.runtime) !== JSON.stringify(d.runtimeIdentity(root))) throw new Error('locked/installed runtime or pinned transform identity changed');
+    const schema = d.accountSchema(root);
+    if (schema.name !== account.schema || JSON.stringify(schema.sources) !== JSON.stringify(account.schema_sources)) throw new Error('frozen account count schema differs from the schema derived from the pinned sources');
+    const history = d.readHistory(root);
+    if (JSON.stringify(history.ledger) !== JSON.stringify(freeze.ledger)) throw new Error('re-read R4 lineage differs from the frozen R5 ledger');
+    if (JSON.stringify(history.terminalHalt) !== JSON.stringify(freeze.historical.terminal_halt)) throw new Error('re-read 253-73 terminal halt record differs from the frozen record');
+    if (canonicalJsonR5(d.carriedFirst(root)) !== canonicalJsonR5(carried)) throw new Error('carried first window binding fails re-verification against the committed R4 bytes');
+  }
+  return head;
+}
+
+function checkLoadRecoveryFreezeFileR5(freezeFile, root = ROOT) {
+  try {
+    if (path.resolve(freezeFile) !== path.resolve(root, LOAD_R5_FREEZE_PATH)) throw new Error('freeze check accepts only the additive R5 path');
+    validateLoadRecoveryFreezeR5(root, readJson(freezeFile));
+    console.log('R5 native load recovery freeze verified: R4 lineage re-hashed, 2359703 ms/9 launches/11 spent carried, accepted first window bound, schema-qualified account count, setup bounded outside the work deadline, 6 new rows, no capacity granted');
+    return { ok: true, errors: [] };
+  } catch (error) {
+    console.error(`R5 native load recovery freeze rejected: ${error.message}`);
+    return { ok: false, errors: [error.message] };
+  }
+}
+
+// Capacity is usable only through a record committed in HEAD and bound to the R5 budget document and freeze.
+export function readCommittedApprovalR5(root, freezeFile, freeze) {
+  const file = path.join(root, LOAD_R5_APPROVAL_PATH);
+  if (!fs.existsSync(file)) throw new Error('R5 budget approval record is absent: capacity exists only after Jon\'s decision is recorded');
+  const tracked = run('git', ['-C', root, 'ls-files', '--error-unmatch', '--', LOAD_R5_APPROVAL_PATH]);
+  const inHead = run('git', ['-C', root, 'cat-file', '-e', `HEAD:${LOAD_R5_APPROVAL_PATH}`]);
+  if (tracked.status !== 0 || inHead.status !== 0) throw new Error('R5 budget approval record is not committed in HEAD');
+  const bytes = fs.readFileSync(file);
+  if (!bytes.equals(readGitBlob(root, `HEAD:${LOAD_R5_APPROVAL_PATH}`))) throw new Error('R5 budget approval record differs from its committed bytes');
+  const record = JSON.parse(bytes.toString('utf8'));
+  if (record.schema_version !== LOAD_R5_APPROVAL_SCHEMA || !Object.hasOwn(LOAD_R5_CAP_TABLE, record.decision ?? '')) throw new Error('R5 budget approval record is malformed or carries an unrecognised decision');
+  const budgetHash = fileHash(path.join(root, LOAD_R5_BUDGET_PATH));
+  if (!budgetHash || record.budget_sha256 !== budgetHash || freeze?.budget?.sha256 !== budgetHash) throw new Error('R5 budget approval is not bound to the frozen budget document hash');
+  if (record.freeze_sha256 !== fileHash(freezeFile)) throw new Error('R5 budget approval is not bound to this freeze file hash');
+  if (JSON.stringify(record.caps) !== JSON.stringify(LOAD_R5_CAP_TABLE[record.decision]) || record.retry_granted !== (record.decision === 'approve' ? 1 : 0)) throw new Error('R5 budget approval caps differ from the reviewed table');
+  return record;
+}
+
+export function initializeLoadRecoveryEvidenceR5(freezeFile, evidenceFile, root = ROOT, deps = {}) {
+  const d = { validate: validateLoadRecoveryFreezeR5, readApproval: readCommittedApprovalR5, ...deps };
+  if (fs.existsSync(evidenceFile)) throw new Error('refusing to overwrite additive R5 native load recovery evidence');
+  const freeze = readJson(freezeFile);
+  d.validate(root, freeze);
+  const closed = [...freeze.historical.spent_reservations, ...freeze.historical.expired_identities, ...freeze.historical.retired_identities];
+  const reused = freeze.ledger.slots.find((slot) => closed.includes(slot.id));
+  if (reused) throw new Error(`slot ${reused.id} is a spent, expired or retired identity and can never run again`);
+  const approval = d.readApproval(root, freezeFile, freeze);
+  if (!Object.hasOwn(LOAD_R5_CAP_TABLE, approval?.decision ?? '')) throw new Error('R5 approval decision grants no capacity');
+  const caps = LOAD_R5_CAP_TABLE[approval.decision];
+  const evidence = {
+    schema_version: LOAD_R5_SCHEMA, revision: 'r5', status: 'ready', context_identity: LOAD_R4_CONTEXT_MODE,
+    freeze_path: path.relative(root, freezeFile), freeze_sha256: fileHash(freezeFile),
+    source: structuredClone(freeze.source), historical: structuredClone(freeze.historical),
+    carried_first_window: structuredClone(freeze.carried_first_window), account_count: structuredClone(freeze.account_count),
+    created_at: new Date().toISOString(), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+    prior_terminal_halts: [structuredClone(freeze.historical.terminal_halt)], infrastructure_halts: [], infrastructure_retry: null,
+    approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+    limits: {
+      prior_charge_ms: freeze.ledger.prior_charge_ms, preparation_charge_ms: 0, preparation_remaining_ms: freeze.ledger.preparation_reserve_ms,
+      charged_duration_ms: freeze.ledger.prior_charge_ms, physical_playwright_cli_launches: freeze.ledger.prior_playwright_cli_launches,
+      used_slots: [...freeze.ledger.spent_reservations], max_d19_ms: caps.d19_cap_ms, max_total_ms: caps.shared_cap_ms,
+      max_d19_physical_playwright_cli_launches: caps.d19_launch_max, max_physical_playwright_cli_launches: caps.physical_cli_max,
+      retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+    }
+  };
+  fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  writeJson(evidenceFile, evidence);
+  return evidence;
+}
+
+// Native verification of R5 rows is wired by plan 253-80; until then every R5 evidence file is a clean rejection.
+export function verifyLoadRecoveryFileR5(evidenceFile, stage, root = ROOT) {
+  try {
+    if (path.resolve(evidenceFile) !== path.resolve(root, LOAD_R5_EVIDENCE_PATH)) throw new Error('verification accepts only the additive R5 native evidence path');
+    const evidence = readJson(evidenceFile);
+    const freezeFile = path.resolve(root, evidence.freeze_path ?? '');
+    if (freezeFile !== path.resolve(root, LOAD_R5_FREEZE_PATH)) throw new Error('native evidence does not point to the reviewed R5 freeze');
+    validateLoadRecoveryFreezeR5(root, readJson(freezeFile), { terminal: ['first_complete', 'complete'].includes(evidence.status) });
+    throw new Error(`R5 native verification of stage ${stage} is not available until plan 253-80 wires the R5 acceptance verifier`);
+  } catch (error) { console.error(`R5 native load recovery evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.mode === 'create-load-recovery') {
@@ -6542,6 +6784,12 @@ async function main() {
     console.log(`R4 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; ${freeze.ledger.spent_reservations.length} spent; per-row union context identity; no capacity granted)`);
     return;
   }
+  if (args.mode === 'create-load-recovery-r5') {
+    if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R5_FREEZE_PATH)) throw new Error('R5 load recovery freeze output must use the reviewed phase artifact path');
+    const freeze = createLoadRecoveryFreezeR5(args.output);
+    console.log(`R5 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; ${freeze.ledger.spent_reservations.length} spent; carried first window bound; no capacity granted)`);
+    return;
+  }
   // R4 paths are matched before the R3 branch so an R4 doc/freeze can never be recorded against the R3 table.
   if (args.mode === 'record-budget-approval' && (path.resolve(args.freeze) === path.resolve(ROOT, LOAD_R4_FREEZE_PATH) || path.resolve(args.budget) === path.resolve(ROOT, LOAD_R4_BUDGET_PATH))) {
     const record = recordBudgetApprovalR4({ decision: args.decision, budgetFile: args.budget, freezeFile: args.freeze, outputFile: args.output, decisionText: args.decisionText });
@@ -6562,7 +6810,14 @@ async function main() {
   const isR2Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R2_FREEZE_PATH);
   const isR3Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R3_FREEZE_PATH);
   const isR4Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R4_FREEZE_PATH);
+  const isR5Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R5_FREEZE_PATH);
   if (args.mode === 'init-load-recovery') {
+    if (isR5Freeze(args.freeze)) {
+      if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R5_EVIDENCE_PATH)) throw new Error('R5 load recovery evidence must use the reviewed R5 artifact path');
+      const evidence = initializeLoadRecoveryEvidenceR5(args.freeze, args.output);
+      console.log(`R5 native load recovery ledger initialized before setup: ${path.relative(ROOT, args.output)} (${evidence.limits.charged_duration_ms} ms carried; ${evidence.limits.used_slots.length} spent reservations; decision=${evidence.approval.decision})`);
+      return;
+    }
     if (isR4Freeze(args.freeze)) {
       if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R4_EVIDENCE_PATH)) throw new Error('R4 load recovery evidence must use the reviewed R4 artifact path');
       const evidence = initializeLoadRecoveryEvidenceR4(args.freeze, args.output);
@@ -6587,11 +6842,12 @@ async function main() {
     return;
   }
   if (args.mode === 'check-load-recovery-freeze') {
-    const ok = isR4Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR4(args.freeze).ok : isR3Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR3(args.freeze).ok : isR2Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR2(args.freeze).ok : checkLoadRecoveryFreezeFile(args.freeze).ok;
+    const ok = isR5Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR5(args.freeze).ok : isR4Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR4(args.freeze).ok : isR3Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR3(args.freeze).ok : isR2Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR2(args.freeze).ok : checkLoadRecoveryFreezeFile(args.freeze).ok;
     if (!ok) process.exitCode = 3;
     return;
   }
   if (args.mode === 'prepare-load-recovery') {
+    if (isR5Freeze(args.freeze)) throw new Error('R5 native preparation is not available until plan 253-80 wires the R5 run path');
     if (isR4Freeze(args.freeze)) {
       if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R4_EVIDENCE_PATH)) throw new Error('R4 load recovery evidence must use the reviewed R4 artifact path');
       console.log(JSON.stringify(await prepareLoadRecoveryR4(args.freeze, args.output)));
@@ -6612,6 +6868,7 @@ async function main() {
     return;
   }
   if (args.mode === 'run-load-recovery') {
+    if (isR5Freeze(args.freeze)) throw new Error('R5 native slots cannot run until plan 253-80 wires the R5 run path');
     if (isR4Freeze(args.freeze)) { console.log(JSON.stringify(await runLoadRecoverySlotR4(args.freeze, args.slot, args.output, ROOT, { diagnosticFile: args.diagnostic ?? null }))); return; }
     if (isR3Freeze(args.freeze)) { console.log(JSON.stringify(await runLoadRecoverySlotR3(args.freeze, args.slot, args.output, ROOT, { diagnosticFile: args.diagnostic ?? null }))); return; }
     if (isR2Freeze(args.freeze)) { console.log(JSON.stringify(await runLoadRecoverySlotR2(args.freeze, args.slot, args.output, ROOT, { diagnosticFile: args.diagnostic ?? null }))); return; }
@@ -6623,7 +6880,8 @@ async function main() {
     const r2 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R2_EVIDENCE_PATH);
     const r3 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R3_EVIDENCE_PATH);
     const r4 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R4_EVIDENCE_PATH);
-    const verify = r4 ? verifyLoadRecoveryFileR4 : r3 ? verifyLoadRecoveryFileR3 : r2 ? verifyLoadRecoveryFileR2 : verifyLoadRecoveryFile;
+    const r5 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R5_EVIDENCE_PATH);
+    const verify = r5 ? verifyLoadRecoveryFileR5 : r4 ? verifyLoadRecoveryFileR4 : r3 ? verifyLoadRecoveryFileR3 : r2 ? verifyLoadRecoveryFileR2 : verifyLoadRecoveryFile;
     if (!verify(args.evidence, args.stage).ok) process.exitCode = 3;
     return;
   }
