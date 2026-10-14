@@ -3212,6 +3212,402 @@ test('the older verifyNativeControlAttempt keeps its legacy flatten for mirrored
   assert.equal(typeof recovery.verifyNativeControlAttempt, 'function');
 });
 
+// ---- Phase 253 plan 69 task 2: R4 ledger, R3-lineage history reader and freeze ----
+const R4_SPENT = [...R3_SPENT, 'CR3-DESKTOP-MOBILE-FIRST'];
+const R4_CHARGES = [...R3_CHARGES, 822, 71033];
+const R4_IDS = ['CR4-DESKTOP-MOBILE-FIRST', 'CR4-DESKTOP-SECOND', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND'];
+const r4LedgerInput = () => ({
+  charges: [...R4_CHARGES], physicalPlaywrightLaunches: 8, spentReservations: [...R4_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationUsedMs: 5141 + 822
+});
+const R4_APPROVE = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v3', decision: 'approve', retry_granted: 1,
+  caps: { new_allowance_ms: 910000, d19_cap_ms: 3132537, d19_launch_max: 13, shared_cap_ms: 5472537, physical_cli_max: 22 }
+};
+const R4_APPROVE_NO_RETRY = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v3', decision: 'approve-without-retry', retry_granted: 0,
+  caps: { new_allowance_ms: 670000, d19_cap_ms: 2892537, d19_launch_max: 12, shared_cap_ms: 5232537, physical_cli_max: 21 }
+};
+
+test('R4 ledger carries 2222537 ms, eight launches and nine spent identities, with the reviewed R4 caps', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR4(r4LedgerInput());
+  assert.equal(R3_CHARGES.reduce((a, b) => a + b, 0) + 822 + 71033, 2222537);
+  assert.equal(ledger.prior_charge_ms, 2222537);
+  assert.equal(2150682 + 822 + 71033, 2222537);
+  assert.equal(ledger.prior_playwright_cli_launches, 8);
+  assert.deepEqual(ledger.spent_reservations, R4_SPENT);
+  assert.equal(ledger.spent_reservations.length, 9);
+  assert.equal(ledger.preparation_used_ms, 5963);
+  assert.equal(ledger.preparation_reserve_ms, 10000);
+  assert.equal(ledger.retry_used, 1);
+  assert.equal(ledger.retry_available, 0);
+  assert.ok(ledger.expired_identities.includes('CR3-INFRA-RETRY'));
+  for (const id of ['CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND']) assert.ok(ledger.retired_identities.includes(id), id);
+  assert.ok(!R4_SPENT.some((id) => ledger.expired_identities.includes(id) || ledger.retired_identities.includes(id)), 'a spent identity is never also expired or retired');
+  assert.deepEqual(ledger.caps.approve, R4_APPROVE.caps);
+  assert.deepEqual(ledger.caps['approve-without-retry'], R4_APPROVE_NO_RETRY.caps);
+  assert.equal(ledger.required_rows, 22);
+  assert.equal(ledger.headroom_ms, 15000);
+});
+
+test('R4 caps follow the reviewed arithmetic and equal the R4 budget document', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR4(r4LedgerInput());
+  assert.equal(ledger.caps.approve.new_allowance_ms, 10000 + 240000 + 3 * 135000 + 240000 + 15000);
+  assert.equal(ledger.caps.approve.d19_cap_ms, 2222537 + 910000);
+  assert.equal(ledger.caps.approve.shared_cap_ms, 3132537 + 9 * 240000 + 3 * 60000);
+  assert.equal(ledger.caps.approve.d19_launch_max, 8 + 5);
+  assert.equal(ledger.caps.approve.physical_cli_max, 13 + 9);
+  assert.equal(ledger.caps['approve-without-retry'].new_allowance_ms, 910000 - 240000);
+  assert.equal(ledger.caps['approve-without-retry'].d19_launch_max, 12);
+  assert.equal(ledger.caps['approve-without-retry'].physical_cli_max, 21);
+  const doc = fs.readFileSync(path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md'), 'utf8');
+  for (const caps of [R4_APPROVE.caps, R4_APPROVE_NO_RETRY.caps]) {
+    for (const value of [caps.new_allowance_ms, caps.d19_cap_ms, caps.shared_cap_ms]) assert.ok(doc.includes(String(value)), `the R4 budget document states ${value}`);
+  }
+  assert.ok(doc.includes('2222537'));
+  assert.ok(doc.includes('**13**') && doc.includes('**12**') && doc.includes('**22**') && doc.includes('**21**'));
+});
+
+test('R4 ledger rejects any other carried input', () => {
+  for (const mutate of [
+    (input) => { input.charges[13] = 71032; },
+    (input) => { input.charges[12] = 821; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.charges = [...R3_CHARGES]; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations = [...R3_SPENT]; },
+    (input) => { input.spentReservations.reverse(); },
+    (input) => { input.physicalPlaywrightLaunches = 7; },
+    (input) => { input.preparationUsedMs = 5141; }
+  ]) {
+    const input = r4LedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedgerR4(input), /historical|retry|reservation|launch|preparation|carried/i);
+  }
+  assert.throws(() => recovery.buildLoadRecoveryLedgerR4(r3LedgerInput()), /historical|launch|reservation|preparation/i);
+  assert.throws(() => recovery.buildLoadRecoveryLedgerR3(r4LedgerInput()), /historical|launch|reservation|preparation|carried/i, 'the R3 builder still refuses the R4 inputs');
+});
+
+test('R4 slots keep the identical 22-row selection under new identities and never reuse a spent, expired or retired identity', () => {
+  const r3 = recovery.loadRecoverySlotDefinitionsR3();
+  const r4 = recovery.loadRecoverySlotDefinitionsR4();
+  assert.deepEqual(r4.map((slot) => slot.id), [...R4_IDS, 'CR4-INFRA-RETRY']);
+  assert.deepEqual(r4.map((slot) => slot.maps_from), ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND', 'CR4-INFRA-RETRY']);
+  const timing = ({ setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms }) => ({ setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms });
+  assert.deepEqual(timing(r4[0]), { setup_ms: 60000, work_ms: 165000, cleanup_ms: 15000, command_ms: 180000, max_duration_ms: 240000 });
+  for (const slot of r4.slice(1, 4)) assert.deepEqual(timing(slot), { setup_ms: 60000, work_ms: 60000, cleanup_ms: 15000, command_ms: 75000, max_duration_ms: 135000 }, slot.id);
+  assert.equal(r4[4].max_duration_ms, 240000);
+  assert.equal(r4[4].retry, true);
+  assert.equal(r4[4].rows, 0);
+  for (const [index, slot] of r3.entries()) {
+    const strip = ({ id, maps_from, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    assert.deepEqual(strip(r4[index]), strip(slot), `selection, projects, argv, ports, expected CLI exit and windows of ${slot.id} are byte-identical`);
+  }
+  assert.deepEqual(r4.slice(0, 4).map((slot) => slot.rows), [16, 2, 2, 2]);
+  assert.equal(r4.slice(0, 4).reduce((sum, slot) => sum + slot.rows, 0), 22);
+  assert.equal(r4[0].expected_cli_exit, 1);
+  const ledger = recovery.buildLoadRecoveryLedgerR4(r4LedgerInput());
+  const closed = [...ledger.spent_reservations, ...ledger.expired_identities, ...ledger.retired_identities];
+  assert.equal(r4.filter((slot) => closed.includes(slot.id)).length, 0, 'no runnable R4 slot reuses a closed identity');
+});
+
+function r4LineageRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r4-lineage-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  const put = (relative, text) => { const target = path.join(dir, relative); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, text); return target; };
+  const evidenceRel = `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json`;
+  const logRel = 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log';
+  const traceRel = 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip';
+  const diagRel = 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl';
+  const prepRel = 'preparation/mix_version.log';
+  put(`${evidenceRel}.raw/${logRel}`, 'synthetic test log\n'); put(`${evidenceRel}.raw/${traceRel}`, 'zipbytes'); put(`${evidenceRel}.raw/${diagRel}`, '{"row":1}\n');
+  put(`${evidenceRel}.raw/${prepRel}`, 'Mix 1.19\n');
+  const reference = (rel, text) => ({ path: rel, sha256: sha(text), bytes: Buffer.byteLength(text) });
+  const evidence = {
+    status: 'halted', stop_reason: 'two selected rows reused the same browser-context identity',
+    attempts: [{
+      slot_id: 'CR3-DESKTOP-MOBILE-FIRST', charged_duration_ms: 71033, observed_outcome: 'halted',
+      files: { test_log: reference(logRel, 'synthetic test log\n'), traces: [reference(traceRel, 'zipbytes')] },
+      diagnostics: { jsonl: reference(diagRel, '{"row":1}\n'), error_contexts: [] }
+    }],
+    preparation: { duration_ms: 822, receipts: [{ name: 'mix_version', log: reference(prepRel, 'Mix 1.19\n') }] },
+    limits: { prior_charge_ms: 2150682, preparation_charge_ms: 822, charged_duration_ms: 2222537, physical_playwright_cli_launches: 8, used_slots: [...R4_SPENT], retry_used: 1, retry_available: 0, infra_retry: { granted: 1, used: 0 } },
+    infrastructure_retry: null, preserved_revisions: []
+  };
+  put(evidenceRel, `${JSON.stringify(evidence, null, 2)}\n`);
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json`, '{"synthetic":"r3 freeze"}\n');
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json`, '{"synthetic":"r3 approval"}\n');
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R3.md`, '# r3 budget\n');
+  put(`${PHASE_REL}/253-63-SUMMARY.md`, '# halted 253-63\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'lineage');
+  const hashOf = (rel) => sha(fs.readFileSync(path.join(dir, rel)));
+  const record = (rel) => ({ file: rel, sha256: hashOf(rel) });
+  const lineage = {
+    evidence: record(evidenceRel), freeze: record(`${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json`),
+    approval: record(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json`), budget: record(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R3.md`),
+    summary: record(`${PHASE_REL}/253-63-SUMMARY.md`)
+  };
+  const olderHistory = () => ({ charges: [...R3_CHARGES], artifacts: [{ path: 'older/record', sha256: 'a'.repeat(64) }], frozenBlobs: {}, control: { accepted: { toolchain: { mix: '1.19.5' } } } });
+  return { dir, evidenceRel, logRel, lineage, evidence, deps: { olderHistory, lineage, skipPreservedRevisions: true }, put, hashOf, clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('the R4 history reader re-hashes the R3 lineage and reads the carried 2222537 ms ledger from preserved bytes', () => {
+  const r = r4LineageRepo();
+  try {
+    const history = recovery.readLoadHistoryR4(r.dir, r.deps);
+    assert.deepEqual(history.ledger, recovery.buildLoadRecoveryLedgerR4(r4LedgerInput()));
+    assert.deepEqual(history.charges, R4_CHARGES);
+    assert.equal(history.terminalHalt.slot_id, 'CR3-DESKTOP-MOBILE-FIRST');
+    assert.equal(history.terminalHalt.plan, '253-63');
+    assert.equal(history.terminalHalt.cause, 'runner_validator_mirrored_context_annotations');
+    assert.equal(history.terminalHalt.charged_ms, 71033);
+    assert.equal(history.terminalHalt.preparation_ms, 822);
+    assert.equal(history.terminalHalt.terminal, true);
+    assert.equal(history.terminalHalt.infrastructure, false);
+    assert.equal(history.terminalHalt.retryable, false);
+    assert.equal(history.terminalHalt.charged, true);
+    assert.equal(history.terminalHalt.stop_reason, 'two selected rows reused the same browser-context identity');
+    assert.deepEqual(history.terminalHalt.summary, { file: `${PHASE_REL}/253-63-SUMMARY.md`, sha256: sha('# halted 253-63\n') });
+    assert.deepEqual(history.terminalHalt.expired_identities, ['CR3-INFRA-RETRY']);
+    assert.deepEqual(history.terminalHalt.retired_identities, ['CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND']);
+    const paths = history.artifacts.map((item) => item.path);
+    for (const name of ['253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json', '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json', '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json', '253-LOAD-RECOVERY-BUDGETS-R3.md', '253-63-SUMMARY.md']) {
+      assert.ok(paths.includes(`${PHASE_REL}/${name}`), name);
+    }
+    for (const raw of [r.logRel, 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip', 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl', 'preparation/mix_version.log']) {
+      assert.ok(paths.includes(`${r.evidenceRel}.raw/${raw}`), `every R3 raw receipt is re-hashed: ${raw}`);
+    }
+    assert.ok(paths.includes('older/record'), 'the older lineage is carried');
+    assert.ok(history.artifacts.every((item) => /^[0-9a-f]{64}$/.test(item.sha256)));
+  } finally { r.clean(); }
+});
+
+test('the R4 history reader refuses changed R3 evidence, freeze, approval, budget, summary or raw receipts and a wrong carried ledger', () => {
+  const rewriteEvidence = (r, mutate) => {
+    const evidence = structuredClone(r.evidence); mutate(evidence);
+    fs.writeFileSync(path.join(r.dir, r.lineage.evidence.file), `${JSON.stringify(evidence, null, 2)}\n`);
+    r.deps.lineage = { ...r.lineage, evidence: { ...r.lineage.evidence, sha256: sha(fs.readFileSync(path.join(r.dir, r.lineage.evidence.file))) } };
+  };
+  for (const [label, mutate, pattern] of [
+    ['evidence', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.evidence.file), ' '), /R3 evidence/i],
+    ['freeze', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.freeze.file), ' '), /R3 freeze/i],
+    ['approval', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.approval.file), ' '), /R3 approval/i],
+    ['budget', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.budget.file), ' '), /R3 budget/i],
+    ['summary', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.summary.file), ' '), /R3 summary/i],
+    ['raw receipt', (r) => fs.appendFileSync(path.join(r.dir, `${r.evidenceRel}.raw/${r.logRel}`), 'tampered'), /raw/i],
+    ['raw trace', (r) => fs.appendFileSync(path.join(r.dir, `${r.evidenceRel}.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip`), 'x'), /raw/i],
+    ['raw diagnostics', (r) => fs.appendFileSync(path.join(r.dir, `${r.evidenceRel}.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl`), 'x'), /raw/i],
+    ['wrong charge', (r) => rewriteEvidence(r, (e) => { e.attempts[0].charged_duration_ms = 71032; }), /2222537|receipt differs/i],
+    ['wrong stop reason', (r) => rewriteEvidence(r, (e) => { e.stop_reason = 'something else'; }), /receipt differs/i],
+    ['infrastructure outcome', (r) => rewriteEvidence(r, (e) => { e.attempts[0].observed_outcome = 'halted_infrastructure'; }), /receipt differs/i],
+    ['wrong launches', (r) => rewriteEvidence(r, (e) => { e.limits.physical_playwright_cli_launches = 7; }), /receipt differs/i],
+    ['wrong preparation', (r) => rewriteEvidence(r, (e) => { e.preparation.duration_ms = 821; }), /receipt differs/i],
+    ['wrong spent list', (r) => rewriteEvidence(r, (e) => { e.limits.used_slots.pop(); }), /receipt differs/i]
+  ]) {
+    const r = r4LineageRepo();
+    try {
+      mutate(r);
+      assert.throws(() => recovery.readLoadHistoryR4(r.dir, r.deps), pattern, label);
+    } finally { r.clean(); }
+  }
+});
+
+test('the R4 history reader reads the real preserved R3 lineage and reaches the 2222537 ms ledger', () => {
+  const history = recovery.readLoadHistoryR4(root, { olderHistory: (checkout) => recovery.readLoadHistoryR3(checkout, { skipPreservedRevisions: true }), skipPreservedRevisions: true });
+  assert.equal(history.ledger.prior_charge_ms, 2222537);
+  assert.equal(history.ledger.prior_playwright_cli_launches, 8);
+  assert.deepEqual(history.ledger.caps, recovery.buildLoadRecoveryLedgerR4(r4LedgerInput()).caps);
+  assert.equal(history.terminalHalt.charged_ms, 71033);
+  const paths = history.artifacts.map((item) => item.path);
+  assert.ok(paths.includes(`${PHASE_REL}/253-63-SUMMARY.md`));
+  assert.ok(paths.some((item) => item.endsWith('/attempt-01/playwright-report.json')), 'the preserved R3 report is re-hashed as lineage');
+});
+
+function r4FreezeRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r4-freeze-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'lineage'), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md');
+  fs.writeFileSync(budget, '# budgets r4\n');
+  fs.writeFileSync(path.join(dir, 'src/a.txt'), 'a\n'); fs.writeFileSync(path.join(dir, 'src/b.txt'), 'b\n'); fs.writeFileSync(path.join(dir, 'lineage/x.txt'), 'x\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  const history = {
+    ledger: recovery.buildLoadRecoveryLedgerR4(r4LedgerInput()), charges: [...R4_CHARGES],
+    terminalHalt: { slot_id: 'CR3-DESKTOP-MOBILE-FIRST', plan: '253-63', cause: 'runner_validator_mirrored_context_annotations', terminal: true, infrastructure: false, retryable: false, charged: true, charged_ms: 71033, preparation_ms: 822, expired_identities: ['CR3-INFRA-RETRY'], retired_identities: ['CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND'] },
+    artifacts: [{ path: 'lineage/x.txt', sha256: sha('x\n') }], frozenBlobs: {},
+    control: { accepted: { toolchain: { mix: '1.19.5', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' } } }
+  };
+  const deps = {
+    enforceNode: false, assertCheckout: () => {}, assertConfig: () => {}, readHistory: () => history, sourceFiles: () => ['src/a.txt', 'src/b.txt'],
+    requiredSources: () => ['src/a.txt'], importClosure: () => ['src/a.txt', 'src/b.txt'], runtimeIdentity: () => ({ packages: {}, transform_sha256: {} })
+  };
+  return { dir, budget, history, deps, out: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('R4 freeze creation, check and init produce a ready ledger whose caps equal the R4 budget document', () => {
+  const r = r4FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR4(r.out, r.dir, r.deps);
+    assert.equal(freeze.schema_version, 'sigra.phase253.registration-load-recovery-freeze/v4');
+    assert.equal(freeze.revision, 'r4');
+    assert.equal(freeze.status, 'frozen_before_results');
+    assert.equal(freeze.context_identity, 'per_row_union');
+    assert.equal(freeze.budget.sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(freeze.budget.grants_capacity, false);
+    assert.equal(freeze.ledger.required_rows, 22);
+    assert.deepEqual(freeze.historical.terminal_halt, r.history.terminalHalt);
+    assert.deepEqual(freeze.historical.spent_reservations, R4_SPENT);
+    assert.deepEqual(freeze.historical.carried_components_ms, R4_CHARGES);
+    assert.deepEqual(freeze.ledger.caps.approve, R4_APPROVE.caps);
+    assert.deepEqual(freeze.ledger.caps['approve-without-retry'], R4_APPROVE_NO_RETRY.caps);
+    assert.deepEqual(freeze.ledger.slots.map((slot) => slot.id), [...R4_IDS, 'CR4-INFRA-RETRY']);
+    assert.throws(() => recovery.createLoadRecoveryFreezeR4(r.out, r.dir, r.deps), /overwrite/i);
+
+    const head = recovery.validateLoadRecoveryFreezeR4(r.dir, JSON.parse(fs.readFileSync(r.out, 'utf8')), { deps: r.deps });
+    assert.equal(head, gitIn(r.dir, 'rev-parse', 'HEAD'));
+
+    const evidenceFile = path.join(r.dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+    const evidence = recovery.initializeLoadRecoveryEvidenceR4(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R4_APPROVE });
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v4');
+    assert.equal(evidence.revision, 'r4');
+    assert.equal(evidence.status, 'ready');
+    assert.equal(evidence.context_identity, 'per_row_union');
+    assert.equal(evidence.limits.charged_duration_ms, 2222537);
+    assert.equal(evidence.limits.prior_charge_ms, 2222537);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.deepEqual(evidence.limits.used_slots, R4_SPENT);
+    assert.equal(evidence.limits.preparation_remaining_ms, 10000);
+    assert.equal(evidence.limits.max_d19_ms, R4_APPROVE.caps.d19_cap_ms);
+    assert.equal(evidence.limits.max_total_ms, R4_APPROVE.caps.shared_cap_ms);
+    assert.equal(evidence.limits.max_physical_playwright_cli_launches, R4_APPROVE.caps.physical_cli_max);
+    assert.equal(evidence.limits.max_d19_physical_playwright_cli_launches, R4_APPROVE.caps.d19_launch_max);
+    assert.deepEqual(evidence.limits.infra_retry, { granted: 1, used: 0 });
+    assert.deepEqual(evidence.prior_terminal_halts, [r.history.terminalHalt]);
+    assert.deepEqual(evidence.infrastructure_halts, []);
+    assert.deepEqual(evidence.attempts, []);
+    assert.equal(fs.existsSync(`${evidenceFile}.raw`), true);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR4(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R4_APPROVE }), /overwrite/i);
+
+    const noRetryFile = path.join(r.dir, 'evidence-no-retry.json');
+    const noRetry = recovery.initializeLoadRecoveryEvidenceR4(r.out, noRetryFile, r.dir, { validate: () => {}, readApproval: () => R4_APPROVE_NO_RETRY });
+    assert.equal(noRetry.limits.max_total_ms, 5232537);
+    assert.equal(noRetry.limits.max_physical_playwright_cli_launches, 21);
+    assert.deepEqual(noRetry.limits.infra_retry, { granted: 0, used: 0 });
+
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR4(r.out, path.join(r.dir, 'e3.json'), r.dir, { validate: () => {}, readApproval: () => ({ decision: 'reject', retry_granted: 0 }) }), /grants no capacity/i);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR4(r.out, path.join(r.dir, 'e4.json'), r.dir, { validate: () => {} }), /253-70|approval/i, 'no approval reader is wired yet, so init stops before writing');
+    assert.equal(fs.existsSync(path.join(r.dir, 'e4.json')), false);
+  } finally { r.clean(); }
+});
+
+test('R4 freeze validation rejects a changed budget document, ledger, digest, context mode, source blob, lineage record or missing required source', () => {
+  const r = r4FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR4(r.out, r.dir, r.deps);
+    const check = (value, deps = r.deps) => recovery.validateLoadRecoveryFreezeR4(r.dir, value, { deps });
+    const redigest = (value) => { value.freeze_sha256 = sha(JSON.stringify(Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'freeze_sha256')))); return value; };
+    assert.throws(() => check({ schema_version: 'x' }), /malformed|digest/i);
+    assert.throws(() => check({ ...structuredClone(freeze), schema_version: 'sigra.phase253.registration-load-recovery-freeze/v3' }), /malformed|digest/i);
+    const mode = structuredClone(freeze); mode.context_identity = 'legacy_flatten'; redigest(mode);
+    assert.throws(() => check(mode), /malformed|digest/i);
+    const ledger = structuredClone(freeze); ledger.ledger.caps.approve.shared_cap_ms += 1; redigest(ledger);
+    assert.throws(() => check(ledger), /ledger/i);
+    const carried = structuredClone(freeze); carried.historical.carried_components_ms[13] -= 1; redigest(carried);
+    assert.throws(() => check(carried), /carried|historical|allocation|ledger/i);
+    const lineage = structuredClone(freeze); lineage.historical.artifacts[0].sha256 = 'f'.repeat(64); redigest(lineage);
+    assert.throws(() => check(lineage), /preserved R4 history|history changed/i);
+    const blob = structuredClone(freeze); blob.source.blobs['src/a.txt'] = '0'.repeat(40); redigest(blob);
+    assert.throws(() => check(blob), /identity mismatch/i);
+    const missing = structuredClone(freeze); delete missing.source.blobs['src/a.txt']; redigest(missing);
+    assert.throws(() => check(missing), /omits required source|identity/i);
+    const omitted = structuredClone(freeze); delete omitted.source.blobs['src/b.txt']; redigest(omitted);
+    assert.throws(() => check(omitted), /omits actual imported runtime source/i);
+    const grep = structuredClone(freeze); grep.ledger.slots[0].argv.push('--grep=x'); redigest(grep);
+    assert.throws(() => check(grep), /ledger|grep/i);
+    fs.appendFileSync(r.budget, 'edited\n');
+    assert.throws(() => check(freeze), /budget document differs/i);
+  } finally { r.clean(); }
+});
+
+test('R4 freeze blobs pin the R3 source list plus the mirrored-annotation regression fixture', () => {
+  const extras = recovery.LOAD_R4_EXTRA_SOURCES;
+  assert.deepEqual(extras, [...recovery.LOAD_R3_EXTRA_SOURCES, 'scripts/ci/fixtures/r3-mirrored-context-annotations.json']);
+  for (const file of extras) assert.equal(fs.existsSync(path.join(root, file)), true, file);
+  const list = recovery.loadR4SourceFileList(root);
+  for (const file of [...recovery.loadR3SourceFileList(root), ...extras]) assert.ok(list.includes(file), file);
+  assert.ok(list.includes('scripts/ci/ci-registration-recovery.mjs'));
+});
+
+test('the R2 and R3 lineage bytes are unchanged, and the halted R3 and R2 evidence still verify as clean rejections', () => {
+  const pinned = {
+    '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json': 'b264928d022e337be21015416ac81e8bdb3049f7b7b48511fc603d09e764378e',
+    '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json': 'effaef5139fff83a0b3cda6a2d7d9f36f4fac5888942f9dd151ed101b2216284',
+    '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json': '724e4472eaf1b292133857f077fc2e4bbd35b19ef30fe222d424755b2726b8f9',
+    '253-LOAD-RECOVERY-BUDGETS-R3.md': 'dabbcf59bab20a432d7fd328c2555180561b0beae02736476408e28196bed78c',
+    '253-63-SUMMARY.md': '5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab',
+    '253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json': 'b26d5a0cbfca38cbdc3fbf4931ce2fd0ba0cfc35df295e4fe820a259eaab43b1'
+  };
+  for (const [name, expected] of Object.entries(pinned)) assert.equal(sha(fs.readFileSync(path.join(root, PHASE_REL, name))), expected, name);
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const crash = /TypeError|ReferenceError|SyntaxError|is not a function|Cannot read properties|ERR_MODULE_NOT_FOUND/;
+  for (const [revision, name] of [['R3', '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json'], ['R2', '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json']]) {
+    const result = spawnSync(process.execPath, [script, '--verify-load-recovery', path.join(root, PHASE_REL, name), '--stage', 'first'], { encoding: 'utf8', cwd: root });
+    assert.equal(result.status, 3, revision);
+    assert.match(result.stderr, new RegExp(`${revision} native load recovery evidence rejected:`));
+    assert.doesNotMatch(result.stderr, crash);
+  }
+});
+
+test('v1, R2, R3 and R4 route by exact resolved path, each refuses the others, and the R4 modes refuse any other path', () => {
+  const r4 = r4FreezeRepo();
+  const r3 = loadHarnessR3();
+  const r2 = loadHarnessR2();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR4(r4.out, r4.dir, r4.deps);
+    const evidenceFile = path.join(r4.dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+    const evidence = recovery.initializeLoadRecoveryEvidenceR4(r4.out, evidenceFile, r4.dir, { validate: () => {}, readApproval: () => R4_APPROVE });
+    const freezeHash = sha(fs.readFileSync(r4.out));
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR3(evidence, freeze, `${evidenceFile}.raw`, 'first', freezeHash).ok, false, 'R3 refuses R4 evidence');
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(evidence, freeze, `${evidenceFile}.raw`, 'first', freezeHash).ok, false, 'R2 refuses R4 evidence');
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR3(r3.read(), freeze, `${r3.evidenceFile}.raw`, 'first', freezeHash).ok, false, 'R3 evidence does not verify under the R4 freeze');
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR3(r2.read(), r3.freeze, `${r2.evidenceFile}.raw`, 'first', sha(fs.readFileSync(r3.freezeFile))).ok, false);
+    assert.throws(() => recovery.validateLoadRecoveryFreezeR4(r4.dir, r3.freeze, { deps: r4.deps }), /malformed|digest/i, 'the R4 validator refuses an R3 freeze');
+    assert.throws(() => recovery.validateLoadRecoveryFreezeR3(r4.dir, freeze, { deps: r4.deps }), /malformed|digest/i, 'the R3 validator refuses an R4 freeze');
+
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    const stray = path.join(temporary, 'stray-r4-freeze.json');
+    const created = spawnSync(process.execPath, [script, '--create-load-recovery-r4', '--output', stray], { encoding: 'utf8', cwd: root });
+    assert.equal(created.status, 3);
+    assert.match(created.stderr, /reviewed phase artifact path/);
+    assert.equal(fs.existsSync(stray), false);
+    for (const mode of [['--check-load-recovery-freeze', stray], ['--init-load-recovery', '--freeze', stray, '--output', path.join(temporary, 'e.json')], ['--verify-load-recovery', stray, '--stage', 'first']]) {
+      const result = spawnSync(process.execPath, [script, ...mode], { encoding: 'utf8', cwd: root });
+      assert.equal(result.status, 3, mode[0]);
+    }
+    // The R4 paths route to the R4 revision: a clean, labelled rejection, never a crash or a fall-through to another revision.
+    // Asserted only while the R4 artifacts are absent; once a real R4 freeze or ledger is committed they have their own checks.
+    const r4Evidence = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+    const r4Freeze = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json');
+    if (!fs.existsSync(r4Evidence)) {
+      const verify = spawnSync(process.execPath, [script, '--verify-load-recovery', r4Evidence, '--stage', 'first'], { encoding: 'utf8', cwd: root });
+      assert.equal(verify.status, 3);
+      assert.match(verify.stderr, /R4 native load recovery evidence rejected:/);
+      assert.doesNotMatch(verify.stderr, /TypeError|ReferenceError|is not a function|Cannot read properties/);
+    }
+    if (!fs.existsSync(r4Freeze)) {
+      const check = spawnSync(process.execPath, [script, '--check-load-recovery-freeze', r4Freeze], { encoding: 'utf8', cwd: root });
+      assert.equal(check.status, 3);
+      assert.match(check.stderr, /R4 native load recovery freeze rejected:/);
+    }
+    const init = spawnSync(process.execPath, [script, '--init-load-recovery', '--freeze', r4Freeze, '--output', path.join(temporary, 'e5.json')], { encoding: 'utf8', cwd: root });
+    assert.equal(init.status, 3);
+    assert.match(init.stderr, /reviewed R4 artifact path/);
+  } finally { r4.clean(); r3.clean(); r2.clean(); }
+});
+
 test.after(() => {
   net.Socket.prototype.connect = originalConnect;
   net.Server.prototype.listen = originalListen;
