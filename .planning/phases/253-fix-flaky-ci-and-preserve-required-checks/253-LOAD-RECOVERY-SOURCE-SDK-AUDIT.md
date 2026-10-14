@@ -133,5 +133,5 @@ All originals were read for recovery responsibility coverage. New plans are appe
 
 No external product API integration is added. Existing GitHub evidence transport capability coverage in canonical COVERAGE.md is retained unchanged;42/44 finish its already authorized proof modes. No ORM/schema/public auth/generated host/UI change. Preserve sg-* and admin contracts if actual future cause would touch UI; such a cause outside this internal harness scope remains an explicit blocker.
 
-Implementation command after planning/review: $gsd-execute-phase253 --gaps-only. After accepted implementations and root's exact disposition application/final index: unfiltered $gsd-execute-phase253 for security/code review/Nyquist/regression/goal verification. phase.complete only after actual pass. Only then inspect Phase254 readiness/context before naming its discuss/plan/execute route; do not start254 in recovery.
+Implementation command after planning/review: $gsd-execute-phase 253 --gaps-only. After accepted implementations and root's exact disposition application/final index: unfiltered $gsd-execute-phase 253 for security/code review/Nyquist/regression/goal verification. phase.complete only after actual pass. Only then inspect Phase254 readiness/context before naming its discuss/plan/execute route; do not start254 in recovery.
 

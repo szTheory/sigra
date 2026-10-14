@@ -44,8 +44,8 @@ Any actual runtime/source/deadline/network/package/auth/blocker writes durable d
 
 ## Completion route
 
-After this planning/review: $gsd-execute-phase253 --gaps-only.
-After actual new implementations and root's accepted-only disposition/index: unfiltered $gsd-execute-phase253.
+After this planning/review: $gsd-execute-phase 253 --gaps-only.
+After actual new implementations and root's accepted-only disposition/index: unfiltered $gsd-execute-phase 253.
 Only full required security/review/Nyquist/regression/goal verification may pass Phase253; phase.complete follows its actual pass. Then root checks254 readiness/context before persisting next forward command;254 is not started here.
 
 Planning artifact checks are executed separately and recorded in new CHECKS files; this validation strategy does not claim future commands have run.
