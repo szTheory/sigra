@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline contracts for independently checking hosted canary receipts."""
 import copy
+import hashlib
 import base64
 import io
 import json
@@ -572,6 +573,243 @@ class V2VerifierContractTests(unittest.TestCase):
         byte_variant["producer_checks"][0]["source"] = byte_variant["producer_checks"][0]["source"].upper()
         with self.assertRaises(self.module.VerificationError):
             self.module.verify_effective_checks(byte_variant)
+
+
+class PRVerifierContractTests(unittest.TestCase):
+    """Offline contracts for the PR-family and completion CLI/entry points; full chains live in ci-pr-proof.test.sh."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_pr", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    def test_empty_null_and_wrongly_labeled_pr_inputs_never_verify(self):
+        for evidence in (None, {}, [], {"schema_version": "sigra.phase253.pr-proof-evidence/v1"},
+                         {"schema_version": "sigra.phase253.pr-proof-evidence/v1", "family": "normal", "transport_ledger": None},
+                         {"schema_version": "sigra.phase253.pr-proof-evidence/v1", "family": "normal",
+                          "transport_ledger": {"schema_version": "sigra.phase253.http-ledger/v2", "transactions": []},
+                          "allocation_base64": ""}):
+            with self.subTest(evidence=evidence):
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.verify_pr_family(evidence, "normal")
+        for family in ("both", "Normal", "normal ", "docs_only", None):
+            with self.subTest(family=family):
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.verify_pr_family({"schema_version": "sigra.phase253.pr-proof-evidence/v1", "family": family}, family)
+
+    def test_pr_cli_requires_known_modes_and_both_evidence_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "empty.json"
+            path.write_text("{}")
+            for extra in (["--mode", "pr", "--family", "normal"], ["--mode", "pr", "--family", "both"],
+                          ["--mode", "pr", "--family", "docs-only"], ["--mode", "completion", "--require-accepted"],
+                          ["--mode", "pr", "--family", "nonsense"]):
+                with self.subTest(extra=extra):
+                    result = subprocess.run(["python3", str(VERIFY), "--evidence", str(path), *extra], text=True, capture_output=True)
+                    self.assertNotEqual(result.returncode, 0)
+
+    def test_the_five_required_names_are_exact_utf8_byte_strings(self):
+        names = self.module.REQUIRED_NAMES
+        self.assertEqual(len(names), 5)
+        self.assertEqual(len(set(names)), 5)
+        for name in names:
+            self.assertEqual(name, name.encode("utf-8").decode("utf-8"))
+            self.assertEqual(name, name.strip())
+            self.assertTrue(name.isascii())
+
+
+class DocsWorkflowRelationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_docs", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    def test_docs_base_may_only_add_the_exact_named_branch_allowance(self):
+        candidate = b"name: CI\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\njobs: {}\n"
+        docs = candidate.replace(b"  pull_request:\n    branches: [main]\n", b"  pull_request:\n    branches: [main, gsd/253-replan-docs-*]\n")
+        self.module.verify_docs_workflow_relation(candidate, docs)
+        for label, broken in {
+            "identical": candidate, "wrong glob": docs.replace(b"docs-*", b"*"), "extra edit": docs + b"# edit\n",
+            "push widened": docs.replace(b"  push:\n    branches: [main]", b"  push:\n    branches: [main, gsd/253-replan-docs-*]"),
+            "empty": b"", "case variant": docs.replace(b"gsd/", b"GSD/"),
+        }.items():
+            with self.subTest(label):
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.verify_docs_workflow_relation(candidate, broken)
+        for candidate_bad in (b"", b"name: CI\n", candidate + candidate, "not bytes"):
+            with self.subTest(candidate=candidate_bad):
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.verify_docs_workflow_relation(candidate_bad, docs)
+
+
+class CompletionContractTests(unittest.TestCase):
+    """Accepted-only completion with stubbed sub-verifiers; each stub's own contracts are tested separately."""
+
+    LINKS = ("phase252_replay", "phase252_diagnosis", "load_controls", "load_acceptance", "publication", "canary", "pr_normal", "pr_docs_only")
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_completion", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.calls = []
+
+        class Done:
+            returncode = 0
+            stderr = ""
+            stdout = ""
+
+        class FakeSubprocess:
+            @staticmethod
+            def run(argv, **_kw):
+                self.calls.append(argv)
+                return Done()
+
+        self.module.subprocess = FakeSubprocess
+        self.module.verify_pr_pair = lambda normal, docs: {"accepted_live": not normal.get("synthetic", False), "status": "stub"}
+        self.module.verify_canary_matrix = lambda canary: {"status": "stub"}
+        self.documents = {
+            "phase252_replay": {"original": "replay"}, "phase252_diagnosis": {"original": "diagnosis"},
+            "load_controls": {"controls": 22}, "load_acceptance": {"assessment": {"kind": "cause_repair", "cause": "loader race"}},
+            "publication": {"receipt": True},
+            "canary": {"origin": {"window_id": "canary-window"}, "transport_ledger": {"allocation_sha256": "a" * 64}},
+            "pr_normal": {"transport_ledger": {"window_id": "pr-window", "allocation_sha256": "b" * 64}},
+            "pr_docs_only": {"transport_ledger": {"window_id": "pr-window", "allocation_sha256": "b" * 64}},
+        }
+
+    def evidence(self, omit=(), **extra):
+        links = {}
+        for key, document in self.documents.items():
+            if key in omit:
+                continue
+            path = self.root / f"{key}.json"
+            path.write_text(json.dumps(document))
+            links[key] = {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        return {"schema_version": "sigra.phase253.completion-evidence/v1", "repository": "szTheory/sigra", "links": links, **extra}
+
+    def verify(self, evidence, require_accepted=False, code=0):
+        return self.module.verify_completion(evidence, require_accepted=require_accepted, root=self.root,
+                                             load_checker=lambda kind, path: (code, "stub checker"))
+
+    def test_every_linked_live_proof_present_and_reopened_is_accepted(self):
+        result = self.verify(self.evidence(), require_accepted=True)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(result["gaps"], [])
+        self.assertEqual(result["phase_verification"], "not_started")
+        self.assertEqual(result["requirements"], {"CIREL-01": "accepted", "CIREL-02": "accepted"})
+
+    def test_each_missing_proof_leaves_an_honest_open_record_and_fails_strict_completion(self):
+        for key in self.LINKS:
+            with self.subTest(missing=key):
+                evidence = self.evidence(omit=(key,))
+                record = self.verify(evidence)
+                self.assertEqual(record["status"], "open")
+                self.assertTrue(any(gap.startswith("missing:") for gap in record["gaps"]))
+                self.assertEqual(record["requirements"], {"CIREL-01": "open", "CIREL-02": "open"})
+                with self.assertRaises(self.module.VerificationError):
+                    self.verify(evidence, require_accepted=True)
+
+    def test_embedded_acceptance_claims_are_ignored_and_contradictions_rejected(self):
+        for claim in ({"accepted": True}, {"status": "accepted"}, {"status": "complete"}, {"status": "passed"}):
+            with self.subTest(claim=claim):
+                with self.assertRaises(self.module.VerificationError):
+                    self.verify(self.evidence(omit=("canary",), **claim))
+        self.assertEqual(self.verify(self.evidence(accepted=True))["status"], "accepted")  # claim is irrelevant when every link verifies
+
+    def test_hash_mismatch_unreadable_and_malformed_links_are_errors_not_open_records(self):
+        evidence = self.evidence()
+        evidence["links"]["canary"]["sha256"] = "0" * 64
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(evidence)
+        evidence = self.evidence()
+        (self.root / "canary.json").unlink()
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(evidence)
+        for bad in ({"path": "x"}, {"path": "x", "sha256": "z"}, "x", {"path": 1, "sha256": "0" * 64}):
+            with self.subTest(bad=bad):
+                evidence = self.evidence()
+                evidence["links"]["canary"] = bad
+                with self.assertRaises(self.module.VerificationError):
+                    self.verify(evidence)
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(dict(self.evidence(), links={"unknown": {"path": "x", "sha256": "0" * 64}}))
+        with self.assertRaises(self.module.VerificationError):
+            self.verify({"schema_version": "other"})
+
+    def test_strict_native_checker_failure_and_empty_records_reject(self):
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence(), code=1)
+        self.documents["phase252_replay"] = {}
+        (self.root / "phase252_replay.json").write_text("{}")
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence())
+
+    def test_cause_less_no_flake_and_causeless_acceptance_are_rejected(self):
+        for assessment in (
+            {"kind": "justified_no_flake", "selected_failures": ["a", "b"], "explained_failures": ["a"], "cause": None},
+            {"kind": "justified_no_flake", "selected_failures": [], "explained_failures": [], "cause": None},
+            {"kind": "justified_no_flake", "selected_failures": ["a"], "explained_failures": ["a"], "cause": "invented"},
+            {"kind": "cause_repair", "cause": ""},
+            {"kind": "cause_repair"},
+            {},
+        ):
+            with self.subTest(assessment=assessment):
+                self.documents["load_acceptance"] = {"assessment": assessment}
+                with self.assertRaises(self.module.VerificationError):
+                    self.verify(self.evidence(), require_accepted=True)
+        self.documents["load_acceptance"] = {"assessment": {"kind": "justified_no_flake", "selected_failures": ["a"], "explained_failures": ["a", "b"], "cause": None}}
+        self.assertEqual(self.verify(self.evidence(), require_accepted=True)["status"], "accepted")
+
+    def test_synthetic_pr_evidence_and_budget_resets_cannot_be_accepted(self):
+        self.documents["pr_normal"]["synthetic"] = True
+        record = self.verify(self.evidence())
+        self.assertEqual(record["status"], "open")
+        self.assertTrue(any(gap.startswith("synthetic:pr") for gap in record["gaps"]))
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence(), require_accepted=True)
+        self.documents["pr_normal"].pop("synthetic")
+        self.documents["canary"]["origin"]["window_id"] = "pr-window"
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence())
+        self.documents["canary"]["origin"]["window_id"] = "canary-window"
+        self.documents["canary"]["transport_ledger"]["allocation_sha256"] = "b" * 64
+        self.assertEqual(self.verify(self.evidence())["status"], "accepted", "distinct windows are separate allocations, not resets")
+
+    def test_frozen_source_links_are_reopened_and_must_still_match(self):
+        bound = self.root / "bound-budget.md"
+        bound.write_text("frozen budget")
+        digest = hashlib.sha256(b"frozen budget").hexdigest()
+        self.documents["pr_normal"]["freeze"] = {"bound_documents": [{"path": str(bound), "sha256": digest}]}
+        self.assertEqual(self.verify(self.evidence(), require_accepted=True)["status"], "accepted")
+        bound.write_text("changed after freeze")
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence())
+        bound.unlink()
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence())
+
+    def test_publication_receipt_rejection_and_one_sided_pr_evidence_fail_closed(self):
+        class Bad:
+            returncode = 1
+            stderr = "receipt rejected"
+            stdout = ""
+        self.module.subprocess = type("Fake", (), {"run": staticmethod(lambda argv, **_kw: Bad())})
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence())
+        self.setUp()
+        record = self.verify(self.evidence(omit=("pr_docs_only",)))
+        self.assertEqual(record["status"], "open")
+        self.assertTrue(any("pr_pair" in gap for gap in record["gaps"]))
 
 
 if __name__ == "__main__":

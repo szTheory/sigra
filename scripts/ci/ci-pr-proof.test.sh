@@ -1,0 +1,992 @@
+#!/usr/bin/env bash
+# Phase 253 plan 42: subprocess + local-HTTPS contracts for ci-pr-proof.sh and the independent PR verifier.
+#
+# Everything here is SYNTHETIC: a temporary git repository, a local TLS "GitHub" with a real git-backed object
+# store, and node-generated producer artifacts. No GitHub request is made and no result is live acceptance;
+# evidence produced here is labeled synthetic and the verifier refuses to treat it as live.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+for tool in python3 node openssl git; do
+  command -v "$tool" >/dev/null || { echo "ci-pr-proof.test: FAIL: $tool is required" >&2; exit 1; }
+done
+export SIGRA_TEST_ROOT="$ROOT" PYTHONDONTWRITEBYTECODE=1
+unset GH_TOKEN GITHUB_TOKEN
+
+exec python3 - <<'PYEOF'
+import base64
+import copy
+import hashlib
+import http.server
+import importlib.util
+import io
+import json
+import os
+import pathlib
+import shutil
+import ssl
+import stat
+import subprocess
+import sys
+import tempfile
+import threading
+import unicodedata
+import unittest
+import zipfile
+from urllib.parse import parse_qs, urlsplit
+
+ROOT = pathlib.Path(os.environ["SIGRA_TEST_ROOT"])
+PROOF = ROOT / "scripts/ci/ci-pr-proof.sh"
+SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
+NAMES = ("Library tests", "Example unit smoke (ExUnit + ConnTest)", "Install smoke (fresh phx.new + sigra.install)",
+         "Example HTTP smoke (boot + curl critical routes)", "Example Playwright smoke (full lifecycle)")
+DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
+
+
+def load(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+pubtest = load(ROOT / "scripts/ci/ci-git-publication.test.py", "pubtest")
+verifier = load(ROOT / "scripts/ci/ci-hosted-gate-verify.py", "gate_verify")
+transport = load(ROOT / "scripts/ci/ci-hosted-transport.py", "transport")
+sha = lambda data: hashlib.sha256(data).hexdigest()
+enc = lambda data: base64.b64encode(data).decode("ascii")
+
+GENERATOR = r"""
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const [, , repoRoot, workflowFile, identityFile, outDir, docsFlag] = process.argv;
+const { bodyPolicy } = await import(pathToFileURL(join(repoRoot, 'scripts/ci/ci-browser-records.mjs')).href);
+const identity = JSON.parse(readFileSync(identityFile, 'utf8'));
+const workflowText = readFileSync(workflowFile, 'utf8');
+const workflowHash = createHash('sha256').update(readFileSync(workflowFile)).digest('hex');
+const docsOnly = docsFlag === 'docs';
+const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
+function report(specs, projects) {
+  const suites = specs.map((file, index) => ({ title: file, file, specs: [{ id: `spec-${index}`, title: `selected case ${index}`, file,
+    tests: projects.filter((project) => project !== 'mobile' || !/passkeys-hooks|passkey-login|passkey-options/.test(file)).map((project) => ({
+      projectId: project, projectName: project, expectedStatus: 'passed', status: 'expected',
+      results: [{ retry: 0, status: 'passed', duration: 1, startTime: '2026-10-13T00:00:00Z' }] })) }] }));
+  const count = suites.reduce((sum, suite) => sum + suite.specs[0].tests.length, 0);
+  return { config: { projects: projects.map((name) => ({ id: name, name })) }, suites, errors: [],
+    stats: { expected: count, unexpected: 0, flaky: 0, skipped: 0, startTime: '2026-10-13T00:00:00Z', duration: 10 } };
+}
+for (const seam of ['non_admin_smoke', 'admin_behavior', 'admin_checkpoints', 'design_gallery', 'demo_showcase']) {
+  const target = join(outDir, `browser-execution-${seam}-${identity.run_id}-${identity.run_attempt}`);
+  mkdirSync(target, { recursive: true });
+  const record = { schema_version: 'sigra.browser-execution-record/v1', ...identity, workflow_file_sha256: workflowHash, seam, selected_steps: [] };
+  for (const policy of bodyPolicy(seam, identity.event, workflowText)) {
+    const outcome = docsOnly ? 'skipped' : 'success';
+    const step = { id: policy.id, outcome, conclusion: outcome, reports: [] };
+    if (!docsOnly) for (const invocation of policy.invocations) {
+      const native = report(invocation.specs, invocation.projects);
+      if (seam === 'design_gallery') {
+        const setup = report(['admin-design.setup.ts'], invocation.projects.map((project) => project.replace('admin-design-', 'admin-design-setup-')));
+        native.config.projects.push(...setup.config.projects);
+        native.suites.push(...setup.suites);
+        native.stats.expected += setup.stats.expected;
+      }
+      const selection = structuredClone(native);
+      for (const suite of selection.suites) for (const spec of suite.specs) for (const selected of spec.tests) selected.results = [];
+      writeFileSync(join(target, invocation.path), JSON.stringify(native));
+      writeFileSync(join(target, invocation.selection_path), JSON.stringify(selection));
+      step.reports.push({ path: invocation.path, selection_path: invocation.selection_path,
+        sha256: hash(readFileSync(join(target, invocation.path))), selection_sha256: hash(readFileSync(join(target, invocation.selection_path))) });
+    }
+    record.selected_steps.push(step);
+  }
+  writeFileSync(join(target, 'execution-record.json'), JSON.stringify(record));
+}
+"""
+
+
+def run(*args, **kwargs):
+    return subprocess.run(list(map(str, args)), capture_output=True, text=True, **kwargs)
+
+
+def git(repo, *args, data=None):
+    return subprocess.check_output(["git", "-C", str(repo), *args], input=data)
+
+
+def make_zip(members, **fields):
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+        for name, data in members:
+            bundle.writestr(name, data)
+    return buffer.getvalue()
+
+
+class PRHandler(pubtest.ObjectServer):
+    """Local HTTPS GitHub model: git object routes from the real publication server plus PR/run/artifact routes."""
+
+    def _emit(self, status, body, extra=(), content_type="application/json"):
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("X-GitHub-Request-Id", "local-pr-fixture")
+        for name, value in extra:
+            self.send_header(name, value)
+        self.end_headers()
+        self.wfile.write(body)
+        request_body = self.server.last_body
+        self.server.journal.append({"method": self.command, "path": self.path, "status": status, "charged": self.server.ledger_pending(),
+                                    "body_sha256": sha(body), "request_body_sha256": sha(request_body) if request_body else None,
+                                    "request_body_bytes": len(request_body), "authorization": self.headers.get("Authorization")})
+
+    def _reply(self, status, value):
+        self._emit(status, json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode())
+
+    def do_GET(self):  # noqa: N802
+        self.server.last_body = b""
+        model, base = self.server.model, "/repos/szTheory/sigra"
+        parsed = urlsplit(self.path)
+        route, query = parsed.path, parse_qs(parsed.query)
+        flags = self.server.flags
+        if route == "/rate_limit":
+            remaining = "250" if flags.get("core_floor") else "4000"
+            return self._emit(200, b'{"resources":{"core":{"limit":5000}}}', [("X-RateLimit-Resource", "core"), ("X-RateLimit-Remaining", remaining)])
+        if route == base + "/rules/branches/main":
+            rules = [{"type": "required_status_checks", "parameters": {"required_status_checks": [
+                {"context": name, "integration_id": 15368} for name in NAMES]}}]
+            return self._reply(200, rules)
+        if route == base + "/branches/main/protection":
+            return self._reply(404, {"message": "Branch not protected"})
+        if route == f"{base}/actions/workflows/259268962":
+            return self._reply(200, {"id": 259268962, "path": ".github/workflows/ci.yml", "name": "CI", "state": "active"})
+        if route.startswith(base + "/pulls/"):
+            pull = model["pulls"].get(int(route.rsplit("/", 1)[1]))
+            if not pull:
+                return self._reply(404, {"message": "Not Found"})
+            view = copy.deepcopy(pull)
+            view["merge_commit_sha"] = model["families"][view["number"]]["merge"]
+            return self._reply(200, view)
+        if route.startswith(base + "/compare/"):
+            low, high = route.removeprefix(base + "/compare/").split("...")
+            names = git(model["repo"], "diff", "--name-only", low, high).decode().split()
+            ahead = int(git(model["repo"], "rev-list", "--count", f"{low}..{high}"))
+            behind = int(git(model["repo"], "rev-list", "--count", f"{high}..{low}"))
+            return self._reply(200, {"status": "ahead", "ahead_by": ahead, "behind_by": behind, "total_commits": ahead,
+                                     "files": [{"filename": name, "status": "added"} for name in names]})
+        if route.startswith(base + "/contents/"):
+            path, ref = route.removeprefix(base + "/contents/"), query["ref"][0]
+            commit = next((family["commit"] for family in model["families"].values() if family["merge"] == ref), None)
+            if commit is None:
+                return self._reply(404, {"message": "Not Found"})
+            data = git(model["repo"], "show", f"{commit}:{path}")
+            return self._reply(200, {"type": "file", "encoding": "base64", "path": path, "size": len(data),
+                                     "sha": git(model["repo"], "rev-parse", f"{commit}:{path}").decode().strip(), "content": enc(data)})
+        if route == f"{base}/actions/workflows/259268962/runs":
+            head = query["head_sha"][0]
+            family = next((f for f in model["families"].values() if f["head"] == head), None)
+            model["discovery"][head] = model["discovery"].get(head, 0) + 1
+            visible = family and family.get("created") and model["discovery"][head] >= 2
+            runs = [family["run"](0)] if visible else []
+            return self._reply(200, {"total_count": len(runs), "workflow_runs": runs})
+        if route.startswith(base + "/actions/runs/"):
+            tail = route.removeprefix(base + "/actions/runs/").split("/")
+            family = next((f for f in model["families"].values() if str(f["run_id"]) == tail[0]), None)
+            if family is None:
+                return self._reply(404, {"message": "Not Found"})
+            if len(tail) == 1:
+                family["polls"] = family.get("polls", 0) + 1
+                done = family["polls"] >= 3 and not flags.get("never_finish")
+                return self._reply(200, family["run"](family["polls"] if done else 0))
+            if tail[1] == "attempts":
+                jobs = family["jobs"]
+                return self._reply(200, {"total_count": len(jobs), "jobs": jobs})
+            if tail[1] == "artifacts":
+                artifacts = family["artifacts"]
+                return self._reply(200, {"total_count": len(artifacts), "artifacts": artifacts})
+        if route.startswith(base + "/commits/") and route.endswith("/check-runs"):
+            head = route.removeprefix(base + "/commits/").split("/")[0]
+            family = next((f for f in model["families"].values() if f["head"] == head), None)
+            return self._reply(200, {"total_count": len(family["checks"]), "check_runs": family["checks"]}) if family else self._reply(404, {})
+        if route.startswith(base + "/actions/artifacts/") and route.endswith("/zip"):
+            artifact_id = route.removeprefix(base + "/actions/artifacts/").split("/")[0]
+            location = f"https://localhost:{self.server.server_address[1]}/blob/{artifact_id}?sig=fixture-secret"
+            return self._emit(302, b"", [("Location", location)])
+        if route.startswith("/blob/"):
+            return self._emit(200, model["zips"][int(route.rsplit("/", 1)[1])], content_type="application/zip")
+        return super().do_GET()
+
+    def do_POST(self):  # noqa: N802
+        if urlsplit(self.path).path == "/repos/szTheory/sigra/pulls":
+            value = self._read()
+            if self.server.flags.get("refuse_pr_create"):
+                return self._reply(422, {"message": "Validation Failed"})
+            model = self.server.model
+            number = model["numbers"].pop(0)
+            head_sha = self.server.refs.get(value["head"])
+            base_sha = self.server.parent_sha if value["base"] == "main" else self.server.refs.get(value["base"])
+            pull = {"number": number, "state": "open", "draft": True, "merged": False, "merge_commit_sha": None,
+                    "head": {"ref": value["head"], "sha": head_sha, "repo": {"full_name": "szTheory/sigra"}},
+                    "base": {"ref": value["base"], "sha": base_sha, "repo": {"full_name": "szTheory/sigra"}}}
+            model["pulls"][number] = pull
+            model["families"][number]["created"] = True
+            return self._reply(201, pull)
+        return super().do_POST()
+
+
+class World:
+    """One complete hermetic Phase253 PR universe: temp git repo, published objects, TLS server, freeze and allocation."""
+
+    def __init__(self, test, flags=None, tag="world"):
+        self.test = test
+        self.dir = pathlib.Path(tempfile.mkdtemp(prefix=f"sigra-pr-proof-{tag}-"))
+        test.addCleanup(shutil.rmtree, self.dir, True)
+        self.flags = dict(flags or {})
+        self.build()
+
+    def build(self):
+        d = self.dir
+        self.repo = d / "repo"
+        self.repo.mkdir()
+        git(self.repo, "init", "-q")
+        git(self.repo, "config", "user.name", "Fixture")
+        git(self.repo, "config", "user.email", "fixture@example.test")
+        (self.repo / ".github/workflows").mkdir(parents=True)
+        (self.repo / ".github/workflows/ci.yml").write_bytes((ROOT / ".github/workflows/ci.yml").read_bytes())
+        (self.repo / "app.txt").write_text("base\n")
+        git(self.repo, "add", ".")
+        git(self.repo, "commit", "-qm", "parent")
+        self.parent = git(self.repo, "rev-parse", "HEAD").decode().strip()
+        (self.repo / "app.txt").write_text("changed Δ\n")
+        (self.repo / "lib").mkdir()
+        (self.repo / "lib/feature.ex").write_text("defmodule Feature do\nend\n")
+        git(self.repo, "add", "app.txt", "lib")
+        git(self.repo, "commit", "-qm", "candidate")
+        self.source = git(self.repo, "rev-parse", "HEAD").decode().strip()
+        self.manifest_path = d / "manifest.json"
+        prepared = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--prepare", "--candidate-source", self.source,
+                       "--server-parent", self.parent, "--repo-root", self.repo, "--output", self.manifest_path, cwd=ROOT)
+        assert prepared.returncode == 0, prepared.stderr
+        self.manifest = json.loads(self.manifest_path.read_text())
+        cert, key = d / "server.pem", d / "server-key.pem"
+        subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1", "-subj", "/CN=localhost",
+                        "-addext", "subjectAltName=DNS:localhost", "-keyout", str(key), "-out", str(cert)],
+                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.cert = cert
+        server = pubtest.ObjectHTTPServer(("127.0.0.1", 0), PRHandler)
+        server.journal, server.commits, server.trees = [], {}, {}
+        server.tree_entries, server.blobs, server.refs = {}, {}, {}
+        server.flags = dict(self.flags)
+        server.last_body = b""
+        server.model = {"pulls": {}, "families": {}, "numbers": [], "discovery": {}, "repo": self.repo, "zips": {}}
+        self.test.addCleanup(server.server_close)
+        pubtest.seed_server(server, self.repo, self.parent)
+        server.parent_sha = self.parent
+        self.ledger_path = d / "publication-ledger.json"
+        server.ledger_path = str(self.ledger_path)
+        tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        tls.load_cert_chain(cert, key)
+        server.socket = tls.wrap_socket(server.socket, server_side=True)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.test.addCleanup(thread.join)
+        self.test.addCleanup(server.shutdown)
+        self.server = server
+        self.port = server.server_address[1]
+        publish_allocation = {"schema_version": "sigra.phase253.http-allocation/v1", "window_id": "publication-window",
+                              "source_sha256": sha(self.manifest_path.read_bytes()), "max_requests": 24, "max_elapsed_seconds": 120,
+                              "max_response_bytes": 2 * 1024 * 1024, "max_pages": 1, "max_hops": 2, "repository": "szTheory/sigra",
+                              "download_hosts": [], "mode": "hermetic-test", "test_origin": f"https://localhost:{self.port}",
+                              "test_ca_file": str(cert)}
+        (d / "publication-allocation.json").write_text(json.dumps(publish_allocation))
+        self.receipt_path = d / "publication-receipt.json"
+        published = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--publish", "--manifest", self.manifest_path,
+                        "--allocation", d / "publication-allocation.json", "--ledger", self.ledger_path,
+                        "--receipt", self.receipt_path, "--repo-root", self.repo, cwd=ROOT, timeout=120)
+        assert published.returncode == 0, published.stderr
+        self.publication_requests = len(server.journal)
+        server.journal.clear()  # the PR window is a separate allocation with its own independent journal
+        self.freeze_path = d / "freeze.json"
+        self.budget = d / "253-LOAD-RECOVERY-BUDGETS.md"  # fixture copy: ordinary tests never require active phase records
+        self.budget.write_text("synthetic budget fixture\n")
+        prepared = run("bash", PROOF, "--prepare", "--publication", self.receipt_path, "--manifest", self.manifest_path,
+                       "--repo-root", self.repo, "--output", self.freeze_path, "--poll-interval", "0",
+                       "--budget-document", self.budget, cwd=ROOT, timeout=60)
+        assert prepared.returncode == 0, prepared.stderr + prepared.stdout
+        self.freeze = json.loads(self.freeze_path.read_text())
+        self.build_model()
+        self.allocation_path = d / "allocation.json"
+        self.allocation = {
+            "schema_version": "sigra.phase253.http-allocation/v1", "window_id": "pr-proof-window",
+            "source_sha256": sha(self.freeze_path.read_bytes()), "max_requests": 120, "max_elapsed_seconds": 3600,
+            "max_response_bytes": 4 * 1024 * 1024, "max_pages": 3, "max_hops": 2, "repository": "szTheory/sigra",
+            "download_hosts": [], "mode": "hermetic-test", "test_origin": f"https://localhost:{self.port}", "test_ca_file": str(cert),
+            "allocation_kind": "production", "category_limits": transport.PRODUCTION_CATEGORY_LIMITS,
+            "bound_documents": self.freeze["bound_documents"]}
+        self.allocation_path.write_text(json.dumps(self.allocation))
+        self.ledger = d / "pr-ledger.json"
+        self.server.ledger_path = str(self.ledger)
+
+    def workflow(self, commit):
+        return git(self.repo, "show", f"{commit}:.github/workflows/ci.yml")
+
+    def build_model(self):
+        spec = {"normal": self.freeze["normal"], "docs-only": self.freeze["docs-only"]}
+        families, numbers = {}, [101, 102]
+        for number, (name, run_id, merge) in zip(numbers, (("normal", 7001, "c" * 40), ("docs-only", 7002, "d" * 40))):
+            head = spec[name]["head_sha"]
+            docs = name == "docs-only"
+            identity = {"run_id": str(run_id), "run_attempt": "1", "source_sha": merge, "event": "pull_request",
+                        "workflow_ref": f"szTheory/sigra/.github/workflows/ci.yml@refs/pull/{number}/merge", "workflow_sha": merge,
+                        "classifier_result": "success", "docs_only": "true" if docs else "false"}
+            workflow = self.workflow(head)
+            producers = self.generate(identity, workflow, docs)
+            zips = {}
+            artifacts = []
+            for index, (directory, members) in enumerate(sorted(producers.items())):
+                artifact_id = run_id * 10 + index
+                zip_bytes = make_zip(sorted(members.items()))
+                zips[artifact_id] = zip_bytes
+                artifacts.append({"id": artifact_id, "name": directory, "size_in_bytes": len(zip_bytes), "expired": False,
+                                  "digest": "sha256:" + sha(zip_bytes), "workflow_run": {"id": run_id, "head_sha": head}})
+            artifacts.append({"id": run_id * 10 + 9, "name": f"example-playwright-admin_behavior-{run_id}", "size_in_bytes": 10,
+                              "expired": False, "digest": "sha256:" + "0" * 64, "workflow_run": {"id": run_id, "head_sha": head}})
+            job_names = [*NAMES, "Detect docs-only change", *[f"Example Playwright shard ({seam})" for seam in SEAMS]]
+            if not docs:
+                job_names += ["Library tests shard (1/2)", "Library tests shard (2/2)"]
+            jobs = []
+            for index, job_name in enumerate(job_names):
+                steps = [{"name": "Detect docs-only change", "conclusion": "success"}] if job_name == "Detect docs-only change" else []
+                jobs.append({"id": run_id * 100 + index, "run_id": run_id, "run_attempt": 1, "name": job_name, "status": "completed",
+                             "conclusion": "success", "steps": steps})
+            checks = [{"name": job["name"], "head_sha": head, "status": "completed", "conclusion": "success",
+                       "app": {"id": 15368, "slug": "github-actions"},
+                       "html_url": f"https://github.com/szTheory/sigra/actions/runs/{run_id}/job/{job['id']}"}
+                      for job in jobs if job["name"] in NAMES]
+            checks.append({"name": "Fast checks", "head_sha": head, "status": "completed", "conclusion": "success",
+                           "app": {"id": 15368, "slug": "github-actions"}, "html_url": "https://github.com/szTheory/sigra/actions/runs/1/job/1"})
+
+            def run_view(polls, run_id=run_id, head=head, head_ref=spec[name]["head_ref"], number=number):
+                return {"id": run_id, "event": "pull_request", "head_sha": head, "head_branch": head_ref, "workflow_id": 259268962,
+                        "path": ".github/workflows/ci.yml@refs/pull/%d/merge" % number, "run_attempt": 1,
+                        "status": "completed" if polls else "in_progress", "conclusion": "success" if polls else None,
+                        "repository": {"full_name": "szTheory/sigra"}, "head_repository": {"full_name": "szTheory/sigra"},
+                        "pull_requests": [{"number": number}]}
+            families[number] = {"name": name, "run_id": run_id, "head": head, "merge": merge, "commit": head, "run": run_view,
+                                "jobs": jobs, "checks": checks, "artifacts": artifacts, "identity": identity, "docs": docs}
+            self.server_zips = getattr(self, "server_zips", {})
+            self.server_zips.update(zips)
+        self.server.model = {"pulls": {}, "families": families, "numbers": list(numbers), "discovery": {}, "repo": self.repo,
+                             "zips": self.server_zips}
+
+    def generate(self, identity, workflow, docs):
+        with tempfile.TemporaryDirectory(prefix="sigra-producers-") as tmp:
+            tmp = pathlib.Path(tmp)
+            (tmp / "gen.mjs").write_text(GENERATOR)
+            (tmp / "workflow.yml").write_bytes(workflow)
+            (tmp / "identity.json").write_text(json.dumps(identity))
+            result = run("node", tmp / "gen.mjs", ROOT, tmp / "workflow.yml", tmp / "identity.json", tmp / "out", "docs" if docs else "normal")
+            assert result.returncode == 0, result.stderr
+            return {directory.name: {path.name: path.read_bytes() for path in directory.iterdir()} for directory in (tmp / "out").iterdir()}
+
+    def collect(self, family, evidence_name, check=True):
+        evidence = self.dir / evidence_name
+        process = run("bash", PROOF, "--family", family, "--freeze", self.freeze_path, "--allocation", self.allocation_path,
+                      "--evidence", evidence, "--requests", self.ledger, "--repo-root", self.repo, cwd=ROOT, timeout=600)
+        if check:
+            assert process.returncode == 0, process.stdout + process.stderr
+        return process, evidence
+
+    def journal_file(self, name):
+        path = self.dir / name
+        path.write_text(json.dumps(self.server.journal))
+        return path
+
+
+def attach_journal(evidence_path, journal):
+    value = json.loads(pathlib.Path(evidence_path).read_text())
+    value["server_journal"] = journal
+    return value
+
+
+def retamper(evidence, route, mutate, family=None, nth=-1, category=None):
+    """Change one retained API response consistently (ledger digest and independent journal) so only semantics can reject it."""
+    transactions = evidence["transport_ledger"]["transactions"]
+    indexes = [i for i, tx in enumerate(transactions) if tx["route_id"] == route and (family is None or tx["family"] == family)
+               and (category is None or tx["category"] == category)]
+    index = indexes[nth]
+    tx = transactions[index]
+    document = json.loads(base64.b64decode(tx["response_body_base64"]))
+    replaced = mutate(document)
+    document = document if replaced is None else replaced
+    raw = json.dumps(document, separators=(",", ":"), ensure_ascii=False).encode()
+    tx.update(response_body_base64=enc(raw), response_sha256=sha(raw), scrubbed_response_bytes=len(raw), response_bytes=len(raw),
+              raw_observation_sha256=sha(raw))
+    if evidence.get("server_journal"):
+        evidence["server_journal"][index]["body_sha256"] = sha(raw)
+    return evidence
+
+
+def swap_zip(evidence, name, archive):
+    """Replace one producer ZIP and keep API digest, measured final hop and server journal consistent."""
+    entry = next(d for d in evidence["downloads"] if d["name"] == name)
+    entry["zip_base64"] = enc(archive)
+
+    def mutate(document):
+        for artifact in document["artifacts"]:
+            if artifact["name"] == name:
+                artifact["digest"] = "sha256:" + sha(archive)
+                artifact["size_in_bytes"] = len(archive)
+    retamper(evidence, "run_artifacts", mutate, family=evidence["family"])
+    for index, tx in enumerate(evidence["transport_ledger"]["transactions"]):
+        if tx.get("request_group") == entry["request_group"] and tx["actual_status"] == 200:
+            tx.update(raw_observation_sha256=sha(archive), response_bytes=len(archive))
+            evidence["server_journal"][index]["body_sha256"] = sha(archive)
+    return evidence
+
+
+class PRProofContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls._cleanups = []
+        cls.holder = unittest.TestCase()
+        cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
+        cls.world = World(cls.holder, tag="main")
+        w = cls.world
+        process, cls.normal_path = w.collect("normal", "normal.json")
+        cls.normal_summary = json.loads(process.stdout.strip().splitlines()[-1])
+        cls.normal_requests = len(w.server.journal)
+        process, cls.docs_path = w.collect("docs-only", "docs.json")
+        cls.docs_summary = json.loads(process.stdout.strip().splitlines()[-1])
+        cls.journal = list(w.server.journal)
+        cls.normal = attach_journal(cls.normal_path, cls.journal[:cls.normal_requests])
+        cls.docs = attach_journal(cls.docs_path, cls.journal)
+
+    @classmethod
+    def tearDownClass(cls):
+        for fn, a, k in reversed(cls._cleanups):
+            try:
+                fn(*a, **k)
+            except Exception:
+                pass
+
+    # ------------------------------------------------------------------------------ positive chain
+    def test_complete_synthetic_normal_and_docs_chain_verifies_against_independent_server_receipts(self):
+        for summary in (self.normal_summary, self.docs_summary):
+            self.assertEqual(summary["status"], "collected", summary)
+        w = self.world
+        ledger = json.loads(w.ledger.read_text())
+        self.assertEqual(len(ledger["transactions"]), len(self.journal))
+        self.assertLessEqual(len(self.journal), 120)
+        self.assertTrue(all(row["charged"] for row in self.journal), "every wire request was predebited before the socket")
+        self.assertEqual([row["status"] for row in self.journal], [tx["actual_status"] for tx in ledger["transactions"]])
+        self.assertTrue(all(row["authorization"] is None for row in self.journal))
+        pair = verifier.verify_pr_pair(copy.deepcopy(self.normal), copy.deepcopy(self.docs))
+        self.assertEqual(pair["status"], "synthetic_pr_pair_verified")
+        self.assertFalse(pair["accepted_live"], "local HTTPS proof is labeled synthetic and is never live acceptance")
+        self.assertEqual(pair["normal"]["merge_sha"], "c" * 40)
+        self.assertNotEqual(pair["normal"]["merge_sha"], pair["normal"]["head_sha"])
+        counts = {}
+        for tx in ledger["transactions"]:
+            counts[tx["category"]] = counts.get(tx["category"], 0) + 1
+        self.assertEqual(counts["docs_publication"], 14)
+        self.assertEqual(counts["artifact_downloads"], 20, "five artifacts x two hops per family are all counted")
+        self.assertEqual(counts["preflight"], 4)
+        self.assertEqual(counts["run_discovery"], 4)
+        self.assertEqual(counts["pr_create"], 2)
+        for category, count in counts.items():
+            self.assertLessEqual(count, transport.PRODUCTION_CATEGORY_LIMITS[category])
+        hops = [tx for tx in ledger["transactions"] if tx["route_id"] == "artifact_zip"]
+        self.assertEqual(sorted({tx["hop_ordinal"] for tx in hops}), [0, 1])
+        self.assertNotIn("fixture-secret", w.ledger.read_text() + self.normal_path.read_text())
+
+    def test_cli_verify_modes_agree_with_the_python_verifier(self):
+        w = self.world
+        journal_normal = w.dir / "journal-normal.json"
+        journal_normal.write_text(json.dumps(self.journal[:self.normal_requests]))
+        journal_all = w.journal_file("journal-all.json")
+        single = run("bash", PROOF, "--verify", self.normal_path, "--server-journal", journal_normal, cwd=ROOT, timeout=120)
+        self.assertEqual(single.returncode, 0, single.stderr)
+        self.assertEqual(json.loads(single.stdout)["status"], "synthetic_pr_family_verified")
+        both = run("python3", ROOT / "scripts/ci/ci-hosted-gate-verify.py", "--mode", "pr", "--family", "docs-only", "--evidence",
+                   self.write_attached("docs-attached.json", self.docs), cwd=ROOT, timeout=120)
+        self.assertEqual(both.returncode, 0, both.stderr)
+        pair = run("bash", PROOF, "--verify", self.normal_path, "--server-journal", journal_normal, "--docs-evidence", self.docs_path,
+                   "--docs-server-journal", journal_all, cwd=ROOT, timeout=180)
+        self.assertEqual(pair.returncode, 0, pair.stderr)
+        self.assertEqual(json.loads(pair.stdout)["status"], "synthetic_pr_pair_verified")
+        missing = run("bash", PROOF, "--verify", self.normal_path, cwd=ROOT, timeout=120)
+        self.assertNotEqual(missing.returncode, 0, "a hermetic proof without the independent journal is never verified")
+
+    def write_attached(self, name, evidence):
+        path = self.world.dir / name
+        path.write_text(json.dumps(evidence))
+        return path
+
+    # ----------------------------------------------------------------------------- helpers
+    def assertRejected(self, evidence, family="normal", text=None):
+        with self.assertRaises(verifier.VerificationError) as caught:
+            verifier.verify_pr_family(evidence, family)
+        if text:
+            self.assertIn(text, str(caught.exception))
+
+    def fresh(self, family="normal"):
+        return copy.deepcopy(self.normal if family == "normal" else self.docs)
+
+    # ------------------------------------------------------- wrong PR / merge / run / check identities
+    def test_wrong_pr_head_base_draft_and_merge_identities_are_rejected(self):
+        cases = {
+            "head sha": lambda e: retamper(e, "pr_create", lambda d: d["head"].update(sha="e" * 40)),
+            "head ref": lambda e: retamper(e, "pr_create", lambda d: d["head"].update(ref="gsd/253-replan-fixture")),
+            "base ref": lambda e: retamper(e, "pr_create", lambda d: d["base"].update(ref="release")),
+            "not draft": lambda e: retamper(e, "pr_create", lambda d: d.update(draft=False)),
+            "merged": lambda e: retamper(e, "pr_read", lambda d: d.update(merged=True)),
+            "fork head": lambda e: retamper(e, "pr_read", lambda d: d["head"]["repo"].update(full_name="attacker/sigra")),
+            "merge equals head": lambda e: retamper(e, "pr_read", lambda d: d.update(merge_commit_sha=d["head"]["sha"])),
+            "no merge": lambda e: retamper(e, "pr_read", lambda d: d.update(merge_commit_sha=None)),
+            "different number": lambda e: retamper(e, "pr_read", lambda d: d.update(number=999)),
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label):
+                self.assertRejected(mutate(self.fresh()))
+
+    def test_wrong_run_event_source_workflow_and_conclusion_are_rejected(self):
+        cases = {
+            "dispatch event": lambda d: d.update(event="workflow_dispatch"),
+            "other head": lambda d: d.update(head_sha="f" * 40),
+            "other branch": lambda d: d.update(head_branch="main"),
+            "other workflow": lambda d: d.update(workflow_id=1),
+            "other path": lambda d: d.update(path=".github/workflows/other.yml@refs/heads/x"),
+            "failure": lambda d: d.update(conclusion="failure"),
+            "cancelled": lambda d: d.update(conclusion="cancelled"),
+            "in progress": lambda d: d.update(status="in_progress"),
+            "unlinked PR": lambda d: d.update(pull_requests=[]),
+            "attempt zero": lambda d: d.update(run_attempt=0),
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label):
+                self.assertRejected(retamper(self.fresh(), "run", mutate))
+
+    def test_native_check_app_revision_name_and_job_bindings_are_exact(self):
+        def checks(e, mutate):
+            return retamper(e, "check_runs", lambda d: mutate(d["check_runs"]))
+        cases = {
+            "wrong head": lambda runs: runs[0].update(head_sha="a" * 40),
+            "app drift": lambda runs: runs[0]["app"].update(id=999),
+            "failed check": lambda runs: runs[1].update(conclusion="failure"),
+            "missing check": lambda runs: runs.pop(0),
+            "job mismatch": lambda runs: runs[0].update(html_url="https://github.com/szTheory/sigra/actions/runs/7001/job/1"),
+            "duplicate": lambda runs: runs.append(dict(runs[0])),
+            "trailing space": lambda runs: runs[0].update(name=runs[0]["name"] + " "),
+            "zero width": lambda runs: runs[0].update(name=runs[0]["name"] + "\u200b"),
+            "case variant": lambda runs: runs[0].update(name=runs[0]["name"].lower()),
+            "fullwidth": lambda runs: runs[1].update(name=runs[1]["name"].replace("(", "\uff08")),
+            "combining mark": lambda runs: runs[2].update(name=runs[2]["name"] + "\u0301"),
+            "nfd lookalike": lambda runs: runs[3].update(name=unicodedata.normalize("NFD", runs[3]["name"].replace("e", "\u00e9"))),
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label):
+                self.assertRejected(checks(self.fresh(), mutate))
+
+    def test_job_inventory_classifier_and_library_owner_are_required(self):
+        def jobs(e, mutate, family="normal"):
+            return retamper(e, "attempt_jobs", lambda d: (mutate(d["jobs"]), d.update(total_count=len(d["jobs"])))[0], family=family)
+        cases = {
+            "required job failed": lambda j: j[0].update(conclusion="failure"),
+            "classifier missing": lambda j: j.pop(5),
+            "classifier step failed": lambda j: j[5]["steps"][0].update(conclusion="failure"),
+            "duplicate required": lambda j: j.append(dict(j[0])),
+            "producer shard missing": lambda j: j.pop(6),
+            "wrong attempt": lambda j: j[0].update(run_attempt=2),
+            "library owner missing": lambda j: [j.remove(job) for job in list(j) if job["name"].startswith("Library tests shard")],
+            "empty": lambda j: j.clear(),
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label):
+                self.assertRejected(jobs(self.fresh(), mutate))
+
+    def test_producer_inventory_empty_null_single_duplicate_and_variant_sets_fail(self):
+        def artifacts(e, mutate):
+            return retamper(e, "run_artifacts", lambda d: (mutate(d), d.update(total_count=len(d["artifacts"])))[0])
+        cases = {
+            "empty": lambda d: d["artifacts"].clear(),
+            "single": lambda d: d.update(artifacts=d["artifacts"][:1]),
+            "duplicate": lambda d: d["artifacts"].append(dict(d["artifacts"][0])),
+            "unknown run": lambda d: d["artifacts"][0].update(name=d["artifacts"][0]["name"].replace("7001", "7099")),
+            "case variant": lambda d: d["artifacts"][0].update(name=d["artifacts"][0]["name"].replace("browser", "Browser")),
+            "trailing space": lambda d: d["artifacts"][0].update(name=d["artifacts"][0]["name"] + " "),
+            "extra seam": lambda d: d["artifacts"].append(dict(d["artifacts"][0], id=999, name="browser-execution-extra-7001-1")),
+            "expired": lambda d: d["artifacts"][0].update(expired=True),
+            "other run": lambda d: d["artifacts"][0]["workflow_run"].update(id=1),
+            "other head": lambda d: d["artifacts"][0]["workflow_run"].update(head_sha="a" * 40),
+            "no digest": lambda d: d["artifacts"][0].update(digest=None),
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label):
+                self.assertRejected(artifacts(self.fresh(), mutate))
+        null_inventory = retamper(self.fresh(), "run_artifacts", lambda d: {"total_count": None, "artifacts": None})
+        self.assertRejected(null_inventory)
+
+    def test_producer_zip_bytes_digest_members_and_records_are_independently_checked(self):
+        evidence = self.fresh()
+        victim = next(item for item in evidence["downloads"] if "non_admin_smoke" in item["name"])
+        files = verifier.validate_producer_zip(base64.b64decode(victim["zip_base64"]))
+        self.assertIn("execution-record.json", files)
+        digest_only = copy.deepcopy(evidence)
+        next(d for d in digest_only["downloads"] if d["name"] == victim["name"])["zip_base64"] = enc(make_zip(sorted(files.items())) + b"")
+        digest_only["downloads"][0]["zip_base64"] = enc(make_zip([("execution-record.json", b"{}")]))
+        self.assertRejected(digest_only)
+        reports = [name for name in files if name != "execution-record.json" and not name.endswith(".selection.json")]
+        cases = {
+            "record only": [("execution-record.json", files["execution-record.json"])],
+            "missing report": [(n, d) for n, d in files.items() if n != reports[0]],
+            "missing selection": [(n, d) for n, d in files.items() if n != reports[0].replace(".json", ".selection.json")],
+            "unknown member": [*files.items(), ("extra.json", b"{}")],
+            "empty report": [(n, b"" if n == reports[0] else d) for n, d in files.items()],
+            "null report": [(n, b"null" if n == reports[0] else d) for n, d in files.items()],
+            "altered report": [(n, d.replace(b"passed", b"failed") if n == reports[0] else d) for n, d in files.items()],
+            "no record": [(n, d) for n, d in files.items() if n != "execution-record.json"],
+        }
+        for label, built in cases.items():
+            with self.subTest(label):
+                self.assertRejected(swap_zip(copy.deepcopy(evidence), victim["name"], make_zip(built)))
+        forged_digest = copy.deepcopy(evidence)
+        retamper(forged_digest, "run_artifacts", lambda d: d["artifacts"][0].update(digest="sha256:" + "1" * 64))
+        self.assertRejected(forged_digest)
+
+    def test_zip_intake_rejects_traversal_links_duplicates_nested_and_trailing_streams(self):
+        import warnings
+        warnings.filterwarnings("ignore", message="Duplicate name")
+        validate = verifier.validate_producer_zip
+        self.assertEqual(validate(make_zip([("execution-record.json", b"{}")])), {"execution-record.json": b"{}"})
+        link = io.BytesIO()
+        with zipfile.ZipFile(link, "w") as bundle:
+            info = zipfile.ZipInfo("execution-record.json")
+            info.create_system = 3
+            info.external_attr = 0o120777 << 16
+            bundle.writestr(info, b"target")
+        duplicate = io.BytesIO()
+        with zipfile.ZipFile(duplicate, "w") as bundle:
+            bundle.writestr("a.json", b"1")
+            bundle.writestr("a.json", b"2")
+        for label, payload in {
+            "traversal": make_zip([("../evil.json", b"{}")]), "absolute": make_zip([("/evil.json", b"{}")]),
+            "nested": make_zip([("dir/x.json", b"{}")]), "backslash": make_zip([("dir\\x.json", b"{}")]),
+            "directory": make_zip([("dir/", b"")]), "symlink": link.getvalue(), "duplicate": duplicate.getvalue(),
+            "trailing": make_zip([("a.json", b"{}")]) + b"tail", "empty": b"", "truncated": make_zip([("a.json", b"{}")])[:-5],
+            "oversized": b"PK" * (4 * 1024 * 1024),
+        }.items():
+            with self.subTest(label):
+                with self.assertRaises(verifier.VerificationError):
+                    validate(payload)
+
+    def test_browser_policy_owner_rejects_wrong_record_identity_and_wrong_workflow_source(self):
+        w = self.world
+        evidence = self.fresh()
+        family = next(f for f in w.server.model["families"].values() if f["name"] == "normal")
+        control = w.generate(family["identity"], w.workflow(family["head"]), False)
+        positive = copy.deepcopy(evidence)
+        for name, members in control.items():
+            swap_zip(positive, name, make_zip(sorted(members.items())))
+        self.assertEqual(verifier.verify_pr_family(positive, "normal")["family"], "normal", "regenerated control must verify")
+        for label, change in {
+            "wrong source sha": {"source_sha": "9" * 40},
+            "wrong run": {"run_id": "1"},
+            "docs flag": {"docs_only": "true", "classifier_result": "success"},
+            "wrong classifier": {"classifier_result": "failure"},
+            "wrong event": {"event": "push"},
+        }.items():
+            with self.subTest(label):
+                producers = w.generate({**family["identity"], **change}, w.workflow(family["head"]), False)
+                tampered = copy.deepcopy(evidence)
+                for item in list(tampered["downloads"]):
+                    swap_zip(tampered, item["name"], make_zip(sorted(producers[next(n for n in producers if n.split("-")[2] == item["name"].split("-")[2])].items())))
+                self.assertRejected(tampered)
+        other = copy.deepcopy(evidence)
+        retamper(other, "repo_contents", lambda d: d.update(content=enc(b"name: other\n"), sha=hashlib.sha1(b"blob 12\0name: other\n").hexdigest()))
+        self.assertRejected(other)
+
+    def test_normal_diff_must_include_nondoc_paths_and_docs_diff_must_be_the_one_file(self):
+        self.assertRejected(retamper(self.fresh(), "compare", lambda d: d.update(files=[{"filename": "README.md"}])))
+        self.assertRejected(retamper(self.fresh(), "compare", lambda d: d.update(files=[])))
+        self.assertRejected(retamper(self.fresh(), "compare", lambda d: d.update(files=[{"filename": "unfrozen.ex"}])))
+        self.assertRejected(retamper(self.fresh("docs"), "compare", lambda d: d["files"].append({"filename": "mix.exs"})), "docs-only")
+        self.assertRejected(retamper(self.fresh("docs"), "compare", lambda d: d.update(files=[{"filename": "other.md"}])), "docs-only")
+        self.assertRejected(retamper(self.fresh("docs"), "compare", lambda d: d.update(ahead_by=2)), "docs-only")
+        wrong_local = self.fresh("docs")
+        wrong_local["freeze"]["docs-only"]["local_diff_paths"] = [DOCS_PATH, "mix.exs"]
+        wrong_local["freeze"]["freeze_sha256"] = verifier.canonical_digest({k: v for k, v in wrong_local["freeze"].items() if k != "freeze_sha256"})
+        self.assertRejected(wrong_local, "docs-only")
+
+    def test_docs_exemption_requires_the_actual_pull_request_classifier_and_docs_flag(self):
+        w = self.world
+        family = next(f for f in w.server.model["families"].values() if f["name"] == "docs-only")
+        evidence = self.fresh("docs")
+        self.assertEqual(verifier.verify_pr_family(copy.deepcopy(evidence), "docs-only")["family"], "docs-only")
+        workflow = w.workflow(family["head"])
+        for label, (identity_change, docs_flag) in {
+            "classifier failed": ({"classifier_result": "failure"}, True),
+            "dispatch event": ({"event": "workflow_dispatch"}, True),
+            "docs flag false": ({"docs_only": "false"}, True),
+            "full body with docs claim": ({}, False),
+        }.items():
+            with self.subTest(label):
+                producers = w.generate({**family["identity"], **identity_change}, workflow, docs_flag)
+                tampered = copy.deepcopy(evidence)
+                for item in list(tampered["downloads"]):
+                    source = next(n for n in producers if n.split("-")[2] == item["name"].split("-")[2])
+                    swap_zip(tampered, item["name"], make_zip(sorted(producers[source].items())))
+                self.assertRejected(tampered, "docs-only")
+        no_classifier = retamper(self.fresh("docs"), "attempt_jobs", lambda d: (d["jobs"].pop(5), d.update(total_count=len(d["jobs"])))[0], family="docs-only")
+        self.assertRejected(no_classifier, "docs-only")
+
+    def test_docs_base_must_be_one_trigger_only_child_of_the_exact_candidate(self):
+        for label, mutate in {
+            "extra file": lambda e: retamper(e, "compare", lambda d: d["files"].append({"filename": "mix.exs"}), family="docs-only", nth=1),
+            "two commits": lambda e: retamper(e, "compare", lambda d: d.update(ahead_by=2), family="docs-only", nth=1),
+            "other file": lambda e: retamper(e, "compare", lambda d: d.update(files=[{"filename": ".github/workflows/other.yml"}]), family="docs-only", nth=1),
+            "behind": lambda e: retamper(e, "compare", lambda d: d.update(behind_by=1), family="docs-only", nth=1),
+            "wrong parent": lambda e: retamper(e, "git_get_commit", lambda d: d.update(parents=[{"sha": "3" * 40}]), nth=0),
+            "wrong message": lambda e: retamper(e, "git_get_commit", lambda d: d.update(message="other\n"), nth=1),
+            "extra parent": lambda e: retamper(e, "git_get_commit", lambda d: d["parents"].append({"sha": "4" * 40}), nth=0),
+        }.items():
+            with self.subTest(label):
+                self.assertRejected(mutate(self.fresh("docs")), "docs-only")
+        for label, mutate in {
+            "base diff missing": lambda f: f["docs-only"].pop("base_local_diff_paths"),
+            "base diff widened": lambda f: f["docs-only"].update(base_local_diff_paths=[".github/workflows/ci.yml", "mix.exs"]),
+        }.items():
+            with self.subTest(label):
+                tampered = self.fresh("docs")
+                mutate(tampered["freeze"])
+                tampered["freeze"]["freeze_sha256"] = verifier.canonical_digest({k: v for k, v in tampered["freeze"].items() if k != "freeze_sha256"})
+                self.assertRejected(tampered, "docs-only")
+
+    def test_docs_publication_must_use_exactly_the_reserved_requests_and_frozen_objects(self):
+        evidence = self.fresh("docs")
+        txs = evidence["transport_ledger"]["transactions"]
+        drop = next(i for i, tx in enumerate(txs) if tx["category"] == "docs_publication" and tx["route_id"] == "git_get_blob")
+        short = copy.deepcopy(evidence)
+        del short["transport_ledger"]["transactions"][drop]
+        del short["server_journal"][drop]
+        for index, tx in enumerate(short["transport_ledger"]["transactions"], 1):
+            tx["sequence"] = index
+        self.assertRejected(short, "docs-only")
+        self.assertRejected(retamper(self.fresh("docs"), "git_create_commit", lambda d: d.update(sha="1" * 40), nth=0), "docs-only")
+        self.assertRejected(retamper(self.fresh("docs"), "create_ref", lambda d: d["object"].update(sha="2" * 40), nth=1), "docs-only")
+
+    # -------------------------------------------------------------------------- transport accounting
+    def test_ledger_allocation_journal_and_origin_tampering_is_rejected(self):
+        def change(mutate, family="normal"):
+            evidence = self.fresh(family)
+            mutate(evidence)
+            return evidence
+        def alloc(evidence, **fields):
+            value = json.loads(base64.b64decode(evidence["allocation_base64"]))
+            value.update(fields)
+            evidence["allocation_base64"] = enc(json.dumps(value).encode())
+        cases = {
+            "uncharged request removed": lambda e: (e["transport_ledger"]["transactions"].pop(3), e["server_journal"].pop(3)),
+            "journal missing": lambda e: e.update(server_journal=None),
+            "journal extra": lambda e: e["server_journal"].append(dict(e["server_journal"][-1])),
+            "journal status": lambda e: e["server_journal"][2].update(status=201),
+            "journal body": lambda e: e["server_journal"][4].update(body_sha256="0" * 64),
+            "journal path": lambda e: e["server_journal"][5].update(path="/other"),
+            "journal credentials": lambda e: e["server_journal"][1].update(authorization="Bearer secret"),
+            "canary allocation": lambda e: alloc(e, allocation_kind="canary", max_requests=117),
+            "allocation 121": lambda e: alloc(e, max_requests=121),
+            "live label": lambda e: e.update(synthetic=False),
+            "category over": lambda e: e["transport_ledger"]["transactions"][0].update(category="unknown"),
+            "terminal stop": lambda e: e["transport_ledger"].update(terminal_stop={"code": "http_429"}),
+            "pending": lambda e: e["transport_ledger"]["transactions"][1].update(state="pending"),
+            "rate limited": lambda e: e["transport_ledger"]["transactions"][1].update(actual_status=429),
+            "family missing": lambda e: e["transport_ledger"]["transactions"][1].update(family=None),
+            "duplicate page": lambda e: e["transport_ledger"]["transactions"][[i for i, t in enumerate(e["transport_ledger"]["transactions"]) if t["route_id"] == "run_artifacts"][0]].update(page_ordinal=2),
+            "hop gap": lambda e: [t.update(hop_ordinal=t["hop_ordinal"] + 1) for t in e["transport_ledger"]["transactions"] if t["route_id"] == "artifact_zip" and t["hop_ordinal"] == 1],
+            "response digest": lambda e: e["transport_ledger"]["transactions"][2].update(response_sha256="0" * 64),
+            "foreign origin": lambda e: e["transport_ledger"]["transactions"][2].update(host="evil.example"),
+            "freeze edited": lambda e: e["freeze"]["normal"].update(head_sha="b" * 40),
+            "incomplete collection": lambda e: e["collection"].update(complete=False),
+            "stopped collection": lambda e: e["collection"].update(stop="rate limited"),
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label):
+                self.assertRejected(change(mutate))
+
+    def test_every_removed_evidence_field_fails_closed_instead_of_crashing_or_passing(self):
+        base = self.fresh()
+        for key in list(base):
+            if key == "server_journal":
+                continue
+            broken = self.fresh()
+            del broken[key]
+            with self.subTest(top=key):
+                self.assertRejected(broken)
+        for field in ("sequence", "state", "actual_status", "window_id", "source_sha256", "category", "family", "route_id", "method",
+                      "url", "url_sha256", "host", "response_body_base64", "response_sha256", "scrubbed_response_bytes",
+                      "raw_observation_sha256"):
+            broken = self.fresh()
+            del broken["transport_ledger"]["transactions"][3][field]
+            with self.subTest(transaction_field=field):
+                self.assertRejected(broken)
+        for field in list(base["freeze"]):
+            broken = self.fresh()
+            del broken["freeze"][field]
+            with self.subTest(freeze_field=field):
+                self.assertRejected(broken)
+        for field in ("artifact_id", "name", "request_group", "zip_base64"):
+            broken = self.fresh()
+            del broken["downloads"][0][field]
+            with self.subTest(download_field=field):
+                self.assertRejected(broken)
+        for value in (None, 0, "", [], {}):
+            for key in ("transport_ledger", "freeze", "downloads", "allocation_base64", "collection"):
+                broken = self.fresh()
+                broken[key] = value
+                with self.subTest(value=value, key=key):
+                    self.assertRejected(broken)
+
+    def test_pair_rejects_budget_reset_prefix_divergence_and_reused_prs(self):
+        reset = self.fresh("docs")
+        value = json.loads(base64.b64decode(reset["allocation_base64"]))
+        value["window_id"] = "second-window"
+        reset["allocation_base64"] = enc(json.dumps(value).encode())
+        with self.assertRaises(verifier.VerificationError):
+            verifier.verify_pr_pair(self.fresh(), reset)
+        diverged = self.fresh("docs")
+        diverged["transport_ledger"]["transactions"][0]["actual_status"] = 200 if diverged["transport_ledger"]["transactions"][0]["actual_status"] != 200 else 201
+        with self.assertRaises(verifier.VerificationError):
+            verifier.verify_pr_pair(self.fresh(), diverged)
+        with self.assertRaises(verifier.VerificationError):
+            verifier.verify_pr_pair(self.fresh(), self.fresh())
+
+    # ---------------------------------------------------------------------------- collector contracts
+    def test_check_only_makes_no_request_and_rejects_changed_bindings_and_wrong_allocations(self):
+        w = self.world
+        before = len(w.server.journal)
+        ok = run("bash", PROOF, "--check-only", "--freeze", w.freeze_path, "--allocation", w.allocation_path, cwd=ROOT)
+        self.assertEqual(ok.returncode, 0, ok.stderr)
+        self.assertEqual(json.loads(ok.stdout)["network_requests"], 0)
+        self.assertEqual(len(w.server.journal), before)
+        for label, change in {
+            "canary kind": {"allocation_kind": "canary", "max_requests": 117},
+            "changed limits": {"category_limits": {**transport.PRODUCTION_CATEGORY_LIMITS, "preflight": 9}},
+            "other source": {"source_sha256": "0" * 64},
+            "other documents": {"bound_documents": []},
+        }.items():
+            with self.subTest(label):
+                path = w.dir / "bad-allocation.json"
+                path.write_text(json.dumps({**w.allocation, **change}))
+                self.assertNotEqual(run("bash", PROOF, "--check-only", "--freeze", w.freeze_path, "--allocation", path, cwd=ROOT).returncode, 0)
+        tampered = json.loads(w.freeze_path.read_text())
+        tampered["normal"]["head_sha"] = "a" * 40
+        path = w.dir / "tampered-freeze.json"
+        path.write_text(json.dumps(tampered))
+        self.assertNotEqual(run("bash", PROOF, "--check-only", "--freeze", path, cwd=ROOT).returncode, 0)
+
+    def test_a_changed_or_missing_bound_document_stops_the_collector_before_any_request(self):
+        w = self.world
+        budget_bytes = w.budget.read_bytes()
+        before = len(w.server.journal)
+        try:
+            w.budget.write_text("edited after freeze\n")
+            changed = run("bash", PROOF, "--check-only", "--freeze", w.freeze_path, cwd=ROOT)
+            self.assertNotEqual(changed.returncode, 0)
+            process, _ = w.collect("normal", "never.json", check=False)
+            self.assertNotEqual(process.returncode, 0)
+            w.budget.unlink()
+            self.assertNotEqual(run("bash", PROOF, "--check-only", "--freeze", w.freeze_path, cwd=ROOT).returncode, 0)
+        finally:
+            w.budget.write_bytes(budget_bytes)
+        self.assertEqual(len(w.server.journal), before, "no wire request is possible after a binding drift")
+
+    def test_prepare_rejects_missing_or_foreign_publication_proof(self):
+        w = self.world
+        bogus = w.dir / "bogus-receipt.json"
+        bogus.write_text("{}")
+        result = run("bash", PROOF, "--prepare", "--publication", bogus, "--manifest", w.manifest_path, "--repo-root", w.repo,
+                     "--output", w.dir / "never.json", cwd=ROOT)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((w.dir / "never.json").exists())
+        empty = run("bash", PROOF, "--prepare", "--publication", w.dir / "absent.json", "--manifest", w.manifest_path,
+                    "--output", w.dir / "never.json", cwd=ROOT)
+        self.assertNotEqual(empty.returncode, 0)
+
+    # ------------------------------------------------------------------------------ completion CLI
+    def test_completion_cli_keeps_synthetic_chain_open_and_never_accepts_it(self):
+        w = self.world
+        normal, docs = w.dir / "normal-attached.json", w.dir / "docs-attached.json"
+        normal.write_text(json.dumps(self.normal))
+        docs.write_text(json.dumps(self.docs))
+        link = lambda path: {"path": str(path), "sha256": sha(pathlib.Path(path).read_bytes())}
+        evidence = {"schema_version": "sigra.phase253.completion-evidence/v1", "repository": "szTheory/sigra",
+                    "links": {"pr_normal": link(normal), "pr_docs_only": link(docs)}}
+        path = w.dir / "completion.json"
+        path.write_text(json.dumps(evidence))
+        open_record = run("python3", ROOT / "scripts/ci/ci-hosted-gate-verify.py", "--mode", "completion", "--evidence", path, cwd=ROOT, timeout=180)
+        self.assertEqual(open_record.returncode, 0, open_record.stderr)
+        result = json.loads(open_record.stdout)
+        self.assertEqual(result["status"], "open")
+        self.assertEqual(result["requirements"], {"CIREL-01": "open", "CIREL-02": "open"})
+        self.assertEqual(result["phase_verification"], "not_started")
+        self.assertTrue(any(gap.startswith("synthetic:pr") for gap in result["gaps"]))
+        strict = run("python3", ROOT / "scripts/ci/ci-hosted-gate-verify.py", "--mode", "completion", "--require-accepted", "--evidence", path,
+                     cwd=ROOT, timeout=180)
+        self.assertNotEqual(strict.returncode, 0)
+        forged = dict(evidence, accepted=True, status="accepted")
+        path.write_text(json.dumps(forged))
+        claim = run("python3", ROOT / "scripts/ci/ci-hosted-gate-verify.py", "--mode", "completion", "--evidence", path, cwd=ROOT, timeout=180)
+        self.assertNotEqual(claim.returncode, 0, "an embedded acceptance claim cannot override missing or synthetic links")
+        stale = dict(evidence, links={"pr_normal": {"path": str(normal), "sha256": "0" * 64}})
+        path.write_text(json.dumps(stale))
+        self.assertNotEqual(run("python3", ROOT / "scripts/ci/ci-hosted-gate-verify.py", "--mode", "completion", "--evidence", path,
+                                cwd=ROOT, timeout=180).returncode, 0)
+
+
+class CollectorFaultTests(unittest.TestCase):
+    def collected(self, flags, family="normal"):
+        world = World(self, flags=flags, tag="fault")
+        process, evidence = world.collect(family, "fault.json", check=False)
+        return world, process, json.loads(evidence.read_text())
+
+    def test_refused_pr_creation_preserves_the_charged_failure_and_is_never_accepted(self):
+        world, process, evidence = self.collected({"refuse_pr_create": True})
+        self.assertEqual(process.returncode, 1)
+        self.assertIn("pr_create", evidence["collection"]["stop"])
+        ledger = json.loads(world.ledger.read_text())
+        self.assertEqual(len(ledger["transactions"]), len(world.server.journal))
+        self.assertEqual(ledger["transactions"][-1]["actual_status"], 422)
+        self.assertTrue(all(row["charged"] for row in world.server.journal))
+        evidence["server_journal"] = world.server.journal
+        with self.assertRaises(verifier.VerificationError):
+            verifier.verify_pr_family(evidence, "normal")
+
+    def test_never_finishing_run_stops_at_the_frozen_poll_allocation_without_extra_requests(self):
+        world, process, evidence = self.collected({"never_finish": True})
+        self.assertEqual(process.returncode, 1)
+        ledger = json.loads(world.ledger.read_text())
+        polls = [tx for tx in ledger["transactions"] if tx["route_id"] == "run"]
+        self.assertEqual(len(polls), 15, "normal terminal polls are capped at their frozen allocation")
+        self.assertEqual(len(ledger["transactions"]), len(world.server.journal))
+        self.assertIn("terminal state", evidence["collection"]["stop"])
+        evidence["server_journal"] = world.server.journal
+        with self.assertRaises(verifier.VerificationError):
+            verifier.verify_pr_family(evidence, "normal")
+
+    def test_core_rate_floor_is_a_terminal_stop_before_any_later_request(self):
+        world, process, evidence = self.collected({"core_floor": True})
+        self.assertEqual(process.returncode, 1)
+        self.assertEqual(len(world.server.journal), 1)
+        ledger = json.loads(world.ledger.read_text())
+        self.assertEqual(ledger["terminal_stop"]["code"], "core_budget_stop")
+        again, _ = world.collect("normal", "second.json", check=False)
+        self.assertNotEqual(again.returncode, 0)
+        self.assertEqual(len(world.server.journal), 1, "a terminal ledger refuses a later collector run")
+
+
+if __name__ == "__main__":
+    outcome = unittest.main(verbosity=2, exit=False).result
+    if outcome.testsRun < 20:
+        print(f"ci-pr-proof.test: FAIL: only {outcome.testsRun} contracts executed (zero-test guard)", file=sys.stderr)
+        sys.exit(1)
+    sys.exit(0 if outcome.wasSuccessful() else 1)
+PYEOF

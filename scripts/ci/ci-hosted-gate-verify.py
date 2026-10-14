@@ -10,8 +10,15 @@ import sys
 import io
 import gzip
 import importlib.util
+import copy
+import os
+import shutil
+import struct
+import subprocess
+import tempfile
 import zipfile
 from pathlib import Path
+from urllib.parse import urlsplit
 
 SCHEMA = "sigra.hosted-gate-canary/v1"
 RESULT_SCHEMA = "sigra.gate-canary-result/v1"
@@ -759,10 +766,694 @@ def verify_separate_verifier(evidence, source_count):
     return verifier
 
 
+# --------------------------------------------------------------------------------------------------
+# Phase 253 plan 42: independent actual-PR proof (normal/docs-only) and accepted-only completion.
+# Everything below compares exact UTF-8 strings: no strip, casefold, or Unicode normalization.
+# --------------------------------------------------------------------------------------------------
+def fail_closed(function):
+    """Malformed shapes (missing keys, wrong types) are verification failures, never crashes or silent passes."""
+    import functools
+
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        try:
+            return function(*args, **kwargs)
+        except VerificationError:
+            raise
+        except (KeyError, TypeError, AttributeError, IndexError, ValueError, UnicodeError, OSError) as error:
+            raise VerificationError(f"{function.__name__}: malformed evidence ({type(error).__name__}: {error})") from error
+    return wrapper
+
+
+PR_SCHEMA = "sigra.phase253.pr-proof-evidence/v1"
+PR_FREEZE_SCHEMA = "sigra.phase253.pr-proof-freeze/v1"
+COMPLETION_SCHEMA = "sigra.phase253.completion-evidence/v1"
+REPOSITORY = "szTheory/sigra"
+WORKFLOW_ID = 259268962
+DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
+CLASSIFIER_JOB = "Detect docs-only change"
+PR_FAMILIES = ("normal", "docs-only")
+MAX_PR_EVIDENCE_BYTES = 128 * 1024 * 1024
+MAX_PRODUCER_ZIP_BYTES = 4 * 1024 * 1024
+MAX_PRODUCER_MEMBER_BYTES = 64 * 1024 * 1024
+MAX_PRODUCER_TOTAL_BYTES = 256 * 1024 * 1024
+TERMINAL_POLL_LIMITS = {"normal": 15, "docs-only": 12}
+SHA40 = re.compile(r"[a-f0-9]{40}")
+SHA64 = re.compile(r"[a-f0-9]{64}")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+_TRANSPORT = None
+
+
+def transport_module():
+    global _TRANSPORT
+    if _TRANSPORT is None:
+        spec = importlib.util.spec_from_file_location("ci_hosted_transport", Path(__file__).with_name("ci-hosted-transport.py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _TRANSPORT = module
+    return _TRANSPORT
+
+
+def b64(value, what):
+    try:
+        return base64.b64decode(value, validate=True)
+    except (TypeError, ValueError, base64.binascii.Error) as error:
+        raise VerificationError(f"{what} base64 is malformed") from error
+
+
+def tx_json(tx, what):
+    try:
+        return json.loads(b64(tx.get("response_body_base64"), what).decode("utf-8", "strict"))
+    except (UnicodeError, json.JSONDecodeError) as error:
+        raise VerificationError(f"{what} response body is not valid UTF-8 JSON") from error
+
+
+def git_blob_sha(data):
+    return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
+
+
+def canonical_digest(value):
+    return sha256(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+
+
+@fail_closed
+def verify_pr_transport(evidence):
+    """Reconcile the combined production ledger, allocation purpose, category predebits and independent server journal."""
+    require(evidence.get("repository") == REPOSITORY, "wrong repository in PR proof")
+    ledger = evidence.get("transport_ledger")
+    require(isinstance(ledger, dict) and ledger.get("schema_version") == "sigra.phase253.http-ledger/v2"
+            and isinstance(ledger.get("transactions"), list), "measured production HTTP ledger is missing")
+    raw_allocation = b64(evidence.get("allocation_base64"), "allocation")
+    try:
+        allocation = json.loads(raw_allocation.decode("utf-8", "strict"))
+        transport_module()._validate_allocation(allocation)
+    except Exception as error:
+        raise VerificationError(f"production allocation is invalid: {error}") from error
+    require(allocation.get("allocation_kind") == "production" and allocation.get("max_requests") == 120
+            and allocation.get("category_limits") == transport_module().PRODUCTION_CATEGORY_LIMITS,
+            "PR proof requires the separate production allocation with exactly 120 requests and the frozen categories")
+    require(ledger.get("allocation_sha256") == sha256(raw_allocation) and ledger.get("window_id") == allocation["window_id"]
+            and ledger.get("source_sha256") == allocation["source_sha256"], "ledger identity differs from the frozen allocation bytes")
+    require(ledger.get("terminal_stop") in (None, {}), "measured production ledger has a terminal stop")
+    require(allocation["max_elapsed_seconds"] <= 3600, "production clock exceeds 60 minutes")
+    hermetic = allocation["mode"] == "hermetic-test"
+    require(evidence.get("synthetic") is hermetic, "synthetic label must match the allocation origin (local HTTPS is synthetic, never live)")
+    transactions = ledger["transactions"]
+    limits = allocation["category_limits"]
+    require(0 < len(transactions) <= allocation["max_requests"], "production request count is zero or over its allocation")
+    counts, pages, hops = {}, {}, {}
+    for index, tx in enumerate(transactions, 1):
+        require(isinstance(tx, dict) and tx.get("sequence") == index and tx.get("state") == "complete"
+                and type(tx.get("actual_status")) is int and 100 <= tx["actual_status"] <= 599,
+                "transaction is missing, out of order, pending or lacks an actual HTTP status")
+        require(tx.get("window_id") == allocation["window_id"] and tx.get("source_sha256") == allocation["source_sha256"],
+                "transaction escaped the frozen window or source")
+        category = tx.get("category")
+        require(category in limits, "transaction lacks a frozen category")
+        counts[category] = counts.get(category, 0) + 1
+        require(counts[category] <= limits[category], f"category {category} exceeded its frozen limit")
+        require(tx.get("family") in ("normal", "docs-only", "shared"), "transaction lacks a typed family")
+        require(tx["actual_status"] not in (401, 403, 429), "authentication or rate limit requires a terminal stop")
+        if hermetic:
+            require(tx.get("host") == urlsplit(allocation["test_origin"]).hostname, "synthetic transaction left the local origin")
+        else:
+            require(tx.get("host") == "api.github.com" or tx.get("host") in allocation.get("download_hosts", []),
+                    "live transaction used a host outside api.github.com and the frozen download hosts")
+        body = b64(tx.get("response_body_base64"), "response body")
+        require(sha256(body) == tx.get("response_sha256") and tx.get("scrubbed_response_bytes") == len(body),
+                "retained response bytes differ from their digest")
+        if "?[REDACTED]" not in tx.get("url", ""):
+            require(sha256(tx["url"].encode()) == tx.get("url_sha256"), "request URL digest differs from retained URL")
+        page, hop = tx.get("page_ordinal"), tx.get("hop_ordinal")
+        if page is not None:
+            key = (tx["family"], tx["route_id"])
+            require(type(page) is int and page >= 1 and page not in pages.setdefault(key, []), "unknown or duplicate page ordinal")
+            pages[key].append(page)
+        if tx.get("request_group") is not None:
+            require(type(hop) is int and hop >= 0 and hop not in hops.setdefault(tx["request_group"], []), "unknown or duplicate redirect hop")
+            hops[tx["request_group"]].append(hop)
+    for key, values in pages.items():
+        require(sorted(values) == list(range(1, max(values) + 1)), f"page sequence for {key} has a gap")
+    for group, values in hops.items():
+        require(sorted(values) == list(range(0, max(values) + 1)) and max(values) <= 2, f"redirect hop sequence for {group} has a gap or exceeds two hops")
+    journal = evidence.get("server_journal")
+    if hermetic:
+        require(isinstance(journal, list) and len(journal) == len(transactions), "independent local HTTPS server journal is incomplete")
+        for tx, observed in zip(transactions, journal):
+            require(isinstance(observed, dict) and observed.get("method") == tx["method"]
+                    and observed.get("status") == tx["actual_status"], "server-observed method or status differs from the ledger")
+            path = observed.get("path")
+            require(isinstance(path, str) and urlsplit(tx["url"]).path == path.split("?", 1)[0], "server-observed path differs from the ledger")
+            if "?[REDACTED]" not in tx["url"]:
+                require(urlsplit(tx["url"]).query == (path.split("?", 1)[1] if "?" in path else ""), "server-observed query differs from the ledger")
+            require(observed.get("body_sha256") == tx.get("raw_observation_sha256"), "server-served bytes differ from the client observation")
+            require(observed.get("request_body_sha256") == tx.get("request_body_sha256"), "server-received request body differs from the ledger")
+            require(observed.get("authorization") is None, "credentials reached the local synthetic origin")
+    elif journal is not None:
+        require(isinstance(journal, list) and len(journal) == len(transactions), "optional server journal is incomplete")
+    return allocation, counts
+
+
+def _family(transactions, family, route):
+    return [tx for tx in transactions if tx["family"] == family and tx["route_id"] == route]
+
+
+def _view_for_checks(evidence, family, allocation, head_sha, check_tx):
+    """Build the exact-five effective-check view from shared preflight plus this family's native check response."""
+    hermetic = allocation["mode"] == "hermetic-test"
+    origin = f"https://{urlsplit(allocation['test_origin']).hostname}" if hermetic else None
+    transactions = []
+    for tx in evidence["transport_ledger"]["transactions"]:
+        keep = (tx["family"] == "shared" and tx["route_id"] in ("rules_main", "branch_protection")) or tx is check_tx
+        if keep:
+            row = copy.deepcopy(tx)
+            if hermetic and row["url"].startswith(origin):
+                row["url"] = "https://api.github.com" + row["url"][len(origin):]
+            transactions.append(row)
+    return {"transport_ledger": {"transactions": transactions}, "expected": {"candidate_sha": head_sha}}
+
+
+def validate_producer_zip(archive, size_limit=MAX_PRODUCER_ZIP_BYTES):
+    """Strict bounded multi-member producer ZIP intake: flat unique regular members, no links or traversal."""
+    import stat
+    require(isinstance(archive, bytes) and 22 <= len(archive) <= size_limit, "producer ZIP size is outside its bound")
+    eocd = archive.rfind(b"PK\x05\x06")
+    require(eocd >= 0 and eocd + 22 <= len(archive), "producer ZIP end record is missing")
+    comment_len = struct.unpack_from("<H", archive, eocd + 20)[0]
+    require(eocd + 22 + comment_len == len(archive), "producer ZIP has trailing bytes or a concatenated archive")
+    members, total, names = {}, 0, set()
+    try:
+        with zipfile.ZipFile(io.BytesIO(archive)) as bundle:
+            entries = bundle.infolist()
+            require(1 <= len(entries) <= 64, "producer ZIP member count is outside its bound")
+            ranges = []
+            for info in entries:
+                name = info.filename
+                require(isinstance(name, str) and name and name not in names, "producer ZIP has a duplicate or empty member")
+                names.add(name)
+                require(not info.is_dir() and "/" not in name and "\\" not in name and name not in (".", "..")
+                        and not name.startswith("/") and "\x00" not in name and name == name.encode("utf-8", "strict").decode("utf-8"),
+                        "producer ZIP member path is unsafe, nested, or a directory")
+                mode = (info.external_attr >> 16) & 0xFFFF
+                require(not stat.S_ISLNK(mode) and stat.S_IFMT(mode) in (0, stat.S_IFREG), "producer ZIP member is not a regular file")
+                require(not info.flag_bits & 1 and info.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED),
+                        "producer ZIP member is encrypted or uses an unsupported method")
+                require(info.file_size <= MAX_PRODUCER_MEMBER_BYTES, "producer ZIP member exceeds its bound")
+                total += info.file_size
+                require(total <= MAX_PRODUCER_TOTAL_BYTES, "producer ZIP expands beyond its aggregate bound")
+                signature, _v, _flags, _method, _t, _d, _crc, csize, _usize, name_len, extra_len = struct.unpack_from("<IHHHHHIIIHH", archive, info.header_offset)
+                require(signature == 0x04034B50 and archive[info.header_offset + 30:info.header_offset + 30 + name_len].decode(
+                    "utf-8" if info.flag_bits & 0x800 else "cp437") == name, "ZIP local and central member names differ")
+                start = info.header_offset + 30 + name_len + extra_len
+                end = start + info.compress_size
+                require(end <= eocd, "producer ZIP member stream is truncated or overlaps the directory")
+                ranges.append((info.header_offset, end))
+                output = bytearray()
+                with bundle.open(info, "r") as stream:
+                    while True:
+                        chunk = stream.read(min(65536, MAX_PRODUCER_MEMBER_BYTES + 1 - len(output)))
+                        if not chunk:
+                            break
+                        output.extend(chunk)
+                        require(len(output) <= MAX_PRODUCER_MEMBER_BYTES, "streamed producer member exceeds its bound")
+                require(len(output) == info.file_size, "streamed member length differs from ZIP metadata")
+                members[name] = bytes(output)
+            ranges.sort()
+            for (first_start, first_end), (second_start, _e) in zip(ranges, ranges[1:]):
+                require(first_end <= second_start, "producer ZIP members overlap")
+    except (OSError, UnicodeError, zipfile.BadZipFile, zipfile.LargeZipFile, struct.error, RuntimeError) as error:
+        if isinstance(error, VerificationError):
+            raise
+        raise VerificationError(f"producer ZIP is malformed: {error}") from error
+    return members
+
+
+def _run_browser_policy(workflow_bytes, producers, identity):
+    """Invoke ci-browser-records.mjs, the one policy owner, from a copy rooted at the retained workflow."""
+    node = shutil.which("node")
+    require(node is not None, "node is required to run the browser-record policy owner")
+    with tempfile.TemporaryDirectory(prefix="sigra-pr-proof-policy-") as raw_tmp:
+        tmp = str(Path(raw_tmp).resolve())  # the policy owner only runs as main when argv[1] equals its real path
+        root = Path(tmp) / "root"
+        (root / "scripts/ci").mkdir(parents=True)
+        (root / ".github/workflows").mkdir(parents=True)
+        for name in ("ci-browser-records.mjs", "ci-playwright-report.mjs"):
+            shutil.copyfile(Path(__file__).with_name(name), root / "scripts/ci" / name)
+        (root / ".github/workflows/ci.yml").write_bytes(workflow_bytes)
+        aggregate = Path(tmp) / "aggregate"
+        for directory, members in producers.items():
+            target = aggregate / directory
+            target.mkdir(parents=True)
+            for name, data in members.items():
+                (target / name).write_bytes(data)
+        identity_file = Path(tmp) / "identity.json"
+        identity_file.write_text(json.dumps(identity))
+        result = subprocess.run([node, str(root / "scripts/ci/ci-browser-records.mjs"), "--verify", "--directory", str(aggregate),
+                                 "--identity", str(identity_file), "--native-result", "success"],
+                                capture_output=True, text=True, timeout=120, check=False)
+        require(result.returncode == 0, f"browser execution policy owner rejected the producer set: {result.stderr.strip()[:400]}")
+        try:
+            return json.loads(result.stdout)
+        except json.JSONDecodeError as error:
+            raise VerificationError("browser execution policy owner returned malformed output") from error
+
+
+@fail_closed
+def verify_pr_family(evidence, family, _capture=None):
+    """Independently verify one actual PR family from retained measured API bytes and producer artifacts."""
+    require(family in PR_FAMILIES, "family must be normal or docs-only")
+    require(isinstance(evidence, dict) and evidence.get("schema_version") == PR_SCHEMA and evidence.get("family") == family,
+            "PR proof schema or family differs from the requested family")
+    allocation, counts = verify_pr_transport(evidence)
+    collection = evidence.get("collection")
+    require(isinstance(collection, dict) and collection.get("complete") is True and collection.get("stop") is None,
+            "collection did not complete (an honest stop is preserved but never accepted)")
+    freeze = evidence.get("freeze")
+    require(isinstance(freeze, dict) and freeze.get("schema_version") == PR_FREEZE_SCHEMA, "frozen PR proof document is missing")
+    stated = freeze.get("freeze_sha256")
+    require(stated == canonical_digest({key: value for key, value in freeze.items() if key != "freeze_sha256"}),
+            "frozen PR proof digest differs from its content")
+    require(freeze.get("workflow") == {"id": WORKFLOW_ID, "path": WORKFLOW_PATH}, "frozen workflow identity mismatch")
+    require(freeze.get("required_names") == list(REQUIRED_NAMES), "frozen required-check names differ from the exact five")
+    spec = freeze.get(family)
+    require(isinstance(spec, dict), "frozen family specification is missing")
+    for key in ("head_sha", "workflow_blob"):
+        require(isinstance(spec.get(key), str) and SHA40.fullmatch(spec[key]), f"frozen {key} is malformed")
+    head_sha, head_ref, base_ref = spec["head_sha"], spec.get("head_ref"), spec.get("base_ref")
+    expected_refs = ({"head": "gsd/253-replan-candidate", "base": "main"} if family == "normal"
+                     else {"head": "gsd/253-replan-docs-head", "base": "gsd/253-replan-docs-base"})
+    require(head_ref == expected_refs["head"] and base_ref == expected_refs["base"], "frozen PR head/base refs are not the exact proof refs")
+    transactions = evidence["transport_ledger"]["transactions"]
+    shared = [tx for tx in transactions if tx["family"] == "shared"]
+    require(sum(1 for tx in shared if tx["route_id"] == "branch_protection") == 1
+            and 1 <= sum(1 for tx in shared if tx["route_id"] == "rules_main") <= 2, "exactly one shared fresh preflight is required")
+
+    if family == "docs-only":
+        publications = [tx for tx in transactions if tx["family"] == family and tx["category"] == "docs_publication"]
+        require(len(publications) == 14 and all(tx["actual_status"] in (200, 201, 404) for tx in publications),
+                "docs base/head object and ref publication must use exactly its 14 reserved requests")
+        by_route = {}
+        for tx in publications:
+            by_route.setdefault(tx["route_id"], []).append(tx)
+        publication = spec.get("publication") or {}
+        require([tx_json(tx, "docs tree").get("sha") for tx in by_route.get("git_create_tree", [])] == [publication.get("docs_base_tree"), publication.get("docs_head_tree")],
+                "server docs trees differ from the frozen trees")
+        require([tx_json(tx, "docs commit").get("sha") for tx in by_route.get("git_create_commit", [])] == [spec.get("base_sha"), head_sha],
+                "server docs commits differ from the frozen base and head commits")
+        require([tx["actual_status"] for tx in by_route.get("get_ref", [])] == [404, 200, 404, 200]
+                and [tx_json(tx, "docs ref").get("object", {}).get("sha") for tx in by_route.get("create_ref", [])] == [spec.get("base_sha"), head_sha],
+                "scoped docs refs were not created exactly once from absent and read back")
+        require(spec.get("local_diff_paths") == [DOCS_PATH] and spec.get("base_local_diff_paths") == [WORKFLOW_PATH],
+                "frozen docs local diffs are not exactly the trigger-only base and the one documentation file")
+        readbacks = [tx_json(tx, "docs commit readback") for tx in by_route.get("git_get_commit", [])]
+        require(len(readbacks) == 2 and [r.get("sha") for r in readbacks] == [spec.get("base_sha"), head_sha]
+                and [[p.get("sha") for p in r.get("parents", [])] for r in readbacks] == [[publication.get("candidate_sha")], [spec.get("base_sha")]]
+                and [r.get("message") for r in readbacks] == ["Phase 253 docs probe base workflow exception\n", "Phase 253 docs-only probe head\n"],
+                "docs base must be one unsigned child of the exact candidate and docs head one child of the docs base")
+
+    creates = _family(transactions, family, "pr_create")
+    require(len(creates) == 1 and creates[0]["actual_status"] == 201 and creates[0]["category"] == "pr_create", "exactly one draft PR creation is required")
+    created = tx_json(creates[0], "PR creation")
+    require(isinstance(created, dict) and type(created.get("number")) is int and created["number"] > 0, "created PR number is missing")
+    number = created["number"]
+
+    def check_pr(pr, label):
+        require(isinstance(pr, dict) and pr.get("number") == number and pr.get("draft") is True and pr.get("merged") is False
+                and pr.get("state") == "open", f"{label} is not the same open unmerged draft PR")
+        head, base = pr.get("head") or {}, pr.get("base") or {}
+        require(head.get("ref") == head_ref and head.get("sha") == head_sha, f"{label} head differs from the frozen published head")
+        require(base.get("ref") == base_ref and (base.get("repo") or {}).get("full_name") == REPOSITORY
+                and (head.get("repo") or {}).get("full_name") == REPOSITORY, f"{label} base or repository identity differs")
+        return base.get("sha")
+
+    check_pr(created, "created PR")
+    reads = [tx for tx in transactions if tx["family"] == family and tx["route_id"] == "pr_read"]
+    require(len(reads) >= 1 and all(tx["actual_status"] == 200 for tx in reads), "the PR must be re-read after the run for its tested merge commit")
+    merges, bases = set(), set()
+    for tx in reads:
+        document = tx_json(tx, "PR read")
+        bases.add(check_pr(document, "read PR"))
+        merge = document.get("merge_commit_sha")
+        require(isinstance(merge, str) and SHA40.fullmatch(merge) and merge != head_sha, "PR has no distinct tested merge commit")
+        merges.add(merge)
+    require(len(merges) == 1 and len(bases) == 1 and None not in bases, "tested merge commit or base changed during the proof")
+    merge_sha, base_sha = merges.pop(), bases.pop()
+
+    compares = _family(transactions, family, "compare")
+    require(len(compares) == (2 if family == "docs-only" else 1) and all(tx["actual_status"] == 200 for tx in compares),
+            "the PR compare (and for docs the candidate-to-docs-base compare) is required")
+    require(urlsplit(compares[0]["url"]).path.endswith(f"/compare/{base_sha}...{head_sha}"), "compare is not bound to the PR base and head")
+    if family == "docs-only":
+        require(base_sha == spec.get("base_sha"), "docs PR base is not the frozen docs base commit")
+        candidate_sha = (spec.get("publication") or {}).get("candidate_sha")
+        require(urlsplit(compares[1]["url"]).path.endswith(f"/compare/{candidate_sha}...{base_sha}"), "base compare is not candidate to docs base")
+        base_compare = tx_json(compares[1], "docs base compare")
+        require([item.get("filename") for item in base_compare.get("files", [])] == [WORKFLOW_PATH]
+                and base_compare.get("ahead_by") == 1 and base_compare.get("behind_by") == 0,
+                "docs base must change only the workflow file as one commit ahead of the exact candidate")
+    compare = tx_json(compares[0], "PR compare")
+    files = compare.get("files") if isinstance(compare, dict) else None
+    require(isinstance(files, list) and files and len(files) < 100 and all(isinstance(item, dict) and isinstance(item.get("filename"), str) for item in files),
+            "compare file inventory is empty, malformed or incomplete")
+    api_paths = [item["filename"] for item in files]
+    require(len(set(api_paths)) == len(api_paths), "compare file inventory has duplicates")
+    local = spec.get("local_diff_paths")
+    require(isinstance(local, list) and local and all(isinstance(item, str) for item in local), "frozen local diff is missing")
+    is_doc = lambda path: path.endswith(".md") or path.startswith(".planning/")
+    if family == "docs-only":
+        require(api_paths == [DOCS_PATH] and local == [DOCS_PATH], "docs-only API and local diffs must be exactly the one documentation file")
+        require(compare.get("ahead_by") == 1 and compare.get("behind_by") == 0, "docs-only head is not one commit ahead of the docs base")
+    else:
+        require(set(api_paths) <= set(local) and any(not is_doc(path) for path in api_paths) and any(not is_doc(path) for path in local),
+                "normal PR diff must include non-documentation paths present in the frozen local diff")
+
+    contents = _family(transactions, family, "repo_contents")
+    wanted = {WORKFLOW_PATH: spec["workflow_blob"]}
+    if family == "docs-only":
+        require(isinstance(spec.get("docs_blob"), str) and SHA40.fullmatch(spec["docs_blob"]), "frozen documentation blob is malformed")
+        wanted[DOCS_PATH] = spec["docs_blob"]
+    require(len(contents) == len(wanted) and all(tx["actual_status"] == 200 for tx in contents), "exact source/blob reads are incomplete")
+    workflow_bytes = None
+    seen_paths = set()
+    for tx in contents:
+        parsed = urlsplit(tx["url"])
+        path = parsed.path.split("/contents/", 1)[1] if "/contents/" in parsed.path else None
+        require(path in wanted and path not in seen_paths and parsed.query == f"ref={merge_sha}", "source read is not the exact proof file at the tested merge")
+        seen_paths.add(path)
+        document = tx_json(tx, "source read")
+        require(isinstance(document, dict) and document.get("type") == "file" and document.get("encoding") == "base64"
+                and document.get("path") == path, "source read is not a base64 file response")
+        data = b64(str(document.get("content", "")).replace("\n", ""), "source content")
+        require(git_blob_sha(data) == document.get("sha") == wanted[path], "source blob differs from the frozen blob")
+        if path == WORKFLOW_PATH:
+            workflow_bytes = data
+    require(workflow_bytes is not None, "workflow source at the tested merge is missing")
+    if _capture is not None:
+        _capture["workflow_bytes"] = workflow_bytes
+
+    runs = _family(transactions, family, "workflow_runs")
+    polls = _family(transactions, family, "run")
+    require(runs and polls, "run discovery and terminal polls are required")
+    require(len(polls) <= TERMINAL_POLL_LIMITS[family], "terminal polls exceed the family allocation")
+    discovered = {run["id"] for tx in runs if tx["actual_status"] == 200 for run in (tx_json(tx, "run discovery").get("workflow_runs") or [])
+                  if run.get("head_sha") == head_sha and run.get("event") == "pull_request"}
+    require(len(discovered) == 1, "exactly one discovered pull_request run for the PR head is required")
+    run = tx_json(polls[-1], "terminal run")
+    require(polls[-1]["actual_status"] == 200 and run.get("id") in discovered, "terminal run is not the discovered run")
+    run_id, attempt = run["id"], run.get("run_attempt")
+    require(run.get("event") == "pull_request" and run.get("head_sha") == head_sha and run.get("head_branch") == head_ref
+            and run.get("workflow_id") == WORKFLOW_ID and str(run.get("path", "")).split("@", 1)[0] == WORKFLOW_PATH
+            and type(attempt) is int and attempt >= 1, "run is not the actual PR workflow run for the published head")
+    require((run.get("repository") or {}).get("full_name") == REPOSITORY and (run.get("head_repository") or {}).get("full_name") == REPOSITORY,
+            "run repository identity differs")
+    require(any(isinstance(item, dict) and item.get("number") == number for item in run.get("pull_requests") or []),
+            "run is not linked to the proof PR")
+    require(run.get("status") == "completed" and run.get("conclusion") == "success", "actual terminal run conclusion is not success")
+    for tx in polls[:-1]:
+        require(tx_json(tx, "earlier poll").get("status") != "completed", "polling continued after a terminal run response")
+    require(reads[-1]["sequence"] > polls[-1]["sequence"], "the PR must be re-read after the terminal run")
+
+    job_pages = _family(transactions, family, "attempt_jobs")
+    require(job_pages, "attempt job pages are required")
+    jobs, total = [], None
+    for tx in sorted(job_pages, key=lambda item: item["page_ordinal"]):
+        require(tx["actual_status"] == 200 and tx["url"].find(f"/runs/{run_id}/attempts/{attempt}/jobs") >= 0, "job page is not for the terminal run attempt")
+        document = tx_json(tx, "jobs")
+        require(isinstance(document, dict) and isinstance(document.get("jobs"), list), "jobs page is malformed")
+        jobs.extend(document["jobs"])
+        total = document.get("total_count")
+    require(total == len(jobs) and jobs, "job inventory is empty or incomplete")
+    by_name = {}
+    for job in jobs:
+        require(isinstance(job, dict) and isinstance(job.get("name"), str) and job.get("run_id") == run_id and job.get("run_attempt") == attempt
+                and job.get("status") == "completed" and job.get("conclusion") in {"success", "failure", "cancelled", "timed_out", "skipped", "neutral", "action_required"},
+                "job is not a terminal job of the proof run attempt")
+        by_name.setdefault(job["name"], []).append(job)
+    for name in (*REQUIRED_NAMES, CLASSIFIER_JOB, *[f"Example Playwright shard ({seam})" for seam in SEAMS]):
+        found = by_name.get(name, [])
+        require(len(found) == 1 and found[0]["conclusion"] == "success", f"required job missing, duplicated or not successful: {name}")
+    classifier_steps = by_name[CLASSIFIER_JOB][0].get("steps")
+    require(isinstance(classifier_steps, list) and sum(1 for step in classifier_steps if step.get("name") == CLASSIFIER_JOB
+            and step.get("conclusion") == "success") == 1, "classifier step did not succeed exactly once")
+    if family == "normal":
+        shards = [job for name, found in by_name.items() if name.startswith("Library tests shard") for job in found]
+        require(shards and all(job["conclusion"] == "success" for job in shards), "ordinary library test owner did not run and pass")
+
+    check_txs = _family(transactions, family, "check_runs")
+    require(len(check_txs) == 1 and check_txs[0]["actual_status"] == 200 and check_txs[0]["page_ordinal"] == 1, "exactly one complete native check page is required")
+    view = _view_for_checks(evidence, family, allocation, head_sha, check_txs[0])
+    hydrate_effective_checks(view)
+    verify_effective_checks(view)
+    native = {item["name"]: item for item in tx_json(check_txs[0], "native checks")["check_runs"] if item.get("name") in REQUIRED_NAMES}
+    for name in REQUIRED_NAMES:
+        check, job = native[name], by_name[name][0]
+        require(check.get("head_sha") == head_sha and check.get("status") == "completed" and check.get("conclusion") == "success"
+                and job["conclusion"] == "success", f"native check is not a successful check of the PR head: {name}")
+        match = re.search(r"/job/([0-9]+)$", check.get("html_url", ""))
+        require(match is not None and match.group(1) == str(job.get("id")), f"native check does not belong to the attempt job: {name}")
+
+    artifact_pages = _family(transactions, family, "run_artifacts")
+    require(artifact_pages, "artifact metadata pages are required")
+    artifacts, total = [], None
+    for tx in sorted(artifact_pages, key=lambda item: item["page_ordinal"]):
+        require(tx["actual_status"] == 200, "artifact metadata page failed")
+        document = tx_json(tx, "artifacts")
+        require(isinstance(document, dict) and isinstance(document.get("artifacts"), list), "artifact metadata is malformed")
+        artifacts.extend(document["artifacts"])
+        total = document.get("total_count")
+    require(total == len(artifacts), "artifact metadata is incomplete")
+    expected_names = [f"browser-execution-{seam}-{run_id}-{attempt}" for seam in SEAMS]
+    producers = [item for item in artifacts if isinstance(item, dict) and isinstance(item.get("name"), str) and item["name"].startswith("browser-execution-")]
+    require(sorted(item["name"] for item in producers) == sorted(expected_names),
+            "exactly five producer artifacts with the exact run and attempt names are required (empty, single, duplicate or unknown inventories fail)")
+    digests = {}
+    for item in producers:
+        require(item.get("expired") is False and type(item.get("id")) is int and (item.get("workflow_run") or {}).get("id") == run_id
+                and (item.get("workflow_run") or {}).get("head_sha") == head_sha and type(item.get("size_in_bytes")) is int
+                and 0 < item["size_in_bytes"] <= MAX_PRODUCER_ZIP_BYTES and isinstance(item.get("digest"), str)
+                and re.fullmatch(r"sha256:[a-f0-9]{64}", item["digest"]), f"producer artifact identity is incomplete: {item.get('name')}")
+        digests[item["name"]] = item
+
+    downloads = evidence.get("downloads")
+    require(isinstance(downloads, list) and len(downloads) == 5, "all five producer artifact downloads are required")
+    by_download = {}
+    for entry in downloads:
+        require(isinstance(entry, dict) and entry.get("name") in digests and entry["name"] not in by_download, "download is unknown or duplicated")
+        by_download[entry["name"]] = entry
+    producer_dirs, record_cache = {}, {}
+    for seam in SEAMS:
+        name = f"browser-execution-{seam}-{run_id}-{attempt}"
+        entry, artifact = by_download[name], digests[name]
+        require(entry.get("artifact_id") == artifact["id"], "download artifact ID differs from API metadata")
+        archive = b64(entry.get("zip_base64"), "producer ZIP")
+        group = [tx for tx in transactions if tx.get("request_group") == entry.get("request_group") and entry.get("request_group")]
+        require(group and all(tx["family"] == family and tx["route_id"] == "artifact_zip" and tx["category"] == "artifact_downloads" for tx in group),
+                "download hops are missing from the measured ledger")
+        group.sort(key=lambda tx: tx["hop_ordinal"])
+        require(urlsplit(group[0]["url"]).path.endswith(f"/actions/artifacts/{artifact['id']}/zip"), "download is not the artifact ZIP route")
+        require(all(tx["actual_status"] in (301, 302, 303, 307, 308) for tx in group[:-1]) and group[-1]["actual_status"] == 200,
+                "download did not end in one actual successful ZIP response")
+        final = group[-1]
+        require(final.get("raw_observation_sha256") == sha256(archive) == artifact["digest"].removeprefix("sha256:")
+                and final.get("response_bytes") == len(archive), "ZIP bytes differ from the measured response and GitHub artifact digest")
+        members = validate_producer_zip(archive)
+        try:
+            record = json.loads(members["execution-record.json"].decode("utf-8", "strict"))
+        except (KeyError, UnicodeError, json.JSONDecodeError) as error:
+            raise VerificationError(f"producer artifact lacks a valid execution record: {name}") from error
+        expected_members = {"execution-record.json"}
+        for step in record.get("selected_steps", []) if isinstance(record, dict) else []:
+            for reference in step.get("reports", []) if isinstance(step, dict) else []:
+                expected_members.update((reference.get("path"), reference.get("selection_path")))
+        require(set(members) == expected_members, f"producer artifact members differ from its record inventory: {name}")
+        producer_dirs[name] = members
+        record_cache[seam] = record
+
+    docs_only = family == "docs-only"
+    identity = {"run_id": str(run_id), "run_attempt": str(attempt), "source_sha": merge_sha, "event": "pull_request",
+                "workflow_ref": f"{REPOSITORY}/{WORKFLOW_PATH}@refs/pull/{number}/merge", "workflow_sha": merge_sha,
+                "classifier_result": "success", "docs_only": "true" if docs_only else "false"}
+    policy = _run_browser_policy(workflow_bytes, producer_dirs, identity)
+    require(policy.get("status") == "passed" and isinstance(policy.get("seams"), list) and len(policy["seams"]) == 5
+            and all(item.get("docs_only") is docs_only for item in policy["seams"]), "browser execution policy owner did not accept all five seams")
+    return {"status": "synthetic_pr_family_verified" if evidence["synthetic"] else "pr_family_verified", "family": family,
+            "accepted_live": not evidence["synthetic"], "pr_number": number, "run_id": run_id, "run_attempt": attempt,
+            "head_sha": head_sha, "merge_sha": merge_sha, "requests": len(transactions), "category_counts": counts,
+            "window_id": allocation["window_id"]}
+
+
+DOCS_OLD_TRIGGER = b"  pull_request:\n    branches: [main]\n"
+DOCS_NEW_TRIGGER = b"  pull_request:\n    branches: [main, gsd/253-replan-docs-*]\n"
+
+
+def verify_docs_workflow_relation(candidate, docs):
+    """The docs base may differ from the candidate only by the exact named pull_request branch allowance."""
+    require(isinstance(candidate, bytes) and isinstance(docs, bytes) and candidate.count(DOCS_OLD_TRIGGER) == 1
+            and docs.count(DOCS_NEW_TRIGGER) == 1 and docs == candidate.replace(DOCS_OLD_TRIGGER, DOCS_NEW_TRIGGER, 1),
+            "docs base workflow differs from the candidate by more than the exact pull_request branch allowance")
+
+
+@fail_closed
+def verify_pr_pair(normal, docs):
+    """Verify both actual PR families and prove they share one non-reset production allocation."""
+    captured_normal, captured_docs = {}, {}
+    first = verify_pr_family(normal, "normal", captured_normal)
+    second = verify_pr_family(docs, "docs-only", captured_docs)
+    verify_docs_workflow_relation(captured_normal["workflow_bytes"], captured_docs["workflow_bytes"])
+    ledgers = [normal["transport_ledger"], docs["transport_ledger"]]
+    require(normal["allocation_base64"] == docs["allocation_base64"], "families used different allocations (budget reset)")
+    require(all(ledger["allocation_sha256"] == ledgers[0]["allocation_sha256"] and ledger["window_id"] == ledgers[0]["window_id"] for ledger in ledgers),
+            "families used different windows (budget reset)")
+    shorter, longer = sorted((ledgers[0]["transactions"], ledgers[1]["transactions"]), key=len)
+    require(longer[:len(shorter)] == shorter, "family ledgers are not one append-only measured window")
+    require(len(longer) <= 120, "combined families exceed the single 120-request allocation")
+    require(normal["freeze"]["freeze_sha256"] == docs["freeze"]["freeze_sha256"], "families used different frozen PR proofs")
+    require(first["pr_number"] != second["pr_number"] and first["run_id"] != second["run_id"], "families did not use two distinct actual PRs and runs")
+    require(first["accepted_live"] == second["accepted_live"], "families mix synthetic and live origins")
+    return {"status": "synthetic_pr_pair_verified" if not first["accepted_live"] else "pr_pair_verified",
+            "accepted_live": first["accepted_live"], "normal": first, "docs-only": second, "requests": len(longer)}
+
+
+def read_json_file(path, limit=MAX_PR_EVIDENCE_BYTES):
+    try:
+        raw = Path(path).read_bytes()
+        require(len(raw) <= limit, "evidence exceeds its fixed size limit")
+        value = json.loads(raw.decode("utf-8", "strict"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise VerificationError(f"evidence unreadable or malformed: {error}") from error
+    require(isinstance(value, dict), "evidence root must be an object")
+    return value
+
+
+def verify_canary_matrix(evidence):
+    """Whole hosted canary: measured transport, exact checks, six sources, attempts and separate verifier."""
+    transport_result = verify_transport_v2(evidence)
+    if "effective_checks" not in evidence:
+        hydrate_effective_checks(evidence)
+    checks_result = verify_effective_checks(evidence)
+    results, source_jobs = verify_sources(evidence)
+    executed = verify_attempt_jobs(evidence)
+    require(executed >= source_jobs, "complete attempt receipts omit a selected source job")
+    return {"status": "canary_verified", "transport": transport_result, "checks": checks_result,
+            "scenarios": results, "separate_verifier": verify_separate_verifier(evidence, source_jobs), "executed_jobs": executed}
+
+
+LINKS = (
+    ("phase252_replay", "original Phase252 replay"), ("phase252_diagnosis", "original Phase252 diagnosis"),
+    ("load_controls", "native load controls"), ("load_acceptance", "accepted target and fresh repeats"),
+    ("publication", "measured publication"), ("canary", "hosted canary, six outcomes and separate verifier"),
+    ("pr_normal", "actual normal PR"), ("pr_docs_only", "actual docs-only PR"),
+)
+LOAD_CHECKS = {
+    "load_controls": ["--verify-load-recovery", "{path}", "--stage", "complete"],
+    "load_acceptance": ["--verify-load-acceptance", "{path}", "--require-target-accepted"],
+}
+
+
+def _default_checker(kind, path):
+    script = Path(__file__).with_name("ci-registration-recovery.mjs")
+    node = shutil.which("node")
+    if node is None:
+        return 127, "node unavailable"
+    argv = [node, str(script), *[part.format(path=path) for part in LOAD_CHECKS[kind]]]
+    result = subprocess.run(argv, capture_output=True, text=True, timeout=300, check=False)
+    return result.returncode, (result.stderr or result.stdout)[:400]
+
+
+@fail_closed
+def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_checker=None):
+    """Re-open every linked proof; embedded acceptance claims are never trusted."""
+    require(isinstance(evidence, dict) and evidence.get("schema_version") == COMPLETION_SCHEMA
+            and evidence.get("repository") == REPOSITORY, "completion evidence schema or repository mismatch")
+    links = evidence.get("links")
+    require(isinstance(links, dict) and set(links) <= {key for key, _ in LINKS}, "completion links are malformed or unknown")
+    checker = load_checker or _default_checker
+    gaps, opened, windows, synthetic = [], {}, {}, False
+    for key, label in LINKS:
+        link = links.get(key)
+        if link is None:
+            gaps.append(f"missing:{key}:{label}")
+            continue
+        require(isinstance(link, dict) and set(link) == {"path", "sha256"} and isinstance(link["path"], str)
+                and isinstance(link["sha256"], str) and SHA64.fullmatch(link["sha256"]), f"link {key} is malformed")
+        target = Path(link["path"])
+        target = target if target.is_absolute() else Path(root) / target
+        try:
+            raw = target.read_bytes()
+        except OSError as error:
+            raise VerificationError(f"linked proof cannot be re-opened: {key}") from error
+        require(sha256(raw) == link["sha256"], f"linked proof bytes differ from their recorded SHA-256: {key}")
+        opened[key] = (target, raw)
+    for key in ("phase252_replay", "phase252_diagnosis"):
+        if key in opened:
+            parsed = json.loads(opened[key][1].decode("utf-8", "strict"))
+            require(isinstance(parsed, (dict, list)) and bool(parsed), f"original Phase252 record is empty or null: {key}")
+    for key in ("load_controls", "load_acceptance"):
+        if key not in opened:
+            continue
+        code, detail = checker(key, str(opened[key][0]))
+        if code != 0:
+            raise VerificationError(f"strict native checker rejected {key}: {detail}")
+        document = json.loads(opened[key][1].decode("utf-8", "strict"))
+        require(isinstance(document, dict) and document, f"{key} evidence is empty")
+        if key == "load_acceptance":
+            assessment = document.get("assessment") if isinstance(document.get("assessment"), dict) else {}
+            if assessment.get("kind") == "justified_no_flake":
+                selected, explained = assessment.get("selected_failures"), assessment.get("explained_failures")
+                require(isinstance(selected, list) and selected and isinstance(explained, list) and set(selected) <= set(explained)
+                        and assessment.get("cause") in (None, ""), "cause-less no-flake must explain every selected failure")
+            else:
+                require(isinstance(assessment.get("cause"), str) and assessment["cause"], "accepted target needs a demonstrated cause or a justified no-flake assessment")
+    if "publication" in opened:
+        result = subprocess.run([sys.executable, str(Path(__file__).with_name("ci-git-publication.py")), "--verify-publication", str(opened["publication"][0])],
+                                capture_output=True, text=True, timeout=60, check=False)
+        require(result.returncode == 0, f"publication receipt rejected: {result.stderr.strip()[:300]}")
+    if "canary" in opened:
+        canary = json.loads(opened["canary"][1].decode("utf-8", "strict"))
+        verify_canary_matrix(canary)
+        origin = canary.get("origin", {})
+        windows["canary"] = (origin.get("window_id"), canary["transport_ledger"].get("allocation_sha256"))
+    pr_result = None
+    if "pr_normal" in opened and "pr_docs_only" in opened:
+        normal = json.loads(opened["pr_normal"][1].decode("utf-8", "strict"))
+        docs = json.loads(opened["pr_docs_only"][1].decode("utf-8", "strict"))
+        pr_result = verify_pr_pair(normal, docs)
+        for item in (normal.get("freeze") or {}).get("bound_documents") or []:
+            bound = Path(item["path"])
+            bound = bound if bound.is_absolute() else Path(root) / bound
+            try:
+                actual = sha256(bound.read_bytes())
+            except OSError as error:
+                raise VerificationError(f"frozen source link cannot be re-opened: {item['path']}") from error
+            require(actual == item["sha256"], f"frozen source link changed since the freeze: {item['path']}")
+        windows["pr"] = (normal["transport_ledger"]["window_id"], normal["transport_ledger"]["allocation_sha256"])
+        synthetic = synthetic or not pr_result["accepted_live"]
+        if not pr_result["accepted_live"]:
+            gaps.append("synthetic:pr:synthetic local-HTTPS PR evidence cannot satisfy live acceptance")
+    elif "pr_normal" in opened or "pr_docs_only" in opened:
+        gaps.append("missing:pr_pair:both actual PR families are required together")
+    seen = {}
+    for name, (window, allocation_hash) in windows.items():
+        require(seen.setdefault(window, allocation_hash) == allocation_hash, "a window was reused with a different allocation (budget reset)")
+    require(len({window for window, _ in windows.values()}) == len(windows), "proofs reused one window instead of separate allocations (budget reset)")
+    claimed = evidence.get("accepted") is True or evidence.get("status") in ("accepted", "complete", "passed")
+    if claimed and gaps:
+        raise VerificationError("embedded acceptance claim contradicts the re-opened links: " + "; ".join(gaps))
+    status = "accepted" if not gaps and not synthetic and len(opened) == len(LINKS) else "open"
+    if require_accepted and status != "accepted":
+        raise VerificationError("accepted-only completion failed: " + "; ".join(gaps or ["not every linked proof is live and accepted"]))
+    return {"status": status, "gaps": gaps, "linked": sorted(opened), "phase_verification": "not_started",
+            "requirements": {"CIREL-01": "accepted" if status == "accepted" else "open",
+                             "CIREL-02": "accepted" if status == "accepted" else "open"}}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--evidence", required=True, help="captured GitHub API and artifact receipt JSON")
-    parser.add_argument("--mode", choices=("legacy", "transport", "preflight", "canary"), default="legacy")
+    parser.add_argument("--mode", choices=("legacy", "transport", "preflight", "canary", "pr", "completion"), default="legacy")
+    parser.add_argument("--family", choices=("normal", "docs-only", "both"), default="normal")
+    parser.add_argument("--docs-evidence", help="docs-only PR evidence when --mode pr --family both")
+    parser.add_argument("--require-accepted", action="store_true")
     parser.add_argument("--scenario", choices=(*SCENARIOS, "sources", "matrix"), default="full-pass")
     args = parser.parse_args()
     if args.mode == "legacy":
@@ -774,6 +1465,14 @@ def main():
             return {"status": "verified", "scenarios": results, "separate_verifier": verify_separate_verifier(evidence, count)}
         receipt = evidence.get("scenarios", {}).get(args.scenario) if "scenarios" in evidence else evidence
         return verify_scenario(receipt, args.scenario, evidence)
+    if args.mode == "pr":
+        first = read_json_file(args.evidence)
+        if args.family == "both":
+            require(args.docs_evidence, "--family both requires --docs-evidence")
+            return verify_pr_pair(first, read_json_file(args.docs_evidence))
+        return verify_pr_family(first, args.family)
+    if args.mode == "completion":
+        return verify_completion(read_json_file(args.evidence), require_accepted=args.require_accepted)
     evidence = read_replan_evidence(args.evidence)
     transport_result = verify_transport_v2(evidence)
     if args.mode == "transport":
