@@ -76,6 +76,56 @@ test('control verification requires native outcomes instead of caller-written pa
   assert.ok(result.errors.length > 0);
 });
 
+test('control recovery ledger carries every prior charge and maps each unused reservation once', () => {
+  assert.equal(typeof recovery.buildControlRecoveryLedger, 'function');
+  const ledger = recovery.buildControlRecoveryLedger({
+    charges: [3768, 3743, 26373, 46803, 40993, 121252, 112],
+    physicalPlaywrightLaunches: 4,
+    spentReservations: ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK'],
+    retryUsed: 1,
+    retryAvailable: 0,
+    preparationMaximumMs: 116232,
+    preparationUsedMs: 3743
+  });
+
+  assert.equal(ledger.prior_charge_ms, 243044);
+  assert.equal(ledger.preparation_remaining_ms, 112489);
+  assert.equal(ledger.launch_unit, 'playwright_cli_process');
+  assert.deepEqual(ledger.slots.map(({ id, maps_from, project }) => [id, maps_from, project]), [
+    ['CR-DARK-FIRST', 'R-CONTROL-FIRST-DESKTOP', ['admin-eval-dark']],
+    ['CR-DESKTOP-MOBILE-FIRST', 'R-CONTROL-FIRST-MOBILE', ['admin-eval', 'admin-eval-mobile']],
+    ['CR-DESKTOP-SECOND', 'R-CONTROL-SECOND-DESKTOP', ['admin-eval']],
+    ['CR-MOBILE-SECOND', 'R-CONTROL-SECOND-MOBILE', ['admin-eval-mobile']],
+    ['CR-DARK-SECOND', 'R-CONTROL-SECOND-DARK', ['admin-eval-dark']]
+  ]);
+  assert.equal(ledger.d19_max_ms, 955533);
+  assert.equal(ledger.total_max_ms, 3295533);
+});
+
+test('control recovery ledger refuses altered charges, reopened retries, or duplicate reservation mappings', () => {
+  assert.equal(typeof recovery.buildControlRecoveryLedger, 'function');
+  const valid = {
+    charges: [3768, 3743, 26373, 46803, 40993, 121252, 112],
+    physicalPlaywrightLaunches: 4,
+    spentReservations: ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK'],
+    retryUsed: 1,
+    retryAvailable: 0,
+    preparationMaximumMs: 116232,
+    preparationUsedMs: 3743
+  };
+  for (const mutate of [
+    (input) => { input.charges[5] = 121251; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.spentReservations.push('R-CONTROL-FIRST-DESKTOP'); },
+    (input) => { input.physicalPlaywrightLaunches = 3; },
+    (input) => { input.preparationUsedMs = 3744; }
+  ]) {
+    const input = structuredClone(valid);
+    mutate(input);
+    assert.throws(() => recovery.buildControlRecoveryLedger(input), /historical|retry|reservation|launch|preparation/i);
+  }
+});
+
 test('the explicit revision CLI freezes before results and accepts a named diagnostic slot', () => {
   const freeze = path.join(temporary, 'registration-revision.json');
   const evidence = path.join(temporary, 'registration-revision-evidence.json');
