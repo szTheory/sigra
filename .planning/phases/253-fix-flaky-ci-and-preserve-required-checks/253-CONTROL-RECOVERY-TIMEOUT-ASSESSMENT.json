@@ -1,0 +1,93 @@
+{
+  "schema_version": "sigra.phase253.registration-control-timeout-assessment/v1",
+  "status": "halted",
+  "native_outcome": "failed",
+  "native_acceptance": false,
+  "source_commit": "35b49354050660a0f808291e2422de108834ef87",
+  "native_evidence_sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746",
+  "cleanup_evidence_sha256": "956b43875a7431e52b3683954d7ebf8d2f72ac9a52665d7cf6594a4349fa1f11",
+  "source_hashes": {
+    "scripts/ci/ci-registration-repro.sh": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e"
+    },
+    "scripts/ci/ci-registration-recovery.mjs": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "9a97675dab6fd8f2d7037101eb3203b668f06de8"
+    },
+    "scripts/ci/ci-playwright-report.mjs": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "51cfe7d0f600477a100ac45eeb61becb0f75e749"
+    },
+    "test/example/priv/playwright/playwright.config.ts": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "96ac3495464c36fdfcc604f99c130aee12f289b0"
+    },
+    "test/example/priv/playwright/tests/admin-eval.spec.ts": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "a9c9ff153634284c97a4428f8984015c91bccfbe"
+    },
+    "test/example/priv/playwright/helpers/adminFlows.ts": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e"
+    },
+    "test/example/priv/playwright/package-lock.json": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5"
+    },
+    "test/example/mix.lock": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "1a7d84c08459b3911da3899ec36a9282430750b4"
+    },
+    ".github/workflows/ci.yml": {
+      "commit": "35b49354050660a0f808291e2422de108834ef87",
+      "blob": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    }
+  },
+  "log_hashes": {
+    "test_log": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json.raw/R-DIAG-CONTROL-DARK/attempt-01/test-log.log",
+      "sha256": "73fb55013698da5c0566b0cc062e6beef45919a7c44aea74318dee189ffd0f05",
+      "bytes": 2409
+    },
+    "app_log": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json.raw/R-DIAG-CONTROL-DARK/attempt-01/app-log.log",
+      "sha256": "07aee911372bd0db86b2f48f5f5d42ca3292b2ac75f8f77f5f473639839653fd",
+      "bytes": 21876
+    }
+  },
+  "native_duration_ms": 121252,
+  "cleanup_duration_ms": 112,
+  "cumulative_charge_ms": 243044,
+  "database_absent_after_cleanup": true,
+  "native_report_present": false,
+  "native_final_error": null,
+  "cause_status": "unproved_native_until_recovery",
+  "observations": {
+    "test_progress": [
+      {
+        "test": "registration waits for explicitly released LiveView readiness",
+        "elapsed": "16.5s",
+        "outcome": "failed"
+      },
+      {
+        "test": "registration stops when LiveView readiness is never released",
+        "elapsed": "2.3s",
+        "outcome": "observed in progress log; no native report"
+      },
+      {
+        "test": "registration fails when the readiness wait is deliberately broken",
+        "elapsed": "1.8s",
+        "outcome": "observed in progress log; no native report"
+      }
+    ],
+    "selected_order": [
+      "held-readiness positive started before deliberate collision; collision was last started among the visible registration controls"
+    ],
+    "held_signal_source_mismatch": "Saved source shows a click while the LiveView websocket is still held, followed by release and a second click. This proves the test submits before release; it does not prove that this caused the historical timeout.",
+    "account_source_mismatch": "Saved source uses the same project-derived account for the delayed positive and deliberate collision. This proves account-role reuse; it does not establish the historical registration failure cause.",
+    "transport": "No native transport observation is recorded. WebSocket is explicitly routed; long-poll bypass is unproved.",
+    "native_final_error": null,
+    "native_report": null
+  }
+}
