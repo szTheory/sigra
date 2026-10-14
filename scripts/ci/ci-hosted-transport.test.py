@@ -429,5 +429,229 @@ class HostedTransportWireTests(unittest.TestCase):
         self.assertEqual(ledger["terminal_stop"]["code"], "core_budget_stop")
 
 
+PRODUCTION_CATEGORY_LIMITS = {
+    "preflight": 8, "docs_publication": 14, "pr_create": 2, "pr_identity": 8, "run_discovery": 4,
+    "pre_watch_rate": 2, "terminal_polls": 27, "attempt_jobs": 4, "native_checks": 4,
+    "artifact_metadata": 4, "artifact_downloads": 20, "failure_logs": 2, "infrastructure_rerun": 21,
+}
+
+
+def load_transport():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ci_hosted_transport_under_test", ROOT / "scripts/ci/ci-hosted-transport.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class TypedAllocationWireTests(unittest.TestCase):
+    """Actual local-HTTPS wire contracts for canary/production allocation kinds and category predebits."""
+
+    def setUp(self):
+        self.transport = load_transport()
+        self.tmp = tempfile.TemporaryDirectory(prefix="sigra-253-typed-allocation-")
+        self.addCleanup(self.tmp.cleanup)
+        self.tmp_path = pathlib.Path(self.tmp.name)
+        cert, key = self.tmp_path / "server.pem", self.tmp_path / "server-key.pem"
+        subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1", "-subj", "/CN=localhost",
+                        "-addext", "subjectAltName=DNS:localhost", "-keyout", str(key), "-out", str(cert)],
+                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.ledger = self.tmp_path / "ledger.json"
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), JournalHandler)
+        self.server.ledger_path = self.ledger
+        self.server.status = 200
+        self.server.journal = []
+        self.server.responses = []
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.load_cert_chain(cert, key)
+        self.server.socket = context.wrap_socket(self.server.socket, server_side=True)
+        thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(thread.join)
+        self.addCleanup(self.server.server_close)
+        self.addCleanup(self.server.shutdown)
+        self.cert = cert
+        self.port = self.server.server_address[1]
+        self.allocation_path = self.tmp_path / "allocation.json"
+        self.request_path = self.tmp_path / "request.json"
+        self.output_path = self.tmp_path / "receipt.json"
+
+    def allocation(self, kind="canary", max_requests=117, **extra):
+        value = {"schema_version": "sigra.phase253.http-allocation/v1", "window_id": "typed-window",
+                 "source_sha256": "a" * 64, "max_requests": max_requests, "max_elapsed_seconds": 3600,
+                 "max_response_bytes": 4096, "max_pages": 2, "max_hops": 2, "repository": "szTheory/sigra",
+                 "download_hosts": [], "mode": "hermetic-test", "test_origin": f"https://localhost:{self.port}",
+                 "test_ca_file": str(self.cert)}
+        if kind is not None:
+            value["allocation_kind"] = kind
+        value.update(extra)
+        return value
+
+    def write_allocation(self, value):
+        self.allocation_path.write_text(json.dumps(value))
+
+    def probe(self, **fields):
+        self.request_path.write_text(json.dumps({"method": "GET", "route_id": "test_probe", **fields}))
+        return self.transport.request_one(self.allocation_path, self.ledger, self.request_path, self.output_path)
+
+    def test_kind_ceilings_are_separate_and_unknown_or_oversized_allocations_fail_before_io(self):
+        validate = self.transport._validate_allocation
+        validate(self.allocation(kind="canary", max_requests=117))
+        validate(self.allocation(kind=None, max_requests=100))  # legacy allocations remain canary-kind
+        validate(self.allocation(kind="production", max_requests=120, category_limits=PRODUCTION_CATEGORY_LIMITS))
+        for broken in (
+            self.allocation(kind="canary", max_requests=120),
+            self.allocation(kind=None, max_requests=120),
+            self.allocation(kind="production", max_requests=121, category_limits=PRODUCTION_CATEGORY_LIMITS),
+            self.allocation(kind="production", max_requests=117, category_limits=PRODUCTION_CATEGORY_LIMITS),
+            self.allocation(kind="Production", max_requests=120, category_limits=PRODUCTION_CATEGORY_LIMITS),
+            self.allocation(kind="unknown", max_requests=10),
+            self.allocation(kind="production", max_requests=120),
+            self.allocation(kind="production", max_requests=120, category_limits={**PRODUCTION_CATEGORY_LIMITS, "preflight": 9}),
+            self.allocation(kind="production", max_requests=120, category_limits={**PRODUCTION_CATEGORY_LIMITS, "extra": 1}),
+            self.allocation(kind="canary", max_requests=117, category_limits={"a": 118}),
+            self.allocation(kind="canary", max_requests=117, bound_documents=[{"path": "x", "sha256": "z"}]),
+            self.allocation(kind="canary", max_requests=117, bound_documents="x"),
+        ):
+            with self.subTest(allocation=broken):
+                with self.assertRaises(self.transport.TransportError):
+                    validate(broken)
+
+    def test_canary_wire_boundary_charges_exactly_117_then_stops_without_a_118th_socket_request(self):
+        self.write_allocation(self.allocation(kind="canary", max_requests=117))
+        for _ in range(117):
+            self.probe()
+        self.assertEqual(len(self.server.journal), 117)
+        with self.assertRaises(self.transport.TransportError) as caught:
+            self.probe()
+        self.assertEqual(caught.exception.code, "request_budget_exhausted")
+        self.assertEqual(len(self.server.journal), 117)
+        self.assertTrue(all(row["charged"] for row in self.server.journal))
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual(len(ledger["transactions"]), 117)
+        self.assertEqual(ledger["terminal_stop"]["code"], "request_budget_exhausted")
+
+    def test_production_wire_boundary_charges_exactly_120_with_every_frozen_category(self):
+        self.write_allocation(self.allocation(kind="production", max_requests=120, category_limits=PRODUCTION_CATEGORY_LIMITS))
+        for category, limit in PRODUCTION_CATEGORY_LIMITS.items():
+            for _ in range(limit):
+                self.probe(category=category, family="shared")
+        self.assertEqual(len(self.server.journal), 120)
+        ledger = json.loads(self.ledger.read_text())
+        counts = {}
+        for row in ledger["transactions"]:
+            counts[row["category"]] = counts.get(row["category"], 0) + 1
+        self.assertEqual(counts, PRODUCTION_CATEGORY_LIMITS)
+        with self.assertRaises(self.transport.TransportError) as caught:
+            self.probe(category="preflight", family="shared")
+        self.assertEqual(caught.exception.code, "request_budget_exhausted")
+        self.assertEqual(len(self.server.journal), 120)
+
+    def test_category_predebit_stops_before_the_wire_and_never_resets_via_parent_or_family(self):
+        self.write_allocation(self.allocation(kind="canary", max_requests=10, category_limits={"alpha": 1, "beta": 2}))
+        self.probe(category="alpha", family="normal")
+        with self.assertRaises(self.transport.TransportError) as caught:
+            self.probe(category="alpha", family="docs-only")  # a different family never resets the category
+        self.assertEqual(caught.exception.code, "category_budget_exhausted")
+        self.assertEqual(len(self.server.journal), 1)
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual(ledger["terminal_stop"]["code"], "category_budget_exhausted")
+        with self.assertRaises(self.transport.TransportError) as stopped:
+            self.probe(category="beta", family="normal")  # terminal stop also blocks unrelated categories
+        self.assertEqual(stopped.exception.code, "terminal_stop")
+        self.assertEqual(len(self.server.journal), 1)
+
+    def test_missing_or_unknown_category_is_rejected_when_limits_are_frozen(self):
+        self.write_allocation(self.allocation(kind="canary", max_requests=10, category_limits={"alpha": 1}))
+        for fields in ({}, {"category": "nope"}, {"category": 3}):
+            with self.subTest(fields=fields):
+                with self.assertRaises(self.transport.TransportError) as caught:
+                    self.probe(**fields)
+                self.assertEqual(caught.exception.code, "category_rejected")
+        self.assertEqual(self.server.journal, [])
+
+    def test_changed_limits_or_window_cannot_continue_an_existing_ledger(self):
+        self.write_allocation(self.allocation(kind="canary", max_requests=10, category_limits={"alpha": 1}))
+        self.probe(category="alpha")
+        for changed in (self.allocation(kind="canary", max_requests=10, category_limits={"alpha": 5}),
+                        self.allocation(kind="canary", max_requests=10, category_limits={"alpha": 1}, window_id="fresh-window"),
+                        self.allocation(kind="canary", max_requests=11, category_limits={"alpha": 1})):
+            with self.subTest(changed=changed):
+                self.write_allocation(changed)
+                with self.assertRaises(self.transport.TransportError) as caught:
+                    self.probe(category="alpha")
+                self.assertEqual(caught.exception.code, "ledger_identity_mismatch")
+        self.assertEqual(len(self.server.journal), 1)
+
+    def test_bound_document_digests_are_checked_before_any_network_io(self):
+        document = self.tmp_path / "bound.txt"
+        document.write_text("frozen")
+        digest = hashlib.sha256(b"frozen").hexdigest()
+        self.write_allocation(self.allocation(kind="canary", max_requests=5, bound_documents=[{"path": str(document), "sha256": digest}]))
+        self.probe()
+        document.write_text("changed")
+        self.ledger.unlink()
+        with self.assertRaises(self.transport.TransportError) as caught:
+            self.probe()
+        self.assertEqual(caught.exception.code, "bound_document_mismatch")
+        self.assertEqual(len(self.server.journal), 1)
+        self.write_allocation(self.allocation(kind="canary", max_requests=5, bound_documents=[{"path": str(self.tmp_path / "missing"), "sha256": digest}]))
+        with self.assertRaises(self.transport.TransportError) as missing:
+            self.probe()
+        self.assertEqual(missing.exception.code, "bound_document_mismatch")
+
+    def route(self, route_id, method="GET", **fields):
+        request = {"route_id": route_id, "method": method, **fields}
+        allocation = self.allocation(kind="production", max_requests=120, category_limits=PRODUCTION_CATEGORY_LIMITS)
+        return self.transport._route(request, allocation)
+
+    def test_pr_collector_routes_build_only_typed_repository_scoped_paths(self):
+        sha, other = "a" * 40, "b" * 40
+        self.assertEqual(self.route("pr_read", params={"pull_number": 7})[3], "/repos/szTheory/sigra/pulls/7")
+        self.assertEqual(self.route("compare", params={"base_sha": sha, "head_sha": other}, query={"per_page": 100, "page": 1})[3],
+                         f"/repos/szTheory/sigra/compare/{sha}...{other}?per_page=100&page=1")
+        self.assertEqual(self.route("attempt_jobs", params={"run_id": 9, "attempt": 2}, query={"per_page": 100, "page": 1})[3],
+                         "/repos/szTheory/sigra/actions/runs/9/attempts/2/jobs?per_page=100&page=1")
+        self.assertEqual(self.route("repo_contents", params={"content_path": ".github/workflows/ci.yml"}, query={"ref": sha})[3],
+                         f"/repos/szTheory/sigra/contents/.github/workflows/ci.yml?ref={sha}")
+        self.assertEqual(self.route("workflow_runs", params={"workflow_id": 5}, query={"event": "pull_request", "head_sha": sha, "per_page": 100})[3],
+                         f"/repos/szTheory/sigra/actions/workflows/5/runs?event=pull_request&head_sha={sha}&per_page=100")
+        body = {"title": "Phase 253 proof", "head": "gsd/253-replan-candidate", "base": "main", "body": "draft", "draft": True}
+        host, port, payload, path = self.route("pr_create", method="POST", body=body)
+        self.assertEqual((path, host), ("/repos/szTheory/sigra/pulls", "localhost"))
+        self.assertEqual(json.loads(payload)["draft"], True)
+
+    def test_pr_collector_routes_reject_unsafe_parameters_bodies_and_queries(self):
+        sha = "a" * 40
+        bad_body = {"title": "t", "head": "gsd/253-replan-candidate", "base": "main", "body": "b", "draft": True}
+        rejections = [
+            ("pr_read", "GET", {"params": {"pull_number": 0}}),
+            ("pr_read", "GET", {"params": {"pull_number": "7"}}),
+            ("compare", "GET", {"params": {"base_sha": "main", "head_sha": sha}}),
+            ("compare", "GET", {"params": {"base_sha": sha.upper(), "head_sha": sha}}),
+            ("attempt_jobs", "GET", {"params": {"run_id": 9, "attempt": 0}}),
+            ("repo_contents", "GET", {"params": {"content_path": "../secrets"}, "query": {"ref": sha}}),
+            ("repo_contents", "GET", {"params": {"content_path": ".github/workflows/other.yml"}, "query": {"ref": sha}}),
+            ("repo_contents", "GET", {"params": {"content_path": ".github/workflows/ci.yml"}, "query": {"ref": "main"}}),
+            ("workflow_runs", "GET", {"params": {"workflow_id": 5}, "query": {"event": "push"}}),
+            ("workflow_runs", "GET", {"params": {"workflow_id": 5}, "query": {"head_sha": "short"}}),
+            ("pr_create", "POST", {"body": {**bad_body, "draft": False}}),
+            ("pr_create", "POST", {"body": {**bad_body, "base": "release"}}),
+            ("pr_create", "POST", {"body": {**bad_body, "head": "attacker:branch"}}),
+            ("pr_create", "POST", {"body": {**bad_body, "extra": 1}}),
+            ("pr_create", "POST", {"body": {**bad_body, "maintainer_can_modify": True}}),
+            ("pr_read", "POST", {"params": {"pull_number": 7}, "body": {}}),
+        ]
+        for route_id, method, fields in rejections:
+            with self.subTest(route=route_id, fields=fields):
+                with self.assertRaises(self.transport.TransportError):
+                    self.route(route_id, method=method, **fields)
+
+    def test_legacy_canary_hermetic_allocation_still_rejects_pr_collector_routes(self):
+        request = {"route_id": "pr_read", "method": "GET", "params": {"pull_number": 7}}
+        with self.assertRaises(self.transport.TransportError):
+            self.transport._route(request, self.allocation(kind="canary", max_requests=10))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

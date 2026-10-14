@@ -63,9 +63,30 @@ ROUTES = {
     "artifact_zip": ("GET", "/repos/{repo}/actions/artifacts/{artifact_id}/zip", "download"),
     "run_logs": ("GET", "/repos/{repo}/actions/runs/{run_id}/logs", "download"),
     "job_logs": ("GET", "/repos/{repo}/actions/jobs/{job_id}/logs", "download"),
+    "pr_create": ("POST", "/repos/{repo}/pulls", "json"),
+    "pr_read": ("GET", "/repos/{repo}/pulls/{pull_number}", "json"),
+    "compare": ("GET", "/repos/{repo}/compare/{base_sha}...{head_sha}", "json"),
+    "repo_contents": ("GET", "/repos/{repo}/contents/{content_path}", "json"),
+    "attempt_jobs": ("GET", "/repos/{repo}/actions/runs/{run_id}/attempts/{attempt}/jobs", "json"),
     "test_probe": ("GET", "/probe", "test"),
     "test_page": ("GET", "/page/{page_ordinal}", "test"),
 }
+
+
+ALLOCATION_KINDS = ("canary", "production")
+CANARY_MAX_REQUESTS = 117
+PRODUCTION_MAX_REQUESTS = 120
+# Frozen from 253-LOAD-RECOVERY-BUDGETS.md "Actual normal/docs PRs: one combined allocation" (sum 120).
+PRODUCTION_CATEGORY_LIMITS = {
+    "preflight": 8, "docs_publication": 14, "pr_create": 2, "pr_identity": 8, "run_discovery": 4,
+    "pre_watch_rate": 2, "terminal_polls": 27, "attempt_jobs": 4, "native_checks": 4,
+    "artifact_metadata": 4, "artifact_downloads": 20, "failure_logs": 2, "infrastructure_rerun": 21,
+}
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PR_HEAD_REFS = {"gsd/253-replan-candidate", "gsd/253-replan-docs-head"}
+PR_BASE_REFS = {"main", "gsd/253-replan-docs-base"}
+CONTENT_PATHS = {".github/workflows/ci.yml", "guides/reference/phase253-docs-only-proof.md"}
+PR_CREATE_FIELDS = {"title", "head", "base", "body", "draft"}
 
 
 class TransportError(Exception):
@@ -244,7 +265,8 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
         return origin.hostname, origin.port, None, template
 
     git_object_route = route_id.startswith("git_") or route_id in {"get_ref", "create_ref"}
-    if git_object_route and allocation.get("mode") == "hermetic-test":
+    hermetic_collector = allocation.get("mode") == "hermetic-test" and allocation.get("allocation_kind") == "production"
+    if (git_object_route or hermetic_collector) and allocation.get("mode") == "hermetic-test":
         origin = urlsplit(str(allocation.get("test_origin", "")))
         if (origin.scheme != "https" or origin.hostname not in {"localhost", "127.0.0.1"}
                 or origin.port is None or origin.username or origin.password or origin.query or origin.fragment):
@@ -255,7 +277,7 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
     else:
         raise TransportError("live_allocation_required", "Git object routes require live or local hermetic allocation")
 
-    if allocation.get("mode") != "live" and not (git_object_route and allocation.get("mode") == "hermetic-test"):
+    if allocation.get("mode") != "live" and not ((git_object_route or hermetic_collector) and allocation.get("mode") == "hermetic-test"):
         raise TransportError("live_allocation_required", "GitHub routes require a live frozen allocation")
     params = request.get("params", {})
     if not isinstance(params, dict):
@@ -264,9 +286,20 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
     if repo != DEFAULT_REPO:
         raise TransportError("repository_rejected", "allocation repository is not the approved repository")
     values = {"repo": repo}
-    for name in ("workflow_id", "run_id", "artifact_id", "job_id"):
+    for name in ("workflow_id", "run_id", "artifact_id", "job_id", "pull_number", "attempt"):
         if f"{{{name}}}" in template:
             values[name] = str(_positive(params.get(name), name, 10**16))
+    for name in ("base_sha", "head_sha"):
+        if f"{{{name}}}" in template:
+            value = params.get(name)
+            if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{40}", value):
+                raise TransportError("invalid_route_parameter", f"{name} must be a full lowercase Git SHA")
+            values[name] = value
+    if "{content_path}" in template:
+        content_path = params.get("content_path")
+        if not isinstance(content_path, str) or content_path not in CONTENT_PATHS:
+            raise TransportError("invalid_route_parameter", "content path is outside the frozen proof file allow-list")
+        values["content_path"] = quote(content_path, safe="/-._")
     if "{commit_sha}" in template:
         commit_sha = params.get("commit_sha")
         if not isinstance(commit_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", commit_sha):
@@ -290,8 +323,10 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
     if not isinstance(query, dict):
         raise TransportError("invalid_route_parameter", "query must be an object")
     permitted = {
-        "rules_main": {"per_page", "page"}, "check_runs": {"per_page", "page"}, "workflow_runs": {"event", "branch", "per_page", "page"},
+        "rules_main": {"per_page", "page"}, "check_runs": {"per_page", "page"},
+        "workflow_runs": {"event", "branch", "head_sha", "per_page", "page"},
         "run_jobs": {"per_page", "page"}, "run_artifacts": {"per_page", "page"},
+        "attempt_jobs": {"per_page", "page"}, "compare": {"per_page", "page"}, "repo_contents": {"ref"},
     }.get(route_id, set())
     if set(query) - permitted:
         raise TransportError("query_rejected", "route query contains an unapproved key")
@@ -300,8 +335,13 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
         if key in {"per_page", "page"}:
             number = _positive(value, key, 100)
             query_parts.append(f"{key}={number}")
-        elif key == "event" and value == "workflow_dispatch":
-            query_parts.append("event=workflow_dispatch")
+        elif key == "event" and value in ("workflow_dispatch", "pull_request"):
+            query_parts.append(f"event={value}")
+        elif key in {"head_sha", "ref"}:
+            if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{40}", value) or (
+                    key == "head_sha" and route_id != "workflow_runs") or (key == "ref" and route_id != "repo_contents"):
+                raise TransportError("invalid_route_parameter", f"{key} must be a full lowercase Git SHA on its typed route")
+            query_parts.append(f"{key}={value}")
         elif key == "branch" and route_id == "workflow_runs":
             if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9._/-]{1,160}", value):
                 raise TransportError("invalid_route_parameter", "branch query is malformed")
@@ -329,6 +369,11 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
                     or not isinstance(sha, str) or not re.fullmatch(r"[a-f0-9]{40}", sha)
                     or set(body) != {"ref", "sha"}):
                 raise TransportError("ref_rejected", "reference creation is limited to exact gsd/253-replan-* commit refs")
+        elif route_id == "pr_create":
+            if (set(body) != PR_CREATE_FIELDS or body.get("draft") is not True or body.get("head") not in PR_HEAD_REFS
+                    or body.get("base") not in PR_BASE_REFS or not isinstance(body.get("title"), str) or not body["title"]
+                    or not isinstance(body.get("body"), str)):
+                raise TransportError("pr_body_rejected", "pull request creation is limited to a typed draft from an exact proof head to an exact base")
         elif route_id == "git_create_blob":
             if (set(body) != {"content", "encoding"} or not isinstance(body.get("content"), str)
                     or body.get("encoding") not in {"utf-8", "base64"}):
@@ -399,7 +444,8 @@ def _validate_allocation(allocation: dict) -> None:
     if mode not in {"live", "hermetic-test"}:
         raise TransportError("allocation_mode", "allocation mode must be live or hermetic-test")
     common = {"schema_version", "window_id", "source_sha256", "max_requests", "max_elapsed_seconds",
-              "max_response_bytes", "max_pages", "max_hops", "repository", "mode", "download_hosts"}
+              "max_response_bytes", "max_pages", "max_hops", "repository", "mode", "download_hosts",
+              "allocation_kind", "category_limits", "bound_documents"}
     test_only = {"test_origin", "test_ca_file"}
     allowed = common | test_only if mode == "hermetic-test" else common
     if set(allocation) - allowed:
@@ -415,10 +461,36 @@ def _validate_allocation(allocation: dict) -> None:
         value = allocation.get(field)
         if isinstance(value, bool) or not isinstance(value, int) or value < 1 or value > upper:
             raise TransportError("allocation_limit_invalid", f"{field} must be from one through {upper}")
+    kind = allocation.get("allocation_kind", "canary")  # legacy allocations predate the typed purpose and are canary-kind
+    if kind not in ALLOCATION_KINDS:
+        raise TransportError("allocation_kind_rejected", "allocation kind must be canary or production")
     max_requests = allocation.get("max_requests")
     min_requests = 0 if mode == "hermetic-test" else 1
-    if isinstance(max_requests, bool) or not isinstance(max_requests, int) or not min_requests <= max_requests <= (117 if mode == "live" else 100):
+    if kind == "production":
+        # Only the production purpose may use 120; it is exactly 120 so a smaller window cannot silently stand in.
+        in_range = max_requests == PRODUCTION_MAX_REQUESTS
+    elif mode == "live":
+        in_range = isinstance(max_requests, int) and min_requests <= max_requests <= CANARY_MAX_REQUESTS
+    else:
+        in_range = isinstance(max_requests, int) and min_requests <= max_requests <= CANARY_MAX_REQUESTS
+    if isinstance(max_requests, bool) or not isinstance(max_requests, int) or not in_range:
         raise TransportError("allocation_limit_invalid", "max_requests is outside its approved allocation range")
+    limits = allocation.get("category_limits")
+    if kind == "production":
+        if limits != PRODUCTION_CATEGORY_LIMITS or any(type(value) is not int for value in (limits or {}).values()):
+            raise TransportError("category_limits_invalid", "production category limits must equal the frozen budget table exactly")
+    elif limits is not None:
+        if (not isinstance(limits, dict) or not limits or any(not isinstance(key, str) or not key or len(key) > 64 or
+                type(value) is not int or value < 1 for key, value in limits.items())
+                or sum(limits.values()) > max_requests):
+            raise TransportError("category_limits_invalid", "category limits must be positive integers that fit the allocation")
+    documents = allocation.get("bound_documents")
+    if documents is not None:
+        if (not isinstance(documents, list) or len(documents) > 16 or any(
+                not isinstance(item, dict) or set(item) != {"path", "sha256"} or not isinstance(item["path"], str)
+                or not item["path"] or not isinstance(item["sha256"], str) or not re.fullmatch(r"[a-f0-9]{64}", item["sha256"])
+                for item in documents)):
+            raise TransportError("bound_documents_invalid", "bound documents must be path and lowercase SHA-256 pairs")
     if allocation.get("repository", DEFAULT_REPO) != DEFAULT_REPO:
         raise TransportError("repository_rejected", "allocation repository is not the approved repository")
     if mode == "live":
@@ -431,6 +503,30 @@ def _validate_allocation(allocation: dict) -> None:
                 raise TransportError("download_host_allocation", "live allocation contains a host outside the trusted policy")
     elif not allocation.get("test_origin") or not allocation.get("test_ca_file"):
         raise TransportError("test_origin_rejected", "hermetic allocation requires its local TLS origin and test CA")
+
+
+def _check_bound_documents(allocation: dict) -> None:
+    for item in allocation.get("bound_documents") or []:
+        candidate = Path(item["path"])
+        resolved = candidate if candidate.is_absolute() else REPO_ROOT / candidate
+        try:
+            actual = hashlib.sha256(resolved.read_bytes()).hexdigest()
+        except OSError as exc:
+            raise TransportError("bound_document_mismatch", "a frozen bound document is unreadable") from exc
+        if actual != item["sha256"]:
+            raise TransportError("bound_document_mismatch", "a frozen bound document differs from its SHA-256 binding")
+
+
+def _request_category(request: dict, allocation: dict):
+    limits = allocation.get("category_limits")
+    category = request.get("category")
+    if limits is None:
+        if category is not None and not isinstance(category, str):
+            raise TransportError("category_rejected", "request category must be a string")
+        return category
+    if not isinstance(category, str) or category not in limits:
+        raise TransportError("category_rejected", "request category is missing or not in the frozen allocation")
+    return category
 
 
 def _load_ledger(path: Path, allocation: dict, allocation_hash: str) -> dict:
@@ -475,6 +571,11 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
     request, _ = _json(request_path, MAX_REQUEST_ENVELOPE_BYTES)
     _validate_allocation(allocation)
     host, port, body, path = _route(request, allocation)
+    category = _request_category(request, allocation)
+    family = request.get("family")
+    if family is not None and family not in {"normal", "docs-only", "shared"}:
+        raise TransportError("family_rejected", "request family must be normal, docs-only, or shared")
+    _check_bound_documents(allocation)
     if destination is not None:
         host, port, path = destination
         if not host or not (1 <= port <= 65535) or not path.startswith("/") or "#" in path or "\r" in path or "\n" in path:
@@ -496,6 +597,11 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
             ledger["terminal_stop"] = {"code": "time_budget_exhausted", "at_monotonic_ns": start_ns}
             _atomic_json(ledger_path, ledger)
             raise TransportError("time_budget_exhausted", "request allocation time limit is exhausted")
+        limits = allocation.get("category_limits")
+        if limits is not None and sum(1 for item in ledger["transactions"] if item.get("category") == category) >= limits[category]:
+            ledger["terminal_stop"] = {"code": "category_budget_exhausted", "category": category, "at_monotonic_ns": start_ns}
+            _atomic_json(ledger_path, ledger)
+            raise TransportError("category_budget_exhausted", f"category {category} allocation is exhausted")
         prior = _preserve(ledger_path)
         if prior:
             ledger["preserved_revisions"].append(prior)
@@ -514,7 +620,7 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
                  "request_sha256": hashlib.sha256(body or b"").hexdigest() if body is not None else None,
                  "page_ordinal": request.get("page_ordinal"), "hop_ordinal": request.get("hop_ordinal"),
                  "request_group": request.get("request_group"), "window_id": allocation["window_id"],
-                 "source_sha256": allocation["source_sha256"],
+                 "source_sha256": allocation["source_sha256"], "category": category, "family": family,
                  "request_body_base64": base64.b64encode(body).decode("ascii") if request["route_id"] == "dispatch" and body is not None else None,
                  "request_body_bytes": len(body) if body is not None else None,
                  "request_body_sha256": hashlib.sha256(body).hexdigest() if body is not None else None,
@@ -752,7 +858,7 @@ def fetch_pages(allocation_path: Path, ledger_path: Path, request_path: Path,
     initial, _ = _json(request_path, MAX_REQUEST_BYTES)
     allocation, _ = _json(allocation_path, MAX_ALLOCATION_BYTES)
     _route(initial, allocation)
-    if initial.get("method") != "GET" or initial.get("route_id") not in {"workflow_runs", "rules_main", "check_runs", "run_jobs", "run_artifacts", "test_page"}:
+    if initial.get("method") != "GET" or initial.get("route_id") not in {"workflow_runs", "rules_main", "check_runs", "run_jobs", "run_artifacts", "attempt_jobs", "compare", "test_page"}:
         raise TransportError("pagination_route_rejected", "route is not an approved paginated GET")
     max_pages = allocation.get("max_pages", 0)
     if isinstance(max_pages, bool) or not isinstance(max_pages, int) or max_pages < 1 or max_pages > 100:
@@ -824,8 +930,8 @@ def fetch_pages(allocation_path: Path, ledger_path: Path, request_path: Path,
     if route_id == "rules_main":
         aggregate = [item for item in pages for item in item] if all(isinstance(item, list) for item in pages) else pages
     else:
-        collection_key = {"workflow_runs": "workflow_runs", "run_jobs": "jobs",
-                          "run_artifacts": "artifacts"}.get(route_id)
+        collection_key = {"workflow_runs": "workflow_runs", "run_jobs": "jobs", "attempt_jobs": "jobs",
+                          "run_artifacts": "artifacts", "check_runs": "check_runs", "compare": "files"}.get(route_id)
         if collection_key:
             aggregate = dict(pages[-1])
             aggregate[collection_key] = [item for page_data in pages for item in page_data.get(collection_key, [])]
@@ -856,20 +962,33 @@ def _next_page_url(link_value: str, request: dict, allocation: dict) -> str | No
         raise TransportError("malformed_link", "response Link header has duplicate next destinations")
     target = next_targets[0]
     parsed = urlsplit(target)
-    if allocation.get("mode") == "hermetic-test":
+    if allocation.get("mode") == "hermetic-test" and request.get("route_id") == "test_page":
         origin = urlsplit(allocation["test_origin"])
         valid = parsed.scheme == "https" and parsed.hostname == origin.hostname and parsed.port == origin.port
         expected_path = f"/page/{request.get('page_ordinal', 0) + 1}"
         if not valid or parsed.path != expected_path or parsed.query or parsed.fragment or parsed.username or parsed.password:
             raise TransportError("pagination_destination_rejected", "test pagination link left its typed local page route")
         return target
+    if allocation.get("mode") == "hermetic-test":
+        origin = urlsplit(allocation["test_origin"])
+        if parsed.scheme != "https" or parsed.hostname != origin.hostname or parsed.port != origin.port or parsed.username or parsed.password or parsed.fragment:
+            raise TransportError("pagination_destination_rejected", "hermetic pagination link left its exact local origin")
+        _, _, _, expected_path = _route(request, allocation)
+        if parsed.path != expected_path.split("?", 1)[0]:
+            raise TransportError("pagination_destination_rejected", "pagination link changed its approved API route")
+        query = parse_qs(parsed.query, keep_blank_values=True, strict_parsing=True)
+        page_value = query.get("page", [None])[0]
+        if (set(query) - {"page", "per_page", "event", "branch", "head_sha"} or any(len(v) != 1 for v in query.values())
+                or not page_value or not page_value.isdigit() or int(page_value) != request.get("page_ordinal", 0) + 1):
+            raise TransportError("pagination_destination_rejected", "pagination link did not advance exactly one page")
+        return urlunsplit(("https", parsed.hostname, parsed.path, parsed.query, ""))
     if parsed.scheme != "https" or parsed.hostname != API_HOST or parsed.port not in (None, 443) or parsed.username or parsed.password or parsed.fragment:
         raise TransportError("pagination_destination_rejected", "pagination link must stay on api.github.com")
     _, _, _, expected_path = _route(request, allocation)
     if parsed.path != expected_path.split("?", 1)[0]:
         raise TransportError("pagination_destination_rejected", "pagination link changed its approved API route")
     query = parse_qs(parsed.query, keep_blank_values=True, strict_parsing=True)
-    if set(query) - {"page", "per_page", "event", "branch"} or any(len(values) != 1 for values in query.values()):
+    if set(query) - {"page", "per_page", "event", "branch", "head_sha"} or any(len(values) != 1 for values in query.values()):
         raise TransportError("pagination_destination_rejected", "pagination link has an unapproved or repeated query key")
     page_value = query.get("page", [None])[0]
     if not page_value or not page_value.isdigit() or int(page_value) != request.get("page_ordinal", 0) + 1:
