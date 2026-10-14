@@ -7,7 +7,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { attemptDirectory, runLogged, verifyDiagnosticData, verifyNativeAttempt, verifyRevisionFreezeBinding } from './ci-registration-recovery.mjs';
+import { attemptDirectory, runLogged, validateSanitizedCommandLog, verifyDiagnosticData, verifyNativeAttempt, verifyRevisionFreezeBinding } from './ci-registration-recovery.mjs';
 import * as recovery from './ci-registration-recovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -567,6 +567,88 @@ test('native receipt rejects uncharged controls and attempts over the slot limit
     tooLong.attempt.charged_duration_ms = 120_001;
     assert.equal(verifyNativeAttempt(tooLong.attempt, tooLong.freeze, tooLong.base).ok, false);
   } finally { fs.rmSync(tooLong.base, { recursive: true, force: true }); }
+});
+
+const CONTROL_BOARD = 'render bundle: board-mg-9/populated';
+const SAFE_MARKER = '[REDACTED seeded demo credentials]';
+
+function controlFixture({ setupLog = `migrated\n=== Demo Credentials ===\n${SAFE_MARKER}\n\nseed done\n` } = {}) {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-control-fixture-'));
+  const hash = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const write = (name, contents) => {
+    const file = path.join(base, name);
+    fs.writeFileSync(file, contents);
+    return { path: name, sha256: hash(file), bytes: fs.statSync(file).size };
+  };
+  const blobs = { 'scripts/ci/ci-registration-recovery.mjs': 'blob-abc' };
+  const slot = {
+    id: 'CR-FIXTURE', sequence: 1, stage: 'first', project: 'admin-eval', max_duration_ms: 120_000,
+    argv: ['--project=admin-eval'], selected_titles: [CONTROL_BOARD], expected: { [CONTROL_BOARD]: 'pass' }
+  };
+  const freeze = { source: { checkout_head: 'candidate-abc', blobs }, ledger: { slots: [slot] } };
+  const report = { suites: [{ file: 'tests/admin-eval.spec.ts', specs: [{
+    title: CONTROL_BOARD, file: 'tests/admin-eval.spec.ts',
+    tests: [{ projectName: 'admin-eval', expectedStatus: 'passed', status: 'expected', results: [{ status: 'expected' }] }]
+  }] }], errors: [] };
+  const files = {
+    setup_log: write('setup.log', setupLog),
+    app_log: write('app.log', 'Phoenix server started\n'),
+    test_log: write('test.log', 'Playwright completed\n'),
+    drop_log: write('drop.log', 'database dropped\n'),
+    playwright_report: write('report.json', JSON.stringify(report))
+  };
+  const attempt = {
+    slot_id: slot.id, sequence: 1, stage: 'first', project: 'admin-eval', argv: slot.argv,
+    source_commit: 'candidate-abc', source_blobs: blobs,
+    started_monotonic_ns: '1000000000', ended_monotonic_ns: '16000000000', execution_duration_ms: 15_000, charged_duration_ms: 15_000,
+    database: { name: 'sigra_253_control_fixture_abc', setup_exit_code: 0, drop_exit_code: 0 },
+    server: { http_status: 200, app_pid: 4242 }, browser: { launched: true, exit_code: 0 },
+    build_directory_removed: true, build_path: '/tmp/fixture/mix-build', files
+  };
+  return { base, freeze, attempt, write, hash };
+}
+
+test('control receipt accepts the exact safe seeded-credentials redaction marker', () => {
+  const fixture = controlFixture();
+  try {
+    const result = recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base);
+    assert.deepEqual(result.errors.filter((message) => /unsanitized/.test(message)), []);
+    assert.equal(validateSanitizedCommandLog(fs.readFileSync(path.join(fixture.base, 'setup.log'), 'utf8')).ok, true);
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('sanitized-log validation rejects plaintext credentials, near-match markers, keys and auth headers', () => {
+  const header = '=== Demo Credentials ===';
+  const variants = {
+    plaintext_row: `${header}\nsynthetic@example.invalid SYNTHETIC-PASSWORD\n`,
+    marker_after_plaintext: `${header}\nsynthetic@example.invalid SYNTHETIC-PASSWORD\n${SAFE_MARKER}\n`,
+    extra_row: `${header}\n${SAFE_MARKER}\nsynthetic@example.invalid SYNTHETIC-PASSWORD\n`,
+    altered_case: `${header}\n[redacted seeded demo credentials]\n\n`,
+    altered_space: `${header}\n[REDACTED  seeded demo credentials]\n\n`,
+    trailing_space: `${header}\n${SAFE_MARKER} \n\n`,
+    crlf: `${header}\n${SAFE_MARKER}\r\n\n`,
+    marker_missing: `${header}\n`,
+    orphan_marker: `${SAFE_MARKER}\n`,
+    signing_key: 'secret_key_base: "synthetic-signing-key"\n',
+    set_cookie: 'Set-Cookie: _app=synthetic\n',
+    cookie_header: 'Cookie: _app=synthetic\n',
+    authorization: 'authorization: Bearer synthetic\n'
+  };
+  for (const [name, text] of Object.entries(variants)) {
+    assert.equal(validateSanitizedCommandLog(text).ok, false, name);
+  }
+  assert.equal(validateSanitizedCommandLog(`${header}\n${SAFE_MARKER}\n\nafter\n`).ok, true);
+  assert.equal(validateSanitizedCommandLog(`${header}\n${SAFE_MARKER}`).ok, true);
+  assert.equal(validateSanitizedCommandLog('secret_key_base: "[REDACTED]"\n').ok, true);
+});
+
+test('control receipt rejects a hash-bound log carrying an injected credential row', () => {
+  const fixture = controlFixture({ setupLog: `=== Demo Credentials ===\nsynthetic@example.invalid SYNTHETIC-PASSWORD\n\n` });
+  try {
+    const result = recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base);
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some((message) => /setup_log contains an unsanitized credential block/.test(message)));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
 });
 
 test.after(() => fs.rmSync(temporary, { recursive: true, force: true }));

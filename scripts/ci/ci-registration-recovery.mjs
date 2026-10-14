@@ -1968,6 +1968,37 @@ function controlAnnotations(result, type) {
   return [...(result.annotations ?? []), ...(result.result_annotations ?? [])].filter((item) => item.type === type).map((item) => item.description ?? '');
 }
 
+const SAFE_DEMO_CREDENTIAL_MARKER = '[REDACTED seeded demo credentials]';
+const DEMO_CREDENTIALS_HEADER = '=== Demo Credentials ===';
+
+// Accepts a persisted command log only when every sensitive region has been replaced by the
+// exact redaction line sanitizeCommandLog writes; anything else (plaintext rows, altered markers,
+// unredacted signing keys, auth/session headers) is rejected rather than normalized.
+export function validateSanitizedCommandLog(text) {
+  const errors = [];
+  if (typeof text !== 'string') return { ok: false, errors: ['command log text is missing'] };
+  if (/secret_key_base"?\s*(?::|=>)\s*"(?!\[REDACTED\]")/i.test(text)) errors.push('development signing key is not redacted');
+  if (/(?:set-cookie|authorization)\s*:/i.test(text) || /^[ \t]*cookie[ \t]*:/im.test(text)) errors.push('authorization or cookie header is present');
+  const lines = text.split(/(?<=\n)/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line.includes(DEMO_CREDENTIALS_HEADER)) {
+      if (!/^\s*=== Demo Credentials ===\s*\r?\n?$/.test(line)) { errors.push('demo credentials header line carries extra content'); continue; }
+      const marker = lines[index + 1];
+      if (marker !== `${SAFE_DEMO_CREDENTIAL_MARKER}\n` && marker !== SAFE_DEMO_CREDENTIAL_MARKER) {
+        errors.push('demo credentials block is not replaced by the exact redaction line');
+        continue;
+      }
+      const after = lines[index + 2];
+      if (after !== undefined && after.trim() !== '') errors.push('extra credential row follows the redaction line');
+      index += 1;
+      continue;
+    }
+    if (line.includes('REDACTED seeded demo credentials')) errors.push('redaction marker appears outside a demo credentials block or is altered');
+  }
+  return { ok: errors.length === 0, errors };
+}
+
 export function verifyNativeControlAttempt(attempt, freeze, baseDir) {
   const errors = [];
   const fail = (message) => errors.push(message);
@@ -1994,7 +2025,10 @@ export function verifyNativeControlAttempt(attempt, freeze, baseDir) {
     if (!file || !fs.existsSync(file)) { fail(`sanitized native ${name.replaceAll('_', ' ')} is missing`); continue; }
     if (!reference.sha256 || fileHash(file) !== reference.sha256) fail(`sanitized native ${name.replaceAll('_', ' ')} digest mismatch`);
     if (!fs.statSync(file).size) fail(`sanitized native ${name.replaceAll('_', ' ')} is empty`);
-    if (name.endsWith('_log') && /(?:=== Demo Credentials ===|secret_key_base: "(?!\[REDACTED\])|Set-Cookie:|authorization:)/i.test(fs.readFileSync(file, 'utf8'))) fail(`${name} contains an unsanitized credential block or auth header`);
+    if (name.endsWith('_log')) {
+      const sanitation = validateSanitizedCommandLog(fs.readFileSync(file, 'utf8'));
+      if (!sanitation.ok) fail(`${name} contains an unsanitized credential block or auth header: ${sanitation.errors.join('; ')}`);
+    }
   }
   let tests = [];
   const reportFile = confinedFile(baseDir, attempt.files?.playwright_report);
