@@ -11,8 +11,8 @@
 // real `gsd-tools query` subprocess.
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { closeSync, existsSync, fsyncSync, lstatSync, openSync, readFileSync, unlinkSync, writeFileSync, writeSync } from "node:fs";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -247,16 +247,421 @@ export function evaluateCompletion({ completionPath, verifier = null }) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Task 2 RED skeleton: contract, bundle and application exports exist but answer nothing.
+// Reconciliation contract: all 35 original identities, six halted records, eighteen mappings
 // ---------------------------------------------------------------------------------------------
+export const PHASE = "253";
+export const PHASE_DIR_REL = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks";
 export const CONTRACT_NAME = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT.json";
-export function buildContract() { return null; }
-export function serializeContract() { return null; }
-export function loadContract() { return null; }
-export function renderDisposition() { return null; }
-export function prepareDispositions() { return null; }
-export function applyBundle() { return null; }
-export function checkIndex() { return null; }
+export const CONTRACT_SCHEMA = "sigra.phase253.load-recovery-reconciliation-contract/v1";
+export const BUNDLE_SCHEMA = "sigra.phase253.load-recovery-disposition-bundle/v1";
+export const RECORD_SCHEMA = "sigra.phase253.load-recovery-application-record/v1";
+export const COMPLETED_IDS = Object.freeze(["01", "03", "04", "05", "06", "11", "15", "18", "19", "20", "26"]);
+export const HALTED_IDS = Object.freeze(["02", "07", "09", "12", "16", "27"]);
+export const UNSTARTED_IDS = Object.freeze(["08", "10", "13", "14", "17", "21", "22", "23", "24", "25", "28", "29", "30", "31", "32", "33", "34", "35"]);
+const PR_LINKS = ["pr_normal", "pr_docs_only"];
+const CAUSE_LINKS = ["load_controls", "load_acceptance"];
+const ids = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => String(from + i));
+const NATIVE_OWNERS = ids(36, 41);
+// Responsibility -> proof owners and the completion links that must back it. A mapping never
+// says the old task ran; it names the new proof that makes the old work moot.
+const RESPONSIBILITY_MAP = Object.freeze({
+  "08": { owners: ["42", "46"], links: PR_LINKS },
+  "13": { owners: ["42", "46"], links: PR_LINKS },
+  "21": { owners: ["42", "46"], links: PR_LINKS },
+  "30": { owners: ["42", "46"], links: PR_LINKS },
+  "34": { owners: ["42", "46"], links: PR_LINKS },
+  "24": { owners: ["46"], links: PR_LINKS },
+  "10": { owners: NATIVE_OWNERS, links: CAUSE_LINKS },
+  "17": { owners: NATIVE_OWNERS, links: CAUSE_LINKS },
+  "28": { owners: NATIVE_OWNERS, links: CAUSE_LINKS },
+  "29": { owners: NATIVE_OWNERS, links: CAUSE_LINKS },
+  "14": { owners: ["43", "47"], links: COMPLETION_LINK_KEYS },
+  "25": { owners: ["43", "47"], links: COMPLETION_LINK_KEYS },
+  "31": { owners: ["43", "47"], links: COMPLETION_LINK_KEYS },
+  "35": { owners: ["43", "47"], links: COMPLETION_LINK_KEYS },
+  "22": { owners: ["44"], links: ["publication"] },
+  "32": { owners: ["44"], links: ["publication"] },
+  "23": { owners: ["45"], links: ["canary"] },
+  "33": { owners: ["45"], links: ["canary"] },
+});
+const HALTED_PROOF_MAP = Object.freeze({
+  "02": NATIVE_OWNERS, "07": ["18", "19", "20", "42", "44", "45"], "09": NATIVE_OWNERS,
+  "12": ["18", "19", "20", "42", "44", "45"], "16": NATIVE_OWNERS, "27": NATIVE_OWNERS,
+});
+const DISPOSITION_FIELDS = Object.freeze({ status: "superseded", execution_performed: false, original_status: "blocked", phase_verification_status: "not_started" });
+
+function parseList(raw) {
+  if (typeof raw !== "string") return [];
+  return raw.replace(/^\[/, "").replace(/\]$/, "").split(",").map((part) => scalar(part.trim())).filter((part) => part !== "");
+}
+
+function objectiveOf(text) {
+  const match = /<objective>\s*\n([^\n]+)/.exec(text);
+  return match ? match[1].trim() : null;
+}
+
+function readOrNull(path) {
+  try {
+    return readFileSync(path);
+  } catch {
+    return null;
+  }
+}
+
+function describeSummary(repoRoot, phaseDir, id, { requireReceipts }) {
+  const file = join(phaseDir, `253-${id}-SUMMARY.md`);
+  const bytes = readFileSync(file);
+  const text = bytes.toString("utf8");
+  const fm = frontmatter(text);
+  const files = keyFiles(text);
+  const wanted = [...new Set([...files.created, ...files.modified])].filter((path) => path.startsWith(`${PHASE_DIR_REL}/`)).sort();
+  const receipts = [];
+  const missing = [];
+  for (const path of wanted) {
+    const content = readOrNull(join(repoRoot, path));
+    if (content === null) missing.push(path);
+    else receipts.push({ path, sha256: sha256(content) });
+  }
+  if (requireReceipts && missing.length > 0) throw new Error(`halted plan 253-${id} receipts are missing: ${missing.join(", ")}`);
+  return { plan: `253-${id}`, summary: { path: `${PHASE_DIR_REL}/253-${id}-SUMMARY.md`, sha256: sha256(bytes), status: fm.status ?? null }, receipts, ...(missing.length > 0 ? { missing_receipts: missing } : {}) };
+}
+
+export function buildContract({ repoRoot = REPO_ROOT } = {}) {
+  const phaseDir = join(repoRoot, PHASE_DIR_REL);
+  const read = (name) => readFileSync(join(phaseDir, name));
+  const auditText = read("253-LOAD-RECOVERY-SOURCE-SDK-AUDIT.md").toString("utf8");
+  const auditHashes = Object.fromEntries([...auditText.matchAll(/^\|(253-\d\d-PLAN\.md)\|([a-f0-9]{64})\|$/gm)].map((m) => [m[1], m[2]]));
+  const captureBytes = read("253-LOAD-RECOVERY-PLANNING-CAPTURE.json");
+  const capture = JSON.parse(captureBytes.toString("utf8"));
+  const closeout = JSON.parse(read("253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json").toString("utf8"));
+  const partition = [...COMPLETED_IDS, ...HALTED_IDS, ...UNSTARTED_IDS].sort();
+  if (JSON.stringify(partition) !== JSON.stringify(ids(1, 35).map((n) => n.padStart(2, "0")))) {
+    throw new Error("completed, halted and unstarted ids do not partition the 35 original plans");
+  }
+  const originals = [];
+  for (let n = 1; n <= 35; n += 1) {
+    const id = String(n).padStart(2, "0");
+    const file = `253-${id}-PLAN.md`;
+    const bytes = readFileSync(join(phaseDir, file));
+    const hash = sha256(bytes);
+    if (auditHashes[file] !== hash) throw new Error(`${file} differs from the audit inventory hash`);
+    const entry = capture.paths.find((p) => p.path === `${PHASE_DIR_REL}/${file}`);
+    if (!entry || entry.sha256 !== hash) throw new Error(`${file} differs from the planning capture`);
+    const blob = spawnSync("git", ["-C", repoRoot, "cat-file", "blob", entry.blob], { maxBuffer: 64 * 1024 * 1024 });
+    if (blob.status !== 0 || sha256(blob.stdout) !== hash) throw new Error(`${file} capture blob ${entry.blob} does not read back to the recorded bytes`);
+    const cls = COMPLETED_IDS.includes(id) ? "completed" : HALTED_IDS.includes(id) ? "halted" : "unstarted_blocked";
+    originals.push({ plan: `253-${id}`, class: cls, plan_path: `${PHASE_DIR_REL}/${file}`, plan_sha256: hash,
+      capture: { commit: entry.commit, blob: entry.blob, readback_exact: true } });
+  }
+  const completed = COMPLETED_IDS.map((id) => {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    return described;
+  });
+  const halted = HALTED_IDS.map((id) => {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: true });
+    if (described.summary.status !== "halted") throw new Error(`halted plan 253-${id} summary status is ${described.summary.status}`);
+    return described;
+  });
+  const responsibilities = UNSTARTED_IDS.map((id) => {
+    const mapping = RESPONSIBILITY_MAP[id];
+    if (!mapping) throw new Error(`no mapping for 253-${id}`);
+    for (const owner of mapping.owners) {
+      if (!existsSync(join(phaseDir, `253-${owner}-PLAN.md`))) throw new Error(`proof owner plan 253-${owner} is missing`);
+    }
+    const text = readFileSync(join(phaseDir, `253-${id}-PLAN.md`), "utf8");
+    const fm = frontmatter(text);
+    const blockedBy = closeout.blocked_plans[`253-${id}`];
+    if (!Array.isArray(blockedBy) || blockedBy.length === 0) throw new Error(`253-${id} is not recorded as blocked in the execution closeout`);
+    return {
+      plan: `253-${id}`,
+      disposition_path: `${PHASE_DIR_REL}/253-${id}-SUMMARY.md`,
+      original_plan_sha256: originals.find((o) => o.plan === `253-${id}`).plan_sha256,
+      objective: objectiveOf(text),
+      requirements: parseList(fm.requirements),
+      depends_on: parseList(fm.depends_on),
+      blocked_by: blockedBy,
+      owners: mapping.owners.map((owner) => `253-${owner}`),
+      required_links: [...mapping.links],
+      disposition: { ...DISPOSITION_FIELDS },
+    };
+  });
+  const haltedProof = Object.fromEntries(HALTED_IDS.map((id) => [`253-${id}`, HALTED_PROOF_MAP[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) if (!existsSync(join(phaseDir, `253-${owner.slice(4)}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+  }
+  return {
+    schema: CONTRACT_SCHEMA,
+    phase: PHASE,
+    phase_dir: PHASE_DIR_REL,
+    sdk: { packageName: SDK_PINS.packageName, version: SDK_PINS.version, files: SDK_PINS.files.map((f) => ({ ...f })) },
+    capture: { path: `${PHASE_DIR_REL}/253-LOAD-RECOVERY-PLANNING-CAPTURE.json`, sha256: sha256(captureBytes), capture_head: capture.capture_head, existing_plan_count: capture.existing_plan_count },
+    originals,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
+    responsibilities,
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-accepted",
+      targets: "only the eighteen previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-47",
+      then_run: "$gsd-execute-phase 253 (unfiltered; security, review, Nyquist, regression and goal verification)",
+      never: ["filtered completion", "phase.complete before whole-phase verification", "editing an original plan", "editing a halted summary", "claiming an old task ran"],
+    },
+  };
+}
+
+export function serializeContract(contract) {
+  return `${JSON.stringify(contract, null, 2)}\n`;
+}
+
+export function loadContract(path = join(HERE, CONTRACT_NAME)) {
+  const text = readFileSync(path, "utf8");
+  return { contract: JSON.parse(text), text, sha256: sha256(text) };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Disposition rendering, preflight and the accepted-only bundle
+// ---------------------------------------------------------------------------------------------
+function relativeOrGiven(root, path) {
+  const abs = resolve(path);
+  const base = resolve(root);
+  return abs === base || abs.startsWith(`${base}/`) ? abs.slice(base.length + 1) : path;
+}
+
+export function renderDisposition({ responsibility, completion, links, verifier, contractSha256 }) {
+  const lines = [
+    "---",
+    "phase: 253-fix-flaky-ci-and-preserve-required-checks",
+    `plan: "${responsibility.plan.slice(4)}"`,
+    "subsystem: ci-reliability",
+    "tags: [historical-disposition, load-recovery, accepted-only]",
+    `status: ${DISPOSITION_FIELDS.status}`,
+    `execution_performed: ${DISPOSITION_FIELDS.execution_performed}`,
+    `original_status: ${DISPOSITION_FIELDS.original_status}`,
+    `phase_verification_status: ${DISPOSITION_FIELDS.phase_verification_status}`,
+    `superseded_by: [${responsibility.owners.map((o) => `"${o}"`).join(", ")}]`,
+    `original_plan_sha256: ${responsibility.original_plan_sha256}`,
+    `original_blocked_by: [${responsibility.blocked_by.map((o) => `"${o}"`).join(", ")}]`,
+    "accepted_by:",
+    `  contract_sha256: ${contractSha256}`,
+    `  completion_path: ${completion.path}`,
+    `  completion_sha256: ${completion.sha256}`,
+    `  verifier_kind: ${verifier.kind}`,
+    `  verifier_sha256: ${verifier.sha256 ?? "null"}`,
+    "  links:",
+    ...links.flatMap((link) => [`    - link: ${link.link}`, `      path: ${link.path}`, `      sha256: ${link.sha256}`]),
+    `requirements: [${responsibility.requirements.map((r) => `"${r}"`).join(", ")}]`,
+    "requirements-completed: []",
+    "coverage: []",
+    "---",
+    "",
+    `# Phase 253 Plan ${responsibility.plan.slice(4)}: historical routing disposition`,
+    "",
+    `**Original objective (not executed): ${responsibility.objective}**`,
+    "",
+    "## What this record is",
+    "",
+    `This is a routing record only. The original plan ${responsibility.plan} did not run: no task was executed,`,
+    "no commit was made for it, and the original PLAN file is byte-identical to the preserved copy",
+    `(\`${responsibility.original_plan_sha256}\`). It was blocked behind halted ${responsibility.blocked_by.join(", ")}, and those halted`,
+    "summaries are unchanged and still literally `halted`.",
+    "",
+    "## Why it is now superseded",
+    "",
+    `The work it described is covered by the newer proof owned by ${responsibility.owners.join(", ")}. Strict accepted-only`,
+    "completion re-opened every linked proof listed in `accepted_by` and accepted it. `execution_performed: false`",
+    "is the honest statement: this file makes no claim that the old tasks ran, and `requirements-completed` is empty",
+    "on purpose. CIREL-01 and CIREL-02 are accepted by the linked completion evidence, not by this plan.",
+    "",
+    "## Remaining",
+    "",
+    "Whole-phase verification is `not_started`. The next step is the unfiltered `$gsd-execute-phase 253`",
+    "(security, code review, Nyquist, regression and goal verification). Inherited `blocked_by` entries remain on",
+    "this summarized history by design.",
+    "",
+  ];
+  return `${lines.join("\n")}`;
+}
+
+function resolveLinkPath(base, path) {
+  return isAbsolute(path) ? path : join(base, path);
+}
+
+function preflight({ root, contract, requireOwnerSummaries }) {
+  const phaseDir = join(root, contract.phase_dir);
+  for (const original of contract.originals) {
+    const bytes = readOrNull(join(root, original.plan_path));
+    if (bytes === null || sha256(bytes) !== original.plan_sha256) throw new Error(`original plan ${original.plan_path} differs from the contract`);
+  }
+  for (const halted of contract.halted_plans) {
+    const bytes = readOrNull(join(root, halted.summary.path));
+    if (bytes === null || sha256(bytes) !== halted.summary.sha256) throw new Error(`halted summary ${halted.summary.path} differs from the contract`);
+  }
+  const owners = [...new Set(contract.responsibilities.flatMap((r) => r.owners))].sort();
+  for (const owner of owners) {
+    if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`proof owner plan ${owner} is missing`);
+    if (requireOwnerSummaries) {
+      const summary = readOrNull(join(phaseDir, `${owner}-SUMMARY.md`));
+      if (summary === null) throw new Error(`proof owner ${owner} has no SUMMARY`);
+      const status = frontmatter(summary.toString("utf8")).status;
+      if (status === "halted" || status === "blocked") throw new Error(`proof owner ${owner} summary status is ${status}`);
+    }
+  }
+  for (const responsibility of contract.responsibilities) {
+    if (lstatOrNull(join(root, responsibility.disposition_path)) !== null) throw new Error(`${responsibility.disposition_path} already exists; existing summaries are never overwritten`);
+  }
+}
+
+function lstatOrNull(path) {
+  try {
+    return lstatSync(path);
+  } catch {
+    return null;
+  }
+}
+
+export function prepareDispositions({ root = REPO_ROOT, contract, contractSha256, completionPath, verifier = null }) {
+  const verdict = evaluateCompletion({ completionPath, verifier });
+  if (!verdict.accepted) throw new Error(`accepted-only completion not satisfied; no disposition bytes generated: ${verdict.detail}`);
+  const evidence = JSON.parse(readFileSync(completionPath, "utf8"));
+  const base = verifier ? root : REPO_ROOT;
+  const completion = { path: relativeOrGiven(root, completionPath), sha256: verdict.completion_sha256 };
+  const verifierInfo = { kind: verdict.verifier_kind, sha256: verdict.verifier_sha256 };
+  const linkFor = (key, plan) => {
+    const link = evidence.links && evidence.links[key];
+    if (!link || typeof link.path !== "string" || !/^[a-f0-9]{64}$/.test(link.sha256 || "")) {
+      throw new Error(`${plan} requires completion link ${key}, which the completion evidence does not carry`);
+    }
+    const bytes = readOrNull(resolveLinkPath(base, link.path));
+    if (bytes === null || sha256(bytes) !== link.sha256) throw new Error(`${plan} link ${key} cannot be re-opened with its recorded hash`);
+    return { link: key, path: link.path, sha256: link.sha256 };
+  };
+  const staged = contract.responsibilities.map((responsibility) => ({
+    responsibility,
+    links: responsibility.required_links.map((key) => linkFor(key, responsibility.plan)),
+  }));
+  preflight({ root, contract, requireOwnerSummaries: false });
+  const entries = staged.map(({ responsibility, links }) => {
+    const content = renderDisposition({ responsibility, completion, links, verifier: verifierInfo, contractSha256 });
+    return { plan: responsibility.plan, path: responsibility.disposition_path, sha256: sha256(content), bytes: Buffer.byteLength(content), content };
+  });
+  return { schema: BUNDLE_SCHEMA, phase: PHASE, contract_sha256: contractSha256, completion, verifier: verifierInfo, entries };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Root-only write-ahead application
+// ---------------------------------------------------------------------------------------------
+function dirtySnapshot(root) {
+  const run = spawnSync("git", ["-C", root, "status", "--porcelain"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  if (run.status !== 0) throw new Error(`git status failed: ${run.stderr}`);
+  return run.stdout.split("\n").filter(Boolean).map((line) => {
+    const path = line.slice(3).replace(/^"|"$/g, "");
+    const bytes = readOrNull(join(root, path));
+    return { status: line.slice(0, 2), path, sha256: bytes === null ? null : sha256(bytes) };
+  });
+}
+
+function writeDurably(path, content, { exclusive }) {
+  const fd = openSync(path, exclusive ? "wx" : "w", 0o644);
+  try {
+    writeSync(fd, content);
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+}
+
+export function applyBundle({ root = REPO_ROOT, contract, contractSha256, bundle, completionPath, verifier = null, allowFixture = false, recordPath, hooks = {} }) {
+  if (!recordPath) throw new Error("applyBundle requires a recordPath for the write-ahead journal");
+  if (bundle.verifier.kind !== "real" && !allowFixture) throw new Error("a fixture bundle cannot be applied without the explicit fixture flag");
+  const expected = prepareDispositions({ root, contract, contractSha256, completionPath, verifier });
+  const same = expected.completion.sha256 === bundle.completion.sha256 && expected.entries.length === bundle.entries.length
+    && expected.entries.every((entry, i) => entry.path === bundle.entries[i].path && entry.sha256 === bundle.entries[i].sha256
+      && entry.content === bundle.entries[i].content && sha256(bundle.entries[i].content) === bundle.entries[i].sha256);
+  if (!same) throw new Error("bundle bytes differ from the re-derived accepted-only bundle");
+  preflight({ root, contract, requireOwnerSummaries: true });
+  const head = spawnSync("git", ["-C", root, "rev-parse", "HEAD"], { encoding: "utf8" }).stdout.trim() || null;
+  const dirtyBefore = dirtySnapshot(root);
+  const record = {
+    schema: RECORD_SCHEMA, phase: PHASE, contract_sha256: contractSha256, completion: expected.completion, verifier: expected.verifier,
+    head, write_ahead_recorded_before_write: true,
+    entries: expected.entries.map((e) => ({ plan: e.plan, path: e.path, sha256: e.sha256, prior_state: "absent" })),
+    dirty_before: dirtyBefore, applied: false, rolled_back: false,
+  };
+  writeDurably(recordPath, `${JSON.stringify(record, null, 2)}\n`, { exclusive: false });
+  const created = [];
+  try {
+    for (const entry of expected.entries) {
+      const target = join(root, entry.path);
+      writeDurably(target, entry.content, { exclusive: true });
+      created.push(target);
+      if (readFileSync(target, "utf8") !== entry.content) throw new Error(`readback differs for ${entry.path}`);
+      if (hooks.afterWrite) hooks.afterWrite(entry);
+    }
+    const dirtyAfter = dirtySnapshot(root);
+    for (const before of dirtyBefore) {
+      const after = dirtyAfter.find((d) => d.path === before.path);
+      if (!after || after.status !== before.status || after.sha256 !== before.sha256) throw new Error(`pre-existing tracking changed: ${before.path}`);
+    }
+    for (const original of contract.originals) {
+      if (sha256(readFileSync(join(root, original.plan_path))) !== original.plan_sha256) throw new Error(`original plan changed: ${original.plan_path}`);
+    }
+    for (const halted of contract.halted_plans) {
+      if (sha256(readFileSync(join(root, halted.summary.path))) !== halted.summary.sha256) throw new Error(`halted summary changed: ${halted.summary.path}`);
+    }
+    const done = { ...record, applied: true, entries: record.entries.map((e) => ({ ...e, readback_exact: true })), dirty_after_unchanged: true };
+    writeDurably(recordPath, `${JSON.stringify(done, null, 2)}\n`, { exclusive: false });
+    return done;
+  } catch (error) {
+    for (const file of created.reverse()) {
+      try {
+        unlinkSync(file);
+      } catch {
+        // best effort: only files this run created are ever removed
+      }
+    }
+    const failed = { ...record, applied: false, rolled_back: true, error: String(error.message) };
+    writeDurably(recordPath, `${JSON.stringify(failed, null, 2)}\n`, { exclusive: false });
+    throw error;
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Real-SDK index check after application
+// ---------------------------------------------------------------------------------------------
+export function checkIndex({ root = REPO_ROOT, contract, phase = PHASE }) {
+  const pins = verifySdkPins();
+  const index = sdkQuery(root, ["phase-plan-index", String(phase)]);
+  const init = sdkQuery(root, ["init.execute-phase", String(phase)]);
+  const verification = sdkQuery(root, ["verification", "status", init.phase_dir]);
+  const byId = Object.fromEntries(index.plans.map((plan) => [plan.id, plan]));
+  const oldUnsummarized = contract.responsibilities.map((r) => r.plan).filter((id) => index.incomplete.includes(id));
+  const haltedLiteral = contract.halted_plans.every((halted) => {
+    const bytes = readOrNull(join(root, halted.summary.path));
+    return byId[halted.plan] && byId[halted.plan].halted === true && bytes !== null && sha256(bytes) === halted.summary.sha256;
+  });
+  const originalsIntact = contract.originals.every((original) => {
+    const bytes = readOrNull(join(root, original.plan_path));
+    return bytes !== null && sha256(bytes) === original.plan_sha256;
+  });
+  const dispositionsInvalid = contract.responsibilities.filter((responsibility) => {
+    const bytes = readOrNull(join(root, responsibility.disposition_path));
+    if (bytes === null) return false;
+    const fm = frontmatter(bytes.toString("utf8"));
+    return !(fm.status === "superseded" && fm.execution_performed === false && fm.original_status === "blocked" && fm.phase_verification_status === "not_started");
+  }).map((r) => r.plan);
+  const route = routeExecutePhase(index, verification, {});
+  const ok = pins.ok && oldUnsummarized.length === 0 && index.incomplete.length === 0 && haltedLiteral && originalsIntact
+    && dispositionsInvalid.length === 0 && route.outcome === "resume_phase_gates";
+  return {
+    ok, sdk_ok: pins.ok, sdk_mismatches: pins.mismatches, old_unsummarized: oldUnsummarized, any_unsummarized: index.incomplete,
+    halted_literal: haltedLiteral, originals_intact: originalsIntact, dispositions_invalid: dispositionsInvalid,
+    verification_status: verification.status, route,
+  };
+}
 
 // ---------------------------------------------------------------------------------------------
 // CLI
@@ -276,6 +681,10 @@ function parseArgs(argv) {
   return out;
 }
 
+function writeJson(path, value, { exclusive = false } = {}) {
+  writeDurably(path, `${JSON.stringify(value, null, 2)}\n`, { exclusive });
+}
+
 export function main(argv) {
   let args;
   try {
@@ -284,19 +693,78 @@ export function main(argv) {
     process.stderr.write(`reconcile: ${error.message}\n`);
     return 2;
   }
-  if (args.flags.has("--prepare-dispositions")) {
-    const completion = args.values["--completion"];
-    if (!completion) {
-      process.stderr.write("reconcile: --prepare-dispositions requires --completion\n");
-      return 2;
+  const root = resolve(args.values["--root"] ?? REPO_ROOT);
+  const need = (flag) => {
+    if (!args.values[flag]) throw Object.assign(new Error(`${flag} is required`), { usage: true });
+    return args.values[flag];
+  };
+  try {
+    if (args.flags.has("--prepare-contract")) {
+      const output = need("--output");
+      const text = serializeContract(buildContract({ repoRoot: root }));
+      if (args.flags.has("--check-only")) {
+        const existing = readOrNull(output);
+        if (existing === null) throw new Error(`${output} does not exist; --check-only never creates it`);
+        if (existing.toString("utf8") !== text) throw new Error(`${output} differs from the regenerated contract`);
+        process.stdout.write(`contract ${output} matches (sha256 ${sha256(text)})\n`);
+        return 0;
+      }
+      writeFileSync(output, text);
+      process.stdout.write(`contract written ${output} (sha256 ${sha256(text)})\n`);
+      return 0;
     }
-    const verdict = evaluateCompletion({ completionPath: completion });
-    if (!verdict.accepted) {
-      process.stderr.write(`reconcile: accepted-only completion not satisfied; no disposition bytes generated: ${verdict.detail}\n`);
-      return 1;
+    if (args.values["--check-index"]) {
+      const { contract } = loadContract();
+      const report = checkIndex({ root, contract, phase: args.values["--check-index"] });
+      if (args.values["--record"]) writeJson(args.values["--record"], { schema: "sigra.phase253.load-recovery-index-check/v1", phase: args.values["--check-index"], ...report });
+      process.stdout.write(`${JSON.stringify({ ok: report.ok, route: report.route.outcome, old_unsummarized: report.old_unsummarized.length, any_unsummarized: report.any_unsummarized.length })}\n`);
+      return report.ok ? 0 : 1;
     }
-    process.stderr.write("reconcile: contract-backed bundle preparation is not available in this build\n");
-    return 3;
+    if (args.flags.has("--dry-run")) {
+      const completion = need("--completion");
+      const record = need("--record");
+      const verdict = evaluateCompletion({ completionPath: completion });
+      const { contract } = loadContract();
+      let preflightError = null;
+      if (verdict.accepted) {
+        try {
+          preflight({ root, contract, requireOwnerSummaries: false });
+        } catch (error) {
+          preflightError = error.message;
+        }
+      }
+      writeJson(record, {
+        schema: "sigra.phase253.load-recovery-dry-run/v1", mode: "dry-run", accepted: verdict.accepted, verifier_kind: verdict.verifier_kind,
+        completion_sha256: verdict.completion_sha256, detail: verdict.detail, preflight_error: preflightError,
+        would_create: verdict.accepted && !preflightError ? contract.responsibilities.map((r) => r.disposition_path) : [],
+        disposition_bytes_generated: false,
+      });
+      return verdict.accepted && !preflightError ? 0 : 1;
+    }
+    if (args.flags.has("--prepare-dispositions")) {
+      const completion = need("--completion");
+      const bundlePath = need("--bundle");
+      const record = need("--record");
+      const { contract, sha256: contractSha256 } = loadContract();
+      const bundle = prepareDispositions({ root, contract, contractSha256, completionPath: completion });
+      writeJson(bundlePath, bundle, { exclusive: true });
+      writeJson(record, { schema: "sigra.phase253.load-recovery-bundle-record/v1", bundle_path: bundlePath, bundle_sha256: sha256(readFileSync(bundlePath)),
+        completion: bundle.completion, verifier: bundle.verifier, entries: bundle.entries.map((e) => ({ plan: e.plan, path: e.path, sha256: e.sha256 })), applied: false });
+      return 0;
+    }
+    if (args.flags.has("--apply-bundle")) {
+      const completion = need("--completion");
+      const bundlePath = need("--bundle");
+      const record = need("--record");
+      const { contract, sha256: contractSha256 } = loadContract();
+      const bundle = JSON.parse(readFileSync(bundlePath, "utf8"));
+      const result = applyBundle({ root, contract, contractSha256, bundle, completionPath: completion, recordPath: record });
+      process.stdout.write(`${JSON.stringify({ applied: result.applied, entries: result.entries.length })}\n`);
+      return 0;
+    }
+  } catch (error) {
+    process.stderr.write(`reconcile: ${error.message}\n`);
+    return error.usage ? 2 : 1;
   }
   process.stderr.write("reconcile: no supported command given\n");
   return 2;

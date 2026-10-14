@@ -279,7 +279,7 @@ function realisticFixture() {
   return { root, dir };
 }
 
-function completionFixture(root, { omit = [] } = {}) {
+function completionFixture(root, { omit = [], name = "completion.json" } = {}) {
   const links = {};
   mkdirSync(join(root, "proofs"), { recursive: true });
   for (const key of LINK_KEYS) {
@@ -288,7 +288,7 @@ function completionFixture(root, { omit = [] } = {}) {
     writeFileSync(join(root, "proofs", `${key}.json`), body);
     links[key] = { path: `proofs/${key}.json`, sha256: sha(body) };
   }
-  const path = join(root, "completion.json");
+  const path = join(root, name);
   writeFileSync(path, JSON.stringify({ schema_version: "sigra.phase253.completion-evidence/v1", repository: "szTheory/sigra", links }));
   return path;
 }
@@ -397,7 +397,7 @@ describe("accepted-only disposition bundle", () => {
     const completion = completionFixture(root);
     const attempt = (overrides) => () => reconcile.prepareDispositions({ root, contract, contractSha256: contractSha, completionPath: completion, verifier: acceptedVerifier, ...overrides });
     assert.throws(attempt({ verifier: openVerifier }), /accepted-only/);
-    assert.throws(attempt({ completionPath: completionFixture(root, { omit: ["pr_docs_only"] }) }), /pr_docs_only/);
+    assert.throws(attempt({ completionPath: completionFixture(root, { omit: ["pr_docs_only"], name: "completion-partial.json" }) }), /pr_docs_only/);
     writeFileSync(join(dir, "253-08-SUMMARY.md"), COMPLETE);
     assert.throws(attempt({}), /already exists/);
     rmSync(join(dir, "253-08-SUMMARY.md"));
