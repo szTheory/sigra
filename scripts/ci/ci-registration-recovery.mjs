@@ -101,6 +101,7 @@ function parseArgs(argv) {
   if (argv[0] === '--run-load-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv[6] === '--diagnostic' && argv[7] && argv.length === 8) return { mode: 'run-load-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]), diagnostic: path.resolve(argv[7]) };
   if (argv[0] === '--create-load-recovery-r2' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r2', output: path.resolve(argv[2]) };
   if (argv[0] === '--create-load-recovery-r3' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r3', output: path.resolve(argv[2]) };
+  if (argv[0] === '--create-load-recovery-r4' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r4', output: path.resolve(argv[2]) };
   if (argv[0] === '--init-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'init-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--prepare-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'prepare-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--run-load-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv.length === 6) return { mode: 'run-load-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]) };
@@ -5413,6 +5414,320 @@ async function runHeldLoadRecoverySlotR3({ d, root, freeze, slot, evidence, evid
   return { status: evidence.status, slot: slot.id, rows: attempt.lifecycle.rows, charged_duration_ms: attempt.charged_duration_ms, physical_playwright_cli_launches: evidence.limits.physical_playwright_cli_launches };
 }
 
+// ---- Phase 253 plan 69: R4 load-recovery revision (additive; every v1, R2 and R3 line above is untouched) ----
+// 253-63 ran CR3-DESKTOP-MOBILE-FIRST on a provably awake host: all 16 rows behaved as designed, but the shared validator
+// counted each mirrored browser-context annotation twice and halted the window (71033 ms, one CLI launch, non-infrastructure).
+// R4 carries that charge, validates context identity per row over the deduplicated union of both annotation levels
+// (controlContextIdentitiesR4, opt-in per_row_union) and keeps R3's setup/command accounting and diagnostics unchanged.
+const LOAD_R4_FREEZE_SCHEMA = 'sigra.phase253.registration-load-recovery-freeze/v4';
+const LOAD_R4_SCHEMA = 'sigra.phase253.registration-load-recovery-evidence/v4';
+const LOAD_R4_APPROVAL_SCHEMA = 'sigra.phase253.load-recovery-budget-approval/v3';
+const LOAD_R4_FREEZE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json`;
+const LOAD_R4_EVIDENCE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json`;
+const LOAD_R4_BUDGET_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-BUDGETS-R4.md`;
+const LOAD_R4_APPROVAL_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json`;
+const LOAD_R4_INFRA_DIAGNOSTIC_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-R4-INFRA-DIAGNOSTIC.json`;
+const LOAD_R4_SUMMARY_PATH = `${PHASE_DIR}/253-63-SUMMARY.md`;
+const LOAD_R4_CONTEXT_MODE = 'per_row_union';
+const LOAD_R4_HALT_REASON = 'two selected rows reused the same browser-context identity';
+// Byte identities of the halted R3 lineage, re-hashed on every read.
+const LOAD_R4_LINEAGE = {
+  evidence: { file: LOAD_R3_EVIDENCE_PATH, sha256: 'b264928d022e337be21015416ac81e8bdb3049f7b7b48511fc603d09e764378e' },
+  freeze: { file: LOAD_R3_FREEZE_PATH, sha256: 'effaef5139fff83a0b3cda6a2d7d9f36f4fac5888942f9dd151ed101b2216284' },
+  approval: { file: LOAD_R3_APPROVAL_PATH, sha256: '724e4472eaf1b292133857f077fc2e4bbd35b19ef30fe222d424755b2726b8f9' },
+  budget: { file: LOAD_R3_BUDGET_PATH, sha256: 'dabbcf59bab20a432d7fd328c2555180561b0beae02736476408e28196bed78c' },
+  summary: { file: LOAD_R4_SUMMARY_PATH, sha256: '5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab' }
+};
+const LOAD_R4_FIRST_SPENT_ID = LOAD_R3_IDS[0];
+const LOAD_R4_SPENT = [...LOAD_R3_SPENT, LOAD_R4_FIRST_SPENT_ID];
+const LOAD_R4_CHARGES = [...LOAD_R3_CHARGES, 822, 71_033];
+const LOAD_R4_CARRIED_MS = 2_222_537;
+const LOAD_R4_CARRIED_LAUNCHES = 8;
+const LOAD_R4_PREPARATION_USED_MS = 5141 + 822;
+// Every expired and retired identity of every earlier revision plus the R3 ones this revision closes; none is ever runnable again.
+const LOAD_R4_EXPIRED = [...LOAD_R3_EXPIRED, LOAD_R3_RETRY_ID];
+const LOAD_R4_RETIRED = [...LOAD_R3_RETIRED, ...LOAD_R3_IDS.slice(1)];
+const LOAD_R4_IDS = ['CR4-DESKTOP-MOBILE-FIRST', 'CR4-DESKTOP-SECOND', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND'];
+const LOAD_R4_MAPS_FROM = [...LOAD_R3_IDS];
+const LOAD_R4_RETRY_ID = 'CR4-INFRA-RETRY';
+// The R3 sources plus the faithful regression excerpt that proves the validator fix.
+export const LOAD_R4_EXTRA_SOURCES = [...LOAD_R3_EXTRA_SOURCES, 'scripts/ci/fixtures/r3-mirrored-context-annotations.json'];
+// Equal to the rows of 253-LOAD-RECOVERY-BUDGETS-R4.md; the ledger builder recomputes them and refuses drift.
+const LOAD_R4_CAP_TABLE = {
+  approve: { new_allowance_ms: 910000, d19_cap_ms: 3132537, d19_launch_max: 13, shared_cap_ms: 5472537, physical_cli_max: 22 },
+  'approve-without-retry': { new_allowance_ms: 670000, d19_cap_ms: 2892537, d19_launch_max: 12, shared_cap_ms: 5232537, physical_cli_max: 21 }
+};
+
+// Identical selection, projects, argv, ports, expected CLI exits and window sizes as R3, under new identities.
+export function loadRecoverySlotDefinitionsR4() {
+  const r3 = loadRecoverySlotDefinitionsR3();
+  const regular = r3.slice(0, 4).map((slot, index) => ({ ...slot, id: LOAD_R4_IDS[index], maps_from: LOAD_R4_MAPS_FROM[index] }));
+  return [...regular, { ...r3[4], id: LOAD_R4_RETRY_ID, maps_from: LOAD_R4_RETRY_ID }];
+}
+
+function loadR4Caps(withRetry) {
+  const slots = loadRecoverySlotDefinitionsR4();
+  const regular = slots.slice(0, 4).reduce((sum, slot) => sum + slot.max_duration_ms, 0);
+  const newAllowance = LOAD_R3_PREPARATION_MS + regular + (withRetry ? slots[4].max_duration_ms : 0) + LOAD_R3_HEADROOM_MS;
+  const d19 = LOAD_R4_CARRIED_MS + newAllowance;
+  const d19Launches = LOAD_R4_CARRIED_LAUNCHES + 4 + (withRetry ? 1 : 0);
+  return { new_allowance_ms: newAllowance, d19_cap_ms: d19, d19_launch_max: d19Launches, shared_cap_ms: d19 + 9 * 240_000 + 3 * 60_000, physical_cli_max: d19Launches + 9 };
+}
+
+export function buildLoadRecoveryLedgerR4(input) {
+  const errors = [];
+  if (!Array.isArray(input?.charges) || JSON.stringify(input.charges) !== JSON.stringify(LOAD_R4_CHARGES)) errors.push('carried historical charges do not match the exact fourteen carried components');
+  if (input?.physicalPlaywrightLaunches !== LOAD_R4_CARRIED_LAUNCHES) errors.push('carried Playwright CLI launch count must be exactly eight');
+  if (JSON.stringify(input?.spentReservations) !== JSON.stringify(LOAD_R4_SPENT)) errors.push('spent reservation inventory must be the nine closed identities');
+  if (input?.retryUsed !== 1 || input?.retryAvailable !== 0) errors.push('original retry must remain used 1, available 0');
+  if (input?.preparationUsedMs !== LOAD_R4_PREPARATION_USED_MS) errors.push('carried preparation used must be exactly 5141 + 822 = 5963 ms');
+  if (errors.length) throw new Error(errors.join('; '));
+  const priorCharge = input.charges.reduce((sum, value) => sum + value, 0);
+  const slots = loadRecoverySlotDefinitionsR4();
+  const caps = { approve: loadR4Caps(true), 'approve-without-retry': loadR4Caps(false) };
+  if (priorCharge !== LOAD_R4_CARRIED_MS || JSON.stringify(caps) !== JSON.stringify(LOAD_R4_CAP_TABLE)
+    || slots.slice(0, 4).reduce((sum, slot) => sum + slot.rows, 0) !== 22 || slots[0].rows !== 16 || slots.slice(1, 4).some((slot) => slot.rows !== 2)) {
+    throw new Error('R4 load recovery arithmetic, caps or row packing differs from the reviewed finite allocation');
+  }
+  return {
+    prior_charge_ms: priorCharge, prior_playwright_cli_launches: LOAD_R4_CARRIED_LAUNCHES, spent_reservations: [...LOAD_R4_SPENT],
+    expired_identities: [...LOAD_R4_EXPIRED], retired_identities: [...LOAD_R4_RETIRED],
+    retry_used: 1, retry_available: 0, preparation_used_ms: LOAD_R4_PREPARATION_USED_MS, preparation_reserve_ms: LOAD_R3_PREPARATION_MS, slots,
+    launch_unit: 'playwright_cli_process', engine_worker_lifecycle_accounting: 'separate_from_playwright_cli_launches',
+    setup_ms: LOAD_R3_SETUP_MS, setup_charged_separately: true, cleanup_reserve_per_command_ms: LOAD_R3_CLEANUP_MS, headroom_ms: LOAD_R3_HEADROOM_MS,
+    conditional_acceptance_slots: 9, conditional_acceptance_ms: 2_160_000, optional_seed_checks_ms: 180_000,
+    caps, required_rows: 22
+  };
+}
+
+function collectReferencesR4(value, found = []) {
+  if (value && typeof value === 'object') {
+    if (typeof value.path === 'string' && typeof value.sha256 === 'string') found.push(value);
+    for (const child of Object.values(value)) collectReferencesR4(child, found);
+  }
+  return found;
+}
+
+function listFilesR4(dir, base = dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => (entry.isDirectory()
+    ? listFilesR4(path.join(dir, entry.name), base) : [path.relative(base, path.join(dir, entry.name)).split(path.sep).join('/')])).sort();
+}
+
+export function readLoadHistoryR4(root, deps = {}) {
+  const d = { olderHistory: readLoadHistoryR3, lineage: LOAD_R4_LINEAGE, skipPreservedRevisions: false, ...deps };
+  const older = d.olderHistory(root);
+  for (const [name, record] of Object.entries(d.lineage)) {
+    if (fileHash(path.join(root, record.file)) !== record.sha256) throw new Error(`R3 ${name} bytes changed: ${record.file}`);
+  }
+  const evidenceFile = path.join(root, d.lineage.evidence.file);
+  const evidence = readJson(evidenceFile);
+  const attempt = evidence.attempts?.[0];
+  const limits = evidence.limits ?? {};
+  if (evidence.status !== 'halted' || evidence.attempts?.length !== 1 || attempt?.slot_id !== LOAD_R4_FIRST_SPENT_ID || attempt.charged_duration_ms !== 71_033
+    || attempt.observed_outcome === 'halted_infrastructure' || evidence.infrastructure_retry?.eligible || evidence.stop_reason !== LOAD_R4_HALT_REASON
+    || evidence.preparation?.duration_ms !== 822 || limits.preparation_charge_ms !== 822 || limits.charged_duration_ms !== LOAD_R4_CARRIED_MS || limits.prior_charge_ms !== 2_150_682
+    || limits.physical_playwright_cli_launches !== LOAD_R4_CARRIED_LAUNCHES || JSON.stringify(limits.used_slots) !== JSON.stringify(LOAD_R4_SPENT)
+    || limits.retry_used !== 1 || limits.retry_available !== 0 || limits.infra_retry?.used !== 0) {
+    throw new Error('halted R3 receipt differs from the 2222537 ms, eight-launch, nine-spent, non-infrastructure ledger');
+  }
+  const rawBase = `${evidenceFile}.raw`;
+  const rawFiles = new Set();
+  for (const item of [...collectReferencesR4(attempt), ...collectReferencesR4(evidence.preparation)]) {
+    const file = confinedFile(rawBase, item);
+    if (!file || fileHash(file) !== item.sha256) throw new Error(`halted R3 raw receipt readback differs: ${item.path}`);
+    rawFiles.add(`${d.lineage.evidence.file}.raw/${item.path}`);
+  }
+  for (const found of listFilesR4(rawBase)) rawFiles.add(`${d.lineage.evidence.file}.raw/${found}`);
+  if (!d.skipPreservedRevisions) {
+    for (const revision of evidence.preserved_revisions ?? []) {
+      if (sha256(readGitBlob(root, revision.ref)) !== revision.sha256) throw new Error(`halted R3 preserved revision readback differs: ${revision.ref}`);
+    }
+  }
+  const charges = [...older.charges, evidence.preparation.duration_ms, attempt.charged_duration_ms];
+  const ledger = buildLoadRecoveryLedgerR4({
+    charges, physicalPlaywrightLaunches: limits.physical_playwright_cli_launches, spentReservations: limits.used_slots,
+    retryUsed: limits.retry_used, retryAvailable: limits.retry_available, preparationUsedMs: 5141 + evidence.preparation.duration_ms
+  });
+  const terminalHalt = {
+    slot_id: attempt.slot_id, plan: '253-63', cause: 'runner_validator_mirrored_context_annotations', terminal: true, infrastructure: false, retryable: false, charged: true,
+    charged_ms: attempt.charged_duration_ms, preparation_ms: evidence.preparation.duration_ms, stop_reason: evidence.stop_reason,
+    summary: { file: d.lineage.summary.file, sha256: d.lineage.summary.sha256 },
+    expired_identities: [LOAD_R3_RETRY_ID], retired_identities: LOAD_R3_IDS.slice(1)
+  };
+  const lineageFiles = [...Object.values(d.lineage).map((record) => record.file), ...rawFiles];
+  const own = lineageFiles.map((file) => ({ path: file, sha256: fileHash(path.join(root, file)) }));
+  if (own.some((item) => !item.sha256)) throw new Error('an R4 lineage record is missing an exact byte identity');
+  const artifacts = [...older.artifacts.filter((item) => !lineageFiles.includes(item.path)), ...own];
+  return { control: older.control, ledger, charges, terminalHalt, artifacts, lineage: d.lineage, frozenBlobs: { ...older.frozenBlobs } };
+}
+
+export function loadR4SourceFileList(root) {
+  return [...new Set([...loadSourceFileList(root), ...LOAD_R4_EXTRA_SOURCES])];
+}
+
+export function verifyFrozenSourceBindingR4(root, freeze, { terminal = false } = {}) {
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const frozen = freeze?.source?.checkout_head;
+  if (!frozen || run('git', ['-C', root, 'merge-base', '--is-ancestor', frozen, head]).status !== 0) throw new Error('frozen R4 source commit is not an ancestor of this checkout');
+  for (const [file, expected] of Object.entries(freeze.source.blobs ?? {})) {
+    if (terminal) {
+      // Accepted evidence stays verifiable after later committed runner changes: bind by git objects, not the working tree.
+      const blob = run('git', ['-C', root, 'rev-parse', `${frozen}:${file}`]);
+      if (blob.status !== 0 || blob.stdout.trim() !== expected || run('git', ['-C', root, 'cat-file', '-t', expected]).stdout.trim() !== 'blob') throw new Error(`frozen R4 source blob mismatch at the frozen commit for ${file}`);
+    } else if (git(['-C', root, 'hash-object', file]) !== expected) throw new Error(`frozen R4 source identity mismatch for ${file}`);
+  }
+  return head;
+}
+
+function verifyFrozenHistoryBindingR4(root, freeze, { terminal = false } = {}) {
+  const frozen = freeze.source.checkout_head;
+  for (const artifact of freeze.historical?.artifacts ?? []) {
+    const actual = terminal ? sha256(readFrozenBytesR2(root, frozen, artifact.path)) : fileHash(path.join(root, artifact.path));
+    if (actual !== artifact.sha256) throw new Error(`preserved R4 history changed: ${artifact.path}`);
+  }
+  const budget = terminal ? sha256(readFrozenBytesR2(root, frozen, LOAD_R4_BUDGET_PATH)) : fileHash(path.join(root, LOAD_R4_BUDGET_PATH));
+  if (freeze.budget?.file !== LOAD_R4_BUDGET_PATH || !budget || freeze.budget.sha256 !== budget) throw new Error('the R4 budget document differs from the frozen binding');
+}
+
+function canonicalLedgerR4(freeze) {
+  return buildLoadRecoveryLedgerR4({
+    charges: freeze.historical?.carried_components_ms, physicalPlaywrightLaunches: freeze.historical?.physical_playwright_cli_launches,
+    spentReservations: freeze.historical?.spent_reservations, retryUsed: freeze.historical?.spent_retry?.used,
+    retryAvailable: freeze.historical?.spent_retry?.available, preparationUsedMs: LOAD_R4_PREPARATION_USED_MS
+  });
+}
+
+// Seams are injectable so the freeze flow runs offline in a temporary committed checkout.
+function loadR4FreezeDeps(deps = {}) {
+  return {
+    enforceNode: true, assertCheckout: assertRevisionCheckout, assertConfig: assertDirtyConfigPreserved, readHistory: readLoadHistoryR4, sourceFiles: loadR4SourceFileList,
+    requiredSources: () => [...SOURCE_FILES, ...LOAD_EXTRA_SOURCES, ...LOAD_R4_EXTRA_SOURCES], importClosure: discoverLoadImportClosure, runtimeIdentity: loadRuntimeIdentity, ...deps
+  };
+}
+
+export function createLoadRecoveryFreezeR4(outputFile, root = ROOT, deps = {}) {
+  const d = loadR4FreezeDeps(deps);
+  if (fs.existsSync(outputFile)) throw new Error('refusing to overwrite the additive R4 load recovery freeze');
+  if (d.enforceNode && process.version !== LOAD_NODE) throw new Error(`load recovery must be frozen under Node ${LOAD_NODE}`);
+  d.assertCheckout(root);
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const history = d.readHistory(root);
+  for (const artifact of history.artifacts) {
+    if (sha256(readFrozenBytesR2(root, head, artifact.path)) !== artifact.sha256) throw new Error(`R4 lineage record is not committed at HEAD: ${artifact.path}`);
+  }
+  const budgetHash = fileHash(path.join(root, LOAD_R4_BUDGET_PATH));
+  if (!budgetHash || sha256(readFrozenBytesR2(root, head, LOAD_R4_BUDGET_PATH)) !== budgetHash) throw new Error('the R4 budget document is missing or not committed at HEAD');
+  const files = d.sourceFiles(root);
+  const blobs = Object.fromEntries(files.map((file) => [file, git(['-C', root, 'rev-parse', `${head}:${file}`])]));
+  const freeze = {
+    schema_version: LOAD_R4_FREEZE_SCHEMA, status: 'frozen_before_results', plan: '253-69', revision: 'r4', frozen_at: new Date().toISOString(),
+    context_identity: LOAD_R4_CONTEXT_MODE,
+    source: { repository: 'szTheory/sigra', checkout_head: head, blobs },
+    runtime: d.runtimeIdentity(root),
+    historical: {
+      artifacts: history.artifacts, frozen_blob_sets: history.frozenBlobs, carried_charge_ms: history.ledger.prior_charge_ms,
+      carried_components_ms: history.charges, physical_playwright_cli_launches: LOAD_R4_CARRIED_LAUNCHES, spent_reservations: [...LOAD_R4_SPENT],
+      expired_identities: [...LOAD_R4_EXPIRED], retired_identities: [...LOAD_R4_RETIRED],
+      spent_retry: { used: 1, available: 0 }, terminal_halt: history.terminalHalt, halted_lineage: structuredClone(history.lineage ?? LOAD_R4_LINEAGE)
+    },
+    budget: { file: LOAD_R4_BUDGET_PATH, sha256: budgetHash, grants_capacity: false },
+    ledger: history.ledger,
+    setup_accounting: {
+      setup_ms: LOAD_R3_SETUP_MS, separately_bounded: true, separately_charged: true, command_deadline_starts_after_setup: true,
+      setup_charge: 'max(monotonic, wall)', command_charge: 'max(monotonic, wall)', slot_charge: 'setup_charge + command_charge'
+    },
+    diagnostics: { per_test_jsonl_required_when_cli_launched: true, env: 'SIGRA_PLAYWRIGHT_FAILURE_JSONL', error_context_preserved: true },
+    selection: {
+      spec: 'tests/admin-eval.spec.ts', config: path.basename(LOAD_RECOVERY_CONFIG), original_title: CONTROL_BOARD_TITLE,
+      first_titles: FIRST_CONTROLS, second_titles: CONTROL_SECOND_ACTIVE, deliberate_expected_failure_markers: CONTROL_EXPECTED_FAILURE_MARKERS,
+      cli_grep_forbidden: true, workers: 1, fully_parallel: false, retries: 0, trace: 'retain-on-failure'
+    },
+    tools: {
+      node: process.version, expected_node: LOAD_NODE, playwright: '1.59.1', parse5: '8.0.1',
+      mix: history.control?.accepted?.toolchain?.mix, ecto_sql: history.control?.accepted?.toolchain?.ecto_sql, phoenix_live_view: history.control?.accepted?.toolchain?.phoenix_live_view
+    },
+    exclusions: ['no browser installation', 'no hidden --list or version CLI', 'no warmup', 'no duplicate full suite', 'no reuse of any of the nine spent identities', 'no reuse of the expired CR2/CR3 infrastructure retries or the retired CR-*-SECOND and CR3-*-SECOND identities', 'no native or hosted work without a committed Jon approval record bound to the R4 budget document and this freeze', 'no capacity granted by this freeze'],
+    stop_conditions: ['source or history digest mismatch', 'unexpected assertion or missing native report', 'database drop/build cleanup/report/trace sanitation failure', 'setup exceeds 60000 ms', 'command exceeds its frozen command_ms', 'host suspension detected', 'stalled owned process group remains alive', 'AC power, caffeinate holder or pmset assertion proof missing before predebit', 'a launched attempt lacks its per-test JSONL receipt', 'two different rows share a browser-context identity']
+  };
+  freeze.freeze_sha256 = loadFreezeDigest(freeze);
+  writeJson(outputFile, freeze);
+  return freeze;
+}
+
+export function validateLoadRecoveryFreezeR4(root, freeze, { terminal = false, deps = {} } = {}) {
+  const d = loadR4FreezeDeps(deps);
+  d.assertConfig(root);
+  if (freeze?.schema_version !== LOAD_R4_FREEZE_SCHEMA || freeze.status !== 'frozen_before_results' || freeze.context_identity !== LOAD_R4_CONTEXT_MODE
+    || freeze.freeze_sha256 !== loadFreezeDigest(freeze)) throw new Error('R4 native load recovery freeze is malformed or its digest is invalid');
+  const head = verifyFrozenSourceBindingR4(root, freeze, { terminal });
+  for (const required of d.requiredSources()) if (!freeze.source.blobs?.[required]) throw new Error(`freeze omits required source ${required}`);
+  if (!terminal) for (const file of d.importClosure(root)) if (!freeze.source.blobs?.[file]) throw new Error(`freeze omits actual imported runtime source ${file}`);
+  verifyFrozenHistoryBindingR4(root, freeze, { terminal });
+  if (JSON.stringify(freeze.ledger) !== JSON.stringify(canonicalLedgerR4(freeze))) throw new Error('frozen R4 ledger differs from the reviewed carried allocation');
+  for (const slot of freeze.ledger.slots.slice(0, 4)) if (slot.argv.some((arg) => /^(-g|--grep)(=|$)/.test(arg))) throw new Error('frozen argv carries a CLI grep that would override per-project selection');
+  if (!terminal) {
+    if (JSON.stringify(freeze.runtime) !== JSON.stringify(d.runtimeIdentity(root))) throw new Error('locked/installed runtime or pinned transform identity changed');
+    const history = d.readHistory(root);
+    if (JSON.stringify(history.ledger) !== JSON.stringify(freeze.ledger)) throw new Error('re-read R3 lineage differs from the frozen R4 ledger');
+    if (JSON.stringify(history.terminalHalt) !== JSON.stringify(freeze.historical.terminal_halt)) throw new Error('re-read 253-63 terminal halt record differs from the frozen record');
+  }
+  return head;
+}
+
+function checkLoadRecoveryFreezeFileR4(freezeFile, root = ROOT) {
+  try {
+    if (path.resolve(freezeFile) !== path.resolve(root, LOAD_R4_FREEZE_PATH)) throw new Error('freeze check accepts only the additive R4 path');
+    validateLoadRecoveryFreezeR4(root, readJson(freezeFile));
+    console.log('R4 native load recovery freeze verified: R3 lineage re-hashed, 2222537 ms/8 launches/9 spent carried, per-row union context identity, setup bounded outside the work deadline, 22 rows, no capacity granted');
+    return { ok: true, errors: [] };
+  } catch (error) {
+    console.error(`R4 native load recovery freeze rejected: ${error.message}`);
+    return { ok: false, errors: [error.message] };
+  }
+}
+
+// The R4 approval record (schema v3, bound to the R4 budget document and freeze) is implemented by plan 253-70; until then an
+// initialization without an injected reader stops before it writes anything.
+function readCommittedApprovalPendingR4() {
+  throw new Error('R4 budget approval binding is not available until plan 253-70; no capacity can be initialized');
+}
+
+export function initializeLoadRecoveryEvidenceR4(freezeFile, evidenceFile, root = ROOT, deps = {}) {
+  const d = { validate: validateLoadRecoveryFreezeR4, readApproval: readCommittedApprovalPendingR4, ...deps };
+  if (fs.existsSync(evidenceFile)) throw new Error('refusing to overwrite additive R4 native load recovery evidence');
+  const freeze = readJson(freezeFile);
+  d.validate(root, freeze);
+  const approval = d.readApproval(root, freezeFile, freeze);
+  if (!Object.hasOwn(LOAD_R4_CAP_TABLE, approval?.decision ?? '')) throw new Error('R4 approval decision grants no capacity');
+  const caps = LOAD_R4_CAP_TABLE[approval.decision];
+  const evidence = {
+    schema_version: LOAD_R4_SCHEMA, revision: 'r4', status: 'ready', context_identity: LOAD_R4_CONTEXT_MODE,
+    freeze_path: path.relative(root, freezeFile), freeze_sha256: fileHash(freezeFile),
+    source: structuredClone(freeze.source), historical: structuredClone(freeze.historical),
+    created_at: new Date().toISOString(), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+    prior_terminal_halts: [structuredClone(freeze.historical.terminal_halt)], infrastructure_halts: [], infrastructure_retry: null,
+    approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+    limits: {
+      prior_charge_ms: freeze.ledger.prior_charge_ms, preparation_charge_ms: 0, preparation_remaining_ms: freeze.ledger.preparation_reserve_ms,
+      charged_duration_ms: freeze.ledger.prior_charge_ms, physical_playwright_cli_launches: freeze.ledger.prior_playwright_cli_launches,
+      used_slots: [...freeze.ledger.spent_reservations], max_d19_ms: caps.d19_cap_ms, max_total_ms: caps.shared_cap_ms,
+      max_d19_physical_playwright_cli_launches: caps.d19_launch_max, max_physical_playwright_cli_launches: caps.physical_cli_max,
+      retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+    }
+  };
+  fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  writeJson(evidenceFile, evidence);
+  return evidence;
+}
+
+// Full R4 evidence verification (and the run path) arrive with plan 253-70. Until then a ready R4 ledger gets a clean rejection, not a crash.
+function verifyLoadRecoveryFileR4() {
+  const message = 'R4 evidence verification is not available until plan 253-70';
+  console.error(`R4 native load recovery evidence rejected: ${message}`);
+  return { ok: false, errors: [message] };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.mode === 'create-load-recovery') {
@@ -5433,6 +5748,12 @@ async function main() {
     console.log(`R3 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; eight spent; no capacity granted)`);
     return;
   }
+  if (args.mode === 'create-load-recovery-r4') {
+    if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R4_FREEZE_PATH)) throw new Error('R4 load recovery freeze output must use the reviewed phase artifact path');
+    const freeze = createLoadRecoveryFreezeR4(args.output);
+    console.log(`R4 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; ${freeze.ledger.spent_reservations.length} spent; per-row union context identity; no capacity granted)`);
+    return;
+  }
   if (args.mode === 'record-budget-approval' && (path.resolve(args.freeze) === path.resolve(ROOT, LOAD_R3_FREEZE_PATH) || path.resolve(args.budget) === path.resolve(ROOT, LOAD_R3_BUDGET_PATH))) {
     const record = recordBudgetApprovalR3({ decision: args.decision, budgetFile: args.budget, freezeFile: args.freeze, outputFile: args.output, decisionText: args.decisionText });
     console.log(`R3 budget approval recorded (${record.decision}; retry_granted=${record.retry_granted}; shared cap ${record.caps.shared_cap_ms} ms): ${path.relative(ROOT, args.output)}`);
@@ -5446,7 +5767,14 @@ async function main() {
   if (args.mode === 'preflight-host-sleep') { console.log(await preflightHostSleep()); return; }
   const isR2Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R2_FREEZE_PATH);
   const isR3Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R3_FREEZE_PATH);
+  const isR4Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R4_FREEZE_PATH);
   if (args.mode === 'init-load-recovery') {
+    if (isR4Freeze(args.freeze)) {
+      if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R4_EVIDENCE_PATH)) throw new Error('R4 load recovery evidence must use the reviewed R4 artifact path');
+      const evidence = initializeLoadRecoveryEvidenceR4(args.freeze, args.output);
+      console.log(`R4 native load recovery ledger initialized before setup: ${path.relative(ROOT, args.output)} (${evidence.limits.charged_duration_ms} ms carried; ${evidence.limits.used_slots.length} spent reservations; decision=${evidence.approval.decision})`);
+      return;
+    }
     if (isR3Freeze(args.freeze)) {
       if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R3_EVIDENCE_PATH)) throw new Error('R3 load recovery evidence must use the reviewed R3 artifact path');
       const evidence = initializeLoadRecoveryEvidenceR3(args.freeze, args.output);
@@ -5465,7 +5793,7 @@ async function main() {
     return;
   }
   if (args.mode === 'check-load-recovery-freeze') {
-    const ok = isR3Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR3(args.freeze).ok : isR2Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR2(args.freeze).ok : checkLoadRecoveryFreezeFile(args.freeze).ok;
+    const ok = isR4Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR4(args.freeze).ok : isR3Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR3(args.freeze).ok : isR2Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR2(args.freeze).ok : checkLoadRecoveryFreezeFile(args.freeze).ok;
     if (!ok) process.exitCode = 3;
     return;
   }
@@ -5494,7 +5822,8 @@ async function main() {
   if (args.mode === 'verify-load-recovery') {
     const r2 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R2_EVIDENCE_PATH);
     const r3 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R3_EVIDENCE_PATH);
-    const verify = r3 ? verifyLoadRecoveryFileR3 : r2 ? verifyLoadRecoveryFileR2 : verifyLoadRecoveryFile;
+    const r4 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R4_EVIDENCE_PATH);
+    const verify = r4 ? verifyLoadRecoveryFileR4 : r3 ? verifyLoadRecoveryFileR3 : r2 ? verifyLoadRecoveryFileR2 : verifyLoadRecoveryFile;
     if (!verify(args.evidence, args.stage).ok) process.exitCode = 3;
     return;
   }
