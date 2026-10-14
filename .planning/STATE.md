@@ -4,25 +4,24 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "native_controls_halted_recovery_planning_required"
-stopped_at: "Additional execution halted at native dark/control timeout; independent local helper work complete"
-last_updated: "2026-10-13T23:26:23.648776+00:00"
-last_activity: "2026-10-13"
-last_activity_desc: "Plans 15, 18, 19, and 20 implemented; first dark/control command timed out; 105 focused tests passed"
-state_head: "a1a1887e116fc34dbbdfc4186347467ffad33f91"
+status: native_controls_halted_recovery_planning_required
+stopped_at: Additional execution halted at native dark/control timeout; independent local helper work complete
+last_updated: "2026-10-14T00:49:32.793Z"
+last_activity: "2026-10-13T23:26:23.648776+00:00 — 105 focused tests passed; publication proposal fits 16 of 24 requests"
+state_head: 9f6d154d4da7e1b3ed253e5ceece544bfbe65f31
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 31
+  total_plans: 41
   completed_plans: 16
-  percent: 52
+  percent: 25
 milestone_status: active
-workflow_step: "plan_recovery"
+workflow_step: plan_recovery
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-plan-phase 253"
-resume_command: "$gsd-plan-phase 253"
+next_command: $gsd-plan-phase 253
+resume_command: $gsd-plan-phase 253
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -33,15 +32,28 @@ phase253_wave_count: 8
 phase253_task_count: 54
 phase253_implementation_status: partial
 phase253_completed_plans: 10
-phase253_halted_plans: [253-02, 253-07, 253-09, 253-12, 253-16]
-phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14, 253-17, 253-21, 253-22, 253-23, 253-24, 253-25]
-
+phase253_halted_plans:
+  - 253-02
+  - 253-07
+  - 253-09
+  - 253-12
+  - 253-16
+phase253_blocked_plans:
+  - 253-08
+  - 253-10
+  - 253-13
+  - 253-14
+  - 253-17
+  - 253-21
+  - 253-22
+  - 253-23
+  - 253-24
+  - 253-25
 phase253_recovery_plan_count: 6
-
 phase253_recovery_task_count: 13
-
 phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
+last_activity_desc: Plans 15, 18, 19, and 20 implemented; first dark/control command timed out; 105 focused tests passed
 ---
 
 # Project State
@@ -55,11 +67,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — incomplete
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
 Plans: 10/25 complete; Plans 15, 18, 19, and 20 implemented; Plan 16 halted; original failed plans preserved
 Status: Native dark/control timeout needs recovery planning; both reliability requirements remain open
 Last activity: 2026-10-13T23:26:23.648776+00:00 — 105 focused tests passed; publication proposal fits 16 of 24 requests
-Progress: 16/31 planned milestone plans complete (52%); full Phase 253 verification not started
+Progress: 16/31 planned milestone plans complete ([███░░░░░░░] 25%); full Phase 253 verification not started
 
 ## Next GSD command
 
