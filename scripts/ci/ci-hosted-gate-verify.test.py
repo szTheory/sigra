@@ -900,5 +900,254 @@ class CompletionLoadLinkBindingTests(unittest.TestCase):
         self.assertEqual(self.verify(self.evidence(), require_accepted=True)["status"], "accepted")
 
 
+class CompletionDispositionTests(unittest.TestCase):
+    """253-90: an honest, human-approved not_reproduced disposition is verifiable as 'dispositioned', never as 'accepted'."""
+
+    P = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
+    DISPOSITION = P + "253-LOAD-RECOVERY-TARGET-DISPOSITION.json"
+    APPROVAL = P + "253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json"
+    GAP = "disposition:CIREL-01:not_reproduced (Jon-approved disposition; target neither reproduced nor fixed)"
+
+    setUpClass = classmethod(CompletionContractTests.setUpClass.__func__)
+    evidence = CompletionContractTests.evidence
+
+    def setUp(self):
+        CompletionContractTests.setUp(self)
+        self.documents["load_acceptance"] = {"target_status": "open", "historical_cause": {"status": "diagnosis_incomplete"}}
+        self.documents["load_target_disposition"] = {"status": "not_reproduced"}
+        self.documents["load_target_disposition_approval"] = {"decision": "approve"}
+        self.kinds = []
+        self.strict = 3
+        self.disposition = 0
+
+    def checker(self, kind, path):
+        self.kinds.append(kind)
+        if kind == "load_acceptance":
+            return self.strict, "strict stub"
+        if kind == "load_target_disposition":
+            return self.disposition, "disposition stub"
+        return 0, "stub"
+
+    def run_completion(self, evidence, **flags):
+        return self.module.verify_completion(evidence, root=self.root, load_checker=self.checker, **flags)
+
+    def dispositioned(self, **extra):
+        return self.evidence(**extra)
+
+    def test_the_disposition_route_is_dispositioned_not_accepted(self):
+        result = self.run_completion(self.dispositioned(), require_dispositioned=True)
+        self.assertEqual(result["status"], "dispositioned")
+        self.assertTrue(result["dispositioned"])
+        self.assertEqual(result["gaps"], [self.GAP])
+        self.assertEqual(result["requirements"], {"CIREL-01": "partial_not_reproduced", "CIREL-02": "accepted"})
+        self.assertEqual(result["phase_verification"], "not_started")
+        self.assertEqual(self.kinds[-2:], ["load_acceptance", "load_target_disposition"])
+        self.assertEqual(len(result["limitations"]), 5)
+        self.assertIn("not reproduced", result["limitations"][-1])
+        self.assertIn("CIREL-01 is partial", result["limitations"][-1])
+
+    def test_require_accepted_still_fails_on_a_dispositioned_record(self):
+        with self.assertRaises(self.module.VerificationError) as caught:
+            self.run_completion(self.dispositioned(), require_accepted=True)
+        self.assertIn("disposition:CIREL-01", str(caught.exception))
+
+    def test_without_a_flag_the_record_stays_open_with_honest_requirement_statuses(self):
+        result = self.run_completion(self.dispositioned())
+        self.assertEqual(result["status"], "open")
+        self.assertEqual(result["requirements"], {"CIREL-01": "partial_not_reproduced", "CIREL-02": "accepted"})
+
+    def test_strict_rejection_without_disposition_links_raises_exactly_as_before(self):
+        with self.assertRaises(self.module.VerificationError) as caught:
+            self.run_completion(self.evidence(omit=("load_target_disposition", "load_target_disposition_approval")), require_dispositioned=True)
+        self.assertIn("strict native checker rejected load_acceptance", str(caught.exception))
+        self.assertNotIn("load_target_disposition", self.kinds)
+
+    def test_a_single_disposition_link_is_rejected(self):
+        for omit in ("load_target_disposition", "load_target_disposition_approval"):
+            with self.subTest(omit=omit):
+                with self.assertRaises(self.module.VerificationError):
+                    self.run_completion(self.evidence(omit=(omit,)), require_dispositioned=True)
+
+    def test_strict_exit_other_than_three_is_never_dispositioned(self):
+        for code in (1, 2, 127):
+            with self.subTest(code=code):
+                self.strict = code
+                with self.assertRaises(self.module.VerificationError):
+                    self.run_completion(self.dispositioned(), require_dispositioned=True)
+
+    def test_a_rejected_disposition_raises(self):
+        self.disposition = 3
+        with self.assertRaises(self.module.VerificationError) as caught:
+            self.run_completion(self.dispositioned(), require_dispositioned=True)
+        self.assertIn("disposition", str(caught.exception))
+
+    def test_the_disposition_route_needs_an_open_diagnosis_incomplete_acceptance_record(self):
+        for document in ({"target_status": "accepted", "historical_cause": {"status": "diagnosis_incomplete"}},
+                         {"target_status": "open", "historical_cause": {"status": "demonstrated"}},
+                         {"target_status": "open"}, {"historical_cause": {"status": "diagnosis_incomplete"}}):
+            with self.subTest(document=document):
+                self.documents["load_acceptance"] = document
+                with self.assertRaises(self.module.VerificationError):
+                    self.run_completion(self.dispositioned(), require_dispositioned=True)
+
+    def test_embedded_acceptance_claims_on_a_dispositioned_record_are_contradicted(self):
+        for claim in ({"accepted": True}, {"status": "accepted"}, {"status": "complete"}, {"status": "passed"}):
+            with self.subTest(claim=claim):
+                with self.assertRaises(self.module.VerificationError):
+                    self.run_completion(self.dispositioned(**claim), require_dispositioned=True)
+
+    def test_a_missing_or_synthetic_link_blocks_dispositioned_and_leaves_cirel_02_open(self):
+        for key in CompletionContractTests.LINKS:
+            if key == "load_acceptance":
+                continue
+            with self.subTest(missing=key):
+                evidence = self.evidence(omit=(key,))
+                record = self.run_completion(evidence)
+                self.assertEqual(record["requirements"]["CIREL-02"], "open")
+                self.assertEqual(record["requirements"]["CIREL-01"], "partial_not_reproduced")
+                with self.assertRaises(self.module.VerificationError):
+                    self.run_completion(evidence, require_dispositioned=True)
+        self.documents["pr_normal"]["synthetic"] = True
+        record = self.run_completion(self.evidence())
+        self.assertEqual(record["requirements"]["CIREL-02"], "open")
+        with self.assertRaises(self.module.VerificationError):
+            self.run_completion(self.evidence(), require_dispositioned=True)
+
+    def test_the_strict_accepted_route_is_unchanged_and_ignores_unused_disposition_links(self):
+        self.strict = 0
+        self.documents["load_acceptance"] = {"assessment": {"kind": "cause_repair", "cause": "loader race"}}
+        result = self.run_completion(self.evidence(), require_dispositioned=True)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(result["gaps"], [])
+        self.assertFalse(result.get("dispositioned", False))
+        self.assertEqual(result["requirements"], {"CIREL-01": "accepted", "CIREL-02": "accepted"})
+        self.assertEqual(len(result["limitations"]), 4)
+        self.assertNotIn("load_target_disposition", self.kinds)
+        self.assertEqual(self.run_completion(self.evidence(), require_accepted=True)["status"], "accepted")
+
+    def test_unknown_link_keys_are_still_rejected(self):
+        with self.assertRaises(self.module.VerificationError):
+            self.run_completion(dict(self.evidence(), links={**self.evidence()["links"], "other": {"path": "x", "sha256": "0" * 64}}))
+
+    def test_the_disposition_checker_argv_is_the_runner_predicate_and_the_strict_argv_is_untouched(self):
+        self.assertEqual(self.module.DISPOSITION_CHECK, ["--verify-load-acceptance", "{path}", "--require-target-disposition"])
+        self.assertEqual(self.module.LOAD_CHECKS["load_acceptance"], ["--verify-load-acceptance", "{path}", "--require-target-accepted"])
+        self.assertEqual(set(self.module.DISPOSITION_PATHS), {"load_target_disposition", "load_target_disposition_approval"})
+        self.assertEqual(self.module.DISPOSITION_PATHS["load_target_disposition"], self.DISPOSITION)
+        self.assertEqual(self.module.DISPOSITION_PATHS["load_target_disposition_approval"], self.APPROVAL)
+
+    def test_with_the_production_checker_the_disposition_links_are_bound_to_the_reviewed_paths(self):
+        self.module._default_checker = lambda kind, path: (self.kinds.append(kind) or (3 if kind == "load_acceptance" else 0, "recorded"))
+        evidence = self.production_evidence()
+        result = self.module.verify_completion(evidence, require_dispositioned=True, root=self.root)
+        self.assertEqual(result["status"], "dispositioned")
+        for key, wrong in (("load_target_disposition", self.APPROVAL), ("load_target_disposition_approval", self.DISPOSITION),
+                           ("load_target_disposition", "elsewhere/disposition.json")):
+            with self.subTest(key=key, wrong=wrong):
+                self.kinds.clear()
+                evidence = self.production_evidence(**{key: wrong})
+                with self.assertRaises(self.module.VerificationError) as caught:
+                    self.module.verify_completion(evidence, require_dispositioned=True, root=self.root)
+                self.assertIn("must link the reviewed", str(caught.exception))
+                self.assertEqual(self.kinds, [])
+
+    def production_evidence(self, **paths):
+        evidence = self.evidence(omit=("load_controls", "load_acceptance", "load_target_disposition", "load_target_disposition_approval"))
+        wanted = {"load_controls": CompletionLoadLinkBindingTests.R5, "load_acceptance": CompletionLoadLinkBindingTests.ACCEPT,
+                  "load_target_disposition": self.DISPOSITION, "load_target_disposition_approval": self.APPROVAL, **paths}
+        for key, relative in wanted.items():
+            path = self.root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            document = self.documents.get(key, {"bound": relative}) if key != "load_controls" else {"bound": relative}
+            path.write_text(json.dumps(document))
+            evidence["links"][key] = {"path": relative, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        return evidence
+
+    def test_the_cli_flags_are_mutually_exclusive(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "completion.json"
+            path.write_text("{}")
+            result = subprocess.run(["python3", "-B", str(VERIFY), "--evidence", str(path), "--mode", "completion",
+                                     "--require-accepted", "--require-dispositioned"], text=True, capture_output=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("not allowed with", result.stderr)
+            result = subprocess.run(["python3", "-B", str(VERIFY), "--evidence", str(path), "--mode", "completion", "--require-dispositioned"],
+                                    text=True, capture_output=True)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("completion evidence schema", result.stderr)
+
+
+class CompletionDispositionEndToEndTests(unittest.TestCase):
+    """The real runner (no injected checker) re-opens the real committed 253-89 disposition and approval through a subprocess."""
+
+    P = CompletionDispositionTests.P
+
+    def setUp(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_dispo_e2e", VERIFY)
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+        if not (ROOT / CompletionDispositionTests.DISPOSITION).exists():
+            self.skipTest("the committed 253-89 disposition records are not part of this checkout")
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.tmp_root = Path(self.tmp.name)
+        real = subprocess
+
+        class Done:
+            returncode = 0
+            stderr = ""
+            stdout = ""
+
+        class Delegating:
+            CalledProcessError = real.CalledProcessError
+            TimeoutExpired = real.TimeoutExpired
+
+            @staticmethod
+            def run(argv, **kw):
+                if any(str(part).endswith("ci-registration-recovery.mjs") for part in argv):
+                    return real.run(argv, **kw)
+                return Done()
+
+        self.module.subprocess = Delegating
+        self.module.verify_pr_pair = lambda normal, docs: {"accepted_live": True, "status": "stub"}
+        self.module.verify_canary_matrix = lambda canary: {"status": "stub"}
+
+    def link(self, relative):
+        data = (ROOT / relative).read_bytes()
+        return {"path": relative, "sha256": hashlib.sha256(data).hexdigest()}
+
+    def stub_link(self, name, document):
+        path = self.tmp_root / f"{name}.json"
+        path.write_text(json.dumps(document))
+        return {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+
+    def evidence(self, with_disposition=True):
+        links = {
+            "phase252_replay": self.stub_link("replay", {"original": "replay"}),
+            "phase252_diagnosis": self.stub_link("diagnosis", {"original": "diagnosis"}),
+            "load_controls": self.link(CompletionLoadLinkBindingTests.R5),
+            "load_acceptance": self.link(CompletionLoadLinkBindingTests.ACCEPT),
+            "publication": self.stub_link("publication", {"receipt": True}),
+            "canary": self.stub_link("canary", {"origin": {"window_id": "canary-window"}, "transport_ledger": {"allocation_sha256": "a" * 64}}),
+            "pr_normal": self.stub_link("normal", {"transport_ledger": {"window_id": "pr-window", "allocation_sha256": "b" * 64}}),
+            "pr_docs_only": self.stub_link("docs", {"transport_ledger": {"window_id": "pr-window", "allocation_sha256": "b" * 64}}),
+        }
+        if with_disposition:
+            links["load_target_disposition"] = self.link(CompletionDispositionTests.DISPOSITION)
+            links["load_target_disposition_approval"] = self.link(CompletionDispositionTests.APPROVAL)
+        return {"schema_version": "sigra.phase253.completion-evidence/v1", "repository": "szTheory/sigra", "links": links}
+
+    def test_the_real_runner_proves_the_disposition_route_and_strict_acceptance_still_rejects(self):
+        result = self.module.verify_completion(self.evidence(), require_dispositioned=True)
+        self.assertEqual(result["status"], "dispositioned")
+        self.assertEqual(result["requirements"], {"CIREL-01": "partial_not_reproduced", "CIREL-02": "accepted"})
+        with self.assertRaises(self.module.VerificationError):
+            self.module.verify_completion(self.evidence(), require_accepted=True)
+        with self.assertRaises(self.module.VerificationError) as caught:
+            self.module.verify_completion(self.evidence(with_disposition=False), require_dispositioned=True)
+        self.assertIn("strict native checker rejected load_acceptance", str(caught.exception))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
