@@ -2535,7 +2535,7 @@ function loadHarnessR3() {
   const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
   const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {}, approval = R3_APPROVE,
     suspendBrowser = false, suspendFlag = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null,
-    setupMs = 5, bootMs = 2, cliMs = 5, setupExit = 0, setupTimedOut = false, setupSuspended = false, setupError = null,
+    setupMs = 5, setupWallExtra = 0, bootMs = 2, cliMs = 5, setupExit = 0, setupTimedOut = false, setupSuspended = false, setupError = null,
     cliTimedOut = false, killedRows = 2, noJsonl = false, errorContext = true, jsonlCount = Infinity } = {}) => {
     const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
     let monoOffset = 0n; let wallOffset = 0;
@@ -2571,7 +2571,7 @@ function loadHarnessR3() {
           return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, suspended: suspendFlag, duration_ms: cliMs, group_signals: [], descendants_reaped: true };
         }
         if (program === 'mix' && args[0] === 'ecto.setup') {
-          advance(setupMs);
+          advance(setupMs); wallOffset += setupWallExtra;
           return { pid: 1, exit_code: setupError ? null : setupExit, signal: null, error: setupError, timed_out: setupTimedOut, suspended: setupSuspended, duration_ms: setupMs, wall_duration_ms: setupMs, group_signals: [], descendants_reaped: true };
         }
         advance(1);
@@ -2584,6 +2584,198 @@ function loadHarnessR3() {
   };
   return { base, checkout, freeze, freezeFile, evidenceFile, calls, timeouts, readyDeadlines, envs, makeDeps, writeEvidence, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
 }
+
+// ---- Phase 253 plan 60 task 2: R3 setup-phase run path with preserved per-test diagnostics ----
+const R3_FIRST = 'CR3-DESKTOP-MOBILE-FIRST';
+const r3Verify = (h, evidence, stage = 'first') => recovery.verifyLoadRecoveryEvidenceDataR3(evidence, h.freeze, `${h.evidenceFile}.raw`, stage, sha(fs.readFileSync(h.freezeFile)));
+
+test('a synthetic R3 first slot runs setup under its own 60000 ms deadline and leaves the full 165000 ms work deadline intact', async () => {
+  const h = loadHarnessR3();
+  try {
+    const result = await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ setupMs: 30000, bootMs: 2000, cliMs: 40000 }));
+    assert.equal(result.rows, 16);
+    const [setupCall, , playwrightCall] = [h.timeouts.find((t) => t[1] === 'ecto.setup'), null, h.timeouts.find((t) => t[0] === 'playwright')];
+    assert.ok(setupCall[2] <= 60000 && setupCall[2] > 59900, `setup is bounded by its own 60000 ms, got ${setupCall[2]}`);
+    assert.ok(playwrightCall[2] <= 163000 && playwrightCall[2] > 162800, `the 30000 ms setup did not shrink the browser window: ${playwrightCall[2]} remains after a 2000 ms boot`);
+    const evidence = h.read();
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v3');
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(attempt.slot_id, R3_FIRST);
+    assert.deepEqual(attempt.stage_deadlines, { setup_ms: 60000, command_ms: 180000, work_ms: 165000, cleanup_ms: 15000, cleanup_reserved: true });
+    assert.ok(attempt.setup_charge_ms >= 30000 && attempt.setup_charge_ms < 30100, `setup charge ${attempt.setup_charge_ms}`);
+    assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms);
+    assert.ok(attempt.command_charge_ms >= 42000 && attempt.command_charge_ms < 42200, `command charge ${attempt.command_charge_ms}`);
+    assert.equal(evidence.limits.charged_duration_ms, 2150682 + attempt.charged_duration_ms);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.deepEqual(evidence.limits.used_slots, [...R3_SPENT, R3_FIRST]);
+    assert.ok(h.readyDeadlines[0] > 0);
+    assert.deepEqual(r3Verify(h, evidence).errors, []);
+    assert.equal(r3Verify(h, evidence, 'complete').ok, false);
+  } finally { h.clean(); }
+});
+
+test('the slot charge is setup max(monotonic, wall) plus command max(monotonic, wall), each judged on its own clocks', async () => {
+  const h = loadHarnessR3();
+  try {
+    await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ setupMs: 20000, setupWallExtra: 3000, cliMs: 10000 }));
+    const attempt = h.read().attempts[0];
+    const setupMax = Math.max(attempt.setup_timing.execution_ms, attempt.setup_timing.wall_ms);
+    const commandMax = Math.max(attempt.command_timing.execution_ms, attempt.command_timing.wall_ms);
+    assert.ok(attempt.setup_timing.wall_ms - attempt.setup_timing.execution_ms >= 2999, 'wall ran ahead of the monotonic clock during setup');
+    assert.equal(attempt.setup_charge_ms, setupMax);
+    assert.equal(attempt.command_charge_ms, commandMax);
+    assert.equal(attempt.charged_duration_ms, setupMax + commandMax);
+    assert.ok(attempt.charged_duration_ms >= Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms), 'never below the larger whole-window clock');
+    assert.ok(attempt.charged_duration_ms <= 240000);
+  } finally { h.clean(); }
+});
+
+test('a setup failure or a setup overrun halts before any CLI launch, stays charged and still drops the owned database', async () => {
+  for (const [label, options, pattern] of [
+    ['non-zero exit', { setupExit: 1, setupMs: 4000 }, /setup failed/i],
+    ['deadline kill', { setupTimedOut: true, setupExit: 0, setupMs: 61000 }, /setup failed|setup.*deadline/i],
+    ['overrun without a kill', { setupMs: 61000 }, /setup.*60000|overran/i]
+  ]) {
+    const h = loadHarnessR3();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps(options)), pattern, label);
+      const evidence = h.read();
+      const attempt = evidence.attempts[0];
+      assert.equal(evidence.status, 'halted', label);
+      assert.equal(attempt.playwright_cli.launched, false, label);
+      assert.equal(h.calls.some((call) => call[0] === 'tree' && call[1].endsWith('/playwright')), false, `${label}: no CLI`);
+      assert.equal(h.calls.some((call) => call[0] === 'app'), false, `${label}: no app boot`);
+      assert.equal(h.calls.some((call) => call[0] === 'tree' && call[2] === 'ecto.drop'), true, `${label}: owned database dropped`);
+      assert.equal(evidence.limits.physical_playwright_cli_launches, 7, `${label}: launches unchanged`);
+      assert.ok(attempt.setup_charge_ms >= options.setupMs, `${label}: setup is charged`);
+      assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms, label);
+      assert.equal(evidence.limits.charged_duration_ms, 2150682 + attempt.charged_duration_ms, label);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i, label);
+    } finally { h.clean(); }
+  }
+});
+
+test('the CLI env carries the per-test JSONL path and the preserved diagnostics are hashed receipts on a pass', async () => {
+  const h = loadHarnessR3();
+  try {
+    await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    assert.match(h.envs[0].SIGRA_PLAYWRIGHT_FAILURE_JSONL, /tests\.jsonl$/);
+    const attempt = h.read().attempts[0];
+    const rawDir = `${h.evidenceFile}.raw`;
+    assert.equal(attempt.diagnostics.jsonl.path, path.join(R3_FIRST, 'attempt-01', 'diagnostics', 'tests.jsonl'));
+    assert.equal(attempt.diagnostics.per_test.length, 16);
+    assert.equal(attempt.diagnostics.error_contexts.length, 1);
+    assert.equal(sha(fs.readFileSync(path.join(rawDir, attempt.diagnostics.jsonl.path))), attempt.diagnostics.jsonl.sha256);
+    assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(attempt, rawDir), { ok: true, errors: [] });
+    assert.equal(attempt.per_test_rows.length, 16);
+    assert.deepEqual(Object.keys(attempt.per_test_rows[0]).sort(), ['duration_ms', 'first_error_line', 'project', 'status', 'title']);
+    assert.equal(fs.existsSync(h.envs[0].SIGRA_PLAYWRIGHT_FAILURE_JSONL), false, 'the temp copy is gone, the receipt remains');
+  } finally { h.clean(); }
+});
+
+test('diagnostics are preserved on an assertion failure and a deadline kill, and the verifier needs them', async () => {
+  const failed = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(failed.freezeFile, R3_FIRST, failed.evidenceFile, failed.checkout, failed.makeDeps({ failRow: true })));
+    const attempt = failed.read().attempts[0];
+    assert.equal(attempt.diagnostics.per_test.length, 16);
+    assert.equal(attempt.assertion_failure_observed, true);
+    assert.ok(attempt.per_test_rows.some((row) => /unexpected assertion failure/.test(row.first_error_line ?? '')), 'the failing row names its first error line');
+    const rawDir = `${failed.evidenceFile}.raw`;
+    assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(attempt, rawDir), { ok: true, errors: [] });
+  } finally { failed.clean(); }
+
+  const killed = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(killed.freezeFile, R3_FIRST, killed.evidenceFile, killed.checkout, killed.makeDeps({ cliTimedOut: true, killedRows: 2 })), /work deadline/i);
+    const evidence = killed.read();
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.status, 'halted');
+    assert.equal(attempt.playwright_cli.launched, true);
+    assert.equal(attempt.diagnostics.per_test.length, 2, 'both rows that finished before the kill are preserved');
+    const rawDir = `${killed.evidenceFile}.raw`;
+    const lines = fs.readFileSync(path.join(rawDir, attempt.diagnostics.jsonl.path), 'utf8').trim().split('\n');
+    assert.equal(lines.length, 2);
+    assert.equal(attempt.per_test_rows.length, 2);
+    assert.equal(evidence.stop_record.slot_id, R3_FIRST);
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { killed.clean(); }
+
+  const none = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(none.freezeFile, R3_FIRST, none.evidenceFile, none.checkout, none.makeDeps({ noJsonl: true })), /per-test JSONL/i);
+    assert.equal(none.read().status, 'halted', 'an attempt that launched the CLI without a preserved JSONL is rejected');
+  } finally { none.clean(); }
+});
+
+test('R3 runs all four regular slots once in order and verifies the complete 22-row proof', async () => {
+  const h = loadHarnessR3();
+  try {
+    for (const id of ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND']) {
+      await recovery.runLoadRecoverySlotR3(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps());
+    }
+    const evidence = h.read();
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 22);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 11);
+    assert.deepEqual(r3Verify(h, evidence, 'complete').errors, []);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('R3 refuses out-of-order slots, a reopened original retry, a counter reset, caps drift and a slot outside the frozen table', async () => {
+  for (const [mutate, pattern, slot] of [
+    [() => {}, /frozen order/i, 'CR3-MOBILE-SECOND'],
+    [(e) => { e.limits.retry_available = 1; }, /retry/i, R3_FIRST],
+    [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /reset/i, R3_FIRST],
+    [(e) => { e.limits.max_d19_ms += 1; }, /approval caps differ/i, R3_FIRST],
+    [() => {}, /only the/i, 'CR3-UNKNOWN']
+  ]) {
+    const h = loadHarnessR3();
+    try {
+      const evidence = h.read(); mutate(evidence);
+      fs.writeFileSync(h.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, slot, h.evidenceFile, h.checkout, h.makeDeps()), pattern);
+      assert.deepEqual(h.calls, [], String(pattern));
+    } finally { h.clean(); }
+  }
+});
+
+test('R3 preparation is a bounded 10000 ms toolchain probe routed by the R3 evidence only', async () => {
+  const h = loadHarnessR3();
+  try {
+    const run = async (override = {}) => recovery.prepareLoadRecoveryR3(h.freezeFile, h.evidenceFile, h.checkout, { validate: () => {}, readApproval: () => R3_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log, timeoutMs) => { h.timeouts.push([program, args[0], timeoutMs]); fs.writeFileSync(log, `${program} ${args[0]}\n`); return { exit_code: 0, duration_ms: 2, timed_out: false, ...override }; } });
+    const result = await run();
+    assert.equal(result.status, 'ready');
+    const evidence = h.read();
+    assert.equal(evidence.preparation.receipts.length, 2);
+    assert.ok(h.timeouts.every((entry) => entry[2] <= 10000 && entry[2] > 9000));
+    assert.equal(evidence.limits.preparation_charge_ms, evidence.preparation.duration_ms);
+    assert.equal(evidence.limits.charged_duration_ms, 2150682 + evidence.preparation.duration_ms);
+    await assert.rejects(run, /only available once/i);
+  } finally { h.clean(); }
+  const failing = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.prepareLoadRecoveryR3(failing.freezeFile, failing.evidenceFile, failing.checkout, { validate: () => {}, readApproval: () => R3_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log) => { fs.writeFileSync(log, 'x'); return { exit_code: 1, duration_ms: 1, timed_out: false }; } }), /failed/i);
+    assert.equal(failing.read().status, 'halted');
+  } finally { failing.clean(); }
+});
+
+test('the R3 run refuses any freeze or evidence outside the reviewed R3 paths', async () => {
+  const h = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, { ...h.makeDeps(), enforcePaths: true }), /reviewed R3 freeze/i);
+    assert.deepEqual(h.calls, []);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    for (const mode of [['--prepare-load-recovery', '--freeze', h.freezeFile, '--output', h.evidenceFile], ['--run-load-recovery', h.freezeFile, '--slot', R3_FIRST, '--output', h.evidenceFile]]) {
+      const result = spawnSync(process.execPath, [script, ...mode], { encoding: 'utf8', cwd: root });
+      assert.equal(result.status, 3, mode[0]);
+    }
+  } finally { h.clean(); }
+});
 
 test.after(() => {
   net.Socket.prototype.connect = originalConnect;
