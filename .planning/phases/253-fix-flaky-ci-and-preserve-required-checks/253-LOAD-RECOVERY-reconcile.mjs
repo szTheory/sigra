@@ -205,7 +205,32 @@ export function routeExecutePhase(index, verification, { gapsOnly = false, waveF
 // Accepted-only predicate: the implemented strict completion checker, run as a subprocess.
 // `verifier` may be injected ONLY by in-process fixture tests; the CLI never passes one.
 // ---------------------------------------------------------------------------------------------
-export function evaluateCompletion({ completionPath, verifier = null }) {
+export const DISPOSITION_GAP_R6 = "disposition:CIREL-01:not_reproduced (Jon-approved disposition; target neither reproduced nor fixed)";
+
+// v1-r5 gate on --require-accepted; r6 (plan 253-90) gates on --require-dispositioned, which passes only the
+// strict accepted route or Jon's approved not_reproduced disposition route.
+export function completionArgv(revision, completionPath) {
+  return [VERIFIER, "--mode", "completion", revision === "r6" ? "--require-dispositioned" : "--require-accepted", "--evidence", completionPath];
+}
+
+function acceptedShape(result, exit) {
+  return exit === 0 && result !== null && result.status === "accepted"
+    && Array.isArray(result.gaps) && result.gaps.length === 0
+    && result.phase_verification === "not_started"
+    && result.requirements && result.requirements["CIREL-01"] === "accepted" && result.requirements["CIREL-02"] === "accepted"
+    && Array.isArray(result.linked) && JSON.stringify([...result.linked].sort()) === JSON.stringify([...COMPLETION_LINK_KEYS].sort());
+}
+
+// R6 accepts exactly the disposition route: CIREL-02 accepted, CIREL-01 partial, the single disposition gap, and never "accepted".
+function dispositionedShape(result, exit) {
+  return exit === 0 && result !== null && result.status === "dispositioned" && result.dispositioned === true
+    && Array.isArray(result.gaps) && result.gaps.length === 1 && result.gaps[0] === DISPOSITION_GAP_R6
+    && result.phase_verification === "not_started"
+    && result.requirements && result.requirements["CIREL-01"] === "partial_not_reproduced" && result.requirements["CIREL-02"] === "accepted"
+    && Array.isArray(result.linked) && JSON.stringify([...result.linked].sort()) === JSON.stringify([...COMPLETION_LINK_KEYS].sort());
+}
+
+export function evaluateCompletion({ completionPath, verifier = null, revision = "v1" }) {
   let completionSha = null;
   try {
     completionSha = sha256(readFileSync(completionPath));
@@ -218,7 +243,7 @@ export function evaluateCompletion({ completionPath, verifier = null }) {
   if (verifier) {
     ({ exit, stdout, stderr } = verifier({ completionPath }));
   } else {
-    const run = spawnSync("python3", [VERIFIER, "--mode", "completion", "--require-accepted", "--evidence", completionPath],
+    const run = spawnSync("python3", completionArgv(revision, completionPath),
       { cwd: REPO_ROOT, encoding: "utf8", timeout: 600000, maxBuffer: 64 * 1024 * 1024 });
     exit = run.status;
     stdout = run.stdout || "";
@@ -230,11 +255,7 @@ export function evaluateCompletion({ completionPath, verifier = null }) {
   } catch {
     result = null;
   }
-  const accepted = exit === 0 && result !== null && result.status === "accepted"
-    && Array.isArray(result.gaps) && result.gaps.length === 0
-    && result.phase_verification === "not_started"
-    && result.requirements && result.requirements["CIREL-01"] === "accepted" && result.requirements["CIREL-02"] === "accepted"
-    && Array.isArray(result.linked) && JSON.stringify([...result.linked].sort()) === JSON.stringify([...COMPLETION_LINK_KEYS].sort());
+  const accepted = revision === "r6" ? dispositionedShape(result, exit) : acceptedShape(result, exit);
   return {
     accepted,
     verifier_kind: verifier ? "injected-fixture" : "real",
@@ -418,7 +439,7 @@ function buildContractV1({ repoRoot = REPO_ROOT } = {}) {
 // run. R2 is ADDITIVE: it keeps the v1 contract file, the v1 builder and the v1 default untouched, and
 // re-points every never-executed responsibility to the new proof owners 253-48..253-56.
 // ---------------------------------------------------------------------------------------------
-export const REVISIONS = Object.freeze(["v1", "r2", "r3", "r4", "r5"]);
+export const REVISIONS = Object.freeze(["v1", "r2", "r3", "r4", "r5", "r6"]);
 export const CONTRACT_NAME_R2 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R2.json";
 export const CONTRACT_SCHEMA_R2 = "sigra.phase253.load-recovery-reconciliation-contract/r2";
 export const COMPLETED_IDS_R2 = Object.freeze([...COMPLETED_IDS, "36", "37", "38", "39", "42", "43"].sort());
@@ -1050,18 +1071,161 @@ function buildContractR5({ repoRoot = REPO_ROOT } = {}) {
   };
 }
 
+// ---------------------------------------------------------------------------------------------
+// R6 revision (plan 253-90): 253-84 halted on its insufficient-proof branch (no source-bound historical
+// registration cause), so 253-85..88 can never run. Jon approved a not_reproduced target disposition
+// (253-89), so completion is gated by --require-dispositioned: CIREL-02 is accepted by the linked
+// evidence and CIREL-01 is recorded partial, never accepted. R6 is ADDITIVE over v1-R5 (all five files,
+// builders and the v1 default stay untouched) and re-points every never-executed responsibility to the R6
+// proof owners 253-89..253-94.
+// ---------------------------------------------------------------------------------------------
+export const CONTRACT_NAME_R6 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R6.json";
+export const CONTRACT_SCHEMA_R6 = "sigra.phase253.load-recovery-reconciliation-contract/r6";
+export const COMPLETED_IDS_R6 = Object.freeze([...COMPLETED_IDS_R5, "79", "80", "81", "82", "83"].sort());
+export const HALTED_IDS_R6 = Object.freeze([...HALTED_IDS_R5, "84"]);
+export const NEVER_RAN_IDS_R6 = Object.freeze(["85", "86", "87", "88"]);
+export const UNSTARTED_IDS_R6 = Object.freeze([...UNSTARTED_IDS_R5, ...NEVER_RAN_IDS_R6].sort());
+export const NEVER_RAN_REASON_R6 = "dependency 253-84 halted on its insufficient-proof branch: no source-bound historical registration cause";
+// R5 owner -> R6 owners: 84 (halted) becomes the disposition plan 89; 85/86/87 become 91/92/93; 88 (never run) becomes 90 and 94.
+const OWNER_REMAP_R6 = Object.freeze({ "84": ["89"], "85": ["91"], "86": ["92"], "87": ["93"], "88": ["90", "94"] });
+const remapOwners = (owners) => owners.flatMap((owner) => OWNER_REMAP_R6[owner] ?? [owner]);
+const RESPONSIBILITY_MAP_R6 = Object.freeze({
+  ...Object.fromEntries(Object.entries(RESPONSIBILITY_MAP_R5).map(([id, row]) => [id, { owners: remapOwners(row.owners), links: row.links }])),
+  "85": { owners: ["91"], links: ["publication"] },
+  "86": { owners: ["92"], links: ["canary"] },
+  "87": { owners: ["93"], links: PR_LINKS },
+  "88": { owners: ["90", "94"], links: [...COMPLETION_LINK_KEYS, "load_target_disposition"] },
+});
+const HALTED_PROOF_MAP_R6 = Object.freeze({
+  ...Object.fromEntries(Object.entries(HALTED_PROOF_MAP_R5).map(([id, owners]) => [id, remapOwners(owners)])),
+  "84": ["89", "90"],
+});
+// Plan 253-81's receipts name THIS helper and its test, which R6 (plan 253-90) must edit. They are held
+// at the bytes of the 253-81 Task 1 GREEN commit 4bb3f303a, per plan (253-61 and 253-71 hold the same
+// paths at different bytes).
+const FROZEN_TOOLING_RECEIPTS_R6_PLAN_81 = Object.freeze({
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "9f1ff7f7e1ca455d722a725a3608aa7907c7b36aa4745fe623a1ee807a4b8a83",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "dcae48ec9f39b87f8448363ccfaca01443fc3be33ff7d54939dad09d56030c6f",
+});
+
+function buildContractR6({ repoRoot = REPO_ROOT } = {}) {
+  const phaseDir = join(repoRoot, PHASE_DIR_REL);
+  const r5 = buildContractR5({ repoRoot });
+  const partition = [...COMPLETED_IDS_R6, ...HALTED_IDS_R6, ...UNSTARTED_IDS_R6].sort();
+  if (JSON.stringify(partition) !== JSON.stringify(ids(1, 88).map(PAD))) {
+    throw new Error("R6 completed, halted and unstarted ids do not partition the 88 pre-R6 plans");
+  }
+  const classOf = (id) => (COMPLETED_IDS_R6.includes(id) ? "completed" : HALTED_IDS_R6.includes(id) ? "halted" : "unstarted_blocked");
+  const originals = [...r5.originals];
+  for (let n = 79; n <= 88; n += 1) {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    originals.push({ plan: `253-${PAD(n)}`, class: classOf(PAD(n)), plan_path: `${PHASE_DIR_REL}/${file}`, plan_sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") });
+  }
+  for (const original of originals) original.class = classOf(original.plan.slice(4));
+  const byNumber = (a, b) => a.plan.localeCompare(b.plan);
+  const completed = [...r5.completed_plans];
+  for (const id of ["79", "80", "81", "82", "83"]) {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false, frozenReceipts: id === "81" ? FROZEN_TOOLING_RECEIPTS_R6_PLAN_81 : {} });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    completed.push(described);
+  }
+  completed.sort(byNumber);
+  const halted = [...r5.halted_plans];
+  const halted84 = describeSummary(repoRoot, phaseDir, "84", { requireReceipts: true });
+  if (halted84.summary.status !== "halted") throw new Error(`halted plan 253-84 summary status is ${halted84.summary.status}`);
+  halted.push(halted84);
+  const closeout = JSON.parse(readFileSync(join(phaseDir, "253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json"), "utf8"));
+  const responsibilities = UNSTARTED_IDS_R6.map((id) => {
+    const mapping = RESPONSIBILITY_MAP_R6[id];
+    if (!mapping) throw new Error(`no R6 mapping for 253-${id}`);
+    for (const owner of mapping.owners) {
+      if (!existsSync(join(phaseDir, `253-${owner}-PLAN.md`))) throw new Error(`proof owner plan 253-${owner} is missing`);
+      if (HALTED_IDS_R6.includes(owner) || UNSTARTED_IDS_R6.includes(owner)) throw new Error(`proof owner 253-${owner} is a halted or never-executed plan`);
+    }
+    const text = readFileSync(join(phaseDir, `253-${id}-PLAN.md`), "utf8");
+    const fm = frontmatter(text);
+    const neverRan40 = NEVER_RAN_IDS_R2.includes(id);
+    const neverRan51 = NEVER_RAN_IDS_R3.includes(id);
+    const neverRan63 = NEVER_RAN_IDS_R4.includes(id);
+    const neverRan73 = NEVER_RAN_IDS_R5.includes(id);
+    const neverRan84 = NEVER_RAN_IDS_R6.includes(id);
+    const blockedBy = neverRan84 ? ["253-84"] : neverRan73 ? ["253-73"] : neverRan63 ? ["253-63"] : neverRan51 ? ["253-51"] : neverRan40 ? ["253-40"] : closeout.blocked_plans[`253-${id}`];
+    if (!Array.isArray(blockedBy) || blockedBy.length === 0) throw new Error(`253-${id} has no recorded blocking halt`);
+    return {
+      plan: `253-${id}`,
+      disposition_path: `${PHASE_DIR_REL}/253-${id}-SUMMARY.md`,
+      original_plan_sha256: originals.find((o) => o.plan === `253-${id}`).plan_sha256,
+      objective: objectiveOf(text),
+      requirements: parseList(fm.requirements),
+      depends_on: parseList(fm.depends_on),
+      blocked_by: blockedBy,
+      owners: mapping.owners.map((owner) => `253-${owner}`),
+      required_links: [...mapping.links],
+      disposition: { ...DISPOSITION_FIELDS },
+      ...(neverRan40 ? { never_ran_reason: NEVER_RAN_REASON } : {}),
+      ...(neverRan51 ? { never_ran_reason: NEVER_RAN_REASON_R3 } : {}),
+      ...(neverRan63 ? { never_ran_reason: NEVER_RAN_REASON_R4 } : {}),
+      ...(neverRan73 ? { never_ran_reason: NEVER_RAN_REASON_R5 } : {}),
+      ...(neverRan84 ? { never_ran_reason: NEVER_RAN_REASON_R6 } : {}),
+      successor_revision: "R6",
+    };
+  });
+  const haltedProof = Object.fromEntries(HALTED_IDS_R6.map((id) => [`253-${id}`, HALTED_PROOF_MAP_R6[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+  }
+  const planPins = ids(1, 94).map((n) => {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    return { plan: `253-${PAD(n)}`, path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
+  });
+  const summaryPins = [...ids(36, 43), ...ids(48, 51), ...ids(57, 63), ...ids(69, 73), ...ids(79, 84), 89].filter((n) => existsSync(join(phaseDir, `253-${PAD(n)}-SUMMARY.md`))).map((n) => {
+    const file = `253-${PAD(n)}-SUMMARY.md`;
+    return { plan: `253-${PAD(n)}`, path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "summary") };
+  });
+  return {
+    schema: CONTRACT_SCHEMA_R6,
+    revision: "r6",
+    phase: PHASE,
+    phase_dir: PHASE_DIR_REL,
+    v1_contract: r5.v1_contract,
+    r2_contract: r5.r2_contract,
+    r3_contract: r5.r3_contract,
+    r4_contract: r5.r4_contract,
+    r5_contract: { path: `${PHASE_DIR_REL}/${CONTRACT_NAME_R5}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${CONTRACT_NAME_R5}`, "R5 contract") },
+    sdk: r5.sdk,
+    capture: r5.capture,
+    plan_pins: planPins,
+    summary_pins: summaryPins,
+    originals,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
+    responsibilities,
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned",
+      targets: "only the forty-two previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-94",
+      then_run: "$gsd-execute-phase 253 (unfiltered; security, review, Nyquist, regression and goal verification)",
+      never: ["filtered completion", "phase.complete before whole-phase verification", "editing an original plan", "editing a halted summary", "claiming an old task ran", "writing status: blocked", "reporting CIREL-01 as accepted"],
+    },
+  };
+}
+
 export function buildContract({ repoRoot = REPO_ROOT, revision = "v1" } = {}) {
   if (revision === "v1") return buildContractV1({ repoRoot });
   if (revision === "r2") return buildContractR2({ repoRoot });
   if (revision === "r3") return buildContractR3({ repoRoot });
   if (revision === "r4") return buildContractR4({ repoRoot });
   if (revision === "r5") return buildContractR5({ repoRoot });
+  if (revision === "r6") return buildContractR6({ repoRoot });
   throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
 }
 
 export function contractPathFor(revision = "v1") {
   if (!REVISIONS.includes(revision)) throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
-  return join(HERE, revision === "r5" ? CONTRACT_NAME_R5 : revision === "r4" ? CONTRACT_NAME_R4 : revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
+  return join(HERE, revision === "r6" ? CONTRACT_NAME_R6 : revision === "r5" ? CONTRACT_NAME_R5 : revision === "r4" ? CONTRACT_NAME_R4 : revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
 }
 
 export function serializeContract(contract) {
@@ -1082,13 +1246,14 @@ function relativeOrGiven(root, path) {
   return abs === base || abs.startsWith(`${base}/`) ? abs.slice(base.length + 1) : path;
 }
 
-export function renderDisposition({ responsibility, completion, links, verifier, contractSha256 }) {
+export function renderDisposition({ responsibility, completion, links, verifier, contractSha256, revision = "v1" }) {
+  const dispositioned = revision === "r6";
   const lines = [
     "---",
     "phase: 253-fix-flaky-ci-and-preserve-required-checks",
     `plan: "${responsibility.plan.slice(4)}"`,
     "subsystem: ci-reliability",
-    "tags: [historical-disposition, load-recovery, accepted-only]",
+    dispositioned ? "tags: [historical-disposition, load-recovery, dispositioned]" : "tags: [historical-disposition, load-recovery, accepted-only]",
     `status: ${DISPOSITION_FIELDS.status}`,
     `execution_performed: ${DISPOSITION_FIELDS.execution_performed}`,
     `original_status: ${DISPOSITION_FIELDS.original_status}`,
@@ -1096,7 +1261,7 @@ export function renderDisposition({ responsibility, completion, links, verifier,
     `superseded_by: [${responsibility.owners.map((o) => `"${o}"`).join(", ")}]`,
     `original_plan_sha256: ${responsibility.original_plan_sha256}`,
     `original_blocked_by: [${responsibility.blocked_by.map((o) => `"${o}"`).join(", ")}]`,
-    "accepted_by:",
+    dispositioned ? "dispositioned_by:" : "accepted_by:",
     `  contract_sha256: ${contractSha256}`,
     `  completion_path: ${completion.path}`,
     `  completion_sha256: ${completion.sha256}`,
@@ -1122,11 +1287,23 @@ export function renderDisposition({ responsibility, completion, links, verifier,
     "",
     "## Why it is now superseded",
     "",
-    `The work it described is covered by the newer proof owned by ${responsibility.owners.join(", ")}. Strict accepted-only`,
-    "completion re-opened every linked proof listed in `accepted_by` and accepted it. `execution_performed: false`",
-    "is the honest statement: this file makes no claim that the old tasks ran, and `requirements-completed` is empty",
-    "on purpose. CIREL-01 and CIREL-02 are accepted by the linked completion evidence, not by this plan.",
-    "",
+    ...(dispositioned
+      ? [
+        `The work it described is covered by the newer proof owned by ${responsibility.owners.join(", ")}. Dispositioned`,
+        "completion re-opened every linked proof listed in `dispositioned_by`. `execution_performed: false` is the honest",
+        "statement: this file makes no claim that the old tasks ran, and `requirements-completed` is empty on purpose.",
+        "CIREL-02 is accepted by the linked completion evidence.",
+        "CIREL-01 is recorded partial under Jon's not_reproduced disposition (the selected flake was neither reproduced nor",
+        "fixed); it is not accepted, by this plan or by that evidence.",
+        "",
+      ]
+      : [
+        `The work it described is covered by the newer proof owned by ${responsibility.owners.join(", ")}. Strict accepted-only`,
+        "completion re-opened every linked proof listed in `accepted_by` and accepted it. `execution_performed: false`",
+        "is the honest statement: this file makes no claim that the old tasks ran, and `requirements-completed` is empty",
+        "on purpose. CIREL-01 and CIREL-02 are accepted by the linked completion evidence, not by this plan.",
+        "",
+      ]),
     ...(responsibility.never_ran_reason
       ? [`This plan never ran because its ${responsibility.never_ran_reason}. Its ${responsibility.successor_revision ?? "R2"} successor is ${responsibility.owners.join(", ")}.`, ""]
       : []),
@@ -1186,8 +1363,9 @@ function lstatOrNull(path) {
 }
 
 export function prepareDispositions({ root = REPO_ROOT, contract, contractSha256, completionPath, verifier = null }) {
-  const verdict = evaluateCompletion({ completionPath, verifier });
-  if (!verdict.accepted) throw new Error(`accepted-only completion not satisfied; no disposition bytes generated: ${verdict.detail}`);
+  const revision = contract.revision ?? "v1";
+  const verdict = evaluateCompletion({ completionPath, verifier, revision });
+  if (!verdict.accepted) throw new Error(`${revision === "r6" ? "dispositioned" : "accepted-only"} completion not satisfied; no disposition bytes generated: ${verdict.detail}`);
   const evidence = JSON.parse(readFileSync(completionPath, "utf8"));
   const base = verifier ? root : REPO_ROOT;
   const completion = { path: relativeOrGiven(root, completionPath), sha256: verdict.completion_sha256 };
@@ -1207,7 +1385,7 @@ export function prepareDispositions({ root = REPO_ROOT, contract, contractSha256
   }));
   preflight({ root, contract, requireOwnerSummaries: false });
   const entries = staged.map(({ responsibility, links }) => {
-    const content = renderDisposition({ responsibility, completion, links, verifier: verifierInfo, contractSha256 });
+    const content = renderDisposition({ responsibility, completion, links, verifier: verifierInfo, contractSha256, revision });
     return { plan: responsibility.plan, path: responsibility.disposition_path, sha256: sha256(content), bytes: Buffer.byteLength(content), content };
   });
   return { schema: BUNDLE_SCHEMA, phase: PHASE, contract_sha256: contractSha256, completion, verifier: verifierInfo, entries };
@@ -1391,8 +1569,8 @@ export function main(argv) {
     if (args.flags.has("--dry-run")) {
       const completion = need("--completion");
       const record = need("--record");
-      const verdict = evaluateCompletion({ completionPath: completion });
       const { contract } = loadContract(contractPath);
+      const verdict = evaluateCompletion({ completionPath: completion, revision: contract.revision ?? "v1" });
       let preflightError = null;
       if (verdict.accepted) {
         try {

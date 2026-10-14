@@ -1698,14 +1698,21 @@ describe("R6 dispositioned completion gating", () => {
 });
 
 describe("R6 pairing through the real installed SDK on a copy of the current plan set", () => {
-  test("253-90 is runnable now and 85-88 stay blocked by halted 253-84", () => {
+  test("85-88 stay blocked by halted 253-84; the installed SDK also inherits that block onto 89-94 through 253-89's depends_on", () => {
     const { root } = r6Fixture();
     const index = sdk(root, "phase-plan-index", "253");
     const by = Object.fromEntries(index.plans.map((p) => [p.id, p]));
-    assert.deepEqual(by["253-90"].blocked_by, []);
-    assert.equal(by["253-90"].has_summary, false);
-    assert.equal(by["253-90"].ready, true);
-    assert.ok(index.runnable.includes("253-90"));
+    // Measured against the installed SDK 1.16.0: 253-89 depends on halted 253-84, and blocked_by propagates through it
+    // (even though 89 has its own SUMMARY), so 90-94 report blocked_by [253-84] and are never `runnable`. They must be
+    // dispatched explicitly; once summarized they stop being incomplete (see the post-disposition test).
+    for (const id of R6_PLAN_IDS.slice(1).map((n) => `253-${n}`)) {
+      assert.deepEqual(by[id].blocked_by, ["253-84"], `${id} inherits the 253-84 block`);
+      assert.equal(by[id].has_summary, false, id);
+      assert.equal(by[id].ready, false, id);
+    }
+    assert.deepEqual(by["253-89"].blocked_by, ["253-84"]);
+    assert.equal(by["253-89"].has_summary, true);
+    assert.deepEqual(index.runnable, []);
     for (const id of R6_NEW_UNSTARTED.map((n) => `253-${n}`)) {
       assert.deepEqual(by[id].blocked_by, ["253-84"], `${id} blocked_by`);
       assert.equal(by[id].has_summary, false);
@@ -1715,7 +1722,7 @@ describe("R6 pairing through the real installed SDK on a copy of the current pla
     const contract = reconcile.buildContract({ revision: "r6" });
     const report = reconcile.checkIndex({ root, contract });
     assert.equal(report.ok, false);
-    assert.equal(report.route.outcome, "dispatch_plans");
+    assert.equal(report.route.outcome, "phase_stuck");
     assert.deepEqual(report.old_unsummarized.map((id) => id.slice(4)), R6_UNSTARTED);
   });
 
