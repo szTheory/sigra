@@ -103,14 +103,14 @@ function enrichFindingsForBundle(surface: string, findings: ProbeFinding[]): Pro
   });
 }
 
-function writeBundleLocal(opts: WriteBundleOpts): string {
+async function writeBundleLocal(opts: WriteBundleOpts): Promise<string> {
   const appGitSha = (opts.appGitSha ?? resolveHeadSha()).trim();
   const cell = `${opts.theme}-${opts.viewport}-${opts.state}`;
   const bundleDir = join(PW_ROOT, 'eval', appGitSha, opts.surface, cell);
 
   mkdirSync(bundleDir, { recursive: true });
 
-  const renderSha = renderSha256(opts.outerHTML);
+  const renderSha = await renderSha256(opts.outerHTML);
 
   // Enrich findings to D-22 shape before writing (W1, 216-08).
   const enrichedFindings = enrichFindingsForBundle(opts.surface, opts.findings);
@@ -588,7 +588,7 @@ async function captureSurface(
 
   // Write bundle (using CJS-compatible path resolution — Rule 3 deviation)
   // enrichFindingsForBundle is called inside writeBundleLocal (W1, 216-08).
-  writeBundleLocal({
+  await writeBundleLocal({
     surface,
     theme,
     viewport,
