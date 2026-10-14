@@ -100,6 +100,7 @@ function parseArgs(argv) {
   if (argv[0] === '--preflight-host-sleep' && argv.length === 1) return { mode: 'preflight-host-sleep' };
   if (argv[0] === '--run-load-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv[6] === '--diagnostic' && argv[7] && argv.length === 8) return { mode: 'run-load-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]), diagnostic: path.resolve(argv[7]) };
   if (argv[0] === '--create-load-recovery-r2' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r2', output: path.resolve(argv[2]) };
+  if (argv[0] === '--create-load-recovery-r3' && argv[1] === '--output' && argv[2] && argv.length === 3) return { mode: 'create-load-recovery-r3', output: path.resolve(argv[2]) };
   if (argv[0] === '--init-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'init-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--prepare-load-recovery' && argv[1] === '--freeze' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'prepare-load-recovery', freeze: path.resolve(argv[2]), output: path.resolve(argv[4]) };
   if (argv[0] === '--run-load-recovery' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv.length === 6) return { mode: 'run-load-recovery', freeze: path.resolve(argv[1]), slot: argv[3], output: path.resolve(argv[5]) };
@@ -4570,6 +4571,438 @@ function verifyLoadRecoveryFileR2(evidenceFile, stage, root = ROOT) {
   } catch (error) { console.error(`R2 native load recovery evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
 }
 
+// ---- Phase 253 plan 60: R3 load-recovery revision (additive; every v1 and R2 line above is untouched) ----
+// 253-51 halted terminally and honestly on a provably awake host: 0 of 16 rows accepted because the 105000 ms work
+// deadline also covered `mix ecto.setup` (24793 ms) and app boot, and two positive/collision controls failed for product
+// reasons. R3 carries that charge, takes setup out of the browser work deadline (bounded and charged separately), sizes the
+// windows from measured durations and requires per-test diagnostics on every attempt that launched the CLI.
+const LOAD_R3_FREEZE_SCHEMA = 'sigra.phase253.registration-load-recovery-freeze/v3';
+const LOAD_R3_SCHEMA = 'sigra.phase253.registration-load-recovery-evidence/v3';
+const LOAD_R3_APPROVAL_SCHEMA = 'sigra.phase253.load-recovery-budget-approval/v2';
+const LOAD_R3_FREEZE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json`;
+const LOAD_R3_EVIDENCE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json`;
+const LOAD_R3_BUDGET_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-BUDGETS-R3.md`;
+const LOAD_R3_APPROVAL_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json`;
+// The root cause of the 253-51 halt, bound by sha256 at whichever committed path currently holds it.
+const LOAD_R3_DEBUG_PATHS = ['.planning/debug/253-r2-native-controls-all-fail.md', '.planning/debug/resolved/253-r2-native-controls-all-fail.md'];
+const LOAD_R3_LINEAGE = {
+  evidence: { file: LOAD_R2_EVIDENCE_PATH, sha256: 'be47d624e0587459671ce5bc5c25739d39dba5e5cfddea3dab2a04c6fd0b4035' },
+  freeze: { file: LOAD_R2_FREEZE_PATH, sha256: 'b26d5a0cbfca38cbdc3fbf4931ce2fd0ba0cfc35df295e4fe820a259eaab43b1' },
+  approval: { file: LOAD_R2_APPROVAL_PATH, sha256: 'd5c85aaae1faad8e28607cba08aac48f05a072c97947d943a74f176b9d1763b8' },
+  budget: { file: LOAD_R2_BUDGET_PATH, sha256: '9bb278db0f990c6bf251118bf8ccb60764ed74e9b99742dbec2be65b7d186461' }
+};
+const LOAD_R3_SPENT = [...LOAD_R2_SPENT, LOAD_R2_FIRST_ID];
+const LOAD_R3_CHARGES = [...LOAD_R2_CHARGES, 743, 107_343];
+const LOAD_R3_EXPIRED = [LOAD_R2_RETRY_ID];
+const LOAD_R3_RETIRED = ['CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND'];
+const LOAD_R3_IDS = ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND'];
+const LOAD_R3_MAPS_FROM = [LOAD_R2_FIRST_ID, ...LOAD_R3_RETIRED];
+const LOAD_R3_RETRY_ID = 'CR3-INFRA-RETRY';
+const LOAD_R3_SETUP_MS = 60_000;
+const LOAD_R3_CLEANUP_MS = 15_000;
+const LOAD_R3_FIRST_WORK_MS = 165_000;
+const LOAD_R3_SECOND_WORK_MS = 60_000;
+const LOAD_R3_PREPARATION_MS = 10_000;
+const LOAD_R3_HEADROOM_MS = 15_000;
+// Product, diagnostics and audit sources that R3 pins in addition to the R2 source list.
+export const LOAD_R3_EXTRA_SOURCES = [
+  'lib/sigra/auth.ex',
+  'test/example/lib/example/accounts.ex',
+  'test/example/lib/example/accounts/user.ex',
+  'test/example/lib/example_web/live/registration_live.ex',
+  'priv/templates/sigra.install/core/registration_live.ex',
+  'test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex',
+  'test/example/priv/playwright/lib/reporters/failure-jsonl.mjs',
+  'scripts/ci/ci-registration-control-audit.test.mjs'
+];
+// Equal to the rows of 253-LOAD-RECOVERY-BUDGETS-R3.md; the ledger builder recomputes them and refuses drift.
+const LOAD_R3_CAP_TABLE = {
+  approve: { new_allowance_ms: 910000, d19_cap_ms: 3060682, d19_launch_max: 12, shared_cap_ms: 5400682, physical_cli_max: 21 },
+  'approve-without-retry': { new_allowance_ms: 670000, d19_cap_ms: 2820682, d19_launch_max: 11, shared_cap_ms: 5160682, physical_cli_max: 20 }
+};
+
+export function loadRecoverySlotDefinitionsR3() {
+  const timing = (workMs) => ({
+    setup_ms: LOAD_R3_SETUP_MS, work_ms: workMs, cleanup_ms: LOAD_R3_CLEANUP_MS, command_ms: workMs + LOAD_R3_CLEANUP_MS,
+    max_duration_ms: LOAD_R3_SETUP_MS + workMs + LOAD_R3_CLEANUP_MS
+  });
+  const regular = loadRecoverySlotDefinitions().map((slot, index) => ({
+    ...slot, id: LOAD_R3_IDS[index], maps_from: LOAD_R3_MAPS_FROM[index], ...timing(index === 0 ? LOAD_R3_FIRST_WORK_MS : LOAD_R3_SECOND_WORK_MS)
+  }));
+  return [...regular, {
+    id: LOAD_R3_RETRY_ID, sequence: 5, maps_from: LOAD_R3_RETRY_ID, retry: true, retry_of: 'resolved_from_halted_slot', selection: null,
+    ...timing(LOAD_R3_FIRST_WORK_MS), launch_unit: 'playwright_cli_process', config: LOAD_RECOVERY_CONFIG, rows: 0
+  }];
+}
+
+// The retry re-runs the halted slot's exact frozen selection and window sizes once under the retry identity.
+function loadR3EffectiveRetrySlot(slots, haltedId) {
+  const halted = slots.slice(0, 4).find((slot) => slot.id === haltedId);
+  if (!halted) throw new Error(`infrastructure retry has no frozen slot to re-run: ${haltedId}`);
+  return { ...halted, id: LOAD_R3_RETRY_ID, maps_from: haltedId, retry: true, retry_of: haltedId };
+}
+
+function loadR3Caps(withRetry) {
+  const slots = loadRecoverySlotDefinitionsR3();
+  const regular = slots.slice(0, 4).reduce((sum, slot) => sum + slot.max_duration_ms, 0);
+  const newAllowance = LOAD_R3_PREPARATION_MS + regular + (withRetry ? slots[4].max_duration_ms : 0) + LOAD_R3_HEADROOM_MS;
+  const d19 = 2_150_682 + newAllowance;
+  const d19Launches = 7 + 4 + (withRetry ? 1 : 0);
+  return { new_allowance_ms: newAllowance, d19_cap_ms: d19, d19_launch_max: d19Launches, shared_cap_ms: d19 + 9 * 240_000 + 3 * 60_000, physical_cli_max: d19Launches + 9 };
+}
+
+export function buildLoadRecoveryLedgerR3(input) {
+  const errors = [];
+  if (!Array.isArray(input?.charges) || JSON.stringify(input.charges) !== JSON.stringify(LOAD_R3_CHARGES)) errors.push('carried historical charges do not match the exact twelve carried components');
+  if (input?.physicalPlaywrightLaunches !== 7) errors.push('carried Playwright CLI launch count must be exactly seven');
+  if (JSON.stringify(input?.spentReservations) !== JSON.stringify(LOAD_R3_SPENT)) errors.push('spent reservation inventory must be the eight closed identities');
+  if (input?.retryUsed !== 1 || input?.retryAvailable !== 0) errors.push('original retry must remain used 1, available 0');
+  if (input?.preparationUsedMs !== 5141) errors.push('carried preparation used must be exactly 3743 + 655 + 743 = 5141 ms');
+  if (errors.length) throw new Error(errors.join('; '));
+  const priorCharge = input.charges.reduce((sum, value) => sum + value, 0);
+  const slots = loadRecoverySlotDefinitionsR3();
+  const caps = { approve: loadR3Caps(true), 'approve-without-retry': loadR3Caps(false) };
+  if (priorCharge !== 2_150_682 || JSON.stringify(caps) !== JSON.stringify(LOAD_R3_CAP_TABLE)
+    || slots.slice(0, 4).reduce((sum, slot) => sum + slot.rows, 0) !== 22 || slots[0].rows !== 16 || slots.slice(1, 4).some((slot) => slot.rows !== 2)) {
+    throw new Error('R3 load recovery arithmetic, caps or row packing differs from the reviewed finite allocation');
+  }
+  return {
+    prior_charge_ms: priorCharge, prior_playwright_cli_launches: 7, spent_reservations: [...LOAD_R3_SPENT],
+    expired_identities: [...LOAD_R3_EXPIRED], retired_identities: [...LOAD_R3_RETIRED],
+    retry_used: 1, retry_available: 0, preparation_used_ms: 5141, preparation_reserve_ms: LOAD_R3_PREPARATION_MS, slots,
+    launch_unit: 'playwright_cli_process', engine_worker_lifecycle_accounting: 'separate_from_playwright_cli_launches',
+    setup_ms: LOAD_R3_SETUP_MS, setup_charged_separately: true, cleanup_reserve_per_command_ms: LOAD_R3_CLEANUP_MS, headroom_ms: LOAD_R3_HEADROOM_MS,
+    conditional_acceptance_slots: 9, conditional_acceptance_ms: 2_160_000, optional_seed_checks_ms: 180_000,
+    caps, required_rows: 22
+  };
+}
+
+function readLoadHistoryR3(root, deps = {}) {
+  const d = { olderHistory: readLoadHistoryR2, lineage: LOAD_R3_LINEAGE, skipPreservedRevisions: false, ...deps };
+  const older = d.olderHistory(root);
+  for (const [name, record] of Object.entries(d.lineage)) {
+    if (fileHash(path.join(root, record.file)) !== record.sha256) throw new Error(`R2 ${name} bytes changed: ${record.file}`);
+  }
+  const evidenceFile = path.join(root, d.lineage.evidence.file);
+  const evidence = readJson(evidenceFile);
+  const attempt = evidence.attempts?.[0];
+  const limits = evidence.limits ?? {};
+  if (evidence.status !== 'halted' || evidence.attempts?.length !== 1 || attempt?.slot_id !== LOAD_R2_FIRST_ID || attempt.charged_duration_ms !== 107_343
+    || attempt.observed_outcome === 'halted_infrastructure' || evidence.infrastructure_retry?.eligible
+    || evidence.preparation?.duration_ms !== 743 || limits.preparation_charge_ms !== 743 || limits.charged_duration_ms !== 2_150_682 || limits.prior_charge_ms !== 2_042_596
+    || limits.physical_playwright_cli_launches !== 7 || JSON.stringify(limits.used_slots) !== JSON.stringify(LOAD_R3_SPENT)
+    || limits.retry_used !== 1 || limits.retry_available !== 0 || limits.infra_retry?.used !== 0) {
+    throw new Error('halted R2 receipt differs from the 2150682 ms, seven-launch, eight-spent, non-infrastructure ledger');
+  }
+  const rawBase = `${evidenceFile}.raw`;
+  const rawFiles = [];
+  const references = [...Object.entries(attempt.files ?? {}), ...(evidence.preparation.receipts ?? []).map((receipt) => [receipt.name, receipt.log])];
+  for (const [name, reference] of references) {
+    for (const item of Array.isArray(reference) ? reference : [reference]) {
+      const file = confinedFile(rawBase, item);
+      if (!file || fileHash(file) !== item.sha256) throw new Error(`halted R2 raw receipt readback differs: ${name}`);
+      rawFiles.push(`${d.lineage.evidence.file}.raw/${item.path}`);
+    }
+  }
+  if (!d.skipPreservedRevisions) {
+    for (const revision of evidence.preserved_revisions ?? []) {
+      if (sha256(readGitBlob(root, revision.ref)) !== revision.sha256) throw new Error(`halted R2 preserved revision readback differs: ${revision.ref}`);
+    }
+  }
+  const rootCauseFile = LOAD_R3_DEBUG_PATHS.find((candidate) => fileHash(path.join(root, candidate)));
+  if (!rootCauseFile) throw new Error('the R2 native-controls root-cause record is missing');
+  let committed = null;
+  try { committed = readGitBlob(root, `HEAD:${rootCauseFile}`); } catch { committed = null; }
+  if (!committed || !committed.equals(fs.readFileSync(path.join(root, rootCauseFile)))) throw new Error(`the root-cause record is not committed in HEAD or differs from its committed bytes: ${rootCauseFile}`);
+  const charges = [...older.charges, evidence.preparation.duration_ms, attempt.charged_duration_ms];
+  const ledger = buildLoadRecoveryLedgerR3({
+    charges, physicalPlaywrightLaunches: limits.physical_playwright_cli_launches, spentReservations: limits.used_slots,
+    retryUsed: limits.retry_used, retryAvailable: limits.retry_available, preparationUsedMs: 4398 + evidence.preparation.duration_ms
+  });
+  const terminalHalt = {
+    slot_id: attempt.slot_id, plan: '253-51', cause: 'work_deadline_exhausted_with_setup_inside', terminal: true, infrastructure: false, retryable: false, charged: true,
+    charged_ms: attempt.charged_duration_ms, preparation_ms: evidence.preparation.duration_ms,
+    root_cause: { file: rootCauseFile, sha256: fileHash(path.join(root, rootCauseFile)) },
+    expired_identities: [...LOAD_R3_EXPIRED], retired_identities: [...LOAD_R3_RETIRED]
+  };
+  const lineageFiles = [...Object.values(d.lineage).map((record) => record.file), rootCauseFile, ...rawFiles];
+  const own = lineageFiles.map((file) => ({ path: file, sha256: fileHash(path.join(root, file)) }));
+  if (own.some((item) => !item.sha256)) throw new Error('an R3 lineage record is missing an exact byte identity');
+  const artifacts = [...older.artifacts.filter((item) => !lineageFiles.includes(item.path)), ...own];
+  return { control: older.control, ledger, charges, terminalHalt, artifacts, lineage: d.lineage, frozenBlobs: { ...older.frozenBlobs } };
+}
+export { readLoadHistoryR3 };
+
+export function loadR3SourceFileList(root) {
+  return [...new Set([...loadSourceFileList(root), ...LOAD_R3_EXTRA_SOURCES])];
+}
+
+export function verifyFrozenSourceBindingR3(root, freeze, { terminal = false } = {}) {
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const frozen = freeze?.source?.checkout_head;
+  if (!frozen || run('git', ['-C', root, 'merge-base', '--is-ancestor', frozen, head]).status !== 0) throw new Error('frozen R3 source commit is not an ancestor of this checkout');
+  for (const [file, expected] of Object.entries(freeze.source.blobs ?? {})) {
+    if (terminal) {
+      // Accepted evidence stays verifiable after later committed runner changes: bind by git objects, not the working tree.
+      const blob = run('git', ['-C', root, 'rev-parse', `${frozen}:${file}`]);
+      if (blob.status !== 0 || blob.stdout.trim() !== expected || run('git', ['-C', root, 'cat-file', '-t', expected]).stdout.trim() !== 'blob') throw new Error(`frozen R3 source blob mismatch at the frozen commit for ${file}`);
+    } else if (git(['-C', root, 'hash-object', file]) !== expected) throw new Error(`frozen R3 source identity mismatch for ${file}`);
+  }
+  return head;
+}
+
+function verifyFrozenHistoryBindingR3(root, freeze, { terminal = false } = {}) {
+  const frozen = freeze.source.checkout_head;
+  for (const artifact of freeze.historical?.artifacts ?? []) {
+    const actual = terminal ? sha256(readFrozenBytesR2(root, frozen, artifact.path)) : fileHash(path.join(root, artifact.path));
+    if (actual !== artifact.sha256) throw new Error(`preserved R3 history changed: ${artifact.path}`);
+  }
+  const budget = terminal ? sha256(readFrozenBytesR2(root, frozen, LOAD_R3_BUDGET_PATH)) : fileHash(path.join(root, LOAD_R3_BUDGET_PATH));
+  if (freeze.budget?.file !== LOAD_R3_BUDGET_PATH || !budget || freeze.budget.sha256 !== budget) throw new Error('the R3 budget document differs from the frozen binding');
+}
+
+function canonicalLedgerR3(freeze) {
+  return buildLoadRecoveryLedgerR3({
+    charges: freeze.historical?.carried_components_ms, physicalPlaywrightLaunches: freeze.historical?.physical_playwright_cli_launches,
+    spentReservations: freeze.historical?.spent_reservations, retryUsed: freeze.historical?.spent_retry?.used,
+    retryAvailable: freeze.historical?.spent_retry?.available, preparationUsedMs: 5141
+  });
+}
+
+// Seams are injectable so the freeze flow runs offline in a temporary committed checkout.
+function loadR3FreezeDeps(deps = {}) {
+  return {
+    enforceNode: true, assertCheckout: assertRevisionCheckout, assertConfig: assertDirtyConfigPreserved, readHistory: readLoadHistoryR3, sourceFiles: loadR3SourceFileList,
+    requiredSources: () => [...SOURCE_FILES, ...LOAD_EXTRA_SOURCES, ...LOAD_R3_EXTRA_SOURCES], importClosure: discoverLoadImportClosure, runtimeIdentity: loadRuntimeIdentity, ...deps
+  };
+}
+
+export function createLoadRecoveryFreezeR3(outputFile, root = ROOT, deps = {}) {
+  const d = loadR3FreezeDeps(deps);
+  if (fs.existsSync(outputFile)) throw new Error('refusing to overwrite the additive R3 load recovery freeze');
+  if (d.enforceNode && process.version !== LOAD_NODE) throw new Error(`load recovery must be frozen under Node ${LOAD_NODE}`);
+  d.assertCheckout(root);
+  const head = git(['-C', root, 'rev-parse', 'HEAD']);
+  const history = d.readHistory(root);
+  for (const artifact of history.artifacts) {
+    if (sha256(readFrozenBytesR2(root, head, artifact.path)) !== artifact.sha256) throw new Error(`R3 lineage record is not committed at HEAD: ${artifact.path}`);
+  }
+  const budgetHash = fileHash(path.join(root, LOAD_R3_BUDGET_PATH));
+  if (!budgetHash || sha256(readFrozenBytesR2(root, head, LOAD_R3_BUDGET_PATH)) !== budgetHash) throw new Error('the R3 budget document is missing or not committed at HEAD');
+  const files = d.sourceFiles(root);
+  const blobs = Object.fromEntries(files.map((file) => [file, git(['-C', root, 'rev-parse', `${head}:${file}`])]));
+  const freeze = {
+    schema_version: LOAD_R3_FREEZE_SCHEMA, status: 'frozen_before_results', plan: '253-60', revision: 'r3', frozen_at: new Date().toISOString(),
+    source: { repository: 'szTheory/sigra', checkout_head: head, blobs },
+    runtime: d.runtimeIdentity(root),
+    historical: {
+      artifacts: history.artifacts, frozen_blob_sets: history.frozenBlobs, carried_charge_ms: history.ledger.prior_charge_ms,
+      carried_components_ms: history.charges, physical_playwright_cli_launches: 7, spent_reservations: [...LOAD_R3_SPENT],
+      expired_identities: [...LOAD_R3_EXPIRED], retired_identities: [...LOAD_R3_RETIRED],
+      spent_retry: { used: 1, available: 0 }, terminal_halt: history.terminalHalt, halted_lineage: structuredClone(history.lineage ?? LOAD_R3_LINEAGE)
+    },
+    budget: { file: LOAD_R3_BUDGET_PATH, sha256: budgetHash, grants_capacity: false },
+    ledger: history.ledger,
+    setup_accounting: {
+      setup_ms: LOAD_R3_SETUP_MS, separately_bounded: true, separately_charged: true, command_deadline_starts_after_setup: true,
+      setup_charge: 'max(monotonic, wall)', command_charge: 'max(monotonic, wall)', slot_charge: 'setup_charge + command_charge'
+    },
+    diagnostics: { per_test_jsonl_required_when_cli_launched: true, env: 'SIGRA_PLAYWRIGHT_FAILURE_JSONL', error_context_preserved: true },
+    selection: {
+      spec: 'tests/admin-eval.spec.ts', config: path.basename(LOAD_RECOVERY_CONFIG), original_title: CONTROL_BOARD_TITLE,
+      first_titles: FIRST_CONTROLS, second_titles: CONTROL_SECOND_ACTIVE, deliberate_expected_failure_markers: CONTROL_EXPECTED_FAILURE_MARKERS,
+      cli_grep_forbidden: true, workers: 1, fully_parallel: false, retries: 0, trace: 'retain-on-failure'
+    },
+    tools: {
+      node: process.version, expected_node: LOAD_NODE, playwright: '1.59.1', parse5: '8.0.1',
+      mix: history.control?.accepted?.toolchain?.mix, ecto_sql: history.control?.accepted?.toolchain?.ecto_sql, phoenix_live_view: history.control?.accepted?.toolchain?.phoenix_live_view
+    },
+    exclusions: ['no browser installation', 'no hidden --list or version CLI', 'no warmup', 'no duplicate full suite', 'no reuse of any of the eight spent identities', 'no reuse of the expired R2 infrastructure retry or the retired CR-*-SECOND identities', 'no native or hosted work without a committed Jon approval record bound to the R3 budget document and this freeze', 'no capacity granted by this freeze'],
+    stop_conditions: ['source or history digest mismatch', 'unexpected assertion or missing native report', 'database drop/build cleanup/report/trace sanitation failure', 'setup exceeds 60000 ms', 'command exceeds its frozen command_ms', 'host suspension detected', 'stalled owned process group remains alive', 'AC power, caffeinate holder or pmset assertion proof missing before predebit', 'a launched attempt lacks its per-test JSONL receipt']
+  };
+  freeze.freeze_sha256 = loadFreezeDigest(freeze);
+  writeJson(outputFile, freeze);
+  return freeze;
+}
+
+export function validateLoadRecoveryFreezeR3(root, freeze, { terminal = false, deps = {} } = {}) {
+  const d = loadR3FreezeDeps(deps);
+  d.assertConfig(root);
+  if (freeze?.schema_version !== LOAD_R3_FREEZE_SCHEMA || freeze.status !== 'frozen_before_results'
+    || freeze.freeze_sha256 !== loadFreezeDigest(freeze)) throw new Error('R3 native load recovery freeze is malformed or its digest is invalid');
+  const head = verifyFrozenSourceBindingR3(root, freeze, { terminal });
+  for (const required of d.requiredSources()) if (!freeze.source.blobs?.[required]) throw new Error(`freeze omits required source ${required}`);
+  if (!terminal) for (const file of d.importClosure(root)) if (!freeze.source.blobs?.[file]) throw new Error(`freeze omits actual imported runtime source ${file}`);
+  verifyFrozenHistoryBindingR3(root, freeze, { terminal });
+  if (JSON.stringify(freeze.ledger) !== JSON.stringify(canonicalLedgerR3(freeze))) throw new Error('frozen R3 ledger differs from the reviewed carried allocation');
+  for (const slot of freeze.ledger.slots.slice(0, 4)) if (slot.argv.some((arg) => /^(-g|--grep)(=|$)/.test(arg))) throw new Error('frozen argv carries a CLI grep that would override per-project selection');
+  if (!terminal) {
+    if (JSON.stringify(freeze.runtime) !== JSON.stringify(d.runtimeIdentity(root))) throw new Error('locked/installed runtime or pinned transform identity changed');
+    const history = d.readHistory(root);
+    if (JSON.stringify(history.ledger) !== JSON.stringify(freeze.ledger)) throw new Error('re-read R2 lineage differs from the frozen R3 ledger');
+    if (JSON.stringify(history.terminalHalt) !== JSON.stringify(freeze.historical.terminal_halt)) throw new Error('re-read 253-51 terminal halt record differs from the frozen record');
+  }
+  return head;
+}
+
+function checkLoadRecoveryFreezeFileR3(freezeFile, root = ROOT) {
+  try {
+    if (path.resolve(freezeFile) !== path.resolve(root, LOAD_R3_FREEZE_PATH)) throw new Error('freeze check accepts only the additive R3 path');
+    validateLoadRecoveryFreezeR3(root, readJson(freezeFile));
+    console.log('R3 native load recovery freeze verified: R2 lineage re-hashed, 2150682 ms/7 launches/8 spent carried, setup bounded outside the work deadline, 22 rows, no capacity granted');
+    return { ok: true, errors: [] };
+  } catch (error) {
+    console.error(`R3 native load recovery freeze rejected: ${error.message}`);
+    return { ok: false, errors: [error.message] };
+  }
+}
+
+export function initializeLoadRecoveryEvidenceR3(freezeFile, evidenceFile, root = ROOT, deps = {}) {
+  const d = { validate: validateLoadRecoveryFreezeR3, readApproval: () => { throw new Error('the R3 budget approval reader is not wired'); }, ...deps };
+  if (fs.existsSync(evidenceFile)) throw new Error('refusing to overwrite additive R3 native load recovery evidence');
+  const freeze = readJson(freezeFile);
+  d.validate(root, freeze);
+  const approval = d.readApproval(root, freezeFile, freeze);
+  const caps = LOAD_R3_CAP_TABLE[approval.decision];
+  const evidence = {
+    schema_version: LOAD_R3_SCHEMA, revision: 'r3', status: 'ready',
+    freeze_path: path.relative(root, freezeFile), freeze_sha256: fileHash(freezeFile),
+    source: structuredClone(freeze.source), historical: structuredClone(freeze.historical),
+    created_at: new Date().toISOString(), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+    prior_terminal_halts: [structuredClone(freeze.historical.terminal_halt)], infrastructure_halts: [], infrastructure_retry: null,
+    approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+    limits: {
+      prior_charge_ms: freeze.ledger.prior_charge_ms, preparation_charge_ms: 0, preparation_remaining_ms: freeze.ledger.preparation_reserve_ms,
+      charged_duration_ms: freeze.ledger.prior_charge_ms, physical_playwright_cli_launches: freeze.ledger.prior_playwright_cli_launches,
+      used_slots: [...freeze.ledger.spent_reservations], max_d19_ms: caps.d19_cap_ms, max_total_ms: caps.shared_cap_ms,
+      max_d19_physical_playwright_cli_launches: caps.d19_launch_max, max_physical_playwright_cli_launches: caps.physical_cli_max,
+      retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+    }
+  };
+  fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  writeJson(evidenceFile, evidence);
+  return evidence;
+}
+
+// An accepted R3 attempt: the Plan 39 predicates, judged against the effective slot (a retry carries the halted slot's selection
+// and window sizes). The v1 predicates compare the charge with max(execution, wall) of the whole window; R3 charges setup and
+// command separately (a sum that can only be larger), so they are judged on an adjusted copy and the real charge is checked here.
+export function verifyNativeLoadAttemptR3(attempt, freeze, baseDir) {
+  const errors = [];
+  if (!attempt || typeof attempt !== 'object') return { ok: false, errors: ['native load attempt is missing'] };
+  let effective = freeze;
+  if (attempt.slot_id === LOAD_R3_RETRY_ID) {
+    try {
+      const slot = loadR3EffectiveRetrySlot(freeze.ledger.slots, attempt.retry_of);
+      effective = { ...freeze, ledger: { ...freeze.ledger, slots: [...freeze.ledger.slots.slice(0, 4), slot] } };
+    } catch (error) { return { ok: false, errors: [error.message] }; }
+  }
+  const adjusted = { ...attempt, charged_duration_ms: Math.max(attempt.execution_duration_ms ?? 0, attempt.wall_duration_ms ?? 0) };
+  errors.push(...verifyNativeLoadAttempt(adjusted, effective, baseDir).errors);
+  attempt.collision_receipts = adjusted.collision_receipts; attempt.fresh_state_receipts = adjusted.fresh_state_receipts;
+  return { ok: errors.length === 0, errors };
+}
+
+export function verifyLoadRecoveryEvidenceDataR3(evidence, freeze, baseDir, stage = 'complete', freezeFileHash = freeze?.freeze_sha256) {
+  const errors = [];
+  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) return { ok: false, errors: ['R3 native load recovery evidence is missing or malformed'] };
+  if (freeze?.schema_version !== LOAD_R3_FREEZE_SCHEMA || freeze.freeze_sha256 !== loadFreezeDigest(freeze) || evidence.freeze_sha256 !== freezeFileHash) errors.push('evidence does not match the immutable R3 load recovery freeze');
+  if (evidence.schema_version !== LOAD_R3_SCHEMA || JSON.stringify(evidence.source) !== JSON.stringify(freeze?.source)) errors.push('evidence source identity differs from the frozen commit and blobs');
+  if (evidence.reservation || ['running', 'halted', 'halted_infrastructure'].includes(evidence.status)) errors.push('evidence contains an unresolved predebit reservation or a halted status');
+  const caps = Object.hasOwn(LOAD_R3_CAP_TABLE, evidence.approval?.decision ?? '') ? LOAD_R3_CAP_TABLE[evidence.approval.decision] : null;
+  if (!caps) errors.push('evidence carries no recognised budget approval decision');
+  const limits = evidence.limits ?? {};
+  if (limits.retry_used !== 1 || limits.retry_available !== 0) errors.push('the spent original retry was reopened or miscounted');
+  if (limits.prior_charge_ms !== 2_150_682) errors.push('carried historical charge changed');
+  if (caps && (limits.max_d19_ms !== caps.d19_cap_ms || limits.max_total_ms !== caps.shared_cap_ms || limits.max_physical_playwright_cli_launches !== caps.physical_cli_max
+    || limits.max_d19_physical_playwright_cli_launches !== caps.d19_launch_max)) errors.push('approved time or physical CLI launch ceiling changed');
+  if (JSON.stringify(evidence.prior_terminal_halts?.[0]) !== JSON.stringify(freeze?.historical?.terminal_halt)) errors.push('the 253-51 terminal non-infrastructure halt is not preserved in the ledger');
+  const attempts = Array.isArray(evidence.attempts) ? evidence.attempts : [];
+  // An infrastructure-halted original plus its accepted retry is one slot outcome; the original stays in attempts.
+  const outcomes = []; const haltedOriginals = [];
+  for (let index = 0; index < attempts.length; index += 1) {
+    const attempt = attempts[index];
+    if (attempt.observed_outcome !== 'halted_infrastructure') { outcomes.push(attempt); continue; }
+    haltedOriginals.push(attempt);
+    errors.push(...verifyInfrastructureHaltedAttemptR3(attempt, baseDir).map((message) => `${attempt.slot_id} (infrastructure halt): ${message}`));
+    const retry = attempts[index + 1];
+    if (!retry || retry.slot_id !== LOAD_R3_RETRY_ID || retry.retry_of !== attempt.slot_id) { errors.push(`infrastructure-halted ${attempt.slot_id} has no accepted ${LOAD_R3_RETRY_ID} outcome`); continue; }
+    if (JSON.stringify(retry.argv) !== JSON.stringify(attempt.argv) || JSON.stringify(retry.projects) !== JSON.stringify(attempt.projects)) errors.push('the retry did not carry the identical frozen selection');
+    outcomes.push(retry); index += 1;
+  }
+  const retryOutcomes = outcomes.filter((attempt) => attempt.slot_id === LOAD_R3_RETRY_ID);
+  if (retryOutcomes.length !== haltedOriginals.length || retryOutcomes.length > 1) errors.push('at most one infrastructure retry, paired with one infrastructure-halted original, is allowed');
+  if (retryOutcomes.length === 1) {
+    const record = evidence.infrastructure_retry;
+    if (evidence.approval?.retry_granted !== 1 || limits.infra_retry?.granted !== 1 || limits.infra_retry?.used !== 1) errors.push('the infrastructure retry was used without a granted, single-use approval');
+    if (record?.used !== true || record.halted_slot !== retryOutcomes[0].retry_of || !/^[0-9a-f]{64}$/.test(record.diagnostic?.sha256 ?? '') || typeof record.diagnostic?.file !== 'string') errors.push('the infrastructure retry lacks its committed diagnostic record');
+  } else if (limits.infra_retry?.used !== 0) errors.push('retry usage is recorded without a retry outcome');
+  const count = stage === 'first' ? 1 : stage === 'complete' ? 4 : -1;
+  if (count < 0 || outcomes.length !== count) errors.push(`stage ${stage} requires exactly ${count} accepted new native command outcomes`);
+  const slots = (freeze?.ledger?.slots ?? []).slice(0, Math.max(0, count));
+  if (outcomes.some((attempt, index) => (attempt.slot_id === LOAD_R3_RETRY_ID ? attempt.retry_of : attempt.slot_id) !== slots[index]?.id)) errors.push('new commands do not match the exact unused reservation order');
+  if (attempts.some((attempt) => LOAD_R3_SPENT.includes(attempt.slot_id) || LOAD_R3_EXPIRED.includes(attempt.slot_id) || LOAD_R3_RETIRED.includes(attempt.slot_id))) errors.push('a spent, expired or retired reservation was reopened');
+  const usedSlots = [...(freeze?.ledger?.spent_reservations ?? []), ...attempts.map((attempt) => attempt.slot_id)];
+  if (JSON.stringify(limits.used_slots) !== JSON.stringify(usedSlots)) errors.push('used reservation ledger differs from historical receipts and actual attempts');
+  const measured = (freeze?.ledger?.prior_charge_ms ?? 0) + attempts.reduce((sum, attempt) => sum + (Number(attempt.charged_duration_ms) || 0), 0) + (Number(limits.preparation_charge_ms) || 0);
+  if (limits.charged_duration_ms !== measured) errors.push('cumulative charge does not equal preserved history, preparation and measured command receipts');
+  if ((limits.preparation_charge_ms ?? 0) > LOAD_R3_PREPARATION_MS) errors.push('preparation exceeded its R3 reservation');
+  const launches = (freeze?.ledger?.prior_playwright_cli_launches ?? 0) + attempts.filter((attempt) => attempt.playwright_cli?.launched === true).length;
+  if (limits.physical_playwright_cli_launches !== launches || (caps && launches > caps.physical_cli_max)) errors.push('physical Playwright CLI launch count differs from native receipts or exceeds its approved ceiling');
+  if (caps && (measured > caps.d19_cap_ms || measured > caps.shared_cap_ms)) errors.push('approved D-19 or shared time limit was exceeded');
+  for (const attempt of outcomes) errors.push(...verifyNativeLoadAttemptR3(attempt, freeze, baseDir).errors.map((message) => `${attempt.slot_id}: ${message}`));
+  attempts.forEach((attempt, index) => {
+    if (attempts.slice(0, index).some((prior) => prior.database?.name === attempt.database?.name)) errors.push('two native slots reused the same physical database identity');
+  });
+  if (stage === 'first' && evidence.status !== 'first_complete') errors.push('first command status is not accepted');
+  if (stage === 'complete') {
+    if (evidence.status !== 'complete') errors.push('complete status is not accepted');
+    const total = outcomes.reduce((sum, attempt) => sum + (attempt.lifecycle?.rows ?? 0), 0);
+    if (total !== 22) errors.push(`native rows total ${total}, the complete proof requires 22`);
+    for (const attempt of outcomes.slice(1)) {
+      const prior = outcomes[0]?.collision_receipts?.[attempt.project];
+      if (!prior || prior !== attempt.fresh_state_receipts?.[attempt.project] || outcomes[0].database?.name === attempt.database?.name) errors.push(`${attempt.project}: fresh database does not prove the prior collision account absent before recreating it`);
+    }
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+// The halted original of an infrastructure retry is not accepted proof, but it stays honest, charged and counted.
+function verifyInfrastructureHaltedAttemptR3(attempt) {
+  const errors = [];
+  const hostFault = attempt.host?.suspension_detected === true || attempt.host?.holder_alive_at_end === false || (attempt.lifecycle?.rows === 0 && Boolean(attempt.setup?.error));
+  if (!hostFault) errors.push('infrastructure halt carries no host-sleep, lost-holder or host-failure evidence');
+  if (attempt.assertion_failure_observed === true) errors.push('an observed assertion failure is never an infrastructure halt');
+  if (!OWNED_CONTROL_DATABASE.test(attempt.database?.name ?? '')) errors.push('database identity is outside the synthetic control namespace');
+  return errors;
+}
+
+function verifyLoadRecoveryFileR3(evidenceFile, stage, root = ROOT) {
+  try {
+    if (path.resolve(evidenceFile) !== path.resolve(root, LOAD_R3_EVIDENCE_PATH)) throw new Error('verification accepts only the additive R3 native evidence path');
+    const evidence = readJson(evidenceFile);
+    const freezeFile = path.resolve(root, evidence.freeze_path ?? '');
+    if (freezeFile !== path.resolve(root, LOAD_R3_FREEZE_PATH)) throw new Error('native evidence does not point to the reviewed R3 freeze');
+    const freeze = readJson(freezeFile);
+    validateLoadRecoveryFreezeR3(root, freeze, { terminal: ['first_complete', 'complete'].includes(evidence.status) });
+    const result = verifyLoadRecoveryEvidenceDataR3(evidence, freeze, `${evidenceFile}.raw`, stage, fileHash(freezeFile));
+    if (!result.ok) console.error(`R3 native load recovery evidence rejected:\n- ${result.errors.join('\n- ')}`);
+    else console.log(`R3 native load recovery verified: ${evidence.attempts.length}/4 commands; ${evidence.limits.physical_playwright_cli_launches}/${evidence.limits.max_physical_playwright_cli_launches} CLI launches; ${evidence.limits.charged_duration_ms} ms cumulative; retry_available=0`);
+    return result;
+  } catch (error) { console.error(`R3 native load recovery evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
+}
+
+export async function runLoadRecoverySlotR3(freezeFile, slotId, evidenceFile, root = ROOT, deps = {}) {
+  const d = { enforcePaths: true, enforceNode: true, ...deps };
+  if (LOAD_R3_SPENT.includes(slotId)) throw new Error(`reservation ${slotId} is permanently spent and cannot be run or retried`);
+  if (LOAD_R3_EXPIRED.includes(slotId)) throw new Error(`reservation ${slotId} is expired and can never be charged or run`);
+  if (LOAD_R3_RETIRED.includes(slotId)) throw new Error(`reservation ${slotId} is retired unused and can never be run`);
+  if (d.enforcePaths && (path.resolve(freezeFile) !== path.resolve(root, LOAD_R3_FREEZE_PATH) || path.resolve(evidenceFile) !== path.resolve(root, LOAD_R3_EVIDENCE_PATH))) throw new Error('R3 load recovery accepts only the reviewed R3 freeze and additive R3 evidence paths');
+  const freeze = readJson(freezeFile);
+  if (slotId !== LOAD_R3_RETRY_ID && !(freeze.ledger?.slots?.slice(0, 4) ?? []).some((item) => item.id === slotId)) throw new Error('only the four frozen unused R3 load recovery slots and the one infrastructure retry may run');
+  throw new Error('R3 slot execution is added by 253-60 task 2');
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.mode === 'create-load-recovery') {
@@ -4584,6 +5017,12 @@ async function main() {
     console.log(`R2 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; seven spent; no capacity granted)`);
     return;
   }
+  if (args.mode === 'create-load-recovery-r3') {
+    if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R3_FREEZE_PATH)) throw new Error('R3 load recovery freeze output must use the reviewed phase artifact path');
+    const freeze = createLoadRecoveryFreezeR3(args.output);
+    console.log(`R3 load recovery freeze created before native results: ${path.relative(ROOT, args.output)} (${freeze.ledger.prior_charge_ms} ms carried; ${freeze.ledger.prior_playwright_cli_launches} launches; eight spent; no capacity granted)`);
+    return;
+  }
   if (args.mode === 'record-budget-approval') {
     const record = recordBudgetApproval({ decision: args.decision, budgetFile: args.budget, freezeFile: args.freeze, outputFile: args.output, decisionText: args.decisionText });
     console.log(`R2 budget approval recorded (${record.decision}; retry_granted=${record.retry_granted}; shared cap ${record.caps.shared_cap_ms} ms): ${path.relative(ROOT, args.output)}`);
@@ -4591,7 +5030,14 @@ async function main() {
   }
   if (args.mode === 'preflight-host-sleep') { console.log(await preflightHostSleep()); return; }
   const isR2Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R2_FREEZE_PATH);
+  const isR3Freeze = (file) => file && path.resolve(file) === path.resolve(ROOT, LOAD_R3_FREEZE_PATH);
   if (args.mode === 'init-load-recovery') {
+    if (isR3Freeze(args.freeze)) {
+      if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R3_EVIDENCE_PATH)) throw new Error('R3 load recovery evidence must use the reviewed R3 artifact path');
+      const evidence = initializeLoadRecoveryEvidenceR3(args.freeze, args.output);
+      console.log(`R3 native load recovery ledger initialized before setup: ${path.relative(ROOT, args.output)} (${evidence.limits.charged_duration_ms} ms carried; ${evidence.limits.used_slots.length} spent reservations; decision=${evidence.approval.decision})`);
+      return;
+    }
     if (isR2Freeze(args.freeze)) {
       if (path.resolve(args.output) !== path.resolve(ROOT, LOAD_R2_EVIDENCE_PATH)) throw new Error('R2 load recovery evidence must use the reviewed R2 artifact path');
       const evidence = initializeLoadRecoveryEvidenceR2(args.freeze, args.output);
@@ -4604,7 +5050,7 @@ async function main() {
     return;
   }
   if (args.mode === 'check-load-recovery-freeze') {
-    const ok = isR2Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR2(args.freeze).ok : checkLoadRecoveryFreezeFile(args.freeze).ok;
+    const ok = isR3Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR3(args.freeze).ok : isR2Freeze(args.freeze) ? checkLoadRecoveryFreezeFileR2(args.freeze).ok : checkLoadRecoveryFreezeFile(args.freeze).ok;
     if (!ok) process.exitCode = 3;
     return;
   }
@@ -4626,7 +5072,9 @@ async function main() {
   }
   if (args.mode === 'verify-load-recovery') {
     const r2 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R2_EVIDENCE_PATH);
-    if (!(r2 ? verifyLoadRecoveryFileR2(args.evidence, args.stage) : verifyLoadRecoveryFile(args.evidence, args.stage)).ok) process.exitCode = 3;
+    const r3 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R3_EVIDENCE_PATH);
+    const verify = r3 ? verifyLoadRecoveryFileR3 : r2 ? verifyLoadRecoveryFileR2 : verifyLoadRecoveryFile;
+    if (!verify(args.evidence, args.stage).ok) process.exitCode = 3;
     return;
   }
   if (args.mode === 'create-control-recovery') {

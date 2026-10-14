@@ -2272,7 +2272,7 @@ function r3LineageRepo() {
     approval: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json`, sha256: hashOf(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json`) },
     budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R2.md`, sha256: hashOf(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R2.md`) }
   };
-  const olderHistory = () => ({ artifacts: [{ path: 'older/record', sha256: 'a'.repeat(64) }], frozenBlobs: {}, control: { accepted: { toolchain: { mix: '1.19.5' } } } });
+  const olderHistory = () => ({ charges: [...R2_CHARGES], artifacts: [{ path: 'older/record', sha256: 'a'.repeat(64) }], frozenBlobs: {}, control: { accepted: { toolchain: { mix: '1.19.5' } } } });
   return { dir, evidenceRel, logRel, lineage, evidence, deps: { olderHistory, lineage, skipPreservedRevisions: true }, put, clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
 }
 
