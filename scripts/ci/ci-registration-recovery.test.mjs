@@ -3082,6 +3082,136 @@ test('R3 accepted evidence verifies by git ancestry and object reads after a lat
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
+// ---- Phase 253 plan 69 task 1: R4 dedup-aware per-row context identity (D-24) ----
+const MIRRORED_FIXTURE = path.join(root, 'scripts/ci/fixtures/r3-mirrored-context-annotations.json');
+const REUSE_MESSAGE = 'two selected rows reused the same browser-context identity';
+const mirroredRows = () => recovery.playReportTests(JSON.parse(fs.readFileSync(MIRRORED_FIXTURE, 'utf8')))
+  .map((item) => ({ title: item.title, project: item.project, label: `${item.project} / ${item.title}`, result: item }));
+const withContext = (row, ids, { mirror = true } = {}) => {
+  const note = ids.map((description) => ({ type: 'sigra-registration-control-context', description }));
+  const result = { ...row.result, annotations: [...note], result_annotations: mirror ? [...note] : [] };
+  return { ...row, result };
+};
+const CTX = (n) => `cr4-unit-${String(n).padStart(2, '0')}:${'0123456789abcdef0123456789abcdef0123'.slice(0, 35)}${n % 10}`;
+
+test('the committed R3 report excerpt is faithful: provenance sha256 matches the preserved report and the legacy flatten double-counts every id', () => {
+  const fixture = JSON.parse(fs.readFileSync(MIRRORED_FIXTURE, 'utf8'));
+  assert.equal(fixture.provenance.source_sha256, 'ef73675158c0e260eefff8d0d3b672cb63546dc7da74fc1d49c556f46a62f53c');
+  assert.match(fixture.provenance.label, /CR3-DESKTOP-MOBILE-FIRST/);
+  const rows = mirroredRows();
+  assert.equal(rows.length, 16);
+  const legacy = rows.flatMap((row) => [...row.result.annotations, ...row.result.result_annotations].filter((item) => item.type === 'sigra-registration-control-context'));
+  assert.equal(legacy.length, 36, 'legacy concatenation counts mirrored ids twice');
+  assert.ok(new Set(legacy.map((item) => item.description)).size < legacy.length, 'legacy flatten has duplicates');
+});
+
+test('R4 per-row union gives 18 distinct ids on the preserved R3 excerpt and reports no cross-row reuse', () => {
+  const rows = mirroredRows();
+  const counts = rows.map((row) => recovery.controlContextIdentitiesR4(row.result).length);
+  const collision = rows.filter((row) => row.title === 'registration detects a deliberate same-account collision');
+  assert.equal(collision.length, 3);
+  for (const row of collision) assert.equal(new Set(recovery.controlContextIdentitiesR4(row.result)).size, 2, `${row.label} carries two distinct contexts`);
+  assert.equal(counts.reduce((a, b) => a + b, 0), 18);
+  assert.equal(rows.filter((row) => row.title === 'render bundle: board-mg-9/populated').map((row) => recovery.controlContextIdentitiesR4(row.result).length)[0], 0);
+  assert.deepEqual(recovery.crossRowContextReuseR4(rows), []);
+});
+
+test('R4 cross-row check still rejects an id shared by two different rows, even when mirrored', () => {
+  const [a, b] = mirroredRows().filter((row) => row.title === 'registration stops when LiveView readiness is never released');
+  const shared = CTX(1);
+  const bad = [withContext(a, [shared]), withContext(b, [shared])];
+  assert.deepEqual(recovery.crossRowContextReuseR4(bad), [REUSE_MESSAGE]);
+  assert.deepEqual(recovery.crossRowContextReuseR4([withContext(a, [CTX(1)]), withContext(b, [CTX(2)])]), []);
+});
+
+test('R4 collision rows accept two distinct ids mirrored at both levels and reject a malformed id at either level via the id set', () => {
+  const row = mirroredRows().find((item) => item.title === 'registration detects a deliberate same-account collision');
+  const two = withContext(row, [CTX(3), CTX(4)]);
+  assert.equal(recovery.controlContextIdentitiesR4(two.result).length, 2);
+  const noMirror = withContext(row, [CTX(3), CTX(4)], { mirror: false });
+  assert.deepEqual(recovery.controlContextIdentitiesR4(noMirror.result), recovery.controlContextIdentitiesR4(two.result));
+  const onlyResultLevel = { ...two, result: { ...two.result, annotations: [] } };
+  assert.equal(recovery.controlContextIdentitiesR4(onlyResultLevel.result).length, 2);
+});
+
+// A synthetic R3 first slot whose Playwright report is rewritten to mirror test-level annotations into results[],
+// exactly as Playwright 1.59 does. The R3 synthetic report builder left results[].annotations empty, which is why the defect escaped.
+async function mirroredFirstSlotR3({ injectReuse = false } = {}) {
+  const h = loadHarnessR3();
+  await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+  const evidence = h.read();
+  const attempt = evidence.attempts[0];
+  const raw = `${h.evidenceFile}.raw`;
+  const reference = attempt.files.playwright_report;
+  const file = path.join(raw, reference.path);
+  const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const tests = [];
+  const visit = (suite) => { for (const spec of suite.specs ?? []) for (const t of spec.tests ?? []) tests.push(t); for (const child of suite.suites ?? []) visit(child); };
+  report.suites.forEach(visit);
+  for (const t of tests) for (const result of t.results) result.annotations = structuredClone(t.annotations);
+  if (injectReuse) {
+    const contextOf = (t) => t.annotations.find((item) => item.type === 'sigra-registration-control-context');
+    const withCtx = tests.filter(contextOf);
+    const shared = contextOf(withCtx[0]).description;
+    for (const t of [withCtx[0], withCtx[1]]) for (const list of [t.annotations, t.results[0].annotations]) list.find((item) => item.type === 'sigra-registration-control-context').description = shared;
+  }
+  fs.writeFileSync(file, JSON.stringify(report));
+  attempt.files.playwright_report = { ...reference, sha256: sha(fs.readFileSync(file)) };
+  return { h, attempt, raw };
+}
+
+test('a mirrored R3 first slot is rejected by the frozen R3 and legacy verifiers but accepted by per_row_union', async () => {
+  const { h, attempt, raw } = await mirroredFirstSlotR3();
+  try {
+    const r3 = recovery.verifyNativeLoadAttemptR3(structuredClone(attempt), h.freeze, raw);
+    assert.equal(r3.ok, false);
+    assert.ok(r3.errors.includes(REUSE_MESSAGE), r3.errors.join('; '));
+    const legacy = recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, raw);
+    assert.ok(legacy.errors.includes(REUSE_MESSAGE), legacy.errors.join('; '));
+    const r4 = recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, raw, { contextIdentity: 'per_row_union' });
+    assert.ok(!r4.errors.includes(REUSE_MESSAGE));
+    assert.deepEqual(r4.errors.filter((message) => /context/i.test(message)), []);
+    assert.equal(recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, raw, {}).errors.includes(REUSE_MESSAGE), true, 'an unrecognized option keeps the legacy path');
+  } finally { h.clean(); }
+});
+
+test('per_row_union still fails a genuine cross-row reuse injected into the mirrored first slot', async () => {
+  const { h, attempt, raw } = await mirroredFirstSlotR3({ injectReuse: true });
+  try {
+    const r4 = recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, raw, { contextIdentity: 'per_row_union' });
+    assert.equal(r4.ok, false);
+    assert.ok(r4.errors.includes(REUSE_MESSAGE), r4.errors.join('; '));
+  } finally { h.clean(); }
+});
+
+test('per_row_union keeps the per-row presence and format checks at either annotation level', async () => {
+  const { h, attempt, raw } = await mirroredFirstSlotR3();
+  try {
+    const file = path.join(raw, attempt.files.playwright_report.path);
+    const original = fs.readFileSync(file, 'utf8');
+    const rewrite = (mutate) => {
+      const report = JSON.parse(original);
+      const tests = [];
+      const visit = (suite) => { for (const spec of suite.specs ?? []) for (const t of spec.tests ?? []) tests.push(t); for (const child of suite.suites ?? []) visit(child); };
+      report.suites.forEach(visit); mutate(tests);
+      fs.writeFileSync(file, JSON.stringify(report));
+      return { ...attempt, files: { ...attempt.files, playwright_report: { ...attempt.files.playwright_report, sha256: sha(fs.readFileSync(file)) } } };
+    };
+    const hasCtx = (t) => t.annotations.some((item) => item.type === 'sigra-registration-control-context');
+    const malformed = rewrite((tests) => { for (const list of [tests.find(hasCtx).annotations, tests.find(hasCtx).results[0].annotations]) list.find((item) => item.type === 'sigra-registration-control-context').description = 'not-a-context-id'; });
+    assert.match(recovery.verifyNativeLoadAttempt(structuredClone(malformed), h.freeze, raw, { contextIdentity: 'per_row_union' }).errors.join('; '), /fresh browser-context identity/);
+    const missing = rewrite((tests) => { const t = tests.find(hasCtx); t.annotations = t.annotations.filter((item) => item.type !== 'sigra-registration-control-context'); t.results[0].annotations = t.results[0].annotations.filter((item) => item.type !== 'sigra-registration-control-context'); });
+    assert.match(recovery.verifyNativeLoadAttempt(structuredClone(missing), h.freeze, raw, { contextIdentity: 'per_row_union' }).errors.join('; '), /fresh browser-context identity/);
+  } finally { h.clean(); }
+});
+
+test('the older verifyNativeControlAttempt keeps its legacy flatten for mirrored annotations', () => {
+  const rows = mirroredRows();
+  const legacyIds = rows.flatMap((row) => [...row.result.annotations, ...row.result.result_annotations].filter((item) => item.type === 'sigra-registration-control-context').map((item) => item.description));
+  assert.notEqual(new Set(legacyIds).size, legacyIds.length);
+  assert.equal(typeof recovery.verifyNativeControlAttempt, 'function');
+});
+
 test.after(() => {
   net.Socket.prototype.connect = originalConnect;
   net.Server.prototype.listen = originalListen;
