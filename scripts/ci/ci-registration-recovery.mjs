@@ -110,9 +110,16 @@ function parseArgs(argv) {
   if (argv[0] === '--verify-load-acceptance' && argv[1]) {
     const rest = argv.slice(2);
     const requireTarget = rest.includes('--require-target-accepted');
+    const requireDisposition = rest.length === 1 && rest[0] === '--require-target-disposition';
+    if (requireDisposition) return { mode: 'verify-load-acceptance', evidence: path.resolve(argv[1]), stage: 'complete', requireTarget: false, requireDisposition: true };
     const staged = rest[0] === '--stage' && ['progress', 'complete'].includes(rest[1]) ? rest[1] : null;
     const tail = rest.filter((arg, index) => !(staged && index < 2) && arg !== '--require-target-accepted');
     if (tail.length === 0 && (staged || requireTarget)) return { mode: 'verify-load-acceptance', evidence: path.resolve(argv[1]), stage: staged ?? 'complete', requireTarget };
+  }
+  if (argv[0] === '--create-target-disposition' && argv[1] === '--evidence' && argv[2] && argv[3] === '--output' && argv[4] && argv.length === 5) return { mode: 'create-target-disposition', evidence: path.resolve(argv[2]), output: path.resolve(argv[4]) };
+  if (argv[0] === '--record-target-disposition-approval' && argv[1] === '--decision' && argv[2] && argv[3] === '--disposition' && argv[4] && argv[5] === '--output' && argv[6]
+    && (argv.length === 7 || (argv.length === 9 && argv[7] === '--decision-text' && argv[8]))) {
+    return { mode: 'record-target-disposition-approval', decision: argv[2], disposition: path.resolve(argv[4]), output: path.resolve(argv[6]), decisionText: argv.length === 9 ? argv[8] : '' };
   }
   if (argv[0] === '--check-load-recovery-freeze' && argv[1] && argv.length === 2) return { mode: 'check-load-recovery-freeze', freeze: path.resolve(argv[1]) };
   if (argv[0] === '--create-control-recovery' && argv[1] === '--output' && argv[2] && argv.length === 3) {
@@ -7059,6 +7066,157 @@ export function verifyLoadAcceptanceFile(evidenceFile, stage, requireTarget, roo
   } catch (error) { console.error(`load acceptance evidence rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
 }
 
+// ---- 253-89: honest, human-approved not_reproduced target disposition (D-04/D-24) ----
+const LOAD_DISPOSITION_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-TARGET-DISPOSITION.json`;
+const LOAD_DISPOSITION_APPROVAL_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json`;
+const LOAD_DISPOSITION_SCHEMA = 'sigra.phase253.load-target-disposition/v1';
+const LOAD_DISPOSITION_APPROVAL_SCHEMA = 'sigra.phase253.load-target-disposition-approval/v1';
+const LOAD_DISPOSITION_TARGET = 'admin-eval registration (D-03): admin-eval, admin-eval-mobile, admin-eval-dark';
+const LOAD_DISPOSITION_BASELINE_RUNS = ['38139851334', '38141796613', '38205503164'];
+// The five harness-only repair groups. Each explains only its own defect, never the historical cause.
+const LOAD_DISPOSITION_REPAIR_GROUPS = [
+  { group: 'node20-loader', classes: ['node20_loader_collection'] },
+  { group: '253-40-host-sleep', classes: ['host_sleep_runner'] },
+  { group: 'r3-control-library-deadline-diagnostics', classes: ['r3_control_design', 'r3_library_enumeration', 'r3_deadline_sizing', 'r3_diagnostics'] },
+  { group: 'r4-annotation-double-count', classes: ['r4_validator_double_count'] },
+  { group: 'r5-schema-qualified-count', classes: ['r5_account_count_query'] }
+];
+const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const gitCommitted = {
+  tracked: (root, rel) => run('git', ['-C', root, 'ls-files', '--error-unmatch', '--', rel]).status === 0,
+  inHead: (root, rel) => run('git', ['-C', root, 'cat-file', '-e', `HEAD:${rel}`]).status === 0,
+  headBytes: (root, rel) => readGitBlob(root, `HEAD:${rel}`)
+};
+
+function dispositionEvidenceErrors(evidence, root, verifyControls) {
+  const errors = [];
+  const base = verifyLoadAcceptanceData(evidence, { root, stage: 'progress', requireTarget: false, verifyControls });
+  errors.push(...base.errors);
+  if (evidence?.target_status !== 'open') errors.push('the disposition applies only to an open target');
+  if (evidence?.historical_cause?.status !== 'diagnosis_incomplete') errors.push('the disposition requires historical_cause diagnosis_incomplete');
+  if ((evidence?.acceptance?.attempts ?? []).length !== 0) errors.push('the disposition requires zero acceptance attempts');
+  return errors;
+}
+
+export function createTargetDisposition({ evidenceFile, outputFile }, root = ROOT, { enforcePaths = true, now = () => new Date().toISOString(), verifyControls = null } = {}) {
+  if (enforcePaths && (path.resolve(evidenceFile) !== path.resolve(root, LOAD_ACCEPT_EVIDENCE_PATH) || path.resolve(outputFile) !== path.resolve(root, LOAD_DISPOSITION_PATH))) {
+    throw new Error('target disposition must use the reviewed acceptance evidence and disposition paths');
+  }
+  const evidence = readJson(evidenceFile);
+  const errors = dispositionEvidenceErrors(evidence, root, verifyControls);
+  if (errors.length > 0) throw new Error(`the acceptance evidence cannot be dispositioned (needs an open, diagnosis_incomplete record at stage progress with no attempts): ${errors.join('; ')}`);
+  const repairs = Array.isArray(evidence.repairs) ? evidence.repairs : [];
+  const record = {
+    schema_version: LOAD_DISPOSITION_SCHEMA,
+    target: LOAD_DISPOSITION_TARGET,
+    status: 'not_reproduced',
+    disposition_kind: 'human_approved_not_reproduced',
+    automatic: false,
+    created_at: now(),
+    acceptance_evidence: { path: path.relative(root, evidenceFile).split(path.sep).join('/'), sha256: fileHash(evidenceFile) },
+    controls: { path: evidence.controls.path, sha256: evidence.controls.sha256, stage: evidence.controls.stage, rows: 22 },
+    historical_cause: { status: 'diagnosis_incomplete', cause: null, causal_link: null, missing: [...evidence.historical_cause.missing] },
+    supporting_evidence_not_proof: {
+      repairs: LOAD_DISPOSITION_REPAIR_GROUPS
+        .map(({ group, classes }) => ({ group, repair_ids: repairs.filter((repair) => classes.includes(repair.defect_class)).map((repair) => repair.id), explains_historical_cause: false }))
+        .filter((entry) => entry.repair_ids.length > 0),
+      controls: { description: 'R5 native readiness/isolation controls accepted 22/22', path: evidence.controls.path, sha256: evidence.controls.sha256, proves_historical_cause: false }
+    },
+    acceptance_slots: LOAD_ACCEPT_IDS.map((id) => ({ id, status: 'expired_unused' })),
+    requirements: {
+      'CIREL-01': {
+        status: 'partial', satisfied: false,
+        unmet: ['selected flaky failures reproduced', 'fixed with deterministic regression checks and repeat runs'],
+        met: ['no increased blanket retries', 'readiness asserted without sleeps', '22/22 deterministic readiness/isolation controls'],
+        amended: false
+      },
+      'CIREL-02': { status: 'not_decided_by_this_record' }
+    },
+    roadmap_sc1_no_flake_clause: {
+      applies: false, qualifies_as_no_flake: false, automatic: false,
+      reason: `The Phase 252 baseline retained registration failures (D-03 runs ${LOAD_DISPOSITION_BASELINE_RUNS.join(', ')}), so the no-flake clause does not apply.`
+    },
+    qualifies_as_no_flake: false
+  };
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
+  fs.writeFileSync(outputFile, `${JSON.stringify(record, null, 2)}\n`, { flag: 'wx' });
+  return record;
+}
+
+// Only an explicit approve is recorded; reject or a reproduction hunt writes nothing.
+export function recordTargetDispositionApproval({ decision, dispositionFile, outputFile, decisionText }, root = ROOT, { enforcePaths = true, now = () => new Date().toISOString() } = {}) {
+  if (decision !== 'approve') throw new Error(`decision ${JSON.stringify(decision)} is not recorded: only approve writes a disposition approval`);
+  if (enforcePaths && (path.resolve(dispositionFile) !== path.resolve(root, LOAD_DISPOSITION_PATH) || path.resolve(outputFile) !== path.resolve(root, LOAD_DISPOSITION_APPROVAL_PATH))) {
+    throw new Error('disposition approval must use the reviewed disposition and approval path');
+  }
+  const disposition = readJson(dispositionFile);
+  if (disposition.schema_version !== LOAD_DISPOSITION_SCHEMA) throw new Error('the disposition schema is not recognised');
+  const record = {
+    schema_version: LOAD_DISPOSITION_APPROVAL_SCHEMA, decision, decided_by: 'Jon (operator), recorded by executor from checkpoint response',
+    decision_text: typeof decisionText === 'string' && decisionText.trim() ? decisionText : decision,
+    disposition_sha256: fileHash(dispositionFile), acceptance_evidence_sha256: disposition.acceptance_evidence?.sha256 ?? null, recorded_at: now()
+  };
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
+  fs.writeFileSync(outputFile, `${JSON.stringify(record, null, 2)}\n`, { flag: 'wx' });
+  return record;
+}
+
+export function verifyTargetDispositionData(evidence, disposition, approval, { root = ROOT, evidenceSha256, dispositionSha256, verifyControls = null } = {}) {
+  const errors = dispositionEvidenceErrors(evidence, root, verifyControls);
+  const d = disposition;
+  if (!d || typeof d !== 'object' || d.schema_version !== LOAD_DISPOSITION_SCHEMA) errors.push('disposition schema mismatch');
+  else {
+    if (d.status !== 'not_reproduced' || d.disposition_kind !== 'human_approved_not_reproduced') errors.push('disposition status must be human-approved not_reproduced');
+    if (d.automatic !== false || d.qualifies_as_no_flake !== false) errors.push('a disposition is never automatic and never qualifies as no-flake');
+    if (d.acceptance_evidence?.sha256 !== evidenceSha256) errors.push('the disposition is not bound to the current acceptance evidence bytes');
+    if (d.controls?.sha256 !== evidence?.controls?.sha256 || d.controls?.path !== evidence?.controls?.path) errors.push('the disposition is not bound to the R5 controls');
+    const cause = d.historical_cause;
+    if (cause?.status !== 'diagnosis_incomplete' || cause.cause !== null || cause.causal_link !== null) errors.push('the disposition must not claim a historical cause or causal link');
+    if (!sameJson(cause?.missing, evidence?.historical_cause?.missing) || !Array.isArray(cause?.missing) || cause.missing.length === 0) errors.push('the disposition must carry the missing evidence verbatim');
+    const req = d.requirements?.['CIREL-01'];
+    if (req?.status !== 'partial' || req.satisfied !== false) errors.push('CIREL-01 must be recorded partial with satisfied false');
+    const sc1 = d.roadmap_sc1_no_flake_clause;
+    if (sc1?.applies !== false || sc1.qualifies_as_no_flake === true || sc1.automatic === true) errors.push('ROADMAP SC-1 no-flake clause must not apply');
+    if (!sameJson((d.acceptance_slots ?? []).map((slot) => slot?.id), LOAD_ACCEPT_IDS) || (d.acceptance_slots ?? []).some((slot) => slot?.status !== 'expired_unused')) errors.push('the nine D-20 acceptance slots must all be expired_unused');
+    if (Object.hasOwn(d, 'acceptance_attempts') && (d.acceptance_attempts ?? []).length > 0) errors.push('a disposition carries no acceptance attempts');
+    for (const group of d.supporting_evidence_not_proof?.repairs ?? []) if (group?.explains_historical_cause !== false) errors.push('supporting repairs must not explain the historical cause');
+  }
+  if (!approval || approval.schema_version !== LOAD_DISPOSITION_APPROVAL_SCHEMA) errors.push('disposition approval schema mismatch');
+  else {
+    if (approval.decision !== 'approve') errors.push('the disposition approval decision is not approve');
+    if (approval.disposition_sha256 !== dispositionSha256) errors.push('the approval is not bound to the disposition bytes');
+    if (approval.acceptance_evidence_sha256 !== evidenceSha256) errors.push('the approval is not bound to the acceptance evidence bytes');
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+function readCommittedJson(root, rel, git, label) {
+  const file = path.join(root, rel);
+  if (!fs.existsSync(file)) throw new Error(`${label} is absent`);
+  if (!git.tracked(root, rel) || !git.inHead(root, rel)) throw new Error(`${label} is not committed in HEAD`);
+  const bytes = fs.readFileSync(file);
+  if (!bytes.equals(git.headBytes(root, rel))) throw new Error(`${label} differs from its committed bytes`);
+  return { bytes, value: JSON.parse(bytes.toString('utf8')), sha256: sha256(bytes) };
+}
+
+// Exit 0 iff the target is accepted, or an approved, committed, hash-bound not_reproduced disposition exists.
+export function verifyRequireTargetDisposition(evidenceFile, root = ROOT, deps = {}) {
+  const verifyControls = deps.verifyControls ?? null;
+  const git = deps.git ?? gitCommitted;
+  try {
+    if (path.resolve(evidenceFile) !== path.resolve(root, LOAD_ACCEPT_EVIDENCE_PATH)) throw new Error('verification accepts only the reviewed load acceptance evidence path');
+    const evidence = readJson(evidenceFile);
+    const accepted = verifyLoadAcceptanceData(evidence, { root, stage: 'complete', requireTarget: true, verifyControls });
+    if (accepted.ok) { console.log('target resolved by route: accepted'); return { ok: true, errors: [], route: 'accepted' }; }
+    const disposition = readCommittedJson(root, LOAD_DISPOSITION_PATH, git, 'target disposition');
+    const approval = readCommittedJson(root, LOAD_DISPOSITION_APPROVAL_PATH, git, 'target disposition approval');
+    const result = verifyTargetDispositionData(evidence, disposition.value, approval.value, { root, evidenceSha256: fileHash(evidenceFile), dispositionSha256: disposition.sha256, verifyControls });
+    if (!result.ok) { console.error(`target disposition rejected:\n- ${result.errors.join('\n- ')}`); return result; }
+    console.log('target resolved by route: disposition (human-approved not_reproduced; CIREL-01 partial)');
+    return { ...result, route: 'disposition' };
+  } catch (error) { console.error(`target disposition rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
+}
+
 export const loadR5RunDefaults = Object.freeze({
   validate: validateLoadRecoveryFreezeR5, runTree: runLoggedTree, spawnApp: spawn, waitReady, portAvailable, stopApp,
   probeHost: probeHostSleepSafety, readApproval: readCommittedApprovalR5, checkDiagnostic: readCommittedDiagnostic, holderAlive: processAlive, diagnosticFile: null,
@@ -7516,6 +7674,20 @@ async function main() {
     const r5 = path.resolve(args.evidence) === path.resolve(ROOT, LOAD_R5_EVIDENCE_PATH);
     const verify = r5 ? verifyLoadRecoveryFileR5 : r4 ? verifyLoadRecoveryFileR4 : r3 ? verifyLoadRecoveryFileR3 : r2 ? verifyLoadRecoveryFileR2 : verifyLoadRecoveryFile;
     if (!verify(args.evidence, args.stage).ok) process.exitCode = 3;
+    return;
+  }
+  if (args.mode === 'create-target-disposition') {
+    const record = createTargetDisposition({ evidenceFile: args.evidence, outputFile: args.output });
+    console.log(`target disposition created (${record.status}; CIREL-01 ${record.requirements['CIREL-01'].status}): ${path.relative(ROOT, args.output)}`);
+    return;
+  }
+  if (args.mode === 'record-target-disposition-approval') {
+    const record = recordTargetDispositionApproval({ decision: args.decision, dispositionFile: args.disposition, outputFile: args.output, decisionText: args.decisionText });
+    console.log(`target disposition approval recorded (${record.decision}): ${path.relative(ROOT, args.output)}`);
+    return;
+  }
+  if (args.mode === 'verify-load-acceptance' && args.requireDisposition) {
+    if (!verifyRequireTargetDisposition(args.evidence).ok) process.exitCode = 3;
     return;
   }
   if (args.mode === 'verify-load-acceptance') {
