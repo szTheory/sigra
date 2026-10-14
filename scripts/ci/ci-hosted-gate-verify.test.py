@@ -821,5 +821,83 @@ class CompletionContractTests(unittest.TestCase):
         self.assertTrue(any("pr_pair" in gap for gap in record["gaps"]))
 
 
+class CompletionLoadLinkBindingTests(unittest.TestCase):
+    """The production checker binds the two load links to the R4 artifacts; the injected-checker tests above stay unchanged."""
+
+    R4 = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json"
+    ACCEPT = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json"
+    HALTED = (
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-40-NATIVE-CONTROLS-EVIDENCE.json",
+    )
+
+    setUpClass = classmethod(CompletionContractTests.setUpClass.__func__)
+    evidence = CompletionContractTests.evidence
+    verify = CompletionContractTests.verify
+
+    def setUp(self):
+        CompletionContractTests.setUp(self)
+        self.checked = []
+        self.module._default_checker = lambda kind, path: (self.checked.append((kind, path)) or (0, "recorded"))
+
+    def link_at(self, relative):
+        path = self.root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"bound": relative}))
+        return {"path": relative, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+
+    def production(self, controls=None, acceptance=None):
+        evidence = self.evidence(omit=("load_controls", "load_acceptance"))
+        evidence["links"]["load_controls"] = self.link_at(controls or self.R4)
+        document = {"assessment": {"kind": "cause_repair", "cause": "loader race"}}
+        path = self.root / (acceptance or self.ACCEPT)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(document))
+        evidence["links"]["load_acceptance"] = {"path": acceptance or self.ACCEPT, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        return evidence
+
+    def run_production(self, evidence):
+        return self.module.verify_completion(evidence, require_accepted=True, root=self.root)
+
+    def test_the_r4_native_evidence_and_the_acceptance_evidence_are_accepted_through_the_production_checker(self):
+        result = self.run_production(self.production())
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual([kind for kind, _ in self.checked], ["load_controls", "load_acceptance"])
+
+    def test_halted_v1_r2_r3_and_253_40_native_evidence_is_rejected_before_the_checker_runs(self):
+        for halted in self.HALTED:
+            with self.subTest(path=halted):
+                self.checked.clear()
+                with self.assertRaises(self.module.VerificationError) as caught:
+                    self.run_production(self.production(controls=halted))
+                self.assertIn("load_controls must link the R4 native evidence", str(caught.exception))
+                self.assertEqual(self.checked, [])
+
+    def test_the_acceptance_link_is_bound_to_the_acceptance_evidence_path(self):
+        with self.assertRaises(self.module.VerificationError) as caught:
+            self.run_production(self.production(acceptance=".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/other-acceptance.json"))
+        self.assertIn("load_acceptance must link", str(caught.exception))
+        self.assertEqual(self.checked, [])
+
+    def test_an_absolute_path_that_resolves_to_a_different_file_is_rejected(self):
+        evidence = self.production()
+        decoy = self.root / "decoy.json"
+        decoy.write_text("{\"x\": 1}")
+        evidence["links"]["load_controls"] = {"path": str(decoy), "sha256": hashlib.sha256(decoy.read_bytes()).hexdigest()}
+        with self.assertRaises(self.module.VerificationError):
+            self.run_production(evidence)
+
+    def test_load_checks_argv_is_unchanged(self):
+        self.assertEqual(self.module.LOAD_CHECKS, {
+            "load_controls": ["--verify-load-recovery", "{path}", "--stage", "complete"],
+            "load_acceptance": ["--verify-load-acceptance", "{path}", "--require-target-accepted"],
+        })
+
+    def test_an_injected_checker_keeps_its_tmp_path_fixtures(self):
+        self.assertEqual(self.verify(self.evidence(), require_accepted=True)["status"], "accepted")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

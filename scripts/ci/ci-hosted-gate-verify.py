@@ -1355,6 +1355,17 @@ LOAD_CHECKS = {
     "load_acceptance": ["--verify-load-acceptance", "{path}", "--require-target-accepted"],
 }
 
+# With the production checker, completion may re-open only the R4 native controls and the acceptance evidence; the halted
+# v1, R2 and R3 native evidence (and the halted 253-40 record) can never satisfy these links. argv above is unchanged.
+LOAD_PATHS = {
+    "load_controls": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+    "load_acceptance": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json",
+}
+LOAD_PATH_ERRORS = {
+    "load_controls": "load_controls must link the R4 native evidence",
+    "load_acceptance": "load_acceptance must link the accepted load acceptance evidence",
+}
+
 
 def _default_checker(kind, path):
     script = Path(__file__).with_name("ci-registration-recovery.mjs")
@@ -1384,6 +1395,8 @@ def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_che
                 and isinstance(link["sha256"], str) and SHA64.fullmatch(link["sha256"]), f"link {key} is malformed")
         target = Path(link["path"])
         target = target if target.is_absolute() else Path(root) / target
+        if load_checker is None and key in LOAD_PATHS:
+            require(target.resolve() == (Path(root) / LOAD_PATHS[key]).resolve(), LOAD_PATH_ERRORS[key])
         try:
             raw = target.read_bytes()
         except OSError as error:
