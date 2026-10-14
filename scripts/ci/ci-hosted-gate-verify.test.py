@@ -822,14 +822,15 @@ class CompletionContractTests(unittest.TestCase):
 
 
 class CompletionLoadLinkBindingTests(unittest.TestCase):
-    """The production checker binds the two load links to the R4 artifacts; the injected-checker tests above stay unchanged."""
+    """The production checker binds the two load links to the R5 artifacts; the injected-checker tests above stay unchanged."""
 
-    R4 = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json"
+    R5 = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json"
     ACCEPT = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json"
     HALTED = (
         ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json",
         ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
         ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
         ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-40-NATIVE-CONTROLS-EVIDENCE.json",
     )
 
@@ -850,7 +851,7 @@ class CompletionLoadLinkBindingTests(unittest.TestCase):
 
     def production(self, controls=None, acceptance=None):
         evidence = self.evidence(omit=("load_controls", "load_acceptance"))
-        evidence["links"]["load_controls"] = self.link_at(controls or self.R4)
+        evidence["links"]["load_controls"] = self.link_at(controls or self.R5)
         document = {"assessment": {"kind": "cause_repair", "cause": "loader race"}}
         path = self.root / (acceptance or self.ACCEPT)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -861,18 +862,18 @@ class CompletionLoadLinkBindingTests(unittest.TestCase):
     def run_production(self, evidence):
         return self.module.verify_completion(evidence, require_accepted=True, root=self.root)
 
-    def test_the_r4_native_evidence_and_the_acceptance_evidence_are_accepted_through_the_production_checker(self):
+    def test_the_r5_native_evidence_and_the_acceptance_evidence_are_accepted_through_the_production_checker(self):
         result = self.run_production(self.production())
         self.assertEqual(result["status"], "accepted")
         self.assertEqual([kind for kind, _ in self.checked], ["load_controls", "load_acceptance"])
 
-    def test_halted_v1_r2_r3_and_253_40_native_evidence_is_rejected_before_the_checker_runs(self):
+    def test_halted_v1_r2_r3_r4_and_253_40_native_evidence_is_rejected_before_the_checker_runs(self):
         for halted in self.HALTED:
             with self.subTest(path=halted):
                 self.checked.clear()
                 with self.assertRaises(self.module.VerificationError) as caught:
                     self.run_production(self.production(controls=halted))
-                self.assertIn("load_controls must link the R4 native evidence", str(caught.exception))
+                self.assertIn("load_controls must link the R5 native evidence", str(caught.exception))
                 self.assertEqual(self.checked, [])
 
     def test_the_acceptance_link_is_bound_to_the_acceptance_evidence_path(self):
