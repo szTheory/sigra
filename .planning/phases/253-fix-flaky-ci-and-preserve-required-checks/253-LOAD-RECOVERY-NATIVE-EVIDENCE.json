@@ -1,0 +1,165 @@
+{
+  "schema_version": "sigra.phase253.registration-load-recovery-evidence/v1",
+  "status": "ready",
+  "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE.json",
+  "freeze_sha256": "98030037d8136b3732ca01dbe1f127181526a61a82961b270feddb7ca849cafa",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "2030ef1017220055a420f41cee6f5da0e0cdbc33",
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+      "scripts/ci/ci-registration-recovery.mjs": "65c6d89122ba1973816812899382292474781e77",
+      "scripts/ci/ci-registration-recovery.test.mjs": "df2d0646cc507fbe5f4de31191c5df84611f16c8",
+      "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "16be503276de510cc6304e481b2755d9fb5968ca",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+      "test/example/priv/playwright/helpers/registrationControls.mjs": "775c796152bf123b251abbcdde11897d572f37bd",
+      "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+      "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+      "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+      "scripts/ci/ci-playwright-load.test.mjs": "a57a8a56496a33c9f8b0a1fc24e0b48f1a31a66e",
+      "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+      "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+      "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+      "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19"
+    }
+  },
+  "historical": {
+    "artifacts": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+        "sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+        "sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
+        "sha256": "a2ca73dbdad8b4e00766d28b98f7841a9ac2233e7c481ea7fda309b5a310fdfb"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json",
+        "sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-POST-HALT-CLEANUP.json",
+        "sha256": "956b43875a7431e52b3683954d7ebf8d2f72ac9a52665d7cf6594a4349fa1f11"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json",
+        "sha256": "bdb1b9d5aa0dc8fb6422708228276ade641b60cc91db1fca556e3f788e264a40"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-FREEZE.json",
+        "sha256": "bef539ef0803a5e035266fd2d5334b02dc87893c285114e7f70cbec3b46a0778"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+        "sha256": "e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json",
+        "sha256": "a4e313b6276ddbc8a2b71a1acdfcd2744fa0e360bbc018ceed5d86b5d8b464e4"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
+        "sha256": "977b940b11fd4e304fc01be5e523cb34f1424440fd5bf218a14793872ca9a230"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json",
+        "sha256": "db74f2f2b8dc9df71e67fddc7049024fb03b693478573c3e204020068b898a82"
+      }
+    ],
+    "frozen_blob_sets": {
+      "failed27": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "572fd804c91d05f7d3e40c40977a7302ca4d1af3",
+        "scripts/ci/ci-registration-recovery.test.mjs": "6a7e243fdc4fadcf871574a4870bc63a26408dac",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "b9c3e564918699599ef89cb65cface046761d195",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      },
+      "control16": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "9a97675dab6fd8f2d7037101eb3203b668f06de8",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "a9c9ff153634284c97a4428f8984015c91bccfbe",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      }
+    },
+    "carried_charge_ms": 276453,
+    "carried_components_ms": [
+      3768,
+      3743,
+      26373,
+      46803,
+      40993,
+      121252,
+      112,
+      33409
+    ],
+    "physical_playwright_cli_launches": 5,
+    "spent_reservations": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK",
+      "CR-DARK-FIRST"
+    ],
+    "spent_retry": {
+      "used": 1,
+      "available": 0
+    },
+    "preceding_order": "unknown",
+    "actual_http_old_hosted": "unknown",
+    "failed_dark": {
+      "slot_id": "R-DIAG-CONTROL-DARK",
+      "charged_ms": 121252
+    },
+    "failed_cr_dark_first": {
+      "slot_id": "CR-DARK-FIRST",
+      "charged_ms": 33409,
+      "selected_results": 0,
+      "retry_or_reuse": "forbidden"
+    }
+  },
+  "created_at": "2026-10-14T07:56:48.094Z",
+  "attempts": [],
+  "preparation": null,
+  "reservation": null,
+  "preserved_revisions": [],
+  "limits": {
+    "prior_charge_ms": 276453,
+    "preparation_charge_ms": 0,
+    "preparation_remaining_ms": 112489,
+    "charged_duration_ms": 276453,
+    "physical_playwright_cli_launches": 5,
+    "used_slots": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK",
+      "CR-DARK-FIRST"
+    ],
+    "max_d19_ms": 868942,
+    "max_total_ms": 3480000,
+    "max_physical_playwright_cli_launches": 18,
+    "retry_used": 1,
+    "retry_available": 0
+  }
+}
