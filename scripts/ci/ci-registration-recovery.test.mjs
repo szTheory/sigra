@@ -106,6 +106,7 @@ test('control recovery ledger refuses altered charges, reopened retries, or dupl
   for (const mutate of [
     (input) => { input.charges[5] = 121251; },
     (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
     (input) => { input.spentReservations.push('R-CONTROL-FIRST-DESKTOP'); },
     (input) => { input.physicalPlaywrightLaunches = 3; },
     (input) => { input.preparationUsedMs = 3744; }
@@ -116,15 +117,88 @@ test('control recovery ledger refuses altered charges, reopened retries, or dupl
   }
 });
 
-test('bounded process runner terminates a stalled child and its grandchild and records the real timeout', async () => {
+function processGone(pid) {
+  try { process.kill(pid, 0); return false; } catch (error) { return error.code === 'ESRCH'; }
+}
+
+// Fixture process tree: the child spawns a grandchild that ignores SIGTERM, waits for the
+// grandchild's ready line, then publishes both PIDs atomically (write + rename) so the test can
+// wait on a directory event instead of sleeping.
+function treeScript(readyDir, { childExitsAfterReady = false } = {}) {
+  const grandchild = 'process.on("SIGTERM",()=>{}); process.stdout.write("READY "+process.pid+"\\n"); setInterval(()=>{},1e6)';
+  return `
+const fs = require("node:fs"); const path = require("node:path");
+const grandchild = require("node:child_process").spawn(process.execPath, ["-e", ${JSON.stringify(grandchild)}], { stdio: ["ignore", "pipe", "inherit"] });
+grandchild.stdout.once("data", (chunk) => {
+  const pids = { child: process.pid, grandchild: Number(String(chunk).trim().split(" ")[1]) };
+  const tmp = path.join(${JSON.stringify(readyDir)}, "tree.tmp");
+  fs.writeFileSync(tmp, JSON.stringify(pids));
+  fs.renameSync(tmp, path.join(${JSON.stringify(readyDir)}, "tree.json"));
+  ${childExitsAfterReady ? 'process.exit(0);' : 'process.on("SIGTERM", () => process.exit(0)); setInterval(() => {}, 1e6);'}
+});`;
+}
+
+function whenTreeReady(readyDir) {
+  const file = path.join(readyDir, 'tree.json');
+  return new Promise((resolve) => {
+    const watcher = fs.watch(readyDir, () => {
+      if (fs.existsSync(file)) { watcher.close(); resolve(JSON.parse(fs.readFileSync(file, 'utf8'))); }
+    });
+    if (fs.existsSync(file)) { watcher.close(); resolve(JSON.parse(fs.readFileSync(file, 'utf8'))); }
+  });
+}
+
+test('bounded process runner terminates a stalled child and its grandchild and records the real timeout', { timeout: 30000 }, async () => {
   const log = path.join(temporary, 'stalled-tree.log');
   const childScript = 'require("node:child_process").spawn(process.execPath,["-e",' + JSON.stringify('setTimeout(()=>process.stdout.write("grandchild-finished\\n"),1800)') + '],{stdio:["ignore",1,2]}); setTimeout(()=>{},5000)';
   const result = await recovery.runLoggedTree(process.execPath, ['-e', childScript], root, process.env, log, 350, 100);
-  await new Promise((resolve) => setTimeout(resolve, 1900));
   assert.equal(result.timed_out, true);
   assert.notEqual(result.signal, null);
   assert.ok(result.duration_ms >= 350);
+  assert.equal(processGone(-result.pid), true, 'the whole owned process group is gone when the runner resolves');
   assert.equal(fs.readFileSync(log, 'utf8').includes('grandchild-finished'), false);
+});
+
+test('abort escalates to SIGKILL for a SIGTERM-resistant grandchild after the child exits first', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-abort-'));
+  const controller = new AbortController();
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 60000, 200, { signal: controller.signal });
+  const tree = await whenTreeReady(readyDir);
+  controller.abort();
+  const result = await pending;
+
+  assert.equal(result.aborted, true);
+  assert.equal(result.timed_out, false);
+  assert.deepEqual(result.group_signals, ['SIGTERM', 'SIGKILL']);
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(tree.child), true);
+  assert.equal(processGone(tree.grandchild), true);
+  assert.equal(processGone(-result.pid), true);
+});
+
+test('a real deadline reaps a SIGTERM-resistant descendant and keeps the actual timeout and duration', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-deadline-'));
+  const result = await recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 1500, 200);
+  assert.equal(result.timed_out, true);
+  assert.ok(result.duration_ms >= 1500);
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(-result.pid), true);
+  if (fs.existsSync(path.join(readyDir, 'tree.json'))) {
+    const tree = JSON.parse(fs.readFileSync(path.join(readyDir, 'tree.json'), 'utf8'));
+    assert.equal(processGone(tree.grandchild), true);
+  }
+});
+
+test('a clean child exit never leaves a SIGTERM-resistant descendant running', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-orphan-'));
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir, { childExitsAfterReady: true })], root, process.env, path.join(readyDir, 'run.log'), 60000, 200);
+  const result = await pending;
+  const tree = JSON.parse(fs.readFileSync(path.join(readyDir, 'tree.json'), 'utf8'));
+
+  assert.equal(result.exit_code, 0);
+  assert.equal(result.timed_out, false);
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(tree.grandchild), true);
 });
 
 test('the legacy revision freeze entrypoint refuses a clean candidate and spent records without native work', () => {
@@ -450,6 +524,31 @@ test('revision CLI rejects forged, mismatched, duplicated, and over-budget saved
     ['native expectedStatus mismatch', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { findSelectedSpec(report).tests[0].expectedStatus = 'skipped'; }), /expectedStatus and result status disagree/],
     ['native result status mismatch', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { findSelectedSpec(report).tests[0].results[0].status = 'failed'; }), /expectedStatus and result status disagree/],
     ['empty native report', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.suites = []; }), /contains no results/],
+    ['monotonic end before start', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].ended_monotonic_ns = '1'; }), /monotonic duration is absent or inconsistent/],
+    ['committed head not in history', (fixture) => {
+      fixture.rewriteFreeze((freeze) => { freeze.source.checkout_head = 'b'.repeat(40); });
+      fixture.rewriteEvidence((evidence) => { evidence.source.checkout_head = 'b'.repeat(40); });
+    }, /not in the current repository history|frozen source commit/],
+    ['internal freeze digest forged', (fixture) => fixture.rewriteFreeze((freeze) => { freeze.freeze_sha256 = '0'.repeat(64); }, { internalDigest: false }), /does not match the frozen revision/],
+    ['file freeze digest drift', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.freeze_sha256 = '1'.repeat(64); }), /does not match the frozen revision/],
+    ['historical bytes changed', (fixture) => fs.appendFileSync(path.join(fixture.root, fixture.history.original_evidence.path), ' '), /frozen historical evidence bytes changed/],
+    ['spent slot reused', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].slot_id = 'D19-DIAG-01'; evidence.limits.used_slots[0] = 'D19-DIAG-01'; }), /does not identify a frozen slot/],
+    ['frozen title byte variant', (fixture) => {
+      const variant = `${SELECTED_TITLE}\u200b`;
+      fixture.rewriteFreeze((freeze) => { for (const slot of freeze.ledger.slots) { slot.title = variant; slot.argv[1] = `--grep=${variant}`; } });
+      fixture.rewriteEvidence((evidence) => { for (const attempt of evidence.attempts) attempt.argv[1] = `--grep=${variant}`; });
+      fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.suites[0].suites[0].specs[0].title = variant; });
+      fixture.rewriteReport('R-DIAG-MOBILE', (report) => { report.suites[0].suites[0].specs[0].title = variant; });
+    }, /frozen selected title is not the reviewed byte-exact title/],
+    ['wrong project bytes', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.suites[0].suites[0].specs[0].tests[0].projectName = 'admin-eval\u200b'; }), /exactly one byte-exact selected/],
+    ['null native inventory', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.config.projects = null; }), /project inventory is incomplete/],
+    ['empty native inventory', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.config.projects = []; }), /project inventory is incomplete/],
+    ['single native inventory', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.config.projects = [{ name: 'admin-eval' }]; }), /project inventory is incomplete/],
+    ['preparation counter drift', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.preparation_charge_ms += 1; evidence.limits.charged_duration_ms += 1; }), /preparation charge does not match its command receipts/],
+    ['preparation receipt reset', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.preparation_receipts = []; }), /preparation charge does not match its command receipts/],
+    ['total charge laundered', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.charged_duration_ms -= 1000; }), /cumulative charged time does not match/],
+    ['historical charge reset', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.historical_charge_ms = 0; evidence.limits.charged_duration_ms -= 3000; }), /historical uncertainty or spent charge was not preserved/],
+    ['launch count reset', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.browser_launches = 0; }), /browser launch count differs/],
     ['cli exit disagreement', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].browser.exit_code = 1; }), /disagrees with the Playwright process exit/]
   ];
 
