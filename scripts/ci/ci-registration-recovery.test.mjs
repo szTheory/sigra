@@ -138,13 +138,24 @@ grandchild.stdout.once("data", (chunk) => {
 });`;
 }
 
+// Waits on the condition (the atomically renamed tree.json), not on a sleep. fs.watch alone is not
+// enough on macOS: the FSEvents stream starts asynchronously, so a rename that lands before it is
+// running is never reported and the wait hangs (a source of the 253-39 load flake). A short
+// existence poll backs the watcher up; whichever sees the file first settles the wait once.
 function whenTreeReady(readyDir) {
   const file = path.join(readyDir, 'tree.json');
   return new Promise((resolve) => {
-    const watcher = fs.watch(readyDir, () => {
-      if (fs.existsSync(file)) { watcher.close(); resolve(JSON.parse(fs.readFileSync(file, 'utf8'))); }
-    });
-    if (fs.existsSync(file)) { watcher.close(); resolve(JSON.parse(fs.readFileSync(file, 'utf8'))); }
+    let watcher = null;
+    let poller = null;
+    const check = () => {
+      if (!poller || !fs.existsSync(file)) return;
+      clearInterval(poller); poller = null;
+      watcher?.close();
+      resolve(JSON.parse(fs.readFileSync(file, 'utf8')));
+    };
+    poller = setInterval(check, 20);
+    try { watcher = fs.watch(readyDir, check); } catch { /* the poll alone still settles the wait */ }
+    check();
   });
 }
 
@@ -1089,6 +1100,7 @@ function loadHarness() {
   return {
     validate, enforcePaths: false, enforceNode: false, skipPreservation: true,
     portAvailable: async () => true, waitReady: async () => 200, stopApp: async () => {},
+    holdAwake: () => { calls.push(['hold-awake']); return { held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], release: () => calls.push(['release-awake']) }; },
     spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
     runTree: async (program, args, cwd, env, log, timeoutMs) => {
       calls.push(['tree', program, ...args]);
@@ -1240,6 +1252,172 @@ test('load recovery freeze creation and checks refuse a candidate without the pr
     assert.equal(fs.existsSync(out), false);
     assert.throws(() => recovery.validateLoadRecoveryFreeze(fixture.root, { schema_version: 'x' }), /malformed|digest/i);
   } finally { fixture.cleanup?.(); }
+});
+
+// 253-40 regression: the host slept three times inside one native window (pmset: 744 s, 923 s,
+// 753 s) and the single armed deadline timer never fired, so the CLI ran ~29 minutes. These
+// synthetic trees model that discontinuity offline by moving the runner's injected clocks the way
+// sleep moves them; nothing here waits on a race: each test waits on a published tree.json, then
+// on the runner's own result.
+function clockJump() {
+  let offset = 0;
+  return { now: (base) => () => base() + offset, jump: (ms) => { offset += ms; } };
+}
+
+test('a wall-clock jump past the deadline (host sleep) kills the whole tree at the next watchdog tick', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-wall-sleep-'));
+  const wall = clockJump();
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 120000, 200,
+    { wallNow: wall.now(() => Date.now()) });
+  const tree = await whenTreeReady(readyDir);
+  wall.jump(15 * 60 * 1000);
+  const result = await pending;
+
+  assert.equal(result.timed_out, true, 'the deadline is enforced on the wall clock, not only the armed monotonic timer');
+  assert.ok(result.duration_ms < 120000, 'the monotonic clock alone never reached the deadline');
+  assert.ok(result.wall_duration_ms >= 120000);
+  assert.equal(result.suspended, true, 'a wall/monotonic skew beyond the gap threshold is recorded as host suspension');
+  assert.deepEqual(result.group_signals, ['SIGTERM', 'SIGKILL'], 'SIGTERM, then exactly one SIGKILL for the SIGTERM-resistant grandchild');
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(tree.child), true);
+  assert.equal(processGone(tree.grandchild), true);
+  assert.equal(processGone(-result.pid), true);
+});
+
+test('both clocks jumping across a sleep are caught as a tick gap and enforce the deadline', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-both-sleep-'));
+  const clock = clockJump();
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 120000, 200, {
+    monotonicNow: clock.now(() => Number(process.hrtime.bigint()) / 1e6),
+    wallNow: clock.now(() => Date.now())
+  });
+  const tree = await whenTreeReady(readyDir);
+  clock.jump(923 * 1000);
+  const result = await pending;
+
+  assert.equal(result.timed_out, true);
+  assert.equal(result.suspended, true);
+  assert.ok(result.max_tick_gap_ms >= 900000, `tick gap ${result.max_tick_gap_ms} records the sleep`);
+  assert.equal(result.group_signals.filter((name) => name === 'SIGKILL').length, 1);
+  assert.equal(processGone(tree.grandchild), true);
+  assert.equal(processGone(-result.pid), true);
+});
+
+test('an uneventful bounded run records no suspension and its wall duration', { timeout: 30000 }, async () => {
+  const result = await recovery.runLoggedTree(process.execPath, ['-e', 'setTimeout(() => {}, 50)'], root, process.env, path.join(temporary, 'quiet-tree.log'), 20000, 200);
+  assert.equal(result.exit_code, 0);
+  assert.equal(result.timed_out, false);
+  assert.equal(result.suspended, false);
+  assert.ok(Number.isInteger(result.wall_duration_ms));
+  assert.deepEqual(result.group_signals, []);
+});
+
+test('deadline escalation sends SIGKILL at most once under parallel load', { timeout: 60000 }, async () => {
+  const runs = Array.from({ length: 6 }, async (_, index) => {
+    const readyDir = fs.mkdtempSync(path.join(temporary, `tree-parallel-${index}-`));
+    const controller = new AbortController();
+    const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 30000, 50, { signal: controller.signal });
+    const tree = await whenTreeReady(readyDir);
+    controller.abort();
+    return { tree, result: await pending };
+  });
+  for (const { tree, result } of await Promise.all(runs)) {
+    assert.deepEqual(result.group_signals, ['SIGTERM', 'SIGKILL']);
+    assert.equal(result.descendants_reaped, true);
+    assert.equal(processGone(tree.grandchild), true);
+    assert.equal(processGone(-result.pid), true);
+  }
+});
+
+test('a group that dies slowly after SIGKILL still receives exactly one SIGKILL (253-39 flake)', { timeout: 30000 }, async () => {
+  // Deterministic model of a loaded host: the owned group stays visible for 400 ms after SIGKILL,
+  // so the deadline escalation and the reap poll both reach the kill decision while it is alive.
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-slow-death-'));
+  let killedAt = null;
+  const killProcess = (pid, name) => {
+    if (name === 'SIGKILL') killedAt ??= Number(process.hrtime.bigint()) / 1e6;
+    if (name === 0 && (killedAt === null || Number(process.hrtime.bigint()) / 1e6 - killedAt < 400)) return true;
+    return process.kill(pid, name);
+  };
+  const controller = new AbortController();
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 30000, 100, { signal: controller.signal, killProcess });
+  const tree = await whenTreeReady(readyDir);
+  controller.abort();
+  const result = await pending;
+
+  assert.deepEqual(result.group_signals, ['SIGTERM', 'SIGKILL']);
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(tree.grandchild), true);
+  assert.equal(processGone(-result.pid), true);
+});
+
+test('the host sleep assertion is caffeinate bound to the runner pid on macOS and absent elsewhere', () => {
+  const spawned = [];
+  const fakeSpawn = (program, args) => { spawned.push([program, ...args]); return { pid: 9001, on: () => {}, kill: (name) => spawned.push(['kill', name]) }; };
+  const held = recovery.holdHostAwake({ platform: 'darwin', spawnProcess: fakeSpawn, pid: 4321, exists: () => true });
+  assert.equal(held.held, true);
+  assert.deepEqual(spawned[0], ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', '4321']);
+  held.release();
+  assert.deepEqual(spawned[1], ['kill', 'SIGTERM']);
+
+  const linux = recovery.holdHostAwake({ platform: 'linux', spawnProcess: () => assert.fail('no assertion needed off macOS') });
+  assert.equal(linux.held, false);
+  assert.throws(() => recovery.holdHostAwake({ platform: 'darwin', spawnProcess: fakeSpawn, exists: () => false }), /caffeinate/);
+  assert.throws(() => recovery.holdHostAwake({ platform: 'darwin', spawnProcess: () => ({}), exists: () => true }), /could not be started/);
+});
+
+test('a load slot holds the host awake for the whole window and refuses before any charge when it cannot', async () => {
+  const h = loadHarness();
+  try {
+    await recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    const kinds = h.calls.map((call) => call[0]);
+    assert.ok(kinds.indexOf('hold-awake') < kinds.indexOf('tree'), 'held before the first native command');
+    assert.equal(kinds.at(-1), 'release-awake', 'released only after the ledger is written');
+    assert.equal(h.read().attempts[0].host.sleep_assertion_held, true);
+    assert.equal(h.read().attempts[0].host.suspension_detected, false);
+  } finally { h.clean(); }
+
+  const refused = loadHarness();
+  try {
+    const before = refused.read();
+    await assert.rejects(() => recovery.runLoadRecoverySlot(refused.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', refused.evidenceFile, refused.checkout,
+      { ...refused.makeDeps(), holdAwake: () => { throw new Error('macOS sleep assertion could not be started'); } }), /sleep assertion/);
+    assert.deepEqual(refused.read(), before, 'no reservation, used slot or charge when the host cannot be kept awake');
+    assert.equal(refused.calls.filter((call) => call[0] === 'tree').length, 0);
+  } finally { refused.clean(); }
+});
+
+test('a host sleep inside the browser command halts the slot, charges the wall time and still drops the owned database', async () => {
+  const h = loadHarness();
+  const realNow = Date.now;
+  const timeouts = [];
+  try {
+    const deps = h.makeDeps();
+    const inner = deps.runTree;
+    deps.runTree = async (program, args, cwd, env, log, timeoutMs, ...rest) => {
+      timeouts.push([path.basename(program), args[0], timeoutMs]);
+      const result = await inner(program, args, cwd, env, log, timeoutMs, ...rest);
+      if (!program.endsWith('/playwright')) return result;
+      Date.now = () => realNow() + 1765488;
+      return { ...result, timed_out: true, suspended: true, wall_duration_ms: 1765488 };
+    };
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, deps), /host suspension/);
+    Date.now = realNow;
+    const evidence = h.read();
+    assert.match(evidence.stop_reason, /host suspension \(system sleep or a stalled runner event loop\) was detected/, 'the runner itself halts on suspension, not only the verifier');
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.status, 'halted');
+    assert.equal(attempt.host.suspension_detected, true);
+    assert.ok(attempt.wall_duration_ms >= 1765488);
+    assert.equal(attempt.charged_duration_ms, Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms), 'the charge never hides the sleep');
+    assert.equal(evidence.limits.charged_duration_ms, 276453 + attempt.charged_duration_ms);
+    const drop = timeouts.find(([program, verb]) => program === 'mix' && verb === 'ecto.drop');
+    assert.ok(drop[2] >= 5000, `the owned drop keeps a bounded floor after an overrun (got ${drop[2]} ms)`);
+    assert.equal(attempt.database.drop_exit_code, 0);
+    assert.ok(attempt.database.absence_receipt, 'the owned database absence is still proven');
+    assert.equal(recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, `${h.evidenceFile}.raw`).ok, false);
+    assert.match(recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, `${h.evidenceFile}.raw`).errors.join('; '), /host suspension/);
+  } finally { Date.now = realNow; h.clean(); }
 });
 
 test('ordinary registration runner contracts opened no server or socket', () => {

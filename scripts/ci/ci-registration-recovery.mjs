@@ -888,9 +888,29 @@ export function runLogged(program, args, cwd, env, log, timeout) {
   return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, ...redactions };
 }
 
-export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGraceMs = 250, { signal: abortSignal = null } = {}) {
+// A bounded process-tree runner must not trust one long relative timer: across host sleep or
+// DarkWake a single armed setTimeout can stay unfired for the whole sleep, which let the 253-40
+// window run ~29 minutes (the host slept three times; nothing re-checked the deadline). The
+// watchdog below re-arms at most every TREE_WATCHDOG_TICK_MS and compares BOTH monotonic and
+// wall-clock elapsed time against the deadline, so the first tick that runs after any resume
+// kills the tree. A tick gap or wall/monotonic skew beyond TREE_SUSPEND_GAP_MS is recorded as a
+// suspension (system sleep or a stalled runner event loop) so callers can refuse the timings.
+export const TREE_WATCHDOG_TICK_MS = 250;
+export const TREE_SUSPEND_GAP_MS = 5000;
+
+export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGraceMs = 250, {
+  signal: abortSignal = null,
+  tickMs = TREE_WATCHDOG_TICK_MS,
+  suspendGapMs = TREE_SUSPEND_GAP_MS,
+  monotonicNow = () => Number(process.hrtime.bigint()) / 1e6,
+  wallNow = () => Date.now(),
+  killProcess = (pid, name) => process.kill(pid, name)
+} = {}) {
   return new Promise((resolve) => {
-    const started = process.hrtime.bigint();
+    const monoStart = monotonicNow();
+    const wallStart = wallNow();
+    const limit = Math.max(1, Math.floor(timeoutMs));
+    const tick = Math.max(1, Math.floor(tickMs));
     const fd = fs.openSync(log, 'w');
     const grace = Math.max(1, cleanupGraceMs);
     let child;
@@ -901,34 +921,62 @@ export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGr
     let signal = null;
     let exitCode = null;
     let durationMs = null;
+    let wallDurationMs = null;
     let killTimer = null;
     let escalationTimer = null;
+    let watchdogTimer = null;
     let reaping = false;
+    let suspended = false;
+    let maxTickGapMs = 0;
+    let lastMono = monoStart;
+    let lastWall = wallStart;
+    let scheduledDelay = 0;
     const groupSignals = [];
+    const monoElapsed = () => monotonicNow() - monoStart;
+    const wallElapsed = () => wallNow() - wallStart;
     const groupAlive = () => {
       if (!child?.pid) return false;
-      try { process.kill(-child.pid, 0); return true; } catch (cause) { return cause.code === 'EPERM'; }
+      try { killProcess(-child.pid, 0); return true; } catch (cause) { return cause.code === 'EPERM'; }
     };
     const terminateGroup = (name) => {
       if (!child?.pid) return;
       groupSignals.push(name);
-      try { process.kill(-child.pid, name); } catch {
+      try { killProcess(-child.pid, name); } catch {
         try { child.kill(name); } catch { /* already exited */ }
       }
+    };
+    // SIGKILL is sent at most once, whichever path (deadline escalation or reap poll) gets there
+    // first; a cached flag let both paths send it under load (the 253-39 flake).
+    const killGroupOnce = () => {
+      if (!groupSignals.includes('SIGKILL')) terminateGroup('SIGKILL');
+    };
+    const observeClocks = () => {
+      const mono = monotonicNow();
+      const wall = wallNow();
+      const gap = Math.max(mono - lastMono, wall - lastWall) - scheduledDelay;
+      lastMono = mono;
+      lastWall = wall;
+      if (gap > maxTickGapMs) maxTickGapMs = Math.ceil(gap);
+      const skew = Math.abs((wall - wallStart) - (mono - monoStart));
+      if (gap > suspendGapMs || skew > suspendGapMs) suspended = true;
+      return Math.max(mono - monoStart, wall - wallStart);
     };
     const finish = (reaped) => {
       if (settled) return;
       settled = true;
-      clearTimeout(deadlineTimer);
+      clearTimeout(watchdogTimer);
       clearTimeout(killTimer);
       clearTimeout(escalationTimer);
       abortSignal?.removeEventListener('abort', onAbort);
+      observeClocks();
       fs.closeSync(fd);
       const redactions = sanitizeCommandLog(log);
       resolve({
         pid: child?.pid ?? null,
         exit_code: exitCode, signal, error, timed_out: timedOut, aborted,
-        duration_ms: durationMs ?? Math.ceil(Number(process.hrtime.bigint() - started) / 1e6),
+        duration_ms: durationMs ?? Math.ceil(monoElapsed()),
+        wall_duration_ms: wallDurationMs ?? Math.ceil(wallElapsed()),
+        suspended, max_tick_gap_ms: maxTickGapMs,
         group_signals: groupSignals, descendants_reaped: reaped,
         ...redactions
       });
@@ -939,26 +987,32 @@ export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGr
     const reap = () => {
       if (reaping || settled) return;
       reaping = true;
-      durationMs = Math.ceil(Number(process.hrtime.bigint() - started) / 1e6);
+      durationMs = Math.ceil(monoElapsed());
+      wallDurationMs = Math.ceil(wallElapsed());
       if (!groupAlive()) { finish(true); return; }
       if (!groupSignals.includes('SIGTERM')) terminateGroup('SIGTERM');
-      const hardLimit = Date.now() + 10 * grace + 2000;
-      let killed = groupSignals.includes('SIGKILL');
-      const killAt = Date.now() + grace;
+      const hardLimit = monotonicNow() + 10 * grace + 2000;
+      const killAt = monotonicNow() + grace;
       const poll = () => {
         if (!groupAlive()) { finish(true); return; }
-        if (!killed && Date.now() >= killAt) { killed = true; terminateGroup('SIGKILL'); }
-        if (Date.now() >= hardLimit) { error ??= 'descendant process group did not exit'; finish(false); return; }
+        if (monotonicNow() >= killAt) killGroupOnce();
+        if (monotonicNow() >= hardLimit) { error ??= 'descendant process group did not exit'; finish(false); return; }
         killTimer = setTimeout(poll, 5);
       };
       poll();
     };
     const expire = () => {
-      if (!child?.pid || settled) return;
+      if (!child?.pid || settled || reaping || escalationTimer) return;
       terminateGroup('SIGTERM');
-      escalationTimer = setTimeout(() => { if (!settled && !groupSignals.includes('SIGKILL') && groupAlive()) terminateGroup('SIGKILL'); }, grace);
+      escalationTimer = setTimeout(() => { if (!settled && groupAlive()) killGroupOnce(); }, grace);
     };
-    const deadlineTimer = setTimeout(() => { timedOut = true; expire(); }, Math.max(1, Math.floor(timeoutMs)));
+    const watchdog = () => {
+      if (settled) return;
+      const elapsed = observeClocks();
+      if (!timedOut && elapsed >= limit) { timedOut = true; expire(); }
+      scheduledDelay = timedOut ? tick : Math.max(1, Math.min(tick, Math.ceil(limit - elapsed)));
+      watchdogTimer = setTimeout(watchdog, scheduledDelay);
+    };
     function onAbort() { aborted = true; expire(); }
     try {
       child = spawn(program, args, { cwd, env, stdio: ['ignore', fd, fd], detached: true });
@@ -968,6 +1022,7 @@ export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGr
         signal = childSignal;
       });
       child.once('close', reap);
+      if (!settled) watchdog();
       if (abortSignal?.aborted) onAbort();
       else abortSignal?.addEventListener('abort', onAbort, { once: true });
     } catch (cause) {
@@ -975,6 +1030,23 @@ export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGr
       finish(true);
     }
   });
+}
+
+// macOS will put an idle host into (maintenance) sleep in the middle of a native window; every
+// process then freezes for 12-15 minutes at a time (253-40). Hold a PreventSystemSleep /
+// PreventUserIdleSystemSleep assertion for the whole window, tied to the runner's PID so it can
+// never outlive a crashed runner.
+export function holdHostAwake({ platform = process.platform, spawnProcess = spawn, pid = process.pid, exists = fs.existsSync } = {}) {
+  if (platform !== 'darwin') return { held: false, platform, argv: null, release: () => {} };
+  const argv = ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(pid)];
+  if (!exists(argv[0])) throw new Error('macOS sleep assertion unavailable: /usr/bin/caffeinate is missing');
+  const holder = spawnProcess(argv[0], argv.slice(1), { stdio: 'ignore' });
+  if (!holder?.pid) throw new Error('macOS sleep assertion could not be started');
+  holder.on?.('error', () => {});
+  return {
+    held: true, platform, argv, pid: holder.pid,
+    release: () => { try { holder.kill('SIGTERM'); } catch { /* already gone */ } }
+  };
 }
 
 function revisionFreezeDigest(freeze) {
@@ -2895,6 +2967,8 @@ const LOAD_PLAYWRIGHT_DIR = 'test/example/priv/playwright';
 const LOAD_SPENT = ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK', 'CR-DARK-FIRST'];
 const LOAD_CHARGES = [3768, 3743, 26373, 46803, 40993, 121252, 112, 33409];
 const LOAD_NODE = 'v20.18.1';
+const LOAD_DROP_FLOOR_MS = 5000;
+const LOAD_ABSENCE_FLOOR_MS = 5000;
 const LOAD_FAILED27 = {
   freeze: { file: `${PHASE_DIR}/253-CONTROL-RECOVERY-NATIVE-FREEZE.json`, sha256: 'bef539ef0803a5e035266fd2d5334b02dc87893c285114e7f70cbec3b46a0778' },
   evidence: { file: `${PHASE_DIR}/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json`, sha256: 'e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0' }
@@ -3243,7 +3317,8 @@ export function verifyNativeLoadAttempt(attempt, freeze, baseDir) {
   let started = 0n; let ended = 0n;
   try { started = BigInt(attempt.started_monotonic_ns); ended = BigInt(attempt.ended_monotonic_ns); } catch { /* reported below */ }
   if (started <= 0n || ended <= started || Math.ceil(Number(ended - started) / 1e6) !== attempt.execution_duration_ms) fail('native command monotonic duration is missing or inconsistent');
-  if (attempt.charged_duration_ms !== attempt.execution_duration_ms) fail('native command charge does not include its complete measured duration');
+  if (attempt.charged_duration_ms !== Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms ?? 0)) fail('native command charge does not include its complete measured duration');
+  if (attempt.host?.suspension_detected === true) fail('host suspension was detected during the native window');
   if (attempt.database?.setup_exit_code !== 0 || attempt.database?.drop_exit_code !== 0) fail('fresh database setup or drop did not succeed');
   if (!OWNED_CONTROL_DATABASE.test(attempt.database?.name ?? '')) fail('database identity is outside the synthetic control namespace');
   if (attempt.server?.http_status !== 200 || !Number.isInteger(attempt.server?.app_pid)) fail('server readiness or app process identity is missing');
@@ -3435,7 +3510,7 @@ export async function prepareLoadRecovery(freezeFile, evidenceFile, root = ROOT,
 
 export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root = ROOT, deps = {}) {
   const d = {
-    validate: validateLoadRecoveryFreeze, runTree: runLoggedTree, spawnApp: spawn, waitReady, portAvailable, stopApp,
+    validate: validateLoadRecoveryFreeze, runTree: runLoggedTree, spawnApp: spawn, waitReady, portAvailable, stopApp, holdAwake: holdHostAwake,
     captureAbsence: captureOwnedDatabaseAbsence, captureAccount: captureOwnedAccountCount, sanitizeTrace: sanitizeTraceFile,
     skipPreservation: false, enforcePaths: true, enforceNode: true, ...deps
   };
@@ -3463,13 +3538,26 @@ export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root
     || evidence.limits.physical_playwright_cli_launches + unusedRegular + 9 > freeze.ledger.physical_cli_launch_max) throw new Error('remaining D-19 and conditional D-20 reservations do not fit frozen limits');
   if (!(await d.portAvailable(slot.port))) throw new Error(`frozen port ${slot.port} is occupied before native setup`);
   const project = PROJECTS.find((item) => item.name === slot.project);
+  // Acquired before the predebit so a host that cannot be kept awake costs no reservation.
+  const awake = d.holdAwake();
+  try {
+    return await runHeldLoadRecoverySlot({ d, root, freeze, slot, evidence, evidenceFile, reserve, project, awake });
+  } finally { awake.release(); }
+}
+
+async function runHeldLoadRecoverySlot({ d, root, freeze, slot, evidence, evidenceFile, reserve, project, awake }) {
   const rawDir = `${evidenceFile}.raw`;
   const rawAttempt = createAttemptDirectory(rawDir, slot.id, 1);
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-recovery-'));
   const started = process.hrtime.bigint();
+  const wallStarted = Date.now();
   const nowMs = () => Number(process.hrtime.bigint()) / 1e6;
   const commandDeadline = Number(started) / 1e6 + reserve;
   const workDeadline = commandDeadline - slot.cleanup_ms;
+  // Remaining budget by whichever clock is further along: monotonic time may exclude host sleep,
+  // so the wall clock independently bounds every stage of the window (253-40).
+  const remainingUntil = (offsetMs) => Math.min(Number(started) / 1e6 + offsetMs - nowMs(), wallStarted + offsetMs - Date.now());
+  const workRemaining = () => remainingUntil(reserve - slot.cleanup_ms);
   const database = `sigra_253_control_load_${slot.id.toLowerCase().replaceAll('-', '_')}_${Date.now().toString(36)}_${process.pid}`.toLowerCase();
   const env = diagnosticEnvironment(project, database, tempRoot);
   const tempPaths = Object.fromEntries(['setup_log', 'app_log', 'test_log', 'drop_log'].map((name) => [name, path.join(tempRoot, `${name.replaceAll('_', '-')}.log`)]));
@@ -3482,7 +3570,8 @@ export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root
     playwright_cli: { launched: false, exit_code: null }, lifecycle: { playwright_cli_processes: 0, rows: 0, worker_indexes: [] },
     observed_outcome: 'setup_failed', files: {}, traces: [], registration: { server_post_confirmed: false },
     toolchain: { playwright: null, ecto_sql: freeze.tools.ecto_sql, phoenix_live_view: freeze.tools.phoenix_live_view },
-    build_path: env.MIX_BUILD_PATH, stage_deadlines: { command_ms: reserve, work_ms: slot.work_ms, cleanup_ms: slot.cleanup_ms, cleanup_reserved: true }
+    build_path: env.MIX_BUILD_PATH, stage_deadlines: { command_ms: reserve, work_ms: slot.work_ms, cleanup_ms: slot.cleanup_ms, cleanup_reserved: true },
+    host: { platform: awake.platform, sleep_assertion_held: awake.held, sleep_assertion_argv: awake.argv ?? null, suspension_detected: false }
   };
   evidence.status = 'running';
   evidence.reservation = { slot_id: slot.id, mapped_from: slot.maps_from, reserved_ms: reserve, predebited_at: new Date().toISOString(), source_commit: freeze.source.checkout_head };
@@ -3491,7 +3580,7 @@ export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root
   let app = null; let terminalError = null;
   const playwrightDir = path.join(root, LOAD_PLAYWRIGHT_DIR);
   try {
-    const setup = await d.runTree('mix', ['ecto.setup'], path.join(root, 'test/example'), env, tempPaths.setup_log, workDeadline - nowMs());
+    const setup = await d.runTree('mix', ['ecto.setup'], path.join(root, 'test/example'), env, tempPaths.setup_log, workRemaining());
     attempt.setup = setup; attempt.database.setup_exit_code = setup.exit_code;
     if (setup.exit_code !== 0 || setup.timed_out) throw new Error(`fresh database setup failed${setup.timed_out ? ' at its work deadline' : ` with exit ${setup.exit_code ?? 'null'}`}`);
     const appFd = fs.openSync(tempPaths.app_log, 'w');
@@ -3503,6 +3592,7 @@ export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root
     const installed = readJson(path.join(playwrightDir, 'node_modules/@playwright/test/package.json')).version;
     if (installed !== freeze.tools.playwright) throw new Error(`installed Playwright ${installed} differs from the frozen ${freeze.tools.playwright}`);
     attempt.toolchain.playwright = installed;
+    if (workRemaining() <= 0) throw new Error('the reserved work deadline passed before browser launch');
     if (slot.stage === 'second') {
       const absenceLog = path.join(tempRoot, 'prior-collision-absence.log');
       attempt.prior_collision_absence = d.captureAccount({ database, email: loadControlAccount(slot.project, 'collision'), env, cwd: path.join(root, 'test/example'), log: absenceLog, deadline: workDeadline });
@@ -3516,7 +3606,7 @@ export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root
       ...env, CI: 'true', SIGRA_EXAMPLE_URL: `http://127.0.0.1:${slot.port}`, SIGRA_PLAYWRIGHT_JSON: reportTemp,
       SIGRA_REGISTRATION_CONTROL_STAGE: slot.control_stage, SIGRA_CONTROL_RUN_ID: `${slot.id.toLowerCase()}-${crypto.randomUUID()}`,
       SIGRA_CONTROL_ACCOUNT_PREFIX: 'platform-admin+sigra-253-control', PLAYWRIGHT_HTML_OUTPUT_DIR: path.join(tempRoot, 'html-report')
-    }, tempPaths.test_log, workDeadline - nowMs());
+    }, tempPaths.test_log, workRemaining());
     attempt.test_command = browser; attempt.browser.exit_code = browser.exit_code; attempt.playwright_cli.exit_code = browser.exit_code; attempt.lifecycle.cli_pid = browser.pid ?? null;
     if (browser.timed_out) throw new Error('native Playwright command reached the reserved work deadline');
     if (!fs.existsSync(reportTemp) || fs.statSync(reportTemp).size === 0) throw new Error('native Playwright JSON report is absent or empty');
@@ -3549,13 +3639,15 @@ export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root
   finally {
     await d.stopApp(app);
     if (fs.existsSync(tempPaths.app_log)) attempt.log_redactions_app = sanitizeCommandLog(tempPaths.app_log);
-    const cleanupRemaining = commandDeadline - nowMs();
+    const cleanupRemaining = remainingUntil(reserve);
     if (cleanupRemaining <= 0) terminalError = [terminalError, 'owned cleanup exceeded the 120,000 ms command limit'].filter(Boolean).join('; ');
-    const drop = await d.runTree('mix', ['ecto.drop', '--quiet'], path.join(root, 'test/example'), env, tempPaths.drop_log, Math.max(1, Math.min(7000, cleanupRemaining - 5000)));
+    // An overrun is already terminal, so dropping the owned database still gets a bounded floor
+    // instead of a 1 ms budget that guarantees an orphaned database (253-40).
+    const drop = await d.runTree('mix', ['ecto.drop', '--quiet'], path.join(root, 'test/example'), env, tempPaths.drop_log, Math.max(LOAD_DROP_FLOOR_MS, Math.min(7000, cleanupRemaining - 5000)));
     attempt.database.drop_exit_code = drop.exit_code; attempt.drop_command = drop;
     if (drop.exit_code !== 0 || drop.timed_out) terminalError = [terminalError, `database drop failed${drop.timed_out ? ' at cleanup deadline' : ` with exit ${drop.exit_code ?? 'null'}`}`].filter(Boolean).join('; ');
     if (drop.exit_code === 0 && !drop.timed_out) {
-      try { attempt.database.absence_receipt = d.captureAbsence({ database, env, cwd: path.join(root, 'test/example'), log: path.join(tempRoot, 'database-absence.log'), deadline: commandDeadline }); }
+      try { attempt.database.absence_receipt = d.captureAbsence({ database, env, cwd: path.join(root, 'test/example'), log: path.join(tempRoot, 'database-absence.log'), deadline: Math.max(commandDeadline, nowMs() + LOAD_ABSENCE_FLOOR_MS) }); }
       catch (error) { terminalError = [terminalError, `independent database absence query failed: ${error.message}`].filter(Boolean).join('; '); }
     }
     try { fs.rmSync(env.MIX_BUILD_PATH, { recursive: true, force: true }); attempt.build_directory_removed = !fs.existsSync(env.MIX_BUILD_PATH); }
@@ -3575,7 +3667,12 @@ export async function runLoadRecoverySlot(freezeFile, slotId, evidenceFile, root
   }
   attempt.ended_monotonic_ns = process.hrtime.bigint().toString();
   attempt.execution_duration_ms = Math.ceil(Number(BigInt(attempt.ended_monotonic_ns) - BigInt(attempt.started_monotonic_ns)) / 1e6);
-  attempt.charged_duration_ms = attempt.execution_duration_ms;
+  attempt.wall_duration_ms = Math.ceil(Date.now() - wallStarted);
+  // Charge the larger clock: monotonic time may exclude host sleep, and a charge must never hide it.
+  attempt.charged_duration_ms = Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms);
+  attempt.host.suspension_detected = [attempt.setup, attempt.test_command, attempt.drop_command].some((result) => result?.suspended === true)
+    || Math.abs(attempt.wall_duration_ms - attempt.execution_duration_ms) > TREE_SUSPEND_GAP_MS;
+  if (attempt.host.suspension_detected) terminalError = [terminalError, 'host suspension (system sleep or a stalled runner event loop) was detected during the native window, so its timings cannot be accepted'].filter(Boolean).join('; ');
   if (attempt.charged_duration_ms > reserve) terminalError = [terminalError, 'native command exceeded its frozen 120,000 ms command reservation'].filter(Boolean).join('; ');
   const validation = verifyNativeLoadAttempt(attempt, freeze, rawDir);
   if (!validation.ok) terminalError = [terminalError, ...validation.errors].filter(Boolean).join('; ');
