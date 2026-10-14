@@ -1688,7 +1688,7 @@ async function runControlRecoverySlot(freezeFile, slotId, evidenceFile, root = R
   const attempt = {
     slot_id: slot.id, sequence: slot.sequence, stage: slot.stage, project: slot.project, argv: slot.argv,
     source_commit: freeze.source.checkout_head, source_blobs: freeze.source.blobs,
-    started_monotonic_ns: started.toString(), database: { name: database, setup_exit_code: null, drop_exit_code: null },
+    started_monotonic_ns: started.toString(), database: { name: database, setup_exit_code: null, drop_exit_code: null, connection: databaseConnectionIdentity(env) },
     server: { port: project.port, http_status: null, app_pid: null },
     browser: { launched: false, exit_code: null }, playwright_cli: { launched: false, exit_code: null },
     observed_outcome: 'setup_failed', files: {}, traces: [], trace_assertion: [], transport_observations: [],
@@ -1767,6 +1767,12 @@ async function runControlRecoverySlot(freezeFile, slotId, evidenceFile, root = R
     attempt.database.drop_exit_code = drop.exit_code;
     attempt.drop_command = drop;
     if (drop.exit_code !== 0 || drop.timed_out) terminalError = [terminalError, `database drop failed${drop.timed_out ? ' at cleanup deadline' : ` with exit ${drop.exit_code ?? 'null'}`}`].filter(Boolean).join('; ');
+    if (drop.exit_code === 0 && !drop.timed_out) {
+      // Charged inside the same reserved cleanup window; the command deadline is never extended.
+      const absenceLog = path.join(tempRoot, 'database-absence.log');
+      try { attempt.database.absence_receipt = captureOwnedDatabaseAbsence({ database, env, cwd: path.join(root, 'test/example'), log: absenceLog, deadline: commandDeadline }); }
+      catch (error) { terminalError = [terminalError, `independent database absence query failed: ${error.message}`].filter(Boolean).join('; '); }
+    }
     try { fs.rmSync(env.MIX_BUILD_PATH, { recursive: true, force: true }); attempt.build_directory_removed = !fs.existsSync(env.MIX_BUILD_PATH); }
     catch (error) { attempt.build_directory_removed = false; terminalError = [terminalError, `physical Mix build cleanup failed: ${error.message}`].filter(Boolean).join('; '); }
   }
@@ -1775,6 +1781,12 @@ async function runControlRecoverySlot(freezeFile, slotId, evidenceFile, root = R
     const target = path.join(rawAttempt, `${name.replaceAll('_', '-')}.log`);
     fs.copyFileSync(tempPaths[name], target, fs.constants.COPYFILE_EXCL);
     attempt.files[name] = receiptFile(rawDir, `sanitized ${name}`, target);
+  }
+  const absenceTemp = path.join(tempRoot, 'database-absence.log');
+  if (fs.existsSync(absenceTemp)) {
+    const target = path.join(rawAttempt, 'database-absence.log');
+    fs.copyFileSync(absenceTemp, target, fs.constants.COPYFILE_EXCL);
+    attempt.files.database_absence = receiptFile(rawDir, 'owned database absence query log', target);
   }
   attempt.ended_monotonic_ns = process.hrtime.bigint().toString();
   attempt.execution_duration_ms = Math.ceil(Number(BigInt(attempt.ended_monotonic_ns) - BigInt(attempt.started_monotonic_ns)) / 1e6);
@@ -1999,6 +2011,80 @@ export function validateSanitizedCommandLog(text) {
   return { ok: errors.length === 0, errors };
 }
 
+const EMPTY_SHA256 = crypto.createHash('sha256').update('').digest('hex');
+const DATABASE_ABSENCE_SCHEMA = 'sigra.phase253.owned-database-absence/v1';
+const DATABASE_ABSENCE_QUERY = "SELECT count(*) FROM pg_database WHERE datname = :'target';\n";
+const OWNED_CONTROL_DATABASE = /^sigra_253_control_[a-z0-9_]+$/;
+
+function databaseAbsenceArgv(database, connection) {
+  return ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-v', `target=${database}`, '-A', '-t',
+    '-h', String(connection.host), '-p', String(connection.port), '-U', String(connection.user), '-d', 'postgres'];
+}
+
+export function databaseConnectionIdentity(env) {
+  return { host: String(env.PGHOST ?? ''), port: String(env.PGPORT ?? ''), user: String(env.PGUSER ?? ''), maintenance_database: 'postgres' };
+}
+
+// Independent proof that quiet `mix ecto.drop` really removed the owned database: a bounded psql
+// catalog query against the maintenance database. The password stays in the environment only.
+export function captureOwnedDatabaseAbsence({ database, env, cwd, log, deadline, run = spawnSync }) {
+  if (!OWNED_CONTROL_DATABASE.test(database ?? '')) throw new Error('refusing to query a database outside the synthetic control namespace');
+  const connection = databaseConnectionIdentity(env);
+  if (!connection.host || !connection.port || !connection.user) throw new Error('database absence query needs PGHOST, PGPORT and PGUSER');
+  const argv = databaseAbsenceArgv(database, connection);
+  const started = process.hrtime.bigint();
+  const timeout = Math.max(1, Math.floor(deadline - Number(started) / 1e6));
+  let result = null; let thrown = null;
+  try {
+    result = run(argv[0], argv.slice(1), { cwd, env: { ...env, PGDATABASE: 'postgres' }, input: DATABASE_ABSENCE_QUERY, encoding: 'utf8', timeout, killSignal: 'SIGKILL', maxBuffer: 65536 });
+  } catch (error) { thrown = error; }
+  const ended = process.hrtime.bigint();
+  const stdout = typeof result?.stdout === 'string' ? result.stdout : '';
+  fs.writeFileSync(log, stdout);
+  const error = thrown?.message ?? result?.error?.message ?? null;
+  const timedOut = result?.error?.code === 'ETIMEDOUT';
+  return {
+    schema_version: DATABASE_ABSENCE_SCHEMA, database, argv, query: DATABASE_ABSENCE_QUERY,
+    query_sha256: crypto.createHash('sha256').update(DATABASE_ABSENCE_QUERY).digest('hex'),
+    connection, exit_code: result?.status ?? null, signal: result?.signal ?? null, timed_out: timedOut, error,
+    started_monotonic_ns: started.toString(), ended_monotonic_ns: ended.toString(),
+    duration_ms: Math.ceil(Number(ended - started) / 1e6),
+    stdout_count: /^\d+\n$/.test(stdout) ? Number(stdout.trim()) : null,
+    log_bytes: Buffer.byteLength(stdout), log_sha256: crypto.createHash('sha256').update(stdout).digest('hex')
+  };
+}
+
+export function verifyDatabaseAbsenceReceipt(receipt, attempt, baseDir) {
+  const errors = [];
+  const fail = (message) => errors.push(message);
+  if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) return { ok: false, errors: ['independent database absence receipt is missing'] };
+  const database = attempt?.database?.name;
+  if (receipt.schema_version !== DATABASE_ABSENCE_SCHEMA) fail('absence receipt schema is unsupported');
+  if (!OWNED_CONTROL_DATABASE.test(database ?? '') || receipt.database !== database) fail('absence receipt is not for the exact owned control database');
+  const connection = receipt.connection;
+  const expectedConnection = attempt?.database?.connection;
+  if (!connection || connection.maintenance_database !== 'postgres' || !connection.host || !connection.port || !connection.user
+    || !expectedConnection || JSON.stringify(connection) !== JSON.stringify(expectedConnection)) fail('absence receipt connection differs from the owned database connection identity');
+  if (JSON.stringify(receipt).match(/password/i)) fail('absence receipt retains credential material');
+  if (connection && JSON.stringify(receipt.argv) !== JSON.stringify(databaseAbsenceArgv(database, connection))) fail('absence query argv is not the exact parameterized catalog query');
+  if (receipt.query !== DATABASE_ABSENCE_QUERY || receipt.query_sha256 !== crypto.createHash('sha256').update(DATABASE_ABSENCE_QUERY).digest('hex')) fail('absence query text or digest was altered');
+  if (receipt.exit_code !== 0 || receipt.signal !== null || receipt.timed_out !== false || receipt.error !== null) fail('absence query did not exit cleanly within its deadline');
+  if (receipt.stdout_count !== 0) fail('absence query did not return exactly zero rows for the owned database');
+  let started = 0n; let ended = 0n; let attemptStart = 0n; let attemptEnd = 0n;
+  try { started = BigInt(receipt.started_monotonic_ns); ended = BigInt(receipt.ended_monotonic_ns); attemptStart = BigInt(attempt.started_monotonic_ns); attemptEnd = BigInt(attempt.ended_monotonic_ns); } catch { /* reported below */ }
+  if (started <= 0n || ended <= started || Math.ceil(Number(ended - started) / 1e6) !== receipt.duration_ms) fail('absence query monotonic duration is missing or inconsistent');
+  else if (started < attemptStart || ended > attemptEnd) fail('absence query ran outside the charged native command window');
+  const reference = attempt?.files?.database_absence;
+  const file = confinedFile(baseDir, reference);
+  if (!file || !fs.existsSync(file)) fail('absence query log is missing');
+  else {
+    const bytes = fs.readFileSync(file);
+    if (!reference.sha256 || fileHash(file) !== reference.sha256 || receipt.log_sha256 !== reference.sha256 || receipt.log_bytes !== bytes.length) fail('absence query log digest or size mismatch');
+    if (bytes.toString('utf8') !== '0\n') fail('absence query log is not exactly a zero count');
+  }
+  return { ok: errors.length === 0, errors };
+}
+
 export function verifyNativeControlAttempt(attempt, freeze, baseDir) {
   const errors = [];
   const fail = (message) => errors.push(message);
@@ -2020,11 +2106,17 @@ export function verifyNativeControlAttempt(attempt, freeze, baseDir) {
   if (attempt.server?.http_status !== 200 || !Number.isInteger(attempt.server?.app_pid)) fail('server readiness or app process identity is missing');
   if (attempt.browser?.launched !== true || !Number.isInteger(attempt.browser?.exit_code)) fail('native Playwright launch or CLI exit is missing');
   if (attempt.build_directory_removed !== true || !attempt.build_path?.endsWith('/mix-build')) fail('fresh physical Mix build was not removed after the attempt');
+  const absence = verifyDatabaseAbsenceReceipt(attempt.database?.absence_receipt, attempt, baseDir);
+  for (const message of absence.errors) fail(`independent database absence: ${message}`);
   for (const name of ['setup_log', 'app_log', 'test_log', 'drop_log', 'playwright_report']) {
     const reference = attempt.files?.[name]; const file = confinedFile(baseDir, reference);
     if (!file || !fs.existsSync(file)) { fail(`sanitized native ${name.replaceAll('_', ' ')} is missing`); continue; }
     if (!reference.sha256 || fileHash(file) !== reference.sha256) fail(`sanitized native ${name.replaceAll('_', ' ')} digest mismatch`);
-    if (!fs.statSync(file).size) fail(`sanitized native ${name.replaceAll('_', ' ')} is empty`);
+    if (!fs.statSync(file).size) {
+      // Only a quiet drop may be empty, and only with a clean exit plus the independent absence proof.
+      const quietDropProven = name === 'drop_log' && reference.sha256 === EMPTY_SHA256 && attempt.database?.drop_exit_code === 0 && absence.ok;
+      if (!quietDropProven) fail(`sanitized native ${name.replaceAll('_', ' ')} is empty`);
+    }
     if (name.endsWith('_log')) {
       const sanitation = validateSanitizedCommandLog(fs.readFileSync(file, 'utf8'));
       if (!sanitation.ok) fail(`${name} contains an unsanitized credential block or auth header: ${sanitation.errors.join('; ')}`);
@@ -2259,7 +2351,7 @@ async function runControlRevision(freezeFile, slotId, evidenceFile, stage, root 
   const attempt = {
     slot_id: slot.id, sequence: slot.sequence, stage: slot.stage, project: project.name, argv: slot.argv,
     source_commit: freeze.source.checkout_head, source_blobs: freeze.source.blobs,
-    started_monotonic_ns: started.toString(), database: { name: db, setup_exit_code: null, drop_exit_code: null },
+    started_monotonic_ns: started.toString(), database: { name: db, setup_exit_code: null, drop_exit_code: null, connection: databaseConnectionIdentity(env) },
     server: { port: project.port, http_status: null, app_pid: null }, browser: { launched: false, exit_code: null },
     observed_outcome: 'setup_failed', files: {}, traces: [], trace_assertion: [], transport_observations: [],
     registration: { server_post_confirmed: false }, toolchain: { playwright: null, ecto_sql: freeze.tools.ecto_sql, phoenix_live_view: freeze.tools.phoenix_live_view },
@@ -2340,8 +2432,19 @@ async function runControlRevision(freezeFile, slotId, evidenceFile, stage, root 
     attempt.log_redactions.drop_log = drop;
     attempt.database.drop_exit_code = drop.exit_code;
     if (drop.exit_code !== 0) terminalError = [terminalError, `database drop failed with exit ${drop.exit_code ?? 'null'}`].filter(Boolean).join('; ');
+    else {
+      const absenceLog = path.join(tempRoot, 'database-absence.log');
+      try { attempt.database.absence_receipt = captureOwnedDatabaseAbsence({ database: db, env, cwd: path.join(root, 'test/example'), log: absenceLog, deadline }); }
+      catch (error) { terminalError = [terminalError, `independent database absence query failed: ${error.message}`].filter(Boolean).join('; '); }
+    }
     try { fs.rmSync(env.MIX_BUILD_PATH, { recursive: true, force: true }); attempt.build_directory_removed = !fs.existsSync(env.MIX_BUILD_PATH); }
     catch (error) { attempt.build_directory_removed = false; terminalError = [terminalError, `physical Mix build cleanup failed: ${error.message}`].filter(Boolean).join('; '); }
+  }
+  const absenceTemp = path.join(tempRoot, 'database-absence.log');
+  if (fs.existsSync(absenceTemp)) {
+    const target = path.join(rawAttempt, 'database-absence.log');
+    fs.copyFileSync(absenceTemp, target, fs.constants.COPYFILE_EXCL);
+    attempt.files.database_absence = receiptFile(rawDir, 'owned database absence query log', target);
   }
   for (const name of ['setup_log', 'app_log', 'test_log', 'drop_log']) {
     const source = tempPaths[name];

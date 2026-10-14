@@ -7,7 +7,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { attemptDirectory, runLogged, validateSanitizedCommandLog, verifyDiagnosticData, verifyNativeAttempt, verifyRevisionFreezeBinding } from './ci-registration-recovery.mjs';
+import { attemptDirectory, captureOwnedDatabaseAbsence, runLogged, validateSanitizedCommandLog, verifyDiagnosticData, verifyNativeAttempt, verifyRevisionFreezeBinding } from './ci-registration-recovery.mjs';
 import * as recovery from './ci-registration-recovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -572,7 +572,13 @@ test('native receipt rejects uncharged controls and attempts over the slot limit
 const CONTROL_BOARD = 'render bundle: board-mg-9/populated';
 const SAFE_MARKER = '[REDACTED seeded demo credentials]';
 
-function controlFixture({ setupLog = `migrated\n=== Demo Credentials ===\n${SAFE_MARKER}\n\nseed done\n` } = {}) {
+const FIXTURE_ENV = { PGHOST: '127.0.0.1', PGPORT: '55432', PGUSER: 'postgres', PGPASSWORD: 'synthetic-not-retained' };
+
+function psqlDouble({ stdout = '0\n', status = 0, signal = null, error = undefined, calls = [] } = {}) {
+  return (program, args, options) => { calls.push({ program, args, options }); return { status, signal, stdout, stderr: '', error }; };
+}
+
+function controlFixture({ setupLog = `migrated\n=== Demo Credentials ===\n${SAFE_MARKER}\n\nseed done\n`, quietDrop = false, absence = {} } = {}) {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-control-fixture-'));
   const hash = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
   const write = (name, contents) => {
@@ -594,25 +600,32 @@ function controlFixture({ setupLog = `migrated\n=== Demo Credentials ===\n${SAFE
     setup_log: write('setup.log', setupLog),
     app_log: write('app.log', 'Phoenix server started\n'),
     test_log: write('test.log', 'Playwright completed\n'),
-    drop_log: write('drop.log', 'database dropped\n'),
+    drop_log: write('drop.log', quietDrop ? '' : 'database dropped\n'),
     playwright_report: write('report.json', JSON.stringify(report))
   };
+  const databaseName = 'sigra_253_control_fixture_abc';
+  const absenceLog = path.join(base, 'database-absence.log');
+  const receipt = captureOwnedDatabaseAbsence({ database: databaseName, env: FIXTURE_ENV, cwd: base, log: absenceLog, deadline: Number(process.hrtime.bigint()) / 1e6 + 5000, run: psqlDouble(absence) });
+  files.database_absence = { path: 'database-absence.log', sha256: hash(absenceLog), bytes: fs.statSync(absenceLog).size };
+  const started = BigInt(receipt.started_monotonic_ns) - 5_000_000_000n;
+  const ended = BigInt(receipt.ended_monotonic_ns) + 5_000_000_000n;
+  const duration = Math.ceil(Number(ended - started) / 1e6);
   const attempt = {
     slot_id: slot.id, sequence: 1, stage: 'first', project: 'admin-eval', argv: slot.argv,
     source_commit: 'candidate-abc', source_blobs: blobs,
-    started_monotonic_ns: '1000000000', ended_monotonic_ns: '16000000000', execution_duration_ms: 15_000, charged_duration_ms: 15_000,
-    database: { name: 'sigra_253_control_fixture_abc', setup_exit_code: 0, drop_exit_code: 0 },
+    started_monotonic_ns: started.toString(), ended_monotonic_ns: ended.toString(), execution_duration_ms: duration, charged_duration_ms: duration,
+    database: { name: databaseName, setup_exit_code: 0, drop_exit_code: 0, connection: { host: '127.0.0.1', port: '55432', user: 'postgres', maintenance_database: 'postgres' }, absence_receipt: receipt },
     server: { http_status: 200, app_pid: 4242 }, browser: { launched: true, exit_code: 0 },
     build_directory_removed: true, build_path: '/tmp/fixture/mix-build', files
   };
-  return { base, freeze, attempt, write, hash };
+  return { base, freeze, attempt, write, hash, absenceLog };
 }
 
 test('control receipt accepts the exact safe seeded-credentials redaction marker', () => {
   const fixture = controlFixture();
   try {
     const result = recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base);
-    assert.deepEqual(result.errors.filter((message) => /unsanitized/.test(message)), []);
+    assert.deepEqual(result, { ok: true, errors: [] });
     assert.equal(validateSanitizedCommandLog(fs.readFileSync(path.join(fixture.base, 'setup.log'), 'utf8')).ok, true);
   } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
 });
@@ -648,6 +661,76 @@ test('control receipt rejects a hash-bound log carrying an injected credential r
     const result = recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base);
     assert.equal(result.ok, false);
     assert.ok(result.errors.some((message) => /setup_log contains an unsanitized credential block/.test(message)));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('absence capture runs one bounded parameterized psql query against the owned database only', () => {
+  const calls = [];
+  const log = path.join(temporary, 'absence-capture.log');
+  const receipt = captureOwnedDatabaseAbsence({ database: 'sigra_253_control_dark_abc_1', env: FIXTURE_ENV, cwd: root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: psqlDouble({ calls }) });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].program, 'psql');
+  assert.deepEqual(calls[0].args.slice(0, 5), ['-X', '-v', 'ON_ERROR_STOP=1', '-v', 'target=sigra_253_control_dark_abc_1']);
+  assert.ok(calls[0].args.includes('-A') && calls[0].args.includes('-t'));
+  assert.equal(calls[0].args[calls[0].args.indexOf('-d') + 1], 'postgres');
+  assert.match(calls[0].options.input, /datname = :'target'/);
+  assert.ok(calls[0].options.timeout >= 1 && calls[0].options.timeout <= 3000);
+  assert.equal(JSON.stringify(receipt).includes('synthetic-not-retained'), false);
+  assert.equal(receipt.stdout_count, 0);
+  assert.equal(fs.readFileSync(log, 'utf8'), '0\n');
+  assert.throws(() => captureOwnedDatabaseAbsence({ database: 'sigra_test', env: FIXTURE_ENV, cwd: root, log, deadline: Date.now() + 1000, run: psqlDouble() }), /synthetic control namespace/);
+  assert.throws(() => captureOwnedDatabaseAbsence({ database: 'sigra_253_control_x; DROP', env: FIXTURE_ENV, cwd: root, log, deadline: Date.now() + 1000, run: psqlDouble() }), /synthetic control namespace/);
+});
+
+test('a quiet zero-byte drop log is accepted only with the independent zero-row absence receipt', () => {
+  const fixture = controlFixture({ quietDrop: true });
+  try {
+    assert.equal(fixture.attempt.files.drop_log.bytes, 0);
+    assert.deepEqual(recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base), { ok: true, errors: [] });
+    delete fixture.attempt.database.absence_receipt;
+    const result = recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base);
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some((message) => /drop log is empty/.test(message)));
+    assert.ok(result.errors.some((message) => /absence receipt is missing/.test(message)));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('database absence verification rejects failed, forged, wrong-name, present-row and null receipts', () => {
+  const rejections = {
+    null_receipt: (item) => { item.database.absence_receipt = null; },
+    wrong_database: (item) => { item.database.absence_receipt.database = 'sigra_253_control_other'; },
+    wrong_target_argv: (item) => { item.database.absence_receipt.argv[4] = 'target=sigra_253_control_other'; },
+    altered_query: (item) => { item.database.absence_receipt.query = "SELECT 0;\n"; },
+    nonzero_exit: (item) => { item.database.absence_receipt.exit_code = 2; },
+    timed_out: (item) => { item.database.absence_receipt.timed_out = true; },
+    signal: (item) => { item.database.absence_receipt.signal = 'SIGKILL'; },
+    count_forged: (item) => { item.database.absence_receipt.stdout_count = 1; },
+    wrong_connection: (item) => { item.database.absence_receipt.connection.port = '5432'; },
+    password_retained: (item) => { item.database.absence_receipt.connection.password = 'x'; },
+    missing_log_reference: (item) => { delete item.files.database_absence; },
+    altered_digest: (item) => { item.files.database_absence.sha256 = 'f'.repeat(64); },
+    outside_window: (item) => { item.database.absence_receipt.started_monotonic_ns = '1'; }
+  };
+  for (const [name, mutate] of Object.entries(rejections)) {
+    const fixture = controlFixture({ quietDrop: true });
+    try {
+      mutate(fixture.attempt);
+      assert.equal(recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false, name);
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+  for (const absence of [{ stdout: '1\n' }, { stdout: '' }, { stdout: '0\nextra\n' }, { status: 2, stdout: '' }, { error: Object.assign(new Error('timed out'), { code: 'ETIMEDOUT' }), status: null, signal: 'SIGKILL', stdout: '' }]) {
+    const fixture = controlFixture({ quietDrop: true, absence });
+    try {
+      assert.equal(recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false, JSON.stringify(absence));
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+});
+
+test('an empty drop log with a wrong digest or failed drop exit is not proven by absence alone', () => {
+  const fixture = controlFixture({ quietDrop: true });
+  try {
+    fixture.attempt.database.drop_exit_code = 1;
+    assert.equal(recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false);
   } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
 });
 
