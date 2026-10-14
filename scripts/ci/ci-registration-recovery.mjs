@@ -3442,6 +3442,146 @@ function verifyAccountCountReceipt(receipt, attempt, expectedDigest, expectedCou
   return errors;
 }
 
+// ---------------------------------------------------------------------------------------------
+// R5 (253-79): schema-qualified account count with bounded, redacted psql stderr.
+// Additive: the v1/R2/R3/R4 capture, query and verifier above stay byte-identical.
+// ---------------------------------------------------------------------------------------------
+const ACCOUNT_COUNT_SCHEMA_R5 = 'sigra.phase253.owned-account-count/v2';
+const ACCOUNT_SCHEMA_SOURCES_R5 = {
+  migration: 'test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs',
+  user: 'test/example/lib/example/accounts/user.ex'
+};
+const ACCOUNT_SCHEMA_IDENTIFIER_R5 = /^[a-z_][a-z0-9_]{0,62}$/;
+const PSQL_STDERR_LIMIT_R5 = 4096;
+const PSQL_STDERR_FIRST_LINE_LIMIT_R5 = 512;
+const CONTROL_EMAIL_R5 = /platform-admin\+sigra-253-control-[a-z0-9]+-[a-z-]+@example\.test/;
+
+const gitBlobSha1 = (bytes) => crypto.createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+
+function singlePrefixR5(text, attribute, label) {
+  const matches = [...text.matchAll(new RegExp(`^[ \\t]*@${attribute}[ \\t]+"([^"\\n]*)"[ \\t]*$`, 'gm'))];
+  if (matches.length !== 1) throw new Error(`account schema source ${label} must declare exactly one @${attribute} line, found ${matches.length}`);
+  if (!ACCOUNT_SCHEMA_IDENTIFIER_R5.test(matches[0][1])) throw new Error(`account schema source ${label} @${attribute} is not a plain lowercase identifier`);
+  return matches[0][1];
+}
+
+// The R5 count schema comes from the frozen product sources, never from the environment.
+export function accountSchemaSourcesR5(root) {
+  const read = (relative) => {
+    const file = path.join(root, relative);
+    if (!fs.existsSync(file)) throw new Error(`account schema source is missing: ${relative}`);
+    return fs.readFileSync(file);
+  };
+  const migration = read(ACCOUNT_SCHEMA_SOURCES_R5.migration);
+  const user = read(ACCOUNT_SCHEMA_SOURCES_R5.user);
+  const fromMigration = singlePrefixR5(migration.toString('utf8'), 'auth_prefix', ACCOUNT_SCHEMA_SOURCES_R5.migration);
+  const fromUser = singlePrefixR5(user.toString('utf8'), 'schema_prefix', ACCOUNT_SCHEMA_SOURCES_R5.user);
+  if (fromMigration !== fromUser) throw new Error(`account schema sources disagree: ${fromMigration} vs ${fromUser}`);
+  return {
+    name: fromMigration,
+    sources: [
+      { path: ACCOUNT_SCHEMA_SOURCES_R5.migration, blob: gitBlobSha1(migration) },
+      { path: ACCOUNT_SCHEMA_SOURCES_R5.user, blob: gitBlobSha1(user) }
+    ]
+  };
+}
+
+export function accountSchemaR5(root) { return accountSchemaSourcesR5(root).name; }
+
+export function accountCountQueryR5(schema) {
+  if (!ACCOUNT_SCHEMA_IDENTIFIER_R5.test(schema ?? '')) throw new Error('account schema is not a plain lowercase identifier');
+  return `SELECT count(*) FROM "${schema}".users WHERE email = :'target';\n`;
+}
+
+// Replace the two secrets psql could echo, keep everything else verbatim, then bound the result.
+function redactPsqlStderrR5(stderr, { email = null, password = null } = {}) {
+  let text = typeof stderr === 'string' ? stderr : '';
+  if (email) text = text.split(email).join('<redacted-account>');
+  if (password) text = text.split(password).join('<redacted-credential>');
+  const bytes = Buffer.from(text, 'utf8');
+  const truncated = bytes.length > PSQL_STDERR_LIMIT_R5;
+  let bounded = truncated ? bytes.subarray(0, PSQL_STDERR_LIMIT_R5).toString('utf8') : text;
+  while (Buffer.byteLength(bounded) > PSQL_STDERR_LIMIT_R5) bounded = bounded.slice(0, -1);
+  const firstLine = bounded.split('\n').find((line) => line.trim() !== '') ?? '';
+  return { text: bounded, truncated, firstLine: firstLine.slice(0, PSQL_STDERR_FIRST_LINE_LIMIT_R5) };
+}
+
+export function captureOwnedAccountCountR5({ database, email, env, cwd, root, log, deadline, run: runner = spawnSync, schema: schemaOverride }) {
+  if (!OWNED_CONTROL_DATABASE.test(database ?? '')) throw new Error('refusing to query a database outside the synthetic control namespace');
+  if (!/^platform-admin\+sigra-253-control-[a-z0-9]+-[a-z-]+@example\.test$/.test(email ?? '')) throw new Error('refusing to query an account outside the synthetic control namespace');
+  const connection = databaseConnectionIdentity(env);
+  if (!connection.host || !connection.port || !connection.user) throw new Error('account query needs PGHOST, PGPORT and PGUSER');
+  const derived = accountSchemaSourcesR5(root);
+  // The override exists only so tests can prove a wrong schema fails loudly; production passes none.
+  const schema = schemaOverride ?? derived.name;
+  const query = accountCountQueryR5(schema);
+  const argv = ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-v', `target=${email}`, '-A', '-t', '-h', connection.host, '-p', connection.port, '-U', connection.user, '-d', database];
+  const started = process.hrtime.bigint();
+  const timeout = Math.max(1, Math.floor(deadline - Number(started) / 1e6));
+  let result = null; let thrown = null;
+  try { result = runner(argv[0], argv.slice(1), { cwd, env: { ...env, PGDATABASE: database }, input: query, encoding: 'utf8', timeout, killSignal: 'SIGKILL', maxBuffer: 65536 }); }
+  catch (error) { thrown = error; }
+  const ended = process.hrtime.bigint();
+  const stdout = typeof result?.stdout === 'string' ? result.stdout : '';
+  const secrets = { email, password: env.PGPASSWORD };
+  const redacted = redactPsqlStderrR5(result?.stderr, secrets);
+  fs.writeFileSync(log, stdout);
+  fs.writeFileSync(`${log}.stderr.log`, redacted.text);
+  const rawError = thrown?.message ?? result?.error?.message ?? null;
+  return {
+    schema_version: ACCOUNT_COUNT_SCHEMA_R5, database, account_email_sha256: sha256(email),
+    argv: argv.map((item) => (item.startsWith('target=') ? 'target=<redacted-account>' : item)), query, query_sha256: sha256(query),
+    schema_binding: { name: schema, sources: derived.sources },
+    connection, exit_code: result?.status ?? null, timed_out: result?.error?.code === 'ETIMEDOUT',
+    error: rawError === null ? null : redactPsqlStderrR5(String(rawError), secrets).text,
+    started_monotonic_ns: started.toString(), ended_monotonic_ns: ended.toString(), duration_ms: Math.ceil(Number(ended - started) / 1e6),
+    count: /^\d+\n$/.test(stdout) ? Number(stdout.trim()) : null, log_sha256: sha256(stdout), log_bytes: Buffer.byteLength(stdout),
+    stderr_sha256: sha256(redacted.text), stderr_bytes: Buffer.byteLength(redacted.text), stderr_truncated: redacted.truncated,
+    stderr_first_line: redacted.firstLine
+  };
+}
+
+// Wraps the shared absence capture through its run seam so psql stderr is kept, redacted, in a sidecar.
+// The shared receipt is returned unchanged, so verifyDatabaseAbsenceReceipt still accepts it.
+export function captureOwnedDatabaseAbsenceR5({ run: runner = spawnSync, ...options }) {
+  let stderr = '';
+  const collecting = (program, args, spawnOptions) => {
+    const result = runner(program, args, spawnOptions);
+    if (typeof result?.stderr === 'string') stderr = result.stderr;
+    return result;
+  };
+  const receipt = captureOwnedDatabaseAbsence({ ...options, run: collecting });
+  const redacted = redactPsqlStderrR5(stderr, { password: options.env?.PGPASSWORD });
+  fs.writeFileSync(`${options.log}.stderr.log`, redacted.text);
+  return {
+    receipt,
+    stderr_sidecar: { path: `${path.basename(options.log)}.stderr.log`, sha256: sha256(redacted.text), bytes: Buffer.byteLength(redacted.text), truncated: redacted.truncated, first_line: redacted.firstLine }
+  };
+}
+
+export function verifyAccountCountReceiptR5(receipt, attempt, expectedDigest, expectedCount, label, frozenAccountCount) {
+  const errors = [];
+  if (!receipt || receipt.schema_version !== ACCOUNT_COUNT_SCHEMA_R5) return [`${label} account receipt is missing`];
+  if (receipt.database !== attempt.database?.name) errors.push(`${label} account receipt is for another database`);
+  if (receipt.account_email_sha256 !== expectedDigest) errors.push(`${label} account receipt digest is not the project's frozen collision account`);
+  if (receipt.exit_code !== 0 || receipt.timed_out || receipt.error !== null) {
+    errors.push(`${label} account query did not exit cleanly (exit ${receipt.exit_code}): ${receipt.stderr_first_line ?? receipt.error ?? ''}`);
+  }
+  if (receipt.count !== expectedCount) errors.push(`${label} account count is ${receipt.count}, expected ${expectedCount}`);
+  if (receipt.query !== frozenAccountCount?.query) errors.push(`${label} account receipt query differs from the frozen account count query`);
+  if (receipt.query_sha256 !== sha256(String(receipt.query))) errors.push(`${label} account receipt query digest does not match its query`);
+  if (receipt.schema_binding?.name !== frozenAccountCount?.schema) errors.push(`${label} account receipt schema differs from the frozen account schema`);
+  if (!Number.isInteger(receipt.stderr_bytes) || receipt.stderr_bytes > PSQL_STDERR_LIMIT_R5) errors.push(`${label} account receipt stderr is not bounded`);
+  const serialized = JSON.stringify(receipt);
+  if (CONTROL_EMAIL_R5.test(serialized)) errors.push(`${label} account receipt retains the raw account email`);
+  if (/(?:PGPASSWORD|password)\s*[=:]/i.test(serialized)) errors.push(`${label} account receipt retains credential material`);
+  try {
+    const started = BigInt(receipt.started_monotonic_ns); const ended = BigInt(receipt.ended_monotonic_ns);
+    if (started < BigInt(attempt.started_monotonic_ns) || ended > BigInt(attempt.ended_monotonic_ns) || ended <= started) errors.push(`${label} account query ran outside the charged window`);
+  } catch { errors.push(`${label} account query monotonic bounds are missing`); }
+  return errors;
+}
+
 export function verifyNativeLoadAttempt(attempt, freeze, baseDir, options = {}) {
   const perRowUnion = options?.contextIdentity === 'per_row_union';
   const errors = [];
