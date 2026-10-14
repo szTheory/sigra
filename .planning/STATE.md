@@ -4,59 +4,50 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: executing
-stopped_at: Recovery plans 26–35 passed independent review; execution begins with Plan 26
-last_updated: "2026-10-14T00:59:55.598Z"
-last_activity: 2026-10-13
-last_activity_desc: Phase 253 execution started
-state_head: 7915aa826af81402956d7a08635352f2add4ca20
+status: "control_recovery_execution_in_progress"
+stopped_at: "Recovery plans 26–35 passed independent review; execution begins with Plan 26"
+last_updated: "2026-10-14T00:52:15.809811+00:00"
+last_activity: "2026-10-13"
+last_activity_desc: "Ten additive recovery plans reviewed; no new implementation or phase acceptance"
+state_head: "c14e563aa9679922865de2fd08e3471cc7c6a67a"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 41
-  completed_plans: 21
-  percent: 25
+  completed_plans: 16
+  percent: 39
 milestone_status: active
-workflow_step: execute_recovery
+workflow_step: "execute_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253 --gaps-only
-resume_command: $gsd-execute-phase 253 --gaps-only
+next_command: "$gsd-execute-phase 253 --gaps-only"
+resume_command: "$gsd-execute-phase 253 --gaps-only"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
-phase253_planning_status: passed_with_informational_advisory
+phase253_planning_status: "passed_with_informational_advisory"
 phase253_plan_count: 35
 phase253_wave_count: 9
 phase253_task_count: 76
 phase253_implementation_status: partial
 phase253_completed_plans: 10
-phase253_halted_plans:
-  - 253-02
-  - 253-07
-  - 253-09
-  - 253-12
-  - 253-16
-phase253_blocked_plans:
-  - 253-08
-  - 253-10
-  - 253-13
-  - 253-14
-  - 253-17
-  - 253-21
-  - 253-22
-  - 253-23
-  - 253-24
-  - 253-25
+phase253_halted_plans: [253-02, 253-07, 253-09, 253-12, 253-16]
+phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14, 253-17, 253-21, 253-22, 253-23, 253-24, 253-25]
+
 phase253_recovery_plan_count: 6
+
 phase253_recovery_task_count: 13
+
 phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
+
 phase253_control_recovery_plan_count: 10
+
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: [253-26]
+
+phase253_ready_plans: ["253-26"]
 ---
 
 # Project State
@@ -70,11 +61,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 (Fix Flaky CI and Preserve Required Checks) — EXECUTING
+Phase: 253 — incomplete; recovery planning complete
 Plans: 10/35 implemented; new Plans 26–35 await execution; original halted and blocked plans preserved
-Status: Executing Phase 253
-Last activity: 2026-10-13 — Phase 253 execution started
-Progress: 16/41 planned milestone plans implemented ([███░░░░░░░] 25%); whole-phase verification not started
+Status: Ready to execute Plan 26; both CI reliability requirements remain open
+Last activity: 2026-10-14T00:52:15.809811+00:00 — independent review found no blockers or warnings; one command-path advisory remains
+Progress: 16/41 planned milestone plans implemented (39%); whole-phase verification not started
 
 ## Next GSD command
 
@@ -200,3 +191,7 @@ The next command is $gsd-plan-phase 253. Fresh init.plan-phase 253 found existin
 ## Latest control recovery planning
 
 Plans 26–35 add 10 plans, 22 tasks and nine dependency waves. Independent review has zero blockers, zero warnings and one informational command-path advisory; no override was used. All original 25 plans, failed receipts and Phase 252 artifacts remain unchanged. Full prior shared history is recoverable at 4f87b9650ffc54051ed9c4ab692a0283fede559c; the exact SDK state output is recoverable at c14e563aa9679922865de2fd08e3471cc7c6a67a. The unrelated config edit remains unstaged and recoverable at refs/gsd/phase253-recovery-execution-unrelated-config. Both CI reliability requirements and whole-phase verification remain open. Next: $gsd-execute-phase 253 --gaps-only.
+
+## Control recovery execution started
+
+Command: $gsd-execute-phase 253 --gaps-only. Start with Plan 26 offline control diagnosis and repair. Carry 243044 ms, four prior browser launches, and zero retries available. Existing failures remain unchanged; no new native or hosted proof exists yet. Capture: 253-CONTROL-RECOVERY-EXECUTION-CAPTURE.json. Exact SDK output remains recoverable at 6bb702c06d1426f9ddb20dde8a5d437c907f4973. Whole-phase verification remains not started.
