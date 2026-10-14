@@ -6319,6 +6319,203 @@ async function runHeldLoadRecoverySlotR4({ d, root, freeze, slot, evidence, evid
   return { status: evidence.status, slot: slot.id, rows: attempt.lifecycle.rows, charged_duration_ms: attempt.charged_duration_ms, physical_playwright_cli_launches: evidence.limits.physical_playwright_cli_launches };
 }
 
+// ---- Phase 253 plan 79: R5 load-recovery revision (additive; every v1, R2, R3 and R4 line above is untouched) ----
+// 253-73 ran CR4-DESKTOP-MOBILE-FIRST (accepted, 16 rows) and then halted CR4-DESKTOP-SECOND before any browser: the shared
+// account-count query named the unqualified relation users, but the example app keeps users in the auth schema. R5 carries the
+// accepted first window by its committed bytes, carries every charge, and counts accounts with the schema-qualified R5 query.
+const LOAD_R5_FREEZE_SCHEMA = 'sigra.phase253.registration-load-recovery-freeze/v5';
+const LOAD_R5_SCHEMA = 'sigra.phase253.registration-load-recovery-evidence/v5';
+const LOAD_R5_APPROVAL_SCHEMA = 'sigra.phase253.load-recovery-budget-approval/v4';
+const LOAD_R5_FREEZE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json`;
+const LOAD_R5_EVIDENCE_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json`;
+const LOAD_R5_BUDGET_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-BUDGETS-R5.md`;
+const LOAD_R5_APPROVAL_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R5.json`;
+const LOAD_R5_INFRA_DIAGNOSTIC_PATH = `${PHASE_DIR}/253-LOAD-RECOVERY-NATIVE-R5-INFRA-DIAGNOSTIC.json`;
+const LOAD_R5_SUMMARY_PATH = `${PHASE_DIR}/253-73-SUMMARY.md`;
+const LOAD_R5_HALT_CAUSE = 'runner_account_count_unqualified_schema';
+// Byte identities of the halted R4 lineage, re-hashed on every read.
+const LOAD_R5_LINEAGE = {
+  evidence: { file: LOAD_R4_EVIDENCE_PATH, sha256: '6162ed6e9dad947223912ce739ee250d2c6218a5b514f86b0e7f9224a536cdbd' },
+  freeze: { file: LOAD_R4_FREEZE_PATH, sha256: 'abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346' },
+  approval: { file: LOAD_R4_APPROVAL_PATH, sha256: '6f866bb38a9eca091bd56dbed88eda5aab135fc5dcb87e45ea53589f9c7de911' },
+  budget: { file: LOAD_R4_BUDGET_PATH, sha256: '865561402eb87f160aaf746fba9121bb5b9cad936f64d86ada5e9a585ad099c3' },
+  summary: { file: LOAD_R5_SUMMARY_PATH, sha256: '1ccc0d9700cca753f31d16d2b489527d3b29a9459a794edc1123489fe30fddcf' }
+};
+// The accepted first window: the committed first_complete R4 revision.
+const LOAD_R5_CARRY_COMMIT = '0596dd97a77acafc7dff68b48cba437f3c7e5183';
+const LOAD_R5_CARRY_SHA256 = '084377320bce81ac6c84ca1adca847805861cc8815572453b407132eb3b24193';
+const LOAD_R5_CARRY_R4_HEAD = '4fdbc82b4a988f34eed066c1687f854a049dd03d';
+const LOAD_R5_CARRIED_ROWS = 16;
+const LOAD_R5_FIRST_ID = LOAD_R4_IDS[0];
+const LOAD_R5_HALTED_ID = LOAD_R4_IDS[1];
+const LOAD_R5_SPENT = [...LOAD_R4_SPENT, LOAD_R5_FIRST_ID, LOAD_R5_HALTED_ID];
+const LOAD_R5_CHARGES = [...LOAD_R4_CHARGES, 821, 92_810, 43_535];
+const LOAD_R5_CARRIED_MS = 2_359_703;
+const LOAD_R5_CARRIED_LAUNCHES = 9;
+const LOAD_R5_PREPARATION_USED_MS = 5141 + 822 + 821;
+const LOAD_R5_EXPIRED = [...LOAD_R4_EXPIRED, LOAD_R4_RETRY_ID];
+const LOAD_R5_RETIRED = [...LOAD_R4_RETIRED, ...LOAD_R4_IDS.slice(2)];
+const LOAD_R5_IDS = ['CR5-DESKTOP-SECOND', 'CR5-MOBILE-SECOND', 'CR5-DARK-SECOND'];
+const LOAD_R5_MAPS_FROM = LOAD_R4_IDS.slice(1);
+const LOAD_R5_RETRY_ID = 'CR5-INFRA-RETRY';
+// Equal to the rows of 253-LOAD-RECOVERY-BUDGETS-R5.md; the ledger builder recomputes them and refuses drift.
+const LOAD_R5_CAP_TABLE = {
+  approve: { new_allowance_ms: 565000, d19_cap_ms: 2924703, d19_launch_max: 13, shared_cap_ms: 5264703, physical_cli_max: 22 },
+  'approve-without-retry': { new_allowance_ms: 430000, d19_cap_ms: 2789703, d19_launch_max: 12, shared_cap_ms: 5129703, physical_cli_max: 21 }
+};
+
+// The three R4 second windows (identical selection, projects, argv, ports, expected CLI exit and window sizes) under new
+// identities. The retry keeps the R4 retry shape but is sized to the 135000 ms second window it can only ever re-run.
+export function loadRecoverySlotDefinitionsR5() {
+  const r4 = loadRecoverySlotDefinitionsR4();
+  const regular = r4.slice(1, 4).map((slot, index) => ({ ...slot, id: LOAD_R5_IDS[index], maps_from: LOAD_R5_MAPS_FROM[index] }));
+  const retry = {
+    ...r4[4], id: LOAD_R5_RETRY_ID, maps_from: LOAD_R5_RETRY_ID, work_ms: LOAD_R3_SECOND_WORK_MS,
+    command_ms: LOAD_R3_SECOND_WORK_MS + LOAD_R3_CLEANUP_MS, max_duration_ms: LOAD_R3_SETUP_MS + LOAD_R3_SECOND_WORK_MS + LOAD_R3_CLEANUP_MS
+  };
+  return [...regular, retry];
+}
+
+function loadR5Caps(withRetry) {
+  const slots = loadRecoverySlotDefinitionsR5();
+  const regular = slots.slice(0, 3).reduce((sum, slot) => sum + slot.max_duration_ms, 0);
+  const newAllowance = LOAD_R3_PREPARATION_MS + regular + (withRetry ? slots[3].max_duration_ms : 0) + LOAD_R3_HEADROOM_MS;
+  const d19 = LOAD_R5_CARRIED_MS + newAllowance;
+  const d19Launches = LOAD_R5_CARRIED_LAUNCHES + 3 + (withRetry ? 1 : 0);
+  return { new_allowance_ms: newAllowance, d19_cap_ms: d19, d19_launch_max: d19Launches, shared_cap_ms: d19 + 9 * 240_000 + 3 * 60_000, physical_cli_max: d19Launches + 9 };
+}
+
+export function buildLoadRecoveryLedgerR5(input) {
+  const errors = [];
+  if (!Array.isArray(input?.charges) || JSON.stringify(input.charges) !== JSON.stringify(LOAD_R5_CHARGES)) errors.push('carried historical charges do not match the exact seventeen carried components');
+  if (input?.physicalPlaywrightLaunches !== LOAD_R5_CARRIED_LAUNCHES) errors.push('carried Playwright CLI launch count must be exactly nine');
+  if (JSON.stringify(input?.spentReservations) !== JSON.stringify(LOAD_R5_SPENT)) errors.push('spent reservation inventory must be the eleven closed identities');
+  if (input?.retryUsed !== 1 || input?.retryAvailable !== 0) errors.push('original retry must remain used 1, available 0');
+  if (input?.preparationUsedMs !== LOAD_R5_PREPARATION_USED_MS) errors.push('carried preparation used must be exactly 5141 + 822 + 821 = 6784 ms');
+  if (errors.length) throw new Error(errors.join('; '));
+  const priorCharge = input.charges.reduce((sum, value) => sum + value, 0);
+  const slots = loadRecoverySlotDefinitionsR5();
+  const caps = { approve: loadR5Caps(true), 'approve-without-retry': loadR5Caps(false) };
+  if (priorCharge !== LOAD_R5_CARRIED_MS || JSON.stringify(caps) !== JSON.stringify(LOAD_R5_CAP_TABLE)
+    || slots.slice(0, 3).some((slot) => slot.rows !== 2) || slots.slice(0, 3).reduce((sum, slot) => sum + slot.rows, 0) + LOAD_R5_CARRIED_ROWS !== 22) {
+    throw new Error('R5 load recovery arithmetic, caps or row packing differs from the reviewed finite allocation');
+  }
+  return {
+    prior_charge_ms: priorCharge, prior_playwright_cli_launches: LOAD_R5_CARRIED_LAUNCHES, spent_reservations: [...LOAD_R5_SPENT],
+    expired_identities: [...LOAD_R5_EXPIRED], retired_identities: [...LOAD_R5_RETIRED],
+    retry_used: 1, retry_available: 0, preparation_used_ms: LOAD_R5_PREPARATION_USED_MS, preparation_reserve_ms: LOAD_R3_PREPARATION_MS, slots,
+    launch_unit: 'playwright_cli_process', engine_worker_lifecycle_accounting: 'separate_from_playwright_cli_launches',
+    setup_ms: LOAD_R3_SETUP_MS, setup_charged_separately: true, cleanup_reserve_per_command_ms: LOAD_R3_CLEANUP_MS, headroom_ms: LOAD_R3_HEADROOM_MS,
+    conditional_acceptance_slots: 9, conditional_acceptance_ms: 2_160_000, optional_seed_checks_ms: 180_000,
+    caps, required_new_rows: 6, carried_rows: LOAD_R5_CARRIED_ROWS, required_rows: 22
+  };
+}
+
+function sortKeysR5(value) {
+  if (Array.isArray(value)) return value.map(sortKeysR5);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map((key) => [key, sortKeysR5(value[key])]));
+  return value;
+}
+
+export function canonicalJsonR5(value) { return JSON.stringify(sortKeysR5(value)); }
+
+export function readLoadHistoryR5(root, deps = {}) {
+  const d = { olderHistory: readLoadHistoryR4, lineage: LOAD_R5_LINEAGE, skipPreservedRevisions: false, ...deps };
+  const older = d.olderHistory(root);
+  for (const [name, record] of Object.entries(d.lineage)) {
+    if (fileHash(path.join(root, record.file)) !== record.sha256) throw new Error(`R4 ${name} bytes changed: ${record.file}`);
+  }
+  const evidenceFile = path.join(root, d.lineage.evidence.file);
+  const evidence = readJson(evidenceFile);
+  const first = evidence.attempts?.[0];
+  const halted = evidence.attempts?.[1];
+  const limits = evidence.limits ?? {};
+  const absence = halted?.prior_collision_absence;
+  if (evidence.status !== 'halted' || evidence.attempts?.length !== 2
+    || first?.slot_id !== LOAD_R5_FIRST_ID || first.observed_outcome !== 'native_rows_accepted' || first.charged_duration_ms !== 92_810 || first.playwright_cli?.launched !== true
+    || halted?.slot_id !== LOAD_R5_HALTED_ID || halted.observed_outcome !== 'halted' || halted.charged_duration_ms !== 43_535 || halted.playwright_cli?.launched !== false
+    || absence?.schema_version !== 'sigra.phase253.owned-account-count/v1' || absence.exit_code !== 3 || absence.query !== ACCOUNT_COUNT_QUERY
+    || typeof evidence.stop_reason !== 'string' || !evidence.stop_reason
+    || (evidence.infrastructure_halts ?? []).length !== 0 || evidence.infrastructure_retry?.eligible
+    || evidence.preparation?.duration_ms !== 821 || limits.preparation_charge_ms !== 821
+    || limits.charged_duration_ms !== LOAD_R5_CARRIED_MS || limits.prior_charge_ms !== LOAD_R4_CARRIED_MS
+    || limits.physical_playwright_cli_launches !== LOAD_R5_CARRIED_LAUNCHES || JSON.stringify(limits.used_slots) !== JSON.stringify(LOAD_R5_SPENT)
+    || limits.retry_used !== 1 || limits.retry_available !== 0 || limits.infra_retry?.used !== 0) {
+    throw new Error('halted R4 receipt differs from the 2359703 ms, nine-launch, eleven-spent, non-infrastructure ledger');
+  }
+  const rawBase = `${evidenceFile}.raw`;
+  const rawFiles = new Set();
+  for (const item of [...collectReferencesR4(evidence.attempts), ...collectReferencesR4(evidence.preparation)]) {
+    const file = confinedFile(rawBase, item);
+    if (!file || fileHash(file) !== item.sha256) throw new Error(`halted R4 raw receipt readback differs: ${item.path}`);
+    rawFiles.add(`${d.lineage.evidence.file}.raw/${item.path}`);
+  }
+  for (const found of listFilesR4(rawBase)) rawFiles.add(`${d.lineage.evidence.file}.raw/${found}`);
+  if (!d.skipPreservedRevisions) {
+    for (const revision of evidence.preserved_revisions ?? []) {
+      if (sha256(readGitBlob(root, revision.ref)) !== revision.sha256) throw new Error(`halted R4 preserved revision readback differs: ${revision.ref}`);
+    }
+  }
+  const charges = [...older.charges, evidence.preparation.duration_ms, first.charged_duration_ms, halted.charged_duration_ms];
+  const ledger = buildLoadRecoveryLedgerR5({
+    charges, physicalPlaywrightLaunches: limits.physical_playwright_cli_launches, spentReservations: limits.used_slots,
+    retryUsed: limits.retry_used, retryAvailable: limits.retry_available, preparationUsedMs: 5141 + 822 + evidence.preparation.duration_ms
+  });
+  const terminalHalt = {
+    slot_id: halted.slot_id, plan: '253-73', cause: LOAD_R5_HALT_CAUSE, terminal: true, infrastructure: false, retryable: false, charged: true,
+    charged_ms: halted.charged_duration_ms, preparation_ms: evidence.preparation.duration_ms, stop_reason: evidence.stop_reason,
+    summary: { file: d.lineage.summary.file, sha256: d.lineage.summary.sha256 },
+    expired_identities: [LOAD_R4_RETRY_ID], retired_identities: LOAD_R4_IDS.slice(2)
+  };
+  const lineageFiles = [...Object.values(d.lineage).map((record) => record.file), ...rawFiles];
+  const own = lineageFiles.map((file) => ({ path: file, sha256: fileHash(path.join(root, file)) }));
+  if (own.some((item) => !item.sha256)) throw new Error('an R5 lineage record is missing an exact byte identity');
+  const artifacts = [...older.artifacts.filter((item) => !lineageFiles.includes(item.path)), ...own];
+  return { control: older.control, ledger, charges, terminalHalt, artifacts, lineage: d.lineage, frozenBlobs: { ...older.frozenBlobs } };
+}
+
+// Binds the accepted R4 first window by its committed bytes. The verdict must reproduce from those bytes through the unchanged
+// R4 verifier, the halted evidence must carry the identical first attempt, and every raw file the attempt references is re-hashed.
+export function carriedFirstWindowR5(root, deps = {}) {
+  const d = {
+    evidenceFile: path.join(root, LOAD_R5_LINEAGE.evidence.file), freezeFile: path.join(root, LOAD_R5_LINEAGE.freeze.file), rawBase: null,
+    revisionCommit: LOAD_R5_CARRY_COMMIT, revisionSha256: LOAD_R5_CARRY_SHA256, readRevisionBytes: readFrozenBytesR2,
+    verifyRevision: verifyLoadRecoveryEvidenceDataR4, verifyBinding: verifyFrozenSourceBindingR4, ...deps
+  };
+  const rawBase = d.rawBase ?? `${d.evidenceFile}.raw`;
+  const bytes = d.readRevisionBytes(root, d.revisionCommit, LOAD_R4_EVIDENCE_PATH);
+  if (sha256(bytes) !== d.revisionSha256) throw new Error('the committed first_complete R4 revision differs from its pinned sha256');
+  const revision = JSON.parse(Buffer.from(bytes).toString('utf8'));
+  if (revision.status !== 'first_complete') throw new Error(`the carried first-window revision status is ${revision.status}, expected first_complete`);
+  const attempt = revision.attempts?.[0];
+  if (revision.attempts?.length !== 1 || attempt?.slot_id !== LOAD_R5_FIRST_ID || attempt.lifecycle?.rows !== LOAD_R5_CARRIED_ROWS) throw new Error('the carried first-window revision does not hold exactly the 16-row first attempt');
+  const freezeHash = fileHash(d.freezeFile);
+  if (freezeHash !== LOAD_R5_LINEAGE.freeze.sha256) throw new Error('the R4 freeze bytes differ from the carried first-window binding');
+  const freeze = readJson(d.freezeFile);
+  if (freeze.source?.checkout_head !== LOAD_R5_CARRY_R4_HEAD) throw new Error('the R4 freeze commit differs from the carried first-window binding');
+  const rawFiles = [];
+  for (const item of collectReferencesR4(attempt)) {
+    const file = confinedFile(rawBase, item);
+    if (!file || fileHash(file) !== item.sha256) throw new Error(`carried first-window raw file differs from its recorded sha256: ${item.path}`);
+    rawFiles.push({ path: `${LOAD_R4_EVIDENCE_PATH}.raw/${item.path}`, sha256: item.sha256 });
+  }
+  const verdict = d.verifyRevision(structuredClone(revision), freeze, rawBase, 'first', freezeHash);
+  if (!verdict.ok) throw new Error(`the carried first-window revision no longer verifies: ${verdict.errors.join('; ')}`);
+  d.verifyBinding(root, freeze, { terminal: true });
+  const halted = readJson(d.evidenceFile);
+  if (canonicalJsonR5(halted.attempts?.[0]) !== canonicalJsonR5(attempt)) throw new Error('the halted R4 evidence attempt 0 differs from the carried first-window revision attempt');
+  const reportFile = confinedFile(rawBase, attempt.files?.playwright_report);
+  if (!reportFile) throw new Error('the carried first-window attempt has no readable Playwright report');
+  const contextIds = playReportTests(readJson(reportFile)).flatMap((row) => controlContextIdentitiesR4(row));
+  if (new Set(contextIds).size !== contextIds.length) throw new Error('two carried rows reused the same browser-context identity');
+  return {
+    revision_commit: d.revisionCommit, revision_sha256: d.revisionSha256, evidence_path: LOAD_R4_EVIDENCE_PATH, evidence_sha256: fileHash(d.evidenceFile),
+    attempt_sha256: sha256(canonicalJsonR5(attempt)), r4_freeze_sha256: freezeHash, r4_checkout_head: freeze.source.checkout_head,
+    rows: attempt.lifecycle.rows, collision_receipts: structuredClone(attempt.collision_receipts), database: attempt.database.name,
+    context_ids: contextIds, raw_files: rawFiles
+  };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.mode === 'create-load-recovery') {
