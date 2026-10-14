@@ -1995,6 +1995,169 @@ test('ordinary registration runner contracts opened no server or socket', () => 
   assert.deepEqual(networkAttempts, []);
 });
 
+// ---- Phase 253 plan 59: per-test JSONL reporter, attempt diagnostics preservation, R3 verifier ----
+const REPORTER_FILE = path.join(root, 'test/example/priv/playwright/lib/reporters/failure-jsonl.mjs');
+const FAKE_SECRET = 'FAKE-SECRET-KEY-BASE-0123456789abcdef-not-real';
+
+function fakeTest(title, project = 'admin-eval') {
+  return { title, location: { file: '/x/tests/admin-eval.spec.ts', line: 12 }, expectedStatus: 'passed', ok() { return this.__ok; }, parent: { project: () => ({ name: project }) }, __ok: true };
+}
+
+async function writeFakeJsonl(file) {
+  const { default: Reporter } = await import(REPORTER_FILE);
+  const reporter = new Reporter({ outputFile: file });
+  const a = fakeTest('passing one'); const b = fakeTest('passing two'); const c = fakeTest('failing three'); c.__ok = false;
+  reporter.onTestEnd(a, { status: 'passed', duration: 11, retry: 0, errors: [] });
+  reporter.onTestEnd(b, { status: 'passed', duration: 12, retry: 0, errors: [] });
+  reporter.onTestEnd(c, { status: 'failed', duration: 13, retry: 0, errors: [{ message: '\u001b[31mError: expect(received).toBeVisible()\u001b[39m\nTimeout', location: { file: '/x/a.ts', line: 3, column: 4 } }] });
+  return reporter; // onEnd is deliberately never called
+}
+
+function launchedAttempt(extra = {}) {
+  return { slot_id: 'R3-A', playwright_cli: { launched: true }, ...extra };
+}
+
+test('failure JSONL reporter appends one fsynced line per finished test without onEnd', async () => {
+  const file = path.join(temporary, 'reporter', 'tests.jsonl');
+  const reporter = await writeFakeJsonl(file);
+  assert.equal(reporter.printsToStdio(), false);
+  const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line));
+  assert.equal(lines.length, 3);
+  assert.deepEqual(lines.map((l) => l.status), ['passed', 'passed', 'failed']);
+  assert.ok(lines.every((l) => l.schema === 'sigra.phase253.playwright-test-end/v1'));
+  assert.equal(lines[2].project, 'admin-eval');
+  assert.equal(lines[2].title, 'failing three');
+  assert.equal(lines[2].ok, false);
+  assert.equal(lines[2].expected_status, 'passed');
+  assert.equal(lines[2].duration_ms, 13);
+  assert.equal(lines[2].errors.length, 1);
+  assert.doesNotMatch(lines[2].errors[0].message, /\u001b/);
+  assert.match(lines[2].errors[0].message, /^Error: expect\(received\)\.toBeVisible\(\)/);
+  assert.deepEqual(lines[2].errors[0].location, { file: '/x/a.ts', line: 3, column: 4 });
+});
+
+test('failure JSONL reporter fsyncs every line and truncates oversized messages to 8192 bytes', async (t) => {
+  const file = path.join(temporary, 'reporter-fsync', 'tests.jsonl');
+  const calls = [];
+  const original = fs.fsyncSync;
+  fs.fsyncSync = (fd) => { calls.push(fd); return original(fd); };
+  t.after(() => { fs.fsyncSync = original; });
+  const { default: Reporter } = await import(REPORTER_FILE);
+  const reporter = new Reporter({ outputFile: file });
+  const huge = fakeTest('huge'); huge.__ok = false;
+  reporter.onTestEnd(huge, { status: 'failed', duration: 1, retry: 0, errors: [{ message: 'é'.repeat(20000) }] });
+  reporter.onTestEnd(fakeTest('ok'), { status: 'passed', duration: 1, retry: 0, errors: [] });
+  assert.equal(calls.length, 2);
+  const [first] = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line));
+  assert.ok(Buffer.byteLength(first.errors[0].message) <= 8192);
+  assert.ok(first.errors[0].message.length > 1000);
+});
+
+test('failure JSONL reporter refuses to run without an output file', async () => {
+  const { default: Reporter } = await import(REPORTER_FILE);
+  assert.throws(() => new Reporter({}), /outputFile/);
+});
+
+function diagnosticsTree(name) {
+  const base = path.join(temporary, name);
+  const tempRoot = path.join(base, 'temp');
+  const outputDir = path.join(tempRoot, 'test-results');
+  fs.mkdirSync(path.join(outputDir, 'case-one'), { recursive: true });
+  fs.mkdirSync(path.join(outputDir, 'case-two'), { recursive: true });
+  fs.writeFileSync(path.join(outputDir, 'case-one', 'error-context.md'), `# Page snapshot\n"secret_key_base": "${FAKE_SECRET}"\n- heading "Register"\n`);
+  fs.writeFileSync(path.join(outputDir, 'case-two', 'error-context.md'), '# Page snapshot\n- button "Go"\n');
+  fs.writeFileSync(path.join(outputDir, 'case-two', 'trace.zip'), 'not preserved');
+  const rawDir = path.join(base, 'raw');
+  const rawAttempt = path.join(rawDir, 'R3-A', 'attempt-01');
+  fs.mkdirSync(rawAttempt, { recursive: true });
+  return { base, tempRoot, outputDir, rawDir, rawAttempt, jsonlPath: path.join(tempRoot, 'tests.jsonl') };
+}
+
+test('preserveAttemptDiagnostics copies sanitized JSONL and error-context files with hashed receipts', async () => {
+  const t = diagnosticsTree('diag-preserve');
+  await writeFakeJsonl(t.jsonlPath);
+  const result = recovery.preserveAttemptDiagnostics(t);
+  assert.equal(result.jsonl.path, path.join('R3-A', 'attempt-01', 'diagnostics', 'tests.jsonl'));
+  assert.equal(result.jsonl.sha256, crypto.createHash('sha256').update(fs.readFileSync(path.join(t.rawDir, result.jsonl.path))).digest('hex'));
+  assert.equal(result.per_test.length, 3);
+  assert.equal(result.error_contexts.length, 2);
+  for (const ref of result.error_contexts) {
+    const body = fs.readFileSync(path.join(t.rawDir, ref.path), 'utf8');
+    assert.doesNotMatch(body, new RegExp(FAKE_SECRET));
+    assert.equal(ref.sha256, crypto.createHash('sha256').update(body).digest('hex'));
+  }
+  assert.ok(result.error_contexts.some((ref) => /\[REDACTED\]/.test(fs.readFileSync(path.join(t.rawDir, ref.path), 'utf8'))));
+  assert.equal(fs.readdirSync(path.join(t.rawAttempt, 'diagnostics')).some((name) => /trace/.test(name)), false);
+});
+
+test('preserveAttemptDiagnostics records an absent JSONL and refuses to overwrite', async () => {
+  const t = diagnosticsTree('diag-absent');
+  const result = recovery.preserveAttemptDiagnostics(t);
+  assert.equal(result.jsonl, null);
+  assert.deepEqual(result.per_test, []);
+  assert.throws(() => recovery.preserveAttemptDiagnostics(t), /EEXIST|already exists|refus/i);
+});
+
+test('preserveAttemptDiagnostics preserves what finished before a deadline kill and tolerates a truncated last line', async () => {
+  const t = diagnosticsTree('diag-killed');
+  await writeFakeJsonl(t.jsonlPath);
+  fs.appendFileSync(t.jsonlPath, '{"schema":"sigra.phase253.playwright-test-end/v1","title":"cut off');
+  const result = recovery.preserveAttemptDiagnostics(t);
+  assert.equal(result.per_test.length, 3);
+  assert.equal(result.truncated_tail, true);
+});
+
+test('preserveAttemptDiagnostics redacts a JSON-escaped secret inside a decoded error message', async () => {
+  const t = diagnosticsTree('diag-json-secret');
+  const { default: Reporter } = await import(REPORTER_FILE);
+  const reporter = new Reporter({ outputFile: t.jsonlPath });
+  const failing = fakeTest('leaky'); failing.__ok = false;
+  reporter.onTestEnd(failing, { status: 'failed', duration: 1, retry: 0, errors: [{ message: `config: {"secret_key_base": "${FAKE_SECRET}"}` }] });
+  const result = recovery.preserveAttemptDiagnostics(t);
+  const body = fs.readFileSync(path.join(t.rawDir, result.jsonl.path), 'utf8');
+  assert.doesNotMatch(body, new RegExp(FAKE_SECRET));
+  assert.match(body, /REDACTED/);
+  assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics: result }), t.rawDir), { ok: true, errors: [] });
+});
+
+test('verifyAttemptDiagnosticsR3 accepts hashed receipts and an unlaunched attempt without diagnostics', async () => {
+  const t = diagnosticsTree('diag-verify-ok');
+  await writeFakeJsonl(t.jsonlPath);
+  const diagnostics = recovery.preserveAttemptDiagnostics(t);
+  assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics }), t.rawDir), { ok: true, errors: [] });
+  assert.deepEqual(recovery.verifyAttemptDiagnosticsR3({ slot_id: 'R3-B', playwright_cli: { launched: false } }, t.rawDir), { ok: true, errors: [] });
+});
+
+test('verifyAttemptDiagnosticsR3 rejects a launched attempt lacking, tampering or malforming per-test JSONL', async () => {
+  const t = diagnosticsTree('diag-verify-bad');
+  await writeFakeJsonl(t.jsonlPath);
+  const diagnostics = recovery.preserveAttemptDiagnostics(t);
+  const missing = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({}), t.rawDir);
+  assert.equal(missing.ok, false);
+  assert.match(missing.errors.join(';'), /per-test JSONL/);
+  const absent = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics: { ...diagnostics, jsonl: null } }), t.rawDir);
+  assert.equal(absent.ok, false);
+  const jsonlFile = path.join(t.rawDir, diagnostics.jsonl.path);
+  const original = fs.readFileSync(jsonlFile, 'utf8');
+  fs.writeFileSync(jsonlFile, original.replace('failing three', 'failing THREE'));
+  const tampered = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics }), t.rawDir);
+  assert.equal(tampered.ok, false);
+  assert.match(tampered.errors.join(';'), /sha256|hash/i);
+  const malformed = `${original}{not json}\n`;
+  fs.writeFileSync(jsonlFile, malformed);
+  const forged = { ...diagnostics, jsonl: { ...diagnostics.jsonl, sha256: crypto.createHash('sha256').update(malformed).digest('hex'), bytes: Buffer.byteLength(malformed) } };
+  const bad = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics: forged }), t.rawDir);
+  assert.equal(bad.ok, false);
+  assert.match(bad.errors.join(';'), /malformed/);
+  fs.writeFileSync(jsonlFile, original);
+  const ctx = path.join(t.rawDir, diagnostics.error_contexts[0].path);
+  fs.writeFileSync(ctx, 'changed');
+  const ctxTampered = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics }), t.rawDir);
+  assert.equal(ctxTampered.ok, false);
+  const escape = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics: { ...diagnostics, jsonl: { ...diagnostics.jsonl, path: '../../etc/passwd' } } }), t.rawDir);
+  assert.equal(escape.ok, false);
+});
+
 test.after(() => {
   net.Socket.prototype.connect = originalConnect;
   net.Server.prototype.listen = originalListen;

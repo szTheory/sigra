@@ -2722,6 +2722,117 @@ export function createAttemptDirectory(baseDir, slotId, attemptNumber = 1) {
   return directory;
 }
 
+// ---- Phase 253 plan 59 (D-19/D-24): per-test diagnostics preservation and verification ----
+// Additive helpers for the R3 native path. They are deliberately not called from the v1 or R2
+// runners: the JSONL (written by the fsync-per-test reporter named in
+// SIGRA_PLAYWRIGHT_FAILURE_JSONL) and every Playwright error-context.md live under a temp tree
+// that the runner removes, so they must be copied, sanitized and hashed first.
+export const PER_TEST_JSONL_SCHEMA = 'sigra.phase253.playwright-test-end/v1';
+
+function sanitizeText(text) {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-sanitize-'));
+  try {
+    const file = path.join(scratch, 'text');
+    fs.writeFileSync(file, text);
+    sanitizeCommandLog(file);
+    return fs.readFileSync(file, 'utf8');
+  } finally { fs.rmSync(scratch, { recursive: true, force: true }); }
+}
+
+function parsePerTestJsonl(text) {
+  const rows = []; const malformed = [];
+  let truncatedTail = false;
+  const segments = text.split('\n');
+  const unterminated = segments.length ? segments[segments.length - 1] : '';
+  segments.forEach((segment, index) => {
+    if (!segment.trim()) return;
+    try {
+      const row = JSON.parse(segment);
+      if (!row || typeof row !== 'object' || row.schema !== PER_TEST_JSONL_SCHEMA) throw new Error('schema');
+      rows.push(row);
+    } catch {
+      if (index === segments.length - 1 && unterminated === segment) truncatedTail = true;
+      else malformed.push(index + 1);
+    }
+  });
+  return { rows, malformed, truncatedTail };
+}
+
+function findErrorContexts(dir) {
+  const found = [];
+  if (!fs.existsSync(dir)) return found;
+  const visit = (current) => {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) visit(full);
+      else if (entry.isFile() && entry.name === 'error-context.md') found.push(full);
+    }
+  };
+  visit(dir);
+  return found;
+}
+
+export function preserveAttemptDiagnostics({ outputDir, jsonlPath, rawAttempt, rawDir }) {
+  const diagnosticsDir = path.join(rawAttempt, 'diagnostics');
+  // Non-recursive create: an existing diagnostics directory means a prior attempt, and is never overwritten.
+  fs.mkdirSync(rawAttempt, { recursive: true });
+  fs.mkdirSync(diagnosticsDir);
+  const result = { jsonl: null, error_contexts: [], per_test: [], truncated_tail: false };
+
+  if (jsonlPath && fs.existsSync(jsonlPath) && fs.statSync(jsonlPath).isFile()) {
+    const raw = fs.readFileSync(jsonlPath, 'utf8');
+    const parsed = parsePerTestJsonl(raw);
+    // Sanitize both the raw bytes and each decoded message: a JSON-escaped secret field is not
+    // visible to the line-oriented sanitizer until the message is decoded.
+    const lines = raw.split('\n').map((segment) => {
+      if (!segment.trim()) return segment;
+      try {
+        const row = JSON.parse(segment);
+        for (const error of row.errors ?? []) if (typeof error?.message === 'string') error.message = sanitizeText(error.message);
+        return JSON.stringify(row);
+      } catch { return sanitizeText(segment); }
+    });
+    const destination = path.join(diagnosticsDir, 'tests.jsonl');
+    fs.writeFileSync(destination, lines.join('\n'), { flag: 'wx' });
+    sanitizeCommandLog(destination);
+    result.jsonl = receiptFile(rawDir, 'per-test JSONL', destination);
+    result.per_test = parsed.rows.map((row) => ({ project: row.project, title: row.title, status: row.status, ok: row.ok, errors: (row.errors ?? []).length }));
+    result.truncated_tail = parsed.truncatedTail;
+  }
+
+  findErrorContexts(outputDir ?? '').forEach((source, index) => {
+    const destination = path.join(diagnosticsDir, `error-context-${String(index + 1).padStart(2, '0')}.md`);
+    fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL);
+    sanitizeCommandLog(destination);
+    result.error_contexts.push(receiptFile(rawDir, 'error-context', destination));
+  });
+  return result;
+}
+
+export function verifyAttemptDiagnosticsR3(attempt, baseDir) {
+  const errors = [];
+  const launched = attempt?.playwright_cli?.launched === true;
+  const diagnostics = attempt?.diagnostics;
+  const check = (reference, label) => {
+    const file = confinedFile(baseDir, reference);
+    if (!file || !fs.existsSync(file) || !fs.statSync(file).isFile()) { errors.push(`${label} receipt is missing or escapes the raw directory`); return null; }
+    const bytes = fs.readFileSync(file);
+    if (reference.sha256 !== crypto.createHash('sha256').update(bytes).digest('hex') || reference.bytes !== bytes.length) { errors.push(`${label} sha256 does not match its preserved file`); return null; }
+    return bytes.toString('utf8');
+  };
+  if (launched && !diagnostics?.jsonl) errors.push('a launched Playwright CLI attempt carries no per-test JSONL receipt');
+  if (diagnostics?.jsonl) {
+    const text = check(diagnostics.jsonl, 'per-test JSONL');
+    if (text !== null) {
+      const parsed = parsePerTestJsonl(text);
+      if (parsed.malformed.length) errors.push(`per-test JSONL has malformed line(s): ${parsed.malformed.join(',')}`);
+      if (parsed.truncatedTail && diagnostics.truncated_tail !== true) errors.push('per-test JSONL has an unrecorded malformed final line');
+    }
+  }
+  for (const [index, reference] of (diagnostics?.error_contexts ?? []).entries()) check(reference, `error-context ${index + 1}`);
+  return { ok: errors.length === 0, errors };
+}
+
 export function diagnosticEnvironment(project, databaseName, attemptDir, inheritedEnv = process.env) {
   return {
     ...inheritedEnv, MIX_ENV: 'dev',

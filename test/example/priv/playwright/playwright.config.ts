@@ -1,4 +1,5 @@
 import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
+import path from 'node:path';
 
 // Phase 10.1.1 Plan 07: full-lifecycle golden-path browser smoke for test/example.
 // Phase 31 Plan 1: partition admin verification across a single behavior-truth lane
@@ -56,6 +57,17 @@ const reporters: ReporterDescription[] = [['list'], ['html', { open: 'never' }]]
 
 if (jsonReportPath) {
   reporters.push(['json', { outputFile: jsonReportPath }]);
+}
+
+// Phase 253 plan 59 (D-24): per-test fsync'd JSONL, active only when a native recovery
+// window names an output path. Unset in ordinary CI, so the reporter list is unchanged.
+const failureJsonlPath = process.env.SIGRA_PLAYWRIGHT_FAILURE_JSONL;
+
+if (failureJsonlPath) {
+  reporters.push([
+    path.resolve(__dirname, 'lib/reporters/failure-jsonl.mjs'),
+    { outputFile: failureJsonlPath },
+  ]);
 }
 
 export default defineConfig({
