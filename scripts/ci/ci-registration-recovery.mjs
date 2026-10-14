@@ -882,52 +882,91 @@ export function runLogged(program, args, cwd, env, log, timeout) {
   return { exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, ...redactions };
 }
 
-export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGraceMs = 250) {
+export function runLoggedTree(program, args, cwd, env, log, timeoutMs, cleanupGraceMs = 250, { signal: abortSignal = null } = {}) {
   return new Promise((resolve) => {
     const started = process.hrtime.bigint();
     const fd = fs.openSync(log, 'w');
+    const grace = Math.max(1, cleanupGraceMs);
     let child;
     let settled = false;
     let timedOut = false;
+    let aborted = false;
     let error = null;
     let signal = null;
     let exitCode = null;
+    let durationMs = null;
     let killTimer = null;
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(deadlineTimer);
-      clearTimeout(killTimer);
-      fs.closeSync(fd);
-      const redactions = sanitizeCommandLog(log);
-      resolve({
-        exit_code: exitCode, signal, error, timed_out: timedOut,
-        duration_ms: Math.ceil(Number(process.hrtime.bigint() - started) / 1e6),
-        ...redactions
-      });
+    let escalationTimer = null;
+    let reaping = false;
+    const groupSignals = [];
+    const groupAlive = () => {
+      if (!child?.pid) return false;
+      try { process.kill(-child.pid, 0); return true; } catch (cause) { return cause.code === 'EPERM'; }
     };
     const terminateGroup = (name) => {
       if (!child?.pid) return;
+      groupSignals.push(name);
       try { process.kill(-child.pid, name); } catch {
         try { child.kill(name); } catch { /* already exited */ }
       }
     };
-    const deadlineTimer = setTimeout(() => {
-      timedOut = true;
+    const finish = (reaped) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadlineTimer);
+      clearTimeout(killTimer);
+      clearTimeout(escalationTimer);
+      abortSignal?.removeEventListener('abort', onAbort);
+      fs.closeSync(fd);
+      const redactions = sanitizeCommandLog(log);
+      resolve({
+        pid: child?.pid ?? null,
+        exit_code: exitCode, signal, error, timed_out: timedOut, aborted,
+        duration_ms: durationMs ?? Math.ceil(Number(process.hrtime.bigint() - started) / 1e6),
+        group_signals: groupSignals, descendants_reaped: reaped,
+        ...redactions
+      });
+    };
+    // The leader exiting does not mean its owned group is gone: a descendant may ignore SIGTERM.
+    // Keep escalating (SIGTERM, then SIGKILL after the cleanup grace) until the group is gone, so
+    // no owned process outlives the result, and never cancel the SIGKILL when the leader exits first.
+    const reap = () => {
+      if (reaping || settled) return;
+      reaping = true;
+      durationMs = Math.ceil(Number(process.hrtime.bigint() - started) / 1e6);
+      if (!groupAlive()) { finish(true); return; }
+      if (!groupSignals.includes('SIGTERM')) terminateGroup('SIGTERM');
+      const hardLimit = Date.now() + 10 * grace + 2000;
+      let killed = groupSignals.includes('SIGKILL');
+      const killAt = Date.now() + grace;
+      const poll = () => {
+        if (!groupAlive()) { finish(true); return; }
+        if (!killed && Date.now() >= killAt) { killed = true; terminateGroup('SIGKILL'); }
+        if (Date.now() >= hardLimit) { error ??= 'descendant process group did not exit'; finish(false); return; }
+        killTimer = setTimeout(poll, 5);
+      };
+      poll();
+    };
+    const expire = () => {
+      if (!child?.pid || settled) return;
       terminateGroup('SIGTERM');
-      killTimer = setTimeout(() => terminateGroup('SIGKILL'), Math.max(1, cleanupGraceMs));
-    }, Math.max(1, Math.floor(timeoutMs)));
+      escalationTimer = setTimeout(() => { if (!settled && !groupSignals.includes('SIGKILL') && groupAlive()) terminateGroup('SIGKILL'); }, grace);
+    };
+    const deadlineTimer = setTimeout(() => { timedOut = true; expire(); }, Math.max(1, Math.floor(timeoutMs)));
+    function onAbort() { aborted = true; expire(); }
     try {
       child = spawn(program, args, { cwd, env, stdio: ['ignore', fd, fd], detached: true });
-      child.once('error', (cause) => { error = cause.message; });
+      child.once('error', (cause) => { error = cause.message; if (!child.pid) finish(true); });
       child.once('exit', (code, childSignal) => {
         exitCode = code;
         signal = childSignal;
       });
-      child.once('close', finish);
+      child.once('close', reap);
+      if (abortSignal?.aborted) onAbort();
+      else abortSignal?.addEventListener('abort', onAbort, { once: true });
     } catch (cause) {
       error = cause.message;
-      finish();
+      finish(true);
     }
   });
 }
@@ -1090,6 +1129,16 @@ function prepareRevision(freezeFile, evidenceFile, root = ROOT) {
   return { status: evidence.status, preparation_charge_ms: evidence.limits.preparation_charge_ms, toolchain: evidence.toolchain };
 }
 
+const REVISION_SELECTED_TITLE = 'render bundle: board-mg-9/populated';
+const REVISION_PROJECT_NAMES = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+
+// Exact UTF-8 equality: both sides must be well-formed strings (lone surrogates would otherwise
+// collapse to U+FFFD and compare equal) with identical encoded bytes.
+export function exactUtf8Equal(left, right) {
+  return typeof left === 'string' && typeof right === 'string' && left.isWellFormed() && right.isWellFormed()
+    && Buffer.from(left, 'utf8').equals(Buffer.from(right, 'utf8'));
+}
+
 export function verifyRevisionAttempt(attempt, freeze, baseDir) {
   const errors = [];
   const fail = (message) => errors.push(message);
@@ -1098,7 +1147,9 @@ export function verifyRevisionAttempt(attempt, freeze, baseDir) {
   if (!slot) fail('attempt does not identify a frozen slot');
   else {
     if (slot.owner_plan !== 15 || slot.kind !== 'diagnostic' || slot.stage !== 'D19') fail('attempt consumed a slot not owned by plan15');
-    if (attempt.project !== slot.project || attempt.sequence !== slot.sequence) fail('attempt identity differs from its frozen slot');
+    if (!exactUtf8Equal(attempt.project, slot.project) || attempt.sequence !== slot.sequence) fail('attempt identity differs from its frozen slot');
+    if (!exactUtf8Equal(slot.title, REVISION_SELECTED_TITLE)) fail('frozen selected title is not the reviewed byte-exact title');
+    if (!REVISION_PROJECT_NAMES.some((name) => exactUtf8Equal(name, slot.project))) fail('frozen slot project is not a reviewed admin-eval project');
     if (!Number.isFinite(attempt.charged_duration_ms) || attempt.charged_duration_ms < 0 || attempt.charged_duration_ms > slot.max_duration_ms) fail('attempt exceeded its frozen 120,000 ms command');
     if (JSON.stringify(attempt.argv) !== JSON.stringify(slot.argv)) fail('browser argv differs from the frozen selection');
   }
@@ -1127,9 +1178,12 @@ export function verifyRevisionAttempt(attempt, freeze, baseDir) {
     try {
       const report = readJson(reportFile);
       if (!Array.isArray(report.errors) || !Array.isArray(report.config?.projects) || !Array.isArray(report.suites)) fail('native Playwright report shape is incomplete');
+      if (!Array.isArray(report.config?.projects)) fail('native Playwright project inventory is incomplete');
       const tests = playReportTests(report);
       if (!tests.length) fail('native Playwright report contains no results');
-      const selected = tests.filter((item) => item.title === slot.title && item.project === attempt.project && path.basename(item.file) === 'admin-eval.spec.ts');
+      const inventory = Array.isArray(report.config?.projects) ? report.config.projects.map((item) => item?.name) : [];
+      if (!REVISION_PROJECT_NAMES.every((name) => inventory.some((entry) => exactUtf8Equal(entry, name)))) fail('native Playwright project inventory is incomplete');
+      const selected = tests.filter((item) => exactUtf8Equal(item.title, slot.title) && exactUtf8Equal(item.project, attempt.project) && path.basename(item.file) === 'admin-eval.spec.ts');
       if (selected.length !== 1) fail('native Playwright report must contain exactly one byte-exact selected project/title/spec result');
       if (selected.length === 1) {
         const result = selected[0];
