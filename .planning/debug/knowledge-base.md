@@ -47,3 +47,15 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Scope limit:** Startup passed for all three projects, but the historical registration failure remains unexplained and Phase 253 verification has not started.
 
 ---
+
+## 253-native-deadline-not-enforced — native Playwright window ran 29 min past a 120000 ms deadline while the Mac slept
+
+- **Date:** 2026-10-14
+- **Error patterns:** work deadline not enforced, Playwright control "hung" 12.6m / 15.4m, group_signals SIGTERM,SIGTERM without SIGKILL, owned cleanup exceeded command limit, database drop failed at cleanup deadline (1 ms budget), SIGKILL escalation test flake under load, node:test process never exits
+- **Root cause(s):** the macOS host went into Maintenance Sleep mid-run (pmset `Sleep`/`DarkWake` entries match the hang durations to the second); runLoggedTree used one relative setTimeout with no wall-clock check, no suspension detection and no sleep assertion; the drop budget collapsed to 1 ms after an overrun; the reap poll cached a SIGKILL flag (duplicate SIGKILL); the test helper relied on fs.watch alone (FSEvents can miss an early rename)
+- **Fix:** a watchdog of at most 250 ms on max(monotonic, wall) with suspension recording; caffeinate -i -s -m -w <pid> per load slot; halt on suspension and charge the max clock; bounded drop/absence floor; SIGKILL at most once; whenTreeReady watch+poll
+- **Files changed:** scripts/ci/ci-registration-recovery.mjs, scripts/ci/ci-registration-recovery.test.mjs
+- **Why not caught:** the synthetic tests never modeled a host clock discontinuity (sleep), and the escalation tests asserted exact signal lists on timing alone
+- **Recurrence guard:** ci-registration-recovery.test.mjs: "a wall-clock jump past the deadline (host sleep)…", "both clocks jumping across a sleep…", "a group that dies slowly after SIGKILL still receives exactly one SIGKILL", "a host sleep inside the browser command halts the slot…". First diagnostic step for any "hung for N minutes" on a laptop: `pmset -g log | grep -E "Sleep|DarkWake"` around the run.
+
+---
