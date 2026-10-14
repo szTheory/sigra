@@ -306,6 +306,38 @@ test('recovery config inherits production device, theme, use, worker, retry, tim
   assert.equal(recovery.projects['admin-eval-mobile'].use.isMobile, true);
 });
 
+// Phase 253 plan 59 (D-24): the per-test JSONL reporter is inert unless a native window names an output path.
+function reporterEntries(config, env = {}) {
+  const extra = config === 'playwright.config.ts' ? {} : { SIGRA_REGISTRATION_CONTROL_STAGE: 'first' };
+  return runWorker('recovery-summary', { LOAD_CONFIG: config, ...extra, ...env }).reporter;
+}
+const isFailureJsonl = (entry) => /failure-jsonl\.mjs$/.test(String(Array.isArray(entry) ? entry[0] : entry));
+
+test('failure JSONL reporter is absent from production and recovery configs when its variable is unset', () => {
+  const production = reporterEntries('playwright.config.ts');
+  const recoveryReporters = reporterEntries('playwright.registration-recovery.config.ts');
+  assert.deepEqual(production.filter(isFailureJsonl), []);
+  assert.deepEqual(recoveryReporters, production);
+  assert.deepEqual(production.map((entry) => entry[0]), ['list', 'html']);
+});
+
+test('failure JSONL reporter is present exactly once in both configs when its variable names a path', (t) => {
+  const dir = mkdtempSync(join(tmpdir(), 'sigra-59-jsonl-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const outputFile = join(dir, 'tests.jsonl');
+  const env = { SIGRA_PLAYWRIGHT_FAILURE_JSONL: outputFile };
+  const production = reporterEntries('playwright.config.ts', env);
+  const recoveryReporters = reporterEntries('playwright.registration-recovery.config.ts', env);
+  for (const reporters of [production, recoveryReporters]) {
+    const entries = reporters.filter(isFailureJsonl);
+    assert.equal(entries.length, 1);
+    assert.equal(entries[0][1].outputFile, outputFile);
+    assert.ok(existsSync(entries[0][0]), 'reporter module path must resolve to an existing file');
+  }
+  assert.deepEqual(recoveryReporters, production);
+  assert.deepEqual(production.filter((entry) => !isFailureJsonl(entry)).map((entry) => entry[0]), ['list', 'html']);
+});
+
 test('recovery config fails closed without an explicit control stage', () => {
   const res = spawnSync(process.execPath, ['-e', WORKER], {
     cwd: tmpdir(), encoding: 'utf8', timeout: 60_000,
