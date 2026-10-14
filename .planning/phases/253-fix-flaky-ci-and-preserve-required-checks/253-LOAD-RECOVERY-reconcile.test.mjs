@@ -13,7 +13,6 @@ import { fileURLToPath } from "node:url";
 import * as reconcile from "./253-LOAD-RECOVERY-reconcile.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO = resolve(HERE, "..", "..", "..");
 const SDK_ROOT = "/Users/jon/.codex/gsd-core";
 const GSD_TOOLS = join(SDK_ROOT, "bin", "gsd-tools.cjs");
 const SCRIPT = join(HERE, "253-LOAD-RECOVERY-reconcile.mjs");
@@ -234,6 +233,5 @@ describe("accepted-only predicate", () => {
     assert.equal(result.accepted, false);
     assert.equal(result.verifier_kind, "real");
     assert.match(result.detail, /accepted-only completion failed|missing:/);
-    assert.equal(REPO.length > 0, true);
   });
 });
