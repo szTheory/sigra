@@ -144,7 +144,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 
 **Recovery wave 1** *(ready first)*
 
-- [ ] 253-26-PLAN.md — Diagnose the stopped native command and repair demonstrated control contracts offline.
+- [x] 253-26-PLAN.md — Diagnose the stopped native command and repair demonstrated control contracts offline.
 
 **Recovery wave 2** *(blocked on preceding recovery dependencies)*
 

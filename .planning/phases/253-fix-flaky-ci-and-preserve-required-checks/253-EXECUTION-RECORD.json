@@ -1,11 +1,11 @@
 {
   "schema_version": "sigra.phase253.partial-execution/v1",
-  "recorded_at": "2026-10-14T00:52:15.809811+00:00",
-  "status": "control_recovery_planned_ready_to_execute",
+  "recorded_at": "2026-10-14T01:09:47.494491+00:00",
+  "status": "control_recovery_execution_in_progress",
   "source_head": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
   "implementation_status": "partial",
   "phase_verification_status": "not_started",
-  "completed_plan_count": 10,
+  "completed_plan_count": 11,
   "plan_count": 35,
   "plans": {
     "253-01": "complete",
@@ -2658,189 +2658,10 @@
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CLOSEOUT.json"
   },
   "current_readiness": {
-    "executor_model": "gpt-6-luna",
-    "verifier_model": "gpt-6-luna",
-    "tdd_mode": false,
-    "commit_docs": true,
-    "sub_repos": [],
-    "parallelization": true,
-    "context_window": 200000,
-    "branching_strategy": "none",
-    "phase_branch_template": "gsd/phase-{phase}-{slug}",
-    "milestone_branch_template": "gsd/{milestone}-{slug}",
-    "verifier_enabled": true,
-    "phase_found": true,
-    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
-    "phase_number": "253",
-    "padded_phase": "253",
-    "phase_name": "Fix Flaky CI and Preserve Required Checks",
-    "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
-    "phase_req_ids": "CIREL-01, CIREL-02",
-    "plans": [
-      "253-01-PLAN.md",
-      "253-02-PLAN.md",
-      "253-03-PLAN.md",
-      "253-04-PLAN.md",
-      "253-05-PLAN.md",
-      "253-06-PLAN.md",
-      "253-07-PLAN.md",
-      "253-08-PLAN.md",
-      "253-09-PLAN.md",
-      "253-10-PLAN.md",
-      "253-11-PLAN.md",
-      "253-12-PLAN.md",
-      "253-13-PLAN.md",
-      "253-14-PLAN.md",
-      "253-15-PLAN.md",
-      "253-16-PLAN.md",
-      "253-17-PLAN.md",
-      "253-18-PLAN.md",
-      "253-19-PLAN.md",
-      "253-20-PLAN.md",
-      "253-21-PLAN.md",
-      "253-22-PLAN.md",
-      "253-23-PLAN.md",
-      "253-24-PLAN.md",
-      "253-25-PLAN.md",
-      "253-26-PLAN.md",
-      "253-27-PLAN.md",
-      "253-28-PLAN.md",
-      "253-29-PLAN.md",
-      "253-30-PLAN.md",
-      "253-31-PLAN.md",
-      "253-32-PLAN.md",
-      "253-33-PLAN.md",
-      "253-34-PLAN.md",
-      "253-35-PLAN.md"
+    "ready_plans": [
+      "253-27"
     ],
-    "summaries": [
-      "253-01-SUMMARY.md",
-      "253-02-SUMMARY.md",
-      "253-03-SUMMARY.md",
-      "253-04-SUMMARY.md",
-      "253-05-SUMMARY.md",
-      "253-06-SUMMARY.md",
-      "253-07-SUMMARY.md",
-      "253-09-SUMMARY.md",
-      "253-11-SUMMARY.md",
-      "253-12-SUMMARY.md",
-      "253-15-SUMMARY.md",
-      "253-16-SUMMARY.md",
-      "253-18-SUMMARY.md",
-      "253-19-SUMMARY.md",
-      "253-20-SUMMARY.md"
-    ],
-    "incomplete_plans": [
-      "253-08-PLAN.md",
-      "253-10-PLAN.md",
-      "253-13-PLAN.md",
-      "253-14-PLAN.md",
-      "253-17-PLAN.md",
-      "253-21-PLAN.md",
-      "253-22-PLAN.md",
-      "253-23-PLAN.md",
-      "253-24-PLAN.md",
-      "253-25-PLAN.md",
-      "253-26-PLAN.md",
-      "253-27-PLAN.md",
-      "253-28-PLAN.md",
-      "253-29-PLAN.md",
-      "253-30-PLAN.md",
-      "253-31-PLAN.md",
-      "253-32-PLAN.md",
-      "253-33-PLAN.md",
-      "253-34-PLAN.md",
-      "253-35-PLAN.md"
-    ],
-    "plan_count": 35,
-    "incomplete_count": 20,
-    "threat_id_duplicates": [],
-    "threat_id_duplicate_count": 0,
-    "halted_plans": [
-      "253-02-PLAN.md",
-      "253-07-PLAN.md",
-      "253-09-PLAN.md",
-      "253-12-PLAN.md",
-      "253-16-PLAN.md"
-    ],
-    "blocked_by": {
-      "253-08-PLAN.md": [
-        "253-02",
-        "253-07"
-      ],
-      "253-10-PLAN.md": [
-        "253-09"
-      ],
-      "253-13-PLAN.md": [
-        "253-09",
-        "253-12"
-      ],
-      "253-14-PLAN.md": [
-        "253-09",
-        "253-12"
-      ],
-      "253-17-PLAN.md": [
-        "253-16"
-      ],
-      "253-21-PLAN.md": [
-        "253-16"
-      ],
-      "253-22-PLAN.md": [
-        "253-16"
-      ],
-      "253-23-PLAN.md": [
-        "253-16"
-      ],
-      "253-24-PLAN.md": [
-        "253-16"
-      ],
-      "253-25-PLAN.md": [
-        "253-16"
-      ]
-    },
-    "runnable_plans": [
-      "253-26-PLAN.md",
-      "253-27-PLAN.md",
-      "253-28-PLAN.md",
-      "253-29-PLAN.md",
-      "253-30-PLAN.md",
-      "253-31-PLAN.md",
-      "253-32-PLAN.md",
-      "253-33-PLAN.md",
-      "253-34-PLAN.md",
-      "253-35-PLAN.md"
-    ],
-    "runnable_count": 10,
-    "branch_name": null,
-    "milestone_version": "v1.50",
-    "milestone_name": "CI-SPEED-AND-RELIABILITY",
-    "milestone_slug": "ci-speed-and-reliability",
-    "state_exists": true,
-    "roadmap_exists": true,
-    "config_exists": true,
-    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
-    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
-    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
-    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
-    "section_manifest": {
-      "workflow": "execute-phase",
-      "included": [
-        "regression-gate"
-      ],
-      "excluded": [
-        "partial-wave",
-        "gap-closure-artifacts"
-      ],
-      "read": [
-        "gsd-core/workflows/execute-phase/steps/regression-gate.md"
-      ]
-    },
-    "project_root": "/Users/jon/projects/sigra",
-    "agents_installed": true,
-    "missing_agents": [],
-    "agents_dir": "/Users/jon/.codex/agents",
-    "agent_runtime": "codex",
-    "project_title": "Sigra"
+    "phase_verification": "not_started"
   },
   "current_plan_index": {
     "phase": "253",
@@ -3471,10 +3292,9 @@
         "files_deleted": [],
         "agent_hint": null,
         "task_count": 2,
-        "has_summary": false,
+        "has_summary": true,
         "halted": false,
-        "blocked_by": [],
-        "ready": true
+        "blocked_by": []
       },
       {
         "id": "253-27",
@@ -3497,10 +3317,7 @@
         "has_summary": false,
         "halted": false,
         "blocked_by": [],
-        "ready": false,
-        "unresolved_dependencies": [
-          "253-26"
-        ]
+        "ready": true
       },
       {
         "id": "253-28",
@@ -3784,7 +3601,6 @@
       "253-23",
       "253-24",
       "253-25",
-      "253-26",
       "253-27",
       "253-28",
       "253-29",
@@ -3796,7 +3612,6 @@
       "253-35"
     ],
     "runnable": [
-      "253-26",
       "253-27",
       "253-28",
       "253-29",
@@ -3808,7 +3623,7 @@
       "253-35"
     ],
     "ready_plans": [
-      "253-26"
+      "253-27"
     ],
     "has_checkpoints": false,
     "warning": "Found 14 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-01.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-02.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\", \"253-RECOVERY-PLAN-CHECK-01.md\", \"253-RECOVERY-PLAN-CHECK-02.md\", \"253-REPLAN-BUDGETS.md\", \"253-REPLAN-COVERAGE.md\", \"253-REPLAN-PLAN-CHECK-01.md\", \"253-REPLAN-PLAN-CHECK-02.md\", \"253-REPLAN-SOURCE-AUDIT.md\", \"253-REPLAN-VALIDATION.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract."
@@ -4252,5 +4067,74 @@
       "readback_exact": true,
       "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
     }
-  ]
+  ],
+  "control_recovery_execution": {
+    "schema": "sigra.phase253.control-recovery-execution-progress/v1",
+    "recorded_at": "2026-10-14T01:09:47.494491+00:00",
+    "source_head": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
+    "completed_plan": "253-26",
+    "completed_plan_count": 11,
+    "plan_count": 35,
+    "active_plan": "253-27",
+    "ready_plans": [
+      "253-27"
+    ],
+    "test_results": {
+      "node20": "20.18.1",
+      "tests": 11,
+      "failed": 0,
+      "assessment_checker_exit": 0
+    },
+    "phase_verification": "not_started",
+    "requirements_open": [
+      "CIREL-01",
+      "CIREL-02"
+    ],
+    "native_charge_ms": 243044,
+    "physical_browser_launches": 4,
+    "retry_available": 0,
+    "gitHub_requests_this_invocation": 0,
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "prior_shared_bytes": [
+      {
+        "path": ".planning/STATE.md",
+        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
+        "sha256": "b92089e96fc94aa2b9a92fe165ce56bda9a5d63c7a5295dc6ca7ef3d861f61cf",
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
+        "sha256": "e25b6724f17b2d4709cdd61dbebc997ea6b8bb8d46dc7d0dba429bd2edfe1237",
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
+        "sha256": "2dc5fc45a72db15b5b99bf00ae09fd5054cf124811b816898252a168c7adfc7a",
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
+        "sha256": "21f2b0dd16877233dd553f97f82c231c2d22c263cc40c250a366019d44029df0",
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+        "prior_commit": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
+        "sha256": "06a9d9435afc9e9a692b2697ee3672b85e4f5a86147f30ba693583946d2dd9a7",
+        "readback_exact": true
+      }
+    ],
+    "probe_corrections": [
+      "audit --check rejected; correct --check-assessment succeeds",
+      "query ui.safety-gate and query ui safety-gate rejected; top-level ui safety-gate used"
+    ],
+    "postmerge_gate": {
+      "build": "no configured/build language-sniff command applicable; no product build run",
+      "test": "scoped Node20 offline acceptance, 11/11, no redundant mix ci/native launches"
+    },
+    "stage": "offline_implementation_complete_native_proof_pending"
+  }
 }

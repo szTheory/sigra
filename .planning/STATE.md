@@ -32,7 +32,7 @@ phase253_plan_count: 35
 phase253_wave_count: 9
 phase253_task_count: 76
 phase253_implementation_status: partial
-phase253_completed_plans: 10
+phase253_completed_plans: 11
 phase253_halted_plans: [253-02, 253-07, 253-09, 253-12, 253-16]
 phase253_blocked_plans: [253-08, 253-10, 253-13, 253-14, 253-17, 253-21, 253-22, 253-23, 253-24, 253-25]
 
@@ -47,7 +47,7 @@ phase253_control_recovery_plan_count: 10
 
 phase253_control_recovery_task_count: 22
 
-phase253_ready_plans: ["253-26"]
+phase253_ready_plans: ["253-27"]
 ---
 
 # Project State
@@ -62,8 +62,8 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 ## Current position
 
 Phase: 253 — incomplete; recovery planning complete
-Plans: 10/35 implemented; new Plans 26–35 await execution; original halted and blocked plans preserved
-Status: Ready to execute Plan 26; both CI reliability requirements remain open
+Plans: 11/35 implemented; new Plans 27–35 await execution; original halted and blocked plans preserved
+Status: Ready to execute Plan 27; both CI reliability requirements remain open
 Last activity: 2026-10-14T00:52:15.809811+00:00 — independent review found no blockers or warnings; one command-path advisory remains
 Progress: 16/41 planned milestone plans implemented (39%); whole-phase verification not started
 
@@ -71,7 +71,7 @@ Progress: 16/41 planned milestone plans implemented (39%); whole-phase verificat
 
 $gsd-execute-phase 253 --gaps-only
 
-Execute ten new recovery plans in nine waves, beginning with Plan 26's offline control diagnosis and repair contract. Planning passed 20 schema/structure checks, all 24 decisions and both requirement coverage checks. Independent review addressed the Node 20 shared-module blocker; the command-path probe did not establish resolution, so implemented commands still need execution-time checks.
+Execute ten new recovery plans in nine waves, beginning with Plan 27's bounded native runner. Planning passed 20 schema/structure checks, all 24 decisions and both requirement coverage checks. Independent review addressed the Node 20 shared-module blocker; the command-path probe did not establish resolution, so implemented commands still need execution-time checks.
 
 The failed dark/control run remains failed. Carry 243,044 ms and four browser-command launches; the retry is spent. The new plans use only 112,489 ms of unused preparation, five unused 120-second control commands and nine conditional 240-second acceptance commands. Native and hosted results, both real PR families and accepted-only historical dispositions remain missing. No browser or GitHub work occurred in this planning pass. Phase 254 remains pending.
 
@@ -195,3 +195,7 @@ Plans 26–35 add 10 plans, 22 tasks and nine dependency waves. Independent revi
 ## Control recovery execution started
 
 Command: $gsd-execute-phase 253 --gaps-only. Start with Plan 26 offline control diagnosis and repair. Carry 243044 ms, four prior browser launches, and zero retries available. Existing failures remain unchanged; no new native or hosted proof exists yet. Capture: 253-CONTROL-RECOVERY-EXECUTION-CAPTURE.json. Exact SDK output remains recoverable at 6bb702c06d1426f9ddb20dde8a5d437c907f4973. Whole-phase verification remains not started.
+
+## Control recovery execution progress
+
+Plan26 offline implementation complete: Node20 acceptance11/11, assessment checker valid. Shared helper repairs held readiness order and positive/collision account reuse; historical registration cause remains unproved. Plan27 ready next. Record:253-CONTROL-RECOVERY-EXECUTION-PROGRESS-01.json. Native total243044ms/four launched commands/retry0 and both requirements remain open; whole-phase verification not started. Next:$gsd-execute-phase 253 --gaps-only.
