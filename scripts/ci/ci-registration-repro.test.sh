@@ -128,7 +128,7 @@ const { pathToFileURL } = require('node:url');
     const verified = fixture.verify();
     assert.equal(verified.status, 0, `${verified.stdout}\n${verified.stderr}`);
     assert.match(verified.stdout, /2\/2 plan15 diagnostics; 2 launches; 32000 ms charged/);
-    assert.ok(verified.stdout.includes(SYNTHETIC_LABEL), 'synthetic receipts must be labeled in verifier output');
+    assert.ok(verified.stdout.includes('synthetic-native-fixture'), 'synthetic receipts must be labeled in verifier output');
 
     const accepted = fixture.verifySavedNative();
     assert.equal(accepted.status, 3, 'synthetic evidence must never satisfy the accepted-only audit');

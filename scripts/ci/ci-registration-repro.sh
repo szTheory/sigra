@@ -12,6 +12,7 @@ Usage:
   ci-registration-repro.sh --verify-diagnostic <evidence.json> --revision
   ci-registration-repro.sh --run-recovery <freeze.json> --output <new-evidence.json>
   ci-registration-repro.sh --verify-diagnostic <evidence.json>
+  ci-registration-repro.sh --verify-saved-native <evidence.json>   (read-only accepted-only audit; not for ordinary CI)
   ci-registration-repro.sh --run-frozen <freeze.json> --output <evidence.json>
   ci-registration-repro.sh --diagnose-setup --output <evidence.json>
   ci-registration-repro.sh --verify-controls <evidence.json>
@@ -73,6 +74,10 @@ case "$MODE" in
     [[ "${2:-}" == --output && -n "${3:-}" && -z "${4:-}" ]] || { usage >&2; exit 2; }
     OUTPUT="${3}"
     ;;
+  --verify-saved-native)
+    OUTPUT="${2:-}"
+    [[ -n "$OUTPUT" && -z "${3:-}" ]] || { usage >&2; exit 2; }
+    ;;
   --verify-controls|--verify-acceptance)
     OUTPUT="${2:-}"
     [[ -n "$OUTPUT" ]] || { usage >&2; exit 2; }
@@ -118,6 +123,10 @@ if [[ "$MODE" == --verify-diagnostic ]]; then
     exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --verify-diagnostic "$OUTPUT" --revision
   fi
   exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --verify-diagnostic "$OUTPUT"
+fi
+
+if [[ "$MODE" == --verify-saved-native ]]; then
+  exec node "$ROOT/scripts/ci/ci-registration-recovery.mjs" --verify-saved-native "$OUTPUT"
 fi
 
 if [[ "$MODE" == --diagnose-setup ]]; then

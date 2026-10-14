@@ -128,6 +128,10 @@ function parseArgs(argv) {
   if (argv[0] === '--run-revision' && argv[1] && argv[2] === '--slot' && argv[3] && argv[4] === '--output' && argv[5] && argv.length === 6) {
     return { mode: 'run-revision', freeze: path.resolve(argv[1]), slot: argv[3], evidence: path.resolve(argv[5]) };
   }
+  if (argv[0] === '--verify-saved-native' && argv[1] && argv.length === 2) {
+    // Read-only audit of saved native history; accepted-only. Never invoked by ordinary CI.
+    return { mode: 'verify-saved-native', evidence: path.resolve(argv[1]) };
+  }
   if (argv[0] === '--verify-diagnostic' && argv[1] && argv[2] === '--revision' && argv.length === 3) {
     return { mode: 'verify-revision', evidence: path.resolve(argv[1]) };
   }
@@ -238,15 +242,21 @@ function readGitBlob(root, reference) {
   return result.stdout;
 }
 
-export function assertDirtyConfigPreserved(root) {
-  const file = path.join(root, DIRTY_CONFIG.path);
+export function assertDirtyConfigPreserved(root, identity = DIRTY_CONFIG) {
+  // A clean candidate (the server-published tree) carries no dirty config and has nothing to preserve.
+  // A checkout that does carry any change to it must match the exact authorized identity.
+  const status = run('git', ['-C', root, 'status', '--porcelain=v1', '--', identity.path]);
+  if (status.status !== 0) throw new Error('cannot read candidate config status');
+  if (!status.stdout.trim()) return { required: false };
+  const file = path.join(root, identity.path);
   const bytes = fs.readFileSync(file);
-  if (sha256(bytes) !== DIRTY_CONFIG.sha256 || git(['-C', root, 'hash-object', file]) !== DIRTY_CONFIG.blob) {
+  if (sha256(bytes) !== identity.sha256 || git(['-C', root, 'hash-object', file]) !== identity.blob) {
     throw new Error('the unrelated planning config no longer matches its authorized SHA-256 and Git blob');
   }
-  if (!bytes.equals(readGitBlob(root, DIRTY_CONFIG.ref))) {
+  if (!bytes.equals(readGitBlob(root, identity.ref))) {
     throw new Error('the unrelated planning config does not match the exact bytes in its preservation ref');
   }
+  return { required: true };
 }
 
 function assertRevisionCheckout(root, evidenceFile = null) {
@@ -779,22 +789,26 @@ function httpStatus(url) {
   });
 }
 
-export function portAvailable(port) {
+export function portAvailable(port, { connect = net.connect, timeoutMs = 1500 } = {}) {
   return new Promise((resolve) => {
-    const socket = net.connect({ host: '127.0.0.1', port });
+    const socket = connect({ host: '127.0.0.1', port });
     socket.once('connect', () => { socket.destroy(); resolve(false); });
     socket.once('error', (error) => { socket.destroy(); resolve(error.code === 'ECONNREFUSED'); });
-    socket.setTimeout(1500, () => { socket.destroy(); resolve(false); });
+    socket.setTimeout(timeoutMs, () => { socket.destroy(); resolve(false); });
   });
 }
 
-export async function waitReady(child, url, deadline) {
-  while (Number(process.hrtime.bigint()) / 1e6 < deadline) {
+export async function waitReady(child, url, deadline, {
+  probe = httpStatus,
+  now = () => Number(process.hrtime.bigint()) / 1e6,
+  sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+} = {}) {
+  while (now() < deadline) {
     if (child.exitCode !== null || child.signalCode !== null) return null;
-    const status = await httpStatus(url);
+    const status = await probe(url);
     if (status === 200) return status;
-    const remaining = Math.max(0, deadline - Number(process.hrtime.bigint()) / 1e6);
-    await new Promise((resolve) => setTimeout(resolve, Math.min(250, remaining)));
+    const remaining = Math.max(0, deadline - now());
+    await sleep(Math.min(250, remaining));
   }
   return null;
 }
@@ -1318,7 +1332,19 @@ async function runRevision(freezeFile, slotId, evidenceFile, root = ROOT) {
   return { status: evidence.status, slot: slotId, project: project.name, outcome: attempt.observed_outcome, browser_launched: attempt.browser.launched, charged_duration_ms: attempt.charged_duration_ms };
 }
 
-function verifyRevisionFile(evidenceFile, root = ROOT) {
+export const SYNTHETIC_NATIVE_FIXTURE_LABEL = 'synthetic-native-fixture';
+
+export function syntheticNativeFixtureReasons(evidence, freeze, root = null) {
+  const reasons = [];
+  if (JSON.stringify(evidence ?? null).includes(SYNTHETIC_NATIVE_FIXTURE_LABEL) || JSON.stringify(freeze ?? null).includes(SYNTHETIC_NATIVE_FIXTURE_LABEL)) reasons.push('carries the synthetic-native-fixture provenance marker');
+  if (root && typeof freeze?.source?.checkout_head === 'string') {
+    const author = run('git', ['-C', root, 'log', '-1', '--format=%ae', freeze.source.checkout_head]);
+    if (author.status === 0 && /@example\.invalid$/.test(author.stdout.trim())) reasons.push('frozen source commit has a synthetic fixture Git identity');
+  }
+  return reasons;
+}
+
+function verifyRevisionFile(evidenceFile, root = ROOT, { acceptedOnly = false } = {}) {
   try {
     const evidence = readJson(evidenceFile);
     if (typeof evidence.freeze_path !== 'string' || !evidence.freeze_path) throw new Error('evidence does not name its frozen source');
@@ -1327,8 +1353,13 @@ function verifyRevisionFile(evidenceFile, root = ROOT) {
     validateFrozenRevisionProvenance(root, freeze);
     const freezeFileHash = fileHash(freezePath);
     const result = verifyRevisionData(evidence, freeze, `${evidenceFile}.raw`, freezeFileHash);
+    const synthetic = syntheticNativeFixtureReasons(evidence, freeze, root);
+    if (acceptedOnly && synthetic.length) {
+      result.ok = false;
+      result.errors.push(`synthetic native fixture is not accepted proof: ${synthetic.join('; ')}`);
+    }
     if (!result.ok) console.error(`native revision receipt rejected:\n- ${result.errors.join('\n- ')}`);
-    else console.log(`native revision receipts verified: ${evidence.attempts.length}/2 plan15 diagnostics; ${evidence.limits.browser_launches} launches; ${evidence.limits.charged_duration_ms} ms charged; status=${evidence.status}`);
+    else console.log(`native revision receipts verified: ${evidence.attempts.length}/2 plan15 diagnostics; ${evidence.limits.browser_launches} launches; ${evidence.limits.charged_duration_ms} ms charged; status=${evidence.status}${synthetic.length ? ` [${SYNTHETIC_NATIVE_FIXTURE_LABEL}: test-only, never accepted proof]` : ''}`);
     return result;
   } catch (error) { console.error(`native revision receipt rejected: ${error.message}`); return { ok: false, errors: [error.message] }; }
 }
@@ -2867,6 +2898,11 @@ async function main() {
   if (args.mode === 'run-revision') {
     const result = await runRevision(args.freeze, args.slot, args.evidence);
     console.log(JSON.stringify(result));
+    return;
+  }
+  if (args.mode === 'verify-saved-native') {
+    const result = verifyRevisionFile(args.evidence, ROOT, { acceptedOnly: true });
+    if (!result.ok) process.exitCode = 3;
     return;
   }
   if (args.mode === 'verify-revision') {

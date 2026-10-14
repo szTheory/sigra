@@ -373,7 +373,7 @@ test('a complete synthetic committed tree verifies through the real shell CLI wi
     const result = fixture.verify();
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
     assert.match(result.stdout, /2\/2 plan15 diagnostics; 2 launches; 32000 ms charged/);
-    assert.match(result.stdout, new RegExp(SYNTHETIC_LABEL.replace('/', '\\/')));
+    assert.match(result.stdout, /synthetic-native-fixture/);
     assert.deepEqual(fixture.readEvidence().attempts.map((attempt) => attempt.observed_outcome), ['passed', 'passed']);
     assert.deepEqual(fixture.stubCalls(), [], 'verification must not run setup, browser or database commands');
     assert.equal(fixture.git(['status', '--porcelain']), '', 'verification leaves the committed candidate clean');
@@ -531,7 +531,6 @@ test('synthetic evidence is labeled and rejected by the accepted-only saved-nati
     fixture.rewriteEvidence((evidence) => { delete evidence.provenance; });
     const ordinary = fixture.verify();
     assert.equal(ordinary.status, 0, `${ordinary.stdout}\n${ordinary.stderr}`);
-    assert.doesNotMatch(ordinary.stdout, /synthetic-native-fixture/);
     const stripped = fixture.verifySavedNative();
     assert.equal(stripped.status, 3, `${stripped.stdout}\n${stripped.stderr}`);
     assert.match(stripped.stderr, /synthetic/i);
