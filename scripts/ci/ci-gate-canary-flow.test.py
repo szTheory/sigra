@@ -280,6 +280,114 @@ class CanaryPreflightCheckSourceTests(unittest.TestCase):
                 self.assertIn('frozen server-parent check source is missing or malformed', result.stderr)
 
 
+class CanaryMalformedEndpointTests(unittest.TestCase):
+    """Malformed endpoints fail closed before the transport (pins existing behaviour)."""
+
+    _drive = CanaryRouteMappingTests._drive
+
+    @classmethod
+    def setUpClass(cls):
+        source = RUNNER.read_text()
+        cls.functions = {name: extract(source, name) for name in EXTRACTED}
+
+    def test_malformed_api_endpoints_fail_closed_without_a_transport_call(self):
+        endpoints = {
+            '39-hex sha': f'commits/{SHA[:39]}/check-runs?per_page=100',
+            'uppercase sha': f'commits/{SHA.upper()}/check-runs?per_page=100',
+            'non-numeric run id': 'actions/runs/abc',
+            'non-numeric workflow id': 'actions/workflows/ci.yml',
+            'extra query key': 'actions/runs/24680135/jobs?per_page=100&page=2',
+            'unknown query': 'rules/branches/main?per_page=50',
+            'unknown path': 'repos/szTheory/sigra/actions/secrets',
+        }
+        for label, endpoint in endpoints.items():
+            with self.subTest(case=label):
+                result, records, network = self._drive(f"api_get '{endpoint}' \"$WORK_DIR/out.json\"")
+                self.assertNotEqual(result.returncode, 0, label)
+                self.assertIn('no typed HTTP route', result.stderr)
+                self.assertEqual(records, [])
+                self.assertEqual(network, '')
+
+    def test_malformed_download_urls_fail_closed_without_a_transport_call(self):
+        for url in ('https://api.github.com/repos/szTheory/sigra/actions/runs/abc/logs',
+                    'https://api.github.com/repos/other/repo/actions/artifacts/1/zip',
+                    'https://example.test/repos/szTheory/sigra/actions/artifacts/1/zip'):
+            with self.subTest(url=url):
+                result, records, _ = self._drive(f"download_no_follow '{url}' \"$WORK_DIR/x.zip\" 0")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('download URL did not match an approved typed route', result.stderr)
+                self.assertEqual(records, [])
+
+
+class DispatchScenarioErrexitTests(unittest.TestCase):
+    """Run the real dispatch_scenario under set -euo pipefail with its collaborators stubbed."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.function = extract(RUNNER.read_text(), 'dispatch_scenario')
+
+    def _dispatch(self, case_name, conclusion):
+        self.assertIsNotNone(self.function, 'dispatch_scenario() not found in ci-gate-canary.sh')
+        fixture_sha = 'f' * 40
+        branch = 'gsd/253-replan-fixture'
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            evidence = tmp / 'evidence.json'
+            evidence.write_text(json.dumps({'scenarios': {}, 'budget': {'actual_jobs': 0}}))
+            (tmp / 'runs.json').write_text(json.dumps({'workflow_runs': [{
+                'id': 901, 'workflow_id': 259268962, 'head_branch': branch, 'head_sha': fixture_sha,
+                'event': 'workflow_dispatch', 'display_title': f'Phase 253 Gate Canary / {case_name} / x', 'run_number': 1}]}))
+            (tmp / 'jobs.json').write_text(json.dumps({'jobs': [{'conclusion': 'success'}]}))
+            (tmp / 'artifacts.json').write_text(json.dumps({'artifacts': [{
+                'name': f'gate-canary-{case_name}-901-1', 'expired': False, 'size_in_bytes': 10, 'id': 55}]}))
+            stubs = (
+                'set -euo pipefail\n'
+                'fail() { printf "ci-gate-canary: FAIL: %s\\n" "$*" >&2; exit 1; }\n'
+                f'WORK_DIR="{tmp}"\nEVIDENCE="{evidence}"\nROOT="{tmp}"\nPUBLISHER="{tmp}/publisher.py"\n'
+                f'CANDIDATE_SHA={CANDIDATE}\nFIXTURE_SHA={fixture_sha}\nFIXTURE_BLOB={"b" * 40}\nFIXTURE_BRANCH={branch}\n'
+                'WORKFLOW_ID=259268962\nMAX_JOBS=45\nREPO=szTheory/sigra\nMAX_ARTIFACT_COMPRESSED=2097152\nREQUEST_COUNT=0\n'
+                'PRIOR_EVIDENCE_REF=ref\nPRIOR_EVIDENCE_SHA=sha\nPRIOR_EVIDENCE_STATUS=status\nLAST_REQUEST_STATUS=\n'
+                f'CONCLUSION="{conclusion}"\n'
+                'validate_dispatch_inputs() { :; }\napi_post_dispatch() { :; }\nrecord_budget() { :; }\n'
+                'preserve_evidence() { :; }\nrequire_listed() { :; }\n'
+                'transport_call() { LAST_REQUEST_STATUS=202; }\n'
+                'download_no_follow() { : > "$2"; }\n'
+                'watch_run() { printf \'{"run_attempt":1,"conclusion":"%s"}\' "$CONCLUSION" > "$TERMINAL_RUN_JSON"; }\n'
+                'api_get() {\n'
+                '  case "$1" in\n'
+                f'    actions/workflows/*) cp "{tmp}/runs.json" "$2" ;;\n'
+                f'    */jobs*) cp "{tmp}/jobs.json" "$2" ;;\n'
+                f'    */artifacts*) cp "{tmp}/artifacts.json" "$2" ;;\n'
+                '    *) echo "unexpected endpoint $1" >&2; exit 9 ;;\n'
+                '  esac\n'
+                '}\n'
+                'python3() { case "$*" in *--extract-canary-artifact*) printf \'{"archive_sha256":"x","archive_base64":"","file":{}}\' ;; *) return 0 ;; esac; }\n'
+            )
+            body = f'dispatch_scenario {case_name}\necho scenario-returned\n'
+            result = subprocess.run(['bash', '-c', stubs + self.function + '\n' + body], cwd=tmp, text=True,
+                                    capture_output=True, timeout=60)
+            recorded = json.loads(evidence.read_text())
+        return result, recorded
+
+    def test_every_expected_outcome_returns_success_under_errexit(self):
+        for case_name, conclusion in (('full-pass', 'success'), ('docs-only', 'success'),
+                                      ('actual-failure', 'failure'), ('missing-seam', 'failure'),
+                                      ('unexpected-skip', 'failure'), ('cancelled', 'cancelled')):
+            with self.subTest(scenario=case_name):
+                result, recorded = self._dispatch(case_name, conclusion)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('scenario-returned', result.stdout)
+                self.assertIn(case_name, recorded['scenarios'])
+
+    def test_a_negative_source_concluding_success_still_fails(self):
+        for case_name in ('actual-failure', 'missing-seam', 'unexpected-skip'):
+            with self.subTest(scenario=case_name):
+                result, _ = self._dispatch(case_name, 'success')
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn('scenario-returned', result.stdout)
+                self.assertIn(f'negative source unexpectedly concluded success: {case_name}', result.stderr)
+
+
 if __name__ == '__main__':
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     def flatten(item):

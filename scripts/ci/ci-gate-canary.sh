@@ -825,6 +825,8 @@ dispatch_scenario() {
   python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario "$case_name"
   record_budget
   [[ "$conclusion" == success && "$case_name" == actual-failure || "$conclusion" == success && "$case_name" == missing-seam || "$conclusion" == success && "$case_name" == unexpected-skip ]] && fail "negative source unexpectedly concluded success: $case_name"
+  # The guard above is false for every expected outcome; without this the function returned 1 and set -e ended the run.
+  return 0
 }
 
 for current_scenario in "${SCENARIOS[@]}"; do dispatch_scenario "$current_scenario"; done
