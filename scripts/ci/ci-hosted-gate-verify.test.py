@@ -1150,5 +1150,146 @@ class CompletionDispositionEndToEndTests(unittest.TestCase):
         self.assertIn("strict native checker rejected load_acceptance", str(caught.exception))
 
 
+
+REGISTERED_FIXTURE = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml"
+PUBLISHER = ROOT / "scripts/ci/ci-git-publication.py"
+SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
+
+
+def step_script(workflow, job, name):
+    return next(step for step in workflow["jobs"][job]["steps"] if step.get("name") == name)["run"]
+
+
+class RegisteredFixtureTests(unittest.TestCase):
+    """The six-scenario registered-path fixture and its separate one-job verifier (253-91)."""
+
+    @classmethod
+    def setUpClass(cls):
+        import yaml
+        cls.workflow = yaml.safe_load(REGISTERED_FIXTURE.read_text())
+        cls.text = REGISTERED_FIXTURE.read_text()
+
+    def test_fixture_is_dispatch_only_read_only_and_pins_the_same_actions_as_the_superseded_fixture(self):
+        self.assertEqual(self.workflow["name"], "Phase 253 Gate Canary")
+        triggers = self.workflow.get("on", self.workflow.get(True))
+        self.assertEqual(list(triggers), ["workflow_dispatch"])
+        self.assertEqual(self.workflow["permissions"], {"contents": "read"})
+        self.assertEqual(set(self.workflow["jobs"]), {"producers", "verdict", "verifier"})
+        self.assertEqual(self.workflow["jobs"]["producers"]["strategy"]["matrix"]["seam"], list(SEAMS))
+        self.assertEqual(self.workflow["jobs"]["verifier"]["permissions"], {"contents": "read", "actions": "read"})
+        options = triggers["workflow_dispatch"]["inputs"]["scenario"]["options"]
+        self.assertEqual(options, ["full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip", "cancelled", "verifier"])
+        old = (ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-WORKFLOW.yml").read_text()
+        import re
+        pins = lambda text: sorted(set(re.findall(r"uses: (\S+)", text)))
+        self.assertEqual(pins(self.text), pins(old))
+        self.assertTrue(all("@" in pin and len(pin.split("@")[1]) == 40 for pin in pins(self.text)))
+        for path in (".github/workflows/ci-observe.yml", ".github/workflows/release-pr-automerge.yml", ".github/workflows/release-run-observer.yml"):
+            self.assertNotIn("Phase 253 Gate Canary", (ROOT / path).read_text())
+        self.assertIn("if: ${{ always() && inputs.scenario != 'cancelled' && inputs.scenario != 'verifier' }}", self.text)
+
+    def test_native_sources_fail_and_pass_exactly_as_each_scenario_requires(self):
+        import os, shutil
+        script = step_script(self.workflow, "verdict", "Shared browser record validator")
+        candidate = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        for scenario in ("full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip"):
+            with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as directory:
+                tmp = Path(directory)
+                shutil.copytree(ROOT / "scripts/ci", tmp / "candidate/scripts/ci", ignore=shutil.ignore_patterns("__pycache__"))
+                (tmp / "candidate/.github/workflows").mkdir(parents=True)
+                shutil.copyfile(ROOT / ".github/workflows/ci.yml", tmp / "candidate/.github/workflows/ci.yml")
+                shutil.copyfile(ROOT / ".github/ci-skip-manifest.tsv", tmp / "candidate/.github/ci-skip-manifest.tsv")
+                for seam in SEAMS:
+                    if scenario == "missing-seam" and seam == "admin_checkpoints":
+                        continue
+                    receipt = tmp / f"producer-artifacts/gate-canary-producer-{seam}-901-1/producer.json"
+                    receipt.parent.mkdir(parents=True)
+                    receipt.write_text(json.dumps({"schema_version": "sigra.gate-canary-producer/v1", "scenario": scenario,
+                                                   "seam": seam, "actual_event": "workflow_dispatch", "synthetic": True}))
+                env = {**os.environ, "SCENARIO": scenario, "CANDIDATE_SHA": candidate, "FIXTURE_SHA": "b" * 40, "FIXTURE_BLOB": "c" * 40,
+                       "GITHUB_SHA": "b" * 40, "GITHUB_WORKFLOW_SHA": "b" * 40, "GITHUB_EVENT_NAME": "workflow_dispatch",
+                       "GITHUB_WORKFLOW_REF": "szTheory/sigra/.github/workflows/ci.yml@fixture", "GITHUB_RUN_ID": "901",
+                       "GITHUB_RUN_ATTEMPT": "1", "CLASSIFIER_RESULT": "success" if scenario == "docs-only" else "",
+                       "DOCS_ONLY": "true" if scenario == "docs-only" else "false",
+                       "NATIVE_PRODUCERS_RESULT": "failure" if scenario == "actual-failure" else "success"}
+                result = subprocess.run(["bash", "-c", script.replace("/tmp/", f"{tmp}/")], cwd=tmp, env=env, capture_output=True, text=True)
+                wanted = 0 if scenario in ("full-pass", "docs-only") else 1
+                self.assertEqual(result.returncode, wanted, result.stderr)
+                record = json.loads((tmp / "canary-output/canary-result.json").read_text())
+                self.assertEqual(record["validator_exit_code"], wanted)
+                self.assertEqual(record["honest_skip_exit_code"], wanted)
+                self.assertEqual(record["actual_event"], "workflow_dispatch")
+                self.assertFalse(record["production_dispatch_exemption"])
+
+    def test_cancellation_scenario_has_a_stalled_producer_and_no_verdict_job(self):
+        producers = self.workflow["jobs"]["producers"]["steps"][0]["run"]
+        self.assertIn("cancelled", producers)
+        self.assertIn("sleep 900", producers)
+        self.assertIn("inputs.scenario != 'cancelled'", self.workflow["jobs"]["verdict"]["if"])
+
+    def run_verifier_step(self, payload):
+        script = step_script(self.workflow, "verifier", "Verify retained source matrix independently")
+        import os
+        with tempfile.TemporaryDirectory() as directory:
+            return subprocess.run(["bash", "-c", script.replace("/tmp/", f"{directory}/")], cwd=ROOT, text=True, capture_output=True,
+                                  env={**os.environ, "MATRIX_EVIDENCE": payload})
+
+    def compact(self, document):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "evidence.json"
+            path.write_text(json.dumps(document))
+            result = subprocess.run(["python3", str(PUBLISHER), "--compact-matrix", str(path)], text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return result.stdout.strip()
+
+    def valid_matrix(self):
+        document = matrix_fixture()
+        document["schema_version"] = "sigra.phase253.hosted-replan-evidence/v2"
+        return document
+
+    def test_separate_verifier_accepts_a_compact_matrix_and_rejects_wrong_ref_blob_source_or_origin(self):
+        accepted = self.run_verifier_step(self.compact(self.valid_matrix()))
+        self.assertEqual(accepted.returncode, 0, accepted.stderr)
+        self.assertIn("sources_verified", accepted.stdout)
+        mutations = {
+            "wrong fixture ref": lambda d: d["expected"].update(fixture_ref="refs/heads/gsd/other"),
+            "wrong workflow blob": lambda d: d["expected"].update(workflow_blob="not-a-sha"),
+            "wrong source commit": lambda d: d["scenarios"]["full-pass"]["run"].update(head_sha="f" * 40),
+            "wrong event origin": lambda d: d["scenarios"]["full-pass"]["run"].update(event="push"),
+            "halted window under-reports jobs": lambda d: d["budget"].update(actual_jobs=0),
+            "missing scenario": lambda d: d["scenarios"].pop("cancelled"),
+        }
+        for label, mutate in mutations.items():
+            with self.subTest(label=label):
+                document = self.valid_matrix()
+                mutate(document)
+                rejected = self.run_verifier_step(self.compact(document))
+                self.assertNotEqual(rejected.returncode, 0, label)
+        self.assertNotEqual(self.run_verifier_step("not-base64!").returncode, 0)
+        import gzip
+        trailing = base64.b64encode(gzip.compress(b"{}") + b"tail").decode()
+        self.assertNotEqual(self.run_verifier_step(trailing).returncode, 0)
+
+    def test_the_existing_evidence_verifiers_tolerate_the_extra_action_approval_key(self):
+        record = {"path": ".planning/x.json", "sha256": "a" * 64, "section": "canary", "section_sha256": "b" * 64,
+                  "commit": "c" * 40, "window_wall_start_epoch": 1791909792}
+        document = matrix_fixture()
+        document["scenario"] = "sources"
+        baseline = HostedGateVerifierTests.invoke(self, document)
+        self.assertEqual(baseline.returncode, 0, baseline.stderr)
+        document["action_approval"] = record
+        with_record = HostedGateVerifierTests.invoke(self, document)
+        self.assertEqual(with_record.returncode, 0, with_record.stderr)
+        self.assertEqual(json.loads(baseline.stdout), json.loads(with_record.stdout))
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("verify_for_extra_key", VERIFY)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "v2.json"
+            path.write_text(json.dumps({"schema_version": module.REPLAN_SCHEMA, "repository": "szTheory/sigra", "action_approval": record}))
+            self.assertEqual(module.read_replan_evidence(path)["action_approval"], record)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -96,4 +96,16 @@ bash scripts/ci/ci-gate-canary.sh --check-only \
 [[ "$(git rev-parse "$fixture_commit:.github/workflows/ci.yml")" == "$fixture_blob" ]]
 [[ ! -e .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json ]]
 [[ ! -e .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json ]]
+# Live modes need the reviewed revision freeze and its committed canary approval (253-91); no request is attempted.
+if bash scripts/ci/ci-gate-canary.sh --scenario full-pass --revision-freeze "$tmp_dir/absent-freeze.json" >"$tmp_dir/live.out" 2>"$tmp_dir/live.err"; then
+  echo "ci-gate-canary tests: FAIL: a live mode ran without a reviewed revision freeze" >&2
+  exit 1
+fi
+grep -q 'revision-freeze' "$tmp_dir/live.err"
+if bash scripts/ci/ci-gate-canary.sh --rerun --revision-freeze "$tmp_dir/absent-freeze.json" >"$tmp_dir/rerun.out" 2>"$tmp_dir/rerun.err"; then
+  echo "ci-gate-canary tests: FAIL: a rerun invocation was accepted" >&2
+  exit 1
+fi
+grep -qi 'rerun' "$tmp_dir/rerun.err"
+bash scripts/ci/ci-gate-canary.sh --help | grep -q -- '--publish-only'
 echo "ci-gate-canary tests passed (synthetic fixture repo; no active phase refs or ledgers)"

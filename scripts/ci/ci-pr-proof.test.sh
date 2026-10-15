@@ -143,6 +143,7 @@ class PRHandler(pubtest.ObjectServer):
         self._emit(status, json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode())
 
     def do_GET(self):  # noqa: N802
+        self._first()
         self.server.last_body = b""
         model, base = self.server.model, "/repos/szTheory/sigra"
         parsed = urlsplit(self.path)
@@ -216,6 +217,7 @@ class PRHandler(pubtest.ObjectServer):
         return super().do_GET()
 
     def do_POST(self):  # noqa: N802
+        self._first()
         if urlsplit(self.path).path == "/repos/szTheory/sigra/pulls":
             value = self._read()
             if self.server.flags.get("refuse_pr_create"):
@@ -236,8 +238,9 @@ class PRHandler(pubtest.ObjectServer):
 class World:
     """One complete hermetic Phase253 PR universe: temp git repo, published objects, TLS server, freeze and allocation."""
 
-    def __init__(self, test, flags=None, tag="world"):
+    def __init__(self, test, flags=None, tag="world", mutate_section=None):
         self.test = test
+        self.mutate_section = mutate_section
         self.dir = pathlib.Path(tempfile.mkdtemp(prefix=f"sigra-pr-proof-{tag}-"))
         test.addCleanup(shutil.rmtree, self.dir, True)
         self.flags = dict(flags or {})
@@ -313,6 +316,7 @@ class World:
                        "--budget-document", self.budget, cwd=ROOT, timeout=60)
         assert prepared.returncode == 0, prepared.stderr + prepared.stdout
         self.freeze = json.loads(self.freeze_path.read_text())
+        self.build_approval(self.mutate_section)
         self.build_model()
         self.allocation_path = d / "allocation.json"
         self.allocation = {
@@ -325,6 +329,38 @@ class World:
         self.allocation_path.write_text(json.dumps(self.allocation))
         self.ledger = d / "pr-ledger.json"
         self.server.ledger_path = str(self.ledger)
+
+    def build_approval(self, mutate_section=None):
+        """A canary-schema freeze carrying the enumerated outward_actions plus a committed docs_and_prs approval."""
+        publisher = load(ROOT / "scripts/ci/ci-git-publication.py", "publisher")
+        identity = {key: self.manifest[key] for key in ("candidate_helper_commit", "fixture_workflow_commit", "fixture_workflow_blob",
+                                                        "docs_base_commit", "docs_head_commit")}
+        sections, digests = publisher.build_outward_actions(identity)
+        if mutate_section:
+            mutate_section(sections)
+            digests = {name: sha(publisher.canonical_bytes(value)) for name, value in sections.items()}
+        phase = self.repo / ".planning/phases/p"
+        phase.mkdir(parents=True, exist_ok=True)
+        self.canary_freeze_path = phase / "canary-freeze.json"
+        self.canary_freeze_path.write_text(json.dumps({"schema_version": publisher.FREEZE_SCHEMA, "identity": identity,
+                                                       "outward_actions": sections, "outward_actions_sha256": digests}, indent=2))
+        self.digests = digests
+        self.approval_path = self.write_approval("docs_and_prs", name="approval-docs")
+        git(self.repo, "add", ".planning")
+        git(self.repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: freeze and approval")
+
+    def write_approval(self, section, name, commit=False, decision="approve", section_sha=None, tamper=False):
+        path = self.repo / ".planning/phases/p" / f"{name}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"schema_version": "sigra.phase253.outward-action-approval/v1", "decision": decision,
+                                    "section": section, "section_sha256": section_sha or self.digests[section],
+                                    "decided_by": "test-operator", "recorded_at": "2026-10-14T00:00:00Z"}, indent=2) + "\n")
+        if commit:
+            git(self.repo, "add", str(path))
+            git(self.repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", f"planning: {name}")
+        if tamper:
+            path.write_text(path.read_text() + "\n")
+        return path
 
     def workflow(self, commit):
         return git(self.repo, "show", f"{commit}:.github/workflows/ci.yml")
@@ -388,10 +424,19 @@ class World:
             assert result.returncode == 0, result.stderr
             return {directory.name: {path.name: path.read_bytes() for path in directory.iterdir()} for directory in (tmp / "out").iterdir()}
 
-    def collect(self, family, evidence_name, check=True):
+    def collect(self, family, evidence_name, check=True, approval="default", revision_freeze="default", env=None):
         evidence = self.dir / evidence_name
+        extra = []
+        if revision_freeze == "default":
+            revision_freeze = self.canary_freeze_path
+        if approval == "default":
+            approval = self.approval_path
+        if revision_freeze is not None:
+            extra += ["--revision-freeze", revision_freeze]
+        if approval is not None:
+            extra += ["--action-approval", approval]
         process = run("bash", PROOF, "--family", family, "--freeze", self.freeze_path, "--allocation", self.allocation_path,
-                      "--evidence", evidence, "--requests", self.ledger, "--repo-root", self.repo, cwd=ROOT, timeout=600)
+                      "--evidence", evidence, "--requests", self.ledger, "--repo-root", self.repo, *extra, cwd=ROOT, timeout=600, env=env)
         if check:
             assert process.returncode == 0, process.stdout + process.stderr
         return process, evidence
@@ -942,6 +987,90 @@ class PRProofContractTests(unittest.TestCase):
         path.write_text(json.dumps(stale))
         self.assertNotEqual(run("python3", ROOT / "scripts/ci/ci-hosted-gate-verify.py", "--mode", "completion", "--evidence", path,
                                 cwd=ROOT, timeout=180).returncode, 0)
+
+
+class SectionApprovalTests(unittest.TestCase):
+    """Live collector modes need the committed docs_and_prs approval and may create only the listed PRs (253-91)."""
+
+    def refused(self, world, family, **kwargs):
+        process, evidence = world.collect(family, "refused.json", check=False, **kwargs)
+        self.assertNotEqual(process.returncode, 0, process.stdout)
+        self.assertIn("approval", (process.stderr + process.stdout).lower())
+        self.assertEqual(world.server.journal, [], "a request left the process before the approval was accepted")
+        self.assertFalse(world.ledger.exists())
+        self.assertFalse(evidence.exists())
+
+    def test_every_live_family_mode_refuses_each_unapproved_or_wrongly_scoped_approval_before_any_request(self):
+        world = World(self, tag="approval")
+        whole = sha(load(ROOT / "scripts/ci/ci-git-publication.py", "publisher").canonical_bytes(
+            json.loads(world.canary_freeze_path.read_text())["outward_actions"]))
+        for family in ("normal", "docs-only"):
+            cases = {
+                "absent": dict(approval=None),
+                "canary section": dict(approval=world.write_approval("canary", "c1", commit=True)),
+                "whole manifest": dict(approval=world.write_approval("docs_and_prs", "c2", commit=True, section_sha=whole)),
+                "uncommitted": dict(approval=world.write_approval("docs_and_prs", "c3")),
+                "modified": dict(approval=world.write_approval("docs_and_prs", "c4", commit=True, tamper=True)),
+                "rejected": dict(approval=world.write_approval("docs_and_prs", "c5", commit=True, decision="reject")),
+                "no freeze": dict(revision_freeze=None),
+            }
+            for label, kwargs in cases.items():
+                with self.subTest(family=family, case=label):
+                    self.refused(world, family, **kwargs)
+
+    def test_prepare_and_check_only_stay_network_free_and_need_no_approval(self):
+        world = World(self, tag="no-approval-needed")
+        checked = run("bash", PROOF, "--check-only", "--freeze", world.freeze_path, "--allocation", world.allocation_path, cwd=ROOT)
+        self.assertEqual(checked.returncode, 0, checked.stderr)
+        self.assertEqual(world.server.journal, [])
+
+    def test_pr_create_that_differs_from_the_approved_section_is_refused_before_any_request(self):
+        def other_base(sections):
+            next(a for a in sections["docs_and_prs"]["actions"] if a.get("family") == "normal")["base"] = "release"
+        def not_draft(sections):
+            next(a for a in sections["docs_and_prs"]["actions"] if a.get("family") == "docs-only")["draft"] = False
+        def other_head(sections):
+            next(a for a in sections["docs_and_prs"]["actions"] if a.get("family") == "docs-only")["head"] = "gsd/253-replan-candidate"
+        for label, family, mutate in (("base differs", "normal", other_base), ("not a draft", "docs-only", not_draft),
+                                      ("head differs", "docs-only", other_head)):
+            with self.subTest(label=label):
+                world = World(self, tag="listed", mutate_section=mutate)
+                process, evidence = world.collect(family, "listed.json", check=False)
+                self.assertNotEqual(process.returncode, 0)
+                self.assertIn("section", (process.stderr + process.stdout).lower())
+                self.assertFalse(any(row["method"] == "POST" and row["path"].endswith("/pulls") for row in world.server.journal))
+                self.assertEqual(world.server.journal, [])
+
+    def test_the_action_approval_record_is_written_before_the_first_request(self):
+        world = World(self, tag="record-first")
+        evidence = world.dir / "first.json"
+        seen = {}
+        world.server.first_hook = lambda: seen.update(evidence=json.loads(evidence.read_text()) if evidence.exists() else None)
+        process, path = world.collect("normal", "first.json")
+        self.assertIsNotNone(seen["evidence"], "evidence did not exist when the first request arrived")
+        record = seen["evidence"]["action_approval"]
+        self.assertEqual(set(record), {"path", "sha256", "section", "section_sha256", "commit", "window_wall_start_epoch"})
+        self.assertEqual(record["section"], "docs_and_prs")
+        self.assertEqual(record["section_sha256"], world.digests["docs_and_prs"])
+        self.assertEqual(record["commit"], git(world.repo, "rev-list", "-1", "HEAD", "--", str(world.approval_path.relative_to(world.repo))).decode().strip())
+        final = json.loads(path.read_text())
+        self.assertEqual(final["action_approval"], record)
+        evidence_value = attach_journal(path, list(world.server.journal))
+        result = verifier.verify_pr_family(evidence_value, "normal")
+        self.assertIsNotNone(result, "the existing PR verifier must tolerate the extra top-level action_approval key")
+
+    def test_docs_only_collection_reuses_docs_objects_already_published_in_the_shared_ledger(self):
+        world = World(self, flags={"refuse_pr_create": True}, tag="docs-already-published")
+        first, _ = world.collect("docs-only", "first.json", check=False)
+        self.assertEqual(first.returncode, 1)
+        published = len(world.server.journal)
+        world.server.flags.pop("refuse_pr_create")
+        second, path = world.collect("docs-only", "second.json")
+        later = world.server.journal[published:]
+        self.assertFalse(any(row["method"] == "POST" and row["path"].endswith(("/trees", "/commits", "/refs")) for row in later),
+                         "docs objects already published under the docs_publication category were published again")
+        counted = [tx for tx in json.loads(path.read_text())["transport_ledger"]["transactions"] if tx.get("category") == "docs_publication"]
+        self.assertEqual(len(counted), 14)
 
 
 class CollectorFaultTests(unittest.TestCase):

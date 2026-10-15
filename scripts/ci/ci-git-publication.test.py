@@ -4,9 +4,11 @@
 import base64
 import hashlib
 import http.server
+import io
 import json
 import os
 import pathlib
+import re
 import ssl
 import subprocess
 import sys
@@ -31,7 +33,10 @@ HELPER_COPIES = ("scripts/ci/ci-gate-canary.sh", "scripts/ci/ci-git-publication.
                  "scripts/ci/honest-skip-verdict.sh")
 HELPER_DUMMIES = ("scripts/ci/ci-gate-canary.test.sh", "scripts/ci/ci-git-publication.test.py",
                   "scripts/ci/ci-hosted-gate-verify.test.py", "scripts/ci/ci-pr-proof.test.sh")
-FIXTURE_TEXT = "name: Phase 253 Gate Canary\non:\n  workflow_dispatch:\n    inputs: {}\npermissions:\n  contents: read\njobs: {}\n"
+_REAL_FIXTURE = pathlib.Path(__file__).resolve().parents[2] / PHASE_REL / "253-LOAD-RECOVERY-CANARY-WORKFLOW.yml"
+FIXTURE_TEXT = (_REAL_FIXTURE.read_text() if _REAL_FIXTURE.exists()
+                else "name: Phase 253 Gate Canary\non:\n  workflow_dispatch:\n    inputs: {}\npermissions:\n  contents: read\njobs: {}\n")
+OBSERVERS = (".github/workflows/ci-observe.yml", ".github/workflows/release-pr-automerge.yml", ".github/workflows/release-run-observer.yml")
 
 
 def git_fixture(root, oversized=False, many_entries=0, helpers=False):
@@ -61,6 +66,8 @@ def git_fixture(root, oversized=False, many_entries=0, helpers=False):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes((ROOT / rel).read_bytes())
             target.chmod(0o755 if rel.endswith((".sh", ".py")) else 0o644)
+        for rel in OBSERVERS:
+            (root / rel).write_bytes((ROOT / rel).read_bytes())
         for rel in HELPER_DUMMIES:
             (root / rel).write_text(f"# placeholder for {rel}\n")
         phase = root / PHASE_REL
@@ -69,7 +76,7 @@ def git_fixture(root, oversized=False, many_entries=0, helpers=False):
         (phase / "253-PREHOST-REVIEW.md").write_text("# review\n")
         for name in ("ACCEPTANCE-EVIDENCE", "TARGET-DISPOSITION", "TARGET-DISPOSITION-APPROVAL"):
             (phase / f"253-LOAD-RECOVERY-{name}.json").write_text(json.dumps({"fixture": name}) + "\n")
-        paths += ["scripts", ".planning"]
+        paths += ["scripts", ".planning", ".github/workflows"]
     subprocess.run(["git", "-C", str(root), "add", *paths], check=True)
     subprocess.run(["git", "-C", str(root), "commit", "-qm", "candidate"], check=True)
     source = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
@@ -1220,6 +1227,314 @@ class RegisteredPublicationTests(unittest.TestCase):
             self.assertEqual(verified.returncode, 0, verified.stderr)
             stale = sorted(path.name for path in env["phase"].glob("253-RECOVERY-CANARY-*"))
             self.assertEqual(stale, [], "the registered flow wrote to the superseded RECOVERY output paths")
+
+
+
+CANARY_SCRIPT_RELATIVE = "scripts/ci/ci-gate-canary.sh"
+LIVE_MODES = (("--preflight-only",), ("--publish-ref-only",), ("--publish-only",), ("--scenario", "full-pass"), ("--remaining-scenarios",))
+
+
+class LiveModeApprovalTests(unittest.TestCase):
+    """Per-section approval, expired reruns and native_target re-hash enforced by the canary script (253-91 Task 2)."""
+
+    make_local_publication = PublicationTests.make_local_publication
+    prepare_registered = RegisteredPublicationTests.prepare_registered
+    freeze_environment = RegisteredPublicationTests.freeze_environment
+    write_approval = RegisteredPublicationTests.write_approval
+    canary_allocation = RegisteredPublicationTests.canary_allocation
+
+    def live_allocation(self, env):
+        value = {"schema_version": "sigra.phase253.http-allocation/v1", "window_id": "live-test-window",
+                 "source_sha256": hashlib.sha256(env["freeze_path"].read_bytes()).hexdigest(), "max_requests": 117,
+                 "max_elapsed_seconds": 3600, "max_response_bytes": 4 * 1024 * 1024, "max_pages": 3, "max_hops": 2,
+                 "repository": "szTheory/sigra", "download_hosts": [], "mode": "live", "allocation_kind": "canary"}
+        path = env["root"] / "live-allocation.json"
+        path.write_text(json.dumps(value))
+        return path
+
+    def recording_env(self, temp, evidence):
+        stub_dir = pathlib.Path(temp) / "rec-bin"
+        stub_dir.mkdir(exist_ok=True)
+        marker, snapshot = pathlib.Path(temp) / "calls", pathlib.Path(temp) / "evidence-at-first-call.json"
+        for name in ("gh", "curl"):
+            stub = stub_dir / name
+            stub.write_text(f'#!/bin/sh\nprintf "{name} %s\\n" "$*" >> "{marker}"\n'
+                            f'[ -f "{evidence}" ] && cp "{evidence}" "{snapshot}"\nexit 1\n')
+            stub.chmod(0o755)
+        env = {key: value for key, value in os.environ.items() if key not in {"GH_TOKEN", "GITHUB_TOKEN"}}
+        env["PATH"] = f"{stub_dir}:{env['PATH']}"
+        env["HOME"] = str(temp)
+        return env, marker, snapshot
+
+    def canary(self, env, args, *, process_env=None, timeout=120):
+        return subprocess.run(["bash", str(env["repo"] / CANARY_SCRIPT_RELATIVE), *args], cwd=env["repo"], text=True,
+                              capture_output=True, env=process_env, timeout=timeout)
+
+    def mutate_freeze(self, env, mutate):
+        original = env["freeze_path"].read_text()
+        value = json.loads(original)
+        mutate(value)
+        env["freeze_path"].write_text(json.dumps(value, indent=2))
+        return original
+
+    # -- strict freeze policy ----------------------------------------------------------------
+    def test_check_freeze_enforces_expired_reruns_native_target_bounds_and_categories(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-freeze-policy-") as temp:
+            env = self.freeze_environment(temp)
+            def check():
+                return subprocess.run(["python3", str(PUBLISHER), "--check-freeze", str(env["freeze_path"]), "--repo-root", str(env["repo"])],
+                                      cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(check().returncode, 0, check().stderr)
+            native = env["freeze"]["native_target"]
+            self.assertEqual(native["route"], "not_reproduced_disposition")
+            self.assertEqual(env["freeze"]["scenarios"]["optional_infrastructure_retry"], 0)
+            self.assertEqual(env["freeze"]["scenarios"]["retry_status"], "expired")
+            self.assertEqual(env["freeze"]["bounds"]["new_measured_max_requests"], 117)
+            self.assertEqual(sum(env["freeze"]["categories"]["canary"].values()), 117)
+            mutations = {
+                "one optional retry": lambda v: v["scenarios"].update(optional_infrastructure_retry=1),
+                "retry not expired": lambda v: v["scenarios"].update(retry_status="available"),
+                "canary rerun available": lambda v: v["expired_reruns"]["canary"].update(status="available"),
+                "canary rerun used": lambda v: v["expired_reruns"]["canary"].update(used=1),
+                "PR rerun available": lambda v: v["expired_reruns"]["pull_requests"].update(status="available"),
+                "PR rerun wrong reason": lambda v: v["expired_reruns"]["pull_requests"].update(reason="maybe later"),
+                "native_target missing": lambda v: v.pop("native_target"),
+                "native route unknown": lambda v: v["native_target"].update(route="invented"),
+                "acceptance hash wrong": lambda v: v["native_target"]["acceptance_evidence"].update(sha256="0" * 64),
+                "acceptance hash missing": lambda v: v["native_target"]["acceptance_evidence"].pop("sha256"),
+                "disposition hash wrong": lambda v: v["native_target"]["disposition"].update(sha256="1" * 64),
+                "disposition missing": lambda v: v["native_target"].pop("disposition"),
+                "approval hash wrong": lambda v: v["native_target"]["disposition_approval"].update(sha256="2" * 64),
+                "approval path escapes": lambda v: v["native_target"]["disposition_approval"].update(path="../outside.json"),
+                "note changed": lambda v: v["native_target"].update(note="CIREL-01 accepted"),
+                "time bound changed": lambda v: v["bounds"].update(max_minutes=61),
+                "canary category changed": lambda v: v["categories"]["canary"].update(publication=25),
+                "production category changed": lambda v: v["categories"]["production"].update(infrastructure_rerun=20),
+                "historical http claimed exact": lambda v: v["historical"].update(previous_exact_http_count_proven=True),
+                "old failed run changed": lambda v: v["identity"].update(old_failed_run_id="1"),
+                "clock starts late": lambda v: v["clock"].update(begins="after_preflight"),
+            }
+            for label, mutate in mutations.items():
+                with self.subTest(label=label):
+                    original = self.mutate_freeze(env, mutate)
+                    try:
+                        self.assertNotEqual(check().returncode, 0, label)
+                    finally:
+                        env["freeze_path"].write_text(original)
+            # a re-hash is against the bytes on disk: change a bound disposition file instead of the freeze
+            target = env["repo"] / env["freeze"]["native_target"]["disposition"]["path"]
+            original = target.read_text()
+            target.write_text(original + " ")
+            try:
+                self.assertNotEqual(check().returncode, 0, "changed disposition bytes were accepted")
+            finally:
+                target.write_text(original)
+            self.assertEqual(check().returncode, 0)
+
+    def test_check_only_applies_the_revision_policy_without_approval_or_network(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-check-only-revision-") as temp:
+            env = self.freeze_environment(temp)
+            process_env, marker, _ = self.recording_env(temp, env["phase"] / "none.json")
+            ok = self.canary(env, ["--check-only", "--revision-freeze", str(env["freeze_path"])], process_env=process_env)
+            self.assertEqual(ok.returncode, 0, ok.stdout + ok.stderr)
+            self.assertIn("local fixture contract passed", ok.stdout)
+            self.assertFalse(marker.exists())
+            original = self.mutate_freeze(env, lambda v: v["scenarios"].update(optional_infrastructure_retry=1))
+            bad = self.canary(env, ["--check-only", "--revision-freeze", str(env["freeze_path"])], process_env=process_env)
+            self.assertNotEqual(bad.returncode, 0)
+            env["freeze_path"].write_text(original)
+            original = self.mutate_freeze(env, lambda v: v["native_target"]["acceptance_evidence"].update(sha256="3" * 64))
+            bad = self.canary(env, ["--check-only", "--revision-freeze", str(env["freeze_path"])], process_env=process_env)
+            self.assertNotEqual(bad.returncode, 0)
+            self.assertFalse(marker.exists())
+
+    # -- live-mode approval gate -------------------------------------------------------------
+    def test_every_live_mode_refuses_without_the_committed_canary_section_approval_before_any_request(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-live-refusal-") as temp:
+            env = self.freeze_environment(temp)
+            allocation = self.live_allocation(env)
+            evidence = env["phase"] / "253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
+            ledger = env["phase"] / "253-LOAD-RECOVERY-CANARY-REQUESTS.json"
+            process_env, marker, _ = self.recording_env(temp, evidence)
+            whole = canonical_sha(env["freeze"]["outward_actions"])
+            approvals = {
+                "no approval": None,
+                "docs_and_prs approval": lambda: self.write_approval(env, "docs_and_prs", name="b1"),
+                "whole-manifest sha": lambda: self.write_approval(env, "canary", section_sha=whole, name="b2"),
+                "uncommitted file": lambda: self.write_approval(env, "canary", commit=False, name="b3"),
+                "modified file": lambda: self.write_approval(env, "canary", tamper=True, name="b4"),
+                "decision reject": lambda: self.write_approval(env, "canary", decision="reject", name="b5"),
+            }
+            for label, make in approvals.items():
+                approval = make() if make else None
+                for mode in LIVE_MODES:
+                    with self.subTest(approval=label, mode=mode[0]):
+                        args = [*mode, "--revision-freeze", str(env["freeze_path"]), "--http-allocation", str(allocation)]
+                        if approval is not None:
+                            args += ["--action-approval", str(approval)]
+                        result = self.canary(env, args, process_env=process_env, timeout=60)
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn("approval", result.stderr.lower())
+                        self.assertFalse(marker.exists(), "a GitHub command was attempted before the approval check")
+                        self.assertFalse(evidence.exists())
+                        self.assertFalse(ledger.exists())
+            self.assertEqual(sorted(path.name for path in env["phase"].glob("253-RECOVERY-CANARY-*")), [])
+
+    def test_first_transaction_follows_the_recorded_action_approval(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-live-first-transaction-") as temp:
+            started = int(time.time())
+            env = self.freeze_environment(temp)
+            allocation = self.live_allocation(env)
+            approval = self.write_approval(env, "canary")
+            evidence = env["phase"] / "253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
+            process_env, marker, snapshot = self.recording_env(temp, evidence)
+            result = self.canary(env, ["--preflight-only", "--revision-freeze", str(env["freeze_path"]), "--action-approval", str(approval),
+                                       "--http-allocation", str(allocation)], process_env=process_env)
+            self.assertNotEqual(result.returncode, 0, "the stub has no GitHub credentials, so the first transaction must fail")
+            calls = marker.read_text().splitlines()
+            self.assertEqual(calls, ["gh auth token"], "only the credential lookup ran; no network command was issued")
+            at_first_call = json.loads(snapshot.read_text())
+            record = at_first_call["action_approval"]
+            self.assertEqual(set(record), {"path", "sha256", "section", "section_sha256", "commit", "window_wall_start_epoch"})
+            self.assertEqual(record["section"], "canary")
+            self.assertEqual(record["section_sha256"], env["freeze"]["outward_actions_sha256"]["canary"])
+            self.assertEqual(record["sha256"], hashlib.sha256(approval.read_bytes()).hexdigest())
+            self.assertEqual(record["commit"], git_run(env["repo"], "rev-list", "-1", "HEAD", "--", str(approval.relative_to(env["repo"]))))
+            self.assertGreaterEqual(record["window_wall_start_epoch"], started)
+            self.assertLessEqual(record["window_wall_start_epoch"], int(time.time()))
+            ledger = json.loads((env["phase"] / "253-LOAD-RECOVERY-CANARY-REQUESTS.json").read_text())
+            self.assertEqual(len(ledger["transactions"]), 1)
+            self.assertEqual(ledger["transactions"][0]["error"]["code"], "authentication_unavailable")
+            self.assertEqual(sorted(path.name for path in env["phase"].glob("253-RECOVERY-CANARY-*")), [])
+
+    def test_a_halted_window_and_rerun_flags_are_refused_before_any_request(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-live-rerun-") as temp:
+            env = self.freeze_environment(temp)
+            allocation = self.live_allocation(env)
+            approval = self.write_approval(env, "canary")
+            evidence = env["phase"] / "253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
+            process_env, marker, _ = self.recording_env(temp, evidence)
+            for flag in ("--rerun", "--retry-infrastructure", "--rerun-failed"):
+                with self.subTest(flag=flag):
+                    result = self.canary(env, [flag, "--revision-freeze", str(env["freeze_path"]), "--action-approval", str(approval),
+                                               "--http-allocation", str(allocation)], process_env=process_env)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("rerun", result.stderr.lower())
+                    self.assertFalse(marker.exists())
+            evidence.write_text(json.dumps({"schema_version": "sigra.phase253.hosted-replan-evidence/v2", "status": "halted",
+                                            "diagnostics": [{"kind": "canary-stop"}]}))
+            before = evidence.read_bytes()
+            halted = self.canary(env, ["--preflight-only", "--revision-freeze", str(env["freeze_path"]), "--action-approval", str(approval),
+                                       "--http-allocation", str(allocation)], process_env=process_env)
+            self.assertNotEqual(halted.returncode, 0)
+            self.assertIn("halted", halted.stderr)
+            self.assertFalse(marker.exists())
+            self.assertEqual(evidence.read_bytes(), before)
+
+    def test_mutations_outside_the_approved_canary_section_are_refused(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-listed-actions-") as temp:
+            env = self.freeze_environment(temp)
+            source = (ROOT / "scripts/ci/ci-gate-canary.sh").read_text()
+            match = re.search(r"^require_listed\(\) \{.*?^\}", source, re.M | re.S)
+            self.assertIsNotNone(match, "the canary script has no require_listed guard")
+            fixture = env["freeze"]["identity"]
+            candidate, fixture_sha, blob = fixture["candidate_helper_commit"], fixture["fixture_workflow_commit"], fixture["fixture_workflow_blob"]
+            def listed(want):
+                script = ('set -euo pipefail\nfail() { echo "FAIL: $*" >&2; exit 1; }\n'
+                          f'REVISION_FREEZE={env["freeze_path"]}\n{match.group(0)}\nrequire_listed \'{json.dumps(want)}\'\n')
+                return subprocess.run(["bash", "-c", script], text=True, capture_output=True)
+            inputs = {"scenario": "full-pass", "candidate_sha": candidate, "fixture_sha": fixture_sha, "fixture_blob": blob}
+            accepted = {
+                "candidate ref": {"action": "create_ref", "ref": "refs/heads/gsd/253-replan-candidate", "sha": candidate},
+                "fixture ref": {"action": "create_ref", "ref": "refs/heads/gsd/253-replan-fixture", "sha": fixture_sha},
+                "full-pass dispatch": {"action": "workflow_dispatch", "ref": "gsd/253-replan-fixture", "inputs": inputs},
+                "cancelled dispatch": {"action": "workflow_dispatch", "ref": "gsd/253-replan-fixture", "inputs": {**inputs, "scenario": "cancelled"}},
+                "verifier dispatch": {"action": "workflow_dispatch", "ref": "gsd/253-replan-fixture",
+                                      "inputs": {**inputs, "scenario": "verifier"}},
+                "identified cancellation": {"action": "cancel_run", "scenario": "cancelled"},
+            }
+            refused = {
+                "ref on main": {"action": "create_ref", "ref": "refs/heads/main", "sha": candidate},
+                "fixture ref wrong sha": {"action": "create_ref", "ref": "refs/heads/gsd/253-replan-fixture", "sha": candidate},
+                "tag ref": {"action": "create_ref", "ref": "refs/tags/v1", "sha": candidate},
+                "unknown scenario": {"action": "workflow_dispatch", "ref": "gsd/253-replan-fixture", "inputs": {**inputs, "scenario": "extra"}},
+                "wrong fixture sha": {"action": "workflow_dispatch", "ref": "gsd/253-replan-fixture", "inputs": {**inputs, "fixture_sha": "9" * 40}},
+                "dispatch on main": {"action": "workflow_dispatch", "ref": "main", "inputs": inputs},
+                "cancel another scenario": {"action": "cancel_run", "scenario": "full-pass"},
+                "pull request create": {"action": "pr_create", "head": "gsd/253-replan-candidate", "base": "main", "draft": True},
+                "rerun": {"action": "rerun", "scenario": "full-pass"},
+                "merge": {"action": "merge"},
+            }
+            for label, want in accepted.items():
+                with self.subTest(accepted=label):
+                    result = listed(want)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+            for label, want in refused.items():
+                with self.subTest(refused=label):
+                    self.assertNotEqual(listed(want).returncode, 0, label)
+
+    # -- bounded serialization --------------------------------------------------------------
+    def test_compact_matrix_payload_is_bounded_gzip_base64_and_decodes_with_the_verifier(self):
+        import importlib.util, gzip
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_for_matrix", ROOT / "scripts/ci/ci-hosted-gate-verify.py")
+        verifier = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(verifier)
+        with tempfile.TemporaryDirectory(prefix="sigra-compact-matrix-") as temp:
+            evidence = pathlib.Path(temp) / "evidence.json"
+            full = {"schema_version": "sigra.phase253.hosted-replan-evidence/v2", "repository": "szTheory/sigra",
+                    "expected": {"candidate_sha": "a" * 40}, "budget": {"actual_jobs": 36},
+                    "scenarios": {"full-pass": {"run": {"id": 1}}}, "transport_ledger": {"transactions": [{"x": "y" * 5000}] * 50},
+                    "transport_receipts": [{"x": "z" * 5000}] * 50, "preserved_revisions": ["ignored"], "preflight": {"big": "q" * 100000}}
+            evidence.write_text(json.dumps(full))
+            result = subprocess.run(["python3", str(PUBLISHER), "--compact-matrix", str(evidence)], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = result.stdout.strip()
+            self.assertLessEqual(len(payload), 65535)
+            self.assertEqual(gzip.decompress(base64.b64decode(payload, validate=True))[:1], b"{")
+            decoded = verifier.decode_matrix_payload(payload)
+            self.assertEqual(set(decoded), {"schema_version", "repository", "expected", "scenarios", "budget"})
+            self.assertEqual(decoded["budget"], {"actual_jobs": 36})
+            self.assertNotIn("transport_ledger", decoded)
+            noisy = dict(full, scenarios={"full-pass": {"blob": os.urandom(60000).hex()}})
+            evidence.write_text(json.dumps(noisy))
+            over = subprocess.run(["python3", str(PUBLISHER), "--compact-matrix", str(evidence)], cwd=ROOT, text=True, capture_output=True)
+            self.assertNotEqual(over.returncode, 0)
+            self.assertIn("65535", over.stderr)
+            self.assertEqual(over.stdout, "")
+
+    def test_canary_artifact_extraction_enforces_the_zip_limits(self):
+        import zipfile
+        def archive(members, compression=zipfile.ZIP_DEFLATED):
+            buffer = io.BytesIO()
+            with zipfile.ZipFile(buffer, "w", compression=compression) as bundle:
+                for name, data in members:
+                    bundle.writestr(name, data)
+            return buffer.getvalue()
+        with tempfile.TemporaryDirectory(prefix="sigra-zip-limits-") as temp:
+            def extract(data):
+                path = pathlib.Path(temp) / "artifact.zip"
+                path.write_bytes(data)
+                return subprocess.run(["python3", str(PUBLISHER), "--extract-canary-artifact", str(path)], cwd=ROOT, text=True, capture_output=True)
+            good = extract(archive([("canary-result.json", b'{"scenario":"full-pass"}\n')]))
+            self.assertEqual(good.returncode, 0, good.stderr)
+            value = json.loads(good.stdout)
+            self.assertEqual(value["file"]["json"], {"scenario": "full-pass"})
+            self.assertEqual(value["archive_sha256"], hashlib.sha256((pathlib.Path(temp) / "artifact.zip").read_bytes()).hexdigest())
+            bad = {
+                "extra member": archive([("canary-result.json", b"{}"), ("other.json", b"{}")]),
+                "wrong member": archive([("result.json", b"{}")]),
+                "directory traversal": archive([("../canary-result.json", b"{}")]),
+                "extracted over 4 MiB": archive([("canary-result.json", b'{"a":"' + b"x" * (4 * 1024 * 1024) + b'"}')]),
+                "compressed over 2 MiB": archive([("canary-result.json", b'{"a":"' + os.urandom(1100000).hex().encode() + b'"}')],
+                                                 compression=zipfile.ZIP_STORED),
+                "not JSON": archive([("canary-result.json", b"not json")]),
+                "not a zip": b"PK\x03\x04 truncated",
+            }
+            for label, data in bad.items():
+                with self.subTest(label=label):
+                    rejected = extract(data)
+                    self.assertNotEqual(rejected.returncode, 0, label)
+                    self.assertEqual(rejected.stdout, "")
 
 
 if __name__ == "__main__":
