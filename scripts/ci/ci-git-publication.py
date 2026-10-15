@@ -1273,8 +1273,10 @@ def check_native_target(freeze: dict, repo: Path) -> None:
 
 def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: str | None = None,
                  disposition_rel: str | None = None, approval_rel: str | None = None,
-                 native_route: str = "not_reproduced_disposition") -> dict:
+                 native_route: str = "not_reproduced_disposition", plan: str = "253-91") -> dict:
     repo = Path(repo)
+    if not isinstance(plan, str) or not re.fullmatch(r"253-[0-9]{2}", plan):
+        raise PublicationError("freeze plan must match 253-NN")
     dirty = porcelain_outside_config(repo)
     if dirty:
         raise PublicationError(f"the freeze is derived only from a committed, clean tree; dirty paths: {dirty[:5]}")
@@ -1310,7 +1312,7 @@ def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: st
     }
     sections, digests = build_outward_actions(identity)
     freeze = {
-        "schema_version": FREEZE_SCHEMA, "plan": "253-91",
+        "schema_version": FREEZE_SCHEMA, "plan": plan,
         "source": {"commit": source, "product_tree_sha": state["product_tree_sha"],
                    "product_files": manifest["product_tree_parity"]["source_product_files"]},
         "identity": identity, "helper_blobs": helper_blobs,
@@ -1408,6 +1410,7 @@ def main() -> int:
     parser.add_argument("--validate-frozen-source")
     parser.add_argument("--build-freeze", action="store_true")
     parser.add_argument("--check-freeze")
+    parser.add_argument("--freeze-plan", default="253-91")
     parser.add_argument("--acceptance-evidence")
     parser.add_argument("--disposition")
     parser.add_argument("--disposition-approval")
@@ -1462,7 +1465,7 @@ def main() -> int:
             if not (args.manifest and args.output):
                 raise PublicationError("--build-freeze requires --manifest and --output")
             freeze = build_freeze(repo_arg or ROOT, args.manifest, Path(args.output), args.acceptance_evidence,
-                                  args.disposition, args.disposition_approval)
+                                  args.disposition, args.disposition_approval, plan=args.freeze_plan)
             print(json.dumps({"status": "freeze_built", "canary_sha256": freeze["outward_actions_sha256"]["canary"],
                               "docs_and_prs_sha256": freeze["outward_actions_sha256"]["docs_and_prs"]}, sort_keys=True))
             return 0

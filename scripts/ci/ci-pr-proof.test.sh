@@ -825,6 +825,30 @@ class PRProofContractTests(unittest.TestCase):
                 tampered["freeze"]["freeze_sha256"] = verifier.canonical_digest({k: v for k, v in tampered["freeze"].items() if k != "freeze_sha256"})
                 self.assertRejected(tampered, "docs-only")
 
+    def test_docs_commit_readback_tolerates_exactly_one_stripped_trailing_newline(self):
+        # The shared fake server returns commit JSON the way GitHub does: one trailing newline stripped.
+        for nth, frozen in ((0, "Phase 253 docs probe base workflow exception\n"), (1, "Phase 253 docs-only probe head\n")):
+            with self.subTest(form="stripped", nth=nth):
+                evidence = self.fresh("docs")
+                transactions = evidence["transport_ledger"]["transactions"]
+                readbacks = [tx for tx in transactions if tx["route_id"] == "git_get_commit"]
+                self.assertEqual(json.loads(base64.b64decode(readbacks[nth]["response_body_base64"]))["message"], frozen[:-1])
+                verifier.verify_pr_family(evidence, "docs-only")
+            with self.subTest(form="verbatim", nth=nth):
+                evidence = retamper(self.fresh("docs"), "git_get_commit", lambda d: d.update(message=frozen), nth=nth)
+                verifier.verify_pr_family(evidence, "docs-only")
+        for label, mutate in {
+            "extra newline": lambda d: d.update(message=d["message"].rstrip("\n") + "\n\n"),
+            "two characters stripped": lambda d: d.update(message=d["message"].rstrip("\n")[:-1]),
+            "crlf": lambda d: d.update(message=d["message"].rstrip("\n") + "\r\n"),
+            "trailing space": lambda d: d.update(message=d["message"].rstrip("\n") + " "),
+            "missing": lambda d: d.pop("message"),
+            "non-string": lambda d: d.update(message=5),
+        }.items():
+            for nth in (0, 1):
+                with self.subTest(label, nth=nth):
+                    self.assertRejected(retamper(self.fresh("docs"), "git_get_commit", mutate, nth=nth), "docs-only")
+
     def test_docs_publication_must_use_exactly_the_reserved_requests_and_frozen_objects(self):
         evidence = self.fresh("docs")
         txs = evidence["transport_ledger"]["transactions"]

@@ -620,6 +620,22 @@ class PRVerifierContractTests(unittest.TestCase):
             self.assertTrue(name.isascii())
 
 
+class DocsCommitMessageToleranceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_message", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    def test_only_the_frozen_message_or_one_stripped_trailing_newline_matches(self):
+        frozen = "Phase 253 docs-only probe head\n"
+        for server_message in (frozen, frozen[:-1]):
+            self.assertTrue(self.module.commit_message_matches(server_message, frozen), server_message)
+        for server_message in (frozen + "\n", frozen[:-2], frozen[:-1] + "\r\n", frozen[:-1] + " ", "", None, 5, [frozen], "other\n"):
+            self.assertFalse(self.module.commit_message_matches(server_message, frozen), repr(server_message))
+
+
 class DocsWorkflowRelationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

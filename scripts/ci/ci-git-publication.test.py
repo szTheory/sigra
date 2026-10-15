@@ -130,6 +130,9 @@ def parse_local_tree(repo, commit):
     return result
 
 
+MISSING = object()
+
+
 class ObjectServer(http.server.BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
@@ -179,11 +182,31 @@ class ObjectServer(http.server.BaseHTTPRequestHandler):
                 value = dict(value, message="tampered message\n")
                 self.server.flags["alter_commit_readback"] = False
             value = self._wire_commit(value) if value else value
+            override = self.server.flags.get("readback_message")
+            if value and override is not None and sha != self.server.parent_sha:
+                value = {k: v for k, v in value.items() if k != "message"}
+                sent = self.server.commits[sha]["message"]
+                replaced = override(sent)
+                if replaced is not MISSING:
+                    value["message"] = replaced
+            if value and self.server.flags.get("readback_other_sha") and sha != self.server.parent_sha:
+                value = dict(value, sha="e" * 40)
             self._reply(200, value) if value else self._reply(404, {"message": "Not Found"})
             return
         if self.path.startswith(prefix + "blobs/"):
             sha = self.path.removeprefix(prefix + "blobs/")
             value = self.server.blobs.get(sha)
+            if value:
+                raw = base64.b64decode(value["content"])
+                if self.server.flags.get("alter_blob_readback") and sha != self.server.parent_sha:
+                    raw = bytes([raw[0] ^ 1]) + raw[1:]
+                    self.server.flags["alter_blob_readback"] = False
+                encoded = base64.b64encode(raw).decode()
+                # GitHub wraps blob base64 in 60-character lines, each ending with a newline.
+                wrapped = "".join(encoded[i:i + 60] + "\n" for i in range(0, len(encoded), 60))
+                if len(encoded) > 60:
+                    self.server.flags["multiline_blob_reads"] = self.server.flags.get("multiline_blob_reads", 0) + 1
+                value = dict(value, content=wrapped)
             self._reply(200, value) if value else self._reply(404, {"message": "Not Found"})
             return
         if self.path.startswith(prefix + "trees/"):
@@ -677,6 +700,73 @@ class PublicationTests(unittest.TestCase):
             self.assertIn("commit readback differs", result.stderr)
             self.assertTrue(all(row["charged"] for row in server.journal))
             self.assertEqual(len(server.journal), len(json.loads(ledger_path.read_text())["transactions"]))
+
+    def publish_against(self, flags):
+        with tempfile.TemporaryDirectory(prefix="sigra-object-readback-") as temp:
+            repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.make_local_publication(temp, flags)
+            result = subprocess.run(["python3", str(PUBLISHER), "--publish", "--manifest", str(manifest_path),
+                                     "--allocation", str(allocation), "--ledger", str(ledger_path), "--receipt", str(root / "receipt.json"),
+                                     "--repo-root", str(repo)], cwd=ROOT, text=True, capture_output=True, timeout=45)
+            return result, server, len(json.loads(ledger_path.read_text())["transactions"])
+
+    def test_commit_message_matches_accepts_only_equality_or_one_stripped_newline(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("ci_git_publication_unit", PUBLISHER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        sent = "Phase 253 frozen CI candidate\n"
+        for label, server_message in {"stripped": sent[:-1], "verbatim": sent}.items():
+            with self.subTest(label):
+                self.assertTrue(module.commit_message_matches(server_message, sent))
+        for label, server_message in {
+            "one extra newline": sent + "\n", "two characters stripped": sent[:-2], "crlf": sent[:-1] + "\r\n",
+            "trailing space": sent[:-1] + " ", "stripped plus space newline": sent[:-1] + " \n", "empty": "",
+            "missing": None, "non-string": 5, "list": [sent], "unrelated": "other\n", "case change": sent.lower(),
+        }.items():
+            with self.subTest(label):
+                self.assertFalse(module.commit_message_matches(server_message, sent))
+        self.assertFalse(module.commit_message_matches(sent, None))
+        self.assertFalse(module.commit_message_matches("a", "ab\n"))
+
+    def test_every_other_commit_message_readback_is_rejected_after_charge_without_a_ref(self):
+        cases = {
+            "one extra newline": lambda sent: sent + "\n",
+            "two characters stripped": lambda sent: sent[:-2],
+            "crlf": lambda sent: sent[:-1] + "\r\n",
+            "trailing space": lambda sent: sent[:-1] + " ",
+            "missing message": lambda sent: MISSING,
+            "non-string message": lambda sent: 5,
+            "unrelated message": lambda sent: "unrelated\n",
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label):
+                result, server, ledger_rows = self.publish_against({"readback_message": mutate})
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("server commit readback differs for candidate", result.stderr)
+                self.assertEqual(server.refs, {})
+                self.assertTrue(all(row["charged"] for row in server.journal))
+                self.assertEqual(len(server.journal), ledger_rows)
+
+    def test_a_tolerated_stripped_message_with_a_different_sha_is_still_rejected(self):
+        result, server, _ = self.publish_against({"readback_other_sha": True})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("server commit readback differs for candidate", result.stderr)
+        self.assertEqual(server.refs, {})
+
+    def test_wrapped_github_blob_base64_is_accepted_and_a_changed_wrapped_byte_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-object-wrapped-blob-") as temp:
+            repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.make_local_publication(temp)
+            result = subprocess.run(["python3", str(PUBLISHER), "--publish", "--manifest", str(manifest_path),
+                                     "--allocation", str(allocation), "--ledger", str(ledger_path), "--receipt", str(root / "receipt.json"),
+                                     "--repo-root", str(repo)], cwd=ROOT, text=True, capture_output=True, timeout=45)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            blob_reads = [row for row in server.journal if "/git/blobs/" in row["path"] and row["method"] == "GET"]
+            self.assertTrue(blob_reads)
+            self.assertGreater(server.flags.get("multiline_blob_reads", 0), 0, "no multi-line wrapped blob was served")
+        result, server, _ = self.publish_against({"alter_blob_readback": True})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("server workflow blob readback differs for candidate", result.stderr)
+        self.assertEqual(server.refs, {})
 
     def test_empty_null_single_and_forged_manifest_inputs_are_rejected(self):
         with tempfile.TemporaryDirectory(prefix="sigra-object-invalid-manifest-") as temp:
@@ -1471,6 +1561,28 @@ class LiveModeApprovalTests(unittest.TestCase):
         return original
 
     # -- strict freeze policy ----------------------------------------------------------------
+    def test_build_freeze_plan_defaults_to_253_91_and_accepts_only_a_plan_id_override(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-freeze-plan-") as temp:
+            env = self.freeze_environment(temp)
+            repo = env["repo"]
+            self.assertEqual(env["freeze"]["plan"], "253-91")
+            for bad in ("", "253-9", "253-95x", "x253-95", "253-95\n253-96", "../253-95", "254-95", "253-095"):
+                with self.subTest(bad=bad):
+                    refused = subprocess.run(["python3", str(PUBLISHER), "--build-freeze", "--manifest", env["manifest_rel"],
+                                              "--output", f"{PHASE_REL}/bad-freeze.json", "--freeze-plan", bad,
+                                              "--repo-root", str(repo)], cwd=ROOT, text=True, capture_output=True)
+                    self.assertNotEqual(refused.returncode, 0)
+                    self.assertFalse((repo / PHASE_REL / "bad-freeze.json").exists())
+            alt_rel = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-FREEZE-ALT.json"
+            built = subprocess.run(["python3", str(PUBLISHER), "--build-freeze", "--manifest", env["manifest_rel"],
+                                    "--output", alt_rel, "--freeze-plan", "253-95", "--repo-root", str(repo)],
+                                   cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(built.returncode, 0, built.stderr)
+            alt = json.loads((repo / alt_rel).read_text())
+            self.assertEqual(alt["plan"], "253-95")
+            self.assertEqual(alt["outward_actions_sha256"], env["freeze"]["outward_actions_sha256"])
+            self.assertEqual({k: v for k, v in alt.items() if k != "plan"}, {k: v for k, v in env["freeze"].items() if k != "plan"})
+
     def test_check_freeze_enforces_expired_reruns_native_target_bounds_and_categories(self):
         with tempfile.TemporaryDirectory(prefix="sigra-freeze-policy-") as temp:
             env = self.freeze_environment(temp)

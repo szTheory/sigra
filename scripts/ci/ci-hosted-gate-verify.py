@@ -828,6 +828,17 @@ def tx_json(tx, what):
         raise VerificationError(f"{what} response body is not valid UTF-8 JSON") from error
 
 
+def commit_message_matches(server_message, frozen_message):
+    """The frozen message, or the frozen message minus exactly one trailing newline.
+
+    GitHub's commit JSON drops one trailing newline from the stored message; the commit sha still
+    binds the newline-terminated bytes. Nothing else (extra newline, CRLF, spaces, non-strings) matches.
+    """
+    if not isinstance(server_message, str) or not isinstance(frozen_message, str):
+        return False
+    return server_message == frozen_message or server_message + "\n" == frozen_message
+
+
 def git_blob_sha(data):
     return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
 
@@ -1068,7 +1079,8 @@ def verify_pr_family(evidence, family, _capture=None):
         readbacks = [tx_json(tx, "docs commit readback") for tx in by_route.get("git_get_commit", [])]
         require(len(readbacks) == 2 and [r.get("sha") for r in readbacks] == [spec.get("base_sha"), head_sha]
                 and [[p.get("sha") for p in r.get("parents", [])] for r in readbacks] == [[publication.get("candidate_sha")], [spec.get("base_sha")]]
-                and [r.get("message") for r in readbacks] == ["Phase 253 docs probe base workflow exception\n", "Phase 253 docs-only probe head\n"],
+                and all(commit_message_matches(r.get("message"), frozen) for r, frozen in zip(
+                    readbacks, ("Phase 253 docs probe base workflow exception\n", "Phase 253 docs-only probe head\n"))),
                 "docs base must be one unsigned child of the exact candidate and docs head one child of the docs base")
 
     creates = _family(transactions, family, "pr_create")
