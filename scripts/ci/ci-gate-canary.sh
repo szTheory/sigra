@@ -537,7 +537,11 @@ publish_fixture_ref() {
 watch_run() {
   local run_id="$1" description="$2" rate_file core_left started run_target status conclusion lock_dir
   rate_file="$(mktemp "$WORK_DIR/watch-rate.XXXXXX")"
-  CATEGORY_OVERRIDE=pre_watch_rate api_get rate_limit "$rate_file"
+  # watch_run is always called as an if-condition, where errexit and the ERR trap are suspended, so each request
+  # failure here must call fail itself; otherwise a refused poll (an exhausted category, a 403/429) loops silently
+  # until the 60-minute clock (253-101: the offline gate's extra-poll model looped for 26 minutes).
+  CATEGORY_OVERRIDE=pre_watch_rate api_get rate_limit "$rate_file" \
+    || fail "pre-watch rate read failed for run $run_id (route rate_limit, HTTP ${LAST_REQUEST_STATUS:-none})"
   core_left="$(jq -r '.resources.core.remaining // 0' "$rate_file")"
   (( core_left > 250 )) || fail "GitHub core API budget is at or below 250 before watch (remaining=$core_left)"
   lock_dir="${TMPDIR:-/tmp}/253-canary-poll-$run_id.lock"
@@ -550,7 +554,8 @@ watch_run() {
     sleep "$POLL_INTERVAL"
     check_budget 0
     (( SECONDS - started < MAX_MINUTES * 60 )) || fail "60-minute canary ceiling reached while polling run $run_id"
-    api_get "actions/runs/$run_id" "$run_target"
+    api_get "actions/runs/$run_id" "$run_target" \
+      || fail "terminal poll failed for run $run_id (route run, HTTP ${LAST_REQUEST_STATUS:-none})"
     status="$(jq -r '.status // empty' "$run_target")"
     conclusion="$(jq -r '.conclusion // empty' "$run_target")"
     if [[ "$status" == completed && -n "$conclusion" ]]; then
