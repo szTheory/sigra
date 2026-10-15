@@ -619,15 +619,19 @@ def ledger_identities(ledger: dict) -> set:
 
 def derive_origin(allocation: dict, ledger: dict) -> dict:
     """Label the publication. A live allocation whose every measured transaction went to api.github.com is
-    actual-github; anything routed to a local test origin is hermetic and never acceptable as live proof."""
+    actual-github; anything routed to a local test origin is hermetic and never acceptable as live proof.
+
+    253-108: the label carries the allocation's window_id, so a receipt names the window it was measured in and the
+    verifier's dry-run guard (a 253-dryrun- window) can gap a live-policy dry-run publication at completion."""
     transactions = ledger.get("transactions", [])
     hosts = sorted({str(tx.get("host")) for tx in transactions if isinstance(tx, dict)})
     if allocation.get("mode") == "live":
         if hosts != [API_HOST] or any(tx.get("state") != "complete" for tx in transactions):
             raise PublicationError("live allocation ledger contains a non-GitHub host or an incomplete transaction")
         return {"kind": "actual-github", "host": API_HOST, "allocation_mode": "live",
-                "transactions": len(transactions), "identities_from_ledger": True}
-    return {"kind": "hermetic", "allocation_mode": allocation.get("mode"), "hosts": hosts, "transactions": len(transactions)}
+                "transactions": len(transactions), "identities_from_ledger": True, "window_id": allocation.get("window_id")}
+    return {"kind": "hermetic", "allocation_mode": allocation.get("mode"), "hosts": hosts, "transactions": len(transactions),
+            "window_id": allocation.get("window_id")}
 
 
 def required_identities(value: dict) -> set:
