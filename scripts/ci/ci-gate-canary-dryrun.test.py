@@ -502,6 +502,111 @@ class TransportSensitivityTests(unittest.TestCase):
                          f"stop {summary.get('stop')}\n")
 
 
+FROZEN_CANARY = {"preflight": 8, "publication": 24, "dispatch": 7, "run_discovery": 7, "pre_watch_rate": 7,
+                 "terminal_polls": 18, "attempt_jobs": 7, "artifact_metadata": 7, "artifact_downloads": 12,
+                 "failure_logs": 6, "cancellation": 1, "infrastructure_retry": 13}
+
+
+class LivePolicyFullSequenceTests(unittest.TestCase):
+    """253-108 Task 3: the whole canary through the live policy, live 20/60-second waits, seeded r8 refs untouched."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.code, cls.summary = live_run("--seed-r8-refs")
+        cls.categories = cls.summary.get("requests_by_category") or {}
+        cls.routes = cls.summary.get("requests_by_route") or {}
+
+    def hops(self, route):
+        return [hop for hop in self.summary.get("live_hops") or [] if hop.get("route") == route]
+
+    def test_every_scenario_and_the_separate_verifier_pass_synthetic(self):
+        self.assertEqual(self.code, 0, self.summary)
+        self.assertEqual(self.summary.get("status"), "passed", self.summary)
+        self.assertEqual(self.summary.get("mode"), "live-policy")
+        self.assertIs(self.summary.get("synthetic"), True)
+        self.assertEqual(sorted(self.summary.get("scenarios") or []), sorted(["full-pass", "docs-only", "actual-failure",
+                                                                              "missing-seam", "unexpected-skip", "cancelled"]))
+        self.assertEqual((self.summary.get("verifier") or {}).get("status"), "passed", self.summary)
+        self.assertEqual([item["mode"] for item in self.summary.get("invocations", [])], ["publish-only", "full-pass", "remaining"])
+
+    def test_every_category_is_within_the_frozen_table_and_reconciled_with_the_fake(self):
+        self.assertLessEqual(self.summary.get("requests_total", 999), 117)
+        self.assertEqual(self.summary.get("journal_requests"), self.summary.get("requests_total"))
+        self.assertEqual(self.categories.get("infrastructure_retry", 0), 0)
+        self.assertTrue(self.categories, self.summary)
+        for category, used in self.categories.items():
+            with self.subTest(category=category):
+                self.assertLessEqual(used, FROZEN_CANARY[category])
+
+    def test_every_download_is_a_302_hop_then_a_200_on_the_blob_host(self):
+        artifacts, logs = self.hops("artifact_zip"), self.hops("run_logs")
+        self.assertEqual(len(artifacts), 5, "full-pass, docs-only, actual-failure, missing-seam, unexpected-skip")
+        self.assertEqual(len(logs), 3, "actual-failure, missing-seam, unexpected-skip")
+        for hop in artifacts + logs:
+            self.assertEqual((hop["hop_ordinal"], hop["status"]), (1, 200), hop)
+            self.assertRegex(hop["host"], BLOB_HOST)
+        self.assertEqual(self.routes.get("artifact_zip"), 2 * len(artifacts))
+        self.assertEqual(self.routes.get("run_logs"), 2 * len(logs))
+        self.assertEqual(self.categories.get("artifact_downloads"), 2 * len(artifacts))
+        self.assertEqual(self.categories.get("failure_logs"), 2 * len(logs))
+
+    def test_the_live_discovery_and_poll_waits_are_requested_unchanged(self):
+        sleeps = self.summary.get("requested_sleeps") or {}
+        self.assertTrue(sleeps.get("discovery"), sleeps)
+        self.assertTrue(all(value == 20 for value in sleeps["discovery"]), sleeps)
+        self.assertEqual(len(sleeps["discovery"]), self.categories.get("dispatch"), "one wait after every dispatch")
+        self.assertTrue(sleeps.get("poll"), sleeps)
+        self.assertTrue(all(value == 60 for value in sleeps["poll"]), sleeps)
+        self.assertEqual(len(sleeps["poll"]), self.categories.get("terminal_polls"), "one interval before every poll")
+        self.assertEqual(sleeps.get("other"), [])
+        self.assertEqual(self.summary.get("test_overrides"), [])
+
+    def test_the_token_shim_and_fake_stay_clean_over_the_whole_sequence(self):
+        authorization = self.summary.get("authorization") or {}
+        self.assertEqual((authorization.get("api_without"), authorization.get("blob_with")), (0, 0), authorization)
+        self.assertGreater(authorization.get("api_with", 0), 0)
+        self.assertEqual(self.summary.get("shim_refusals"), [])
+        self.assertEqual(self.summary.get("violations"), [])
+
+    def test_the_seeded_r8_refs_never_move(self):
+        self.assertIs(self.summary.get("seeded_r8_refs_changed"), False, self.summary)
+
+    def test_the_live_publication_is_verified_and_the_evidence_stays_synthetic(self):
+        publication = self.summary.get("publication") or {}
+        self.assertEqual((publication.get("origin_kind"), publication.get("fixture_ref_state")), ("actual-github", "verified"))
+        self.assertIs(publication.get("verifier_dryrun_window"), True, publication)
+
+
+class LivePolicyCreateOnlyTests(unittest.TestCase):
+    def test_an_r8_pair_publication_stops_on_the_seeded_r8_refs_with_no_ref_created(self):
+        code, summary = live_run("--ref-pair", "r8", "--seed-r8-refs")
+        self.assertNotEqual(code, 0, summary)
+        self.assertEqual([item["mode"] for item in summary.get("invocations", [])], ["publish-only"], summary)
+        self.assertIn("already points to a different commit", summary.get("stop") or "", summary)
+        self.assertIs(summary.get("seeded_r8_refs_changed"), False, summary)
+        self.assertNotIn("create_ref", summary.get("requests_by_route") or {"create_ref": 1})
+        self.assertEqual(summary.get("evidence_status"), "halted", summary)
+
+
+class LivePolicyHaltMarkingTests(HaltMarkingTests):
+    """The 253-101 halt-marking and re-entry tests, repeated through the live policy."""
+
+    def test_a_route_refused_by_the_transport_marks_the_evidence_halted(self):
+        route = f"GET /repos/szTheory/sigra/commits/{SERVER_PARENT}/check-runs=403"
+        code, summary = live_run("--stop-after", "full-pass", "--inject", route, "--reenter")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(summary.get("mode"), "live-policy", summary)
+        self.assertIn("http_403", summary.get("stop") or "", summary)
+        self.assert_halted_and_guarded(summary, "check-runs")
+
+    def test_a_verifier_failure_marks_the_evidence_halted(self):
+        code, summary = live_run("--stop-after", "full-pass", "--fault", "artifact-digest", "--reenter")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(summary.get("mode"), "live-policy", summary)
+        self.assertIn("digest", summary.get("stop") or "", summary)
+        self.assert_halted_and_guarded(summary, "ci-hosted-gate-verify.py")
+
+
 class RefPairHelpTests(unittest.TestCase):
     def test_the_ref_pair_help_is_truthful_and_names_the_publishers_ref_pairs(self):
         result = subprocess.run([sys.executable, str(RUNNER), "--help"], cwd=ROOT, env=clean_env(),
