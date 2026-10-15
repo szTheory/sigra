@@ -500,8 +500,11 @@ class FakeGitHub(ObjectServer):
             server.artifact_ids[key] = 900000 + len(server.artifact_ids) + 1
         artifact_id = server.artifact_ids[key]
         server.blobs_by_artifact[artifact_id] = archive
+        digest = sha256_hex(archive)
+        if "artifact-digest" in getattr(server, "faults", ()) and name.startswith("gate-canary-") and "-producer-" not in name:
+            digest = sha256_hex(archive + b"modeled-corruption")
         return {"id": artifact_id, "name": name, "size_in_bytes": len(archive), "expired": False,
-                "digest": "sha256:" + sha256_hex(archive),
+                "digest": "sha256:" + digest,
                 "archive_download_url": f"https://api.github.com/repos/{REPO}/actions/artifacts/{artifact_id}/zip",
                 "workflow_run": {"id": record["id"], "head_branch": record["head_branch"], "head_sha": record["head_sha"]}}
 
@@ -781,6 +784,7 @@ def dry_run(args) -> dict:
             polls[name] = int(count)
         server, thread, cert = start_fake(work, clone, ledger, journal, freeze["identity"]["server_parent_sha"],
                                           verifier_module, args.visibility_delay, polls, args.seed_legacy_refs)
+        server.faults = set(args.fault or [])
         for item in args.inject or []:
             key, _, status = item.rpartition("=")
             server.inject[key] = (int(status), b'{"message":"injected dry-run refusal"}')
@@ -810,22 +814,45 @@ def dry_run(args) -> dict:
             steps.append(("remaining", ["--remaining-scenarios"]))
         invocations = []
         failed = None
-        for label, mode in steps:
+
+        def ledger_rows():
+            return json.loads(ledger.read_text()).get("transactions", []) if ledger.exists() else []
+
+        def invoke(label, mode):
+            before = len(ledger_rows())
             result = subprocess.run(["bash", str(clone / DRIVER_REL), *mode, *common], cwd=clone, env=env,
                                     capture_output=True, text=True, timeout=args.timeout)
-            invocations.append({"mode": label, "exit": result.returncode, "stop": stop_line(result.stderr) if result.returncode else None})
+            added = ledger_rows()[before:]
+            record = {"mode": label, "exit": result.returncode, "stop": stop_line(result.stderr) if result.returncode else None,
+                      "requests": len(added), "requests_by_category": category_counts({"transactions": added}),
+                      "retained_preflight_reverified": "retained preflight re-verified" in result.stdout}
             if args.verbose:
                 sys.stderr.write(f"--- {label} exit {result.returncode}\n{result.stdout}{result.stderr}")
+            return result, record
+
+        for label, mode in steps:
+            result, record = invoke(label, mode)
+            invocations.append(record)
             if result.returncode:
                 failed = (label, result.returncode, stop_line(result.stderr))
+                if args.reenter:
+                    _, again = invoke(label + " (re-entry)", mode)
+                    summary["reentry"] = again
                 break
         summary["invocations"] = invocations
         ledger_value = json.loads(ledger.read_text()) if ledger.exists() else {"transactions": []}
         summary["requests_by_category"] = category_counts(ledger_value)
+        routes: dict = {}
+        for row in ledger_value.get("transactions", []):
+            routes[row.get("route_id")] = routes.get(row.get("route_id"), 0) + 1
+        summary["requests_by_route"] = routes
+        created = git(clone, "ls-files", "--others", "--exclude-standard", "--", PHASE_REL).splitlines()
+        summary["preflight_copies"] = sorted(Path(rel).name for rel in created if "PREFLIGHT" in rel)
         summary["requests_total"] = len(ledger_value.get("transactions", []))
         summary["journal_requests"] = len(server.journal)
         evidence_value = json.loads(evidence.read_text()) if evidence.exists() else {}
         summary["evidence_status"] = evidence_value.get("status")
+        summary["evidence_has_preflight"] = bool(evidence_value.get("preflight"))
         summary["evidence_diagnostics"] = evidence_value.get("diagnostics")
         verify = clone / "scripts/ci/ci-hosted-gate-verify.py"
         for name in SCENARIOS:
@@ -902,6 +929,9 @@ def main() -> int:
     parser.add_argument("--poll-seconds", type=float, default=0.05, help="hermetic-only SIGRA_CANARY_TEST_POLL_SECONDS")
     parser.add_argument("--polls", action="append", help="SCENARIO=N modeled polls to completion (repeatable)")
     parser.add_argument("--inject", action="append", help="'METHOD /path=STATUS': answer that request once with STATUS")
+    parser.add_argument("--reenter", action="store_true", help="after a failed driver mode, run it once more (halt guard check)")
+    parser.add_argument("--fault", action="append", choices=("artifact-digest",),
+                        help="modeled server fault (artifact-digest: listed digest differs from the served bytes)")
     parser.add_argument("--timeout", type=int, default=1800)
     parser.add_argument("--overlay-worktree", action="store_true",
                         help="copy the checkout's uncommitted scripts/ci edits into the clone (test aid; recorded)")

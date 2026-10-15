@@ -310,6 +310,18 @@ normalize_repo_path() {
 }
 EVIDENCE="$(normalize_repo_path "$EVIDENCE")"
 REQUESTS="$(normalize_repo_path "$REQUESTS")"
+LEGACY_PROTECTION_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-legacy-protection.json"
+CHECK_RUNS_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-check-runs.json"
+if [[ -n "$REVISION_FREEZE" && "$EVIDENCE_SET" == true ]]; then
+  # 253-101: an explicit evidence path keeps its five preflight copies beside it, so separate windows never share or
+  # overwrite one another's copies; the legacy defaults are unchanged otherwise.
+  PREFLIGHT_BASE="${EVIDENCE%.json}"
+  RATE_SOURCE="$PREFLIGHT_BASE-PREFLIGHT-rate.json"
+  RULES_SOURCE="$PREFLIGHT_BASE-PREFLIGHT-effective-rules.json"
+  WORKFLOW_SOURCE="$PREFLIGHT_BASE-PREFLIGHT-registered-workflow.json"
+  LEGACY_PROTECTION_SOURCE="$PREFLIGHT_BASE-PREFLIGHT-legacy-protection.json"
+  CHECK_RUNS_SOURCE="$PREFLIGHT_BASE-PREFLIGHT-check-runs.json"
+fi
 [[ "$ALL_REMAINING" == true || -n "$SCENARIO" || "$PREFLIGHT_ONLY" == true || "$PUBLISH_REF_ONLY" == true || "$PUBLISH_ONLY" == true ]] || { usage >&2; exit 2; }
 [[ "$PUBLISH_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" && "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false ) ]] || fail 'publish-only mode cannot include another execution mode'
 [[ "$ALL_REMAINING" == false || -z "$SCENARIO" ]] || fail 'choose one scenario mode'
@@ -705,6 +717,7 @@ record_budget
 
 # Fresh read-only preflights share the immutable 117-new-request budget with all
 # dispatches, polling, cancellation, artifact downloads, and failure logs.
+fresh_preflight() {
 RATE_RESPONSE="$(mktemp "$WORK_DIR/recovery-rate.XXXXXX")"
 RULES_RESPONSE="$(mktemp "$WORK_DIR/recovery-rules.XXXXXX")"
 WORKFLOW_RESPONSE="$(mktemp "$WORK_DIR/recovery-workflow.XXXXXX")"
@@ -739,8 +752,8 @@ done
 store_preflight "$RATE_RESPONSE" "$RATE_SOURCE" rate
 store_preflight "$RULES_RESPONSE" "$RULES_SOURCE" rules
 store_preflight "$WORKFLOW_RESPONSE" "$WORKFLOW_SOURCE" workflow
-store_preflight "$LEGACY_RESPONSE" "$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-legacy-protection.json" legacy-protection
-store_preflight "$CHECK_RUNS_RESPONSE" "$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-check-runs.json" check-runs
+store_preflight "$LEGACY_RESPONSE" "$LEGACY_PROTECTION_SOURCE" legacy-protection
+store_preflight "$CHECK_RUNS_RESPONSE" "$CHECK_RUNS_SOURCE" check-runs
 preserve_evidence
 jq --slurpfile rate "$RATE_RESPONSE" --slurpfile rules "$RULES_RESPONSE" --slurpfile workflow "$WORKFLOW_RESPONSE" \
   --slurpfile legacy "$LEGACY_RESPONSE" --slurpfile check_runs "$CHECK_RUNS_RESPONSE" \
@@ -749,11 +762,26 @@ jq --slurpfile rate "$RATE_RESPONSE" --slurpfile rules "$RULES_RESPONSE" --slurp
   '.preflight={initial_rate_limit:$rate[0],effective_rules:$rules[0],legacy_protection:$legacy[0],native_check_runs:$check_runs[0],registered_workflow:$workflow[0]} | .preserved_revisions += [{path:$evidence_path,ref:$ref,sha256:$sha,status:$status}]' \
   "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
 record_budget
-RATE_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-rate.json"
-RULES_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-effective-rules.json"
-WORKFLOW_SOURCE="$PHASE_DIR/253-RECOVERY-CANARY-PREFLIGHT-registered-workflow.json"
 python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode preflight --evidence "$EVIDENCE" \
   || fail 'independent measured transport and effective check-source verification failed'
+}
+
+# 253-101 (commit C): the preflight runs once per evidence window. A later invocation on the same evidence holds an
+# accepted preflight (a non-empty preflight object and exactly one check_runs transaction in the window ledger), so it
+# issues zero preflight-category requests and re-verifies the retained preflight offline instead.
+retained_preflight() {
+  [[ -f "$EVIDENCE" && -f "$REQUEST_LEDGER" ]] || return 1
+  jq -e '(.preflight | type == "object" and length > 0)' "$EVIDENCE" >/dev/null || return 1
+  [[ "$(jq '[.transactions[] | select(.route_id == "check_runs")] | length' "$REQUEST_LEDGER")" == 1 ]] || return 1
+  [[ -f "$RATE_SOURCE" ]] || return 1
+}
+if retained_preflight; then
+  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode preflight --evidence "$EVIDENCE" >/dev/null \
+    || fail 'the retained preflight failed offline re-verification'
+  echo "ci-gate-canary: retained preflight re-verified offline (no preflight request)"
+else
+  fresh_preflight
+fi
 if [[ "$PREFLIGHT_ONLY" == true ]]; then
   echo "ci-gate-canary: fresh preflight retained (requests=$REQUEST_COUNT/$MAX_REQUESTS; no ref mutation or dispatch)"
   exit 0

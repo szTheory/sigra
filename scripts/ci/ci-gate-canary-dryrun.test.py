@@ -113,5 +113,29 @@ class LiveOverrideRefusalTests(unittest.TestCase):
         self.assertEqual((self.work / "network-commands").read_text().split()[:3], ["gh", "auth", "token"])
 
 
+class PreflightOnceTests(unittest.TestCase):
+    """Commit C: the fresh preflight runs once per evidence window; a later invocation re-verifies it offline."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.code, cls.summary = run_gate()
+        cls.invocations = {item["mode"]: item for item in cls.summary.get("invocations", [])}
+
+    def test_the_second_invocation_issues_zero_preflight_requests_and_reverifies_the_retained_preflight(self):
+        self.assertIn("remaining", self.invocations, self.summary)
+        self.assertEqual(self.invocations["full-pass"]["requests_by_category"].get("preflight"), 5, self.summary)
+        self.assertEqual(self.invocations["remaining"]["requests_by_category"].get("preflight", 0), 0, self.summary)
+        self.assertTrue(self.invocations["remaining"]["retained_preflight_reverified"], self.summary)
+
+    def test_the_window_ledger_holds_exactly_one_check_runs_transaction_within_the_preflight_category(self):
+        self.assertEqual(self.summary["requests_by_route"].get("check_runs"), 1, self.summary)
+        self.assertLessEqual(self.summary["requests_by_category"].get("preflight", 0), 8, self.summary)
+
+    def test_the_five_preflight_copies_sit_next_to_the_explicit_evidence(self):
+        expected = sorted(f"253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-{name}.json" for name in
+                          ("rate", "effective-rules", "registered-workflow", "legacy-protection", "check-runs"))
+        self.assertEqual(self.summary["preflight_copies"], expected, self.summary)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
