@@ -80,6 +80,30 @@ def hermetic_canary(evidence):
     return isinstance(origin, dict) and origin.get("channel") == HERMETIC_CHANNEL
 
 
+DRYRUN_WINDOW_PREFIX = "253-dryrun-"
+DRYRUN_CHANNEL = "live-policy-dry-run"
+
+
+def dryrun_window(evidence):
+    """253-107: evidence whose ledger or origin window carries the dry-run marker is synthetic, never hosted proof."""
+    if not isinstance(evidence, dict):
+        return False
+    for container in (evidence.get("transport_ledger"), evidence.get("origin")):
+        window = container.get("window_id") if isinstance(container, dict) else None
+        if isinstance(window, str) and window.startswith(DRYRUN_WINDOW_PREFIX):
+            return True
+    return False
+
+
+def dryrun_pr_result(result, *evidences):
+    """A PR family or pair result on a dry-run window is synthetic and never accepted live."""
+    if not any(dryrun_window(evidence) for evidence in evidences):
+        return result
+    status = result.get("status", "")
+    return dict(result, synthetic=True, accepted_live=False,
+                status=status if status.startswith("synthetic_") else "synthetic_" + status)
+
+
 def api_view_url(evidence, url):
     """Hermetic canary evidence only: a request URL on the local origin read as its api.github.com equivalent."""
     if not hermetic_canary(evidence) or not isinstance(url, str):
@@ -1342,10 +1366,10 @@ def verify_pr_family(evidence, family, _capture=None):
     policy = _run_browser_policy(workflow_bytes, producer_dirs, identity)
     require(policy.get("status") == "passed" and isinstance(policy.get("seams"), list) and len(policy["seams"]) == 5
             and all(item.get("docs_only") is docs_only for item in policy["seams"]), "browser execution policy owner did not accept all five seams")
-    return {"status": "synthetic_pr_family_verified" if evidence["synthetic"] else "pr_family_verified", "family": family,
+    return dryrun_pr_result({"status": "synthetic_pr_family_verified" if evidence["synthetic"] else "pr_family_verified", "family": family,
             "accepted_live": not evidence["synthetic"], "pr_number": number, "run_id": run_id, "run_attempt": attempt,
             "head_sha": head_sha, "merge_sha": merge_sha, "requests": len(transactions), "category_counts": counts,
-            "window_id": allocation["window_id"]}
+            "window_id": allocation["window_id"]}, evidence)
 
 
 DOCS_OLD_TRIGGER = b"  pull_request:\n    branches: [main]\n"
@@ -1376,8 +1400,8 @@ def verify_pr_pair(normal, docs):
     require(normal["freeze"]["freeze_sha256"] == docs["freeze"]["freeze_sha256"], "families used different frozen PR proofs")
     require(first["pr_number"] != second["pr_number"] and first["run_id"] != second["run_id"], "families did not use two distinct actual PRs and runs")
     require(first["accepted_live"] == second["accepted_live"], "families mix synthetic and live origins")
-    return {"status": "synthetic_pr_pair_verified" if not first["accepted_live"] else "pr_pair_verified",
-            "accepted_live": first["accepted_live"], "normal": first, "docs-only": second, "requests": len(longer)}
+    return dryrun_pr_result({"status": "synthetic_pr_pair_verified" if not first["accepted_live"] else "pr_pair_verified",
+            "accepted_live": first["accepted_live"], "normal": first, "docs-only": second, "requests": len(longer)}, normal, docs)
 
 
 def read_json_file(path, limit=MAX_PR_EVIDENCE_BYTES):
@@ -1455,7 +1479,7 @@ def verify_canary_matrix(evidence):
     require(executed >= source_jobs, "complete attempt receipts omit a selected source job")
     result = {"status": "canary_verified", "transport": transport_result, "checks": checks_result,
               "scenarios": results, "separate_verifier": verify_separate_verifier(evidence, source_jobs), "executed_jobs": executed}
-    if hermetic_canary(evidence):
+    if hermetic_canary(evidence) or dryrun_window(evidence):
         result["synthetic"] = True
     return result
 
@@ -1630,6 +1654,16 @@ def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_che
             gaps.append("synthetic:pr:synthetic local-HTTPS PR evidence cannot satisfy live acceptance")
     elif "pr_normal" in opened or "pr_docs_only" in opened:
         gaps.append("missing:pr_pair:both actual PR families are required together")
+    for key in ("canary", "publication", "pr_normal", "pr_docs_only"):
+        if key not in opened:
+            continue
+        try:
+            document = json.loads(opened[key][1].decode("utf-8", "strict"))
+        except (UnicodeError, ValueError):
+            continue  # an unparseable link is rejected by its own verifier; it carries no dry-run window to read
+        if dryrun_window(document):
+            synthetic = True
+            gaps.append(f"synthetic:{key}:dry-run window cannot satisfy live acceptance")
     seen = {}
     for name, (window, allocation_hash) in windows.items():
         require(seen.setdefault(window, allocation_hash) == allocation_hash, "a window was reused with a different allocation (budget reset)")
@@ -1692,6 +1726,10 @@ def main():
         # Offline dry-run evidence (local HTTPS fake): an implementation check only, never hosted proof.
         result["synthetic"] = True
         result["channel"] = HERMETIC_CHANNEL
+    elif dryrun_window(evidence):
+        # 253-107: live-policy dry-run evidence (a 253-dryrun- window) is likewise never hosted proof.
+        result["synthetic"] = True
+        result["channel"] = DRYRUN_CHANNEL
     return result
 
 

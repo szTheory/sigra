@@ -1430,6 +1430,179 @@ class CompletionDispositionEndToEndTests(unittest.TestCase):
 
 
 
+class DryRunWindowGuardTests(unittest.TestCase):
+    """253-107: evidence on a 253-dryrun- window is synthetic everywhere and can never satisfy live acceptance."""
+
+    DRY = "253-dryrun-108-live-policy-1"
+    REAL_CANARY = "253-113-canary-window-1"
+    REAL_PR = "253-114-pr-window-1"
+    CANARY_MODES = (("transport", "full-pass"), ("preflight", "full-pass"), ("canary", "full-pass"),
+                    ("canary", "sources"), ("canary", "matrix"))
+
+    def setUp(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_dryrun_guard", VERIFY)
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+
+    def canary_evidence(self, ledger_window, origin_window=None, channel=None):
+        origin = {"kind": "measured-v2", "window_id": origin_window if origin_window is not None else ledger_window}
+        if channel:
+            origin["channel"] = channel
+        return {"schema_version": "sigra.phase253.hosted-replan-evidence/v2", "repository": "szTheory/sigra",
+                "origin": origin, "transport_ledger": {"window_id": ledger_window, "allocation_sha256": "a" * 64}}
+
+    def run_main(self, evidence, mode, scenario):
+        import sys
+        self.module.read_replan_evidence = lambda _path: evidence
+        self.module.replan_result = lambda _args, _evidence: {"status": "stub"}
+        argv = sys.argv
+        sys.argv = ["ci-hosted-gate-verify.py", "--evidence", "unused.json", "--mode", mode, "--scenario", scenario]
+        try:
+            return self.module.main()
+        finally:
+            sys.argv = argv
+
+    def test_every_canary_mode_result_on_a_dryrun_window_is_synthetic_live_policy_dry_run(self):
+        for ledger_window, origin_window in ((self.DRY, self.DRY), (self.DRY, "other"), ("other", self.DRY)):
+            for mode, scenario in self.CANARY_MODES:
+                with self.subTest(ledger=ledger_window, origin=origin_window, mode=mode, scenario=scenario):
+                    result = self.run_main(self.canary_evidence(ledger_window, origin_window), mode, scenario)
+                    self.assertIs(result["synthetic"], True)
+                    self.assertEqual(result["channel"], "live-policy-dry-run")
+
+    def test_hermetic_evidence_keeps_its_hermetic_https_channel(self):
+        for window in (self.DRY, "253-101-dry-run-1"):
+            for mode, scenario in self.CANARY_MODES:
+                with self.subTest(window=window, mode=mode, scenario=scenario):
+                    result = self.run_main(self.canary_evidence(window, channel="hermetic-https"), mode, scenario)
+                    self.assertIs(result["synthetic"], True)
+                    self.assertEqual(result["channel"], "hermetic-https")
+
+    def test_a_real_canary_window_is_not_flagged(self):
+        for window in (self.REAL_CANARY, "253-104-canary-window-1", "x-253-dryrun-1", "253-dryrun"):
+            for mode, scenario in self.CANARY_MODES:
+                with self.subTest(window=window, mode=mode, scenario=scenario):
+                    result = self.run_main(self.canary_evidence(window), mode, scenario)
+                    self.assertNotIn("synthetic", result)
+                    self.assertNotIn("channel", result)
+
+    def windowed_transport_fixture(self, window):
+        evidence = V2VerifierContractTests.transport_fixture(self)
+        evidence["repository"] = "szTheory/sigra"
+        evidence["origin"]["window_id"] = window
+        evidence["transport_ledger"]["window_id"] = window
+        for group in ("transactions",):
+            for record in evidence["transport_ledger"][group]:
+                record["window_id"] = window
+        for record in evidence["transport_receipts"] + evidence["server_journal"]:
+            record["window_id"] = window
+        return evidence
+
+    def test_transport_cli_end_to_end_labels_a_dryrun_window_and_not_a_real_one(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for window, flagged in ((self.DRY, True), (self.REAL_CANARY, False)):
+                with self.subTest(window=window):
+                    path = Path(tmp) / f"{window}.json"
+                    path.write_text(json.dumps(self.windowed_transport_fixture(window)))
+                    result = subprocess.run(["python3", str(VERIFY), "--mode", "transport", "--evidence", str(path)],
+                                            text=True, capture_output=True, check=False)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    output = json.loads(result.stdout)
+                    self.assertEqual(output["status"], "transport_verified")
+                    if flagged:
+                        self.assertEqual((output.get("synthetic"), output.get("channel")), (True, "live-policy-dry-run"))
+                    else:
+                        self.assertNotIn("synthetic", output)
+
+    def test_canary_matrix_result_on_a_dryrun_window_is_synthetic(self):
+        module = self.module
+        module.verify_transport_v2 = lambda _e: {"status": "transport_verified"}
+        module.verify_canary_checks = lambda _e: {"status": "checks"}
+        module.verify_sources = lambda _e: ({}, 0)
+        module.verify_attempt_jobs = lambda _e: 0
+        module.verify_separate_verifier = lambda _e, _count: {"status": "separate"}
+        self.assertIs(module.verify_canary_matrix(self.canary_evidence(self.DRY))["synthetic"], True)
+        self.assertNotIn("synthetic", module.verify_canary_matrix(self.canary_evidence(self.REAL_CANARY)))
+
+    def pr_documents(self, window):
+        ledger = {"window_id": window, "allocation_sha256": "b" * 64, "transactions": []}
+        common = {"allocation_base64": "YQ==", "freeze": {"freeze_sha256": "c" * 64}}
+        return dict(common, transport_ledger=dict(ledger)), dict(common, transport_ledger=dict(ledger))
+
+    def stub_pr_family(self):
+        def family(evidence, name, capture=None):
+            if capture is not None:
+                capture["workflow_bytes"] = b"workflow"
+            number = 1 if name == "normal" else 2
+            return {"status": "pr_family_verified", "family": name, "accepted_live": True, "pr_number": number,
+                    "run_id": 10 + number, "window_id": evidence["transport_ledger"]["window_id"]}
+        self.module.verify_pr_family = family
+        self.module.verify_docs_workflow_relation = lambda _candidate, _docs: None
+
+    def test_pr_pair_on_a_dryrun_window_is_synthetic_even_when_both_families_look_live(self):
+        self.stub_pr_family()
+        result = self.module.verify_pr_pair(*self.pr_documents(self.DRY))
+        self.assertEqual(result["status"], "synthetic_pr_pair_verified")
+        self.assertIs(result["accepted_live"], False)
+        self.assertIs(result["synthetic"], True)
+        real = self.module.verify_pr_pair(*self.pr_documents(self.REAL_PR))
+        self.assertEqual(real["status"], "pr_pair_verified")
+        self.assertIs(real["accepted_live"], True)
+        self.assertNotIn("synthetic", real)
+
+    def test_pr_family_result_on_a_dryrun_window_is_synthetic_and_wired_into_verify_pr_family(self):
+        live = {"status": "pr_family_verified", "family": "normal", "accepted_live": True, "pr_number": 1}
+        for key in ("transport_ledger", "origin"):
+            with self.subTest(key=key):
+                labelled = self.module.dryrun_pr_result(dict(live), {key: {"window_id": self.DRY}})
+                self.assertEqual((labelled["status"], labelled["accepted_live"], labelled["synthetic"]),
+                                 ("synthetic_pr_family_verified", False, True))
+        self.assertEqual(self.module.dryrun_pr_result(dict(live), {"transport_ledger": {"window_id": self.REAL_PR}}), live)
+        source = Path(VERIFY).read_text()
+        family = source[source.index("def verify_pr_family"):source.index("def verify_docs_workflow_relation")]
+        self.assertIn("return dryrun_pr_result(", family)
+
+    def completion(self):
+        holder = CompletionContractTests("test_every_linked_live_proof_present_and_reopened_is_accepted")
+        holder.module = self.module
+        CompletionContractTests.setUp(holder)
+        self.addCleanup(holder.tmp.cleanup)
+        holder.documents["canary"]["origin"]["window_id"] = self.REAL_CANARY
+        holder.documents["publication"] = {"receipt": True, "origin": {"window_id": "253-113-publication-window-1"}}
+        for key in ("pr_normal", "pr_docs_only"):
+            holder.documents[key]["transport_ledger"]["window_id"] = self.REAL_PR
+        return holder
+
+    def test_completion_gaps_every_live_link_on_a_dryrun_window(self):
+        placements = {
+            "canary": lambda docs: docs["canary"]["origin"].update(window_id=self.DRY),
+            "publication": lambda docs: docs["publication"]["origin"].update(window_id=self.DRY),
+            "pr_normal": lambda docs: docs["pr_normal"]["transport_ledger"].update(window_id=self.DRY),
+            "pr_docs_only": lambda docs: docs["pr_docs_only"]["transport_ledger"].update(window_id=self.DRY),
+        }
+        for link, place in placements.items():
+            with self.subTest(link=link):
+                holder = self.completion()
+                place(holder.documents)
+                evidence = holder.evidence()
+                record = holder.verify(evidence)
+                self.assertEqual(record["status"], "open")
+                self.assertIn(f"synthetic:{link}:dry-run window cannot satisfy live acceptance", record["gaps"])
+                self.assertEqual(record["requirements"]["CIREL-02"], "open")
+                with self.assertRaises(self.module.VerificationError):
+                    holder.verify(evidence, require_accepted=True)
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.verify_completion(evidence, require_dispositioned=True, root=holder.root,
+                                                  load_checker=lambda kind, path: (0, "stub checker"))
+
+    def test_completion_with_real_window_ids_is_not_flagged(self):
+        holder = self.completion()
+        record = holder.verify(holder.evidence(), require_accepted=True)
+        self.assertEqual(record["status"], "accepted")
+        self.assertFalse([gap for gap in record["gaps"] if "dry-run" in gap])
+
+
 REGISTERED_FIXTURE = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml"
 PUBLISHER = ROOT / "scripts/ci/ci-git-publication.py"
 SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
