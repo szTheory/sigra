@@ -547,15 +547,15 @@ api_get() {
   if [[ "$endpoint" == rate_limit ]]; then route=rate_limit
   elif [[ "$endpoint" == 'rules/branches/main?per_page=100' ]]; then route=rules_main; query='{"per_page":100}'; mode=pages
   elif [[ "$endpoint" == branches/main/protection ]]; then route=branch_protection
-  elif [[ "$endpoint" =~ ^commits/([a-f0-9]{40})/check-runs\?per_page=100$ ]]; then route=check_runs; params="$(jq -cn --arg sha "$BASH_REMATCH[1]" '{commit_sha:$sha}')"; query='{"per_page":100}'; mode=pages
-  elif [[ "$endpoint" =~ ^actions/workflows/([0-9]+)$ ]]; then route=workflow; params="$(jq -cn --argjson id "$BASH_REMATCH[1]" '{workflow_id:$id}')"
+  elif [[ "$endpoint" =~ ^commits/([a-f0-9]{40})/check-runs\?per_page=100$ ]]; then route=check_runs; params="$(jq -cn --arg sha "${BASH_REMATCH[1]}" '{commit_sha:$sha}')"; query='{"per_page":100}'; mode=pages
+  elif [[ "$endpoint" =~ ^actions/workflows/([0-9]+)$ ]]; then route=workflow; params="$(jq -cn --argjson id "${BASH_REMATCH[1]}" '{workflow_id:$id}')"
   elif [[ "$endpoint" =~ ^actions/workflows/([0-9]+)/runs\?event=workflow_dispatch\&branch=([^&]+)\&per_page=100$ ]]; then
-    route=workflow_runs; params="$(jq -cn --argjson id "$BASH_REMATCH[1]" '{workflow_id:$id}')"
-    query="$(jq -cn --arg branch "$BASH_REMATCH[2]" '{event:"workflow_dispatch",branch:$branch,per_page:100}')"; mode=pages
-  elif [[ "$endpoint" =~ ^actions/runs/([0-9]+)/jobs\?per_page=100$ ]]; then route=run_jobs; params="$(jq -cn --argjson id "$BASH_REMATCH[1]" '{run_id:$id}')"; query='{"per_page":100}'; mode=pages
-  elif [[ "$endpoint" =~ ^actions/runs/([0-9]+)/artifacts\?per_page=100$ ]]; then route=run_artifacts; params="$(jq -cn --argjson id "$BASH_REMATCH[1]" '{run_id:$id}')"; query='{"per_page":100}'; mode=pages
-  elif [[ "$endpoint" =~ ^actions/runs/([0-9]+)$ ]]; then route=run; params="$(jq -cn --argjson id "$BASH_REMATCH[1]" '{run_id:$id}')"
-  elif [[ "$endpoint" =~ ^git/ref/heads/(.+)$ ]]; then route=get_ref; params="$(jq -cn --arg branch "$BASH_REMATCH[1]" '{branch:$branch}')"
+    route=workflow_runs; params="$(jq -cn --argjson id "${BASH_REMATCH[1]}" '{workflow_id:$id}')"
+    query="$(jq -cn --arg branch "${BASH_REMATCH[2]}" '{event:"workflow_dispatch",branch:$branch,per_page:100}')"; mode=pages
+  elif [[ "$endpoint" =~ ^actions/runs/([0-9]+)/jobs\?per_page=100$ ]]; then route=run_jobs; params="$(jq -cn --argjson id "${BASH_REMATCH[1]}" '{run_id:$id}')"; query='{"per_page":100}'; mode=pages
+  elif [[ "$endpoint" =~ ^actions/runs/([0-9]+)/artifacts\?per_page=100$ ]]; then route=run_artifacts; params="$(jq -cn --argjson id "${BASH_REMATCH[1]}" '{run_id:$id}')"; query='{"per_page":100}'; mode=pages
+  elif [[ "$endpoint" =~ ^actions/runs/([0-9]+)$ ]]; then route=run; params="$(jq -cn --argjson id "${BASH_REMATCH[1]}" '{run_id:$id}')"
+  elif [[ "$endpoint" =~ ^git/ref/heads/(.+)$ ]]; then route=get_ref; params="$(jq -cn --arg branch "${BASH_REMATCH[1]}" '{branch:$branch}')"
   else fail "no typed HTTP route for endpoint: $endpoint"; fi
   transport_call "$route" GET "$target" "$params" "$query" null "$mode" || return $?
   [[ "$LAST_REQUEST_STATUS" != 404 || "$allow_missing" == true ]] || return 1
@@ -601,9 +601,9 @@ api_post_dispatch() {
 download_no_follow() {
   url="$1"; target="$2"
   if [[ "$url" =~ ^https://api.github.com/repos/szTheory/sigra/actions/runs/([0-9]+)/logs$ ]]; then
-    transport_call run_logs GET "$target" "$(jq -cn --argjson id "$BASH_REMATCH[1]" '{run_id:$id}')" '{}' null download
+    transport_call run_logs GET "$target" "$(jq -cn --argjson id "${BASH_REMATCH[1]}" '{run_id:$id}')" '{}' null download
   elif [[ "$url" =~ ^https://api.github.com/repos/szTheory/sigra/actions/artifacts/([0-9]+)/zip$ ]]; then
-    transport_call artifact_zip GET "$target" "$(jq -cn --argjson id "$BASH_REMATCH[1]" '{artifact_id:$id}')" '{}' null download
+    transport_call artifact_zip GET "$target" "$(jq -cn --argjson id "${BASH_REMATCH[1]}" '{artifact_id:$id}')" '{}' null download
   else fail 'download URL did not match an approved typed route'; fi
   [[ "$LAST_REQUEST_STATUS" == 200 ]]
 }
