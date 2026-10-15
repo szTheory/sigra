@@ -1382,6 +1382,21 @@ const RESPONSIBILITY_MAP_R8 = Object.freeze({
   "98": { owners: ["105"], links: PR_LINKS },
   "99": { owners: ["103", "106"], links: [...COMPLETION_LINK_KEYS, "load_target_disposition"] },
 });
+// The R7 halted proof map carried through the remap (so no row names halted 97), plus halted 97's own proof:
+// 100 (RED receipt and check-source decision), 101 (dry-run full-pass), 102 (R8 publication and freeze) and
+// 104 (the hosted canary 97 could not run).
+const HALTED_PROOF_MAP_R8 = Object.freeze({
+  ...Object.fromEntries(Object.entries(HALTED_PROOF_MAP_R7).map(([id, owners]) => [id, remapOwnersR8(owners)])),
+  "97": ["100", "101", "102", "104"],
+});
+export const R8_PLAN_IDS = Object.freeze(ids(100, 106));
+
+// Plan 253-96's receipts name THIS helper and its test, which R8 (plan 253-103) must edit. They are held at the
+// bytes of the last 253-96 commit that touched each file (a6ccee580), read with git rather than invented.
+const FROZEN_TOOLING_RECEIPTS_R8_PLAN_96 = Object.freeze({
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "6f64c8811e6a56460eb67cc4c55226cbc7d8db9bf9979374514311e9d8710911",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "dec1661dda1fc31693e8e31b218dbed24f5f6a3f0823dc2409bab89a5b27b1d0",
+});
 
 function buildContractR8({ repoRoot = REPO_ROOT } = {}) {
   const phaseDir = join(repoRoot, PHASE_DIR_REL);
@@ -1397,6 +1412,19 @@ function buildContractR8({ repoRoot = REPO_ROOT } = {}) {
     originals.push({ plan: planIdOf(n), class: classOf(PAD(n)), plan_path: `${PHASE_DIR_REL}/${file}`, plan_sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") });
   }
   for (const original of originals) original.class = classOf(original.plan.slice(4));
+  for (const id of R8_PLAN_IDS) pinFile(repoRoot, `${PHASE_DIR_REL}/253-${id}-PLAN.md`, `R8 plan 253-${id}`);
+  const byNumber = (a, b) => comparePlanIds(a.plan, b.plan);
+  const completed = [...r7.completed_plans];
+  for (const id of ["95", "96"]) {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false, frozenReceipts: id === "96" ? FROZEN_TOOLING_RECEIPTS_R8_PLAN_96 : {} });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    completed.push(described);
+  }
+  completed.sort(byNumber);
+  const halted = [...r7.halted_plans];
+  const halted97 = describeSummary(repoRoot, phaseDir, "97", { requireReceipts: true });
+  if (halted97.summary.status !== "halted") throw new Error(`halted plan 253-97 summary status is ${halted97.summary.status}`);
+  halted.push(halted97);
   const r7Rows = Object.fromEntries(r7.responsibilities.map((row) => [row.plan.slice(4), row]));
   const responsibilities = UNSTARTED_IDS_R8.map((id) => {
     const mapping = RESPONSIBILITY_MAP_R8[id];
@@ -1425,12 +1453,51 @@ function buildContractR8({ repoRoot = REPO_ROOT } = {}) {
       successor_revision: "R8",
     };
   });
+  const haltedProof = Object.fromEntries(HALTED_IDS_R8.map((id) => [`253-${id}`, HALTED_PROOF_MAP_R8[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) {
+      if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+      if (HALTED_IDS_R8.includes(owner.slice(4)) || UNSTARTED_IDS_R8.includes(owner.slice(4))) throw new Error(`halted proof owner ${owner} is a halted or never-executed plan`);
+    }
+  }
+  const planPins = ids(1, 106).map((n) => {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
+  });
+  const summaryPins = [...ids(36, 43), ...ids(48, 51), ...ids(57, 63), ...ids(69, 73), ...ids(79, 84), ...ids(89, 92), 95, 96, 97, 100, 101, 102].filter((n) => existsSync(join(phaseDir, `253-${PAD(n)}-SUMMARY.md`))).map((n) => {
+    const file = `253-${PAD(n)}-SUMMARY.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "summary") };
+  });
   return {
-    ...r7,
     schema: CONTRACT_SCHEMA_R8,
     revision: "r8",
+    phase: PHASE,
+    phase_dir: PHASE_DIR_REL,
+    v1_contract: r7.v1_contract,
+    r2_contract: r7.r2_contract,
+    r3_contract: r7.r3_contract,
+    r4_contract: r7.r4_contract,
+    r5_contract: r7.r5_contract,
+    r6_contract: r7.r6_contract,
+    r7_contract: { path: `${PHASE_DIR_REL}/${CONTRACT_NAME_R7}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${CONTRACT_NAME_R7}`, "R7 contract") },
+    sdk: r7.sdk,
+    capture: r7.capture,
+    plan_pins: planPins,
+    summary_pins: summaryPins,
     originals,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
     responsibilities,
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned",
+      targets: "only the forty-six previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-106",
+      then_run: r7.application.then_run,
+      never: [...r7.application.never],
+    },
   };
 }
 
