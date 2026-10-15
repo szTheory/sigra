@@ -3,6 +3,8 @@ set -euo pipefail
 export PYTHONDONTWRITEBYTECODE=1
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/$(basename "${BASH_SOURCE[0]}")"
+INVOKED_FROM="$PWD"
 PHASE_DIR="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
 FIXTURE="$PHASE_DIR/253-RECOVERY-CANARY-WORKFLOW.yml"
 RECOVERY_FREEZE="$PHASE_DIR/253-RECOVERY-CANARY-FREEZE.json"
@@ -160,7 +162,8 @@ if [[ "$CHECK_ONLY" == true && -n "$REVISION_FREEZE" ]]; then
   grep -Fq 'workflow_dispatch:' "$FIXTURE" || fail 'fixture is not manually dispatchable'
   ! grep -Eq '^  (push|pull_request|schedule|workflow_run):' "$FIXTURE" || fail 'fixture has an unapproved trigger'
   for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
-    ! rg -q 'Phase 253 Gate Canary' "$ROOT/$path" || fail "fixture name matches a downstream workflow filter: $path"
+    [[ -f "$ROOT/$path" ]] || fail "downstream workflow is missing, so the name filter cannot be checked: $path"
+    ! grep -Fq 'Phase 253 Gate Canary' "$ROOT/$path" || fail "fixture name matches a downstream workflow filter: $path"
   done
   python3 - "$FIXTURE" <<'PY'
 import re, sys
@@ -196,7 +199,8 @@ if [[ "$CHECK_ONLY" == true ]]; then
   grep -Fq 'workflow_dispatch:' "$FIXTURE" || fail 'fixture is not manually dispatchable'
   ! grep -Eq '^  (push|pull_request|schedule|workflow_run):' "$FIXTURE" || fail 'fixture has an unapproved trigger'
   for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
-    ! rg -q 'Phase 253 Gate Canary' "$ROOT/$path" || fail "fixture name matches a downstream workflow filter: $path"
+    [[ -f "$ROOT/$path" ]] || fail "downstream workflow is missing, so the name filter cannot be checked: $path"
+    ! grep -Fq 'Phase 253 Gate Canary' "$ROOT/$path" || fail "fixture name matches a downstream workflow filter: $path"
   done
   python3 - "$ROOT" "$FIXTURE" "$FREEZE_TO_CHECK" <<'PY'
 import hashlib, json, re, subprocess, sys
@@ -254,13 +258,17 @@ fi
 
 
 if [[ -n "$REVISION_FREEZE" ]]; then
+  # Relative operator-supplied paths are anchored where the script was invoked, before it changes directory.
+  for _path_var in REVISION_FREEZE ACTION_APPROVAL LIVE_ALLOCATION PUBLICATION_RECEIPT; do
+    if [[ -n "${!_path_var}" && "${!_path_var}" != /* ]]; then printf -v "$_path_var" '%s/%s' "$INVOKED_FROM" "${!_path_var}"; fi
+  done
   # The committed canary section approval is checked before any evidence file, ledger or request exists.
   [[ -f "$REVISION_FREEZE" ]] || fail "live mode requires the reviewed --revision-freeze: $REVISION_FREEZE is missing"
   cd "$ROOT"
   [[ "$(git rev-parse --show-toplevel)" == "$ROOT" ]] || fail 'checkout root changed'
   APPROVAL_RECORD="$(python3 "$PUBLISHER" --check-approval --action-approval "$ACTION_APPROVAL" --freeze "$REVISION_FREEZE" --section canary --repo-root "$ROOT")" \
     || fail 'a committed canary section approval bound to the freeze is required before any request'
-  bash "$0" --check-only --revision-freeze "$REVISION_FREEZE" >/dev/null || fail 'revision freeze failed local check-only validation'
+  bash "$SELF" --check-only --revision-freeze "$REVISION_FREEZE" >/dev/null || fail 'revision freeze failed local check-only validation'
   FROZEN_CANDIDATE_SHA="$(jq -r '.identity.candidate_helper_commit' "$REVISION_FREEZE")"
   FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$REVISION_FREEZE")"
   FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$REVISION_FREEZE")"
@@ -272,7 +280,7 @@ if [[ -n "$REVISION_FREEZE" ]]; then
   TRANSPORT_LEDGER="$REQUESTS"
 else
   [[ -n "$FREEZE_TO_CHECK" && -f "$FREEZE_TO_CHECK" ]] || fail 'hosted execution requires the separately reviewed recovery freeze'
-  bash "$0" --check-only --recovery-freeze "$FREEZE_TO_CHECK" >/dev/null || fail 'recovery freeze failed local check-only validation'
+  bash "$SELF" --check-only --recovery-freeze "$FREEZE_TO_CHECK" >/dev/null || fail 'recovery freeze failed local check-only validation'
   FROZEN_CANDIDATE_SHA="$(jq -r '.identity.candidate_helper_commit' "$FREEZE_TO_CHECK")"
   FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$FREEZE_TO_CHECK")"
   FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$FREEZE_TO_CHECK")"
@@ -303,11 +311,12 @@ if [[ "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false && "$ALL_REMAIN
 [[ "$(git rev-parse --show-toplevel)" == "$ROOT" ]] || fail 'checkout root changed'
 [[ -f "$FIXTURE" ]] || fail 'frozen fixture is missing'
 [[ -f "$PHASE_DIR/253-PREHOST-REVIEW.md" ]] || fail 'pre-host review report is missing'
-if rg -n '^### CR-.*(ci-browser-records|honest-skip-verdict|ci-gate)' "$PHASE_DIR/253-PREHOST-REVIEW.md"; then
+if grep -En '^### CR-.*(ci-browser-records|honest-skip-verdict|ci-gate)' "$PHASE_DIR/253-PREHOST-REVIEW.md"; then
   fail 'pre-host review found a blocking issue in a canary gate helper'
 fi
 for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
-  if rg -q 'Phase 253 Gate Canary' "$ROOT/$path"; then fail "distinct canary name is captured by downstream workflow filter $path"; fi
+  [[ -f "$ROOT/$path" ]] || fail "downstream workflow is missing, so the name filter cannot be checked: $path"
+  if grep -Fq 'Phase 253 Gate Canary' "$ROOT/$path"; then fail "distinct canary name is captured by downstream workflow filter $path"; fi
 done
 
 # Never let a rerun discard deterministic diagnostics or reuse a halted freeze.
@@ -335,13 +344,23 @@ if [[ "$PUBLISH_ONLY" == true ]]; then
         transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],
         scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE.tmp" && mv "$EVIDENCE.tmp" "$EVIDENCE"
   fi
+  RECORDED_WINDOW="$(jq -r '.action_approval.window_wall_start_epoch' "$EVIDENCE")"
   python3 "$PUBLISHER" --publish --manifest "$ROOT/$MANIFEST_REL" --allocation "$LIVE_ALLOCATION" --ledger "$REQUESTS" \
     --receipt "$PUBLICATION_RECEIPT" --freeze "$REVISION_FREEZE" --action-approval "$ACTION_APPROVAL" --repo-root "$ROOT" \
+    --window-wall-start-epoch "$RECORDED_WINDOW" \
     || fail 'counted object/ref publication failed'
-  python3 "$PUBLISHER" --verify-publication "$PUBLICATION_RECEIPT" >/dev/null || fail 'publication receipt failed verification'
-  jq --slurpfile receipt "$PUBLICATION_RECEIPT" --arg path "${PUBLICATION_RECEIPT#${ROOT}/}" \
+  # Only a live allocation can prove a live publication: a hermetic receipt never marks the fixture ref verified.
+  if jq -e '.mode == "live"' "$LIVE_ALLOCATION" >/dev/null; then
+    python3 "$PUBLISHER" --verify-publication "$PUBLICATION_RECEIPT" --require-live-origin >/dev/null \
+      || fail 'publication receipt failed live-origin verification'
+    REF_STATE=verified
+  else
+    python3 "$PUBLISHER" --verify-publication "$PUBLICATION_RECEIPT" >/dev/null || fail 'publication receipt failed verification'
+    REF_STATE=hermetic-unverified
+  fi
+  jq --slurpfile receipt "$PUBLICATION_RECEIPT" --arg path "${PUBLICATION_RECEIPT#${ROOT}/}" --arg ref_state "$REF_STATE" \
     --arg digest "$(shasum -a 256 "$PUBLICATION_RECEIPT" | awk '{print $1}')" --slurpfile ledger "$REQUESTS" \
-    '.expected.fixture_ref_state="verified" | .budget.request_count=($ledger[0].transactions|length)
+    '.expected.fixture_ref_state=$ref_state | .budget.request_count=($ledger[0].transactions|length)
      | .publication={receipt_path:$path,receipt_sha256:$digest,status:$receipt[0].status,origin:$receipt[0].origin,
                      request_count:$receipt[0].request_count,candidate_ref:$receipt[0].candidate_ref,fixture_ref:$receipt[0].fixture_ref}' \
     "$EVIDENCE" > "$EVIDENCE.tmp" && mv "$EVIDENCE.tmp" "$EVIDENCE"
@@ -546,7 +565,9 @@ require_listed() {
       if ($small | type) == "object"
       then ($big | type) == "object" and ($small | to_entries | all(. as $kv | $big[$kv.key] != null and subset($kv.value; $big[$kv.key])))
       else $small == $big end;
-    .outward_actions.canary.actions | any(.[]; subset($want; .))' "$REVISION_FREEZE" >/dev/null \
+    .outward_actions.canary.actions
+    | any(.[]; subset($want; .)
+               and (($want.inputs == null) or ((.inputs // {}) | del(.matrix_evidence)) == ($want.inputs | del(.matrix_evidence))))' "$REVISION_FREEZE" >/dev/null \
     || fail "action is outside the approved canary section: $want"
 }
 

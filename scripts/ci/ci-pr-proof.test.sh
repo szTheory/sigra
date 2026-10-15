@@ -262,12 +262,26 @@ class World:
         (self.repo / "app.txt").write_text("changed Δ\n")
         (self.repo / "lib").mkdir()
         (self.repo / "lib/feature.ex").write_text("defmodule Feature do\nend\n")
-        git(self.repo, "add", "app.txt", "lib")
+        for rel in pubtest.HELPER_COPIES:
+            (self.repo / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.repo / rel).write_bytes((ROOT / rel).read_bytes())
+        for rel in pubtest.OBSERVERS:
+            (self.repo / rel).write_bytes((ROOT / rel).read_bytes())
+        for rel in pubtest.HELPER_DUMMIES:
+            (self.repo / rel).write_text(f"# placeholder for {rel}\n")
+        phase = self.repo / pubtest.PHASE_REL
+        phase.mkdir(parents=True, exist_ok=True)
+        (phase / "253-LOAD-RECOVERY-CANARY-WORKFLOW.yml").write_text(pubtest.FIXTURE_TEXT)
+        for name in ("ACCEPTANCE-EVIDENCE", "TARGET-DISPOSITION", "TARGET-DISPOSITION-APPROVAL"):
+            (phase / f"253-LOAD-RECOVERY-{name}.json").write_text(json.dumps({"fixture": name}) + "\n")
+        git(self.repo, "add", "app.txt", "lib", "scripts", ".planning", ".github")
         git(self.repo, "commit", "-qm", "candidate")
         self.source = git(self.repo, "rev-parse", "HEAD").decode().strip()
         self.manifest_path = d / "manifest.json"
         prepared = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--prepare", "--candidate-source", self.source,
-                       "--server-parent", self.parent, "--repo-root", self.repo, "--output", self.manifest_path, cwd=ROOT)
+                       "--server-parent", self.parent, "--repo-root", self.repo, "--output", self.manifest_path,
+                       "--fixture-file", f"{pubtest.PHASE_REL}/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+                       "--workflow-path", ".github/workflows/ci.yml", cwd=ROOT)
         assert prepared.returncode == 0, prepared.stderr
         self.manifest = json.loads(self.manifest_path.read_text())
         cert, key = d / "server.pem", d / "server-key.pem"
@@ -331,26 +345,29 @@ class World:
         self.server.ledger_path = str(self.ledger)
 
     def build_approval(self, mutate_section=None):
-        """A canary-schema freeze carrying the enumerated outward_actions plus a committed docs_and_prs approval."""
+        """The real revision freeze (built by the publisher from the committed tree) plus a committed docs_and_prs approval."""
         publisher = load(ROOT / "scripts/ci/ci-git-publication.py", "publisher")
-        identity = {key: self.manifest[key] for key in ("candidate_helper_commit", "fixture_workflow_commit", "fixture_workflow_blob",
-                                                        "docs_base_commit", "docs_head_commit")}
-        sections, digests = publisher.build_outward_actions(identity)
+        manifest_rel = f"{pubtest.PHASE_REL}/253-LOAD-RECOVERY-CANARY-PUBLICATION.json"
+        freeze_rel = f"{pubtest.PHASE_REL}/253-LOAD-RECOVERY-CANARY-FREEZE.json"
+        (self.repo / manifest_rel).write_bytes(self.manifest_path.read_bytes())
+        git(self.repo, "add", manifest_rel)
+        git(self.repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: publication manifest")
+        built = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--build-freeze", "--manifest", manifest_rel,
+                    "--output", freeze_rel, "--repo-root", self.repo, cwd=ROOT)
+        assert built.returncode == 0, built.stderr
+        self.canary_freeze_path = self.repo / freeze_rel
+        freeze = json.loads(self.canary_freeze_path.read_text())
         if mutate_section:
-            mutate_section(sections)
-            digests = {name: sha(publisher.canonical_bytes(value)) for name, value in sections.items()}
-        phase = self.repo / ".planning/phases/p"
-        phase.mkdir(parents=True, exist_ok=True)
-        self.canary_freeze_path = phase / "canary-freeze.json"
-        self.canary_freeze_path.write_text(json.dumps({"schema_version": publisher.FREEZE_SCHEMA, "identity": identity,
-                                                       "outward_actions": sections, "outward_actions_sha256": digests}, indent=2))
-        self.digests = digests
+            mutate_section(freeze["outward_actions"])
+            freeze["outward_actions_sha256"] = {name: sha(publisher.canonical_bytes(value)) for name, value in freeze["outward_actions"].items()}
+            self.canary_freeze_path.write_text(json.dumps(freeze, indent=2))
+        self.digests = freeze["outward_actions_sha256"]
         self.approval_path = self.write_approval("docs_and_prs", name="approval-docs")
         git(self.repo, "add", ".planning")
         git(self.repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: freeze and approval")
 
     def write_approval(self, section, name, commit=False, decision="approve", section_sha=None, tamper=False):
-        path = self.repo / ".planning/phases/p" / f"{name}.json"
+        path = self.repo / pubtest.PHASE_REL / f"{name}.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({"schema_version": "sigra.phase253.outward-action-approval/v1", "decision": decision,
                                     "section": section, "section_sha256": section_sha or self.digests[section],
@@ -1027,6 +1044,46 @@ class SectionApprovalTests(unittest.TestCase):
         self.assertIn("live acceptance", refused.stderr)
         self.assertFalse((world.dir / "live-freeze.json").exists())
 
+    def test_existing_evidence_is_never_overwritten_by_a_later_collection(self):
+        world = World(self, tag="no-overwrite")
+        _, path = world.collect("normal", "once.json")
+        before, requests = path.read_bytes(), len(world.server.journal)
+        again, _ = world.collect("normal", "once.json", check=False)
+        self.assertNotEqual(again.returncode, 0)
+        self.assertIn("already exists", again.stderr)
+        self.assertEqual(path.read_bytes(), before)
+        self.assertEqual(len(world.server.journal), requests)
+
+    def test_docs_objects_in_the_ledger_are_reused_only_when_they_are_the_complete_frozen_publication(self):
+        world = World(self, flags={"refuse_pr_create": True}, tag="docs-tamper")
+        first, _ = world.collect("docs-only", "first.json", check=False)
+        self.assertEqual(first.returncode, 1)
+        ledger = json.loads(world.ledger.read_text())
+        for tx in ledger["transactions"]:
+            if tx["route_id"] == "create_ref":
+                body = json.loads(base64.b64decode(tx["response_body_base64"]))
+                body["object"]["sha"] = "f" * 40
+                tx["response_body_base64"] = enc(json.dumps(body).encode())
+                break
+        world.ledger.write_text(json.dumps(ledger))
+        published = len(world.server.journal)
+        world.server.flags.pop("refuse_pr_create")
+        second, path = world.collect("docs-only", "second.json", check=False)
+        self.assertEqual(second.returncode, 1)
+        self.assertEqual(len(world.server.journal), published, "a request left the process after the ledger failed the readback")
+        self.assertIn("complete frozen two-stage", json.loads(path.read_text())["collection"]["stop"])
+
+    def test_a_freeze_that_fails_the_full_policy_is_refused_even_with_a_matching_approval(self):
+        world = World(self, tag="policy")
+        freeze = json.loads(world.canary_freeze_path.read_text())
+        freeze["scenarios"]["optional_infrastructure_retry"] = 1  # a rerun left available
+        world.canary_freeze_path.write_text(json.dumps(freeze, indent=2))
+        process, evidence = world.collect("normal", "policy.json", check=False)
+        self.assertNotEqual(process.returncode, 0)
+        self.assertIn("approval refused", process.stderr)
+        self.assertEqual(world.server.journal, [])
+        self.assertFalse(evidence.exists())
+
     def test_prepare_and_check_only_stay_network_free_and_need_no_approval(self):
         world = World(self, tag="no-approval-needed")
         checked = run("bash", PROOF, "--check-only", "--freeze", world.freeze_path, "--allocation", world.allocation_path, cwd=ROOT)
@@ -1046,7 +1103,8 @@ class SectionApprovalTests(unittest.TestCase):
                 world = World(self, tag="listed", mutate_section=mutate)
                 process, evidence = world.collect(family, "listed.json", check=False)
                 self.assertNotEqual(process.returncode, 0)
-                self.assertIn("section", (process.stderr + process.stdout).lower())
+                self.assertIn("approval refused", process.stderr)
+                self.assertIn("outward_actions", process.stderr)
                 self.assertFalse(any(row["method"] == "POST" and row["path"].endswith("/pulls") for row in world.server.journal))
                 self.assertEqual(world.server.journal, [])
 

@@ -560,15 +560,20 @@ def check_section_approval(approval_path: str | Path | None, freeze: dict, secti
             "commit": commit, "window_wall_start_epoch": None}
 
 
-def write_receipt_stub(receipt_path: Path, approval: dict) -> None:
-    """Persist the approval record before the first request leaves the process."""
-    approval["window_wall_start_epoch"] = int(time.time())
+def write_receipt_stub(receipt_path: Path, approval: dict, window_start: int | None = None) -> None:
+    """Persist the approval record before the first request leaves the process. A window already recorded for
+    the same approval is never moved; a caller-supplied start (the canary shell's) is recorded as given."""
     existing = {}
     if receipt_path.exists():
         try:
             existing = json.loads(receipt_path.read_text())
         except ValueError:
             existing = {}
+    prior = existing.get("action_approval") if isinstance(existing.get("action_approval"), dict) else {}
+    if prior.get("section_sha256") == approval.get("section_sha256") and isinstance(prior.get("window_wall_start_epoch"), int):
+        approval["window_wall_start_epoch"] = prior["window_wall_start_epoch"]
+    else:
+        approval["window_wall_start_epoch"] = window_start if window_start is not None else int(time.time())
     existing["action_approval"] = approval
     existing.setdefault("schema_version", RECEIPT_SCHEMA)
     existing.setdefault("status", "in-progress")
@@ -688,7 +693,8 @@ def api_request(allocation: Path, ledger: Path, route: str, method: str, params:
 
 
 def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, receipt_path: Path,
-            repo: Path | None = None, freeze_path: Path | None = None, approval_path: Path | None = None) -> None:
+            repo: Path | None = None, freeze_path: Path | None = None, approval_path: Path | None = None,
+            window_start: int | None = None) -> None:
     manifest = validate_manifest(json.loads(manifest_path.read_text()))
     if manifest["status"] != "ready-local-proposal":
         raise PublicationError("publication blocked: local complete product delta or request allocation does not fit")
@@ -757,7 +763,7 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
     if actual_projection > REQUEST_LIMIT or actual_projection != manifest["projection"]["projected_total_requests"]:
         raise PublicationError("complete preflight request projection no longer fits the frozen 24-request allocation")
     if approval is not None:
-        write_receipt_stub(receipt_path, approval)
+        write_receipt_stub(receipt_path, approval, window_start)
     receipts = []
     ref_jobs = []
     _, parent_data = api_request(allocation_path, ledger_path, "git_get_commit", "GET", {"sha": parent}, expected={200}, meter=meter)
@@ -839,7 +845,7 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
     candidate_workflow_blob = git(repo, "rev-parse", f"{manifest['candidate_helper_commit']}:.github/workflows/ci.yml").decode().strip()
     candidate_tree_sha = git(repo, "rev-parse", f"{manifest['candidate_helper_commit']}^{{tree}}").decode().strip()
     fixture_tree_sha = git(repo, "rev-parse", f"{manifest['fixture_workflow_commit']}^{{tree}}").decode().strip()
-    origin = derive_origin(allocation, final_ledger)
+    origin = derive_origin(allocation, {"transactions": own})
     actual = origin["kind"] == "actual-github"
     result = {"schema_version": RECEIPT_SCHEMA, "status": ACTUAL_STATUS if actual else HERMETIC_STATUS,
               "origin": origin,
@@ -848,7 +854,9 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
               "allocation_path": str(allocation_path.resolve()),
               "ledger_sha256": hashlib.sha256(ledger_path.read_bytes()).hexdigest(),
               "ledger_path": str(ledger_path.resolve()),
-              "request_count": len(own), "server_object_receipts": receipts,
+              "request_count": len(own),
+              "publication_transactions": [{"sequence": tx["sequence"], "sha256": sha256_hex(canonical_bytes(tx))} for tx in own],
+              "server_object_receipts": receipts,
               "source_sha": manifest["source_sha"], "server_parent_sha": parent,
               "candidate_sha": manifest["candidate_helper_commit"],
               "fixture_sha": manifest["fixture_workflow_commit"],
@@ -902,16 +910,30 @@ def verify_publication(path: Path, require_live_origin: bool = False) -> None:
             or value.get("fixture_ref") != "refs/heads/gsd/253-replan-fixture"):
         raise PublicationError("publication receipt identities or scoped refs are inconsistent")
     ledger_path = Path(value.get("ledger_path", ""))
-    if not ledger_path.is_file() or hashlib.sha256(ledger_path.read_bytes()).hexdigest() != value.get("ledger_sha256"):
+    if not ledger_path.is_file():
         raise PublicationError("publication receipt no longer matches its measured request ledger")
     ledger = json.loads(ledger_path.read_text())
     transactions = ledger.get("transactions") if isinstance(ledger, dict) else None
+    pinned = value.get("publication_transactions")
+    if pinned is None:
+        # Legacy receipts pin the whole ledger file; they cannot survive later requests in the same ledger.
+        if hashlib.sha256(ledger_path.read_bytes()).hexdigest() != value.get("ledger_sha256"):
+            raise PublicationError("publication receipt no longer matches its measured request ledger")
+        own = [tx for tx in transactions if tx.get("category") == "publication"] or transactions if isinstance(transactions, list) else []
+    else:
+        if not isinstance(transactions, list) or not isinstance(pinned, list):
+            raise PublicationError("publication ledger has unaccounted, failed, or over-budget requests")
+        by_sequence = {tx.get("sequence"): tx for tx in transactions if isinstance(tx, dict)}
+        own = []
+        for item in pinned:
+            tx = by_sequence.get(item.get("sequence")) if isinstance(item, dict) else None
+            if tx is None or sha256_hex(canonical_bytes(tx)) != item.get("sha256"):
+                raise PublicationError("a pinned publication transaction no longer matches its measured request ledger")
+            own.append(tx)
     if (not isinstance(transactions, list)
             or not isinstance(value.get("request_count"), int) or value["request_count"] > REQUEST_LIMIT
-            or any(not isinstance(tx, dict) or tx.get("state") != "complete" for tx in transactions)):
-        raise PublicationError("publication ledger has unaccounted, failed, or over-budget requests")
-    own = [tx for tx in transactions if tx.get("category") == "publication"] or transactions
-    if len(own) != value["request_count"]:
+            or any(not isinstance(tx, dict) or tx.get("state") != "complete" for tx in own)
+            or len(own) != value["request_count"]):
         raise PublicationError("publication ledger has unaccounted, failed, or over-budget requests")
     if actual:
         allocation_path = Path(value.get("allocation_path", ""))
@@ -921,21 +943,20 @@ def verify_publication(path: Path, require_live_origin: bool = False) -> None:
         allocation = json.loads(allocation_path.read_text())
         if allocation.get("mode") != "live" or {"test_origin", "test_ca_file"} & set(allocation):
             raise PublicationError("actual-github receipt is bound to a hermetic allocation")
-        if derive_origin(allocation, ledger)["kind"] != "actual-github":
+        if derive_origin(allocation, {"transactions": own})["kind"] != "actual-github":
             raise PublicationError("actual-github ledger is not entirely api.github.com")
-        found = ledger_identities(ledger)
+        found = ledger_identities({"transactions": own})
         missing = [item for item in sorted(required_identities(value), key=str) if not identity_present(found, item)]
         if missing:
             raise PublicationError(f"actual-github identities are not present in the measured server responses: {missing}")
 
 
 def publish_docs(freeze_path: Path, allocation_path: Path, ledger_path: Path, receipt_path: Path,
-                 repo: Path | None, approval_path: Path | None) -> None:
+                 repo: Path | None, approval_path: Path | None, window_start: int | None = None) -> None:
     repo = Path(repo) if repo else Path(git(ROOT, "rev-parse", "--show-toplevel").decode().strip())
     freeze, freeze_raw = load_freeze(freeze_path)
     approval = check_section_approval(approval_path, freeze, "docs_and_prs", repo)
-    source = freeze.get("source") or {}
-    validate_frozen_product_source(repo, source.get("commit", ""), source.get("product_tree_sha"))
+    check_revision_freeze(freeze_path, repo)  # the same full policy gate the canary applies (reruns, native_target, bounds, source)
     allocation = json.loads(allocation_path.read_text())
     transport_limits = (allocation.get("category_limits") or {})
     if (allocation.get("allocation_kind") != "production" or allocation.get("max_requests") != PRODUCTION_REQUEST_LIMIT
@@ -969,7 +990,7 @@ def publish_docs(freeze_path: Path, allocation_path: Path, ledger_path: Path, re
          manifest["docs_base_commit"], "Phase 253 docs-only probe head\n", DOCS_PATH),
     ]
     meter = Meter("docs_publication", DOCS_PUBLICATION_LIMIT, ledger_path)
-    write_receipt_stub(receipt_path, approval)
+    write_receipt_stub(receipt_path, approval, window_start)
     receipts = []
     for label, ref_name, commit, base_tree, parent_commit, message, path in stages:
         tree = git(repo, "rev-parse", f"{commit}^{{tree}}").decode().strip()
@@ -1358,6 +1379,7 @@ def main() -> int:
     parser.add_argument("--acceptance-evidence")
     parser.add_argument("--disposition")
     parser.add_argument("--disposition-approval")
+    parser.add_argument("--window-wall-start-epoch", type=int, help="window start already recorded by the caller (shared with the evidence)")
     parser.add_argument("--compact-matrix")
     parser.add_argument("--extract-canary-artifact")
     args = parser.parse_args()
@@ -1382,13 +1404,14 @@ def main() -> int:
             if not all((args.manifest, args.allocation, args.ledger, args.receipt)):
                 raise PublicationError("--publish requires manifest, allocation, ledger, and receipt paths")
             publish(Path(args.manifest), Path(args.allocation), Path(args.ledger), Path(args.receipt), repo_arg,
-                    Path(args.freeze) if args.freeze else None, Path(args.action_approval) if args.action_approval else None)
+                    Path(args.freeze) if args.freeze else None, Path(args.action_approval) if args.action_approval else None,
+                    args.window_wall_start_epoch)
             return 0
         if args.publish_docs:
             if not all((args.freeze, args.allocation, args.ledger, args.receipt)):
                 raise PublicationError("--publish-docs requires freeze, allocation, ledger, and receipt paths")
             publish_docs(Path(args.freeze), Path(args.allocation), Path(args.ledger), Path(args.receipt), repo_arg,
-                         Path(args.action_approval) if args.action_approval else None)
+                         Path(args.action_approval) if args.action_approval else None, args.window_wall_start_epoch)
             return 0
         if args.check_approval:
             if not (args.freeze and args.section):

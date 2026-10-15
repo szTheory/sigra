@@ -1035,6 +1035,7 @@ class RegisteredPublicationTests(unittest.TestCase):
                                            "transactions": len(ledger["transactions"]), "identities_from_ledger": True}})
                 if mutate:
                     mutate(receipt, ledger, allocation_file)
+                receipt["publication_transactions"] = [{"sequence": tx["sequence"], "sha256": canonical_sha(tx)} for tx in ledger["transactions"]]
                 ledger_file = root / "live-ledger.json"
                 ledger_file.write_text(json.dumps(ledger))
                 receipt["ledger_path"] = str(ledger_file)
@@ -1223,6 +1224,11 @@ class RegisteredPublicationTests(unittest.TestCase):
             self.assertGreaterEqual(first["window_wall_start_epoch"], started)
             final = json.loads(evidence.read_text())
             self.assertEqual(final["action_approval"], first)
+            self.assertEqual(final["expected"]["fixture_ref_state"], "hermetic-unverified",
+                             "a hermetic publication must never mark the fixture ref verified")
+            published = json.loads(receipt.read_text())
+            self.assertEqual(published["action_approval"]["window_wall_start_epoch"], first["window_wall_start_epoch"],
+                             "the publisher and the evidence record one shared window start")
             self.assertEqual(final["publication"]["origin"]["kind"], "hermetic")
             self.assertEqual(final["publication"]["request_count"], len(server.journal))
             verified = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt)], cwd=ROOT, text=True, capture_output=True)
@@ -1230,6 +1236,99 @@ class RegisteredPublicationTests(unittest.TestCase):
             stale = sorted(path.name for path in env["phase"].glob("253-RECOVERY-CANARY-*"))
             self.assertEqual(stale, [], "the registered flow wrote to the superseded RECOVERY output paths")
 
+
+
+class ReviewRemediationTests(unittest.TestCase):
+    """Fixes for the final code review of the 253-91 product changes."""
+
+    make_local_publication = PublicationTests.make_local_publication
+    prepare_registered = RegisteredPublicationTests.prepare_registered
+    freeze_environment = RegisteredPublicationTests.freeze_environment
+    write_approval = RegisteredPublicationTests.write_approval
+    canary_allocation = RegisteredPublicationTests.canary_allocation
+    production_allocation = RegisteredPublicationTests.production_allocation
+
+    def test_a_publication_receipt_stays_verifiable_after_later_requests_join_the_shared_ledger(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-receipt-growth-") as temp:
+            env = self.freeze_environment(temp)
+            allocation, ledger = self.canary_allocation(env)
+            approval = self.write_approval(env, "canary")
+            receipt = env["root"] / "growth-receipt.json"
+            result = subprocess.run(RegisteredPublicationTests.publish_args(self, env["manifest_path"], allocation, ledger, receipt, env["repo"])
+                                    + ["--freeze", str(env["freeze_path"]), "--action-approval", str(approval)],
+                                    cwd=ROOT, text=True, capture_output=True, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            def verify():
+                return subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt)], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(verify().returncode, 0)
+            grown = json.loads(ledger.read_text())
+            grown["transactions"].append({"sequence": len(grown["transactions"]) + 1, "route_id": "rate_limit", "state": "pending",
+                                          "category": "preflight", "host": "api.github.com"})
+            ledger.write_text(json.dumps(grown))
+            self.assertEqual(verify().returncode, 0, "later requests in the shared ledger must not invalidate the pinned publication")
+            grown["transactions"][2]["actual_status"] = 500
+            ledger.write_text(json.dumps(grown))
+            tampered = verify()
+            self.assertNotEqual(tampered.returncode, 0)
+            self.assertIn("pinned publication transaction", tampered.stderr)
+
+    def test_a_recorded_window_start_is_never_moved_by_a_retry(self):
+        module = load_publisher()
+        with tempfile.TemporaryDirectory(prefix="sigra-window-keep-") as temp:
+            receipt = pathlib.Path(temp) / "receipt.json"
+            record = {"path": "a.json", "sha256": "a" * 64, "section": "canary", "section_sha256": "b" * 64, "commit": "c" * 40,
+                      "window_wall_start_epoch": None}
+            module.write_receipt_stub(receipt, dict(record), 1791909000)
+            self.assertEqual(json.loads(receipt.read_text())["action_approval"]["window_wall_start_epoch"], 1791909000)
+            retry = dict(record)
+            module.write_receipt_stub(receipt, retry, 1791999999)
+            self.assertEqual(retry["window_wall_start_epoch"], 1791909000)
+            other = dict(record, section_sha256="d" * 64)
+            module.write_receipt_stub(receipt, other, 1791999999)
+            self.assertEqual(other["window_wall_start_epoch"], 1791999999, "a different approval opens a different window")
+
+    def test_publish_docs_applies_the_full_freeze_policy_before_any_request(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-publish-docs-policy-") as temp:
+            env = self.freeze_environment(temp)
+            approval = self.write_approval(env, "docs_and_prs")
+            original = env["freeze_path"].read_text()
+            value = json.loads(original)
+            value["expired_reruns"]["pull_requests"]["status"] = "available"
+            env["freeze_path"].write_text(json.dumps(value, indent=2))
+            allocation, ledger = self.production_allocation(env)
+            result = subprocess.run(["python3", str(PUBLISHER), "--publish-docs", "--freeze", str(env["freeze_path"]), "--allocation", str(allocation),
+                                     "--ledger", str(ledger), "--receipt", str(env["root"] / "r.json"), "--repo-root", str(env["repo"]),
+                                     "--action-approval", str(approval)], cwd=ROOT, text=True, capture_output=True, timeout=30)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("expired reruns", result.stderr)
+            self.assertEqual(env["server"].journal, [])
+            self.assertFalse(ledger.exists())
+
+    def test_the_canary_script_never_depends_on_ripgrep_for_a_guard(self):
+        text = (ROOT / "scripts/ci/ci-gate-canary.sh").read_text()
+        self.assertEqual(re.findall(r"(?m)^(?!\s*#).*(?<![-\w])rg\s", text), [])
+
+    def test_live_modes_work_from_another_directory_with_relative_paths(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-relative-paths-") as temp:
+            env = self.freeze_environment(temp)
+            allocation = LiveModeApprovalTests.live_allocation(self, env)
+            approval = self.write_approval(env, "canary")
+            evidence = env["phase"] / "253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
+            process_env, marker, snapshot = LiveModeApprovalTests.recording_env(self, temp, evidence)
+            elsewhere = env["repo"] / "scripts"
+            relative = lambda path: os.path.relpath(path, elsewhere)
+            result = subprocess.run(["bash", os.path.relpath(env["repo"] / CANARY_SCRIPT_RELATIVE, elsewhere), "--preflight-only",
+                                     "--revision-freeze", relative(env["freeze_path"]), "--action-approval", relative(approval),
+                                     "--http-allocation", relative(allocation)],
+                                    cwd=elsewhere, text=True, capture_output=True, env=process_env, timeout=120)
+            self.assertNotEqual(result.returncode, 0, "the stub has no credentials, so the first transaction fails")
+            self.assertEqual(marker.read_text().splitlines(), ["gh auth token"], result.stderr)
+            self.assertIn("action_approval", json.loads(snapshot.read_text()))
+
+    def test_publish_only_marks_nothing_verified_for_a_hermetic_allocation_and_requires_live_origin_otherwise(self):
+        source = (ROOT / "scripts/ci/ci-gate-canary.sh").read_text()
+        self.assertIn("--verify-publication \"$PUBLICATION_RECEIPT\" --require-live-origin", source)
+        self.assertIn("REF_STATE=hermetic-unverified", source)
 
 
 CANARY_SCRIPT_RELATIVE = "scripts/ci/ci-gate-canary.sh"
@@ -1466,6 +1565,10 @@ class LiveModeApprovalTests(unittest.TestCase):
                 "dispatch on main": {"action": "workflow_dispatch", "ref": "main", "inputs": inputs},
                 "cancel another scenario": {"action": "cancel_run", "scenario": "full-pass"},
                 "pull request create": {"action": "pr_create", "head": "gsd/253-replan-candidate", "base": "main", "draft": True},
+                "dispatch with fewer inputs": {"action": "workflow_dispatch", "ref": "gsd/253-replan-fixture",
+                                               "inputs": {key: value for key, value in inputs.items() if key != "fixture_blob"}},
+                "dispatch with an extra input": {"action": "workflow_dispatch", "ref": "gsd/253-replan-fixture",
+                                                 "inputs": {**inputs, "extra": "x"}},
                 "rerun": {"action": "rerun", "scenario": "full-pass"},
                 "merge": {"action": "merge"},
             }
