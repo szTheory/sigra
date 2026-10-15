@@ -22,6 +22,9 @@ MAX_REQUESTS=117
 MAX_JOBS=45
 MAX_MINUTES=60
 POLL_INTERVAL=60
+# 253-101 (commit E): GitHub lists a dispatched run only after a short delay, so discovery waits this long with no
+# request and then makes its single charged listing.
+DISCOVERY_WAIT=20
 SCENARIO=""
 ALL_REMAINING=false
 CHECK_ONLY=false
@@ -360,6 +363,10 @@ else
     [[ "$SIGRA_CANARY_TEST_POLL_SECONDS" =~ ^[0-9]+([.][0-9]+)?$ ]] || fail 'SIGRA_CANARY_TEST_POLL_SECONDS must be a non-negative number'
     POLL_INTERVAL="$SIGRA_CANARY_TEST_POLL_SECONDS"
   fi
+  if [[ -n "${SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS:-}" ]]; then
+    [[ "$SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS" =~ ^[0-9]+([.][0-9]+)?$ ]] || fail 'SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS must be a non-negative number'
+    DISCOVERY_WAIT="$SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS"
+  fi
 fi
 EVIDENCE_CHANNEL=github-api
 [[ "$HERMETIC" != true ]] || EVIDENCE_CHANNEL=hermetic-https
@@ -538,6 +545,9 @@ watch_run() {
   started="$SECONDS"
   run_target="$(mktemp "$WORK_DIR/terminal-run.XXXXXX")"
   while :; do
+    # One interval before every poll, the first included: a run dispatched moments ago cannot be complete yet, so an
+    # immediate first poll only spends one of the frozen terminal polls (253-101, commit E).
+    sleep "$POLL_INTERVAL"
     check_budget 0
     (( SECONDS - started < MAX_MINUTES * 60 )) || fail "60-minute canary ceiling reached while polling run $run_id"
     api_get "actions/runs/$run_id" "$run_target"
@@ -548,9 +558,9 @@ watch_run() {
       rmdir "$lock_dir"
       return 0
     fi
-    sleep "$POLL_INTERVAL"
   done
 }
+
 
 validate_dispatch_inputs() {
   python3 - "$TRANSPORT_MODULE" "$1" <<'PY'
@@ -684,6 +694,9 @@ api_post_dispatch() {
     --argjson scalars "$LAST_INPUT_UNICODE_SCALARS" --argjson bytes "$LAST_INPUT_UTF8_BYTES" --arg digest "$LAST_INPUT_SHA256" \
     '.dispatch_inputs=$inputs | .dispatch_input_metrics += [{sequence:$sequence,key_count:($inputs|keys|length),unicode_scalars:$scalars,utf8_bytes:$bytes,sha256:$digest}]' \
     "$EVIDENCE" > "$EVIDENCE.tmp" && mv "$EVIDENCE.tmp" "$EVIDENCE"
+  # Request-free discovery wait after the 2xx dispatch: GitHub makes the run listable only after a short delay, and the
+  # caller then makes its single charged listing (253-101, commit E).
+  sleep "$DISCOVERY_WAIT"
 }
 
 download_no_follow() {
