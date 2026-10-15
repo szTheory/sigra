@@ -202,5 +202,169 @@ class HaltMarkingTests(unittest.TestCase):
         self.assert_halted_and_guarded(summary, "ci-hosted-gate-verify.py")
 
 
+class TimingModelTests(unittest.TestCase):
+    """Commit E: a run is listable only after a delay, so discovery waits (request-free) before its one listing."""
+
+    def test_a_three_second_visibility_delay_is_found_by_one_listing_after_the_discovery_wait(self):
+        code, summary = run_gate("--stop-after", "full-pass", "--visibility-delay", "3", "--discovery-wait", "4")
+        self.assertEqual(code, 0, summary)
+        self.assertEqual(summary["requests_by_category"].get("run_discovery"), 1, "exactly one charged listing")
+        self.assertEqual(summary["scenarios"], ["full-pass"])
+
+    def test_the_modeled_polls_count_from_a_first_poll_after_one_interval(self):
+        code, summary = run_gate("--stop-after", "full-pass", "--visibility-delay", "3", "--discovery-wait", "4",
+                                 "--poll-seconds", "2")
+        self.assertEqual(code, 0, summary)
+        self.assertEqual(summary["requests_by_category"].get("terminal_polls"), 3, "3 modeled polls for full-pass")
+        # The pre-watch rate read and the first poll are separated by one full (shortened) interval, not by a few
+        # process start-ups.
+        self.assertGreaterEqual(summary["first_poll_delays"][0], 2.0, summary)
+
+
+class AccountingTests(unittest.TestCase):
+    def test_one_more_poll_than_the_category_allows_halts_with_a_budget_message(self):
+        code, summary = run_gate("--polls", "full-pass=4")
+        self.assertNotEqual(code, 0)
+        self.assertIn("terminal_polls", summary["stop"] or "", summary)
+        self.assertIn("exhausted", summary["stop"] or "", summary)
+        self.assertEqual(summary["evidence_status"], "halted", summary)
+        self.assertEqual(summary["requests_by_category"].get("terminal_polls"), 18)
+
+    def test_every_category_of_the_default_run_is_within_the_frozen_table_and_retry_is_unused(self):
+        code, summary = default_run()
+        self.assertEqual(code, 0, summary)
+        frozen = {"preflight": 8, "publication": 24, "dispatch": 7, "run_discovery": 7, "pre_watch_rate": 7,
+                  "terminal_polls": 18, "attempt_jobs": 7, "artifact_metadata": 7, "artifact_downloads": 12,
+                  "failure_logs": 6, "cancellation": 1, "infrastructure_retry": 13}
+        for category, used in summary["requests_by_category"].items():
+            with self.subTest(category=category):
+                self.assertLessEqual(used, frozen[category])
+        self.assertEqual(summary["requests_by_category"].get("infrastructure_retry", 0), 0)
+
+
+def patch_file(directory, name, old, new):
+    path = Path(directory) / f"{name}.json"
+    path.write_text(json.dumps({"name": name, "old": old, "new": new}))
+    return path
+
+
+class SensitivityControlTests(unittest.TestCase):
+    """Each control reintroduces one fixed defect into a copy of the driver; the gate must fail at its named point."""
+
+    def control(self, name, old, new, *extra):
+        with tempfile.TemporaryDirectory() as directory:
+            text = (ROOT / DRIVER_REL).read_text()
+            self.assertEqual(text.count(old), 1, f"reintroduction patch {name} must apply exactly once")
+            code, summary = run_gate("--driver-patch", str(patch_file(directory, name, old, new)), *extra)
+        self.assertNotEqual(code, 0, f"the gate is blind to {name}: {summary}")
+        self.assertEqual(summary["status"], "failed")
+        self.assertEqual(summary["driver_patch"], name)
+        return summary
+
+    def test_check_source_candidate(self):
+        summary = self.control("check-source-candidate",
+                               'api_get "commits/$CHECK_SOURCE_SHA/check-runs?per_page=100" "$CHECK_RUNS_RESPONSE"',
+                               'api_get "commits/$CANDIDATE_SHA/check-runs?per_page=100" "$CHECK_RUNS_RESPONSE"',
+                               "--stop-after", "full-pass")
+        self.assertIn("native check-run app/source identity is missing", summary["stop"], summary)
+        self.assertEqual(summary["invocations"][-1]["mode"], "full-pass")
+
+    def test_errexit_tail(self):
+        summary = self.control("errexit-tail",
+                               "  # The guard above is false for every expected outcome; without this the function returned 1 and set -e ended the run.\n  return 0\n}",
+                               "}", "--stop-after", "full-pass")
+        # Without the explicit success return the function ends on its negative-source guard, which returns 1 for
+        # every expected outcome; the ERR trap names that guard line and the run ends right after the full-pass receipt.
+        self.assertIn('"$case_name" == unexpected-skip ]]', summary["stop"], summary)
+        self.assertEqual(summary["invocations"][-1]["mode"], "full-pass")
+        self.assertEqual(summary["scenarios"], ["full-pass"], "it stops right after the full-pass receipt")
+        self.assertEqual(summary["evidence_status"], "halted")
+
+    def test_preflight_repeat(self):
+        summary = self.control("preflight-repeat", "if retained_preflight; then", "if false && retained_preflight; then")
+        self.assertEqual(summary["invocations"][-1]["mode"], "remaining")
+        self.assertIn("category preflight allocation is exhausted", summary["stop"], summary)
+
+    def test_halt_unmarked(self):
+        route = f"GET /repos/szTheory/sigra/commits/{SERVER_PARENT}/check-runs=403"
+        summary = self.control("halt-unmarked", "trap 'on_command_error \"$?\" \"$LINENO\" \"$BASH_COMMAND\"' ERR\n", "",
+                               "--stop-after", "full-pass", "--inject", route)
+        self.assertIn("http_403", summary["stop"], summary)
+        self.assertIsNone(summary["evidence_status"], "with the fail routing removed the refusal leaves no halt")
+
+    def test_discovery_race(self):
+        summary = self.control("discovery-race", 'sleep "$DISCOVERY_WAIT"', "sleep 0", "--stop-after", "full-pass",
+                               "--visibility-delay", "3", "--discovery-wait", "4")
+        self.assertIn("dispatch receipt not found", summary["stop"], summary)
+
+    def test_the_frozen_r7_driver_fails_at_the_check_runs_preflight_before_any_verifier_call(self):
+        code, summary = run_gate("--driver-from", R7_DRIVER, "--stop-after", "full-pass")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(summary["status"], "failed")
+        self.assertIn("invalid_route_parameter", summary["stop"], summary)
+        self.assertEqual(summary["requests_by_category"].get("preflight"), 3, "rate, rules and protection only")
+        self.assertNotIn("check_runs", summary["requests_by_route"])
+
+
+class CreateOnlyTests(unittest.TestCase):
+    def test_the_two_legacy_refs_stop_publish_only_with_no_ref_updated(self):
+        code, summary = run_gate("--seed-legacy-refs")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(summary["invocations"][-1]["mode"], "publish-only")
+        self.assertIn("already points to a different commit", summary["stop"], summary)
+        self.assertIs(summary["seeded_refs_changed"], False)
+        self.assertNotIn("create_ref", summary["requests_by_route"])
+        self.assertEqual(summary["evidence_status"], "halted")
+
+
+class FakeGitHubStrictnessTests(unittest.TestCase):
+    """The fake rejects any request GitHub's API would not take for that route."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.runner = load_runner()
+
+    def test_unknown_paths_queries_bodies_and_credentials_are_refused_and_recorded(self):
+        import http.client
+        import ssl
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory).resolve()
+            clone = work / "clone"
+            subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(clone)], check=True)
+            parent = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip()
+            server, thread, cert = self.runner.start_fake(work, clone, work / "ledger.json", work / "journal.json", parent,
+                                                          None, 0.0, dict(self.runner.DEFAULT_POLLS), False)
+            try:
+                server.refs["gsd/253-replan-fixture"] = parent
+                context = ssl.create_default_context(cafile=str(cert))
+                cases = [
+                    ("GET", "/repos/szTheory/sigra/actions/workflows/259268962/runs?event=push&branch=x&per_page=100&page=1", None, {}),
+                    ("GET", "/repos/szTheory/sigra/rules/branches/main?per_page=30&page=1", None, {}),
+                    ("GET", "/repos/szTheory/sigra/actions/runs/1/jobs", None, {}),
+                    ("POST", "/repos/szTheory/sigra/actions/workflows/259268962/dispatches",
+                     {"ref": "gsd/253-replan-fixture", "inputs": {"scenario": "full-pass", "unknown": "x"}}, {}),
+                    ("POST", "/repos/szTheory/sigra/actions/workflows/259268962/dispatches",
+                     {"ref": "gsd/does-not-exist", "inputs": {"scenario": "full-pass", "candidate_sha": "a", "fixture_sha": "b",
+                                                              "fixture_blob": "c"}}, {}),
+                    ("POST", "/repos/szTheory/sigra/actions/runs/1/cancel", {"force": True}, {}),
+                    ("DELETE", "/repos/szTheory/sigra/git/refs/heads/main", None, {}),
+                    ("GET", "/rate_limit", None, {"Authorization": "Bearer ghp_dryruntokenvalue"}),
+                ]
+                statuses = []
+                for method, path, body, headers in cases:
+                    connection = http.client.HTTPSConnection("localhost", server.server_address[1], context=context, timeout=10)
+                    payload = json.dumps(body).encode() if body is not None else None
+                    connection.request(method, path, body=payload, headers={"Content-Type": "application/json", **headers})
+                    statuses.append(connection.getresponse().status)
+                    connection.close()
+                self.assertTrue(all(status >= 400 for status in statuses), statuses)
+                self.assertGreaterEqual(len(server.violations), len(cases) - 1, server.violations)
+                self.assertTrue(any("credential" in item for item in server.violations))
+                self.assertEqual(server.runs, {}, "a refused dispatch must not create a run")
+            finally:
+                server.shutdown()
+                server.server_close()
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

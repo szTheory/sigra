@@ -309,6 +309,7 @@ class FakeGitHub(ObjectServer):
     def _get_handler(self, path, query):
         server = self.server
         if path == "/rate_limit" and not query:
+            server.last_rate_at = time.monotonic()
             return lambda: self._reply(200, {"resources": {"core": {"limit": 5000, "used": 100 + len(server.journal),
                                                                     "remaining": 4900 - len(server.journal), "reset": 1792100000}},
                                              "rate": {"limit": 5000, "remaining": 4900 - len(server.journal)}})
@@ -403,6 +404,8 @@ class FakeGitHub(ObjectServer):
         record = self.server.runs.get(run_id)
         if record is None or record["visible_at"] > time.monotonic():
             return self._reply(404, {"message": "Not Found"})
+        if "first_poll_delay" not in record:
+            record["first_poll_delay"] = round(time.monotonic() - self.server.last_rate_at, 3)
         if not record.get("completed"):
             record["polls"] += 1
             waiting_on_cancel = record["scenario"] == "cancelled" and not record["cancel_requested"]
@@ -587,6 +590,12 @@ class FakeGitHub(ObjectServer):
 
 
 class FakeServer(OBJECT_TESTS.ObjectHTTPServer):
+    def handle_error(self, request, client_address):
+        # A client closing its socket (keep-alive read after close) is not a fault; any other handler error is.
+        error = sys.exc_info()[1]
+        if not isinstance(error, (OSError, ssl.SSLError)):
+            self.violations.append(f"fake handler error: {type(error).__name__}: {error}")
+
     def top_level(self, tree):
         rows = run(["git", f"--git-dir={self.git_dir}", "ls-tree", tree]).stdout.decode().splitlines()
         result = []
@@ -634,6 +643,7 @@ def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_pare
     server.artifact_ids, server.blobs_by_artifact = {}, {}
     server.verifier_module = verifier_module
     server.inject = {}
+    server.last_rate_at = time.monotonic()
     tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     tls.load_cert_chain(cert, key)
     server.socket = tls.wrap_socket(server.socket, server_side=True)
@@ -853,6 +863,8 @@ def dry_run(args) -> dict:
         summary["preflight_copies"] = sorted(Path(rel).name for rel in created if "PREFLIGHT" in rel)
         summary["requests_total"] = len(ledger_value.get("transactions", []))
         summary["journal_requests"] = len(server.journal)
+        summary["first_poll_delays"] = [record["first_poll_delay"] for _, record in sorted(server.runs.items())
+                                        if "first_poll_delay" in record]
         evidence_value = json.loads(evidence.read_text()) if evidence.exists() else {}
         summary["evidence_status"] = evidence_value.get("status")
         summary["evidence_has_preflight"] = bool(evidence_value.get("preflight"))
@@ -927,15 +939,17 @@ def main() -> int:
     parser.add_argument("--ref-pair", help="forwarded to --build-freeze (253-102 adds the option; never passed here)")
     parser.add_argument("--revision-freeze", help="use this committed freeze (repository-relative) instead of deriving one")
     parser.add_argument("--server-parent", help="server parent for the derived synthetic freeze (default: the R7 freeze's)")
-    parser.add_argument("--visibility-delay", type=float, default=0.0, help="seconds before a dispatched run is listable")
-    parser.add_argument("--discovery-wait", type=float, help="hermetic-only SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS")
+    parser.add_argument("--visibility-delay", type=float, default=3.0,
+                        help="modeled seconds before a dispatched run is listable (default 3)")
+    parser.add_argument("--discovery-wait", type=float, default=4.0,
+                        help="hermetic-only SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS (default 4; live is 20)")
     parser.add_argument("--poll-seconds", type=float, default=0.05, help="hermetic-only SIGRA_CANARY_TEST_POLL_SECONDS")
     parser.add_argument("--polls", action="append", help="SCENARIO=N modeled polls to completion (repeatable)")
     parser.add_argument("--inject", action="append", help="'METHOD /path=STATUS': answer that request once with STATUS")
     parser.add_argument("--reenter", action="store_true", help="after a failed driver mode, run it once more (halt guard check)")
     parser.add_argument("--fault", action="append", choices=("artifact-digest",),
                         help="modeled server fault (artifact-digest: listed digest differs from the served bytes)")
-    parser.add_argument("--timeout", type=int, default=1800)
+    parser.add_argument("--timeout", type=int, default=900, help="seconds allowed per driver invocation")
     parser.add_argument("--overlay-worktree", action="store_true",
                         help="copy the checkout's uncommitted scripts/ci edits into the clone (test aid; recorded)")
     parser.add_argument("--keep", action="store_true", help=argparse.SUPPRESS)
