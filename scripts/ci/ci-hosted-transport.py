@@ -591,8 +591,16 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
         host, port, path = destination
         if not host or not (1 <= port <= 65535) or not path.startswith("/") or "#" in path or "\r" in path or "\n" in path:
             raise TransportError("redirect_rejected", "redirect destination is malformed")
-    if host != API_HOST and allocation.get("mode") != "hermetic-test":
-        raise TransportError("origin_rejected", "live transport is restricted to api.github.com")
+    if allocation.get("mode") != "hermetic-test":
+        # 253-107: hop 0 (or no destination) is api.github.com:443 only. A later hop is only the follow_download
+        # destination _approved_redirect accepted, re-validated here with the same predicate, on a download route.
+        hop_ordinal = request.get("hop_ordinal", 0)
+        if destination is None or not hop_ordinal:
+            if host != API_HOST or port != 443:
+                raise TransportError("origin_rejected", "live transport is restricted to api.github.com")
+        elif (ROUTES[request["route_id"]][2] != "download" or isinstance(hop_ordinal, bool) or not isinstance(hop_ordinal, int)
+                or hop_ordinal < 1 or hop_ordinal > allocation["max_hops"] or not _trusted_download_host(host, port, allocation)):
+            raise TransportError("origin_rejected", "live redirect hop is not an approved trusted download host")
 
     allocation_hash = hashlib.sha256(allocation_raw).hexdigest()
     start_ns = time.monotonic_ns()
@@ -785,6 +793,16 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
     return receipt, raw_location[0] if raw_location else None, scrubbed_body, response_headers
 
 
+def _trusted_download_host(host, port, allocation: dict) -> bool:
+    """The single live download-hop predicate shared by _approved_redirect and request_one (253-107)."""
+    if port not in (None, 443) or not isinstance(host, str):
+        return False
+    if host not in (allocation.get("download_hosts") or []):
+        return False
+    return host == "pipelines.actions.githubusercontent.com" or bool(
+        re.fullmatch(r"productionresultssa[0-9]+\.blob\.core\.windows\.net", host))
+
+
 def _approved_redirect(location: str, allocation: dict) -> tuple[str, int, str]:
     try:
         parsed = urlsplit(location)
@@ -799,13 +817,8 @@ def _approved_redirect(location: str, allocation: dict) -> tuple[str, int, str]:
         test_origin = urlsplit(allocation["test_origin"])
         if host != test_origin.hostname or port != test_origin.port:
             raise TransportError("redirect_rejected", "hermetic redirect left its exact local test origin")
-    else:
-        if port not in (None, 443) or host not in allocation.get("download_hosts", []):
-            raise TransportError("redirect_rejected", "redirect host is outside the frozen download-host list")
-        trusted = host == "pipelines.actions.githubusercontent.com" or bool(
-            re.fullmatch(r"productionresultssa[0-9]+\.blob\.core\.windows\.net", host))
-        if not trusted:
-            raise TransportError("redirect_rejected", "redirect host does not match the trusted download policy")
+    elif not _trusted_download_host(host, port, allocation):
+        raise TransportError("redirect_rejected", "redirect host is outside the frozen download-host list or trusted download policy")
     target = urlunsplit(("", "", parsed.path, parsed.query, ""))
     return host, port or 443, target
 
