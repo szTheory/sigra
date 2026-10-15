@@ -778,5 +778,175 @@ class TypedAllocationWireTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, "live_allocation_required")
 
 
+# -- 253-107: LIVE-mode approved redirect through the live-policy shim ----------------------------------
+SHIM_SOURCE = ROOT / "scripts/ci/ci-live-policy-shim.py"
+R8_ALLOCATION = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json"
+DUMMY_TOKEN = "dummy-not-a-credential-253-107"
+BLOB_HOST = "productionresultssa17.blob.core.windows.net"
+ARTIFACT_PATH = "/repos/szTheory/sigra/actions/artifacts/11999138572/zip"
+BLOB_LOCATION = f"https://{BLOB_HOST}/x/artifact.zip?sv=2025&sig=redacted"
+# Every name the local server answers for; only the trusted ones are ever expected on the wire.
+SHIM_HOSTS = ("api.github.com", BLOB_HOST, "productionresultssa41.blob.core.windows.net",
+              "pipelines.actions.githubusercontent.com", "evil.example.com",
+              "productionresultssa17.blob.core.windows.net.evil.example")
+
+
+def load_shim():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ci_live_policy_shim_under_test", SHIM_SOURCE)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def small_zip() -> bytes:
+    import io
+    import zipfile
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("canary-result.json", '{"scenario":"full-pass"}\n')
+    return buffer.getvalue()
+
+
+class LiveHostHandler(http.server.BaseHTTPRequestHandler):
+    """Answers by Host header, like the real hosts would; journals every request it actually received."""
+    protocol_version = "HTTP/1.1"
+
+    def do_GET(self):  # noqa: N802
+        host = (self.headers.get("Host") or "").split(":", 1)[0].lower()
+        route_path = self.path.split("?", 1)[0]
+        status, response_headers, payload = self.server.routes.get((host, route_path), (404, [], b'{"message":"Not Found"}'))
+        self.send_response(status)
+        for name, value in response_headers:
+            self.send_header(name, value)
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+        self.server.journal.append({"host": host, "path": self.path, "status": status,
+                                    "authorization": self.headers.get("Authorization")})
+
+    def log_message(self, *_args):
+        pass
+
+
+class LivePolicyRedirectTests(unittest.TestCase):
+    """The allocation mode is ``live``: every policy branch of the transport runs; only sockets/TLS are local."""
+
+    def setUp(self):
+        self.shim = load_shim()
+        self.transport = load_transport()
+        self.tmp = tempfile.TemporaryDirectory(prefix="sigra-253-live-policy-")
+        self.addCleanup(self.tmp.cleanup)
+        self.tmp_path = pathlib.Path(self.tmp.name)
+        self.cert, key = self.shim.make_tls_identity(self.tmp_path / "tls", (
+            "api.github.com", "*.blob.core.windows.net", "pipelines.actions.githubusercontent.com",
+            "evil.example.com", "productionresultssa17.blob.core.windows.net.evil.example"))
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), LiveHostHandler)
+        self.server.journal = []
+        self.server.sni = []
+        self.server.routes = {
+            ("api.github.com", ARTIFACT_PATH): (302, [("Location", BLOB_LOCATION)], b""),
+            (BLOB_HOST, "/x/artifact.zip"): (200, [("Content-Type", "application/zip")], small_zip()),
+        }
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.load_cert_chain(self.cert, key)
+        context.sni_callback = lambda _sock, name, _ctx: self.server.sni.append(name)
+        self.server.socket = context.wrap_socket(self.server.socket, server_side=True)
+        thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(thread.join)
+        self.addCleanup(self.server.server_close)
+        self.addCleanup(self.server.shutdown)
+        self.port = self.server.server_address[1]
+        self.connect_log = self.tmp_path / "connect.jsonl"
+        self.refusal_log = self.shim.refusal_log_for(self.connect_log)
+        self.shim_env = self.shim.prepare(self.tmp_path / "site", {host: self.port for host in SHIM_HOSTS},
+                                          self.cert, self.connect_log)
+        bound = self.tmp_path / "bound.txt"
+        bound.write_text("253-107 live-policy test binding\n")
+        allocation = json.loads(R8_ALLOCATION.read_text())
+        allocation["window_id"] = "253-107-live-redirect-test"
+        allocation["bound_documents"] = [{"path": str(bound), "sha256": hashlib.sha256(bound.read_bytes()).hexdigest()}]
+        self.allocation = allocation
+        self.allocation_path = self.tmp_path / "allocation.json"
+        self.ledger = self.tmp_path / "ledger.json"
+        self.request_path = self.tmp_path / "request.json"
+        self.output_path = self.tmp_path / "receipt.json"
+        self.body_path = self.tmp_path / "artifact.zip"
+        self.write_allocation()
+        self.request_path.write_text(json.dumps({"method": "GET", "route_id": "artifact_zip", "category": "artifact_downloads",
+                                                 "params": {"artifact_id": 11999138572}}))
+
+    def write_allocation(self):
+        self.allocation_path.write_text(json.dumps(self.allocation))
+
+    def child_env(self):
+        env = {key: value for key, value in os.environ.items() if key not in {"GH_TOKEN", "GITHUB_TOKEN", "PYTHONPATH"}}
+        env.update(self.shim_env)
+        env["GH_TOKEN"] = DUMMY_TOKEN
+        return env
+
+    def follow(self):
+        return subprocess.run(
+            ["python3", str(TRANSPORT_SOURCE), "--follow-download", "--allocation", str(self.allocation_path),
+             "--ledger", str(self.ledger), "--request", str(self.request_path), "--output", str(self.output_path),
+             "--body-output", str(self.body_path)],
+            cwd=ROOT, env=self.child_env(), text=True, capture_output=True, timeout=30)
+
+    def connects(self):
+        return [(row["host"], row["port"]) for row in self.shim.read_log(self.connect_log)]
+
+    def test_live_allocation_is_really_live(self):
+        self.assertEqual(self.allocation["mode"], "live")
+        self.assertFalse({"test_origin", "test_ca_file"} & set(self.allocation))
+        self.transport._validate_allocation(self.allocation)
+        self.assertEqual(self.transport._route(json.loads(self.request_path.read_text()), self.allocation)[:2],
+                         ("api.github.com", 443))
+
+    def test_shim_refuses_an_unmapped_destination_positive_control(self):
+        probe = ("import socket, sys\n"
+                 "try:\n"
+                 "    socket.create_connection(('example.invalid', 443), timeout=2)\n"
+                 "except OSError as exc:\n"
+                 "    print(exc); sys.exit(7)\n"
+                 "sys.exit(0)\n")
+        result = subprocess.run(["python3", "-c", probe], cwd=self.tmp_path, env=self.child_env(),
+                                text=True, capture_output=True, timeout=15)
+        self.assertEqual(result.returncode, 7, result.stdout + result.stderr)
+        self.assertIn("live-policy shim refused real network destination example.invalid:443", result.stdout)
+        refusals = self.shim.read_log(self.refusal_log)
+        self.assertEqual([(row["event"], row["host"], row["port"]) for row in refusals],
+                         [("refused_connect", "example.invalid", 443)])
+        self.assertEqual(self.connects(), [])
+        # Without the variable the shim is inert even with the sitecustomize on PYTHONPATH.
+        inert = {key: value for key, value in self.child_env().items() if key != self.shim.ENV_VAR}
+        check = subprocess.run(["python3", "-c", "import socket, ssl; print(socket.create_connection.__module__)"],
+                               cwd=self.tmp_path, env=inert, text=True, capture_output=True, timeout=15)
+        self.assertEqual(check.stdout.strip(), "socket", check.stderr)
+
+    def test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host(self):
+        result = self.follow()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.body_path.read_bytes(), small_zip())
+        ledger = json.loads(self.ledger.read_text())
+        rows = ledger["transactions"]
+        self.assertEqual(len(rows), 2)
+        self.assertIsNone(ledger["terminal_stop"])
+        self.assertEqual([row["state"] for row in rows], ["complete", "complete"])
+        self.assertEqual(len({row["request_group"] for row in rows}), 1)
+        self.assertIsNotNone(rows[0]["request_group"])
+        self.assertEqual([row["hop_ordinal"] for row in rows], [0, 1])
+        self.assertEqual([row["host"] for row in rows], ["api.github.com", BLOB_HOST])
+        self.assertEqual([row["actual_status"] for row in rows], [302, 200])
+        self.assertEqual([row["category"] for row in rows], ["artifact_downloads", "artifact_downloads"])
+        self.assertEqual(rows[1]["url"], f"https://{BLOB_HOST}/x/artifact.zip?[REDACTED]")
+        self.assertNotIn("sig=redacted", self.ledger.read_text() + self.output_path.read_text())
+        self.assertEqual(self.connects(), [("api.github.com", 443), (BLOB_HOST, 443)])
+        self.assertEqual([(row["host"], row["authorization"]) for row in self.server.journal],
+                         [("api.github.com", f"Bearer {DUMMY_TOKEN}"), (BLOB_HOST, None)])
+        self.assertEqual(self.server.sni, ["api.github.com", BLOB_HOST])
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
