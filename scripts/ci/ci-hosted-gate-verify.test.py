@@ -437,6 +437,77 @@ class V2VerifierContractTests(unittest.TestCase):
         with self.assertRaises(self.module.VerificationError):
             self.module.verify_transport_v2(broken)
 
+    # -- 253-101: offline hermetic-https canary evidence ------------------------------------------------------
+    def dispatch_evidence(self, url, channel=None, transmitted=None):
+        evidence = self.transport_fixture()
+        evidence["expected"]["workflow_id"] = 259268962
+        if channel:
+            evidence["origin"]["channel"] = channel
+        inputs = transmitted or {"scenario": "full-pass", "candidate_sha": "a" * 40}
+        encoded = self.module.serialize_dispatch_inputs(inputs)
+        request_body = b'{"ref":"fixture","inputs":' + encoded + b'}'
+        transaction = evidence["transport_ledger"]["transactions"][0]
+        transaction.update(method="POST", route_id="dispatch", url=url, page_ordinal=1,
+            dispatch_inputs=dict(sorted(inputs.items())),  # the ledger is written with sorted keys
+            request_body_base64=base64.b64encode(request_body).decode(),
+            request_sha256=hashlib.sha256(request_body).hexdigest(),
+            input_key_count=len(inputs), input_unicode_scalars=len(encoded.decode()),
+            input_utf8_bytes=len(encoded), input_sha256=hashlib.sha256(encoded).hexdigest())
+        transaction["url_sha256"] = hashlib.sha256(url.encode()).hexdigest()
+        for record in (evidence["transport_receipts"][0], evidence["server_journal"][0]):
+            record.update(copy.deepcopy(transaction))
+        return evidence
+
+    def test_dispatch_metrics_follow_the_transmitted_input_order_not_the_sorted_ledger_copy(self):
+        live = "https://api.github.com/repos/szTheory/sigra/actions/workflows/259268962/dispatches"
+        evidence = self.dispatch_evidence(live, transmitted={"scenario": "full-pass", "candidate_sha": "a" * 40})
+        self.assertNotEqual(list(evidence["transport_ledger"]["transactions"][0]["dispatch_inputs"]), ["scenario", "candidate_sha"])
+        self.module.verify_transport_v2(evidence)
+        changed = self.dispatch_evidence(live)
+        for record in (changed["transport_ledger"]["transactions"][0], changed["transport_receipts"][0], changed["server_journal"][0]):
+            record["dispatch_inputs"] = {"scenario": "docs-only", "candidate_sha": "a" * 40}
+        with self.assertRaises(self.module.VerificationError):
+            self.module.verify_transport_v2(changed)
+
+    def test_a_local_dispatch_url_is_read_as_api_github_com_only_for_hermetic_https_evidence(self):
+        local = "https://localhost/repos/szTheory/sigra/actions/workflows/259268962/dispatches"
+        self.module.verify_transport_v2(self.dispatch_evidence(local, channel="hermetic-https"))
+        for channel in (None, "github-api"):
+            with self.subTest(channel=channel):
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.verify_transport_v2(self.dispatch_evidence(local, channel=channel))
+        elsewhere = "https://example.com/repos/szTheory/sigra/actions/workflows/259268962/dispatches"
+        with self.assertRaises(self.module.VerificationError):
+            self.module.verify_transport_v2(self.dispatch_evidence(elsewhere, channel="hermetic-https"))
+
+    def test_repeated_page_one_requests_pass_and_a_later_page_must_follow_its_predecessor(self):
+        evidence = self.transport_fixture()
+        for index in (1, 2):
+            for record in (evidence["transport_ledger"]["transactions"][index], evidence["transport_receipts"][index],
+                           evidence["server_journal"][index]):
+                record["page_ordinal"] = 1
+        self.module.verify_transport_v2(evidence)
+        for record in (evidence["transport_ledger"]["transactions"][2], evidence["transport_receipts"][2], evidence["server_journal"][2]):
+            record["page_ordinal"] = 2  # page 2 of check_runs directly after branch_protection's page 1
+        with self.assertRaises(self.module.VerificationError):
+            self.module.verify_transport_v2(evidence)
+
+    def test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified(self):
+        for channel, state, accepted in (("hermetic-https", "hermetic-unverified", True), ("hermetic-https", "verified", False),
+                                         (None, "verified", True), (None, "hermetic-unverified", False),
+                                         ("github-api", "hermetic-unverified", False)):
+            with self.subTest(channel=channel, state=state):
+                receipt = scenario_fixture("full-pass", 901)
+                evidence = copy.deepcopy(receipt)
+                evidence["expected"]["fixture_ref_state"] = state
+                if channel:
+                    evidence["origin"] = {"channel": channel}
+                if accepted:
+                    self.module.verify_scenario(receipt, "full-pass", evidence)
+                else:
+                    with self.assertRaises(self.module.VerificationError):
+                        self.module.verify_scenario(receipt, "full-pass", evidence)
+
     def test_rejects_zip_local_header_that_disagrees_with_central_metadata(self):
         archive = io.BytesIO()
         with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
@@ -976,6 +1047,19 @@ class CompletionContractTests(unittest.TestCase):
         bound.unlink()
         with self.assertRaises(self.module.VerificationError):
             self.verify(self.evidence())
+
+    def test_a_hermetic_canary_link_is_a_synthetic_gap_and_never_makes_cirel_02_accepted(self):
+        self.documents["canary"]["origin"]["channel"] = "hermetic-https"
+        record = self.verify(self.evidence())
+        self.assertEqual(record["status"], "open")
+        self.assertTrue(any(gap.startswith("synthetic:canary") for gap in record["gaps"]), record["gaps"])
+        self.assertEqual(record["requirements"]["CIREL-02"], "open")
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence(), require_accepted=True)
+        with self.assertRaises(self.module.VerificationError):
+            self.verify(self.evidence(accepted=True))  # an embedded claim cannot override the synthetic gap
+        self.documents["canary"]["origin"]["channel"] = "github-api"
+        self.assertEqual(self.verify(self.evidence())["status"], "accepted", "the live channel is unaffected")
 
     def test_publication_receipt_rejection_and_one_sided_pr_evidence_fail_closed(self):
         class Bad:

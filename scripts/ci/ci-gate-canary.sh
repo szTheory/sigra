@@ -918,7 +918,7 @@ dispatch_scenario() {
   preserve_evidence
   preserve_evidence
   jq --arg scenario "$case_name" --slurpfile receipt "$receipt_tmp" --argjson count "$REQUEST_COUNT" --argjson jobs "$((current_jobs + new_jobs))" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
-    '.scenarios[$scenario]=$receipt[0] | .budget.request_count=$count | .budget.actual_jobs=$jobs | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+    '.scenarios[$scenario]=$receipt[0] | .budget.request_count=$count | .budget.actual_jobs=$jobs | .run_attempts=((.run_attempts // []) + [{run_id:$receipt[0].run_id,run_attempt:$receipt[0].run_attempt,jobs:[$receipt[0].jobs.jobs[] | {job_id:.id,name:.name,conclusion:.conclusion,executed:(.conclusion != "skipped")}]}]) | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
   mv "${EVIDENCE}.tmp" "$EVIDENCE"
   python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario "$case_name"
   record_budget
@@ -950,13 +950,14 @@ if [[ "$ALL_REMAINING" == true ]]; then
   (( watch_status != 124 )) || fail 'separate verifier watch exceeded its reservation'
   (( watch_status != 77 )) || fail 'separate verifier watch received a GitHub 403/429; stop until reset'
   VERIFY_JOBS="$(mktemp "$WORK_DIR/verifier-jobs.XXXXXX")"
-  api_get "actions/runs/$VERIFY_ID" "$VERIFY_RUN"
+  # watch_run already copied the terminal run into $VERIFY_RUN; a second read would be a 19th terminal poll
+  # against the frozen 18 (253-101: the offline gate exhausts terminal_polls on it).
   api_get "actions/runs/$VERIFY_ID/jobs?per_page=100" "$VERIFY_JOBS"
   new_jobs="$(jq -r '[.jobs[] | select(.conclusion != "skipped")] | length' "$VERIFY_JOBS")"
   (( current_jobs + new_jobs <= MAX_JOBS )) || fail "separate verifier exceeded the $MAX_JOBS-job ceiling"
   preserve_evidence
   jq --argjson id "$VERIFY_ID" --slurpfile run "$VERIFY_RUN" --slurpfile jobs "$VERIFY_JOBS" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
-    '.separate_verifier={status:"passed",run_id:($id|tostring),job_conclusion:$run[0].conclusion,run:$run[0],jobs:$jobs[0]} | .budget.actual_jobs+=([$jobs[0].jobs[] | select(.conclusion != "skipped")] | length) | .budget.request_count+=(0) | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+    '.separate_verifier={status:"passed",run_id:($id|tostring),job_conclusion:$run[0].conclusion,run:$run[0],jobs:$jobs[0]} | .budget.actual_jobs+=([$jobs[0].jobs[] | select(.conclusion != "skipped")] | length) | .budget.request_count+=(0) | .run_attempts=((.run_attempts // []) + [{run_id:($id|tostring),run_attempt:$run[0].run_attempt,jobs:[$jobs[0].jobs[] | {job_id:.id,name:.name,conclusion:.conclusion,executed:(.conclusion != "skipped")}]}]) | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
   mv "${EVIDENCE}.tmp" "$EVIDENCE"
   python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario matrix
 fi

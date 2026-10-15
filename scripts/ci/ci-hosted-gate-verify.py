@@ -1595,6 +1595,10 @@ def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_che
         verify_canary_matrix(canary)
         origin = canary.get("origin", {})
         windows["canary"] = (origin.get("window_id"), canary["transport_ledger"].get("allocation_sha256"))
+        if hermetic_canary(canary):
+            # 253-101: offline dry-run evidence verifies, but only ever as synthetic; it can never satisfy CIREL-02.
+            synthetic = True
+            gaps.append("synthetic:canary:offline hermetic-https dry-run evidence cannot satisfy live acceptance")
     pr_result = None
     if "pr_normal" in opened and "pr_docs_only" in opened:
         normal = json.loads(opened["pr_normal"][1].decode("utf-8", "strict"))

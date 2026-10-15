@@ -113,12 +113,22 @@ class LiveOverrideRefusalTests(unittest.TestCase):
         self.assertEqual((self.work / "network-commands").read_text().split()[:3], ["gh", "auth", "token"])
 
 
+_DEFAULT_RUN = []
+
+
+def default_run():
+    """The default full sequence, run once per test process and shared by the classes that only read its summary."""
+    if not _DEFAULT_RUN:
+        _DEFAULT_RUN.append(run_gate())
+    return _DEFAULT_RUN[0]
+
+
 class PreflightOnceTests(unittest.TestCase):
     """Commit C: the fresh preflight runs once per evidence window; a later invocation re-verifies it offline."""
 
     @classmethod
     def setUpClass(cls):
-        cls.code, cls.summary = run_gate()
+        cls.code, cls.summary = default_run()
         cls.invocations = {item["mode"]: item for item in cls.summary.get("invocations", [])}
 
     def test_the_second_invocation_issues_zero_preflight_requests_and_reverifies_the_retained_preflight(self):
@@ -135,6 +145,31 @@ class PreflightOnceTests(unittest.TestCase):
         expected = sorted(f"253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-{name}.json" for name in
                           ("rate", "effective-rules", "registered-workflow", "legacy-protection", "check-runs"))
         self.assertEqual(self.summary["preflight_copies"], expected, self.summary)
+
+
+class FullSequenceTests(unittest.TestCase):
+    """The whole canary in two invocations, then the verifier's --mode canary --scenario matrix, all synthetic."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.code, cls.summary = default_run()
+
+    def test_the_default_run_completes_every_scenario_the_cancel_and_the_verifier(self):
+        self.assertEqual(self.code, 0, self.summary)
+        self.assertEqual(self.summary["status"], "passed", self.summary)
+        self.assertEqual(self.summary["scenarios"], ["full-pass", "docs-only", "actual-failure", "missing-seam",
+                                                     "unexpected-skip", "cancelled"])
+        self.assertEqual(self.summary["verifier"]["status"], "passed", self.summary)
+        self.assertEqual(self.summary["requests_by_category"].get("cancellation"), 1)
+        self.assertEqual(self.summary["requests_by_category"].get("dispatch"), 7, "six scenarios plus the separate verifier")
+        self.assertEqual([item["mode"] for item in self.summary["invocations"]], ["publish-only", "full-pass", "remaining"])
+
+    def test_the_run_is_synthetic_and_reconciled_against_the_server_journal(self):
+        self.assertIs(self.summary["synthetic"], True)
+        self.assertEqual(self.summary["freeze_plan"], "253-91")
+        self.assertEqual(self.summary["journal_requests"], self.summary["requests_total"])
+        self.assertIsNone(self.summary["evidence_status"], "a passing window must not be halted")
+        self.assertLessEqual(self.summary["requests_total"], 117)
 
 
 SERVER_PARENT = "84ebcea60024c9e8caee405d55cad1c76b0e858a"  # the R7 freeze's server parent, used by the derived freeze
