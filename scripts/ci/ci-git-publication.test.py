@@ -150,6 +150,18 @@ class ObjectServer(http.server.BaseHTTPRequestHandler):
         self.server.last_body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
         return json.loads(self.server.last_body or b"{}")
 
+    def _wire_commit(self, value):
+        """GitHub's commit JSON drops exactly one trailing newline from the stored message.
+
+        The stored object (and so its sha) keeps the newline-terminated bytes. The
+        echo_message_verbatim flag restores the older fixture behaviour.
+        """
+        message = value.get("message")
+        if (not self.server.flags.get("echo_message_verbatim") and isinstance(message, str)
+                and message.endswith("\n")):
+            return dict(value, message=message[:-1])
+        return value
+
     def _first(self):
         hook = getattr(self.server, "first_hook", None)
         if hook:
@@ -166,6 +178,7 @@ class ObjectServer(http.server.BaseHTTPRequestHandler):
             if value and self.server.flags.get("alter_commit_readback") and sha != self.server.parent_sha:
                 value = dict(value, message="tampered message\n")
                 self.server.flags["alter_commit_readback"] = False
+            value = self._wire_commit(value) if value else value
             self._reply(200, value) if value else self._reply(404, {"message": "Not Found"})
             return
         if self.path.startswith(prefix + "blobs/"):
@@ -249,7 +262,7 @@ class ObjectServer(http.server.BaseHTTPRequestHandler):
             result = {"sha": sha, "tree": {"sha": tree}, "parents": [{"sha": p} for p in parents],
                       "message": value["message"], "author": author, "committer": committer}
             self.server.commits[sha] = result
-            self._reply(201, result)
+            self._reply(201, self._wire_commit(result))
             return
         if self.path == prefix + "refs":
             ref = value.get("ref", "")
