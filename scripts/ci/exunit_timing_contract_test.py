@@ -1,0 +1,151 @@
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from exunit_timing_contract import validate
+
+
+class ExunitTimingContractTest(unittest.TestCase):
+    def setUp(self):
+        self.metadata = {
+            "exunit_reports": [
+                {"invocation": "main", "path": "ci-exunit-timing-main.json"},
+                {
+                    "invocation": "threadline_guard",
+                    "path": "ci-exunit-timing-threadline-guard.json",
+                },
+            ],
+            "timing_artifact_name": "library-test-timing-123-2",
+        }
+        self.reports = {
+            "main": self.report("main"),
+            "threadline_guard": self.report("threadline_guard"),
+        }
+        self.artifacts = {
+            "main": "library-test-timing-123-2",
+            "threadline_guard": "library-test-timing-123-2",
+        }
+
+    @staticmethod
+    def report(invocation):
+        return {
+            "complete": True,
+            "unit": "microsecond",
+            "invocation": invocation,
+            "counts": {"passed": 1, "failed": 0, "skipped": 0, "excluded": 0},
+            "tests": [
+                {
+                    "invocation": invocation,
+                    "test_id": "Same.test name",
+                    "duration_us": 13,
+                    "result": "passed",
+                    "unit": "microsecond",
+                }
+            ],
+            "suite_elapsed_us": 100,
+            "run_us": 90,
+            "test_duration_sum_us": 13,
+            "passed_count": 1,
+            "failed_count": 0,
+            "skipped_count": 0,
+            "excluded_count": 0,
+        }
+
+    def validate(self, metadata=None, reports=None, artifacts=None):
+        return validate(
+            metadata or self.metadata,
+            reports or self.reports,
+            artifacts or self.artifacts,
+            "123",
+            2,
+        )
+
+    def test_keeps_same_test_identity_separate_by_invocation(self):
+        result = self.validate()
+        self.assertTrue(result["valid"])
+        self.assertEqual(
+            [row["identity"] for row in result["tests"]],
+            ["main:Same.test name", "threadline_guard:Same.test name"],
+        )
+
+    def test_rejects_missing_main_report(self):
+        result = self.validate(reports={"threadline_guard": self.reports["threadline_guard"]})
+        self.assertFalse(result["valid"])
+        self.assertIn(
+            "complete_exunit_main_timing_missing_or_wrong_invocation",
+            result["diagnostics"],
+        )
+
+    def test_rejects_wrong_main_invocation(self):
+        reports = dict(self.reports)
+        reports["main"] = self.report("threadline_guard")
+        result = self.validate(reports=reports)
+        self.assertFalse(result["valid"])
+        self.assertIn(
+            "complete_exunit_main_timing_missing_or_wrong_invocation",
+            result["diagnostics"],
+        )
+
+    def test_rejects_missing_child_report(self):
+        result = self.validate(reports={"main": self.reports["main"]})
+        self.assertFalse(result["valid"])
+        self.assertIn(
+            "complete_exunit_threadline_guard_timing_missing_or_wrong_invocation",
+            result["diagnostics"],
+        )
+
+    def test_rejects_legacy_dependency_off_only_artifact(self):
+        metadata = dict(self.metadata)
+        metadata["exunit_reports"] = [
+            {"invocation": "threadline_guard", "path": "ci-exunit-timing.json"}
+        ]
+        result = validate(
+            metadata,
+            {"threadline_guard": self.reports["threadline_guard"]},
+            {"threadline_guard": "library-test-timing-123-2"},
+            "123",
+            2,
+        )
+        self.assertFalse(result["valid"])
+        self.assertIn(
+            "complete_exunit_main_timing_missing_or_wrong_invocation",
+            result["diagnostics"],
+        )
+        self.assertIn("exunit_producer_report_contract_missing", result["diagnostics"])
+
+    def test_rejects_empty_primary_report(self):
+        reports = dict(self.reports)
+        reports["main"] = self.report("main")
+        reports["main"]["tests"] = []
+        reports["main"]["counts"] = {"passed": 0, "failed": 0, "skipped": 0, "excluded": 0}
+        reports["main"]["passed_count"] = 0
+        reports["main"]["test_duration_sum_us"] = 0
+        result = self.validate(reports=reports)
+        self.assertFalse(result["valid"])
+        self.assertIn("exunit_main_report_empty", result["diagnostics"])
+
+    def test_reconciles_rows_result_counts_and_units(self):
+        reports = {name: dict(report) for name, report in self.reports.items()}
+        reports["main"] = self.report("main")
+        reports["main"]["tests"] = [dict(row, result="not-a-result") for row in reports["main"]["tests"]]
+        result = self.validate(reports=reports)
+        self.assertFalse(result["valid"])
+        self.assertIn("exunit_main_test_identity_invalid", result["diagnostics"])
+
+        reports["main"] = self.report("main")
+        reports["main"]["counts"]["passed"] = 0
+        result = self.validate(reports=reports)
+        self.assertIn("exunit_main_counts_do_not_match_rows", result["diagnostics"])
+
+    def test_preserves_nonserialized_excluded_count(self):
+        report = self.report("main")
+        report["counts"] = {"passed": 1, "failed": 0, "skipped": 0, "excluded": 3}
+        report["excluded_count"] = 3
+        result = self.validate(reports={"main": report, "threadline_guard": self.reports["threadline_guard"]})
+        self.assertTrue(result["valid"])
+        self.assertEqual(3, result["reports"][0]["excluded"])
+
+
+if __name__ == "__main__":
+    unittest.main()

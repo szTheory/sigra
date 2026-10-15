@@ -51,7 +51,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     assert terminal =~ "exit 1"
   end
 
-  test "the Phase 235 inventory exactly reconciles live specs and executable lane seams" do
+  test "the current inventory exactly reconciles live specs and executable lane seams" do
     inventory = inventory!()
 
     assert inventory["phase_235_gate_input"] == true

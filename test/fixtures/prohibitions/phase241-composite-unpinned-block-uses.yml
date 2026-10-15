@@ -1,0 +1,6 @@
+name: Block scalar fixture
+runs:
+  using: composite
+  steps:
+    - uses: >-
+        actions/checkout@v4
