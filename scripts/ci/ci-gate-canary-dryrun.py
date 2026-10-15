@@ -13,6 +13,14 @@ each run completes after a modeled number of polls; artifact zips and failed log
 
 The result is always synthetic: the evidence is labelled channel hermetic-https and can never become hosted proof.
 Prints one JSON summary object; exits 0 only when every driver mode, the publisher and the verifier passed.
+
+--live-policy (253-108) runs the same sequence with a LIVE canary allocation (mode live, the trusted download_hosts list,
+no test fields) and no SIGRA_CANARY_TEST_* variable, so every live branch of the transport, publisher and driver runs as
+it would against GitHub. Only the layer below every policy decision differs: the 253-107 live-policy shim maps
+api.github.com and the trusted download hosts on port 443 to the local fake, which serves them by Host header under a
+certificate for those names. GH_TOKEN is a fixed dummy inside the clone's environment only; the window id starts with
+253-dryrun-live-policy-, so the verifier's dry-run guard labels every result synthetic. A recording sleep on the
+recorder PATH logs each requested wait and sleeps only --sleep-scale of it.
 """
 
 from __future__ import annotations
@@ -65,6 +73,15 @@ FIXED_DATE = "Thu, 15 Oct 2026 00:00:00 GMT"
 DISPATCH_INPUTS = {"scenario", "candidate_sha", "fixture_sha", "fixture_blob", "matrix_evidence"}
 REQUIRED_INPUTS = {"scenario", "candidate_sha", "fixture_sha", "fixture_blob"}
 SHA40 = re.compile(r"[a-f0-9]{40}")
+# 253-108 live-policy mode.
+API_HOST = "api.github.com"
+BLOB_HOST = "productionresultssa17.blob.core.windows.net"
+PIPELINES_HOST = "pipelines.actions.githubusercontent.com"
+LIVE_TLS_NAMES = (API_HOST, "*.blob.core.windows.net", PIPELINES_HOST)
+LIVE_TOKEN = "dryrun-live-policy-not-a-credential"
+LIVE_WINDOW_PREFIX = "253-dryrun-live-policy-"
+R8_ALLOCATION_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json"
+SHIM_REL = "scripts/ci/ci-live-policy-shim.py"
 
 
 def load_module(name: str, path: Path):
@@ -77,6 +94,7 @@ def load_module(name: str, path: Path):
 TRANSPORT = load_module("ci_hosted_transport_for_dryrun", HERE / "ci-hosted-transport.py")
 OBJECT_TESTS = load_module("ci_git_publication_tests_for_dryrun", HERE / "ci-git-publication.test.py")
 ObjectServer = OBJECT_TESTS.ObjectServer
+PUBLISHER = load_module("ci_git_publication_for_dryrun", HERE / "ci-git-publication.py")
 
 
 class DryRunError(Exception):
@@ -215,10 +233,14 @@ class FakeGitHub(ObjectServer):
             body_sha = sha256_hex(self.server.last_body) if self.server.last_body else None
             if (pending.get("request_body_sha256") or None) != body_sha:
                 self.server.violations.append(f"request body differs from the charged ledger row: {self.path}")
+            if self.server.live and pending.get("host") != self._host():
+                self.server.violations.append(f"ledger host {pending.get('host')} differs from the Host header {self._host()}")
         row.update({"method": self.command, "actual_status": status, "scrubbed_headers": safe,
                     "response_sha256": sha256_hex(scrubbed), "response_body_base64": base64.b64encode(scrubbed).decode(),
                     "response_bytes": len(body), "scrubbed_response_bytes": len(scrubbed), "state": "complete",
                     "observed_path": self.path})
+        if self.server.live:
+            row["host"] = self._host()
         with self.server.lock:
             self.server.journal.append(row)
             atomic_write(Path(self.server.journal_path), json.dumps(self.server.journal).encode())
@@ -236,9 +258,34 @@ class FakeGitHub(ObjectServer):
         self.server.violations.append(f"{reason}: {self.command} {self.path}")
         self._reply(status, {"message": "Validation Failed", "documentation_url": "https://docs.github.com/rest"})
 
+    def _host(self):
+        return (self.headers.get("Host") or "").lower()
+
     def _guard(self):
         """None to serve normally; otherwise the request is answered here (credential refusal or an injected error)."""
-        if self.headers.get("Authorization"):
+        server = self.server
+        authorization = self.headers.get("Authorization")
+        if server.live:
+            # 253-108: requests are routed by Host header. api.github.com must carry exactly the dummy bearer token and
+            # never a download path; the blob host must carry no Authorization and serve only the paths this fake issued.
+            host, download = self._host(), urlsplit(self.path).path.startswith("/_downloads/")
+            if host == API_HOST:
+                if authorization == f"Bearer {LIVE_TOKEN}":
+                    server.authorization["api_with"] += 1
+                else:
+                    server.authorization["api_without"] += 1
+                    server.violations.append(f"api.github.com request without the dummy bearer token: {self.command} {self.path}")
+                if download:
+                    return lambda: self._refuse("a download path was requested on api.github.com", 404)
+            elif host == BLOB_HOST:
+                if authorization:
+                    server.authorization["blob_with"] += 1
+                    server.violations.append(f"Authorization reached the blob host: {self.command} {urlsplit(self.path).path}")
+                if not download:
+                    return lambda: self._refuse("the blob host serves only issued download paths", 404)
+            else:
+                return lambda: self._refuse(f"request for an unmodeled Host {host!r}", 421)
+        elif authorization:
             self.server.violations.append("a credential reached the local fake")
             return lambda: self._reply(400, {"message": "dry-run fake refuses credentials"})
         key = self.command + " " + urlsplit(self.path).path
@@ -535,12 +582,16 @@ class FakeGitHub(ObjectServer):
             record = server.runs.get(identifier)
             if record is None or not record.get("completed") or record.get("conclusion") != "failure":
                 return self._reply(404, {"message": "Not Found"})
-        location = f"https://localhost:{server.server_address[1]}/_downloads/{kind}/{identifier}?sig=dry-run-signature"
+        if server.live:
+            # GitHub answers with a pre-signed blob URL on port 443 (no explicit port); the transport must follow it.
+            location = f"https://{BLOB_HOST}/_downloads/{kind}/{identifier}?sv=2025&sig=dry-run-signature"
+        else:
+            location = f"https://localhost:{server.server_address[1]}/_downloads/{kind}/{identifier}?sig=dry-run-signature"
         self._send(302, b"", extra=[("Location", location)])
 
     def _download(self, path, query):
         match = re.fullmatch(r"/_downloads/(artifacts|logs)/(\d+)", path)
-        if not match or set(query) != {"sig"}:
+        if not match or set(query) != ({"sv", "sig"} if self.server.live else {"sig"}):
             return self._refuse("download host path is not one this fake issued", 404)
         kind, identifier = match.group(1), int(match.group(2))
         if kind == "artifacts":
@@ -608,11 +659,16 @@ class FakeServer(OBJECT_TESTS.ObjectHTTPServer):
 
 
 def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_parent: str, verifier_module,
-               visibility_delay: float, polls: dict, seed_legacy: bool):
+               visibility_delay: float, polls: dict, seed_legacy: bool, live: bool = False):
     cert, key = work / "tls-cert.pem", work / "tls-key.pem"
-    run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1", "-subj", "/CN=localhost",
-         "-addext", "subjectAltName=DNS:localhost", "-keyout", str(key), "-out", str(cert)])
+    # Live-policy mode: a certificate for the real hostnames, so SNI and hostname verification use them (253-108).
+    names = LIVE_TLS_NAMES if live else ("localhost",)
+    run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
+         "-subj", "/CN=" + ("sigra-live-policy-dry-run" if live else "localhost"),
+         "-addext", "subjectAltName=" + ",".join(f"DNS:{name}" for name in names), "-keyout", str(key), "-out", str(cert)])
     server = FakeServer(("127.0.0.1", 0), FakeGitHub)
+    server.live = live
+    server.authorization = {"api_with": 0, "api_without": 0, "blob_with": 0}
     server.work = str(work)
     server.git_dir = str(work / "fake-github.git")
     run(["git", "init", "--bare", "-q", server.git_dir])
@@ -760,6 +816,60 @@ def scrubbed_env(work: Path, extra: dict | None = None) -> dict:
     return env
 
 
+SLEEP_RECORDER = """#!/bin/sh
+# 253-108 recording sleep: logs the requested duration and the category of the last charged request (so a wait is
+# classified by what preceded it, not by its value), then sleeps only the scaled fraction.
+last=$(jq -r '(.transactions // [])[-1].category // "none"' {ledger} 2>/dev/null) || last=none
+printf '%s %s\\n' "$1" "${{last:-none}}" >> {log}
+exec /bin/sleep "$(awk -v d="$1" -v s={scale} 'BEGIN {{ printf "%.3f", d * s }}')"
+"""
+
+
+SITECUSTOMIZE_CHAIN = '''# 253-108 runner: the shim's sitecustomize shadows the interpreter's own (Homebrew's adds its site-packages, where
+# PyYAML lives), so load the next sitecustomize on sys.path first. Paths only; no network behaviour changes.
+import importlib.util as _chain_util
+import os as _chain_os
+import sys as _chain_sys
+_chain_here = _chain_os.path.dirname(_chain_os.path.abspath(__file__))
+for _chain_entry in list(_chain_sys.path):
+    _chain_dir = _chain_os.path.abspath(_chain_entry or ".")
+    _chain_file = _chain_os.path.join(_chain_dir, "sitecustomize.py")
+    if _chain_dir != _chain_here and _chain_os.path.isfile(_chain_file):
+        _chain_spec = _chain_util.spec_from_file_location("_sigra_chained_sitecustomize", _chain_file)
+        _chain_spec.loader.exec_module(_chain_util.module_from_spec(_chain_spec))
+        break
+'''
+
+
+def chain_interpreter_sitecustomize(path: Path) -> None:
+    """Prepend the chain to the shim's generated sitecustomize (a work-dir copy; the shim source is unchanged)."""
+    path.write_text(SITECUSTOMIZE_CHAIN + path.read_text())
+
+
+def install_recording_sleep(work: Path, ledger: Path, scale: float) -> Path:
+    log = work / "requested-sleeps.log"
+    stub = work / "recorder-bin" / "sleep"
+    stub.parent.mkdir(exist_ok=True)
+    quote = lambda value: "'" + str(value).replace("'", "'\\''") + "'"  # noqa: E731
+    stub.write_text(SLEEP_RECORDER.format(ledger=quote(ledger), log=quote(log), scale=quote(scale)))
+    stub.chmod(0o755)
+    return log
+
+
+def requested_sleeps(log: Path | None) -> dict:
+    """Each requested wait, grouped by the request that preceded it: dispatch (discovery) or a watch read (poll)."""
+    result = {"discovery": [], "poll": [], "other": []}
+    if log is None or not log.exists():
+        return result
+    for line in log.read_text().splitlines():
+        duration, _, last = line.partition(" ")
+        value = float(duration)
+        value = int(value) if value.is_integer() else value
+        group = {"dispatch": "discovery", "pre_watch_rate": "poll", "terminal_polls": "poll"}.get(last.strip(), "other")
+        result[group].append(value if group != "other" else {"seconds": value, "after": last.strip()})
+    return result
+
+
 def category_counts(ledger: dict) -> dict:
     counts: dict = {}
     for row in ledger.get("transactions", []):
@@ -771,8 +881,12 @@ def dry_run(args) -> dict:
     started = time.monotonic()
     # Resolved, so paths handed to the driver match its pwd -P root (macOS /var is a symlink to /private/var).
     work = Path(tempfile.mkdtemp(prefix="sigra-253-dryrun-")).resolve()
+    live = bool(getattr(args, "live_policy", False))
     summary = {"status": "failed", "synthetic": True, "freeze_plan": None, "scenarios": [], "verifier": {"status": "pending"},
-               "requests_by_category": {}, "requests_total": 0, "journal_requests": 0, "stop": None}
+               "requests_by_category": {}, "requests_total": 0, "journal_requests": 0, "stop": None,
+               "mode": "live-policy" if live else "hermetic", "live_hops": [],
+               "authorization": {"api_with": 0, "api_without": 0, "blob_with": 0},
+               "requested_sleeps": requested_sleeps(None), "shim_refusals": [], "shim_connect_hosts": [], "violations": []}
     if args.driver_from:
         summary["driver_from"] = args.driver_from
     if args.driver_patch:
@@ -795,8 +909,12 @@ def dry_run(args) -> dict:
         for item in args.polls or []:
             name, _, count = item.partition("=")
             polls[name] = int(count)
+        visibility = args.visibility_delay
+        if visibility is None:
+            # Live-policy: below the scaled 20-second discovery wait, so the one charged listing finds the run.
+            visibility = 0.05 if live else 3.0
         server, thread, cert = start_fake(work, clone, ledger, journal, freeze["identity"]["server_parent_sha"],
-                                          verifier_module, args.visibility_delay, polls, args.seed_legacy_refs)
+                                          verifier_module, visibility, polls, args.seed_legacy_refs, live=live)
         server.faults = set(args.fault or [])
         for item in args.inject or []:
             key, _, status = item.rpartition("=")
@@ -812,13 +930,31 @@ def dry_run(args) -> dict:
                                           {"path": str(clone / manifest["path"]), "sha256": manifest["sha256"]},
                                           {"path": str(clone / FIXTURE_REL), "sha256": sha256_hex((clone / FIXTURE_REL).read_bytes())}],
                       "test_origin": f"https://localhost:{port}", "test_ca_file": str(cert)}
-        allocation_path = work / "hermetic-canary-allocation.json"
+        sleep_log = None
+        if live:
+            # 253-108: the live canary allocation shape (as 253-104's), trusted hosts from ALLOCATION-R8, no test fields.
+            del allocation["test_origin"], allocation["test_ca_file"]
+            allocation.update({"window_id": f"{LIVE_WINDOW_PREFIX}{os.getpid()}", "max_pages": 10, "mode": "live",
+                               "download_hosts": list(json.loads((ROOT / R8_ALLOCATION_REL).read_text())["download_hosts"])})
+            shim = load_module("ci_live_policy_shim_for_dryrun", clone / SHIM_REL)
+            connect_log = work / "shim-connect.log"
+            refusal_log = shim.refusal_log_for(connect_log)
+            shim_env = shim.prepare(work / "live-policy-shim", {API_HOST: port, BLOB_HOST: port, PIPELINES_HOST: port},
+                                    cert, connect_log)
+            chain_interpreter_sitecustomize(Path(shim_env["PYTHONPATH"]) / "sitecustomize.py")
+            sleep_log = install_recording_sleep(work, ledger, args.sleep_scale)
+            env = scrubbed_env(work, {**shim_env, "GH_TOKEN": LIVE_TOKEN})
+        allocation_path = work / ("live-policy-canary-allocation.json" if live else "hermetic-canary-allocation.json")
         allocation_path.write_text(json.dumps(allocation, indent=2) + "\n")
-        overrides = {"SIGRA_CANARY_TEST_POLL_SECONDS": str(args.poll_seconds),
-                     "SIGRA_CANARY_TEST_SERVER_JOURNAL": str(journal)}
-        if args.discovery_wait is not None:
-            overrides["SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS"] = str(args.discovery_wait)
-        env = scrubbed_env(work, overrides)
+        summary["allocation"] = {key: allocation[key] for key in ("mode", "allocation_kind", "window_id", "download_hosts",
+                                                                  "max_requests", "max_pages", "max_hops")}
+        summary["allocation"]["fields"] = sorted(allocation)
+        if not live:
+            overrides = {"SIGRA_CANARY_TEST_POLL_SECONDS": str(0.05 if args.poll_seconds is None else args.poll_seconds),
+                         "SIGRA_CANARY_TEST_SERVER_JOURNAL": str(journal),
+                         "SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS": str(4.0 if args.discovery_wait is None else args.discovery_wait)}
+            env = scrubbed_env(work, overrides)
+        summary["test_overrides"] = sorted(key for key in env if key.startswith("SIGRA_CANARY_TEST_"))
         common = ["--revision-freeze", str(freeze_path), "--action-approval", str(prepared["approval"]),
                   "--http-allocation", str(allocation_path), "--requests", str(ledger), "--evidence", str(evidence),
                   "--publication-receipt", str(receipt)]
@@ -859,6 +995,20 @@ def dry_run(args) -> dict:
         for row in ledger_value.get("transactions", []):
             routes[row.get("route_id")] = routes.get(row.get("route_id"), 0) + 1
         summary["requests_by_route"] = routes
+        summary["live_hops"] = [{"route": row.get("route_id"), "hop_ordinal": row.get("hop_ordinal"), "host": row.get("host"),
+                                 "status": row.get("actual_status"), "category": row.get("category")}
+                                for row in ledger_value.get("transactions", []) if (row.get("hop_ordinal") or 0) >= 1]
+        summary["authorization"] = dict(server.authorization)
+        summary["requested_sleeps"] = requested_sleeps(sleep_log)
+        if live:
+            summary["shim_refusals"] = shim.read_log(refusal_log)
+            summary["shim_connect_hosts"] = sorted({entry.get("host") for entry in shim.read_log(connect_log)})
+        if receipt.exists():
+            receipt_value = json.loads(receipt.read_text())
+            origin = receipt_value.get("origin") or {}
+            summary["publication"] = {"status": receipt_value.get("status"), "origin_kind": origin.get("kind"),
+                                      "origin_window_id": origin.get("window_id"),
+                                      "verifier_dryrun_window": verifier_module.dryrun_window(receipt_value)}
         created = git(clone, "ls-files", "--others", "--exclude-standard", "--", PHASE_REL).splitlines()
         summary["preflight_copies"] = sorted(Path(rel).name for rel in created if "PREFLIGHT" in rel)
         summary["requests_total"] = len(ledger_value.get("transactions", []))
@@ -869,6 +1019,8 @@ def dry_run(args) -> dict:
         summary["evidence_status"] = evidence_value.get("status")
         summary["evidence_has_preflight"] = bool(evidence_value.get("preflight"))
         summary["evidence_diagnostics"] = evidence_value.get("diagnostics")
+        if "publication" in summary:
+            summary["publication"]["fixture_ref_state"] = (evidence_value.get("expected") or {}).get("fixture_ref_state")
         verify = clone / "scripts/ci/ci-hosted-gate-verify.py"
         for name in SCENARIOS:
             if name in (evidence_value.get("scenarios") or {}):
@@ -896,8 +1048,15 @@ def dry_run(args) -> dict:
             problems.append("infrastructure_retry was used")
         if summary["journal_requests"] != summary["requests_total"]:
             problems.append("server journal and ledger counts differ")
+        summary["violations"] = list(server.violations)
         if server.violations:
             problems.append("fake GitHub violations: " + "; ".join(server.violations[:5]))
+        if summary["shim_refusals"]:
+            problems.append(f"the live-policy shim refused a real network destination: {summary['shim_refusals'][:3]}")
+        if summary["requested_sleeps"]["other"]:
+            problems.append(f"a sleep followed an unexpected request: {summary['requested_sleeps']['other'][:3]}")
+        if live and summary["test_overrides"]:
+            problems.append(f"a test-only override was set in live-policy mode: {summary['test_overrides']}")
         network = work / "network-commands"
         if network.exists():
             problems.append("a network command was invoked: " + network.read_text()[:200])
@@ -936,14 +1095,22 @@ def main() -> int:
     parser.add_argument("--driver-patch", help="JSON {name, old, new}: an exactly-once reintroduction patch for the driver")
     parser.add_argument("--seed-legacy-refs", action="store_true",
                         help="pre-seed the two refs 253-97 left on GitHub; they must not change")
-    parser.add_argument("--ref-pair", help="forwarded to --build-freeze (253-102 adds the option; never passed here)")
+    parser.add_argument("--ref-pair", choices=sorted(PUBLISHER.REF_PAIRS),
+                        help="forwarded to --build-freeze for the derived synthetic freeze: one of the publisher's REF_PAIRS "
+                             f"({', '.join(sorted(PUBLISHER.REF_PAIRS))}; the publisher's default is "
+                             f"{PUBLISHER.DEFAULT_REF_PAIR}); ignored with --revision-freeze")
     parser.add_argument("--revision-freeze", help="use this committed freeze (repository-relative) instead of deriving one")
     parser.add_argument("--server-parent", help="server parent for the derived synthetic freeze (default: the R7 freeze's)")
-    parser.add_argument("--visibility-delay", type=float, default=3.0,
-                        help="modeled seconds before a dispatched run is listable (default 3)")
-    parser.add_argument("--discovery-wait", type=float, default=4.0,
+    parser.add_argument("--visibility-delay", type=float, default=None,
+                        help="modeled seconds before a dispatched run is listable (default 3; 0.05 with --live-policy)")
+    parser.add_argument("--discovery-wait", type=float, default=None,
                         help="hermetic-only SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS (default 4; live is 20)")
-    parser.add_argument("--poll-seconds", type=float, default=0.05, help="hermetic-only SIGRA_CANARY_TEST_POLL_SECONDS")
+    parser.add_argument("--poll-seconds", type=float, default=None,
+                        help="hermetic-only SIGRA_CANARY_TEST_POLL_SECONDS (default 0.05)")
+    parser.add_argument("--live-policy", action="store_true",
+                        help="253-108: a live canary allocation through the live-policy shim (see the module docstring)")
+    parser.add_argument("--sleep-scale", type=float, default=0.01,
+                        help="live-policy: fraction of each requested driver sleep actually slept (default 0.01)")
     parser.add_argument("--polls", action="append", help="SCENARIO=N modeled polls to completion (repeatable)")
     parser.add_argument("--inject", action="append", help="'METHOD /path=STATUS': answer that request once with STATUS")
     parser.add_argument("--reenter", action="store_true", help="after a failed driver mode, run it once more (halt guard check)")
@@ -955,6 +1122,10 @@ def main() -> int:
     parser.add_argument("--keep", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--verbose", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.live_policy and (args.discovery_wait is not None or args.poll_seconds is not None):
+        parser.error("--discovery-wait and --poll-seconds are hermetic-only; live-policy runs the live 20/60-second waits")
+    if args.sleep_scale < 0:
+        parser.error("--sleep-scale must be non-negative")
     for key in ("GH_TOKEN", "GITHUB_TOKEN"):
         os.environ.pop(key, None)
     summary = dry_run(args)
