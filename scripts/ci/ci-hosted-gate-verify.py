@@ -835,6 +835,18 @@ WORKFLOW_ID = 259268962
 DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
 CLASSIFIER_JOB = "Detect docs-only change"
 PR_FAMILIES = ("normal", "docs-only")
+# 253-102: the frozen normal head is the candidate ref the canary freeze selected, one of exactly these two names
+# (ci-git-publication.py REF_PAIRS); base main. The docs-only refs never vary.
+PR_NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate")
+PR_DOCS_REFS = ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")
+
+
+def require_pr_refs(family, head_ref, base_ref):
+    if family == "normal":
+        valid = isinstance(head_ref, str) and head_ref in PR_NORMAL_HEADS and base_ref == "main"
+    else:
+        valid = family == "docs-only" and (head_ref, base_ref) == PR_DOCS_REFS
+    require(valid, "frozen PR head/base refs are not the exact proof refs")
 MAX_PR_EVIDENCE_BYTES = 128 * 1024 * 1024
 MAX_PRODUCER_ZIP_BYTES = 4 * 1024 * 1024
 MAX_PRODUCER_MEMBER_BYTES = 64 * 1024 * 1024
@@ -1093,9 +1105,7 @@ def verify_pr_family(evidence, family, _capture=None):
     for key in ("head_sha", "workflow_blob"):
         require(isinstance(spec.get(key), str) and SHA40.fullmatch(spec[key]), f"frozen {key} is malformed")
     head_sha, head_ref, base_ref = spec["head_sha"], spec.get("head_ref"), spec.get("base_ref")
-    expected_refs = ({"head": "gsd/253-replan-candidate", "base": "main"} if family == "normal"
-                     else {"head": "gsd/253-replan-docs-head", "base": "gsd/253-replan-docs-base"})
-    require(head_ref == expected_refs["head"] and base_ref == expected_refs["base"], "frozen PR head/base refs are not the exact proof refs")
+    require_pr_refs(family, head_ref, base_ref)
     transactions = evidence["transport_ledger"]["transactions"]
     shared = [tx for tx in transactions if tx["family"] == "shared"]
     require(sum(1 for tx in shared if tx["route_id"] == "branch_protection") == 1

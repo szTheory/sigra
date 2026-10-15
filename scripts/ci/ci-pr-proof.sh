@@ -50,7 +50,10 @@ WORKFLOW_PATH = ".github/workflows/ci.yml"
 DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
 CI_PATH = WORKFLOW_PATH
 SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
-FAMILY_REFS = {"normal": ("gsd/253-replan-candidate", "main"),
+# 253-102: the normal head is the candidate ref the canary freeze selected, one of exactly these two names
+# (ci-git-publication.py REF_PAIRS); the docs-only refs never vary.
+NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate")
+FAMILY_REFS = {"normal": (NORMAL_HEADS, "main"),
                "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")}
 TERMINAL_POLLS = {"normal": 15, "docs-only": 12}
 
@@ -102,6 +105,18 @@ def git(repo, *args, data=None):
     return result.stdout
 
 
+def frozen_refs(family, spec):
+    """(head_ref, base_ref) of a frozen family; the normal head must be one of the two known candidate names."""
+    head_ref, base_ref = (spec or {}).get("head_ref"), (spec or {}).get("base_ref")
+    if family == "normal":
+        valid = isinstance(head_ref, str) and head_ref in NORMAL_HEADS and base_ref == FAMILY_REFS["normal"][1]
+    else:
+        valid = (head_ref, base_ref) == FAMILY_REFS[family]
+    if not valid:
+        raise SystemExit(f"ci-pr-proof: {family} refs are not the exact proof refs")
+    return head_ref, base_ref
+
+
 def bound_document(path):
     full = Path(path) if Path(path).is_absolute() else ROOT / path
     return {"path": path, "sha256": sha256(full.read_bytes())}
@@ -124,6 +139,10 @@ def prepare(args):
         raise SystemExit("ci-pr-proof: publication receipt does not bind the ready manifest and candidate")
     parent, candidate = manifest["server_parent_sha"], manifest["candidate_helper_commit"]
     docs_base, docs_head = manifest["docs_base_commit"], manifest["docs_head_commit"]
+    candidate_ref = receipt.get("candidate_ref")
+    normal_head = candidate_ref.removeprefix("refs/heads/") if isinstance(candidate_ref, str) and candidate_ref.startswith("refs/heads/") else None
+    if normal_head not in NORMAL_HEADS:
+        raise SystemExit("ci-pr-proof: the publication receipt's candidate_ref is not one of the two known candidate refs")
     if manifest.get("docs_head_path") != DOCS_PATH:
         raise SystemExit("ci-pr-proof: manifest documentation path is not the exact proof file")
 
@@ -143,7 +162,7 @@ def prepare(args):
         "workflow": {"id": WORKFLOW_ID, "path": WORKFLOW_PATH}, "required_names": list(verifier.REQUIRED_NAMES),
         "source": {"manifest_sha256": sha256(manifest_path.read_bytes()), "publication_receipt_sha256": sha256(receipt_path.read_bytes()),
                    "source_sha": manifest["source_sha"], "server_parent_sha": parent},
-        "normal": {"head_ref": FAMILY_REFS["normal"][0], "base_ref": "main", "head_sha": candidate,
+        "normal": {"head_ref": normal_head, "base_ref": "main", "head_sha": candidate,
                    "workflow_blob": blob(candidate, CI_PATH), "local_diff_paths": normal_paths},
         "docs-only": {"head_ref": FAMILY_REFS["docs-only"][0], "base_ref": FAMILY_REFS["docs-only"][1],
                       "head_sha": docs_head, "base_sha": docs_base, "workflow_blob": blob(docs_base, CI_PATH),
@@ -174,9 +193,7 @@ def check_freeze(freeze_path, allocation_path=None):
     if stated != sha256(canonical({key: value for key, value in freeze.items() if key != "freeze_sha256"})):
         raise SystemExit("ci-pr-proof: freeze digest differs from its content")
     for family in ("normal", "docs-only"):
-        spec = freeze.get(family) or {}
-        if (spec.get("head_ref"), spec.get("base_ref")) != FAMILY_REFS[family]:
-            raise SystemExit(f"ci-pr-proof: {family} refs are not the exact proof refs")
+        frozen_refs(family, freeze.get(family))
     for item in freeze.get("bound_documents") or []:
         bound = Path(item["path"])
         if sha256((bound if bound.is_absolute() else ROOT / bound).read_bytes()) != item["sha256"]:
@@ -214,7 +231,7 @@ def approved_section(args):
         publisher.check_revision_freeze(Path(args.revision_freeze), repo)
     except Exception as error:  # noqa: BLE001 - every malformed-freeze failure is the same uniform pre-request refusal
         raise SystemExit(f"ci-pr-proof: approval refused: {type(error).__name__}: {error}")
-    return freeze["outward_actions"]["docs_and_prs"], record
+    return freeze["outward_actions"]["docs_and_prs"], record, (freeze.get("identity") or {}).get("candidate_ref")
 
 
 # --------------------------------------------------------------------------------------- collection
@@ -242,7 +259,7 @@ class Collector:
 
     def check_section(self):
         """The approved docs_and_prs section must list exactly the objects and draft PR this family would create."""
-        head_ref, base_ref = FAMILY_REFS[self.family]
+        head_ref, base_ref = frozen_refs(self.family, self.spec)
         creates = [item for item in self.actions("pr_create") if item.get("family") == self.family]
         if (len(creates) != 1 or creates[0].get("head") != head_ref or creates[0].get("base") != base_ref
                 or creates[0].get("draft") is not True):
@@ -369,7 +386,7 @@ class Collector:
         time.sleep(max(0, int(self.freeze["poll"]["interval_seconds"])))
 
     def collect(self):
-        head_ref, base_ref = FAMILY_REFS[self.family]
+        head_ref, base_ref = frozen_refs(self.family, self.spec)
         head_sha = self.spec["head_sha"]
         self.preflight()
         if self.family == "docs-only":
@@ -447,7 +464,15 @@ class Collector:
 
 
 def run_family(args):
-    section, action_approval = approved_section(args)
+    section, action_approval, revision_candidate_ref = approved_section(args)
+    # Every live family run binds the PR freeze's normal head to the candidate ref the approved canary freeze selected.
+    try:
+        normal_head = (read_json(args.freeze).get("normal") or {}).get("head_ref")
+    except (OSError, ValueError, AttributeError) as error:
+        raise SystemExit(f"ci-pr-proof: the PR freeze is unreadable: {error}")
+    if normal_head not in NORMAL_HEADS or revision_candidate_ref != "refs/heads/" + normal_head:
+        raise SystemExit("ci-pr-proof: the PR freeze normal head ref differs from the revision freeze candidate_ref "
+                         f"({normal_head!r} vs {revision_candidate_ref!r})")
     if Path(args.evidence).exists():
         raise SystemExit(f"ci-pr-proof: {args.evidence} already exists; refusing to overwrite the recorded window and downloads "
                          "(continue the shared ledger with a new --evidence path; the earlier file stays as the record)")

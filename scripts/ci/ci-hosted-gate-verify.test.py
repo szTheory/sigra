@@ -824,6 +824,31 @@ class PRVerifierContractTests(unittest.TestCase):
                 with self.assertRaises(self.module.VerificationError):
                     self.module.verify_pr_family({"schema_version": "sigra.phase253.pr-proof-evidence/v1", "family": family}, family)
 
+    def test_253_102_normal_head_is_one_of_the_two_candidate_names_and_docs_refs_stay_exact(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("publisher_for_pr_heads", ROOT / "scripts/ci/ci-git-publication.py")
+        publisher = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(publisher)
+        self.assertEqual(set(self.module.PR_NORMAL_HEADS), {pair["candidate"] for pair in publisher.REF_PAIRS.values()})
+        self.assertEqual(set(self.module.PR_NORMAL_HEADS), {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate"})
+        for head in ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate"):
+            with self.subTest(accepted=head):
+                self.module.require_pr_refs("normal", head, "main")
+        self.module.require_pr_refs("docs-only", "gsd/253-replan-docs-head", "gsd/253-replan-docs-base")
+        refused = [("normal", "gsd/253-replan-fixture", "main"), ("normal", "gsd/253-replan-r8-fixture", "main"),
+                   ("normal", "gsd/253-replan-r9-candidate", "main"), ("normal", "refs/heads/gsd/253-replan-r8-candidate", "main"),
+                   ("normal", "gsd/253-replan-docs-head", "main"), ("normal", "gsd/253-replan-r8-candidate", "gsd/253-replan-docs-base"),
+                   ("normal", None, "main"), ("docs-only", "gsd/253-replan-r8-candidate", "gsd/253-replan-docs-base"),
+                   ("docs-only", "gsd/253-replan-candidate", "gsd/253-replan-docs-base"),
+                   ("docs-only", "gsd/253-replan-docs-head", "main")]
+        for family, head, base in refused:
+            with self.subTest(refused=(family, head, base)):
+                with self.assertRaisesRegex(self.module.VerificationError, "frozen PR head/base refs are not the exact proof refs"):
+                    self.module.require_pr_refs(family, head, base)
+        source = Path(VERIFY).read_text()
+        pr_family = source[source.index("def verify_pr_family"):source.index("def verify_docs_workflow_relation")]
+        self.assertIn("require_pr_refs(family, head_ref, base_ref)", pr_family)
+
     def test_pr_cli_requires_known_modes_and_both_evidence_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "empty.json"

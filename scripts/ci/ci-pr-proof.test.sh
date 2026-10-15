@@ -238,9 +238,12 @@ class PRHandler(pubtest.ObjectServer):
 class World:
     """One complete hermetic Phase253 PR universe: temp git repo, published objects, TLS server, freeze and allocation."""
 
-    def __init__(self, test, flags=None, tag="world", mutate_section=None):
+    def __init__(self, test, flags=None, tag="world", mutate_section=None, ref_pair=None, seed_legacy_refs=False):
         self.test = test
         self.mutate_section = mutate_section
+        self.ref_pair = ref_pair  # 253-102: None publishes without a canary freeze (legacy pair); "r8"/"legacy" publish under a freeze
+        self.seed_legacy_refs = seed_legacy_refs
+        self.canary_freeze_path = None
         self.dir = pathlib.Path(tempfile.mkdtemp(prefix=f"sigra-pr-proof-{tag}-"))
         test.addCleanup(shutil.rmtree, self.dir, True)
         self.flags = dict(flags or {})
@@ -316,9 +319,21 @@ class World:
                               "test_ca_file": str(cert)}
         (d / "publication-allocation.json").write_text(json.dumps(publish_allocation))
         self.receipt_path = d / "publication-receipt.json"
+        if self.seed_legacy_refs:
+            self.seeded_refs = {"gsd/253-replan-candidate": self.parent, "gsd/253-replan-fixture": self.parent}
+            server.refs.update(self.seeded_refs)
+        freeze_args = []
+        if self.ref_pair:
+            # Publish under the canary revision freeze, as the canary does, so the receipt carries the freeze's ref pair.
+            self.build_canary_freeze()
+            canary_approval = self.write_approval("canary", "approval-canary", commit=True)
+            publish_allocation.update({"allocation_kind": "canary", "max_requests": 117, "max_elapsed_seconds": 3600,
+                                       "source_sha256": sha(self.canary_freeze_path.read_bytes())})
+            (d / "publication-allocation.json").write_text(json.dumps(publish_allocation))
+            freeze_args = ["--freeze", self.canary_freeze_path, "--action-approval", canary_approval]
         published = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--publish", "--manifest", self.manifest_path,
                         "--allocation", d / "publication-allocation.json", "--ledger", self.ledger_path,
-                        "--receipt", self.receipt_path, "--repo-root", self.repo, cwd=ROOT, timeout=120)
+                        "--receipt", self.receipt_path, "--repo-root", self.repo, *freeze_args, cwd=ROOT, timeout=120)
         assert published.returncode == 0, published.stderr
         self.publication_requests = len(server.journal)
         server.journal.clear()  # the PR window is a separate allocation with its own independent journal
@@ -344,18 +359,26 @@ class World:
         self.ledger = d / "pr-ledger.json"
         self.server.ledger_path = str(self.ledger)
 
-    def build_approval(self, mutate_section=None):
-        """The real revision freeze (built by the publisher from the committed tree) plus a committed docs_and_prs approval."""
-        publisher = load(ROOT / "scripts/ci/ci-git-publication.py", "publisher")
+    def build_canary_freeze(self):
+        """The real revision freeze, built by the publisher from the committed tree (with the world's ref pair, if any)."""
         manifest_rel = f"{pubtest.PHASE_REL}/253-LOAD-RECOVERY-CANARY-PUBLICATION.json"
         freeze_rel = f"{pubtest.PHASE_REL}/253-LOAD-RECOVERY-CANARY-FREEZE.json"
         (self.repo / manifest_rel).write_bytes(self.manifest_path.read_bytes())
         git(self.repo, "add", manifest_rel)
         git(self.repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: publication manifest")
         built = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--build-freeze", "--manifest", manifest_rel,
-                    "--output", freeze_rel, "--repo-root", self.repo, cwd=ROOT)
+                    "--output", freeze_rel, "--repo-root", self.repo, *(["--ref-pair", self.ref_pair] if self.ref_pair else []), cwd=ROOT)
         assert built.returncode == 0, built.stderr
         self.canary_freeze_path = self.repo / freeze_rel
+        git(self.repo, "add", freeze_rel)
+        git(self.repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: canary freeze")
+        self.digests = json.loads(self.canary_freeze_path.read_text())["outward_actions_sha256"]
+
+    def build_approval(self, mutate_section=None):
+        """The real revision freeze (built by the publisher from the committed tree) plus a committed docs_and_prs approval."""
+        publisher = load(ROOT / "scripts/ci/ci-git-publication.py", "publisher")
+        if self.canary_freeze_path is None:
+            self.build_canary_freeze()
         freeze = json.loads(self.canary_freeze_path.read_text())
         if mutate_section:
             mutate_section(freeze["outward_actions"])
@@ -1164,6 +1187,127 @@ class SectionApprovalTests(unittest.TestCase):
                          "docs objects already published under the docs_publication category were published again")
         counted = [tx for tx in json.loads(path.read_text())["transport_ledger"]["transactions"] if tx.get("category") == "docs_publication"]
         self.assertEqual(len(counted), 14)
+
+
+class RefPairTests(unittest.TestCase):
+    """253-102: the normal PR head is the freeze-selected candidate ref, one of exactly two code-pinned names."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._cleanups = []
+        cls.holder = unittest.TestCase()
+        cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
+        cls.r8 = World(cls.holder, tag="r8", ref_pair="r8", seed_legacy_refs=True)
+        cls.legacy = World(cls.holder, tag="legacy-pair", ref_pair="legacy")
+
+    @classmethod
+    def tearDownClass(cls):
+        for fn, a, k in reversed(cls._cleanups):
+            try:
+                fn(*a, **k)
+            except Exception:
+                pass
+
+    def retarget(self, world, head_ref, name):
+        """A copy of the world's PR freeze whose normal head is head_ref, re-digested, plus an allocation bound to it."""
+        freeze = json.loads(world.freeze_path.read_text())
+        freeze["normal"]["head_ref"] = head_ref
+        freeze["freeze_sha256"] = sha(json.dumps({k: v for k, v in freeze.items() if k != "freeze_sha256"}, sort_keys=True,
+                                                 ensure_ascii=False, separators=(",", ":")).encode())
+        path = world.dir / f"{name}-freeze.json"
+        path.write_text(json.dumps(freeze, indent=2, sort_keys=True) + "\n")
+        allocation = world.dir / f"{name}-allocation.json"
+        allocation.write_text(json.dumps({**world.allocation, "source_sha256": sha(path.read_bytes())}))
+        return path, allocation
+
+    def collect_with(self, world, family, freeze, allocation, name):
+        evidence = world.dir / f"{name}.json"
+        process = run("bash", PROOF, "--family", family, "--freeze", freeze, "--allocation", allocation, "--evidence", evidence,
+                      "--requests", world.dir / f"{name}-ledger.json", "--repo-root", world.repo,
+                      "--revision-freeze", world.canary_freeze_path, "--action-approval", world.approval_path, cwd=ROOT, timeout=600)
+        return process, evidence
+
+    def test_an_r8_freeze_yields_the_r8_head_and_the_normal_family_verifies_beside_seeded_legacy_refs(self):
+        w = self.r8
+        canary = json.loads(w.canary_freeze_path.read_text())
+        self.assertEqual(canary["identity"]["candidate_ref"], "refs/heads/gsd/253-replan-r8-candidate")
+        self.assertEqual(json.loads(w.receipt_path.read_text())["candidate_ref"], "refs/heads/gsd/253-replan-r8-candidate")
+        self.assertEqual(w.freeze["normal"]["head_ref"], "gsd/253-replan-r8-candidate")
+        self.assertEqual((w.freeze["docs-only"]["head_ref"], w.freeze["docs-only"]["base_ref"]),
+                         ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base"))
+        for name, value in w.seeded_refs.items():
+            self.assertEqual(w.server.refs[name], value, "a seeded legacy ref changed")
+        self.assertEqual(w.server.refs["gsd/253-replan-r8-candidate"], w.manifest["candidate_helper_commit"])
+        before = len(w.server.journal)
+        _, path = w.collect("normal", "r8-normal.json")
+        evidence = attach_journal(path, list(w.server.journal[before:]))
+        result = verifier.verify_pr_family(copy.deepcopy(evidence), "normal")
+        self.assertEqual(result["status"], "synthetic_pr_family_verified")
+        created = [tx for tx in evidence["transport_ledger"]["transactions"] if tx["route_id"] == "pr_create"]
+        self.assertEqual(len(created), 1)
+        self.assertEqual(json.loads(base64.b64decode(created[0]["response_body_base64"]))["head"]["ref"], "gsd/253-replan-r8-candidate")
+        for head in ("gsd/253-replan-r9-candidate", "gsd/253-replan-r8-fixture", "gsd/253-replan-candidate"):
+            with self.subTest(verifier_head=head):
+                tampered = copy.deepcopy(evidence)
+                tampered["freeze"]["normal"]["head_ref"] = head
+                tampered["freeze"]["freeze_sha256"] = sha(json.dumps({k: v for k, v in tampered["freeze"].items() if k != "freeze_sha256"},
+                                                                     sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode())
+                with self.assertRaises(verifier.VerificationError):
+                    verifier.verify_pr_family(tampered, "normal")
+
+    def test_a_legacy_freeze_still_yields_the_legacy_head(self):
+        self.assertEqual(json.loads(self.legacy.canary_freeze_path.read_text())["identity"]["candidate_ref"],
+                         "refs/heads/gsd/253-replan-candidate")
+        self.assertEqual(self.legacy.freeze["normal"]["head_ref"], "gsd/253-replan-candidate")
+        self.assertEqual(self.legacy.server.refs["gsd/253-replan-candidate"], self.legacy.manifest["candidate_helper_commit"])
+
+    def test_prepare_refuses_a_receipt_naming_a_third_candidate_or_the_fixture_as_candidate(self):
+        w = self.r8
+        original = json.loads(w.receipt_path.read_text())
+        for label, (candidate_ref, fixture_ref) in {
+                "third candidate": ("refs/heads/gsd/253-replan-r9-candidate", "refs/heads/gsd/253-replan-r9-fixture"),
+                "fixture as candidate": ("refs/heads/gsd/253-replan-r8-fixture", "refs/heads/gsd/253-replan-r8-fixture"),
+                "mixed pair": ("refs/heads/gsd/253-replan-r8-candidate", "refs/heads/gsd/253-replan-fixture")}.items():
+            with self.subTest(label=label):
+                tampered = copy.deepcopy(original)
+                tampered["candidate_ref"], tampered["fixture_ref"] = candidate_ref, fixture_ref
+                for row in tampered["server_object_receipts"]:
+                    if row.get("kind") == "ref":
+                        row["ref"] = candidate_ref if row["variant"] == "candidate" else fixture_ref
+                receipt = w.dir / "tampered-receipt.json"
+                receipt.write_text(json.dumps(tampered))
+                output = w.dir / "never-freeze.json"
+                result = run("bash", PROOF, "--prepare", "--publication", receipt, "--manifest", w.manifest_path, "--repo-root", w.repo,
+                             "--output", output, "--poll-interval", "0", "--budget-document", w.budget, cwd=ROOT, timeout=60)
+                self.assertNotEqual(result.returncode, 0, label)
+                self.assertFalse(output.exists())
+
+    def test_check_only_accepts_only_the_two_candidate_names_as_the_normal_head(self):
+        w = self.legacy
+        for head in ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate"):
+            with self.subTest(accepted=head):
+                freeze, allocation = self.retarget(w, head, "known")
+                checked = run("bash", PROOF, "--check-only", "--freeze", freeze, "--allocation", allocation, cwd=ROOT)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+        for head in ("gsd/253-replan-r9-candidate", "gsd/253-replan-fixture", "gsd/253-replan-r8-fixture", "gsd/253-replan-docs-head",
+                     "refs/heads/gsd/253-replan-candidate"):
+            with self.subTest(refused=head):
+                freeze, allocation = self.retarget(w, head, "unknown")
+                checked = run("bash", PROOF, "--check-only", "--freeze", freeze, "--allocation", allocation, cwd=ROOT)
+                self.assertNotEqual(checked.returncode, 0)
+                self.assertIn("refs are not the exact proof refs", checked.stderr)
+
+    def test_a_pr_head_that_disagrees_with_the_revision_freeze_candidate_is_refused_before_any_request(self):
+        for world, head in ((self.legacy, "gsd/253-replan-r8-candidate"), (self.r8, "gsd/253-replan-candidate")):
+            for family in ("normal", "docs-only"):
+                with self.subTest(world=world.ref_pair, family=family):
+                    freeze, allocation = self.retarget(world, head, f"disagree-{family}")
+                    before = len(world.server.journal)
+                    process, evidence = self.collect_with(world, family, freeze, allocation, f"disagree-{family}")
+                    self.assertNotEqual(process.returncode, 0)
+                    self.assertIn("revision freeze candidate_ref", process.stderr)
+                    self.assertEqual(len(world.server.journal), before, "a request left the process with a disagreeing head")
+                    self.assertFalse(evidence.exists())
 
 
 class CollectorFaultTests(unittest.TestCase):
