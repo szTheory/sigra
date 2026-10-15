@@ -747,7 +747,7 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
                       "response_body_base64": base64.b64encode(scrubbed_body).decode("ascii"),
                       "error": {"code": error_code, "message": error_message} if error_code else None})
         if hard_stop:
-            ledger["terminal_stop"] = {"code": error_code or f"http_{actual_status}" if actual_status in {401, 403, 429} else "core_budget_stop",
+            ledger["terminal_stop"] = {"code": error_code or (f"http_{actual_status}" if actual_status in {401, 403, 429} else "core_budget_stop"),
                                        "status": actual_status, "retry_after": safe_headers.get("retry-after"),
                                        "rate_limit_reset": safe_headers.get("x-ratelimit-reset"),
                                        "at_monotonic_ns": end_ns}
