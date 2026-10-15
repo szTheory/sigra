@@ -1,0 +1,40 @@
+{
+  "schema_version": "sigra.phase253.check-source-decision/v1",
+  "plan": "253-100",
+  "task": "Task 2: Jon decides which commit the canary reads native check sources from",
+  "decided_by": "Jon (repository owner), via an AskUserQuestion prompt relayed by the execute-phase orchestrator",
+  "decision": "server-parent-identity",
+  "selection_label_verbatim": "server-parent-identity (Recommended)",
+  "note": "",
+  "note_provided": false,
+  "presented_options": [
+    {
+      "id": "server-parent-identity",
+      "name": "Read check sources from the frozen server parent; identity only (recommended)",
+      "pros": "Reads check runs for the frozen server parent (84ebcea60024c9e8caee405d55cad1c76b0e858a today: origin/main head, proven live by ledger row 1 of 253-92 and of 253-97). Requires exactly five required names, each with an integer app id, an app slug and an https source matching the effective rules' app scope; records each conclusion literally without requiring success. Same request count. The success-on-candidate rule stays in the PR family.",
+      "cons": "Proves producer identity on main's head, not on the candidate commit itself."
+    },
+    {
+      "id": "server-parent-strict",
+      "name": "Read from the frozen server parent and also require all five to have succeeded",
+      "pros": "Strictest reading of the current rule.",
+      "cons": "Halts the window if main's last push run of any required check did not succeed. That is unknown offline, and this phase exists because main's CI flakes."
+    },
+    {
+      "id": "defer-to-pr",
+      "name": "Drop the native check-run read from the canary; prove check sources only in 253-105",
+      "pros": "One fewer canary request.",
+      "cons": "The canary's hosted work no longer reads check sources first, which departs from D-12's wording."
+    }
+  ],
+  "evidence": [
+    ".github/workflows/ci.yml:32-35 push: branches [main, release-please--branches--main]; pull_request: branches [main]",
+    "Only push triggers in .github/workflows: ci.yml:32 (main, release-please--branches--main), release-please.yml:10 (main), playwright-github-pages.yml:19 (main, paths-filtered); every other workflow is workflow_dispatch or workflow_run; none matches gsd/*",
+    "scripts/ci/ci-gate-canary.sh:656 reads commits/$CANDIDATE_SHA/check-runs; :670-671 require completed+success with app id/slug/html_url for each of the five names",
+    "scripts/ci/ci-hosted-gate-verify.py:269-274 (verify_effective_checks) and :361-364 (hydrate_effective_checks) bind the check-run URL to expected.candidate_sha",
+    "scripts/ci/ci-hosted-gate-verify.py:310 requires conclusion success",
+    "scripts/ci/ci-hosted-gate-verify.py:1214-1225 (verify_pr_family via _view_for_checks :932-944) re-runs the five-name rule with success required on the real PR head",
+    "253-LOAD-RECOVERY-CANARY-FREEZE-R7.json identity.server_parent_sha 84ebcea60024c9e8caee405d55cad1c76b0e858a; 253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R7.json row 1 git_get_commit of that sha returned 200"
+  ],
+  "recorded_at": "2026-10-15T12:37:17Z"
+}
