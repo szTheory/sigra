@@ -423,7 +423,7 @@ publish_fixture_ref() {
 watch_run() {
   local run_id="$1" description="$2" rate_file core_left started run_target status conclusion lock_dir
   rate_file="$(mktemp "$WORK_DIR/watch-rate.XXXXXX")"
-  api_get rate_limit "$rate_file"
+  CATEGORY_OVERRIDE=pre_watch_rate api_get rate_limit "$rate_file"
   core_left="$(jq -r '.resources.core.remaining // 0' "$rate_file")"
   (( core_left > 250 )) || fail "GitHub core API budget is at or below 250 before watch (remaining=$core_left)"
   lock_dir="${TMPDIR:-/tmp}/253-canary-poll-$run_id.lock"
@@ -459,12 +459,31 @@ TRANSPORT_MODULE="$ROOT/scripts/ci/ci-hosted-transport.py"
 REQUEST_LEDGER="$REQUESTS"
 HTTP_RECEIPT_DIR="$(mktemp -d "$WORK_DIR/http-receipts.XXXXXX")"
 
+# Every request is predebited against its frozen category (253-LOAD-RECOVERY-BUDGETS.md hosted-canary table).
+request_category() {
+  case "$1" in
+    rate_limit) printf '%s\n' "${CATEGORY_OVERRIDE:-preflight}" ;;
+    rules_main|branch_protection|check_runs|workflow) printf 'preflight\n' ;;
+    create_ref|get_ref) printf 'publication\n' ;;
+    dispatch) printf 'dispatch\n' ;;
+    workflow_runs) printf 'run_discovery\n' ;;
+    run) printf 'terminal_polls\n' ;;
+    run_jobs) printf 'attempt_jobs\n' ;;
+    run_artifacts) printf 'artifact_metadata\n' ;;
+    artifact_zip) printf 'artifact_downloads\n' ;;
+    run_logs) printf 'failure_logs\n' ;;
+    cancel_run) printf 'cancellation\n' ;;
+    *) fail "route has no frozen request category: $1" ;;
+  esac
+}
+
 transport_call() {
   route="$1"; method="$2"; target="$3"; params="$4"; query="$5"; body="$6"; mode="$7"
   request_file="$(mktemp "$WORK_DIR/http-request.XXXXXX")"
   receipt_file="$(mktemp "$WORK_DIR/http-receipt.XXXXXX")"
-  jq -n --arg route "$route" --arg method "$method" --argjson params "$params" --argjson query "$query" --argjson body "$body" \
-    '{route_id:$route,method:$method,params:$params,query:$query,page_ordinal:1,hop_ordinal:0,body:(if $body==null then null else $body end)}' > "$request_file"
+  category="$(request_category "$route")"
+  jq -n --arg route "$route" --arg method "$method" --arg category "$category" --argjson params "$params" --argjson query "$query" --argjson body "$body" \
+    '{route_id:$route,method:$method,category:$category,params:$params,query:$query,page_ordinal:1,hop_ordinal:0,body:(if $body==null then null else $body end)}' > "$request_file"
   rc=0
   if [[ "$mode" == pages ]]; then extra=--fetch-pages; elif [[ "$mode" == download ]]; then extra=--follow-download; else extra=; fi
   python3 "$TRANSPORT_MODULE" --allocation "$LIVE_ALLOCATION" --ledger "$REQUEST_LEDGER" \

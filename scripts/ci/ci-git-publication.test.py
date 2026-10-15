@@ -1407,6 +1407,8 @@ class LiveModeApprovalTests(unittest.TestCase):
             ledger = json.loads((env["phase"] / "253-LOAD-RECOVERY-CANARY-REQUESTS.json").read_text())
             self.assertEqual(len(ledger["transactions"]), 1)
             self.assertEqual(ledger["transactions"][0]["error"]["code"], "authentication_unavailable")
+            self.assertEqual(ledger["transactions"][0]["category"], "preflight",
+                             "every canary request is charged to its frozen category (rate_limit before the first preflight read)")
             self.assertEqual(sorted(path.name for path in env["phase"].glob("253-RECOVERY-CANARY-*")), [])
 
     def test_a_halted_window_and_rerun_flags_are_refused_before_any_request(self):
