@@ -862,8 +862,8 @@ class PRProofContractTests(unittest.TestCase):
     def test_every_removed_evidence_field_fails_closed_instead_of_crashing_or_passing(self):
         base = self.fresh()
         for key in list(base):
-            if key == "server_journal":
-                continue
+            if key in ("server_journal", "action_approval"):
+                continue  # action_approval is collector-side provenance the verifier deliberately ignores (253-91)
             broken = self.fresh()
             del broken[key]
             with self.subTest(top=key):
@@ -1004,19 +1004,28 @@ class SectionApprovalTests(unittest.TestCase):
         world = World(self, tag="approval")
         whole = sha(load(ROOT / "scripts/ci/ci-git-publication.py", "publisher").canonical_bytes(
             json.loads(world.canary_freeze_path.read_text())["outward_actions"]))
+        cases = {
+            "absent": dict(approval=None),
+            "canary section": dict(approval=world.write_approval("canary", "c1", commit=True)),
+            "whole manifest": dict(approval=world.write_approval("docs_and_prs", "c2", commit=True, section_sha=whole)),
+            "uncommitted": dict(approval=world.write_approval("docs_and_prs", "c3")),
+            "modified": dict(approval=world.write_approval("docs_and_prs", "c4", commit=True, tamper=True)),
+            "rejected": dict(approval=world.write_approval("docs_and_prs", "c5", commit=True, decision="reject")),
+            "no freeze": dict(revision_freeze=None),
+        }
         for family in ("normal", "docs-only"):
-            cases = {
-                "absent": dict(approval=None),
-                "canary section": dict(approval=world.write_approval("canary", "c1", commit=True)),
-                "whole manifest": dict(approval=world.write_approval("docs_and_prs", "c2", commit=True, section_sha=whole)),
-                "uncommitted": dict(approval=world.write_approval("docs_and_prs", "c3")),
-                "modified": dict(approval=world.write_approval("docs_and_prs", "c4", commit=True, tamper=True)),
-                "rejected": dict(approval=world.write_approval("docs_and_prs", "c5", commit=True, decision="reject")),
-                "no freeze": dict(revision_freeze=None),
-            }
             for label, kwargs in cases.items():
                 with self.subTest(family=family, case=label):
                     self.refused(world, family, **kwargs)
+
+    def test_prepare_rejects_a_hermetic_publication_origin_when_live_acceptance_is_required(self):
+        world = World(self, tag="live-origin")
+        refused = run("bash", PROOF, "--prepare", "--publication", world.receipt_path, "--manifest", world.manifest_path,
+                      "--repo-root", world.repo, "--output", world.dir / "live-freeze.json", "--poll-interval", "0",
+                      "--budget-document", world.budget, "--require-live-origin", cwd=ROOT, timeout=60)
+        self.assertNotEqual(refused.returncode, 0)
+        self.assertIn("live acceptance", refused.stderr)
+        self.assertFalse((world.dir / "live-freeze.json").exists())
 
     def test_prepare_and_check_only_stay_network_free_and_need_no_approval(self):
         world = World(self, tag="no-approval-needed")
@@ -1065,7 +1074,9 @@ class SectionApprovalTests(unittest.TestCase):
         self.assertEqual(first.returncode, 1)
         published = len(world.server.journal)
         world.server.flags.pop("refuse_pr_create")
-        second, path = world.collect("docs-only", "second.json")
+        world.server.model["numbers"][:] = [102]  # the docs-only family is PR 102 in this world; normal never ran
+        second, path = world.collect("docs-only", "second.json", check=False)
+        self.assertNotIn("docs publication is only partially", second.stdout)
         later = world.server.journal[published:]
         self.assertFalse(any(row["method"] == "POST" and row["path"].endswith(("/trees", "/commits", "/refs")) for row in later),
                          "docs objects already published under the docs_publication category were published again")

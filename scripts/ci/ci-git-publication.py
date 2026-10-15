@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import base64
+import gzip
 import hashlib
+import io
 import json
 import os
 import re
@@ -13,9 +15,11 @@ import subprocess
 import sys
 import tempfile
 import time
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
+sys.dont_write_bytecode = True  # importing sibling helpers must never leave untracked bytecode in the frozen product tree
 ROOT = Path(__file__).resolve().parents[2]
 TRANSPORT = ROOT / "scripts/ci/ci-hosted-transport.py"
 REPO = "szTheory/sigra"
@@ -939,7 +943,7 @@ def publish_docs(freeze_path: Path, allocation_path: Path, ledger_path: Path, re
             or transport_limits.get("docs_publication") != DOCS_PUBLICATION_LIMIT):
         raise PublicationError("allocation is not the production allocation bound to this exact freeze (120 requests, docs_publication 14)")
     bound = (freeze.get("bound_documents") or {}).get("publication_manifest") or {}
-    manifest_file = (repo / str(bound.get("path", ""))).resolve()
+    manifest_file = safe_repo_file(repo, bound.get("path"), "publication manifest path")
     if not manifest_file.is_file() or sha256_hex(manifest_file.read_bytes()) != bound.get("sha256"):
         raise PublicationError("publication manifest differs from the freeze's bound digest")
     manifest = validate_manifest(json.loads(manifest_file.read_text()))
@@ -1003,6 +1007,59 @@ def publish_docs(freeze_path: Path, allocation_path: Path, ledger_path: Path, re
         "docs_base_commit": manifest["docs_base_commit"], "docs_head_commit": manifest["docs_head_commit"],
         "freeze_sha256": sha256_hex(freeze_raw), "allocation_sha256": sha256_hex(allocation_path.read_bytes()),
         "ledger_sha256": sha256_hex(ledger_path.read_bytes()), "action_approval": approval})
+
+
+# ------------------------------------------------------------------------- bounded canary payloads
+MATRIX_KEYS = ("schema_version", "repository", "expected", "scenarios", "budget")
+DISPATCH_INPUT_CAP = 65535
+MATRIX_PAYLOAD_LIMIT = DISPATCH_INPUT_CAP - 1024  # leaves room for the other four dispatch inputs
+ARTIFACT_COMPRESSED_LIMIT = 2 * 1024 * 1024
+ARTIFACT_EXTRACTED_LIMIT = 4 * 1024 * 1024
+
+
+def compact_matrix(evidence_path: Path) -> str:
+    """Bounded gzip+base64 receipts for the separate verifier: only what verify_sources needs, no ledger."""
+    evidence = json.loads(Path(evidence_path).read_text())
+    if not isinstance(evidence, dict):
+        raise PublicationError("evidence root must be an object")
+    compact = {key: evidence[key] for key in MATRIX_KEYS if key in evidence}
+    if isinstance(compact.get("budget"), dict):
+        compact["budget"] = {"actual_jobs": compact["budget"].get("actual_jobs")}
+    raw = json.dumps(compact, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    payload = base64.b64encode(gzip.compress(raw, mtime=0)).decode("ascii")
+    if len(payload) > MATRIX_PAYLOAD_LIMIT:
+        raise PublicationError(f"compact matrix payload is {len(payload)} characters; the dispatch input cap is {DISPATCH_INPUT_CAP} "
+                               f"including the other inputs")
+    return payload
+
+
+def extract_canary_artifact(path: Path) -> dict:
+    """One same-run result ZIP: exactly canary-result.json, <=2 MiB compressed, <=4 MiB extracted, JSON object."""
+    raw = Path(path).read_bytes()
+    if len(raw) > ARTIFACT_COMPRESSED_LIMIT:
+        raise PublicationError("compressed canary artifact exceeds 2 MiB")
+    try:
+        with zipfile.ZipFile(io.BytesIO(raw)) as bundle:
+            members = [info for info in bundle.infolist() if not info.filename.endswith("/")]
+            if [info.filename for info in members] != ["canary-result.json"]:
+                raise PublicationError("unexpected canary artifact contents: " + repr([info.filename for info in members]))
+            info = members[0]
+            if info.flag_bits & 0x1 or info.file_size > ARTIFACT_EXTRACTED_LIMIT:
+                raise PublicationError("extracted canary result exceeds 4 MiB or is encrypted")
+            with bundle.open(info) as stream:
+                content = stream.read(ARTIFACT_EXTRACTED_LIMIT + 1)
+    except zipfile.BadZipFile as error:
+        raise PublicationError(f"canary artifact is not a valid ZIP: {error}") from error
+    if len(content) > ARTIFACT_EXTRACTED_LIMIT:
+        raise PublicationError("extracted canary result exceeds 4 MiB")
+    try:
+        record = json.loads(content)
+    except ValueError as error:
+        raise PublicationError("canary result is not JSON") from error
+    if not isinstance(record, dict):
+        raise PublicationError("canary result root must be an object")
+    return {"archive_sha256": sha256_hex(raw), "archive_base64": base64.b64encode(raw).decode("ascii"),
+            "file": {"content": content.decode("utf-8"), "sha256": sha256_hex(content), "json": record}}
 
 
 # ---------------------------------------------------------------------------------------- freeze
@@ -1078,6 +1135,19 @@ def porcelain_outside_config(repo: Path) -> list[str]:
     return [row.decode("utf-8", "replace") for row in rows if row and row != b" M .planning/config.json"]
 
 
+def safe_repo_file(repo: Path, rel: object, label: str) -> Path:
+    """Resolve a repository-relative path; absolute paths, traversal and symlink escapes are refused."""
+    candidate = PurePosixPath(str(rel))
+    if not isinstance(rel, str) or not rel or candidate.is_absolute() or ".." in candidate.parts:
+        raise PublicationError(f"{label} must be a repository-relative path without traversal")
+    target = (Path(repo) / rel).resolve()
+    try:
+        target.relative_to(Path(repo).resolve())
+    except ValueError as error:
+        raise PublicationError(f"{label} resolves outside the repository") from error
+    return target
+
+
 def doc_binding(repo: Path, rel: str) -> dict:
     path = (repo / rel).resolve()
     try:
@@ -1087,6 +1157,65 @@ def doc_binding(repo: Path, rel: str) -> dict:
     if not path.is_file():
         raise PublicationError(f"bound document is missing: {rel}")
     return {"path": rel, "sha256": sha256_hex(path.read_bytes())}
+
+
+def static_freeze_sections() -> dict:
+    """The parts of the freeze that never vary with the source: policy, bounds, categories, expired reruns."""
+    return {
+        "scenarios": {"count": 6, "optional_infrastructure_retry": 0, "retry_status": "expired", "retry_reason": RERUN_REASON,
+                      "cases": [{"name": name, "expected_outcome": outcome} for name, outcome in SCENARIO_CASES]},
+        "expired_reruns": {
+            "canary": {"category": "infrastructure_retry", "status": "expired", "requests": 13, "jobs": 6, "used": 0, "reason": RERUN_REASON},
+            "pull_requests": {"category": "infrastructure_rerun", "status": "expired", "requests": 21, "used": 0, "reason": RERUN_REASON}},
+        "bounds": BOUNDS, "categories": {"canary": CANARY_CATEGORIES, "production": PRODUCTION_CATEGORIES},
+        "clock": {"minutes": 60, "begins": "before_first_preflight_or_publication_request"},
+        "required_checks": REQUIRED_CHECKS,
+        "workflow": {"name": "Phase 253 Gate Canary", "path": REGISTERED_WORKFLOW_PATH, "trigger": ["workflow_dispatch"],
+                     "permissions": {"contents": "read"}, "registered_workflow_id": WORKFLOW_ID,
+                     "jobs": {"tiny_producers": 5, "verdict": 1, "independent_verifier": 1, "observer_trigger": False}},
+        "historical": {"previous_accounted_or_reserved_requests": 20, "previous_exact_http_count_proven": False,
+                       "note": "old run 38347679431, epoch 1791909792, 34-second halt and three known commands remain closed; historical actual HTTP is unknown"},
+    }
+
+
+NATIVE_ROUTES = ("not_reproduced_disposition", "accepted_target")
+
+
+def rehash_binding(repo: Path, item: object, label: str) -> None:
+    if not isinstance(item, dict) or set(item) != {"path", "sha256"} or not isinstance(item.get("path"), str) \
+            or not re.fullmatch(r"[a-f0-9]{64}", str(item.get("sha256", ""))):
+        raise PublicationError(f"native_target {label} needs exactly a path and a lowercase sha256")
+    candidate = PurePosixPath(item["path"])
+    if candidate.is_absolute() or ".." in candidate.parts:
+        raise PublicationError(f"native_target {label} path must be repository-relative")
+    target = (Path(repo) / item["path"]).resolve()
+    try:
+        target.relative_to(Path(repo).resolve())
+    except ValueError as error:
+        raise PublicationError(f"native_target {label} path escapes the repository") from error
+    if not target.is_file():
+        raise PublicationError(f"native_target {label} file is missing: {item['path']}")
+    if sha256_hex(target.read_bytes()) != item["sha256"]:
+        raise PublicationError(f"native_target {label} differs from its frozen sha256: {item['path']}")
+
+
+def check_native_target(freeze: dict, repo: Path) -> None:
+    native = freeze.get("native_target")
+    if not isinstance(native, dict):
+        raise PublicationError("the freeze has no native_target section")
+    route = native.get("route")
+    if route not in NATIVE_ROUTES:
+        raise PublicationError("native_target route must be not_reproduced_disposition or accepted_target")
+    rehash_binding(repo, native.get("acceptance_evidence"), "acceptance_evidence")
+    expected_keys = {"route", "acceptance_evidence", "note"}
+    if route == "not_reproduced_disposition":
+        rehash_binding(repo, native.get("disposition"), "disposition")
+        rehash_binding(repo, native.get("disposition_approval"), "disposition_approval")
+        expected_keys |= {"disposition", "disposition_approval"}
+        if native.get("note") != NATIVE_NOTE:
+            raise PublicationError("native_target note must state the partial, not-reproduced disposition")
+    if set(native) != expected_keys:
+        raise PublicationError("native_target has missing or unexpected members")
 
 
 def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: str | None = None,
@@ -1133,19 +1262,7 @@ def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: st
                    "product_files": manifest["product_tree_parity"]["source_product_files"]},
         "identity": identity, "helper_blobs": helper_blobs,
         "bound_documents": {"publication_manifest": manifest_binding, "fixture_workflow": doc_binding(repo, fixture_binding["path"])},
-        "scenarios": {"count": 6, "optional_infrastructure_retry": 0, "retry_status": "expired", "retry_reason": RERUN_REASON,
-                      "cases": [{"name": name, "expected_outcome": outcome} for name, outcome in SCENARIO_CASES]},
-        "expired_reruns": {
-            "canary": {"category": "infrastructure_retry", "status": "expired", "requests": 13, "jobs": 6, "used": 0, "reason": RERUN_REASON},
-            "pull_requests": {"category": "infrastructure_rerun", "status": "expired", "requests": 21, "used": 0, "reason": RERUN_REASON}},
-        "bounds": BOUNDS, "categories": {"canary": CANARY_CATEGORIES, "production": PRODUCTION_CATEGORIES},
-        "clock": {"minutes": 60, "begins": "before_first_preflight_or_publication_request"},
-        "required_checks": REQUIRED_CHECKS,
-        "workflow": {"name": "Phase 253 Gate Canary", "path": REGISTERED_WORKFLOW_PATH, "trigger": ["workflow_dispatch"],
-                     "permissions": {"contents": "read"}, "registered_workflow_id": WORKFLOW_ID,
-                     "jobs": {"tiny_producers": 5, "verdict": 1, "independent_verifier": 1, "observer_trigger": False}},
-        "historical": {"previous_accounted_or_reserved_requests": 20, "previous_exact_http_count_proven": False,
-                       "note": "old run 38347679431, epoch 1791909792, 34-second halt and three known commands remain closed; historical actual HTTP is unknown"},
+        **static_freeze_sections(),
         "native_target": native, "outward_actions": sections, "outward_actions_sha256": digests,
     }
     atomic_json(repo / output if not Path(output).is_absolute() else Path(output), freeze)
@@ -1179,16 +1296,32 @@ def check_revision_freeze(freeze_path: Path, repo: Path) -> dict:
     bound = freeze.get("bound_documents") or {}
     for name in ("publication_manifest", "fixture_workflow"):
         item = bound.get(name) or {}
-        path = repo / str(item.get("path", ""))
+        path = safe_repo_file(repo, item.get("path"), f"bound document {name} path")
         if not path.is_file() or sha256_hex(path.read_bytes()) != item.get("sha256"):
             raise PublicationError(f"bound document {name} is missing or differs from its digest")
-    manifest = validate_manifest(json.loads((repo / bound["publication_manifest"]["path"]).read_text()))
+    manifest = validate_manifest(json.loads(safe_repo_file(repo, bound["publication_manifest"]["path"], "publication manifest path").read_text()))
     for field in ("candidate_helper_commit", "fixture_workflow_commit", "fixture_workflow_blob", "candidate_tree_sha",
                   "fixture_tree_sha", "docs_base_commit", "docs_head_commit", "server_parent_sha"):
         if manifest[field] != identity[field]:
             raise PublicationError(f"freeze identity {field} differs from the bound publication manifest")
     if manifest["source_sha"] != source.get("commit"):
         raise PublicationError("freeze source differs from the publication manifest source")
+    for key, expected in static_freeze_sections().items():
+        if freeze.get(key) != expected:
+            raise PublicationError(f"freeze {key} differs from the frozen policy (expired reruns, bounds, categories, clock, history)")
+    if sum(CANARY_CATEGORIES.values()) != 117 or sum(PRODUCTION_CATEGORIES.values()) != 120:
+        raise PublicationError("category tables do not add up to the 117/120 allocations")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ci_hosted_transport_for_freeze", TRANSPORT)
+    transport = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(transport)
+    if PRODUCTION_CATEGORIES != transport.PRODUCTION_CATEGORY_LIMITS:
+        raise PublicationError("production categories differ from the transport's frozen category table")
+    for field, value in (("old_failed_run_id", "38347679431"), ("old_failed_epoch", 1791909792),
+                         ("old_failed_halt_seconds", 34), ("old_known_commands", 3)):
+        if identity.get(field) != value:
+            raise PublicationError(f"freeze must retain the closed historical window: {field}")
+    check_native_target(freeze, repo)
     sections, digests = build_outward_actions(identity)
     if freeze.get("outward_actions") != sections or freeze.get("outward_actions_sha256") != digests:
         raise PublicationError("outward_actions are not the enumerated actions derived from the frozen identities")
@@ -1225,6 +1358,8 @@ def main() -> int:
     parser.add_argument("--acceptance-evidence")
     parser.add_argument("--disposition")
     parser.add_argument("--disposition-approval")
+    parser.add_argument("--compact-matrix")
+    parser.add_argument("--extract-canary-artifact")
     args = parser.parse_args()
     repo_arg = Path(args.repo_root).resolve() if args.repo_root else None
     try:
@@ -1275,6 +1410,12 @@ def main() -> int:
                                   args.disposition, args.disposition_approval)
             print(json.dumps({"status": "freeze_built", "canary_sha256": freeze["outward_actions_sha256"]["canary"],
                               "docs_and_prs_sha256": freeze["outward_actions_sha256"]["docs_and_prs"]}, sort_keys=True))
+            return 0
+        if args.compact_matrix:
+            print(compact_matrix(Path(args.compact_matrix)))
+            return 0
+        if args.extract_canary_artifact:
+            print(json.dumps(extract_canary_artifact(Path(args.extract_canary_artifact))))
             return 0
         if args.check_freeze:
             check_revision_freeze(Path(args.check_freeze), repo_arg or ROOT)

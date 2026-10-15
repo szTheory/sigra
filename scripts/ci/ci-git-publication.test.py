@@ -1201,7 +1201,9 @@ class RegisteredPublicationTests(unittest.TestCase):
             started = int(time.time())
             env = self.freeze_environment(temp)
             repo, server, manifest = env["repo"], env["server"], env["manifest"]
-            allocation, ledger = self.canary_allocation(env)
+            allocation, _ = self.canary_allocation(env)
+            ledger = env["phase"] / "253-LOAD-RECOVERY-CANARY-REQUESTS.json"
+            server.ledger_path = str(ledger)
             approval = self.write_approval(env, "canary")
             evidence = env["phase"] / "253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
             receipt = env["phase"] / "253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT.json"

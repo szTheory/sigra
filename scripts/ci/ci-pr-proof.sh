@@ -5,6 +5,7 @@
 #                  [--budget-document PATH] [--bound-document PATH ...]
 #   ci-pr-proof.sh --check-only --freeze FREEZE [--allocation ALLOCATION]
 #   ci-pr-proof.sh --family normal|docs-only --freeze FREEZE --allocation ALLOCATION --evidence OUT --requests LEDGER [--repo-root DIR]
+#                  --revision-freeze CANARY-FREEZE --action-approval FILE   (committed docs_and_prs section approval, required)
 #   ci-pr-proof.sh --verify EVIDENCE [--docs-evidence EVIDENCE] [--server-journal JSON] [--docs-server-journal JSON]
 #
 # Every GitHub transaction goes through scripts/ci/ci-hosted-transport.py (predebited, typed, repository
@@ -17,7 +18,7 @@ export SIGRA_PR_PROOF_ROOT="$ROOT"
 export PYTHONDONTWRITEBYTECODE=1
 
 if [[ $# -eq 0 || "$1" == "--help" || "$1" == "-h" ]]; then
-  sed -n '2,12p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,13p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
   exit $(( $# == 0 ))
 fi
 
@@ -113,7 +114,7 @@ def prepare(args):
     repo = Path(args.repo_root).resolve() if args.repo_root else ROOT
     receipt_path, manifest_path = Path(args.publication), Path(args.manifest)
     try:
-        publisher.verify_publication(receipt_path)
+        publisher.verify_publication(receipt_path, bool(args.require_live_origin))
         manifest = publisher.validate_manifest(json.loads(manifest_path.read_text()))
     except (publisher.PublicationError, OSError, ValueError, KeyError, TypeError) as error:
         raise SystemExit(f"ci-pr-proof: publication proof rejected: {error}")
@@ -198,9 +199,27 @@ def check_freeze(freeze_path, allocation_path=None):
     return freeze
 
 
+# ---------------------------------------------------------------------------------- section approval
+def approved_section(args):
+    """The committed docs_and_prs approval gates every live mode; nothing is written or requested before it passes."""
+    if not (args.revision_freeze and args.action_approval):
+        raise SystemExit("ci-pr-proof: approval refused: live collection needs --revision-freeze and a committed docs_and_prs "
+                         "section --action-approval")
+    publisher = load(PUBLICATION, "ci_git_publication")
+    repo = Path(args.repo_root).resolve() if args.repo_root else ROOT
+    try:
+        freeze, _ = publisher.load_freeze(Path(args.revision_freeze))
+        record = publisher.check_section_approval(args.action_approval, freeze, "docs_and_prs", repo)
+    except (publisher.PublicationError, OSError, ValueError, KeyError) as error:
+        raise SystemExit(f"ci-pr-proof: approval refused: {error}")
+    return freeze["outward_actions"]["docs_and_prs"], record
+
+
 # --------------------------------------------------------------------------------------- collection
 class Collector:
-    def __init__(self, args):
+    def __init__(self, args, section, action_approval):
+        self.section = section
+        self.action_approval = action_approval
         self.family = args.family
         self.freeze_raw = Path(args.freeze).read_bytes()
         self.freeze = check_freeze(args.freeze, args.allocation)
@@ -214,6 +233,33 @@ class Collector:
         self.spec = self.freeze[self.family]
         self.notes, self.downloads = [], []
         self.counter = 0
+        self.check_section()
+
+    def actions(self, kind):
+        return [item for item in self.section.get("actions", []) if item.get("action") == kind]
+
+    def check_section(self):
+        """The approved docs_and_prs section must list exactly the objects and draft PR this family would create."""
+        head_ref, base_ref = FAMILY_REFS[self.family]
+        creates = [item for item in self.actions("pr_create") if item.get("family") == self.family]
+        if (len(creates) != 1 or creates[0].get("head") != head_ref or creates[0].get("base") != base_ref
+                or creates[0].get("draft") is not True):
+            raise SystemExit(f"ci-pr-proof: the {self.family} PR create differs from the approved docs_and_prs section")
+        if self.family == "docs-only":
+            docs = self.actions("publish_docs_objects")
+            refs = {("refs/heads/" + FAMILY_REFS["docs-only"][1], self.spec["base_sha"]),
+                    ("refs/heads/" + FAMILY_REFS["docs-only"][0], self.spec["head_sha"])}
+            if (len(docs) != 1 or docs[0].get("docs_base_commit") != self.spec["base_sha"]
+                    or docs[0].get("docs_head_commit") != self.spec["head_sha"]
+                    or {(item.get("ref"), item.get("sha")) for item in docs[0].get("refs", [])} != refs):
+                raise SystemExit("ci-pr-proof: the docs object publication differs from the approved docs_and_prs section")
+
+    def require_listed_pr(self, body):
+        for item in self.actions("pr_create"):
+            if (item.get("family") == self.family and item.get("head") == body.get("head")
+                    and item.get("base") == body.get("base") and item.get("draft") is True and body.get("draft") is True):
+                return
+        raise Stop("pr_create is outside the approved docs_and_prs section")
 
     def ledger(self):
         return read_json(self.ledger_path) if self.ledger_path.exists() else {"transactions": []}
@@ -255,6 +301,12 @@ class Collector:
         self.jcall("one", "workflow", "preflight", params={"workflow_id": WORKFLOW_ID}, family="shared")
 
     def publish_docs(self):
+        done = sum(1 for tx in self.ledger()["transactions"] if tx.get("category") == "docs_publication")
+        if done == 14:
+            self.notes.append("docs objects were already published under the shared docs_publication category")
+            return
+        if done:
+            raise Stop("docs publication is only partially present in the shared ledger")
         pub = self.spec["publication"]
         author = {"name": "Sigra Publication Bot", "email": "sigra-publication@users.noreply.github.com", "date": pub["date_utc_second"]}
 
@@ -280,6 +332,9 @@ class Collector:
             if readback.get("sha") != commit or readback.get("tree", {}).get("sha") != tree:
                 raise Stop(f"{label}: commit readback differs")
             self.jcall("one", "git_get_blob", "docs_publication", params={"sha": blob_sha})
+            if not any(item.get("ref") == "refs/heads/" + ref and item.get("sha") == commit
+                       for entry in self.actions("publish_docs_objects") for item in entry.get("refs", [])):
+                raise Stop(f"{label}: ref creation is outside the approved docs_and_prs section")
             probe_status, _ = self.jcall("one", "get_ref", "docs_publication", params={"branch": ref}, expect=(404,))
             self.jcall("one", "create_ref", "docs_publication", "POST", body={"ref": "refs/heads/" + ref, "sha": commit}, expect=(201,))
             _, ref_readback = self.jcall("one", "get_ref", "docs_publication", params={"branch": ref})
@@ -296,9 +351,9 @@ class Collector:
         if self.family == "docs-only":
             self.publish_docs()
         title = f"Phase 253 {self.family} CI proof (draft, do not merge)"
-        _, created = self.jcall("one", "pr_create", "pr_create", "POST",
-                                body={"title": title, "head": head_ref, "base": base_ref, "body": "Draft proof pull request; never merged.", "draft": True},
-                                expect=(201,))
+        create_body = {"title": title, "head": head_ref, "base": base_ref, "body": "Draft proof pull request; never merged.", "draft": True}
+        self.require_listed_pr(create_body)
+        _, created = self.jcall("one", "pr_create", "pr_create", "POST", body=create_body, expect=(201,))
         number = created["number"]
         run_id = None
         for attempt in range(1, int(self.freeze["poll"]["discovery_attempts"]) + 1):
@@ -355,19 +410,25 @@ class Collector:
                                    "zip_base64": base64.b64encode(data).decode("ascii")})
         return run
 
-    def write(self, stop=None):
+    def write(self, stop=None, started=False):
         evidence = {"schema_version": EVIDENCE_SCHEMA, "repository": REPO, "family": self.family,
+                    "action_approval": self.action_approval,
                     "synthetic": self.allocation.get("mode") == "hermetic-test", "freeze": self.freeze,
                     "allocation_base64": base64.b64encode(self.allocation_raw).decode("ascii"),
                     "transport_ledger": self.ledger(), "server_journal": None, "downloads": self.downloads,
-                    "collection": {"complete": stop is None and len(self.downloads) == 5, "stop": stop, "notes": self.notes}}
+                    "collection": {"complete": not started and stop is None and len(self.downloads) == 5, "stop": stop,
+                                   "notes": self.notes + (["collection started; no request has completed yet"] if started else [])}}
         atomic_write(self.evidence_path, (json.dumps(evidence, sort_keys=True) + "\n").encode())
         return evidence
 
 
 def run_family(args):
-    collector = Collector(args)
+    section, action_approval = approved_section(args)
+    collector = Collector(args, section, action_approval)
     stop = None
+    # Record the approval and the wall-clock window start before the first transaction can leave the process.
+    action_approval["window_wall_start_epoch"] = int(time.time())
+    collector.write(started=True)
     try:
         collector.collect()
     except Stop as error:
@@ -415,6 +476,10 @@ def main():
     parser.add_argument("--evidence")
     parser.add_argument("--requests")
     parser.add_argument("--repo-root")
+    parser.add_argument("--require-live-origin", action="store_true",
+                        help="--prepare only: refuse a hermetic or legacy local-fixture publication receipt (live acceptance)")
+    parser.add_argument("--revision-freeze", help="the canary revision freeze carrying the enumerated outward_actions")
+    parser.add_argument("--action-approval", help="committed approval bound to the docs_and_prs section digest")
     parser.add_argument("--docs-evidence")
     parser.add_argument("--server-journal")
     parser.add_argument("--docs-server-journal")

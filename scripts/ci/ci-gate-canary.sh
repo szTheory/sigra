@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 PHASE_DIR="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
@@ -33,6 +34,7 @@ HTTP_REQUEST=""
 HTTP_OUTPUT=""
 HTTP_BODY_OUTPUT=""
 LIVE_ALLOCATION=""
+PUBLISHER="$ROOT/scripts/ci/ci-git-publication.py"
 REVISION_FREEZE=""
 ACTION_APPROVAL=""
 PUBLISH_ONLY=false
@@ -67,7 +69,9 @@ Usage: ci-gate-canary.sh (--scenario NAME | --remaining-scenarios) [--evidence P
        ci-gate-canary.sh --check-only [--recovery-freeze PATH]
        ci-gate-canary.sh --preflight-only [--recovery-freeze PATH]
        ci-gate-canary.sh --publish-ref-only [--recovery-freeze PATH]
-       ci-gate-canary.sh --publish-only --revision-freeze PATH --action-approval FILE --http-allocation PATH
+       ci-gate-canary.sh --check-only --revision-freeze PATH
+       ci-gate-canary.sh (--publish-only | --preflight-only | --publish-ref-only | --scenario NAME | --remaining-scenarios)
+                         --revision-freeze PATH --action-approval FILE --http-allocation PATH
                          [--requests LEDGER] [--evidence PATH] [--publication-receipt PATH]
        ci-gate-canary.sh --transport-probe --allocation PATH --ledger PATH --request PATH --output PATH
        ci-gate-canary.sh --http-allocation PATH [--requests NEW-LEDGER]
@@ -76,13 +80,14 @@ Scenarios: full-pass, docs-only, actual-failure, missing-seam,
            unexpected-skip, cancelled
 Runs only the sealed Phase 253 Gate Canary on a unique refs/heads/gsd/253-* branch.
 --check-only validates local contracts and performs no GitHub request or mutation.
+Every live mode needs a committed approval bound to the canary section of the reviewed revision freeze.
 EOF
 }
 
 fail() {
   printf 'ci-gate-canary: FAIL: %s\n' "$*" >&2
   if [[ "$CHECK_ONLY" != true && "$TRANSPORT_PROBE" != true && -n "$LIVE_ALLOCATION" && -f "$EVIDENCE" ]] && \
-     jq -e '.schema_version=="sigra.phase253.hosted-replan-evidence/v2"' "$EVIDENCE" >/dev/null 2>&1; then
+     jq -e '.schema_version=="sigra.phase253.hosted-replan-evidence/v2" and .status != "halted"' "$EVIDENCE" >/dev/null 2>&1; then
     local failure_tmp="${EVIDENCE}.tmp"
     preserve_path "$EVIDENCE" evidence
     jq --arg message "$*" --arg ref "$PRESERVED_REF" --arg sha "$PRESERVED_SHA" --arg status "$PRESERVED_STATUS" \
@@ -110,6 +115,8 @@ while (($#)); do
     --action-approval) (($# >= 2)) || fail '--action-approval requires a path'; ACTION_APPROVAL="$2"; shift 2 ;;
     --publication-receipt) (($# >= 2)) || fail '--publication-receipt requires a path'; PUBLICATION_RECEIPT="$2"; shift 2 ;;
     --publish-only) PUBLISH_ONLY=true; shift ;;
+    --rerun|--retry-infrastructure|--rerun-failed)
+      fail "$1 is refused: reruns are expired for this window (no implemented rerun route; an infrastructure fault halts)" ;;
     --http-allocation) (($# >= 2)) || fail '--http-allocation requires a path'; LIVE_ALLOCATION="$2"; shift 2 ;;
     --publish-ref-only) PUBLISH_REF_ONLY=true; shift ;;
     --check-only) CHECK_ONLY=true; shift ;;
@@ -140,6 +147,45 @@ fi
 # BSD mktemp only substitutes trailing X characters, so no template below carries a suffix.
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/253-canary.XXXXXX")"
 trap 'rm -rf "$WORK_DIR"' EXIT
+
+if [[ "$CHECK_ONLY" == true && -n "$REVISION_FREEZE" ]]; then
+  [[ -f "$REVISION_FREEZE" ]] || fail "revision freeze missing: $REVISION_FREEZE"
+  FIXTURE_REL="$(jq -r '.bound_documents.fixture_workflow.path // empty' "$REVISION_FREEZE")"
+  [[ -n "$FIXTURE_REL" && "$FIXTURE_REL" != /* && "$FIXTURE_REL" != *..* ]] || fail 'revision freeze has no safe bound fixture workflow path'
+  FIXTURE="$ROOT/$FIXTURE_REL"
+  [[ -f "$FIXTURE" ]] || fail "fixture workflow missing: $FIXTURE"
+  [[ -f "$ROOT/scripts/ci/ci-browser-records.mjs" && -f "$ROOT/scripts/ci/honest-skip-verdict.sh" ]] || fail 'candidate shared gate helpers missing'
+  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --help >/dev/null
+  grep -Fq 'name: Phase 253 Gate Canary' "$FIXTURE" || fail 'fixture workflow name changed'
+  grep -Fq 'workflow_dispatch:' "$FIXTURE" || fail 'fixture is not manually dispatchable'
+  ! grep -Eq '^  (push|pull_request|schedule|workflow_run):' "$FIXTURE" || fail 'fixture has an unapproved trigger'
+  for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
+    ! rg -q 'Phase 253 Gate Canary' "$ROOT/$path" || fail "fixture name matches a downstream workflow filter: $path"
+  done
+  python3 - "$FIXTURE" <<'PY'
+import re, sys
+from pathlib import Path
+text = Path(sys.argv[1]).read_text(encoding='utf-8')
+if len(re.findall(r'^name: Phase 253 Gate Canary$', text, re.M)) != 1 or re.search(r'^  (push|pull_request|schedule|workflow_run):', text, re.M):
+    raise SystemExit('fixture has an unapproved trigger or name')
+try:
+    import yaml
+    parsed = yaml.safe_load(text)
+except Exception as error:
+    raise SystemExit(f'fixture YAML is invalid: {error}')
+triggers = parsed.get('on', parsed.get(True))
+jobs = parsed.get('jobs', {})
+if not isinstance(triggers, dict) or list(triggers) != ['workflow_dispatch'] or parsed.get('permissions') != {"contents": "read"}:
+    raise SystemExit('fixture must be dispatch-only with read-only top-level permissions')
+if set(jobs) != {'producers', 'verdict', 'verifier'} or jobs['producers'].get('strategy', {}).get('matrix', {}).get('seam') != ['non_admin_smoke', 'admin_behavior', 'admin_checkpoints', 'design_gallery', 'demo_showcase']:
+    raise SystemExit('fixture does not contain the five frozen tiny producers, verdict and verifier')
+if jobs['verifier'].get('permissions') != {"contents": "read", "actions": "read"}:
+    raise SystemExit('independent verifier permissions exceed read-only scope')
+PY
+  python3 "$PUBLISHER" --check-freeze "$REVISION_FREEZE" --repo-root "$ROOT" >/dev/null || fail 'revision freeze failed the policy check (expired reruns, native_target, bounds, source)'
+  echo 'ci-gate-canary: local fixture contract passed'
+  exit 0
+fi
 
 if [[ "$CHECK_ONLY" == true ]]; then
   [[ -f "$FIXTURE" ]] || fail "fixture workflow missing: $FIXTURE"
@@ -207,25 +253,71 @@ PY
 fi
 
 
-# ---- registered-path revision flow (253-91): the committed section approval gates every live mode ----
-PUBLISHER="$ROOT/scripts/ci/ci-git-publication.py"
-if [[ "$PUBLISH_ONLY" == true ]]; then
-  [[ "$CHECK_ONLY" == false && "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false && "$ALL_REMAINING" == false && -z "$SCENARIO" ]] \
-    || fail 'publish-only mode cannot include another execution mode'
-  [[ -n "$REVISION_FREEZE" && -f "$REVISION_FREEZE" ]] || fail '--publish-only requires the reviewed --revision-freeze'
+if [[ -n "$REVISION_FREEZE" ]]; then
+  # The committed canary section approval is checked before any evidence file, ledger or request exists.
+  [[ -f "$REVISION_FREEZE" ]] || fail "live mode requires the reviewed --revision-freeze: $REVISION_FREEZE is missing"
   cd "$ROOT"
   [[ "$(git rev-parse --show-toplevel)" == "$ROOT" ]] || fail 'checkout root changed'
-  # The approval is checked before any evidence file, ledger or request exists.
   APPROVAL_RECORD="$(python3 "$PUBLISHER" --check-approval --action-approval "$ACTION_APPROVAL" --freeze "$REVISION_FREEZE" --section canary --repo-root "$ROOT")" \
     || fail 'a committed canary section approval bound to the freeze is required before any request'
-  python3 "$PUBLISHER" --check-freeze "$REVISION_FREEZE" --repo-root "$ROOT" >/dev/null || fail 'revision freeze failed local validation'
-  [[ -n "$LIVE_ALLOCATION" && -f "$LIVE_ALLOCATION" ]] || fail 'a new frozen HTTP allocation is required before hosted work'
+  bash "$0" --check-only --revision-freeze "$REVISION_FREEZE" >/dev/null || fail 'revision freeze failed local check-only validation'
+  FROZEN_CANDIDATE_SHA="$(jq -r '.identity.candidate_helper_commit' "$REVISION_FREEZE")"
+  FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$REVISION_FREEZE")"
+  FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$REVISION_FREEZE")"
+  FROZEN_FIXTURE_BLOB="$(jq -r '.identity.fixture_workflow_blob' "$REVISION_FREEZE")"
+  FIXTURE="$ROOT/$(jq -r '.bound_documents.fixture_workflow.path' "$REVISION_FREEZE")"
   [[ "$EVIDENCE_SET" == true ]] || EVIDENCE="$PHASE_DIR/253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
   [[ "$REQUESTS_SET" == true ]] || REQUESTS="$PHASE_DIR/253-LOAD-RECOVERY-CANARY-REQUESTS.json"
   [[ -n "$PUBLICATION_RECEIPT" ]] || PUBLICATION_RECEIPT="$PHASE_DIR/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT.json"
-  if [[ -f "$EVIDENCE" ]] && jq -e '.status == "halted"' "$EVIDENCE" >/dev/null 2>&1; then
-    fail 'halted evidence requires a separately authorized new freeze; existing diagnostics cannot be retried'
+  TRANSPORT_LEDGER="$REQUESTS"
+else
+  [[ -n "$FREEZE_TO_CHECK" && -f "$FREEZE_TO_CHECK" ]] || fail 'hosted execution requires the separately reviewed recovery freeze'
+  bash "$0" --check-only --recovery-freeze "$FREEZE_TO_CHECK" >/dev/null || fail 'recovery freeze failed local check-only validation'
+  FROZEN_CANDIDATE_SHA="$(jq -r '.identity.candidate_helper_commit' "$FREEZE_TO_CHECK")"
+  FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$FREEZE_TO_CHECK")"
+  FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$FREEZE_TO_CHECK")"
+  FROZEN_FIXTURE_BLOB="$(jq -r '.identity.fixture_workflow_blob' "$FREEZE_TO_CHECK")"
+fi
+
+cd "$ROOT"
+normalize_repo_path() {
+  local value="$1" resolved
+  if [[ "$value" == /* ]]; then
+    resolved="$(cd "$(dirname "$value")" && pwd -P)/$(basename "$value")"
+  else
+    resolved="$ROOT/$value"
   fi
+  [[ "$resolved" == "$ROOT/"* ]] || fail "evidence path must stay inside the repository: $value"
+  printf '%s\n' "$resolved"
+}
+EVIDENCE="$(normalize_repo_path "$EVIDENCE")"
+REQUESTS="$(normalize_repo_path "$REQUESTS")"
+[[ "$ALL_REMAINING" == true || -n "$SCENARIO" || "$PREFLIGHT_ONLY" == true || "$PUBLISH_REF_ONLY" == true || "$PUBLISH_ONLY" == true ]] || { usage >&2; exit 2; }
+[[ "$PUBLISH_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" && "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false ) ]] || fail 'publish-only mode cannot include another execution mode'
+[[ "$ALL_REMAINING" == false || -z "$SCENARIO" ]] || fail 'choose one scenario mode'
+[[ "$PREFLIGHT_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" ) ]] || fail 'preflight-only mode cannot include a scenario'
+[[ "$PUBLISH_REF_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" && "$PREFLIGHT_ONLY" == false ) ]] || fail 'publish-ref-only mode cannot include another execution mode'
+valid_scenario() { case "$1" in full-pass|docs-only|actual-failure|missing-seam|unexpected-skip|cancelled) return 0;; *) return 1;; esac; }
+if [[ "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false && "$ALL_REMAINING" == false && "$PUBLISH_ONLY" == false ]]; then valid_scenario "$SCENARIO" || fail "unknown scenario: $SCENARIO"; fi
+
+[[ "$(git rev-parse --show-toplevel)" == "$ROOT" ]] || fail 'checkout root changed'
+[[ -f "$FIXTURE" ]] || fail 'frozen fixture is missing'
+[[ -f "$PHASE_DIR/253-PREHOST-REVIEW.md" ]] || fail 'pre-host review report is missing'
+if rg -n '^### CR-.*(ci-browser-records|honest-skip-verdict|ci-gate)' "$PHASE_DIR/253-PREHOST-REVIEW.md"; then
+  fail 'pre-host review found a blocking issue in a canary gate helper'
+fi
+for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
+  if rg -q 'Phase 253 Gate Canary' "$ROOT/$path"; then fail "distinct canary name is captured by downstream workflow filter $path"; fi
+done
+
+# Never let a rerun discard deterministic diagnostics or reuse a halted freeze.
+# This guard precedes every gh invocation, including local token lookup.
+if [[ -f "$EVIDENCE" ]] && jq -e '.status == "halted" or ((.diagnostics // {}) | length > 0)' "$EVIDENCE" >/dev/null; then
+  fail 'halted evidence requires a separately authorized new freeze; existing diagnostics cannot be retried'
+fi
+[[ -n "$REVISION_FREEZE" ]] || fail 'recovery freezes are retired for live execution: use --revision-freeze with a committed canary section approval'
+[[ -n "$LIVE_ALLOCATION" && -f "$LIVE_ALLOCATION" ]] || fail 'a new frozen HTTP allocation is required before hosted work'
+if [[ "$PUBLISH_ONLY" == true ]]; then
   MANIFEST_REL="$(jq -r '.bound_documents.publication_manifest.path' "$REVISION_FREEZE")"
   WINDOW_START="$(date +%s)"
   if [[ -f "$EVIDENCE" ]]; then
@@ -256,50 +348,6 @@ if [[ "$PUBLISH_ONLY" == true ]]; then
   echo "ci-gate-canary: counted publication verified (requests=$(jq -r '.transactions|length' "$REQUESTS")/117; no workflow dispatch)"
   exit 0
 fi
-
-[[ -n "$FREEZE_TO_CHECK" && -f "$FREEZE_TO_CHECK" ]] || fail 'hosted execution requires the separately reviewed recovery freeze'
-bash "$0" --check-only --recovery-freeze "$FREEZE_TO_CHECK" >/dev/null || fail 'recovery freeze failed local check-only validation'
-FROZEN_CANDIDATE_SHA="$(jq -r '.identity.candidate_helper_commit' "$FREEZE_TO_CHECK")"
-FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$FREEZE_TO_CHECK")"
-FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$FREEZE_TO_CHECK")"
-FROZEN_FIXTURE_BLOB="$(jq -r '.identity.fixture_workflow_blob' "$FREEZE_TO_CHECK")"
-
-cd "$ROOT"
-normalize_repo_path() {
-  local value="$1" resolved
-  if [[ "$value" == /* ]]; then
-    resolved="$(cd "$(dirname "$value")" && pwd -P)/$(basename "$value")"
-  else
-    resolved="$ROOT/$value"
-  fi
-  [[ "$resolved" == "$ROOT/"* ]] || fail "evidence path must stay inside the repository: $value"
-  printf '%s\n' "$resolved"
-}
-EVIDENCE="$(normalize_repo_path "$EVIDENCE")"
-REQUESTS="$(normalize_repo_path "$REQUESTS")"
-[[ "$ALL_REMAINING" == true || -n "$SCENARIO" || "$PREFLIGHT_ONLY" == true || "$PUBLISH_REF_ONLY" == true ]] || { usage >&2; exit 2; }
-[[ "$ALL_REMAINING" == false || -z "$SCENARIO" ]] || fail 'choose one scenario mode'
-[[ "$PREFLIGHT_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" ) ]] || fail 'preflight-only mode cannot include a scenario'
-[[ "$PUBLISH_REF_ONLY" == false || ( "$ALL_REMAINING" == false && -z "$SCENARIO" && "$PREFLIGHT_ONLY" == false ) ]] || fail 'publish-ref-only mode cannot include another execution mode'
-valid_scenario() { case "$1" in full-pass|docs-only|actual-failure|missing-seam|unexpected-skip|cancelled) return 0;; *) return 1;; esac; }
-if [[ "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false && "$ALL_REMAINING" == false ]]; then valid_scenario "$SCENARIO" || fail "unknown scenario: $SCENARIO"; fi
-
-[[ "$(git rev-parse --show-toplevel)" == "$ROOT" ]] || fail 'checkout root changed'
-[[ -f "$FIXTURE" ]] || fail 'frozen fixture is missing'
-[[ -f "$PHASE_DIR/253-PREHOST-REVIEW.md" ]] || fail 'pre-host review report is missing'
-if rg -n '^### CR-.*(ci-browser-records|honest-skip-verdict|ci-gate)' "$PHASE_DIR/253-PREHOST-REVIEW.md"; then
-  fail 'pre-host review found a blocking issue in a canary gate helper'
-fi
-for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
-  if rg -q 'Phase 253 Gate Canary' "$ROOT/$path"; then fail "distinct canary name is captured by downstream workflow filter $path"; fi
-done
-
-# Never let a rerun discard deterministic diagnostics or reuse a halted freeze.
-# This guard precedes every gh invocation, including local token lookup.
-if [[ -f "$EVIDENCE" ]] && jq -e '.status == "halted" or ((.diagnostics // {}) | length > 0)' "$EVIDENCE" >/dev/null; then
-  fail 'halted evidence requires a separately authorized new freeze; existing diagnostics cannot be retried'
-fi
-[[ -n "$LIVE_ALLOCATION" && -f "$LIVE_ALLOCATION" ]] || fail 'a new frozen HTTP allocation is required before hosted work'
 if [[ -f "$EVIDENCE" ]] && ! jq -e '.schema_version=="sigra.phase253.hosted-replan-evidence/v2"' "$EVIDENCE" >/dev/null 2>&1; then
   fail 'the existing evidence is historical v1/v2 disclosure; new acceptance needs a separate measured-v2 evidence path and allocation'
 fi
@@ -472,14 +520,27 @@ api_get() {
   jq -e . "$target" >/dev/null || fail "invalid JSON for route $route"
 }
 
+require_listed() {
+  local want="$1"
+  jq -e --argjson want "$want" '
+    def subset($small; $big):
+      if ($small | type) == "object"
+      then ($big | type) == "object" and ($small | to_entries | all(. as $kv | $big[$kv.key] != null and subset($kv.value; $big[$kv.key])))
+      else $small == $big end;
+    .outward_actions.canary.actions | any(.[]; subset($want; .))' "$REVISION_FREEZE" >/dev/null \
+    || fail "action is outside the approved canary section: $want"
+}
+
 api_post_create_ref() {
   branch="$1"; sha="$2"; target="$3"; body="$(jq -cn --arg ref "refs/heads/$branch" --arg sha "$sha" '{ref:$ref,sha:$sha}')"
+  require_listed "$(jq -cn --arg ref "refs/heads/$branch" --arg sha "$sha" '{action:"create_ref",ref:$ref,sha:$sha}')"
   transport_call create_ref POST "$target" '{}' '{}' "$body" one
   [[ "$LAST_REQUEST_STATUS" == 201 ]] || fail "create-ref returned HTTP $LAST_REQUEST_STATUS"
 }
 
 api_post_dispatch() {
   inputs="$1"; branch="$(printf '%s' "$FIXTURE_REF" | sed 's#^refs/heads/##')"
+  require_listed "$(jq -cn --arg ref "$branch" --argjson inputs "$inputs" '{action:"workflow_dispatch",ref:$ref,inputs:($inputs|del(.matrix_evidence))}')"
   body="$(jq -cn --arg ref "$branch" --argjson inputs "$inputs" '{ref:$ref,inputs:$inputs}')"
   transport_call dispatch POST /dev/null '{}' '{}' "$body" one
   [[ "$LAST_REQUEST_STATUS" == 202 || "$LAST_REQUEST_STATUS" == 204 ]] || fail "dispatch returned HTTP $LAST_REQUEST_STATUS"
@@ -523,9 +584,11 @@ store_preflight() {
 if [[ ! -e "$EVIDENCE" ]]; then
   CANARY_STARTED_EPOCH="$(date +%s)"
   jq -n --arg candidate "$CANDIDATE_SHA" --arg fixture_ref "$FIXTURE_REF" --arg fixture_sha "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" \
-    --argjson started_epoch "$CANARY_STARTED_EPOCH" \
-    '{schema_version:"sigra.phase253.hosted-replan-evidence/v2",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{},budget:{accounted_max_requests:120,new_measured_max_requests:117,max_requests:117,request_count:0,max_jobs:45,actual_jobs:0,max_minutes:60,elapsed_seconds:0},transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
+    --argjson started_epoch "$CANARY_STARTED_EPOCH" --argjson approval "$APPROVAL_RECORD" \
+    '{schema_version:"sigra.phase253.hosted-replan-evidence/v2",repository:"szTheory/sigra",action_approval:($approval + {window_wall_start_epoch:$started_epoch}),expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{},budget:{accounted_max_requests:120,new_measured_max_requests:117,max_requests:117,request_count:0,max_jobs:45,actual_jobs:0,max_minutes:60,elapsed_seconds:0},transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
 else
+  jq -e --argjson approval "$APPROVAL_RECORD" '.action_approval.section_sha256 == $approval.section_sha256' "$EVIDENCE" >/dev/null \
+    || fail 'existing evidence is bound to a different approval'
   CANARY_STARTED_EPOCH="$(jq -r '.budget.started_epoch // 0' "$EVIDENCE")"
 fi
 if [[ -f "$REQUEST_LEDGER" ]]; then REQUEST_COUNT="$(jq -r '.transactions | length' "$REQUEST_LEDGER")"; else REQUEST_COUNT=0; fi
@@ -659,6 +722,7 @@ dispatch_scenario() {
     jq -e --argjson run_id "$run_id" --arg branch "$FIXTURE_BRANCH" --arg sha "$FIXTURE_SHA" \
       '.workflow_runs[] | select(.id==$run_id and .event=="workflow_dispatch" and .head_branch==$branch and .head_sha==$sha and .workflow_id==259268962)' \
       "$run_list" >/dev/null || fail 'refusing to cancel a run whose fixture identity is not exact'
+    require_listed '{"action":"cancel_run","scenario":"cancelled"}'
     transport_call cancel_run POST /dev/null "$(jq -cn --argjson id "$run_id" '{run_id:$id}')" '{}' null one || fail 'identified canary cancellation failed'
     [[ "$LAST_REQUEST_STATUS" == 202 ]] || fail "identified canary cancellation returned HTTP $LAST_REQUEST_STATUS"
   fi
@@ -693,24 +757,7 @@ dispatch_scenario() {
     archive="$(mktemp "$WORK_DIR/artifact.XXXXXX")"
     download_no_follow "https://api.github.com/repos/$REPO/actions/artifacts/$artifact_id/zip" "$archive" "$MAX_ARTIFACT_COMPRESSED" || fail "artifact download failed for $case_name"
     local artifact_data
-    artifact_data="$(python3 - "$archive" <<'PY'
-import base64, hashlib, json, os, sys, zipfile
-archive_path=sys.argv[1]
-if os.path.getsize(archive_path) > 2 * 1024 * 1024:
-    raise SystemExit('compressed canary artifact exceeds 2 MiB')
-raw=open(archive_path,'rb').read()
-with zipfile.ZipFile(archive_path) as bundle:
-    names=[name for name in bundle.namelist() if not name.endswith('/')]
-    if names != ['canary-result.json']:
-        raise SystemExit('unexpected canary artifact contents: '+repr(names))
-    if bundle.getinfo('canary-result.json').file_size > 4 * 1024 * 1024:
-        raise SystemExit('extracted canary result exceeds 4 MiB')
-    content=bundle.read('canary-result.json')
-record=json.loads(content)
-print(json.dumps({'archive_sha256':hashlib.sha256(raw).hexdigest(),'archive_base64':base64.b64encode(raw).decode(),
-  'file':{'content':content.decode(),'sha256':hashlib.sha256(content).hexdigest(),'json':record}}))
-PY
-)" || fail "retained artifact is malformed for $case_name"
+    artifact_data="$(python3 "$PUBLISHER" --extract-canary-artifact "$archive")" || fail "retained artifact is malformed for $case_name"
     jq -n --slurpfile run "$run_json" --slurpfile jobs "$jobs_json" --slurpfile artifacts "$artifacts_json" \
       --arg run_id "$run_id" --argjson attempt "$run_attempt" --arg artifact_id "$artifact_id" --argjson retained "$artifact_data" \
       '{run_id:$run_id,run_attempt:$attempt,run:$run[0],jobs:$jobs[0],artifacts:$artifacts[0],retained_artifact:{artifact_id:$artifact_id,archive_sha256:$retained.archive_sha256,archive_base64:$retained.archive_base64,files:{"canary-result.json":$retained.file}}}' > "$receipt_tmp"
@@ -729,11 +776,7 @@ for current_scenario in "${SCENARIOS[@]}"; do dispatch_scenario "$current_scenar
 
 if [[ "$ALL_REMAINING" == true ]]; then
   python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario sources || fail 'source matrix is incomplete before separate verifier dispatch'
-  MATRIX_B64="$(python3 - "$EVIDENCE" <<'PY'
-import base64,sys
-print(base64.b64encode(open(sys.argv[1],'rb').read()).decode())
-PY
-)"
+  MATRIX_B64="$(python3 "$PUBLISHER" --compact-matrix "$EVIDENCE")" || fail 'compact verifier matrix exceeds its bounded dispatch input'
   current_jobs="$(jq -r '.budget.actual_jobs // 0' "$EVIDENCE")"
   (( current_jobs + 1 <= MAX_JOBS )) || fail "separate verifier would exceed the $MAX_JOBS-job ceiling"
   input_json="$(jq -cn --arg candidate "$CANDIDATE_SHA" --arg fixture "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" --arg matrix "$MATRIX_B64" \
