@@ -652,6 +652,109 @@ class TypedAllocationWireTests(unittest.TestCase):
         with self.assertRaises(self.transport.TransportError):
             self.transport._route(request, self.allocation(kind="canary", max_requests=10))
 
+    # -- 253-101: hermetic canary routing (offline dry-run of the whole canary) ---------------------------
+    def canary_requests(self):
+        sha = "a" * 40
+        return [
+            ("rate_limit", {"method": "GET"}),
+            ("rules_main", {"method": "GET", "query": {"per_page": 100, "page": 1}}),
+            ("branch_protection", {"method": "GET"}),
+            ("check_runs", {"method": "GET", "params": {"commit_sha": sha}, "query": {"per_page": 100, "page": 1}}),
+            ("workflow", {"method": "GET", "params": {"workflow_id": 259268962}}),
+            ("workflow_runs", {"method": "GET", "params": {"workflow_id": 259268962},
+                               "query": {"event": "workflow_dispatch", "branch": "gsd/253-replan-fixture", "per_page": 100}}),
+            ("run", {"method": "GET", "params": {"run_id": 9}}),
+            ("run_jobs", {"method": "GET", "params": {"run_id": 9}, "query": {"per_page": 100}}),
+            ("run_artifacts", {"method": "GET", "params": {"run_id": 9}, "query": {"per_page": 100}}),
+            ("dispatch", {"method": "POST", "params": {"workflow_id": 259268962},
+                          "body": {"ref": "gsd/253-replan-fixture", "inputs": {"scenario": "full-pass"}}}),
+            ("cancel_run", {"method": "POST", "params": {"run_id": 9}, "body": {}}),
+            ("get_ref", {"method": "GET", "params": {"branch": "gsd/253-replan-fixture"}}),
+            ("create_ref", {"method": "POST", "body": {"ref": "refs/heads/gsd/253-replan-fixture", "sha": sha}}),
+            ("git_get_commit", {"method": "GET", "params": {"sha": sha}}),
+            ("artifact_zip", {"method": "GET", "params": {"artifact_id": 5}}),
+            ("run_logs", {"method": "GET", "params": {"run_id": 9}}),
+        ]
+
+    def test_hermetic_canary_allocation_routes_every_canary_route_to_its_local_origin(self):
+        allocation = self.allocation(kind="canary", max_requests=117)
+        for route_id, fields in self.canary_requests():
+            with self.subTest(route=route_id):
+                host, port, _, path = self.transport._route({"route_id": route_id, **fields}, allocation)
+                self.assertEqual((host, port), ("localhost", self.port))
+                self.assertTrue(path == "/rate_limit" or path.startswith("/repos/szTheory/sigra/"), path)
+
+    def test_hermetic_canary_non_git_routes_are_answered_by_the_local_https_server_without_credentials(self):
+        limits = {"preflight": 2, "cancellation": 1}
+        self.write_allocation(self.allocation(kind="canary", max_requests=117, category_limits=limits))
+        self.request_path.write_text(json.dumps({"method": "GET", "route_id": "rate_limit", "category": "preflight"}))
+        receipt, _, _, _ = self.transport.request_one(self.allocation_path, self.ledger, self.request_path, self.output_path)
+        self.assertEqual(receipt["actual_status"], 200)
+        self.request_path.write_text(json.dumps({"method": "POST", "route_id": "cancel_run", "category": "cancellation",
+                                                 "params": {"run_id": 9}, "body": {}}))
+        self.transport.request_one(self.allocation_path, self.ledger, self.request_path, self.output_path)
+        self.assertEqual([row["path"] for row in self.server.journal], ["/rate_limit", "/repos/szTheory/sigra/actions/runs/9/cancel"])
+        self.assertTrue(all(row["charged"] and row["authorization"] is None for row in self.server.journal))
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual({row["host"] for row in ledger["transactions"]}, {"localhost"})
+        self.assertTrue(all(row["url"].startswith("https://localhost/") for row in ledger["transactions"]))
+
+    def test_hermetic_canary_allocation_naming_a_non_local_origin_is_refused(self):
+        for origin in ("https://api.github.com:443", "https://example.com:4443", f"http://localhost:{self.port}",
+                       "https://localhost", f"https://user@localhost:{self.port}"):
+            with self.subTest(origin=origin):
+                allocation = self.allocation(kind="canary", max_requests=117, test_origin=origin)
+                with self.assertRaises(self.transport.TransportError) as caught:
+                    self.transport._route({"route_id": "rate_limit", "method": "GET"}, allocation)
+                self.assertEqual(caught.exception.code, "test_origin_rejected")
+
+    def test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com(self):
+        live = self.allocation(kind="canary", max_requests=117, mode="live")
+        live.pop("test_origin"), live.pop("test_ca_file")
+        self.transport._validate_allocation(live)
+        for route_id, fields in self.canary_requests():
+            with self.subTest(route=route_id):
+                host, port, _, _ = self.transport._route({"route_id": route_id, **fields}, live)
+                self.assertEqual((host, port), ("api.github.com", 443))
+        for extra in ({"test_origin": f"https://localhost:{self.port}"}, {"test_ca_file": str(self.cert)}):
+            with self.subTest(extra=extra):
+                with self.assertRaises(self.transport.TransportError) as caught:
+                    self.transport._validate_allocation({**live, **extra})
+                self.assertIn(caught.exception.code, {"allocation_field_rejected", "test_origin_rejected"})
+
+    def test_hermetic_canary_routing_keeps_the_category_predebit_and_the_117_cap(self):
+        self.write_allocation(self.allocation(kind="canary", max_requests=117, category_limits={"preflight": 1, "dispatch": 1}))
+        self.request_path.write_text(json.dumps({"method": "GET", "route_id": "rate_limit", "category": "preflight"}))
+        self.transport.request_one(self.allocation_path, self.ledger, self.request_path, self.output_path)
+        with self.assertRaises(self.transport.TransportError) as caught:
+            self.transport.request_one(self.allocation_path, self.ledger, self.request_path, self.output_path)
+        self.assertEqual(caught.exception.code, "category_budget_exhausted")
+        self.assertEqual(len(self.server.journal), 1)
+        with self.assertRaises(self.transport.TransportError) as capped:
+            self.transport._validate_allocation(self.allocation(kind="canary", max_requests=118))
+        self.assertEqual(capped.exception.code, "allocation_limit_invalid")
+
+    def test_a_dispatch_receipt_and_ledger_row_carry_the_exact_transmitted_input_metrics(self):
+        self.write_allocation(self.allocation(kind="canary", max_requests=117, category_limits={"dispatch": 1}))
+        inputs = {"scenario": "full-pass", "candidate_sha": "a" * 40, "fixture_sha": "b" * 40, "fixture_blob": "c" * 40}
+        self.request_path.write_text(json.dumps({"method": "POST", "route_id": "dispatch", "category": "dispatch",
+                                                 "params": {"workflow_id": 259268962},
+                                                 "body": {"ref": "gsd/253-replan-fixture", "inputs": inputs}}))
+        receipt, _, _, _ = self.transport.request_one(self.allocation_path, self.ledger, self.request_path, self.output_path)
+        canonical = self.transport.serialize_dispatch_inputs(inputs)
+        row = json.loads(self.ledger.read_text())["transactions"][0]
+        for record in (receipt, row):
+            self.assertEqual(record["dispatch_inputs"], inputs)
+            self.assertEqual(record["input_key_count"], 4)
+            self.assertEqual(record["input_utf8_bytes"], len(canonical))
+            self.assertEqual(record["input_sha256"], hashlib.sha256(canonical).hexdigest())
+        self.assertEqual(self.server.journal[0]["path"], "/repos/szTheory/sigra/actions/workflows/259268962/dispatches")
+
+    def test_a_kindless_legacy_hermetic_allocation_still_needs_a_live_allocation_for_non_git_routes(self):
+        with self.assertRaises(self.transport.TransportError) as caught:
+            self.transport._route({"route_id": "rate_limit", "method": "GET"}, self.allocation(kind=None, max_requests=10))
+        self.assertEqual(caught.exception.code, "live_allocation_required")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

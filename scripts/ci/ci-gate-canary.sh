@@ -333,6 +333,23 @@ if [[ -f "$EVIDENCE" ]] && jq -e '.status == "halted" or ((.diagnostics // {}) |
 fi
 [[ -n "$REVISION_FREEZE" ]] || fail 'recovery freezes are retired for live execution: use --revision-freeze with a committed canary section approval'
 [[ -n "$LIVE_ALLOCATION" && -f "$LIVE_ALLOCATION" ]] || fail 'a new frozen HTTP allocation is required before hosted work'
+# 253-101: a hermetic-test allocation runs the whole canary against a local HTTPS fake (offline dry-run). Its evidence is
+# labelled hermetic-https and is synthetic only. SIGRA_CANARY_TEST_* overrides exist for that mode alone: with any other
+# allocation the presence of one stops here, before any evidence or request exists.
+HERMETIC=false
+if jq -e '.mode == "hermetic-test"' "$LIVE_ALLOCATION" >/dev/null 2>&1; then HERMETIC=true; fi
+if [[ "$HERMETIC" != true ]]; then
+  for _test_var in $(compgen -e); do
+    [[ "$_test_var" != SIGRA_CANARY_TEST_* ]] || fail "test-only override $_test_var is refused with a live allocation; unset it before any request"
+  done
+else
+  if [[ -n "${SIGRA_CANARY_TEST_POLL_SECONDS:-}" ]]; then
+    [[ "$SIGRA_CANARY_TEST_POLL_SECONDS" =~ ^[0-9]+([.][0-9]+)?$ ]] || fail 'SIGRA_CANARY_TEST_POLL_SECONDS must be a non-negative number'
+    POLL_INTERVAL="$SIGRA_CANARY_TEST_POLL_SECONDS"
+  fi
+fi
+EVIDENCE_CHANNEL=github-api
+[[ "$HERMETIC" != true ]] || EVIDENCE_CHANNEL=hermetic-https
 if [[ "$PUBLISH_ONLY" == true ]]; then
   MANIFEST_REL="$(jq -r '.bound_documents.publication_manifest.path' "$REVISION_FREEZE")"
   WINDOW_START="$(date +%s)"
@@ -367,6 +384,40 @@ if [[ "$PUBLISH_ONLY" == true ]]; then
     python3 "$PUBLISHER" --verify-publication "$PUBLICATION_RECEIPT" >/dev/null || fail 'publication receipt failed verification'
     REF_STATE=hermetic-unverified
   fi
+  # The publisher's own transport receipts are not retained, so its measured rows are carried into the evidence here,
+  # each checked against the per-transaction digest the publication receipt pinned (253-101: without them the
+  # verifier's receipt/ledger reconciliation can never pass).
+  python3 - "$PUBLICATION_RECEIPT" "$REQUESTS" "$EVIDENCE" <<'PY' || fail 'publication rows could not be reconciled with the publication receipt'
+import hashlib, json, sys
+receipt_path, ledger_path, evidence_path = sys.argv[1:]
+receipt = json.load(open(receipt_path))
+ledger = json.load(open(ledger_path))
+evidence = json.load(open(evidence_path))
+pinned = {item["sequence"]: item["sha256"] for item in receipt.get("publication_transactions") or []}
+if not pinned:
+    raise SystemExit("publication receipt pins no transactions")
+rows = {tx["sequence"]: tx for tx in ledger.get("transactions", []) if tx.get("sequence") in pinned}
+if set(rows) != set(pinned):
+    raise SystemExit("a pinned publication transaction is missing from the ledger")
+fields = ("window_id", "source_sha256", "sequence", "method", "route_id", "host", "page_ordinal", "hop_ordinal",
+          "actual_status", "scrubbed_headers", "response_sha256", "raw_observation_sha256", "response_bytes",
+          "scrubbed_response_bytes", "url", "url_sha256", "request_sha256", "request_group", "request_body_base64",
+          "request_body_bytes", "request_body_sha256", "dispatch_inputs", "input_key_count", "input_unicode_scalars",
+          "input_utf8_bytes", "input_sha256", "response_body_base64", "error")
+receipts = {item.get("sequence"): item for item in evidence.get("transport_receipts") or []}
+for sequence, tx in rows.items():
+    canonical = json.dumps(tx, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    if hashlib.sha256(canonical).hexdigest() != pinned[sequence]:
+        raise SystemExit(f"publication transaction {sequence} differs from its pinned digest")
+    if sequence not in receipts:
+        derived = {key: tx.get(key) for key in fields}
+        derived.update(schema_version="sigra.phase253.http-receipt/v1", allocation_sha256=ledger.get("allocation_sha256"),
+                       terminal_stop=False, derived_from="publication-receipt-pinned-transaction")
+        receipts[sequence] = derived
+evidence["transport_receipts"] = [receipts[key] for key in sorted(receipts)]
+open(evidence_path + ".tmp", "w").write(json.dumps(evidence))
+PY
+  mv "$EVIDENCE.tmp" "$EVIDENCE"
   jq --slurpfile receipt "$PUBLICATION_RECEIPT" --arg path "${PUBLICATION_RECEIPT#${ROOT}/}" --arg ref_state "$REF_STATE" \
     --arg digest "$(shasum -a 256 "$PUBLICATION_RECEIPT" | awk '{print $1}')" --slurpfile ledger "$REQUESTS" \
     '.expected.fixture_ref_state=$ref_state | .budget.request_count=($ledger[0].transactions|length)
@@ -529,7 +580,7 @@ transport_call() {
     LAST_INPUT_SHA256="$(jq -r '.input_sha256 // .receipts[-1].input_sha256 // empty' "$receipt_file")"
     if [[ -f "$EVIDENCE" ]]; then
       jq --slurpfile new_receipts "$receipt_file" \
-        '.transport_receipts += (if ($new_receipts[0].receipts|type)=="array" then $new_receipts[0].receipts else [$new_receipts[0]] end)' \
+        '.transport_receipts += (if ($new_receipts[0].receipts|type)=="array" then $new_receipts[0].receipts elif ($new_receipts[0].hops|type)=="array" then $new_receipts[0].hops else [$new_receipts[0]] end)' \
         "$EVIDENCE" > "$EVIDENCE.tmp" && mv "$EVIDENCE.tmp" "$EVIDENCE"
     fi
   fi
@@ -544,9 +595,13 @@ record_budget() {
   elapsed=0
   if (( CANARY_STARTED_EPOCH > 0 )); then elapsed="$(($(date +%s) - CANARY_STARTED_EPOCH))"; fi
   preserve_evidence
-  jq --slurpfile ledger "$REQUEST_LEDGER" --argjson count "$REQUEST_COUNT" --argjson elapsed "$elapsed" \
-    '.budget.request_count=$count | .budget.elapsed_seconds=$elapsed | .transport_ledger=$ledger[0] | .origin={kind:"measured-v2",window_id:$ledger[0].window_id,source_sha256:$ledger[0].source_sha256,channel:"github-api"}' \
+  jq --slurpfile ledger "$REQUEST_LEDGER" --argjson count "$REQUEST_COUNT" --argjson elapsed "$elapsed" --arg channel "$EVIDENCE_CHANNEL" \
+    '.budget.request_count=$count | .budget.elapsed_seconds=$elapsed | .transport_ledger=$ledger[0] | .origin={kind:"measured-v2",window_id:$ledger[0].window_id,source_sha256:$ledger[0].source_sha256,channel:$channel}' \
     "$EVIDENCE" > "$temp" && mv "$temp" "$EVIDENCE"
+  # A hermetic window retains the local server's own journal, so the verifier's hermetic-https rule can reconcile it.
+  if [[ "$HERMETIC" == true && -n "${SIGRA_CANARY_TEST_SERVER_JOURNAL:-}" && -f "$SIGRA_CANARY_TEST_SERVER_JOURNAL" ]]; then
+    jq --slurpfile journal "$SIGRA_CANARY_TEST_SERVER_JOURNAL" '.server_journal=$journal[0]' "$EVIDENCE" > "$temp" && mv "$temp" "$EVIDENCE"
+  fi
 }
 
 api_get() {
@@ -594,7 +649,8 @@ api_post_dispatch() {
   inputs="$1"; branch="$(printf '%s' "$FIXTURE_REF" | sed 's#^refs/heads/##')"
   require_listed "$(jq -cn --arg ref "$branch" --argjson inputs "$inputs" '{action:"workflow_dispatch",ref:$ref,inputs:($inputs|del(.matrix_evidence))}')"
   body="$(jq -cn --arg ref "$branch" --argjson inputs "$inputs" '{ref:$ref,inputs:$inputs}')"
-  transport_call dispatch POST /dev/null '{}' '{}' "$body" one
+  # The dispatch route is typed by its workflow ID; an empty parameter object is refused before any request (253-101).
+  transport_call dispatch POST /dev/null "$(jq -cn --argjson id "$WORKFLOW_ID" '{workflow_id:$id}')" '{}' "$body" one
   [[ "$LAST_REQUEST_STATUS" == 202 || "$LAST_REQUEST_STATUS" == 204 ]] || fail "dispatch returned HTTP $LAST_REQUEST_STATUS"
   [[ "$LAST_INPUT_KEY_COUNT" == "$(jq -r 'keys|length' <<<"$inputs")" ]] || fail 'transmitted dispatch input count differs from serializer'
   [[ "$LAST_INPUT_UNICODE_SCALARS" =~ ^[0-9]+$ && "$LAST_INPUT_UTF8_BYTES" =~ ^[0-9]+$ && "$LAST_INPUT_SHA256" =~ ^[a-f0-9]{64}$ ]] || fail 'transport did not retain exact dispatch input byte metrics'
@@ -778,7 +834,8 @@ dispatch_scenario() {
       '.workflow_runs[] | select(.id==$run_id and .event=="workflow_dispatch" and .head_branch==$branch and .head_sha==$sha and .workflow_id==259268962)' \
       "$run_list" >/dev/null || fail 'refusing to cancel a run whose fixture identity is not exact'
     require_listed '{"action":"cancel_run","scenario":"cancelled"}'
-    transport_call cancel_run POST /dev/null "$(jq -cn --argjson id "$run_id" '{run_id:$id}')" '{}' null one || fail 'identified canary cancellation failed'
+    # The typed POST route needs a JSON object body; GitHub's cancel takes no parameters, so it is exactly {} (253-101).
+    transport_call cancel_run POST /dev/null "$(jq -cn --argjson id "$run_id" '{run_id:$id}')" '{}' '{}' one || fail 'identified canary cancellation failed'
     [[ "$LAST_REQUEST_STATUS" == 202 ]] || fail "identified canary cancellation returned HTTP $LAST_REQUEST_STATUS"
   fi
   run_json="$(mktemp "$WORK_DIR/run.XXXXXX")"

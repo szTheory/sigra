@@ -74,6 +74,12 @@ ROUTES = {
 
 
 ALLOCATION_KINDS = ("canary", "production")
+# Every route ci-gate-canary.sh and its publisher use; only these follow a canary-kind hermetic allocation locally.
+HERMETIC_CANARY_ROUTES = frozenset({
+    "rate_limit", "rules_main", "branch_protection", "check_runs", "workflow", "workflow_runs", "run", "run_jobs",
+    "run_artifacts", "dispatch", "cancel_run", "get_ref", "create_ref", "git_get_blob", "git_create_blob",
+    "git_get_tree", "git_create_tree", "git_get_commit", "git_create_commit", "artifact_zip", "run_logs",
+})
 CANARY_MAX_REQUESTS = 117
 PRODUCTION_MAX_REQUESTS = 120
 # Frozen from 253-LOAD-RECOVERY-BUDGETS.md "Actual normal/docs PRs: one combined allocation" (sum 120).
@@ -266,6 +272,11 @@ def _route(request: dict, allocation: dict) -> tuple[str, str, bytes | None, str
 
     git_object_route = route_id.startswith("git_") or route_id in {"get_ref", "create_ref"}
     hermetic_collector = allocation.get("mode") == "hermetic-test" and allocation.get("allocation_kind") == "production"
+    # 253-101: an explicitly canary-kind hermetic allocation routes every canary route to its local test origin, so the
+    # whole canary can run offline. A live allocation never reaches this branch and still goes only to api.github.com.
+    hermetic_canary = (allocation.get("mode") == "hermetic-test" and allocation.get("allocation_kind") == "canary"
+                       and route_id in HERMETIC_CANARY_ROUTES)
+    hermetic_collector = hermetic_collector or hermetic_canary
     if (git_object_route or hermetic_collector) and allocation.get("mode") == "hermetic-test":
         origin = urlsplit(str(allocation.get("test_origin", "")))
         if (origin.scheme != "https" or origin.hostname not in {"localhost", "127.0.0.1"}
@@ -612,7 +623,10 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
         request_url = request_url_actual
         if redact_query and "?" in request_url:
             request_url = request_url.split("?", 1)[0] + "?[REDACTED]"
-        dispatch_inputs = body.get("inputs") if request.get("route_id") == "dispatch" and isinstance(body, dict) else None
+        # The typed request body (a dict), not the serialized bytes: the dispatch metrics come from the exact inputs (253-101).
+        request_body = request.get("body")
+        dispatch_inputs = (request_body.get("inputs") if request.get("route_id") == "dispatch" and isinstance(request_body, dict)
+                           else None)
         dispatch_bytes = serialize_dispatch_inputs(dispatch_inputs) if dispatch_inputs is not None else None
         entry = {"sequence": sequence, "request_kind": request.get("request_kind", request["route_id"]),
                  "method": request["method"], "route_id": request["route_id"], "host": host,
@@ -811,6 +825,7 @@ def follow_download(allocation_path: Path, ledger_path: Path, request_path: Path
     request_group = uuid.uuid4().hex
     seen = set()
     destination = None
+    hop_receipts = []
     while True:
         hop_request = dict(request)
         hop_request["hop_ordinal"] = hop
@@ -824,7 +839,12 @@ def follow_download(allocation_path: Path, ledger_path: Path, request_path: Path
                                                    output_path, body_output, destination)
         finally:
             temp_request.unlink(missing_ok=True)
+        hop_receipts.append(receipt)
         if receipt["actual_status"] not in {301, 302, 303, 307, 308}:
+            if len(hop_receipts) > 1:
+                # 253-101: keep every charged hop's receipt (the final one stays at the top level for existing readers).
+                receipt = dict(receipt, hops=hop_receipts)
+                _atomic_json(output_path, receipt)
             return receipt
         if location is None or hop >= max_hops:
             _terminalize(ledger_path, "redirect_budget_exhausted", receipt["actual_status"])

@@ -70,6 +70,37 @@ def serialize_dispatch_inputs(inputs, schema=None):
     return encoded
 
 
+HERMETIC_CHANNEL = "hermetic-https"
+LOCAL_HOSTS = ("localhost", "127.0.0.1")
+
+
+def hermetic_canary(evidence):
+    """253-101: offline dry-run evidence from a local HTTPS fake. It is verifiable, but only ever as synthetic."""
+    origin = evidence.get("origin") if isinstance(evidence, dict) else None
+    return isinstance(origin, dict) and origin.get("channel") == HERMETIC_CHANNEL
+
+
+def api_view_url(evidence, url):
+    """Hermetic canary evidence only: a request URL on the local origin read as its api.github.com equivalent."""
+    if not hermetic_canary(evidence) or not isinstance(url, str):
+        return url
+    parsed = urlsplit(url)
+    if parsed.scheme == "https" and parsed.hostname in LOCAL_HOSTS and not parsed.username and not parsed.password:
+        return "https://api.github.com" + url[len(f"{parsed.scheme}://{parsed.netloc}"):]
+    return url
+
+
+def api_view(evidence):
+    """A copy of hermetic canary evidence whose ledger URLs are normalized to api.github.com (mirrors _view_for_checks)."""
+    if not hermetic_canary(evidence):
+        return evidence
+    view = copy.deepcopy(evidence)
+    for tx in (view.get("transport_ledger") or {}).get("transactions") or []:
+        if isinstance(tx, dict):
+            tx["url"] = api_view_url(evidence, tx.get("url"))
+    return view
+
+
 def verify_transport_v2(evidence):
     """Independently reconcile a v2 ledger, response receipts and server journal."""
     require(evidence.get("schema_version") == REPLAN_SCHEMA, "new acceptance requires hosted replan evidence v2")
@@ -94,7 +125,9 @@ def verify_transport_v2(evidence):
     elif journal is not None:
         require(isinstance(journal, list) and len(journal) == len(transactions), "optional server journal is incomplete")
     require(type(budget.get("max_requests")) is int and 0 <= len(transactions) <= budget["max_requests"], "measured request budget exceeded")
-    seen_pages = set()
+    # A window repeats page-one requests (every poll, rate read and per-run listing), so a page ordinal is checked in
+    # sequence: page N > 1 must directly follow page N - 1 of the same route (the transport pages one request at a time).
+    previous = None
     seen_hops = set()
     observed_rows = journal if isinstance(journal, list) else [None] * len(transactions)
     for index, (transaction, receipt, observed) in enumerate(zip(transactions, receipts, observed_rows), 1):
@@ -136,9 +169,11 @@ def verify_transport_v2(evidence):
         page = transaction.get("page_ordinal")
         hop = transaction.get("hop_ordinal")
         if page is not None:
-            require(type(page) is int and page >= 1 and (transaction.get("route_id"), page) not in seen_pages,
-                    "unknown or duplicate page ordinal")
-            seen_pages.add((transaction.get("route_id"), page))
+            require(type(page) is int and page >= 1, "unknown or duplicate page ordinal")
+            if page > 1:
+                require(isinstance(previous, dict) and previous.get("route_id") == transaction.get("route_id")
+                        and previous.get("page_ordinal") == page - 1, "unknown or duplicate page ordinal")
+        previous = transaction
         if hop not in (None, 0) or transaction.get("request_group") is not None:
             require(type(hop) is int and hop >= 0 and isinstance(transaction.get("request_group"), str)
                     and (transaction["request_group"], hop) not in seen_hops, "unknown or duplicate redirect hop")
@@ -147,7 +182,7 @@ def verify_transport_v2(evidence):
             inputs = transaction.get("dispatch_inputs")
             canonical = serialize_dispatch_inputs(inputs)
             workflow_id = evidence.get("expected", {}).get("workflow_id")
-            require(type(workflow_id) is int and transaction.get("url") ==
+            require(type(workflow_id) is int and api_view_url(evidence, transaction.get("url")) ==
                     f"https://api.github.com/repos/szTheory/sigra/actions/workflows/{workflow_id}/dispatches",
                     "dispatch request origin or workflow identity differs from the frozen canary")
             try:
@@ -155,8 +190,12 @@ def verify_transport_v2(evidence):
                 request_json = json.loads(request_body.decode("utf-8", "strict"))
             except (ValueError, base64.binascii.Error, UnicodeError, json.JSONDecodeError) as error:
                 raise VerificationError("dispatch request body bytes are missing or malformed") from error
+            # The ledger is written with sorted keys, so the canonical bytes are taken from the transmitted body's own
+            # input order (253-101); the retained object must still equal them exactly.
+            transmitted = request_json.get("inputs") if isinstance(request_json, dict) else None
+            canonical = serialize_dispatch_inputs(transmitted) if isinstance(transmitted, dict) else canonical
             require(sha256(request_body) == transaction.get("request_sha256")
-                    and isinstance(request_json, dict) and request_json.get("inputs") == inputs
+                    and isinstance(request_json, dict) and transmitted == inputs
                     and canonical in request_body,
                     "dispatch input metrics differ from exact transmitted request bytes")
             require(transaction.get("input_key_count") == len(inputs)
@@ -164,11 +203,6 @@ def verify_transport_v2(evidence):
                     and transaction.get("input_utf8_bytes") == len(canonical)
                     and transaction.get("input_sha256") == sha256(canonical),
                     "dispatch metrics do not match exact transmitted inputs bytes")
-    grouped_pages = {}
-    for route, page in seen_pages:
-        grouped_pages.setdefault(route, []).append(page)
-    for route, pages in grouped_pages.items():
-        require(sorted(pages) == list(range(1, max(pages) + 1)), f"page sequence for {route} has a gap or unknown page")
     grouped_hops = {}
     for group, hop in seen_hops:
         grouped_hops.setdefault(group, []).append(hop)
@@ -615,7 +649,9 @@ def verify_scenario(receipt, scenario, evidence):
     fixture_ref = expected.get("fixture_ref")
     require(isinstance(fixture_ref, str) and fixture_ref.startswith("refs/heads/gsd/253-replan-"),
             "fixture ref is outside the scoped namespace")
-    require(expected.get("fixture_ref_state") == "verified", "scoped fixture ref was not read back before dispatch")
+    # Hermetic dry-run evidence never claims a live ref read-back: it must say hermetic-unverified, and nothing else may.
+    wanted_ref_state = "hermetic-unverified" if hermetic_canary(evidence) else "verified"
+    require(expected.get("fixture_ref_state") == wanted_ref_state, "scoped fixture ref was not read back before dispatch")
     require(expected.get("workflow_id") == 259268962 and expected.get("workflow_path") == WORKFLOW_PATH
             and expected.get("workflow_name") == FIXTURE_NAME, "registered fixture workflow identity mismatch")
     run = receipt.get("run")
@@ -1387,6 +1423,12 @@ def canary_check_source(evidence, root=None):
 def verify_canary_checks(evidence, root=None):
     """Canary effective checks: exact five names and producer identity read from the bound server parent."""
     source = canary_check_source(evidence, root)
+    if hermetic_canary(evidence):
+        view = api_view(evidence)
+        view.pop("effective_checks", None)
+        view.pop("producer_checks", None)
+        hydrate_effective_checks(view, source)
+        return dict(verify_effective_checks(view, source), synthetic=True)
     if "effective_checks" not in evidence:
         hydrate_effective_checks(evidence, source)
     return verify_effective_checks(evidence, source)
@@ -1399,8 +1441,11 @@ def verify_canary_matrix(evidence):
     results, source_jobs = verify_sources(evidence)
     executed = verify_attempt_jobs(evidence)
     require(executed >= source_jobs, "complete attempt receipts omit a selected source job")
-    return {"status": "canary_verified", "transport": transport_result, "checks": checks_result,
-            "scenarios": results, "separate_verifier": verify_separate_verifier(evidence, source_jobs), "executed_jobs": executed}
+    result = {"status": "canary_verified", "transport": transport_result, "checks": checks_result,
+              "scenarios": results, "separate_verifier": verify_separate_verifier(evidence, source_jobs), "executed_jobs": executed}
+    if hermetic_canary(evidence):
+        result["synthetic"] = True
+    return result
 
 
 LITERAL_LIMITATIONS = (
@@ -1626,6 +1671,15 @@ def main():
         return verify_completion(read_json_file(args.evidence), require_accepted=args.require_accepted,
                                  require_dispositioned=args.require_dispositioned)
     evidence = read_replan_evidence(args.evidence)
+    result = replan_result(args, evidence)
+    if hermetic_canary(evidence):
+        # Offline dry-run evidence (local HTTPS fake): an implementation check only, never hosted proof.
+        result["synthetic"] = True
+        result["channel"] = HERMETIC_CHANNEL
+    return result
+
+
+def replan_result(args, evidence):
     transport_result = verify_transport_v2(evidence)
     if args.mode == "transport":
         return transport_result
