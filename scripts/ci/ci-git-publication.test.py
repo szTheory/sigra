@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 
 
@@ -24,7 +25,16 @@ def object_sha(kind, data):
     return hashlib.sha1(f"{kind} {len(data)}\0".encode() + data).hexdigest()
 
 
-def git_fixture(root, oversized=False, many_entries=0):
+PHASE_REL = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+HELPER_COPIES = ("scripts/ci/ci-gate-canary.sh", "scripts/ci/ci-git-publication.py", "scripts/ci/ci-hosted-gate-verify.py",
+                 "scripts/ci/ci-hosted-transport.py", "scripts/ci/ci-pr-proof.sh", "scripts/ci/ci-browser-records.mjs",
+                 "scripts/ci/honest-skip-verdict.sh")
+HELPER_DUMMIES = ("scripts/ci/ci-gate-canary.test.sh", "scripts/ci/ci-git-publication.test.py",
+                  "scripts/ci/ci-hosted-gate-verify.test.py", "scripts/ci/ci-pr-proof.test.sh")
+FIXTURE_TEXT = "name: Phase 253 Gate Canary\non:\n  workflow_dispatch:\n    inputs: {}\npermissions:\n  contents: read\njobs: {}\n"
+
+
+def git_fixture(root, oversized=False, many_entries=0, helpers=False):
     root.mkdir()
     subprocess.run(["git", "init", "-q", str(root)], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.name", "Fixture"], check=True)
@@ -45,6 +55,21 @@ def git_fixture(root, oversized=False, many_entries=0):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text((f"file {index:04d} Δ\n" + "x" * 30000 + "\n") * 1)
     paths = ["app.txt", "binary.dat", "tool.sh"] + (["bulk"] if many_entries else [])
+    if helpers:
+        for rel in HELPER_COPIES:
+            target = root / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((ROOT / rel).read_bytes())
+            target.chmod(0o755 if rel.endswith((".sh", ".py")) else 0o644)
+        for rel in HELPER_DUMMIES:
+            (root / rel).write_text(f"# placeholder for {rel}\n")
+        phase = root / PHASE_REL
+        phase.mkdir(parents=True)
+        (phase / "253-LOAD-RECOVERY-CANARY-WORKFLOW.yml").write_text(FIXTURE_TEXT)
+        (phase / "253-PREHOST-REVIEW.md").write_text("# review\n")
+        for name in ("ACCEPTANCE-EVIDENCE", "TARGET-DISPOSITION", "TARGET-DISPOSITION-APPROVAL"):
+            (phase / f"253-LOAD-RECOVERY-{name}.json").write_text(json.dumps({"fixture": name}) + "\n")
+        paths += ["scripts", ".planning"]
     subprocess.run(["git", "-C", str(root), "add", *paths], check=True)
     subprocess.run(["git", "-C", str(root), "commit", "-qm", "candidate"], check=True)
     source = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
@@ -118,7 +143,14 @@ class ObjectServer(http.server.BaseHTTPRequestHandler):
         self.server.last_body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
         return json.loads(self.server.last_body or b"{}")
 
+    def _first(self):
+        hook = getattr(self.server, "first_hook", None)
+        if hook:
+            self.server.first_hook = None
+            hook()
+
     def do_GET(self):  # noqa: N802
+        self._first()
         self.server.last_body = b""
         prefix = "/repos/szTheory/sigra/git/"
         if self.path.startswith(prefix + "commits/"):
@@ -151,6 +183,7 @@ class ObjectServer(http.server.BaseHTTPRequestHandler):
         self._reply(404, {"message": "Not Found"})
 
     def do_POST(self):  # noqa: N802
+        self._first()
         value = self._read()
         prefix = "/repos/szTheory/sigra/git/"
         if self.path == prefix + "blobs":
@@ -356,13 +389,14 @@ class PublicationTests(unittest.TestCase):
                                               cwd=ROOT, text=True, capture_output=True)
                     self.assertNotEqual(rejected.returncode, 0, label)
 
-    def make_local_publication(self, temp, flags=None, many_entries=0):
+    def make_local_publication(self, temp, flags=None, many_entries=0, helpers=False, prepare_args=(), allocation=None):
         temp_path = pathlib.Path(temp)
         repo = temp_path / "repo"
-        parent, source = git_fixture(repo, many_entries=many_entries)
+        parent, source = git_fixture(repo, many_entries=many_entries, helpers=helpers)
         manifest_path = temp_path / "manifest.json"
         prepared = subprocess.run(["python3", str(PUBLISHER), "--prepare", "--candidate-source", source,
-                                   "--server-parent", parent, "--repo-root", str(repo), "--output", str(manifest_path)],
+                                   "--server-parent", parent, "--repo-root", str(repo), "--output", str(manifest_path),
+                                   *prepare_args],
                                   cwd=ROOT, text=True, capture_output=True)
         self.assertEqual(prepared.returncode, 0, prepared.stderr)
         manifest = json.loads(manifest_path.read_text())
@@ -395,12 +429,13 @@ class PublicationTests(unittest.TestCase):
         self.addCleanup(server.shutdown)
         host, port = server.server_address
         allocation_path = temp_path / "allocation.json"
-        allocation = {"schema_version": "sigra.phase253.http-allocation/v1", "window_id": "publication-test-window",
-                      "source_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "max_requests": 24,
-                      "max_elapsed_seconds": 60, "max_response_bytes": 2 * 1024 * 1024, "max_pages": 1,
-                      "max_hops": 2, "repository": "szTheory/sigra", "download_hosts": [], "mode": "hermetic-test",
-                      "test_origin": f"https://localhost:{port}", "test_ca_file": str(cert)}
-        allocation_path.write_text(json.dumps(allocation))
+        allocation_value = {"schema_version": "sigra.phase253.http-allocation/v1", "window_id": "publication-test-window",
+                            "source_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "max_requests": 24,
+                            "max_elapsed_seconds": 60, "max_response_bytes": 2 * 1024 * 1024, "max_pages": 1,
+                            "max_hops": 2, "repository": "szTheory/sigra", "download_hosts": [], "mode": "hermetic-test",
+                            "test_origin": f"https://localhost:{port}", "test_ca_file": str(cert)}
+        allocation_value.update(allocation or {})
+        allocation_path.write_text(json.dumps(allocation_value))
         return repo, parent, source, manifest_path, manifest, allocation_path, ledger_path, server, temp_path
 
     def test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback(self):
@@ -806,6 +841,385 @@ class PublicationTests(unittest.TestCase):
                          ("refs/heads/gsd/253-replan-candidate", "a" * 39)):
             with self.subTest(ref=ref, sha=sha), self.assertRaises(transport.TransportError):
                 transport._route({**good, "body": {"ref": ref, "sha": sha}}, allocation)
+
+
+
+
+def canonical_sha(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+
+
+def load_publisher():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ci_git_publication_under_test", PUBLISHER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def no_network_env(temp):
+    """Environment in which a live transport cannot obtain a token, so it stops before any connection."""
+    stub_dir = pathlib.Path(temp) / "stub-bin"
+    stub_dir.mkdir(exist_ok=True)
+    stub = stub_dir / "gh"
+    stub.write_text("#!/bin/sh\nexit 1\n")
+    stub.chmod(0o755)
+    env = {key: value for key, value in os.environ.items() if key not in {"GH_TOKEN", "GITHUB_TOKEN"}}
+    env["PATH"] = f"{stub_dir}:{env['PATH']}"
+    env["HOME"] = str(temp)
+    return env
+
+
+def git_run(repo, *args):
+    return subprocess.run(["git", "-C", str(repo), *args], check=True, text=True, capture_output=True).stdout.strip()
+
+
+class RegisteredPublicationTests(unittest.TestCase):
+    """Registered ci.yml fixture, actual-github origin, section approvals and the docs publisher (253-91)."""
+
+    make_local_publication = PublicationTests.make_local_publication
+
+    def prepare_registered(self, temp, **kwargs):
+        fixture_rel = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml"
+        return self.make_local_publication(temp, helpers=True, prepare_args=(
+            "--fixture-file", fixture_rel, "--workflow-path", ".github/workflows/ci.yml"), **kwargs)
+
+    def publish_args(self, manifest_path, allocation, ledger_path, receipt_path, repo):
+        return ["python3", str(PUBLISHER), "--publish", "--manifest", str(manifest_path), "--allocation", str(allocation),
+                "--ledger", str(ledger_path), "--receipt", str(receipt_path), "--repo-root", str(repo)]
+
+    def freeze_environment(self, temp, **kwargs):
+        """A registered publication plus a committed publication manifest and a built, committed freeze."""
+        repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.prepare_registered(temp, **kwargs)
+        phase = repo / PHASE_REL
+        manifest_rel = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-PUBLICATION.json"
+        (repo / manifest_rel).write_bytes(manifest_path.read_bytes())
+        freeze_rel = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-FREEZE.json"
+        git_run(repo, "add", manifest_rel)
+        git_run(repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: publication manifest")
+        built = subprocess.run(["python3", str(PUBLISHER), "--build-freeze", "--manifest", manifest_rel, "--output", freeze_rel,
+                                "--repo-root", str(repo)], cwd=ROOT, text=True, capture_output=True)
+        self.assertEqual(built.returncode, 0, built.stderr)
+        git_run(repo, "add", freeze_rel)
+        git_run(repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: freeze")
+        freeze = json.loads((repo / freeze_rel).read_text())
+        return {"repo": repo, "parent": parent, "source": source, "manifest_path": manifest_path, "manifest": manifest,
+                "allocation": allocation, "ledger": ledger_path, "server": server, "root": root,
+                "freeze_path": repo / freeze_rel, "freeze": freeze, "manifest_rel": manifest_rel, "phase": phase}
+
+    def write_approval(self, env, section, *, commit=True, tamper=False, section_sha=None, decision="approve", name=None):
+        record = {"schema_version": "sigra.phase253.outward-action-approval/v1", "decision": decision, "section": section,
+                  "section_sha256": section_sha or env["freeze"]["outward_actions_sha256"][section],
+                  "decided_by": "test-operator", "recorded_at": "2026-10-14T00:00:00Z"}
+        path = env["phase"] / f"approval-{name or section}.json"
+        path.write_text(json.dumps(record, indent=2) + "\n")
+        if commit:
+            git_run(env["repo"], "add", str(path))
+            git_run(env["repo"], "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", f"planning: {path.name}")
+        if tamper:
+            path.write_text(path.read_text() + "\n")
+        return path
+
+    def production_allocation(self, env, name="docs-allocation.json", ledger_name="docs-ledger.json"):
+        transport = PublicationTests.transport_module(self)
+        base = json.loads(env["allocation"].read_text())
+        base.update({"allocation_kind": "production", "max_requests": 120, "category_limits": transport.PRODUCTION_CATEGORY_LIMITS,
+                     "source_sha256": hashlib.sha256(env["freeze_path"].read_bytes()).hexdigest(), "window_id": "docs-publication-test-window"})
+        path = env["root"] / name
+        path.write_text(json.dumps(base))
+        ledger = env["root"] / ledger_name
+        env["server"].ledger_path = str(ledger)
+        return path, ledger
+
+    def canary_allocation(self, env, name="canary-allocation.json", ledger_name="canary-ledger.json"):
+        base = json.loads(env["allocation"].read_text())
+        base.update({"allocation_kind": "canary", "max_requests": 117,
+                     "source_sha256": hashlib.sha256(env["freeze_path"].read_bytes()).hexdigest(), "window_id": "canary-publication-test-window"})
+        path = env["root"] / name
+        path.write_text(json.dumps(base))
+        ledger = env["root"] / ledger_name
+        env["server"].ledger_path = str(ledger)
+        return path, ledger
+
+    # -- registered fixture path and origin -------------------------------------------------
+    def test_registered_ci_yml_fixture_child_changes_exactly_the_registered_workflow_and_is_published(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-registered-fixture-") as temp:
+            repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.prepare_registered(temp)
+            self.assertEqual(manifest["workflow_path"], ".github/workflows/ci.yml")
+            self.assertEqual(manifest["fixture_file"]["path"], f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml")
+            changed = git_run(repo, "diff", "--name-only", manifest["candidate_helper_commit"], manifest["fixture_workflow_commit"]).splitlines()
+            self.assertEqual(changed, [".github/workflows/ci.yml"])
+            self.assertEqual(git_run(repo, "rev-parse", f"{manifest['fixture_workflow_commit']}:.github/workflows/ci.yml"),
+                             manifest["fixture_workflow_blob"])
+            receipt_path = root / "receipt.json"
+            result = subprocess.run(self.publish_args(manifest_path, allocation, ledger_path, receipt_path, repo),
+                                    cwd=ROOT, text=True, capture_output=True, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stderr + json.dumps(server.journal))
+            receipt = json.loads(receipt_path.read_text())
+            self.assertEqual(receipt["origin"]["kind"], "hermetic")
+            self.assertEqual(receipt["status"], "published-local-fixture")
+            self.assertEqual(server.refs["gsd/253-replan-fixture"], manifest["fixture_workflow_commit"])
+            fixture_entry = server.tree_entries[manifest["fixture_tree_sha"]][".github/workflows/ci.yml"]
+            self.assertEqual(base64.b64decode(server.blobs[fixture_entry["sha"]]["content"]).decode(), FIXTURE_TEXT)
+            candidate_entry = server.tree_entries[manifest["candidate_tree_sha"]][".github/workflows/ci.yml"]
+            self.assertNotEqual(candidate_entry["sha"], fixture_entry["sha"])
+            ok = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt_path)], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(ok.returncode, 0, ok.stderr)
+
+    def test_unregistered_workflow_path_and_missing_fixture_are_rejected_at_preparation(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-registered-reject-") as temp:
+            repo = pathlib.Path(temp) / "repo"
+            parent, source = git_fixture(repo, helpers=True)
+            fixture_rel = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml"
+            for label, args in {"outside workflows": ("--fixture-file", fixture_rel, "--workflow-path", "scripts/evil.yml"),
+                                "missing fixture": ("--fixture-file", f"{PHASE_REL}/absent.yml", "--workflow-path", ".github/workflows/ci.yml"),
+                                "traversal": ("--fixture-file", "../outside.yml", "--workflow-path", ".github/workflows/ci.yml")}.items():
+                with self.subTest(label=label):
+                    result = subprocess.run(["python3", str(PUBLISHER), "--prepare", "--candidate-source", source, "--server-parent", parent,
+                                             "--repo-root", str(repo), "--output", str(pathlib.Path(temp) / "m.json"), *args],
+                                            cwd=ROOT, text=True, capture_output=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse((pathlib.Path(temp) / "m.json").exists())
+
+    def test_hermetic_and_legacy_origins_are_rejected_by_live_acceptance(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-origin-hermetic-") as temp:
+            repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.prepare_registered(temp)
+            receipt_path = root / "receipt.json"
+            self.assertEqual(subprocess.run(self.publish_args(manifest_path, allocation, ledger_path, receipt_path, repo),
+                                            cwd=ROOT, text=True, capture_output=True, timeout=90).returncode, 0)
+            live = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt_path), "--require-live-origin"],
+                                  cwd=ROOT, text=True, capture_output=True)
+            self.assertNotEqual(live.returncode, 0)
+            self.assertIn("live acceptance", live.stderr)
+            legacy = json.loads(receipt_path.read_text())
+            del legacy["origin"]
+            receipt_path.write_text(json.dumps(legacy))
+            self.assertEqual(subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt_path)],
+                                            cwd=ROOT, text=True, capture_output=True).returncode, 0)
+            rejected = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt_path), "--require-live-origin"],
+                                      cwd=ROOT, text=True, capture_output=True)
+            self.assertNotEqual(rejected.returncode, 0)
+
+    def test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-origin-actual-") as temp:
+            repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.prepare_registered(temp)
+            receipt_path = root / "receipt.json"
+            self.assertEqual(subprocess.run(self.publish_args(manifest_path, allocation, ledger_path, receipt_path, repo),
+                                            cwd=ROOT, text=True, capture_output=True, timeout=90).returncode, 0)
+            hermetic_receipt = json.loads(receipt_path.read_text())
+            hermetic_ledger = json.loads(ledger_path.read_text())
+
+            def live_shaped(mutate=None):
+                """Rewrite the measured hermetic run into the shape a live allocation would have produced."""
+                live_allocation = {"schema_version": "sigra.phase253.http-allocation/v1", "window_id": "publication-test-window",
+                                   "source_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(), "max_requests": 24,
+                                   "max_elapsed_seconds": 60, "max_response_bytes": 2 * 1024 * 1024, "max_pages": 1, "max_hops": 2,
+                                   "repository": "szTheory/sigra", "download_hosts": [], "mode": "live"}
+                allocation_file = root / "live-allocation.json"
+                allocation_file.write_text(json.dumps(live_allocation))
+                ledger = json.loads(json.dumps(hermetic_ledger))
+                ledger["allocation_sha256"] = hashlib.sha256(allocation_file.read_bytes()).hexdigest()
+                for tx in ledger["transactions"]:
+                    tx["host"] = "api.github.com"
+                receipt = json.loads(json.dumps(hermetic_receipt))
+                receipt.update({"status": "published-actual-github", "production_publish_performed": True,
+                                "allocation_path": str(allocation_file), "allocation_sha256": ledger["allocation_sha256"],
+                                "origin": {"kind": "actual-github", "host": "api.github.com", "allocation_mode": "live",
+                                           "transactions": len(ledger["transactions"]), "identities_from_ledger": True}})
+                if mutate:
+                    mutate(receipt, ledger, allocation_file)
+                ledger_file = root / "live-ledger.json"
+                ledger_file.write_text(json.dumps(ledger))
+                receipt["ledger_path"] = str(ledger_file)
+                receipt["ledger_sha256"] = hashlib.sha256(ledger_file.read_bytes()).hexdigest()
+                path = root / "live-receipt.json"
+                path.write_text(json.dumps(receipt))
+                return path
+
+            def verify(path, *extra):
+                return subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(path), *extra], cwd=ROOT, text=True, capture_output=True)
+
+            accepted = verify(live_shaped(), "--require-live-origin")
+            self.assertEqual(accepted.returncode, 0, accepted.stderr)
+
+            def forged_commit(receipt, ledger, allocation_file):
+                for row in receipt["server_object_receipts"]:
+                    if row["kind"] == "commit" and row["variant"] == "candidate":
+                        row["sha"] = "e" * 40
+                receipt["candidate_sha"] = "e" * 40
+
+            def local_host(receipt, ledger, allocation_file):
+                ledger["transactions"][3]["host"] = "localhost"
+
+            def hermetic_allocation(receipt, ledger, allocation_file):
+                value = json.loads(allocation_file.read_text())
+                value.update({"mode": "hermetic-test", "test_origin": "https://localhost:1", "test_ca_file": "/dev/null"})
+                allocation_file.write_text(json.dumps(value))
+                ledger["allocation_sha256"] = hashlib.sha256(allocation_file.read_bytes()).hexdigest()
+                receipt["allocation_sha256"] = ledger["allocation_sha256"]
+
+            def stripped_response(receipt, ledger, allocation_file):
+                for tx in ledger["transactions"]:
+                    if tx["route_id"] == "git_create_commit":
+                        tx["response_body_base64"] = base64.b64encode(b"{}").decode()
+
+            for label, mutate in {"identity absent from every server response": forged_commit, "non-GitHub host in the ledger": local_host,
+                                  "hermetic allocation claimed as actual": hermetic_allocation,
+                                  "commit response stripped": stripped_response}.items():
+                with self.subTest(label=label):
+                    self.assertNotEqual(verify(live_shaped(mutate), "--require-live-origin").returncode, 0, label)
+
+    def test_validate_frozen_product_source_accepts_planning_only_descendants_and_rejects_product_changes(self):
+        module = load_publisher()
+        for label in ("planning-only", "product-descendant", "product-dirt", "not-an-ancestor"):
+            with self.subTest(label=label), tempfile.TemporaryDirectory(prefix="sigra-frozen-source-") as temp:
+                repo = pathlib.Path(temp) / "repo"
+                parent, source = git_fixture(repo)
+                frozen = source
+                (repo / ".planning").mkdir(exist_ok=True)
+                (repo / ".planning/note.txt").write_text("planning only\n")
+                git_run(repo, "add", ".planning/note.txt")
+                git_run(repo, "-c", "user.name=F", "-c", "user.email=f@example.test", "commit", "-qm", "planning only")
+                if label == "product-descendant":
+                    (repo / "app.txt").write_text("changed product\n")
+                    git_run(repo, "add", "app.txt")
+                    git_run(repo, "-c", "user.name=F", "-c", "user.email=f@example.test", "commit", "-qm", "product change")
+                elif label == "product-dirt":
+                    (repo / "tool.sh").write_text("#!/bin/sh\necho dirty\n")
+                elif label == "not-an-ancestor":
+                    frozen = parent  # earlier product tree, ancestor, but a different product tree
+                if label == "planning-only":
+                    result = module.validate_frozen_product_source(repo, frozen)
+                    self.assertEqual(result["frozen_source"], frozen)
+                    self.assertTrue(result["planning_only_movement"])
+                    self.assertTrue(hasattr(module, "validateFrozenProductSource"))
+                else:
+                    with self.assertRaises(module.PublicationError):
+                        module.validate_frozen_product_source(repo, frozen)
+
+    # -- per-section approvals, docs publication ---------------------------------------------
+    def test_publish_docs_publishes_only_the_frozen_docs_variants_within_fourteen_requests(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-publish-docs-") as temp:
+            env = self.freeze_environment(temp)
+            repo, server, manifest = env["repo"], env["server"], env["manifest"]
+            canary_allocation, canary_ledger = self.canary_allocation(env)
+            approval = self.write_approval(env, "canary")
+            published = subprocess.run(self.publish_args(env["manifest_path"], canary_allocation, canary_ledger, env["root"] / "canary-receipt.json", repo)
+                                       + ["--freeze", str(env["freeze_path"]), "--action-approval", str(approval)],
+                                       cwd=ROOT, text=True, capture_output=True, timeout=90)
+            self.assertEqual(published.returncode, 0, published.stderr + json.dumps(server.journal))
+            canary_receipt = json.loads((env["root"] / "canary-receipt.json").read_text())
+            self.assertEqual(canary_receipt["action_approval"]["section"], "canary")
+            canary_count = len(server.journal)
+            docs_approval = self.write_approval(env, "docs_and_prs")
+            allocation, ledger = self.production_allocation(env)
+            receipt_path = env["root"] / "docs-receipt.json"
+            seen = {}
+            server.first_hook = lambda: seen.update(receipt=json.loads(receipt_path.read_text()) if receipt_path.exists() else None)
+            result = subprocess.run(["python3", str(PUBLISHER), "--publish-docs", "--freeze", str(env["freeze_path"]), "--allocation", str(allocation),
+                                     "--ledger", str(ledger), "--receipt", str(receipt_path), "--repo-root", str(repo),
+                                     "--action-approval", str(docs_approval)], cwd=ROOT, text=True, capture_output=True, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stderr + json.dumps(server.journal[canary_count:]))
+            requests = server.journal[canary_count:]
+            self.assertEqual(len(requests), 14)
+            self.assertLessEqual(len(requests), 14)
+            ledger_value = json.loads(ledger.read_text())
+            self.assertEqual({tx["category"] for tx in ledger_value["transactions"]}, {"docs_publication"})
+            self.assertEqual(server.refs["gsd/253-replan-docs-base"], manifest["docs_base_commit"])
+            self.assertEqual(server.refs["gsd/253-replan-docs-head"], manifest["docs_head_commit"])
+            self.assertNotIn("gsd/253-replan-main", server.refs)
+            # the approval record exists in the receipt before the first request leaves the process
+            self.assertIsNotNone(seen["receipt"], "receipt was not created before the first request")
+            record = seen["receipt"]["action_approval"]
+            self.assertEqual(set(record), {"path", "sha256", "section", "section_sha256", "commit", "window_wall_start_epoch"})
+            self.assertEqual(record["section"], "docs_and_prs")
+            self.assertEqual(record["section_sha256"], env["freeze"]["outward_actions_sha256"]["docs_and_prs"])
+            self.assertEqual(record["sha256"], hashlib.sha256(docs_approval.read_bytes()).hexdigest())
+            self.assertEqual(record["commit"], git_run(repo, "rev-list", "-1", "HEAD", "--", str(docs_approval.relative_to(repo))))
+            self.assertIsInstance(record["window_wall_start_epoch"], int)
+            self.assertLessEqual(record["window_wall_start_epoch"], int(time.time()))
+
+    def test_publish_docs_refuses_every_unapproved_or_wrongly_scoped_approval_before_any_request(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-publish-docs-refusal-") as temp:
+            env = self.freeze_environment(temp)
+            allocation, ledger = self.production_allocation(env)
+            whole = canonical_sha(env["freeze"]["outward_actions"])
+            cases = {
+                "canary-section approval": lambda: self.write_approval(env, "canary", name="a1"),
+                "whole-manifest sha": lambda: self.write_approval(env, "docs_and_prs", section_sha=whole, name="a2"),
+                "uncommitted file": lambda: self.write_approval(env, "docs_and_prs", commit=False, name="a3"),
+                "modified file": lambda: self.write_approval(env, "docs_and_prs", tamper=True, name="a4"),
+                "decision reject": lambda: self.write_approval(env, "docs_and_prs", decision="reject", name="a5"),
+            }
+            for label, make in cases.items():
+                with self.subTest(label=label):
+                    approval = make()
+                    receipt_path = env["root"] / "refused-receipt.json"
+                    result = subprocess.run(["python3", str(PUBLISHER), "--publish-docs", "--freeze", str(env["freeze_path"]), "--allocation",
+                                             str(allocation), "--ledger", str(ledger), "--receipt", str(receipt_path), "--repo-root", str(env["repo"]),
+                                             "--action-approval", str(approval)], cwd=ROOT, text=True, capture_output=True, timeout=30)
+                    self.assertNotEqual(result.returncode, 0, label)
+                    self.assertIn("approval", result.stderr.lower())
+                    self.assertEqual(env["server"].journal, [], label)
+                    self.assertFalse(ledger.exists(), label)
+                    self.assertFalse(receipt_path.exists(), label)
+            missing = subprocess.run(["python3", str(PUBLISHER), "--publish-docs", "--freeze", str(env["freeze_path"]), "--allocation", str(allocation),
+                                      "--ledger", str(ledger), "--receipt", str(env["root"] / "r.json"), "--repo-root", str(env["repo"])],
+                                     cwd=ROOT, text=True, capture_output=True)
+            self.assertNotEqual(missing.returncode, 0)
+            self.assertEqual(env["server"].journal, [])
+
+    def test_publish_with_a_freeze_needs_the_canary_section_approval_and_a_live_allocation_needs_a_freeze(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-publish-canary-approval-") as temp:
+            env = self.freeze_environment(temp)
+            allocation, ledger = self.canary_allocation(env)
+            wrong = self.write_approval(env, "docs_and_prs", name="wrong")
+            result = subprocess.run(self.publish_args(env["manifest_path"], allocation, ledger, env["root"] / "r.json", env["repo"])
+                                    + ["--freeze", str(env["freeze_path"]), "--action-approval", str(wrong)], cwd=ROOT, text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(env["server"].journal, [])
+            live = json.loads(allocation.read_text())
+            live.pop("test_origin"), live.pop("test_ca_file")
+            live["mode"] = "live"
+            allocation.write_text(json.dumps(live))
+            unguarded = subprocess.run(self.publish_args(env["manifest_path"], allocation, ledger, env["root"] / "r2.json", env["repo"]),
+                                       cwd=ROOT, text=True, capture_output=True, env=no_network_env(temp), timeout=30)
+            self.assertNotEqual(unguarded.returncode, 0)
+            self.assertIn("freeze", unguarded.stderr)
+            self.assertFalse(ledger.exists(), "a live allocation reached the transport without a freeze")
+
+    # -- the canary script drives the same publisher ------------------------------------------
+    def test_canary_publish_only_drives_the_publisher_end_to_end_and_records_the_approval_first(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-canary-publish-only-") as temp:
+            started = int(time.time())
+            env = self.freeze_environment(temp)
+            repo, server, manifest = env["repo"], env["server"], env["manifest"]
+            allocation, ledger = self.canary_allocation(env)
+            approval = self.write_approval(env, "canary")
+            evidence = env["phase"] / "253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
+            receipt = env["phase"] / "253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT.json"
+            seen = {}
+            server.first_hook = lambda: seen.update(evidence=json.loads(evidence.read_text()) if evidence.exists() else None)
+            result = subprocess.run(["bash", str(repo / "scripts/ci/ci-gate-canary.sh"), "--publish-only", "--revision-freeze", str(env["freeze_path"]),
+                                     "--action-approval", str(approval), "--http-allocation", str(allocation), "--requests", str(ledger),
+                                     "--evidence", str(evidence), "--publication-receipt", str(receipt)],
+                                    cwd=repo, text=True, capture_output=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr + json.dumps(server.journal))
+            self.assertEqual(server.refs["gsd/253-replan-candidate"], manifest["candidate_helper_commit"])
+            self.assertEqual(server.refs["gsd/253-replan-fixture"], manifest["fixture_workflow_commit"])
+            self.assertLessEqual(len(server.journal), 24)
+            first = seen["evidence"]["action_approval"]
+            self.assertEqual(set(first), {"path", "sha256", "section", "section_sha256", "commit", "window_wall_start_epoch"})
+            self.assertEqual(first["section"], "canary")
+            self.assertGreaterEqual(first["window_wall_start_epoch"], started)
+            final = json.loads(evidence.read_text())
+            self.assertEqual(final["action_approval"], first)
+            self.assertEqual(final["publication"]["origin"]["kind"], "hermetic")
+            self.assertEqual(final["publication"]["request_count"], len(server.journal))
+            verified = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt)], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(verified.returncode, 0, verified.stderr)
+            stale = sorted(path.name for path in env["phase"].glob("253-RECOVERY-CANARY-*"))
+            self.assertEqual(stale, [], "the registered flow wrote to the superseded RECOVERY output paths")
 
 
 if __name__ == "__main__":
