@@ -847,6 +847,8 @@ def require_pr_refs(family, head_ref, base_ref):
     else:
         valid = family == "docs-only" and (head_ref, base_ref) == PR_DOCS_REFS
     require(valid, "frozen PR head/base refs are not the exact proof refs")
+
+
 MAX_PR_EVIDENCE_BYTES = 128 * 1024 * 1024
 MAX_PRODUCER_ZIP_BYTES = 4 * 1024 * 1024
 MAX_PRODUCER_MEMBER_BYTES = 64 * 1024 * 1024
