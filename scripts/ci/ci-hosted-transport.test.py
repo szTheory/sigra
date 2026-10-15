@@ -17,6 +17,7 @@ import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "scripts/ci/ci-gate-canary.sh"
+TRANSPORT_SOURCE = ROOT / "scripts/ci/ci-hosted-transport.py"
 
 
 class JournalHandler(http.server.BaseHTTPRequestHandler):
@@ -646,6 +647,27 @@ class TypedAllocationWireTests(unittest.TestCase):
             with self.subTest(route=route_id, fields=fields):
                 with self.assertRaises(self.transport.TransportError):
                     self.route(route_id, method=method, **fields)
+
+    def test_253_102_pr_heads_are_exactly_the_two_candidates_and_the_docs_head(self):
+        self.assertEqual(self.transport.PR_HEAD_REFS,
+                         {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-docs-head"})
+        self.assertEqual(self.transport.PR_BASE_REFS, {"main", "gsd/253-replan-docs-base"})
+        body = {"title": "Phase 253 proof", "head": "gsd/253-replan-r8-candidate", "base": "main", "body": "draft", "draft": True}
+        self.assertEqual(self.route("pr_create", method="POST", body=body)[3], "/repos/szTheory/sigra/pulls")
+        for head in ("gsd/253-replan-r8-fixture", "gsd/253-replan-fixture", "gsd/253-replan-r9-candidate",
+                     "gsd/253-replan-r8-candidate-x", "refs/heads/gsd/253-replan-r8-candidate"):
+            with self.subTest(head=head):
+                with self.assertRaises(self.transport.TransportError):
+                    self.route("pr_create", method="POST", body={**body, "head": head})
+
+    def test_253_102_create_ref_accepts_both_r8_names_under_the_unchanged_namespace_rule(self):
+        allocation = self.allocation(kind="canary", max_requests=117)
+        for ref in ("refs/heads/gsd/253-replan-r8-candidate", "refs/heads/gsd/253-replan-r8-fixture"):
+            with self.subTest(ref=ref):
+                request = {"route_id": "create_ref", "method": "POST", "body": {"ref": ref, "sha": "a" * 40}}
+                self.assertEqual(self.transport._route(request, allocation)[3], "/repos/szTheory/sigra/git/refs")
+        source = TRANSPORT_SOURCE.read_text()
+        self.assertIn('r"refs/heads/gsd/253-replan-[a-z0-9][a-z0-9-]{0,100}", ref)', source)
 
     def test_legacy_canary_hermetic_allocation_still_rejects_pr_collector_routes(self):
         request = {"route_id": "pr_read", "method": "GET", "params": {"pull_number": 7}}

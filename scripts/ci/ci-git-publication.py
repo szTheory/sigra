@@ -723,11 +723,13 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
     allocation = json.loads(allocation_path.read_text())
     repo = repo or Path(git(ROOT, "rev-parse", "--show-toplevel").decode().strip())
     approval = None
+    pair = REF_PAIRS[DEFAULT_REF_PAIR]
     if freeze_path is None and allocation.get("mode") == "live":
         raise PublicationError("a live allocation requires the reviewed freeze and its committed canary section approval (--freeze)")
     if freeze_path is not None:
         freeze, freeze_raw = load_freeze(freeze_path)
         approval = check_section_approval(approval_path, freeze, "canary", repo)
+        pair = identity_ref_pair(freeze.get("identity") or {})
         bound = (freeze.get("bound_documents") or {}).get("publication_manifest") or {}
         if bound.get("sha256") != sha256_hex(manifest_path.read_bytes()):
             raise PublicationError("manifest differs from the freeze's bound publication_manifest digest")
@@ -761,10 +763,10 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
     total_binary = 0
     for label, commit_sha, target_entries, parent_sha, base_tree, ref_name in [
         ("candidate", manifest["candidate_helper_commit"], variants["_candidate_entries"], parent,
-         local_parent_tree, "gsd/253-replan-candidate"),
+         local_parent_tree, pair["candidate"]),
         ("fixture", manifest["fixture_workflow_commit"], variants["_fixture_entries"], manifest["candidate_helper_commit"],
          git(repo, "rev-parse", f"{manifest['candidate_helper_commit']}^{{tree}}").decode().strip(),
-         "gsd/253-replan-fixture"),
+         pair["fixture"]),
     ]:
         tree_sha = git(repo, "rev-parse", f"{commit_sha}^{{tree}}").decode().strip()
         chunks, binary_count = pack_tree_requests(repo, label, base_tree,
@@ -883,8 +885,8 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
               "source_sha": manifest["source_sha"], "server_parent_sha": parent,
               "candidate_sha": manifest["candidate_helper_commit"],
               "fixture_sha": manifest["fixture_workflow_commit"],
-              "candidate_ref": "refs/heads/gsd/253-replan-candidate",
-              "fixture_ref": "refs/heads/gsd/253-replan-fixture",
+              "candidate_ref": "refs/heads/" + pair["candidate"],
+              "fixture_ref": "refs/heads/" + pair["fixture"],
               "candidate_tree_sha": candidate_tree_sha, "fixture_tree_sha": fixture_tree_sha,
               "candidate_workflow_blob": candidate_workflow_blob,
               "fixture_workflow_blob": manifest["fixture_workflow_blob"],
@@ -927,10 +929,13 @@ def verify_publication(path: Path, require_live_origin: bool = False) -> None:
     }
     if not all(item in identities for item in required):
         raise PublicationError(f"publication receipt is missing required parent, object, workflow, or scoped-ref proof: {sorted(required - identities, key=str)}")
+    try:
+        ref_pair_name(value.get("candidate_ref"), value.get("fixture_ref"))
+        known_pair = True
+    except PublicationError:
+        known_pair = False
     if (value.get("candidate_sha") == value.get("fixture_sha")
-            or not re.fullmatch(r"[a-f0-9]{40}", str(value.get("source_sha", "")))
-            or value.get("candidate_ref") != "refs/heads/gsd/253-replan-candidate"
-            or value.get("fixture_ref") != "refs/heads/gsd/253-replan-fixture"):
+            or not re.fullmatch(r"[a-f0-9]{40}", str(value.get("source_sha", ""))) or not known_pair):
         raise PublicationError("publication receipt identities or scoped refs are inconsistent")
     ledger_path = Path(value.get("ledger_path", ""))
     if not ledger_path.is_file():
@@ -1144,7 +1149,26 @@ NATIVE_NOTE = ("CIREL-01 partial: target not reproduced; the nine D-20 acceptanc
                "the normal PR runs each browser seam once as integration coverage only")
 PROHIBITED = ["rerun", "merge", "auto_merge", "push", "force_update", "delete_ref", "rule_change", "release", "tag"]
 WORKFLOW_ID = 259268962
-CANARY_BRANCH = "gsd/253-replan-fixture"
+# 253-102: exactly two code-pinned scoped ref pairs. The freeze identity selects one; the legacy pair stays the default
+# so every earlier freeze (253-91, R7) derives byte-identical outward actions. No other name is ever accepted.
+REF_PAIRS = {
+    "legacy": {"candidate": "gsd/253-replan-candidate", "fixture": "gsd/253-replan-fixture"},
+    "r8": {"candidate": "gsd/253-replan-r8-candidate", "fixture": "gsd/253-replan-r8-fixture"},
+}
+DEFAULT_REF_PAIR = "legacy"
+CANARY_BRANCH = REF_PAIRS[DEFAULT_REF_PAIR]["fixture"]
+
+
+def ref_pair_name(candidate_ref: object, fixture_ref: object) -> str:
+    """The pair whose full candidate and fixture refs are exactly these two; mixed, unknown or short names are refused."""
+    for name, pair in REF_PAIRS.items():
+        if candidate_ref == "refs/heads/" + pair["candidate"] and fixture_ref == "refs/heads/" + pair["fixture"]:
+            return name
+    raise PublicationError("candidate and fixture scoped refs are not one known ref pair (legacy or r8)")
+
+
+def identity_ref_pair(identity: dict) -> dict:
+    return REF_PAIRS[ref_pair_name(identity.get("candidate_ref"), identity.get("fixture_ref"))]
 BOUNDS = {"max_requests": 120, "new_measured_max_requests": 117, "historical_command_allocations": 3,
           "max_actual_tiny_jobs": 45, "max_minutes": 60, "max_dispatch_input_keys": 10, "max_dispatch_input_chars": 65535,
           "max_artifact_compressed_bytes": 2097152, "max_artifact_extracted_bytes": 4194304}
@@ -1154,19 +1178,21 @@ def build_outward_actions(identity: dict) -> tuple[dict, dict]:
     """Every GitHub mutation the next two plans may perform, in order, with exact identities and maxima."""
     candidate, fixture = identity["candidate_helper_commit"], identity["fixture_workflow_commit"]
     blob = identity["fixture_workflow_blob"]
-    dispatches = [{"action": "workflow_dispatch", "workflow_id": WORKFLOW_ID, "ref": CANARY_BRANCH,
+    pair = identity_ref_pair(identity)
+    fixture_branch = pair["fixture"]
+    dispatches = [{"action": "workflow_dispatch", "workflow_id": WORKFLOW_ID, "ref": fixture_branch,
                    "inputs": {"scenario": name, "candidate_sha": candidate, "fixture_sha": fixture, "fixture_blob": blob}}
                   for name, _ in SCENARIO_CASES]
     canary = {"max_requests": 117, "reruns": 0, "prohibited": PROHIBITED, "actions": [
         {"action": "publish_git_objects", "category": "publication", "max_requests": CANARY_PUBLICATION_LIMIT,
          "candidate_commit": candidate, "fixture_commit": fixture, "manifest": "bound_documents.publication_manifest"},
-        {"action": "create_ref", "ref": "refs/heads/gsd/253-replan-candidate", "sha": candidate},
-        {"action": "create_ref", "ref": "refs/heads/" + CANARY_BRANCH, "sha": fixture},
+        {"action": "create_ref", "ref": "refs/heads/" + pair["candidate"], "sha": candidate},
+        {"action": "create_ref", "ref": "refs/heads/" + fixture_branch, "sha": fixture},
         *dispatches,
         {"action": "cancel_run", "scenario": "cancelled", "max": 1,
-         "run_identity": {"workflow_id": WORKFLOW_ID, "event": "workflow_dispatch", "head_branch": CANARY_BRANCH,
+         "run_identity": {"workflow_id": WORKFLOW_ID, "event": "workflow_dispatch", "head_branch": fixture_branch,
                           "head_sha": fixture, "display_title_prefix": "Phase 253 Gate Canary / cancelled /"}},
-        {"action": "workflow_dispatch", "workflow_id": WORKFLOW_ID, "ref": CANARY_BRANCH,
+        {"action": "workflow_dispatch", "workflow_id": WORKFLOW_ID, "ref": fixture_branch,
          "inputs": {"scenario": "verifier", "candidate_sha": candidate, "fixture_sha": fixture, "fixture_blob": blob,
                     "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch"}},
     ]}
@@ -1175,7 +1201,7 @@ def build_outward_actions(identity: dict) -> tuple[dict, dict]:
          "docs_base_commit": identity["docs_base_commit"], "docs_head_commit": identity["docs_head_commit"],
          "refs": [{"ref": "refs/heads/gsd/253-replan-docs-base", "sha": identity["docs_base_commit"]},
                   {"ref": "refs/heads/gsd/253-replan-docs-head", "sha": identity["docs_head_commit"]}]},
-        {"action": "pr_create", "family": "normal", "head": "gsd/253-replan-candidate", "base": "main", "draft": True},
+        {"action": "pr_create", "family": "normal", "head": pair["candidate"], "base": "main", "draft": True},
         {"action": "pr_create", "family": "docs-only", "head": "gsd/253-replan-docs-head",
          "base": "gsd/253-replan-docs-base", "draft": True},
     ]}
@@ -1273,10 +1299,14 @@ def check_native_target(freeze: dict, repo: Path) -> None:
 
 def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: str | None = None,
                  disposition_rel: str | None = None, approval_rel: str | None = None,
-                 native_route: str = "not_reproduced_disposition", plan: str = "253-91") -> dict:
+                 native_route: str = "not_reproduced_disposition", plan: str = "253-91",
+                 ref_pair: str = DEFAULT_REF_PAIR) -> dict:
     repo = Path(repo)
-    if not isinstance(plan, str) or not re.fullmatch(r"253-[0-9]{2}", plan):
-        raise PublicationError("freeze plan must match 253-NN")
+    if not isinstance(plan, str) or not re.fullmatch(r"253-(?:[0-9]{2}|[1-9][0-9]{2})", plan):
+        raise PublicationError("freeze plan must match 253-NN or 253-NNN")
+    if ref_pair not in REF_PAIRS:
+        raise PublicationError(f"unknown ref pair {ref_pair!r}; choose one of {sorted(REF_PAIRS)}")
+    pair = REF_PAIRS[ref_pair]
     dirty = porcelain_outside_config(repo)
     if dirty:
         raise PublicationError(f"the freeze is derived only from a committed, clean tree; dirty paths: {dirty[:5]}")
@@ -1302,9 +1332,9 @@ def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: st
         native["disposition_approval"] = doc_binding(repo, approval_rel or f"{PHASE_REL}/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json")
     identity = {
         "candidate_helper_commit": manifest["candidate_helper_commit"], "candidate_tree_sha": manifest["candidate_tree_sha"],
-        "candidate_ref": "refs/heads/gsd/253-replan-candidate",
+        "candidate_ref": "refs/heads/" + pair["candidate"],
         "fixture_workflow_commit": manifest["fixture_workflow_commit"], "fixture_workflow_blob": manifest["fixture_workflow_blob"],
-        "fixture_tree_sha": manifest["fixture_tree_sha"], "fixture_ref": "refs/heads/" + CANARY_BRANCH,
+        "fixture_tree_sha": manifest["fixture_tree_sha"], "fixture_ref": "refs/heads/" + pair["fixture"],
         "workflow_path": manifest["workflow_path"], "server_parent_sha": manifest["server_parent_sha"],
         "docs_base_commit": manifest["docs_base_commit"], "docs_head_commit": manifest["docs_head_commit"],
         "old_failed_run_id": "38347679431", "old_failed_epoch": 1791909792, "old_failed_halt_seconds": 34,
@@ -1335,8 +1365,11 @@ def check_revision_freeze(freeze_path: Path, repo: Path) -> dict:
                   "fixture_tree_sha", "server_parent_sha", "docs_base_commit", "docs_head_commit"):
         if not re.fullmatch(r"[a-f0-9]{40}", str(identity.get(field, ""))):
             raise PublicationError(f"freeze identity {field} is not a full lowercase Git object SHA")
-    if (identity.get("fixture_ref") != "refs/heads/" + CANARY_BRANCH or identity.get("candidate_ref") != "refs/heads/gsd/253-replan-candidate"
-            or identity.get("workflow_path") != REGISTERED_WORKFLOW_PATH):
+    try:
+        ref_pair_name(identity.get("candidate_ref"), identity.get("fixture_ref"))
+    except PublicationError as error:
+        raise PublicationError("freeze fixture or candidate ref is not one scoped ref pair (legacy or r8)") from error
+    if identity.get("workflow_path") != REGISTERED_WORKFLOW_PATH:
         raise PublicationError("freeze fixture or candidate ref, or workflow path, is not the scoped registered identity")
     for field in ("candidate_helper_commit", "fixture_workflow_commit"):
         if subprocess.run(["git", "-C", str(repo), "cat-file", "-e", f"{identity[field]}^{{commit}}"], capture_output=True).returncode:
@@ -1411,6 +1444,8 @@ def main() -> int:
     parser.add_argument("--build-freeze", action="store_true")
     parser.add_argument("--check-freeze")
     parser.add_argument("--freeze-plan", default="253-91")
+    parser.add_argument("--ref-pair", default=DEFAULT_REF_PAIR,
+                        help="scoped ref pair recorded in the freeze identity: legacy (default) or r8")
     parser.add_argument("--acceptance-evidence")
     parser.add_argument("--disposition")
     parser.add_argument("--disposition-approval")
@@ -1465,7 +1500,8 @@ def main() -> int:
             if not (args.manifest and args.output):
                 raise PublicationError("--build-freeze requires --manifest and --output")
             freeze = build_freeze(repo_arg or ROOT, args.manifest, Path(args.output), args.acceptance_evidence,
-                                  args.disposition, args.disposition_approval, plan=args.freeze_plan)
+                                  args.disposition, args.disposition_approval, plan=args.freeze_plan,
+                                  ref_pair=args.ref_pair)
             print(json.dumps({"status": "freeze_built", "canary_sha256": freeze["outward_actions_sha256"]["canary"],
                               "docs_and_prs_sha256": freeze["outward_actions_sha256"]["docs_and_prs"]}, sort_keys=True))
             return 0
