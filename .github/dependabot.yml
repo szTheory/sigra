@@ -9,6 +9,13 @@ updates:
     labels:
       - "dependencies"
       - "ci"
+    groups:
+      github-actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "mix"
     directory: "/"
     schedule:
@@ -17,6 +24,13 @@ updates:
       prefix: "deps"
     labels:
       - "dependencies"
+    groups:
+      mix-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "npm"
     directory: "/test/example/priv/playwright"
     schedule:
@@ -25,3 +39,15 @@ updates:
       prefix: "deps"
     labels:
       - "dependencies"
+    groups:
+      npm-minor-patch:
+        patterns:
+          - "*"
+        # @playwright/test stays a separate PR: a bump also needs the browser
+        # cache key in ci.yml re-versioned (scripts/ci/playwright-cache-key-guard.sh
+        # fails until it is), and that red should not hold other updates back.
+        exclude-patterns:
+          - "@playwright/test"
+        update-types:
+          - "minor"
+          - "patch"
