@@ -153,6 +153,17 @@ def make_commit(repo: Path, tree: str, parent: str, message: str, when: str) -> 
     return sha
 
 
+def commit_message_matches(server_message, sent_message) -> bool:
+    """True only for the sent message or the sent message minus exactly one trailing newline.
+
+    GitHub's commit JSON drops one trailing newline from the stored message while the
+    stored object (and its sha) keeps the newline-terminated bytes. Nothing else is tolerated.
+    """
+    if not isinstance(server_message, str) or not isinstance(sent_message, str):
+        return False
+    return server_message == sent_message or server_message + "\n" == sent_message
+
+
 def changed_paths(parent: dict[str, dict], target: dict[str, dict], repo: Path) -> tuple[list[dict], int]:
     entries = []
     binary = 0
@@ -809,10 +820,11 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
         _, readback = api_request(allocation_path, ledger_path, "git_get_commit", "GET", {"sha": commit_sha}, expected={200}, meter=meter)
         if (not readback or readback.get("sha") != commit_sha or readback.get("tree", {}).get("sha") != tree_sha
                 or [p.get("sha") for p in readback.get("parents", [])] != [parent_sha]
-                or readback.get("message") != message or readback.get("author") != author or readback.get("committer") != author):
+                or not commit_message_matches(readback.get("message"), message) or readback.get("author") != author or readback.get("committer") != author):
             raise PublicationError(f"server commit readback differs for {label}")
+        server_message_form = "verbatim" if readback.get("message") == message else "trailing_newline_stripped"
         receipts.append({"kind": "commit", "sha": commit_sha, "tree": tree_sha, "variant": label,
-                         "parent": parent_sha, "message": message})
+                         "parent": parent_sha, "message": message, "server_message_form": server_message_form})
         workflow_blob = manifest["fixture_workflow_blob"] if label == "fixture" else git(
             repo, "rev-parse", f"{commit_sha}:.github/workflows/ci.yml").decode().strip()
         _, workflow_readback = api_request(allocation_path, ledger_path, "git_get_blob", "GET", {"sha": workflow_blob}, expected={200}, meter=meter)

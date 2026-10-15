@@ -476,6 +476,11 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(receipt["production_publish_performed"], False)
             self.assertLessEqual(receipt["request_count"], 24)
             self.assertEqual(receipt["request_count"], 16)
+            commit_rows = [row for row in receipt["server_object_receipts"] if row.get("kind") == "commit"]
+            self.assertEqual(sorted(row["variant"] for row in commit_rows), ["candidate", "fixture"])
+            for row in commit_rows:
+                self.assertTrue(row["message"].endswith("\n"))
+                self.assertEqual(row["server_message_form"], "trailing_newline_stripped")
             self.assertEqual(len(ledger["transactions"]), len(server.journal))
             self.assertTrue(all(row["charged"] for row in server.journal))
             self.assertEqual([row["status"] for row in server.journal], [row["actual_status"] for row in ledger["transactions"]])
@@ -526,6 +531,23 @@ class PublicationTests(unittest.TestCase):
             rejected = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt_path)],
                                       cwd=ROOT, text=True, capture_output=True)
             self.assertNotEqual(rejected.returncode, 0, "receipt verifier accepted a missing candidate ref readback")
+
+    def test_publication_also_accepts_a_server_that_echoes_the_commit_message_verbatim(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-object-publication-verbatim-") as temp:
+            repo, parent, source, manifest_path, manifest, allocation, ledger_path, server, root = self.make_local_publication(
+                temp, {"echo_message_verbatim": True})
+            receipt_path = root / "publication-receipt.json"
+            result = subprocess.run(["python3", str(PUBLISHER), "--publish", "--manifest", str(manifest_path),
+                                    "--allocation", str(allocation), "--ledger", str(ledger_path),
+                                    "--receipt", str(receipt_path), "--repo-root", str(repo)],
+                                   cwd=ROOT, text=True, capture_output=True, timeout=45)
+            self.assertEqual(result.returncode, 0, result.stderr + json.dumps(server.journal))
+            receipt = json.loads(receipt_path.read_text())
+            commit_rows = [row for row in receipt["server_object_receipts"] if row.get("kind") == "commit"]
+            self.assertEqual([row["server_message_form"] for row in commit_rows], ["verbatim", "verbatim"])
+            check = subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt_path)],
+                                   cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(check.returncode, 0, check.stderr)
 
     def test_actual_transport_publishes_full_multifile_delta_through_bounded_tree_chain(self):
         with tempfile.TemporaryDirectory(prefix="sigra-object-publication-packed-") as temp:
