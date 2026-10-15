@@ -366,5 +366,96 @@ class FakeGitHubStrictnessTests(unittest.TestCase):
                 server.server_close()
 
 
+# ------------------------------------------------------------------------------------- 253-108 live-policy mode
+PHASE_DIR = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+R8_ALLOCATION = PHASE_DIR / "253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json"
+BLOB_HOST = r"^productionresultssa[0-9]+[.]blob[.]core[.]windows[.]net$"
+_LIVE_RUNS = {}
+
+
+def live_run(*args):
+    """A live-policy gate run, cached per argument list for the classes that only read its summary."""
+    if args not in _LIVE_RUNS:
+        try:
+            _LIVE_RUNS[args] = run_gate("--live-policy", *args)
+        except AssertionError as error:  # no summary: every reader then fails on its own assertion
+            _LIVE_RUNS[args] = (None, {"runner_error": str(error)[-600:]})
+    return _LIVE_RUNS[args]
+
+
+class LivePolicyFullPassTests(unittest.TestCase):
+    """253-108 Task 1: publish-only and full-pass through the LIVE transport policy, below which only the shim differs."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.code, cls.summary = live_run("--stop-after", "full-pass")
+
+    def test_live_policy_publish_only_and_full_pass_pass_end_to_end(self):
+        self.assertEqual(self.code, 0, self.summary)
+        self.assertEqual(self.summary.get("status"), "passed", self.summary)
+        self.assertEqual(self.summary.get("mode"), "live-policy")
+        self.assertIs(self.summary.get("synthetic"), True)
+        self.assertEqual(self.summary.get("scenarios"), ["full-pass"])
+        self.assertEqual([item["mode"] for item in self.summary.get("invocations", [])], ["publish-only", "full-pass"])
+
+    def test_the_allocation_is_live_with_the_trusted_hosts_and_no_test_fields(self):
+        allocation = self.summary.get("allocation") or {}
+        self.assertTrue(allocation, self.summary)
+        self.assertEqual(allocation.get("mode"), "live")
+        self.assertEqual(allocation.get("allocation_kind"), "canary")
+        self.assertTrue(str(allocation.get("window_id")).startswith("253-dryrun-live-policy-"), allocation)
+        self.assertNotIn("test_origin", allocation.get("fields", ["test_origin"]))
+        self.assertNotIn("test_ca_file", allocation.get("fields", ["test_origin"]))
+        self.assertEqual(allocation.get("download_hosts"), json.loads(R8_ALLOCATION.read_text())["download_hosts"])
+        self.assertEqual((allocation.get("max_requests"), allocation.get("max_pages"), allocation.get("max_hops")), (117, 10, 2))
+        self.assertEqual(self.summary.get("test_overrides"), [], "no SIGRA_CANARY_TEST_* variable in live-policy mode")
+
+    def test_artifact_zip_is_a_302_on_api_github_com_then_a_200_on_the_blob_host(self):
+        hops = [hop for hop in self.summary.get("live_hops") or [] if hop["route"] == "artifact_zip"]
+        self.assertEqual(len(hops), 1, self.summary.get("live_hops"))
+        self.assertEqual(hops[0]["hop_ordinal"], 1) if hops else None
+        self.assertRegex(hops[0]["host"], BLOB_HOST)
+        self.assertEqual(hops[0]["status"], 200)
+        self.assertEqual((self.summary.get("requests_by_route") or {}).get("artifact_zip"), 2, "hop 0 (302) plus hop 1 (200)")
+
+    def test_the_token_reaches_every_api_request_and_no_blob_request(self):
+        authorization = self.summary.get("authorization") or {}
+        self.assertGreater(authorization.get("api_with", 0), 0, authorization)
+        self.assertEqual(authorization.get("api_without"), 0, authorization)
+        self.assertEqual(authorization.get("blob_with"), 0, authorization)
+
+    def test_the_shim_refused_nothing_and_the_fake_recorded_no_violation(self):
+        self.assertEqual(self.summary.get("shim_refusals"), [])
+        self.assertEqual(self.summary.get("violations"), [])
+        self.assertEqual(sorted(self.summary.get("shim_connect_hosts") or []),
+                         ["api.github.com", "productionresultssa17.blob.core.windows.net"], self.summary.get("shim_connect_hosts"))
+
+    def test_the_live_publication_is_actual_github_verified_and_labelled_with_its_dry_run_window(self):
+        publication = self.summary.get("publication") or {}
+        self.assertEqual(publication.get("origin_kind"), "actual-github", publication)
+        self.assertEqual(publication.get("fixture_ref_state"), "verified", publication)
+        # The 253-107 completion guard can only gap a dry-run publication that carries its window identity.
+        self.assertTrue(str(publication.get("origin_window_id")).startswith("253-dryrun-live-policy-"), publication)
+        self.assertIs(publication.get("verifier_dryrun_window"), True, publication)
+
+
+class RefPairHelpTests(unittest.TestCase):
+    def test_the_ref_pair_help_is_truthful_and_names_the_publishers_ref_pairs(self):
+        result = subprocess.run([sys.executable, str(RUNNER), "--help"], cwd=ROOT, env=clean_env(),
+                                capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        text = " ".join(result.stdout.split())
+        self.assertNotIn("never passed here", text)
+        self.assertIn("REF_PAIRS", text)
+        self.assertIn("--build-freeze", text)
+        self.assertIn("derived synthetic freeze", text)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("ci_git_publication_for_help", ROOT / "scripts/ci/ci-git-publication.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for name in module.REF_PAIRS:
+            self.assertIn(name, text)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
