@@ -82,6 +82,7 @@ LIVE_TOKEN = "dryrun-live-policy-not-a-credential"
 LIVE_WINDOW_PREFIX = "253-dryrun-live-policy-"
 R8_ALLOCATION_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json"
 SHIM_REL = "scripts/ci/ci-live-policy-shim.py"
+TRANSPORT_REL = "scripts/ci/ci-hosted-transport.py"
 
 
 def load_module(name: str, path: Path):
@@ -759,6 +760,12 @@ def prepare_clone(args, work: Path) -> dict:
     if args.driver_patch:
         apply_patch(clone, json.loads(Path(args.driver_patch).read_text()))
         changed = True
+    if getattr(args, "transport_from", None):
+        # 253-108: the transport under test comes from this commit (the sensitivity control on the 253-104 defect).
+        content = run(["git", "-C", str(ROOT), "show", f"{args.transport_from}:{TRANSPORT_REL}"]).stdout
+        (clone / TRANSPORT_REL).write_bytes(content)
+        git(clone, "add", TRANSPORT_REL)
+        changed = True
     if changed:
         git(clone, "add", DRIVER_REL)
         git(clone, "commit", "-qm", "dry-run: driver and helpers under test", "--allow-empty")
@@ -887,6 +894,8 @@ def dry_run(args) -> dict:
                "mode": "live-policy" if live else "hermetic", "live_hops": [],
                "authorization": {"api_with": 0, "api_without": 0, "blob_with": 0},
                "requested_sleeps": requested_sleeps(None), "shim_refusals": [], "shim_connect_hosts": [], "violations": []}
+    if getattr(args, "transport_from", None):
+        summary["transport_from"] = args.transport_from
     if args.driver_from:
         summary["driver_from"] = args.driver_from
     if args.driver_patch:
@@ -1107,6 +1116,7 @@ def main() -> int:
                         help="hermetic-only SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS (default 4; live is 20)")
     parser.add_argument("--poll-seconds", type=float, default=None,
                         help="hermetic-only SIGRA_CANARY_TEST_POLL_SECONDS (default 0.05)")
+    parser.add_argument("--transport-from", help="substitute the clone's ci-hosted-transport.py with this commit's blob")
     parser.add_argument("--live-policy", action="store_true",
                         help="253-108: a live canary allocation through the live-policy shim (see the module docstring)")
     parser.add_argument("--sleep-scale", type=float, default=0.01,
