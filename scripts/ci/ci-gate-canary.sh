@@ -33,6 +33,12 @@ HTTP_REQUEST=""
 HTTP_OUTPUT=""
 HTTP_BODY_OUTPUT=""
 LIVE_ALLOCATION=""
+REVISION_FREEZE=""
+ACTION_APPROVAL=""
+PUBLISH_ONLY=false
+EVIDENCE_SET=false
+REQUESTS_SET=false
+PUBLICATION_RECEIPT=""
 
 preserve_path() {
   local path="$1" scope="$2" status_before sha_before blob ref status_after sha_after
@@ -61,6 +67,8 @@ Usage: ci-gate-canary.sh (--scenario NAME | --remaining-scenarios) [--evidence P
        ci-gate-canary.sh --check-only [--recovery-freeze PATH]
        ci-gate-canary.sh --preflight-only [--recovery-freeze PATH]
        ci-gate-canary.sh --publish-ref-only [--recovery-freeze PATH]
+       ci-gate-canary.sh --publish-only --revision-freeze PATH --action-approval FILE --http-allocation PATH
+                         [--requests LEDGER] [--evidence PATH] [--publication-receipt PATH]
        ci-gate-canary.sh --transport-probe --allocation PATH --ledger PATH --request PATH --output PATH
        ci-gate-canary.sh --http-allocation PATH [--requests NEW-LEDGER]
 
@@ -96,8 +104,12 @@ while (($#)); do
   case "$1" in
     --scenario) (($# >= 2)) || fail '--scenario requires a value'; SCENARIO="$2"; shift 2 ;;
     --remaining-scenarios) ALL_REMAINING=true; shift ;;
-    --evidence) (($# >= 2)) || fail '--evidence requires a path'; EVIDENCE="$2"; shift 2 ;;
-    --requests) (($# >= 2)) || fail '--requests requires a path'; REQUESTS="$2"; shift 2 ;;
+    --evidence) (($# >= 2)) || fail '--evidence requires a path'; EVIDENCE="$2"; EVIDENCE_SET=true; shift 2 ;;
+    --requests) (($# >= 2)) || fail '--requests requires a path'; REQUESTS="$2"; REQUESTS_SET=true; shift 2 ;;
+    --revision-freeze) (($# >= 2)) || fail '--revision-freeze requires a path'; REVISION_FREEZE="$2"; shift 2 ;;
+    --action-approval) (($# >= 2)) || fail '--action-approval requires a path'; ACTION_APPROVAL="$2"; shift 2 ;;
+    --publication-receipt) (($# >= 2)) || fail '--publication-receipt requires a path'; PUBLICATION_RECEIPT="$2"; shift 2 ;;
+    --publish-only) PUBLISH_ONLY=true; shift ;;
     --http-allocation) (($# >= 2)) || fail '--http-allocation requires a path'; LIVE_ALLOCATION="$2"; shift 2 ;;
     --publish-ref-only) PUBLISH_REF_ONLY=true; shift ;;
     --check-only) CHECK_ONLY=true; shift ;;
@@ -191,6 +203,57 @@ if set(jobs)!={'producers','verdict','verifier'} or jobs['producers'].get('strat
 if jobs['verifier'].get('permissions')!={"contents":"read","actions":"read"}: raise SystemExit('independent verifier permissions exceed read-only scope')
 PY
   echo 'ci-gate-canary: local fixture contract passed'
+  exit 0
+fi
+
+
+# ---- registered-path revision flow (253-91): the committed section approval gates every live mode ----
+PUBLISHER="$ROOT/scripts/ci/ci-git-publication.py"
+if [[ "$PUBLISH_ONLY" == true ]]; then
+  [[ "$CHECK_ONLY" == false && "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false && "$ALL_REMAINING" == false && -z "$SCENARIO" ]] \
+    || fail 'publish-only mode cannot include another execution mode'
+  [[ -n "$REVISION_FREEZE" && -f "$REVISION_FREEZE" ]] || fail '--publish-only requires the reviewed --revision-freeze'
+  cd "$ROOT"
+  [[ "$(git rev-parse --show-toplevel)" == "$ROOT" ]] || fail 'checkout root changed'
+  # The approval is checked before any evidence file, ledger or request exists.
+  APPROVAL_RECORD="$(python3 "$PUBLISHER" --check-approval --action-approval "$ACTION_APPROVAL" --freeze "$REVISION_FREEZE" --section canary --repo-root "$ROOT")" \
+    || fail 'a committed canary section approval bound to the freeze is required before any request'
+  python3 "$PUBLISHER" --check-freeze "$REVISION_FREEZE" --repo-root "$ROOT" >/dev/null || fail 'revision freeze failed local validation'
+  [[ -n "$LIVE_ALLOCATION" && -f "$LIVE_ALLOCATION" ]] || fail 'a new frozen HTTP allocation is required before hosted work'
+  [[ "$EVIDENCE_SET" == true ]] || EVIDENCE="$PHASE_DIR/253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
+  [[ "$REQUESTS_SET" == true ]] || REQUESTS="$PHASE_DIR/253-LOAD-RECOVERY-CANARY-REQUESTS.json"
+  [[ -n "$PUBLICATION_RECEIPT" ]] || PUBLICATION_RECEIPT="$PHASE_DIR/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT.json"
+  if [[ -f "$EVIDENCE" ]] && jq -e '.status == "halted"' "$EVIDENCE" >/dev/null 2>&1; then
+    fail 'halted evidence requires a separately authorized new freeze; existing diagnostics cannot be retried'
+  fi
+  MANIFEST_REL="$(jq -r '.bound_documents.publication_manifest.path' "$REVISION_FREEZE")"
+  WINDOW_START="$(date +%s)"
+  if [[ -f "$EVIDENCE" ]]; then
+    jq -e --argjson approval "$APPROVAL_RECORD" '.action_approval.section_sha256 == $approval.section_sha256' "$EVIDENCE" >/dev/null \
+      || fail 'existing evidence is bound to a different approval'
+  else
+    jq -n --argjson approval "$APPROVAL_RECORD" --argjson window "$WINDOW_START" --slurpfile freeze "$REVISION_FREEZE" \
+      '$freeze[0].identity as $id | {schema_version:"sigra.phase253.hosted-replan-evidence/v2",repository:"szTheory/sigra",
+        action_approval:($approval + {window_wall_start_epoch:$window}),
+        expected:{candidate_sha:$id.candidate_helper_commit,fixture_ref:$id.fixture_ref,fixture_ref_state:"pending-publication",
+          workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",
+          workflow_sha:$id.fixture_workflow_commit,workflow_blob:$id.fixture_workflow_blob},
+        preflight:{},budget:{accounted_max_requests:120,new_measured_max_requests:117,max_requests:117,request_count:0,max_jobs:45,
+          actual_jobs:0,max_minutes:60,started_epoch:$window,elapsed_seconds:0},
+        transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],
+        scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE.tmp" && mv "$EVIDENCE.tmp" "$EVIDENCE"
+  fi
+  python3 "$PUBLISHER" --publish --manifest "$ROOT/$MANIFEST_REL" --allocation "$LIVE_ALLOCATION" --ledger "$REQUESTS" \
+    --receipt "$PUBLICATION_RECEIPT" --freeze "$REVISION_FREEZE" --action-approval "$ACTION_APPROVAL" --repo-root "$ROOT" \
+    || fail 'counted object/ref publication failed'
+  python3 "$PUBLISHER" --verify-publication "$PUBLICATION_RECEIPT" >/dev/null || fail 'publication receipt failed verification'
+  jq --slurpfile receipt "$PUBLICATION_RECEIPT" --arg path "${PUBLICATION_RECEIPT#${ROOT}/}" \
+    --arg digest "$(shasum -a 256 "$PUBLICATION_RECEIPT" | awk '{print $1}')" --slurpfile ledger "$REQUESTS" \
+    '.expected.fixture_ref_state="verified" | .budget.request_count=($ledger[0].transactions|length)
+     | .publication={receipt_path:$path,receipt_sha256:$digest,status:$receipt[0].status,origin:$receipt[0].origin,
+                     request_count:$receipt[0].request_count,candidate_ref:$receipt[0].candidate_ref,fixture_ref:$receipt[0].fixture_ref}' \
+    "$EVIDENCE" > "$EVIDENCE.tmp" && mv "$EVIDENCE.tmp" "$EVIDENCE"
+  echo "ci-gate-canary: counted publication verified (requests=$(jq -r '.transactions|length' "$REQUESTS")/117; no workflow dispatch)"
   exit 0
 fi
 

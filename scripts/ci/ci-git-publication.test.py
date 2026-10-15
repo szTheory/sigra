@@ -1060,7 +1060,7 @@ class RegisteredPublicationTests(unittest.TestCase):
 
             def stripped_response(receipt, ledger, allocation_file):
                 for tx in ledger["transactions"]:
-                    if tx["route_id"] == "git_create_commit":
+                    if tx["route_id"] in ("git_create_commit", "git_get_commit"):
                         tx["response_body_base64"] = base64.b64encode(b"{}").decode()
 
             for label, mutate in {"identity absent from every server response": forged_commit, "non-GitHub host in the ledger": local_host,

@@ -12,6 +12,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
@@ -26,6 +27,19 @@ CONFIG_REF = "refs/gsd/phase253-recovery-execution-unrelated-config"
 CONFIG_STATUS = b" M .planning/config.json\0"
 FIXTURE = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-WORKFLOW.yml"
 DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
+LEGACY_WORKFLOW_PATH = ".github/workflows/phase-253-gate-canary.yml"
+REGISTERED_WORKFLOW_PATH = ".github/workflows/ci.yml"
+API_HOST = "api.github.com"
+RECEIPT_SCHEMA = "sigra.phase253.git-publication-receipt/v1"
+APPROVAL_SCHEMA = "sigra.phase253.outward-action-approval/v1"
+FREEZE_SCHEMA = "sigra.phase253.load-recovery-canary-freeze/v1"
+SECTIONS = ("canary", "docs_and_prs")
+CANARY_PUBLICATION_LIMIT = 24
+DOCS_PUBLICATION_LIMIT = 14
+CANARY_REQUEST_LIMIT = 117
+PRODUCTION_REQUEST_LIMIT = 120
+ACTUAL_STATUS = "published-actual-github"
+HERMETIC_STATUS = "published-local-fixture"
 
 
 class PublicationError(Exception):
@@ -217,14 +231,44 @@ def pack_tree_requests(repo: Path, name: str, base_tree: str, base: dict[str, di
     return requests, binary_total
 
 
-def source_variants(repo: Path, source: str, parent: str, frozen_date: str | None = None) -> dict:
+def resolve_fixture(repo: Path, fixture_file: str | None) -> tuple[str | None, Path]:
+    """Return the repo-relative fixture path (None for the superseded default) and its absolute file."""
+    if fixture_file is None:
+        return None, FIXTURE
+    candidate = PurePosixPath(fixture_file)
+    if candidate.is_absolute() or ".." in candidate.parts or not candidate.parts:
+        raise PublicationError("fixture file must be a repository-relative path without traversal")
+    absolute = (repo / fixture_file).resolve()
+    try:
+        absolute.relative_to(repo.resolve())
+    except ValueError as error:
+        raise PublicationError("fixture file resolves outside the repository") from error
+    if not absolute.is_file():
+        raise PublicationError(f"fixture file does not exist: {fixture_file}")
+    return fixture_file, absolute
+
+
+def check_workflow_path(workflow_path: str) -> str:
+    if not re.fullmatch(r"\.github/workflows/[A-Za-z0-9._-]+\.ya?ml", workflow_path or ""):
+        raise PublicationError("fixture workflow path must be a single file under .github/workflows")
+    return workflow_path
+
+
+def source_variants(repo: Path, source: str, parent: str, frozen_date: str | None = None,
+                    fixture_file: str | None = None, workflow_path: str | None = None,
+                    allow_planning_descendant: bool = False) -> dict:
     if not re.fullmatch(r"[a-f0-9]{40}", source) or not re.fullmatch(r"[a-f0-9]{40}", parent):
         raise PublicationError("source and server parent must be full lowercase commit SHAs")
     if git(repo, "cat-file", "-t", source).strip() != b"commit" or git(repo, "cat-file", "-t", parent).strip() != b"commit":
         raise PublicationError("candidate source and server parent must resolve to commits")
-    current_head = git(repo, "rev-parse", "HEAD").decode().strip()
-    if current_head != source:
-        raise PublicationError("candidate source must be the current source HEAD; branch movement or stale source is not allowed")
+    fixture_rel, fixture_abs = resolve_fixture(repo, fixture_file)
+    fixture_path = check_workflow_path(workflow_path or LEGACY_WORKFLOW_PATH)
+    if allow_planning_descendant:
+        validate_frozen_product_source(repo, source)
+    else:
+        current_head = git(repo, "rev-parse", "HEAD").decode().strip()
+        if current_head != source:
+            raise PublicationError("candidate source must be the current source HEAD; branch movement or stale source is not allowed")
     cleanliness = clean_source(repo)
     source_tree = git(repo, "rev-parse", f"{source}^{{tree}}").decode().strip()
     parent_tree = git(repo, "rev-parse", f"{parent}^{{tree}}").decode().strip()
@@ -235,11 +279,11 @@ def source_variants(repo: Path, source: str, parent: str, frozen_date: str | Non
     now = frozen_date or datetime.now(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
     candidate_message = "Phase 253 frozen CI candidate\n"
     candidate = make_commit(repo, candidate_tree, parent, candidate_message, now)
-    fixture_content = FIXTURE.read_bytes()
-    fixture_path = ".github/workflows/phase-253-gate-canary.yml"
+    fixture_content = fixture_abs.read_bytes()
     fixture_entries = dict(merged)
     fixture_blob = git(repo, "hash-object", "-w", "--stdin", data=fixture_content).decode().strip()
-    fixture_entries[fixture_path] = {"path": fixture_path, "mode": "100644", "type": "blob", "sha": fixture_blob}
+    fixture_mode = merged[fixture_path]["mode"] if fixture_path in merged else "100644"
+    fixture_entries[fixture_path] = {"path": fixture_path, "mode": fixture_mode, "type": "blob", "sha": fixture_blob}
     fixture_tree = commit_tree(repo, fixture_entries)
     fixture_commit = make_commit(repo, fixture_tree, candidate, "Phase 253 isolated gate canary fixture\n", now)
     ci_path = ".github/workflows/ci.yml"
@@ -297,6 +341,7 @@ def source_variants(repo: Path, source: str, parent: str, frozen_date: str | Non
             "fixture_tree_sha": fixture_tree,
             "docs_base_commit": docs_base_commit, "docs_head_commit": docs_commit,
             "docs_head_path": DOCS_PATH, "workflow_path": fixture_path,
+            "fixture_file": {"path": fixture_rel, "sha256": hashlib.sha256(fixture_content).hexdigest()},
             "commit_metadata": {"author": "Sigra Publication Bot", "email": "sigra-publication@users.noreply.github.com",
                                 "committer": "Sigra Publication Bot", "date_utc_second": now,
                                 "message_newline_terminated": True, "unsigned": True},
@@ -315,7 +360,8 @@ def source_variants(repo: Path, source: str, parent: str, frozen_date: str | Non
                            "max_requests": REQUEST_LIMIT, "largest_tree_body_bytes": largest,
                            "max_tree_body_bytes": BODY_LIMIT, "complete_product_delta_dropped": False},
             "blockers": reasons, "server_object_receipts": [], "source_git_status": cleanliness["product_status_hex"],
-            "_candidate_entries": merged, "_fixture_entries": fixture_entries}
+            "_candidate_entries": merged, "_fixture_entries": fixture_entries,
+            "_docs_base_entries": docs_base_entries, "_docs_entries": docs_entries}
 
 
 def validate_manifest(value: object) -> dict:
@@ -325,6 +371,13 @@ def validate_manifest(value: object) -> dict:
                   "fixture_workflow_blob", "candidate_tree_sha", "fixture_tree_sha"):
         if not isinstance(value.get(field), str) or not re.fullmatch(r"[a-f0-9]{40}", value[field]):
             raise PublicationError(f"manifest {field} must be a full lowercase Git object SHA")
+    fixture_file = value.get("fixture_file")
+    if fixture_file is not None and (not isinstance(fixture_file, dict) or set(fixture_file) != {"path", "sha256"}
+                                      or not re.fullmatch(r"[a-f0-9]{64}", str(fixture_file.get("sha256", "")))
+                                      or not (fixture_file["path"] is None or isinstance(fixture_file["path"], str))):
+        raise PublicationError("manifest fixture file binding is malformed")
+    if not re.fullmatch(r"\.github/workflows/[A-Za-z0-9._-]+\.ya?ml", str(value.get("workflow_path", ""))):
+        raise PublicationError("manifest workflow path is not a single workflow file")
     if value.get("status") not in {"blocked", "ready-local-proposal"} or not isinstance(value.get("tree_requests"), list):
         raise PublicationError("manifest status or tree request table is invalid")
     projection = value.get("projection")
@@ -399,6 +452,185 @@ def validate_manifest(value: object) -> dict:
     return value
 
 
+def canonical_bytes(value) -> bytes:
+    return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+
+
+def sha256_hex(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def product_status(repo: Path) -> bytes:
+    return git(repo, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--", ".", ":(exclude).planning/**")
+
+
+def product_tree_sha(repo: Path, commit: str) -> str:
+    entries = {path: entry for path, entry in tree_entries(repo, commit).items() if not path.startswith(".planning/")}
+    return commit_tree(repo, entries)
+
+
+def validate_frozen_product_source(repo: Path, frozen_source: str, frozen_product_tree: str | None = None) -> dict:
+    """The frozen source is an ancestor of HEAD, no product file is dirty, and the whole current product
+    path/mode/blob tree equals the frozen one. Planning-only HEAD movement is the only movement allowed."""
+    repo = Path(repo)
+    if not re.fullmatch(r"[a-f0-9]{40}", str(frozen_source)):
+        raise PublicationError("frozen source must be a full lowercase commit SHA")
+    if subprocess.run(["git", "-C", str(repo), "cat-file", "-e", f"{frozen_source}^{{commit}}"], capture_output=True).returncode:
+        raise PublicationError("frozen source commit is not present in this repository")
+    if subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", frozen_source, "HEAD"], capture_output=True).returncode:
+        raise PublicationError("frozen source commit is not an ancestor of HEAD")
+    if product_status(repo):
+        raise PublicationError("product working tree has uncommitted dirt; the frozen product source is not what would be published")
+    frozen_tree = product_tree_sha(repo, frozen_source)
+    if frozen_product_tree is not None and frozen_tree != frozen_product_tree:
+        raise PublicationError("frozen source product tree differs from the product tree recorded in the freeze")
+    head = git(repo, "rev-parse", "HEAD").decode().strip()
+    if product_tree_sha(repo, "HEAD") != frozen_tree:
+        raise PublicationError("current product path/mode/blob tree differs from the frozen product source")
+    return {"frozen_source": frozen_source, "head": head, "product_tree_sha": frozen_tree,
+            "planning_only_movement": head != frozen_source}
+
+
+validateFrozenProductSource = validate_frozen_product_source
+
+
+# ---------------------------------------------------------------------------------- section approvals
+def section_sha256(freeze: dict, section: str) -> str:
+    if section not in SECTIONS:
+        raise PublicationError(f"unknown outward-action section: {section}")
+    actions = freeze.get("outward_actions")
+    stated = freeze.get("outward_actions_sha256")
+    if not isinstance(actions, dict) or not isinstance(actions.get(section), dict) or not isinstance(stated, dict):
+        raise PublicationError("freeze has no enumerated outward_actions section")
+    computed = sha256_hex(canonical_bytes(actions[section]))
+    if stated.get(section) != computed:
+        raise PublicationError(f"freeze section digest for {section} differs from its content")
+    return computed
+
+
+def load_freeze(path: Path) -> tuple[dict, bytes]:
+    raw = Path(path).read_bytes()
+    value = json.loads(raw)
+    if not isinstance(value, dict) or value.get("schema_version") != FREEZE_SCHEMA:
+        raise PublicationError("freeze schema is not recognized")
+    return value, raw
+
+
+def check_section_approval(approval_path: str | Path | None, freeze: dict, section: str, repo: Path) -> dict:
+    """Shared rule for every live mode: the approval is tracked, present in HEAD, byte-equal to HEAD,
+    decision approve, and bound to this exact section digest. Whole-manifest and wrong-section records fail."""
+    if not approval_path:
+        raise PublicationError(f"a committed {section} section approval is required (--action-approval)")
+    expected = section_sha256(freeze, section)
+    repo = Path(repo).resolve()
+    path = Path(approval_path)
+    path = (path if path.is_absolute() else Path.cwd() / path).resolve()
+    try:
+        rel = path.relative_to(repo).as_posix()
+    except ValueError as error:
+        raise PublicationError("approval record must live inside the repository") from error
+    if not path.is_file():
+        raise PublicationError("approval record does not exist")
+    if subprocess.run(["git", "-C", str(repo), "ls-files", "--error-unmatch", "--", rel], capture_output=True).returncode:
+        raise PublicationError("approval record is not tracked by git")
+    in_head = subprocess.run(["git", "-C", str(repo), "show", f"HEAD:{rel}"], capture_output=True)
+    if in_head.returncode:
+        raise PublicationError("approval record is not committed in HEAD")
+    raw = path.read_bytes()
+    if in_head.stdout != raw:
+        raise PublicationError("approval record differs from its committed HEAD bytes")
+    try:
+        record = json.loads(raw)
+    except ValueError as error:
+        raise PublicationError("approval record is not JSON") from error
+    if not isinstance(record, dict) or record.get("schema_version") != APPROVAL_SCHEMA:
+        raise PublicationError("approval record schema is not recognized")
+    if record.get("decision") != "approve":
+        raise PublicationError("approval record decision is not approve")
+    if record.get("section") != section:
+        raise PublicationError(f"approval record is bound to section {record.get('section')!r}, not {section}")
+    if record.get("section_sha256") != expected:
+        raise PublicationError(f"approval record digest is not the {section} section digest")
+    commit = git(repo, "rev-list", "-1", "HEAD", "--", rel).decode().strip()
+    return {"path": rel, "sha256": sha256_hex(raw), "section": section, "section_sha256": expected,
+            "commit": commit, "window_wall_start_epoch": None}
+
+
+def write_receipt_stub(receipt_path: Path, approval: dict) -> None:
+    """Persist the approval record before the first request leaves the process."""
+    approval["window_wall_start_epoch"] = int(time.time())
+    existing = {}
+    if receipt_path.exists():
+        try:
+            existing = json.loads(receipt_path.read_text())
+        except ValueError:
+            existing = {}
+    existing["action_approval"] = approval
+    existing.setdefault("schema_version", RECEIPT_SCHEMA)
+    existing.setdefault("status", "in-progress")
+    atomic_json(receipt_path, existing)
+
+
+# ------------------------------------------------------------------------------------ ledger origin
+def ledger_identities(ledger: dict) -> set:
+    found = set()
+    for tx in ledger.get("transactions", []):
+        if not isinstance(tx, dict) or tx.get("state") != "complete" or tx.get("actual_status") not in (200, 201):
+            continue
+        try:
+            body = json.loads(base64.b64decode(tx.get("response_body_base64") or "", validate=True))
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(body, dict):
+            continue
+        route = tx.get("route_id")
+        if route in ("git_get_commit", "git_create_commit") and isinstance(body.get("sha"), str):
+            found.add(("commit", body["sha"], (body.get("tree") or {}).get("sha")))
+        elif route == "git_create_tree" and isinstance(body.get("sha"), str):
+            found.add(("tree", body["sha"]))
+        elif route == "git_get_blob" and isinstance(body.get("sha"), str):
+            found.add(("blob", body["sha"]))
+        elif route in ("create_ref", "get_ref") and isinstance(body.get("ref"), str):
+            found.add(("ref", body["ref"], (body.get("object") or {}).get("sha")))
+    return found
+
+
+def derive_origin(allocation: dict, ledger: dict) -> dict:
+    """Label the publication. A live allocation whose every measured transaction went to api.github.com is
+    actual-github; anything routed to a local test origin is hermetic and never acceptable as live proof."""
+    transactions = ledger.get("transactions", [])
+    hosts = sorted({str(tx.get("host")) for tx in transactions if isinstance(tx, dict)})
+    if allocation.get("mode") == "live":
+        if hosts != [API_HOST] or any(tx.get("state") != "complete" for tx in transactions):
+            raise PublicationError("live allocation ledger contains a non-GitHub host or an incomplete transaction")
+        return {"kind": "actual-github", "host": API_HOST, "allocation_mode": "live",
+                "transactions": len(transactions), "identities_from_ledger": True}
+    return {"kind": "hermetic", "allocation_mode": allocation.get("mode"), "hosts": hosts, "transactions": len(transactions)}
+
+
+def required_identities(value: dict) -> set:
+    required = {("commit", value.get("server_parent_sha"), None)}
+    for label in ("candidate", "fixture"):
+        tree = value.get(f"{label}_tree_sha")
+        required.add(("tree", tree))
+        required.add(("commit", value.get(f"{label}_sha"), tree))
+        required.add(("blob", value.get(f"{label}_workflow_blob")))
+        required.add(("ref", value.get(f"{label}_ref"), value.get(f"{label}_sha")))
+    return required
+
+
+def identity_present(found: set, wanted: tuple) -> bool:
+    if wanted[0] == "commit" and wanted[2] is None:
+        return any(item[0] == "commit" and item[1] == wanted[1] for item in found)
+    return wanted in found
+
+
+def category_count(ledger_path: Path, category: str) -> int:
+    if not ledger_path.exists():
+        return 0
+    return sum(1 for tx in json.loads(ledger_path.read_text()).get("transactions", []) if tx.get("category") == category)
+
+
 def transport_call(allocation: Path, ledger: Path, request: dict) -> tuple[dict, bytes]:
     with tempfile.TemporaryDirectory(prefix="sigra-git-object-request-") as tmp:
         request_path = Path(tmp) / "request.json"
@@ -416,9 +648,26 @@ def transport_call(allocation: Path, ledger: Path, request: dict) -> tuple[dict,
         return receipt, body_path.read_bytes() if body_path.exists() else b""
 
 
+class Meter:
+    """Predebits one request category against its frozen limit before every measured request."""
+
+    def __init__(self, category: str | None, limit: int, ledger: Path):
+        self.category, self.limit, self.ledger = category, limit, ledger
+
+    def check(self) -> None:
+        if self.category is None:
+            return
+        used = category_count(self.ledger, self.category)
+        if used + 1 > self.limit:
+            raise PublicationError(f"category {self.category} predebit would exceed {self.limit} requests (used {used})")
+
+
 def api_request(allocation: Path, ledger: Path, route: str, method: str, params: dict | None = None,
-                body: dict | None = None, expected: set[int] | None = None) -> tuple[dict, dict | None]:
+                body: dict | None = None, expected: set[int] | None = None, meter: Meter | None = None) -> tuple[dict, dict | None]:
     request = {"route_id": route, "method": method}
+    if meter is not None and meter.category is not None:
+        meter.check()
+        request["category"] = meter.category
     if params is not None:
         request["params"] = params
     if body is not None:
@@ -435,20 +684,43 @@ def api_request(allocation: Path, ledger: Path, route: str, method: str, params:
 
 
 def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, receipt_path: Path,
-            repo: Path | None = None) -> None:
+            repo: Path | None = None, freeze_path: Path | None = None, approval_path: Path | None = None) -> None:
     manifest = validate_manifest(json.loads(manifest_path.read_text()))
     if manifest["status"] != "ready-local-proposal":
         raise PublicationError("publication blocked: local complete product delta or request allocation does not fit")
     allocation = json.loads(allocation_path.read_text())
-    if allocation.get("max_requests") != REQUEST_LIMIT or allocation.get("repository", REPO) != REPO:
-        raise PublicationError("allocation must reserve exactly 24 requests for szTheory/sigra")
-    if allocation.get("source_sha256") != hashlib.sha256(manifest_path.read_bytes()).hexdigest():
-        raise PublicationError("allocation source digest does not bind this exact frozen manifest")
     repo = repo or Path(git(ROOT, "rev-parse", "--show-toplevel").decode().strip())
+    approval = None
+    if freeze_path is None and allocation.get("mode") == "live":
+        raise PublicationError("a live allocation requires the reviewed freeze and its committed canary section approval (--freeze)")
+    if freeze_path is not None:
+        freeze, freeze_raw = load_freeze(freeze_path)
+        approval = check_section_approval(approval_path, freeze, "canary", repo)
+        bound = (freeze.get("bound_documents") or {}).get("publication_manifest") or {}
+        if bound.get("sha256") != sha256_hex(manifest_path.read_bytes()):
+            raise PublicationError("manifest differs from the freeze's bound publication_manifest digest")
+        limits = allocation.get("category_limits")
+        if (allocation.get("repository", REPO) != REPO or allocation.get("allocation_kind", "canary") != "canary"
+                or not isinstance(allocation.get("max_requests"), int) or allocation["max_requests"] > CANARY_REQUEST_LIMIT
+                or allocation.get("source_sha256") != sha256_hex(freeze_raw)
+                or (limits is not None and limits.get("publication") != CANARY_PUBLICATION_LIMIT)):
+            raise PublicationError("allocation is not the canary allocation bound to this exact freeze (117 requests, publication 24)")
+        meter = Meter("publication", CANARY_PUBLICATION_LIMIT, ledger_path)
+    else:
+        if allocation.get("max_requests") != REQUEST_LIMIT or allocation.get("repository", REPO) != REPO:
+            raise PublicationError("allocation must reserve exactly 24 requests for szTheory/sigra")
+        if allocation.get("source_sha256") != hashlib.sha256(manifest_path.read_bytes()).hexdigest():
+            raise PublicationError("allocation source digest does not bind this exact frozen manifest")
+        meter = Meter(None, REQUEST_LIMIT, ledger_path)
     parent = manifest["server_parent_sha"]
     local_parent_tree = git(repo, "rev-parse", f"{parent}^{{tree}}").decode().strip()
+    fixture_binding = manifest.get("fixture_file") or {}
     variants = source_variants(repo, manifest["source_sha"], parent,
-                               manifest["commit_metadata"]["date_utc_second"])
+                               manifest["commit_metadata"]["date_utc_second"],
+                               fixture_file=fixture_binding.get("path"), workflow_path=manifest["workflow_path"],
+                               allow_planning_descendant=True)
+    if variants["fixture_file"]["sha256"] != fixture_binding.get("sha256", variants["fixture_file"]["sha256"]):
+        raise PublicationError("fixture file changed since manifest preparation")
     for field in ("candidate_helper_commit", "fixture_workflow_commit", "fixture_workflow_blob",
                   "candidate_tree_sha", "fixture_tree_sha", "docs_base_commit", "docs_head_commit"):
         if variants[field] != manifest[field]:
@@ -480,9 +752,11 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
     actual_projection = 1 + 12 + len(manifest["tree_requests"]) + total_binary
     if actual_projection > REQUEST_LIMIT or actual_projection != manifest["projection"]["projected_total_requests"]:
         raise PublicationError("complete preflight request projection no longer fits the frozen 24-request allocation")
+    if approval is not None:
+        write_receipt_stub(receipt_path, approval)
     receipts = []
     ref_jobs = []
-    _, parent_data = api_request(allocation_path, ledger_path, "git_get_commit", "GET", {"sha": parent}, expected={200})
+    _, parent_data = api_request(allocation_path, ledger_path, "git_get_commit", "GET", {"sha": parent}, expected={200}, meter=meter)
     if (not parent_data or parent_data.get("sha") != parent
             or parent_data.get("tree", {}).get("sha") != local_parent_tree):
         raise PublicationError("fresh server parent readback did not match the frozen parent SHA")
@@ -494,11 +768,11 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
                 if item.get("sha") and not item.get("content"):
                     blob_data = git(repo, "cat-file", "blob", item["sha"])
                     blob_body = {"content": base64.b64encode(blob_data).decode(), "encoding": "base64"}
-                    _, response = api_request(allocation_path, ledger_path, "git_create_blob", "POST", body=blob_body, expected={201})
+                    _, response = api_request(allocation_path, ledger_path, "git_create_blob", "POST", body=blob_body, expected={201}, meter=meter)
                     if response.get("sha") != item["sha"]:
                         raise PublicationError("server returned a different binary blob SHA")
                     receipts.append({"kind": "blob", "sha": response["sha"], "path": item["path"]})
-            _, tree_response = api_request(allocation_path, ledger_path, "git_create_tree", "POST", body=body, expected={201})
+            _, tree_response = api_request(allocation_path, ledger_path, "git_create_tree", "POST", body=body, expected={201}, meter=meter)
             if not tree_response or tree_response.get("sha") != chunk["tree_sha"]:
                 raise PublicationError(f"server tree identity differs for {chunk['name']}")
             variant_name = label if chunk is chunks[-1] else chunk["name"]
@@ -508,18 +782,19 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
                   "date": manifest["commit_metadata"]["date_utc_second"]}
         message = "Phase 253 frozen CI candidate\n" if label == "candidate" else "Phase 253 isolated gate canary fixture\n"
         commit_body = {"message": message, "tree": tree_sha, "parents": [parent_sha], "author": author, "committer": author}
-        _, commit_response = api_request(allocation_path, ledger_path, "git_create_commit", "POST", body=commit_body, expected={201})
+        _, commit_response = api_request(allocation_path, ledger_path, "git_create_commit", "POST", body=commit_body, expected={201}, meter=meter)
         if not commit_response or commit_response.get("sha") != commit_sha:
             raise PublicationError(f"server commit identity differs for {label}")
-        _, readback = api_request(allocation_path, ledger_path, "git_get_commit", "GET", {"sha": commit_sha}, expected={200})
+        _, readback = api_request(allocation_path, ledger_path, "git_get_commit", "GET", {"sha": commit_sha}, expected={200}, meter=meter)
         if (not readback or readback.get("sha") != commit_sha or readback.get("tree", {}).get("sha") != tree_sha
                 or [p.get("sha") for p in readback.get("parents", [])] != [parent_sha]
                 or readback.get("message") != message or readback.get("author") != author or readback.get("committer") != author):
             raise PublicationError(f"server commit readback differs for {label}")
         receipts.append({"kind": "commit", "sha": commit_sha, "tree": tree_sha, "variant": label,
                          "parent": parent_sha, "message": message})
-        workflow_blob = manifest["fixture_workflow_blob"] if label == "fixture" else git(repo, "rev-parse", f"{commit_sha}:.github/workflows/ci.yml").decode().strip()
-        _, workflow_readback = api_request(allocation_path, ledger_path, "git_get_blob", "GET", {"sha": workflow_blob}, expected={200})
+        workflow_blob = manifest["fixture_workflow_blob"] if label == "fixture" else git(
+            repo, "rev-parse", f"{commit_sha}:.github/workflows/ci.yml").decode().strip()
+        _, workflow_readback = api_request(allocation_path, ledger_path, "git_get_blob", "GET", {"sha": workflow_blob}, expected={200}, meter=meter)
         try:
             workflow_bytes = base64.b64decode(workflow_readback.get("content", ""), validate=False) if workflow_readback else b""
         except (ValueError, TypeError):
@@ -533,7 +808,7 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
         ref_jobs.append((label, commit_sha, tree_sha, ref_name, workflow_blob))
     for label, commit_sha, tree_sha, ref_name, workflow_blob in ref_jobs:
         ref_body = {"ref": "refs/heads/" + ref_name, "sha": commit_sha}
-        ref_probe, existing = api_request(allocation_path, ledger_path, "get_ref", "GET", {"branch": ref_name}, expected={200, 404})
+        ref_probe, existing = api_request(allocation_path, ledger_path, "get_ref", "GET", {"branch": ref_name}, expected={200, 404}, meter=meter)
         if ref_probe.get("actual_status") == 200:
             if existing.get("object", {}).get("sha") != commit_sha:
                 raise PublicationError(f"scoped ref {ref_name} already points to a different commit")
@@ -544,27 +819,32 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
                                for item in prior.get("server_object_receipts", []) if isinstance(item, dict))):
                 raise PublicationError("existing exact ref has no matching prior publication receipt")
         else:
-            _, created = api_request(allocation_path, ledger_path, "create_ref", "POST", body=ref_body, expected={201})
+            _, created = api_request(allocation_path, ledger_path, "create_ref", "POST", body=ref_body, expected={201}, meter=meter)
             if not created or created.get("object", {}).get("sha") != commit_sha:
                 raise PublicationError("create-only reference response did not match the frozen commit")
-            _, readback_ref = api_request(allocation_path, ledger_path, "get_ref", "GET", {"branch": ref_name}, expected={200})
+            _, readback_ref = api_request(allocation_path, ledger_path, "get_ref", "GET", {"branch": ref_name}, expected={200}, meter=meter)
             if not readback_ref or readback_ref.get("object", {}).get("sha") != commit_sha:
                 raise PublicationError("scoped reference readback lost or changed the created commit")
         receipts.append({"kind": "ref", "sha": commit_sha, "tree": tree_sha, "ref": "refs/heads/" + ref_name,
                          "variant": label, "workflow_blob": workflow_blob})
     final_ledger = json.loads(ledger_path.read_text())
     journal_entries = final_ledger.get("transactions", [])
-    if len(journal_entries) > REQUEST_LIMIT:
-        raise PublicationError("measured transport ledger exceeded 24 requests")
+    own = [tx for tx in journal_entries if tx.get("category") == "publication"] if meter.category else journal_entries
+    if len(own) > REQUEST_LIMIT:
+        raise PublicationError("measured transport ledger exceeded 24 publication requests")
     candidate_workflow_blob = git(repo, "rev-parse", f"{manifest['candidate_helper_commit']}:.github/workflows/ci.yml").decode().strip()
     candidate_tree_sha = git(repo, "rev-parse", f"{manifest['candidate_helper_commit']}^{{tree}}").decode().strip()
     fixture_tree_sha = git(repo, "rev-parse", f"{manifest['fixture_workflow_commit']}^{{tree}}").decode().strip()
-    result = {"schema_version": "sigra.phase253.git-publication-receipt/v1", "status": "published-local-fixture",
+    origin = derive_origin(allocation, final_ledger)
+    actual = origin["kind"] == "actual-github"
+    result = {"schema_version": RECEIPT_SCHEMA, "status": ACTUAL_STATUS if actual else HERMETIC_STATUS,
+              "origin": origin,
               "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
               "allocation_sha256": hashlib.sha256(allocation_path.read_bytes()).hexdigest(),
+              "allocation_path": str(allocation_path.resolve()),
               "ledger_sha256": hashlib.sha256(ledger_path.read_bytes()).hexdigest(),
               "ledger_path": str(ledger_path.resolve()),
-              "request_count": len(journal_entries), "server_object_receipts": receipts,
+              "request_count": len(own), "server_object_receipts": receipts,
               "source_sha": manifest["source_sha"], "server_parent_sha": parent,
               "candidate_sha": manifest["candidate_helper_commit"],
               "fixture_sha": manifest["fixture_workflow_commit"],
@@ -573,16 +853,27 @@ def publish(manifest_path: Path, allocation_path: Path, ledger_path: Path, recei
               "candidate_tree_sha": candidate_tree_sha, "fixture_tree_sha": fixture_tree_sha,
               "candidate_workflow_blob": candidate_workflow_blob,
               "fixture_workflow_blob": manifest["fixture_workflow_blob"],
-              "production_publish_performed": False}
+              "production_publish_performed": actual}
+    if approval is not None:
+        result["action_approval"] = approval
     atomic_json(receipt_path, result)
 
 
-def verify_publication(path: Path) -> None:
+def verify_publication(path: Path, require_live_origin: bool = False) -> None:
     value = json.loads(path.read_text())
-    if (not isinstance(value, dict) or value.get("schema_version") != "sigra.phase253.git-publication-receipt/v1"
-            or value.get("status") != "published-local-fixture" or value.get("production_publish_performed") is not False
+    status = value.get("status") if isinstance(value, dict) else None
+    origin = value.get("origin") if isinstance(value, dict) else None
+    actual = status == ACTUAL_STATUS
+    if (not isinstance(value, dict) or value.get("schema_version") != RECEIPT_SCHEMA
+            or status not in (HERMETIC_STATUS, ACTUAL_STATUS) or value.get("production_publish_performed") is not actual
             or not isinstance(value.get("server_object_receipts"), list)):
         raise PublicationError("publication receipt is missing, incomplete, or claims live publication")
+    if require_live_origin and not actual:
+        raise PublicationError("hermetic or legacy local-fixture origin is rejected at live acceptance")
+    if actual and (not isinstance(origin, dict) or origin.get("kind") != "actual-github"):
+        raise PublicationError("actual-github publication receipt has no actual-github origin label")
+    if not actual and isinstance(origin, dict) and origin.get("kind") == "actual-github":
+        raise PublicationError("origin claims actual-github but the receipt status does not")
     for row in value["server_object_receipts"]:
         if not isinstance(row, dict) or not re.fullmatch(r"[a-f0-9]{40}", str(row.get("sha", ""))):
             raise PublicationError("publication receipt contains an invalid server object identity")
@@ -611,10 +902,299 @@ def verify_publication(path: Path) -> None:
         raise PublicationError("publication receipt no longer matches its measured request ledger")
     ledger = json.loads(ledger_path.read_text())
     transactions = ledger.get("transactions") if isinstance(ledger, dict) else None
-    if (not isinstance(transactions, list) or len(transactions) != value.get("request_count")
-            or not isinstance(value.get("request_count"), int) or len(transactions) > REQUEST_LIMIT
+    if (not isinstance(transactions, list)
+            or not isinstance(value.get("request_count"), int) or value["request_count"] > REQUEST_LIMIT
             or any(not isinstance(tx, dict) or tx.get("state") != "complete" for tx in transactions)):
         raise PublicationError("publication ledger has unaccounted, failed, or over-budget requests")
+    own = [tx for tx in transactions if tx.get("category") == "publication"] or transactions
+    if len(own) != value["request_count"]:
+        raise PublicationError("publication ledger has unaccounted, failed, or over-budget requests")
+    if actual:
+        allocation_path = Path(value.get("allocation_path", ""))
+        if (not allocation_path.is_file() or hashlib.sha256(allocation_path.read_bytes()).hexdigest() != value.get("allocation_sha256")
+                or ledger.get("allocation_sha256") != value.get("allocation_sha256")):
+            raise PublicationError("actual-github receipt is not bound to its allocation and ledger")
+        allocation = json.loads(allocation_path.read_text())
+        if allocation.get("mode") != "live" or {"test_origin", "test_ca_file"} & set(allocation):
+            raise PublicationError("actual-github receipt is bound to a hermetic allocation")
+        if derive_origin(allocation, ledger)["kind"] != "actual-github":
+            raise PublicationError("actual-github ledger is not entirely api.github.com")
+        found = ledger_identities(ledger)
+        missing = [item for item in sorted(required_identities(value), key=str) if not identity_present(found, item)]
+        if missing:
+            raise PublicationError(f"actual-github identities are not present in the measured server responses: {missing}")
+
+
+def publish_docs(freeze_path: Path, allocation_path: Path, ledger_path: Path, receipt_path: Path,
+                 repo: Path | None, approval_path: Path | None) -> None:
+    repo = Path(repo) if repo else Path(git(ROOT, "rev-parse", "--show-toplevel").decode().strip())
+    freeze, freeze_raw = load_freeze(freeze_path)
+    approval = check_section_approval(approval_path, freeze, "docs_and_prs", repo)
+    source = freeze.get("source") or {}
+    validate_frozen_product_source(repo, source.get("commit", ""), source.get("product_tree_sha"))
+    allocation = json.loads(allocation_path.read_text())
+    transport_limits = (allocation.get("category_limits") or {})
+    if (allocation.get("allocation_kind") != "production" or allocation.get("max_requests") != PRODUCTION_REQUEST_LIMIT
+            or allocation.get("repository", REPO) != REPO or allocation.get("source_sha256") != sha256_hex(freeze_raw)
+            or transport_limits.get("docs_publication") != DOCS_PUBLICATION_LIMIT):
+        raise PublicationError("allocation is not the production allocation bound to this exact freeze (120 requests, docs_publication 14)")
+    bound = (freeze.get("bound_documents") or {}).get("publication_manifest") or {}
+    manifest_file = (repo / str(bound.get("path", ""))).resolve()
+    if not manifest_file.is_file() or sha256_hex(manifest_file.read_bytes()) != bound.get("sha256"):
+        raise PublicationError("publication manifest differs from the freeze's bound digest")
+    manifest = validate_manifest(json.loads(manifest_file.read_text()))
+    fixture_binding = manifest.get("fixture_file") or {}
+    variants = source_variants(repo, manifest["source_sha"], manifest["server_parent_sha"],
+                               manifest["commit_metadata"]["date_utc_second"], fixture_file=fixture_binding.get("path"),
+                               workflow_path=manifest["workflow_path"], allow_planning_descendant=True)
+    if variants["docs_base_commit"] != manifest["docs_base_commit"] or variants["docs_head_commit"] != manifest["docs_head_commit"]:
+        raise PublicationError("local docs variants differ from the frozen docs base/head commits")
+    ci_path = ".github/workflows/ci.yml"
+    author = {"name": "Sigra Publication Bot", "email": "sigra-publication@users.noreply.github.com",
+              "date": manifest["commit_metadata"]["date_utc_second"]}
+
+    def blob_text(commit: str, path: str) -> tuple[str, str]:
+        sha = git(repo, "rev-parse", f"{commit}:{path}").decode().strip()
+        return sha, git(repo, "cat-file", "blob", sha).decode("utf-8", "strict")
+
+    stages = [
+        ("docs-base", "gsd/253-replan-docs-base", manifest["docs_base_commit"], manifest["candidate_tree_sha"],
+         manifest["candidate_helper_commit"], "Phase 253 docs probe base workflow exception\n", ci_path),
+        ("docs-head", "gsd/253-replan-docs-head", manifest["docs_head_commit"],
+         git(repo, "rev-parse", f"{manifest['docs_base_commit']}^{{tree}}").decode().strip(),
+         manifest["docs_base_commit"], "Phase 253 docs-only probe head\n", DOCS_PATH),
+    ]
+    meter = Meter("docs_publication", DOCS_PUBLICATION_LIMIT, ledger_path)
+    write_receipt_stub(receipt_path, approval)
+    receipts = []
+    for label, ref_name, commit, base_tree, parent_commit, message, path in stages:
+        tree = git(repo, "rev-parse", f"{commit}^{{tree}}").decode().strip()
+        blob_sha, text = blob_text(commit, path)
+        mode = git(repo, "ls-tree", commit, path).decode().split()[0]
+        body = {"base_tree": base_tree, "tree": [{"path": path, "mode": mode, "type": "blob", "content": text}]}
+        _, created_tree = api_request(allocation_path, ledger_path, "git_create_tree", "POST", body=body, expected={201}, meter=meter)
+        if not created_tree or created_tree.get("sha") != tree:
+            raise PublicationError(f"{label}: server tree differs from the frozen tree")
+        commit_body = {"message": message, "tree": tree, "parents": [parent_commit], "author": author, "committer": author}
+        _, created = api_request(allocation_path, ledger_path, "git_create_commit", "POST", body=commit_body, expected={201}, meter=meter)
+        if not created or created.get("sha") != commit:
+            raise PublicationError(f"{label}: server commit differs from the frozen commit")
+        _, readback = api_request(allocation_path, ledger_path, "git_get_commit", "GET", {"sha": commit}, expected={200}, meter=meter)
+        if not readback or readback.get("sha") != commit or readback.get("tree", {}).get("sha") != tree:
+            raise PublicationError(f"{label}: commit readback differs")
+        _, blob = api_request(allocation_path, ledger_path, "git_get_blob", "GET", {"sha": blob_sha}, expected={200}, meter=meter)
+        if not blob or blob.get("sha") != blob_sha:
+            raise PublicationError(f"{label}: blob readback differs")
+        api_request(allocation_path, ledger_path, "get_ref", "GET", {"branch": ref_name}, expected={404}, meter=meter)
+        _, ref_created = api_request(allocation_path, ledger_path, "create_ref", "POST",
+                                     body={"ref": "refs/heads/" + ref_name, "sha": commit}, expected={201}, meter=meter)
+        if not ref_created or ref_created.get("object", {}).get("sha") != commit:
+            raise PublicationError(f"{label}: create-only reference response differs")
+        _, ref_readback = api_request(allocation_path, ledger_path, "get_ref", "GET", {"branch": ref_name}, expected={200}, meter=meter)
+        if not ref_readback or ref_readback.get("object", {}).get("sha") != commit:
+            raise PublicationError(f"{label}: scoped reference readback differs")
+        receipts.append({"kind": label, "commit": commit, "tree": tree, "ref": "refs/heads/" + ref_name, "blob": blob_sha})
+    ledger = json.loads(ledger_path.read_text())
+    origin = derive_origin(allocation, ledger)
+    atomic_json(receipt_path, {
+        "schema_version": "sigra.phase253.docs-publication-receipt/v1",
+        "status": "docs-published-actual-github" if origin["kind"] == "actual-github" else "docs-published-local-fixture",
+        "origin": origin, "request_count": category_count(ledger_path, "docs_publication"), "stages": receipts,
+        "docs_base_commit": manifest["docs_base_commit"], "docs_head_commit": manifest["docs_head_commit"],
+        "freeze_sha256": sha256_hex(freeze_raw), "allocation_sha256": sha256_hex(allocation_path.read_bytes()),
+        "ledger_sha256": sha256_hex(ledger_path.read_bytes()), "action_approval": approval})
+
+
+# ---------------------------------------------------------------------------------------- freeze
+PHASE_REL = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+HELPER_PATHS = (
+    "scripts/ci/ci-gate-canary.sh", "scripts/ci/ci-gate-canary.test.sh",
+    "scripts/ci/ci-git-publication.py", "scripts/ci/ci-git-publication.test.py",
+    "scripts/ci/ci-hosted-gate-verify.py", "scripts/ci/ci-hosted-gate-verify.test.py",
+    "scripts/ci/ci-hosted-transport.py", "scripts/ci/ci-pr-proof.sh", "scripts/ci/ci-pr-proof.test.sh",
+    "scripts/ci/ci-browser-records.mjs", "scripts/ci/honest-skip-verdict.sh", ".github/workflows/ci.yml",
+)
+SCENARIO_CASES = (("full-pass", "success"), ("docs-only", "success"), ("actual-failure", "failure"),
+                  ("missing-seam", "failure"), ("unexpected-skip", "failure"), ("cancelled", "cancelled"))
+REQUIRED_CHECKS = ["Library tests", "Example unit smoke (ExUnit + ConnTest)", "Install smoke (fresh phx.new + sigra.install)",
+                   "Example HTTP smoke (boot + curl critical routes)", "Example Playwright smoke (full lifecycle)"]
+# Frozen from 253-LOAD-RECOVERY-BUDGETS.md "Hosted canary: unchanged approved categories" (sum 117).
+CANARY_CATEGORIES = {
+    "preflight": 8, "publication": 24, "dispatch": 7, "run_discovery": 7, "pre_watch_rate": 7, "terminal_polls": 18,
+    "attempt_jobs": 7, "artifact_metadata": 7, "artifact_downloads": 12, "failure_logs": 6, "cancellation": 1,
+    "infrastructure_retry": 13,
+}
+PRODUCTION_CATEGORIES = {
+    "preflight": 8, "docs_publication": 14, "pr_create": 2, "pr_identity": 8, "run_discovery": 4, "pre_watch_rate": 2,
+    "terminal_polls": 27, "attempt_jobs": 4, "native_checks": 4, "artifact_metadata": 4, "artifact_downloads": 20,
+    "failure_logs": 2, "infrastructure_rerun": 21,
+}
+RERUN_REASON = "no implemented rerun route; an infrastructure fault halts"
+NATIVE_NOTE = ("CIREL-01 partial: target not reproduced; the nine D-20 acceptance slots expired unused; "
+               "the normal PR runs each browser seam once as integration coverage only")
+PROHIBITED = ["rerun", "merge", "auto_merge", "push", "force_update", "delete_ref", "rule_change", "release", "tag"]
+WORKFLOW_ID = 259268962
+CANARY_BRANCH = "gsd/253-replan-fixture"
+BOUNDS = {"max_requests": 120, "new_measured_max_requests": 117, "historical_command_allocations": 3,
+          "max_actual_tiny_jobs": 45, "max_minutes": 60, "max_dispatch_input_keys": 10, "max_dispatch_input_chars": 65535,
+          "max_artifact_compressed_bytes": 2097152, "max_artifact_extracted_bytes": 4194304}
+
+
+def build_outward_actions(identity: dict) -> tuple[dict, dict]:
+    """Every GitHub mutation the next two plans may perform, in order, with exact identities and maxima."""
+    candidate, fixture = identity["candidate_helper_commit"], identity["fixture_workflow_commit"]
+    blob = identity["fixture_workflow_blob"]
+    dispatches = [{"action": "workflow_dispatch", "workflow_id": WORKFLOW_ID, "ref": CANARY_BRANCH,
+                   "inputs": {"scenario": name, "candidate_sha": candidate, "fixture_sha": fixture, "fixture_blob": blob}}
+                  for name, _ in SCENARIO_CASES]
+    canary = {"max_requests": 117, "reruns": 0, "prohibited": PROHIBITED, "actions": [
+        {"action": "publish_git_objects", "category": "publication", "max_requests": CANARY_PUBLICATION_LIMIT,
+         "candidate_commit": candidate, "fixture_commit": fixture, "manifest": "bound_documents.publication_manifest"},
+        {"action": "create_ref", "ref": "refs/heads/gsd/253-replan-candidate", "sha": candidate},
+        {"action": "create_ref", "ref": "refs/heads/" + CANARY_BRANCH, "sha": fixture},
+        *dispatches,
+        {"action": "cancel_run", "scenario": "cancelled", "max": 1,
+         "run_identity": {"workflow_id": WORKFLOW_ID, "event": "workflow_dispatch", "head_branch": CANARY_BRANCH,
+                          "head_sha": fixture, "display_title_prefix": "Phase 253 Gate Canary / cancelled /"}},
+        {"action": "workflow_dispatch", "workflow_id": WORKFLOW_ID, "ref": CANARY_BRANCH,
+         "inputs": {"scenario": "verifier", "candidate_sha": candidate, "fixture_sha": fixture, "fixture_blob": blob,
+                    "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch"}},
+    ]}
+    docs = {"max_requests": 120, "reruns": 0, "prohibited": PROHIBITED, "actions": [
+        {"action": "publish_docs_objects", "category": "docs_publication", "max_requests": DOCS_PUBLICATION_LIMIT,
+         "docs_base_commit": identity["docs_base_commit"], "docs_head_commit": identity["docs_head_commit"],
+         "refs": [{"ref": "refs/heads/gsd/253-replan-docs-base", "sha": identity["docs_base_commit"]},
+                  {"ref": "refs/heads/gsd/253-replan-docs-head", "sha": identity["docs_head_commit"]}]},
+        {"action": "pr_create", "family": "normal", "head": "gsd/253-replan-candidate", "base": "main", "draft": True},
+        {"action": "pr_create", "family": "docs-only", "head": "gsd/253-replan-docs-head",
+         "base": "gsd/253-replan-docs-base", "draft": True},
+    ]}
+    sections = {"canary": canary, "docs_and_prs": docs}
+    return sections, {name: sha256_hex(canonical_bytes(value)) for name, value in sections.items()}
+
+
+def porcelain_outside_config(repo: Path) -> list[str]:
+    rows = git(repo, "status", "--porcelain=v1", "-z", "--untracked-files=all").split(b"\0")
+    return [row.decode("utf-8", "replace") for row in rows if row and row != b" M .planning/config.json"]
+
+
+def doc_binding(repo: Path, rel: str) -> dict:
+    path = (repo / rel).resolve()
+    try:
+        path.relative_to(repo.resolve())
+    except ValueError as error:
+        raise PublicationError(f"bound document must live inside the repository: {rel}") from error
+    if not path.is_file():
+        raise PublicationError(f"bound document is missing: {rel}")
+    return {"path": rel, "sha256": sha256_hex(path.read_bytes())}
+
+
+def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: str | None = None,
+                 disposition_rel: str | None = None, approval_rel: str | None = None,
+                 native_route: str = "not_reproduced_disposition") -> dict:
+    repo = Path(repo)
+    dirty = porcelain_outside_config(repo)
+    if dirty:
+        raise PublicationError(f"the freeze is derived only from a committed, clean tree; dirty paths: {dirty[:5]}")
+    manifest_binding = doc_binding(repo, manifest_rel)
+    manifest = validate_manifest(json.loads((repo / manifest_rel).read_text()))
+    if manifest["status"] != "ready-local-proposal":
+        raise PublicationError("the publication manifest is not ready")
+    fixture_binding = manifest.get("fixture_file") or {}
+    if not fixture_binding.get("path") or manifest["workflow_path"] != REGISTERED_WORKFLOW_PATH:
+        raise PublicationError("the freeze needs the registered ci.yml fixture child and its bound fixture file")
+    source = manifest["source_sha"]
+    state = validate_frozen_product_source(repo, source)
+    helper_blobs = {}
+    for rel in HELPER_PATHS:
+        probe = subprocess.run(["git", "-C", str(repo), "rev-parse", f"{source}:{rel}"], capture_output=True, text=True)
+        if probe.returncode:
+            raise PublicationError(f"called helper is missing at the frozen source: {rel}")
+        helper_blobs[rel] = probe.stdout.strip()
+    acceptance_rel = acceptance_rel or f"{PHASE_REL}/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json"
+    native = {"route": native_route, "acceptance_evidence": doc_binding(repo, acceptance_rel), "note": NATIVE_NOTE}
+    if native_route == "not_reproduced_disposition":
+        native["disposition"] = doc_binding(repo, disposition_rel or f"{PHASE_REL}/253-LOAD-RECOVERY-TARGET-DISPOSITION.json")
+        native["disposition_approval"] = doc_binding(repo, approval_rel or f"{PHASE_REL}/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json")
+    identity = {
+        "candidate_helper_commit": manifest["candidate_helper_commit"], "candidate_tree_sha": manifest["candidate_tree_sha"],
+        "candidate_ref": "refs/heads/gsd/253-replan-candidate",
+        "fixture_workflow_commit": manifest["fixture_workflow_commit"], "fixture_workflow_blob": manifest["fixture_workflow_blob"],
+        "fixture_tree_sha": manifest["fixture_tree_sha"], "fixture_ref": "refs/heads/" + CANARY_BRANCH,
+        "workflow_path": manifest["workflow_path"], "server_parent_sha": manifest["server_parent_sha"],
+        "docs_base_commit": manifest["docs_base_commit"], "docs_head_commit": manifest["docs_head_commit"],
+        "old_failed_run_id": "38347679431", "old_failed_epoch": 1791909792, "old_failed_halt_seconds": 34,
+        "old_known_commands": 3,
+    }
+    sections, digests = build_outward_actions(identity)
+    freeze = {
+        "schema_version": FREEZE_SCHEMA, "plan": "253-91",
+        "source": {"commit": source, "product_tree_sha": state["product_tree_sha"],
+                   "product_files": manifest["product_tree_parity"]["source_product_files"]},
+        "identity": identity, "helper_blobs": helper_blobs,
+        "bound_documents": {"publication_manifest": manifest_binding, "fixture_workflow": doc_binding(repo, fixture_binding["path"])},
+        "scenarios": {"count": 6, "optional_infrastructure_retry": 0, "retry_status": "expired", "retry_reason": RERUN_REASON,
+                      "cases": [{"name": name, "expected_outcome": outcome} for name, outcome in SCENARIO_CASES]},
+        "expired_reruns": {
+            "canary": {"category": "infrastructure_retry", "status": "expired", "requests": 13, "jobs": 6, "used": 0, "reason": RERUN_REASON},
+            "pull_requests": {"category": "infrastructure_rerun", "status": "expired", "requests": 21, "used": 0, "reason": RERUN_REASON}},
+        "bounds": BOUNDS, "categories": {"canary": CANARY_CATEGORIES, "production": PRODUCTION_CATEGORIES},
+        "clock": {"minutes": 60, "begins": "before_first_preflight_or_publication_request"},
+        "required_checks": REQUIRED_CHECKS,
+        "workflow": {"name": "Phase 253 Gate Canary", "path": REGISTERED_WORKFLOW_PATH, "trigger": ["workflow_dispatch"],
+                     "permissions": {"contents": "read"}, "registered_workflow_id": WORKFLOW_ID,
+                     "jobs": {"tiny_producers": 5, "verdict": 1, "independent_verifier": 1, "observer_trigger": False}},
+        "historical": {"previous_accounted_or_reserved_requests": 20, "previous_exact_http_count_proven": False,
+                       "note": "old run 38347679431, epoch 1791909792, 34-second halt and three known commands remain closed; historical actual HTTP is unknown"},
+        "native_target": native, "outward_actions": sections, "outward_actions_sha256": digests,
+    }
+    atomic_json(repo / output if not Path(output).is_absolute() else Path(output), freeze)
+    return freeze
+
+
+def check_revision_freeze(freeze_path: Path, repo: Path) -> dict:
+    """Validate the revision freeze against the committed tree. Returns the parsed freeze."""
+    repo = Path(repo)
+    freeze, _ = load_freeze(freeze_path)
+    source = freeze.get("source") or {}
+    validate_frozen_product_source(repo, source.get("commit", ""), source.get("product_tree_sha"))
+    identity = freeze.get("identity") or {}
+    for field in ("candidate_helper_commit", "fixture_workflow_commit", "fixture_workflow_blob", "candidate_tree_sha",
+                  "fixture_tree_sha", "server_parent_sha", "docs_base_commit", "docs_head_commit"):
+        if not re.fullmatch(r"[a-f0-9]{40}", str(identity.get(field, ""))):
+            raise PublicationError(f"freeze identity {field} is not a full lowercase Git object SHA")
+    if (identity.get("fixture_ref") != "refs/heads/" + CANARY_BRANCH or identity.get("candidate_ref") != "refs/heads/gsd/253-replan-candidate"
+            or identity.get("workflow_path") != REGISTERED_WORKFLOW_PATH):
+        raise PublicationError("freeze fixture or candidate ref, or workflow path, is not the scoped registered identity")
+    for field in ("candidate_helper_commit", "fixture_workflow_commit"):
+        if subprocess.run(["git", "-C", str(repo), "cat-file", "-e", f"{identity[field]}^{{commit}}"], capture_output=True).returncode:
+            raise PublicationError(f"freeze {field} is not present locally")
+    if git(repo, "rev-parse", f"{identity['fixture_workflow_commit']}:{REGISTERED_WORKFLOW_PATH}").decode().strip() != identity["fixture_workflow_blob"]:
+        raise PublicationError("fixture blob does not match the fixture commit's registered workflow")
+    for rel, expected in (freeze.get("helper_blobs") or {}).items():
+        if git(repo, "rev-parse", f"{source['commit']}:{rel}").decode().strip() != expected:
+            raise PublicationError(f"helper blob differs from the frozen source: {rel}")
+    if set(freeze.get("helper_blobs") or {}) != set(HELPER_PATHS):
+        raise PublicationError("freeze helper blob set is incomplete or unexpected")
+    bound = freeze.get("bound_documents") or {}
+    for name in ("publication_manifest", "fixture_workflow"):
+        item = bound.get(name) or {}
+        path = repo / str(item.get("path", ""))
+        if not path.is_file() or sha256_hex(path.read_bytes()) != item.get("sha256"):
+            raise PublicationError(f"bound document {name} is missing or differs from its digest")
+    manifest = validate_manifest(json.loads((repo / bound["publication_manifest"]["path"]).read_text()))
+    for field in ("candidate_helper_commit", "fixture_workflow_commit", "fixture_workflow_blob", "candidate_tree_sha",
+                  "fixture_tree_sha", "docs_base_commit", "docs_head_commit", "server_parent_sha"):
+        if manifest[field] != identity[field]:
+            raise PublicationError(f"freeze identity {field} differs from the bound publication manifest")
+    if manifest["source_sha"] != source.get("commit"):
+        raise PublicationError("freeze source differs from the publication manifest source")
+    sections, digests = build_outward_actions(identity)
+    if freeze.get("outward_actions") != sections or freeze.get("outward_actions_sha256") != digests:
+        raise PublicationError("outward_actions are not the enumerated actions derived from the frozen identities")
+    for section in SECTIONS:
+        section_sha256(freeze, section)
+    return freeze
 
 
 def main() -> int:
@@ -623,21 +1203,36 @@ def main() -> int:
     parser.add_argument("--candidate-source")
     parser.add_argument("--server-parent")
     parser.add_argument("--output")
+    parser.add_argument("--fixture-file", help="repository-relative fixture workflow file (default: the superseded recovery fixture)")
+    parser.add_argument("--workflow-path", help="workflow file the fixture child changes (default: the superseded unregistered path)")
     parser.add_argument("--repo-root", help=argparse.SUPPRESS)
     parser.add_argument("--check-manifest")
     parser.add_argument("--publish", action="store_true")
+    parser.add_argument("--publish-docs", action="store_true")
     parser.add_argument("--manifest")
     parser.add_argument("--allocation")
     parser.add_argument("--ledger")
     parser.add_argument("--receipt")
+    parser.add_argument("--freeze")
+    parser.add_argument("--action-approval")
+    parser.add_argument("--section", choices=SECTIONS)
+    parser.add_argument("--check-approval", action="store_true")
     parser.add_argument("--verify-publication")
+    parser.add_argument("--require-live-origin", action="store_true")
+    parser.add_argument("--validate-frozen-source")
+    parser.add_argument("--build-freeze", action="store_true")
+    parser.add_argument("--check-freeze")
+    parser.add_argument("--acceptance-evidence")
+    parser.add_argument("--disposition")
+    parser.add_argument("--disposition-approval")
     args = parser.parse_args()
+    repo_arg = Path(args.repo_root).resolve() if args.repo_root else None
     try:
         if args.prepare:
             if not (args.candidate_source and args.server_parent and args.output):
                 raise PublicationError("--prepare requires candidate source, server parent, and output")
-            proposal = source_variants(Path(args.repo_root).resolve() if args.repo_root else ROOT,
-                                       args.candidate_source, args.server_parent)
+            proposal = source_variants(repo_arg or ROOT, args.candidate_source, args.server_parent,
+                                       fixture_file=args.fixture_file, workflow_path=args.workflow_path)
             public = {key: value for key, value in proposal.items() if not key.startswith("_")}
             atomic_json(Path(args.output), public)
             print(json.dumps({"status": proposal["status"], "projected_requests": proposal["projection"]["projected_total_requests"],
@@ -651,14 +1246,42 @@ def main() -> int:
         if args.publish:
             if not all((args.manifest, args.allocation, args.ledger, args.receipt)):
                 raise PublicationError("--publish requires manifest, allocation, ledger, and receipt paths")
-            publish(Path(args.manifest), Path(args.allocation), Path(args.ledger), Path(args.receipt),
-                    Path(args.repo_root).resolve() if args.repo_root else None)
+            publish(Path(args.manifest), Path(args.allocation), Path(args.ledger), Path(args.receipt), repo_arg,
+                    Path(args.freeze) if args.freeze else None, Path(args.action_approval) if args.action_approval else None)
+            return 0
+        if args.publish_docs:
+            if not all((args.freeze, args.allocation, args.ledger, args.receipt)):
+                raise PublicationError("--publish-docs requires freeze, allocation, ledger, and receipt paths")
+            publish_docs(Path(args.freeze), Path(args.allocation), Path(args.ledger), Path(args.receipt), repo_arg,
+                         Path(args.action_approval) if args.action_approval else None)
+            return 0
+        if args.check_approval:
+            if not (args.freeze and args.section):
+                raise PublicationError("--check-approval requires --freeze and --section")
+            freeze, _ = load_freeze(Path(args.freeze))
+            print(json.dumps(check_section_approval(args.action_approval, freeze, args.section, repo_arg or ROOT), sort_keys=True))
             return 0
         if args.verify_publication:
-            verify_publication(Path(args.verify_publication))
+            verify_publication(Path(args.verify_publication), args.require_live_origin)
             print("publication receipt valid")
             return 0
-        parser.error("choose --prepare, --check-manifest, --publish, or --verify-publication")
+        if args.validate_frozen_source:
+            print(json.dumps(validate_frozen_product_source(repo_arg or ROOT, args.validate_frozen_source), sort_keys=True))
+            return 0
+        if args.build_freeze:
+            if not (args.manifest and args.output):
+                raise PublicationError("--build-freeze requires --manifest and --output")
+            freeze = build_freeze(repo_arg or ROOT, args.manifest, Path(args.output), args.acceptance_evidence,
+                                  args.disposition, args.disposition_approval)
+            print(json.dumps({"status": "freeze_built", "canary_sha256": freeze["outward_actions_sha256"]["canary"],
+                              "docs_and_prs_sha256": freeze["outward_actions_sha256"]["docs_and_prs"]}, sort_keys=True))
+            return 0
+        if args.check_freeze:
+            check_revision_freeze(Path(args.check_freeze), repo_arg or ROOT)
+            print(json.dumps({"status": "freeze_valid", "network_requests": 0}, sort_keys=True))
+            return 0
+        parser.error("choose --prepare, --check-manifest, --publish, --publish-docs, --check-approval, --verify-publication, "
+                     "--validate-frozen-source, --build-freeze, or --check-freeze")
     except (PublicationError, OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
         print(f"ci-git-publication: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
