@@ -1238,6 +1238,10 @@ class RegisteredPublicationTests(unittest.TestCase):
 
 
 
+def module_rows(ledger, category):
+    return load_publisher().category_rows(ledger, category)
+
+
 class ReviewRemediationTests(unittest.TestCase):
     """Fixes for the final code review of the 253-91 product changes."""
 
@@ -1261,16 +1265,29 @@ class ReviewRemediationTests(unittest.TestCase):
             def verify():
                 return subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt)], cwd=ROOT, text=True, capture_output=True)
             self.assertEqual(verify().returncode, 0)
+            published_count = json.loads(receipt.read_text())["request_count"]
             grown = json.loads(ledger.read_text())
             grown["transactions"].append({"sequence": len(grown["transactions"]) + 1, "route_id": "rate_limit", "state": "pending",
                                           "category": "preflight", "host": "api.github.com"})
             ledger.write_text(json.dumps(grown))
             self.assertEqual(verify().returncode, 0, "later requests in the shared ledger must not invalidate the pinned publication")
+            original_status = grown["transactions"][2]["actual_status"]
             grown["transactions"][2]["actual_status"] = 500
             ledger.write_text(json.dumps(grown))
             tampered = verify()
             self.assertNotEqual(tampered.returncode, 0)
             self.assertIn("pinned publication transaction", tampered.stderr)
+            grown["transactions"][2]["actual_status"] = original_status
+            ledger.write_text(json.dumps(grown))
+            self.assertEqual(verify().returncode, 0)
+            doubled = json.loads(receipt.read_text())
+            doubled["publication_transactions"] = doubled["publication_transactions"][:1] * 2
+            doubled["request_count"] = 2
+            receipt.write_text(json.dumps(doubled))
+            duplicate = verify()
+            self.assertNotEqual(duplicate.returncode, 0)
+            self.assertIn("unique", duplicate.stderr)
+            self.assertEqual(len(module_rows(json.loads(ledger.read_text()), "publication")), published_count)
 
     def test_a_recorded_window_start_is_never_moved_by_a_retry(self):
         module = load_publisher()
@@ -1281,8 +1298,13 @@ class ReviewRemediationTests(unittest.TestCase):
             module.write_receipt_stub(receipt, dict(record), 1791909000)
             self.assertEqual(json.loads(receipt.read_text())["action_approval"]["window_wall_start_epoch"], 1791909000)
             retry = dict(record)
-            module.write_receipt_stub(receipt, retry, 1791999999)
+            module.write_receipt_stub(receipt, retry, 1791909000)
             self.assertEqual(retry["window_wall_start_epoch"], 1791909000)
+            unspecified = dict(record)
+            module.write_receipt_stub(receipt, unspecified)
+            self.assertEqual(unspecified["window_wall_start_epoch"], 1791909000)
+            with self.assertRaises(module.PublicationError):
+                module.write_receipt_stub(receipt, dict(record), 1791999999)
             other = dict(record, section_sha256="d" * 64)
             module.write_receipt_stub(receipt, other, 1791999999)
             self.assertEqual(other["window_wall_start_epoch"], 1791999999, "a different approval opens a different window")
@@ -1324,6 +1346,41 @@ class ReviewRemediationTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0, "the stub has no credentials, so the first transaction fails")
             self.assertEqual(marker.read_text().splitlines(), ["gh auth token"], result.stderr)
             self.assertIn("action_approval", json.loads(snapshot.read_text()))
+
+    def test_relative_evidence_and_ledger_paths_are_anchored_where_the_script_was_invoked(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-relative-evidence-") as temp:
+            env = self.freeze_environment(temp)
+            allocation = LiveModeApprovalTests.live_allocation(self, env)
+            approval = self.write_approval(env, "canary")
+            evidence = env["phase"] / "anchored-evidence.json"
+            ledger = env["phase"] / "anchored-ledger.json"
+            process_env, marker, snapshot = LiveModeApprovalTests.recording_env(self, temp, evidence)
+            elsewhere = env["phase"]
+            result = subprocess.run(["bash", os.path.relpath(env["repo"] / CANARY_SCRIPT_RELATIVE, elsewhere), "--preflight-only",
+                                     "--revision-freeze", os.path.relpath(env["freeze_path"], elsewhere), "--action-approval",
+                                     os.path.relpath(approval, elsewhere), "--http-allocation", os.path.relpath(allocation, elsewhere),
+                                     "--evidence", "anchored-evidence.json", "--requests", "anchored-ledger.json"],
+                                    cwd=elsewhere, text=True, capture_output=True, env=process_env, timeout=120)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertTrue(evidence.exists() and ledger.exists(), result.stderr)
+            self.assertFalse((env["repo"] / "anchored-evidence.json").exists())
+
+    def test_publish_only_refuses_evidence_without_a_recorded_window_start(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-window-guard-") as temp:
+            env = self.freeze_environment(temp)
+            allocation, _ = self.canary_allocation(env)
+            ledger = env["phase"] / "253-LOAD-RECOVERY-CANARY-REQUESTS.json"
+            approval = self.write_approval(env, "canary")
+            evidence = env["phase"] / "253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
+            evidence.write_text(json.dumps({"schema_version": "sigra.phase253.hosted-replan-evidence/v2",
+                                            "action_approval": {"section_sha256": env["freeze"]["outward_actions_sha256"]["canary"]}}))
+            result = subprocess.run(["bash", str(env["repo"] / CANARY_SCRIPT_RELATIVE), "--publish-only", "--revision-freeze", str(env["freeze_path"]),
+                                     "--action-approval", str(approval), "--http-allocation", str(allocation), "--requests", str(ledger),
+                                     "--evidence", str(evidence)], cwd=env["repo"], text=True, capture_output=True, timeout=60)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("window start", result.stderr)
+            self.assertEqual(env["server"].journal, [])
+            self.assertFalse(ledger.exists())
 
     def test_publish_only_marks_nothing_verified_for_a_hermetic_allocation_and_requires_live_origin_otherwise(self):
         source = (ROOT / "scripts/ci/ci-gate-canary.sh").read_text()

@@ -53,7 +53,6 @@ SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_galle
 FAMILY_REFS = {"normal": ("gsd/253-replan-candidate", "main"),
                "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")}
 TERMINAL_POLLS = {"normal": 15, "docs-only": 12}
-DOCS_PUBLICATION_REQUESTS = 14  # two stages of seven requests; the reserved docs_publication category
 
 
 class Stop(Exception):
@@ -213,8 +212,8 @@ def approved_section(args):
         record = publisher.check_section_approval(args.action_approval, freeze, "docs_and_prs", repo)
         # The same full policy gate the canary applies: frozen source, expired reruns, native_target, bounds, categories.
         publisher.check_revision_freeze(Path(args.revision_freeze), repo)
-    except (publisher.PublicationError, OSError, ValueError, KeyError) as error:
-        raise SystemExit(f"ci-pr-proof: approval refused: {error}")
+    except Exception as error:  # noqa: BLE001 - every malformed-freeze failure is the same uniform pre-request refusal
+        raise SystemExit(f"ci-pr-proof: approval refused: {type(error).__name__}: {error}")
     return freeze["outward_actions"]["docs_and_prs"], record
 
 
@@ -308,9 +307,9 @@ class Collector:
         rows = [tx for tx in self.ledger()["transactions"] if tx.get("category") == "docs_publication"]
         if not rows:
             return 0, False
+        publisher = load(PUBLICATION, "ci_git_publication")
         routes = sorted(tx.get("route_id") for tx in rows)
-        expected_routes = sorted(["git_create_tree", "git_create_commit", "git_get_commit", "git_get_blob",
-                                  "get_ref", "get_ref", "create_ref"] * 2)
+        expected_routes = sorted(list(publisher.DOCS_STAGE_ROUTES) * 2)
         created = set()
         for tx in rows:
             if tx.get("route_id") == "create_ref" and tx.get("state") == "complete" and tx.get("actual_status") == 201:
@@ -321,7 +320,7 @@ class Collector:
                     pass
         wanted = {("refs/heads/" + FAMILY_REFS["docs-only"][1], self.spec["base_sha"]),
                   ("refs/heads/" + FAMILY_REFS["docs-only"][0], self.spec["head_sha"])}
-        complete = (len(rows) == DOCS_PUBLICATION_REQUESTS and routes == expected_routes
+        complete = (len(rows) == publisher.DOCS_PUBLICATION_LIMIT and routes == expected_routes
                     and all(tx.get("state") == "complete" for tx in rows) and created == wanted)
         return len(rows), complete
 
@@ -450,7 +449,8 @@ class Collector:
 def run_family(args):
     section, action_approval = approved_section(args)
     if Path(args.evidence).exists():
-        raise SystemExit(f"ci-pr-proof: {args.evidence} already exists; refusing to overwrite the recorded window and downloads")
+        raise SystemExit(f"ci-pr-proof: {args.evidence} already exists; refusing to overwrite the recorded window and downloads "
+                         "(continue the shared ledger with a new --evidence path; the earlier file stays as the record)")
     collector = Collector(args, section, action_approval)
     stop = None
     # Record the approval and the wall-clock window start before the first transaction can leave the process.

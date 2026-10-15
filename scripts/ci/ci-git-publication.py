@@ -571,6 +571,8 @@ def write_receipt_stub(receipt_path: Path, approval: dict, window_start: int | N
             existing = {}
     prior = existing.get("action_approval") if isinstance(existing.get("action_approval"), dict) else {}
     if prior.get("section_sha256") == approval.get("section_sha256") and isinstance(prior.get("window_wall_start_epoch"), int):
+        if window_start is not None and window_start != prior["window_wall_start_epoch"]:
+            raise PublicationError("the receipt's recorded window start differs from the caller's; the window is never moved")
         approval["window_wall_start_epoch"] = prior["window_wall_start_epoch"]
     else:
         approval["window_wall_start_epoch"] = window_start if window_start is not None else int(time.time())
@@ -632,6 +634,15 @@ def identity_present(found: set, wanted: tuple) -> bool:
     if wanted[0] == "commit" and wanted[2] is None:
         return any(item[0] == "commit" and item[1] == wanted[1] for item in found)
     return wanted in found
+
+
+# The seven measured requests of one docs stage, in order: tree, commit, commit readback, blob readback,
+# ref probe (404), create-only ref, ref readback. ci-pr-proof.sh recognizes a finished publication by this table.
+DOCS_STAGE_ROUTES = ("git_create_tree", "git_create_commit", "git_get_commit", "git_get_blob", "get_ref", "create_ref", "get_ref")
+
+
+def category_rows(ledger: dict, category: str) -> list:
+    return [tx for tx in ledger.get("transactions", []) if isinstance(tx, dict) and tx.get("category") == category]
 
 
 def category_count(ledger_path: Path, category: str) -> int:
@@ -919,10 +930,16 @@ def verify_publication(path: Path, require_live_origin: bool = False) -> None:
         # Legacy receipts pin the whole ledger file; they cannot survive later requests in the same ledger.
         if hashlib.sha256(ledger_path.read_bytes()).hexdigest() != value.get("ledger_sha256"):
             raise PublicationError("publication receipt no longer matches its measured request ledger")
-        own = [tx for tx in transactions if tx.get("category") == "publication"] or transactions if isinstance(transactions, list) else []
+        own = []
+        if isinstance(transactions, list):
+            legacy_rows = [tx for tx in transactions if tx.get("category") == "publication"]
+            own = legacy_rows if legacy_rows else transactions
     else:
         if not isinstance(transactions, list) or not isinstance(pinned, list):
             raise PublicationError("publication ledger has unaccounted, failed, or over-budget requests")
+        sequences = [item.get("sequence") for item in pinned if isinstance(item, dict)]
+        if len(sequences) != len(pinned) or len(set(sequences)) != len(sequences):
+            raise PublicationError("pinned publication transactions must be unique")
         by_sequence = {tx.get("sequence"): tx for tx in transactions if isinstance(tx, dict)}
         own = []
         for item in pinned:
@@ -1020,7 +1037,10 @@ def publish_docs(freeze_path: Path, allocation_path: Path, ledger_path: Path, re
             raise PublicationError(f"{label}: scoped reference readback differs")
         receipts.append({"kind": label, "commit": commit, "tree": tree, "ref": "refs/heads/" + ref_name, "blob": blob_sha})
     ledger = json.loads(ledger_path.read_text())
-    origin = derive_origin(allocation, ledger)
+    own = category_rows(ledger, "docs_publication")
+    if len(own) != len(DOCS_STAGE_ROUTES) * len(stages):
+        raise PublicationError("docs publication did not use exactly the frozen two-stage request sequence")
+    origin = derive_origin(allocation, {"transactions": own})
     atomic_json(receipt_path, {
         "schema_version": "sigra.phase253.docs-publication-receipt/v1",
         "status": "docs-published-actual-github" if origin["kind"] == "actual-github" else "docs-published-local-fixture",

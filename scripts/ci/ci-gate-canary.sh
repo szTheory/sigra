@@ -65,6 +65,15 @@ preserve_path() {
   PRESERVED_STATUS="$status_before"
 }
 
+assert_downstream_filters() {
+  # Every workflow that filters on workflow names must exist and must not capture the canary name.
+  local path
+  for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
+    [[ -f "$ROOT/$path" ]] || fail "downstream workflow is missing, so the name filter cannot be checked: $path"
+    if grep -Fq 'Phase 253 Gate Canary' "$ROOT/$path"; then fail "fixture name matches a downstream workflow filter: $path"; fi
+  done
+}
+
 usage() {
   cat <<'EOF'
 Usage: ci-gate-canary.sh (--scenario NAME | --remaining-scenarios) [--evidence PATH] [--requests PATH]
@@ -161,10 +170,7 @@ if [[ "$CHECK_ONLY" == true && -n "$REVISION_FREEZE" ]]; then
   grep -Fq 'name: Phase 253 Gate Canary' "$FIXTURE" || fail 'fixture workflow name changed'
   grep -Fq 'workflow_dispatch:' "$FIXTURE" || fail 'fixture is not manually dispatchable'
   ! grep -Eq '^  (push|pull_request|schedule|workflow_run):' "$FIXTURE" || fail 'fixture has an unapproved trigger'
-  for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
-    [[ -f "$ROOT/$path" ]] || fail "downstream workflow is missing, so the name filter cannot be checked: $path"
-    ! grep -Fq 'Phase 253 Gate Canary' "$ROOT/$path" || fail "fixture name matches a downstream workflow filter: $path"
-  done
+  assert_downstream_filters
   python3 - "$FIXTURE" <<'PY'
 import re, sys
 from pathlib import Path
@@ -198,10 +204,7 @@ if [[ "$CHECK_ONLY" == true ]]; then
   grep -Fq 'name: Phase 253 Gate Canary' "$FIXTURE" || fail 'fixture workflow name changed'
   grep -Fq 'workflow_dispatch:' "$FIXTURE" || fail 'fixture is not manually dispatchable'
   ! grep -Eq '^  (push|pull_request|schedule|workflow_run):' "$FIXTURE" || fail 'fixture has an unapproved trigger'
-  for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
-    [[ -f "$ROOT/$path" ]] || fail "downstream workflow is missing, so the name filter cannot be checked: $path"
-    ! grep -Fq 'Phase 253 Gate Canary' "$ROOT/$path" || fail "fixture name matches a downstream workflow filter: $path"
-  done
+  assert_downstream_filters
   python3 - "$ROOT" "$FIXTURE" "$FREEZE_TO_CHECK" <<'PY'
 import hashlib, json, re, subprocess, sys
 from pathlib import Path
@@ -259,7 +262,11 @@ fi
 
 if [[ -n "$REVISION_FREEZE" ]]; then
   # Relative operator-supplied paths are anchored where the script was invoked, before it changes directory.
-  for _path_var in REVISION_FREEZE ACTION_APPROVAL LIVE_ALLOCATION PUBLICATION_RECEIPT; do
+  for _path_var in REVISION_FREEZE ACTION_APPROVAL LIVE_ALLOCATION PUBLICATION_RECEIPT EVIDENCE REQUESTS; do
+    case "$_path_var" in
+      EVIDENCE) [[ "$EVIDENCE_SET" == true ]] || continue ;;
+      REQUESTS) [[ "$REQUESTS_SET" == true ]] || continue ;;
+    esac
     if [[ -n "${!_path_var}" && "${!_path_var}" != /* ]]; then printf -v "$_path_var" '%s/%s' "$INVOKED_FROM" "${!_path_var}"; fi
   done
   # The committed canary section approval is checked before any evidence file, ledger or request exists.
@@ -314,10 +321,7 @@ if [[ "$PREFLIGHT_ONLY" == false && "$PUBLISH_REF_ONLY" == false && "$ALL_REMAIN
 if grep -En '^### CR-.*(ci-browser-records|honest-skip-verdict|ci-gate)' "$PHASE_DIR/253-PREHOST-REVIEW.md"; then
   fail 'pre-host review found a blocking issue in a canary gate helper'
 fi
-for path in .github/workflows/ci-observe.yml .github/workflows/release-pr-automerge.yml .github/workflows/release-run-observer.yml; do
-  [[ -f "$ROOT/$path" ]] || fail "downstream workflow is missing, so the name filter cannot be checked: $path"
-  if grep -Fq 'Phase 253 Gate Canary' "$ROOT/$path"; then fail "distinct canary name is captured by downstream workflow filter $path"; fi
-done
+assert_downstream_filters
 
 # Never let a rerun discard deterministic diagnostics or reuse a halted freeze.
 # This guard precedes every gh invocation, including local token lookup.
@@ -345,6 +349,7 @@ if [[ "$PUBLISH_ONLY" == true ]]; then
         scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE.tmp" && mv "$EVIDENCE.tmp" "$EVIDENCE"
   fi
   RECORDED_WINDOW="$(jq -r '.action_approval.window_wall_start_epoch' "$EVIDENCE")"
+  [[ "$RECORDED_WINDOW" =~ ^[0-9]+$ ]] || fail 'the evidence has no recorded wall-clock window start'
   python3 "$PUBLISHER" --publish --manifest "$ROOT/$MANIFEST_REL" --allocation "$LIVE_ALLOCATION" --ledger "$REQUESTS" \
     --receipt "$PUBLICATION_RECEIPT" --freeze "$REVISION_FREEZE" --action-approval "$ACTION_APPROVAL" --repo-root "$ROOT" \
     --window-wall-start-epoch "$RECORDED_WINDOW" \
