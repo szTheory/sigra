@@ -439,6 +439,69 @@ class LivePolicyFullPassTests(unittest.TestCase):
         self.assertIs(publication.get("verifier_dryrun_window"), True, publication)
 
 
+TRANSPORT_REL = "scripts/ci/ci-hosted-transport.py"
+REDIRECT_FIX_SUBJECT = "allow the live approved-redirect hop"
+
+
+def git_lines(*args):
+    return subprocess.check_output(["git", "-C", str(ROOT), *args], text=True).split()
+
+
+def redirect_fix_commit():
+    """The 253-107 redirect fix, resolved by its unique subject and pinned to the 253-107 SUMMARY's redirect_fix_commit."""
+    found = git_lines("log", "--format=%H", "--fixed-strings", f"--grep={REDIRECT_FIX_SUBJECT}", "--", TRANSPORT_REL)
+    if len(found) != 1:
+        raise AssertionError(f"the redirect-fix subject must match exactly one commit, found {found}")
+    if f"redirect_fix_commit: {found[0]}" not in (PHASE_DIR / "253-107-SUMMARY.md").read_text():
+        raise AssertionError("the subject's commit is not the 253-107 SUMMARY's redirect_fix_commit")
+    return found[0]
+
+
+class TransportSensitivityTests(unittest.TestCase):
+    """253-108 Task 2: the live-policy gate fails on the exact 253-104 defect and passes once it is fixed."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.fix = redirect_fix_commit()
+        cls.pre_fix = cls.fix + "^"
+
+    def test_the_fix_is_not_the_latest_fix_253_107_commit(self):
+        # Positive control on the trap the plan forbids: the latest fix(253-107) commit is the later hole fix.
+        latest = git_lines("log", "-1", "--format=%H", "--grep=fix(253-107)")
+        self.assertEqual(len(latest), 1)
+        self.assertNotEqual(latest[0], self.fix)
+
+    def test_the_pre_fix_transport_fails_the_live_policy_gate_at_artifact_zip_with_origin_rejected(self):
+        code, summary = live_run("--transport-from", self.pre_fix, "--stop-after", "full-pass")
+        self.assertNotEqual(code, 0, f"the live-policy gate cannot see the 253-104 defect: {summary}")
+        self.assertEqual(summary.get("status"), "failed", summary)
+        self.assertEqual(summary.get("transport_from"), self.pre_fix, summary)
+        self.assertIn("origin_rejected", summary.get("stop") or "", summary)
+        self.assertEqual([item["mode"] for item in summary.get("invocations", [])], ["publish-only", "full-pass"])
+        self.assertEqual((summary.get("requests_by_route") or {}).get("artifact_zip"), 1, "hop 0 only; hop 1 never sent")
+        self.assertEqual([hop for hop in summary.get("live_hops") or [] if hop.get("hop_ordinal", 0) >= 1], [])
+        self.assertEqual(summary.get("shim_connect_hosts"), ["api.github.com"], "no hop-1 connection to the blob host")
+        self.assertEqual(summary.get("evidence_status"), "halted", summary)
+
+    def test_the_redirect_fix_transport_passes_the_same_gate(self):
+        code, summary = live_run("--transport-from", self.fix, "--stop-after", "full-pass")
+        self.assertEqual(code, 0, summary)
+        self.assertEqual(summary.get("status"), "passed", summary)
+        self.assertEqual(summary.get("transport_from"), self.fix, summary)
+        hops = [hop for hop in summary.get("live_hops") or [] if hop.get("route") == "artifact_zip"]
+        self.assertEqual(len(hops), 1, summary.get("live_hops"))
+        self.assertRegex(hops[0]["host"], BLOB_HOST)
+
+    def test_the_hermetic_mode_result_for_the_pre_fix_transport_is_recorded(self):
+        # Recorded, not gated: the hermetic allocation is exempt from the live origin check, which is why 253-101's
+        # gate could not see the 253-104 defect.
+        code, summary = run_gate("--transport-from", self.pre_fix, "--stop-after", "full-pass")
+        self.assertEqual(summary.get("transport_from"), self.pre_fix, summary)
+        self.assertEqual(summary.get("mode"), "hermetic", summary)
+        sys.stderr.write(f"\nhermetic --transport-from {self.pre_fix}: exit {code}, status {summary.get('status')}, "
+                         f"stop {summary.get('stop')}\n")
+
+
 class RefPairHelpTests(unittest.TestCase):
     def test_the_ref_pair_help_is_truthful_and_names_the_publishers_ref_pairs(self):
         result = subprocess.run([sys.executable, str(RUNNER), "--help"], cwd=ROOT, env=clean_env(),
