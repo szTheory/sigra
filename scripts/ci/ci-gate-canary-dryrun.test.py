@@ -137,5 +137,35 @@ class PreflightOnceTests(unittest.TestCase):
         self.assertEqual(self.summary["preflight_copies"], expected, self.summary)
 
 
+SERVER_PARENT = "84ebcea60024c9e8caee405d55cad1c76b0e858a"  # the R7 freeze's server parent, used by the derived freeze
+
+
+class HaltMarkingTests(unittest.TestCase):
+    """Commit D: every nonzero exit after the evidence exists leaves it halted, and the guard refuses re-entry."""
+
+    def assert_halted_and_guarded(self, summary, named):
+        self.assertEqual(summary["status"], "failed", summary)
+        self.assertEqual(summary["evidence_status"], "halted", summary)
+        messages = " ".join(item.get("message", "") for item in summary.get("evidence_diagnostics") or [])
+        self.assertIn(named, messages, summary)
+        reentry = summary.get("reentry") or {}
+        self.assertNotEqual(reentry.get("exit"), 0, summary)
+        self.assertIn("halted evidence", reentry.get("stop") or "", summary)
+        self.assertEqual(reentry.get("requests"), 0, "the halted guard let a request through on re-entry")
+
+    def test_a_route_refused_by_the_transport_marks_the_evidence_halted(self):
+        route = f"GET /repos/szTheory/sigra/commits/{SERVER_PARENT}/check-runs=403"
+        code, summary = run_gate("--stop-after", "full-pass", "--inject", route, "--reenter")
+        self.assertNotEqual(code, 0)
+        self.assertIn("http_403", summary["stop"] or "", summary)
+        self.assert_halted_and_guarded(summary, "check-runs")
+
+    def test_a_verifier_failure_marks_the_evidence_halted(self):
+        code, summary = run_gate("--stop-after", "full-pass", "--fault", "artifact-digest", "--reenter")
+        self.assertNotEqual(code, 0)
+        self.assertIn("digest", summary["stop"] or "", summary)
+        self.assert_halted_and_guarded(summary, "ci-hosted-gate-verify.py")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

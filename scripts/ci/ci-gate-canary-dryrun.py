@@ -644,9 +644,12 @@ def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_pare
 
 # --------------------------------------------------------------------------------------------------- the dry run
 def stop_line(stderr: str) -> str | None:
+    """The root cause when a component reported one (transport, verifier, publisher), else the driver's last FAIL line."""
     lines = [line.strip() for line in stderr.splitlines() if line.strip()]
-    wanted = [line for line in lines if re.search(r"ci-gate-canary: FAIL|ci-hosted-transport: |hosted-gate-verify: FAIL|"
-                                                   r"ci-git-publication: ", line)]
+    causes = [line for line in lines if re.search(r"ci-hosted-transport: |hosted-gate-verify: FAIL|ci-git-publication: ", line)]
+    if causes:
+        return causes[0]
+    wanted = [line for line in lines if "ci-gate-canary: FAIL" in line]
     return (wanted or lines or [None])[-1]
 
 

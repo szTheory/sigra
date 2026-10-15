@@ -96,6 +96,7 @@ EOF
 }
 
 fail() {
+  trap - ERR
   printf 'ci-gate-canary: FAIL: %s\n' "$*" >&2
   if [[ "$CHECK_ONLY" != true && "$TRANSPORT_PROBE" != true && -n "$LIVE_ALLOCATION" && -f "$EVIDENCE" ]] && \
      jq -e '.schema_version=="sigra.phase253.hosted-replan-evidence/v2" and .status != "halted"' "$EVIDENCE" >/dev/null 2>&1; then
@@ -362,6 +363,18 @@ else
 fi
 EVIDENCE_CHANNEL=github-api
 [[ "$HERMETIC" != true ]] || EVIDENCE_CHANNEL=hermetic-https
+
+# 253-101 (commit D): from here on every live or hermetic mode routes any failing command through fail, so a nonzero
+# exit after the evidence exists always leaves it status halted with a diagnostic naming the failing route or command
+# (an ERR trap with errtrace, rather than explicit fail calls at each api_get, download and verifier call). Commands in
+# conditions and in && / || lists are unaffected, so an allowed 404 and every guarded check behave exactly as before.
+on_command_error() {
+  local status="$1" line="$2" command="$3"
+  trap - ERR
+  fail "command exited $status at line $line: $command (last route ${route:-none}, endpoint ${endpoint:-none}, HTTP ${LAST_REQUEST_STATUS:-none})"
+}
+set -o errtrace
+trap 'on_command_error "$?" "$LINENO" "$BASH_COMMAND"' ERR
 if [[ "$PUBLISH_ONLY" == true ]]; then
   MANIFEST_REL="$(jq -r '.bound_documents.publication_manifest.path' "$REVISION_FREEZE")"
   WINDOW_START="$(date +%s)"
