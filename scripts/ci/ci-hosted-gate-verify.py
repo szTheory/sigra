@@ -177,8 +177,13 @@ def verify_transport_v2(evidence):
     return {"status": "transport_verified", "requests": len(transactions), "window_id": origin["window_id"]}
 
 
-def verify_effective_checks(evidence):
-    """Require complete branch and legacy rules plus native producer app identity."""
+def verify_effective_checks(evidence, check_source=None):
+    """Require complete branch and legacy rules plus native producer app identity.
+
+    With check_source None (the PR-family path) the native read must target expected.candidate_sha and every producer
+    must have succeeded. Canary evidence passes the bound server-parent source from verify_canary_checks instead: the
+    read must target that SHA and conclusions are recorded literally, never required (253-100 D-12 decision).
+    """
     checks = evidence.get("effective_checks")
     require(isinstance(checks, dict), "fresh effective branch rules are missing")
     require(checks.get("endpoint") == "/repos/szTheory/sigra/rules/branches/main"
@@ -266,7 +271,7 @@ def verify_effective_checks(evidence):
     source_receipt = checks.get("native_check_runs")
     require(isinstance(source_receipt, dict), "native check-run source receipt is missing")
     source_tx = by_sequence.get(source_receipt.get("sequence"))
-    expected_sha = evidence.get("expected", {}).get("candidate_sha")
+    expected_sha = check_source["sha"] if check_source else evidence.get("expected", {}).get("candidate_sha")
     require(isinstance(source_tx, dict) and source_tx.get("route_id") == "check_runs" and source_tx.get("actual_status") == 200,
             "native check-run metadata is not tied to a successful measured API response")
     require(isinstance(expected_sha, str) and len(expected_sha) == 40
@@ -307,11 +312,12 @@ def verify_effective_checks(evidence):
             require(producer["app_id"] == app_id, f"native producer app differs from effective rule for {name}")
         require(isinstance(producer.get("source"), str) and producer["source"]
                 and rule.get("source") == producer.get("source"), f"native producer source differs from effective rule for {name}")
-        require(producer.get("conclusion") == "success", f"native producer did not pass: {name}")
+        if check_source is None:
+            require(producer.get("conclusion") == "success", f"native producer did not pass: {name}")
     return {"status": "effective_checks_verified", "names": list(REQUIRED_NAMES)}
 
 
-def hydrate_effective_checks(evidence):
+def hydrate_effective_checks(evidence, check_source=None):
     """Build the v2 check inventory from measured response bodies, never names alone."""
     ledger = evidence.get("transport_ledger")
     require(isinstance(ledger, dict) and isinstance(ledger.get("transactions"), list), "measured transport ledger is missing")
@@ -358,7 +364,7 @@ def hydrate_effective_checks(evidence):
         legacy = {"present": True, "status": 200, "sequence": legacy_tx["sequence"], "required": legacy_required}
     check_tx = check_txs[0]
     check_url = check_tx.get("url", "")
-    expected_sha = evidence.get("expected", {}).get("candidate_sha")
+    expected_sha = check_source["sha"] if check_source else evidence.get("expected", {}).get("candidate_sha")
     require(check_tx.get("actual_status") == 200 and isinstance(expected_sha, str)
             and check_url == f"https://api.github.com/repos/szTheory/sigra/commits/{expected_sha}/check-runs?per_page=100&page=1",
             "native check-run request is not tied to the frozen source commit")
@@ -1337,12 +1343,59 @@ def read_json_file(path, limit=MAX_PR_EVIDENCE_BYTES):
     return value
 
 
+def canary_check_source(evidence, root=None):
+    """253-100 D-12 (server-parent-identity): bind the canary's native check read to the frozen server parent.
+
+    The candidate is created inside the window and no workflow runs on gsd/* refs, so it carries no check runs. The
+    canary reads producer identity from the server parent named by the publication receipt the evidence records,
+    re-hashed here; the success requirement stays with the PR family on the real PR head.
+    """
+    root = Path(root) if root is not None else REPO_ROOT
+    expected = evidence.get("expected")
+    require(isinstance(expected, dict) and expected.get("check_source_role") == "server_parent",
+            "canary check source must be the frozen server parent")
+    sha = expected.get("check_source_sha")
+    require(isinstance(sha, str) and re.fullmatch(r"[a-f0-9]{40}", sha) is not None,
+            "canary check-source SHA is missing or malformed")
+    candidate = expected.get("candidate_sha")
+    require(isinstance(candidate, str) and re.fullmatch(r"[a-f0-9]{40}", candidate) is not None and candidate != sha,
+            "canary check source must differ from a well-formed candidate")
+    publication = evidence.get("publication")
+    require(isinstance(publication, dict), "canary evidence names no publication receipt for its check source")
+    relative, digest = publication.get("receipt_path"), publication.get("receipt_sha256")
+    require(isinstance(relative, str) and relative and not Path(relative).is_absolute()
+            and isinstance(digest, str) and re.fullmatch(r"[a-f0-9]{64}", digest) is not None,
+            "publication receipt path or digest is malformed")
+    base = root.resolve()
+    path = (base / relative).resolve()
+    require(path == base or base in path.parents, "publication receipt path escapes the checkout")
+    try:
+        raw = path.read_bytes()
+    except OSError as error:
+        raise VerificationError("publication receipt named by the canary evidence is unreadable") from error
+    require(sha256(raw) == digest, "publication receipt bytes differ from the digest the canary evidence records")
+    try:
+        receipt = json.loads(raw.decode("utf-8", "strict"))
+    except (UnicodeError, json.JSONDecodeError) as error:
+        raise VerificationError("publication receipt is malformed") from error
+    require(isinstance(receipt, dict) and receipt.get("server_parent_sha") == sha,
+            "canary check source is not the server parent of the named publication receipt")
+    require(receipt.get("candidate_sha") == candidate, "named publication receipt belongs to a different candidate")
+    return {"sha": sha, "role": "server_parent"}
+
+
+def verify_canary_checks(evidence, root=None):
+    """Canary effective checks: exact five names and producer identity read from the bound server parent."""
+    source = canary_check_source(evidence, root)
+    if "effective_checks" not in evidence:
+        hydrate_effective_checks(evidence, source)
+    return verify_effective_checks(evidence, source)
+
+
 def verify_canary_matrix(evidence):
     """Whole hosted canary: measured transport, exact checks, six sources, attempts and separate verifier."""
     transport_result = verify_transport_v2(evidence)
-    if "effective_checks" not in evidence:
-        hydrate_effective_checks(evidence)
-    checks_result = verify_effective_checks(evidence)
+    checks_result = verify_canary_checks(evidence)
     results, source_jobs = verify_sources(evidence)
     executed = verify_attempt_jobs(evidence)
     require(executed >= source_jobs, "complete attempt receipts omit a selected source job")
@@ -1576,9 +1629,7 @@ def main():
     transport_result = verify_transport_v2(evidence)
     if args.mode == "transport":
         return transport_result
-    if "effective_checks" not in evidence:
-        hydrate_effective_checks(evidence)
-    checks_result = verify_effective_checks(evidence)
+    checks_result = verify_canary_checks(evidence)
     if args.mode == "preflight":
         return {"status": "preflight_verified", "transport": transport_result, "checks": checks_result}
     if args.scenario in ("sources", "matrix"):

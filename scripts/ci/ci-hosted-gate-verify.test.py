@@ -575,6 +575,160 @@ class V2VerifierContractTests(unittest.TestCase):
             self.module.verify_effective_checks(byte_variant)
 
 
+CHECK_NAMES = ("Library tests", "Example unit smoke (ExUnit + ConnTest)",
+               "Install smoke (fresh phx.new + sigra.install)",
+               "Example HTTP smoke (boot + curl critical routes)",
+               "Example Playwright smoke (full lifecycle)")
+SERVER_PARENT = "84ebcea60024c9e8caee405d55cad1c76b0e858a"
+CANARY_CANDIDATE = "a" * 40
+
+
+def check_run(name, index, conclusion="success", **overrides):
+    run = {"name": name, "app": {"id": 123, "slug": "github-actions"},
+           "html_url": f"https://github.com/szTheory/sigra/actions/runs/99/job/{index}", "conclusion": conclusion}
+    run.update(overrides)
+    return run
+
+
+def set_body(evidence, index, body_bytes, url=None):
+    for collection in (evidence["transport_ledger"]["transactions"], evidence["transport_receipts"], evidence["server_journal"]):
+        row = collection[index]
+        row.update(response_body_base64=base64.b64encode(body_bytes).decode(),
+                   response_sha256=hashlib.sha256(body_bytes).hexdigest(), response_bytes=len(body_bytes),
+                   scrubbed_response_bytes=len(body_bytes))
+        row["scrubbed_headers"] = {**row["scrubbed_headers"], "content-length": str(len(body_bytes))}
+        if url is not None:
+            row.update(url=url, url_sha256=hashlib.sha256(url.encode()).hexdigest())
+
+
+class CanaryCheckSourceTests(unittest.TestCase):
+    """D-12 decision server-parent-identity: canary check sources are read from the frozen server parent."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_check_source", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    def evidence(self, runs, check_sha=SERVER_PARENT, role="server_parent", source_sha=SERVER_PARENT):
+        evidence = V2VerifierContractTests.transport_fixture(self)
+        rules = [{"type": "required_status_checks", "parameters": {"required_status_checks": [
+            {"context": name, "integration_id": 123} for name in CHECK_NAMES]}}]
+        set_body(evidence, 0, json.dumps(rules, separators=(",", ":")).encode())
+        url = f"https://api.github.com/repos/szTheory/sigra/commits/{check_sha}/check-runs?per_page=100&page=1"
+        set_body(evidence, 2, json.dumps({"total_count": len(runs), "check_runs": runs}, separators=(",", ":")).encode(), url)
+        evidence["repository"] = "szTheory/sigra"
+        evidence["expected"] = {"candidate_sha": CANARY_CANDIDATE}
+        if role is not None:
+            evidence["expected"].update(check_source_sha=source_sha, check_source_role=role)
+        return evidence
+
+    def bind_receipt(self, evidence, root, server_parent=SERVER_PARENT, candidate=CANARY_CANDIDATE, digest=None, path="receipt.json"):
+        raw = json.dumps({"schema_version": "sigra.phase253.git-publication-receipt/v1",
+                          "candidate_sha": candidate, "server_parent_sha": server_parent}).encode()
+        (Path(root) / "receipt.json").write_bytes(raw)
+        evidence["publication"] = {"receipt_path": path, "receipt_sha256": digest or hashlib.sha256(raw).hexdigest()}
+        return evidence
+
+    def five(self, conclusions=("success",) * 5):
+        return [check_run(name, index, conclusion) for index, (name, conclusion) in enumerate(zip(CHECK_NAMES, conclusions), 1)]
+
+    def verify(self, evidence, root):
+        verify = getattr(self.module, "verify_canary_checks", None)
+        self.assertTrue(callable(verify), "verify_canary_checks(evidence, root) must bind canary check sources")
+        return verify(evidence, root=root)
+
+    def test_server_parent_identity_accepts_any_conclusion_and_records_it_literally(self):
+        conclusions = ("failure", "success", "cancelled", None, "timed_out")
+        with tempfile.TemporaryDirectory() as root:
+            evidence = self.bind_receipt(self.evidence(self.five(conclusions)), root)
+            result = self.verify(evidence, root)
+        self.assertEqual(result["status"], "effective_checks_verified")
+        self.assertEqual([item["conclusion"] for item in evidence["producer_checks"]], list(conclusions))
+
+    def test_candidate_bound_or_wrong_sha_check_runs_are_rejected(self):
+        cases = {
+            "candidate url": dict(check_sha=CANARY_CANDIDATE),
+            "other url": dict(check_sha="b" * 40),
+            "candidate as source": dict(check_sha=CANARY_CANDIDATE, source_sha=CANARY_CANDIDATE),
+            "no check source role": dict(role=None, check_sha=CANARY_CANDIDATE),
+            "candidate role": dict(role="candidate"),
+            "malformed source sha": dict(source_sha=SERVER_PARENT.upper()),
+        }
+        for label, overrides in cases.items():
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as root:
+                evidence = self.bind_receipt(self.evidence(self.five(), **overrides), root)
+                self.assertTrue(callable(getattr(self.module, "verify_canary_checks", None)))
+                with self.assertRaises(self.module.VerificationError):
+                    self.verify(evidence, root)
+
+    def test_check_source_must_be_the_server_parent_of_the_rehashed_publication_receipt(self):
+        cases = {
+            "no publication": lambda e, root: e,
+            "digest mismatch": lambda e, root: self.bind_receipt(e, root, digest="0" * 64),
+            "different server parent": lambda e, root: self.bind_receipt(e, root, server_parent="c" * 40),
+            "different candidate": lambda e, root: self.bind_receipt(e, root, candidate="d" * 40),
+            "path outside root": lambda e, root: self.bind_receipt(e, root, path="../receipt.json"),
+            "absolute path": lambda e, root: self.bind_receipt(e, root, path=str(Path(root) / "receipt.json")),
+            "missing file": lambda e, root: self.bind_receipt(e, root, path="absent.json"),
+        }
+        for label, bind in cases.items():
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as root:
+                evidence = bind(self.evidence(self.five()), root)
+                self.assertTrue(callable(getattr(self.module, "verify_canary_checks", None)))
+                with self.assertRaises(self.module.VerificationError):
+                    self.verify(evidence, root)
+
+    def test_producer_count_app_and_source_identity_are_still_enforced(self):
+        base = self.five()
+        cases = {
+            "four producers": base[:4],
+            "six producers": base + [check_run(CHECK_NAMES[0], 9)],
+            "foreign app": [check_run(CHECK_NAMES[0], 1, app={"id": 456, "slug": "other-app"})] + base[1:],
+            "missing source": [check_run(CHECK_NAMES[0], 1, html_url=None)] + base[1:],
+            "non-https source": [check_run(CHECK_NAMES[0], 1, html_url="http://github.com/x/job/1")] + base[1:],
+            "missing app slug": [check_run(CHECK_NAMES[0], 1, app={"id": 123})] + base[1:],
+        }
+        for label, runs in cases.items():
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as root:
+                evidence = self.bind_receipt(self.evidence(runs), root)
+                self.assertTrue(callable(getattr(self.module, "verify_canary_checks", None)))
+                with self.assertRaises(self.module.VerificationError):
+                    self.verify(evidence, root)
+
+    def test_preflight_cli_rejects_the_superseded_candidate_bound_contract(self):
+        evidence = self.evidence(self.five(), check_sha=CANARY_CANDIDATE, role=None)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "evidence.json"
+            path.write_text(json.dumps(evidence), encoding="utf-8")
+            result = subprocess.run(["python3", "-B", str(VERIFY), "--mode", "preflight", "--evidence", str(path)],
+                                    text=True, capture_output=True)
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertIn("canary check source must be the frozen server parent", result.stderr)
+
+    def test_pr_family_view_still_requires_five_successful_checks_on_its_head(self):
+        head = "e" * 40
+        def family_view(conclusions):
+            evidence = self.evidence(self.five(conclusions), check_sha=head, role=None)
+            ledger = evidence["transport_ledger"]["transactions"]
+            for row, family in zip(ledger, ("shared", "shared", "normal")):
+                row["family"] = family
+            return self.module._view_for_checks(evidence, "normal", {"mode": "live"}, head, ledger[2])
+        view = family_view(("success",) * 5)
+        self.module.hydrate_effective_checks(view)
+        self.module.verify_effective_checks(view)
+        for conclusions in (("failure",) + ("success",) * 4, ("success",) * 4 + (None,)):
+            with self.subTest(conclusions=conclusions):
+                view = family_view(conclusions)
+                self.module.hydrate_effective_checks(view)
+                with self.assertRaisesRegex(self.module.VerificationError, "native producer did not pass"):
+                    self.module.verify_effective_checks(view)
+        source = Path(VERIFY).read_text()
+        pr_family = source[source.index("def verify_pr_family"):source.index("def verify_docs_workflow_relation")]
+        self.assertIn("    hydrate_effective_checks(view)\n    verify_effective_checks(view)\n", pr_family)
+
+
 class PRVerifierContractTests(unittest.TestCase):
     """Offline contracts for the PR-family and completion CLI/entry points; full chains live in ci-pr-proof.test.sh."""
 

@@ -7,6 +7,7 @@ with a recording stub transport. The stub records each request envelope the
 real transport_call builds and returns a canned 200 receipt. Nothing reaches
 any network: gh and curl on PATH are recorders that fail the test if called.
 """
+import base64
 import json
 import os
 from pathlib import Path
@@ -166,6 +167,117 @@ class CanaryRouteMappingTests(unittest.TestCase):
         self.assertEqual(covered, {'rate_limit', 'rules_main', 'branch_protection', 'check_runs', 'workflow',
                                    'workflow_runs', 'run_jobs', 'run_artifacts', 'run', 'get_ref',
                                    'run_logs_download', 'artifact_zip_download'})
+
+
+REQUIRED_NAMES = ('Library tests', 'Example unit smoke (ExUnit + ConnTest)',
+                  'Install smoke (fresh phx.new + sigra.install)',
+                  'Example HTTP smoke (boot + curl critical routes)',
+                  'Example Playwright smoke (full lifecycle)')
+SERVER_PARENT = SHA
+CANDIDATE = 'ce89eb7319c20596850a0c8a0b6e5661e197c86a'
+
+
+def native_run(name, index, sha=SERVER_PARENT, conclusion='success', **overrides):
+    run = {'name': name, 'head_sha': sha, 'status': 'completed', 'conclusion': conclusion,
+           'app': {'id': 15368, 'slug': 'github-actions'},
+           'html_url': f'https://github.com/szTheory/sigra/actions/runs/1/job/{index}'}
+    run.update(overrides)
+    return run
+
+
+class CanaryPreflightCheckSourceTests(unittest.TestCase):
+    """Run the real preflight read block of ci-gate-canary.sh with a recording api_get stub (D-12 decision)."""
+
+    @classmethod
+    def setUpClass(cls):
+        source = RUNNER.read_text()
+        match = re.search(r'^RATE_RESPONSE="\$\(mktemp .*?(?=^store_preflight "\$RATE_RESPONSE")', source, re.M | re.S)
+        cls.block = match.group(0) if match else None
+
+    def _preflight(self, check_runs, check_source_sha=SERVER_PARENT):
+        self.assertIsNotNone(self.block, 'preflight read block not found in ci-gate-canary.sh')
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            rules = [{'type': 'required_status_checks', 'parameters': {'required_status_checks': [
+                {'context': name, 'integration_id': 15368} for name in REQUIRED_NAMES]}}]
+            responses = {
+                'rate': {'resources': {'core': {'remaining': 5000}}},
+                'rules': rules,
+                'protection': {'required_status_checks': {}},
+                'checks': check_runs,
+                'workflow': {'id': 259268962, 'path': '.github/workflows/ci.yml', 'state': 'active'},
+            }
+            for name, value in responses.items():
+                (tmp / f'{name}.json').write_text(json.dumps(value))
+            (tmp / 'ledger.json').write_text(json.dumps({'transactions': [
+                {'route_id': 'rules_main', 'response_body_base64': base64.b64encode(json.dumps(rules).encode()).decode()}]}))
+            calls = tmp / 'calls'
+            stubs = (
+                'set -euo pipefail\n'
+                'fail() { printf "ci-gate-canary: FAIL: %s\\n" "$*" >&2; exit 1; }\n'
+                f'WORK_DIR="{tmp}"\nREQUEST_LEDGER="{tmp}/ledger.json"\nWORKFLOW_ID=259268962\n'
+                f'CANDIDATE_SHA={CANDIDATE}\nCHECK_SOURCE_SHA="{check_source_sha}"\n'
+                'api_get() {\n'
+                f'  printf "%s\\n" "$1" >> "{calls}"\n'
+                '  case "$1" in\n'
+                f'    rate_limit) cp "{tmp}/rate.json" "$2" ;;\n'
+                f'    rules/*) cp "{tmp}/rules.json" "$2" ;;\n'
+                f'    branches/*) cp "{tmp}/protection.json" "$2" ;;\n'
+                f'    commits/*) cp "{tmp}/checks.json" "$2" ;;\n'
+                f'    actions/workflows/*) cp "{tmp}/workflow.json" "$2" ;;\n'
+                '    *) echo "unexpected endpoint $1" >&2; exit 9 ;;\n'
+                '  esac\n'
+                '}\n'
+            )
+            result = subprocess.run(['bash', '-c', stubs + self.block + '\necho preflight-reads-passed\n'],
+                                    cwd=tmp, text=True, capture_output=True, timeout=60)
+            endpoints = calls.read_text().splitlines() if calls.exists() else []
+        return result, endpoints
+
+    def _checks(self, runs):
+        return {'total_count': len(runs), 'check_runs': runs}
+
+    def test_preflight_reads_check_sources_from_the_frozen_server_parent(self):
+        runs = [native_run(name, index) for index, name in enumerate(REQUIRED_NAMES, 1)]
+        result, endpoints = self._preflight(self._checks(runs))
+        check_reads = [endpoint for endpoint in endpoints if endpoint.startswith('commits/')]
+        self.assertEqual(check_reads, [f'commits/{SERVER_PARENT}/check-runs?per_page=100'])
+        self.assertFalse(any(CANDIDATE in endpoint for endpoint in endpoints), endpoints)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('preflight-reads-passed', result.stdout)
+
+    def test_preflight_records_identity_without_requiring_success(self):
+        conclusions = ('failure', 'success', 'cancelled', None, 'timed_out')
+        runs = [native_run(name, index, conclusion=conclusion)
+                for index, (name, conclusion) in enumerate(zip(REQUIRED_NAMES, conclusions), 1)]
+        result, endpoints = self._preflight(self._checks(runs))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(f'commits/{SERVER_PARENT}/check-runs?per_page=100', endpoints)
+
+    def test_preflight_rejects_missing_duplicated_or_foreign_identity(self):
+        base = [native_run(name, index) for index, name in enumerate(REQUIRED_NAMES, 1)]
+        cases = {
+            'four producers': base[:4],
+            'duplicated producer': base + [native_run(REQUIRED_NAMES[0], 9)],
+            'missing app slug': [native_run(REQUIRED_NAMES[0], 1, app={'id': 15368})] + base[1:],
+            'missing source': [native_run(REQUIRED_NAMES[0], 1, html_url=None)] + base[1:],
+            'non-https source': [native_run(REQUIRED_NAMES[0], 1, html_url='http://example.test/job/1')] + base[1:],
+            'run of a different commit': [native_run(REQUIRED_NAMES[0], 1, sha=CANDIDATE)] + base[1:],
+        }
+        for label, runs in cases.items():
+            with self.subTest(case=label):
+                result, _ = self._preflight(self._checks(runs))
+                self.assertNotEqual(result.returncode, 0, label)
+                self.assertIn('native check-run app/source identity is missing or duplicated', result.stderr)
+
+    def test_preflight_refuses_a_missing_or_malformed_check_source_before_any_request(self):
+        runs = [native_run(name, index) for index, name in enumerate(REQUIRED_NAMES, 1)]
+        for value in ('', SERVER_PARENT[:39], SERVER_PARENT.upper()):
+            with self.subTest(check_source=value):
+                result, endpoints = self._preflight(self._checks(runs), check_source_sha=value)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(endpoints, [])
+                self.assertIn('frozen server-parent check source is missing or malformed', result.stderr)
 
 
 if __name__ == '__main__':

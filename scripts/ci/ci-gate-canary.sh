@@ -280,6 +280,8 @@ if [[ -n "$REVISION_FREEZE" ]]; then
   FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$REVISION_FREEZE")"
   FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$REVISION_FREEZE")"
   FROZEN_FIXTURE_BLOB="$(jq -r '.identity.fixture_workflow_blob' "$REVISION_FREEZE")"
+  # D-12 (253-100 decision server-parent-identity): native check sources are read from the frozen server parent.
+  FROZEN_SERVER_PARENT_SHA="$(jq -r '.identity.server_parent_sha // empty' "$REVISION_FREEZE")"
   FIXTURE="$ROOT/$(jq -r '.bound_documents.fixture_workflow.path' "$REVISION_FREEZE")"
   [[ "$EVIDENCE_SET" == true ]] || EVIDENCE="$PHASE_DIR/253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
   [[ "$REQUESTS_SET" == true ]] || REQUESTS="$PHASE_DIR/253-LOAD-RECOVERY-CANARY-REQUESTS.json"
@@ -292,6 +294,7 @@ else
   FROZEN_FIXTURE_REF="$(jq -r '.identity.fixture_ref' "$FREEZE_TO_CHECK")"
   FROZEN_FIXTURE_SHA="$(jq -r '.identity.fixture_workflow_commit' "$FREEZE_TO_CHECK")"
   FROZEN_FIXTURE_BLOB="$(jq -r '.identity.fixture_workflow_blob' "$FREEZE_TO_CHECK")"
+  FROZEN_SERVER_PARENT_SHA="$(jq -r '.identity.server_parent_sha // empty' "$FREEZE_TO_CHECK")"
 fi
 
 cd "$ROOT"
@@ -342,7 +345,8 @@ if [[ "$PUBLISH_ONLY" == true ]]; then
         action_approval:($approval + {window_wall_start_epoch:$window}),
         expected:{candidate_sha:$id.candidate_helper_commit,fixture_ref:$id.fixture_ref,fixture_ref_state:"pending-publication",
           workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",
-          workflow_sha:$id.fixture_workflow_commit,workflow_blob:$id.fixture_workflow_blob},
+          workflow_sha:$id.fixture_workflow_commit,workflow_blob:$id.fixture_workflow_blob,
+          check_source_sha:$id.server_parent_sha,check_source_role:"server_parent"},
         preflight:{},budget:{accounted_max_requests:120,new_measured_max_requests:117,max_requests:117,request_count:0,max_jobs:45,
           actual_jobs:0,max_minutes:60,started_epoch:$window,elapsed_seconds:0},
         transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],
@@ -388,6 +392,7 @@ if [[ -f "$EVIDENCE" ]]; then
   CANDIDATE_SHA="$(jq -r '.expected.candidate_sha // empty' "$EVIDENCE")"
   FIXTURE_SHA="$(jq -r '.expected.workflow_sha // empty' "$EVIDENCE")"
   FIXTURE_BLOB="$(jq -r '.expected.workflow_blob // empty' "$EVIDENCE")"
+  CHECK_SOURCE_SHA="$(jq -r '.expected.check_source_sha // empty' "$EVIDENCE")"
 else
   [[ ! -e "$REQUESTS" ]] || fail 'request ledger exists without its matching recovery evidence'
   REQUEST_COUNT=0
@@ -395,14 +400,16 @@ else
   CANDIDATE_SHA=""
   FIXTURE_SHA=""
   FIXTURE_BLOB=""
+  CHECK_SOURCE_SHA=""
 fi
-if [[ -n "$FIXTURE_REF" && ( "$FIXTURE_REF" != "$FROZEN_FIXTURE_REF" || "$CANDIDATE_SHA" != "$FROZEN_CANDIDATE_SHA" || "$FIXTURE_SHA" != "$FROZEN_FIXTURE_SHA" || "$FIXTURE_BLOB" != "$FROZEN_FIXTURE_BLOB" ) ]]; then
+if [[ -n "$FIXTURE_REF" && ( "$FIXTURE_REF" != "$FROZEN_FIXTURE_REF" || "$CANDIDATE_SHA" != "$FROZEN_CANDIDATE_SHA" || "$FIXTURE_SHA" != "$FROZEN_FIXTURE_SHA" || "$FIXTURE_BLOB" != "$FROZEN_FIXTURE_BLOB" || "$CHECK_SOURCE_SHA" != "$FROZEN_SERVER_PARENT_SHA" ) ]]; then
   fail 'existing execution evidence does not match this new recovery freeze'
 fi
 CANDIDATE_SHA="$FROZEN_CANDIDATE_SHA"
 FIXTURE_REF="$FROZEN_FIXTURE_REF"
 FIXTURE_SHA="$FROZEN_FIXTURE_SHA"
 FIXTURE_BLOB="$FROZEN_FIXTURE_BLOB"
+CHECK_SOURCE_SHA="$FROZEN_SERVER_PARENT_SHA"
 [[ "$REQUEST_COUNT" =~ ^[0-9]+$ ]] || fail 'frozen request ledger is malformed'
 
 check_budget() {
@@ -629,8 +636,8 @@ store_preflight() {
 if [[ ! -e "$EVIDENCE" ]]; then
   CANARY_STARTED_EPOCH="$(date +%s)"
   jq -n --arg candidate "$CANDIDATE_SHA" --arg fixture_ref "$FIXTURE_REF" --arg fixture_sha "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" \
-    --argjson started_epoch "$CANARY_STARTED_EPOCH" --argjson approval "$APPROVAL_RECORD" \
-    '{schema_version:"sigra.phase253.hosted-replan-evidence/v2",repository:"szTheory/sigra",action_approval:($approval + {window_wall_start_epoch:$started_epoch}),expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{},budget:{accounted_max_requests:120,new_measured_max_requests:117,max_requests:117,request_count:0,max_jobs:45,actual_jobs:0,max_minutes:60,elapsed_seconds:0},transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
+    --arg check_source "$CHECK_SOURCE_SHA" --argjson started_epoch "$CANARY_STARTED_EPOCH" --argjson approval "$APPROVAL_RECORD" \
+    '{schema_version:"sigra.phase253.hosted-replan-evidence/v2",repository:"szTheory/sigra",action_approval:($approval + {window_wall_start_epoch:$started_epoch}),expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob,check_source_sha:$check_source,check_source_role:"server_parent"},preflight:{},budget:{accounted_max_requests:120,new_measured_max_requests:117,max_requests:117,request_count:0,max_jobs:45,actual_jobs:0,max_minutes:60,elapsed_seconds:0},transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
 else
   jq -e --argjson approval "$APPROVAL_RECORD" '.action_approval.section_sha256 == $approval.section_sha256' "$EVIDENCE" >/dev/null \
     || fail 'existing evidence is bound to a different approval'
@@ -647,13 +654,16 @@ RULES_RESPONSE="$(mktemp "$WORK_DIR/recovery-rules.XXXXXX")"
 WORKFLOW_RESPONSE="$(mktemp "$WORK_DIR/recovery-workflow.XXXXXX")"
 LEGACY_RESPONSE="$(mktemp "$WORK_DIR/recovery-legacy-protection.XXXXXX")"
 CHECK_RUNS_RESPONSE="$(mktemp "$WORK_DIR/recovery-check-runs.XXXXXX")"
+# D-12 decision server-parent-identity: the candidate is created inside the window and no workflow runs on gsd/* refs,
+# so native check sources come from the frozen server parent (identity only; success stays a PR-head rule).
+[[ "$CHECK_SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]] || fail 'frozen server-parent check source is missing or malformed'
 api_get rate_limit "$RATE_RESPONSE"
 CORE_LEFT="$(jq -r '.resources.core.remaining // 0' "$RATE_RESPONSE")"
 (( CORE_LEFT > 250 )) || fail "GitHub core API budget is at or below 250 (remaining=$CORE_LEFT)"
 # Ruleset listings contain names and IDs, not the active rules for main.
 api_get 'rules/branches/main?per_page=100' "$RULES_RESPONSE"
 api_get 'branches/main/protection' "$LEGACY_RESPONSE" true
-api_get "commits/$CANDIDATE_SHA/check-runs?per_page=100" "$CHECK_RUNS_RESPONSE"
+api_get "commits/$CHECK_SOURCE_SHA/check-runs?per_page=100" "$CHECK_RUNS_RESPONSE"
 api_get "actions/workflows/$WORKFLOW_ID" "$WORKFLOW_RESPONSE"
 jq -e 'type == "array" and length <= 200' "$RULES_RESPONSE" >/dev/null || fail 'effective branch rules exceed the two-page completeness ceiling'
 jq -e '.id == 259268962 and .path == ".github/workflows/ci.yml" and .state == "active"' "$WORKFLOW_RESPONSE" >/dev/null || fail 'registered workflow identity differs from fresh GitHub response'
@@ -667,7 +677,7 @@ if [[ "$FIRST_RULE_COUNT" == 100 ]]; then [[ "$RULE_PAGE_COUNT" == 2 ]] || fail 
 jq -e 'type=="object" and ((.required_status_checks // {})|type=="object")' "$LEGACY_RESPONSE" >/dev/null || fail 'legacy branch-protection response is malformed'
 jq -e 'type=="object" and (.check_runs|type=="array")' "$CHECK_RUNS_RESPONSE" >/dev/null || fail 'native check-run source response is incomplete'
 for check_name in "Library tests" "Example unit smoke (ExUnit + ConnTest)" "Install smoke (fresh phx.new + sigra.install)" "Example HTTP smoke (boot + curl critical routes)" "Example Playwright smoke (full lifecycle)"; do
-  jq -e --arg name "$check_name" '[.check_runs[] | select(.name==$name and .status=="completed" and .conclusion=="success" and (.app.id|type=="number") and (.app.slug|type=="string") and (.html_url|type=="string"))] | length == 1' "$CHECK_RUNS_RESPONSE" >/dev/null \
+  jq -e --arg name "$check_name" --arg sha "$CHECK_SOURCE_SHA" '([.check_runs[] | select(.name==$name)] | length == 1) and ([.check_runs[] | select(.name==$name and .head_sha==$sha and (.app.id|type=="number") and .app.id > 0 and (.app.slug|type=="string") and .app.slug != "" and (.html_url|type=="string") and (.html_url|startswith("https://")))] | length == 1)' "$CHECK_RUNS_RESPONSE" >/dev/null \
     || fail "native check-run app/source identity is missing or duplicated: $check_name"
 done
 store_preflight "$RATE_RESPONSE" "$RATE_SOURCE" rate
@@ -717,8 +727,8 @@ if [[ -z "$CANDIDATE_SHA" ]]; then
   CANARY_STARTED_EPOCH="$(date +%s)"
   jq -n --slurpfile rate "$RATE_SOURCE" --slurpfile rules "$RULES_SOURCE" --slurpfile workflow "$WORKFLOW_SOURCE" \
     --arg candidate "$CANDIDATE_SHA" --arg fixture_ref "$FIXTURE_REF" --arg fixture_sha "$FIXTURE_SHA" --arg blob "$FIXTURE_BLOB" \
-    --argjson request_count "$REQUEST_COUNT" --argjson started_epoch "$CANARY_STARTED_EPOCH" \
-    '{schema_version:"sigra.phase253.hosted-replan-evidence/v2",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob},preflight:{initial_rate_limit:$rate[0],effective_rules:$rules[0],registered_workflow:$workflow[0]},budget:{accounted_max_requests:120,new_measured_max_requests:117,max_requests:117,request_count:$request_count,max_jobs:45,max_minutes:60,started_epoch:$started_epoch,actual_jobs:0,elapsed_seconds:0},origin:{kind:"measured-v2"},transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
+    --arg check_source "$CHECK_SOURCE_SHA" --argjson request_count "$REQUEST_COUNT" --argjson started_epoch "$CANARY_STARTED_EPOCH" \
+    '{schema_version:"sigra.phase253.hosted-replan-evidence/v2",repository:"szTheory/sigra",expected:{candidate_sha:$candidate,fixture_ref:$fixture_ref,fixture_ref_state:"verified",workflow_id:259268962,workflow_path:".github/workflows/ci.yml",workflow_name:"Phase 253 Gate Canary",workflow_sha:$fixture_sha,workflow_blob:$blob,check_source_sha:$check_source,check_source_role:"server_parent"},preflight:{initial_rate_limit:$rate[0],effective_rules:$rules[0],registered_workflow:$workflow[0]},budget:{accounted_max_requests:120,new_measured_max_requests:117,max_requests:117,request_count:$request_count,max_jobs:45,max_minutes:60,started_epoch:$started_epoch,actual_jobs:0,elapsed_seconds:0},origin:{kind:"measured-v2"},transport_ledger:null,transport_receipts:[],dispatch_inputs:{},dispatch_input_metrics:[],preserved_revisions:[],scenarios:{},separate_verifier:{status:"pending"}}' > "$EVIDENCE"
   preserve_evidence
   jq --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
     '.preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
