@@ -2197,6 +2197,14 @@ jobs:
           base-url: http://localhost:4011
           server-log: /tmp/example-admin-eval-render-server.log
           browsers: chromium webkit
+          # FAST-06 parity: same browser set (chromium webkit) and the same
+          # versioned key the example_playwright_shard chromium-webkit legs
+          # use, so the exact hit restores identical binaries. A miss falls
+          # back to the full `install --with-deps`; a hit still runs
+          # `install-deps` for the OS packages. scripts/ci/playwright-cache-key-guard.sh
+          # checks this key's version against package-lock.json.
+          cache-browsers: "true"
+          browser-cache-key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v3
           warmup-paths: /admin/_design
 
       - name: Run admin-eval harness (render matrix + derivative guards)
@@ -2233,6 +2241,7 @@ jobs:
           {
             echo "## admin_eval_render cache"
             echo "- deps cache (exact hit): ${{ steps.boot.outputs.deps_cache_hit }}"
+            echo "- Playwright browser cache (exact hit): ${{ steps.boot.outputs.browser_cache_hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
   # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
