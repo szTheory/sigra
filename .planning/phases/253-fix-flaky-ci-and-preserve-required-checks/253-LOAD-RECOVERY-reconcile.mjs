@@ -1245,6 +1245,13 @@ const HALTED_PROOF_MAP_R7 = Object.freeze({
   "92": ["95", "97"],
 });
 
+// Plan 253-90's receipts name THIS helper and its test, which R7 (plan 253-96) must edit. They are held at the
+// bytes of the last 253-90 commit that touched each file (6eb2fbbad), read with git rather than invented.
+const FROZEN_TOOLING_RECEIPTS_R7_PLAN_90 = Object.freeze({
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "1f2f600eb383215400ddae459c23ae22602f36defe97db5f3b25ba86962769e3",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "bf652d4e7ceb3919aeda75438841bdabe8ae424bdf2ba72eb5c865a057af385a",
+});
+
 function buildContractR7({ repoRoot = REPO_ROOT } = {}) {
   const phaseDir = join(repoRoot, PHASE_DIR_REL);
   const r6 = buildContractR6({ repoRoot });
@@ -1259,6 +1266,18 @@ function buildContractR7({ repoRoot = REPO_ROOT } = {}) {
     originals.push({ plan: `253-${PAD(n)}`, class: classOf(PAD(n)), plan_path: `${PHASE_DIR_REL}/${file}`, plan_sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") });
   }
   for (const original of originals) original.class = classOf(original.plan.slice(4));
+  const byNumber = (a, b) => a.plan.localeCompare(b.plan);
+  const completed = [...r6.completed_plans];
+  for (const id of ["89", "90", "91"]) {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false, frozenReceipts: id === "90" ? FROZEN_TOOLING_RECEIPTS_R7_PLAN_90 : {} });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    completed.push(described);
+  }
+  completed.sort(byNumber);
+  const halted = [...r6.halted_plans];
+  const halted92 = describeSummary(repoRoot, phaseDir, "92", { requireReceipts: true });
+  if (halted92.summary.status !== "halted") throw new Error(`halted plan 253-92 summary status is ${halted92.summary.status}`);
+  halted.push(halted92);
   const r6Rows = Object.fromEntries(r6.responsibilities.map((row) => [row.plan.slice(4), row]));
   const responsibilities = UNSTARTED_IDS_R7.map((id) => {
     const mapping = RESPONSIBILITY_MAP_R7[id];
@@ -1287,13 +1306,47 @@ function buildContractR7({ repoRoot = REPO_ROOT } = {}) {
       successor_revision: "R7",
     };
   });
+  const haltedProof = Object.fromEntries(HALTED_IDS_R7.map((id) => [`253-${id}`, HALTED_PROOF_MAP_R7[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+  }
+  const planPins = ids(1, 99).map((n) => {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    return { plan: `253-${PAD(n)}`, path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
+  });
+  const summaryPins = [...ids(36, 43), ...ids(48, 51), ...ids(57, 63), ...ids(69, 73), ...ids(79, 84), ...ids(89, 92), 95].filter((n) => existsSync(join(phaseDir, `253-${PAD(n)}-SUMMARY.md`))).map((n) => {
+    const file = `253-${PAD(n)}-SUMMARY.md`;
+    return { plan: `253-${PAD(n)}`, path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "summary") };
+  });
   return {
     schema: CONTRACT_SCHEMA_R7,
     revision: "r7",
     phase: PHASE,
     phase_dir: PHASE_DIR_REL,
+    v1_contract: r6.v1_contract,
+    r2_contract: r6.r2_contract,
+    r3_contract: r6.r3_contract,
+    r4_contract: r6.r4_contract,
+    r5_contract: r6.r5_contract,
+    r6_contract: { path: `${PHASE_DIR_REL}/${CONTRACT_NAME_R6}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${CONTRACT_NAME_R6}`, "R6 contract") },
+    sdk: r6.sdk,
+    capture: r6.capture,
+    plan_pins: planPins,
+    summary_pins: summaryPins,
     originals,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
     responsibilities,
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned",
+      targets: "only the forty-four previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-99",
+      then_run: "$gsd-execute-phase 253 (unfiltered; security, review, Nyquist, regression and goal verification)",
+      never: ["filtered completion", "phase.complete before whole-phase verification", "editing an original plan", "editing a halted summary", "claiming an old task ran", "writing status: blocked", "reporting CIREL-01 as accepted"],
+    },
   };
 }
 

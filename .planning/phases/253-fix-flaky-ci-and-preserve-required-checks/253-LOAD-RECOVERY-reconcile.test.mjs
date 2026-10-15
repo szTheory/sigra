@@ -1862,3 +1862,276 @@ describe("R7 revision skeleton: partition, dispositioned gating and CLI", () => 
     assert.equal(contract.responsibilities.find((r) => r.plan === "253-08").never_ran_reason, undefined);
   });
 });
+
+// ---------------------------------------------------------------------------------------------
+// 253-96 Task 2: R7 mapping, frozen receipts, pins, rendering and the real-SDK pairing proof
+// ---------------------------------------------------------------------------------------------
+const R7_REMAP = { "91": ["91", "95"], "92": ["97"], "93": ["98"], "94": ["96", "99"] };
+const remapR7 = (owners) => owners.flatMap((owner) => R7_REMAP[owner] ?? [owner]);
+const R7_OWNERS = {
+  ...Object.fromEntries(Object.entries(R6_OWNERS).map(([id, owners]) => [id, remapR7(owners)])),
+  "93": ["98"],
+  "94": ["96", "99"],
+};
+const R7_NATIVE = R6_NATIVE;
+const R7_COMPLETION = ["43", "50", "61", "71", "81", "90", "96", "99"];
+const R7_PLAN_IDS = ["95", "96", "97", "98", "99"];
+// 253-90's receipts name this helper and its test, which plan 96 edits. They are held at the bytes of the
+// last 253-90 commit that touched each file (6eb2fbbad), read with git, never invented.
+const FROZEN_TOOLING_R7_90 = {
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "1f2f600eb383215400ddae459c23ae22602f36defe97db5f3b25ba86962769e3",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "bf652d4e7ceb3919aeda75438841bdabe8ae424bdf2ba72eb5c865a057af385a",
+};
+
+function r7Fixture() {
+  return worldFixture({ maxPlan: 99, maxSummary: 95, label: "r7" });
+}
+
+describe("R7 reconciliation contract", () => {
+  test("v1, R2-R6 contracts and their default code paths stay byte-identical", () => {
+    for (const [name, expected, revision] of [[reconcile.CONTRACT_NAME, V1_CONTRACT_SHA, "v1"], [R2_CONTRACT_NAME_FOR_R3, R2_CONTRACT_SHA, "r2"], [R3_CONTRACT_NAME, R3_CONTRACT_SHA, "r3"], [R4_CONTRACT_NAME, R4_CONTRACT_SHA, "r4"], [R5_CONTRACT_NAME, R5_CONTRACT_SHA, "r5"], [R6_CONTRACT_NAME, R6_CONTRACT_SHA, "r6"]]) {
+      const text = readFileSync(join(REAL_PHASE_DIR, name), "utf8");
+      assert.equal(sha(text), expected, name);
+      assert.equal(reconcile.serializeContract(reconcile.buildContract({ revision })), text, `${revision} regenerates byte-identically`);
+    }
+  });
+
+  test("partitions PLANs 01-94 into 38 completed, 12 halted and 44 never-executed", () => {
+    const contract = reconcile.buildContract({ revision: "r7" });
+    assert.equal(contract.schema, "sigra.phase253.load-recovery-reconciliation-contract/r7");
+    assert.deepEqual(contract.completed_plans.map((p) => p.plan.slice(4)), R7_COMPLETED);
+    assert.equal(contract.completed_plans.length, 38);
+    assert.deepEqual(contract.halted_plans.map((p) => p.plan.slice(4)), R7_HALTED);
+    assert.deepEqual(contract.halted_plans.map((p) => p.summary.status), Array(12).fill("halted"));
+    assert.deepEqual(contract.responsibilities.map((r) => r.plan.slice(4)), R7_UNSTARTED);
+    assert.equal(contract.responsibilities.length, 44);
+    assert.equal(contract.originals.length, 94);
+    assert.deepEqual(contract.originals.map((o) => o.class).filter((c) => c === "halted").length, 12);
+    const all = [...contract.completed_plans, ...contract.halted_plans, ...contract.responsibilities].map((p) => p.plan.slice(4)).sort();
+    assert.deepEqual(all, Array.from({ length: 94 }, (_, i) => String(i + 1).padStart(2, "0")));
+    const blocked = { "40": ["41", "44", "45", "46", "47"], "51": R3_NEW_UNSTARTED, "63": R4_NEW_UNSTARTED, "73": R5_NEW_UNSTARTED, "84": R6_NEW_UNSTARTED, "92": R7_NEW_UNSTARTED };
+    const reasons = { "40": "dependency 253-40 halted on host sleep", "51": R3_NEVER_RAN_51, "63": R4_NEVER_RAN_63, "73": R5_NEVER_RAN_73, "84": R6_NEVER_RAN_84, "92": R7_NEVER_RAN_92 };
+    for (const [halted, list] of Object.entries(blocked)) {
+      for (const id of list) {
+        const row = contract.responsibilities.find((r) => r.plan === `253-${id}`);
+        assert.deepEqual(row.blocked_by, [`253-${halted}`], `${row.plan} blocked_by`);
+        assert.equal(row.never_ran_reason, reasons[halted]);
+        assert.equal(row.successor_revision, "R7");
+      }
+    }
+  });
+
+  test("maps every responsibility to the R7 proof owners and never to a halted or never-executed plan", () => {
+    const contract = reconcile.buildContract({ revision: "r7" });
+    assert.deepEqual(Object.fromEntries(contract.responsibilities.map((r) => [r.plan.slice(4), r.owners.map((o) => o.slice(4))])), R7_OWNERS);
+    const used = new Set(contract.responsibilities.flatMap((r) => r.owners.map((o) => o.slice(4))));
+    for (const forbidden of R7_FORBIDDEN_OWNERS) assert.ok(!used.has(forbidden), `owner ${forbidden} must not be used`);
+    for (const owner of used) assert.ok(existsSync(join(REAL_PHASE_DIR, `253-${owner}-PLAN.md`)), `owner ${owner} plan exists`);
+    const owners = Object.fromEntries(contract.responsibilities.map((r) => [r.plan.slice(4), r.owners.map((o) => o.slice(4))]));
+    assert.deepEqual(owners["10"], R7_NATIVE);
+    assert.deepEqual(owners["14"], R7_COMPLETION);
+    assert.deepEqual(owners["85"], ["91", "95"]);
+    assert.deepEqual(owners["86"], ["97"]);
+    assert.deepEqual(owners["87"], ["98"]);
+    assert.deepEqual(owners["88"], ["90", "96", "99"]);
+    assert.deepEqual(owners["93"], ["98"]);
+    assert.deepEqual(owners["94"], ["96", "99"]);
+    const links = Object.fromEntries(contract.responsibilities.map((r) => [r.plan.slice(4), r.required_links]));
+    assert.deepEqual(links["93"], ["pr_normal", "pr_docs_only"]);
+    assert.deepEqual(links["94"], [...LINK_KEYS, "load_target_disposition"]);
+    assert.deepEqual(links["88"], [...LINK_KEYS, "load_target_disposition"]);
+    assert.deepEqual(links["86"], ["canary"]);
+    assert.deepEqual(Object.keys(contract.halted_proof_map), R7_HALTED.map((id) => `253-${id}`));
+    for (const id of ["02", "09", "16", "27"]) assert.deepEqual(contract.halted_proof_map[`253-${id}`].map((o) => o.slice(4)), R7_NATIVE);
+    for (const id of ["07", "12"]) assert.deepEqual(contract.halted_proof_map[`253-${id}`].map((o) => o.slice(4)), ["18", "19", "20", "42", "91", "95", "97"]);
+    assert.deepEqual(contract.halted_proof_map["253-84"], ["253-89", "253-90"]);
+    assert.deepEqual(contract.halted_proof_map["253-92"], ["253-95", "253-97"]);
+    for (const owners of Object.values(contract.halted_proof_map)) for (const owner of owners) assert.ok(!R7_FORBIDDEN_OWNERS.includes(owner.slice(4)), `halted proof owner ${owner}`);
+    for (const responsibility of contract.responsibilities) {
+      assert.equal(responsibility.disposition_path, `${PHASE_DIR_REL}/${responsibility.plan}-SUMMARY.md`);
+      assert.deepEqual(responsibility.disposition, { status: "superseded", execution_performed: false, original_status: "blocked", phase_verification_status: "not_started" });
+    }
+  });
+
+  test("pins every PLAN 01-99, the existing summaries through 92 and 95, the earlier contracts, the SDK and the application block", () => {
+    const contract = reconcile.buildContract({ revision: "r7" });
+    assert.equal(contract.revision, "r7");
+    assert.equal(contract.plan_pins.length, 99);
+    assert.deepEqual(contract.plan_pins.map((p) => p.plan.slice(4)), Array.from({ length: 99 }, (_, i) => String(i + 1).padStart(2, "0")));
+    for (const pin of contract.plan_pins) assert.equal(pin.sha256, sha(readFileSync(join(REPO, pin.path))), pin.path);
+    assert.deepEqual(contract.summary_pins.map((p) => p.plan.slice(4)), ["36", "37", "38", "39", "40", "42", "43", "48", "49", "50", "51", "57", "58", "59", "60", "61", "62", "63", "69", "70", "71", "72", "73", "79", "80", "81", "82", "83", "84", "89", "90", "91", "92", "95"]);
+    for (const pin of contract.summary_pins) assert.equal(pin.sha256, sha(readFileSync(join(REPO, pin.path))), pin.path);
+    assert.deepEqual(contract.v1_contract, { path: `${PHASE_DIR_REL}/${reconcile.CONTRACT_NAME}`, sha256: V1_CONTRACT_SHA });
+    assert.deepEqual(contract.r2_contract, { path: `${PHASE_DIR_REL}/${R2_CONTRACT_NAME_FOR_R3}`, sha256: R2_CONTRACT_SHA });
+    assert.deepEqual(contract.r3_contract, { path: `${PHASE_DIR_REL}/${R3_CONTRACT_NAME}`, sha256: R3_CONTRACT_SHA });
+    assert.deepEqual(contract.r4_contract, { path: `${PHASE_DIR_REL}/${R4_CONTRACT_NAME}`, sha256: R4_CONTRACT_SHA });
+    assert.deepEqual(contract.r5_contract, { path: `${PHASE_DIR_REL}/${R5_CONTRACT_NAME}`, sha256: R5_CONTRACT_SHA });
+    assert.deepEqual(contract.r6_contract, { path: `${PHASE_DIR_REL}/${R6_CONTRACT_NAME}`, sha256: R6_CONTRACT_SHA });
+    assert.equal(contract.sdk.version, "1.16.0");
+    assert.equal(contract.sdk.files.length, 7);
+    assert.equal(contract.application.accepted_only_predicate, "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned");
+    assert.equal(contract.application.bundle_requires_final_summary_of, "253-99");
+    assert.equal(contract.application.targets, "only the forty-four previously nonexistent SUMMARY paths; existing files are never overwritten");
+    assert.ok(contract.application.never.includes("reporting CIREL-01 as accepted"));
+    assert.ok(contract.application.never.includes("writing status: blocked"));
+  });
+
+  test("tooling receipts are frozen per plan: 253-61, 71 and 81 as earlier revisions hold them, 253-90 at its last commit", () => {
+    const contract = reconcile.buildContract({ revision: "r7" });
+    const receipt = (plan, path) => contract.completed_plans.find((p) => p.plan === plan).receipts.find((r) => r.path === path).sha256;
+    for (const [path, hash] of Object.entries(FROZEN_TOOLING_R4)) assert.equal(receipt("253-61", path), hash, `61 ${path}`);
+    for (const [path, hash] of Object.entries(FROZEN_TOOLING_R5_71)) assert.equal(receipt("253-71", path), hash, `71 ${path}`);
+    for (const [path, hash] of Object.entries(FROZEN_TOOLING_R6_81)) assert.equal(receipt("253-81", path), hash, `81 ${path}`);
+    for (const [path, hash] of Object.entries(FROZEN_TOOLING_R7_90)) {
+      assert.equal(receipt("253-90", path), hash, `90 ${path}`);
+      const atCommit = spawnSync("git", ["-C", REPO, "show", `6eb2fbbad:${path}`], { maxBuffer: 64 * 1024 * 1024 });
+      assert.equal(atCommit.status, 0);
+      assert.equal(sha(atCommit.stdout), hash, `90 ${path} equals the blob at commit 6eb2fbbad`);
+    }
+    assert.equal(receipt("253-90", `${PHASE_DIR_REL}/${R6_CONTRACT_NAME}`), R6_CONTRACT_SHA);
+    const ninetyTwo = contract.halted_plans.find((p) => p.plan === "253-92");
+    assert.equal(ninetyTwo.receipts.length, 5);
+    assert.equal(ninetyTwo.missing_receipts, undefined);
+    assert.equal(ninetyTwo.summary.status, "halted");
+    assert.ok(contract.completed_plans.every((p) => p.summary.status !== "halted" && p.summary.status !== "blocked"));
+  });
+
+  test("the builder refuses a missing PLAN 95-99 or an owner that is halted or never executed (positive control: the same clone builds)", () => {
+    const root = mkdtempSync(join(tmpdir(), "p253-96-clone-"));
+    cleanup.push(root);
+    git(REPO, "clone", "-q", "--no-checkout", "--shared", REPO, root);
+    git(root, "checkout", "-q", "HEAD", "--", PHASE_DIR_REL);
+    const built = reconcile.buildContract({ repoRoot: root, revision: "r7" });
+    assert.equal(built.plan_pins.length, 99);
+    rmSync(join(root, PHASE_DIR_REL, "253-97-PLAN.md"));
+    assert.throws(() => reconcile.buildContract({ repoRoot: root, revision: "r7" }), /253-97/);
+  });
+
+  test("CLI --revision r7 --prepare-contract --check-only matches, drifts fail, nothing is created, and v1-r6 still check", () => {
+    const dir = mkdtempSync(join(tmpdir(), "p253-96-contract-"));
+    cleanup.push(dir);
+    const target = join(dir, R7_CONTRACT_NAME);
+    const text = reconcile.serializeContract(reconcile.buildContract({ revision: "r7" }));
+    const run = (extra = []) => spawnSync(process.execPath, [SCRIPT, "--revision", "r7", "--prepare-contract", "--output", target, "--check-only", ...extra], { encoding: "utf8" });
+    assert.notEqual(run().status, 0);
+    assert.equal(existsSync(target), false);
+    writeFileSync(target, text);
+    const ok = run();
+    assert.equal(ok.status, 0, ok.stderr);
+    writeFileSync(target, `${text} `);
+    assert.notEqual(run().status, 0);
+    for (const [rev, name] of [[null, reconcile.CONTRACT_NAME], ["r2", R2_CONTRACT_NAME_FOR_R3], ["r3", R3_CONTRACT_NAME], ["r4", R4_CONTRACT_NAME], ["r5", R5_CONTRACT_NAME], ["r6", R6_CONTRACT_NAME]]) {
+      const args = [...(rev ? ["--revision", rev] : []), "--prepare-contract", "--output", join(REAL_PHASE_DIR, name), "--check-only"];
+      const check = spawnSync(process.execPath, [SCRIPT, ...args], { encoding: "utf8" });
+      assert.equal(check.status, 0, check.stderr);
+    }
+  });
+});
+
+describe("R7 disposition text", () => {
+  test("says CIREL-02 is accepted and CIREL-01 partial, never both accepted, and names the R7 successors", () => {
+    const { root } = r7Fixture();
+    const contract = reconcile.buildContract({ revision: "r7" });
+    const contractSha = sha(reconcile.serializeContract(contract));
+    const completion = dispositionCompletionFixture(root);
+    const bundle = reconcile.prepareDispositions({ root, contract, contractSha256: contractSha, completionPath: completion, verifier: dispositionedVerifier });
+    assert.equal(bundle.entries.length, 44);
+    for (const entry of bundle.entries) {
+      assert.match(entry.content, /tags: \[historical-disposition, load-recovery, dispositioned\]/);
+      assert.match(entry.content, /status: superseded/);
+      assert.match(entry.content, /execution_performed: false/);
+      assert.match(entry.content, /original_status: blocked/);
+      assert.match(entry.content, /phase_verification_status: not_started/);
+      assert.match(entry.content, /requirements-completed: \[\]/);
+      assert.match(entry.content, /CIREL-02 is accepted by the linked completion evidence/);
+      assert.match(entry.content, /CIREL-01 is recorded partial under Jon's not_reproduced disposition/);
+      assert.doesNotMatch(entry.content, /CIREL-01 and CIREL-02 are accepted by the linked completion evidence/);
+      assert.doesNotMatch(entry.content, /CIREL-01 (is|was) accepted/);
+    }
+    const ninetyThree = bundle.entries.find((e) => e.plan === "253-93");
+    assert.match(ninetyThree.content, /never ran because its dependency 253-92 halted at publication/);
+    assert.match(ninetyThree.content, /Its R7 successor is 253-98\./);
+    const ninetyFour = bundle.entries.find((e) => e.plan === "253-94");
+    assert.match(ninetyFour.content, /Its R7 successor is 253-96, 253-99\./);
+    assert.match(ninetyFour.content, /link: load_target_disposition/);
+  });
+});
+
+describe("R7 pairing through the real installed SDK on a copy of the current plan set", () => {
+  test("93 and 94 stay incomplete and blocked behind halted 253-92; 253-96 is the next explicitly dispatchable plan", () => {
+    const { root } = r7Fixture();
+    const index = sdk(root, "phase-plan-index", "253");
+    const by = Object.fromEntries(index.plans.map((p) => [p.id, p]));
+    for (const id of ["253-93", "253-94"]) {
+      assert.ok(index.incomplete.includes(id), `${id} incomplete`);
+      assert.equal(by[id].has_summary, false, id);
+      assert.ok(by[id].blocked_by.includes("253-92"), `${id} blocked behind 253-92`);
+    }
+    assert.equal(by["253-92"].halted, true);
+    assert.equal(by["253-95"].has_summary, true);
+    assert.equal(by["253-96"].has_summary, false);
+    // Measured against the installed SDK 1.16.0 (as for R6): blocked_by propagates through depends_on even past
+    // summarized plans, so 95-99 inherit [253-84, 253-92] and `runnable` is empty. 253-96 is still the next plan with
+    // no summary whose own dependencies (95 and 90) are summarized; it is dispatched explicitly, not by `runnable`.
+    for (const id of ["253-96", "253-97", "253-98", "253-99"]) {
+      assert.deepEqual([...by[id].blocked_by].sort(), ["253-84", "253-92"], `${id} inherits both blocks`);
+      assert.equal(by[id].halted, false, id);
+    }
+    assert.deepEqual(index.runnable, []);
+    assert.equal(by["253-96"].has_summary, false);
+    const contract = reconcile.buildContract({ revision: "r7" });
+    const report = reconcile.checkIndex({ root, contract });
+    assert.equal(report.ok, false);
+    assert.deepEqual(report.old_unsummarized.map((id) => id.slice(4)), R7_UNSTARTED);
+  });
+
+  test("after simulated R7 dispositions and 96-99 summaries nothing is incomplete, twelve plans are halted and nothing reports blocked", () => {
+    const { root, dir } = r7Fixture();
+    for (const id of ["96", "97", "98", "99"]) writeFileSync(join(dir, `253-${id}-SUMMARY.md`), COMPLETE);
+    const contract = reconcile.buildContract({ revision: "r7" });
+    const contractSha = sha(reconcile.serializeContract(contract));
+    const completion = dispositionCompletionFixture(root);
+    const bundle = reconcile.prepareDispositions({ root, contract, contractSha256: contractSha, completionPath: completion, verifier: dispositionedVerifier });
+    assert.equal(bundle.entries.length, 44);
+    for (const entry of bundle.entries) for (const owner of R7_OWNERS[entry.plan.slice(4)]) assert.ok(entry.content.includes(`253-${owner}`), `${entry.plan} names owner ${owner}`);
+    const originalsBefore = planHashes(dir);
+    const record = reconcile.applyBundle({ root, contract, contractSha256: contractSha, bundle, completionPath: completion, verifier: dispositionedVerifier, allowFixture: true, recordPath: join(root, "apply-record.json") });
+    assert.equal(record.applied, true);
+    assert.equal(record.entries.length, 44);
+    assert.deepEqual(planHashes(dir), originalsBefore);
+    const index = sdk(root, "phase-plan-index", "253");
+    const init = sdk(root, "init.execute-phase", "253");
+    assert.deepEqual(index.incomplete, []);
+    assert.deepEqual(init.incomplete_plans, []);
+    assert.deepEqual(index.plans.filter((p) => p.halted).map((p) => p.id.slice(4)), R7_HALTED);
+    assert.equal(index.plans.filter((p) => p.halted).length, 12);
+    const rows = reconcile.pairingReport(root, "253");
+    assert.equal(rows.length, 99);
+    assert.ok(rows.every((row) => row.summary_status !== "blocked"), "no summary reports status: blocked");
+    assert.ok(rows.every((row) => row.init_disagrees === false), "init.execute-phase agrees with phase-plan-index");
+    for (const id of [...R7_NEW_UNSTARTED, ...R6_NEW_UNSTARTED, "41", "47"]) {
+      const row = rows.find((r) => r.id === `253-${id}`);
+      assert.equal(row.summary_status, "superseded");
+      assert.equal(row.execution_performed, false);
+      assert.equal(row.original_status, "blocked");
+    }
+    const report = reconcile.checkIndex({ root, contract });
+    assert.equal(report.ok, true, JSON.stringify(report));
+    assert.equal(report.halted_literal, true);
+    assert.equal(report.route.outcome, "resume_phase_gates");
+  });
+
+  test("a status: blocked owner summary, or a rewritten pinned plan, is refused", () => {
+    const { root, dir } = r7Fixture();
+    for (const id of ["96", "97", "98", "99"]) writeFileSync(join(dir, `253-${id}-SUMMARY.md`), COMPLETE);
+    const contract = reconcile.buildContract({ revision: "r7" });
+    const contractSha = sha(reconcile.serializeContract(contract));
+    const completion = dispositionCompletionFixture(root);
+    writeFileSync(join(dir, "253-98-SUMMARY.md"), BLOCKED);
+    assert.throws(() => reconcile.applyBundle({ root, contract, contractSha256: contractSha, bundle: reconcile.prepareDispositions({ root, contract, contractSha256: contractSha, completionPath: completion, verifier: dispositionedVerifier }), completionPath: completion, verifier: dispositionedVerifier, allowFixture: true, recordPath: join(root, "r.json") }), /253-98/);
+    writeFileSync(join(dir, "253-98-SUMMARY.md"), COMPLETE);
+    writeFileSync(join(dir, "253-97-PLAN.md"), `${readFileSync(join(dir, "253-97-PLAN.md"), "utf8")}\n`);
+    assert.throws(() => reconcile.prepareDispositions({ root, contract, contractSha256: contractSha, completionPath: completion, verifier: dispositionedVerifier }), /253-97|differs/);
+    assert.equal(existsSync(join(dir, "253-93-SUMMARY.md")), false);
+  });
+});
