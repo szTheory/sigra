@@ -83,6 +83,9 @@ LIVE_WINDOW_PREFIX = "253-dryrun-live-policy-"
 R8_ALLOCATION_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json"
 SHIM_REL = "scripts/ci/ci-live-policy-shim.py"
 TRANSPORT_REL = "scripts/ci/ci-hosted-transport.py"
+# The two refs 253-104 created on GitHub (R8 pair); a run seeded with them must never move them.
+R8_REFS = {"gsd/253-replan-r8-candidate": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+           "gsd/253-replan-r8-fixture": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44"}
 
 
 def load_module(name: str, path: Path):
@@ -660,7 +663,7 @@ class FakeServer(OBJECT_TESTS.ObjectHTTPServer):
 
 
 def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_parent: str, verifier_module,
-               visibility_delay: float, polls: dict, seed_legacy: bool, live: bool = False):
+               visibility_delay: float, polls: dict, seed_legacy: bool, live: bool = False, seed_refs: dict | None = None):
     cert, key = work / "tls-cert.pem", work / "tls-key.pem"
     # Live-policy mode: a certificate for the real hostnames, so SNI and hostname verification use them (253-108).
     names = LIVE_TLS_NAMES if live else ("localhost",)
@@ -687,6 +690,8 @@ def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_pare
                                      "message": message.decode(), "author": {}, "committer": {}}
     if seed_legacy:
         server.refs.update(LEGACY_REFS)
+    if seed_refs:
+        server.refs.update(seed_refs)
     server.seeded = dict(server.refs)
     server.rules = [{"type": "required_status_checks", "ruleset_source_type": "Repository", "ruleset_source": REPO,
                      "ruleset_id": 4242424, "parameters": {"strict_required_status_checks_policy": False,
@@ -923,7 +928,8 @@ def dry_run(args) -> dict:
             # Live-policy: below the scaled 20-second discovery wait, so the one charged listing finds the run.
             visibility = 0.05 if live else 3.0
         server, thread, cert = start_fake(work, clone, ledger, journal, freeze["identity"]["server_parent_sha"],
-                                          verifier_module, visibility, polls, args.seed_legacy_refs, live=live)
+                                          verifier_module, visibility, polls, args.seed_legacy_refs, live=live,
+                                          seed_refs=R8_REFS if getattr(args, "seed_r8_refs", False) else None)
         server.faults = set(args.fault or [])
         for item in args.inject or []:
             key, _, status = item.rpartition("=")
@@ -1074,6 +1080,11 @@ def dry_run(args) -> dict:
             summary["seeded_refs_changed"] = bool(changed)
             if changed:
                 problems.append(f"a seeded legacy ref changed: {changed}")
+        if getattr(args, "seed_r8_refs", False):
+            changed = {name: server.refs.get(name) for name, sha in R8_REFS.items() if server.refs.get(name) != sha}
+            summary["seeded_r8_refs_changed"] = bool(changed)
+            if changed:
+                problems.append(f"a seeded r8 ref changed: {changed}")
         expected = ["full-pass"] if args.stop_after == "full-pass" else list(SCENARIOS)
         if failed is None and summary["scenarios"] != expected:
             problems.append(f"verifier accepted {summary['scenarios']}, expected {expected}")
@@ -1104,6 +1115,8 @@ def main() -> int:
     parser.add_argument("--driver-patch", help="JSON {name, old, new}: an exactly-once reintroduction patch for the driver")
     parser.add_argument("--seed-legacy-refs", action="store_true",
                         help="pre-seed the two refs 253-97 left on GitHub; they must not change")
+    parser.add_argument("--seed-r8-refs", action="store_true",
+                        help="pre-seed the two r8 refs 253-104 left on GitHub; they must not change")
     parser.add_argument("--ref-pair", choices=sorted(PUBLISHER.REF_PAIRS),
                         help="forwarded to --build-freeze for the derived synthetic freeze: one of the publisher's REF_PAIRS "
                              f"({', '.join(sorted(PUBLISHER.REF_PAIRS))}; the publisher's default is "
