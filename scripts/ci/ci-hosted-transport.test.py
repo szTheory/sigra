@@ -947,6 +947,137 @@ class LivePolicyRedirectTests(unittest.TestCase):
         self.assertEqual(self.server.sni, ["api.github.com", BLOB_HOST])
         self.assertEqual(self.shim.read_log(self.refusal_log), [])
 
+    # -- negative matrix: every refused destination fails closed in the transport, never in the shim ------
+    def assert_refused_after_hop_zero(self, location, expected_code):
+        self.server.routes[("api.github.com", ARTIFACT_PATH)] = (302, [("Location", location)], b"")
+        result = self.follow()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn(f"ci-hosted-transport: {expected_code}:", result.stderr)
+        self.assertEqual(self.connects(), [("api.github.com", 443)])
+        self.assertEqual([row["host"] for row in self.server.journal], ["api.github.com"])
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual(len(ledger["transactions"]), 1)  # exactly the charged hop 0
+        self.assertEqual(ledger["transactions"][0]["hop_ordinal"], 0)
+        self.assertEqual(ledger["transactions"][0]["host"], "api.github.com")
+        self.assertEqual(ledger["transactions"][0]["actual_status"], 302)
+        self.assertEqual(ledger["terminal_stop"]["code"], expected_code)
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+        # Only hop 0's empty 302 body may have been written; never a downloaded archive.
+        self.assertEqual(self.body_path.read_bytes() if self.body_path.exists() else b"", b"")
+
+    def test_live_redirect_to_an_untrusted_host_is_refused_before_its_socket(self):
+        self.assert_refused_after_hop_zero("https://evil.example.com/a.zip", "redirect_rejected")
+
+    def test_live_redirect_to_a_lookalike_host_is_refused_before_its_socket(self):
+        self.assert_refused_after_hop_zero(f"https://{BLOB_HOST}.evil.example/a.zip", "redirect_rejected")
+
+    def test_live_redirect_over_http_is_refused_before_its_socket(self):
+        self.assert_refused_after_hop_zero(f"http://{BLOB_HOST}/a.zip", "malformed_location")
+
+    def test_live_redirect_to_port_8443_is_refused_before_its_socket(self):
+        self.assert_refused_after_hop_zero(f"https://{BLOB_HOST}:8443/a.zip", "redirect_rejected")
+
+    def test_live_redirect_to_a_policy_trusted_host_absent_from_download_hosts_is_refused(self):
+        self.assertNotIn("productionresultssa41.blob.core.windows.net", self.allocation["download_hosts"])
+        self.assert_refused_after_hop_zero("https://productionresultssa41.blob.core.windows.net/a.zip", "redirect_rejected")
+
+    def test_live_redirect_with_userinfo_or_fragment_is_refused_before_its_socket(self):
+        for location in (f"https://user@{BLOB_HOST}/a.zip", f"https://{BLOB_HOST}/a.zip#frag"):
+            with self.subTest(location=location):
+                for path in (self.ledger, self.output_path, self.connect_log):
+                    path.unlink(missing_ok=True)
+                self.server.journal.clear()
+                self.assert_refused_after_hop_zero(location, "malformed_location")
+
+    def test_live_redirect_to_api_github_com_is_refused_because_it_is_never_a_download_host(self):
+        self.assert_refused_after_hop_zero(f"https://api.github.com{ARTIFACT_PATH}?again=1", "redirect_rejected")
+
+    def direct(self, request, destination):
+        self.request_path.write_text(json.dumps(request))
+        os.environ["GH_TOKEN"] = DUMMY_TOKEN
+        try:
+            with self.shim.patched({host: self.port for host in SHIM_HOSTS}, self.cert, self.connect_log):
+                with self.assertRaises(self.transport.TransportError) as caught:
+                    self.transport.request_one(self.allocation_path, self.ledger, self.request_path, self.output_path,
+                                               None, destination)
+        finally:
+            os.environ.pop("GH_TOKEN", None)
+        return caught.exception.code
+
+    def test_direct_destination_calls_outside_the_live_hop_rule_are_refused_before_the_predebit(self):
+        # Seed the ledger with one charged, complete request so "count unchanged" is a real observation.
+        self.server.routes[("api.github.com", ARTIFACT_PATH)] = (200, [("Content-Type", "application/zip")], small_zip())
+        self.assertEqual(self.follow().returncode, 0)
+        self.assertEqual(len(json.loads(self.ledger.read_text())["transactions"]), 1)
+        self.connect_log.unlink()
+        self.server.journal.clear()
+        artifact = {"method": "GET", "route_id": "artifact_zip", "category": "artifact_downloads",
+                    "params": {"artifact_id": 11999138572}}
+        run = {"method": "GET", "route_id": "run", "category": "artifact_downloads", "params": {"run_id": 38791286863}}
+        blob = (BLOB_HOST, 443, "/x")
+        cases = [
+            ("non-API host at hop 0", dict(artifact, hop_ordinal=0), blob),
+            ("non-API host with hop absent", artifact, blob),
+            ("trusted destination on a non-download route", dict(run, hop_ordinal=1), blob),
+            ("api.github.com is not a hop >= 1 destination", dict(artifact, hop_ordinal=1), ("api.github.com", 443, ARTIFACT_PATH)),
+            ("policy-trusted host absent from download_hosts", dict(artifact, hop_ordinal=1),
+             ("productionresultssa41.blob.core.windows.net", 443, "/x")),
+            ("untrusted host at hop 1", dict(artifact, hop_ordinal=1), ("evil.example.com", 443, "/x")),
+            ("trusted host on port 8443", dict(artifact, hop_ordinal=1), (BLOB_HOST, 8443, "/x")),
+            ("hop beyond max_hops", dict(artifact, hop_ordinal=3), blob),
+            ("boolean hop ordinal", dict(artifact, hop_ordinal=True), blob),
+        ]
+        for name, request, destination in cases:
+            with self.subTest(case=name):
+                self.assertEqual(self.direct(request, destination), "origin_rejected")
+                self.assertEqual(len(json.loads(self.ledger.read_text())["transactions"]), 1)
+                self.assertIsNone(json.loads(self.ledger.read_text())["terminal_stop"])
+        self.assertEqual(self.shim.read_log(self.connect_log), [])
+        self.assertEqual(self.server.journal, [])
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    def test_direct_destination_call_on_a_fresh_window_leaves_no_ledger(self):
+        request = {"method": "GET", "route_id": "artifact_zip", "category": "artifact_downloads",
+                   "params": {"artifact_id": 11999138572}, "hop_ordinal": 0}
+        self.assertEqual(self.direct(request, (BLOB_HOST, 443, "/x")), "origin_rejected")
+        self.assertFalse(self.ledger.exists())
+        self.assertEqual(self.shim.read_log(self.connect_log), [])
+
+    # -- positive controls in the same suite ---------------------------------------------------------------
+    def test_run_logs_follow_to_pipelines_host_without_authorization(self):
+        logs_path = "/repos/szTheory/sigra/actions/runs/38791286863/logs"
+        self.server.routes[("api.github.com", logs_path)] = (
+            302, [("Location", "https://pipelines.actions.githubusercontent.com/logs/run.zip?sig=private")], b"")
+        self.server.routes[("pipelines.actions.githubusercontent.com", "/logs/run.zip")] = (
+            200, [("Content-Type", "application/zip")], small_zip())
+        self.request_path.write_text(json.dumps({"method": "GET", "route_id": "run_logs", "category": "failure_logs",
+                                                 "params": {"run_id": 38791286863}}))
+        result = self.follow()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.body_path.read_bytes(), small_zip())
+        self.assertEqual(self.connects(), [("api.github.com", 443), ("pipelines.actions.githubusercontent.com", 443)])
+        self.assertEqual([(row["host"], row["authorization"]) for row in self.server.journal],
+                         [("api.github.com", f"Bearer {DUMMY_TOKEN}"), ("pipelines.actions.githubusercontent.com", None)])
+        rows = json.loads(self.ledger.read_text())["transactions"]
+        self.assertEqual([(row["hop_ordinal"], row["category"]) for row in rows], [(0, "failure_logs"), (1, "failure_logs")])
+        self.assertNotIn("sig=private", self.ledger.read_text() + self.output_path.read_text())
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    def test_live_max_hops_one_with_two_redirects_stops_with_redirect_budget_exhausted(self):
+        self.allocation["max_hops"] = 1
+        self.write_allocation()
+        self.server.routes[(BLOB_HOST, "/x/artifact.zip")] = (
+            302, [("Location", "https://productionresultssa18.blob.core.windows.net/y.zip?sig=two")], b"")
+        result = self.follow()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("redirect_budget_exhausted", result.stderr)
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual([(row["host"], row["actual_status"]) for row in ledger["transactions"]],
+                         [("api.github.com", 302), (BLOB_HOST, 302)])
+        self.assertEqual(ledger["terminal_stop"]["code"], "redirect_budget_exhausted")
+        self.assertEqual(self.connects(), [("api.github.com", 443), (BLOB_HOST, 443)])
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
