@@ -828,7 +828,11 @@ def small_zip() -> bytes:
     import zipfile
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
-        archive.writestr("canary-result.json", '{"scenario":"full-pass"}\n')
+        # A fixed timestamp: writestr(name) stamps the wall clock, so two calls straddling a 2-second DOS-time
+        # boundary produced different bytes and the body-equality assertions flaked (253-111).
+        info = zipfile.ZipInfo("canary-result.json", date_time=(2026, 1, 1, 0, 0, 0))
+        info.compress_type = zipfile.ZIP_DEFLATED
+        archive.writestr(info, '{"scenario":"full-pass"}\n')
     return buffer.getvalue()
 
 
