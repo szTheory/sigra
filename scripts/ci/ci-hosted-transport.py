@@ -24,6 +24,8 @@ from urllib.parse import parse_qs, quote, urlsplit, urlunsplit
 
 SCHEMA = "sigra.phase253.http-ledger/v2"
 API_HOST = "api.github.com"
+# 253-125: GitHub's run-log redirect host (R10 ledger sequence 47). Trusted only as hop 1 of run_logs, by exact name.
+RESULTS_RECEIVER_HOST = "results-receiver.actions.githubusercontent.com"
 DEFAULT_REPO = "szTheory/sigra"
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
 MAX_REQUEST_ENVELOPE_BYTES = MAX_REQUEST_BYTES + 65536
@@ -509,8 +511,7 @@ def _validate_allocation(allocation: dict) -> None:
         if not isinstance(hosts, list) or len(set(hosts)) != len(hosts):
             raise TransportError("download_host_allocation", "live allocation requires a unique trusted download-host list")
         for host in hosts:
-            if host != "pipelines.actions.githubusercontent.com" and not re.fullmatch(
-                    r"productionresultssa[0-9]+\.blob\.core\.windows\.net", str(host)):
+            if host != RESULTS_RECEIVER_HOST and not _pre_r11_download_host(host):
                 raise TransportError("download_host_allocation", "live allocation contains a host outside the trusted policy")
     elif not allocation.get("test_origin") or not allocation.get("test_ca_file"):
         raise TransportError("test_origin_rejected", "hermetic allocation requires its local TLS origin and test CA")
@@ -599,7 +600,8 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
             if host != API_HOST or port != 443:
                 raise TransportError("origin_rejected", "live transport is restricted to api.github.com")
         elif (ROUTES[request["route_id"]][2] != "download" or isinstance(hop_ordinal, bool) or not isinstance(hop_ordinal, int)
-                or hop_ordinal < 1 or hop_ordinal > allocation["max_hops"] or not _trusted_download_host(host, port, allocation)):
+                or hop_ordinal < 1 or hop_ordinal > allocation["max_hops"]
+                or not _trusted_download_host(host, port, allocation, request["route_id"], hop_ordinal)):
             raise TransportError("origin_rejected", "live redirect hop is not an approved trusted download host")
 
     allocation_hash = hashlib.sha256(allocation_raw).hexdigest()
@@ -793,17 +795,27 @@ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
     return receipt, raw_location[0] if raw_location else None, scrubbed_body, response_headers
 
 
-def _trusted_download_host(host, port, allocation: dict) -> bool:
-    """The single live download-hop predicate shared by _approved_redirect and request_one (253-107)."""
+def _pre_r11_download_host(host) -> bool:
+    """The pre-R11 trusted download-host set, unchanged for every route and hop."""
+    return host == "pipelines.actions.githubusercontent.com" or bool(
+        re.fullmatch(r"productionresultssa[0-9]+\.blob\.core\.windows\.net", str(host)))
+
+
+def _trusted_download_host(host, port, allocation: dict, route_id, hop_ordinal) -> bool:
+    """The single live download-hop predicate shared by _approved_redirect and request_one (253-107).
+
+    253-125: results-receiver is admitted by exact name, only as hop 1 of the run_logs route, only when listed.
+    """
     if port not in (None, 443) or not isinstance(host, str):
         return False
     if host not in (allocation.get("download_hosts") or []):
         return False
-    return host == "pipelines.actions.githubusercontent.com" or bool(
-        re.fullmatch(r"productionresultssa[0-9]+\.blob\.core\.windows\.net", host))
+    if _pre_r11_download_host(host):
+        return True
+    return host == RESULTS_RECEIVER_HOST and route_id == "run_logs" and type(hop_ordinal) is int and hop_ordinal == 1
 
 
-def _approved_redirect(location: str, allocation: dict) -> tuple[str, int, str]:
+def _approved_redirect(location: str, allocation: dict, route_id, hop_ordinal) -> tuple[str, int, str]:
     try:
         parsed = urlsplit(location)
         port = parsed.port
@@ -817,7 +829,7 @@ def _approved_redirect(location: str, allocation: dict) -> tuple[str, int, str]:
         test_origin = urlsplit(allocation["test_origin"])
         if host != test_origin.hostname or port != test_origin.port:
             raise TransportError("redirect_rejected", "hermetic redirect left its exact local test origin")
-    elif not _trusted_download_host(host, port, allocation):
+    elif not _trusted_download_host(host, port, allocation, route_id, hop_ordinal):
         raise TransportError("redirect_rejected", "redirect host is outside the frozen download-host list or trusted download policy")
     target = urlunsplit(("", "", parsed.path, parsed.query, ""))
     return host, port or 443, target
@@ -863,7 +875,7 @@ def follow_download(allocation_path: Path, ledger_path: Path, request_path: Path
             _terminalize(ledger_path, "redirect_budget_exhausted", receipt["actual_status"])
             raise TransportError("redirect_budget_exhausted", "redirect is missing Location or exceeds its frozen hop count")
         try:
-            destination = _approved_redirect(location, allocation)
+            destination = _approved_redirect(location, allocation, request["route_id"], hop + 1)
         except TransportError as exc:
             _terminalize(ledger_path, exc.code, receipt["actual_status"])
             raise
