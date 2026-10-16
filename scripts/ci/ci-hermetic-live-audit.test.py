@@ -233,6 +233,10 @@ def load_record(root=ROOT):
     return json.loads((Path(root) / AUDIT_REL).read_text())
 
 
+def gap_rows(record):
+    return [row.get("id") for row in record.get("rows", []) if (row.get("coverage") or {}).get("kind") == "gap"]
+
+
 class AuditCompletenessTests(unittest.TestCase):
     def test_the_committed_record_is_complete_and_current(self):
         problems = check(load_record(), ROOT)
@@ -250,6 +254,10 @@ class AuditCompletenessTests(unittest.TestCase):
         head = load_record()["audit_head"]
         result = subprocess.run(["git", "-C", str(ROOT), "merge-base", "--is-ancestor", head, "HEAD"], capture_output=True)
         self.assertEqual(result.returncode, 0, f"audit_head {head} is not an ancestor of HEAD")
+
+    def test_no_gap_rows(self):
+        gaps = gap_rows(load_record())
+        self.assertEqual(gaps, [], f"rows whose live side is neither tested offline nor justified: {gaps}")
 
     def test_every_row_records_both_behaviours_and_a_known_coverage_kind(self):
         for row in load_record()["rows"]:
@@ -324,6 +332,12 @@ class AuditPositiveControls(unittest.TestCase):
                            "refs": ["scripts/ci/ci-gate-canary-dryrun.test.py::test_the_seeded_r8_refs_never_move"],
                            "summary_assertions": ["live_hops"]}
         self.assert_fails_with("is not asserted by any cited test", record)
+
+    def test_control_a_gap_row_is_reported(self):
+        record = copy.deepcopy(self.record)
+        record["rows"][0]["coverage"] = {"kind": "gap", "refs": []}
+        self.assertEqual(gap_rows(record), [record["rows"][0]["id"]])
+        self.assertEqual(self.problems(record), [], "a gap row is honest and well-formed; only test_no_gap_rows rejects it")
 
     def test_control_a_changed_matcher_fails(self):
         record = copy.deepcopy(self.record)

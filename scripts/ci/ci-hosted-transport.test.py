@@ -815,7 +815,8 @@ class LiveHostHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):  # noqa: N802
         host = (self.headers.get("Host") or "").split(":", 1)[0].lower()
         route_path = self.path.split("?", 1)[0]
-        status, response_headers, payload = self.server.routes.get((host, route_path), (404, [], b'{"message":"Not Found"}'))
+        status, response_headers, payload = self.server.routes.get(
+            (host, self.path), self.server.routes.get((host, route_path), (404, [], b'{"message":"Not Found"}')))
         self.send_response(status)
         for name, value in response_headers:
             self.send_header(name, value)
@@ -823,7 +824,7 @@ class LiveHostHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
         self.server.journal.append({"host": host, "path": self.path, "status": status,
-                                    "authorization": self.headers.get("Authorization")})
+                                    "authorization": self.headers.get("Authorization"), "accept": self.headers.get("Accept")})
 
     def log_message(self, *_args):
         pass
@@ -1077,6 +1078,158 @@ class LivePolicyRedirectTests(unittest.TestCase):
         self.assertEqual(ledger["terminal_stop"]["code"], "redirect_budget_exhausted")
         self.assertEqual(self.connects(), [("api.github.com", 443), (BLOB_HOST, 443)])
         self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    # -- 253-110: live-side gaps the hermetic-vs-live audit found ------------------------------------------
+    def test_live_accept_header_is_github_json_on_api_github_com_and_plain_json_on_the_download_host(self):
+        self.assertEqual(self.follow().returncode, 0)
+        self.assertEqual([(row["host"], row["accept"]) for row in self.server.journal],
+                         [("api.github.com", "application/vnd.github+json"), (BLOB_HOST, "application/json")])
+
+    RUNS_QUERY = {"event": "workflow_dispatch", "per_page": 100}
+
+    def runs_request(self):
+        return {"method": "GET", "route_id": "workflow_runs", "category": "run_discovery",
+                "params": {"workflow_id": 259268962}, "query": dict(self.RUNS_QUERY)}
+
+    def runs_path(self, page):
+        request = dict(self.runs_request(), query={**self.RUNS_QUERY, "page": page})
+        return self.transport._route(request, self.allocation)[3]
+
+    def fetch_pages(self, request):
+        self.request_path.write_text(json.dumps(request))
+        return subprocess.run(
+            ["python3", str(TRANSPORT_SOURCE), "--fetch-pages", "--allocation", str(self.allocation_path),
+             "--ledger", str(self.ledger), "--request", str(self.request_path), "--output", str(self.output_path),
+             "--body-output", str(self.body_path)],
+            cwd=ROOT, env=self.child_env(), text=True, capture_output=True, timeout=30)
+
+    def serve_runs(self, link):
+        first = json.dumps({"total_count": 2, "workflow_runs": [{"id": 1}]}).encode()
+        second = json.dumps({"total_count": 2, "workflow_runs": [{"id": 2}]}).encode()
+        headers = [("Content-Type", "application/json")]
+        self.server.routes[("api.github.com", self.runs_path(1))] = (200, headers + ([("Link", link)] if link else []), first)
+        self.server.routes[("api.github.com", self.runs_path(2))] = (200, headers, second)
+
+    def test_live_pagination_follows_an_api_github_com_next_link_as_a_second_charged_api_request(self):
+        self.serve_runs(f'<https://api.github.com{self.runs_path(2)}>; rel="next", '
+                        f'<https://api.github.com{self.runs_path(2)}>; rel="last"')
+        result = self.fetch_pages(self.runs_request())
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual([run["id"] for run in json.loads(self.body_path.read_text())["workflow_runs"]], [1, 2])
+        rows = json.loads(self.ledger.read_text())["transactions"]
+        self.assertEqual([(row["host"], row["page_ordinal"], row["category"]) for row in rows],
+                         [("api.github.com", 1, "run_discovery"), ("api.github.com", 2, "run_discovery")])
+        self.assertEqual([(row["host"], row["path"], row["authorization"]) for row in self.server.journal],
+                         [("api.github.com", self.runs_path(page), f"Bearer {DUMMY_TOKEN}") for page in (1, 2)])
+        self.assertEqual(self.connects(), [("api.github.com", 443), ("api.github.com", 443)])
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    def test_live_pagination_refuses_every_link_off_api_github_com_or_off_the_route_before_a_second_request(self):
+        page2 = self.runs_path(2)
+        path_only, query = page2.split("?", 1)
+        links = {
+            "foreign host": f"https://evil.example.com{page2}",
+            "blob host": f"https://{BLOB_HOST}{page2}",
+            "the hermetic local origin": f"https://localhost:{self.port}{page2}",
+            "http": f"http://api.github.com{page2}",
+            "port 8443": f"https://api.github.com:8443{page2}",
+            "userinfo": f"https://user@api.github.com{page2}",
+            "fragment": f"https://api.github.com{page2}#frag",
+            "a different route": f"https://api.github.com/repos/szTheory/sigra/actions/runs?{query}",
+            "an unapproved query key": f"https://api.github.com{page2}&status=completed",
+            "a page that does not advance by one": f"https://api.github.com{path_only}?{query.replace('page=2', 'page=3')}",
+        }
+        # Userinfo and fragments are already refused by the response-header scrubber, before _next_page_url runs.
+        earlier = {"userinfo": "malformed_location", "fragment": "malformed_location"}
+        for label, target in links.items():
+            code = earlier.get(label, "pagination_destination_rejected")
+            with self.subTest(link=label):
+                for path in (self.ledger, self.output_path, self.body_path, self.connect_log):
+                    path.unlink(missing_ok=True)
+                self.server.journal.clear()
+                self.serve_runs(f'<{target}>; rel="next"')
+                result = self.fetch_pages(self.runs_request())
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn(f"ci-hosted-transport: {code}:", result.stderr)
+                ledger = json.loads(self.ledger.read_text())
+                self.assertEqual([(row["host"], row["page_ordinal"]) for row in ledger["transactions"]], [("api.github.com", 1)])
+                self.assertEqual(ledger["terminal_stop"]["code"], code)
+                self.assertEqual([row["path"] for row in self.server.journal], [self.runs_path(1)], "no second request")
+                self.assertEqual(self.connects(), [("api.github.com", 443)])
+                self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    def test_live_full_first_rules_page_is_followed_by_one_charged_second_rules_page_on_api_github_com(self):
+        request = {"method": "GET", "route_id": "rules_main", "category": "preflight", "query": {"per_page": 100}}
+        path = lambda page: self.transport._route(dict(request, query={"per_page": 100, "page": page}), self.allocation)[3]
+        headers = [("Content-Type", "application/json")]
+        self.server.routes[("api.github.com", path(1))] = (200, headers, json.dumps([{"type": "rule", "n": n} for n in range(100)]).encode())
+        self.server.routes[("api.github.com", path(2))] = (200, headers, json.dumps([{"type": "rule", "n": 100}]).encode())
+        result = self.fetch_pages(request)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(json.loads(self.body_path.read_text())), 101)
+        rows = json.loads(self.ledger.read_text())["transactions"]
+        self.assertEqual([(row["host"], row["page_ordinal"], row["category"]) for row in rows],
+                         [("api.github.com", 1, "preflight"), ("api.github.com", 2, "preflight")])
+        self.assertEqual([row["path"] for row in self.server.journal], [path(1), path(2)])
+        self.assertEqual(self.connects(), [("api.github.com", 443), ("api.github.com", 443)])
+
+
+class LivePolicyAllocationTests(unittest.TestCase):
+    """253-110: the live side of _validate_allocation and _route's test-only routes, offline (no socket at all)."""
+
+    def setUp(self):
+        self.transport = load_transport()
+        self.live = json.loads(R8_ALLOCATION.read_text())
+        self.assertEqual(self.live["mode"], "live")
+        self.transport._validate_allocation(self.live)
+
+    def refused(self, allocation):
+        with self.assertRaises(self.transport.TransportError) as caught:
+            self.transport._validate_allocation(allocation)
+        return caught.exception.code
+
+    def test_live_download_hosts_must_be_a_unique_list_of_trusted_hosts_only(self):
+        trusted = self.live["download_hosts"]
+        self.assertIn("pipelines.actions.githubusercontent.com", trusted)
+        cases = {
+            "missing": {key: value for key, value in self.live.items() if key != "download_hosts"},
+            "not a list": dict(self.live, download_hosts="productionresultssa17.blob.core.windows.net"),
+            "duplicated": dict(self.live, download_hosts=trusted + [trusted[0]]),
+            "untrusted": dict(self.live, download_hosts=trusted + ["evil.example.com"]),
+            "lookalike": dict(self.live, download_hosts=["productionresultssa17.blob.core.windows.net.evil.example"]),
+            "api.github.com": dict(self.live, download_hosts=["api.github.com"]),
+            "uppercase blob": dict(self.live, download_hosts=["PRODUCTIONRESULTSSA17.blob.core.windows.net"]),
+        }
+        for label, allocation in cases.items():
+            with self.subTest(case=label):
+                self.assertEqual(self.refused(allocation), "download_host_allocation")
+        for accepted in ([], ["pipelines.actions.githubusercontent.com"], ["productionresultssa0.blob.core.windows.net"]):
+            with self.subTest(accepted=accepted):
+                self.transport._validate_allocation(dict(self.live, download_hosts=accepted))
+
+    def test_live_canary_max_requests_is_one_through_117_while_hermetic_may_be_zero(self):
+        base = {key: value for key, value in self.live.items() if key != "category_limits"}
+        for value in (1, 117):
+            self.transport._validate_allocation(dict(base, max_requests=value))
+        for value in (0, 118, True):
+            with self.subTest(max_requests=value):
+                self.assertEqual(self.refused(dict(base, max_requests=value)), "allocation_limit_invalid")
+        hermetic = dict(base, mode="hermetic-test", max_requests=0, test_origin="https://localhost:4555", test_ca_file="/dev/null")
+        self.transport._validate_allocation(hermetic)  # contrast: the hermetic minimum is zero
+
+    def test_live_unknown_allocation_mode_is_refused(self):
+        for mode in ("hermetic", "LIVE", None):
+            with self.subTest(mode=mode):
+                self.assertEqual(self.refused(dict(self.live, mode=mode)), "allocation_mode")
+
+    def test_live_allocation_refuses_every_test_only_route(self):
+        for request in ({"route_id": "test_probe", "method": "GET"}, {"route_id": "test_page", "method": "GET", "page_ordinal": 1}):
+            with self.subTest(route=request["route_id"]):
+                with self.assertRaises(self.transport.TransportError) as caught:
+                    self.transport._route(request, self.live)
+                self.assertEqual(caught.exception.code, "test_origin_rejected")
+        hermetic = dict(self.live, mode="hermetic-test", test_origin="https://localhost:4555", test_ca_file="/dev/null")
+        self.assertEqual(self.transport._route({"route_id": "test_probe", "method": "GET"}, hermetic)[:2], ("localhost", 4555))
 
 
 if __name__ == "__main__":

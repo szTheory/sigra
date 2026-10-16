@@ -2044,5 +2044,39 @@ class RefPairTests(unittest.TestCase):
             self.assertFalse([row for row in server.journal if row["method"] == "POST" and row["path"].endswith("/git/refs")])
 
 
+
+class LiveOriginDerivationTests(unittest.TestCase):
+    """253-110: derive_origin's live branch, called directly (the publish-time and verify-time label rule)."""
+
+    def setUp(self):
+        self.publisher = load_publisher()
+        self.live = {"mode": "live", "window_id": "253-113-canary-window-1"}
+
+    def ledger(self, *hosts, state="complete"):
+        return {"transactions": [{"sequence": index, "host": host, "state": state} for index, host in enumerate(hosts, 1)]}
+
+    def test_live_allocation_with_an_all_api_complete_ledger_is_actual_github_with_its_window(self):
+        origin = self.publisher.derive_origin(self.live, self.ledger("api.github.com", "api.github.com"))
+        self.assertEqual((origin["kind"], origin["host"], origin["allocation_mode"], origin["transactions"], origin["window_id"]),
+                         ("actual-github", "api.github.com", "live", 2, "253-113-canary-window-1"))
+
+    def test_live_allocation_refuses_any_non_api_publication_host_or_incomplete_transaction(self):
+        for label, ledger in {
+            "blob host": self.ledger("api.github.com", "productionresultssa17.blob.core.windows.net"),
+            "pipelines host": self.ledger("pipelines.actions.githubusercontent.com"),
+            "local origin": self.ledger("localhost"),
+            "missing host": {"transactions": [{"sequence": 1, "state": "complete"}]},
+            "pending transaction": self.ledger("api.github.com", state="pending"),
+            "empty ledger": self.ledger(),
+        }.items():
+            with self.subTest(case=label):
+                with self.assertRaisesRegex(self.publisher.PublicationError, "non-GitHub host or an incomplete transaction"):
+                    self.publisher.derive_origin(self.live, ledger)
+
+    def test_a_hermetic_allocation_is_labelled_hermetic_whatever_its_hosts(self):
+        origin = self.publisher.derive_origin({"mode": "hermetic-test", "window_id": "w"}, self.ledger("api.github.com"))
+        self.assertEqual(origin["kind"], "hermetic")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -942,6 +942,79 @@ class PRVerifierContractTests(unittest.TestCase):
             self.assertTrue(name.isascii())
 
 
+class LivePRTransportHostTests(unittest.TestCase):
+    """253-110: the live side of verify_pr_transport's host rule and of api_view, offline."""
+
+    BLOB = "productionresultssa17.blob.core.windows.net"
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_live_pr", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    def live_evidence(self, hosts=("api.github.com", "api.github.com", BLOB)):
+        transport = self.module.transport_module()
+        allocation = {"schema_version": "sigra.phase253.http-allocation/v1", "window_id": "253-114-pr-window-1",
+                      "source_sha256": "e" * 64, "max_requests": 120, "max_elapsed_seconds": 3600,
+                      "max_response_bytes": 4 * 1024 * 1024, "max_pages": 3, "max_hops": 2, "repository": "szTheory/sigra",
+                      "mode": "live", "allocation_kind": "production",
+                      "download_hosts": ["pipelines.actions.githubusercontent.com", self.BLOB],
+                      "category_limits": dict(transport.PRODUCTION_CATEGORY_LIMITS)}
+        raw = json.dumps(allocation).encode()
+        shapes = [("rate_limit", "preflight", None, None, 200), ("artifact_zip", "artifact_downloads", 0, "g-1", 302),
+                  ("artifact_zip", "artifact_downloads", 1, "g-1", 200)]
+        transactions = []
+        for sequence, ((route, category, hop, group, status), host) in enumerate(zip(shapes, hosts), 1):
+            url = f"https://{host}/r/{sequence}" + ("?[REDACTED]" if hop else "")
+            transactions.append({"sequence": sequence, "state": "complete", "actual_status": status, "method": "GET",
+                                 "route_id": route, "category": category, "family": "shared", "host": host, "url": url,
+                                 "url_sha256": hashlib.sha256(url.encode()).hexdigest(), "page_ordinal": None,
+                                 "hop_ordinal": hop, "request_group": group, "window_id": allocation["window_id"],
+                                 "source_sha256": allocation["source_sha256"], "response_body_base64": "",
+                                 "response_sha256": hashlib.sha256(b"").hexdigest(), "scrubbed_response_bytes": 0})
+        return {"repository": "szTheory/sigra", "synthetic": False, "server_journal": None,
+                "allocation_base64": base64.b64encode(raw).decode(),
+                "transport_ledger": {"schema_version": "sigra.phase253.http-ledger/v2", "window_id": allocation["window_id"],
+                                     "source_sha256": allocation["source_sha256"], "terminal_stop": None,
+                                     "allocation_sha256": hashlib.sha256(raw).hexdigest(), "transactions": transactions}}
+
+    def test_a_live_pr_ledger_on_api_github_com_and_a_frozen_download_host_verifies(self):
+        allocation, counts = self.module.verify_pr_transport(self.live_evidence())
+        self.assertEqual((allocation["mode"], counts), ("live", {"preflight": 1, "artifact_downloads": 2}))
+
+    def test_a_live_pr_transaction_on_any_other_host_is_rejected(self):
+        for label, hosts in {
+            "untrusted API-side host": ("evil.example.com", "api.github.com", self.BLOB),
+            "untrusted redirect host": ("api.github.com", "api.github.com", "evil.example.com"),
+            "policy-trusted host absent from download_hosts": ("api.github.com", "api.github.com",
+                                                              "productionresultssa41.blob.core.windows.net"),
+            "the hermetic local origin": ("localhost", "api.github.com", self.BLOB),
+        }.items():
+            with self.subTest(case=label):
+                with self.assertRaisesRegex(self.module.VerificationError, "live transaction used a host outside"):
+                    self.module.verify_pr_transport(self.live_evidence(hosts))
+
+    def test_a_live_pr_ledger_labelled_synthetic_is_rejected(self):
+        evidence = self.live_evidence()
+        evidence["synthetic"] = True
+        with self.assertRaisesRegex(self.module.VerificationError, "synthetic label must match"):
+            self.module.verify_pr_transport(evidence)
+
+    def test_api_view_returns_live_evidence_unchanged_and_rewrites_only_hermetic_evidence(self):
+        local = "https://localhost:4555/repos/szTheory/sigra/rate_limit"
+        for channel in (None, "github-api"):
+            with self.subTest(channel=channel):
+                evidence = {"origin": {"channel": channel}, "transport_ledger": {"transactions": [{"url": local}]}}
+                self.assertIs(self.module.api_view(evidence), evidence)
+                self.assertEqual(evidence["transport_ledger"]["transactions"][0]["url"], local)
+        hermetic = {"origin": {"channel": "hermetic-https"}, "transport_ledger": {"transactions": [{"url": local}]}}
+        view = self.module.api_view(hermetic)
+        self.assertEqual(view["transport_ledger"]["transactions"][0]["url"], "https://api.github.com/repos/szTheory/sigra/rate_limit")
+        self.assertEqual(hermetic["transport_ledger"]["transactions"][0]["url"], local, "the original is never mutated")
+
+
 class DocsCommitMessageToleranceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
