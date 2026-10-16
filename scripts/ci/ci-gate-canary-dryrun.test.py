@@ -171,6 +171,15 @@ class FullSequenceTests(unittest.TestCase):
         self.assertIsNone(self.summary["evidence_status"], "a passing window must not be halted")
         self.assertLessEqual(self.summary["requests_total"], 117)
 
+    def test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run(self):
+        # 253-117: the response_shape block covers every scenario run and the separate verifier run.
+        shape = self.summary.get("response_shape") or {}
+        self.assertIs(shape.get("ok"), True, shape)
+        self.assertIs(shape.get("verifier_run_checked"), True, shape)
+        self.assertEqual(sorted(shape.get("scenarios_checked") or []),
+                         sorted(["full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip", "cancelled",
+                                 "verifier"]), shape)
+
 
 SERVER_PARENT = "84ebcea60024c9e8caee405d55cad1c76b0e858a"  # the R7 freeze's server parent, used by the derived freeze
 
@@ -529,6 +538,15 @@ class LivePolicyFullSequenceTests(unittest.TestCase):
         self.assertEqual((self.summary.get("verifier") or {}).get("status"), "passed", self.summary)
         self.assertEqual([item["mode"] for item in self.summary.get("invocations", [])], ["publish-only", "full-pass", "remaining"])
 
+    def test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run(self):
+        # 253-117: the same response_shape assertion through the live policy.
+        shape = self.summary.get("response_shape") or {}
+        self.assertIs(shape.get("ok"), True, shape)
+        self.assertIs(shape.get("verifier_run_checked"), True, shape)
+        self.assertEqual(sorted(shape.get("scenarios_checked") or []),
+                         sorted(["full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip", "cancelled",
+                                 "verifier"]), shape)
+
     def test_every_category_is_within_the_frozen_table_and_reconciled_with_the_fake(self):
         self.assertLessEqual(self.summary.get("requests_total", 999), 117)
         self.assertEqual(self.summary.get("journal_requests"), self.summary.get("requests_total"))
@@ -605,6 +623,98 @@ class LivePolicyHaltMarkingTests(HaltMarkingTests):
         self.assertEqual(summary.get("mode"), "live-policy", summary)
         self.assertIn("digest", summary.get("stop") or "", summary)
         self.assert_halted_and_guarded(summary, "ci-hosted-gate-verify.py")
+
+
+# -------------------------------------------------------------------------- 253-117 GitHub's recorded response shapes
+R9_LEDGER = PHASE_DIR / "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json"
+R8_LEDGER = PHASE_DIR / "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json"
+NESTED_RUN_OBJECTS = ("repository", "head_repository", "head_commit", "actor", "triggering_actor")
+
+
+def ledger_body(path, route, sequence=None):
+    """The decoded response body GitHub returned for this route (first match, or the given sequence)."""
+    import base64
+    for row in json.loads(Path(path).read_text())["transactions"]:
+        if row.get("route_id") == route and (sequence is None or row.get("sequence") == sequence):
+            return json.loads(base64.b64decode(row["response_body_base64"]))
+    raise AssertionError(f"no {route} transaction in {path}")
+
+
+class ResponseShapeTests(unittest.TestCase):
+    """253-117 Task 1: every run the fake serves has GitHub's recorded shape, and the gate fails if that drifts."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.runner = load_runner()
+        cls.real = {"R9 seq 27": ledger_body(R9_LEDGER, "run", 27), "R8 run poll": ledger_body(R8_LEDGER, "run")}
+
+    def fake_run(self, scenario="full-pass", bare_name=False):
+        record = {"id": 40000000123, "run_number": 501, "scenario": scenario, "head_branch": "gsd/253-replan-r9-fixture",
+                  "head_sha": "aa7014893b716f279b60ceb545b8aee5ca15b10c"}
+        head_commit = {"sha": record["head_sha"], "tree": {"sha": "ef2956c05d5bcde97b1b40141aa36a7ac8932b56"},
+                       "message": "Phase 253 isolated gate canary fixture\n",
+                       "author": {"name": "Sigra Publication Bot", "email": "sigra-publication@users.noreply.github.com",
+                                  "date": "2026-10-16T10:06:58Z"},
+                       "committer": {"name": "Sigra Publication Bot", "email": "sigra-publication@users.noreply.github.com",
+                                     "date": "2026-10-16T10:06:58Z"}}
+        return self.runner.build_run(record, "completed", "success", commit=head_commit, bare_name=bare_name)
+
+    def test_fake_run_object_matches_the_recorded_github_shape(self):
+        for scenario in ("full-pass", "cancelled", "verifier"):
+            fake = self.fake_run(scenario)
+            title = f"Phase 253 Gate Canary / {scenario} / 40000000123-1"
+            for label, real in self.real.items():
+                with self.subTest(scenario=scenario, sample=label):
+                    self.assertEqual(real["name"], real["display_title"], f"{label}: GitHub's name is the run-name")
+                    self.assertEqual(sorted(fake), sorted(real))
+                    for key in NESTED_RUN_OBJECTS:
+                        self.assertIsInstance(fake[key], dict, key)
+                        self.assertEqual(sorted(fake[key]), sorted(real[key]), key)
+                    self.assertEqual(real["path"], ".github/workflows/ci.yml")
+            self.assertEqual(fake["name"], title)
+            self.assertEqual(fake["display_title"], title)
+            self.assertEqual(fake["path"], ".github/workflows/ci.yml")
+            self.assertEqual((fake["workflow_id"], fake["event"], fake["run_attempt"]), (259268962, "workflow_dispatch", 1))
+            self.assertEqual((fake["pull_requests"], fake["previous_attempt_url"]), ([], None))
+            self.assertEqual(fake["head_commit"]["id"], "aa7014893b716f279b60ceb545b8aee5ca15b10c")
+            self.assertEqual(fake["head_commit"]["tree_id"], "ef2956c05d5bcde97b1b40141aa36a7ac8932b56")
+            self.assertTrue(all("40000000123" in fake[key] for key in ("url", "html_url", "jobs_url", "logs_url",
+                                                                       "artifacts_url", "cancel_url", "rerun_url")))
+        # The shape check accepts the real-shape fake and names name and path on the old bare-name shape.
+        reference = self.runner.load_reference()
+        good = self.runner.check_run_shape(self.fake_run(), "full-pass", reference)
+        self.assertEqual(good, [])
+        bad = self.runner.check_run_shape(self.fake_run(bare_name=True), "full-pass", reference)
+        self.assertTrue(any("name" in item for item in bad), bad)
+        self.assertTrue(any("path" in item for item in bad), bad)
+
+    def test_response_shape_fault_fails_the_gate(self):
+        code, summary = run_gate("--ref-pair", "r9", "--seed-r8-refs", "--stop-after", "full-pass",
+                                 "--fault", "run-shape-bare-name")
+        self.assertNotEqual(code, 0, summary)
+        self.assertNotEqual(summary.get("status"), "passed", summary)
+        shape = summary.get("response_shape") or {}
+        self.assertIs(shape.get("ok"), False, summary)
+        self.assertGreaterEqual(shape.get("runs_checked", 0), 1, shape)
+        mismatches = " ".join(shape.get("mismatches") or [])
+        self.assertIn("name", mismatches)
+        self.assertIn("path", mismatches)
+        # The verifier accepts the bare-name run by design (253-116), so only the shape assertion fails the gate.
+        self.assertEqual(summary.get("scenarios"), ["full-pass"], summary)
+        self.assertTrue(all(item["exit"] == 0 for item in summary.get("invocations", [])), summary.get("invocations"))
+        self.assertTrue(any("response_shape" in problem for problem in summary.get("problems", [])), summary.get("problems"))
+
+    def test_both_quick_gates_report_a_passing_response_shape(self):
+        for code, summary in (run_gate("--ref-pair", "r9", "--seed-r8-refs", "--stop-after", "full-pass"),
+                              live_run("--ref-pair", "r9", "--seed-r8-refs", "--stop-after", "full-pass")):
+            with self.subTest(mode=summary.get("mode")):
+                self.assertEqual(code, 0, summary)
+                shape = summary.get("response_shape") or {}
+                self.assertIs(shape.get("ok"), True, shape)
+                self.assertGreaterEqual(shape.get("runs_checked", 0), 1, shape)
+                self.assertIn("full-pass", shape.get("scenarios_checked") or [], shape)
+                self.assertEqual(shape.get("reference", {}).get("sha256"),
+                                 hashlib.sha256(R9_LEDGER.read_bytes()).hexdigest(), shape)
 
 
 class RefPairHelpTests(unittest.TestCase):

@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import copy
 import hashlib
 import http.server
 import importlib.util
@@ -86,6 +87,14 @@ TRANSPORT_REL = "scripts/ci/ci-hosted-transport.py"
 # The two refs 253-104 created on GitHub (R8 pair); a run seeded with them must never move them.
 R8_REFS = {"gsd/253-replan-r8-candidate": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
            "gsd/253-replan-r8-fixture": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44"}
+# 253-117: GitHub's recorded responses, read from the committed R9 ledger at run time (the harness runs locally only):
+# seq 25 the workflow_runs listing, 27 the run poll, 28 the jobs page and 29 the artifacts page of real run 38906314106.
+R9_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json"
+REFERENCE_SEQUENCES = {"listing": 25, "run": 27, "jobs": 28, "artifacts": 29}
+FIXTURE_TITLE = "Phase 253 Gate Canary"
+WORKFLOW_PATH = ".github/workflows/ci.yml"
+NESTED_RUN_OBJECTS = ("repository", "head_repository", "head_commit", "actor", "triggering_actor")
+FAKE_CREATED_AT = "2026-10-15T00:00:00Z"
 
 
 def load_module(name: str, path: Path):
@@ -133,6 +142,148 @@ def zip_bytes(name: str, content: bytes) -> bytes:
         info.compress_type = zipfile.ZIP_DEFLATED
         bundle.writestr(info, content)
     return buffer.getvalue()
+
+
+# ------------------------------------------------------------------------------ 253-117 GitHub's recorded shapes
+_REFERENCE: dict = {}
+
+
+def load_reference(root: Path = ROOT) -> dict:
+    """The decoded real bodies (REFERENCE_SEQUENCES) and the sha256 of the committed ledger they came from."""
+    if "value" not in _REFERENCE:
+        raw = (root / R9_LEDGER_REL).read_bytes()
+        rows = {row.get("sequence"): row for row in json.loads(raw)["transactions"]}
+        bodies = {name: json.loads(base64.b64decode(rows[sequence]["response_body_base64"]))
+                  for name, sequence in REFERENCE_SEQUENCES.items()}
+        _REFERENCE["value"] = {"path": R9_LEDGER_REL, "sha256": sha256_hex(raw), "sequences": dict(REFERENCE_SEQUENCES),
+                               **bodies}
+    return _REFERENCE["value"]
+
+
+def run_title(scenario, run_id, attempt=1) -> str:
+    """The fixture's run-name as GitHub renders it; GitHub returns it as both name and display_title."""
+    return f"{FIXTURE_TITLE} / {scenario} / {run_id}-{attempt}"
+
+
+def _ordered_like(real: dict, value: dict) -> dict:
+    ordered = {key: value[key] for key in real if key in value}
+    ordered.update({key: item for key, item in value.items() if key not in ordered})
+    return ordered
+
+
+def build_run(record: dict, status: str, conclusion, commit: dict | None = None, reference: dict | None = None,
+              bare_name: bool = False) -> dict:
+    """A workflow run object with GitHub's recorded key sets (R9 seq 27). Dynamic fields come from the fake's record;
+    actor, triggering_actor, repository and head_repository are the committed real objects (public repository metadata).
+    bare_name serves the pre-253-117 fake shape (bare workflow name, path with an @ suffix): a fault, never the default."""
+    real = (reference or load_reference())["run"]
+    run_id, branch = record["id"], record["head_branch"]
+    api = f"https://api.github.com/repos/{REPO}"
+    title = run_title(record["scenario"], run_id)
+    suite = 90000000000 + run_id % 10000000000
+    commit = commit or {}
+    message = commit.get("message")
+    if isinstance(message, str) and message.endswith("\n"):
+        message = message[:-1]  # GitHub's commit JSON drops one trailing newline (as the object fake does)
+
+    def person(item):
+        item = item or {}
+        return {"name": item.get("name"), "email": item.get("email")}
+    head_commit = {"id": record["head_sha"], "tree_id": (commit.get("tree") or {}).get("sha"), "message": message,
+                   "timestamp": (commit.get("committer") or {}).get("date"), "author": person(commit.get("author")),
+                   "committer": person(commit.get("committer"))}
+    value = {"id": run_id, "name": title, "node_id": f"WFR_dryrun{run_id}", "head_branch": branch,
+             "head_sha": record["head_sha"], "path": WORKFLOW_PATH, "display_title": title,
+             "run_number": record["run_number"], "event": "workflow_dispatch", "status": status, "conclusion": conclusion,
+             "workflow_id": WORKFLOW_ID, "check_suite_id": suite, "check_suite_node_id": f"CS_dryrun{suite}",
+             "url": f"{api}/actions/runs/{run_id}", "html_url": f"https://github.com/{REPO}/actions/runs/{run_id}",
+             "pull_requests": [], "created_at": FAKE_CREATED_AT, "updated_at": FAKE_CREATED_AT,
+             "actor": copy.deepcopy(real["actor"]), "run_attempt": 1, "referenced_workflows": [],
+             "run_started_at": FAKE_CREATED_AT, "triggering_actor": copy.deepcopy(real["triggering_actor"]),
+             "jobs_url": f"{api}/actions/runs/{run_id}/jobs", "logs_url": f"{api}/actions/runs/{run_id}/logs",
+             "check_suite_url": f"{api}/check-suites/{suite}", "artifacts_url": f"{api}/actions/runs/{run_id}/artifacts",
+             "cancel_url": f"{api}/actions/runs/{run_id}/cancel", "rerun_url": f"{api}/actions/runs/{run_id}/rerun",
+             "previous_attempt_url": None, "workflow_url": f"{api}/actions/workflows/{WORKFLOW_ID}",
+             "head_commit": head_commit, "repository": copy.deepcopy(real["repository"]),
+             "head_repository": copy.deepcopy(real["head_repository"])}
+    if bare_name:
+        value["name"] = FIXTURE_TITLE
+        value["path"] = f"{WORKFLOW_PATH}@refs/heads/{branch}"
+    return _ordered_like(real, value)
+
+
+def _key_problem(label, value, real) -> str | None:
+    if not isinstance(value, dict):
+        return f"{label} is not an object"
+    if set(value) != set(real):
+        return f"{label} keys differ from GitHub's: missing {sorted(set(real) - set(value))}, extra {sorted(set(value) - set(real))}"
+    return None
+
+
+def check_run_shape(run, scenario, reference: dict) -> list:
+    """Every way this served run differs from GitHub's recorded run shape (an empty list when it matches)."""
+    real = reference["run"]
+    label = f"run {run.get('id') if isinstance(run, dict) else None} ({scenario})"
+    problem = _key_problem(label, run, real)
+    if not isinstance(run, dict):
+        return [problem]
+    problems = [problem] if problem else []
+    for key in NESTED_RUN_OBJECTS:
+        problems.append(_key_problem(f"{label} {key}", run.get(key), real[key]))
+    for key in ("repository", "head_repository"):
+        if isinstance(run.get(key), dict):
+            problems.append(_key_problem(f"{label} {key}.owner", run[key].get("owner"), real[key]["owner"]))
+    title = run_title(scenario, run.get("id"), run.get("run_attempt"))
+    if run.get("name") != title:
+        problems.append(f"{label} name {run.get('name')!r} is not the run-name {title!r}")
+    if run.get("display_title") != title:
+        problems.append(f"{label} display_title {run.get('display_title')!r} is not the run-name {title!r}")
+    if run.get("path") != WORKFLOW_PATH:
+        problems.append(f"{label} path {run.get('path')!r} is not exactly {WORKFLOW_PATH!r}")
+    return [item for item in problems if item]
+
+
+def response_shape(journal: list, runs: dict, reference: dict) -> dict:
+    """Compare every run object the fake actually served (run polls and workflow_runs listings, decoded from the server
+    journal) with the recorded real shapes."""
+    mismatches, scenarios = [], set()
+    counts = {"runs_checked": 0}
+    run_path = re.compile(rf"/repos/{REPO}/actions/runs/(\d+)")
+    listing_path = re.compile(rf"/repos/{REPO}/actions/workflows/\d+/runs")
+
+    def check_run(run):
+        record = runs.get(run.get("id")) if isinstance(run, dict) else None
+        if record is None:
+            mismatches.append(f"served run {run.get('id') if isinstance(run, dict) else run!r} is not one the fake dispatched")
+            return
+        counts["runs_checked"] += 1
+        scenarios.add(record["scenario"])
+        mismatches.extend(check_run_shape(run, record["scenario"], reference))
+
+    for row in journal:
+        if row.get("actual_status") != 200:
+            continue
+        path = urlsplit(row.get("observed_path") or "").path
+        is_run, is_listing = run_path.fullmatch(path), listing_path.fullmatch(path)
+        if not (is_run or is_listing):
+            continue
+        try:
+            body = json.loads(base64.b64decode(row.get("response_body_base64") or ""))
+        except ValueError:
+            mismatches.append(f"served body for {path} is not JSON")
+            continue
+        if is_run:
+            check_run(body)
+            continue
+        problem = _key_problem("workflow_runs listing", body, reference["listing"])
+        if problem:
+            mismatches.append(problem)
+        for run in (body.get("workflow_runs") or []) if isinstance(body, dict) else []:
+            check_run(run)
+    unique = list(dict.fromkeys(mismatches))
+    return {"reference": {"path": reference["path"], "sha256": reference["sha256"], "sequences": reference["sequences"]},
+            "ok": not unique, "runs_checked": counts["runs_checked"], "scenarios_checked": sorted(scenarios),
+            "verifier_run_checked": "verifier" in scenarios, "mismatch_count": len(unique), "mismatches": unique[:10]}
 
 
 # ----------------------------------------------------------------------------------------- git-backed object store
@@ -437,13 +588,29 @@ class FakeGitHub(ObjectServer):
             status, conclusion = "completed", record["conclusion"]
         elif record["polls"] == 0 and not record["cancel_requested"]:
             status = "queued"
-        return {"id": record["id"], "run_number": record["run_number"], "run_attempt": 1, "workflow_id": WORKFLOW_ID,
-                "name": "Phase 253 Gate Canary",
-                "display_title": f"Phase 253 Gate Canary / {record['scenario']} / {record['id']}-1",
-                "path": f".github/workflows/ci.yml@refs/heads/{record['head_branch']}",
-                "head_branch": record["head_branch"], "head_sha": record["head_sha"], "event": "workflow_dispatch",
-                "status": status, "conclusion": conclusion,
-                "html_url": f"https://github.com/{REPO}/actions/runs/{record['id']}"}
+        # 253-117: GitHub's recorded run shape (name == display_title == the run-name, path exact).
+        return build_run(record, status, conclusion, commit=self._commit(record["head_sha"]),
+                         bare_name="run-shape-bare-name" in getattr(self.server, "faults", ()))
+
+    def _commit(self, sha):
+        """The fake's stored commit (publication created it), else the object from the fake's git store."""
+        stored = self.server.commits.get(sha)
+        if stored:
+            return stored
+        result = run(["git", f"--git-dir={self.server.git_dir}", "cat-file", "commit", sha], check=False)
+        if result.returncode:
+            return None
+        head, _, message = result.stdout.decode(errors="replace").partition("\n\n")
+        fields = dict(line.split(" ", 1) for line in head.splitlines() if " " in line)
+
+        def ident(text):
+            match = re.fullmatch(r"(.*) <(.*)> (\d+) [+-]\d{4}", text or "")
+            if not match:
+                return {}
+            when = datetime.fromtimestamp(int(match.group(3)), timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            return {"name": match.group(1), "email": match.group(2), "date": when}
+        return {"sha": sha, "tree": {"sha": fields.get("tree")}, "message": message,
+                "author": ident(fields.get("author")), "committer": ident(fields.get("committer"))}
 
     def _list_runs(self, workflow_id, branch):
         now = time.monotonic()
@@ -1064,6 +1231,15 @@ def dry_run(args) -> dict:
         if summary["journal_requests"] != summary["requests_total"]:
             problems.append("server journal and ledger counts differ")
         summary["violations"] = list(server.violations)
+        # 253-117: every run object the fake served must have GitHub's recorded shape.
+        summary["response_shape"] = shape = response_shape(server.journal, server.runs, load_reference())
+        if not shape["ok"]:
+            problems.append(f"response_shape: {shape['mismatch_count']} served object(s) differ from GitHub's recorded "
+                            f"shape: {shape['mismatches'][:3]}")
+        if shape["runs_checked"] < 1:
+            problems.append("response_shape: no served run was checked")
+        if args.stop_after != "full-pass" and not shape["verifier_run_checked"]:
+            problems.append("response_shape: the separate verifier run was not checked")
         if server.violations:
             problems.append("fake GitHub violations: " + "; ".join(server.violations[:5]))
         if summary["shim_refusals"]:
@@ -1137,8 +1313,9 @@ def main() -> int:
     parser.add_argument("--polls", action="append", help="SCENARIO=N modeled polls to completion (repeatable)")
     parser.add_argument("--inject", action="append", help="'METHOD /path=STATUS': answer that request once with STATUS")
     parser.add_argument("--reenter", action="store_true", help="after a failed driver mode, run it once more (halt guard check)")
-    parser.add_argument("--fault", action="append", choices=("artifact-digest",),
-                        help="modeled server fault (artifact-digest: listed digest differs from the served bytes)")
+    parser.add_argument("--fault", action="append", choices=("artifact-digest", "run-shape-bare-name"),
+                        help="modeled server fault (artifact-digest: listed digest differs from the served bytes; "
+                             "run-shape-bare-name: every run is served in the pre-253-117 shape, bare name and path@ref)")
     parser.add_argument("--timeout", type=int, default=900, help="seconds allowed per driver invocation")
     parser.add_argument("--overlay-worktree", action="store_true",
                         help="copy the checkout's uncommitted scripts/ci edits into the clone (test aid; recorded)")
