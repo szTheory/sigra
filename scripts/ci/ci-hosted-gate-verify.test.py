@@ -2061,6 +2061,74 @@ class RunIdentityTests(unittest.TestCase):
                     self.module.verify_separate_verifier(self.separate_verifier_evidence(title), 6)
 
 
+class SkippedProducerFormTests(unittest.TestCase):
+    """253-117 (D-17/D-22): the verifier run's producer matrix job is skipped by its job-level if. GitHub has never been
+    observed reporting it for this fixture; the nearest real sample (the Phase 252 bundle's skipped install_matrix job)
+    is one job under its literal, unexpanded name. Exactly four forms are accepted, every non-verifier job skipped."""
+
+    UNEXPANDED = "producer (${{ matrix.seam }})"
+    EXPANDED = [f"producer ({seam})" for seam in ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery",
+                                                   "demo_showcase")]
+
+    def setUp(self):
+        self.module = load_verifier("hosted_gate_verify_skipped_producer_forms")
+        self.evidence = json.loads(EVIDENCE_R9.read_bytes())
+
+    def evidence_with(self, names, conclusions=None):
+        evidence = copy.deepcopy(self.evidence)
+        title = "Phase 253 Gate Canary / verifier / 38906399999-1"
+        run = dict(copy.deepcopy(self.evidence["scenarios"]["full-pass"]["run"]), id=38906399999, name=title,
+                   display_title=title)
+        conclusions = conclusions or {}
+        jobs = [{"id": 8 + index, "run_id": 38906399999, "run_attempt": 1, "name": name,
+                 "conclusion": conclusions.get(index, "success" if name == "verifier" else "skipped"), "steps": []}
+                for index, name in enumerate(names)]
+        verifier = next(job for job in jobs if job["name"] == "verifier")
+        verifier["steps"] = [{"name": name, "conclusion": "success"} for name in
+                             ("Verify immutable candidate verifier checkout", "Verify retained source matrix independently")]
+        evidence["separate_verifier"] = {"status": "passed", "job_conclusion": "success", "run_id": "38906399999",
+                                         "run": run, "jobs": {"total_count": len(jobs), "jobs": jobs}}
+        evidence["budget"]["actual_jobs"] = 6 + sum(job["conclusion"] != "skipped" for job in jobs)
+        return evidence
+
+    def test_each_of_the_four_skipped_producer_forms_is_accepted(self):
+        forms = {"five expanded names": self.EXPANDED, "the job id": ["producers"],
+                 "the unexpanded matrix name": [self.UNEXPANDED], "the empty-evaluation name": ["producer ()"]}
+        for label, producers in forms.items():
+            for order in ("producers first", "verifier first"):
+                names = [*producers, "Browser verdict", "verifier"]
+                if order == "verifier first":
+                    names = ["verifier", "Browser verdict", *producers]
+                with self.subTest(form=label, order=order):
+                    self.module.verify_separate_verifier(self.evidence_with(names), 6)
+
+    def test_any_other_producer_form_is_refused(self):
+        cases = {
+            "bare producer": ["producer", "Browser verdict", "verifier"],
+            "one expanded name alone": ["producer (non_admin_smoke)", "Browser verdict", "verifier"],
+            "duplicate unexpanded name": [self.UNEXPANDED, self.UNEXPANDED, "Browser verdict", "verifier"],
+            "duplicate empty-evaluation name": ["producer ()", "producer ()", "Browser verdict", "verifier"],
+            "unexpanded plus expanded": [self.UNEXPANDED, *self.EXPANDED, "Browser verdict", "verifier"],
+            "unexpanded plus job id": [self.UNEXPANDED, "producers", "Browser verdict", "verifier"],
+            "a space-padded empty name": ["producer ( )", "Browser verdict", "verifier"],
+            "another expression": ["producer (${{ matrix.other }})", "Browser verdict", "verifier"],
+            "Browser verdict missing": [self.UNEXPANDED, "verifier"],
+            "an extra job": [self.UNEXPANDED, "Browser verdict", "verifier", "verifier (extra)"],
+        }
+        for label, names in cases.items():
+            with self.subTest(case=label):
+                with self.assertRaisesRegex(self.module.VerificationError, "separate hosted verifier job set is unexpected"):
+                    self.module.verify_separate_verifier(self.evidence_with(names), 6)
+
+    def test_an_unexpanded_or_empty_producer_that_was_not_skipped_is_refused(self):
+        for name in (self.UNEXPANDED, "producer ()", "producers"):
+            for conclusion in ("success", "failure", "cancelled"):
+                with self.subTest(name=name, conclusion=conclusion):
+                    evidence = self.evidence_with([name, "Browser verdict", "verifier"], {0: conclusion})
+                    with self.assertRaisesRegex(self.module.VerificationError, "job identity or result mismatch"):
+                        self.module.verify_separate_verifier(evidence, 6)
+
+
 BINDING = "canary receipt not bound to the measured ledger: "
 
 

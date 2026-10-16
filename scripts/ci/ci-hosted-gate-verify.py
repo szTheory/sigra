@@ -866,8 +866,13 @@ def verify_separate_verifier(evidence, source_count):
     jobs = document["jobs"]
     require(document.get("total_count") == len(jobs), "separate hosted verifier job list is incomplete")
     names = [job.get("name") for job in jobs]
-    expanded = [f"producer ({seam})" for seam in SEAMS] + ["Browser verdict", "verifier"]
-    require(sorted(names) in (sorted(expanded), sorted(["producers", "Browser verdict", "verifier"])),
+    # 253-117 (D-17/D-22): the producer matrix job is skipped by its job-level if in the verifier run. Exactly four forms:
+    # the five expanded names, the job id, the unexpanded matrix name GitHub shows for a matrix job skipped before
+    # expansion (the Phase 252 bundle's skipped install_matrix job is reported once under its literal name), or that name
+    # with the expression evaluated to empty. Every non-verifier job must still be skipped (checked below).
+    producer_forms = ([f"producer ({seam})" for seam in SEAMS], ["producers"], ["producer (${{ matrix.seam }})"],
+                      ["producer ()"])
+    require(sorted(names) in [sorted([*form, "Browser verdict", "verifier"]) for form in producer_forms],
             "separate hosted verifier job set is unexpected")
     require(all(job.get("run_id") == run.get("id") and job.get("run_attempt") == run.get("run_attempt")
                 and job.get("conclusion") == ("success" if job.get("name") == "verifier" else "skipped") for job in jobs),
