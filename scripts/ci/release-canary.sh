@@ -437,21 +437,13 @@ cancel_exact_canary_run() {
 wait_for_observer() {
   local source_id="$1" observer_workflow_id="$2" listing matches elapsed=0
   while (( elapsed <= 600 )); do
-    listing="$(gh api "repos/${REPOSITORY}/actions/workflows/${observer_workflow_id}/runs?branch=main&event=workflow_dispatch&per_page=100")" || return 1
+    listing="$(gh api "repos/${REPOSITORY}/actions/workflows/${observer_workflow_id}/runs?branch=main&event=workflow_run&per_page=100")" || return 1
     matches="$(jq -r --arg prefix "release-observer-${source_id}-" '[.workflow_runs[]? | select(.display_title | startswith($prefix))] | if length == 1 then .[0].id else empty end' <<<"$listing")"
     if [[ "$matches" =~ ^[1-9][0-9]*$ ]]; then printf '%s' "$matches"; return 0; fi
     sleep 60
     elapsed=$((elapsed + 60))
   done
   return 1
-}
-
-dispatch_observer() {
-  local source_id="$1" observer_workflow_id="$2"
-  [[ "$source_id" =~ ^[1-9][0-9]*$ && "$observer_workflow_id" =~ ^[1-9][0-9]*$ ]] || return 1
-  gh api --method POST "repos/${REPOSITORY}/actions/workflows/${observer_workflow_id}/dispatches" \
-    -f ref=main -f "inputs[source_run_id]=${source_id}" >/dev/null || return 1
-  wait_for_observer "$source_id" "$observer_workflow_id"
 }
 
 run_controller() {
@@ -490,10 +482,10 @@ run_controller() {
   cancel_run="$(run_metadata "$cancel_id")" || fail "cancellation run summary unavailable"
   [[ "$(jq -r '.id | tostring' <<<"$cancel_run")" == "$cancel_id" && "$(jq -r '.workflow_id | tostring' <<<"$cancel_run")" == "$canary_wf_id" && "$(jq -r '.path | sub("@main$";"")' <<<"$cancel_run")" == .github/workflows/release-receipt-canary.yml && "$(jq -r '.name' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.event' <<<"$cancel_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$cancel_run")" == main && "$(jq -r '.head_sha' <<<"$cancel_run")" == "$sha" && "$(jq -r '.run_attempt' <<<"$cancel_run")" == 1 && "$(jq -r '.display_title' <<<"$cancel_run")" == "release-receipt-canary-cancellation-${cancel_probe}" && "$(jq -r '.conclusion' <<<"$cancel_run")" == cancelled ]] || fail "cancellation run exact identity or expected conclusion mismatch"
 
-  observer_id="$(dispatch_observer "$cancel_id" "$observer_wf_id")" || fail "exact cancellation observer dispatch or run lookup failed"
+  observer_id="$(wait_for_observer "$cancel_id" "$observer_wf_id")" || fail "exact cancellation observer run was not found"
   watch_run "$observer_id"
   observer_run="$(run_metadata "$observer_id")" || fail "observer run summary unavailable"
-  [[ "$(jq -r '.id | tostring' <<<"$observer_run")" == "$observer_id" && "$(jq -r '.workflow_id | tostring' <<<"$observer_run")" == "$observer_wf_id" && "$(jq -r '.path' <<<"$observer_run")" == .github/workflows/release-run-observer.yml && "$(jq -r '.event' <<<"$observer_run")" == workflow_dispatch && "$(jq -r '.head_branch' <<<"$observer_run")" == main && "$(jq -r '.conclusion' <<<"$observer_run")" == success ]] || fail "observer run exact identity or conclusion mismatch"
+  [[ "$(jq -r '.id | tostring' <<<"$observer_run")" == "$observer_id" && "$(jq -r '.workflow_id | tostring' <<<"$observer_run")" == "$observer_wf_id" && "$(jq -r '.path' <<<"$observer_run")" == .github/workflows/release-run-observer.yml && "$(jq -r '.event' <<<"$observer_run")" == workflow_run && "$(jq -r '.head_branch' <<<"$observer_run")" == main && "$(jq -r '.conclusion' <<<"$observer_run")" == success ]] || fail "observer run exact identity or conclusion mismatch"
   expected_cancel_name="${expected_cancel_name}${cancel_id}-1"
   cancel_artifact="$(get_unique_artifact "$observer_id" "$expected_cancel_name")" || fail "observer cancellation artifact absent or ambiguous"
 
@@ -596,7 +588,7 @@ case "$MODE" in
       (.source_failure.sha | test("^[0-9a-f]{40}$")) and .source_failure.sha == .source_cancellation.sha and
       .source_cancellation.observer_run_id == .source_cancellation.receipt.observer_run.id and
       .source_cancellation.observer_workflow_path == ".github/workflows/release-run-observer.yml" and
-      .source_cancellation.observer_event == "workflow_dispatch" and .source_cancellation.observer_ref == "refs/heads/main" and
+      .source_cancellation.observer_event == "workflow_run" and .source_cancellation.observer_ref == "refs/heads/main" and
       .source_cancellation.observer_conclusion == "success" and
       (.source_failure.artifact.id | type == "number" and . > 0) and
       (.source_cancellation.artifact.id | type == "number" and . > 0) and
@@ -610,6 +602,55 @@ case "$MODE" in
       .retrieval.failure_zip_sha256 == (.source_failure.artifact.digest | sub("^sha256:";"")) and
       .retrieval.cancellation_zip_sha256 == (.source_cancellation.artifact.digest | sub("^sha256:";"")) and
       no_credential_keys' "$PROOF" >/dev/null || fail "proof is blocked, incomplete, misbound, or contains credential-shaped keys"
+    # A saved JSON proof is not authoritative by itself. Re-query the exact
+    # run and artifact records so changed conclusions, attempts, or artifact
+    # bindings cannot be hidden by editing the captured file.
+    verify_run_record() {
+      local proof_path="$1" role="$2" record run_id live
+      record=".${role}"
+      run_id="$(jq -er "${record}.run_id | select(type == \"string\" and test(\"^[1-9][0-9]*$\"))" "$proof_path")" || return 1
+      live="$(run_metadata "$run_id")" || return 1
+      jq -e --argjson live "$live" --arg path "$record" '
+        (getpath(($path|ltrimstr(".")|split(".")))) as $captured |
+        ($live.id|tostring) == $captured.run_id and
+        $live.run_attempt == $captured.attempt and
+        ($live.workflow_id|tostring) == ($captured.workflow_id|tostring) and
+        ($live.path|sub("@main$";"")) == ($captured.workflow_path|sub("@main$";"")) and
+        $live.event == $captured.event and $live.head_branch == "main" and
+        ("refs/heads/" + $live.head_branch) == $captured.ref and
+        $live.head_sha == $captured.sha and $live.conclusion == $captured.conclusion and
+        $live.created_at == $captured.created_at and $live.updated_at == $captured.updated_at
+      ' "$proof_path" >/dev/null || return 1
+      return 0
+    }
+    verify_artifact_record() {
+      local proof_path="$1" record_path="$2" owner_id="$3" listing
+      listing="$(gh api "repos/${REPOSITORY}/actions/runs/${owner_id}/artifacts")" || return 1
+      jq -e --arg path "$record_path" --argjson owner "$owner_id" --argjson listing "$listing" '
+        (getpath(($path|ltrimstr(".")|split(".")))) as $captured |
+        [$listing.artifacts[]? | select(.id == $captured.id and .name == $captured.name and
+          .expired == false and .workflow_run.id == $owner and .digest == $captured.digest and
+          .expires_at == $captured.expires_at)] | length == 1
+      ' "$proof_path" >/dev/null
+    }
+    verify_run_record "$PROOF" source_failure || fail "failure run no longer matches authoritative Actions metadata"
+    verify_run_record "$PROOF" source_cancellation || fail "cancellation run no longer matches authoritative Actions metadata"
+    observer_id="$(jq -er '.source_cancellation.observer_run_id | select(type == "string" and test("^[1-9][0-9]*$"))' "$PROOF")" || fail "observer run identity is malformed"
+    observer_live="$(run_metadata "$observer_id")" || fail "observer run metadata is unavailable"
+    jq -e --argjson live "$observer_live" '
+      .source_cancellation as $c | $c.receipt.observer_run as $r |
+      ($live.id|tostring) == $c.observer_run_id and
+      $live.run_attempt == $c.observer_attempt and
+      ($live.workflow_id|tostring) == ($c.observer_workflow_id|tostring) and
+      ($live.path|sub("@main$";"")) == $c.observer_workflow_path and
+      $live.event == $c.observer_event and $live.event == "workflow_run" and
+      ("refs/heads/" + $live.head_branch) == $c.observer_ref and
+      $live.head_branch == "main" and $live.conclusion == $c.observer_conclusion and
+      ($r.id|tostring) == ($live.id|tostring) and $r.attempt == $live.run_attempt and
+      ($r.workflow_id|tostring) == ($live.workflow_id|tostring)
+    ' "$PROOF" >/dev/null || fail "observer run no longer matches authoritative Actions metadata"
+    verify_artifact_record "$PROOF" .source_failure.artifact "$(jq -r '.source_failure.run_id' "$PROOF")" || fail "failure artifact no longer matches authoritative Actions metadata"
+    verify_artifact_record "$PROOF" .source_cancellation.artifact "$observer_id" || fail "cancellation artifact no longer matches authoritative observer metadata"
     echo "release-canary: proof PASS"
     ;;
   write-failure) write_failure_receipt ;;

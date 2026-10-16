@@ -1,4 +1,5 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
+import path from 'node:path';
 
 // Phase 10.1.1 Plan 07: full-lifecycle golden-path browser smoke for test/example.
 // Phase 31 Plan 1: partition admin verification across a single behavior-truth lane
@@ -51,6 +52,23 @@ const ADMIN_EVAL_SPEC = /admin-eval\.spec\.ts/;
 // videos are retained on green runs (default CI keeps video on failure only).
 const pagesPublish = process.env.SIGRA_PLAYWRIGHT_PAGES_PUBLISH === '1';
 const checkpointVideo = pagesPublish ? 'on' : 'retain-on-failure';
+const jsonReportPath = process.env.SIGRA_PLAYWRIGHT_JSON;
+const reporters: ReporterDescription[] = [['list'], ['html', { open: 'never' }]];
+
+if (jsonReportPath) {
+  reporters.push(['json', { outputFile: jsonReportPath }]);
+}
+
+// Phase 253 plan 59 (D-24): per-test fsync'd JSONL, active only when a native recovery
+// window names an output path. Unset in ordinary CI, so the reporter list is unchanged.
+const failureJsonlPath = process.env.SIGRA_PLAYWRIGHT_FAILURE_JSONL;
+
+if (failureJsonlPath) {
+  reporters.push([
+    path.resolve(__dirname, 'lib/reporters/failure-jsonl.mjs'),
+    { outputFile: failureJsonlPath },
+  ]);
+}
 
 export default defineConfig({
   testDir: './tests',
@@ -58,7 +76,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: reporters,
   // The example app boots in MIX_ENV=dev which falls back to :longpoll
   // transport when the WebSocket handshake can't complete (common in
   // headless-chromium + Node.js Playwright runners). Every LiveView event
