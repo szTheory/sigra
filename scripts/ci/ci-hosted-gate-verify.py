@@ -125,6 +125,29 @@ def api_view(evidence):
     return view
 
 
+TRUSTED_DOWNLOAD_HOST = re.compile(r"pipelines\.actions\.githubusercontent\.com|productionresultssa[0-9]+\.blob\.core\.windows\.net")
+
+
+def verify_live_transaction_host(transaction):
+    """253-110: a live canary transaction's host, mirroring the 253-107 transport rule. Hop 0 (or no hop) is
+    api.github.com only; a redirect hop is a trusted download host only, never api.github.com. The host is read from the
+    digest-bound request URL, and a recorded host field must agree with it."""
+    try:
+        parsed = urlsplit(str(transaction.get("url", "")))
+        port = parsed.port
+    except ValueError as error:
+        raise VerificationError("live transaction request URL is malformed") from error
+    host = parsed.hostname
+    require(parsed.scheme == "https" and port in (None, 443) and not parsed.username and not parsed.password,
+            "live transaction must use https on port 443 without credentials")
+    require(transaction.get("host") in (None, host), "live transaction host differs from its request URL")
+    if transaction.get("hop_ordinal") in (None, 0):
+        require(host == "api.github.com", "live hop-0 transaction is not on api.github.com")
+    else:
+        require(isinstance(host, str) and TRUSTED_DOWNLOAD_HOST.fullmatch(host) is not None,
+                "live redirect hop is not on a trusted download host")
+
+
 def verify_transport_v2(evidence):
     """Independently reconcile a v2 ledger, response receipts and server journal."""
     require(evidence.get("schema_version") == REPLAN_SCHEMA, "new acceptance requires hosted replan evidence v2")
@@ -169,6 +192,8 @@ def verify_transport_v2(evidence):
                     f"transport {field} differs across ledger, receipt and journal")
         require(transaction.get("window_id") == origin["window_id"] and transaction.get("source_sha256") == origin["source_sha256"],
                 "transaction escaped the measured source window")
+        if not hermetic_canary(evidence):
+            verify_live_transaction_host(transaction)
         require(transaction.get("state") == "complete" and type(transaction.get("actual_status")) is int
                 and 100 <= transaction["actual_status"] <= 599, "transaction lacks its actual completed HTTP status")
         require(isinstance(transaction.get("url_sha256"), str) and re.fullmatch(r"[a-f0-9]{64}", transaction["url_sha256"]),
