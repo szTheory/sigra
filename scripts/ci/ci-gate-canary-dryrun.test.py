@@ -179,6 +179,9 @@ class FullSequenceTests(unittest.TestCase):
         self.assertEqual(sorted(shape.get("scenarios_checked") or []),
                          sorted(["full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip", "cancelled",
                                  "verifier"]), shape)
+        # 253-128: the three failed-log chains are checked against GitHub's recorded chain (253-127 probe).
+        self.assertIs(shape.get("run_logs_checked"), True, shape)
+        self.assertEqual(shape.get("run_logs_chains_checked"), 3, shape)
 
     def test_every_served_job_step_and_artifact_has_the_recorded_github_shape(self):
         # 253-117 Task 2: jobs, steps and artifacts (R9 seq 28/29) are checked too, in this hermetic full sequence.
@@ -386,6 +389,7 @@ class FakeGitHubStrictnessTests(unittest.TestCase):
 PHASE_DIR = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
 R8_ALLOCATION = PHASE_DIR / "253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json"
 BLOB_HOST = r"^productionresultssa[0-9]+[.]blob[.]core[.]windows[.]net$"
+RESULTS_RECEIVER_HOST = "results-receiver.actions.githubusercontent.com"
 _LIVE_RUNS = {}
 
 
@@ -422,7 +426,9 @@ class LivePolicyFullPassTests(unittest.TestCase):
         self.assertTrue(str(allocation.get("window_id")).startswith("253-dryrun-live-policy-"), allocation)
         self.assertNotIn("test_origin", allocation.get("fields", ["test_origin"]))
         self.assertNotIn("test_ca_file", allocation.get("fields", ["test_origin"]))
-        self.assertEqual(allocation.get("download_hosts"), json.loads(R8_ALLOCATION.read_text())["download_hosts"])
+        # 253-128: the R8 trusted list plus results-receiver, GitHub's run-log host (transport: run_logs hop 1 only).
+        self.assertEqual(allocation.get("download_hosts"), json.loads(R8_ALLOCATION.read_text())["download_hosts"]
+                         + ["results-receiver.actions.githubusercontent.com"])
         self.assertEqual((allocation.get("max_requests"), allocation.get("max_pages"), allocation.get("max_hops")), (117, 10, 2))
         self.assertEqual(self.summary.get("test_overrides"), [], "no SIGRA_CANARY_TEST_* variable in live-policy mode")
 
@@ -579,13 +585,18 @@ class LivePolicyFullSequenceTests(unittest.TestCase):
             with self.subTest(category=category):
                 self.assertLessEqual(used, FROZEN_CANARY[category])
 
-    def test_every_download_is_a_302_hop_then_a_200_on_the_blob_host(self):
+    def test_every_download_is_a_302_hop_then_a_200_on_its_recorded_download_host(self):
+        # 253-128: artifacts on the blob host; failed logs on results-receiver, GitHub's recorded run-log chain (253-127).
         artifacts, logs = self.hops("artifact_zip"), self.hops("run_logs")
         self.assertEqual(len(artifacts), 5, "full-pass, docs-only, actual-failure, missing-seam, unexpected-skip")
         self.assertEqual(len(logs), 3, "actual-failure, missing-seam, unexpected-skip")
         for hop in artifacts + logs:
             self.assertEqual((hop["hop_ordinal"], hop["status"]), (1, 200), hop)
+        for hop in artifacts:
             self.assertRegex(hop["host"], BLOB_HOST)
+        for hop in logs:
+            self.assertEqual(hop["host"], RESULTS_RECEIVER_HOST, hop)
+        self.assertIs((self.summary.get("response_shape") or {}).get("run_logs_checked"), True, self.summary.get("response_shape"))
         self.assertEqual(self.routes.get("artifact_zip"), 2 * len(artifacts))
         self.assertEqual(self.routes.get("run_logs"), 2 * len(logs))
         self.assertEqual(self.categories.get("artifact_downloads"), 2 * len(artifacts))
@@ -605,9 +616,14 @@ class LivePolicyFullSequenceTests(unittest.TestCase):
     def test_the_token_shim_and_fake_stay_clean_over_the_whole_sequence(self):
         authorization = self.summary.get("authorization") or {}
         self.assertEqual((authorization.get("api_without"), authorization.get("blob_with")), (0, 0), authorization)
+        self.assertEqual(authorization.get("results_receiver_with"), 0, authorization)
         self.assertGreater(authorization.get("api_with", 0), 0)
         self.assertEqual(self.summary.get("shim_refusals"), [])
         self.assertEqual(self.summary.get("violations"), [])
+        # 253-128: the full sequence connects to results-receiver for the three failed-log hop-1 requests.
+        self.assertEqual(sorted(self.summary.get("shim_connect_hosts") or []),
+                         ["api.github.com", "productionresultssa17.blob.core.windows.net", RESULTS_RECEIVER_HOST],
+                         self.summary.get("shim_connect_hosts"))
 
     def test_the_seeded_r8_refs_never_move(self):
         self.assertIs(self.summary.get("seeded_r8_refs_changed"), False, self.summary)
@@ -780,6 +796,188 @@ class ResponseShapeTests(unittest.TestCase):
                 self.assertIn("full-pass", shape.get("scenarios_checked") or [], shape)
                 self.assertEqual(shape.get("reference", {}).get("sha256"),
                                  hashlib.sha256(R9_LEDGER.read_bytes()).hexdigest(), shape)
+
+
+# --------------------------------------------------------------- 253-128 GitHub's recorded run-log chain (253-127 probe)
+PROBE_LEDGER = PHASE_DIR / "253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json"
+PROBE_EVIDENCE = PHASE_DIR / "253-LOAD-RECOVERY-PROBE-EVIDENCE-R11-PROBE.json"
+PROBE_BODIES = PHASE_DIR / "253-LOAD-RECOVERY-PROBE-BODIES-R11-PROBE.json"
+R10_LEDGER = PHASE_DIR / "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json"
+RESULTS_RECEIVER = RESULTS_RECEIVER_HOST
+
+
+def ledger_rows(path):
+    return {row["sequence"]: row for row in json.loads(Path(path).read_text())["transactions"]}
+
+
+class FakeChainHarness:
+    """Starts the dry-run fake (hermetic or live-policy) and fetches one run's failed-log chain the way the transport
+    does: a charged pending ledger row per hop, hop 0 on api.github.com, then the Location it was given."""
+
+    def __init__(self, runner, live, faults=()):
+        import ssl
+        self.runner, self.live = runner, live
+        self.directory = tempfile.TemporaryDirectory(prefix="sigra-253-128-chain-")
+        self.work = Path(self.directory.name).resolve()
+        clone = self.work / "clone"
+        subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(clone)], check=True)
+        parent = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip()
+        self.ledger, self.journal = self.work / "ledger.json", self.work / "journal.json"
+        self.server, _, self.cert = runner.start_fake(self.work, clone, self.ledger, self.journal, parent, None, 0.0,
+                                                      dict(runner.DEFAULT_POLLS), False, live=live)
+        self.server.faults = set(faults)
+        self.port = self.server.server_address[1]
+        self.ssl = ssl
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.directory.cleanup()
+
+    def add_failed_run(self, run_id=40000000777, scenario="actual-failure"):
+        self.server.runs[run_id] = {"id": run_id, "run_number": 777, "scenario": scenario, "inputs": {},
+                                    "head_branch": "gsd/253-replan-r10-fixture", "head_sha": "0" * 40, "visible_at": 0,
+                                    "polls": 3, "needed": 3, "cancel_requested": False, "completed": True,
+                                    "conclusion": "failure"}
+        return run_id
+
+    def get(self, host, path, hop):
+        import http.client
+        url = f"https://{host}{path.split('?', 1)[0]}" + ("?[REDACTED]" if "?" in path else "")
+        self.ledger.write_text(json.dumps({"transactions": [{"state": "pending", "method": "GET", "url": url,
+                                                             "route_id": "run_logs", "hop_ordinal": hop, "host": host}]}))
+        if self.live:
+            shim = load_shim_module()
+            with shim.patched({host: self.port}, self.cert, self.work / "connect.jsonl"):
+                connection = http.client.HTTPSConnection(host, 443, context=self.ssl.create_default_context(), timeout=10)
+                headers = {"Authorization": f"Bearer {self.runner.LIVE_TOKEN}"} if host == "api.github.com" else {}
+                connection.request("GET", path, headers=headers)
+                response = connection.getresponse()
+                result = (response.status, response.getheaders(), response.read())
+                connection.close()
+        else:
+            context = self.ssl.create_default_context(cafile=str(self.cert))
+            connection = http.client.HTTPSConnection("localhost", self.port, context=context, timeout=10)
+            connection.request("GET", path)
+            response = connection.getresponse()
+            result = (response.status, response.getheaders(), response.read())
+            connection.close()
+        self.ledger.unlink()
+        return result
+
+    def chain(self, run_id):
+        from urllib.parse import urlsplit
+        hops = [self.get("api.github.com" if self.live else "localhost", f"/repos/szTheory/sigra/actions/runs/{run_id}/logs", 0)]
+        while hops[-1][0] in (301, 302, 303, 307, 308) and len(hops) <= 2:
+            location = dict((name.lower(), value) for name, value in hops[-1][1])["location"]
+            parsed = urlsplit(location)
+            hops.append(self.get(parsed.hostname, parsed.path + ("?" + parsed.query if parsed.query else ""), len(hops)))
+        return hops
+
+
+def load_shim_module():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ci_live_policy_shim_for_dryrun_test", ROOT / "scripts/ci/ci-live-policy-shim.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class RunLogsShapeTests(unittest.TestCase):
+    """253-128 Task 1: the fake's failed-log chain is GitHub's recorded one (253-127 probe, R10 ledger seq 47)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.runner = load_runner()
+        evidence = json.loads(PROBE_EVIDENCE.read_text())
+        cls.probe_hops = next(item for item in evidence["results"] if item["id"] == "run-log-chain")["observed"]["hops"]
+        cls.probe_body = next(item for item in json.loads(PROBE_BODIES.read_text())["entries"] if item["id"] == "run-log-chain")
+        cls.seq47 = ledger_rows(R10_LEDGER)[47]
+        cls.probe_rows = [row for row in ledger_rows(PROBE_LEDGER).values() if row["route_id"] == "run_logs"]
+
+    def test_fake_log_redirect_matches_the_probe_recorded_chain(self):
+        import io
+        import zipfile
+        from urllib.parse import urlsplit
+        # The committed references agree with each other: the probe's two run_logs rows, its evidence hops and seq 47.
+        self.assertEqual([(row["hop_ordinal"], row["host"], row["actual_status"]) for row in self.probe_rows],
+                         [(0, "api.github.com", 302), (1, RESULTS_RECEIVER, 200)])
+        self.assertEqual([hop["status"] for hop in self.probe_hops], [302, 200])
+        self.assertEqual(self.seq47["actual_status"], self.probe_hops[0]["status"])
+        self.assertEqual(self.seq47["scrubbed_headers"]["content-type"], self.probe_hops[0]["content_type"])
+        self.assertEqual(self.seq47["scrubbed_headers"]["location"]["host"], self.probe_hops[0]["location"]["host"])
+        reference = self.runner.load_log_reference()
+        self.assertEqual(reference["hops"], self.probe_hops)
+        self.assertEqual(reference["files"][self.runner.PROBE_EVIDENCE_REL], hashlib.sha256(PROBE_EVIDENCE.read_bytes()).hexdigest())
+        self.assertEqual(reference["files"][self.runner.PROBE_BODIES_REL], hashlib.sha256(PROBE_BODIES.read_bytes()).hexdigest())
+        self.assertEqual(reference["files"][self.runner.PROBE_LEDGER_REL], hashlib.sha256(PROBE_LEDGER.read_bytes()).hexdigest())
+        self.assertEqual(reference["files"][self.runner.R10_LEDGER_REL], hashlib.sha256(R10_LEDGER.read_bytes()).hexdigest())
+        for live in (False, True):
+            with self.subTest(mode="live-policy" if live else "hermetic"):
+                harness = FakeChainHarness(self.runner, live)
+                try:
+                    run_id = harness.add_failed_run()
+                    hops = harness.chain(run_id)
+                    journal = json.loads(harness.journal.read_text())
+                    # Positive control: the fake really answered both hops (so the empty-mismatch result below is a check).
+                    self.assertEqual(len(hops), len(self.probe_hops), [hop[0] for hop in hops])
+                    self.assertEqual(len(journal), len(self.probe_hops))
+                    problems, chains = self.runner.check_run_logs(journal, reference, live, harness.port)
+                    self.assertEqual(problems, [])
+                    self.assertEqual(chains, 1)
+                    for (status, headers, body), row, probe in zip(hops, journal, self.probe_hops):
+                        self.assertEqual(status, probe["status"])
+                        self.assertEqual(sorted(row["scrubbed_headers"]), probe["safe_header_names"])
+                        self.assertEqual(row["scrubbed_headers"].get("content-type"), probe["content_type"])
+                        self.assertEqual(row["scrubbed_headers"].get("content-length"),
+                                         None if probe["content_length"] is None else str(probe["content_length"]))
+                        if live:
+                            self.assertEqual(row["host"], probe["host"])
+                    location = journal[0]["scrubbed_headers"]["location"]
+                    recorded = self.probe_hops[0]["location"]
+                    self.assertEqual(location["host"], recorded["host"] if live else "localhost")
+                    self.assertEqual(location["port"], recorded["port"] if live else harness.port)
+                    self.assertEqual(location["has_query"], recorded["has_query"])
+                    self.assertRegex(location["path"], r"^/rest/runs/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/logs$")
+                    self.assertEqual(self.runner.path_pattern(location["path"]), recorded["path_pattern"])
+                    self.assertEqual(self.runner.path_pattern(self.seq47["scrubbed_headers"]["location"]["path"]),
+                                     recorded["path_pattern"])
+                    self.assertNotIn("location", journal[1]["scrubbed_headers"], "GitHub's hop 1 is final: no hop 2")
+                    body = hops[1][2]
+                    self.assertEqual(body[:8].hex(), self.probe_body["magic_hex"])
+                    names = zipfile.ZipFile(io.BytesIO(body)).namelist()
+                    self.assertEqual(self.runner.log_member_problems(names), [])
+                    self.assertEqual(self.runner.log_member_problems([member["name"] for member in self.probe_body["zip_members"]]), [])
+                    self.assertEqual(len(names), 2 * 6, "a numbered log and a system.txt per executed job")
+                    self.assertNotEqual(urlsplit(dict(hops[0][1]).get("Location", "")).hostname, self.runner.BLOB_HOST)
+                    # The pre-R11 blob log path no longer exists in the fake (without the legacy fault).
+                    stale = harness.get(self.runner.BLOB_HOST if live else "localhost",
+                                        f"/_downloads/logs/{run_id}?sv=2025&sig=dry-run-signature" if live
+                                        else f"/_downloads/logs/{run_id}?sig=dry-run-signature", 1)
+                    self.assertEqual(stale[0], 404)
+                finally:
+                    harness.close()
+
+    def test_run_logs_legacy_blob_fault_fails_the_gate(self):
+        code, summary = live_run("--ref-pair", "r10", "--seed-r8-refs", "--seed-r9-refs", "--fault", "run-logs-legacy-blob-redirect")
+        self.assertNotEqual(code, 0, summary)
+        self.assertNotEqual(summary.get("status"), "passed", summary)
+        shape = summary.get("response_shape") or {}
+        self.assertIs(shape.get("ok"), False, shape)
+        mismatches = " ".join(shape.get("mismatches") or [])
+        self.assertIn("Location host", mismatches)
+        self.assertIn(self.runner.BLOB_HOST, mismatches)
+        # The retained pre-R11 transport predicate still follows the blob redirect, and the driver and verifier accept the
+        # run: only the shape assertion fails the gate (positive control on the assertion, not the transport).
+        self.assertTrue(all(item["exit"] == 0 for item in summary.get("invocations", [])), summary.get("invocations"))
+        self.assertEqual(sorted(summary.get("scenarios") or []), sorted(["full-pass", "docs-only", "actual-failure",
+                                                                         "missing-seam", "unexpected-skip", "cancelled"]))
+        self.assertEqual((summary.get("verifier") or {}).get("status"), "passed", summary)
+        logs = [hop for hop in summary.get("live_hops") or [] if hop["route"] == "run_logs"]
+        self.assertEqual(len(logs), 3, logs)
+        self.assertTrue(all(hop["host"] == self.runner.BLOB_HOST for hop in logs), logs)
+        problems = summary.get("problems") or []
+        self.assertTrue(problems and all(problem.startswith("response_shape") for problem in problems), problems)
 
 
 class SeededR9RefsTests(unittest.TestCase):

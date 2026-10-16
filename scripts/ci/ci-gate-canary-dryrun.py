@@ -9,7 +9,8 @@ origin other than the local one; GH_TOKEN and GITHUB_TOKEN are removed and gh/cu
 What the fake models (stated assumptions, not observations): the candidate commit has zero check runs and the server
 parent has the five required ones from the GitHub Actions app; a dispatched run becomes listable only after a delay;
 each run completes after a modeled number of polls; artifact zips and failed logs answer with one 302 hop; get_ref is
-404 until create_ref; an existing ref at another sha stops create-only publication.
+404 until create_ref; an existing ref at another sha stops create-only publication. 253-128: the failed-log chain is the one
+GitHub returned to the 253-127 probe (302 to results-receiver, then its own 200 zip), read from the committed records.
 
 The result is always synthetic: the evidence is labelled channel hermetic-https and can never become hosted proof.
 Prints one JSON summary object; exits 0 only when every driver mode, the publisher and the verifier passed.
@@ -42,6 +43,7 @@ import sys
 import tempfile
 import threading
 import time
+import uuid
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -78,7 +80,9 @@ SHA40 = re.compile(r"[a-f0-9]{40}")
 API_HOST = "api.github.com"
 BLOB_HOST = "productionresultssa17.blob.core.windows.net"
 PIPELINES_HOST = "pipelines.actions.githubusercontent.com"
-LIVE_TLS_NAMES = (API_HOST, "*.blob.core.windows.net", PIPELINES_HOST)
+# 253-128: GitHub's run-log redirect host (253-127 probe: hop 1 of run_logs answers 200 application/zip itself).
+RESULTS_RECEIVER_HOST = "results-receiver.actions.githubusercontent.com"
+LIVE_TLS_NAMES = (API_HOST, "*.blob.core.windows.net", PIPELINES_HOST, RESULTS_RECEIVER_HOST)
 LIVE_TOKEN = "dryrun-live-policy-not-a-credential"
 LIVE_WINDOW_PREFIX = "253-dryrun-live-policy-"
 R8_ALLOCATION_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json"
@@ -98,6 +102,20 @@ FIXTURE_TITLE = "Phase 253 Gate Canary"
 WORKFLOW_PATH = ".github/workflows/ci.yml"
 NESTED_RUN_OBJECTS = ("repository", "head_repository", "head_commit", "actor", "triggering_actor")
 FAKE_CREATED_AT = "2026-10-15T00:00:00Z"
+# 253-128: the failed-log chain and the cancelled run GitHub returned to the 253-127 read-only probe, read from the
+# committed probe records at run time (and R10 ledger seq 47 for hop 0); nothing is copied into a fixture file.
+PROBE_EVIDENCE_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-PROBE-EVIDENCE-R11-PROBE.json"
+PROBE_BODIES_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-PROBE-BODIES-R11-PROBE.json"
+PROBE_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json"
+R10_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json"
+R10_LOG_HOP0_SEQUENCE = 47
+PROBE_LOG_CHAIN_ID = "run-log-chain"
+# The recorded Location carries a signed query whose names the ledger redacts (only has_query is kept), so the fake's
+# query parameter names and values are synthetic.
+LOG_QUERY = "sig=dry-run-signature&se=2026-10-15"
+LOG_UUID_NAMESPACE = uuid.UUID("2530128a-0000-4000-8000-000000000253")
+LOG_NUMBERED_MEMBER = re.compile(r"(\d+)_(.+)\.txt")
+LOG_SYSTEM_MEMBER = re.compile(r"(.+)/system\.txt")
 
 
 def load_module(name: str, path: Path):
@@ -108,6 +126,8 @@ def load_module(name: str, path: Path):
 
 
 TRANSPORT = load_module("ci_hosted_transport_for_dryrun", HERE / "ci-hosted-transport.py")
+# 253-128: the probe driver's own path-pattern function, so the fake's paths are compared with the same instrument.
+SHAPE_PROBE = load_module("ci_shape_probe_for_dryrun", HERE / "ci-shape-probe.py")
 OBJECT_TESTS = load_module("ci_git_publication_tests_for_dryrun", HERE / "ci-git-publication.test.py")
 ObjectServer = OBJECT_TESTS.ObjectServer
 PUBLISHER = load_module("ci_git_publication_for_dryrun", HERE / "ci-git-publication.py")
@@ -359,7 +379,187 @@ def check_run_shape(run, scenario, reference: dict) -> list:
     return [item for item in problems if item]
 
 
-def response_shape(journal: list, runs: dict, reference: dict) -> dict:
+# ------------------------------------------------------------------- 253-128 GitHub's recorded run-log chain (probe)
+RESULTS_LOG_PATH = re.compile(r"/rest/runs/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/logs")
+_LOG_REFERENCE: dict = {}
+
+
+def path_pattern(path: str) -> str:
+    """The 253-127 probe's path pattern ({uuid}, {hex}, {n}), computed by the probe driver's own function."""
+    return SHAPE_PROBE._path_pattern(path)
+
+
+class _Stream(io.RawIOBase):
+    """A write-only, non-seekable sink: zipfile then streams each member with a data descriptor, as GitHub's log zip does
+    (local header magic 504b030414000800 in the 253-127 bodies record)."""
+
+    def __init__(self):
+        super().__init__()
+        self.data = bytearray()
+
+    def writable(self):
+        return True
+
+    def write(self, chunk):
+        self.data += chunk
+        return len(chunk)
+
+
+def log_archive(job_names) -> bytes:
+    """The failed-log zip in GitHub's recorded member pattern: for each executed job n, `{n}_<job>.txt` and
+    `<job>/system.txt` (253-127 bodies record). The text is synthetic; real log bytes are never reconstructed."""
+    sink = _Stream()
+    with zipfile.ZipFile(sink, "w", zipfile.ZIP_DEFLATED) as bundle:
+        for index, name in enumerate(job_names):
+            for member, text in ((f"{index}_{name}.txt", f"modeled job log for {name}\n"),
+                                 (f"{name}/system.txt", f"modeled system log for {name}\n")):
+                info = zipfile.ZipInfo(member, date_time=(2026, 10, 15, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                bundle.writestr(info, text.encode())
+    return bytes(sink.data)
+
+
+def log_member_problems(names) -> list:
+    """Every way a log zip's member names differ from the recorded pattern: numbered logs 0..k-1 once each, and one
+    `<job>/system.txt` for exactly the jobs the numbered logs name."""
+    problems, numbered, system = [], {}, []
+    for name in names if isinstance(names, list) else []:
+        number, other = LOG_NUMBERED_MEMBER.fullmatch(name), LOG_SYSTEM_MEMBER.fullmatch(name)
+        if number and "/" not in name:
+            numbered.setdefault(int(number.group(1)), []).append(number.group(2))
+        elif other:
+            system.append(other.group(1))
+        else:
+            problems.append(f"log member {name!r} is neither {{n}}_<job>.txt nor <job>/system.txt")
+    if not numbered:
+        problems.append(f"log archive {names!r} has no numbered job log")
+    if sorted(numbered) != list(range(len(numbered))) or any(len(jobs) != 1 for jobs in numbered.values()):
+        problems.append(f"numbered job logs {sorted(numbered)} are not 0..k-1 once each")
+    jobs = sorted(jobs[0] for jobs in numbered.values())
+    if jobs != sorted(system) or len(set(system)) != len(system):
+        problems.append(f"numbered logs name {jobs} but system.txt members name {sorted(system)}")
+    return problems
+
+
+def load_log_reference(root: Path = ROOT) -> dict:
+    """GitHub's recorded failed-log chain: the probe evidence's run-log-chain hops, cross-checked against the probe
+    ledger rows and bodies record, with hop 0 also matched against R10 ledger seq 47. Each file's sha256 is returned."""
+    if "value" in _LOG_REFERENCE:
+        return _LOG_REFERENCE["value"]
+    raws = {rel: (root / rel).read_bytes() for rel in (PROBE_EVIDENCE_REL, PROBE_BODIES_REL, PROBE_LEDGER_REL, R10_LEDGER_REL)}
+    evidence = json.loads(raws[PROBE_EVIDENCE_REL])
+    result = next((item for item in evidence.get("results", []) if item.get("id") == PROBE_LOG_CHAIN_ID), None)
+    if not isinstance(result, dict) or result.get("status") != "complete" or result.get("route_id") != "run_logs":
+        raise DryRunError("the probe evidence has no complete run_logs run-log-chain result")
+    hops = sorted(result["observed"]["hops"], key=lambda hop: hop["hop_ordinal"])
+    if [hop["hop_ordinal"] for hop in hops] != list(range(len(hops))) or len(hops) < 2:
+        raise DryRunError("the probe's run-log-chain hops are not a 0..n chain with a redirect")
+    rows = {row.get("sequence"): row for row in json.loads(raws[PROBE_LEDGER_REL])["transactions"]}
+    for hop in hops:
+        row = rows.get(hop["sequence"]) or {}
+        if ((row.get("route_id"), row.get("hop_ordinal"), row.get("actual_status"), row.get("host"))
+                != ("run_logs", hop["hop_ordinal"], hop["status"], hop["host"])
+                or sorted(row.get("scrubbed_headers") or {}) != hop["safe_header_names"]):
+            raise DryRunError(f"probe evidence hop {hop['hop_ordinal']} differs from probe ledger seq {hop['sequence']}")
+    final = hops[-1]
+    if final["status"] != 200 or final["location"] is not None or any(hop["location"] is None for hop in hops[:-1]):
+        raise DryRunError("the probe's run-log-chain does not end in a final 200 after its redirects")
+    body = next((entry for entry in json.loads(raws[PROBE_BODIES_REL])["entries"]
+                 if entry.get("id") == PROBE_LOG_CHAIN_ID and entry.get("hop_ordinal") == final["hop_ordinal"]), None)
+    if not isinstance(body, dict) or body.get("content_type") != final["content_type"]:
+        raise DryRunError("the probe bodies record has no final run-log-chain body of the recorded content type")
+    names = [member["name"] for member in body.get("zip_members") or []]
+    if final["content_type"] == "application/zip" and log_member_problems(names):
+        raise DryRunError(f"the recorded log members do not follow the modeled pattern: {log_member_problems(names)}")
+    seq47 = next((row for row in json.loads(raws[R10_LEDGER_REL])["transactions"]
+                  if row.get("sequence") == R10_LOG_HOP0_SEQUENCE), {})
+    first, headers = hops[0], seq47.get("scrubbed_headers") or {}
+    location = headers.get("location") or {}
+    if ((seq47.get("route_id"), seq47.get("hop_ordinal"), seq47.get("actual_status")) != ("run_logs", 0, first["status"])
+            or headers.get("content-type") != first["content_type"]
+            or headers.get("content-length") != str(first["content_length"])
+            or (location.get("host"), location.get("port"), location.get("has_query"))
+            != (first["location"]["host"], first["location"]["port"], first["location"]["has_query"])
+            or path_pattern(str(location.get("path"))) != first["location"]["path_pattern"]):
+        raise DryRunError("R10 ledger seq 47 differs from the probe's recorded run_logs hop 0")
+    _LOG_REFERENCE["value"] = {
+        "files": {rel: sha256_hex(raw) for rel, raw in raws.items()},
+        "hops": hops,
+        "final_body": {"content_type": body["content_type"], "magic_hex": body.get("magic_hex"), "member_names": names,
+                       "raw_bytes": body.get("bytes"), "scrubbed_bytes": (rows.get(final["sequence"]) or {}).get("scrubbed_response_bytes")},
+        "seq47": {"sequence": R10_LOG_HOP0_SEQUENCE, "status": seq47.get("actual_status"), "location_host": location.get("host")}}
+    return _LOG_REFERENCE["value"]
+
+
+def check_log_hop(row: dict, recorded: dict, reference: dict, live: bool, local_port) -> list:
+    """Every way one served run_logs hop differs from GitHub's recorded hop of the same ordinal."""
+    ordinal = row.get("hop_ordinal")
+    served = urlsplit(row.get("observed_path") or "")
+    label = f"run_logs hop {ordinal} ({served.path})"
+    problems = []
+    headers = row.get("scrubbed_headers") if isinstance(row.get("scrubbed_headers"), dict) else {}
+    if row.get("actual_status") != recorded["status"]:
+        problems.append(f"{label} status {row.get('actual_status')} is not GitHub's recorded {recorded['status']}")
+    if sorted(headers) != recorded["safe_header_names"]:
+        problems.append(f"{label} safe headers {sorted(headers)} differ from GitHub's recorded {recorded['safe_header_names']}")
+    if headers.get("content-type") != recorded["content_type"]:
+        problems.append(f"{label} content-type {headers.get('content-type')!r} is not GitHub's recorded {recorded['content_type']!r}")
+    wanted_length = None if recorded["content_length"] is None else str(recorded["content_length"])
+    if headers.get("content-length") != wanted_length:
+        problems.append(f"{label} content-length {headers.get('content-length')!r} is not GitHub's recorded {wanted_length!r}")
+    if path_pattern(served.path) != recorded["path_pattern"]:
+        problems.append(f"{label} path pattern {path_pattern(served.path)!r} is not GitHub's recorded {recorded['path_pattern']!r}")
+    if bool(served.query) != recorded["has_query"]:
+        problems.append(f"{label} has_query {bool(served.query)} is not GitHub's recorded {recorded['has_query']}")
+    if live and row.get("host") != recorded["host"]:
+        problems.append(f"{label} host {row.get('host')!r} is not GitHub's recorded {recorded['host']!r}")
+    expected, location = recorded["location"], headers.get("location")
+    if expected is None and location is not None:
+        problems.append(f"{label} redirects to Location host {(location or {}).get('host')!r}; GitHub's recorded hop {ordinal} is final")
+    elif expected is not None and not isinstance(location, dict):
+        problems.append(f"{label} has no Location; GitHub's recorded hop {ordinal} redirects to {expected['host']!r}")
+    elif expected is not None:
+        # Hermetic mode serves every host on the exact local origin, so the recorded host's stand-in is localhost:<port>.
+        host, port = (expected["host"], expected["port"]) if live else ("localhost", local_port)
+        if location.get("host") != host:
+            problems.append(f"{label} Location host {location.get('host')!r} is not GitHub's recorded {expected['host']!r}"
+                            + ("" if live else f" (local stand-in {host!r})"))
+        if location.get("port") != port:
+            problems.append(f"{label} Location port {location.get('port')!r} is not GitHub's recorded {expected['port']!r}")
+        if path_pattern(str(location.get("path"))) != expected["path_pattern"]:
+            problems.append(f"{label} Location path {location.get('path')!r} is not GitHub's recorded {expected['path_pattern']!r}")
+        if location.get("has_query") != expected["has_query"]:
+            problems.append(f"{label} Location has_query {location.get('has_query')!r} is not GitHub's recorded {expected['has_query']}")
+    final = reference["final_body"]
+    if ordinal == reference["hops"][-1]["hop_ordinal"]:
+        if row.get("raw_magic_hex") != final["magic_hex"]:
+            problems.append(f"{label} body magic {row.get('raw_magic_hex')!r} is not GitHub's recorded {final['magic_hex']!r}")
+        if final["content_type"] == "application/zip":
+            problems.extend(f"{label} {item}" for item in log_member_problems(row.get("zip_member_names")))
+    elif recorded["content_length"] is not None and row.get("response_bytes") != recorded["content_length"]:
+        problems.append(f"{label} body is {row.get('response_bytes')} bytes; GitHub's recorded hop {ordinal} is {recorded['content_length']}")
+    return problems
+
+
+def check_run_logs(journal: list, reference: dict, live: bool, local_port) -> tuple[list, int]:
+    """Compare every run_logs hop the fake served with GitHub's recorded chain; returns (mismatches, complete chains)."""
+    hops, problems = reference["hops"], []
+    rows = [row for row in journal if row.get("route_id") == "run_logs"]
+    for row in rows:
+        ordinal = row.get("hop_ordinal")
+        if type(ordinal) is not int or not 0 <= ordinal < len(hops):
+            problems.append(f"run_logs hop {ordinal!r} was served; GitHub's recorded chain is hops 0..{len(hops) - 1}")
+            continue
+        problems.extend(check_log_hop(row, hops[ordinal], reference, live, local_port))
+    starts = sum(1 for row in rows if row.get("hop_ordinal") == 0)
+    finals = sum(1 for row in rows if row.get("hop_ordinal") == hops[-1]["hop_ordinal"])
+    if starts != finals:
+        problems.append(f"{starts} run_logs chain(s) started but {finals} reached GitHub's recorded final hop")
+    return problems, min(starts, finals)
+
+
+def response_shape(journal: list, runs: dict, reference: dict, log_reference: dict | None = None, live: bool = False,
+                   local_port=None) -> dict:
     """Compare every run, job, step and artifact object the fake actually served (run polls, workflow_runs listings, jobs
     and artifacts pages, decoded from the server journal) with the recorded real shapes."""
     mismatches, scenarios = [], set()
@@ -412,10 +612,17 @@ def response_shape(journal: list, runs: dict, reference: dict) -> dict:
             mismatches.append(problem)
         for run in (body.get("workflow_runs") or []) if isinstance(body, dict) else []:
             check_run(run)
+    # 253-128: every run_logs hop the fake served, against GitHub's recorded chain (253-127 probe, R10 seq 47).
+    log_chains = 0
+    if log_reference is not None:
+        log_problems, log_chains = check_run_logs(journal, log_reference, live, local_port)
+        mismatches.extend(log_problems)
     unique = list(dict.fromkeys(mismatches))
     return {"reference": {"path": reference["path"], "sha256": reference["sha256"], "sequences": reference["sequences"]},
+            "log_reference": (log_reference or {}).get("files"),
             "ok": not unique, **counts, "scenarios_checked": sorted(scenarios),
-            "verifier_run_checked": "verifier" in scenarios, "mismatch_count": len(unique), "mismatches": unique[:10]}
+            "verifier_run_checked": "verifier" in scenarios, "run_logs_chains_checked": log_chains,
+            "run_logs_checked": log_chains >= 1, "mismatch_count": len(unique), "mismatches": unique[:10]}
 
 
 # ----------------------------------------------------------------------------------------- git-backed object store
@@ -492,12 +699,16 @@ class FakeGitHub(ObjectServer):
             time.sleep(0.02)
         return None
 
-    def _send(self, status, body=b"", content_type="application/json; charset=utf-8", extra=(), api=True):
+    def _send(self, status, body=b"", content_type="application/json; charset=utf-8", extra=(), api=True,
+              always_type=False, chunked=False):
+        # 253-128: always_type sends Content-Type on an empty redirect (GitHub's run_logs hop 0 does); chunked omits
+        # Content-Length and frames the body chunked (GitHub's results-receiver hop 1 sends no Content-Length).
         pending = self._pending()
         headers = [("Server", self.version_string()), ("Date", FIXED_DATE)]
-        if body or status not in (204, 302):
+        if body or status not in (204, 302) or always_type:
             headers.append(("Content-Type", content_type))
-        headers.append(("Content-Length", str(len(body))))
+        if not chunked:
+            headers.append(("Content-Length", str(len(body))))
         headers.append(("X-GitHub-Request-Id", f"DRYRUN:{len(self.server.journal) + 1:04d}"))
         if api:
             remaining = 4900 - len(self.server.journal)
@@ -525,7 +736,13 @@ class FakeGitHub(ObjectServer):
         row.update({"method": self.command, "actual_status": status, "scrubbed_headers": safe,
                     "response_sha256": sha256_hex(scrubbed), "response_body_base64": base64.b64encode(scrubbed).decode(),
                     "response_bytes": len(body), "scrubbed_response_bytes": len(scrubbed), "state": "complete",
-                    "observed_path": self.path})
+                    "observed_path": self.path, "raw_magic_hex": body[:8].hex()})
+        if content_type == "application/zip" and body:
+            # 253-128: the raw archive's member names (the journal's body is the scrubbed text, which does not unzip).
+            try:
+                row["zip_member_names"] = zipfile.ZipFile(io.BytesIO(body)).namelist()
+            except zipfile.BadZipFile:
+                row["zip_member_names"] = None
         if self.server.live:
             row["host"] = self._host()
         with self.server.lock:
@@ -534,8 +751,12 @@ class FakeGitHub(ObjectServer):
         self.send_response(status)
         for name, value in headers[2:]:
             self.send_header(name, value)
+        if chunked:
+            self.send_header("Transfer-Encoding", "chunked")
         self.end_headers()
-        if body:
+        if chunked:
+            self.wfile.write(f"{len(body):x}\r\n".encode() + body + b"\r\n0\r\n\r\n" if body else b"0\r\n\r\n")
+        elif body:
             self.wfile.write(body)
 
     def _reply(self, status, value):
@@ -556,14 +777,22 @@ class FakeGitHub(ObjectServer):
             # 253-108: requests are routed by Host header. api.github.com must carry exactly the dummy bearer token and
             # never a download path; the blob host must carry no Authorization and serve only the paths this fake issued.
             host, download = self._host(), urlsplit(self.path).path.startswith("/_downloads/")
+            receiver = RESULTS_LOG_PATH.fullmatch(urlsplit(self.path).path) is not None
             if host == API_HOST:
                 if authorization == f"Bearer {LIVE_TOKEN}":
                     server.authorization["api_with"] += 1
                 else:
                     server.authorization["api_without"] += 1
                     server.violations.append(f"api.github.com request without the dummy bearer token: {self.command} {self.path}")
-                if download:
+                if download or receiver:
                     return lambda: self._refuse("a download path was requested on api.github.com", 404)
+            elif host == RESULTS_RECEIVER_HOST:
+                # 253-128: GitHub's run-log host takes no Authorization and serves only the log paths this fake issued.
+                if authorization:
+                    server.authorization["results_receiver_with"] += 1
+                    server.violations.append(f"Authorization reached results-receiver: {self.command} {urlsplit(self.path).path}")
+                if not receiver:
+                    return lambda: self._refuse("results-receiver serves only issued run-log paths", 404)
             elif host == BLOB_HOST:
                 if authorization:
                     server.authorization["blob_with"] += 1
@@ -591,6 +820,8 @@ class FakeGitHub(ObjectServer):
         path, query = parsed.path, parse_qs(parsed.query, keep_blank_values=True)
         if path.startswith("/_downloads/"):
             return self._download(path, query)
+        if RESULTS_LOG_PATH.fullmatch(path):
+            return self._results_receiver(path, query)
         if path.startswith(f"/repos/{REPO}/git/"):
             if query:
                 return self._refuse("Git object reads take no query")
@@ -807,6 +1038,11 @@ class FakeGitHub(ObjectServer):
         record = self.server.runs.get(run_id)
         if record is None:
             return self._reply(404, {"message": "Not Found"})
+        self._reply(200, self._jobs_body(record))
+
+    def _jobs_body(self, record):
+        """The run's jobs page (253-128: also the job list the failed-log archive is built from)."""
+        run_id = record["id"]
         jobs = []
         reference = load_reference()
 
@@ -840,7 +1076,7 @@ class FakeGitHub(ObjectServer):
             else:
                 job("Browser verdict", outcome if done else None, verdict_steps, {"Shared browser record validator": outcome})
             job("verifier", "skipped" if done else None)
-        self._reply(200, {"total_count": len(jobs), "jobs": jobs})
+        return {"total_count": len(jobs), "jobs": jobs}
 
     def _artifacts(self, run_id):
         record = self.server.runs.get(run_id)
@@ -899,18 +1135,47 @@ class FakeGitHub(ObjectServer):
             record = server.runs.get(identifier)
             if record is None or not record.get("completed") or record.get("conclusion") != "failure":
                 return self._reply(404, {"message": "Not Found"})
+        if kind == "logs" and "run-logs-legacy-blob-redirect" not in getattr(server, "faults", ()):
+            # 253-128: GitHub's recorded chain (253-127 probe, R10 seq 47): hop 0 is a 302 with the recorded content-type
+            # and an empty body, to results-receiver /rest/runs/<uuid>/logs with a signed query (synthetic names/values).
+            first = load_log_reference()["hops"][0]
+            token = str(uuid.uuid5(LOG_UUID_NAMESPACE, str(identifier)))
+            server.log_tokens[token] = identifier
+            origin = f"https://{RESULTS_RECEIVER_HOST}" if server.live else f"https://localhost:{server.server_address[1]}"
+            return self._send(first["status"], b"", content_type=first["content_type"], always_type=True,
+                              extra=[("Location", f"{origin}/rest/runs/{token}/logs?{LOG_QUERY}")])
         if server.live:
             # GitHub answers with a pre-signed blob URL on port 443 (no explicit port); the transport must follow it.
+            # Artifacts only; for logs this is the pre-R11 shape, served only under --fault run-logs-legacy-blob-redirect.
             location = f"https://{BLOB_HOST}/_downloads/{kind}/{identifier}?sv=2025&sig=dry-run-signature"
         else:
             location = f"https://localhost:{server.server_address[1]}/_downloads/{kind}/{identifier}?sig=dry-run-signature"
         self._send(302, b"", extra=[("Location", location)])
+
+    def _results_receiver(self, path, query):
+        """253-128: results-receiver answers hop 1 as the probe recorded: the final 200 application/zip, no Content-Length,
+        a zip in the recorded member pattern (one numbered log and one system.txt per executed job)."""
+        server = self.server
+        hops = load_log_reference()["hops"]
+        if len(hops) != 2:
+            return self._refuse(f"the recorded run-log chain has {len(hops)} hops; this fake models the observed two", 404)
+        if query != parse_qs(LOG_QUERY, keep_blank_values=True):
+            return self._refuse("results-receiver log query is not one this fake issued", 404)
+        record = server.runs.get(server.log_tokens.get(RESULTS_LOG_PATH.fullmatch(path).group(1)))
+        if record is None or not record.get("completed") or record.get("conclusion") != "failure":
+            return self._refuse("results-receiver log path is not one this fake issued", 404)
+        final = hops[-1]
+        names = [job["name"] for job in self._jobs_body(record)["jobs"] if job["conclusion"] not in (None, "skipped")]
+        self._send(final["status"], log_archive(names), content_type=final["content_type"], api=False,
+                   chunked=final["content_length"] is None)
 
     def _download(self, path, query):
         match = re.fullmatch(r"/_downloads/(artifacts|logs)/(\d+)", path)
         if not match or set(query) != ({"sv", "sig"} if self.server.live else {"sig"}):
             return self._refuse("download host path is not one this fake issued", 404)
         kind, identifier = match.group(1), int(match.group(2))
+        if kind == "logs" and "run-logs-legacy-blob-redirect" not in getattr(self.server, "faults", ()):
+            return self._refuse("the pre-R11 blob log path is not GitHub's recorded run-log chain", 404)
         if kind == "artifacts":
             data = self.server.blobs_by_artifact.get(identifier)
         else:
@@ -995,7 +1260,8 @@ def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_pare
          "-addext", "subjectAltName=" + ",".join(f"DNS:{name}" for name in names), "-keyout", str(key), "-out", str(cert)])
     server = FakeServer(("127.0.0.1", 0), FakeGitHub)
     server.live = live
-    server.authorization = {"api_with": 0, "api_without": 0, "blob_with": 0}
+    server.authorization = {"api_with": 0, "api_without": 0, "blob_with": 0, "results_receiver_with": 0}
+    server.log_tokens = {}
     server.work = str(work)
     server.git_dir = str(work / "fake-github.git")
     run(["git", "init", "--bare", "-q", server.git_dir])
@@ -1221,7 +1487,7 @@ def dry_run(args) -> dict:
     summary = {"status": "failed", "synthetic": True, "freeze_plan": None, "scenarios": [], "verifier": {"status": "pending"},
                "requests_by_category": {}, "requests_total": 0, "journal_requests": 0, "stop": None,
                "mode": "live-policy" if live else "hermetic", "live_hops": [],
-               "authorization": {"api_with": 0, "api_without": 0, "blob_with": 0},
+               "authorization": {"api_with": 0, "api_without": 0, "blob_with": 0, "results_receiver_with": 0},
                "requested_sleeps": requested_sleeps(None), "shim_refusals": [], "shim_connect_hosts": [], "violations": []}
     if getattr(args, "transport_from", None):
         summary["transport_from"] = args.transport_from
@@ -1272,14 +1538,16 @@ def dry_run(args) -> dict:
         sleep_log = None
         if live:
             # 253-108: the live canary allocation shape (as 253-104's), trusted hosts from ALLOCATION-R8, no test fields.
+            # 253-128: plus results-receiver, GitHub's run-log host (admitted by the transport only as run_logs hop 1).
             del allocation["test_origin"], allocation["test_ca_file"]
             allocation.update({"window_id": f"{LIVE_WINDOW_PREFIX}{os.getpid()}", "max_pages": 10, "mode": "live",
-                               "download_hosts": list(json.loads((ROOT / R8_ALLOCATION_REL).read_text())["download_hosts"])})
+                               "download_hosts": list(json.loads((ROOT / R8_ALLOCATION_REL).read_text())["download_hosts"])
+                               + [RESULTS_RECEIVER_HOST]})
             shim = load_module("ci_live_policy_shim_for_dryrun", clone / SHIM_REL)
             connect_log = work / "shim-connect.log"
             refusal_log = shim.refusal_log_for(connect_log)
-            shim_env = shim.prepare(work / "live-policy-shim", {API_HOST: port, BLOB_HOST: port, PIPELINES_HOST: port},
-                                    cert, connect_log)
+            shim_env = shim.prepare(work / "live-policy-shim", {API_HOST: port, BLOB_HOST: port, PIPELINES_HOST: port,
+                                                                RESULTS_RECEIVER_HOST: port}, cert, connect_log)
             chain_interpreter_sitecustomize(Path(shim_env["PYTHONPATH"]) / "sitecustomize.py")
             sleep_log = install_recording_sleep(work, ledger, args.sleep_scale)
             env = scrubbed_env(work, {**shim_env, "GH_TOKEN": LIVE_TOKEN})
@@ -1403,7 +1671,8 @@ def dry_run(args) -> dict:
             if (verifier_job or {}).get("result") != wanted:
                 problems.append(f"the modeled verifier job did not report {wanted}: {verifier_job}")
         # 253-117: every run object the fake served must have GitHub's recorded shape.
-        summary["response_shape"] = shape = response_shape(server.journal, server.runs, load_reference())
+        summary["response_shape"] = shape = response_shape(server.journal, server.runs, load_reference(),
+                                                           log_reference=load_log_reference(), live=live, local_port=port)
         if not shape["ok"]:
             problems.append(f"response_shape: {shape['mismatch_count']} served object(s) differ from GitHub's recorded "
                             f"shape: {shape['mismatches'][:3]}")
@@ -1411,6 +1680,10 @@ def dry_run(args) -> dict:
             problems.append("response_shape: no served run was checked")
         if args.stop_after != "full-pass" and not shape["verifier_run_checked"]:
             problems.append("response_shape: the separate verifier run was not checked")
+        if args.stop_after != "full-pass" and not shape["run_logs_checked"]:
+            problems.append("response_shape: no run_logs chain was served and checked against GitHub's recorded chain")
+        if summary["authorization"].get("results_receiver_with"):
+            problems.append(f"Authorization reached results-receiver {summary['authorization']['results_receiver_with']} time(s)")
         if server.violations:
             problems.append("fake GitHub violations: " + "; ".join(server.violations[:5]))
         if summary["shim_refusals"]:
@@ -1491,9 +1764,11 @@ def main() -> int:
     parser.add_argument("--polls", action="append", help="SCENARIO=N modeled polls to completion (repeatable)")
     parser.add_argument("--inject", action="append", help="'METHOD /path=STATUS': answer that request once with STATUS")
     parser.add_argument("--reenter", action="store_true", help="after a failed driver mode, run it once more (halt guard check)")
-    parser.add_argument("--fault", action="append", choices=("artifact-digest", "run-shape-bare-name"),
+    parser.add_argument("--fault", action="append",
+                        choices=("artifact-digest", "run-shape-bare-name", "run-logs-legacy-blob-redirect"),
                         help="modeled server fault (artifact-digest: listed digest differs from the served bytes; "
-                             "run-shape-bare-name: every run is served in the pre-253-117 shape, bare name and path@ref)")
+                             "run-shape-bare-name: every run is served in the pre-253-117 shape, bare name and path@ref; "
+                             "run-logs-legacy-blob-redirect: failed logs take the pre-R11 blob-host redirect)")
     parser.add_argument("--timeout", type=int, default=900, help="seconds allowed per driver invocation")
     parser.add_argument("--overlay-worktree", action="store_true",
                         help="copy the checkout's uncommitted scripts/ci edits into the clone (test aid; recorded)")
