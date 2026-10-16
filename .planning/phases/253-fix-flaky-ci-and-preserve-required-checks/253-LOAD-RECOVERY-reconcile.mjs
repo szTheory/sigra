@@ -1671,6 +1671,21 @@ const RESPONSIBILITY_MAP_R10 = Object.freeze({
   "114": { owners: ["123"], links: PR_LINKS },
   "115": { owners: ["121", "124"], links: [...COMPLETION_LINK_KEYS, "load_target_disposition"] },
 });
+// The R9 halted proof map carried through the remap (so no row names halted 113), plus halted 113's own proof:
+// 116 (run-identity RED receipt and fix), 117 (ledger binding), 118 (real-shape fakes and response-shape
+// audit), 119 (r10 ref pair and final review), 120 (R10 publication and freeze) and 122 (the hosted canary 113
+// could not finish).
+const HALTED_PROOF_MAP_R10 = Object.freeze({
+  ...Object.fromEntries(Object.entries(HALTED_PROOF_MAP_R9).map(([id, owners]) => [id, remapOwnersR10(owners)])),
+  "113": ["116", "117", "118", "119", "120", "122"],
+});
+
+// Plan 253-112's receipts name THIS helper and its test, which R10 (plan 253-121) must edit. They are held at
+// the bytes of the last 253-112 commit that touched each file (17f3db955), read with git rather than invented.
+const FROZEN_TOOLING_RECEIPTS_R10_PLAN_112 = Object.freeze({
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "7653cf4b4e1b68b71526d004c428e2e7320453d7761764bb127f1200281a54f5",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "a166f6c40c91fa9958d35c06f8fdf6e8a6cdbf9d336f246aaf206eda92b8e833",
+});
 // A proof owner must exist and must be neither halted nor never executed under R10.
 export function assertProofOwnerR10(phaseDir, owner) {
   const id = String(owner).replace(/^253-/, "");
@@ -1692,6 +1707,18 @@ function buildContractR10({ repoRoot = REPO_ROOT } = {}) {
   }
   for (const original of originals) original.class = classOf(original.plan.slice(4));
   for (const id of R10_PLAN_IDS) pinFile(repoRoot, `${PHASE_DIR_REL}/253-${id}-PLAN.md`, `R10 plan 253-${id}`);
+  const byNumber = (a, b) => comparePlanIds(a.plan, b.plan);
+  const completed = [...r9.completed_plans];
+  for (const id of ["107", "108", "109", "110", "111", "112"]) {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false, frozenReceipts: id === "112" ? FROZEN_TOOLING_RECEIPTS_R10_PLAN_112 : {} });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    completed.push(described);
+  }
+  completed.sort(byNumber);
+  const halted = [...r9.halted_plans];
+  const halted113 = describeSummary(repoRoot, phaseDir, "113", { requireReceipts: true });
+  if (halted113.summary.status !== "halted") throw new Error(`halted plan 253-113 summary status is ${halted113.summary.status}`);
+  halted.push(halted113);
   const r9Rows = Object.fromEntries(r9.responsibilities.map((row) => [row.plan.slice(4), row]));
   const responsibilities = UNSTARTED_IDS_R10.map((id) => {
     const mapping = RESPONSIBILITY_MAP_R10[id];
@@ -1721,6 +1748,17 @@ function buildContractR10({ repoRoot = REPO_ROOT } = {}) {
     const file = `253-${PAD(n)}-PLAN.md`;
     return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
   });
+  const haltedProof = Object.fromEntries(HALTED_IDS_R10.map((id) => [`253-${id}`, HALTED_PROOF_MAP_R10[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) {
+      if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+      if (HALTED_IDS_R10.includes(owner.slice(4)) || UNSTARTED_IDS_R10.includes(owner.slice(4))) throw new Error(`halted proof owner ${owner} is a halted or never-executed plan`);
+    }
+  }
+  const summaryPins = [...ids(36, 43), ...ids(48, 51), ...ids(57, 63), ...ids(69, 73), ...ids(79, 84), ...ids(89, 92), 95, 96, 97, 100, 101, 102, 103, 104, ...ids(107, 113), ...ids(116, 120)].filter((n) => existsSync(join(phaseDir, `253-${PAD(n)}-SUMMARY.md`))).map((n) => {
+    const file = `253-${PAD(n)}-SUMMARY.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "summary") };
+  });
   return {
     schema: CONTRACT_SCHEMA_R10,
     revision: "r10",
@@ -1738,13 +1776,21 @@ function buildContractR10({ repoRoot = REPO_ROOT } = {}) {
     sdk: r9.sdk,
     capture: r9.capture,
     plan_pins: planPins,
-    summary_pins: r9.summary_pins,
+    summary_pins: summaryPins,
     originals,
-    completed_plans: r9.completed_plans,
-    halted_plans: r9.halted_plans,
-    halted_proof_map: r9.halted_proof_map,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
     responsibilities,
-    application: { ...r9.application },
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned",
+      targets: "only the fifty previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-124",
+      then_run: r9.application.then_run,
+      never: [...r9.application.never],
+    },
   };
 }
 
