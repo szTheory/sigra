@@ -25,7 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PHASE_REL = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
-AUDIT_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R9.json"
+AUDIT_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R10.json"
 SCHEMA = "sigra.phase253.hermetic-live-audit/v1"
 FILES = ("scripts/ci/ci-hosted-transport.py", "scripts/ci/ci-gate-canary.sh", "scripts/ci/ci-pr-proof.sh",
          "scripts/ci/ci-git-publication.py", "scripts/ci/ci-hosted-gate-verify.py")
