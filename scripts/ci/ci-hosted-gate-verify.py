@@ -126,6 +126,8 @@ def api_view(evidence):
 
 
 TRUSTED_DOWNLOAD_HOST = re.compile(r"pipelines\.actions\.githubusercontent\.com|productionresultssa[0-9]+\.blob\.core\.windows\.net")
+# 253-125: GitHub's run-log redirect host, trusted by exact name only on a run_logs transaction at hop 1 (mirrors the transport).
+RESULTS_RECEIVER_HOST = "results-receiver.actions.githubusercontent.com"
 
 
 def verify_live_transaction_host(transaction):
@@ -144,7 +146,9 @@ def verify_live_transaction_host(transaction):
     if transaction.get("hop_ordinal") in (None, 0):
         require(host == "api.github.com", "live hop-0 transaction is not on api.github.com")
     else:
-        require(isinstance(host, str) and TRUSTED_DOWNLOAD_HOST.fullmatch(host) is not None,
+        results_receiver_hop = (host == RESULTS_RECEIVER_HOST and transaction.get("route_id") == "run_logs"
+                                and type(transaction.get("hop_ordinal")) is int and transaction["hop_ordinal"] == 1)
+        require(isinstance(host, str) and (TRUSTED_DOWNLOAD_HOST.fullmatch(host) is not None or results_receiver_hop),
                 "live redirect hop is not on a trusted download host")
 
 
