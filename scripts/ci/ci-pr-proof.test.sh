@@ -23,6 +23,7 @@ import io
 import json
 import os
 import pathlib
+import re
 import shutil
 import ssl
 import stat
@@ -1652,6 +1653,87 @@ class LivePolicyPRTests(unittest.TestCase):
         # (The fake appends a journal row after writing the response, so search rather than index the latest rows.)
         self.assertTrue(any(row.get("host") == BLOB_HOST and row["authorization"] == "Bearer probe" for row in world.server.journal),
                         "the journal records a present Authorization header")
+
+
+REDIRECT_FIX_SUBJECT = "allow the live approved-redirect hop"
+SUMMARY_107 = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-107-SUMMARY.md"
+
+
+def redirect_fix_matches():
+    """Every commit touching the transport whose message contains the redirect-fix subject (never 'the latest fix')."""
+    output = subprocess.check_output(["git", "-C", str(ROOT), "log", "--format=%H", "--fixed-strings",
+                                      f"--grep={REDIRECT_FIX_SUBJECT}", "--", "scripts/ci/ci-hosted-transport.py"], text=True)
+    return output.split()
+
+
+def proof_with_transport(test, revision):
+    """RED stub: the substitution helper does not exist yet, so the collector runs with the working-tree transport."""
+    return PROOF, None
+
+
+class LivePolicySensitivityTests(unittest.TestCase):
+    """253-109: the live-policy PR path fails on the exact 253-104 defect and passes once it is fixed."""
+
+    def fix_commit(self):
+        matches = redirect_fix_matches()
+        self.assertEqual(len(matches), 1, f"the redirect-fix subject must name exactly one commit: {matches}")
+        return matches[0]
+
+    def test_the_redirect_fix_commit_is_resolved_by_its_unique_subject_and_equals_the_253_107_record(self):
+        commit = self.fix_commit()
+        recorded = re.search(r"^redirect_fix_commit: ([0-9a-f]{40})$", SUMMARY_107.read_text(), re.M)
+        self.assertIsNotNone(recorded)
+        self.assertEqual(commit, recorded.group(1))
+        subject = subprocess.check_output(["git", "-C", str(ROOT), "log", "-1", "--format=%s", commit], text=True).strip()
+        self.assertIn(REDIRECT_FIX_SUBJECT, subject)
+
+    def test_the_pre_fix_transport_stops_the_live_normal_family_at_the_first_artifact_hop_with_origin_rejected(self):
+        proof, digest = proof_with_transport(self, self.fix_commit() + "^")
+        world = LiveWorld(self, tag="live-pre-fix")
+        process, path = world.collect("normal", "pre-fix.json", check=False, proof=proof)
+        record = {"exit": process.returncode, "stop": None}
+        evidence = json.loads(path.read_text()) if path.exists() else {}
+        record["stop"] = (evidence.get("collection") or {}).get("stop")
+        print(f"253-109 sensitivity pre-fix live: {json.dumps(record)}", file=sys.stderr)
+        self.assertEqual(process.returncode, 1, "the pre-fix transport passed the live-policy family: the gate cannot see 253-104")
+        self.assertIn("origin_rejected: live transport is restricted to api.github.com", record["stop"])
+        self.assertTrue(record["stop"].startswith("artifact_zip:"), record["stop"])
+        self.assertIs(evidence["collection"]["complete"], False)
+        zips = [tx for tx in evidence["transport_ledger"]["transactions"] if tx["route_id"] == "artifact_zip"]
+        self.assertEqual([(tx["hop_ordinal"], tx["host"], tx["actual_status"]) for tx in zips], [(0, API_HOST, 302)],
+                         "only the first producer download's hop 0 was charged; hop 1 never left the process")
+        self.assertFalse(any(row.get("host") == BLOB_HOST for row in world.server.journal), "a hop-1 request reached the blob host")
+        self.assertEqual(world.connect_hosts(), [API_HOST], "a hop-1 connection was opened to the blob host")
+        self.assertEqual(world.refusals(), [], "the transport refused the hop, not the shim")
+        self.assertIsNotNone(digest)
+        rejected, _ = run_verifier("--mode", "pr", "--family", "normal", "--evidence", path)
+        self.assertEqual(rejected.returncode, 1)
+
+    def test_the_fixed_transport_copy_completes_the_live_normal_family(self):
+        proof, digest = proof_with_transport(self, self.fix_commit())
+        world = LiveWorld(self, tag="live-fix")
+        process, path = world.collect("normal", "fix.json", check=False, proof=proof)
+        print(f"253-109 sensitivity fix live: {json.dumps({'exit': process.returncode})}", file=sys.stderr)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        hops = [tx for tx in json.loads(path.read_text())["transport_ledger"]["transactions"]
+                if tx["route_id"] == "artifact_zip" and tx["hop_ordinal"] == 1]
+        self.assertEqual([(tx["host"], tx["actual_status"]) for tx in hops], [(BLOB_HOST, 200)] * 5)
+        self.assertEqual(world.connect_hosts(), sorted({API_HOST, BLOB_HOST}))
+        verified, result = run_verifier("--mode", "pr", "--family", "normal", "--evidence", path)
+        self.assertEqual(verified.returncode, 0, verified.stderr)
+        self.assertEqual(result["status"], "synthetic_pr_family_verified")
+
+    def test_the_hermetic_universe_with_the_pre_fix_transport_is_recorded_not_gated(self):
+        proof, digest = proof_with_transport(self, self.fix_commit() + "^")
+        world = World(self, tag="hermetic-pre-fix")
+        process, path = world.collect("normal", "hermetic-pre-fix.json", check=False, proof=proof)
+        evidence = json.loads(path.read_text()) if path.exists() else {}
+        record = {"exit": process.returncode, "stop": (evidence.get("collection") or {}).get("stop"),
+                  "hop1_hosts": sorted({tx["host"] for tx in (evidence.get("transport_ledger") or {}).get("transactions", [])
+                                        if tx["route_id"] == "artifact_zip" and tx["hop_ordinal"] == 1})}
+        # Recorded, not gated: the hermetic allocation is exempt from the live origin check, so it is blind to 253-104.
+        print(f"253-109 sensitivity pre-fix hermetic: {json.dumps(record)}", file=sys.stderr)
+        self.assertIn(process.returncode, (0, 1))
 
 
 if __name__ == "__main__":
