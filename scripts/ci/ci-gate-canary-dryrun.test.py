@@ -782,6 +782,43 @@ class ResponseShapeTests(unittest.TestCase):
                                  hashlib.sha256(R9_LEDGER.read_bytes()).hexdigest(), shape)
 
 
+class SeededR9RefsTests(unittest.TestCase):
+    """253-119: --seed-r9-refs pre-seeds the two r9 refs 253-113 created on GitHub, at their real SHAs, beside the r8 pair."""
+
+    def test_the_seeded_pairs_are_the_real_github_shas_and_r8_is_unchanged(self):
+        runner = load_runner()
+        self.assertEqual(runner.R8_REFS, {"gsd/253-replan-r8-candidate": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+                                          "gsd/253-replan-r8-fixture": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44"})
+        self.assertEqual(runner.R9_REFS, {"gsd/253-replan-r9-candidate": "b9720d8e00e69e11c965ed7cf5029e3a0008783a",
+                                          "gsd/253-replan-r9-fixture": "aa7014893b716f279b60ceb545b8aee5ca15b10c"})
+        freeze = json.loads((ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
+                             "253-LOAD-RECOVERY-CANARY-FREEZE-R9.json").read_text())["identity"]
+        self.assertEqual({freeze["candidate_ref"].removeprefix("refs/heads/"): freeze["candidate_helper_commit"],
+                          freeze["fixture_ref"].removeprefix("refs/heads/"): freeze["fixture_workflow_commit"]}, runner.R9_REFS)
+
+    def test_an_r10_quick_gate_with_both_earlier_pairs_seeded_passes_in_both_modes_and_moves_neither(self):
+        for label, (code, summary) in (
+                ("hermetic", run_gate("--ref-pair", "r10", "--seed-r8-refs", "--seed-r9-refs", "--stop-after", "full-pass")),
+                ("live-policy", live_run("--ref-pair", "r10", "--seed-r8-refs", "--seed-r9-refs", "--stop-after", "full-pass"))):
+            with self.subTest(mode=label):
+                self.assertEqual(code, 0, summary)
+                self.assertEqual(summary.get("status"), "passed", summary)
+                self.assertIs(summary.get("seeded_r8_refs_changed"), False, summary)
+                self.assertIs(summary.get("seeded_r9_refs_changed"), False, summary)
+                self.assertIs((summary.get("response_shape") or {}).get("ok"), True, summary)
+                self.assertEqual(summary.get("requests_by_route", {}).get("create_ref"), 2, summary)
+
+    def test_an_r9_named_run_with_the_r9_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing(self):
+        code, summary = run_gate("--ref-pair", "r9", "--seed-r9-refs", "--stop-after", "full-pass")
+        self.assertNotEqual(code, 0, summary)
+        self.assertNotEqual(summary.get("status"), "passed", summary)
+        self.assertIn("scoped ref gsd/253-replan-r9-candidate already points to a different commit", summary.get("stop") or "", summary)
+        self.assertIs(summary.get("seeded_r9_refs_changed"), False, summary)
+        self.assertNotIn("seeded_r8_refs_changed", summary)
+        self.assertNotIn("create_ref", summary.get("requests_by_route") or {"create_ref": 1})
+        self.assertEqual(summary.get("evidence_status"), "halted", summary)
+
+
 class RefPairHelpTests(unittest.TestCase):
     def test_the_ref_pair_help_is_truthful_and_names_the_publishers_ref_pairs(self):
         result = subprocess.run([sys.executable, str(RUNNER), "--help"], cwd=ROOT, env=clean_env(),

@@ -87,6 +87,9 @@ TRANSPORT_REL = "scripts/ci/ci-hosted-transport.py"
 # The two refs 253-104 created on GitHub (R8 pair); a run seeded with them must never move them.
 R8_REFS = {"gsd/253-replan-r8-candidate": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
            "gsd/253-replan-r8-fixture": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44"}
+# 253-119: the two refs 253-113 created on GitHub (R9 pair, FREEZE-R9's commits); a run seeded with them must never move them.
+R9_REFS = {"gsd/253-replan-r9-candidate": "b9720d8e00e69e11c965ed7cf5029e3a0008783a",
+           "gsd/253-replan-r9-fixture": "aa7014893b716f279b60ceb545b8aee5ca15b10c"}
 # 253-117: GitHub's recorded responses, read from the committed R9 ledger at run time (the harness runs locally only):
 # seq 25 the workflow_runs listing, 27 the run poll, 28 the jobs page and 29 the artifacts page of real run 38906314106.
 R9_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json"
@@ -972,6 +975,16 @@ class FakeServer(OBJECT_TESTS.ObjectHTTPServer):
         return result
 
 
+def seeded_scoped_refs(args) -> dict:
+    """The earlier scoped refs the run pre-seeds at their real GitHub SHAs: r8 (--seed-r8-refs), r9 (--seed-r9-refs) or both."""
+    refs = {}
+    if getattr(args, "seed_r8_refs", False):
+        refs.update(R8_REFS)
+    if getattr(args, "seed_r9_refs", False):
+        refs.update(R9_REFS)
+    return refs
+
+
 def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_parent: str, verifier_module,
                visibility_delay: float, polls: dict, seed_legacy: bool, live: bool = False, seed_refs: dict | None = None):
     cert, key = work / "tls-cert.pem", work / "tls-key.pem"
@@ -1240,7 +1253,7 @@ def dry_run(args) -> dict:
             visibility = 0.05 if live else 3.0
         server, thread, cert = start_fake(work, clone, ledger, journal, freeze["identity"]["server_parent_sha"],
                                           verifier_module, visibility, polls, args.seed_legacy_refs, live=live,
-                                          seed_refs=R8_REFS if getattr(args, "seed_r8_refs", False) else None)
+                                          seed_refs=seeded_scoped_refs(args) or None)
         server.faults = set(args.fault or [])
         for item in args.inject or []:
             key, _, status = item.rpartition("=")
@@ -1419,6 +1432,11 @@ def dry_run(args) -> dict:
             summary["seeded_r8_refs_changed"] = bool(changed)
             if changed:
                 problems.append(f"a seeded r8 ref changed: {changed}")
+        if getattr(args, "seed_r9_refs", False):
+            changed = {name: server.refs.get(name) for name, sha in R9_REFS.items() if server.refs.get(name) != sha}
+            summary["seeded_r9_refs_changed"] = bool(changed)
+            if changed:
+                problems.append(f"a seeded r9 ref changed: {changed}")
         expected = ["full-pass"] if args.stop_after == "full-pass" else list(SCENARIOS)
         if failed is None and summary["scenarios"] != expected:
             problems.append(f"verifier accepted {summary['scenarios']}, expected {expected}")
@@ -1451,6 +1469,8 @@ def main() -> int:
                         help="pre-seed the two refs 253-97 left on GitHub; they must not change")
     parser.add_argument("--seed-r8-refs", action="store_true",
                         help="pre-seed the two r8 refs 253-104 left on GitHub; they must not change")
+    parser.add_argument("--seed-r9-refs", action="store_true",
+                        help="pre-seed the two r9 refs 253-113 left on GitHub; they must not change (combinable with --seed-r8-refs)")
     parser.add_argument("--ref-pair", choices=sorted(PUBLISHER.REF_PAIRS),
                         help="forwarded to --build-freeze for the derived synthetic freeze: one of the publisher's REF_PAIRS "
                              f"({', '.join(sorted(PUBLISHER.REF_PAIRS))}; the publisher's default is "
