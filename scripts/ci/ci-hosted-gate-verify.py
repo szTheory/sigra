@@ -688,6 +688,28 @@ def validate_record(record, scenario, run_id, attempt, expected):
     return record
 
 
+def expected_run_title(scenario, run):
+    """253-116 (D-18/D-21): the fixture's run-name for this run, exactly as GitHub renders it.
+
+    The fixture declares run-name "Phase 253 Gate Canary / ${{ inputs.scenario }} / ${{ github.run_id }}-${{ github.run_attempt }}",
+    and GitHub returns that rendered string as both the run's name and its display_title (runs 38347679431, 38791286863,
+    38906314106). Exact UTF-8 strings: no strip, casefold or normalization.
+    """
+    return f"{FIXTURE_NAME} / {scenario} / {str(run.get('id'))}-{str(run.get('run_attempt'))}"
+
+
+def require_run_title(run, scenario):
+    """The run's display_title is the run-name for its own scenario, id and attempt; its name is that same run-name or the
+    bare fixture name, and a run-name name must equal the display_title."""
+    title = expected_run_title(scenario, run)
+    name = run.get("name")
+    display_title = run.get("display_title")
+    require(isinstance(display_title, str) and display_title == title
+            and isinstance(name, str) and (name == FIXTURE_NAME or name == title)
+            and (name == FIXTURE_NAME or name == display_title),
+            "run workflow identity mismatch")
+
+
 def verify_scenario(receipt, scenario, evidence):
     require(scenario in SCENARIOS, f"unknown scenario: {scenario}")
     require(isinstance(receipt, dict), f"scenario receipt missing: {scenario}")
@@ -710,8 +732,9 @@ def verify_scenario(receipt, scenario, evidence):
     require(run.get("event") == "workflow_dispatch", "actual GitHub event is not workflow_dispatch")
     require(run.get("head_branch") == fixture_ref.removeprefix("refs/heads/"), "run came from an unexpected branch")
     require(run.get("head_sha") == expected["workflow_sha"], "fixture workflow source commit mismatch")
-    require(run.get("workflow_id") == expected["workflow_id"] and str(run.get("path", "")).split("@", 1)[0] == WORKFLOW_PATH
-            and run.get("name") == FIXTURE_NAME, "run workflow identity mismatch")
+    require(run.get("workflow_id") == expected["workflow_id"] and str(run.get("path", "")).split("@", 1)[0] == WORKFLOW_PATH,
+            "run workflow identity mismatch")
+    require_run_title(run, scenario)
     require(run.get("status") == "completed" and run.get("conclusion") == expected_outcome(scenario),
             f"actual terminal conclusion does not match {scenario}")
 
@@ -833,10 +856,11 @@ def verify_separate_verifier(evidence, source_count):
     require(isinstance(run, dict) and str(run.get("id")) == str(verifier.get("run_id"))
             and run.get("event") == "workflow_dispatch" and run.get("status") == "completed"
             and run.get("conclusion") == "success" and run.get("workflow_id") == 259268962
-            and str(run.get("path", "")).split("@", 1)[0] == WORKFLOW_PATH and run.get("name") == FIXTURE_NAME
+            and str(run.get("path", "")).split("@", 1)[0] == WORKFLOW_PATH
             and run.get("head_branch") == expected.get("fixture_ref", "").removeprefix("refs/heads/")
             and run.get("head_sha") == expected.get("workflow_sha"),
             "separate hosted verifier run identity or conclusion mismatch")
+    require_run_title(run, "verifier")
     document = verifier.get("jobs")
     require(isinstance(document, dict) and isinstance(document.get("jobs"), list), "separate hosted verifier jobs missing")
     jobs = document["jobs"]
