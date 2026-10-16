@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.hermetic-live-audit/v1",
-  "audit_head": "9f796f4b5d9a5ea1c84196a4d84c7489cd42c1e2",
+  "audit_head": "5a33297685477339bf2e34489aaa91c79535e87c",
   "matcher": {
     "files": [
       "scripts/ci/ci-hosted-transport.py",
@@ -894,7 +894,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "hermetic = allocation[\"mode\"] == \"hermetic-test\"",
       "occurrence": 1,
-      "line": 999,
+      "line": 1004,
       "hermetic_behavior": "hermetic is true for a hermetic-test production allocation.",
       "live_behavior": "hermetic is false for a live production allocation.",
       "coverage": {
@@ -913,7 +913,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "require(evidence.get(\"synthetic\") is hermetic, \"synthetic label must match the allocation origin (local HTTPS is synthetic, never live)\")",
       "occurrence": 1,
-      "line": 1000,
+      "line": 1005,
       "hermetic_behavior": "The evidence must be labelled synthetic.",
       "live_behavior": "The evidence must be labelled synthetic false.",
       "coverage": {
@@ -931,7 +931,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic:",
       "occurrence": 1,
-      "line": 1017,
+      "line": 1022,
       "hermetic_behavior": "Every transaction must be on the local test origin's host.",
       "live_behavior": "Every transaction must be on api.github.com or a frozen download host (else branch).",
       "coverage": {
@@ -947,7 +947,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "require(tx.get(\"host\") == urlsplit(allocation[\"test_origin\"]).hostname, \"synthetic transaction left the local origin\")",
       "occurrence": 1,
-      "line": 1018,
+      "line": 1023,
       "hermetic_behavior": "A transaction off the local origin is refused.",
       "live_behavior": "Not reached: the live else branch applies the api.github.com/download_hosts rule.",
       "coverage": {
@@ -963,7 +963,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic:",
       "occurrence": 2,
-      "line": 1040,
+      "line": 1045,
       "hermetic_behavior": "The local server journal is required and reconciled, and no Authorization may reach it.",
       "live_behavior": "No journal is required; an optional journal must have one row per transaction.",
       "coverage": {
@@ -981,7 +981,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "hermetic = allocation[\"mode\"] == \"hermetic-test\"",
       "occurrence": 2,
-      "line": 1063,
+      "line": 1068,
       "hermetic_behavior": "hermetic is true for a hermetic-test production allocation.",
       "live_behavior": "hermetic is false; the check view keeps the ledger URLs as recorded.",
       "coverage": {
@@ -999,7 +999,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "origin = f\"https://{urlsplit(allocation['test_origin']).hostname}\" if hermetic else None",
       "occurrence": 1,
-      "line": 1064,
+      "line": 1069,
       "hermetic_behavior": "The local origin prefix to rewrite is computed.",
       "live_behavior": "No origin is computed (None).",
       "coverage": {
@@ -1017,7 +1017,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic and row[\"url\"].startswith(origin):",
       "occurrence": 1,
-      "line": 1070,
+      "line": 1075,
       "hermetic_behavior": "Local-origin URLs are rewritten to api.github.com for the check view.",
       "live_behavior": "No rewrite: live URLs are already api.github.com.",
       "coverage": {
@@ -1035,7 +1035,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "return dryrun_pr_result({\"status\": \"synthetic_pr_family_verified\" if evidence[\"synthetic\"] else \"pr_family_verified\", \"family\": family,",
       "occurrence": 1,
-      "line": 1418,
+      "line": 1423,
       "hermetic_behavior": "Hermetic evidence verifies as synthetic_pr_family_verified.",
       "live_behavior": "Live evidence verifies as pr_family_verified, and dryrun_pr_result relabels a dry-run window synthetic.",
       "coverage": {
@@ -1053,7 +1053,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "return dryrun_pr_result({\"status\": \"synthetic_pr_pair_verified\" if not first[\"accepted_live\"] else \"pr_pair_verified\",",
       "occurrence": 1,
-      "line": 1452,
+      "line": 1457,
       "hermetic_behavior": "A hermetic pair verifies as synthetic_pr_pair_verified.",
       "live_behavior": "A live pair verifies as pr_pair_verified, relabelled synthetic on a dry-run window.",
       "coverage": {
@@ -1071,7 +1071,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic_canary(evidence):",
       "occurrence": 1,
-      "line": 1511,
+      "line": 1516,
       "hermetic_behavior": "Checks are hydrated on an api.github.com view of the evidence and the result is synthetic.",
       "live_behavior": "Checks are hydrated (if absent) and verified on the evidence itself.",
       "coverage": {
@@ -1089,7 +1089,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic_canary(evidence) or dryrun_window(evidence):",
       "occurrence": 1,
-      "line": 1679,
+      "line": 1684,
       "hermetic_behavior": "The matrix result is synthetic.",
       "live_behavior": "A live-policy dry-run matrix is synthetic through its window; a real live window is not.",
       "coverage": {
@@ -1107,7 +1107,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic_canary(canary):",
       "occurrence": 1,
-      "line": 1831,
+      "line": 1836,
       "hermetic_behavior": "A hermetic canary link is a synthetic gap.",
       "live_behavior": "A live canary link adds no hermetic gap.",
       "coverage": {
@@ -1123,7 +1123,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "synthetic = synthetic or not pr_result[\"accepted_live\"]",
       "occurrence": 1,
-      "line": 1849,
+      "line": 1854,
       "hermetic_behavior": "A synthetic PR pair marks completion synthetic.",
       "live_behavior": "A live-accepted pair does not; a dry-run pair (accepted_live false) does.",
       "coverage": {
@@ -1141,7 +1141,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if dryrun_window(document):",
       "occurrence": 1,
-      "line": 1861,
+      "line": 1866,
       "hermetic_behavior": "Not specific to hermetic evidence.",
       "live_behavior": "Every link on a 253-dryrun- window is a synthetic gap; real windows are not.",
       "coverage": {
@@ -1159,7 +1159,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "complete = not synthetic and len(opened) == len(LINKS)",
       "occurrence": 1,
-      "line": 1871,
+      "line": 1876,
       "hermetic_behavior": "Synthetic evidence can never be complete.",
       "live_behavior": "Complete only when nothing is synthetic and every link is present.",
       "coverage": {
@@ -1175,7 +1175,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic_canary(evidence):",
       "occurrence": 2,
-      "line": 1922,
+      "line": 1927,
       "hermetic_behavior": "A CLI result on hermetic evidence is synthetic with channel hermetic-https.",
       "live_behavior": "Not hermetic: falls to the dry-run window check.",
       "coverage": {
@@ -1191,7 +1191,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "elif dryrun_window(evidence):",
       "occurrence": 1,
-      "line": 1926,
+      "line": 1931,
       "hermetic_behavior": "Not reached for hermetic evidence.",
       "live_behavior": "A live-policy dry run is synthetic with channel live-policy-dry-run; a real window is unlabelled.",
       "coverage": {
@@ -1226,7 +1226,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "view = api_view(evidence)",
       "occurrence": 2,
-      "line": 1655,
+      "line": 1660,
       "supplementary": true,
       "supplementary_reason": "253-116 canary receipt-to-ledger binding (verify_canary_bindings): api_view is the hermetic/live branch, but the call has no condition, so the matcher does not select it; recorded so the binding's live side is audited",
       "hermetic_behavior": "Hermetic dry-run evidence is read through api_view, so local-origin ledger URLs are matched as their api.github.com paths when each receipt is bound to its run poll, discovery, dispatch, jobs, artifacts and artifact_zip download (exercised end to end by both offline dry-run gates).",
