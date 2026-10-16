@@ -64,7 +64,9 @@ def fixture():
             "head_branch": "gsd/253-replan-canary-fixture-20261013-040000",
             "workflow_id": 259268962,
             "path": ".github/workflows/ci.yml",
-            "name": "Phase 253 Gate Canary",
+            # 253-116: GitHub's real shape; the fixture's run-name is both the run name and its display title.
+            "name": "Phase 253 Gate Canary / full-pass / 901-1",
+            "display_title": "Phase 253 Gate Canary / full-pass / 901-1",
             "status": "completed",
             "conclusion": "success",
         },
@@ -101,7 +103,8 @@ def scenario_fixture(scenario, run_id):
     conclusion = 'cancelled' if scenario == 'cancelled' else 'success' if code == 0 else 'failure'
     document['scenario'] = scenario
     document['run_id'] = run_id
-    document['run'].update(id=run_id, run_id=run_id, conclusion=conclusion)
+    title = f'Phase 253 Gate Canary / {scenario} / {run_id}-1'
+    document['run'].update(id=run_id, run_id=run_id, conclusion=conclusion, name=title, display_title=title)
     for job in document['jobs']['jobs']:
         job['run_id'] = run_id
         if job['name'] == 'Browser verdict':
@@ -177,7 +180,8 @@ class HostedGateVerifierTests(unittest.TestCase):
         document = matrix_fixture()
         document['scenario'] = 'matrix'
         run = copy.deepcopy(document['run'])
-        run.update(id=999, run_id=999)
+        run.update(id=999, run_id=999, name='Phase 253 Gate Canary / verifier / 999-1',
+                   display_title='Phase 253 Gate Canary / verifier / 999-1')
         jobs = [{'id': 8, 'run_id': 999, 'run_attempt': 1, 'name': name,
                  'conclusion': 'success' if name == 'verifier' else 'skipped', 'steps': []}
                 for name in ('producers', 'Browser verdict', 'verifier')]
@@ -1907,6 +1911,153 @@ class RegisteredFixtureTests(unittest.TestCase):
             path = Path(directory) / "v2.json"
             path.write_text(json.dumps({"schema_version": module.REPLAN_SCHEMA, "repository": "szTheory/sigra", "action_approval": record}))
             self.assertEqual(module.read_replan_evidence(path)["action_approval"], record)
+
+
+PHASE_DIR = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+EVIDENCE_R9 = PHASE_DIR / "253-LOAD-RECOVERY-CANARY-EVIDENCE-R9.json"
+EVIDENCE_R9_SHA256 = "a3ca8cc0b562b2a060540f6b55fc1c0d29907c7103f87db970e1f4f678043aba"
+LEDGER_R8 = PHASE_DIR / "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json"
+FIRST_CANARY_RUN = PHASE_DIR / "253-CANARY-FAILED-RUN-38347679431.json"
+IDENTITY = "run workflow identity mismatch"
+
+
+def load_verifier(name):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(name, VERIFY)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def decoded_body(transaction):
+    return json.loads(base64.b64decode(transaction["response_body_base64"], validate=True).decode("utf-8"))
+
+
+class RunIdentityTests(unittest.TestCase):
+    """253-116 (D-18/D-21): the run identity GitHub actually returns. The positive controls read committed real bytes:
+    EVIDENCE-R9 (run 38906314106, halted 253-113), the R8 ledger's run poll (38791286863) and the first canary run
+    38347679431. Each negative changes one field of the real R9 run object."""
+
+    def setUp(self):
+        self.module = load_verifier("hosted_gate_verify_run_identity")
+        self.raw = EVIDENCE_R9.read_bytes()
+        self.evidence = json.loads(self.raw)
+
+    def receipt(self):
+        return copy.deepcopy(self.evidence["scenarios"]["full-pass"])
+
+    def title(self, scenario, run_id="38906314106", attempt="1"):
+        return f"Phase 253 Gate Canary / {scenario} / {run_id}-{attempt}"
+
+    def test_live_r9_real_full_pass_run_is_accepted(self):
+        self.assertEqual(hashlib.sha256(self.raw).hexdigest(), EVIDENCE_R9_SHA256)
+        receipt = self.evidence["scenarios"]["full-pass"]
+        self.assertEqual(receipt["run"]["name"], self.title("full-pass"))
+        result = self.module.verify_scenario(receipt, "full-pass", self.evidence)
+        self.assertEqual((result["status"], result["run_id"]), ("verified", "38906314106"))
+        polls = [tx for tx in self.evidence["transport_ledger"]["transactions"] if tx["route_id"] == "run"]
+        self.assertEqual([tx["sequence"] for tx in polls], [27])
+        run = decoded_body(polls[0])
+        self.assertEqual((run["name"], run["display_title"]), (self.title("full-pass"),) * 2)
+        self.module.require_run_title(run, "full-pass")
+
+    def test_live_r9_cli_accepts_the_real_full_pass_evidence_offline(self):
+        result = subprocess.run(["python3", str(VERIFY), "--mode", "canary", "--scenario", "full-pass", "--evidence", str(EVIDENCE_R9)],
+                                text=True, capture_output=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual((output["status"], output["scenario"]["run_id"], output["transport"]["status"]),
+                         ("canary_scenario_verified", "38906314106", "transport_verified"))
+        self.assertEqual(hashlib.sha256(EVIDENCE_R9.read_bytes()).hexdigest(), EVIDENCE_R9_SHA256)
+
+    def test_live_r8_real_run_poll_title_is_accepted(self):
+        ledger = json.loads(LEDGER_R8.read_text())
+        polls = [tx for tx in ledger["transactions"] if tx["route_id"] == "run"]
+        self.assertEqual(len(polls), 1)
+        run = decoded_body(polls[0])
+        self.assertEqual(run["id"], 38791286863)
+        self.assertNotEqual(run["name"], self.module.FIXTURE_NAME)
+        self.module.require_run_title(run, "full-pass")
+        with self.assertRaisesRegex(self.module.VerificationError, IDENTITY):
+            self.module.require_run_title(run, "docs-only")
+
+    def test_live_first_canary_run_title_is_accepted(self):
+        run = json.loads(FIRST_CANARY_RUN.read_text())["run"]
+        self.assertEqual(run["id"], 38347679431)
+        self.assertNotEqual(run["name"], self.module.FIXTURE_NAME)
+        self.module.require_run_title(run, "full-pass")
+        with self.assertRaisesRegex(self.module.VerificationError, IDENTITY):
+            self.module.require_run_title(dict(run, run_attempt=2), "full-pass")
+
+    def test_bare_name_with_bound_display_title_is_accepted(self):
+        receipt = self.receipt()
+        receipt["run"]["name"] = "Phase 253 Gate Canary"
+        self.module.require_run_title(receipt["run"], "full-pass")
+        self.module.verify_scenario(receipt, "full-pass", self.evidence)
+
+    def test_every_wrong_title_is_refused_with_the_identity_message(self):
+        good = self.title("full-pass")
+        cases = {
+            "scenario docs-only in the title": {"name": self.title("docs-only"), "display_title": self.title("docs-only")},
+            "another run id in the title": {"name": self.title("full-pass", "38906314107"),
+                                            "display_title": self.title("full-pass", "38906314107")},
+            "attempt 2 in the title": {"name": self.title("full-pass", attempt="2"), "display_title": self.title("full-pass", attempt="2")},
+            "extra suffix": {"name": good + " / x", "display_title": good + " / x"},
+            "trailing space": {"name": good + " ", "display_title": good + " "},
+            "prefix Canary2": {"name": good.replace("Phase 253 Gate Canary / ", "Phase 253 Gate Canary2 / ", 1),
+                               "display_title": good.replace("Phase 253 Gate Canary / ", "Phase 253 Gate Canary2 / ", 1)},
+            "prefix CI": {"name": good.replace("Phase 253 Gate Canary / ", "CI / ", 1),
+                          "display_title": good.replace("Phase 253 Gate Canary / ", "CI / ", 1)},
+            "name templated, display_title bare": {"name": good, "display_title": "Phase 253 Gate Canary"},
+            "name templated, display_title another run": {"name": good, "display_title": self.title("full-pass", "38906314107")},
+            "display_title missing": {"name": good, "display_title": None},
+            "name None": {"name": None, "display_title": good},
+            "bare name, display_title missing": {"name": "Phase 253 Gate Canary", "display_title": None},
+            "bare name, display_title another scenario": {"name": "Phase 253 Gate Canary", "display_title": self.title("docs-only")},
+        }
+        for label, fields in cases.items():
+            with self.subTest(label=label):
+                receipt = self.receipt()
+                for key, value in fields.items():
+                    if value is None and key == "display_title":
+                        receipt["run"].pop("display_title")
+                    else:
+                        receipt["run"][key] = value
+                with self.assertRaisesRegex(self.module.VerificationError, IDENTITY):
+                    self.module.verify_scenario(receipt, "full-pass", self.evidence)
+
+    def test_unchanged_run_checks_keep_refusing(self):
+        for field, value in (("workflow_id", 259268963), ("path", ".github/workflows/other.yml"), ("head_branch", "gsd/253-replan-r8-fixture"),
+                             ("head_sha", "f" * 40), ("event", "push"), ("conclusion", "failure")):
+            with self.subTest(field=field):
+                receipt = self.receipt()
+                receipt["run"][field] = value
+                with self.assertRaises(self.module.VerificationError):
+                    self.module.verify_scenario(receipt, "full-pass", self.evidence)
+
+    def separate_verifier_evidence(self, title):
+        evidence = copy.deepcopy(self.evidence)
+        run = dict(copy.deepcopy(self.evidence["scenarios"]["full-pass"]["run"]), id=38906399999, name=title, display_title=title)
+        jobs = [{"id": 8 + index, "run_id": 38906399999, "run_attempt": 1, "name": name,
+                 "conclusion": "success" if name == "verifier" else "skipped", "steps": []}
+                for index, name in enumerate(("producers", "Browser verdict", "verifier"))]
+        jobs[-1]["steps"] = [{"name": name, "conclusion": "success"} for name in
+                             ("Verify immutable candidate verifier checkout", "Verify retained source matrix independently")]
+        evidence["separate_verifier"] = {"status": "passed", "job_conclusion": "success", "run_id": "38906399999",
+                                         "run": run, "jobs": {"total_count": 3, "jobs": jobs}}
+        evidence["budget"]["actual_jobs"] = 7
+        return evidence
+
+    def test_separate_verifier_requires_its_own_verifier_title(self):
+        self.module.verify_separate_verifier(self.separate_verifier_evidence(self.title("verifier", "38906399999")), 6)
+        bare = self.separate_verifier_evidence(self.title("verifier", "38906399999"))
+        bare["separate_verifier"]["run"]["name"] = "Phase 253 Gate Canary"
+        self.module.verify_separate_verifier(bare, 6)
+        for label, title in (("title for full-pass", self.title("full-pass", "38906399999")),
+                             ("title for another verifier run id", self.title("verifier", "38906399998"))):
+            with self.subTest(label=label):
+                with self.assertRaisesRegex(self.module.VerificationError, IDENTITY):
+                    self.module.verify_separate_verifier(self.separate_verifier_evidence(title), 6)
 
 
 if __name__ == "__main__":
