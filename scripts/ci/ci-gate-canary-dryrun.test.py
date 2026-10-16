@@ -180,6 +180,13 @@ class FullSequenceTests(unittest.TestCase):
                          sorted(["full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip", "cancelled",
                                  "verifier"]), shape)
 
+    def test_every_served_job_step_and_artifact_has_the_recorded_github_shape(self):
+        # 253-117 Task 2: jobs, steps and artifacts (R9 seq 28/29) are checked too, in this hermetic full sequence.
+        shape = self.summary.get("response_shape") or {}
+        for key in ("jobs_checked", "steps_checked", "artifacts_checked"):
+            self.assertGreater(shape.get(key, 0), 0, shape)
+        self.assertEqual(self.summary.get("verifier_job_model"), "scenario-set", self.summary)
+
 
 SERVER_PARENT = "84ebcea60024c9e8caee405d55cad1c76b0e858a"  # the R7 freeze's server parent, used by the derived freeze
 
@@ -547,6 +554,22 @@ class LivePolicyFullSequenceTests(unittest.TestCase):
                          sorted(["full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip", "cancelled",
                                  "verifier"]), shape)
 
+    def test_every_served_job_step_and_artifact_has_the_recorded_github_shape(self):
+        shape = self.summary.get("response_shape") or {}
+        for key in ("jobs_checked", "steps_checked", "artifacts_checked"):
+            self.assertGreater(shape.get(key, 0), 0, shape)
+
+    def test_the_verifier_job_ran_verify_sources_on_the_compact_matrix(self):
+        # 253-117 Task 2: the fake's verifier job concludes from the candidate's verify_sources on the decoded compact
+        # matrix, as the hosted verifier job does; the dispatched payload stays within its bounded input.
+        self.assertEqual(self.summary.get("status"), "passed", self.summary)
+        self.assertEqual(self.summary.get("verifier_job_model"), "verify_sources", self.summary)
+        job = self.summary.get("verifier_job") or {}
+        self.assertEqual(job.get("result"), "sources_verified", job)
+        self.assertEqual(job.get("executed_jobs"), 35, job)  # 5 x 6 jobs + cancelled: 5 producers
+        self.assertIsInstance(job.get("matrix_payload_chars"), int, job)
+        self.assertLessEqual(job["matrix_payload_chars"], 64511, job)
+
     def test_every_category_is_within_the_frozen_table_and_reconciled_with_the_fake(self):
         self.assertLessEqual(self.summary.get("requests_total", 999), 117)
         self.assertEqual(self.summary.get("journal_requests"), self.summary.get("requests_total"))
@@ -687,6 +710,48 @@ class ResponseShapeTests(unittest.TestCase):
         bad = self.runner.check_run_shape(self.fake_run(bare_name=True), "full-pass", reference)
         self.assertTrue(any("name" in item for item in bad), bad)
         self.assertTrue(any("path" in item for item in bad), bad)
+
+    def test_job_step_and_artifact_shape_checks_refuse_the_pre_253_117_fake_shapes(self):
+        # 253-117 Task 2: the real-shape builders pass; the old fake's minimal objects are refused (positive control).
+        reference = self.runner.load_reference()
+        real = {"jobs": ledger_body(R9_LEDGER, "run_jobs", 28), "artifacts": ledger_body(R9_LEDGER, "run_artifacts", 29)}
+        record = {"id": 40000000123, "run_number": 501, "scenario": "full-pass", "head_branch": "gsd/253-replan-r9-fixture",
+                  "head_sha": "aa7014893b716f279b60ceb545b8aee5ca15b10c"}
+        producer = self.runner.reference_steps(reference, "producer")
+        verdict = self.runner.reference_steps(reference, "Browser verdict")
+        self.assertEqual(producer, ["Set up job", "Run the named synthetic tiny command",
+                                    "Upload this producer's synthetic receipt", "Complete job"])
+        self.assertEqual(verdict, [step["name"] for step in next(job for job in real["jobs"]["jobs"]
+                                                               if job["name"] == "Browser verdict")["steps"]])
+        jobs = [self.runner.build_job(record, 1, "producer (non_admin_smoke)", "success",
+                                      self.runner.build_steps(producer, None, True), reference),
+                self.runner.build_job(record, 2, "Browser verdict", "success", self.runner.build_steps(verdict, None, True), reference),
+                self.runner.build_job(record, 3, "verifier", "skipped", [], reference)]
+        for job in jobs:
+            self.assertEqual(sorted(job), sorted(real["jobs"]["jobs"][0]))
+            for step in job["steps"]:
+                self.assertEqual(sorted(step), sorted(real["jobs"]["jobs"][0]["steps"][0]))
+        artifact = self.runner.build_artifact(record, 900001, "gate-canary-full-pass-40000000123-1", 10, "0" * 64, reference)
+        self.assertEqual(sorted(artifact), sorted(real["artifacts"]["artifacts"][0]))
+        self.assertEqual(sorted(artifact["workflow_run"]), sorted(real["artifacts"]["artifacts"][0]["workflow_run"]))
+        good, _, _ = self.runner.check_jobs_shape({"total_count": 3, "jobs": jobs}, record["id"], record, reference)
+        self.assertEqual([item for item in good if item], [])
+        good, _ = self.runner.check_artifacts_shape({"total_count": 1, "artifacts": [artifact]}, record["id"], reference)
+        self.assertEqual([item for item in good if item], [])
+        old_job = {"id": 1, "run_id": record["id"], "run_attempt": 1, "name": "producer (non_admin_smoke)", "status": "completed",
+                   "conclusion": "success", "head_sha": record["head_sha"],
+                   "steps": [{"name": "Run the named synthetic tiny command", "status": "completed", "conclusion": "success",
+                              "number": 1}]}
+        bad, _, _ = self.runner.check_jobs_shape({"total_count": 1, "jobs": [old_job]}, record["id"], record, reference)
+        bad = " ".join(item for item in bad if item)
+        self.assertIn("keys differ", bad)
+        self.assertIn("steps", bad)
+        old_artifact = {"id": 900001, "name": "x", "size_in_bytes": 1, "expired": False, "digest": "sha256:" + "0" * 64,
+                        "archive_download_url": "https://api.github.com/x",
+                        "workflow_run": {"id": record["id"], "head_branch": "b", "head_sha": "c"}}
+        bad, _ = self.runner.check_artifacts_shape({"total_count": 1, "artifacts": [old_artifact]}, record["id"], reference)
+        bad = " ".join(item for item in bad if item)
+        self.assertIn("workflow_run keys differ", bad)
 
     def test_response_shape_fault_fails_the_gate(self):
         code, summary = run_gate("--ref-pair", "r9", "--seed-r8-refs", "--stop-after", "full-pass",

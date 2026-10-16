@@ -212,6 +212,119 @@ def build_run(record: dict, status: str, conclusion, commit: dict | None = None,
     return _ordered_like(real, value)
 
 
+def reference_steps(reference: dict, job_name: str) -> list:
+    """The step names of the recorded real job (seq 28): producers and Browser verdict, as GitHub listed them."""
+    for job in reference["jobs"]["jobs"]:
+        if job["name"] == job_name or (job_name == "producer" and job["name"].startswith("producer (")):
+            return [step["name"] for step in job["steps"]]
+    raise KeyError(f"no recorded {job_name} job")
+
+
+# No real sample of the verifier job's steps exists (it has only ever been skipped); modeled from the fixture workflow:
+# its four named steps plus GitHub's own Set up / Post checkout / Complete job steps.
+VERIFIER_STEPS = ("Set up job", "Checkout candidate verifier by pinned commit", "Verify immutable candidate verifier checkout",
+                  "Verify retained source matrix independently", "Retain separate verifier result",
+                  "Post Checkout candidate verifier by pinned commit", "Complete job")
+# The skipped producer matrix job of the verifier run: GitHub shows a matrix job skipped by its job-level if once, under
+# its unexpanded name (the Phase 252 bundle's install_matrix job). Never observed live for this fixture (253-118 row).
+SKIPPED_PRODUCER_NAME = "producer (${{ matrix.seam }})"
+
+
+def build_steps(names, conclusions: dict | None, done: bool) -> list:
+    """Step objects with the recorded key set (seq 28); every step succeeds unless conclusions names it."""
+    steps = []
+    for number, name in enumerate(names, 1):
+        conclusion = (conclusions or {}).get(name, "success") if done else None
+        steps.append({"name": name, "status": "completed" if done else "queued", "conclusion": conclusion, "number": number,
+                      "started_at": FAKE_CREATED_AT if done else None, "completed_at": FAKE_CREATED_AT if done else None})
+    return steps
+
+
+def build_job(record: dict, job_id: int, name: str, conclusion, steps: list, reference: dict | None = None) -> dict:
+    """A job object with the recorded key set (seq 28): workflow_name is the run-name, as GitHub returns it."""
+    real = (reference or load_reference())["jobs"]["jobs"][0]
+    run_id = record["id"]
+    api = f"https://api.github.com/repos/{REPO}"
+    ran = conclusion not in (None, "skipped")
+    runner = 1000000000 + job_id % 100000000
+    value = {"id": job_id, "run_id": run_id, "workflow_name": run_title(record["scenario"], run_id),
+             "head_branch": record["head_branch"], "run_url": f"{api}/actions/runs/{run_id}", "run_attempt": 1,
+             "node_id": f"CR_dryrun{job_id}", "head_sha": record["head_sha"], "url": f"{api}/actions/jobs/{job_id}",
+             "html_url": f"https://github.com/{REPO}/actions/runs/{run_id}/job/{job_id}",
+             "status": "completed" if conclusion else "in_progress", "conclusion": conclusion,
+             "created_at": FAKE_CREATED_AT, "started_at": FAKE_CREATED_AT,
+             "completed_at": FAKE_CREATED_AT if conclusion else None, "name": name, "steps": steps,
+             "check_run_url": f"{api}/check-runs/{job_id}", "labels": ["ubuntu-latest"],
+             "runner_id": runner if ran else None, "runner_name": f"GitHub Actions {runner}" if ran else None,
+             "runner_group_id": 0 if ran else None, "runner_group_name": "GitHub Actions" if ran else None}
+    return _ordered_like(real, value)
+
+
+def build_artifact(record: dict, artifact_id: int, name: str, size: int, digest: str, reference: dict | None = None) -> dict:
+    """An artifact object with the recorded key set (seq 29), workflow_run included."""
+    real = (reference or load_reference())["artifacts"]["artifacts"][0]
+    repository_id = real["workflow_run"]["repository_id"]
+    api = f"https://api.github.com/repos/{REPO}"
+    value = {"id": artifact_id, "node_id": f"ART_dryrun{artifact_id}", "name": name, "size_in_bytes": size,
+             "url": f"{api}/actions/artifacts/{artifact_id}", "archive_download_url": f"{api}/actions/artifacts/{artifact_id}/zip",
+             "expired": False, "digest": "sha256:" + digest, "created_at": FAKE_CREATED_AT, "updated_at": FAKE_CREATED_AT,
+             "expires_at": "2026-10-22T00:00:00Z",
+             "workflow_run": _ordered_like(real["workflow_run"], {
+                 "id": record["id"], "repository_id": repository_id, "head_repository_id": repository_id,
+                 "head_branch": record["head_branch"], "head_sha": record["head_sha"]})}
+    return _ordered_like(real, value)
+
+
+def check_jobs_shape(body, run_id, record, reference: dict) -> tuple[list, int, int]:
+    """Mismatches of one served jobs page against seq 28, and the number of jobs and steps checked."""
+    real = reference["jobs"]
+    problems = [_key_problem(f"jobs page of run {run_id}", body, real)]
+    jobs_checked = steps_checked = 0
+    title = run_title(record["scenario"], run_id)
+    lists = {"producer": reference_steps(reference, "producer"), "Browser verdict": reference_steps(reference, "Browser verdict")}
+    for job in (body.get("jobs") or []) if isinstance(body, dict) else []:
+        jobs_checked += 1
+        label = f"job {job.get('name') if isinstance(job, dict) else job!r} of run {run_id}"
+        problems.append(_key_problem(label, job, real["jobs"][0]))
+        if not isinstance(job, dict):
+            continue
+        if job.get("run_id") != run_id or job.get("workflow_name") != title:
+            problems.append(f"{label} run_id/workflow_name {job.get('run_id')!r}/{job.get('workflow_name')!r} is not the "
+                            f"run's id and run-name {title!r}")
+        steps = job.get("steps") if isinstance(job.get("steps"), list) else None
+        if steps is None:
+            problems.append(f"{label} has no step list")
+            continue
+        for step in steps:
+            steps_checked += 1
+            problems.append(_key_problem(f"{label} step {step.get('name') if isinstance(step, dict) else step!r}", step,
+                                         real["jobs"][0]["steps"][0]))
+        if job.get("conclusion") == "skipped" and steps:
+            problems.append(f"{label} is skipped but lists steps (GitHub lists none)")
+        kind = "producer" if str(job.get("name", "")).startswith("producer (") else job.get("name")
+        if job.get("conclusion") not in (None, "skipped") and kind in lists:
+            names = [step.get("name") for step in steps if isinstance(step, dict)]
+            if names != lists[kind]:
+                problems.append(f"{label} steps {names} differ from GitHub's recorded list {lists[kind]}")
+    return problems, jobs_checked, steps_checked
+
+
+def check_artifacts_shape(body, run_id, reference: dict) -> tuple[list, int]:
+    real = reference["artifacts"]
+    problems = [_key_problem(f"artifacts page of run {run_id}", body, real)]
+    checked = 0
+    for artifact in (body.get("artifacts") or []) if isinstance(body, dict) else []:
+        checked += 1
+        label = f"artifact {artifact.get('name') if isinstance(artifact, dict) else artifact!r} of run {run_id}"
+        problems.append(_key_problem(label, artifact, real["artifacts"][0]))
+        if isinstance(artifact, dict):
+            origin = artifact.get("workflow_run")
+            problems.append(_key_problem(f"{label} workflow_run", origin, real["artifacts"][0]["workflow_run"]))
+            if isinstance(origin, dict) and origin.get("id") != run_id:
+                problems.append(f"{label} workflow_run.id {origin.get('id')!r} is not run {run_id}")
+    return problems, checked
+
+
 def _key_problem(label, value, real) -> str | None:
     if not isinstance(value, dict):
         return f"{label} is not an object"
@@ -244,12 +357,13 @@ def check_run_shape(run, scenario, reference: dict) -> list:
 
 
 def response_shape(journal: list, runs: dict, reference: dict) -> dict:
-    """Compare every run object the fake actually served (run polls and workflow_runs listings, decoded from the server
-    journal) with the recorded real shapes."""
+    """Compare every run, job, step and artifact object the fake actually served (run polls, workflow_runs listings, jobs
+    and artifacts pages, decoded from the server journal) with the recorded real shapes."""
     mismatches, scenarios = [], set()
-    counts = {"runs_checked": 0}
+    counts = {"runs_checked": 0, "jobs_checked": 0, "steps_checked": 0, "artifacts_checked": 0}
     run_path = re.compile(rf"/repos/{REPO}/actions/runs/(\d+)")
     listing_path = re.compile(rf"/repos/{REPO}/actions/workflows/\d+/runs")
+    page_path = re.compile(rf"/repos/{REPO}/actions/runs/(\d+)/(jobs|artifacts)")
 
     def check_run(run):
         record = runs.get(run.get("id")) if isinstance(run, dict) else None
@@ -264,8 +378,8 @@ def response_shape(journal: list, runs: dict, reference: dict) -> dict:
         if row.get("actual_status") != 200:
             continue
         path = urlsplit(row.get("observed_path") or "").path
-        is_run, is_listing = run_path.fullmatch(path), listing_path.fullmatch(path)
-        if not (is_run or is_listing):
+        is_run, is_listing, is_page = run_path.fullmatch(path), listing_path.fullmatch(path), page_path.fullmatch(path)
+        if not (is_run or is_listing or is_page):
             continue
         try:
             body = json.loads(base64.b64decode(row.get("response_body_base64") or ""))
@@ -275,6 +389,21 @@ def response_shape(journal: list, runs: dict, reference: dict) -> dict:
         if is_run:
             check_run(body)
             continue
+        if is_page:
+            run_id = int(is_page.group(1))
+            record = runs.get(run_id)
+            if record is None:
+                mismatches.append(f"served {is_page.group(2)} page for run {run_id}, which the fake never dispatched")
+                continue
+            if is_page.group(2) == "jobs":
+                problems, jobs, steps = check_jobs_shape(body, run_id, record, reference)
+                counts["jobs_checked"] += jobs
+                counts["steps_checked"] += steps
+            else:
+                problems, artifacts = check_artifacts_shape(body, run_id, reference)
+                counts["artifacts_checked"] += artifacts
+            mismatches.extend(item for item in problems if item)
+            continue
         problem = _key_problem("workflow_runs listing", body, reference["listing"])
         if problem:
             mismatches.append(problem)
@@ -282,7 +411,7 @@ def response_shape(journal: list, runs: dict, reference: dict) -> dict:
             check_run(run)
     unique = list(dict.fromkeys(mismatches))
     return {"reference": {"path": reference["path"], "sha256": reference["sha256"], "sequences": reference["sequences"]},
-            "ok": not unique, "runs_checked": counts["runs_checked"], "scenarios_checked": sorted(scenarios),
+            "ok": not unique, **counts, "scenarios_checked": sorted(scenarios),
             "verifier_run_checked": "verifier" in scenarios, "mismatch_count": len(unique), "mismatches": unique[:10]}
 
 
@@ -636,12 +765,27 @@ class FakeGitHub(ObjectServer):
         if record["scenario"] != "verifier":
             return OUTCOMES[record["scenario"]]
         verifier = self.server.verifier_module
+        payload = record["inputs"].get("matrix_evidence")
+        job = {"model": "verify_sources" if self.server.live else "scenario-set",
+               "matrix_payload_chars": len(payload) if isinstance(payload, str) else None}
         try:
-            decoded = verifier.decode_matrix_payload(record["inputs"].get("matrix_evidence"))
-            ok = set(decoded.get("scenarios", {})) == set(SCENARIOS)
-        except Exception:  # noqa: BLE001 - the modeled verifier job simply fails
+            decoded = verifier.decode_matrix_payload(payload)
+            if self.server.live:
+                # 253-117 (D-22): what the hosted verifier job runs, the candidate's verify_sources on the decoded compact
+                # matrix. Hermetic evidence says fixture_ref_state hermetic-unverified and the compact matrix carries no
+                # origin, so there the job keeps the scenario-set model.
+                results, executed = verifier.verify_sources(decoded)
+                job.update(result="sources_verified", executed_jobs=executed,
+                           scenarios=[item.get("scenario") for item in results])
+                ok = True
+            else:
+                ok = set(decoded.get("scenarios", {})) == set(SCENARIOS)
+                job.update(result="scenario_set_complete" if ok else "scenario_set_incomplete")
+        except Exception as error:  # noqa: BLE001 - the modeled verifier job simply fails
             ok = False
+            job.update(result="failed", error=f"{type(error).__name__}: {error}"[:400])
         record["matrix_ok"] = ok
+        self.server.verifier_job = job
         return "success" if ok else "failure"
 
     def _cancel(self, run_id, value):
@@ -661,37 +805,38 @@ class FakeGitHub(ObjectServer):
         if record is None:
             return self._reply(404, {"message": "Not Found"})
         jobs = []
+        reference = load_reference()
 
-        def job(name, conclusion, steps):
-            jobs.append({"id": run_id * 10 + len(jobs), "run_id": run_id, "run_attempt": 1, "name": name,
-                         "status": "completed" if conclusion else "in_progress", "conclusion": conclusion,
-                         "head_sha": record["head_sha"], "steps": [{"name": n, "status": "completed", "conclusion": c,
-                                                                     "number": i + 1} for i, (n, c) in enumerate(steps)]})
+        def job(name, conclusion, names=(), step_conclusions=None):
+            # 253-117: GitHub's recorded job and step shapes (seq 28); a skipped job lists no steps, as GitHub's does.
+            ran = conclusion not in (None, "skipped")
+            steps = build_steps(names, step_conclusions, conclusion is not None) if ran or conclusion is None else []
+            jobs.append(build_job(record, run_id * 10 + len(jobs), name, conclusion, steps if names else [], reference))
         scenario, done = record["scenario"], record.get("completed")
         if scenario == "verifier":
-            job("producers", "skipped" if done else None, [])
-            job("Browser verdict", "skipped" if done else None, [])
+            job(SKIPPED_PRODUCER_NAME, "skipped" if done else None)
+            job("Browser verdict", "skipped" if done else None)
             ok = "success" if record.get("matrix_ok") else "failure"
-            job("verifier", ok if done else None, [("Verify immutable candidate verifier checkout", "success"),
-                                                    ("Verify retained source matrix independently", ok)])
+            job("verifier", ok if done else None, VERIFIER_STEPS, {"Verify retained source matrix independently": ok})
         else:
+            producer_steps, verdict_steps = reference_steps(reference, "producer"), reference_steps(reference, "Browser verdict")
             for seam in SEAMS:
                 conclusion = "success"
                 if scenario == "actual-failure" and seam == "admin_behavior":
                     conclusion = "failure"
                 if scenario == "cancelled" and seam == "admin_behavior":
                     conclusion = "cancelled" if done else None
-                job(f"producer ({seam})", conclusion, [("Run the named synthetic tiny command",
-                                                       conclusion or "in_progress"),
-                                                      ("Upload this producer's synthetic receipt", "success")])
+                step_conclusions = {"Run the named synthetic tiny command": conclusion}
+                if scenario == "missing-seam" and seam == "admin_checkpoints":
+                    # The fixture's upload step is if: !(missing-seam && admin_checkpoints): GitHub reports it skipped.
+                    step_conclusions["Upload this producer's synthetic receipt"] = "skipped"
+                job(f"producer ({seam})", conclusion, producer_steps, step_conclusions)
             outcome = OUTCOMES[scenario]
             if scenario == "cancelled":
-                job("Browser verdict", "skipped" if done else None, [])
+                job("Browser verdict", "skipped" if done else None)
             else:
-                job("Browser verdict", outcome if done else None,
-                    [("Verify immutable fixture and candidate checkout identities", "success"),
-                     ("Shared browser record validator", outcome), ("Upload terminal synthetic source receipt", "success")])
-            job("verifier", "skipped" if done else None, [])
+                job("Browser verdict", outcome if done else None, verdict_steps, {"Shared browser record validator": outcome})
+            job("verifier", "skipped" if done else None)
         self._reply(200, {"total_count": len(jobs), "jobs": jobs})
 
     def _artifacts(self, run_id):
@@ -724,10 +869,8 @@ class FakeGitHub(ObjectServer):
         digest = sha256_hex(archive)
         if "artifact-digest" in getattr(server, "faults", ()) and name.startswith("gate-canary-") and "-producer-" not in name:
             digest = sha256_hex(archive + b"modeled-corruption")
-        return {"id": artifact_id, "name": name, "size_in_bytes": len(archive), "expired": False,
-                "digest": "sha256:" + digest,
-                "archive_download_url": f"https://api.github.com/repos/{REPO}/actions/artifacts/{artifact_id}/zip",
-                "workflow_run": {"id": record["id"], "head_branch": record["head_branch"], "head_sha": record["head_sha"]}}
+        # 253-117: GitHub's recorded artifact shape (seq 29), workflow_run with its real key set.
+        return build_artifact(record, artifact_id, name, len(archive), digest)
 
     def _result(self, record):
         scenario, inputs = record["scenario"], record["inputs"]
@@ -871,6 +1014,7 @@ def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_pare
     server.visibility_delay, server.polls = visibility_delay, polls
     server.artifact_ids, server.blobs_by_artifact = {}, {}
     server.verifier_module = verifier_module
+    server.verifier_job = None
     server.inject = {}
     server.last_rate_at = time.monotonic()
     tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -1231,6 +1375,20 @@ def dry_run(args) -> dict:
         if summary["journal_requests"] != summary["requests_total"]:
             problems.append("server journal and ledger counts differ")
         summary["violations"] = list(server.violations)
+        summary["verifier_job_model"] = "verify_sources" if live else "scenario-set"
+        verifier_job = dict(server.verifier_job) if server.verifier_job else None
+        if verifier_job is not None:
+            dispatches = [row for row in ledger_value.get("transactions", []) if row.get("route_id") == "dispatch"]
+            if dispatches:
+                row = dispatches[-1]
+                verifier_job["dispatch"] = {key: row.get(key) for key in ("sequence", "actual_status", "input_key_count",
+                                                                          "input_unicode_scalars", "input_utf8_bytes")}
+            verifier_job["matrix_payload_limit"] = PUBLISHER.MATRIX_PAYLOAD_LIMIT
+        summary["verifier_job"] = verifier_job
+        if args.stop_after != "full-pass" and failed is None:
+            wanted = "sources_verified" if live else "scenario_set_complete"
+            if (verifier_job or {}).get("result") != wanted:
+                problems.append(f"the modeled verifier job did not report {wanted}: {verifier_job}")
         # 253-117: every run object the fake served must have GitHub's recorded shape.
         summary["response_shape"] = shape = response_shape(server.journal, server.runs, load_reference())
         if not shape["ok"]:
