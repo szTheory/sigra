@@ -837,10 +837,16 @@ DUMMY_TOKEN = "dummy-not-a-credential-253-107"
 BLOB_HOST = "productionresultssa17.blob.core.windows.net"
 ARTIFACT_PATH = "/repos/szTheory/sigra/actions/artifacts/11999138572/zip"
 BLOB_LOCATION = f"https://{BLOB_HOST}/x/artifact.zip?sv=2025&sig=redacted"
+# 253-125: GitHub's real run-log redirect host (R10 ledger sequence 47) and the lookalikes that must never pass for it.
+R10_LEDGER = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json"
+RESULTS_RECEIVER = "results-receiver.actions.githubusercontent.com"
+RESULTS_RECEIVER_LOOKALIKES = ("results-receiver.actions.githubusercontent.com.evil", "xresults-receiver.actions.githubusercontent.com",
+                               "results-receiver2.actions.githubusercontent.com", "pipelines-results.actions.githubusercontent.com")
 # Every name the local server answers for; only the trusted ones are ever expected on the wire.
 SHIM_HOSTS = ("api.github.com", BLOB_HOST, "productionresultssa41.blob.core.windows.net",
               "pipelines.actions.githubusercontent.com", "evil.example.com",
-              "productionresultssa17.blob.core.windows.net.evil.example")
+              "productionresultssa17.blob.core.windows.net.evil.example", "productionresultssa16.blob.core.windows.net",
+              RESULTS_RECEIVER) + RESULTS_RECEIVER_LOOKALIKES
 
 
 def load_shim():
@@ -897,7 +903,8 @@ class LivePolicyRedirectTests(unittest.TestCase):
         self.tmp_path = pathlib.Path(self.tmp.name)
         self.cert, key = self.shim.make_tls_identity(self.tmp_path / "tls", (
             "api.github.com", "*.blob.core.windows.net", "pipelines.actions.githubusercontent.com",
-            "evil.example.com", "productionresultssa17.blob.core.windows.net.evil.example"))
+            "evil.example.com", "productionresultssa17.blob.core.windows.net.evil.example",
+            "*.actions.githubusercontent.com", "results-receiver.actions.githubusercontent.com.evil"))
         self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), LiveHostHandler)
         self.server.journal = []
         self.server.sni = []
@@ -1135,6 +1142,232 @@ class LivePolicyRedirectTests(unittest.TestCase):
         self.assertEqual(self.connects(), [("api.github.com", 443), (BLOB_HOST, 443)])
         self.assertEqual(self.shim.read_log(self.refusal_log), [])
 
+    # -- 253-125: results-receiver, GitHub's real run-log redirect host, on the run_logs route at hop 1 only ------
+    def seq47(self):
+        rows = [row for row in json.loads(R10_LEDGER.read_text())["transactions"] if row["sequence"] == 47]
+        self.assertEqual(len(rows), 1)
+        return rows[0]
+
+    def admit_results_receiver(self):
+        self.allocation["download_hosts"] = self.allocation["download_hosts"] + [RESULTS_RECEIVER]
+        self.write_allocation()
+
+    def serve_logs_redirect(self, location, route_id="run_logs"):
+        """Hop 0 answers exactly like R10 sequence 47 did: 302, text/html;charset=utf-8, an empty body."""
+        if route_id == "run_logs":
+            run_id = int(self.seq47()["url"].rsplit("/runs/", 1)[1].split("/", 1)[0])
+            request = {"method": "GET", "route_id": "run_logs", "category": "failure_logs", "params": {"run_id": run_id}}
+        elif route_id == "job_logs":
+            request = {"method": "GET", "route_id": "job_logs", "category": "failure_logs", "params": {"job_id": 88123456789}}
+        else:
+            request = {"method": "GET", "route_id": "artifact_zip", "category": "artifact_downloads",
+                       "params": {"artifact_id": 11999138572}}
+        api_path = self.transport._route(request, self.allocation)[3]
+        self.server.routes[("api.github.com", api_path)] = (
+            302, [("Content-Type", "text/html;charset=utf-8"), ("Location", location)], b"")
+        self.request_path.write_text(json.dumps(request))
+        return api_path
+
+    def seq47_location(self):
+        shape = self.seq47()["scrubbed_headers"]["location"]
+        self.assertEqual(shape["host"], RESULTS_RECEIVER)
+        self.assertIsNone(shape["port"])
+        self.assertTrue(shape["has_query"])
+        # The signed query is synthetic: the ledger stores only has_query, never the signature (D-21).
+        return shape["path"], f"https://{shape['host']}{shape['path']}?sig=synthetic-253-125&se=2026-10-16"
+
+    def assert_refused_before_the_hop_one_socket(self, expected_code):
+        result = self.follow()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn(f"ci-hosted-transport: {expected_code}:", result.stderr)
+        self.assertEqual(self.connects(), [("api.github.com", 443)])
+        self.assertEqual([(row["host"], row["authorization"]) for row in self.server.journal],
+                         [("api.github.com", f"Bearer {DUMMY_TOKEN}")])
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual([(row["hop_ordinal"], row["host"], row["actual_status"]) for row in ledger["transactions"]],
+                         [(0, "api.github.com", 302)])
+        self.assertEqual(ledger["terminal_stop"]["code"], expected_code)
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+        self.assertEqual(self.body_path.read_bytes() if self.body_path.exists() else b"", b"")
+
+    def reset_window(self):
+        for path in (self.ledger, self.output_path, self.body_path, self.connect_log):
+            path.unlink(missing_ok=True)
+        self.server.journal.clear()
+
+    def test_live_r10_seq47_results_receiver_location_is_followed_without_authorization(self):
+        self.admit_results_receiver()
+        path, location = self.seq47_location()
+        api_path = self.serve_logs_redirect(location)
+        self.assertEqual(f"https://api.github.com{api_path}", self.seq47()["url"])
+        self.server.routes[(RESULTS_RECEIVER, path)] = (200, [("Content-Type", "application/zip")], small_zip())
+        result = self.follow()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.body_path.read_bytes(), small_zip())
+        ledger = json.loads(self.ledger.read_text())
+        rows = ledger["transactions"]
+        self.assertIsNone(ledger["terminal_stop"])
+        self.assertEqual([(row["hop_ordinal"], row["host"], row["actual_status"], row["route_id"], row["category"]) for row in rows],
+                         [(0, "api.github.com", 302, "run_logs", "failure_logs"), (1, RESULTS_RECEIVER, 200, "run_logs", "failure_logs")])
+        self.assertEqual(len({row["request_group"] for row in rows}), 1)
+        self.assertEqual(rows[0]["scrubbed_headers"]["location"], self.seq47()["scrubbed_headers"]["location"])
+        self.assertEqual(rows[0]["scrubbed_headers"]["content-type"], "text/html;charset=utf-8")
+        self.assertEqual(rows[1]["url"], f"https://{RESULTS_RECEIVER}{path}?[REDACTED]")
+        self.assertNotIn("synthetic-253-125", self.ledger.read_text() + self.output_path.read_text())
+        self.assertEqual(self.connects(), [("api.github.com", 443), (RESULTS_RECEIVER, 443)])
+        self.assertEqual([(row["host"], row["authorization"]) for row in self.server.journal],
+                         [("api.github.com", f"Bearer {DUMMY_TOKEN}"), (RESULTS_RECEIVER, None)])
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    def test_live_results_receiver_redirect_to_a_trusted_blob_host_is_followed_at_hop_two(self):
+        self.admit_results_receiver()
+        path, location = self.seq47_location()
+        self.serve_logs_redirect(location)
+        blob = "productionresultssa16.blob.core.windows.net"
+        self.assertIn(blob, self.allocation["download_hosts"])
+        self.server.routes[(RESULTS_RECEIVER, path)] = (302, [("Location", f"https://{blob}/actions-results/logs.zip?sig=hop-two")], b"")
+        self.server.routes[(blob, "/actions-results/logs.zip")] = (200, [("Content-Type", "application/zip")], small_zip())
+        result = self.follow()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.body_path.read_bytes(), small_zip())
+        rows = json.loads(self.ledger.read_text())["transactions"]
+        self.assertEqual([(row["hop_ordinal"], row["host"], row["actual_status"]) for row in rows],
+                         [(0, "api.github.com", 302), (1, RESULTS_RECEIVER, 302), (2, blob, 200)])
+        self.assertEqual(self.connects(), [("api.github.com", 443), (RESULTS_RECEIVER, 443), (blob, 443)])
+        self.assertEqual([(row["host"], row["authorization"]) for row in self.server.journal],
+                         [("api.github.com", f"Bearer {DUMMY_TOKEN}"), (RESULTS_RECEIVER, None), (blob, None)])
+        self.assertNotIn("sig=hop-two", self.ledger.read_text() + self.output_path.read_text())
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    def test_live_results_receiver_redirect_to_itself_or_an_untrusted_host_halts(self):
+        self.admit_results_receiver()
+        path, location = self.seq47_location()
+        targets = {
+            "results-receiver again (hop 2)": f"https://{RESULTS_RECEIVER}/rest/runs/other/logs?sig=x",
+            "an untrusted host": "https://evil.example.com/logs.zip",
+            "a blob host absent from download_hosts": "https://productionresultssa41.blob.core.windows.net/logs.zip",
+        }
+        self.assertNotIn("productionresultssa41.blob.core.windows.net", self.allocation["download_hosts"])
+        for label, target in targets.items():
+            with self.subTest(target=label):
+                self.reset_window()
+                self.serve_logs_redirect(location)
+                self.server.routes[(RESULTS_RECEIVER, path)] = (302, [("Location", target)], b"")
+                result = self.follow()
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn("ci-hosted-transport: redirect_rejected:", result.stderr)
+                ledger = json.loads(self.ledger.read_text())
+                self.assertEqual([(row["hop_ordinal"], row["host"], row["actual_status"]) for row in ledger["transactions"]],
+                                 [(0, "api.github.com", 302), (1, RESULTS_RECEIVER, 302)])
+                self.assertEqual(ledger["terminal_stop"]["code"], "redirect_rejected")
+                self.assertEqual(self.connects(), [("api.github.com", 443), (RESULTS_RECEIVER, 443)])
+                self.assertEqual([row["host"] for row in self.server.journal], ["api.github.com", RESULTS_RECEIVER])
+                self.assertEqual(self.shim.read_log(self.refusal_log), [])
+        # A third redirect (the hop-2 blob answering 302 again) exhausts max_hops 2.
+        self.reset_window()
+        blob = "productionresultssa16.blob.core.windows.net"
+        self.assertEqual(self.allocation["max_hops"], 2)
+        self.serve_logs_redirect(location)
+        self.server.routes[(RESULTS_RECEIVER, path)] = (302, [("Location", f"https://{blob}/actions-results/logs.zip?sig=2")], b"")
+        self.server.routes[(blob, "/actions-results/logs.zip")] = (
+            302, [("Location", f"https://{blob}/actions-results/again.zip?sig=3")], b"")
+        result = self.follow()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("ci-hosted-transport: redirect_budget_exhausted:", result.stderr)
+        ledger = json.loads(self.ledger.read_text())
+        self.assertEqual([(row["hop_ordinal"], row["host"], row["actual_status"]) for row in ledger["transactions"]],
+                         [(0, "api.github.com", 302), (1, RESULTS_RECEIVER, 302), (2, blob, 302)])
+        self.assertEqual(ledger["terminal_stop"]["code"], "redirect_budget_exhausted")
+        self.assertEqual(self.connects(), [("api.github.com", 443), (RESULTS_RECEIVER, 443), (blob, 443)])
+
+    def test_live_results_receiver_error_status_is_the_final_non_200_receipt(self):
+        self.admit_results_receiver()
+        path, location = self.seq47_location()
+        for status in (404, 500):
+            with self.subTest(status=status):
+                self.reset_window()
+                self.serve_logs_redirect(location)
+                self.server.routes[(RESULTS_RECEIVER, path)] = (status, [("Content-Type", "application/json")], b'{"message":"no"}')
+                result = self.follow()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                receipt = json.loads(self.output_path.read_text())
+                self.assertEqual(receipt["actual_status"], status)
+                self.assertEqual([hop["actual_status"] for hop in receipt["hops"]], [302, status])
+                ledger = json.loads(self.ledger.read_text())
+                self.assertIsNone(ledger["terminal_stop"])
+                self.assertEqual([(row["hop_ordinal"], row["host"], row["actual_status"]) for row in ledger["transactions"]],
+                                 [(0, "api.github.com", 302), (1, RESULTS_RECEIVER, status)])
+                self.assertEqual(self.connects(), [("api.github.com", 443), (RESULTS_RECEIVER, 443)])
+                self.assertEqual([(row["host"], row["authorization"]) for row in self.server.journal],
+                                 [("api.github.com", f"Bearer {DUMMY_TOKEN}"), (RESULTS_RECEIVER, None)])
+
+    def test_results_receiver_lookalikes_are_refused_before_their_socket(self):
+        self.admit_results_receiver()
+        path, _ = self.seq47_location()
+        for host in RESULTS_RECEIVER_LOOKALIKES:
+            with self.subTest(host=host):
+                self.reset_window()
+                self.serve_logs_redirect(f"https://{host}{path}?sig=x")
+                self.server.routes[(host, path)] = (200, [("Content-Type", "application/zip")], small_zip())
+                self.assert_refused_before_the_hop_one_socket("redirect_rejected")
+
+    def test_results_receiver_port_scheme_userinfo_and_fragment_are_refused_before_their_socket(self):
+        self.admit_results_receiver()
+        path, _ = self.seq47_location()
+        cases = {f"https://{RESULTS_RECEIVER}:8443{path}?sig=x": "redirect_rejected",
+                 f"http://{RESULTS_RECEIVER}{path}?sig=x": "malformed_location",
+                 f"https://user@{RESULTS_RECEIVER}{path}?sig=x": "malformed_location",
+                 f"https://{RESULTS_RECEIVER}{path}?sig=x#frag": "malformed_location"}
+        for location, code in cases.items():
+            with self.subTest(location=location):
+                self.reset_window()
+                self.serve_logs_redirect(location)
+                self.assert_refused_before_the_hop_one_socket(code)
+
+    def test_results_receiver_on_artifact_zip_is_refused_before_its_socket(self):
+        self.admit_results_receiver()
+        path, location = self.seq47_location()
+        self.serve_logs_redirect(location, route_id="artifact_zip")
+        self.server.routes[(RESULTS_RECEIVER, path)] = (200, [("Content-Type", "application/zip")], small_zip())
+        self.assert_refused_before_the_hop_one_socket("redirect_rejected")
+
+    def test_results_receiver_on_job_logs_is_refused_before_its_socket(self):
+        self.admit_results_receiver()
+        path, location = self.seq47_location()
+        self.serve_logs_redirect(location, route_id="job_logs")
+        self.server.routes[(RESULTS_RECEIVER, path)] = (200, [("Content-Type", "application/zip")], small_zip())
+        self.assert_refused_before_the_hop_one_socket("redirect_rejected")
+
+    def test_results_receiver_absent_from_download_hosts_reproduces_the_253_122_refusal(self):
+        # The R10 allocation 253-122 really ran with: no results-receiver, so the transport still refuses it.
+        r10 = json.loads(R10_LEDGER.with_name("253-LOAD-RECOVERY-CANARY-ALLOCATION-R10.json").read_text())
+        self.assertNotIn(RESULTS_RECEIVER, r10["download_hosts"])
+        self.allocation["download_hosts"] = list(r10["download_hosts"])
+        self.write_allocation()
+        path, location = self.seq47_location()
+        self.serve_logs_redirect(location)
+        self.server.routes[(RESULTS_RECEIVER, path)] = (200, [("Content-Type", "application/zip")], small_zip())
+        self.assert_refused_before_the_hop_one_socket("redirect_rejected")
+
+    def test_direct_results_receiver_destination_outside_run_logs_hop_one_is_refused_before_the_predebit(self):
+        self.admit_results_receiver()
+        path, _ = self.seq47_location()
+        destination = (RESULTS_RECEIVER, 443, path + "?sig=x")
+        run_logs = {"method": "GET", "route_id": "run_logs", "category": "failure_logs", "params": {"run_id": 38963239851}}
+        artifact = {"method": "GET", "route_id": "artifact_zip", "category": "artifact_downloads",
+                    "params": {"artifact_id": 11999138572}}
+        job_logs = {"method": "GET", "route_id": "job_logs", "category": "failure_logs", "params": {"job_id": 88123456789}}
+        cases = [("run_logs at hop 2", dict(run_logs, hop_ordinal=2), destination),
+                 ("artifact_zip at hop 1", dict(artifact, hop_ordinal=1), destination),
+                 ("job_logs at hop 1", dict(job_logs, hop_ordinal=1), destination),
+                 ("run_logs at hop 1 on port 8443", dict(run_logs, hop_ordinal=1), (RESULTS_RECEIVER, 8443, path))]
+        for name, request, target in cases:
+            with self.subTest(case=name):
+                self.assertEqual(self.direct(request, target), "origin_rejected")
+                self.assertFalse(self.ledger.exists())
+        self.assertEqual(self.shim.read_log(self.connect_log), [])
+        self.assertEqual(self.server.journal, [])
+
     # -- 253-110: live-side gaps the hermetic-vs-live audit found ------------------------------------------
     def test_live_accept_header_is_github_json_on_api_github_com_and_plain_json_on_the_download_host(self):
         self.assertEqual(self.follow().returncode, 0)
@@ -1262,6 +1495,37 @@ class LivePolicyAllocationTests(unittest.TestCase):
         for accepted in ([], ["pipelines.actions.githubusercontent.com"], ["productionresultssa0.blob.core.windows.net"]):
             with self.subTest(accepted=accepted):
                 self.transport._validate_allocation(dict(self.live, download_hosts=accepted))
+
+    def test_live_download_hosts_admit_results_receiver_by_exact_name_only(self):
+        hosts = self.live["download_hosts"]
+        self.assertEqual(self.transport.RESULTS_RECEIVER_HOST, RESULTS_RECEIVER)
+        self.transport._validate_allocation(dict(self.live, download_hosts=hosts + [RESULTS_RECEIVER]))
+        self.transport._validate_allocation(dict(self.live, download_hosts=[RESULTS_RECEIVER]))
+        for host in RESULTS_RECEIVER_LOOKALIKES + ("RESULTS-RECEIVER.actions.githubusercontent.com",
+                                                  "results-receiver.actions.githubusercontent.com:443",
+                                                  "results-receiver.actions.githubusercontent.com."):
+            with self.subTest(host=host):
+                self.assertEqual(self.refused(dict(self.live, download_hosts=hosts + [RESULTS_RECEIVER, host])),
+                                 "download_host_allocation")
+        self.assertEqual(self.refused(dict(self.live, download_hosts=[RESULTS_RECEIVER, RESULTS_RECEIVER])),
+                         "download_host_allocation")
+
+    def test_trusted_download_host_scopes_results_receiver_to_run_logs_hop_one(self):
+        allocation = dict(self.live, download_hosts=self.live["download_hosts"] + [RESULTS_RECEIVER])
+        trusted = self.transport._trusted_download_host
+        self.assertTrue(trusted(RESULTS_RECEIVER, None, allocation, "run_logs", 1))
+        self.assertTrue(trusted(RESULTS_RECEIVER, 443, allocation, "run_logs", 1))
+        for host, port, route_id, hop in ((RESULTS_RECEIVER, 443, "run_logs", 2), (RESULTS_RECEIVER, 443, "run_logs", 0),
+                                          (RESULTS_RECEIVER, 443, "artifact_zip", 1), (RESULTS_RECEIVER, 443, "job_logs", 1),
+                                          (RESULTS_RECEIVER, 8443, "run_logs", 1), (RESULTS_RECEIVER, 443, "run_logs", True)):
+            with self.subTest(host=host, port=port, route=route_id, hop=hop):
+                self.assertFalse(trusted(host, port, allocation, route_id, hop))
+        self.assertFalse(trusted(RESULTS_RECEIVER, 443, self.live, "run_logs", 1))  # absent from download_hosts
+        # The pre-R11 predicate is unchanged on every route and hop.
+        for route_id in ("artifact_zip", "run_logs", "job_logs"):
+            for hop in (1, 2):
+                self.assertTrue(trusted("productionresultssa16.blob.core.windows.net", 443, allocation, route_id, hop))
+                self.assertTrue(trusted("pipelines.actions.githubusercontent.com", None, allocation, route_id, hop))
 
     def test_live_canary_max_requests_is_one_through_117_while_hermetic_may_be_zero(self):
         base = {key: value for key, value in self.live.items() if key != "category_limits"}
