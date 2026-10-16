@@ -2,8 +2,8 @@
 """253-110: the hermetic-vs-live branch audit, kept complete and current automatically. No network.
 
 253-104 halted on a branch whose live side no offline gate had executed: every harness ran hermetic-test allocations,
-so request_one's live origin check first ran in a hosted window. This checker re-scans the five hosted-proof files
-with a stated matcher and fails when
+so request_one's live origin check first ran in a hosted window. This checker re-scans the hosted-proof files (five,
+plus the 253-126 shape-probe driver since schema r11) with a stated matcher and fails when
 
 - a matched site has no audit row, or a row no longer names a current site (stale anchor or moved line);
 - a coverage ref names a test that does not exist, or an offline-live-test ref names a test with no live marker;
@@ -48,15 +48,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PHASE_REL = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
 AUDIT_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R11.json"
-SCHEMA = "sigra.phase253.hermetic-live-audit/r10"
+SCHEMA = "sigra.phase253.hermetic-live-audit/r11"
 FILES = ("scripts/ci/ci-hosted-transport.py", "scripts/ci/ci-gate-canary.sh", "scripts/ci/ci-pr-proof.sh",
-         "scripts/ci/ci-git-publication.py", "scripts/ci/ci-hosted-gate-verify.py")
+         "scripts/ci/ci-git-publication.py", "scripts/ci/ci-hosted-gate-verify.py", "scripts/ci/ci-shape-probe.py")
 KINDS = ("offline-live-test", "live-policy-gate", "justified", "gap")
 TEST_FILES = ("scripts/ci/ci-hosted-transport.test.py", "scripts/ci/ci-hosted-gate-verify.test.py",
               "scripts/ci/ci-git-publication.test.py", "scripts/ci/ci-gate-canary-flow.test.py",
               "scripts/ci/ci-gate-canary-recovery.test.py", "scripts/ci/ci-gate-canary-dryrun.test.py",
-              "scripts/ci/ci-pr-proof.test.sh")
-LIVE_POLICY_GATE_FILES = ("scripts/ci/ci-gate-canary-dryrun.test.py", "scripts/ci/ci-pr-proof.test.sh")
+              "scripts/ci/ci-pr-proof.test.sh", "scripts/ci/ci-shape-probe.test.py")
+LIVE_POLICY_GATE_FILES = ("scripts/ci/ci-gate-canary-dryrun.test.py", "scripts/ci/ci-pr-proof.test.sh",
+                          "scripts/ci/ci-shape-probe.test.py")
 
 # The matcher is part of the record: the record must state exactly the patterns this checker applies.
 MATCHER = {

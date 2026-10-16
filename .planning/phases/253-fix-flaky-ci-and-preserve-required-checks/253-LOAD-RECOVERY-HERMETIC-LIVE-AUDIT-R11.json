@@ -1,13 +1,14 @@
 {
-  "schema": "sigra.phase253.hermetic-live-audit/r10",
-  "audit_head": "6551f3f05076792a4ae01c0bee4011881d24b4c0",
+  "schema": "sigra.phase253.hermetic-live-audit/r11",
+  "audit_head": "2f960a01f32e3165c0183f5bd2ca333b1cc6bbe4",
   "matcher": {
     "files": [
       "scripts/ci/ci-hosted-transport.py",
       "scripts/ci/ci-gate-canary.sh",
       "scripts/ci/ci-pr-proof.sh",
       "scripts/ci/ci-git-publication.py",
-      "scripts/ci/ci-hosted-gate-verify.py"
+      "scripts/ci/ci-hosted-gate-verify.py",
+      "scripts/ci/ci-shape-probe.py"
     ],
     "skip": "blank lines, lines whose first non-space character is #, and text inside triple-quoted strings",
     "literal_strip": "a quoted literal that contains whitespace and neither == nor != (a message, not a compared value) is replaced by an empty literal before matching",
@@ -22,7 +23,8 @@
     "scripts/ci/ci-gate-canary.sh": 6,
     "scripts/ci/ci-pr-proof.sh": 2,
     "scripts/ci/ci-git-publication.py": 8,
-    "scripts/ci/ci-hosted-gate-verify.py": 28
+    "scripts/ci/ci-hosted-gate-verify.py": 28,
+    "scripts/ci/ci-shape-probe.py": 1
   },
   "rows": [
     {
@@ -1247,6 +1249,22 @@
         "refs": [
           "scripts/ci/ci-hosted-gate-verify.test.py::test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
           "scripts/ci/ci-hosted-gate-verify.test.py::test_api_view_returns_live_evidence_unchanged_and_rewrites_only_hermetic_evidence"
+        ]
+      }
+    },
+    {
+      "id": "shape-probe-351",
+      "file": "scripts/ci/ci-shape-probe.py",
+      "anchor": "if allocation.get(\"mode\") != \"live\":",
+      "occurrence": 1,
+      "line": 351,
+      "hermetic_behavior": "The probe has no hermetic path: an allocation whose mode is hermetic-test (or anything but live) is refused with allocation.mode before any request, so a test origin or test CA can never stand in for GitHub.",
+      "live_behavior": "A live allocation passes on to the exact binding (window, caps, category table and the exact ordered download_hosts equal to the request list; bound to the request list and approval sha256); every request then runs through the transport's live policy: api.github.com at hop 0 with the token, and only approved run_logs hops after it, without the token.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-shape-probe.test.py::test_live_probe_refuses_a_hermetic_test_allocation_before_any_socket",
+          "scripts/ci/ci-shape-probe.test.py::test_live_probe_records_the_seq47_chain_to_results_receiver"
         ]
       }
     }
