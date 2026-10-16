@@ -55,10 +55,31 @@ fail() {
 # Phase 231 / C-6 comment above). No fallback: if the pattern is absent,
 # key_version stays empty and the guard below fails closed rather than
 # silently passing.
+#
+# Every occurrence is checked, not just the first: ci.yml carries the key
+# literal at several call sites (the example_playwright_shard matrix legs and
+# admin_eval_render), plus chromium-only keys (`playwright-chromium-<version>-vN`).
+# A lockfile bump that updates one site and misses another would otherwise
+# pass this guard and restore stale binaries at the missed site.
 key_version="$(grep -oE 'playwright-chromium-webkit-[0-9]+\.[0-9]+\.[0-9]+-v[0-9]+' "$WORKFLOW" \
   | head -1 \
   | sed -E 's/^playwright-chromium-webkit-([0-9]+\.[0-9]+\.[0-9]+)-v[0-9]+$/\1/')" || true
 [[ -n "$key_version" ]] || fail "no Playwright browser cache key (playwright-chromium-webkit-<version>-vN) found in ${WORKFLOW}"
+
+# All versioned keys (chromium-webkit and chromium-only). A key that carries a
+# version but no -vN token is counted as loose-only and fails closed.
+all_versioned_keys="$(grep -oE 'playwright-chromium(-webkit)?-[0-9]+\.[0-9]+\.[0-9]+-v[0-9]+' "$WORKFLOW")" || true
+loose_count="$(grep -oE 'playwright-chromium(-webkit)?-[0-9]+\.[0-9]+\.[0-9]+' "$WORKFLOW" | grep -c . )" || true
+strict_count="$(printf '%s\n' "$all_versioned_keys" | grep -c . )" || true
+if [[ "$loose_count" != "$strict_count" ]]; then
+  fail "${loose_count} versioned Playwright cache key(s) in ${WORKFLOW} but only ${strict_count} carry a -vN token"
+fi
+key_versions="$(printf '%s\n' "$all_versioned_keys" \
+  | sed -E 's/^playwright-chromium(-webkit)?-([0-9]+\.[0-9]+\.[0-9]+)-v[0-9]+$/\2/' \
+  | sort -u)"
+if [[ "$(printf '%s\n' "$key_versions" | grep -c .)" -ne 1 ]]; then
+  fail "Playwright cache keys in ${WORKFLOW} disagree on version: $(printf '%s' "$key_versions" | tr '\n' ' ')"
+fi
 
 # The lockfile entry has the shape:
 #   "node_modules/@playwright/test": {
