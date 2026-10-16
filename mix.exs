@@ -117,7 +117,7 @@ defmodule Sigra.MixProject do
       {:nimble_totp, "~> 1.0"},
       {:cloak_ecto, "~> 1.3"},
       {:wax_, "~> 0.7"},
-      {:threadline, "~> 0.5", optional: true},
+      {:threadline, "~> 1.0", optional: true},
       # Optional Chimeway bridge — host adds `{:chimeway, "~> 1.0"}`; local dev may use CHIMEWAY_PATH path dep.
       {:chimeway, "~> 1.0", optional: true},
       {:eqrcode, "~> 0.2.1", optional: true},
