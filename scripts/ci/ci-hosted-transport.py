@@ -89,7 +89,7 @@ PRODUCTION_CATEGORY_LIMITS = {
     "artifact_metadata": 4, "artifact_downloads": 20, "failure_logs": 2, "infrastructure_rerun": 21,
 }
 REPO_ROOT = Path(__file__).resolve().parents[2]
-PR_HEAD_REFS = {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-docs-head"}
+PR_HEAD_REFS = {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-docs-head"}
 PR_BASE_REFS = {"main", "gsd/253-replan-docs-base"}
 CONTENT_PATHS = {".github/workflows/ci.yml", "guides/reference/phase253-docs-only-proof.md"}
 PR_CREATE_FIELDS = {"title", "head", "base", "body", "draft"}

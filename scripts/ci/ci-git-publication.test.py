@@ -1852,8 +1852,12 @@ class LiveModeApprovalTests(unittest.TestCase):
 LEGACY_PAIR = ("refs/heads/gsd/253-replan-candidate", "refs/heads/gsd/253-replan-fixture")
 R8_PAIR = ("refs/heads/gsd/253-replan-r8-candidate", "refs/heads/gsd/253-replan-r8-fixture")
 R9_PAIR = ("refs/heads/gsd/253-replan-r9-candidate", "refs/heads/gsd/253-replan-r9-fixture")
-# 253-111: r9 is now a known pair, so the "fourth, unknown name" probes use r10.
-UNKNOWN_PAIR = ("refs/heads/gsd/253-replan-r10-candidate", "refs/heads/gsd/253-replan-r10-fixture")
+R10_PAIR = ("refs/heads/gsd/253-replan-r10-candidate", "refs/heads/gsd/253-replan-r10-fixture")
+# 253-111: r9 became a known pair, so the unknown-name probes moved to r10. 253-119: r10 is now a known pair too,
+# so they use r11, a name that is never pinned.
+UNKNOWN_PAIR = ("refs/heads/gsd/253-replan-r11-candidate", "refs/heads/gsd/253-replan-r11-fixture")
+FREEZE_R9_DIGESTS = {"canary": "f4210ba50fbc1a3bc94e45f8c7091b4083c45d80076a890596e1fc269c708b4a",
+                     "docs_and_prs": "5f8b394a8ce66929839f4344a5617f0ff1c28a86028156b97ecbf47fb8ad9e0e"}
 FREEZE_R8_DIGESTS = {"canary": "e272c040ecb6533f775340885bfac68a917f3da8866ab1312947aba32af54cc7",
                      "docs_and_prs": "083a4ce31dd0c036319a0cd3a54b95fbba0d2d71e2fb360b75c9f3ec247ba183"}
 EARLIER_FREEZE_DIGESTS = {
@@ -1874,19 +1878,23 @@ class RefPairTests(unittest.TestCase):
     canary_allocation = RegisteredPublicationTests.canary_allocation
     publish_args = RegisteredPublicationTests.publish_args
 
-    def test_exactly_three_ref_pairs_exist_and_legacy_is_the_default(self):
+    def test_exactly_four_ref_pairs_exist_and_legacy_is_the_default(self):
         module = load_publisher()
         self.assertEqual(module.REF_PAIRS, {
             "legacy": {"candidate": "gsd/253-replan-candidate", "fixture": "gsd/253-replan-fixture"},
             "r8": {"candidate": "gsd/253-replan-r8-candidate", "fixture": "gsd/253-replan-r8-fixture"},
-            "r9": {"candidate": "gsd/253-replan-r9-candidate", "fixture": "gsd/253-replan-r9-fixture"}})
+            "r9": {"candidate": "gsd/253-replan-r9-candidate", "fixture": "gsd/253-replan-r9-fixture"},
+            "r10": {"candidate": "gsd/253-replan-r10-candidate", "fixture": "gsd/253-replan-r10-fixture"}})
         self.assertEqual(module.DEFAULT_REF_PAIR, "legacy")
         self.assertEqual(module.ref_pair_name(*LEGACY_PAIR), "legacy")
         self.assertEqual(module.ref_pair_name(*R8_PAIR), "r8")
         self.assertEqual(module.ref_pair_name(*R9_PAIR), "r9")
+        self.assertEqual(module.ref_pair_name(*R10_PAIR), "r10")
         for mixed in ((LEGACY_PAIR[0], R8_PAIR[1]), (R8_PAIR[0], LEGACY_PAIR[1]), (R8_PAIR[1], R8_PAIR[0]),
                       (R9_PAIR[0], R8_PAIR[1]), (R8_PAIR[0], R9_PAIR[1]), (R9_PAIR[0], LEGACY_PAIR[1]),
-                      (LEGACY_PAIR[0], R9_PAIR[1]), (R9_PAIR[1], R9_PAIR[0]), UNKNOWN_PAIR,
+                      (LEGACY_PAIR[0], R9_PAIR[1]), (R9_PAIR[1], R9_PAIR[0]),
+                      (R10_PAIR[0], R9_PAIR[1]), (R9_PAIR[0], R10_PAIR[1]), (R10_PAIR[0], R8_PAIR[1]),
+                      (R8_PAIR[0], R10_PAIR[1]), (R10_PAIR[0], LEGACY_PAIR[1]), (R10_PAIR[1], R10_PAIR[0]), UNKNOWN_PAIR,
                       ("gsd/253-replan-candidate", "gsd/253-replan-fixture"), (None, None)):
             with self.subTest(mixed=mixed):
                 with self.assertRaises(module.PublicationError):
@@ -1936,7 +1944,7 @@ class RefPairTests(unittest.TestCase):
             def build(rel, *extra):
                 return subprocess.run(["python3", str(PUBLISHER), "--build-freeze", "--manifest", env["manifest_rel"],
                                        "--output", rel, "--repo-root", str(repo), *extra], cwd=ROOT, text=True, capture_output=True)
-            for bad in ("", "r10", "R8", "R9", "legacy,r8", "r8,r9", "r9 ", "candidate"):
+            for bad in ("", "r11", "R8", "R9", "legacy,r8", "r8,r9", "r9 ", "candidate"):
                 with self.subTest(pair=bad):
                     refused = build(f"{PHASE_REL}/bad-pair.json", "--ref-pair", bad)
                     self.assertNotEqual(refused.returncode, 0)
@@ -2099,14 +2107,14 @@ class R9RefPairTests(unittest.TestCase):
             self.assertEqual((env["freeze"]["identity"]["candidate_ref"], env["freeze"]["identity"]["fixture_ref"]), R9_PAIR)
             module = load_publisher()
             with self.assertRaises(module.PublicationError):
-                module.build_freeze(env["repo"], env["manifest_rel"], env["repo"] / PHASE_REL / "r10.json", ref_pair="r10")
-            self.assertFalse((env["repo"] / PHASE_REL / "r10.json").exists())
+                module.build_freeze(env["repo"], env["manifest_rel"], env["repo"] / PHASE_REL / "r11.json", ref_pair="r11")
+            self.assertFalse((env["repo"] / PHASE_REL / "r11.json").exists())
             refused = subprocess.run(["python3", str(PUBLISHER), "--build-freeze", "--manifest", env["manifest_rel"],
-                                      "--output", f"{PHASE_REL}/r10.json", "--repo-root", str(env["repo"]), "--ref-pair", "r10"],
+                                      "--output", f"{PHASE_REL}/r11.json", "--repo-root", str(env["repo"]), "--ref-pair", "r11"],
                                      cwd=ROOT, text=True, capture_output=True)
             self.assertNotEqual(refused.returncode, 0)
             self.assertIn("r9", refused.stderr)
-            self.assertFalse((env["repo"] / PHASE_REL / "r10.json").exists())
+            self.assertFalse((env["repo"] / PHASE_REL / "r11.json").exists())
 
     def test_check_freeze_refuses_r9_mixed_with_r8_or_legacy(self):
         with tempfile.TemporaryDirectory(prefix="sigra-ref-pair-r9-check-") as temp:
@@ -2203,6 +2211,183 @@ class R9RefPairTests(unittest.TestCase):
         self.assertFalse(hasattr(module, "CANARY_BRANCH"))
         self.assertNotIn("CANARY_BRANCH", PUBLISHER.read_text())
         self.assertIn("DEFAULT_REF_PAIR", PUBLISHER.read_text())
+
+
+class R10RefPairTests(unittest.TestCase):
+    """253-119: r10 is the fourth code-pinned pair. The r8 and r9 refs already on GitHub are never read, moved or deleted."""
+
+    make_local_publication = PublicationTests.make_local_publication
+    prepare_registered = RegisteredPublicationTests.prepare_registered
+    freeze_environment = RegisteredPublicationTests.freeze_environment
+    write_approval = RegisteredPublicationTests.write_approval
+    canary_allocation = RegisteredPublicationTests.canary_allocation
+    publish_args = RegisteredPublicationTests.publish_args
+
+    def test_freeze_r9_replays_its_recorded_section_digests_exactly(self):
+        module = load_publisher()
+        freeze = json.loads((ROOT / PHASE_REL / "253-LOAD-RECOVERY-CANARY-FREEZE-R9.json").read_text())
+        self.assertEqual((freeze["identity"]["candidate_ref"], freeze["identity"]["fixture_ref"]), R9_PAIR)
+        sections, derived = module.build_outward_actions(freeze["identity"])
+        self.assertEqual(derived, FREEZE_R9_DIGESTS)
+        self.assertEqual(freeze["outward_actions_sha256"], FREEZE_R9_DIGESTS)
+        self.assertEqual(sections, freeze["outward_actions"])
+
+    def test_every_earlier_freeze_still_replays_with_the_fourth_pair_present(self):
+        module = load_publisher()
+        recorded = {"253-LOAD-RECOVERY-CANARY-FREEZE-R9.json": FREEZE_R9_DIGESTS,
+                    "253-LOAD-RECOVERY-CANARY-FREEZE-R8.json": FREEZE_R8_DIGESTS, **EARLIER_FREEZE_DIGESTS}
+        self.assertEqual(len(recorded), 4)
+        for name, digests in recorded.items():
+            with self.subTest(freeze=name):
+                freeze = json.loads((ROOT / PHASE_REL / name).read_text())
+                self.assertEqual(module.build_outward_actions(freeze["identity"])[1], digests)
+
+    def test_an_r10_identity_moves_every_candidate_and_fixture_ref_to_the_r10_names(self):
+        module = load_publisher()
+        r9 = json.loads((ROOT / PHASE_REL / "253-LOAD-RECOVERY-CANARY-FREEZE-R9.json").read_text())["identity"]
+        identity = {**r9, "candidate_ref": R10_PAIR[0], "fixture_ref": R10_PAIR[1]}
+        sections, digests = module.build_outward_actions(identity)
+        canary, docs = sections["canary"]["actions"], sections["docs_and_prs"]["actions"]
+        self.assertEqual([a["ref"] for a in canary if a["action"] == "create_ref"], list(R10_PAIR))
+        self.assertEqual({a["ref"] for a in canary if a["action"] == "workflow_dispatch"}, {"gsd/253-replan-r10-fixture"})
+        self.assertEqual([a["run_identity"]["head_branch"] for a in canary if a["action"] == "cancel_run"], ["gsd/253-replan-r10-fixture"])
+        prs = {a["family"]: (a["head"], a["base"]) for a in docs if a["action"] == "pr_create"}
+        self.assertEqual(prs, {"normal": ("gsd/253-replan-r10-candidate", "main"),
+                               "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")})
+        self.assertNotIn("253-replan-r9-", json.dumps(sections))
+        self.assertNotIn("253-replan-r8-", json.dumps(sections))
+        for section, value in FREEZE_R9_DIGESTS.items():
+            self.assertNotEqual(digests[section], value)
+        for mixed in ({"candidate_ref": R10_PAIR[0]}, {"fixture_ref": R10_PAIR[1]},
+                      {"candidate_ref": R10_PAIR[0], "fixture_ref": R9_PAIR[1]},
+                      {"candidate_ref": R9_PAIR[0], "fixture_ref": R10_PAIR[1]},
+                      {"candidate_ref": R10_PAIR[0], "fixture_ref": R8_PAIR[1]},
+                      {"candidate_ref": UNKNOWN_PAIR[0], "fixture_ref": UNKNOWN_PAIR[1]}):
+            with self.subTest(mixed=mixed):
+                with self.assertRaises(module.PublicationError):
+                    module.build_outward_actions({**r9, **mixed})
+
+    def test_build_freeze_accepts_r10_and_the_cli_refuses_a_fifth_pair_naming_all_four(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-ref-pair-r10-freeze-") as temp:
+            env = self.freeze_environment(temp, ref_pair="r10")
+            self.assertEqual((env["freeze"]["identity"]["candidate_ref"], env["freeze"]["identity"]["fixture_ref"]), R10_PAIR)
+            module = load_publisher()
+            for bad in ("r11", "R10", "r10 ", "r9,r10", "r1"):
+                with self.subTest(pair=bad):
+                    with self.assertRaises(module.PublicationError):
+                        module.build_freeze(env["repo"], env["manifest_rel"], env["repo"] / PHASE_REL / "bad.json", ref_pair=bad)
+                    self.assertFalse((env["repo"] / PHASE_REL / "bad.json").exists())
+            refused = subprocess.run(["python3", str(PUBLISHER), "--build-freeze", "--manifest", env["manifest_rel"],
+                                      "--output", f"{PHASE_REL}/r11.json", "--repo-root", str(env["repo"]), "--ref-pair", "r11"],
+                                     cwd=ROOT, text=True, capture_output=True)
+            self.assertNotEqual(refused.returncode, 0)
+            for name in ("legacy", "r8", "r9", "r10"):
+                self.assertIn(f"'{name}'", refused.stderr)
+            self.assertFalse((env["repo"] / PHASE_REL / "r11.json").exists())
+            helped = subprocess.run(["python3", str(PUBLISHER), "--help"], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(helped.returncode, 0)
+            self.assertIn("r9 or r10", " ".join(helped.stdout.split()))
+            mixed = module.PublicationError
+            with self.assertRaises(mixed) as raised:
+                module.ref_pair_name(R10_PAIR[0], R9_PAIR[1])
+            self.assertIn("legacy, r8, r9 or r10", str(raised.exception))
+
+    def test_check_freeze_refuses_r10_mixed_with_r9_r8_or_legacy(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-ref-pair-r10-check-") as temp:
+            env = self.freeze_environment(temp, ref_pair="r10")
+            original = env["freeze_path"].read_text()
+
+            def check():
+                return subprocess.run(["python3", str(PUBLISHER), "--check-freeze", str(env["freeze_path"]), "--repo-root", str(env["repo"])],
+                                      cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(check().returncode, 0, check().stderr)
+            for label, refs in {"r10 candidate with r9 fixture": (R10_PAIR[0], R9_PAIR[1]),
+                                "r9 candidate with r10 fixture": (R9_PAIR[0], R10_PAIR[1]),
+                                "r10 candidate with r8 fixture": (R10_PAIR[0], R8_PAIR[1]),
+                                "r10 candidate with legacy fixture": (R10_PAIR[0], LEGACY_PAIR[1]),
+                                "r9 pair under an r10 freeze": R9_PAIR,
+                                "fixture as candidate": (R10_PAIR[1], R10_PAIR[1]),
+                                "fifth pair": UNKNOWN_PAIR}.items():
+                with self.subTest(label=label):
+                    value = json.loads(original)
+                    value["identity"]["candidate_ref"], value["identity"]["fixture_ref"] = refs
+                    env["freeze_path"].write_text(json.dumps(value, indent=2))
+                    refused = check()
+                    self.assertNotEqual(refused.returncode, 0, label)
+            env["freeze_path"].write_text(original)
+            self.assertEqual(check().returncode, 0)
+
+    def seed_r8_and_r9_refs(self, env, sha):
+        seeded = {"gsd/253-replan-r8-candidate": sha, "gsd/253-replan-r8-fixture": sha,
+                  "gsd/253-replan-r9-candidate": sha, "gsd/253-replan-r9-fixture": sha}
+        env["server"].refs.update(seeded)
+        return dict(seeded)
+
+    def test_r10_publication_creates_only_the_r10_refs_and_leaves_seeded_r8_and_r9_refs_untouched(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-ref-pair-r10-publish-") as temp:
+            env = self.freeze_environment(temp, ref_pair="r10")
+            server, manifest = env["server"], env["manifest"]
+            seeded = self.seed_r8_and_r9_refs(env, env["parent"])
+            allocation, ledger = self.canary_allocation(env)
+            approval = self.write_approval(env, "canary")
+            receipt = env["root"] / "r10-receipt.json"
+            result = subprocess.run(self.publish_args(env["manifest_path"], allocation, ledger, receipt, env["repo"])
+                                    + ["--freeze", str(env["freeze_path"]), "--action-approval", str(approval)],
+                                    cwd=ROOT, text=True, capture_output=True, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stderr + json.dumps(server.journal))
+            self.assertEqual(server.refs["gsd/253-replan-r10-candidate"], manifest["candidate_helper_commit"])
+            self.assertEqual(server.refs["gsd/253-replan-r10-fixture"], manifest["fixture_workflow_commit"])
+            for name, sha in seeded.items():
+                self.assertEqual(server.refs[name], sha)
+            self.assertEqual(set(server.refs), set(seeded) | {"gsd/253-replan-r10-candidate", "gsd/253-replan-r10-fixture"})
+            ref_paths = [row["path"] for row in server.journal if "/git/ref" in row["path"]]
+            self.assertTrue(ref_paths)
+            self.assertTrue([path for path in ref_paths if "253-replan-r10-" in path])
+            self.assertFalse([path for path in ref_paths if "253-replan-r8-" in path or "253-replan-r9-" in path],
+                             "an r10 publication read or wrote an r8 or r9 ref")
+            ref_bodies = json.dumps([row for row in server.journal if row["method"] == "POST" and row["path"].endswith("/git/refs")])
+            self.assertNotIn("253-replan-r8-", ref_bodies)
+            self.assertNotIn("253-replan-r9-", ref_bodies)
+            value = json.loads(receipt.read_text())
+            self.assertEqual((value["candidate_ref"], value["fixture_ref"]), R10_PAIR)
+            self.assertEqual(sorted(row["ref"] for row in value["server_object_receipts"] if row["kind"] == "ref"), sorted(R10_PAIR))
+
+            def verify():
+                return subprocess.run(["python3", str(PUBLISHER), "--verify-publication", str(receipt)], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(verify().returncode, 0, verify().stderr)
+            original = receipt.read_text()
+            for label, refs in {"r10 candidate, r9 fixture": (R10_PAIR[0], R9_PAIR[1]),
+                                "r9 candidate, r10 fixture": (R9_PAIR[0], R10_PAIR[1]),
+                                "r10 candidate, r8 fixture": (R10_PAIR[0], R8_PAIR[1]),
+                                "fifth": UNKNOWN_PAIR}.items():
+                with self.subTest(label=label):
+                    tampered = json.loads(original)
+                    by_variant = dict(zip(("candidate", "fixture"), refs))
+                    tampered["candidate_ref"], tampered["fixture_ref"] = refs
+                    for row in tampered["server_object_receipts"]:
+                        if row["kind"] == "ref":
+                            row["ref"] = by_variant[row["variant"]]
+                    receipt.write_text(json.dumps(tampered))
+                    refused = verify()
+                    self.assertNotEqual(refused.returncode, 0, label)
+                    self.assertIn("scoped refs", refused.stderr)
+            receipt.write_text(original)
+            self.assertEqual(verify().returncode, 0)
+
+    def test_r9_freeze_publication_stops_on_seeded_r9_refs_at_another_sha_with_no_ref_changed(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-ref-pair-r9-stop-") as temp:
+            env = self.freeze_environment(temp, ref_pair="r9")
+            server = env["server"]
+            seeded = self.seed_r8_and_r9_refs(env, env["parent"])
+            allocation, ledger = self.canary_allocation(env)
+            approval = self.write_approval(env, "canary")
+            result = subprocess.run(self.publish_args(env["manifest_path"], allocation, ledger, env["root"] / "r9-receipt.json", env["repo"])
+                                    + ["--freeze", str(env["freeze_path"]), "--action-approval", str(approval)],
+                                    cwd=ROOT, text=True, capture_output=True, timeout=90)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("scoped ref gsd/253-replan-r9-candidate already points to a different commit", result.stderr)
+            self.assertEqual(server.refs, seeded)
+            self.assertFalse([row for row in server.journal if row["method"] == "POST" and row["path"].endswith("/git/refs")])
 
 
 class LiveOriginDerivationTests(unittest.TestCase):

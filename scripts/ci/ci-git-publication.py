@@ -1153,12 +1153,13 @@ NATIVE_NOTE = ("CIREL-01 partial: target not reproduced; the nine D-20 acceptanc
                "the normal PR runs each browser seam once as integration coverage only")
 PROHIBITED = ["rerun", "merge", "auto_merge", "push", "force_update", "delete_ref", "rule_change", "release", "tag"]
 WORKFLOW_ID = 259268962
-# 253-102/253-111: exactly three code-pinned scoped ref pairs. The freeze identity selects one; legacy stays the default
-# so every earlier freeze (253-91, R7, R8) derives byte-identical outward actions. No other name is ever accepted.
+# 253-102/253-111/253-119: exactly four code-pinned scoped ref pairs. The freeze identity selects one; legacy stays the
+# default so every earlier freeze (253-91, R7, R8, R9) derives byte-identical outward actions. No other name is accepted.
 REF_PAIRS = {
     "legacy": {"candidate": "gsd/253-replan-candidate", "fixture": "gsd/253-replan-fixture"},
     "r8": {"candidate": "gsd/253-replan-r8-candidate", "fixture": "gsd/253-replan-r8-fixture"},
     "r9": {"candidate": "gsd/253-replan-r9-candidate", "fixture": "gsd/253-replan-r9-fixture"},
+    "r10": {"candidate": "gsd/253-replan-r10-candidate", "fixture": "gsd/253-replan-r10-fixture"},
 }
 DEFAULT_REF_PAIR = "legacy"
 
@@ -1168,7 +1169,7 @@ def ref_pair_name(candidate_ref: object, fixture_ref: object) -> str:
     for name, pair in REF_PAIRS.items():
         if candidate_ref == "refs/heads/" + pair["candidate"] and fixture_ref == "refs/heads/" + pair["fixture"]:
             return name
-    raise PublicationError("candidate and fixture scoped refs are not one known ref pair (legacy, r8 or r9)")
+    raise PublicationError("candidate and fixture scoped refs are not one known ref pair (legacy, r8, r9 or r10)")
 
 
 def identity_ref_pair(identity: dict) -> dict:
@@ -1449,7 +1450,7 @@ def main() -> int:
     parser.add_argument("--check-freeze")
     parser.add_argument("--freeze-plan", default="253-91")
     parser.add_argument("--ref-pair", default=DEFAULT_REF_PAIR,
-                        help="scoped ref pair recorded in the freeze identity: legacy (default), r8 or r9")
+                        help="scoped ref pair recorded in the freeze identity: legacy (default), r8, r9 or r10")
     parser.add_argument("--acceptance-evidence")
     parser.add_argument("--disposition")
     parser.add_argument("--disposition-approval")
