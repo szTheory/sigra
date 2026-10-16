@@ -1516,10 +1516,29 @@ export const NEVER_RAN_IDS_R9 = Object.freeze(["105", "106"]);
 export const UNSTARTED_IDS_R9 = Object.freeze([...UNSTARTED_IDS_R8, ...NEVER_RAN_IDS_R9].sort(comparePlanIds));
 export const NEVER_RAN_REASON_R9 = "dependency 253-104 halted during the full-pass artifact download: the frozen transport refused the approved 302 redirect to the trusted artifact host productionresultssa17.blob.core.windows.net (origin_rejected: live transport is restricted to api.github.com)";
 export const R9_PLAN_IDS = Object.freeze(ids(107, 115));
+// R8 owner -> R9 owners: 102 stays and gains 111 (which re-derived the freeze); 103 stays and gains 112 (this
+// contract); halted 104 becomes 113; never-run 105 becomes 114; never-run 106 becomes 112 and 115. Duplicates
+// produced by the remap are dropped, keeping first-seen order.
+export const OWNER_REMAP_R9 = Object.freeze({ "102": ["102", "111"], "103": ["103", "112"], "104": ["113"], "105": ["114"], "106": ["112", "115"] });
+const remapOwnersR9 = (owners) => [...new Set(owners.flatMap((owner) => OWNER_REMAP_R9[owner] ?? [owner]))];
 const RESPONSIBILITY_MAP_R9 = Object.freeze({
-  ...RESPONSIBILITY_MAP_R8,
+  ...Object.fromEntries(Object.entries(RESPONSIBILITY_MAP_R8).map(([id, row]) => [id, { owners: remapOwnersR9(row.owners), links: row.links }])),
   "105": { owners: ["114"], links: PR_LINKS },
   "106": { owners: ["112", "115"], links: [...COMPLETION_LINK_KEYS, "load_target_disposition"] },
+});
+// The R8 halted proof map carried through the remap (so no row names halted 104), plus halted 104's own proof:
+// 107 (transport redirect RED receipt), 108 (live transport policy), 110 (hermetic-vs-live audit), 111 (R9
+// publication and freeze) and 113 (the hosted canary 104 could not finish).
+const HALTED_PROOF_MAP_R9 = Object.freeze({
+  ...Object.fromEntries(Object.entries(HALTED_PROOF_MAP_R8).map(([id, owners]) => [id, remapOwnersR9(owners)])),
+  "104": ["107", "108", "110", "111", "113"],
+});
+
+// Plan 253-103's receipts name THIS helper and its test, which R9 (plan 253-112) must edit. They are held at
+// the bytes of the last 253-103 commit that touched each file (6a898e019), read with git rather than invented.
+const FROZEN_TOOLING_RECEIPTS_R9_PLAN_103 = Object.freeze({
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "80da1a200d6c5a4da23768713c6baa757ca1fd71414f1219b18e871ab6a29aa8",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "afac0fe9a385a79e7cf3c0b913e0ede794e4b2f5131f7ec2bc81d24044439b17",
 });
 function buildContractR9({ repoRoot = REPO_ROOT } = {}) {
   const phaseDir = join(repoRoot, PHASE_DIR_REL);
@@ -1536,12 +1555,25 @@ function buildContractR9({ repoRoot = REPO_ROOT } = {}) {
   }
   for (const original of originals) original.class = classOf(original.plan.slice(4));
   for (const id of R9_PLAN_IDS) pinFile(repoRoot, `${PHASE_DIR_REL}/253-${id}-PLAN.md`, `R9 plan 253-${id}`);
+  const byNumber = (a, b) => comparePlanIds(a.plan, b.plan);
+  const completed = [...r8.completed_plans];
+  for (const id of ["100", "101", "102", "103"]) {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false, frozenReceipts: id === "103" ? FROZEN_TOOLING_RECEIPTS_R9_PLAN_103 : {} });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    completed.push(described);
+  }
+  completed.sort(byNumber);
+  const halted = [...r8.halted_plans];
+  const halted104 = describeSummary(repoRoot, phaseDir, "104", { requireReceipts: true });
+  if (halted104.summary.status !== "halted") throw new Error(`halted plan 253-104 summary status is ${halted104.summary.status}`);
+  halted.push(halted104);
   const r8Rows = Object.fromEntries(r8.responsibilities.map((row) => [row.plan.slice(4), row]));
   const responsibilities = UNSTARTED_IDS_R9.map((id) => {
     const mapping = RESPONSIBILITY_MAP_R9[id];
     if (!mapping) throw new Error(`no R9 mapping for 253-${id}`);
     for (const owner of mapping.owners) {
       if (!existsSync(join(phaseDir, `253-${owner}-PLAN.md`))) throw new Error(`proof owner plan 253-${owner} is missing`);
+      if (HALTED_IDS_R9.includes(owner) || UNSTARTED_IDS_R9.includes(owner)) throw new Error(`proof owner 253-${owner} is a halted or never-executed plan`);
     }
     const common = { owners: mapping.owners.map((owner) => `253-${owner}`), required_links: [...mapping.links], successor_revision: "R9" };
     if (r8Rows[id]) return { ...r8Rows[id], ...common };
@@ -1567,13 +1599,48 @@ function buildContractR9({ repoRoot = REPO_ROOT } = {}) {
     const file = `253-${PAD(n)}-PLAN.md`;
     return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
   });
+  const haltedProof = Object.fromEntries(HALTED_IDS_R9.map((id) => [`253-${id}`, HALTED_PROOF_MAP_R9[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) {
+      if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+      if (HALTED_IDS_R9.includes(owner.slice(4)) || UNSTARTED_IDS_R9.includes(owner.slice(4))) throw new Error(`halted proof owner ${owner} is a halted or never-executed plan`);
+    }
+  }
+  const summaryPins = [...ids(36, 43), ...ids(48, 51), ...ids(57, 63), ...ids(69, 73), ...ids(79, 84), ...ids(89, 92), 95, 96, 97, 100, 101, 102, 103, 104, ...ids(107, 111)].filter((n) => existsSync(join(phaseDir, `253-${PAD(n)}-SUMMARY.md`))).map((n) => {
+    const file = `253-${PAD(n)}-SUMMARY.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "summary") };
+  });
   return {
-    ...r8,
     schema: CONTRACT_SCHEMA_R9,
     revision: "r9",
+    phase: PHASE,
+    phase_dir: PHASE_DIR_REL,
+    v1_contract: r8.v1_contract,
+    r2_contract: r8.r2_contract,
+    r3_contract: r8.r3_contract,
+    r4_contract: r8.r4_contract,
+    r5_contract: r8.r5_contract,
+    r6_contract: r8.r6_contract,
+    r7_contract: r8.r7_contract,
+    r8_contract: { path: `${PHASE_DIR_REL}/${CONTRACT_NAME_R8}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${CONTRACT_NAME_R8}`, "R8 contract") },
+    sdk: r8.sdk,
+    capture: r8.capture,
     plan_pins: planPins,
+    summary_pins: summaryPins,
     originals,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
     responsibilities,
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned",
+      targets: "only the forty-eight previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-115",
+      then_run: r8.application.then_run,
+      never: [...r8.application.never],
+    },
   };
 }
 
