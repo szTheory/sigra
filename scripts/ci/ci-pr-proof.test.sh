@@ -238,6 +238,24 @@ class PRHandler(pubtest.ObjectServer):
 class World:
     """One complete hermetic Phase253 PR universe: temp git repo, published objects, TLS server, freeze and allocation."""
 
+    # 253-109 hooks: LiveWorld overrides these; the hermetic defaults leave every existing universe unchanged.
+    handler = PRHandler
+    poll_interval = 0
+
+    def tls_san(self):
+        return "subjectAltName=DNS:localhost"
+
+    def after_server_start(self):
+        """Hook: runs once the local TLS server listens and before the publication request."""
+
+    def adapt_allocation(self, allocation, purpose):
+        """Hook: the hermetic universe uses its allocations as built."""
+        return allocation
+
+    def subprocess_env(self):
+        """Hook: None inherits this process's environment (GH_TOKEN/GITHUB_TOKEN are unset by the wrapper)."""
+        return None
+
     def __init__(self, test, flags=None, tag="world", mutate_section=None, ref_pair=None, seed_legacy_refs=False):
         self.test = test
         self.mutate_section = mutate_section
@@ -289,10 +307,10 @@ class World:
         self.manifest = json.loads(self.manifest_path.read_text())
         cert, key = d / "server.pem", d / "server-key.pem"
         subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1", "-subj", "/CN=localhost",
-                        "-addext", "subjectAltName=DNS:localhost", "-keyout", str(key), "-out", str(cert)],
+                        "-addext", self.tls_san(), "-keyout", str(key), "-out", str(cert)],
                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.cert = cert
-        server = pubtest.ObjectHTTPServer(("127.0.0.1", 0), PRHandler)
+        server = pubtest.ObjectHTTPServer(("127.0.0.1", 0), self.handler)
         server.journal, server.commits, server.trees = [], {}, {}
         server.tree_entries, server.blobs, server.refs = {}, {}, {}
         server.flags = dict(self.flags)
@@ -312,6 +330,7 @@ class World:
         self.test.addCleanup(server.shutdown)
         self.server = server
         self.port = server.server_address[1]
+        self.after_server_start()
         publish_allocation = {"schema_version": "sigra.phase253.http-allocation/v1", "window_id": "publication-window",
                               "source_sha256": sha(self.manifest_path.read_bytes()), "max_requests": 24, "max_elapsed_seconds": 120,
                               "max_response_bytes": 2 * 1024 * 1024, "max_pages": 1, "max_hops": 2, "repository": "szTheory/sigra",
@@ -331,9 +350,15 @@ class World:
                                        "source_sha256": sha(self.canary_freeze_path.read_bytes())})
             (d / "publication-allocation.json").write_text(json.dumps(publish_allocation))
             freeze_args = ["--freeze", self.canary_freeze_path, "--action-approval", canary_approval]
+        adapted = self.adapt_allocation(publish_allocation, "publication")
+        if adapted is not publish_allocation:
+            publish_allocation = adapted
+            (d / "publication-allocation.json").write_text(json.dumps(publish_allocation))
+        self.publication_allocation = publish_allocation
         published = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--publish", "--manifest", self.manifest_path,
                         "--allocation", d / "publication-allocation.json", "--ledger", self.ledger_path,
-                        "--receipt", self.receipt_path, "--repo-root", self.repo, *freeze_args, cwd=ROOT, timeout=120)
+                        "--receipt", self.receipt_path, "--repo-root", self.repo, *freeze_args, cwd=ROOT, timeout=120,
+                        env=self.subprocess_env())
         assert published.returncode == 0, published.stderr
         self.publication_requests = len(server.journal)
         server.journal.clear()  # the PR window is a separate allocation with its own independent journal
@@ -341,20 +366,20 @@ class World:
         self.budget = d / "253-LOAD-RECOVERY-BUDGETS.md"  # fixture copy: ordinary tests never require active phase records
         self.budget.write_text("synthetic budget fixture\n")
         prepared = run("bash", PROOF, "--prepare", "--publication", self.receipt_path, "--manifest", self.manifest_path,
-                       "--repo-root", self.repo, "--output", self.freeze_path, "--poll-interval", "0",
+                       "--repo-root", self.repo, "--output", self.freeze_path, "--poll-interval", str(self.poll_interval),
                        "--budget-document", self.budget, cwd=ROOT, timeout=60)
         assert prepared.returncode == 0, prepared.stderr + prepared.stdout
         self.freeze = json.loads(self.freeze_path.read_text())
         self.build_approval(self.mutate_section)
         self.build_model()
         self.allocation_path = d / "allocation.json"
-        self.allocation = {
+        self.allocation = self.adapt_allocation({
             "schema_version": "sigra.phase253.http-allocation/v1", "window_id": "pr-proof-window",
             "source_sha256": sha(self.freeze_path.read_bytes()), "max_requests": 120, "max_elapsed_seconds": 3600,
             "max_response_bytes": 4 * 1024 * 1024, "max_pages": 3, "max_hops": 2, "repository": "szTheory/sigra",
             "download_hosts": [], "mode": "hermetic-test", "test_origin": f"https://localhost:{self.port}", "test_ca_file": str(cert),
             "allocation_kind": "production", "category_limits": transport.PRODUCTION_CATEGORY_LIMITS,
-            "bound_documents": self.freeze["bound_documents"]}
+            "bound_documents": self.freeze["bound_documents"]}, "production")
         self.allocation_path.write_text(json.dumps(self.allocation))
         self.ledger = d / "pr-ledger.json"
         self.server.ledger_path = str(self.ledger)
@@ -464,7 +489,7 @@ class World:
             assert result.returncode == 0, result.stderr
             return {directory.name: {path.name: path.read_bytes() for path in directory.iterdir()} for directory in (tmp / "out").iterdir()}
 
-    def collect(self, family, evidence_name, check=True, approval="default", revision_freeze="default", env=None):
+    def collect(self, family, evidence_name, check=True, approval="default", revision_freeze="default", env=None, proof=PROOF):
         evidence = self.dir / evidence_name
         extra = []
         if revision_freeze == "default":
@@ -475,8 +500,9 @@ class World:
             extra += ["--revision-freeze", revision_freeze]
         if approval is not None:
             extra += ["--action-approval", approval]
-        process = run("bash", PROOF, "--family", family, "--freeze", self.freeze_path, "--allocation", self.allocation_path,
-                      "--evidence", evidence, "--requests", self.ledger, "--repo-root", self.repo, *extra, cwd=ROOT, timeout=600, env=env)
+        process = run("bash", proof, "--family", family, "--freeze", self.freeze_path, "--allocation", self.allocation_path,
+                      "--evidence", evidence, "--requests", self.ledger, "--repo-root", self.repo, *extra, cwd=ROOT, timeout=600,
+                      env=env if env is not None else self.subprocess_env())
         if check:
             assert process.returncode == 0, process.stdout + process.stderr
         return process, evidence
@@ -527,6 +553,151 @@ def swap_zip(evidence, name, archive):
             tx.update(raw_observation_sha256=sha(archive), response_bytes=len(archive))
             evidence["server_journal"][index]["body_sha256"] = sha(archive)
     return evidence
+
+
+# ------------------------------------------------------------------------------------------------ 253-109 live policy
+# The PR families through the LIVE transport policy, offline: a live production allocation (no test fields, the
+# trusted download_hosts list, a 253-dryrun-live-policy- window), the 253-107 shim mapping api.github.com and the
+# trusted download hosts on 443 to the local fake, and a fake that serves both by Host header under a certificate
+# for those names. Every policy decision (route, hop, host, token scope, ledger charge) runs as it would against GitHub.
+dryrun = load(ROOT / "scripts/ci/ci-gate-canary-dryrun.py", "gate_dryrun_for_pr_proof")
+shim_module = load(ROOT / "scripts/ci/ci-live-policy-shim.py", "live_policy_shim_for_pr_proof")
+API_HOST, BLOB_HOST, PIPELINES_HOST = dryrun.API_HOST, dryrun.BLOB_HOST, dryrun.PIPELINES_HOST
+LIVE_TOKEN = dryrun.LIVE_TOKEN
+LIVE_WINDOW_PREFIX = dryrun.LIVE_WINDOW_PREFIX
+TRUSTED_DOWNLOAD_HOSTS = list(json.loads((ROOT / dryrun.R8_ALLOCATION_REL).read_text())["download_hosts"])
+SLEEP_LOG_VAR = "SIGRA_PR_PROOF_LIVE_SLEEP_LOG"
+SLEEP_RECORDER = '''
+# 253-109 test-only recorder, appended after the shim install: log each requested wait, then sleep the shim's scaled
+# fraction. Inert unless the shim and the log variable are both set.
+import os as _rec_os
+if _rec_os.environ.get("SIGRA_LIVE_POLICY_SHIM") and _rec_os.environ.get("%s"):
+    import json as _rec_json
+    import time as _rec_time
+    _rec_scaled = _rec_time.sleep
+
+    def _rec_sleep(seconds, _scaled=_rec_scaled, _path=_rec_os.environ["%s"]):
+        with open(_path, "a", encoding="utf-8") as _stream:
+            _stream.write(_rec_json.dumps({"seconds": seconds, "pid": _rec_os.getpid()}) + "\\n")
+        _scaled(seconds)
+    _rec_time.sleep = _rec_sleep
+''' % (SLEEP_LOG_VAR, SLEEP_LOG_VAR)
+
+
+class LivePRHandler(PRHandler):
+    """The PR fake served by Host header: api.github.com needs the dummy bearer token and never serves a download; the
+    blob host gets no Authorization and serves only the pre-signed ZIP paths this fake issued in a 302."""
+
+    def _host(self):
+        return (self.headers.get("Host") or "").split(":", 1)[0].lower()
+
+    def _emit(self, status, body, extra=(), content_type="application/json"):
+        super()._emit(status, body, extra, content_type)
+        self.server.journal[-1]["host"] = self._host()
+
+    def _guard(self):
+        """True when the request was refused here (an unmodeled host or a path on the wrong host)."""
+        server, host = self.server, self._host()
+        parsed = urlsplit(self.path)
+        authorization = self.headers.get("Authorization")
+        download = parsed.path.startswith("/blob/")
+        refusal = None
+        if host == API_HOST:
+            if authorization != f"Bearer {LIVE_TOKEN}":
+                server.violations.append(f"api.github.com request without the dummy bearer token: {self.command} {parsed.path}")
+            if download:
+                refusal = (404, "a download path was requested on api.github.com")
+        elif host == BLOB_HOST:
+            if authorization:
+                server.violations.append(f"Authorization reached the blob host: {self.command} {parsed.path}")
+            if not download or self.command != "GET" or set(parse_qs(parsed.query)) != {"sv", "sig"}:
+                refusal = (404, "the blob host serves only issued download paths")
+        else:
+            refusal = (421, f"request for an unmodeled Host {host!r}")
+        if refusal is None:
+            return False
+        server.violations.append(f"{refusal[1]}: {self.command} {parsed.path}")
+        self.server.last_body = b""
+        self._reply(refusal[0], {"message": refusal[1]})
+        return True
+
+    def do_GET(self):  # noqa: N802
+        if self._guard():
+            return None
+        route = urlsplit(self.path).path
+        base = "/repos/szTheory/sigra"
+        if route.startswith(base + "/actions/artifacts/") and route.endswith("/zip"):
+            self._first()
+            self.server.last_body = b""
+            artifact_id = route.removeprefix(base + "/actions/artifacts/").split("/")[0]
+            # GitHub answers with a pre-signed blob URL on 443 (no explicit port); the transport must follow it bare.
+            location = f"https://{BLOB_HOST}/blob/{artifact_id}?sv=2025-01-05&sig=fixture-secret"
+            return self._emit(302, b"", [("Location", location)])
+        return super().do_GET()
+
+    def do_POST(self):  # noqa: N802
+        if self._guard():
+            return None
+        return super().do_POST()
+
+
+class LiveWorld(World):
+    """The World universe on the live transport policy: live publication and production allocations, the shim
+    environment (dummy GH_TOKEN, chained interpreter sitecustomize, scaled sleep) for every subprocess."""
+
+    handler = LivePRHandler
+    poll_interval = 60  # the frozen production interval; only the shim scales the actual wait
+
+    def __init__(self, test, flags=None, tag="live", ref_pair="legacy", sleep_scale=0.001):
+        self.sleep_scale = sleep_scale
+        self.window_id = f"{LIVE_WINDOW_PREFIX}{os.getpid()}"
+        super().__init__(test, flags=flags, tag=tag, ref_pair=ref_pair)
+
+    def tls_san(self):
+        return "subjectAltName=" + ",".join(f"DNS:{name}" for name in ("localhost", *dryrun.LIVE_TLS_NAMES))
+
+    def after_server_start(self):
+        d = self.dir
+        self.server.violations = []
+        self.connect_log = d / "shim-connect.log"
+        self.sleep_log = d / "requested-sleeps.log"
+        env = shim_module.prepare(d / "live-policy-shim", {API_HOST: self.port, BLOB_HOST: self.port, PIPELINES_HOST: self.port},
+                                  self.cert, self.connect_log, sleep_scale=self.sleep_scale)
+        site = pathlib.Path(env["PYTHONPATH"]) / "sitecustomize.py"
+        dryrun.chain_interpreter_sitecustomize(site)  # the shim's sitecustomize hides Homebrew's (PyYAML) otherwise
+        site.write_text(site.read_text() + SLEEP_RECORDER)
+        base = {key: value for key, value in os.environ.items() if key not in ("GH_TOKEN", "GITHUB_TOKEN")}
+        self.env = {**base, **env, "GH_TOKEN": LIVE_TOKEN, SLEEP_LOG_VAR: str(self.sleep_log), "PYTHONDONTWRITEBYTECODE": "1"}
+
+    def adapt_allocation(self, allocation, purpose):
+        live = {key: value for key, value in allocation.items() if key not in ("test_origin", "test_ca_file")}
+        window = self.window_id if purpose == "production" else f"{LIVE_WINDOW_PREFIX}publication-{os.getpid()}"
+        live.update(mode="live", download_hosts=list(TRUSTED_DOWNLOAD_HOSTS), window_id=window)
+        return live
+
+    def subprocess_env(self):
+        return dict(self.env)
+
+    def refusals(self):
+        return shim_module.read_log(shim_module.refusal_log_for(self.connect_log))
+
+    def connect_hosts(self):
+        return sorted({entry["host"] for entry in shim_module.read_log(self.connect_log)})
+
+    def sleeps(self):
+        if not self.sleep_log.exists():
+            return []
+        return [json.loads(line)["seconds"] for line in self.sleep_log.read_text().splitlines() if line.strip()]
+
+
+def run_verifier(*args):
+    """The independent verifier CLI, outside the shim (it makes no request)."""
+    process = run("python3", ROOT / "scripts/ci/ci-hosted-gate-verify.py", *args, cwd=ROOT, timeout=300)
+    try:
+        value = json.loads(process.stdout) if process.returncode == 0 else None
+    except json.JSONDecodeError:
+        value = None
+    return process, value
 
 
 class PRProofContractTests(unittest.TestCase):
@@ -1349,6 +1520,138 @@ class CollectorFaultTests(unittest.TestCase):
         again, _ = world.collect("normal", "second.json", check=False)
         self.assertNotEqual(again.returncode, 0)
         self.assertEqual(len(world.server.journal), 1, "a terminal ledger refuses a later collector run")
+
+
+class LivePolicyPRTests(unittest.TestCase):
+    """253-109: the normal (and docs-only) PR family through the LIVE transport policy, offline, zero GitHub requests."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._cleanups = []
+        cls.holder = unittest.TestCase()
+        cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
+        cls.world = LiveWorld(cls.holder, tag="live-main")
+        w = cls.world
+        cls.normal_process, cls.normal_path = w.collect("normal", "live-normal.json", check=False)
+        cls.normal_requests = len(w.server.journal)
+        cls.normal_sleeps = list(w.sleeps())
+
+    @classmethod
+    def tearDownClass(cls):
+        for fn, a, k in reversed(cls._cleanups):
+            try:
+                fn(*a, **k)
+            except Exception:
+                pass
+
+    def normal_collected(self):
+        process = self.normal_process
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        return json.loads(self.normal_path.read_text())
+
+    def test_live_policy_universe_uses_live_publication_and_production_allocations_with_no_test_fields(self):
+        w = self.world
+        allocation = json.loads(w.allocation_path.read_text())
+        self.assertEqual((allocation["mode"], allocation["allocation_kind"], allocation["max_requests"]), ("live", "production", 120))
+        self.assertEqual(allocation["category_limits"], transport.PRODUCTION_CATEGORY_LIMITS)
+        self.assertEqual(allocation["download_hosts"], TRUSTED_DOWNLOAD_HOSTS)
+        self.assertIn(BLOB_HOST, allocation["download_hosts"])
+        self.assertFalse({"test_origin", "test_ca_file"} & set(allocation), "a live allocation carries no test fields")
+        self.assertTrue(allocation["window_id"].startswith("253-dryrun-live-policy-"))
+        transport._validate_allocation(allocation)
+        publication = json.loads((w.dir / "publication-allocation.json").read_text())
+        self.assertEqual((publication["mode"], publication["allocation_kind"]), ("live", "canary"))
+        self.assertFalse({"test_origin", "test_ca_file"} & set(publication))
+        receipt = json.loads(w.receipt_path.read_text())
+        self.assertEqual(receipt["origin"]["kind"], "actual-github", "the seed publication ran through the live origin path")
+        self.assertTrue(receipt["origin"]["window_id"].startswith("253-dryrun-live-policy-"))
+        self.assertTrue(verifier.dryrun_window(receipt), "the verifier's dry-run guard labels the live-policy receipt")
+        publication_ledger = json.loads(w.ledger_path.read_text())
+        self.assertEqual({tx["host"] for tx in publication_ledger["transactions"]}, {API_HOST})
+
+    def test_live_policy_normal_family_collects_and_verifies_end_to_end_as_synthetic(self):
+        evidence = self.normal_collected()
+        self.assertEqual(json.loads(self.normal_process.stdout.strip().splitlines()[-1])["status"], "collected")
+        self.assertIs(evidence["synthetic"], False, "the collector labels by allocation mode; the verifier's window guard labels it")
+        self.assertIsNone(evidence["server_journal"])
+        process, result = run_verifier("--mode", "pr", "--family", "normal", "--evidence", self.normal_path)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(result["status"], "synthetic_pr_family_verified")
+        self.assertIs(result["synthetic"], True)
+        self.assertIs(result["accepted_live"], False, "a 253-dryrun- window is never live acceptance")
+        self.assertTrue(result["window_id"].startswith("253-dryrun-live-policy-"))
+        self.assertEqual(result["merge_sha"], "c" * 40)
+
+    def test_live_policy_normal_producer_zips_take_one_302_hop_from_api_to_the_trusted_blob_host(self):
+        evidence = self.normal_collected()
+        transactions = evidence["transport_ledger"]["transactions"]
+        groups = {}
+        for tx in transactions:
+            if tx["route_id"] == "artifact_zip":
+                groups.setdefault(tx["request_group"], []).append(tx)
+        self.assertEqual(len(groups), 5)
+        for group in groups.values():
+            group.sort(key=lambda tx: tx["hop_ordinal"])
+            self.assertEqual([(tx["hop_ordinal"], tx["host"], tx["actual_status"]) for tx in group],
+                             [(0, API_HOST, 302), (1, BLOB_HOST, 200)])
+            self.assertTrue(group[1]["url"].startswith(f"https://{BLOB_HOST}/blob/") and group[1]["url"].endswith("?[REDACTED]"))
+        allowed = {API_HOST, *json.loads(self.world.allocation_path.read_text())["download_hosts"]}
+        self.assertTrue(all(tx["host"] in allowed for tx in transactions))
+        self.assertEqual({tx["host"] for tx in transactions if tx["route_id"] != "artifact_zip"}, {API_HOST})
+        self.assertNotIn("fixture-secret", self.world.ledger.read_text() + self.normal_path.read_text())
+
+    def test_live_policy_token_reaches_api_github_only_and_the_shim_refused_nothing(self):
+        self.normal_collected()
+        w = self.world
+        journal = w.server.journal[:self.normal_requests]
+        ledger = json.loads(w.ledger.read_text())["transactions"][:self.normal_requests]
+        self.assertEqual(len(journal), len(ledger), "every charged transaction reached the fake exactly once")
+        self.assertEqual([row["host"] for row in journal], [tx["host"] for tx in ledger])
+        api = [row for row in journal if row["host"] == API_HOST]
+        blob = [row for row in journal if row["host"] == BLOB_HOST]
+        self.assertEqual(len(blob), 5)
+        self.assertEqual(len(api) + len(blob), len(journal))
+        self.assertTrue(all(row["authorization"] == f"Bearer {LIVE_TOKEN}" for row in api), "api.github.com needs the dummy token")
+        self.assertTrue(all(row["authorization"] is None for row in blob), "the token followed the redirect to the blob host")
+        self.assertEqual(w.server.violations, [])
+        self.assertEqual(w.refusals(), [], "the shim refused a real network destination")
+        self.assertEqual(w.connect_hosts(), sorted({API_HOST, BLOB_HOST}))
+
+    def test_live_policy_waits_are_requested_at_the_frozen_interval_and_only_slept_scaled(self):
+        self.normal_collected()
+        self.assertEqual(self.world.freeze["poll"]["interval_seconds"], 60)
+        # One discovery wait (the run is listable on the second listing) and two terminal-poll waits (done on poll 3).
+        self.assertEqual(self.normal_sleeps, [60, 60, 60])
+
+    def test_live_required_check_failure_on_the_pr_head_is_rejected_on_the_live_check_view(self):
+        world = LiveWorld(self, tag="live-check-failure")
+        failing = next(check for check in world.server.model["families"][101]["checks"] if check["name"] == NAMES[1])
+        failing["conclusion"] = "failure"
+        process, path = world.collect("normal", "failed-check.json", check=False)
+        self.assertEqual(process.returncode, 0, "the collector records the native checks; the verifier judges them")
+        recorded = json.loads(path.read_text())
+        checks = [tx for tx in recorded["transport_ledger"]["transactions"] if tx["route_id"] == "check_runs"]
+        self.assertEqual([tx["host"] for tx in checks], [API_HOST])
+        self.assertTrue(checks[0]["url"].startswith("https://api.github.com/"), "the live check view needs no URL rewrite")
+        rejected, _ = run_verifier("--mode", "pr", "--family", "normal", "--evidence", path)
+        self.assertEqual(rejected.returncode, 1, rejected.stdout)
+        self.assertIn(NAMES[1], rejected.stderr)
+        self.assertIn("hosted-gate-verify: FAIL", rejected.stderr)
+        # Positive control for the zero-violation and zero-Authorization results: the guard records both kinds.
+        before = len(world.server.violations)
+        context = ssl.create_default_context(cafile=str(world.cert))
+        for host, headers in ((BLOB_HOST, {"Authorization": "Bearer probe"}), (API_HOST, {})):
+            connection = __import__("http.client").client.HTTPSConnection("localhost", world.port, context=context, timeout=10)
+            path = f"/blob/{min(world.server.model['zips'])}?sv=1&sig=1" if host == BLOB_HOST else "/rate_limit"
+            connection.request("GET", path, headers={"Host": host, **headers})
+            connection.getresponse().read()
+            connection.close()
+        probes = world.server.violations[before:]
+        self.assertTrue(any("Authorization reached the blob host" in item for item in probes), probes)
+        self.assertTrue(any("without the dummy bearer token" in item for item in probes), probes)
+        # (The fake appends a journal row after writing the response, so search rather than index the latest rows.)
+        self.assertTrue(any(row.get("host") == BLOB_HOST and row["authorization"] == "Bearer probe" for row in world.server.journal),
+                        "the journal records a present Authorization header")
 
 
 if __name__ == "__main__":
