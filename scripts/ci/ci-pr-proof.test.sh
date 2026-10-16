@@ -1667,8 +1667,20 @@ def redirect_fix_matches():
 
 
 def proof_with_transport(test, revision):
-    """RED stub: the substitution helper does not exist yet, so the collector runs with the working-tree transport."""
-    return PROOF, None
+    """A temporary copy of scripts/ci (plus the bound workflow) whose ci-hosted-transport.py is that revision's blob.
+
+    The copied ci-pr-proof.sh resolves its ROOT from its own location, so it loads the substituted transport. Only the
+    temporary directory is written; the real scripts/ci is untouched."""
+    blob = subprocess.check_output(["git", "-C", str(ROOT), "show", f"{revision}:scripts/ci/ci-hosted-transport.py"])
+    copy_root = pathlib.Path(tempfile.mkdtemp(prefix="sigra-pr-proof-transport-")).resolve()
+    test.addCleanup(shutil.rmtree, copy_root, True)
+    shutil.copytree(ROOT / "scripts/ci", copy_root / "scripts/ci", ignore=shutil.ignore_patterns("__pycache__"))
+    (copy_root / ".github/workflows").mkdir(parents=True)
+    shutil.copyfile(ROOT / ".github/workflows/ci.yml", copy_root / ".github/workflows/ci.yml")
+    target = copy_root / "scripts/ci/ci-hosted-transport.py"
+    target.write_bytes(blob)
+    test.assertEqual(target.read_bytes(), blob)
+    return copy_root / "scripts/ci/ci-pr-proof.sh", sha(blob)
 
 
 class LivePolicySensitivityTests(unittest.TestCase):
@@ -1706,6 +1718,8 @@ class LivePolicySensitivityTests(unittest.TestCase):
         self.assertEqual(world.connect_hosts(), [API_HOST], "a hop-1 connection was opened to the blob host")
         self.assertEqual(world.refusals(), [], "the transport refused the hop, not the shim")
         self.assertIsNotNone(digest)
+        self.assertNotEqual(digest, sha(subprocess.check_output(["git", "-C", str(ROOT), "show",
+                                                                 f"{self.fix_commit()}:scripts/ci/ci-hosted-transport.py"])))
         rejected, _ = run_verifier("--mode", "pr", "--family", "normal", "--evidence", path)
         self.assertEqual(rejected.returncode, 1)
 
