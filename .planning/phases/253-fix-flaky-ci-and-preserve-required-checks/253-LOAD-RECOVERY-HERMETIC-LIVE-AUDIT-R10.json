@@ -1,5 +1,5 @@
 {
-  "schema": "sigra.phase253.hermetic-live-audit/v1",
+  "schema": "sigra.phase253.hermetic-live-audit/r10",
   "audit_head": "5a33297685477339bf2e34489aaa91c79535e87c",
   "matcher": {
     "files": [
@@ -1236,6 +1236,1397 @@
         "refs": [
           "scripts/ci/ci-hosted-gate-verify.test.py::test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
           "scripts/ci/ci-hosted-gate-verify.test.py::test_api_view_returns_live_evidence_unchanged_and_rewrites_only_hermetic_evidence"
+        ]
+      }
+    }
+  ],
+  "response_shape_rows": [
+    {
+      "id": "shape-rate_limit",
+      "route": "rate_limit",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-gate-canary.sh::fresh_preflight",
+        "scripts/ci/ci-gate-canary.sh::watch_run",
+        "scripts/ci/ci-pr-proof.sh::preflight",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_transport_v2"
+      ],
+      "fields_compared": [
+        "resources.core.remaining",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 18,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 26,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 18,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R7.json",
+          "sha256": "485872806046b07925a203d21d4bdd7a75cba58c35e4063ef9db96948fe0416f",
+          "sequence": 18,
+          "actual_status": 200
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-rules_main",
+      "route": "rules_main",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_effective_checks",
+        "scripts/ci/ci-hosted-gate-verify.py::hydrate_effective_checks",
+        "scripts/ci/ci-gate-canary.sh::fresh_preflight",
+        "scripts/ci/ci-pr-proof.sh::preflight"
+      ],
+      "fields_compared": [
+        "[].type",
+        "[].parameters.required_status_checks[].context",
+        "[].parameters.required_status_checks[].integration_id",
+        "meta:page_ordinal",
+        "header:link",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 19,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 19,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R7.json",
+          "sha256": "485872806046b07925a203d21d4bdd7a75cba58c35e4063ef9db96948fe0416f",
+          "sequence": 19,
+          "actual_status": 200
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ],
+        "residual_risk": "Every real rules response is one short page, so a paginated response has never been recorded; with 100 records on a page both readers demand a second page and fail closed ('full or continued first rules page requires one charged next page'). Every real required_status_checks entry is any-app (context only, no integration_id), so the readers take app_id None and require a native producer app; a rule pinned to an app would add integration_id, which the readers then compare with the native check's app id (unobserved; a mismatch fails 'native producer app differs from effective rule'). First seen: any window, only if the ruleset changes.",
+        "fields_without_real_sample": {
+          "header:link": "GitHub sent no Link header on any real rules page (each was a single short page); the live-policy transport tests pin following a rel=next link, but on synthetic headers.",
+          "[].parameters.required_status_checks[].integration_id": "the real rules carry context only: all five required checks are any-app, so GitHub omits integration_id"
+        }
+      }
+    },
+    {
+      "id": "shape-branch_protection",
+      "route": "branch_protection",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_effective_checks",
+        "scripts/ci/ci-hosted-gate-verify.py::hydrate_effective_checks",
+        "scripts/ci/ci-gate-canary.sh::fresh_preflight",
+        "scripts/ci/ci-pr-proof.sh::preflight"
+      ],
+      "fields_compared": [
+        "meta:actual_status",
+        "meta:url",
+        "message",
+        "required_status_checks.contexts",
+        "required_status_checks.checks[].context",
+        "required_status_checks.checks[].app_id"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 20,
+          "actual_status": 404
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 20,
+          "actual_status": 404
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R7.json",
+          "sha256": "485872806046b07925a203d21d4bdd7a75cba58c35e4063ef9db96948fe0416f",
+          "sequence": 20,
+          "actual_status": 404
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ],
+        "residual_risk": "main has no classic branch protection, so every real response is the 404 body and the 200 body has never been recorded. If main gained classic protection, a 200 body whose required_status_checks use other keys raises 'legacy branch-protection checks are malformed', and extra contexts break the exact-five rule, so the window halts at preflight before any dispatch. First seen: only if an operator adds classic protection.",
+        "fields_without_real_sample": {
+          "required_status_checks.contexts": "200 body never observed (main has no classic protection: 404 in R7, R8, R9)",
+          "required_status_checks.checks[].context": "200 body never observed (404 in R7, R8, R9)",
+          "required_status_checks.checks[].app_id": "200 body never observed (404 in R7, R8, R9)"
+        }
+      }
+    },
+    {
+      "id": "shape-check_runs",
+      "route": "check_runs",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_effective_checks",
+        "scripts/ci/ci-hosted-gate-verify.py::hydrate_effective_checks",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-gate-canary.sh::fresh_preflight",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "total_count",
+        "check_runs[].name",
+        "check_runs[].head_sha",
+        "check_runs[].status",
+        "check_runs[].conclusion",
+        "check_runs[].html_url",
+        "check_runs[].app.id",
+        "check_runs[].app.slug",
+        "meta:page_ordinal",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 21,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 21,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+          "member": "./raw/families/38317383419/check-runs.json",
+          "member_sha256": "16901fc90406e1d2210a08226f6e2661911fc928261141ef2c39941481e8bc2e",
+          "pointer": "",
+          "route_evidence": "Phase 252 collector's raw GitHub commit check-runs response for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256); the PR head's native checks"
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_real_pr_check_runs_link_each_required_check_to_its_attempt_job"
+        ]
+      }
+    },
+    {
+      "id": "shape-workflow",
+      "route": "workflow",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-gate-canary.sh::fresh_preflight",
+        "scripts/ci/ci-pr-proof.sh::preflight"
+      ],
+      "fields_compared": [
+        "id",
+        "path",
+        "state",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 22,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 22,
+          "actual_status": 200
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-dispatch",
+      "route": "dispatch",
+      "families": "canary",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_transport_v2",
+        "scripts/ci/ci-hosted-gate-verify.py::_bind_receipt",
+        "scripts/ci/ci-gate-canary.sh::api_post_dispatch"
+      ],
+      "fields_compared": [
+        "meta:actual_status",
+        "meta:request_body_base64",
+        "meta:request_sha256",
+        "meta:dispatch_inputs",
+        "meta:dispatch_inputs.scenario",
+        "meta:dispatch_inputs.candidate_sha",
+        "meta:dispatch_inputs.fixture_sha",
+        "meta:dispatch_inputs.fixture_blob",
+        "meta:dispatch_inputs.matrix_evidence",
+        "meta:input_key_count",
+        "meta:input_unicode_scalars",
+        "meta:input_utf8_bytes",
+        "meta:input_sha256",
+        "meta:url"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 24,
+          "actual_status": 204
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 24,
+          "actual_status": 204
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ],
+        "residual_risk": "The verifier dispatch (scenario verifier, carrying the compact matrix as matrix_evidence) has never been sent to GitHub: R8 and R9 each sent one scenario dispatch. Its size is pinned offline on real-shape receipts (the compact matrix test) against the 64511-character MATRIX_PAYLOAD_LIMIT, and the driver refuses an oversized matrix before dispatch. Separately, the driver accepts a 202 or 204 dispatch status while the ledger binding requires 204 (real GitHub returned 204 in R8 and R9): a 202 would halt the window at the binding, fail-closed. First seen: 253-122, after the six source scenarios.",
+        "fields_without_real_sample": {
+          "meta:dispatch_inputs.matrix_evidence": "the verifier dispatch has never run live; R8/R9 sent scenario dispatches only (four inputs)"
+        }
+      }
+    },
+    {
+      "id": "shape-workflow_runs",
+      "route": "workflow_runs",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::_bind_receipt",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-gate-canary.sh::dispatch_scenario",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "total_count",
+        "workflow_runs[].id",
+        "workflow_runs[].workflow_id",
+        "workflow_runs[].head_branch",
+        "workflow_runs[].head_sha",
+        "workflow_runs[].event",
+        "workflow_runs[].display_title",
+        "workflow_runs[].run_number",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 25,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 25,
+          "actual_status": 200
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-run",
+      "route": "run",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_scenario",
+        "scripts/ci/ci-hosted-gate-verify.py::require_run_title",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_separate_verifier",
+        "scripts/ci/ci-hosted-gate-verify.py::_bind_receipt",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-gate-canary.sh::watch_run",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "id",
+        "run_attempt",
+        "event",
+        "head_branch",
+        "head_sha",
+        "workflow_id",
+        "path",
+        "name",
+        "display_title",
+        "status",
+        "conclusion",
+        "repository.full_name",
+        "head_repository.full_name",
+        "pull_requests",
+        "pull_requests[].number",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 27,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 27,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-FAILED-RUN-38347679431.json",
+          "sha256": "e9062f00250c89f1e49684f6cd4a4bc859077c6b8a307db03902ccbe42ff8a41",
+          "pointer": "/run",
+          "route_evidence": "gh api actions/runs/38347679431 body retained by 253-07"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+          "member": "./raw/families/38317383419/run.json",
+          "member_sha256": "8b8fb94523674dce3624592e905952fe902ad2640134ad9ccbb547927e9ad30b",
+          "pointer": "",
+          "route_evidence": "Phase 252 collector's raw GitHub run response for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256)"
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_real_full_pass_run_is_accepted",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r8_real_run_poll_title_is_accepted",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_first_canary_run_title_is_accepted",
+          "scripts/ci/ci-hosted-gate-verify.test.py::FixtureShapeFidelityTests.test_verifier_fixtures_match_the_recorded_github_shapes",
+          "scripts/ci/ci-hosted-gate-verify.test.py::CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_attempt_jobs_and_run_jobs_share_one_job_schema_in_real_responses",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::ResponseShapeTests.test_fake_run_object_matches_the_recorded_github_shape",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::FullSequenceTests.test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::LivePolicyFullSequenceTests.test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run"
+        ]
+      }
+    },
+    {
+      "id": "shape-run_jobs",
+      "route": "run_jobs",
+      "families": "canary",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_scenario",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_separate_verifier",
+        "scripts/ci/ci-hosted-gate-verify.py::_bind_receipt",
+        "scripts/ci/ci-gate-canary.sh::dispatch_scenario"
+      ],
+      "fields_compared": [
+        "total_count",
+        "jobs[].id",
+        "jobs[].name",
+        "jobs[].run_id",
+        "jobs[].run_attempt",
+        "jobs[].status",
+        "jobs[].conclusion",
+        "jobs[].steps[].name",
+        "jobs[].steps[].conclusion",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 28,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 28,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-FAILED-RUN-38347679431.json",
+          "sha256": "e9062f00250c89f1e49684f6cd4a4bc859077c6b8a307db03902ccbe42ff8a41",
+          "pointer": "/jobs",
+          "route_evidence": "gh api actions/runs/38347679431/jobs body retained by 253-07 (failure-shaped Browser verdict)"
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::FixtureShapeFidelityTests.test_verifier_fixtures_match_the_recorded_github_shapes",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
+          "scripts/ci/ci-hosted-gate-verify.test.py::CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::FullSequenceTests.test_every_served_job_step_and_artifact_has_the_recorded_github_shape",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::LivePolicyFullSequenceTests.test_every_served_job_step_and_artifact_has_the_recorded_github_shape"
+        ]
+      }
+    },
+    {
+      "id": "shape-attempt_jobs",
+      "route": "attempt_jobs",
+      "families": "pr",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "total_count",
+        "jobs[].id",
+        "jobs[].name",
+        "jobs[].run_id",
+        "jobs[].run_attempt",
+        "jobs[].status",
+        "jobs[].conclusion",
+        "jobs[].steps[].name",
+        "jobs[].steps[].conclusion",
+        "meta:url",
+        "meta:page_ordinal"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+          "member": "./raw/families/38317383419/jobs-attempt-1.json",
+          "member_sha256": "c2db679349f5f5b0baad9d2550c939695cf184dcef9e83d1d856c16362c250e0",
+          "pointer": "",
+          "route_evidence": "Phase 252 collector's raw GitHub attempt jobs response (manifest key attempt_jobs.1) for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256)"
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_attempt_jobs_and_run_jobs_share_one_job_schema_in_real_responses",
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_ci_yml_provides_every_job_name_the_pr_verifier_requires"
+        ],
+        "residual_risk": "The PR family reads attempt jobs through the attempt route, never yet called by this transport. The one real attempt-jobs body (Phase 252, pull_request run 38317383419) has exactly the job, step and document key sets of the canary's real run_jobs body (R9 seq 28), so the shared job schema is proven on real bytes; what is not recorded is the ledger row itself (URL and page ordinal). A different URL or page sequence fails closed with 'job page is not for the terminal run attempt'. First seen: 253-123.",
+        "fields_without_real_sample": {
+          "meta:url": "the real attempt-jobs body was collected by the Phase 252 tooling, not this transport, so no ledger transaction exists",
+          "meta:page_ordinal": "no ledger transaction exists for the real attempt-jobs body"
+        }
+      }
+    },
+    {
+      "id": "shape-run_artifacts",
+      "route": "run_artifacts",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_scenario",
+        "scripts/ci/ci-hosted-gate-verify.py::_bind_receipt",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-gate-canary.sh::dispatch_scenario",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "total_count",
+        "artifacts[].id",
+        "artifacts[].name",
+        "artifacts[].expired",
+        "artifacts[].size_in_bytes",
+        "artifacts[].digest",
+        "artifacts[].workflow_run.id",
+        "artifacts[].workflow_run.head_sha",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 29,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 29,
+          "actual_status": 200
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
+          "scripts/ci/ci-hosted-gate-verify.test.py::CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
+          "scripts/ci/ci-hosted-gate-verify.test.py::FixtureShapeFidelityTests.test_verifier_fixtures_match_the_recorded_github_shapes",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::FullSequenceTests.test_every_served_job_step_and_artifact_has_the_recorded_github_shape"
+        ]
+      }
+    },
+    {
+      "id": "shape-artifact_zip",
+      "route": "artifact_zip",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::_bind_receipt",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_live_transaction_host",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-gate-canary.sh::download_no_follow",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "meta:actual_status",
+        "meta:hop_ordinal",
+        "meta:request_group",
+        "meta:raw_observation_sha256",
+        "meta:response_bytes",
+        "meta:host",
+        "meta:url",
+        "header:location",
+        "header:location.host",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 30,
+          "actual_status": 302
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 31,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 30,
+          "actual_status": 302
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
+          "scripts/ci/ci-hosted-gate-verify.test.py::V2VerifierContractTests.test_the_halted_r8_live_ledger_rows_satisfy_the_live_host_rule"
+        ]
+      }
+    },
+    {
+      "id": "shape-cancel_run",
+      "route": "cancel_run",
+      "families": "canary",
+      "consumers": [
+        "scripts/ci/ci-gate-canary.sh::dispatch_scenario"
+      ],
+      "fields_compared": [
+        "meta:actual_status"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "The cancelled scenario has never run live: no committed ledger holds a cancel request. The request body is the fixed {} the typed route requires and the driver reads only whether the transport call succeeded; the cancellation itself is proven from the run and jobs the verifier reads afterwards.",
+        "residual_risk": "GitHub documents 202 Accepted for a cancel. If the call is refused or fails, the driver stops with 'identified canary cancellation failed'; if it is accepted but GitHub never cancels a job, verify_scenario refuses the cancelled receipt ('cancellation was not observed on a hosted fixture job'). Both fail closed after five source scenarios. First seen: 253-122.",
+        "fields_without_real_sample": {
+          "meta:actual_status": "no cancel request has been sent to GitHub in any window"
+        }
+      }
+    },
+    {
+      "id": "shape-run_logs",
+      "route": "run_logs",
+      "families": "canary",
+      "consumers": [
+        "scripts/ci/ci-gate-canary.sh::download_no_follow"
+      ],
+      "fields_compared": [
+        "meta:actual_status",
+        "meta:hop_ordinal",
+        "header:location.host"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "Failure logs are fetched only for a failing source scenario; no live window has reached one, so no run logs response is committed. The driver requires the final hop to be 200 and reads nothing from the bytes for acceptance.",
+        "residual_risk": "If GitHub redirects run logs to a host outside the frozen download hosts, the transport refuses the hop before its socket and download_no_follow fails, halting the window at the first failure scenario (fail-closed). The redirect host rule is pinned for artifact downloads on a real 302 (R9 seq 30), not for logs. First seen: 253-122.",
+        "fields_without_real_sample": {
+          "meta:actual_status": "no run logs request in any committed ledger",
+          "meta:hop_ordinal": "no run logs request in any committed ledger",
+          "header:location.host": "no run logs redirect in any committed ledger"
+        }
+      }
+    },
+    {
+      "id": "shape-job_logs",
+      "route": "job_logs",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-transport.py::ROUTES"
+      ],
+      "fields_compared": [
+        "meta:actual_status"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "No driver or verifier issues this route: it is typed in ROUTES only, and nothing compares its response.",
+        "residual_risk": "None while it stays unused. A future caller must add its own response-shape fields here, which this checker forces because the route row exists. First seen: no planned window.",
+        "fields_without_real_sample": {
+          "meta:actual_status": "never requested"
+        }
+      }
+    },
+    {
+      "id": "shape-git_create_blob",
+      "route": "git_create_blob",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-git-publication.py::publish"
+      ],
+      "fields_compared": [
+        "sha",
+        "meta:actual_status"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "The publisher uploads a blob only for binary files; the R7, R8 and R9 publications uploaded none, so no create-blob response is committed. The publisher compares only the returned sha.",
+        "residual_risk": "A create-blob response without the uploaded object's sha raises before any tree, commit or ref is created (fail-closed). First seen: only if a frozen candidate carries a binary file.",
+        "fields_without_real_sample": {
+          "sha": "no binary upload in any committed publication",
+          "meta:actual_status": "no binary upload in any committed publication"
+        }
+      }
+    },
+    {
+      "id": "shape-git_get_tree",
+      "route": "git_get_tree",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-hosted-transport.py::HERMETIC_CANARY_ROUTES"
+      ],
+      "fields_compared": [
+        "meta:actual_status"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "No driver or verifier issues this route; it is typed and routable only.",
+        "residual_risk": "None while it stays unused. First seen: no planned window.",
+        "fields_without_real_sample": {
+          "meta:actual_status": "never requested"
+        }
+      }
+    },
+    {
+      "id": "shape-git_get_commit",
+      "route": "git_get_commit",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-git-publication.py::publish",
+        "scripts/ci/ci-git-publication.py::ledger_identities",
+        "scripts/ci/ci-pr-proof.sh::publish_docs",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family"
+      ],
+      "fields_compared": [
+        "sha",
+        "tree.sha",
+        "parents[].sha",
+        "message",
+        "author",
+        "author.name",
+        "author.email",
+        "author.date",
+        "committer",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 1,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 6,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 10,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 6,
+          "actual_status": 200
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::RealPublicationShapeTests.test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-git_create_tree",
+      "route": "git_create_tree",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-git-publication.py::publish",
+        "scripts/ci/ci-git-publication.py::ledger_identities",
+        "scripts/ci/ci-pr-proof.sh::publish_docs",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family"
+      ],
+      "fields_compared": [
+        "sha",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 2,
+          "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 8,
+          "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 2,
+          "actual_status": 201
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::RealPublicationShapeTests.test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-git_create_commit",
+      "route": "git_create_commit",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-git-publication.py::publish",
+        "scripts/ci/ci-git-publication.py::ledger_identities",
+        "scripts/ci/ci-pr-proof.sh::publish_docs",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family"
+      ],
+      "fields_compared": [
+        "sha",
+        "tree.sha",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 5,
+          "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 9,
+          "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R7.json",
+          "sha256": "485872806046b07925a203d21d4bdd7a75cba58c35e4063ef9db96948fe0416f",
+          "sequence": 5,
+          "actual_status": 201
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::RealPublicationShapeTests.test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-git_get_blob",
+      "route": "git_get_blob",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-git-publication.py::publish",
+        "scripts/ci/ci-git-publication.py::ledger_identities",
+        "scripts/ci/ci-pr-proof.sh::publish_docs"
+      ],
+      "fields_compared": [
+        "sha",
+        "size",
+        "content",
+        "encoding",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 7,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 11,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 7,
+          "actual_status": 200
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::RealPublicationShapeTests.test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-get_ref",
+      "route": "get_ref",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-git-publication.py::publish",
+        "scripts/ci/ci-git-publication.py::ledger_identities",
+        "scripts/ci/ci-pr-proof.sh::publish_docs",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family"
+      ],
+      "fields_compared": [
+        "ref",
+        "object.sha",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 12,
+          "actual_status": 404
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 14,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 15,
+          "actual_status": 404
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 17,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 14,
+          "actual_status": 200
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::RealPublicationShapeTests.test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-create_ref",
+      "route": "create_ref",
+      "families": "both",
+      "consumers": [
+        "scripts/ci/ci-git-publication.py::publish",
+        "scripts/ci/ci-git-publication.py::ledger_identities",
+        "scripts/ci/ci-pr-proof.sh::docs_publication_state",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family"
+      ],
+      "fields_compared": [
+        "ref",
+        "object.sha",
+        "meta:actual_status",
+        "meta:response_bytes",
+        "meta:response_sha256",
+        "meta:url",
+        "header:content-length"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 13,
+          "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 16,
+          "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+          "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 13,
+          "actual_status": 201
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::RealPublicationShapeTests.test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+        ]
+      }
+    },
+    {
+      "id": "shape-pr_create",
+      "route": "pr_create",
+      "families": "pr",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "number",
+        "draft",
+        "merged",
+        "state",
+        "head.ref",
+        "head.sha",
+        "head.repo.full_name",
+        "base.ref",
+        "base.sha",
+        "base.repo.full_name",
+        "meta:actual_status"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "No PR window has run (253-114 never ran), so no create-PR response is committed. The nearest real bytes are the minimal pull request object GitHub embeds in a real pull_request run (number, head.ref/sha, base.ref/sha), which carries none of draft, merged, state or repo.full_name.",
+        "residual_risk": "Any created-PR field that differs from these paths fails check_pr ('created PR is not the same open unmerged draft PR' or the head/base identity messages) right after creation: the window halts with one open draft PR that was never merged and must be closed by the operator. First seen: 253-123.",
+        "fields_without_real_sample": {
+          "number": "no create-PR response in any committed ledger (253-114 never ran)",
+          "draft": "no create-PR response in any committed ledger (253-114 never ran)",
+          "merged": "no create-PR response in any committed ledger (253-114 never ran)",
+          "state": "no create-PR response in any committed ledger (253-114 never ran)",
+          "head.ref": "no create-PR response in any committed ledger (253-114 never ran)",
+          "head.sha": "no create-PR response in any committed ledger (253-114 never ran)",
+          "head.repo.full_name": "no create-PR response in any committed ledger (253-114 never ran)",
+          "base.ref": "no create-PR response in any committed ledger (253-114 never ran)",
+          "base.sha": "no create-PR response in any committed ledger (253-114 never ran)",
+          "base.repo.full_name": "no create-PR response in any committed ledger (253-114 never ran)",
+          "meta:actual_status": "no create-PR response in any committed ledger (253-114 never ran)"
+        }
+      },
+      "nearest_real_samples": [
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+          "member": "./raw/families/38317383419/run.json",
+          "member_sha256": "8b8fb94523674dce3624592e905952fe902ad2640134ad9ccbb547927e9ad30b",
+          "pointer": "/pull_requests/0",
+          "route_evidence": "Phase 252 collector's raw GitHub run response for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256); its pull_requests[0] is GitHub's minimal pull request object",
+          "shows": "head.ref"
+        }
+      ]
+    },
+    {
+      "id": "shape-pr_read",
+      "route": "pr_read",
+      "families": "pr",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "number",
+        "draft",
+        "merged",
+        "state",
+        "head.ref",
+        "head.sha",
+        "head.repo.full_name",
+        "base.ref",
+        "base.sha",
+        "base.repo.full_name",
+        "meta:actual_status",
+        "merge_commit_sha"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "No PR window has run, so no PR read is committed; merge_commit_sha, the tested merge the verifier reads the workflow at, has never been observed for this repository.",
+        "residual_risk": "A missing or unchanged merge_commit_sha stops collection ('the PR has no tested merge commit or base identity') or fails 'PR has no distinct tested merge commit'; other differences fail check_pr. All fail closed after the run finished. First seen: 253-123.",
+        "fields_without_real_sample": {
+          "number": "no PR read in any committed ledger (253-114 never ran)",
+          "draft": "no PR read in any committed ledger (253-114 never ran)",
+          "merged": "no PR read in any committed ledger (253-114 never ran)",
+          "state": "no PR read in any committed ledger (253-114 never ran)",
+          "head.ref": "no PR read in any committed ledger (253-114 never ran)",
+          "head.sha": "no PR read in any committed ledger (253-114 never ran)",
+          "head.repo.full_name": "no PR read in any committed ledger (253-114 never ran)",
+          "base.ref": "no PR read in any committed ledger (253-114 never ran)",
+          "base.sha": "no PR read in any committed ledger (253-114 never ran)",
+          "base.repo.full_name": "no PR read in any committed ledger (253-114 never ran)",
+          "meta:actual_status": "no PR read in any committed ledger (253-114 never ran)",
+          "merge_commit_sha": "no PR read in any committed ledger (253-114 never ran)"
+        }
+      },
+      "nearest_real_samples": [
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+          "member": "./raw/families/38317383419/run.json",
+          "member_sha256": "8b8fb94523674dce3624592e905952fe902ad2640134ad9ccbb547927e9ad30b",
+          "pointer": "/pull_requests/0",
+          "route_evidence": "Phase 252 collector's raw GitHub run response for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256); its pull_requests[0] is GitHub's minimal pull request object",
+          "shows": "head.ref"
+        }
+      ]
+    },
+    {
+      "id": "shape-compare",
+      "route": "compare",
+      "families": "pr",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "files",
+        "files[].filename",
+        "ahead_by",
+        "behind_by",
+        "meta:url",
+        "meta:actual_status"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "No PR window has run, so no compare response is committed. The nearest real bytes are the Phase 252 pull request files page for PR 331, whose entries have the same filename field the compare files[] entries carry; ahead_by and behind_by have never been observed.",
+        "residual_risk": "A compare body without these fields fails 'compare file inventory is empty, malformed or incomplete' or the docs ahead/behind check, after the run: fail-closed. First seen: 253-123.",
+        "fields_without_real_sample": {
+          "files": "no compare response in any committed ledger (253-114 never ran)",
+          "files[].filename": "no compare response in any committed ledger (253-114 never ran)",
+          "ahead_by": "no compare response in any committed ledger (253-114 never ran)",
+          "behind_by": "no compare response in any committed ledger (253-114 never ran)",
+          "meta:url": "no compare response in any committed ledger (253-114 never ran)",
+          "meta:actual_status": "no compare response in any committed ledger (253-114 never ran)"
+        }
+      },
+      "nearest_real_samples": [
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+          "member": "./raw/families/38317383419/changed-paths-page-1.json",
+          "member_sha256": "fb1611bc9b74e60afb24d1065dad7de29883b4c5046b72414c6066771cb9bfb9",
+          "pointer": "",
+          "route_evidence": "Phase 252 collector's raw pull request files page 1 for PR 331 (family manifest changed_path_pages)",
+          "shows": "[].filename"
+        }
+      ]
+    },
+    {
+      "id": "shape-repo_contents",
+      "route": "repo_contents",
+      "families": "pr",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-pr-proof.sh::collect"
+      ],
+      "fields_compared": [
+        "type",
+        "encoding",
+        "path",
+        "content",
+        "sha",
+        "meta:url",
+        "meta:actual_status"
+      ],
+      "real_samples": [],
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "No PR window has run, so no contents response is committed. The nearest real bytes are GitHub's git blob responses (R9 seq 7), which carry the same sha, base64 content and encoding fields; type and path are contents-only and never observed.",
+        "residual_risk": "A contents body whose type, encoding, path or blob sha differ fails 'source read is not a base64 file response' or 'source blob differs from the frozen blob', after the run: fail-closed. First seen: 253-123.",
+        "fields_without_real_sample": {
+          "type": "no contents response in any committed ledger (253-114 never ran)",
+          "encoding": "no contents response in any committed ledger (253-114 never ran)",
+          "path": "no contents response in any committed ledger (253-114 never ran)",
+          "content": "no contents response in any committed ledger (253-114 never ran)",
+          "sha": "no contents response in any committed ledger (253-114 never ran)",
+          "meta:url": "no contents response in any committed ledger (253-114 never ran)",
+          "meta:actual_status": "no contents response in any committed ledger (253-114 never ran)"
+        }
+      },
+      "nearest_real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 7,
+          "actual_status": 200,
+          "route": "git_get_blob",
+          "shows": "encoding"
+        }
+      ]
+    },
+    {
+      "id": "shape-source-canary-fixture",
+      "route": "workflow-source:canary-fixture",
+      "families": "canary",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_scenario",
+        "scripts/ci/ci-hosted-gate-verify.py::verify_separate_verifier",
+        "scripts/ci/ci-hosted-gate-verify.py::require_run_title",
+        "scripts/ci/ci-gate-canary.sh::dispatch_scenario"
+      ],
+      "fields_compared": [
+        "value:jobs[].name=producer (non_admin_smoke)",
+        "value:jobs[].name=producer (admin_behavior)",
+        "value:jobs[].name=producer (admin_checkpoints)",
+        "value:jobs[].name=producer (design_gallery)",
+        "value:jobs[].name=producer (demo_showcase)",
+        "value:jobs[].name=Browser verdict",
+        "value:jobs[].name=verifier",
+        "value:jobs[].steps[].name=Run the named synthetic tiny command",
+        "value:jobs[].steps[].name=Verify immutable fixture and candidate checkout identities",
+        "value:jobs[].steps[].name=Shared browser record validator",
+        "value:jobs[].steps[].name=Verify immutable candidate verifier checkout",
+        "value:jobs[].steps[].name=Verify retained source matrix independently",
+        "value:jobs[].name=producer (${{ matrix.seam }})",
+        "source:name: Phase 253 Gate Canary",
+        "source:run-name: Phase 253 Gate Canary / ${{ inputs.scenario }} / ${{ github.run_id }}-${{ github.run_attempt }}",
+        "source:name: producer (${{ matrix.seam }})",
+        "source:name: Browser verdict",
+        "source:name: Run the named synthetic tiny command",
+        "source:name: Verify immutable fixture and candidate checkout identities",
+        "source:name: Shared browser record validator",
+        "source:name: Verify immutable candidate verifier checkout",
+        "source:name: Verify retained source matrix independently",
+        "source:name: gate-canary-${{ inputs.scenario }}-${{ github.run_id }}-${{ github.run_attempt }}"
+      ],
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+          "sha256": "9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01",
+          "sequence": 28,
+          "actual_status": 200,
+          "route": "run_jobs"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-FAILED-RUN-38347679431.json",
+          "sha256": "e9062f00250c89f1e49684f6cd4a4bc859077c6b8a307db03902ccbe42ff8a41",
+          "pointer": "/jobs",
+          "route_evidence": "gh api actions/runs/38347679431/jobs body retained by 253-07"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+          "sha256": "3c31cb72c3168c4e86a1ea529f16bfdd40b4405551459ca27b9b989cb762df7b",
+          "kind": "source"
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::FixtureShapeFidelityTests.test_verifier_fixtures_match_the_recorded_github_shapes",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
+          "scripts/ci/ci-hosted-gate-verify.test.py::RegisteredFixtureTests.test_fixture_is_dispatch_only_read_only_and_pins_the_same_actions_as_the_superseded_fixture"
+        ],
+        "residual_risk": "The separate verifier run has never run live. Its two checked steps (Verify immutable candidate verifier checkout, Verify retained source matrix independently) are in the fixture source but GitHub has never reported them: in every real source run the verifier job is skipped with no steps. Its skipped producer matrix job has never been observed either; the fake serves 'producer (${{ matrix.seam }})' and verify_separate_verifier accepts exactly four forms (the five expanded names, 'producers', 'producer (${{ matrix.seam }})', 'producer ()'). Nearest real sample: the Phase 252 bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz (sha256 95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30), member ./raw/families/38317383419/jobs-attempt-1.json (sha256 c2db679349f5f5b0baad9d2550c939695cf184dcef9e83d1d856c16362c250e0): its run jobs record install_matrix skipped as one job named exactly 'Install matrix (flag combinations)' (its literal name: field, no matrix suffix), and the bundle records that skip 9 times. That proves one job under its literal name for a skipped matrix job, but not how a ${{ matrix.seam }} expression renders when skipped before expansion, so a fifth rendering would halt the window after the six scenarios, at the separate verifier, with 'separate hosted verifier job set is unexpected' (fail-closed). First seen: 253-122.",
+        "fields_without_real_sample": {
+          "value:jobs[].steps[].name=Verify immutable candidate verifier checkout": "the verifier job has never executed live (skipped with no steps in every real source run)",
+          "value:jobs[].steps[].name=Verify retained source matrix independently": "the verifier job has never executed live (skipped with no steps in every real source run)",
+          "value:jobs[].name=producer (${{ matrix.seam }})": "the verifier run has never run live, so GitHub's name for its skipped producer matrix job is unobserved (253-117 closed set of four forms)"
+        }
+      },
+      "nearest_real_samples": [
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+          "member": "./raw/families/38317383419/jobs-attempt-1.json",
+          "member_sha256": "c2db679349f5f5b0baad9d2550c939695cf184dcef9e83d1d856c16362c250e0",
+          "pointer": "",
+          "route_evidence": "Phase 252 collector's raw GitHub attempt jobs response for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256)",
+          "shows": "value:jobs[].name=Install matrix (flag combinations)",
+          "route": "attempt_jobs"
+        }
+      ]
+    },
+    {
+      "id": "shape-source-ci-yml",
+      "route": "workflow-source:ci-yml",
+      "families": "pr",
+      "consumers": [
+        "scripts/ci/ci-hosted-gate-verify.py::verify_pr_family",
+        "scripts/ci/ci-hosted-gate-verify.py::REQUIRED_NAMES",
+        "scripts/ci/ci-hosted-gate-verify.py::CLASSIFIER_JOB"
+      ],
+      "fields_compared": [
+        "value:jobs[].name=Library tests",
+        "value:jobs[].name=Example unit smoke (ExUnit + ConnTest)",
+        "value:jobs[].name=Install smoke (fresh phx.new + sigra.install)",
+        "value:jobs[].name=Example HTTP smoke (boot + curl critical routes)",
+        "value:jobs[].name=Example Playwright smoke (full lifecycle)",
+        "value:jobs[].name=Detect docs-only change",
+        "value:jobs[].name=Example Playwright shard (non_admin_smoke)",
+        "value:jobs[].name=Example Playwright shard (admin_behavior)",
+        "value:jobs[].name=Example Playwright shard (admin_checkpoints)",
+        "value:jobs[].name=Example Playwright shard (design_gallery)",
+        "value:jobs[].name=Example Playwright shard (demo_showcase)",
+        "value:jobs[].name=Library tests shard",
+        "value:jobs[].steps[].name=Detect docs-only change",
+        "source:name: Example Playwright shard (${{ matrix.seam }})",
+        "source:name: Detect docs-only change",
+        "source:name: Library tests shard",
+        "source:name: Library tests",
+        "source:name: Example unit smoke (ExUnit + ConnTest)",
+        "source:name: Install smoke (fresh phx.new + sigra.install)",
+        "source:name: Example HTTP smoke (boot + curl critical routes)",
+        "source:name: Example Playwright smoke (full lifecycle)"
+      ],
+      "real_samples": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+          "kind": "source"
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+          "member": "./raw/families/38317383419/jobs-attempt-1.json",
+          "member_sha256": "c2db679349f5f5b0baad9d2550c939695cf184dcef9e83d1d856c16362c250e0",
+          "pointer": "",
+          "route_evidence": "Phase 252 collector's raw GitHub attempt jobs response for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256)",
+          "route": "attempt_jobs"
+        }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_ci_yml_provides_every_job_name_the_pr_verifier_requires",
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_matrix_expansion_matches_the_names_github_reported_for_a_real_pull_request_run",
+          "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_attempt_jobs_and_run_jobs_share_one_job_schema_in_real_responses"
         ]
       }
     }

@@ -2238,5 +2238,64 @@ class LiveOriginDerivationTests(unittest.TestCase):
         self.assertEqual(origin["kind"], "hermetic")
 
 
+
+LEDGER_R9 = ROOT / PHASE_REL / "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json"
+PUBLICATION_RECEIPT_R9 = ROOT / PHASE_REL / "253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R9.json"
+
+
+class RealPublicationShapeTests(unittest.TestCase):
+    """253-118 (D-18/D-23): the publication readbacks against GitHub's recorded responses (the R9 window's 17 publication
+    transactions), not the local object server's. Every field the publisher compares must be where GitHub put it."""
+
+    def setUp(self):
+        self.publisher = load_publisher()
+        self.ledger = json.loads(LEDGER_R9.read_text())
+        self.receipt = json.loads(PUBLICATION_RECEIPT_R9.read_text())
+
+    def rows(self, route, status=None):
+        return [(tx, json.loads(base64.b64decode(tx["response_body_base64"]))) for tx in self.ledger["transactions"]
+                if tx["route_id"] == route and (status is None or tx["actual_status"] == status)]
+
+    def test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field(self):
+        found = self.publisher.ledger_identities(self.ledger)
+        for wanted in self.publisher.required_identities(self.receipt):
+            with self.subTest(identity=wanted):
+                self.assertTrue(self.publisher.identity_present(found, wanted))
+        commits = {row["sha"]: row for row in self.receipt["server_object_receipts"] if row["kind"] == "commit"}
+        readbacks = [body for _tx, body in self.rows("git_get_commit", 200) if body["sha"] in commits]
+        self.assertEqual(sorted(body["sha"] for body in readbacks), sorted(commits))
+        for body in readbacks:
+            sent = commits[body["sha"]]
+            self.assertEqual(body["tree"]["sha"], sent["tree"])
+            self.assertEqual([parent["sha"] for parent in body["parents"]], [sent["parent"]])
+            self.assertTrue(self.publisher.commit_message_matches(body["message"], sent["message"]))
+            self.assertEqual(body["message"] == sent["message"], sent["server_message_form"] == "verbatim")
+            for role in ("author", "committer"):
+                self.assertEqual(set(body[role]), {"name", "email", "date"})
+        created = [body for _tx, body in self.rows("git_create_commit", 201)]
+        self.assertEqual(sorted(body["sha"] for body in created), sorted(commits))
+        blobs = self.rows("git_get_blob", 200)
+        self.assertEqual(len(blobs), 2)
+        for _tx, body in blobs:
+            data = base64.b64decode(body["content"].replace("\n", ""))
+            self.assertEqual(body["encoding"], "base64")
+            self.assertEqual((self.publisher.object_sha("blob", data), body["size"]), (body["sha"], len(data)))
+        self.assertEqual({body["sha"] for _tx, body in self.rows("git_create_tree", 201)},
+                         {row["sha"] for row in self.receipt["server_object_receipts"] if row["kind"] == "tree"})
+        refs = {self.receipt["candidate_ref"]: self.receipt["candidate_sha"], self.receipt["fixture_ref"]: self.receipt["fixture_sha"]}
+        for route, status in (("create_ref", 201), ("get_ref", 200)):
+            bodies = [body for _tx, body in self.rows(route, status)]
+            self.assertTrue(bodies)
+            for body in bodies:
+                self.assertEqual(body["object"]["sha"], refs[body["ref"]])
+        probes = self.rows("get_ref", 404)
+        self.assertEqual(len(probes), 2)
+        self.assertTrue(all(tx["actual_status"] == 404 and "ref" not in body for tx, body in probes))
+        # Negative control: the same check on a scratch copy without the ref readbacks loses the ref identities.
+        stripped = {"transactions": [tx for tx in self.ledger["transactions"] if tx["route_id"] not in ("get_ref", "create_ref")]}
+        lost = self.publisher.ledger_identities(stripped)
+        self.assertFalse(all(self.publisher.identity_present(lost, wanted) for wanted in self.publisher.required_identities(self.receipt)))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

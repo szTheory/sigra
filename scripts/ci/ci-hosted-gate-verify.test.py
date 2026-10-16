@@ -5,6 +5,7 @@ import hashlib
 import base64
 import io
 import json
+import re
 import subprocess
 import tempfile
 import unittest
@@ -2451,6 +2452,252 @@ class CanaryBindingTests(unittest.TestCase):
         self.assertEqual(count, document["budget"]["actual_jobs"])
         legacy = HostedGateVerifierTests.invoke(self, fixture())
         self.assertEqual(legacy.returncode, 0, legacy.stderr)
+
+
+
+# --------------------------------------------------------------------------------------------------
+# 253-118 (D-18/D-21/D-23): response-shape real-source checks. Each test reads committed real bytes or the real workflow
+# source; none edits an expectation to fit a fake.
+# --------------------------------------------------------------------------------------------------
+CI_YML = ROOT / ".github/workflows/ci.yml"
+PHASE252_BUNDLE = ROOT / ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz"
+PHASE252_BUNDLE_SHA256 = "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30"
+PHASE252_PR_RUN = "./raw/families/38317383419/"
+PHASE252_PUSH_RUN = "./raw/families/38146312411/"
+JOB_NAME_EXPRESSION = re.compile(r"\$\{\{\s*matrix\.([A-Za-z0-9_]+)\s*\}\}")
+
+
+def _yaml_scalar(raw):
+    """One plain, single- or double-quoted YAML scalar on a line, with any trailing comment removed."""
+    value = raw.strip()
+    if value[:1] in ("'", '"'):
+        quote = value[0]
+        end = value.find(quote, 1)
+        return value[1:end] if end > 0 else value[1:]
+    return re.sub(r"\s+#.*$", "", value).strip()
+
+
+def parse_workflow_jobs(text):
+    """A narrow line parser over a workflow's jobs block (standard library only): for each job id, its name (default:
+    the id), its matrix (include rows or value lists) and its step names. Indentation is GitHub's two-space layout."""
+    lines = text.splitlines()
+    start = next(index for index, line in enumerate(lines) if line == "jobs:")
+    jobs, current, section, matrix_key, include = {}, None, None, None, None
+    for line in lines[start + 1:]:
+        if line and not line.startswith(" ") and not line.startswith("#"):
+            break
+        job = re.match(r"^  ([A-Za-z0-9_-]+):\s*$", line)
+        if job:
+            current = jobs.setdefault(job.group(1), {"name": job.group(1), "matrix": {}, "include": [], "steps": []})
+            section = matrix_key = include = None
+            continue
+        if current is None or not line.strip() or line.strip().startswith("#"):
+            continue
+        name = re.match(r"^    name:(.*)$", line)
+        if name:
+            current["name"] = _yaml_scalar(name.group(1))
+            continue
+        top = re.match(r"^    ([A-Za-z_-]+):", line)
+        if top:
+            section = top.group(1)
+            matrix_key = include = None
+            continue
+        if section == "strategy":
+            if re.match(r"^      matrix:\s*$", line):
+                continue
+            key = re.match(r"^        ([A-Za-z0-9_-]+):\s*(.*)$", line)
+            if key:
+                matrix_key = key.group(1)
+                if matrix_key != "include" and key.group(2).strip().startswith("["):
+                    current["matrix"][matrix_key] = [_yaml_scalar(item) for item in key.group(2).strip()[1:-1].split(",")]
+                elif matrix_key != "include":
+                    current["matrix"][matrix_key] = []
+                continue
+            item = re.match(r"^          - (.*)$", line)
+            if item and matrix_key == "include":
+                include = {}
+                current["include"].append(include)
+                pair = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", item.group(1))
+                if pair:
+                    include[pair.group(1)] = _yaml_scalar(pair.group(2))
+                continue
+            if item and matrix_key:
+                current["matrix"][matrix_key].append(_yaml_scalar(item.group(1)))
+                continue
+            pair = re.match(r"^            ([A-Za-z0-9_-]+):\s*(.*)$", line)
+            if pair and include is not None:
+                include[pair.group(1)] = _yaml_scalar(pair.group(2))
+        elif section == "steps":
+            step = re.match(r"^      (?:- |  )name:(.*)$", line)
+            if step:
+                current["steps"].append(_yaml_scalar(step.group(1)))
+    return jobs
+
+
+def expanded_job_names(job):
+    """The check and job names GitHub reports for one workflow job after matrix expansion.
+
+    A name with ${{ matrix.KEY }} is rendered per matrix row (Phase 252 bundle: "Example Playwright shard
+    (admin_behavior)"); a matrix job whose name has no matrix expression gets " (values)" of its non-empty matrix values,
+    and none for an all-empty row (bundle: "Install matrix (flag combinations)" and "... (--no-passkeys)")."""
+    rows = list(job["include"])
+    for key, values in job["matrix"].items():
+        rows = [dict(row, **{key: value}) for row in (rows or [{}]) for value in values]
+    if not rows:
+        return [job["name"]]
+    names = []
+    for row in rows:
+        if JOB_NAME_EXPRESSION.search(job["name"]):
+            names.append(JOB_NAME_EXPRESSION.sub(lambda match: str(row.get(match.group(1), "")), job["name"]))
+        else:
+            values = [str(value) for value in row.values() if str(value)]
+            names.append(f"{job['name']} ({', '.join(values)})" if values else job["name"])
+    return names
+
+
+def pr_inventory_problems(text, module):
+    """Every way the workflow source fails to provide the jobs verify_pr_family requires (empty list: none)."""
+    jobs = parse_workflow_jobs(text)
+    names = [name for job in jobs.values() for name in expanded_job_names(job)]
+    problems = []
+    for name in (*module.REQUIRED_NAMES, module.CLASSIFIER_JOB, *[f"Example Playwright shard ({seam})" for seam in module.SEAMS]):
+        if names.count(name) != 1:
+            problems.append(f"{name!r} appears {names.count(name)} times after matrix expansion")
+    if not any(name.startswith("Library tests shard") for name in names):
+        problems.append("no Library tests shard job exists")
+    classifier = [job for job in jobs.values() if module.CLASSIFIER_JOB in expanded_job_names(job)]
+    if len(classifier) != 1 or classifier[0]["steps"].count(module.CLASSIFIER_JOB) != 1:
+        problems.append(f"the classifier job does not have exactly one step named {module.CLASSIFIER_JOB!r}")
+    return problems, names
+
+
+def bundle_member(name, run_dir=PHASE252_PR_RUN):
+    import tarfile
+    raw = PHASE252_BUNDLE.read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == PHASE252_BUNDLE_SHA256, "the Phase 252 bundle changed"
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as bundle:
+        return json.loads(bundle.extractfile(run_dir + name).read())
+
+
+class PRRealShapeTests(unittest.TestCase):
+    """253-118: the PR family's job inventory against the real ci.yml, and its job, run and check-run shapes against
+    GitHub's recorded responses for the real pull_request run 38317383419 (Phase 252 bundle) and canary run 38906314106."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_verifier("hosted_gate_verify_pr_real_shape")
+        rows = {row["sequence"]: row for row in json.loads(REAL_LEDGER_R9.read_text())["transactions"]}
+        cls.r9 = {sequence: decoded_body(rows[sequence]) for sequence in (21, 27, 28)}
+
+    def test_live_ci_yml_provides_every_job_name_the_pr_verifier_requires(self):
+        problems, names = pr_inventory_problems(CI_YML.read_text(), self.module)
+        self.assertEqual(problems, [], names)
+        for seam in self.module.SEAMS:
+            self.assertEqual(names.count(f"Example Playwright shard ({seam})"), 1)
+        print(f"\nci.yml expanded job names ({len(names)}): {json.dumps(names)}")
+        # Negative controls on scratch copies: one required job renamed, and the classifier step duplicated.
+        text = CI_YML.read_text()
+        renamed = text.replace("    name: Example HTTP smoke (boot + curl critical routes)\n",
+                               "    name: Example HTTP smoke (renamed)\n", 1)
+        self.assertNotEqual(renamed, text)
+        with tempfile.TemporaryDirectory(prefix="sigra-253-118-ci-yml-") as scratch:
+            copy_path = Path(scratch) / "ci.yml"
+            copy_path.write_text(renamed)
+            broken, _ = pr_inventory_problems(copy_path.read_text(), self.module)
+        self.assertIn("'Example HTTP smoke (boot + curl critical routes)' appears 0 times after matrix expansion", broken)
+        doubled = text.replace("      - name: Detect docs-only change\n",
+                               "      - name: Detect docs-only change\n        run: true\n      - name: Detect docs-only change\n", 1)
+        self.assertNotEqual(doubled, text)
+        broken, _ = pr_inventory_problems(doubled, self.module)
+        self.assertTrue(any("exactly one step named" in item for item in broken), broken)
+
+    def test_live_matrix_expansion_matches_the_names_github_reported_for_a_real_pull_request_run(self):
+        # The expansion rule is itself checked against GitHub's rendering: the real attempt jobs of pull_request run
+        # 38317383419 (an expression rendered per seam) and push run 38146312411 (a matrix job named without one).
+        real = {job["name"] for job in bundle_member("jobs-attempt-1.json")["jobs"]}
+        for seam in self.module.SEAMS:
+            self.assertIn(f"Example Playwright shard ({seam})", real)
+        pushed = [job["name"] for job in bundle_member("jobs-attempt-1.json", PHASE252_PUSH_RUN)["jobs"]]
+        self.assertEqual(sorted(name for name in pushed if name.startswith("Install matrix")),
+                         sorted(["Install matrix (flag combinations)", "Install matrix (flag combinations) (--no-passkeys)",
+                                 "Install matrix (flag combinations) (--no-organizations)",
+                                 "Install matrix (flag combinations) (--no-organizations --no-passkeys)"]))
+        job = {"name": "Install matrix (flag combinations)", "matrix": {"flags": ["", "--no-passkeys"]}, "include": [], "steps": []}
+        self.assertEqual(expanded_job_names(job), ["Install matrix (flag combinations)", "Install matrix (flag combinations) (--no-passkeys)"])
+
+    def test_live_attempt_jobs_and_run_jobs_share_one_job_schema_in_real_responses(self):
+        attempt = bundle_member("jobs-attempt-1.json")
+        run_jobs = self.r9[28]
+        self.assertEqual(set(attempt), set(run_jobs))
+        self.assertEqual({frozenset(job) for job in attempt["jobs"]}, {frozenset(job) for job in run_jobs["jobs"]})
+        self.assertEqual({frozenset(step) for job in attempt["jobs"] for step in job["steps"]},
+                         {frozenset(step) for job in run_jobs["jobs"] for step in job["steps"]})
+        run = bundle_member("run.json")
+        self.assertEqual(set(run), set(self.r9[27]))
+        self.assertEqual(run["event"], "pull_request")
+        self.assertEqual(attempt["total_count"], len(attempt["jobs"]))
+        for job in attempt["jobs"]:
+            self.assertEqual((job["run_id"], job["run_attempt"], job["status"]), (run["id"], run["run_attempt"], "completed"))
+        self.assertTrue(any(type(item.get("number")) is int for item in run["pull_requests"]))
+        self.assertEqual((run["repository"]["full_name"], run["head_repository"]["full_name"]), (self.module.REPOSITORY,) * 2)
+        classifier = [job for job in attempt["jobs"] if job["name"] == self.module.CLASSIFIER_JOB]
+        self.assertEqual(len(classifier), 1)
+        self.assertEqual(sum(step["name"] == self.module.CLASSIFIER_JOB and step["conclusion"] == "success"
+                             for step in classifier[0]["steps"]), 1)
+
+    def test_live_real_pr_check_runs_link_each_required_check_to_its_attempt_job(self):
+        checks = bundle_member("check-runs.json")
+        jobs = {job["name"]: job for job in bundle_member("jobs-attempt-1.json")["jobs"]}
+        native = {item["name"]: item for item in checks["check_runs"] if item["name"] in self.module.REQUIRED_NAMES}
+        self.assertEqual(set(native), set(self.module.REQUIRED_NAMES))
+        for name, check in native.items():
+            with self.subTest(check=name):
+                match = re.search(r"/job/([0-9]+)$", check["html_url"])
+                self.assertIsNotNone(match)
+                self.assertEqual(match.group(1), str(jobs[name]["id"]))
+                self.assertEqual((check["head_sha"], check["status"]), (jobs[name]["head_sha"], "completed"))
+                self.assertTrue(type(check["app"]["id"]) is int and check["app"]["slug"])
+                self.assertEqual(check["conclusion"], jobs[name]["conclusion"])
+
+    def test_live_r9_preflight_responses_satisfy_the_canary_driver_reads(self):
+        canary = CANARY.read_text()
+        evidence = json.loads(EVIDENCE_R9.read_text())
+        rows = {row["sequence"]: row for row in evidence["transport_ledger"]["transactions"]}
+        filters = {
+            18: [".resources.core.remaining // 0"],
+            19: ['type == "array" and length <= 200',
+                 '[.[] | select(.type=="required_status_checks") | .parameters.required_status_checks[].context] | sort == '
+                 '(["Library tests","Example unit smoke (ExUnit + ConnTest)","Install smoke (fresh phx.new + sigra.install)",'
+                 '"Example HTTP smoke (boot + curl critical routes)","Example Playwright smoke (full lifecycle)"] | sort)'],
+            20: ['type=="object" and ((.required_status_checks // {})|type=="object")'],
+            21: ['type=="object" and (.check_runs|type=="array")'],
+            22: ['.id == 259268962 and .path == ".github/workflows/ci.yml" and .state == "active"'],
+        }
+        per_check = ('([.check_runs[] | select(.name==$name)] | length == 1) and ([.check_runs[] | select(.name==$name and '
+                     '.head_sha==$sha and (.app.id|type=="number") and .app.id > 0 and (.app.slug|type=="string") and .app.slug != "" '
+                     'and (.html_url|type=="string") and (.html_url|startswith("https://")))] | length == 1)')
+        for expression in [*[item for items in filters.values() for item in items], per_check]:
+            self.assertIn(f"'{expression}'", canary, "a pinned preflight read is no longer the canary driver's expression")
+        for sequence, expressions in filters.items():
+            body = base64.b64decode(rows[sequence]["response_body_base64"])
+            for expression in expressions:
+                with self.subTest(sequence=sequence, expression=expression[:40]):
+                    result = subprocess.run(["jq", "-e", expression], input=body, capture_output=True, check=False)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+        remaining = subprocess.run(["jq", "-r", filters[18][0]], input=base64.b64decode(rows[18]["response_body_base64"]),
+                                   capture_output=True, check=True).stdout.decode().strip()
+        self.assertGreater(int(remaining), 250)
+        source = evidence["expected"]["check_source_sha"]
+        for name in self.module.REQUIRED_NAMES:
+            with self.subTest(check=name):
+                result = subprocess.run(["jq", "-e", "--arg", "name", name, "--arg", "sha", source, per_check],
+                                        input=base64.b64decode(rows[21]["response_body_base64"]), capture_output=True, check=False)
+                self.assertEqual(result.returncode, 0, result.stderr)
+        # Negative control: the same read against the real workflow body with its state changed must fail.
+        workflow = json.loads(base64.b64decode(rows[22]["response_body_base64"]))
+        workflow["state"] = "disabled_manually"
+        refused = subprocess.run(["jq", "-e", filters[22][0]], input=json.dumps(workflow).encode(), capture_output=True, check=False)
+        self.assertEqual(refused.returncode, 1)
 
 
 if __name__ == "__main__":
