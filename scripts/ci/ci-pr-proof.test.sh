@@ -257,11 +257,12 @@ class World:
         """Hook: None inherits this process's environment (GH_TOKEN/GITHUB_TOKEN are unset by the wrapper)."""
         return None
 
-    def __init__(self, test, flags=None, tag="world", mutate_section=None, ref_pair=None, seed_legacy_refs=False):
+    def __init__(self, test, flags=None, tag="world", mutate_section=None, ref_pair=None, seed_legacy_refs=False, seed_r8_refs=False):
         self.test = test
         self.mutate_section = mutate_section
         self.ref_pair = ref_pair  # 253-102: None publishes without a canary freeze (legacy pair); "r8"/"legacy" publish under a freeze
         self.seed_legacy_refs = seed_legacy_refs
+        self.seed_r8_refs = seed_r8_refs  # 253-111: the r8 refs 253-104 left on GitHub, seeded at a foreign SHA
         self.canary_freeze_path = None
         self.dir = pathlib.Path(tempfile.mkdtemp(prefix=f"sigra-pr-proof-{tag}-"))
         test.addCleanup(shutil.rmtree, self.dir, True)
@@ -341,6 +342,10 @@ class World:
         self.receipt_path = d / "publication-receipt.json"
         if self.seed_legacy_refs:
             self.seeded_refs = {"gsd/253-replan-candidate": self.parent, "gsd/253-replan-fixture": self.parent}
+            server.refs.update(self.seeded_refs)
+        if self.seed_r8_refs:
+            self.seeded_refs = {**getattr(self, "seeded_refs", {}),
+                                "gsd/253-replan-r8-candidate": self.parent, "gsd/253-replan-r8-fixture": self.parent}
             server.refs.update(self.seeded_refs)
         freeze_args = []
         if self.ref_pair:
@@ -649,10 +654,10 @@ class LiveWorld(World):
     handler = LivePRHandler
     poll_interval = 60  # the frozen production interval; only the shim scales the actual wait
 
-    def __init__(self, test, flags=None, tag="live", ref_pair="legacy", sleep_scale=0.001):
+    def __init__(self, test, flags=None, tag="live", ref_pair="legacy", sleep_scale=0.001, seed_r8_refs=False):
         self.sleep_scale = sleep_scale
         self.window_id = f"{LIVE_WINDOW_PREFIX}{os.getpid()}"
-        super().__init__(test, flags=flags, tag=tag, ref_pair=ref_pair)
+        super().__init__(test, flags=flags, tag=tag, ref_pair=ref_pair, seed_r8_refs=seed_r8_refs)
 
     def tls_san(self):
         return "subjectAltName=" + ",".join(f"DNS:{name}" for name in ("localhost", *dryrun.LIVE_TLS_NAMES))
@@ -1418,7 +1423,7 @@ class RefPairTests(unittest.TestCase):
         created = [tx for tx in evidence["transport_ledger"]["transactions"] if tx["route_id"] == "pr_create"]
         self.assertEqual(len(created), 1)
         self.assertEqual(json.loads(base64.b64decode(created[0]["response_body_base64"]))["head"]["ref"], "gsd/253-replan-r8-candidate")
-        for head in ("gsd/253-replan-r9-candidate", "gsd/253-replan-r8-fixture", "gsd/253-replan-candidate"):
+        for head in ("gsd/253-replan-r10-candidate", "gsd/253-replan-r8-fixture", "gsd/253-replan-candidate"):
             with self.subTest(verifier_head=head):
                 tampered = copy.deepcopy(evidence)
                 tampered["freeze"]["normal"]["head_ref"] = head
@@ -1437,7 +1442,7 @@ class RefPairTests(unittest.TestCase):
         w = self.r8
         original = json.loads(w.receipt_path.read_text())
         for label, (candidate_ref, fixture_ref) in {
-                "third candidate": ("refs/heads/gsd/253-replan-r9-candidate", "refs/heads/gsd/253-replan-r9-fixture"),
+                "fourth candidate": ("refs/heads/gsd/253-replan-r10-candidate", "refs/heads/gsd/253-replan-r10-fixture"),
                 "fixture as candidate": ("refs/heads/gsd/253-replan-r8-fixture", "refs/heads/gsd/253-replan-r8-fixture"),
                 "mixed pair": ("refs/heads/gsd/253-replan-r8-candidate", "refs/heads/gsd/253-replan-fixture")}.items():
             with self.subTest(label=label):
@@ -1454,15 +1459,15 @@ class RefPairTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0, label)
                 self.assertFalse(output.exists())
 
-    def test_check_only_accepts_only_the_two_candidate_names_as_the_normal_head(self):
+    def test_check_only_accepts_only_the_three_candidate_names_as_the_normal_head(self):
         w = self.legacy
-        for head in ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate"):
+        for head in ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate"):
             with self.subTest(accepted=head):
                 freeze, allocation = self.retarget(w, head, "known")
                 checked = run("bash", PROOF, "--check-only", "--freeze", freeze, "--allocation", allocation, cwd=ROOT)
                 self.assertEqual(checked.returncode, 0, checked.stderr)
-        for head in ("gsd/253-replan-r9-candidate", "gsd/253-replan-fixture", "gsd/253-replan-r8-fixture", "gsd/253-replan-docs-head",
-                     "refs/heads/gsd/253-replan-candidate"):
+        for head in ("gsd/253-replan-r10-candidate", "gsd/253-replan-fixture", "gsd/253-replan-r8-fixture", "gsd/253-replan-r9-fixture",
+                     "gsd/253-replan-docs-head", "refs/heads/gsd/253-replan-candidate"):
             with self.subTest(refused=head):
                 freeze, allocation = self.retarget(w, head, "unknown")
                 checked = run("bash", PROOF, "--check-only", "--freeze", freeze, "--allocation", allocation, cwd=ROOT)
@@ -1476,6 +1481,99 @@ class RefPairTests(unittest.TestCase):
                     freeze, allocation = self.retarget(world, head, f"disagree-{family}")
                     before = len(world.server.journal)
                     process, evidence = self.collect_with(world, family, freeze, allocation, f"disagree-{family}")
+                    self.assertNotEqual(process.returncode, 0)
+                    self.assertIn("revision freeze candidate_ref", process.stderr)
+                    self.assertEqual(len(world.server.journal), before, "a request left the process with a disagreeing head")
+                    self.assertFalse(evidence.exists())
+
+
+class R9RefPairTests(unittest.TestCase):
+    """253-111: an r9 freeze yields the r9 normal head beside the seeded r8 refs 253-104 left on GitHub."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._cleanups = []
+        cls.holder = unittest.TestCase()
+        cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
+        cls.r9 = World(cls.holder, tag="r9", ref_pair="r9", seed_r8_refs=True)
+        cls.r8 = World(cls.holder, tag="r8-for-r9", ref_pair="r8")
+
+    @classmethod
+    def tearDownClass(cls):
+        for fn, a, k in reversed(cls._cleanups):
+            try:
+                fn(*a, **k)
+            except Exception:
+                pass
+
+    retarget = RefPairTests.retarget
+    collect_with = RefPairTests.collect_with
+
+    def test_an_r9_freeze_yields_the_r9_head_and_the_normal_family_verifies_beside_seeded_r8_refs(self):
+        w = self.r9
+        canary = json.loads(w.canary_freeze_path.read_text())
+        self.assertEqual(canary["identity"]["candidate_ref"], "refs/heads/gsd/253-replan-r9-candidate")
+        self.assertEqual(canary["identity"]["fixture_ref"], "refs/heads/gsd/253-replan-r9-fixture")
+        self.assertEqual(json.loads(w.receipt_path.read_text())["candidate_ref"], "refs/heads/gsd/253-replan-r9-candidate")
+        self.assertEqual(w.freeze["normal"]["head_ref"], "gsd/253-replan-r9-candidate")
+        self.assertEqual((w.freeze["docs-only"]["head_ref"], w.freeze["docs-only"]["base_ref"]),
+                         ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base"))
+        self.assertEqual(set(w.seeded_refs), {"gsd/253-replan-r8-candidate", "gsd/253-replan-r8-fixture"})
+        self.assertEqual(w.server.refs["gsd/253-replan-r9-candidate"], w.manifest["candidate_helper_commit"])
+        before = len(w.server.journal)
+        _, path = w.collect("normal", "r9-normal.json")
+        for name, value in w.seeded_refs.items():
+            self.assertEqual(w.server.refs[name], value, "a seeded r8 ref changed")
+        self.assertFalse([row for row in w.server.journal if "253-replan-r8-" in row["path"]], "the r9 PR window touched an r8 ref")
+        evidence = attach_journal(path, list(w.server.journal[before:]))
+        result = verifier.verify_pr_family(copy.deepcopy(evidence), "normal")
+        self.assertEqual(result["status"], "synthetic_pr_family_verified")
+        created = [tx for tx in evidence["transport_ledger"]["transactions"] if tx["route_id"] == "pr_create"]
+        self.assertEqual(len(created), 1)
+        self.assertEqual(json.loads(base64.b64decode(created[0]["response_body_base64"]))["head"]["ref"], "gsd/253-replan-r9-candidate")
+        for head in ("gsd/253-replan-r10-candidate", "gsd/253-replan-r9-fixture", "gsd/253-replan-r8-candidate", "gsd/253-replan-candidate"):
+            with self.subTest(verifier_head=head):
+                tampered = copy.deepcopy(evidence)
+                tampered["freeze"]["normal"]["head_ref"] = head
+                tampered["freeze"]["freeze_sha256"] = sha(json.dumps({k: v for k, v in tampered["freeze"].items() if k != "freeze_sha256"},
+                                                                     sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode())
+                with self.assertRaises(verifier.VerificationError):
+                    verifier.verify_pr_family(tampered, "normal")
+
+    def test_an_r8_freeze_still_yields_the_r8_head(self):
+        self.assertEqual(json.loads(self.r8.canary_freeze_path.read_text())["identity"]["candidate_ref"],
+                         "refs/heads/gsd/253-replan-r8-candidate")
+        self.assertEqual(self.r8.freeze["normal"]["head_ref"], "gsd/253-replan-r8-candidate")
+
+    def test_prepare_refuses_an_r9_receipt_with_a_fourth_name_a_fixture_head_or_a_mixed_pair(self):
+        w = self.r9
+        original = json.loads(w.receipt_path.read_text())
+        for label, (candidate_ref, fixture_ref) in {
+                "fourth candidate": ("refs/heads/gsd/253-replan-r10-candidate", "refs/heads/gsd/253-replan-r10-fixture"),
+                "fixture as candidate": ("refs/heads/gsd/253-replan-r9-fixture", "refs/heads/gsd/253-replan-r9-fixture"),
+                "r9 candidate, r8 fixture": ("refs/heads/gsd/253-replan-r9-candidate", "refs/heads/gsd/253-replan-r8-fixture"),
+                "r8 candidate, r9 fixture": ("refs/heads/gsd/253-replan-r8-candidate", "refs/heads/gsd/253-replan-r9-fixture")}.items():
+            with self.subTest(label=label):
+                tampered = copy.deepcopy(original)
+                tampered["candidate_ref"], tampered["fixture_ref"] = candidate_ref, fixture_ref
+                for row in tampered["server_object_receipts"]:
+                    if row.get("kind") == "ref":
+                        row["ref"] = candidate_ref if row["variant"] == "candidate" else fixture_ref
+                receipt = w.dir / "tampered-r9-receipt.json"
+                receipt.write_text(json.dumps(tampered))
+                output = w.dir / "never-r9-freeze.json"
+                result = run("bash", PROOF, "--prepare", "--publication", receipt, "--manifest", w.manifest_path, "--repo-root", w.repo,
+                             "--output", output, "--poll-interval", "0", "--budget-document", w.budget, cwd=ROOT, timeout=60)
+                self.assertNotEqual(result.returncode, 0, label)
+                self.assertFalse(output.exists())
+
+    def test_an_r9_or_r8_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request(self):
+        for world, head in ((self.r9, "gsd/253-replan-r8-candidate"), (self.r8, "gsd/253-replan-r9-candidate")):
+            for family in ("normal", "docs-only"):
+                with self.subTest(world=world.ref_pair, family=family):
+                    freeze, allocation = self.retarget(world, head, f"r9-disagree-{family}")
+                    before = len(world.server.journal)
+                    process, evidence = self.collect_with(world, family, freeze, allocation, f"r9-disagree-{family}")
                     self.assertNotEqual(process.returncode, 0)
                     self.assertIn("revision freeze candidate_ref", process.stderr)
                     self.assertEqual(len(world.server.journal), before, "a request left the process with a disagreeing head")
@@ -1800,6 +1898,44 @@ def proof_with_transport(test, revision):
     target.write_bytes(blob)
     test.assertEqual(target.read_bytes(), blob)
     return copy_root / "scripts/ci/ci-pr-proof.sh", sha(blob)
+
+
+class LivePolicyR9PRTests(unittest.TestCase):
+    """253-111: the 253-109 live-policy PR universe under an r9 freeze, beside seeded r8 refs, offline."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._cleanups = []
+        cls.holder = unittest.TestCase()
+        cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
+        cls.world = LiveWorld(cls.holder, tag="live-r9", ref_pair="r9", seed_r8_refs=True)
+        cls.normal_process, cls.normal_path = cls.world.collect("normal", "live-r9-normal.json", check=False)
+
+    @classmethod
+    def tearDownClass(cls):
+        for fn, a, k in reversed(cls._cleanups):
+            try:
+                fn(*a, **k)
+            except Exception:
+                pass
+
+    def test_live_policy_r9_normal_family_verifies_as_synthetic_with_the_r9_head_and_r8_refs_untouched(self):
+        w = self.world
+        self.assertEqual(self.normal_process.returncode, 0, self.normal_process.stdout + self.normal_process.stderr)
+        self.assertEqual(json.loads(w.receipt_path.read_text())["candidate_ref"], "refs/heads/gsd/253-replan-r9-candidate")
+        self.assertEqual(json.loads(w.receipt_path.read_text())["origin"]["kind"], "actual-github")
+        self.assertEqual(w.freeze["normal"]["head_ref"], "gsd/253-replan-r9-candidate")
+        for name, value in w.seeded_refs.items():
+            self.assertEqual(w.server.refs[name], value, "a seeded r8 ref changed")
+        process, result = run_verifier("--mode", "pr", "--family", "normal", "--evidence", self.normal_path)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(result["status"], "synthetic_pr_family_verified")
+        self.assertIs(result["synthetic"], True)
+        self.assertIs(result["accepted_live"], False)
+        evidence = json.loads(self.normal_path.read_text())
+        created = [tx for tx in evidence["transport_ledger"]["transactions"] if tx["route_id"] == "pr_create"]
+        self.assertEqual(len(created), 1)
+        self.assertEqual(json.loads(base64.b64decode(created[0]["response_body_base64"]))["head"]["ref"], "gsd/253-replan-r9-candidate")
 
 
 class LivePolicySensitivityTests(unittest.TestCase):

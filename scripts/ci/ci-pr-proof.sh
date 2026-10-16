@@ -50,9 +50,9 @@ WORKFLOW_PATH = ".github/workflows/ci.yml"
 DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
 CI_PATH = WORKFLOW_PATH
 SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
-# 253-102: the normal head is the candidate ref the canary freeze selected, one of exactly these two names
+# 253-102/253-111: the normal head is the candidate ref the canary freeze selected, one of exactly these three names
 # (ci-git-publication.py REF_PAIRS); the docs-only refs never vary.
-NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate")
+NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate")
 FAMILY_REFS = {"normal": (NORMAL_HEADS, "main"),
                "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")}
 TERMINAL_POLLS = {"normal": 15, "docs-only": 12}
@@ -106,7 +106,7 @@ def git(repo, *args, data=None):
 
 
 def frozen_refs(family, spec):
-    """(head_ref, base_ref) of a frozen family; the normal head must be one of the two known candidate names."""
+    """(head_ref, base_ref) of a frozen family; the normal head must be one of the known candidate names."""
     head_ref, base_ref = (spec or {}).get("head_ref"), (spec or {}).get("base_ref")
     if family == "normal":
         valid = isinstance(head_ref, str) and head_ref in NORMAL_HEADS and base_ref == FAMILY_REFS["normal"][1]
@@ -142,7 +142,7 @@ def prepare(args):
     candidate_ref = receipt.get("candidate_ref")
     normal_head = candidate_ref.removeprefix("refs/heads/") if isinstance(candidate_ref, str) and candidate_ref.startswith("refs/heads/") else None
     if normal_head not in NORMAL_HEADS:
-        raise SystemExit("ci-pr-proof: the publication receipt's candidate_ref is not one of the two known candidate refs")
+        raise SystemExit("ci-pr-proof: the publication receipt's candidate_ref is not one of the known candidate refs")
     if manifest.get("docs_head_path") != DOCS_PATH:
         raise SystemExit("ci-pr-proof: manifest documentation path is not the exact proof file")
 

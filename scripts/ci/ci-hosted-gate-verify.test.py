@@ -896,19 +896,22 @@ class PRVerifierContractTests(unittest.TestCase):
                 with self.assertRaises(self.module.VerificationError):
                     self.module.verify_pr_family({"schema_version": "sigra.phase253.pr-proof-evidence/v1", "family": family}, family)
 
-    def test_253_102_normal_head_is_one_of_the_two_candidate_names_and_docs_refs_stay_exact(self):
+    def test_253_102_normal_head_is_one_of_the_three_candidate_names_and_docs_refs_stay_exact(self):
         import importlib.util
         spec = importlib.util.spec_from_file_location("publisher_for_pr_heads", ROOT / "scripts/ci/ci-git-publication.py")
         publisher = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(publisher)
         self.assertEqual(set(self.module.PR_NORMAL_HEADS), {pair["candidate"] for pair in publisher.REF_PAIRS.values()})
-        self.assertEqual(set(self.module.PR_NORMAL_HEADS), {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate"})
-        for head in ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate"):
+        self.assertEqual(set(self.module.PR_NORMAL_HEADS),
+                         {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate"})
+        for head in ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate"):
             with self.subTest(accepted=head):
                 self.module.require_pr_refs("normal", head, "main")
         self.module.require_pr_refs("docs-only", "gsd/253-replan-docs-head", "gsd/253-replan-docs-base")
         refused = [("normal", "gsd/253-replan-fixture", "main"), ("normal", "gsd/253-replan-r8-fixture", "main"),
-                   ("normal", "gsd/253-replan-r9-candidate", "main"), ("normal", "refs/heads/gsd/253-replan-r8-candidate", "main"),
+                   ("normal", "gsd/253-replan-r10-candidate", "main"), ("normal", "refs/heads/gsd/253-replan-r8-candidate", "main"),
+                   ("normal", "gsd/253-replan-r9-fixture", "main"), ("normal", "gsd/253-replan-r9-candidate", "gsd/253-replan-docs-base"),
+                   ("docs-only", "gsd/253-replan-r9-candidate", "gsd/253-replan-docs-base"),
                    ("normal", "gsd/253-replan-docs-head", "main"), ("normal", "gsd/253-replan-r8-candidate", "gsd/253-replan-docs-base"),
                    ("normal", None, "main"), ("docs-only", "gsd/253-replan-r8-candidate", "gsd/253-replan-docs-base"),
                    ("docs-only", "gsd/253-replan-candidate", "gsd/253-replan-docs-base"),
@@ -920,6 +923,24 @@ class PRVerifierContractTests(unittest.TestCase):
         source = Path(VERIFY).read_text()
         pr_family = source[source.index("def verify_pr_family"):source.index("def verify_docs_workflow_relation")]
         self.assertIn("require_pr_refs(family, head_ref, base_ref)", pr_family)
+
+    def test_253_111_the_dryrun_window_marker_never_matches_a_real_window_id(self):
+        phase = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+        real = set()
+        for name in ("253-LOAD-RECOVERY-CANARY-HTTP-LEDGER.json", "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R7.json",
+                     "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json", "253-LOAD-RECOVERY-CANARY-ALLOCATION.json",
+                     "253-LOAD-RECOVERY-CANARY-ALLOCATION-R7.json", "253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json"):
+            real.add(json.loads((phase / name).read_text())["window_id"])
+        self.assertEqual(real, {"253-92-canary-window-1", "253-97-canary-window-1", "253-104-canary-window-1"})
+        # Plan-named windows put digits after "253-"; the marker puts a letter there, so no plan-named window can match.
+        for window in sorted(real) + ["253-113-canary-window-1", "253-113-pr-window-1", "253-dryrun", "253-DRYRUN-x", "x-253-dryrun-y"]:
+            with self.subTest(window=window):
+                self.assertFalse(self.module.dryrun_window({"origin": {"window_id": window}, "transport_ledger": {"window_id": window}}))
+        # Positive control: the marker itself and the dry-run harness prefix are labelled.
+        for window in ("253-dryrun-x", "253-dryrun-live-policy-123"):
+            with self.subTest(marker=window):
+                self.assertTrue(self.module.dryrun_window({"origin": {"window_id": window}}))
+                self.assertTrue(self.module.dryrun_window({"transport_ledger": {"window_id": window}}))
 
     def test_pr_cli_requires_known_modes_and_both_evidence_files(self):
         with tempfile.TemporaryDirectory() as tmp:
