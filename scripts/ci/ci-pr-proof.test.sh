@@ -1536,6 +1536,8 @@ class LivePolicyPRTests(unittest.TestCase):
         cls.normal_process, cls.normal_path = w.collect("normal", "live-normal.json", check=False)
         cls.normal_requests = len(w.server.journal)
         cls.normal_sleeps = list(w.sleeps())
+        cls.docs_process, cls.docs_path = w.collect("docs-only", "live-docs.json", check=False)
+        cls.all_sleeps = list(w.sleeps())
 
     @classmethod
     def tearDownClass(cls):
@@ -1623,6 +1625,123 @@ class LivePolicyPRTests(unittest.TestCase):
         self.assertEqual(self.world.freeze["poll"]["interval_seconds"], 60)
         # One discovery wait (the run is listable on the second listing) and two terminal-poll waits (done on poll 3).
         self.assertEqual(self.normal_sleeps, [60, 60, 60])
+
+    # ------------------------------------------------------------------ 253-109 Task 3: docs-only, pair, completion
+    def docs_collected(self):
+        self.normal_collected()
+        process = self.docs_process
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        return json.loads(self.docs_path.read_text())
+
+    def test_live_policy_docs_only_family_publishes_its_objects_through_the_live_origin_and_verifies_as_synthetic(self):
+        evidence = self.docs_collected()
+        self.assertEqual(json.loads(self.docs_process.stdout.strip().splitlines()[-1])["status"], "collected")
+        rows = [tx for tx in evidence["transport_ledger"]["transactions"] if tx["category"] == "docs_publication"]
+        self.assertEqual(len(rows), 14)
+        self.assertEqual({(tx["host"], tx["family"]) for tx in rows}, {(API_HOST, "docs-only")})
+        routes = [(tx["route_id"], tx["actual_status"]) for tx in rows]
+        creates = [index for index, (route, _) in enumerate(routes) if route == "create_ref"]
+        self.assertEqual(len(creates), 2)
+        for index in creates:
+            self.assertEqual(routes[index - 1], ("get_ref", 404), "every create-only ref is probed absent first")
+            self.assertEqual(routes[index], ("create_ref", 201))
+            self.assertEqual(routes[index + 1], ("get_ref", 200))
+        publisher = load(ROOT / "scripts/ci/ci-git-publication.py", "publisher_for_live_docs")
+        allocation = json.loads(self.world.allocation_path.read_text())
+        origin = publisher.derive_origin(allocation, {"transactions": rows})
+        self.assertEqual(origin["kind"], "actual-github", "the docs objects went through the publisher's live origin rule")
+        self.assertTrue(origin["window_id"].startswith("253-dryrun-live-policy-"))
+        process, result = run_verifier("--mode", "pr", "--family", "docs-only", "--evidence", self.docs_path)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(result["status"], "synthetic_pr_family_verified")
+        self.assertIs(result["synthetic"], True)
+        self.assertIs(result["accepted_live"], False)
+        self.assertEqual(result["merge_sha"], "d" * 40)
+
+    def test_live_docs_commit_readback_tolerates_exactly_one_stripped_trailing_newline(self):
+        base = self.docs_collected()
+        fresh = lambda: copy.deepcopy(base)
+        for nth, frozen in ((0, "Phase 253 docs probe base workflow exception\n"), (1, "Phase 253 docs-only probe head\n")):
+            with self.subTest(form="stripped", nth=nth):
+                readbacks = [tx for tx in base["transport_ledger"]["transactions"] if tx["route_id"] == "git_get_commit"]
+                self.assertEqual(json.loads(base64.b64decode(readbacks[nth]["response_body_base64"]))["message"], frozen[:-1])
+                verifier.verify_pr_family(fresh(), "docs-only")
+            with self.subTest(form="verbatim", nth=nth):
+                verifier.verify_pr_family(retamper(fresh(), "git_get_commit", lambda d: d.update(message=frozen), nth=nth), "docs-only")
+        for label, mutate in {
+            "extra newline": lambda d: d.update(message=d["message"].rstrip("\n") + "\n\n"),
+            "two characters stripped": lambda d: d.update(message=d["message"].rstrip("\n")[:-1]),
+            "crlf": lambda d: d.update(message=d["message"].rstrip("\n") + "\r\n"),
+            "trailing space": lambda d: d.update(message=d["message"].rstrip("\n") + " "),
+            "missing": lambda d: d.pop("message"),
+        }.items():
+            for nth in (0, 1):
+                with self.subTest(label, nth=nth):
+                    with self.assertRaises(verifier.VerificationError):
+                        verifier.verify_pr_family(retamper(fresh(), "git_get_commit", mutate, nth=nth), "docs-only")
+
+    def test_live_policy_pair_is_one_allocation_one_append_only_window_within_120_requests(self):
+        normal, docs = self.normal_collected(), self.docs_collected()
+        process, result = run_verifier("--mode", "pr", "--family", "both", "--evidence", self.normal_path,
+                                       "--docs-evidence", self.docs_path)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(result["status"], "synthetic_pr_pair_verified")
+        self.assertIs(result["synthetic"], True)
+        self.assertIs(result["accepted_live"], False)
+        self.assertEqual(normal["allocation_base64"], docs["allocation_base64"])
+        self.assertEqual(normal["transport_ledger"]["window_id"], docs["transport_ledger"]["window_id"])
+        self.assertTrue(normal["transport_ledger"]["window_id"].startswith("253-dryrun-live-policy-"))
+        shorter, longer = normal["transport_ledger"]["transactions"], docs["transport_ledger"]["transactions"]
+        self.assertEqual(longer[:len(shorter)], shorter, "the docs family appended to the same measured window")
+        self.assertLessEqual(len(longer), 120)
+        self.assertEqual(result["requests"], len(longer))
+        hops = [tx for tx in longer if tx["route_id"] == "artifact_zip" and tx["hop_ordinal"] == 1]
+        counts = {"normal": len(shorter), "docs-only": len(longer) - len(shorter), "combined": len(longer),
+                  "hop1": {family: sum(1 for tx in hops if tx["family"] == family) for family in ("normal", "docs-only")},
+                  "categories": {category: sum(1 for tx in longer if tx["category"] == category)
+                                 for category in sorted({tx["category"] for tx in longer})}}
+        print(f"253-109 live counts: {json.dumps(counts, sort_keys=True)}", file=sys.stderr)
+
+    def test_live_policy_completion_on_the_dry_run_window_is_a_synthetic_gap_and_never_accepted(self):
+        self.docs_collected()
+        w = self.world
+        link = lambda path: {"path": str(path), "sha256": sha(pathlib.Path(path).read_bytes())}
+        evidence = {"schema_version": "sigra.phase253.completion-evidence/v1", "repository": "szTheory/sigra",
+                    "links": {"pr_normal": link(self.normal_path), "pr_docs_only": link(self.docs_path)}}
+        path = w.dir / "live-completion.json"
+        path.write_text(json.dumps(evidence))
+        process, result = run_verifier("--mode", "completion", "--evidence", path)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(result["status"], "open")
+        self.assertEqual(result["requirements"]["CIREL-02"], "open")
+        self.assertEqual(result["phase_verification"], "not_started")
+        for key in ("pr_normal", "pr_docs_only"):
+            self.assertIn(f"synthetic:{key}:dry-run window cannot satisfy live acceptance", result["gaps"])
+        strict, _ = run_verifier("--mode", "completion", "--require-accepted", "--evidence", path)
+        self.assertEqual(strict.returncode, 1)
+        self.assertIn("synthetic:pr_normal:dry-run window cannot satisfy live acceptance", strict.stderr)
+        path.write_text(json.dumps(dict(evidence, accepted=True, status="accepted")))
+        claimed, _ = run_verifier("--mode", "completion", "--evidence", path)
+        self.assertEqual(claimed.returncode, 1, "an embedded acceptance claim cannot override a dry-run window")
+
+    def test_live_policy_token_and_host_rules_hold_across_both_families(self):
+        docs = self.docs_collected()
+        w = self.world
+        journal, ledger = w.server.journal, docs["transport_ledger"]["transactions"]
+        self.assertEqual(len(journal), len(ledger))
+        self.assertEqual([row["host"] for row in journal], [tx["host"] for tx in ledger])
+        blob = [row for row in journal if row["host"] == BLOB_HOST]
+        api = [row for row in journal if row["host"] == API_HOST]
+        self.assertEqual(len(blob), 10, "five producer ZIPs per family")
+        self.assertEqual(len(api) + len(blob), len(journal))
+        self.assertTrue(all(row["authorization"] is None for row in blob))
+        self.assertTrue(all(row["authorization"] == f"Bearer {LIVE_TOKEN}" for row in api))
+        allowed = {API_HOST, *json.loads(w.allocation_path.read_text())["download_hosts"]}
+        self.assertTrue(all(tx["host"] in allowed for tx in ledger))
+        self.assertEqual(w.server.violations, [])
+        self.assertEqual(w.refusals(), [])
+        self.assertEqual(w.connect_hosts(), sorted({API_HOST, BLOB_HOST}))
+        self.assertEqual(self.all_sleeps, [60] * 6, "three frozen 60-second waits per family, slept scaled")
 
     def test_live_required_check_failure_on_the_pr_head_is_rejected_on_the_live_check_view(self):
         world = LiveWorld(self, tag="live-check-failure")
