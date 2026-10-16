@@ -210,7 +210,7 @@ export const DISPOSITION_GAP_R6 = "disposition:CIREL-01:not_reproduced (Jon-appr
 // v1-r5 gate on --require-accepted; r6 (plan 253-90) gates on --require-dispositioned, which passes only the
 // strict accepted route or Jon's approved not_reproduced disposition route.
 // r7 (plan 253-96) and r8 (plan 253-103) are gated the same way as r6.
-const DISPOSITIONED_REVISIONS = Object.freeze(new Set(["r6", "r7", "r8"]));
+const DISPOSITIONED_REVISIONS = Object.freeze(new Set(["r6", "r7", "r8", "r9"]));
 const isDispositioned = (revision) => DISPOSITIONED_REVISIONS.has(revision);
 
 export function completionArgv(revision, completionPath) {
@@ -443,7 +443,7 @@ function buildContractV1({ repoRoot = REPO_ROOT } = {}) {
 // run. R2 is ADDITIVE: it keeps the v1 contract file, the v1 builder and the v1 default untouched, and
 // re-points every never-executed responsibility to the new proof owners 253-48..253-56.
 // ---------------------------------------------------------------------------------------------
-export const REVISIONS = Object.freeze(["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8"]);
+export const REVISIONS = Object.freeze(["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9"]);
 export const CONTRACT_NAME_R2 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R2.json";
 export const CONTRACT_SCHEMA_R2 = "sigra.phase253.load-recovery-reconciliation-contract/r2";
 export const COMPLETED_IDS_R2 = Object.freeze([...COMPLETED_IDS, "36", "37", "38", "39", "42", "43"].sort());
@@ -1501,6 +1501,82 @@ function buildContractR8({ repoRoot = REPO_ROOT } = {}) {
   };
 }
 
+// ---------------------------------------------------------------------------------------------
+// R9 revision (plan 253-112): 253-104 halted during the full-pass artifact download because the frozen
+// transport refused the approved 302 redirect to the trusted artifact host, so 253-105 and 253-106 can never
+// run. R9 is ADDITIVE over v1-R8 (all eight files, builders and the v1 default stay untouched). It re-points
+// every never-executed responsibility, including 105 and 106, to the R9 proof owners 253-107..253-115 and is
+// gated by --require-dispositioned exactly as R6, R7 and R8 are.
+// ---------------------------------------------------------------------------------------------
+export const CONTRACT_NAME_R9 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R9.json";
+export const CONTRACT_SCHEMA_R9 = "sigra.phase253.load-recovery-reconciliation-contract/r9";
+export const COMPLETED_IDS_R9 = Object.freeze([...COMPLETED_IDS_R8, "100", "101", "102", "103"].sort(comparePlanIds));
+export const HALTED_IDS_R9 = Object.freeze([...HALTED_IDS_R8, "104"]);
+export const NEVER_RAN_IDS_R9 = Object.freeze(["105", "106"]);
+export const UNSTARTED_IDS_R9 = Object.freeze([...UNSTARTED_IDS_R8, ...NEVER_RAN_IDS_R9].sort(comparePlanIds));
+export const NEVER_RAN_REASON_R9 = "dependency 253-104 halted during the full-pass artifact download: the frozen transport refused the approved 302 redirect to the trusted artifact host productionresultssa17.blob.core.windows.net (origin_rejected: live transport is restricted to api.github.com)";
+export const R9_PLAN_IDS = Object.freeze(ids(107, 115));
+const RESPONSIBILITY_MAP_R9 = Object.freeze({
+  ...RESPONSIBILITY_MAP_R8,
+  "105": { owners: ["114"], links: PR_LINKS },
+  "106": { owners: ["112", "115"], links: [...COMPLETION_LINK_KEYS, "load_target_disposition"] },
+});
+function buildContractR9({ repoRoot = REPO_ROOT } = {}) {
+  const phaseDir = join(repoRoot, PHASE_DIR_REL);
+  const r8 = buildContractR8({ repoRoot });
+  const partition = [...COMPLETED_IDS_R9, ...HALTED_IDS_R9, ...UNSTARTED_IDS_R9].sort(comparePlanIds);
+  if (JSON.stringify(partition) !== JSON.stringify(ids(1, 106).map(PAD))) {
+    throw new Error("R9 completed, halted and unstarted ids do not partition the 106 pre-R9 plans");
+  }
+  const classOf = (id) => (COMPLETED_IDS_R9.includes(id) ? "completed" : HALTED_IDS_R9.includes(id) ? "halted" : "unstarted_blocked");
+  const originals = r8.originals.map((original) => ({ ...original }));
+  for (let n = 100; n <= 106; n += 1) {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    originals.push({ plan: planIdOf(n), class: classOf(PAD(n)), plan_path: `${PHASE_DIR_REL}/${file}`, plan_sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") });
+  }
+  for (const original of originals) original.class = classOf(original.plan.slice(4));
+  for (const id of R9_PLAN_IDS) pinFile(repoRoot, `${PHASE_DIR_REL}/253-${id}-PLAN.md`, `R9 plan 253-${id}`);
+  const r8Rows = Object.fromEntries(r8.responsibilities.map((row) => [row.plan.slice(4), row]));
+  const responsibilities = UNSTARTED_IDS_R9.map((id) => {
+    const mapping = RESPONSIBILITY_MAP_R9[id];
+    if (!mapping) throw new Error(`no R9 mapping for 253-${id}`);
+    for (const owner of mapping.owners) {
+      if (!existsSync(join(phaseDir, `253-${owner}-PLAN.md`))) throw new Error(`proof owner plan 253-${owner} is missing`);
+    }
+    const common = { owners: mapping.owners.map((owner) => `253-${owner}`), required_links: [...mapping.links], successor_revision: "R9" };
+    if (r8Rows[id]) return { ...r8Rows[id], ...common };
+    if (!NEVER_RAN_IDS_R9.includes(id)) throw new Error(`253-${id} is neither an R8 responsibility nor a never-ran R9 plan`);
+    const text = readFileSync(join(phaseDir, `253-${id}-PLAN.md`), "utf8");
+    const fm = frontmatter(text);
+    return {
+      plan: `253-${id}`,
+      disposition_path: `${PHASE_DIR_REL}/253-${id}-SUMMARY.md`,
+      original_plan_sha256: originals.find((o) => o.plan === `253-${id}`).plan_sha256,
+      objective: objectiveOf(text),
+      requirements: parseList(fm.requirements),
+      depends_on: parseList(fm.depends_on),
+      blocked_by: ["253-104"],
+      owners: common.owners,
+      required_links: common.required_links,
+      disposition: { ...DISPOSITION_FIELDS },
+      never_ran_reason: NEVER_RAN_REASON_R9,
+      successor_revision: "R9",
+    };
+  });
+  const planPins = ids(1, 115).map((n) => {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
+  });
+  return {
+    ...r8,
+    schema: CONTRACT_SCHEMA_R9,
+    revision: "r9",
+    plan_pins: planPins,
+    originals,
+    responsibilities,
+  };
+}
+
 export function buildContract({ repoRoot = REPO_ROOT, revision = "v1" } = {}) {
   if (revision === "v1") return buildContractV1({ repoRoot });
   if (revision === "r2") return buildContractR2({ repoRoot });
@@ -1510,12 +1586,13 @@ export function buildContract({ repoRoot = REPO_ROOT, revision = "v1" } = {}) {
   if (revision === "r6") return buildContractR6({ repoRoot });
   if (revision === "r7") return buildContractR7({ repoRoot });
   if (revision === "r8") return buildContractR8({ repoRoot });
+  if (revision === "r9") return buildContractR9({ repoRoot });
   throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
 }
 
 export function contractPathFor(revision = "v1") {
   if (!REVISIONS.includes(revision)) throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
-  return join(HERE, revision === "r8" ? CONTRACT_NAME_R8 : revision === "r7" ? CONTRACT_NAME_R7 : revision === "r6" ? CONTRACT_NAME_R6 : revision === "r5" ? CONTRACT_NAME_R5 : revision === "r4" ? CONTRACT_NAME_R4 : revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
+  return join(HERE, revision === "r9" ? CONTRACT_NAME_R9 : revision === "r8" ? CONTRACT_NAME_R8 : revision === "r7" ? CONTRACT_NAME_R7 : revision === "r6" ? CONTRACT_NAME_R6 : revision === "r5" ? CONTRACT_NAME_R5 : revision === "r4" ? CONTRACT_NAME_R4 : revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
 }
 
 export function serializeContract(contract) {
