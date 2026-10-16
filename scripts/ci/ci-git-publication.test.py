@@ -2297,5 +2297,119 @@ class RealPublicationShapeTests(unittest.TestCase):
         self.assertFalse(all(self.publisher.identity_present(lost, wanted) for wanted in self.publisher.required_identities(self.receipt)))
 
 
+
+EVIDENCE_R9 = ROOT / PHASE_REL / "253-LOAD-RECOVERY-CANARY-EVIDENCE-R9.json"
+EVIDENCE_R9_SHA256 = "a3ca8cc0b562b2a060540f6b55fc1c0d29907c7103f87db970e1f4f678043aba"
+SOURCE_SCENARIOS = ("full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip", "cancelled")
+ISO_TIME = re.compile(r'"(20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)"')
+
+
+def load_hosted_verifier():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("hosted_gate_verify_compact_matrix", ROOT / "scripts/ci/ci-hosted-gate-verify.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def derived_receipt(real, scenario, index):
+    """One scenario receipt derived from the real R9 full-pass receipt: its own run, job and artifact ids, run-name,
+    shifted timestamps, random node ids and runner ids, and fresh random archive bytes of the real archive's length.
+    Every scenario keeps an archive (the real cancelled source has none), so the size is an upper bound."""
+    import datetime
+    import random
+    rng = random.Random(253118 + index)
+    run_id = str(real["run_id"])
+    new_run = str(int(run_id) + 1000 * index)
+    text = json.dumps(real)
+    for job in real["jobs"]["jobs"]:
+        text = text.replace(str(job["id"]), str(job["id"] + 10_000_000 * index))
+    for artifact in real["artifacts"]["artifacts"]:
+        text = text.replace(str(artifact["id"]), str(artifact["id"] + index))
+    text = text.replace(run_id, new_run).replace("/ full-pass /", f"/ {scenario} /").replace("gate-canary-full-pass-",
+                                                                                           f"gate-canary-{scenario}-")
+    shift = datetime.timedelta(minutes=7 * index, seconds=index)
+    text = ISO_TIME.sub(lambda match: '"' + (datetime.datetime.strptime(match.group(1), "%Y-%m-%dT%H:%M:%SZ") + shift)
+                        .strftime("%Y-%m-%dT%H:%M:%SZ") + '"', text)
+    receipt = json.loads(text)
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+
+    def scramble(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if key == "node_id" and isinstance(item, str):
+                    value[key] = item[:3] + "".join(rng.choice(alphabet) for _ in item[3:])
+                elif key == "runner_id" and type(item) is int and item:
+                    value[key] = rng.randrange(1_000_000_000, 1_999_999_999)
+                    value["runner_name"] = f"GitHub Actions {value[key]}"
+                else:
+                    scramble(item)
+        elif isinstance(value, list):
+            for item in value:
+                scramble(item)
+    scramble(receipt)
+    retained = receipt["retained_artifact"]
+    archive = bytes(rng.randrange(256) for _ in range(len(base64.b64decode(real["retained_artifact"]["archive_base64"]))))
+    digest = hashlib.sha256(archive).hexdigest()
+    retained.update(archive_base64=base64.b64encode(archive).decode("ascii"), archive_sha256=digest)
+    for artifact in receipt["artifacts"]["artifacts"]:
+        if str(artifact["id"]) == str(retained["artifact_id"]):
+            artifact["digest"] = "sha256:" + digest
+    return receipt
+
+
+class RealShapeCompactMatrixTests(unittest.TestCase):
+    """253-118 (D-16/D-23): the separate verifier's dispatch input, measured on receipts with GitHub's real shape (the R9
+    full-pass receipt of run 38906314106) rather than on fake receipts, plus a real-bytes round trip of the compaction."""
+
+    def setUp(self):
+        self.publisher = load_publisher()
+        self.raw = EVIDENCE_R9.read_bytes()
+        self.assertEqual(hashlib.sha256(self.raw).hexdigest(), EVIDENCE_R9_SHA256)
+        self.evidence = json.loads(self.raw)
+        self.tmp = tempfile.TemporaryDirectory(prefix="sigra-253-118-matrix-")
+        self.addCleanup(self.tmp.cleanup)
+
+    def write(self, name, value):
+        path = pathlib.Path(self.tmp.name) / name
+        path.write_text(json.dumps(value, sort_keys=True))
+        return path
+
+    def six(self):
+        real = self.evidence["scenarios"]["full-pass"]
+        scenarios = {name: derived_receipt(real, name, index) for index, name in enumerate(SOURCE_SCENARIOS, 1)}
+        return dict(self.evidence, scenarios=scenarios)
+
+    def test_live_real_shape_compact_matrix_fits_and_round_trips(self):
+        verifier = load_hosted_verifier()
+        limit = self.publisher.MATRIX_PAYLOAD_LIMIT
+        self.assertEqual(limit, 64511)
+        matrix = self.six()
+        run_ids = {receipt["run_id"] for receipt in matrix["scenarios"].values()}
+        archives = {receipt["retained_artifact"]["archive_sha256"] for receipt in matrix["scenarios"].values()}
+        titles = {receipt["run"]["display_title"] for receipt in matrix["scenarios"].values()}
+        self.assertEqual((len(run_ids), len(archives), len(titles)), (6, 6, 6))
+        payload = self.publisher.compact_matrix(self.write("six.json", matrix))
+        self.assertLess(len(payload), limit)
+        print(f"\nreal-shape compact matrix: {len(payload)} characters, limit {limit}, margin {limit - len(payload)}")
+        decoded = verifier.decode_matrix_payload(payload)
+        self.assertEqual(sorted(decoded["scenarios"]), sorted(SOURCE_SCENARIOS))
+        self.assertEqual(set(decoded), set(self.publisher.MATRIX_KEYS))
+        # The real full-pass receipt alone: compacted, decoded by the hosted verifier and verified as full-pass.
+        single = self.publisher.compact_matrix(EVIDENCE_R9)
+        print(f"real R9 full-pass receipt alone: {len(single)} characters")
+        alone = verifier.decode_matrix_payload(single)
+        self.assertEqual(alone["scenarios"]["full-pass"], self.evidence["scenarios"]["full-pass"])
+        result = verifier.verify_scenario(alone["scenarios"]["full-pass"], "full-pass", alone)
+        self.assertEqual((result["status"], result["run_id"]), ("verified", "38906314106"))
+        # Negative control: padding the same six receipts past the cap raises the documented refusal.
+        padded = self.six()
+        filler = base64.b64encode(os.urandom(limit)).decode("ascii")
+        padded["scenarios"]["full-pass"]["run"]["display_title"] += filler
+        with self.assertRaisesRegex(self.publisher.PublicationError, "compact matrix payload is [0-9]+ characters; the dispatch "
+                                                                     "input cap is 65535"):
+            self.publisher.compact_matrix(self.write("padded.json", padded))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

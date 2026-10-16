@@ -1541,9 +1541,10 @@
         "kind": "real-shape-test",
         "refs": [
           "scripts/ci/ci-hosted-gate-verify.test.py::CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
-          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
+          "scripts/ci/ci-git-publication.test.py::test_live_real_shape_compact_matrix_fits_and_round_trips"
         ],
-        "residual_risk": "The verifier dispatch (scenario verifier, carrying the compact matrix as matrix_evidence) has never been sent to GitHub: R8 and R9 each sent one scenario dispatch. Its size is pinned offline on real-shape receipts (the compact matrix test) against the 64511-character MATRIX_PAYLOAD_LIMIT, and the driver refuses an oversized matrix before dispatch. Separately, the driver accepts a 202 or 204 dispatch status while the ledger binding requires 204 (real GitHub returned 204 in R8 and R9): a 202 would halt the window at the binding, fail-closed. First seen: 253-122, after the six source scenarios.",
+        "residual_risk": "The verifier dispatch (scenario verifier, carrying the compact matrix as matrix_evidence) has never been sent to GitHub: R8 and R9 each sent one scenario dispatch. Its size is pinned offline on real-shape receipts (the compact matrix test: six receipts derived from the real R9 full-pass receipt compact to 34764 characters, 29747 under the 64511-character MATRIX_PAYLOAD_LIMIT; the real receipt alone is 7300), and the driver refuses an oversized matrix before dispatch. Separately, the driver accepts a 202 or 204 dispatch status while the ledger binding requires 204 (real GitHub returned 204 in R8 and R9): a 202 would halt the window at the binding, fail-closed. First seen: 253-122, after the six source scenarios.",
         "fields_without_real_sample": {
           "meta:dispatch_inputs.matrix_evidence": "the verifier dispatch has never run live; R8/R9 sent scenario dispatches only (four inputs)"
         }
@@ -2551,7 +2552,8 @@
         "refs": [
           "scripts/ci/ci-hosted-gate-verify.test.py::FixtureShapeFidelityTests.test_verifier_fixtures_match_the_recorded_github_shapes",
           "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
-          "scripts/ci/ci-hosted-gate-verify.test.py::RegisteredFixtureTests.test_fixture_is_dispatch_only_read_only_and_pins_the_same_actions_as_the_superseded_fixture"
+          "scripts/ci/ci-hosted-gate-verify.test.py::RegisteredFixtureTests.test_fixture_is_dispatch_only_read_only_and_pins_the_same_actions_as_the_superseded_fixture",
+          "scripts/ci/ci-git-publication.test.py::test_live_real_shape_compact_matrix_fits_and_round_trips"
         ],
         "residual_risk": "The separate verifier run has never run live. Its two checked steps (Verify immutable candidate verifier checkout, Verify retained source matrix independently) are in the fixture source but GitHub has never reported them: in every real source run the verifier job is skipped with no steps. Its skipped producer matrix job has never been observed either; the fake serves 'producer (${{ matrix.seam }})' and verify_separate_verifier accepts exactly four forms (the five expanded names, 'producers', 'producer (${{ matrix.seam }})', 'producer ()'). Nearest real sample: the Phase 252 bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz (sha256 95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30), member ./raw/families/38317383419/jobs-attempt-1.json (sha256 c2db679349f5f5b0baad9d2550c939695cf184dcef9e83d1d856c16362c250e0): its run jobs record install_matrix skipped as one job named exactly 'Install matrix (flag combinations)' (its literal name: field, no matrix suffix), and the bundle records that skip 9 times. That proves one job under its literal name for a skipped matrix job, but not how a ${{ matrix.seam }} expression renders when skipped before expansion, so a fifth rendering would halt the window after the six scenarios, at the separate verifier, with 'separate hosted verifier job set is unexpected' (fail-closed). First seen: 253-122.",
         "fields_without_real_sample": {
