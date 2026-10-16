@@ -2718,5 +2718,78 @@ class PRRealShapeTests(unittest.TestCase):
         self.assertEqual(refused.returncode, 1)
 
 
+
+class LiveResultsReceiverHostTests(unittest.TestCase):
+    """253-125: the live host rule admits results-receiver only on a run_logs transaction at hop 1 (mirrors the transport)."""
+
+    RESULTS_RECEIVER = "results-receiver.actions.githubusercontent.com"
+    LOOKALIKES = ("results-receiver.actions.githubusercontent.com.evil", "xresults-receiver.actions.githubusercontent.com",
+                  "results-receiver2.actions.githubusercontent.com", "pipelines-results.actions.githubusercontent.com")
+    REFUSAL = "live redirect hop is not on a trusted download host"
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_results_receiver", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+        cls.ledger_path = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json"
+        cls.rows = {row["sequence"]: row for row in json.loads(cls.ledger_path.read_text())["transactions"]}
+
+    def seq47_hop_one(self, **overrides):
+        seq47 = self.rows[47]
+        shape = seq47["scrubbed_headers"]["location"]
+        self.assertEqual((shape["host"], shape["port"], shape["has_query"]), (self.RESULTS_RECEIVER, None, True))
+        row = {"sequence": 48, "method": "GET", "route_id": "run_logs", "hop_ordinal": 1,
+               "request_group": seq47["request_group"], "category": seq47["category"], "host": shape["host"],
+               "url": f"https://{shape['host']}{shape['path']}?[REDACTED]"}
+        row.update(overrides)
+        return row
+
+    def refused(self, transaction):
+        with self.assertRaises(self.module.VerificationError) as caught:
+            self.module.verify_live_transaction_host(transaction)
+        self.assertIn(self.REFUSAL, str(caught.exception))
+
+    def test_live_r10_seq47_results_receiver_hop_is_a_trusted_run_logs_hop(self):
+        seq47 = self.rows[47]
+        self.assertEqual((seq47["route_id"], seq47["hop_ordinal"], seq47["host"], seq47["actual_status"]),
+                         ("run_logs", 0, "api.github.com", 302))
+        self.module.verify_live_transaction_host(seq47)  # hop 0 itself stays on api.github.com
+        self.module.verify_live_transaction_host(self.seq47_hop_one())
+        self.module.verify_live_transaction_host(self.seq47_hop_one(host=None))  # host read from the URL
+
+    def test_results_receiver_off_run_logs_hop_one_is_refused(self):
+        for label, overrides in {"artifact_zip": {"route_id": "artifact_zip"}, "job_logs": {"route_id": "job_logs"},
+                                 "route missing": {"route_id": None}, "hop 2": {"hop_ordinal": 2},
+                                 "boolean hop": {"hop_ordinal": True}}.items():
+            with self.subTest(case=label):
+                self.refused(self.seq47_hop_one(**overrides))
+        with self.assertRaises(self.module.VerificationError) as caught:
+            self.module.verify_live_transaction_host(self.seq47_hop_one(hop_ordinal=0))
+        self.assertIn("live hop-0 transaction is not on api.github.com", str(caught.exception))
+
+    def test_results_receiver_lookalikes_port_and_scheme_are_refused(self):
+        path = self.rows[47]["scrubbed_headers"]["location"]["path"]
+        for host in self.LOOKALIKES:
+            with self.subTest(host=host):
+                self.refused(self.seq47_hop_one(host=host, url=f"https://{host}{path}?[REDACTED]"))
+        for url in (f"https://{self.RESULTS_RECEIVER}:8443{path}?[REDACTED]", f"http://{self.RESULTS_RECEIVER}{path}?[REDACTED]"):
+            with self.subTest(url=url):
+                with self.assertRaises(self.module.VerificationError) as caught:
+                    self.module.verify_live_transaction_host(self.seq47_hop_one(url=url))
+                self.assertIn("live transaction must use https on port 443 without credentials", str(caught.exception))
+
+    def test_blob_and_pipelines_hops_are_unchanged(self):
+        seq31 = self.rows[31]
+        self.assertEqual((seq31["route_id"], seq31["hop_ordinal"], seq31["host"]),
+                         ("artifact_zip", 1, "productionresultssa16.blob.core.windows.net"))
+        self.module.verify_live_transaction_host(seq31)
+        self.module.verify_live_transaction_host(self.seq47_hop_one(
+            host="pipelines.actions.githubusercontent.com",
+            url="https://pipelines.actions.githubusercontent.com/logs/run.zip?[REDACTED]"))
+        self.module.verify_live_transaction_host(dict(seq31, route_id="run_logs", hop_ordinal=2))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
