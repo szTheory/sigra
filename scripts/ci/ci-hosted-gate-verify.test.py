@@ -1692,6 +1692,7 @@ class DryRunWindowGuardTests(unittest.TestCase):
         module.verify_sources = lambda _e: ({}, 0)
         module.verify_attempt_jobs = lambda _e: 0
         module.verify_separate_verifier = lambda _e, _count: {"status": "separate"}
+        module.verify_canary_bindings = lambda _e, _scenarios, verifier=False: []
         self.assertIs(module.verify_canary_matrix(self.canary_evidence(self.DRY))["synthetic"], True)
         self.assertNotIn("synthetic", module.verify_canary_matrix(self.canary_evidence(self.REAL_CANARY)))
 
@@ -2058,6 +2059,205 @@ class RunIdentityTests(unittest.TestCase):
             with self.subTest(label=label):
                 with self.assertRaisesRegex(self.module.VerificationError, IDENTITY):
                     self.module.verify_separate_verifier(self.separate_verifier_evidence(title), 6)
+
+
+BINDING = "canary receipt not bound to the measured ledger: "
+
+
+class CanaryBindingTests(unittest.TestCase):
+    """253-116 (D-18): on the replan path every canary receipt is re-bound to the measured ledger. The real positive
+    control is EVIDENCE-R9's full-pass receipt; each tamper is a scratch deep copy changed in one place, with the
+    transport ledger, receipts and counts kept self-consistent so only the binding can refuse it."""
+
+    def setUp(self):
+        self.module = load_verifier("hosted_gate_verify_canary_binding")
+        self.base = json.loads(EVIDENCE_R9.read_bytes())
+
+    def evidence(self):
+        return copy.deepcopy(self.base)
+
+    def replan(self, evidence, scenario="full-pass"):
+        import argparse
+        return self.module.replan_result(argparse.Namespace(mode="canary", scenario=scenario), evidence)
+
+    def rows(self, evidence, sequence):
+        """The ledger transaction and its retained response receipt (and journal row, when present) for one sequence."""
+        found = [evidence["transport_ledger"]["transactions"][sequence - 1], evidence["transport_receipts"][sequence - 1]]
+        if isinstance(evidence.get("server_journal"), list):
+            found.append(evidence["server_journal"][sequence - 1])
+        for row in found:
+            self.assertEqual(row["sequence"], sequence)
+        return found
+
+    def test_live_r9_real_full_pass_receipt_binds_to_its_ledger(self):
+        evidence = self.evidence()
+        self.assertEqual(self.replan(evidence)["status"], "canary_scenario_verified")
+        bound = self.module.verify_canary_bindings(evidence, ["full-pass"])
+        self.assertEqual(bound, [{"scenario": "full-pass", "run_id": "38906314106", "dispatch": 24, "discovery": 25, "polls": [27],
+                                  "jobs": [28], "artifacts": [29],
+                                  "archive": {"sequences": [30, 31], "artifact_id": "12048052856", "response_bytes": 933,
+                                              "raw_observation_sha256": "6ff02bc720f8242e368679d0393eec4105dd9e441399bbcc7972dc8c492eb5f4"}}])
+
+    def tamper_dispatch_scenario(self, evidence):
+        inputs = None
+        for row in self.rows(evidence, 24):
+            body = base64.b64decode(row["request_body_base64"])
+            self.assertIn(b'"scenario":"full-pass"', body)
+            body = body.replace(b'"scenario":"full-pass"', b'"scenario":"docs-only"', 1)
+            transmitted = json.loads(body)["inputs"]
+            canonical = self.module.serialize_dispatch_inputs(transmitted)
+            row.update(request_body_base64=base64.b64encode(body).decode(), request_sha256=hashlib.sha256(body).hexdigest(),
+                       request_body_sha256=hashlib.sha256(body).hexdigest(), request_body_bytes=len(body), dispatch_inputs=transmitted,
+                       input_key_count=len(transmitted), input_unicode_scalars=len(canonical.decode("utf-8")),
+                       input_utf8_bytes=len(canonical), input_sha256=hashlib.sha256(canonical).hexdigest())
+            inputs = transmitted
+        evidence["dispatch_inputs"] = inputs
+        evidence["dispatch_input_metrics"][0].update(sha256=hashlib.sha256(self.module.serialize_dispatch_inputs(inputs)).hexdigest())
+
+    def tamper_zip_artifact_id(self, evidence):
+        for row in self.rows(evidence, 30):
+            row["url"] = row["url"].replace("/actions/artifacts/12048052856/zip", "/actions/artifacts/12048052857/zip")
+            row["url_sha256"] = hashlib.sha256(row["url"].encode()).hexdigest()
+
+    def tamper_final_hop_digest(self, evidence):
+        for row in self.rows(evidence, 31):
+            row["raw_observation_sha256"] = "0" * 64
+
+    def remove_run_poll(self, evidence):
+        for key in ("transactions",):
+            del evidence["transport_ledger"][key][26]
+        del evidence["transport_receipts"][26]
+        if isinstance(evidence.get("server_journal"), list):
+            del evidence["server_journal"][26]
+        rows = evidence["transport_ledger"]["transactions"][26:] + evidence["transport_receipts"][26:]
+        for row in rows:
+            row["sequence"] -= 1
+        evidence["budget"]["request_count"] -= 1
+
+    def test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix(self):
+        tampers = {
+            "253-113 control: receipt run.name set to the bare FIXTURE_NAME":
+                lambda e: e["scenarios"]["full-pass"]["run"].update(name="Phase 253 Gate Canary"),
+            "receipt job runner_name changed": lambda e: e["scenarios"]["full-pass"]["jobs"]["jobs"][0].update(runner_name="other runner"),
+            "receipt artifacts created_at changed":
+                lambda e: e["scenarios"]["full-pass"]["artifacts"]["artifacts"][0].update(created_at="2026-10-16T13:14:26Z"),
+            "artifact_zip hop 0 names another artifact id": self.tamper_zip_artifact_id,
+            "final hop raw_observation_sha256 changed": self.tamper_final_hop_digest,
+            "dispatch transmitted scenario changed to docs-only": self.tamper_dispatch_scenario,
+            "run poll removed": self.remove_run_poll,
+        }
+        for label, tamper in tampers.items():
+            with self.subTest(label=label):
+                evidence = self.evidence()
+                tamper(evidence)
+                # The tamper keeps the measured transport self-consistent: only the binding can refuse it.
+                self.module.verify_transport_v2(evidence)
+                with self.assertRaisesRegex(self.module.VerificationError, "^" + BINDING):
+                    self.replan(evidence)
+
+    def test_cli_refuses_the_253_113_receipt_only_edit(self):
+        evidence = self.evidence()
+        evidence["scenarios"]["full-pass"]["run"]["name"] = "Phase 253 Gate Canary"
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "tampered.json"
+            path.write_text(json.dumps(evidence))
+            result = subprocess.run(["python3", str(VERIFY), "--mode", "canary", "--scenario", "full-pass", "--evidence", str(path)],
+                                    text=True, capture_output=True, check=False)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("FAIL: " + BINDING, result.stderr)
+
+    def append_get(self, evidence, route, url, body):
+        transactions = evidence["transport_ledger"]["transactions"]
+        sequence = len(transactions) + 1
+        data = json.dumps(body, sort_keys=True).encode()
+        row = dict(copy.deepcopy(transactions[27]), sequence=sequence, route_id=route, request_kind=route, url=url,
+                   url_sha256=hashlib.sha256(url.encode()).hexdigest(), response_body_base64=base64.b64encode(data).decode(),
+                   response_sha256=hashlib.sha256(data).hexdigest(), raw_observation_sha256=hashlib.sha256(data).hexdigest(),
+                   response_bytes=len(data), scrubbed_response_bytes=len(data), page_ordinal=1 if "per_page" in url else None)
+        row["scrubbed_headers"] = dict(row["scrubbed_headers"], **{"content-length": str(len(data))})
+        receipt = dict(copy.deepcopy(evidence["transport_receipts"][27]))
+        receipt.update({key: row[key] for key in receipt if key in row})
+        transactions.append(row)
+        evidence["transport_receipts"].append(receipt)
+        evidence["budget"]["request_count"] = len(transactions)
+
+    def append_dispatch(self, evidence, scenario):
+        transactions = evidence["transport_ledger"]["transactions"]
+        template = copy.deepcopy(transactions[23])
+        body = base64.b64decode(template["request_body_base64"]).replace(b'"scenario":"full-pass"', f'"scenario":"{scenario}"'.encode(), 1)
+        transmitted = json.loads(body)["inputs"]
+        canonical = self.module.serialize_dispatch_inputs(transmitted)
+        template.update(sequence=len(transactions) + 1, request_body_base64=base64.b64encode(body).decode(),
+                        request_sha256=hashlib.sha256(body).hexdigest(), request_body_sha256=hashlib.sha256(body).hexdigest(),
+                        request_body_bytes=len(body), dispatch_inputs=transmitted, input_key_count=len(transmitted),
+                        input_unicode_scalars=len(canonical.decode("utf-8")), input_utf8_bytes=len(canonical),
+                        input_sha256=hashlib.sha256(canonical).hexdigest())
+        receipt = dict(copy.deepcopy(evidence["transport_receipts"][23]))
+        receipt.update({key: template[key] for key in receipt if key in template})
+        transactions.append(template)
+        evidence["transport_receipts"].append(receipt)
+        evidence["budget"]["request_count"] = len(transactions)
+
+    def verifier_evidence(self, dispatch_scenario="verifier"):
+        """EVIDENCE-R9 extended with a modeled separate verifier (dispatch, discovery, terminal poll, jobs) appended to its
+        own ledger; the R9 rows are untouched."""
+        evidence = self.evidence()
+        api = "https://api.github.com/repos/szTheory/sigra/actions"
+        run_id = 38906399999
+        title = f"Phase 253 Gate Canary / verifier / {run_id}-1"
+        run = dict(copy.deepcopy(evidence["scenarios"]["full-pass"]["run"]), id=run_id, name=title, display_title=title)
+        jobs = {"total_count": 3, "jobs": [
+            {"id": 900 + index, "run_id": run_id, "run_attempt": 1, "name": name,
+             "conclusion": "success" if name == "verifier" else "skipped",
+             "steps": [{"name": step, "conclusion": "success"} for step in
+                       ("Verify immutable candidate verifier checkout", "Verify retained source matrix independently")]
+             if name == "verifier" else []}
+            for index, name in enumerate(("producers", "Browser verdict", "verifier"))]}
+        self.append_dispatch(evidence, dispatch_scenario)
+        self.append_get(evidence, "workflow_runs",
+                        f"{api}/workflows/259268962/runs?event=workflow_dispatch&branch=gsd/253-replan-r9-fixture&per_page=100&page=1",
+                        {"total_count": 1, "workflow_runs": [run]})
+        self.append_get(evidence, "run", f"{api}/runs/{run_id}", run)
+        self.append_get(evidence, "run_jobs", f"{api}/runs/{run_id}/jobs?per_page=100&page=1", jobs)
+        evidence["separate_verifier"] = {"status": "passed", "run_id": str(run_id), "job_conclusion": "success",
+                                         "run": copy.deepcopy(run), "jobs": copy.deepcopy(jobs)}
+        evidence["run_attempts"].append({"run_id": str(run_id), "run_attempt": 1, "jobs": [
+            {"job_id": job["id"], "name": job["name"], "conclusion": job["conclusion"], "executed": job["conclusion"] != "skipped"}
+            for job in jobs["jobs"]]})
+        return evidence
+
+    def test_the_separate_verifier_receipt_binds_to_its_own_ledger_rows(self):
+        evidence = self.verifier_evidence()
+        self.module.verify_transport_v2(evidence)
+        bound = self.module.verify_canary_bindings(evidence, ["full-pass"], verifier=True)
+        self.assertEqual(bound[-1], {"scenario": "verifier", "run_id": "38906399999", "dispatch": 32, "discovery": 33,
+                                     "polls": [34], "jobs": [35], "artifacts": [], "archive": None})
+        tampers = {
+            "verifier receipt run updated_at edited": lambda e: e["separate_verifier"]["run"].update(updated_at="2026-10-16T13:20:00Z"),
+            "verifier receipt job edited": lambda e: e["separate_verifier"]["jobs"]["jobs"][2].update(runner_name="other runner"),
+            "verifier run_attempts entry edited": lambda e: e["run_attempts"][-1]["jobs"][2].update(conclusion="failure", executed=True),
+        }
+        for label, tamper in tampers.items():
+            with self.subTest(label=label):
+                broken = self.verifier_evidence()
+                tamper(broken)
+                with self.assertRaisesRegex(self.module.VerificationError, "^" + BINDING):
+                    self.module.verify_canary_bindings(broken, ["full-pass"], verifier=True)
+        with self.assertRaisesRegex(self.module.VerificationError, "^" + BINDING):
+            self.module.verify_canary_bindings(self.verifier_evidence(dispatch_scenario="full-pass"), ["full-pass"], verifier=True)
+
+    def test_legacy_mode_and_verify_sources_on_a_compact_matrix_are_unchanged(self):
+        def refuse(*_args, **_kwargs):
+            raise AssertionError("the ledger binding must not run here")
+        self.module.verify_canary_bindings = refuse
+        document = matrix_fixture()
+        document["schema_version"] = "sigra.phase253.hosted-replan-evidence/v2"
+        document.pop("transport_ledger")
+        results, count = self.module.verify_sources(document)
+        self.assertEqual([item["scenario"] for item in results], list(self.module.SCENARIOS))
+        self.assertEqual(count, document["budget"]["actual_jobs"])
+        legacy = HostedGateVerifierTests.invoke(self, fixture())
+        self.assertEqual(legacy.returncode, 0, legacy.stderr)
 
 
 if __name__ == "__main__":
