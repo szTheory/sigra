@@ -492,6 +492,78 @@ class V2VerifierContractTests(unittest.TestCase):
         with self.assertRaises(self.module.VerificationError):
             self.module.verify_transport_v2(evidence)
 
+    # -- 253-110: the live canary transaction host rule -----------------------------------------------------
+    BLOB = "productionresultssa17.blob.core.windows.net"
+
+    def hop_rows(self, evidence, hops, group="artifact-zip-group-1"):
+        """Append one redirected download (hop 0, hop 1, ...) to all three records; hops are (url, status, host)."""
+        body = b""
+        for hop, (url, status, host) in enumerate(hops):
+            sequence = len(evidence["transport_ledger"]["transactions"]) + 1
+            row = {"sequence": sequence, "method": "GET", "url": url, "route_id": "artifact_zip", "page_ordinal": None,
+                   "hop_ordinal": hop, "request_group": group, "state": "complete", "actual_status": status,
+                   "scrubbed_headers": {"content-length": "0"}, "response_sha256": hashlib.sha256(body).hexdigest(),
+                   "response_body_base64": "", "response_bytes": 0, "scrubbed_response_bytes": 0,
+                   "url_sha256": hashlib.sha256(url.encode()).hexdigest(), "request_sha256": "d" * 64,
+                   "source_sha256": "e" * 64, "window_id": evidence["transport_ledger"]["window_id"]}
+            if host is not None:
+                row["host"] = host
+            for records in (evidence["transport_ledger"]["transactions"], evidence["transport_receipts"], evidence["server_journal"]):
+                records.append(copy.deepcopy(row))
+        evidence["budget"]["request_count"] = len(evidence["transport_ledger"]["transactions"])
+        return evidence
+
+    def download(self, hop0="https://api.github.com/repos/szTheory/sigra/actions/artifacts/77/zip",
+                 hop1=f"https://{BLOB}/x/a.zip?[REDACTED]", host0="api.github.com", host1=BLOB, channel=None):
+        evidence = self.transport_fixture()
+        if channel:
+            evidence["origin"]["channel"] = channel
+        return self.hop_rows(evidence, [(hop0, 302, host0), (hop1, 200, host1)])
+
+    def test_live_canary_transactions_hop_zero_on_api_github_com_and_later_hops_on_trusted_download_hosts_only(self):
+        # Positive cases: the shapes a live (or live-policy dry-run) canary ledger really has.
+        self.module.verify_transport_v2(self.download())
+        self.module.verify_transport_v2(self.download(hop1="https://pipelines.actions.githubusercontent.com/logs/run.zip?[REDACTED]",
+                                                      host1="pipelines.actions.githubusercontent.com"))
+        self.module.verify_transport_v2(self.download(host0=None, host1=None))  # host read from the digest-bound URL
+        rejected = {
+            "hop 0 on a blob host": dict(hop0=f"https://{self.BLOB}/x/a.zip", host0=self.BLOB),
+            "hop 1 on an untrusted host": dict(hop1="https://evil.example.com/a.zip?[REDACTED]", host1="evil.example.com"),
+            "hop 1 on a lookalike host": dict(hop1=f"https://{self.BLOB}.evil.example/a.zip?[REDACTED]",
+                                              host1=f"{self.BLOB}.evil.example"),
+            "hop 1 back on api.github.com": dict(hop1="https://api.github.com/x/a.zip?[REDACTED]", host1="api.github.com"),
+            "hop 1 on port 8443": dict(hop1=f"https://{self.BLOB}:8443/x/a.zip?[REDACTED]"),
+            "hop 1 over http": dict(hop1=f"http://{self.BLOB}/x/a.zip?[REDACTED]"),
+            "host field disagrees with the URL": dict(host1="evil.example.com"),
+            "hop 0 on an untrusted host": dict(hop0="https://evil.example.com/repos/szTheory/sigra/actions/artifacts/77/zip",
+                                               host0="evil.example.com"),
+        }
+        for label, overrides in rejected.items():
+            for channel in (None, "github-api"):
+                with self.subTest(case=label, channel=channel):
+                    with self.assertRaises(self.module.VerificationError):
+                        self.module.verify_transport_v2(self.download(channel=channel, **overrides))
+
+    def test_hermetic_https_canary_evidence_is_unaffected_by_the_live_host_rule(self):
+        local = "https://localhost:4555/repos/szTheory/sigra/actions/artifacts/77/zip"
+        self.module.verify_transport_v2(self.download(hop0=local, hop1="https://localhost:4555/x/a.zip?[REDACTED]",
+                                                      host0="localhost", host1="localhost", channel="hermetic-https"))
+
+    def test_the_halted_r8_live_ledger_rows_satisfy_the_live_host_rule(self):
+        # Positive control on real live data (read-only): the 30 rows the 253-104 window measured on api.github.com.
+        rule = getattr(self.module, "verify_live_transaction_host", None)
+        self.assertTrue(callable(rule), "the live canary transaction host rule is missing")
+        ledger = json.loads((ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
+                                    "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json").read_text())
+        rows = ledger["transactions"]
+        self.assertEqual(len(rows), 30)
+        self.assertEqual({row["host"] for row in rows}, {"api.github.com"})
+        for row in rows:
+            rule(row)
+        tampered = dict(rows[0], host=self.BLOB, url=rows[0]["url"].replace("api.github.com", self.BLOB))
+        with self.assertRaises(self.module.VerificationError):
+            rule(tampered)
+
     def test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified(self):
         for channel, state, accepted in (("hermetic-https", "hermetic-unverified", True), ("hermetic-https", "verified", False),
                                          (None, "verified", True), (None, "hermetic-unverified", False),
