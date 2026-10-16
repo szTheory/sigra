@@ -1519,10 +1519,158 @@ def verify_canary_checks(evidence, root=None):
     return verify_effective_checks(evidence, source)
 
 
+# --------------------------------------------------------------------------------------------------
+# 253-116 (D-18): canary receipts re-bound to the measured ledger (replan path only). The driver copies GitHub responses
+# into receipts; acceptance must depend on what GitHub actually sent, as the PR path already does (tx_json(polls[-1])).
+# --------------------------------------------------------------------------------------------------
+CANARY_BINDING = "canary receipt not bound to the measured ledger: "
+REDIRECT_STATUSES = (301, 302, 303, 307, 308)
+
+
+def bind(condition, message):
+    require(condition, CANARY_BINDING + message)
+
+
+def _ledger_path(transaction):
+    try:
+        return urlsplit(str(transaction.get("url", ""))).path
+    except ValueError:
+        return ""
+
+
+def _bound_json(transaction, what):
+    try:
+        return tx_json(transaction, what)
+    except VerificationError as error:
+        raise VerificationError(CANARY_BINDING + str(error)) from error
+
+
+def _bound_pages(transactions, route, suffix, key, document, what):
+    """The last complete fetch of a paged route for one run; its pages concatenate to the receipt document."""
+    rows = [tx for tx in transactions if tx.get("route_id") == route and _ledger_path(tx).endswith(suffix)]
+    bind(rows, f"no measured {what} response for the run")
+    fetch = []
+    for tx in rows:
+        if tx.get("page_ordinal") in (None, 1):
+            fetch = []
+        fetch.append(tx)
+    bind(all(tx.get("actual_status") == 200 for tx in fetch), f"a measured {what} page did not succeed")
+    bodies = [_bound_json(tx, what) for tx in fetch]
+    bind(all(isinstance(body, dict) and isinstance(body.get(key), list) for body in bodies), f"a measured {what} page is malformed")
+    items = [item for body in bodies for item in body[key]]
+    bind(isinstance(document, dict) and document.get(key) == items and document.get("total_count") == bodies[-1].get("total_count"),
+         f"receipt {what} differ from the measured {what} pages")
+    if len(bodies) == 1:
+        bind(document == bodies[0], f"receipt {what} differ from the measured {what} response")
+    return [tx["sequence"] for tx in fetch], items
+
+
+def _bind_receipt(transactions, evidence, receipt, scenario):
+    bind(isinstance(receipt, dict) and isinstance(receipt.get("run"), dict), f"{scenario} receipt has no run")
+    run_id = str(receipt.get("run_id"))
+    bind(re.fullmatch(r"[0-9]+", run_id) is not None, f"{scenario} receipt run id is malformed")
+    polls = [tx for tx in transactions if tx.get("route_id") == "run" and _ledger_path(tx).endswith(f"/actions/runs/{run_id}")]
+    bind(polls, f"no measured run poll for run {run_id}")
+    final = polls[-1]
+    bind(final.get("actual_status") == 200 and _bound_json(final, "terminal run poll") == receipt["run"],
+         f"receipt run differs from the last measured poll of run {run_id}")
+    for tx in polls[:-1]:
+        if tx.get("actual_status") == 200:
+            earlier = _bound_json(tx, "earlier run poll")
+            bind(isinstance(earlier, dict) and earlier.get("status") != "completed",
+                 f"an earlier measured poll of run {run_id} was already completed")
+    first_poll = polls[0]["sequence"]
+    listings = []
+    for tx in transactions:
+        if tx.get("route_id") != "workflow_runs" or tx["sequence"] >= first_poll or tx.get("actual_status") != 200:
+            continue
+        body = _bound_json(tx, "run discovery")
+        runs = body.get("workflow_runs") if isinstance(body, dict) else None
+        listed = [item for item in runs or [] if isinstance(item, dict) and str(item.get("id")) == run_id]
+        if listed:
+            bind(len(listed) == 1, f"a measured discovery lists run {run_id} more than once")
+            listings.append((tx, listed[0]))
+    bind(listings, f"run {run_id} was never listed by a measured discovery before its first poll")
+    discovery, listed = listings[-1]
+    bind(listed.get("display_title") == expected_run_title(scenario, receipt["run"]),
+         f"the measured discovery of run {run_id} has another display title")
+    dispatches = [tx for tx in transactions if tx.get("route_id") == "dispatch" and tx.get("method") == "POST"
+                  and tx["sequence"] < discovery["sequence"]]
+    bind(dispatches and dispatches[-1].get("actual_status") == 204, f"no measured dispatch precedes the discovery of run {run_id}")
+    dispatch = dispatches[-1]
+    try:
+        transmitted = json.loads(b64(dispatch.get("request_body_base64"), "dispatch request").decode("utf-8", "strict"))
+    except (VerificationError, UnicodeError, json.JSONDecodeError) as error:
+        raise VerificationError(CANARY_BINDING + "the measured dispatch request body is malformed") from error
+    bind(isinstance(transmitted, dict) and isinstance(transmitted.get("inputs"), dict)
+         and transmitted["inputs"].get("scenario") == scenario,
+         f"the dispatch before run {run_id} transmitted another scenario")
+    job_sequences, jobs = _bound_pages(transactions, "run_jobs", f"/actions/runs/{run_id}/jobs", "jobs", receipt.get("jobs"), "jobs")
+    artifact_sequences, archive = [], None
+    if scenario != "verifier":
+        artifact_sequences, _ = _bound_pages(transactions, "run_artifacts", f"/actions/runs/{run_id}/artifacts", "artifacts",
+                                             receipt.get("artifacts"), "artifacts")
+    retained = receipt.get("retained_artifact")
+    if retained is not None:
+        bind(isinstance(retained, dict), "retained artifact receipt is malformed")
+        artifact_id = str(retained.get("artifact_id"))
+        groups = {}
+        for tx in transactions:
+            if tx.get("route_id") == "artifact_zip":
+                groups.setdefault(tx.get("request_group") or ("sequence", tx["sequence"]), []).append(tx)
+        matches = []
+        for hops in groups.values():
+            hops = sorted(hops, key=lambda tx: tx.get("hop_ordinal") or 0)
+            if (hops[0].get("hop_ordinal") or 0) == 0 and _ledger_path(hops[0]).endswith(f"/actions/artifacts/{artifact_id}/zip"):
+                matches.append(hops)
+        bind(len(matches) == 1, f"exactly one measured artifact_zip download of artifact {artifact_id} is required")
+        hops = matches[0]
+        bind([tx.get("hop_ordinal") or 0 for tx in hops] == list(range(len(hops)))
+             and [tx["sequence"] for tx in hops] == list(range(hops[0]["sequence"], hops[0]["sequence"] + len(hops))),
+             f"the artifact {artifact_id} download hops are not contiguous")
+        bind(all(tx.get("actual_status") in REDIRECT_STATUSES for tx in hops[:-1]) and hops[-1].get("actual_status") == 200,
+             f"the artifact {artifact_id} download did not end in one successful response")
+        try:
+            archive_bytes = base64.b64decode(retained.get("archive_base64"), validate=True)
+        except (TypeError, ValueError, base64.binascii.Error) as error:
+            raise VerificationError(CANARY_BINDING + "retained archive encoding is invalid") from error
+        bind(hops[-1].get("raw_observation_sha256") == retained.get("archive_sha256")
+             and hops[-1].get("response_bytes") == len(archive_bytes),
+             f"the retained archive differs from the measured artifact {artifact_id} download")
+        archive = {"sequences": [tx["sequence"] for tx in hops], "artifact_id": artifact_id,
+                   "response_bytes": hops[-1]["response_bytes"], "raw_observation_sha256": hops[-1]["raw_observation_sha256"]}
+    attempts = [item for item in evidence.get("run_attempts") or [] if isinstance(item, dict) and str(item.get("run_id")) == run_id]
+    projected = [{"job_id": job.get("id"), "name": job.get("name"), "conclusion": job.get("conclusion"),
+                  "executed": job.get("conclusion") != "skipped"} for job in jobs if isinstance(job, dict)]
+    bind(len(attempts) == 1 and attempts[0].get("run_attempt") == receipt["run"].get("run_attempt")
+         and attempts[0].get("jobs") == projected,
+         f"run_attempts for run {run_id} differ from the measured jobs")
+    return {"scenario": scenario, "run_id": run_id, "dispatch": dispatch["sequence"], "discovery": discovery["sequence"],
+            "polls": [tx["sequence"] for tx in polls], "jobs": job_sequences, "artifacts": artifact_sequences, "archive": archive}
+
+
+def verify_canary_bindings(evidence, scenarios, verifier=False):
+    """Bind each named scenario receipt (and, with verifier, the separate verifier receipt) to the measured ledger.
+    Hermetic evidence is read through api_view; live evidence directly. Runs after verify_transport_v2."""
+    view = api_view(evidence)
+    ledger = view.get("transport_ledger") if isinstance(view, dict) else None
+    transactions = ledger.get("transactions") if isinstance(ledger, dict) else None
+    bind(isinstance(transactions, list) and all(isinstance(tx, dict) and type(tx.get("sequence")) is int for tx in transactions),
+         "the measured transaction ledger is missing")
+    bound = []
+    for scenario in scenarios:
+        receipt = evidence.get("scenarios", {}).get(scenario) if "scenarios" in evidence else evidence
+        bound.append(_bind_receipt(transactions, evidence, receipt, scenario))
+    if verifier:
+        bound.append(_bind_receipt(transactions, evidence, evidence.get("separate_verifier"), "verifier"))
+    return bound
+
+
 def verify_canary_matrix(evidence):
     """Whole hosted canary: measured transport, exact checks, six sources, attempts and separate verifier."""
     transport_result = verify_transport_v2(evidence)
     checks_result = verify_canary_checks(evidence)
+    verify_canary_bindings(evidence, SCENARIOS, verifier=True)
     results, source_jobs = verify_sources(evidence)
     executed = verify_attempt_jobs(evidence)
     require(executed >= source_jobs, "complete attempt receipts omit a selected source job")
@@ -1790,6 +1938,7 @@ def replan_result(args, evidence):
     if args.mode == "preflight":
         return {"status": "preflight_verified", "transport": transport_result, "checks": checks_result}
     if args.scenario in ("sources", "matrix"):
+        verify_canary_bindings(evidence, SCENARIOS, verifier=args.scenario == "matrix")
         results, source_jobs = verify_sources(evidence)
         if args.scenario == "sources":
             return {"status": "sources_verified", "transport": transport_result,
@@ -1800,6 +1949,7 @@ def replan_result(args, evidence):
                 "scenarios": results, "separate_verifier": verify_separate_verifier(evidence, source_jobs),
                 "executed_jobs": executed}
     receipt = evidence.get("scenarios", {}).get(args.scenario) if "scenarios" in evidence else evidence
+    verify_canary_bindings(evidence, [args.scenario])
     return {"status": "canary_scenario_verified", "scenario": verify_scenario(receipt, args.scenario, evidence),
             "transport": transport_result, "checks": checks_result}
 
