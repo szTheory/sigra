@@ -110,6 +110,7 @@ PROBE_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.j
 R10_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json"
 R10_LOG_HOP0_SEQUENCE = 47
 PROBE_LOG_CHAIN_ID = "run-log-chain"
+PROBE_CANCELLED_IDS = {"run": "cancelled-run", "jobs": "cancelled-jobs"}
 # The recorded Location carries a signed query whose names the ledger redacts (only has_query is kept), so the fake's
 # query parameter names and values are synthetic.
 LOG_QUERY = "sig=dry-run-signature&se=2026-10-15"
@@ -558,12 +559,140 @@ def check_run_logs(journal: list, reference: dict, live: bool, local_port) -> tu
     return problems, min(starts, finals)
 
 
+# ---------------------------------------------------------------- 253-128 GitHub's recorded cancelled run (probe)
+_CANCELLED_REFERENCE: dict = {}
+
+
+def cancelled_run_problems(run, reference: dict, label: str) -> list:
+    """Every way a served, completed cancelled run differs from the recorded cancelled run: key sets, the terminal
+    status/conclusion, and each top-level value's type (values that depend on the event, such as pull_requests, are
+    compared by type only: the recorded sample is a pull_request run, the canary run is workflow_dispatch)."""
+    real = reference["run"]
+    problem = _key_problem(label, run, real)
+    if not isinstance(run, dict):
+        return [problem]
+    problems = [problem] if problem else []
+    for key in NESTED_RUN_OBJECTS:
+        problems.append(_key_problem(f"{label} {key}", run.get(key), real[key]))
+    if (run.get("status"), run.get("conclusion")) != ("completed", "cancelled"):
+        problems.append(f"{label} is {run.get('status')}/{run.get('conclusion')}, not GitHub's recorded completed/cancelled")
+    for key in sorted(set(run) & set(real)):
+        if type(run[key]) is not type(real[key]):
+            problems.append(f"{label} {key} is {type(run[key]).__name__}; GitHub's recorded cancelled run has "
+                            f"{type(real[key]).__name__}")
+    return [item for item in problems if item]
+
+
+def cancelled_jobs_problems(page, reference: dict, label: str) -> list:
+    """Every way a cancelled run's jobs page differs from the recorded one: key sets, the recorded job and step
+    status/conclusion vocabulary, and the rules the recorded sample follows (a skipped job lists no steps and has no
+    runner; a cancelled job with steps has exactly one cancelled step, no failed or cancelled step after it, and ends with
+    a successful Complete job; at least one job is cancelled)."""
+    if not isinstance(page, dict):
+        return [f"{label} is not an object"]
+    problems = []
+    if set(page) != reference["page_keys"]:
+        problems.append(f"{label} keys {sorted(page)} differ from GitHub's recorded {sorted(reference['page_keys'])}")
+    jobs = page.get("jobs") if isinstance(page.get("jobs"), list) else []
+    if page.get("total_count") != len(jobs):
+        problems.append(f"{label} total_count {page.get('total_count')!r} is not its {len(jobs)} jobs")
+    vocabulary = sorted(f"{status}/{conclusion}" for status, conclusion in reference["job_pairs"])
+    step_vocabulary = sorted(f"{status}/{conclusion}" for status, conclusion in reference["step_pairs"])
+    for job in jobs:
+        if not isinstance(job, dict):
+            problems.append(f"{label} job {job!r} is not an object")
+            continue
+        where = f"{label} job {job.get('name')!r}"
+        if set(job) != reference["job_keys"]:
+            problems.append(f"{where} keys differ from GitHub's recorded cancelled-run job keys")
+        if (job.get("status"), job.get("conclusion")) not in reference["job_pairs"]:
+            problems.append(f"{where} is {job.get('status')}/{job.get('conclusion')}, outside GitHub's recorded cancelled-run "
+                            f"job vocabulary {vocabulary}")
+        steps = job.get("steps") if isinstance(job.get("steps"), list) else None
+        if steps is None:
+            problems.append(f"{where} has no step list")
+            continue
+        for step in steps:
+            if not isinstance(step, dict) or set(step) != reference["step_keys"]:
+                problems.append(f"{where} step {step.get('name') if isinstance(step, dict) else step!r} keys differ from GitHub's")
+            elif (step.get("status"), step.get("conclusion")) not in reference["step_pairs"]:
+                problems.append(f"{where} step {step.get('name')!r} is {step.get('status')}/{step.get('conclusion')}, outside "
+                                f"GitHub's recorded cancelled-run step vocabulary {step_vocabulary}")
+        if job.get("conclusion") == "skipped" and (steps or job.get("runner_id") is not None):
+            problems.append(f"{where} is skipped but lists steps or a runner (GitHub's recorded skipped jobs list neither)")
+        if job.get("conclusion") == "cancelled" and steps:
+            conclusions = [step.get("conclusion") if isinstance(step, dict) else None for step in steps]
+            if conclusions.count("cancelled") != 1:
+                problems.append(f"{where} has {conclusions.count('cancelled')} cancelled steps; GitHub's recorded cancelled jobs have one")
+            elif {"failure", "cancelled"} & set(conclusions[conclusions.index("cancelled") + 1:]):
+                problems.append(f"{where} has a failed or cancelled step after its cancelled step")
+            last = steps[-1] if isinstance(steps[-1], dict) else {}
+            if (last.get("name"), last.get("conclusion")) != ("Complete job", "success"):
+                problems.append(f"{where} does not end with a successful Complete job step, as GitHub's recorded cancelled jobs do")
+    if not any(isinstance(job, dict) and job.get("conclusion") == "cancelled" for job in jobs):
+        served = sorted({str(job.get("conclusion")) for job in jobs if isinstance(job, dict)})
+        problems.append(f"{label} lists no cancelled job (conclusions {served}); GitHub's recorded cancelled run lists "
+                        f"{reference['cancelled_jobs']} cancelled jobs")
+    return problems
+
+
+def check_cancelled_shape(run, page, reference: dict) -> list:
+    """The served cancelled run and its jobs page against GitHub's recorded cancelled run 38141825287."""
+    label = f"cancelled run {run.get('id') if isinstance(run, dict) else None}"
+    return cancelled_run_problems(run, reference, label) + cancelled_jobs_problems(page, reference, f"jobs page of {label}")
+
+
+def load_cancelled_reference(root: Path = ROOT) -> dict:
+    """GitHub's recorded cancelled run and jobs from the 253-127 probe (evidence results cancelled-run/cancelled-jobs,
+    bodies decoded from the probe ledger and checked against their response_sha256). If the probe recorded a non-200 for
+    either, the reference is unavailable and the gate reports cancelled_run_checked "unavailable"."""
+    if "value" in _CANCELLED_REFERENCE:
+        return _CANCELLED_REFERENCE["value"]
+    raws = {rel: (root / rel).read_bytes() for rel in (PROBE_EVIDENCE_REL, PROBE_LEDGER_REL)}
+    results = {item.get("id"): item for item in json.loads(raws[PROBE_EVIDENCE_REL]).get("results", [])}
+    hops = {name: ((results.get(probe_id) or {}).get("observed") or {}).get("hops") or [{}]
+            for name, probe_id in PROBE_CANCELLED_IDS.items()}
+    statuses = {name: value[0].get("status") for name, value in hops.items()}
+    sequences = {name: value[0].get("sequence") for name, value in hops.items()}
+    value = {"available": False, "files": {rel: sha256_hex(raw) for rel, raw in raws.items()}, "statuses": statuses,
+             "sequences": sequences}
+    if all(status == 200 for status in statuses.values()):
+        rows = {row.get("sequence"): row for row in json.loads(raws[PROBE_LEDGER_REL])["transactions"]}
+        bodies = {}
+        for name, sequence in sequences.items():
+            row = rows.get(sequence) or {}
+            raw = base64.b64decode(row.get("response_body_base64") or "")
+            if row.get("actual_status") != 200 or sha256_hex(raw) != row.get("response_sha256"):
+                raise DryRunError(f"probe ledger seq {sequence} does not hold the recorded {name} body")
+            bodies[name] = json.loads(raw)
+        run, page = bodies["run"], bodies["jobs"]
+        jobs = page.get("jobs") or []
+        steps = [step for job in jobs for step in job.get("steps") or []]
+        if (run.get("status"), run.get("conclusion")) != ("completed", "cancelled") or not jobs or not steps:
+            raise DryRunError("the probe's cancelled-run sample is not a completed cancelled run with jobs and steps")
+        if any(set(job) != set(jobs[0]) for job in jobs) or any(set(step) != set(steps[0]) for step in steps):
+            raise DryRunError("the probe's cancelled-run jobs do not share one job and one step key set")
+        value.update(available=True, run=run, page_keys=set(page), job_keys=set(jobs[0]), step_keys=set(steps[0]),
+                     job_pairs={(job.get("status"), job.get("conclusion")) for job in jobs},
+                     step_pairs={(step.get("status"), step.get("conclusion")) for step in steps},
+                     cancelled_jobs=sum(1 for job in jobs if job.get("conclusion") == "cancelled"))
+        # The rules are read off the sample: the recorded run must satisfy every one of them (self-check).
+        own = cancelled_run_problems(run, value, "the recorded cancelled run") + cancelled_jobs_problems(
+            page, value, "the recorded cancelled run's jobs")
+        if own:
+            raise DryRunError(f"the recorded cancelled run does not satisfy its own rules: {own[:3]}")
+    _CANCELLED_REFERENCE["value"] = value
+    return value
+
+
 def response_shape(journal: list, runs: dict, reference: dict, log_reference: dict | None = None, live: bool = False,
-                   local_port=None) -> dict:
+                   local_port=None, cancelled_reference: dict | None = None) -> dict:
     """Compare every run, job, step and artifact object the fake actually served (run polls, workflow_runs listings, jobs
     and artifacts pages, decoded from the server journal) with the recorded real shapes."""
     mismatches, scenarios = [], set()
     counts = {"runs_checked": 0, "jobs_checked": 0, "steps_checked": 0, "artifacts_checked": 0}
+    cancelled_seen = {"run": 0, "jobs": 0}
+    cancelled_ok = bool(cancelled_reference and cancelled_reference.get("available"))
     run_path = re.compile(rf"/repos/{REPO}/actions/runs/(\d+)")
     listing_path = re.compile(rf"/repos/{REPO}/actions/workflows/\d+/runs")
     page_path = re.compile(rf"/repos/{REPO}/actions/runs/(\d+)/(jobs|artifacts)")
@@ -576,6 +705,10 @@ def response_shape(journal: list, runs: dict, reference: dict, log_reference: di
         counts["runs_checked"] += 1
         scenarios.add(record["scenario"])
         mismatches.extend(check_run_shape(run, record["scenario"], reference))
+        if cancelled_ok and record["scenario"] == "cancelled" and run.get("status") == "completed":
+            # 253-128: the completed cancelled run against GitHub's recorded cancelled run (253-127 probe).
+            cancelled_seen["run"] += 1
+            mismatches.extend(cancelled_run_problems(run, cancelled_reference, f"cancelled run {run.get('id')}"))
 
     for row in journal:
         if row.get("actual_status") != 200:
@@ -602,6 +735,9 @@ def response_shape(journal: list, runs: dict, reference: dict, log_reference: di
                 problems, jobs, steps = check_jobs_shape(body, run_id, record, reference)
                 counts["jobs_checked"] += jobs
                 counts["steps_checked"] += steps
+                if cancelled_ok and record["scenario"] == "cancelled":
+                    cancelled_seen["jobs"] += 1
+                    problems = problems + cancelled_jobs_problems(body, cancelled_reference, f"jobs page of cancelled run {run_id}")
             else:
                 problems, artifacts = check_artifacts_shape(body, run_id, reference)
                 counts["artifacts_checked"] += artifacts
@@ -622,7 +758,50 @@ def response_shape(journal: list, runs: dict, reference: dict, log_reference: di
             "log_reference": (log_reference or {}).get("files"),
             "ok": not unique, **counts, "scenarios_checked": sorted(scenarios),
             "verifier_run_checked": "verifier" in scenarios, "run_logs_chains_checked": log_chains,
+            "cancelled_reference": (cancelled_reference or {}).get("files"),
+            "cancelled_run_checked": (None if cancelled_reference is None else "unavailable" if not cancelled_ok
+                                      else cancelled_seen["run"] >= 1 and cancelled_seen["jobs"] >= 1),
             "run_logs_checked": log_chains >= 1, "mismatch_count": len(unique), "mismatches": unique[:10]}
+
+
+def build_jobs_page(record: dict, faults=()) -> dict:
+    """A run's jobs page as the fake serves it (moved out of the handler by 253-128, unchanged; also the job list the
+    failed-log archive is built from). Fault cancelled-shape-drift: the cancelled run's cancelled job reports failure."""
+    run_id = record["id"]
+    jobs = []
+    reference = load_reference()
+
+    def job(name, conclusion, names=(), step_conclusions=None):
+        # 253-117: GitHub's recorded job and step shapes (seq 28); a skipped job lists no steps, as GitHub's does.
+        ran = conclusion not in (None, "skipped")
+        steps = build_steps(names, step_conclusions, conclusion is not None) if ran or conclusion is None else []
+        jobs.append(build_job(record, run_id * 10 + len(jobs), name, conclusion, steps if names else [], reference))
+    scenario, done = record["scenario"], record.get("completed")
+    if scenario == "verifier":
+        job(SKIPPED_PRODUCER_NAME, "skipped" if done else None)
+        job("Browser verdict", "skipped" if done else None)
+        ok = "success" if record.get("matrix_ok") else "failure"
+        job("verifier", ok if done else None, VERIFIER_STEPS, {"Verify retained source matrix independently": ok})
+    else:
+        producer_steps, verdict_steps = reference_steps(reference, "producer"), reference_steps(reference, "Browser verdict")
+        for seam in SEAMS:
+            conclusion = "success"
+            if scenario == "actual-failure" and seam == "admin_behavior":
+                conclusion = "failure"
+            if scenario == "cancelled" and seam == "admin_behavior":
+                conclusion = ("failure" if "cancelled-shape-drift" in faults else "cancelled") if done else None
+            step_conclusions = {"Run the named synthetic tiny command": conclusion}
+            if scenario == "missing-seam" and seam == "admin_checkpoints":
+                # The fixture's upload step is if: !(missing-seam && admin_checkpoints): GitHub reports it skipped.
+                step_conclusions["Upload this producer's synthetic receipt"] = "skipped"
+            job(f"producer ({seam})", conclusion, producer_steps, step_conclusions)
+        outcome = OUTCOMES[scenario]
+        if scenario == "cancelled":
+            job("Browser verdict", "skipped" if done else None)
+        else:
+            job("Browser verdict", outcome if done else None, verdict_steps, {"Shared browser record validator": outcome})
+        job("verifier", "skipped" if done else None)
+    return {"total_count": len(jobs), "jobs": jobs}
 
 
 # ----------------------------------------------------------------------------------------- git-backed object store
@@ -1042,41 +1221,7 @@ class FakeGitHub(ObjectServer):
 
     def _jobs_body(self, record):
         """The run's jobs page (253-128: also the job list the failed-log archive is built from)."""
-        run_id = record["id"]
-        jobs = []
-        reference = load_reference()
-
-        def job(name, conclusion, names=(), step_conclusions=None):
-            # 253-117: GitHub's recorded job and step shapes (seq 28); a skipped job lists no steps, as GitHub's does.
-            ran = conclusion not in (None, "skipped")
-            steps = build_steps(names, step_conclusions, conclusion is not None) if ran or conclusion is None else []
-            jobs.append(build_job(record, run_id * 10 + len(jobs), name, conclusion, steps if names else [], reference))
-        scenario, done = record["scenario"], record.get("completed")
-        if scenario == "verifier":
-            job(SKIPPED_PRODUCER_NAME, "skipped" if done else None)
-            job("Browser verdict", "skipped" if done else None)
-            ok = "success" if record.get("matrix_ok") else "failure"
-            job("verifier", ok if done else None, VERIFIER_STEPS, {"Verify retained source matrix independently": ok})
-        else:
-            producer_steps, verdict_steps = reference_steps(reference, "producer"), reference_steps(reference, "Browser verdict")
-            for seam in SEAMS:
-                conclusion = "success"
-                if scenario == "actual-failure" and seam == "admin_behavior":
-                    conclusion = "failure"
-                if scenario == "cancelled" and seam == "admin_behavior":
-                    conclusion = "cancelled" if done else None
-                step_conclusions = {"Run the named synthetic tiny command": conclusion}
-                if scenario == "missing-seam" and seam == "admin_checkpoints":
-                    # The fixture's upload step is if: !(missing-seam && admin_checkpoints): GitHub reports it skipped.
-                    step_conclusions["Upload this producer's synthetic receipt"] = "skipped"
-                job(f"producer ({seam})", conclusion, producer_steps, step_conclusions)
-            outcome = OUTCOMES[scenario]
-            if scenario == "cancelled":
-                job("Browser verdict", "skipped" if done else None)
-            else:
-                job("Browser verdict", outcome if done else None, verdict_steps, {"Shared browser record validator": outcome})
-            job("verifier", "skipped" if done else None)
-        return {"total_count": len(jobs), "jobs": jobs}
+        return build_jobs_page(record, getattr(self.server, "faults", ()))
 
     def _artifacts(self, run_id):
         record = self.server.runs.get(run_id)
@@ -1672,7 +1817,8 @@ def dry_run(args) -> dict:
                 problems.append(f"the modeled verifier job did not report {wanted}: {verifier_job}")
         # 253-117: every run object the fake served must have GitHub's recorded shape.
         summary["response_shape"] = shape = response_shape(server.journal, server.runs, load_reference(),
-                                                           log_reference=load_log_reference(), live=live, local_port=port)
+                                                           log_reference=load_log_reference(), live=live, local_port=port,
+                                                           cancelled_reference=load_cancelled_reference())
         if not shape["ok"]:
             problems.append(f"response_shape: {shape['mismatch_count']} served object(s) differ from GitHub's recorded "
                             f"shape: {shape['mismatches'][:3]}")
@@ -1682,6 +1828,9 @@ def dry_run(args) -> dict:
             problems.append("response_shape: the separate verifier run was not checked")
         if args.stop_after != "full-pass" and not shape["run_logs_checked"]:
             problems.append("response_shape: no run_logs chain was served and checked against GitHub's recorded chain")
+        if args.stop_after != "full-pass" and shape["cancelled_run_checked"] is not True and (
+                shape["cancelled_run_checked"] != "unavailable"):
+            problems.append("response_shape: the cancelled run and its jobs were not checked against GitHub's recorded ones")
         if summary["authorization"].get("results_receiver_with"):
             problems.append(f"Authorization reached results-receiver {summary['authorization']['results_receiver_with']} time(s)")
         if server.violations:
@@ -1765,10 +1914,12 @@ def main() -> int:
     parser.add_argument("--inject", action="append", help="'METHOD /path=STATUS': answer that request once with STATUS")
     parser.add_argument("--reenter", action="store_true", help="after a failed driver mode, run it once more (halt guard check)")
     parser.add_argument("--fault", action="append",
-                        choices=("artifact-digest", "run-shape-bare-name", "run-logs-legacy-blob-redirect"),
+                        choices=("artifact-digest", "run-shape-bare-name", "run-logs-legacy-blob-redirect",
+                                 "cancelled-shape-drift"),
                         help="modeled server fault (artifact-digest: listed digest differs from the served bytes; "
                              "run-shape-bare-name: every run is served in the pre-253-117 shape, bare name and path@ref; "
-                             "run-logs-legacy-blob-redirect: failed logs take the pre-R11 blob-host redirect)")
+                             "run-logs-legacy-blob-redirect: failed logs take the pre-R11 blob-host redirect; "
+                             "cancelled-shape-drift: the cancelled run's cancelled job reports failure)")
     parser.add_argument("--timeout", type=int, default=900, help="seconds allowed per driver invocation")
     parser.add_argument("--overlay-worktree", action="store_true",
                         help="copy the checkout's uncommitted scripts/ci edits into the clone (test aid; recorded)")

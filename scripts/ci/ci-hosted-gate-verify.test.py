@@ -16,7 +16,10 @@ ROOT = Path(__file__).resolve().parents[2]
 VERIFY = ROOT / "scripts/ci/ci-hosted-gate-verify.py"
 CANARY = ROOT / "scripts/ci/ci-gate-canary.sh"
 REAL_LEDGER_R9 = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json"
+# 253-128: the 253-127 read-only probe ledger: real cancelled run 38141825287 (seq 2) and its 27 jobs (seq 3), both 200.
+REAL_PROBE_LEDGER_R11 = REAL_LEDGER_R9.with_name("253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json")
 _REAL_BODIES = {}
+_CANCELLED_BODIES = {}
 FIXTURE_TIME = "2026-10-13T04:00:00Z"
 VERIFIER_JOB_STEPS = ("Set up job", "Checkout candidate verifier by pinned commit", "Verify immutable candidate verifier checkout",
                       "Verify retained source matrix independently", "Retain separate verifier result",
@@ -33,14 +36,29 @@ def real_bodies():
     return copy.deepcopy(_REAL_BODIES)
 
 
+def cancelled_bodies():
+    """253-128: GitHub's recorded cancelled run and jobs (probe ledger seq 2 run, seq 3 run_jobs), read from the committed
+    ledger; the cancelled-scenario fixture takes its run and job templates from these."""
+    if not _CANCELLED_BODIES:
+        rows = {row["sequence"]: row for row in json.loads(REAL_PROBE_LEDGER_R11.read_text())["transactions"]}
+        for name, sequence, route in (("run", 2, "run"), ("jobs", 3, "run_jobs")):
+            row = rows[sequence]
+            assert (row["route_id"], row["actual_status"]) == (route, 200), (sequence, row["route_id"], row["actual_status"])
+            _CANCELLED_BODIES[name] = json.loads(base64.b64decode(row["response_body_base64"]))
+    return copy.deepcopy(_CANCELLED_BODIES)
+
+
 def real_step_names(job_name):
     jobs = real_bodies()["jobs"]["jobs"]
     return [step["name"] for step in next(job for job in jobs if job["name"] == job_name)["steps"]]
 
 
-def real_run(run_id, scenario, head_sha, head_branch, conclusion, attempt=1):
-    """A run object with GitHub's recorded shape: name == display_title == the fixture's run-name, path exact."""
-    run = real_bodies()["run"]
+def real_run(run_id, scenario, head_sha, head_branch, conclusion, attempt=1, template=None):
+    """A run object with GitHub's recorded shape: name == display_title == the fixture's run-name, path exact.
+    template (253-128): another recorded run to build on (the cancelled scenario uses the recorded cancelled run)."""
+    run = copy.deepcopy(template) if template is not None else real_bodies()["run"]
+    # The recorded cancelled run was a pull_request run; the canary is always dispatched (a type-preserving override).
+    run["event"] = "workflow_dispatch"
     title = f"Phase 253 Gate Canary / {scenario} / {run_id}-{attempt}"
     api = f"https://api.github.com/repos/szTheory/sigra/actions/runs/{run_id}"
     run.update(id=run_id, name=title, display_title=title, head_sha=head_sha, head_branch=head_branch, status="completed",
@@ -56,9 +74,10 @@ def real_steps(names, conclusions=None):
              "started_at": FIXTURE_TIME, "completed_at": FIXTURE_TIME} for number, name in enumerate(names, 1)]
 
 
-def real_job(run, job_id, name, conclusion, steps):
-    """A job object with GitHub's recorded key set (seq 28); a skipped job lists no steps and has no runner."""
-    job = real_bodies()["jobs"]["jobs"][0]
+def real_job(run, job_id, name, conclusion, steps, template=None):
+    """A job object with GitHub's recorded key set (seq 28); a skipped job lists no steps and has no runner.
+    template (253-128): another recorded job to build on (the cancelled scenario uses a recorded cancelled-run job)."""
+    job = copy.deepcopy(template) if template is not None else real_bodies()["jobs"]["jobs"][0]
     ran = conclusion != "skipped"
     job.update(id=job_id, run_id=run["id"], workflow_name=run["name"], head_branch=run["head_branch"],
                run_url=run["url"], run_attempt=run["run_attempt"], node_id=f"CR_fixture{job_id}", head_sha=run["head_sha"],
@@ -85,6 +104,8 @@ def real_artifact(run, artifact_id, name, size, digest):
 def source_jobs(run, scenario):
     """The seven source-run jobs with the real step lists; conclusions per scenario as the fixture workflow produces them."""
     outcome = {"full-pass": "success", "docs-only": "success", "cancelled": "cancelled"}.get(scenario, "failure")
+    # 253-128: the cancelled scenario's jobs are built on a job of the recorded cancelled run (same key set as seq 28).
+    template = cancelled_bodies()["jobs"]["jobs"][0] if scenario == "cancelled" else None
     jobs = []
     for index, seam in enumerate(("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")):
         conclusion = outcome if scenario in ("actual-failure", "cancelled") and seam == "admin_behavior" else "success"
@@ -92,11 +113,11 @@ def source_jobs(run, scenario):
         if scenario == "missing-seam" and seam == "admin_checkpoints":
             steps["Upload this producer's synthetic receipt"] = "skipped"
         jobs.append(real_job(run, index + 1, f"producer ({seam})", conclusion,
-                             real_steps(real_step_names("producer (non_admin_smoke)"), steps)))
+                             real_steps(real_step_names("producer (non_admin_smoke)"), steps), template))
     verdict = "skipped" if scenario == "cancelled" else outcome
     jobs.append(real_job(run, 6, "Browser verdict", verdict,
-                         real_steps(real_step_names("Browser verdict"), {"Shared browser record validator": verdict})))
-    jobs.append(real_job(run, 7, "verifier", "skipped", []))
+                         real_steps(real_step_names("Browser verdict"), {"Shared browser record validator": verdict}), template))
+    jobs.append(real_job(run, 7, "verifier", "skipped", [], template))
     return {"total_count": len(jobs), "jobs": jobs}
 
 
@@ -176,7 +197,8 @@ def scenario_fixture(scenario, run_id):
     document['scenario'] = scenario
     document['run_id'] = run_id
     # 253-117: the real shapes for this scenario's run and jobs (name == display_title == the run-name).
-    document['run'] = real_run(run_id, scenario, document['run']['head_sha'], document['run']['head_branch'], conclusion)
+    document['run'] = real_run(run_id, scenario, document['run']['head_sha'], document['run']['head_branch'], conclusion,
+                               template=cancelled_bodies()['run'] if scenario == 'cancelled' else None)
     document['jobs'] = source_jobs(document['run'], scenario)
     if scenario == 'cancelled':
         document['artifacts'] = {'total_count': 0, 'artifacts': []}
@@ -2140,6 +2162,8 @@ class RunIdentityTests(unittest.TestCase):
 
 LEDGER_R9 = PHASE_DIR / "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json"
 NESTED_RUN_OBJECTS = ("repository", "head_repository", "head_commit", "actor", "triggering_actor")
+# 253-128: the 253-127 read-only probe ledger (real cancelled run 38141825287 at seq 2, its jobs at seq 3).
+PROBE_LEDGER_R11 = REAL_PROBE_LEDGER_R11
 
 
 class FixtureShapeFidelityTests(unittest.TestCase):
@@ -2215,6 +2239,45 @@ class FixtureShapeFidelityTests(unittest.TestCase):
             run, jobs = verifier_run_receipt(38906399999, producers)
             self.assert_run_shape(run, f"verifier: verifier_run_receipt{producers}")
             self.assert_jobs_shape(jobs, f"verifier_run_receipt{producers}")
+
+    def test_live_probe_cancelled_run_fixture_matches_the_recorded_shape(self):
+        # 253-128: the cancelled-scenario fixture is built on GitHub's recorded cancelled run 38141825287 and its jobs
+        # (253-127 probe ledger seq 2 and 3, both 200), read from the committed ledger.
+        rows = {row["sequence"]: row for row in json.loads(PROBE_LEDGER_R11.read_text())["transactions"]}
+        self.assertEqual((rows[2]["route_id"], rows[2]["actual_status"], rows[3]["route_id"], rows[3]["actual_status"]),
+                         ("run", 200, "run_jobs", 200))
+        real_run_body, real_jobs = decoded_body(rows[2]), decoded_body(rows[3])
+        self.assertEqual((real_run_body["status"], real_run_body["conclusion"]), ("completed", "cancelled"))
+        receipt = scenario_fixture("cancelled", 906)
+        run, jobs = receipt["run"], receipt["jobs"]
+        # Built on the recorded cancelled run itself (its node_id survives; R9 seq 27's would not).
+        self.assertEqual(run["node_id"], real_run_body["node_id"])
+        self.assertNotEqual(run["node_id"], self.runs["R9 seq 27"]["node_id"])
+        self.assertEqual(sorted(run), sorted(real_run_body))
+        for key in NESTED_RUN_OBJECTS:
+            self.assertEqual(sorted(run[key]), sorted(real_run_body[key]), key)
+        # Event-dependent values are compared by type only (the sample is a pull_request run; the canary dispatches).
+        self.assertEqual((run["event"], type(run["pull_requests"])), ("workflow_dispatch", type(real_run_body["pull_requests"])))
+        self.assertEqual((run["status"], run["conclusion"]), ("completed", "cancelled"))
+        self.assertEqual(sorted(jobs), sorted(real_jobs))
+        recorded_jobs = {(job["status"], job["conclusion"]) for job in real_jobs["jobs"]}
+        recorded_steps = {(step["status"], step["conclusion"]) for job in real_jobs["jobs"] for step in job["steps"] or []}
+        real_step = next(job for job in real_jobs["jobs"] if job["steps"])["steps"][0]
+        for job in jobs["jobs"]:
+            self.assertEqual(sorted(job), sorted(real_jobs["jobs"][0]), job["name"])
+            self.assertIn((job["status"], job["conclusion"]), recorded_jobs, job["name"])
+            for step in job["steps"]:
+                self.assertEqual(sorted(step), sorted(real_step))
+                self.assertIn((step["status"], step["conclusion"]), recorded_steps, (job["name"], step["name"]))
+        self.assertTrue(any(job["conclusion"] == "cancelled" for job in jobs["jobs"]))
+        # The cancelled scenario still verifies as cancelled (non-green), through the CLI.
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "evidence.json"
+            path.write_text(json.dumps(receipt), encoding="utf-8")
+            result = subprocess.run(["python3", str(VERIFY), "--evidence", str(path), "--scenario", "cancelled"],
+                                    text=True, capture_output=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('"verified_non_green"', result.stdout)
 
 
 class SkippedProducerFormTests(unittest.TestCase):

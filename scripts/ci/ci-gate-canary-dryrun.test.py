@@ -182,6 +182,8 @@ class FullSequenceTests(unittest.TestCase):
         # 253-128: the three failed-log chains are checked against GitHub's recorded chain (253-127 probe).
         self.assertIs(shape.get("run_logs_checked"), True, shape)
         self.assertEqual(shape.get("run_logs_chains_checked"), 3, shape)
+        # 253-128: the cancelled run and its jobs are checked against GitHub's recorded cancelled run (253-127 probe).
+        self.assertIs(shape.get("cancelled_run_checked"), True, shape)
 
     def test_every_served_job_step_and_artifact_has_the_recorded_github_shape(self):
         # 253-117 Task 2: jobs, steps and artifacts (R9 seq 28/29) are checked too, in this hermetic full sequence.
@@ -556,6 +558,8 @@ class LivePolicyFullSequenceTests(unittest.TestCase):
         shape = self.summary.get("response_shape") or {}
         self.assertIs(shape.get("ok"), True, shape)
         self.assertIs(shape.get("verifier_run_checked"), True, shape)
+        self.assertIs(shape.get("run_logs_checked"), True, shape)  # 253-128
+        self.assertIs(shape.get("cancelled_run_checked"), True, shape)  # 253-128
         self.assertEqual(sorted(shape.get("scenarios_checked") or []),
                          sorted(["full-pass", "docs-only", "actual-failure", "missing-seam", "unexpected-skip", "cancelled",
                                  "verifier"]), shape)
@@ -978,6 +982,73 @@ class RunLogsShapeTests(unittest.TestCase):
         self.assertTrue(all(hop["host"] == self.runner.BLOB_HOST for hop in logs), logs)
         problems = summary.get("problems") or []
         self.assertTrue(problems and all(problem.startswith("response_shape") for problem in problems), problems)
+
+
+class CancelledShapeTests(unittest.TestCase):
+    """253-128 Task 2: the fake's cancelled run and jobs carry the shape GitHub returned for real cancelled run
+    38141825287 (253-127 probe ledger seq 2 and 3, both 200)."""
+
+    @classmethod
+    def setUpClass(cls):
+        import base64
+        cls.runner = load_runner()
+        rows = ledger_rows(PROBE_LEDGER)
+        evidence = {item["id"]: item for item in json.loads(PROBE_EVIDENCE.read_text())["results"]}
+        cls.sequences = {name: evidence[name]["observed"]["hops"][0]["sequence"] for name in ("cancelled-run", "cancelled-jobs")}
+        cls.statuses = {name: rows[sequence]["actual_status"] for name, sequence in cls.sequences.items()}
+        cls.real_run = json.loads(base64.b64decode(rows[cls.sequences["cancelled-run"]]["response_body_base64"]))
+        cls.real_jobs = json.loads(base64.b64decode(rows[cls.sequences["cancelled-jobs"]]["response_body_base64"]))
+
+    def record(self):
+        return {"id": 40000000999, "run_number": 999, "scenario": "cancelled", "inputs": {},
+                "head_branch": "gsd/253-replan-r10-fixture", "head_sha": "aa7014893b716f279b60ceb545b8aee5ca15b10c",
+                "completed": True, "conclusion": "cancelled"}
+
+    def test_fake_cancelled_run_matches_the_probe_recorded_shape(self):
+        # The probe captured both with 200, so the captured branch applies (not the unavailable marker).
+        self.assertEqual(self.statuses, {"cancelled-run": 200, "cancelled-jobs": 200})
+        self.assertEqual((self.real_run["status"], self.real_run["conclusion"], self.real_run["id"]),
+                         ("completed", "cancelled", 38141825287))
+        reference = self.runner.load_cancelled_reference()
+        self.assertIs(reference["available"], True, reference)
+        self.assertEqual(reference["files"][self.runner.PROBE_LEDGER_REL], hashlib.sha256(PROBE_LEDGER.read_bytes()).hexdigest())
+        record = self.record()
+        run = self.runner.build_run(record, "completed", "cancelled")
+        page = self.runner.build_jobs_page(record)
+        self.assertEqual(sorted(run), sorted(self.real_run))
+        for key in NESTED_RUN_OBJECTS:
+            self.assertEqual(sorted(run[key]), sorted(self.real_run[key]), key)
+        self.assertEqual((run["status"], run["conclusion"]), ("completed", "cancelled"))
+        self.assertEqual(type(run["pull_requests"]), type(self.real_run["pull_requests"]))
+        self.assertEqual(sorted(page), sorted(self.real_jobs))
+        real_job, real_step = self.real_jobs["jobs"][0], next(job for job in self.real_jobs["jobs"] if job["steps"])["steps"][0]
+        recorded_jobs = {(job["status"], job["conclusion"]) for job in self.real_jobs["jobs"]}
+        recorded_steps = {(step["status"], step["conclusion"]) for job in self.real_jobs["jobs"] for step in job["steps"] or []}
+        for job in page["jobs"]:
+            self.assertEqual(sorted(job), sorted(real_job), job["name"])
+            self.assertIn((job["status"], job["conclusion"]), recorded_jobs, job["name"])
+            for step in job["steps"]:
+                self.assertEqual(sorted(step), sorted(real_step))
+                self.assertIn((step["status"], step["conclusion"]), recorded_steps, (job["name"], step["name"]))
+        cancelled = [job for job in page["jobs"] if job["conclusion"] == "cancelled"]
+        self.assertTrue(cancelled, "a cancelled run lists at least one cancelled job, as GitHub's does")
+        self.assertEqual(self.runner.check_cancelled_shape(run, page, reference), [])
+        # Positive controls: the drift fault's jobs page and an event-typed field change are both named.
+        drift = self.runner.build_jobs_page(record, faults={"cancelled-shape-drift"})
+        problems = " ".join(self.runner.check_cancelled_shape(run, drift, reference))
+        self.assertIn("cancelled", problems)
+        self.assertIn("failure", " ".join(json.dumps(job["conclusion"]) for job in drift["jobs"]))
+        retyped = dict(run, pull_requests=None)
+        self.assertTrue(any("pull_requests" in item for item in self.runner.check_cancelled_shape(retyped, page, reference)))
+
+    def test_cancelled_shape_drift_fault_fails_the_gate(self):
+        code, summary = run_gate("--ref-pair", "r10", "--seed-r8-refs", "--seed-r9-refs", "--fault", "cancelled-shape-drift")
+        self.assertNotEqual(code, 0, summary)
+        self.assertNotEqual(summary.get("status"), "passed", summary)
+        shape = summary.get("response_shape") or {}
+        self.assertIs(shape.get("ok"), False, shape)
+        self.assertTrue(any("cancelled" in item for item in shape.get("mismatches") or []), shape)
+        self.assertTrue(any(problem.startswith("response_shape") for problem in summary.get("problems", [])), summary.get("problems"))
 
 
 class SeededR9RefsTests(unittest.TestCase):
