@@ -1377,7 +1377,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads",
           "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
         ],
-        "residual_risk": "Every real rules response is one short page, so a paginated response has never been recorded; with 100 records on a page both readers demand a second page and fail closed ('full or continued first rules page requires one charged next page'). Every real required_status_checks entry is any-app (context only, no integration_id), so the readers take app_id None and require a native producer app; a rule pinned to an app would add integration_id, which the readers then compare with the native check's app id (unobserved; a mismatch fails 'native producer app differs from effective rule'). First seen: any window, only if the ruleset changes.",
+        "residual_risk": "Every real rules response is one short page, so a paginated response has never been recorded; with 100 records on a page both readers demand a second page and fail closed ('full or continued first rules page requires one charged next page'). Every real required_status_checks entry is any-app (context only, no integration_id), so the readers take app_id None and require a native producer app; a rule pinned to an app would add integration_id, which the readers then compare with the native check's app id (unobserved; a mismatch fails 'native producer app differs from effective rule'). Observable only if the ruleset changes; first R11 window that reads it: 253-133.",
         "fields_without_real_sample": {
           "header:link": "GitHub sent no Link header on any real rules page (each was a single short page); the live-policy transport tests pin following a rel=next link, but on synthetic headers.",
           "[].parameters.required_status_checks[].integration_id": "the real rules carry context only: all five required checks are any-app, so GitHub omits integration_id"
@@ -1428,7 +1428,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads",
           "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
         ],
-        "residual_risk": "main has no classic branch protection, so every real response is the 404 body and the 200 body has never been recorded. If main gained classic protection, a 200 body whose required_status_checks use other keys raises 'legacy branch-protection checks are malformed', and extra contexts break the exact-five rule, so the window halts at preflight before any dispatch. First seen: only if an operator adds classic protection.",
+        "residual_risk": "main has no classic branch protection, so every real response is the 404 body and the 200 body has never been recorded. If main gained classic protection, a 200 body whose required_status_checks use other keys raises 'legacy branch-protection checks are malformed', and extra contexts break the exact-five rule, so the window halts at preflight before any dispatch. The 200 body is observable only if an operator adds classic protection to main; both R11 windows read this route at preflight (253-133 canary, then 253-134 PR proof), so 253-133 is the first that would see it, and otherwise both read the recorded 404.",
         "fields_without_real_sample": {
           "required_status_checks.contexts": "200 body never observed (main has no classic protection: 404 in R7, R8, R9)",
           "required_status_checks.checks[].context": "200 body never observed (404 in R7, R8, R9)",
@@ -1580,7 +1580,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
           "scripts/ci/ci-git-publication.test.py::test_live_real_shape_compact_matrix_fits_and_round_trips"
         ],
-        "residual_risk": "The verifier dispatch (scenario verifier, carrying the compact matrix as matrix_evidence) has never been sent to GitHub: R8 and R9 each sent one scenario dispatch. Its size is pinned offline on real-shape receipts (the compact matrix test: six receipts derived from the real R9 full-pass receipt compact to 34764 characters, 29747 under the 64511-character MATRIX_PAYLOAD_LIMIT; the real receipt alone is 7300), and the driver refuses an oversized matrix before dispatch. Separately, the driver accepts a 202 or 204 dispatch status while the ledger binding requires 204 (real GitHub returned 204 in R8 and R9): a 202 would halt the window at the binding, fail-closed. First seen: 253-122, after the six source scenarios.",
+        "residual_risk": "Never observed live: the verifier dispatch (scenario verifier, carrying the compact matrix as the matrix_evidence input); R8 and R9 each sent only four-input scenario dispatches. Before the request, validate_dispatch_inputs runs serialize_dispatch_inputs (dispatch_inputs_invalid / dispatch_inputs_too_large: 'dispatch inputs exceed 65535 Unicode scalar characters') and compact_matrix refuses a payload over MATRIX_PAYLOAD_LIMIT 64511 characters ('compact matrix payload is <n> characters; the dispatch input cap is 65535 including the other inputs', driver: 'compact verifier matrix exceeds its bounded dispatch input'); offline, six receipts derived from the real R9 full-pass receipt compact to 34764 characters, 29747 under the limit. GitHub's acceptance of that payload is unobserved: a refusal stops the driver with 'dispatch returned HTTP <status>' or 'separate verifier dispatch failed'. The driver accepts 202 or 204 while the ledger binding requires 204 (real GitHub returned 204 in R8 and R9), so a 202 halts at the binding, fail-closed. First observed: 253-133, after the six source scenarios.",
         "fields_without_real_sample": {
           "meta:dispatch_inputs.matrix_evidence": "the verifier dispatch has never run live; R8/R9 sent scenario dispatches only (four inputs)"
         }
@@ -1718,7 +1718,8 @@
           "scripts/ci/ci-gate-canary-dryrun.test.py::LivePolicyFullSequenceTests.test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run",
           "scripts/ci/ci-hosted-gate-verify.test.py::FixtureShapeFidelityTests.test_live_probe_cancelled_run_fixture_matches_the_recorded_shape",
           "scripts/ci/ci-gate-canary-dryrun.test.py::CancelledShapeTests.test_fake_cancelled_run_matches_the_probe_recorded_shape"
-        ]
+        ],
+        "residual_risk": "The run shape is observed live for full-pass (R8, R9), a failure-shaped run (38347679431) and a cancelled run (probe seq 2). Never observed live: the missing-seam and unexpected-skip scenario runs (unobserved_live_shapes ids scenario-missing-seam-run and scenario-unexpected-skip-run). Both must conclude failure: verify_scenario refuses any other conclusion ('actual terminal conclusion does not match <scenario>') and a hosted job set that differs from the scenario's ('hosted job set is missing, duplicated, or unexpected'), and the driver stops on a green one ('negative source unexpectedly concluded success: <scenario>'). First observed: 253-133."
       }
     },
     {
@@ -1826,7 +1827,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_attempt_jobs_and_run_jobs_share_one_job_schema_in_real_responses",
           "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_ci_yml_provides_every_job_name_the_pr_verifier_requires"
         ],
-        "residual_risk": "The PR family reads attempt jobs through the attempt route, never yet called by this transport. The one real attempt-jobs body (Phase 252, pull_request run 38317383419) has exactly the job, step and document key sets of the canary's real run_jobs body (R9 seq 28), so the shared job schema is proven on real bytes; what is not recorded is the ledger row itself (URL and page ordinal). A different URL or page sequence fails closed with 'job page is not for the terminal run attempt'. First seen: 253-123.",
+        "residual_risk": "The PR family reads attempt jobs through the attempt route, never yet called by this transport. The one real attempt-jobs body (Phase 252, pull_request run 38317383419) has exactly the job, step and document key sets of the canary's real run_jobs body (R9 seq 28), so the shared job schema is proven on real bytes; what is not recorded is the ledger row itself (URL and page ordinal). A different URL or page sequence fails closed with 'job page is not for the terminal run attempt'. Never observed live; first observed in the docs_and_prs window: 253-134 (253-123 never ran).",
         "fields_without_real_sample": {
           "meta:url": "the real attempt-jobs body was collected by the Phase 252 tooling, not this transport, so no ledger transaction exists",
           "meta:page_ordinal": "no ledger transaction exists for the real attempt-jobs body"
@@ -1950,7 +1951,7 @@
         "kind": "justified",
         "refs": [],
         "justification": "The cancelled scenario has never run live: no committed ledger holds a cancel request. The request body is the fixed {} the typed route requires and the driver reads only whether the transport call succeeded; the cancellation itself is proven from the run and jobs the verifier reads afterwards.",
-        "residual_risk": "GitHub documents 202 Accepted for a cancel. If the call is refused or fails, the driver stops with 'identified canary cancellation failed'; if it is accepted but GitHub never cancels a job, verify_scenario refuses the cancelled receipt ('cancellation was not observed on a hosted fixture job'). Both fail closed after five source scenarios. First seen: 253-122.",
+        "residual_risk": "Never observed live: no committed ledger holds a cancel request, so GitHub's 202 Accepted for POST .../actions/runs/<id>/cancel is unobserved (the 253-127 probe read cancelled run 38141825287's run and jobs, seq 2 and 3, but that run was not cancelled by this transport). If the transport call fails the driver stops with 'identified canary cancellation failed'; any status other than 202 stops it with 'identified canary cancellation returned HTTP <status>' (ci-gate-canary.sh:897-898); if GitHub accepts but never cancels a job, verify_scenario refuses the cancelled receipt ('cancellation was not observed on a hosted fixture job'). All three fail closed after the five earlier source scenarios. First observed: 253-133.",
         "fields_without_real_sample": {
           "meta:actual_status": "no cancel request has been sent to GitHub in any window"
         }
@@ -2061,7 +2062,7 @@
         "kind": "justified",
         "refs": [],
         "justification": "The publisher uploads a blob only for binary files; the R7, R8 and R9 publications uploaded none, so no create-blob response is committed. The publisher compares only the returned sha.",
-        "residual_risk": "A create-blob response without the uploaded object's sha raises before any tree, commit or ref is created (fail-closed). First seen: only if a frozen candidate carries a binary file.",
+        "residual_risk": "not called by any R11 hosted window: the only caller is ci-git-publication.py (~:809), which uploads a blob only for a binary file, so it runs only when a publication manifest has binary_blob_requests > 0. The R7, R8, R9 and R10 canary publication manifests all record 0, PUBLICATION-R11 is not built until 253-131, and the docs publication (ci-pr-proof.sh, DOCS_STAGE_ROUTES) never calls this route. If 253-131's PUBLICATION-R11 records binary_blob_requests > 0, 253-133 becomes its first window, and a create-blob response without the uploaded object's sha raises before any tree, commit or ref is created (fail-closed).",
         "fields_without_real_sample": {
           "sha": "no binary upload in any committed publication",
           "meta:actual_status": "no binary upload in any committed publication"
@@ -2083,7 +2084,7 @@
         "kind": "justified",
         "refs": [],
         "justification": "No driver or verifier issues this route; it is typed and routable only.",
-        "residual_risk": "None while it stays unused. First seen: no planned window.",
+        "residual_risk": "not called by any R11 hosted window: a grep of scripts/ci finds git_get_tree only in ci-hosted-transport.py (ROUTES and its routable list); no driver, publisher or verifier issues it (the same grep finds git_create_tree's callers in ci-git-publication.py, ci-pr-proof.sh and ci-hosted-gate-verify.py, so the search itself works). A future caller must add its own compared fields here.",
         "fields_without_real_sample": {
           "meta:actual_status": "never requested"
         }
@@ -2422,7 +2423,7 @@
         "kind": "justified",
         "refs": [],
         "justification": "No PR window has run (253-114 never ran), so no create-PR response is committed. The nearest real bytes are the minimal pull request object GitHub embeds in a real pull_request run (number, head.ref/sha, base.ref/sha), which carries none of draft, merged, state or repo.full_name.",
-        "residual_risk": "Any created-PR field that differs from these paths fails check_pr ('created PR is not the same open unmerged draft PR' or the head/base identity messages) right after creation: the window halts with one open draft PR that was never merged and must be closed by the operator. First seen: 253-123.",
+        "residual_risk": "Any created-PR field that differs from these paths fails check_pr ('created PR is not the same open unmerged draft PR' or the head/base identity messages) right after creation: the window halts with one open draft PR that was never merged and must be closed by the operator. Never observed live; first observed in the docs_and_prs window: 253-134 (253-123 never ran).",
         "fields_without_real_sample": {
           "number": "no create-PR response in any committed ledger (253-114 never ran)",
           "draft": "no create-PR response in any committed ledger (253-114 never ran)",
@@ -2476,7 +2477,7 @@
         "kind": "justified",
         "refs": [],
         "justification": "No PR window has run, so no PR read is committed; merge_commit_sha, the tested merge the verifier reads the workflow at, has never been observed for this repository.",
-        "residual_risk": "A missing or unchanged merge_commit_sha stops collection ('the PR has no tested merge commit or base identity') or fails 'PR has no distinct tested merge commit'; other differences fail check_pr. All fail closed after the run finished. First seen: 253-123.",
+        "residual_risk": "A missing or unchanged merge_commit_sha stops collection ('the PR has no tested merge commit or base identity') or fails 'PR has no distinct tested merge commit'; other differences fail check_pr. All fail closed after the run finished. Never observed live; first observed in the docs_and_prs window: 253-134 (253-123 never ran).",
         "fields_without_real_sample": {
           "number": "no PR read in any committed ledger (253-114 never ran)",
           "draft": "no PR read in any committed ledger (253-114 never ran)",
@@ -2525,7 +2526,7 @@
         "kind": "justified",
         "refs": [],
         "justification": "No PR window has run, so no compare response is committed. The nearest real bytes are the Phase 252 pull request files page for PR 331, whose entries have the same filename field the compare files[] entries carry; ahead_by and behind_by have never been observed.",
-        "residual_risk": "A compare body without these fields fails 'compare file inventory is empty, malformed or incomplete' or the docs ahead/behind check, after the run: fail-closed. First seen: 253-123.",
+        "residual_risk": "A compare body without these fields fails 'compare file inventory is empty, malformed or incomplete' or the docs ahead/behind check, after the run: fail-closed. Never observed live; first observed in the docs_and_prs window: 253-134 (253-123 never ran).",
         "fields_without_real_sample": {
           "files": "no compare response in any committed ledger (253-114 never ran)",
           "files[].filename": "no compare response in any committed ledger (253-114 never ran)",
@@ -2569,7 +2570,7 @@
         "kind": "justified",
         "refs": [],
         "justification": "No PR window has run, so no contents response is committed. The nearest real bytes are GitHub's git blob responses (R9 seq 7), which carry the same sha, base64 content and encoding fields; type and path are contents-only and never observed.",
-        "residual_risk": "A contents body whose type, encoding, path or blob sha differ fails 'source read is not a base64 file response' or 'source blob differs from the frozen blob', after the run: fail-closed. First seen: 253-123.",
+        "residual_risk": "A contents body whose type, encoding, path or blob sha differ fails 'source read is not a base64 file response' or 'source blob differs from the frozen blob', after the run: fail-closed. Never observed live; first observed in the docs_and_prs window: 253-134 (253-123 never ran).",
         "fields_without_real_sample": {
           "type": "no contents response in any committed ledger (253-114 never ran)",
           "encoding": "no contents response in any committed ledger (253-114 never ran)",
@@ -2654,7 +2655,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::RegisteredFixtureTests.test_fixture_is_dispatch_only_read_only_and_pins_the_same_actions_as_the_superseded_fixture",
           "scripts/ci/ci-git-publication.test.py::test_live_real_shape_compact_matrix_fits_and_round_trips"
         ],
-        "residual_risk": "The separate verifier run has never run live. Its two checked steps (Verify immutable candidate verifier checkout, Verify retained source matrix independently) are in the fixture source but GitHub has never reported them: in every real source run the verifier job is skipped with no steps. Its skipped producer matrix job has never been observed either; the fake serves 'producer (${{ matrix.seam }})' and verify_separate_verifier accepts exactly four forms (the five expanded names, 'producers', 'producer (${{ matrix.seam }})', 'producer ()'). Nearest real sample: the Phase 252 bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz (sha256 95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30), member ./raw/families/38317383419/jobs-attempt-1.json (sha256 c2db679349f5f5b0baad9d2550c939695cf184dcef9e83d1d856c16362c250e0): its run jobs record install_matrix skipped as one job named exactly 'Install matrix (flag combinations)' (its literal name: field, no matrix suffix), and the bundle records that skip 9 times. That proves one job under its literal name for a skipped matrix job, but not how a ${{ matrix.seam }} expression renders when skipped before expansion, so a fifth rendering would halt the window after the six scenarios, at the separate verifier, with 'separate hosted verifier job set is unexpected' (fail-closed). First seen: 253-122.",
+        "residual_risk": "Never observed live: the separate verifier run. Its two checked steps (Verify immutable candidate verifier checkout, Verify retained source matrix independently) are in the fixture source but GitHub has never reported them: in every real source run the verifier job is skipped with no steps. GitHub's name for its skipped producer matrix job is unobserved too; the fake serves 'producer (${{ matrix.seam }})' and verify_separate_verifier accepts exactly the 253-117 closed set of four forms (the five expanded names, 'producers', 'producer (${{ matrix.seam }})', 'producer ()'). Nearest real sample: the Phase 252 bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz (sha256 95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30), member ./raw/families/38317383419/jobs-attempt-1.json (sha256 c2db679349f5f5b0baad9d2550c939695cf184dcef9e83d1d856c16362c250e0): its run jobs record install_matrix skipped as one job named exactly 'Install matrix (flag combinations)' (its literal name: field, no matrix suffix), and the bundle records that skip 9 times. That proves one job under its literal name for a skipped matrix job, not how a ${{ matrix.seam }} expression renders when skipped before expansion. A fifth form stops the window after the six scenarios at the separate verifier with 'separate hosted verifier job set is unexpected'; missing checked steps fail 'separate verifier did not confirm its candidate checkout and source matrix' (both fail-closed). First observed: 253-133.",
         "fields_without_real_sample": {
           "value:jobs[].steps[].name=Verify immutable candidate verifier checkout": "the verifier job has never executed live (skipped with no steps in every real source run)",
           "value:jobs[].steps[].name=Verify retained source matrix independently": "the verifier job has never executed live (skipped with no steps in every real source run)",
@@ -2730,6 +2731,106 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_attempt_jobs_and_run_jobs_share_one_job_schema_in_real_responses"
         ]
       }
+    }
+  ],
+  "unobserved_live_shapes": [
+    {
+      "id": "shape-cancel_run",
+      "row": "shape-cancel_run",
+      "first_window": "253-133",
+      "unobserved": "the 202 response to the identified canary cancellation",
+      "stop": "'identified canary cancellation failed' / 'identified canary cancellation returned HTTP <status>' (ci-gate-canary.sh:897-898); 'cancellation was not observed on a hosted fixture job' (verify_scenario)"
+    },
+    {
+      "id": "shape-run_logs-fresh-run",
+      "row": "shape-run_logs",
+      "first_window": "253-133",
+      "unobserved": "results-receiver hop 1 seconds after a canary run fails (the probe read a run completed hours earlier; the archive may not be ready, so hop 1 can answer 404 or another status or content-type)",
+      "stop": "non-200 final receipt: download_no_follow returns non-zero and the driver stops with 'failed-log retrieval failed for run <id>' (ci-gate-canary.sh:916), no retry; an extra hop is refused by failure_logs 6/6 (category_budget_exhausted); another host is refused before its socket (redirect_rejected)"
+    },
+    {
+      "id": "workflow-source:canary-fixture",
+      "row": "shape-source-canary-fixture",
+      "first_window": "253-133",
+      "unobserved": "the separate verifier run: its two checked steps and its skipped producer job's name",
+      "stop": "a fifth producer form: 'separate hosted verifier job set is unexpected'; missing steps: 'separate verifier did not confirm its candidate checkout and source matrix' (verify_separate_verifier, after the six scenarios)"
+    },
+    {
+      "id": "shape-dispatch-matrix_evidence",
+      "row": "shape-dispatch",
+      "first_window": "253-133",
+      "unobserved": "GitHub's acceptance of the verifier dispatch carrying matrix_evidence",
+      "stop": "before the request: serialize_dispatch_inputs (dispatch_inputs_invalid / dispatch_inputs_too_large) and compact_matrix's 64511-character MATRIX_PAYLOAD_LIMIT ('compact verifier matrix exceeds its bounded dispatch input'); after: 'dispatch returned HTTP <status>' / 'separate verifier dispatch failed', and a 202 halts at the 204 ledger binding"
+    },
+    {
+      "id": "scenario-missing-seam-run",
+      "row": "shape-run",
+      "first_window": "253-133",
+      "unobserved": "the missing-seam scenario run and its jobs",
+      "stop": "must conclude failure: 'actual terminal conclusion does not match missing-seam' / 'hosted job set is missing, duplicated, or unexpected' (verify_scenario); driver: 'negative source unexpectedly concluded success: missing-seam'"
+    },
+    {
+      "id": "scenario-unexpected-skip-run",
+      "row": "shape-run",
+      "first_window": "253-133",
+      "unobserved": "the unexpected-skip scenario run and its jobs",
+      "stop": "must conclude failure: 'actual terminal conclusion does not match unexpected-skip' / 'hosted job set is missing, duplicated, or unexpected' (verify_scenario); driver: 'negative source unexpectedly concluded success: unexpected-skip'"
+    },
+    {
+      "id": "shape-pr_create",
+      "row": "shape-pr_create",
+      "first_window": "253-134",
+      "unobserved": "the create-PR response",
+      "stop": "check_pr: 'created PR is not the same open unmerged draft PR' or the head/base identity messages"
+    },
+    {
+      "id": "shape-pr_read",
+      "row": "shape-pr_read",
+      "first_window": "253-134",
+      "unobserved": "the PR read, including merge_commit_sha",
+      "stop": "'the PR has no tested merge commit or base identity' / 'PR has no distinct tested merge commit' / check_pr"
+    },
+    {
+      "id": "shape-compare",
+      "row": "shape-compare",
+      "first_window": "253-134",
+      "unobserved": "the compare response (files[], ahead_by, behind_by)",
+      "stop": "'compare file inventory is empty, malformed or incomplete' or the docs ahead/behind check"
+    },
+    {
+      "id": "shape-repo_contents",
+      "row": "shape-repo_contents",
+      "first_window": "253-134",
+      "unobserved": "the contents response (type, path, encoding, content, sha)",
+      "stop": "'source read is not a base64 file response' / 'source blob differs from the frozen blob'"
+    },
+    {
+      "id": "shape-branch_protection-200",
+      "row": "shape-branch_protection",
+      "first_window": "253-133",
+      "unobserved": "a 200 classic-protection body (main has none; every real read is the 404)",
+      "stop": "'legacy branch-protection checks are malformed' or the exact-five rule at preflight, before any dispatch; observable only if an operator adds classic protection (253-133 canary preflight first, then 253-134)"
+    },
+    {
+      "id": "shape-git_create_blob",
+      "row": "shape-git_create_blob",
+      "first_window": "not called by any R11 hosted window",
+      "unobserved": "the create-blob response",
+      "stop": "the publisher raises before any tree, commit or ref if the response lacks the uploaded sha; becomes 253-133 only if 253-131's PUBLICATION-R11 records binary_blob_requests > 0"
+    },
+    {
+      "id": "shape-git_get_tree",
+      "row": "shape-git_get_tree",
+      "first_window": "not called by any R11 hosted window",
+      "unobserved": "any git_get_tree response",
+      "stop": "no caller in scripts/ci"
+    },
+    {
+      "id": "shape-job_logs-hop-1",
+      "row": "shape-job_logs",
+      "first_window": "not called by any R11 hosted window",
+      "unobserved": "the blob host's job-log body beyond the probed hop 0",
+      "stop": "no R11 caller; results-receiver is refused on job_logs before its socket (redirect_rejected)"
     }
   ]
 }
