@@ -575,7 +575,7 @@ describe("R2 reconciliation contract", () => {
     assert.equal(sha(committed), V1_CONTRACT_SHA);
     assert.equal(reconcile.serializeContract(reconcile.buildContract()), committed);
     assert.equal(reconcile.serializeContract(reconcile.buildContract({ revision: "v1" })), committed);
-    assert.throws(() => reconcile.buildContract({ revision: "r11" }), /revision/);
+    assert.throws(() => reconcile.buildContract({ revision: "r12" }), /revision/);
   });
 
   test("partitions the 47 pre-R2 plans into 17 completed, 7 halted and 23 never-executed", () => {
@@ -640,7 +640,7 @@ describe("R2 reconciliation contract", () => {
     writeFileSync(target, `${text} `);
     const bad = spawnSync(process.execPath, [SCRIPT, "--revision", "r2", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
     assert.notEqual(bad.status, 0);
-    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r11", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
+    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r12", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
     assert.notEqual(unknown.status, 0);
     const v1 = spawnSync(process.execPath, [SCRIPT, "--prepare-contract", "--output", join(REAL_PHASE_DIR, reconcile.CONTRACT_NAME), "--check-only"], { encoding: "utf8" });
     assert.equal(v1.status, 0, v1.stderr);
@@ -766,7 +766,7 @@ describe("R3 reconciliation contract", () => {
     assert.equal(sha(r2), R2_CONTRACT_SHA);
     assert.equal(reconcile.serializeContract(reconcile.buildContract()), v1);
     assert.equal(reconcile.serializeContract(reconcile.buildContract({ revision: "r2" })), r2);
-    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"]);
+    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"]);
   });
 
   test("partitions PLANs 01-56 into 20 completed, 8 halted and 28 never-executed", () => {
@@ -988,7 +988,7 @@ describe("R4 reconciliation contract", () => {
       assert.equal(sha(text), expected, name);
       assert.equal(reconcile.serializeContract(reconcile.buildContract({ revision })), text, `${revision} regenerates byte-identically`);
     }
-    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"]);
+    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"]);
   });
 
   test("partitions PLANs 01-68 into 26 completed, 9 halted and 33 never-executed", () => {
@@ -1242,7 +1242,7 @@ describe("R5 reconciliation contract", () => {
       assert.equal(sha(text), expected, name);
       assert.equal(reconcile.serializeContract(reconcile.buildContract({ revision })), text, `${revision} regenerates byte-identically`);
     }
-    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"]);
+    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"]);
   });
 
   test("partitions PLANs 01-78 into 30 completed, 10 halted and 38 never-executed", () => {
@@ -1514,7 +1514,7 @@ describe("R6 reconciliation contract", () => {
       assert.equal(sha(text), expected, name);
       assert.equal(reconcile.serializeContract(reconcile.buildContract({ revision })), text, `${revision} regenerates byte-identically`);
     }
-    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"]);
+    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"]);
   });
 
   test("partitions PLANs 01-88 into 35 completed, 11 halted and 42 never-executed", () => {
@@ -1792,7 +1792,7 @@ const R7_FORBIDDEN_OWNERS = [...R6_FORBIDDEN_OWNERS, "92", "93", "94"];
 
 describe("R7 revision skeleton: partition, dispositioned gating and CLI", () => {
   test("R7 sets partition PLANs 01-94 into 38 completed, 12 halted and 44 never-executed", () => {
-    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"]);
+    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"]);
     assert.deepEqual([...reconcile.COMPLETED_IDS_R7], R7_COMPLETED);
     assert.deepEqual([...reconcile.HALTED_IDS_R7], R7_HALTED);
     assert.deepEqual([...reconcile.NEVER_RAN_IDS_R7], R7_NEW_UNSTARTED);
@@ -1845,9 +1845,9 @@ describe("R7 revision skeleton: partition, dispositioned gating and CLI", () => 
     assert.equal(contract.revision, "r7");
     assert.equal(contract.schema, reconcile.CONTRACT_SCHEMA_R7);
     assert.equal(contract.responsibilities.length, 44);
-    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r11", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
+    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r12", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
     assert.equal(unknown.status, 2);
-    assert.match(unknown.stderr, /unknown revision r11/);
+    assert.match(unknown.stderr, /unknown revision r12/);
   });
 
   test("93 and 94 are never-ran rows blocked by halted 253-92; every row carries the R7 successor revision", () => {
@@ -2152,7 +2152,7 @@ const R8_FORBIDDEN_OWNERS = [...R7_FORBIDDEN_OWNERS, "97", "98", "99"];
 
 describe("R8 revision skeleton: partition, dispositioned gating, CLI and three-digit plan IDs", () => {
   test("R8 sets partition PLANs 01-99 into 40 completed, 13 halted and 46 never-executed", () => {
-    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"]);
+    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"]);
     assert.deepEqual([...reconcile.COMPLETED_IDS_R8], R8_COMPLETED);
     assert.deepEqual([...reconcile.HALTED_IDS_R8], R8_HALTED);
     assert.deepEqual([...reconcile.NEVER_RAN_IDS_R8], R8_NEW_UNSTARTED);
@@ -2220,9 +2220,9 @@ describe("R8 revision skeleton: partition, dispositioned gating, CLI and three-d
     assert.equal(contract.revision, "r8");
     assert.equal(contract.schema, reconcile.CONTRACT_SCHEMA_R8);
     assert.equal(contract.responsibilities.length, 46);
-    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r11", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
+    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r12", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
     assert.equal(unknown.status, 2);
-    assert.match(unknown.stderr, /unknown revision r11/);
+    assert.match(unknown.stderr, /unknown revision r12/);
   });
 
   test("98 and 99 are never-ran rows blocked by halted 253-97; earlier rows keep their reasons; every row carries the R8 successor revision", () => {
@@ -2594,7 +2594,7 @@ const R9_FORBIDDEN_OWNERS = [...R8_FORBIDDEN_OWNERS, "104", "105", "106"];
 
 describe("R9 revision skeleton: partition, dispositioned gating, CLI and three-digit plan IDs", () => {
   test("R9 sets partition PLANs 01-106 into 44 completed, 14 halted and 48 never-executed", () => {
-    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"]);
+    assert.deepEqual([...reconcile.REVISIONS], ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"]);
     assert.deepEqual([...reconcile.COMPLETED_IDS_R9], R9_COMPLETED);
     assert.deepEqual([...reconcile.HALTED_IDS_R9], R9_HALTED);
     assert.deepEqual([...reconcile.NEVER_RAN_IDS_R9], R9_NEW_UNSTARTED);
@@ -2609,7 +2609,7 @@ describe("R9 revision skeleton: partition, dispositioned gating, CLI and three-d
     assert.equal(reconcile.CONTRACT_SCHEMA_R9, "sigra.phase253.load-recovery-reconciliation-contract/r9");
     assert.equal(reconcile.contractPathFor("r9"), join(HERE, R9_CONTRACT_NAME));
     assert.equal(reconcile.contractPathFor("r8"), join(HERE, R8_CONTRACT_NAME));
-    assert.throws(() => reconcile.contractPathFor("r11"), /unknown revision r11/);
+    assert.throws(() => reconcile.contractPathFor("r12"), /unknown revision r12/);
   });
 
   test("r6, r7, r8 and r9 call the verifier with --require-dispositioned; v1-r5 keep --require-accepted", () => {
@@ -2661,9 +2661,9 @@ describe("R9 revision skeleton: partition, dispositioned gating, CLI and three-d
     assert.equal(contract.revision, "r9");
     assert.equal(contract.schema, reconcile.CONTRACT_SCHEMA_R9);
     assert.equal(contract.responsibilities.length, 48);
-    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r11", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
+    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r12", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
     assert.equal(unknown.status, 2);
-    assert.match(unknown.stderr, /unknown revision r11/);
+    assert.match(unknown.stderr, /unknown revision r12/);
   });
 
   test("105 and 106 are never-ran rows blocked by halted 253-104; earlier rows keep their reasons; every row carries the R9 successor revision", () => {
@@ -3011,7 +3011,7 @@ const R10_HALTED = [...R9_HALTED, "113"];
 const R10_COMPLETED = [...R9_COMPLETED, "107", "108", "109", "110", "111", "112"].sort(byNumber9);
 const R10_NEVER_RAN_113 = "dependency 253-113 halted at the full-pass verifier: the frozen ci-hosted-gate-verify.py required the run name to equal the bare workflow name 'Phase 253 Gate Canary', but GitHub returned the workflow run-name 'Phase 253 Gate Canary / full-pass / 38906314106-1' (run workflow identity mismatch)";
 const R10_FORBIDDEN_OWNERS = [...R9_FORBIDDEN_OWNERS, "113", "114", "115"];
-const R10_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"];
+const R10_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"];
 
 describe("R10 revision skeleton: partition, dispositioned gating, numeric revision order, CLI and plan IDs", () => {
   test("R10 sets partition PLANs 01-115 into 50 completed, 15 halted and 50 never-executed", () => {
@@ -3031,22 +3031,22 @@ describe("R10 revision skeleton: partition, dispositioned gating, numeric revisi
     assert.equal(reconcile.CONTRACT_SCHEMA_R10, "sigra.phase253.load-recovery-reconciliation-contract/r10");
     assert.equal(reconcile.contractPathFor("r10"), join(HERE, R10_CONTRACT_NAME));
     assert.equal(reconcile.contractPathFor("r9"), join(HERE, R9_CONTRACT_NAME));
-    assert.throws(() => reconcile.contractPathFor("r11"), /unknown revision r11/);
-    assert.throws(() => reconcile.buildContract({ revision: "r11" }), /unknown revision r11/);
+    assert.throws(() => reconcile.contractPathFor("r12"), /unknown revision r12/);
+    assert.throws(() => reconcile.buildContract({ revision: "r12" }), /unknown revision r12/);
   });
 
   test("revisions are ordered numerically everywhere: r10 follows r9 and never sorts before r2", () => {
     assert.deepEqual([...reconcile.REVISIONS], R10_REVISIONS);
-    assert.equal(reconcile.REVISIONS.indexOf("r10"), reconcile.REVISIONS.length - 1);
+    assert.equal(reconcile.REVISIONS.indexOf("r10"), reconcile.REVISIONS.indexOf("r9") + 1);
     assert.ok(reconcile.REVISIONS.indexOf("r10") > reconcile.REVISIONS.indexOf("r2"));
     // Positive control: a plain string sort WOULD put r10 before r2, so the list must never be sorted.
     assert.ok([...R10_REVISIONS].sort().indexOf("r10") < [...R10_REVISIONS].sort().indexOf("r2"));
     const source = readFileSync(SCRIPT, "utf8");
     assert.doesNotMatch(source, /REVISIONS\]?\)?\.sort\(/, "the helper never sorts the revision list");
     assert.doesNotMatch(source, /REVISIONS\.(toSorted|reverse)\(/);
-    const refused = spawnSync(process.execPath, [SCRIPT, "--revision", "r11", "--prepare-contract", "--output", "/nonexistent/x.json", "--check-only"], { encoding: "utf8" });
+    const refused = spawnSync(process.execPath, [SCRIPT, "--revision", "r12", "--prepare-contract", "--output", "/nonexistent/x.json", "--check-only"], { encoding: "utf8" });
     assert.equal(refused.status, 2);
-    assert.match(refused.stderr, /expected one of v1, r2, r3, r4, r5, r6, r7, r8, r9, r10\n/);
+    assert.match(refused.stderr, /expected one of v1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11\n/);
     const keys = Object.keys(reconcile.buildContract({ revision: "r10" })).filter((key) => /_contract$/.test(key));
     assert.deepEqual(keys, ["v1_contract", "r2_contract", "r3_contract", "r4_contract", "r5_contract", "r6_contract", "r7_contract", "r8_contract", "r9_contract"]);
   });
@@ -3100,9 +3100,9 @@ describe("R10 revision skeleton: partition, dispositioned gating, numeric revisi
     assert.equal(contract.revision, "r10");
     assert.equal(contract.schema, reconcile.CONTRACT_SCHEMA_R10);
     assert.equal(contract.responsibilities.length, 50);
-    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r11", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
+    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r12", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
     assert.equal(unknown.status, 2);
-    assert.match(unknown.stderr, /unknown revision r11/);
+    assert.match(unknown.stderr, /unknown revision r12/);
   });
 
   test("114 and 115 are never-ran rows blocked by halted 253-113; earlier rows keep their reasons; every row carries the R10 successor revision", () => {
@@ -3457,5 +3457,137 @@ describe("R10 pairing through the real installed SDK on a copy of the current pl
     writeFileSync(join(dir, "253-122-PLAN.md"), `${readFileSync(join(dir, "253-122-PLAN.md"), "utf8")}\n`);
     assert.throws(() => reconcile.prepareDispositions({ root, contract, contractSha256: contractSha, completionPath: completion, verifier: dispositionedVerifier }), /253-122|differs/);
     assert.equal(existsSync(join(dir, "253-114-SUMMARY.md")), false);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// 253-132: R11 revision (253-122 halted at the first failure scenario because GitHub redirected the
+// actual-failure run's logs to results-receiver.actions.githubusercontent.com, outside the then-frozen trusted
+// download policy, so 253-123 and 253-124 can never run).
+// Task 1: partition, dispositioned gating, numeric revision order, CLI and plan IDs up to 253-135.
+// ---------------------------------------------------------------------------------------------
+const R10_CONTRACT_SHA = "ac05a22cc27f9e2718b3c93e94133c2c3c71d3a5fe8d9c059ff1bb8117b0509f";
+const R11_CONTRACT_NAME = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R11.json";
+const R11_NEW_UNSTARTED = ["123", "124"];
+const R11_UNSTARTED = [...R10_UNSTARTED, ...R11_NEW_UNSTARTED].sort(byNumber9);
+const R11_HALTED = [...R10_HALTED, "122"];
+const R11_COMPLETED = [...R10_COMPLETED, "116", "117", "118", "119", "120", "121"].sort(byNumber9);
+const R11_NEVER_RAN_122 = "dependency 253-122 halted at the first failure scenario: GitHub redirected the actual-failure run's logs (run 38963239851) to results-receiver.actions.githubusercontent.com, which the then-frozen ci-hosted-transport.py trusted download policy refused before its socket (redirect_rejected)";
+const R11_FORBIDDEN_OWNERS = [...R10_FORBIDDEN_OWNERS, "122", "123", "124"];
+const R11_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"];
+
+describe("R11 revision skeleton: partition, dispositioned gating, numeric revision order, CLI and plan IDs", () => {
+  test("R11 sets partition PLANs 01-124 into 56 completed, 16 halted and 52 never-executed", () => {
+    assert.deepEqual([...reconcile.REVISIONS], R11_REVISIONS);
+    assert.deepEqual([...reconcile.COMPLETED_IDS_R11], R11_COMPLETED);
+    assert.deepEqual([...reconcile.HALTED_IDS_R11], R11_HALTED);
+    assert.deepEqual([...reconcile.NEVER_RAN_IDS_R11], R11_NEW_UNSTARTED);
+    assert.deepEqual([...reconcile.UNSTARTED_IDS_R11], R11_UNSTARTED);
+    assert.equal(reconcile.COMPLETED_IDS_R11.length, 56);
+    assert.equal(reconcile.HALTED_IDS_R11.length, 16);
+    assert.equal(reconcile.UNSTARTED_IDS_R11.length, 52);
+    const all = [...reconcile.COMPLETED_IDS_R11, ...reconcile.HALTED_IDS_R11, ...reconcile.UNSTARTED_IDS_R11].sort(byNumber9);
+    assert.deepEqual(all, Array.from({ length: 124 }, (_, i) => String(i + 1).padStart(2, "0")));
+    assert.equal(new Set(all).size, 124, "no id is in two classes");
+    assert.deepEqual(R11_HALTED, ["02", "07", "09", "12", "16", "27", "40", "51", "63", "73", "84", "92", "97", "104", "113", "122"]);
+    assert.equal(reconcile.NEVER_RAN_REASON_R11, R11_NEVER_RAN_122);
+    assert.equal(reconcile.CONTRACT_NAME_R11, R11_CONTRACT_NAME);
+    assert.equal(reconcile.CONTRACT_SCHEMA_R11, "sigra.phase253.load-recovery-reconciliation-contract/r11");
+    assert.equal(reconcile.contractPathFor("r11"), join(HERE, R11_CONTRACT_NAME));
+    assert.equal(reconcile.contractPathFor("r10"), join(HERE, R10_CONTRACT_NAME));
+    assert.throws(() => reconcile.contractPathFor("r12"), /unknown revision r12/);
+    assert.throws(() => reconcile.buildContract({ revision: "r12" }), /unknown revision r12/);
+  });
+
+  test("revisions are ordered numerically everywhere: r10 and r11 follow r9 and never sort before r2", () => {
+    assert.deepEqual([...reconcile.REVISIONS], R11_REVISIONS);
+    assert.equal(reconcile.REVISIONS.indexOf("r11"), reconcile.REVISIONS.length - 1);
+    assert.equal(reconcile.REVISIONS.indexOf("r11"), reconcile.REVISIONS.indexOf("r10") + 1);
+    assert.equal(reconcile.REVISIONS.indexOf("r10"), reconcile.REVISIONS.indexOf("r9") + 1);
+    for (const late of ["r10", "r11"]) assert.ok(reconcile.REVISIONS.indexOf(late) > reconcile.REVISIONS.indexOf("r2"), late);
+    // Positive control: a plain string sort WOULD put r10 and r11 before r2, so the list must never be sorted.
+    const stringSorted = [...R11_REVISIONS].sort();
+    assert.ok(stringSorted.indexOf("r10") < stringSorted.indexOf("r2"));
+    assert.ok(stringSorted.indexOf("r11") < stringSorted.indexOf("r2"));
+    const source = readFileSync(SCRIPT, "utf8");
+    assert.doesNotMatch(source, /REVISIONS\]?\)?\.sort\(/, "the helper never sorts the revision list");
+    assert.doesNotMatch(source, /REVISIONS\.(toSorted|reverse)\(/);
+    assert.doesNotMatch(source, /DISPOSITIONED_REVISIONS\]?\)?\.sort\(/);
+    const refused = spawnSync(process.execPath, [SCRIPT, "--revision", "r12", "--prepare-contract", "--output", "/nonexistent/x.json", "--check-only"], { encoding: "utf8" });
+    assert.equal(refused.status, 2);
+    assert.match(refused.stderr, /expected one of v1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11\n/);
+    const keys = Object.keys(reconcile.buildContract({ revision: "r11" })).filter((key) => /_contract$/.test(key));
+    assert.deepEqual(keys, ["v1_contract", "r2_contract", "r3_contract", "r4_contract", "r5_contract", "r6_contract", "r7_contract", "r8_contract", "r9_contract", "r10_contract"]);
+  });
+
+  test("r6-r11 call the verifier with --require-dispositioned; v1-r5 keep --require-accepted", () => {
+    for (const revision of ["v1", "r2", "r3", "r4", "r5"]) {
+      const argv = reconcile.completionArgv(revision, "/x/completion.json");
+      assert.ok(argv.includes("--require-accepted"), revision);
+      assert.ok(!argv.includes("--require-dispositioned"), revision);
+    }
+    for (const revision of ["r6", "r7", "r8", "r9", "r10", "r11"]) {
+      const argv = reconcile.completionArgv(revision, "/x/completion.json");
+      assert.ok(argv.includes("--require-dispositioned"), revision);
+      assert.ok(!argv.includes("--require-accepted"), revision);
+    }
+  });
+
+  test("the r11 predicate accepts only the dispositioned shape", () => {
+    const { root } = r6Fixture();
+    const completion = dispositionCompletionFixture(root);
+    assert.equal(reconcile.evaluateCompletion({ completionPath: completion, verifier: dispositionedVerifier, revision: "r11" }).accepted, true);
+    assert.equal(reconcile.evaluateCompletion({ completionPath: completion, verifier: acceptedVerifier, revision: "r11" }).accepted, false);
+    const mutated = () => { const out = dispositionedVerifier(); const body = JSON.parse(out.stdout); body.requirements["CIREL-01"] = "accepted"; return { ...out, stdout: JSON.stringify(body) }; };
+    assert.equal(reconcile.evaluateCompletion({ completionPath: completion, verifier: mutated, revision: "r11" }).accepted, false);
+  });
+
+  test("plan IDs build, sort and match: 253-99, 253-122, 253-125 and 253-135", () => {
+    assert.equal(reconcile.planIdOf(125), "253-125");
+    assert.equal(reconcile.planIdOf(135), "253-135");
+    assert.deepEqual(["253-135", "253-125", "253-122", "253-99"].sort(reconcile.comparePlanIds), ["253-99", "253-122", "253-125", "253-135"]);
+    assert.deepEqual(["135", "125", "122", "99"].sort(reconcile.comparePlanIds), ["99", "122", "125", "135"]);
+    assert.deepEqual(reconcile.parsePlanFile("253-125-PLAN.md"), { id: "125", number: 125, kind: "PLAN" });
+    assert.deepEqual(reconcile.parsePlanFile("253-135-SUMMARY.md"), { id: "135", number: 135, kind: "SUMMARY" });
+    assert.deepEqual(reconcile.parsePlanFile("253-122-SUMMARY.md"), { id: "122", number: 122, kind: "SUMMARY" });
+    assert.deepEqual(reconcile.parsePlanFile("253-99-PLAN.md"), { id: "99", number: 99, kind: "PLAN" });
+    assert.equal(reconcile.parsePlanFile("253-1350-PLAN.md"), null);
+    assert.deepEqual([...reconcile.R11_PLAN_IDS], ["125", "126", "127", "128", "129", "130", "131", "132", "133", "134", "135"]);
+  });
+
+  test("CLI --revision r11 --prepare-contract writes, --check-only matches on a copy, an unknown revision is refused", () => {
+    const dir = mkdtempSync(join(tmpdir(), "p253-132-skeleton-"));
+    cleanup.push(dir);
+    const target = join(dir, R11_CONTRACT_NAME);
+    const run = (...args) => spawnSync(process.execPath, [SCRIPT, "--revision", "r11", "--prepare-contract", "--output", target, ...args], { encoding: "utf8" });
+    assert.notEqual(run("--check-only").status, 0);
+    assert.equal(existsSync(target), false);
+    const written = run();
+    assert.equal(written.status, 0, written.stderr);
+    const ok = run("--check-only");
+    assert.equal(ok.status, 0, ok.stderr);
+    const contract = JSON.parse(readFileSync(target, "utf8"));
+    assert.equal(contract.revision, "r11");
+    assert.equal(contract.schema, reconcile.CONTRACT_SCHEMA_R11);
+    assert.equal(contract.responsibilities.length, 52);
+    const unknown = spawnSync(process.execPath, [SCRIPT, "--revision", "r12", "--prepare-contract", "--output", target, "--check-only"], { encoding: "utf8" });
+    assert.equal(unknown.status, 2);
+    assert.match(unknown.stderr, /unknown revision r12/);
+  });
+
+  test("123 and 124 are never-ran rows blocked by halted 253-122; earlier rows keep their reasons; every row carries the R11 successor revision", () => {
+    const contract = reconcile.buildContract({ revision: "r11" });
+    for (const id of R11_NEW_UNSTARTED) {
+      const row = contract.responsibilities.find((r) => r.plan === `253-${id}`);
+      assert.deepEqual(row.blocked_by, ["253-122"], id);
+      assert.equal(row.never_ran_reason, R11_NEVER_RAN_122, id);
+    }
+    assert.deepEqual(contract.responsibilities.map((r) => r.plan.slice(4)), R11_UNSTARTED);
+    for (const row of contract.responsibilities) assert.equal(row.successor_revision, "R11", row.plan);
+    assert.equal(contract.responsibilities.find((r) => r.plan === "253-08").never_ran_reason, undefined);
+    assert.equal(contract.responsibilities.find((r) => r.plan === "253-114").never_ran_reason, R10_NEVER_RAN_113);
+    assert.deepEqual(contract.responsibilities.find((r) => r.plan === "253-115").blocked_by, ["253-113"]);
+    assert.equal(contract.responsibilities.find((r) => r.plan === "253-105").never_ran_reason, R9_NEVER_RAN_104);
+    for (const row of contract.responsibilities) for (const owner of row.owners) assert.ok(!R11_FORBIDDEN_OWNERS.includes(owner.slice(4)), `${row.plan} owner ${owner}`);
   });
 });
