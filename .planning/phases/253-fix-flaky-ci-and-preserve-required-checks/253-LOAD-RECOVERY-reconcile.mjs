@@ -1821,6 +1821,25 @@ const RESPONSIBILITY_MAP_R11 = Object.freeze({
   "123": { owners: ["134"], links: PR_LINKS },
   "124": { owners: ["132", "135"], links: [...COMPLETION_LINK_KEYS, "load_target_disposition"] },
 });
+// The R10 halted proof map carried through the remap (so no row names halted 122), plus halted 122's own proof:
+// 125 (results-receiver host RED receipt and policy fix), 126, 127 (the read-only real-shape probe), 128, 129,
+// 130 (r11 ref pair and final review), 131 (R11 publication and freeze) and 133 (the hosted canary 122 could not
+// finish).
+const HALTED_PROOF_MAP_R11 = Object.freeze({
+  ...Object.fromEntries(Object.entries(HALTED_PROOF_MAP_R10).map(([id, owners]) => [id, remapOwnersR11(owners)])),
+  "122": ["125", "126", "127", "128", "129", "130", "131", "133"],
+});
+
+// Plan 253-121's receipts name THIS helper and its test, which R11 (plan 253-132) must edit. They are held at
+// the bytes of the last 253-121 commit that touched each file (3d73201b6), read with git rather than invented.
+const FROZEN_TOOLING_RECEIPTS_R11_PLAN_121 = Object.freeze({
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "583f84ffb3c45e7319a09b89349e0f979a504d345dca6fb5917cda4f8d5239ed",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "2b79a502b4faa73062e02802e04da90030fe2f0910bb4a88437b7d8be48b7c1a",
+});
+// The 253-127 read-only probe records are real-shape fixture evidence only. They are pinned here so they cannot
+// drift, and they are never a completion link or acceptance evidence.
+const FIXTURE_ONLY_RECORDS_R11 = Object.freeze(["ACTION-APPROVAL", "ALLOCATION", "BODIES", "EVIDENCE", "HTTP-LEDGER", "REQUESTS"].map((kind) => `253-LOAD-RECOVERY-PROBE-${kind}-R11-PROBE.json`));
+const FIXTURE_ONLY_NOTE_R11 = "the 253-127 probe window records are real-shape fixture evidence only; they are never a completion link or acceptance evidence";
 // A proof owner must exist and must be neither halted nor never executed under R11.
 export function assertProofOwnerR11(phaseDir, owner) {
   const id = String(owner).replace(/^253-/, "");
@@ -1842,6 +1861,18 @@ function buildContractR11({ repoRoot = REPO_ROOT } = {}) {
   }
   for (const original of originals) original.class = classOf(original.plan.slice(4));
   for (const id of R11_PLAN_IDS) pinFile(repoRoot, `${PHASE_DIR_REL}/253-${id}-PLAN.md`, `R11 plan 253-${id}`);
+  const byNumber = (a, b) => comparePlanIds(a.plan, b.plan);
+  const completed = [...r10.completed_plans];
+  for (const id of ["116", "117", "118", "119", "120", "121"]) {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false, frozenReceipts: id === "121" ? FROZEN_TOOLING_RECEIPTS_R11_PLAN_121 : {} });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    completed.push(described);
+  }
+  completed.sort(byNumber);
+  const halted = [...r10.halted_plans];
+  const halted122 = describeSummary(repoRoot, phaseDir, "122", { requireReceipts: true });
+  if (halted122.summary.status !== "halted") throw new Error(`halted plan 253-122 summary status is ${halted122.summary.status}`);
+  halted.push(halted122);
   const r10Rows = Object.fromEntries(r10.responsibilities.map((row) => [row.plan.slice(4), row]));
   const responsibilities = UNSTARTED_IDS_R11.map((id) => {
     const mapping = RESPONSIBILITY_MAP_R11[id];
@@ -1867,13 +1898,56 @@ function buildContractR11({ repoRoot = REPO_ROOT } = {}) {
       successor_revision: "R11",
     };
   });
+  const planPins = ids(1, 135).map((n) => {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
+  });
+  const haltedProof = Object.fromEntries(HALTED_IDS_R11.map((id) => [`253-${id}`, HALTED_PROOF_MAP_R11[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) {
+      if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+      if (HALTED_IDS_R11.includes(owner.slice(4)) || UNSTARTED_IDS_R11.includes(owner.slice(4))) throw new Error(`halted proof owner ${owner} is a halted or never-executed plan`);
+    }
+  }
+  const summaryPins = [...ids(36, 43), ...ids(48, 51), ...ids(57, 63), ...ids(69, 73), ...ids(79, 84), ...ids(89, 92), 95, 96, 97, 100, 101, 102, 103, 104, ...ids(107, 113), ...ids(116, 122), ...ids(125, 131)].filter((n) => existsSync(join(phaseDir, `253-${PAD(n)}-SUMMARY.md`))).map((n) => {
+    const file = `253-${PAD(n)}-SUMMARY.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "summary") };
+  });
+  const fixtureRecords = FIXTURE_ONLY_RECORDS_R11.map((name) => ({ path: `${PHASE_DIR_REL}/${name}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${name}`, "fixture-only probe record") }));
   return {
-    ...r10,
     schema: CONTRACT_SCHEMA_R11,
     revision: "r11",
-    originals,
-    responsibilities,
+    phase: PHASE,
+    phase_dir: PHASE_DIR_REL,
+    v1_contract: r10.v1_contract,
+    r2_contract: r10.r2_contract,
+    r3_contract: r10.r3_contract,
+    r4_contract: r10.r4_contract,
+    r5_contract: r10.r5_contract,
+    r6_contract: r10.r6_contract,
+    r7_contract: r10.r7_contract,
+    r8_contract: r10.r8_contract,
+    r9_contract: r10.r9_contract,
     r10_contract: { path: `${PHASE_DIR_REL}/${CONTRACT_NAME_R10}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${CONTRACT_NAME_R10}`, "R10 contract") },
+    sdk: r10.sdk,
+    capture: r10.capture,
+    plan_pins: planPins,
+    summary_pins: summaryPins,
+    originals,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
+    responsibilities,
+    fixture_only_records: { note: FIXTURE_ONLY_NOTE_R11, records: fixtureRecords },
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned",
+      targets: "only the fifty-two previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-135",
+      then_run: r10.application.then_run,
+      never: [...r10.application.never],
+    },
   };
 }
 
