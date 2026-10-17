@@ -27,6 +27,12 @@ bytes or a justification with its residual risk. The checker fails when
 - a real-shape-test ref names no single existing test, or a test with no visible real-sample read;
 - a justified row has no justification or residual risk, or any row is a gap (test_no_gap_rows).
 
+253-129 adds the observed-route rule (test_probe_observed_routes_are_not_justified): for every committed ledger whose name
+ends -R11-PROBE.json (the 253-127 read-only probe), every route with a 2xx or 3xx row there must have a response-shape
+row that is real-shape-test and cites at least one of that ledger's rows for the route; fields the probe did not observe
+may stay in fields_without_real_sample with a reason. Its positive controls revert shape-run_logs to justified, remove
+its probe sample, point a probe locator at the wrong sequence, and delete the probe ledgers (a vacuous rule is reported).
+
 Field syntax: a dotted path into the decoded response body ([] steps into each list item, a leading [] for a list root);
 meta:FIELD for a ledger transaction field; header:NAME for a scrubbed response header; value:PATH=TEXT for a leaf equal to
 TEXT; source:TEXT for text present in a committed source sample (a workflow file).
@@ -259,14 +265,19 @@ WORKFLOW_SOURCE_IDS = ("workflow-source:canary-fixture", "workflow-source:ci-yml
 SHAPE_KINDS = ("real-shape-test", "justified", "gap")
 SHAPE_FAMILIES = ("canary", "pr", "both")
 SHAPE_TEST_FILES = ("scripts/ci/ci-gate-canary-dryrun.test.py", "scripts/ci/ci-hosted-gate-verify.test.py",
-                    "scripts/ci/ci-git-publication.test.py", "scripts/ci/ci-pr-proof.test.sh")
+                    "scripts/ci/ci-git-publication.test.py", "scripts/ci/ci-pr-proof.test.sh",
+                    # 253-129: the transport's run_logs chain tests read the R10 ledger and the R11 probe ledger, and this
+                    # checker's own ProbeObservedRouteTests compare the transport's typed job_logs route with the probe row.
+                    "scripts/ci/ci-hosted-transport.test.py", "scripts/ci/ci-hermetic-live-audit.test.py")
 # A test cited as real-shape coverage must visibly read committed real bytes, in its body or its class's setUp or
 # setUpClass: a committed ledger, evidence, workflow or bundle constant, the 253-117 real-shape builders, or the dry-run's
 # response_shape gate (which compares every served response with the committed R9 ledger). Like LIVE_MARKER it is a
 # floor: each row states what its tests compare.
 REAL_SAMPLE_MARKER = re.compile(r"EVIDENCE_R9|REAL_LEDGER_R9|\bLEDGER_R[789]\b|\bR[789]_LEDGER\b|LEDGER-R[789]|FIRST_CANARY_RUN|"
                                 r"38347679431|\breal_(?:bodies|run|job|steps|artifact)\(|verifier_run_receipt\(|ledger_body\(|bundle_member\(|"
-                                r"response_shape|REGISTERED_FIXTURE|CANARY-WORKFLOW|CI_YML|PUBLICATION_RECEIPT_R9|REAL_RECEIPT")
+                                r"response_shape|REGISTERED_FIXTURE|CANARY-WORKFLOW|CI_YML|PUBLICATION_RECEIPT_R9|REAL_RECEIPT|"
+                                # 253-129: the committed R10 ledger and the 253-127 read-only probe records (-R11-PROBE).
+                                r"\bR10_LEDGER\b|PROBE_(?:LEDGER|EVIDENCE|BODIES)|probe_run_logs_chain\(|self\.seq47\(")
 _NO_BODY = object()
 _MEMBER_CACHE = {}
 
@@ -520,6 +531,70 @@ def check_response_shapes(record, root):
                 problems.append(f"{rid}: ref {ref!r} shows no real-sample read, so it cannot count as real-shape coverage")
     for route in sorted(expected - set(seen)):
         problems.append(f"route {route} has no response-shape row")
+    return problems + check_probe_observed_routes(record, root)
+
+
+# 253-129: a route a committed read-only probe ledger (name ending -R11-PROBE.json) saw answer 2xx or 3xx is observed
+# live, so its response-shape row may no longer be justified: it must be real-shape-test and cite at least one of that
+# ledger's rows for the route. Fields the probe did not observe may still sit in fields_without_real_sample with a reason.
+PROBE_LEDGER_GLOB = "*-R11-PROBE.json"
+PROBE_LEDGER_R11_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json"
+PROBE_ALLOCATION_R11_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-PROBE-ALLOCATION-R11-PROBE.json"
+
+
+def probe_ledger_paths(root):
+    """Every -R11-PROBE record in the phase directory at root (relative paths, sorted)."""
+    return sorted(f"{PHASE_REL}/{path.name}" for path in (Path(root) / PHASE_REL).glob(PROBE_LEDGER_GLOB) if path.is_file())
+
+
+def observed_probe_routes(root):
+    """{ledger rel: {route: {sequence, ...}}} for every 2xx/3xx transaction of every -R11-PROBE ledger at root. A probe
+    record without a transactions list (allocation, approval, bodies, evidence, requests) is not a ledger."""
+    observed = {}
+    for rel in probe_ledger_paths(root):
+        try:
+            document = json.loads((Path(root) / rel).read_bytes())
+        except (UnicodeError, ValueError):
+            continue
+        transactions = document.get("transactions") if isinstance(document, dict) else None
+        if not isinstance(transactions, list):
+            continue
+        routes = observed.setdefault(rel, {})
+        for tx in transactions:
+            status = tx.get("actual_status") if isinstance(tx, dict) else None
+            if type(status) is int and 200 <= status < 400 and isinstance(tx.get("route_id"), str):
+                routes.setdefault(tx["route_id"], set()).add(tx.get("sequence"))
+    return observed
+
+
+def check_probe_observed_routes(record, root):
+    """Every probe-observed route whose row is not real-shape-test on at least one row of that probe ledger."""
+    observed = observed_probe_routes(root)
+    if not any(observed.values()):
+        return [f"no committed {PROBE_LEDGER_GLOB} ledger with a 2xx/3xx row was found, so the observed-route rule "
+                "would be vacuous"]
+    rows = {row.get("route"): row for row in record.get("response_shape_rows") or [] if isinstance(row, dict)}
+    problems = []
+    for rel, routes in sorted(observed.items()):
+        for route, sequences in sorted(routes.items()):
+            row = rows.get(route)
+            if row is None:
+                problems.append(f"route {route} was observed live in {rel} (sequence {sorted(sequences)}) and has no "
+                                "response-shape row")
+                continue
+            rid = row.get("id")
+            kind = (row.get("coverage") or {}).get("kind")
+            if kind != "real-shape-test":
+                problems.append(f"{rid}: route {route} was observed live in {rel} (sequence {sorted(sequences)}), so its "
+                                f"coverage must be real-shape-test, not {kind}")
+            cited = [sample for sample in row.get("real_samples") or [] if isinstance(sample, dict) and sample.get("path") == rel]
+            for sample in cited:
+                if sample.get("sequence") not in sequences:
+                    problems.append(f"{rid}: real sample {rel} sequence {sample.get('sequence')!r} is not a 2xx/3xx {route} "
+                                    f"row of that probe ledger (its rows are {sorted(sequences)})")
+            if not any(sample.get("sequence") in sequences for sample in cited):
+                problems.append(f"{rid}: route {route} was observed live in {rel} but the row cites none of its rows "
+                                f"{sorted(sequences)}")
     return problems
 
 
@@ -543,7 +618,8 @@ def response_shape_sample_paths(record):
 
 def copy_audited_tree(record, root):
     """Copy everything the checker reads into a scratch root: audited sources, test files and every real sample."""
-    for rel in sorted(set(FILES + TEST_FILES + SHAPE_TEST_FILES) | set(response_shape_sample_paths(record))):
+    for rel in sorted(set(FILES + TEST_FILES + SHAPE_TEST_FILES) | set(response_shape_sample_paths(record))
+                      | set(probe_ledger_paths(ROOT))):
         target = Path(root) / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / rel, target)
@@ -782,6 +858,107 @@ class ResponseShapePositiveControls(unittest.TestCase):
         row = self.row(record, "pr_read")
         row["coverage"] = {"kind": "gap", "refs": []}
         self.assertIn(row["id"], gap_rows(record))
+
+
+def load_transport(root=ROOT):
+    spec = importlib.util.spec_from_file_location("audit_transport_module", Path(root) / TRANSPORT_REL)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class ProbeObservedRouteTests(unittest.TestCase):
+    """253-129: every route the 253-127 read-only probe saw answer 2xx/3xx is on real samples of that probe ledger."""
+
+    def test_probe_observed_routes_are_not_justified(self):
+        # Positive control for the rule's input: the committed probe ledger is found, committed, and names the five
+        # routes the probe read with 2xx/3xx, so an empty problem list below is not a vacuous pass.
+        observed = observed_probe_routes(ROOT)
+        self.assertEqual({rel: {route: sorted(seqs) for route, seqs in routes.items()} for rel, routes in observed.items()},
+                         {PROBE_LEDGER_R11_REL: {"rate_limit": [1], "run": [2], "run_jobs": [3], "job_logs": [4],
+                                                 "run_logs": [5, 6]}})
+        tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "--error-unmatch", *probe_ledger_paths(ROOT)],
+                                 capture_output=True, text=True)
+        self.assertEqual(tracked.returncode, 0, tracked.stderr)
+        problems = check_probe_observed_routes(load_record(), ROOT)
+        self.assertEqual(problems, [], "\n".join(problems))
+
+    def test_live_probe_job_logs_hop0_matches_the_typed_download_route(self):
+        # The probe's job_logs request (seq 4) is hop 0 only: GitHub answered 302, empty text/html body, Location on a
+        # productionresultssa{N} blob host with a signed query. The transport types job_logs as a download route at
+        # that path and its single live download-hop predicate admits the recorded host as hop 1 of job_logs (under the
+        # probe's own allocation) and refuses results-receiver there. Hop 1 itself was never requested.
+        rows = [row for row in json.loads((ROOT / PROBE_LEDGER_R11_REL).read_text())["transactions"] if row["sequence"] == 4]
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual((row["route_id"], row["method"], row["host"], row["actual_status"]), ("job_logs", "GET", "api.github.com", 302))
+        self.assertEqual((row["response_body_base64"], row["scrubbed_headers"]["content-length"],
+                          row["scrubbed_headers"]["content-type"]), ("", "0", "text/html;charset=utf-8"))
+        transport = load_transport()
+        method, template, kind = transport.ROUTES["job_logs"]
+        self.assertEqual((method, kind), ("GET", "download"))
+        job_id = re.fullmatch(r"https://api\.github\.com/repos/szTheory/sigra/actions/jobs/([0-9]+)/logs", row["url"])
+        self.assertIsNotNone(job_id, row["url"])
+        self.assertEqual(template.format(repo="szTheory/sigra", job_id=job_id.group(1)), urllib_path(row["url"]))
+        location = row["scrubbed_headers"]["location"]
+        self.assertTrue(location["has_query"])
+        self.assertIsNone(location["port"])
+        self.assertRegex(location["host"], r"^productionresultssa[0-9]+\.blob\.core\.windows\.net$")
+        allocation = json.loads((ROOT / PROBE_ALLOCATION_R11_REL).read_text())
+        self.assertTrue(transport._trusted_download_host(location["host"], location["port"], allocation, "job_logs", 1))
+        # Positive controls: the same predicate refuses results-receiver on job_logs, and a lookalike blob host.
+        self.assertFalse(transport._trusted_download_host(transport.RESULTS_RECEIVER_HOST, None, allocation, "job_logs", 1))
+        self.assertFalse(transport._trusted_download_host(location["host"] + ".evil", None, allocation, "job_logs", 1))
+
+
+def urllib_path(url):
+    from urllib.parse import urlsplit
+    return urlsplit(url).path
+
+
+class ProbeObservedRoutePositiveControls(unittest.TestCase):
+    """Each control mutates a temporary copy of the record and must make the observed-route rule fail."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix="sigra-253-129-probe-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.record = load_record()
+        copy_audited_tree(self.record, self.root)
+        self.assertEqual(check_probe_observed_routes(self.record, self.root), [],
+                         "the unmutated copy must pass before a control means anything")
+
+    def run_logs(self, record):
+        return next(row for row in record["response_shape_rows"] if row["route"] == "run_logs")
+
+    def assert_fails_with(self, needle, record):
+        problems = check_probe_observed_routes(record, self.root)
+        self.assertTrue(any(needle in item for item in problems), problems)
+        self.assertTrue(any(needle in item for item in check_response_shapes(record, self.root)))
+
+    def test_control_shape_run_logs_reverted_to_justified_fails(self):
+        record = copy.deepcopy(self.record)
+        coverage = self.run_logs(record)["coverage"]
+        coverage.update(kind="justified", justification="control", residual_risk="control")
+        self.assert_fails_with("so its coverage must be real-shape-test, not justified", record)
+
+    def test_control_shape_run_logs_without_its_probe_sample_fails(self):
+        record = copy.deepcopy(self.record)
+        row = self.run_logs(record)
+        row["real_samples"] = [item for item in row["real_samples"] if item.get("path") != PROBE_LEDGER_R11_REL]
+        self.assert_fails_with("but the row cites none of its rows [5, 6]", record)
+
+    def test_control_a_probe_locator_on_the_wrong_sequence_fails(self):
+        record = copy.deepcopy(self.record)
+        sample = next(item for item in self.run_logs(record)["real_samples"]
+                      if item.get("path") == PROBE_LEDGER_R11_REL and item.get("sequence") == 5)
+        sample["sequence"] = 1
+        self.assert_fails_with("sequence 1 is not a 2xx/3xx run_logs row of that probe ledger", record)
+
+    def test_control_no_probe_ledger_is_reported_as_vacuous(self):
+        for rel in probe_ledger_paths(self.root):
+            (self.root / rel).unlink()
+        self.assertTrue(any("would be vacuous" in item for item in check_probe_observed_routes(self.record, self.root)))
 
 
 if __name__ == "__main__":
