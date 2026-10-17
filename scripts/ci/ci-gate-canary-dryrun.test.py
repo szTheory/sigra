@@ -1088,6 +1088,57 @@ class SeededR9RefsTests(unittest.TestCase):
         self.assertEqual(summary.get("evidence_status"), "halted", summary)
 
 
+class SeededR10RefsTests(unittest.TestCase):
+    """253-130: --seed-r10-refs pre-seeds the two r10 refs 253-122 created on GitHub, at their real SHAs, beside r8 and r9."""
+
+    def test_the_seeded_r10_pair_is_freeze_r10s_commits_and_r8_r9_are_unchanged(self):
+        runner = load_runner()
+        self.assertEqual(runner.R8_REFS, {"gsd/253-replan-r8-candidate": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+                                          "gsd/253-replan-r8-fixture": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44"})
+        self.assertEqual(runner.R9_REFS, {"gsd/253-replan-r9-candidate": "b9720d8e00e69e11c965ed7cf5029e3a0008783a",
+                                          "gsd/253-replan-r9-fixture": "aa7014893b716f279b60ceb545b8aee5ca15b10c"})
+        self.assertEqual(runner.R10_REFS, {"gsd/253-replan-r10-candidate": "d16617f77223ff136a0c9e04bc3cd067bc6370cf",
+                                           "gsd/253-replan-r10-fixture": "06bb7dfb7dad0221d49292b9342ad871685a673b"})
+        phase = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+        freeze = json.loads((phase / "253-LOAD-RECOVERY-CANARY-FREEZE-R10.json").read_text())["identity"]
+        self.assertEqual({freeze["candidate_ref"].removeprefix("refs/heads/"): freeze["candidate_helper_commit"],
+                          freeze["fixture_ref"].removeprefix("refs/heads/"): freeze["fixture_workflow_commit"]}, runner.R10_REFS)
+        receipt = json.loads((phase / "253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R10.json").read_text())
+        created = {row["ref"].removeprefix("refs/heads/"): row["sha"] for row in receipt["server_object_receipts"] if row.get("kind") == "ref"}
+        self.assertEqual(created, runner.R10_REFS)
+
+    def test_seeded_scoped_refs_merges_exactly_the_requested_pairs(self):
+        runner = load_runner()
+        flags = argparse.Namespace
+        self.assertEqual(runner.seeded_scoped_refs(flags()), {})
+        self.assertEqual(runner.seeded_scoped_refs(flags(seed_r10_refs=True)), runner.R10_REFS)
+        self.assertEqual(runner.seeded_scoped_refs(flags(seed_r8_refs=True, seed_r9_refs=True)), {**runner.R8_REFS, **runner.R9_REFS})
+        self.assertEqual(runner.seeded_scoped_refs(flags(seed_r8_refs=True, seed_r9_refs=True, seed_r10_refs=True)),
+                         {**runner.R8_REFS, **runner.R9_REFS, **runner.R10_REFS})
+
+    def test_an_r11_quick_gate_with_all_three_earlier_pairs_seeded_passes_in_both_modes_and_moves_none(self):
+        flags = ("--ref-pair", "r11", "--seed-r8-refs", "--seed-r9-refs", "--seed-r10-refs", "--stop-after", "full-pass")
+        for label, (code, summary) in (("hermetic", run_gate(*flags)), ("live-policy", live_run(*flags))):
+            with self.subTest(mode=label):
+                self.assertEqual(code, 0, summary)
+                self.assertEqual(summary.get("status"), "passed", summary)
+                for pair in ("r8", "r9", "r10"):
+                    self.assertIs(summary.get(f"seeded_{pair}_refs_changed"), False, summary)
+                self.assertIs((summary.get("response_shape") or {}).get("ok"), True, summary)
+                self.assertEqual(summary.get("requests_by_route", {}).get("create_ref"), 2, summary)
+
+    def test_an_r10_named_run_with_the_r10_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing(self):
+        code, summary = run_gate("--ref-pair", "r10", "--seed-r10-refs", "--stop-after", "full-pass")
+        self.assertNotEqual(code, 0, summary)
+        self.assertNotEqual(summary.get("status"), "passed", summary)
+        self.assertIn("scoped ref gsd/253-replan-r10-candidate already points to a different commit", summary.get("stop") or "", summary)
+        self.assertIs(summary.get("seeded_r10_refs_changed"), False, summary)
+        self.assertNotIn("seeded_r8_refs_changed", summary)
+        self.assertNotIn("seeded_r9_refs_changed", summary)
+        self.assertNotIn("create_ref", summary.get("requests_by_route") or {"create_ref": 1})
+        self.assertEqual(summary.get("evidence_status"), "halted", summary)
+
+
 class RefPairHelpTests(unittest.TestCase):
     def test_the_ref_pair_help_is_truthful_and_names_the_publishers_ref_pairs(self):
         result = subprocess.run([sys.executable, str(RUNNER), "--help"], cwd=ROOT, env=clean_env(),
