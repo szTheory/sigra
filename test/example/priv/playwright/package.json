@@ -11,7 +11,7 @@
     "@anthropic-ai/sdk": "^0.123.0",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.48.0",
-    "@simplewebauthn/browser": "^13.3.0",
+    "@simplewebauthn/browser": "^14.0.0",
     "cheerio": "^1.2.0",
     "otplib": "^13.5.0",
     "parse5": "^8.0.1",
