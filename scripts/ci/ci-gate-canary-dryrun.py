@@ -1683,11 +1683,16 @@ def dry_run(args) -> dict:
         sleep_log = None
         if live:
             # 253-108: the live canary allocation shape (as 253-104's), trusted hosts from ALLOCATION-R8, no test fields.
-            # 253-128: plus results-receiver, GitHub's run-log host (admitted by the transport only as run_logs hop 1).
+            # 253-128: plus results-receiver, GitHub's run-log host (admitted by the transport only as run_logs hop 1),
+            # when the transport under test knows it (253-125 on). A --transport-from transport that predates it refuses
+            # any allocation that lists it, so for that transport the allocation is the R8 list, as a real one would be.
             del allocation["test_origin"], allocation["test_ca_file"]
+            hosts = list(json.loads((ROOT / R8_ALLOCATION_REL).read_text())["download_hosts"])
+            under_test = load_module("ci_hosted_transport_under_dryrun", clone / TRANSPORT_REL)
+            if getattr(under_test, "RESULTS_RECEIVER_HOST", None) == RESULTS_RECEIVER_HOST:
+                hosts.append(RESULTS_RECEIVER_HOST)
             allocation.update({"window_id": f"{LIVE_WINDOW_PREFIX}{os.getpid()}", "max_pages": 10, "mode": "live",
-                               "download_hosts": list(json.loads((ROOT / R8_ALLOCATION_REL).read_text())["download_hosts"])
-                               + [RESULTS_RECEIVER_HOST]})
+                               "download_hosts": hosts})
             shim = load_module("ci_live_policy_shim_for_dryrun", clone / SHIM_REL)
             connect_log = work / "shim-connect.log"
             refusal_log = shim.refusal_log_for(connect_log)
