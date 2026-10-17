@@ -279,7 +279,7 @@
         "kind": "offline-live-test",
         "refs": [
           "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host",
-          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_follow_to_pipelines_host_without_authorization"
+          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_retained_pre_r11_pipelines_predicate_without_authorization"
         ],
         "residual_risk": "the live-policy shim patches ssl.create_default_context to trust the local fake's CA, so validation of GitHub's real certificate chain against the system trust store only runs in a hosted window"
       }
@@ -332,7 +332,7 @@
         "kind": "offline-live-test",
         "refs": [
           "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host",
-          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_follow_to_pipelines_host_without_authorization",
+          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_retained_pre_r11_pipelines_predicate_without_authorization",
           "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_same_live_allocation_without_overrides_gets_past_the_refusal"
         ]
       }
@@ -369,7 +369,7 @@
           "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_a_policy_trusted_host_absent_from_download_hosts_is_refused",
           "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_api_github_com_is_refused_because_it_is_never_a_download_host",
           "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host",
-          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_follow_to_pipelines_host_without_authorization",
+          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_retained_pre_r11_pipelines_predicate_without_authorization",
           "scripts/ci/ci-hosted-transport.test.py::test_live_r10_seq47_results_receiver_location_is_followed_without_authorization",
           "scripts/ci/ci-hosted-transport.test.py::test_live_results_receiver_redirect_to_a_trusted_blob_host_is_followed_at_hop_two",
           "scripts/ci/ci-hosted-transport.test.py::test_live_results_receiver_redirect_to_itself_or_an_untrusted_host_halts",

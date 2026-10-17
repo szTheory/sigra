@@ -13,6 +13,7 @@ import subprocess
 import tempfile
 import threading
 import unittest
+import urllib.parse
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -840,6 +841,8 @@ BLOB_LOCATION = f"https://{BLOB_HOST}/x/artifact.zip?sv=2025&sig=redacted"
 # 253-125: GitHub's real run-log redirect host (R10 ledger sequence 47) and the lookalikes that must never pass for it.
 R10_LEDGER = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json"
 RESULTS_RECEIVER = "results-receiver.actions.githubusercontent.com"
+# 253-128: the 253-127 read-only probe ledger, which holds GitHub's observed run_logs chain (seq 5 and 6).
+PROBE_LEDGER_R11 = R10_LEDGER.with_name("253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json")
 RESULTS_RECEIVER_LOOKALIKES = ("results-receiver.actions.githubusercontent.com.evil", "xresults-receiver.actions.githubusercontent.com",
                                "results-receiver2.actions.githubusercontent.com", "pipelines-results.actions.githubusercontent.com")
 # Every name the local server answers for; only the trusted ones are ever expected on the wire.
@@ -847,6 +850,12 @@ SHIM_HOSTS = ("api.github.com", BLOB_HOST, "productionresultssa41.blob.core.wind
               "pipelines.actions.githubusercontent.com", "evil.example.com",
               "productionresultssa17.blob.core.windows.net.evil.example", "productionresultssa16.blob.core.windows.net",
               RESULTS_RECEIVER) + RESULTS_RECEIVER_LOOKALIKES
+
+
+def probe_run_logs_chain():
+    """The run_logs rows of the committed 253-127 probe ledger, in hop order (GitHub's observed failed-log chain)."""
+    rows = [row for row in json.loads(PROBE_LEDGER_R11.read_text())["transactions"] if row.get("route_id") == "run_logs"]
+    return sorted(rows, key=lambda row: row["hop_ordinal"])
 
 
 def load_shim():
@@ -882,9 +891,13 @@ class LiveHostHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(status)
         for name, value in response_headers:
             self.send_header(name, value)
-        self.send_header("Content-Length", str(len(payload)))
+        chunked = ("Transfer-Encoding", "chunked") in response_headers
+        if not chunked:
+            self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
-        self.wfile.write(payload)
+        # 253-128: a chunked route sends no Content-Length, as results-receiver's recorded hop 1 does.
+        self.wfile.write((f"{len(payload):x}\r\n".encode() + payload + b"\r\n" if payload else b"") + b"0\r\n\r\n"
+                         if chunked else payload)
         self.server.journal.append({"host": host, "path": self.path, "status": status,
                                     "authorization": self.headers.get("Authorization"), "accept": self.headers.get("Accept")})
 
@@ -1108,7 +1121,8 @@ class LivePolicyRedirectTests(unittest.TestCase):
         self.assertEqual(self.shim.read_log(self.connect_log), [])
 
     # -- positive controls in the same suite ---------------------------------------------------------------
-    def test_run_logs_follow_to_pipelines_host_without_authorization(self):
+    def test_run_logs_retained_pre_r11_pipelines_predicate_without_authorization(self):
+        # Covers the retained pre-R11 download-host predicate (pipelines) on run_logs, not a shape GitHub was observed to return.
         logs_path = "/repos/szTheory/sigra/actions/runs/38791286863/logs"
         self.server.routes[("api.github.com", logs_path)] = (
             302, [("Location", "https://pipelines.actions.githubusercontent.com/logs/run.zip?sig=private")], b"")
@@ -1217,6 +1231,55 @@ class LivePolicyRedirectTests(unittest.TestCase):
         self.assertEqual(self.connects(), [("api.github.com", 443), (RESULTS_RECEIVER, 443)])
         self.assertEqual([(row["host"], row["authorization"]) for row in self.server.journal],
                          [("api.github.com", f"Bearer {DUMMY_TOKEN}"), (RESULTS_RECEIVER, None)])
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    def test_live_probe_observed_run_logs_chain_is_followed(self):
+        # 253-128: replay exactly the run_logs chain GitHub returned to the 253-127 read-only probe, read from the
+        # committed probe ledger: same hosts, statuses, Location host/path/port and content-type per hop; the final hop
+        # sends no Content-Length when the recorded one sent none. Only the signed query and the zip bytes are synthetic.
+        chain = probe_run_logs_chain()
+        self.assertGreaterEqual(len(chain), 2, "the probe recorded a redirect chain")
+        self.assertEqual([row["hop_ordinal"] for row in chain], list(range(len(chain))))
+        self.assertEqual(chain[0]["host"], "api.github.com")
+        self.admit_results_receiver()
+        run_id = int(chain[0]["url"].rsplit("/runs/", 1)[1].split("/", 1)[0])
+        request = {"method": "GET", "route_id": "run_logs", "category": "failure_logs", "params": {"run_id": run_id}}
+        self.assertEqual(f"https://api.github.com{self.transport._route(request, self.allocation)[3]}", chain[0]["url"])
+        self.request_path.write_text(json.dumps(request))
+        for row, following in zip(chain, chain[1:] + [None]):
+            headers = row["scrubbed_headers"]
+            response = [("Content-Type", headers["content-type"])]
+            location = headers.get("location")
+            if following is not None:
+                self.assertEqual((location["host"], location["port"]), (following["host"], None))
+                self.assertTrue(location["has_query"])
+                response.append(("Location", f"https://{location['host']}{location['path']}?sig=synthetic-253-128&se=2026-10-16"))
+            else:
+                self.assertIsNone(location, "the recorded final hop does not redirect")
+            if "content-length" not in headers:
+                response.append(("Transfer-Encoding", "chunked"))
+            payload = b"" if following is not None else small_zip()
+            self.server.routes[(row["host"], urllib.parse.urlsplit(row["url"]).path)] = (row["actual_status"], response, payload)
+        result = self.follow()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.body_path.read_bytes(), small_zip())
+        ledger = json.loads(self.ledger.read_text())
+        rows = ledger["transactions"]
+        self.assertIsNone(ledger["terminal_stop"])
+        self.assertEqual([(row["hop_ordinal"], row["host"], row["actual_status"], row["route_id"], row["category"]) for row in rows],
+                         [(row["hop_ordinal"], row["host"], row["actual_status"], "run_logs", "failure_logs") for row in chain])
+        for ours, recorded in zip(rows, chain):
+            self.assertEqual(ours["scrubbed_headers"].get("content-type"), recorded["scrubbed_headers"]["content-type"])
+            self.assertEqual("content-length" in ours["scrubbed_headers"], "content-length" in recorded["scrubbed_headers"])
+            self.assertEqual(ours["url"].split("?", 1)[0], recorded["url"].split("?", 1)[0])
+        self.assertEqual(rows[0]["scrubbed_headers"]["location"]["host"], chain[0]["scrubbed_headers"]["location"]["host"])
+        self.assertEqual(rows[0]["scrubbed_headers"]["location"]["path"], chain[0]["scrubbed_headers"]["location"]["path"])
+        self.assertNotIn("synthetic-253-128", self.ledger.read_text() + self.output_path.read_text())
+        # Authorization only at hop 0; the shim connect log is exactly the recorded host sequence.
+        self.assertEqual([(row["host"], row["authorization"]) for row in self.server.journal],
+                         [(row["host"], f"Bearer {DUMMY_TOKEN}" if row["hop_ordinal"] == 0 else None) for row in chain])
+        self.assertEqual(self.connects(), [(row["host"], 443) for row in chain])
+        self.assertEqual(self.server.sni, [row["host"] for row in chain])
         self.assertEqual(self.shim.read_log(self.refusal_log), [])
 
     def test_live_results_receiver_redirect_to_a_trusted_blob_host_is_followed_at_hop_two(self):
