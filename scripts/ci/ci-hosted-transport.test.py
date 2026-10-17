@@ -652,11 +652,11 @@ class TypedAllocationWireTests(unittest.TestCase):
     def test_253_102_pr_heads_are_exactly_the_two_candidates_and_the_docs_head(self):
         self.assertEqual(self.transport.PR_HEAD_REFS,
                          {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate",
-                          "gsd/253-replan-r10-candidate", "gsd/253-replan-docs-head"})
+                          "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-docs-head"})
         self.assertEqual(self.transport.PR_BASE_REFS, {"main", "gsd/253-replan-docs-base"})
         body = {"title": "Phase 253 proof", "head": "gsd/253-replan-r8-candidate", "base": "main", "body": "draft", "draft": True}
         self.assertEqual(self.route("pr_create", method="POST", body=body)[3], "/repos/szTheory/sigra/pulls")
-        for head in ("gsd/253-replan-r8-fixture", "gsd/253-replan-fixture", "gsd/253-replan-r11-candidate",
+        for head in ("gsd/253-replan-r8-fixture", "gsd/253-replan-fixture", "gsd/253-replan-r12-candidate",
                      "gsd/253-replan-r8-candidate-x", "refs/heads/gsd/253-replan-r8-candidate"):
             with self.subTest(head=head):
                 with self.assertRaises(self.transport.TransportError):
@@ -674,7 +674,7 @@ class TypedAllocationWireTests(unittest.TestCase):
     def test_253_111_pr_create_accepts_the_r9_candidate_and_refuses_the_r9_fixture_and_a_fourth_name(self):
         body = {"title": "Phase 253 proof", "head": "gsd/253-replan-r9-candidate", "base": "main", "body": "draft", "draft": True}
         self.assertEqual(self.route("pr_create", method="POST", body=body)[3], "/repos/szTheory/sigra/pulls")
-        for head in ("gsd/253-replan-r9-fixture", "gsd/253-replan-r11-candidate", "gsd/253-replan-r9-candidate-x",
+        for head in ("gsd/253-replan-r9-fixture", "gsd/253-replan-r12-candidate", "gsd/253-replan-r9-candidate-x",
                      "refs/heads/gsd/253-replan-r9-candidate", "szTheory:gsd/253-replan-r9-candidate"):
             with self.subTest(head=head):
                 with self.assertRaises(self.transport.TransportError):
@@ -697,7 +697,7 @@ class TypedAllocationWireTests(unittest.TestCase):
     def test_253_119_pr_create_accepts_the_r10_candidate_and_refuses_the_r10_fixture_and_a_fifth_name(self):
         body = {"title": "Phase 253 proof", "head": "gsd/253-replan-r10-candidate", "base": "main", "body": "draft", "draft": True}
         self.assertEqual(self.route("pr_create", method="POST", body=body)[3], "/repos/szTheory/sigra/pulls")
-        for head in ("gsd/253-replan-r10-fixture", "gsd/253-replan-r11-candidate", "gsd/253-replan-r10-candidate-x",
+        for head in ("gsd/253-replan-r10-fixture", "gsd/253-replan-r12-candidate", "gsd/253-replan-r10-candidate-x",
                      "gsd/253-replan-r1-candidate", "refs/heads/gsd/253-replan-r10-candidate",
                      "szTheory:gsd/253-replan-r10-candidate", "gsd/253-replan-R10-candidate"):
             with self.subTest(head=head):
@@ -718,9 +718,41 @@ class TypedAllocationWireTests(unittest.TestCase):
                 request = {"route_id": "create_ref", "method": "POST", "body": {"ref": ref, "sha": "a" * 40}}
                 self.assertEqual(self.transport._route(request, allocation)[3], "/repos/szTheory/sigra/git/refs")
         self.assertEqual(self.transport.PR_BASE_REFS, {"main", "gsd/253-replan-docs-base"})
-        self.assertEqual(len(self.transport.PR_HEAD_REFS), 5)
+        self.assertEqual(len(self.transport.PR_HEAD_REFS), 6)
         source = TRANSPORT_SOURCE.read_text()
         self.assertEqual(source.count('r"refs/heads/gsd/253-replan-[a-z0-9][a-z0-9-]{0,100}", ref)'), 1)
+
+    def test_253_130_pr_create_accepts_the_r11_candidate_and_refuses_the_r11_fixture_and_a_sixth_name(self):
+        body = {"title": "Phase 253 proof", "head": "gsd/253-replan-r11-candidate", "base": "main", "body": "draft", "draft": True}
+        self.assertEqual(self.route("pr_create", method="POST", body=body)[3], "/repos/szTheory/sigra/pulls")
+        for head in ("gsd/253-replan-r11-fixture", "gsd/253-replan-r12-candidate", "gsd/253-replan-r11-candidate-x",
+                     "gsd/253-replan-r1-candidate", "gsd/253-replan-r110-candidate", "refs/heads/gsd/253-replan-r11-candidate",
+                     "szTheory:gsd/253-replan-r11-candidate", "gsd/253-replan-R11-candidate", "gsd/253-replan-r10-fixture"):
+            with self.subTest(head=head):
+                with self.assertRaises(self.transport.TransportError):
+                    self.route("pr_create", method="POST", body={**body, "head": head})
+        for base in ("gsd/253-replan-r11-candidate", "gsd/253-replan-r11-fixture", "gsd/253-replan-r10-candidate", "release"):
+            with self.subTest(base=base):
+                with self.assertRaises(self.transport.TransportError):
+                    self.route("pr_create", method="POST", body={**body, "base": base})
+        for head in ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate",
+                     "gsd/253-replan-r10-candidate"):
+            with self.subTest(earlier_head=head):
+                self.assertEqual(self.route("pr_create", method="POST", body={**body, "head": head})[3], "/repos/szTheory/sigra/pulls")
+
+    def test_253_130_create_ref_accepts_both_r11_names_under_the_unchanged_namespace_rule(self):
+        allocation = self.allocation(kind="canary", max_requests=117)
+        for ref in ("refs/heads/gsd/253-replan-r11-candidate", "refs/heads/gsd/253-replan-r11-fixture"):
+            with self.subTest(ref=ref):
+                request = {"route_id": "create_ref", "method": "POST", "body": {"ref": ref, "sha": "a" * 40}}
+                self.assertEqual(self.transport._route(request, allocation)[3], "/repos/szTheory/sigra/git/refs")
+        self.assertEqual(self.transport.PR_BASE_REFS, {"main", "gsd/253-replan-docs-base"})
+        self.assertEqual(self.transport.PR_HEAD_REFS,
+                         {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate",
+                          "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-docs-head"})
+        source = TRANSPORT_SOURCE.read_text()
+        self.assertEqual(source.count('r"refs/heads/gsd/253-replan-[a-z0-9][a-z0-9-]{0,100}", ref)'), 1)
+        self.assertEqual(source.count('RESULTS_RECEIVER_HOST = "results-receiver.actions.githubusercontent.com"'), 1)
 
     def test_legacy_canary_hermetic_allocation_still_rejects_pr_collector_routes(self):
         request = {"route_id": "pr_read", "method": "GET", "params": {"pull_number": 7}}

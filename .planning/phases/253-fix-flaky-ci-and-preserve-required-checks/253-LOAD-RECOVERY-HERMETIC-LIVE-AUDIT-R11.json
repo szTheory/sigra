@@ -729,7 +729,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "verify_publication(Path(args.verify_publication), args.require_live_origin)",
       "occurrence": 1,
-      "line": 1498,
+      "line": 1499,
       "hermetic_behavior": "--verify-publication without the flag checks a hermetic receipt.",
       "live_behavior": "--verify-publication --require-live-origin checks an actual-github receipt through the CLI.",
       "coverage": {
