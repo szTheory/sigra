@@ -614,7 +614,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "if allocation.get(\"mode\") == \"live\":",
       "occurrence": 1,
-      "line": 628,
+      "line": 753,
       "hermetic_behavior": "A hermetic allocation's ledger is labelled hermetic and never acceptable as live proof.",
       "live_behavior": "A live allocation's ledger must be all api.github.com and complete to be labelled actual-github.",
       "coverage": {
@@ -632,7 +632,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "if hosts != [API_HOST] or any(tx.get(\"state\") != \"complete\" for tx in transactions):",
       "occurrence": 1,
-      "line": 629,
+      "line": 754,
       "hermetic_behavior": "Not reached for hermetic allocations.",
       "live_behavior": "A non-GitHub host or an incomplete transaction raises PublicationError.",
       "coverage": {
@@ -649,7 +649,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "if freeze_path is None and allocation.get(\"mode\") == \"live\":",
       "occurrence": 1,
-      "line": 731,
+      "line": 856,
       "hermetic_behavior": "A hermetic publish may run without a freeze.",
       "live_behavior": "A live allocation refuses to publish without the reviewed freeze and its canary section approval.",
       "coverage": {
@@ -664,7 +664,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "result = {\"schema_version\": RECEIPT_SCHEMA, \"status\": ACTUAL_STATUS if actual else HERMETIC_STATUS,",
       "occurrence": 1,
-      "line": 879,
+      "line": 1004,
       "hermetic_behavior": "The receipt status is published-local-fixture.",
       "live_behavior": "The receipt status is published-actual-github with production_publish_performed true.",
       "coverage": {
@@ -684,7 +684,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "or status not in (HERMETIC_STATUS, ACTUAL_STATUS) or value.get(\"production_publish_performed\") is not actual",
       "occurrence": 1,
-      "line": 909,
+      "line": 1034,
       "hermetic_behavior": "A published-local-fixture receipt with production_publish_performed false passes the shape check.",
       "live_behavior": "A published-actual-github receipt with production_publish_performed true passes the shape check.",
       "coverage": {
@@ -699,7 +699,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "if require_live_origin and not actual:",
       "occurrence": 1,
-      "line": 912,
+      "line": 1037,
       "hermetic_behavior": "With require_live_origin a hermetic receipt is refused (live acceptance).",
       "live_behavior": "With require_live_origin an actual-github receipt continues to full verification.",
       "coverage": {
@@ -714,7 +714,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "if allocation.get(\"mode\") != \"live\" or {\"test_origin\", \"test_ca_file\"} & set(allocation):",
       "occurrence": 1,
-      "line": 982,
+      "line": 1107,
       "hermetic_behavior": "Not reached: only actual receipts re-open their allocation.",
       "live_behavior": "An actual-github receipt bound to a hermetic allocation is refused.",
       "coverage": {
@@ -729,7 +729,7 @@
       "file": "scripts/ci/ci-git-publication.py",
       "anchor": "verify_publication(Path(args.verify_publication), args.require_live_origin)",
       "occurrence": 1,
-      "line": 1500,
+      "line": 1644,
       "hermetic_behavior": "--verify-publication without the flag checks a hermetic receipt.",
       "live_behavior": "--verify-publication --require-live-origin checks an actual-github receipt through the CLI.",
       "coverage": {

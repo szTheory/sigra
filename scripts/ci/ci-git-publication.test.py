@@ -2703,7 +2703,7 @@ class R12RefPairTests(unittest.TestCase):
 
     def test_build_freeze_accepts_r12_and_the_cli_refuses_a_seventh_pair_naming_all_six(self):
         with tempfile.TemporaryDirectory(prefix="sigra-ref-pair-r12-freeze-") as temp:
-            env = self.freeze_environment(temp, ref_pair="r12")
+            env = self.freeze_environment(temp, ref_pair="r12", main_record=True)
             self.assertEqual((env["freeze"]["identity"]["candidate_ref"], env["freeze"]["identity"]["fixture_ref"]), R12_PAIR)
             module = load_publisher()
             for bad in ("r13", "R12", "r12 ", "r11,r12", "r1", "r120"):
@@ -2727,7 +2727,7 @@ class R12RefPairTests(unittest.TestCase):
 
     def test_check_freeze_refuses_r12_mixed_with_an_earlier_pair(self):
         with tempfile.TemporaryDirectory(prefix="sigra-ref-pair-r12-check-") as temp:
-            env = self.freeze_environment(temp, ref_pair="r12")
+            env = self.freeze_environment(temp, ref_pair="r12", main_record=True)
             original = env["freeze_path"].read_text()
 
             def check():
@@ -2764,7 +2764,7 @@ class R12RefPairTests(unittest.TestCase):
 
     def test_r12_publication_creates_only_the_r12_refs_beside_the_four_seeded_earlier_pairs(self):
         with tempfile.TemporaryDirectory(prefix="sigra-ref-pair-r12-publish-") as temp:
-            env = self.freeze_environment(temp, ref_pair="r12")
+            env = self.freeze_environment(temp, ref_pair="r12", main_record=True)
             server, manifest = env["server"], env["manifest"]
             seeded = real_earlier_refs()
             server.refs.update(seeded)

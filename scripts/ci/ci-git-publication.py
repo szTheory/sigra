@@ -379,6 +379,129 @@ def source_variants(repo: Path, source: str, parent: str, frozen_date: str | Non
             "_docs_base_entries": docs_base_entries, "_docs_entries": docs_entries}
 
 
+MAIN_FETCH_SCHEMA = "sigra.phase253.main-fetch/r12"
+MAIN_FRESHNESS_KEYS = {"record_path", "record_sha256", "fetched_main_sha", "fetched_at_utc", "merge_preflight",
+                       "candidate_parent_is_fetched_main"}
+MERGE_PREFLIGHT_KEYS = {"head", "base", "exit", "clean", "conflicts"}
+FRESH_MAIN_REF = "refs/remotes/origin/main"
+
+
+def merge_preflight(repo: Path, head_sha: str, base_sha: str) -> dict:
+    """253-138: the one merge test. git merge-tree --write-tree writes tree objects only (never a ref or the working
+    tree); exit 0 is a clean merge, exit 1 lists the conflicted paths, and anything else raises."""
+    for label, value in (("head", head_sha), ("base", base_sha)):
+        probe = subprocess.run(["git", "-C", str(repo), "cat-file", "-e", f"{value}^{{commit}}"], capture_output=True)
+        if probe.returncode:
+            raise PublicationError(f"merge preflight {label} {value!r} is not a commit in the local object store")
+    result = subprocess.run(["git", "-C", str(repo), "merge-tree", "--write-tree", "--name-only", "--no-messages",
+                             head_sha, base_sha], capture_output=True)
+    lines = result.stdout.decode("utf-8", "strict").splitlines()
+    if result.returncode not in (0, 1) or not lines or not re.fullmatch(r"[a-f0-9]{40}", lines[0]):
+        raise PublicationError(f"git merge-tree failed (exit {result.returncode}): "
+                               f"{result.stderr.decode('utf-8', 'replace').strip()}")
+    conflicts = sorted({line for line in lines[1:] if line}) if result.returncode == 1 else []
+    if result.returncode == 1 and not conflicts:
+        raise PublicationError("git merge-tree reported a conflict without naming a path")
+    return {"head": head_sha, "base": base_sha, "exit": result.returncode, "clean": result.returncode == 0,
+            "conflicts": conflicts}
+
+
+def load_main_record(repo: Path, record: str) -> tuple[str, bytes, dict]:
+    """A committed-or-local main-fetch record inside the repository: (repo-relative path, bytes, parsed value)."""
+    repo = Path(repo)
+    given = Path(record)
+    if given.is_absolute():
+        try:
+            record = given.resolve().relative_to(repo.resolve()).as_posix()
+        except ValueError as error:
+            raise PublicationError("main-fetch record must live inside the repository") from error
+    path = safe_repo_file(repo, record, "main-fetch record")
+    if not path.is_file():
+        raise PublicationError(f"main-fetch record is missing: {record}")
+    raw = path.read_bytes()
+    try:
+        value = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise PublicationError("main-fetch record is not a fetched sigra.phase253.main-fetch/r12 record") from error
+    fetched = value.get("fetched_main_sha") if isinstance(value, dict) else None
+    if (not isinstance(value, dict) or value.get("schema_version") != MAIN_FETCH_SCHEMA or value.get("status") != "fetched"
+            or not isinstance(fetched, str) or not re.fullmatch(r"[a-f0-9]{40}", fetched)
+            or value.get("fetch_head_sha", fetched) != fetched):
+        raise PublicationError("main-fetch record is not a fetched sigra.phase253.main-fetch/r12 record")
+    return record, raw, value
+
+
+def check_main_freshness_parent(repo: Path, record: str, server_parent: str) -> tuple[str, bytes, dict]:
+    """--prepare --main-record: the record is a fetched r12 record, its main is local, it is the server parent, and the
+    local origin/main still points at it. Runs before any object is written."""
+    rel, raw, value = load_main_record(repo, record)
+    fetched = value["fetched_main_sha"]
+    if subprocess.run(["git", "-C", str(repo), "cat-file", "-e", f"{fetched}^{{commit}}"], capture_output=True).returncode:
+        raise PublicationError(f"the recorded fresh main {fetched} is not present in the local object store")
+    if server_parent != fetched:
+        raise PublicationError(f"server parent is not the recorded fresh main: server parent {server_parent}, "
+                               f"recorded fresh main {fetched}")
+    local = subprocess.run(["git", "-C", str(repo), "rev-parse", "--verify", "--quiet", FRESH_MAIN_REF],
+                           capture_output=True, text=True)
+    if local.returncode or local.stdout.strip() != fetched:
+        raise PublicationError(f"local origin/main differs from the main-fetch record: {local.stdout.strip() or 'absent'} "
+                               f"!= {fetched}")
+    return rel, raw, value
+
+
+def main_freshness_block(repo: Path, rel: str, raw: bytes, value: dict, candidate: str) -> dict:
+    fetched = value["fetched_main_sha"]
+    preflight = merge_preflight(repo, candidate, fetched)
+    if not preflight["clean"]:
+        raise PublicationError("candidate does not merge cleanly into the recorded fresh main: "
+                               + ", ".join(preflight["conflicts"]))
+    parents = git(repo, "rev-list", "--parents", "-n", "1", candidate).decode().split()[1:]
+    fetched_at = value.get("fetched_at_utc")
+    return {"record_path": rel, "record_sha256": sha256_hex(raw), "fetched_main_sha": fetched,
+            "fetched_at_utc": fetched_at if isinstance(fetched_at, str) else None, "merge_preflight": preflight,
+            "candidate_parent_is_fetched_main": parents == [fetched]}
+
+
+def validate_main_freshness(value: object, candidate: str) -> dict:
+    """Shape of the manifest's main_freshness block (semantics are the r12 freeze's to enforce)."""
+    if not isinstance(value, dict) or set(value) != MAIN_FRESHNESS_KEYS:
+        raise PublicationError("manifest main_freshness block is malformed")
+    preflight = value.get("merge_preflight")
+    if (not isinstance(value.get("record_path"), str) or not re.fullmatch(r"[a-f0-9]{64}", str(value.get("record_sha256", "")))
+            or not re.fullmatch(r"[a-f0-9]{40}", str(value.get("fetched_main_sha", "")))
+            or not (value.get("fetched_at_utc") is None or isinstance(value.get("fetched_at_utc"), str))
+            or not isinstance(value.get("candidate_parent_is_fetched_main"), bool)
+            or not isinstance(preflight, dict) or set(preflight) != MERGE_PREFLIGHT_KEYS
+            or preflight.get("exit") not in (0, 1) or isinstance(preflight.get("exit"), bool)
+            or preflight.get("clean") is not (preflight.get("exit") == 0)
+            or not isinstance(preflight.get("conflicts"), list)
+            or any(not isinstance(item, str) for item in preflight["conflicts"])
+            or bool(preflight["conflicts"]) == preflight["clean"]
+            or preflight.get("head") != candidate or preflight.get("base") != value["fetched_main_sha"]):
+        raise PublicationError("manifest main_freshness block is malformed")
+    return value
+
+
+def require_r12_main_freshness(repo: Path, manifest: dict) -> dict:
+    """An r12 freeze sits on the recorded fresh main: the manifest carries a clean main_freshness on its server parent,
+    and the record still has the bytes the publication was prepared from. Returns the record binding."""
+    fresh = manifest.get("main_freshness")
+    if not isinstance(fresh, dict):
+        raise PublicationError("an r12 freeze needs a publication manifest with main_freshness (prepare with --main-record)")
+    if fresh["fetched_main_sha"] != manifest["server_parent_sha"]:
+        raise PublicationError(f"server parent is not the recorded fresh main: server parent {manifest['server_parent_sha']}, "
+                               f"recorded fresh main {fresh['fetched_main_sha']}")
+    if not fresh["merge_preflight"]["clean"]:
+        raise PublicationError("candidate does not merge cleanly into the recorded fresh main: "
+                               + ", ".join(fresh["merge_preflight"]["conflicts"]))
+    if fresh["candidate_parent_is_fetched_main"] is not True:
+        raise PublicationError("the candidate's parent is not the recorded fresh main")
+    rel, raw, record = load_main_record(repo, fresh["record_path"])
+    if sha256_hex(raw) != fresh["record_sha256"] or record["fetched_main_sha"] != fresh["fetched_main_sha"]:
+        raise PublicationError("bound document main_freshness_record differs from the record the publication was prepared from")
+    return {"path": rel, "sha256": sha256_hex(raw)}
+
+
 def validate_manifest(value: object) -> dict:
     if not isinstance(value, dict) or value.get("schema_version") != PUBLISH_SCHEMA:
         raise PublicationError("manifest schema is not recognized")
@@ -464,6 +587,8 @@ def validate_manifest(value: object) -> dict:
         raise PublicationError("blocked manifest has no explicit blocker")
     if value.get("status") == "ready-local-proposal" and value.get("blockers"):
         raise PublicationError("ready manifest still declares blockers")
+    if "main_freshness" in value:
+        validate_main_freshness(value["main_freshness"], value["candidate_helper_commit"])
     return value
 
 
@@ -1321,6 +1446,7 @@ def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: st
     manifest = validate_manifest(json.loads((repo / manifest_rel).read_text()))
     if manifest["status"] != "ready-local-proposal":
         raise PublicationError("the publication manifest is not ready")
+    main_record_binding = require_r12_main_freshness(repo, manifest) if ref_pair == "r12" else None
     fixture_binding = manifest.get("fixture_file") or {}
     if not fixture_binding.get("path") or manifest["workflow_path"] != REGISTERED_WORKFLOW_PATH:
         raise PublicationError("the freeze needs the registered ci.yml fixture child and its bound fixture file")
@@ -1353,7 +1479,8 @@ def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: st
         "source": {"commit": source, "product_tree_sha": state["product_tree_sha"],
                    "product_files": manifest["product_tree_parity"]["source_product_files"]},
         "identity": identity, "helper_blobs": helper_blobs,
-        "bound_documents": {"publication_manifest": manifest_binding, "fixture_workflow": doc_binding(repo, fixture_binding["path"])},
+        "bound_documents": {"publication_manifest": manifest_binding, "fixture_workflow": doc_binding(repo, fixture_binding["path"]),
+                            **({"main_freshness_record": main_record_binding} if main_record_binding else {})},
         **static_freeze_sections(),
         "native_target": native, "outward_actions": sections, "outward_actions_sha256": digests,
     }
@@ -1373,7 +1500,7 @@ def check_revision_freeze(freeze_path: Path, repo: Path) -> dict:
         if not re.fullmatch(r"[a-f0-9]{40}", str(identity.get(field, ""))):
             raise PublicationError(f"freeze identity {field} is not a full lowercase Git object SHA")
     try:
-        ref_pair_name(identity.get("candidate_ref"), identity.get("fixture_ref"))
+        pair_name = ref_pair_name(identity.get("candidate_ref"), identity.get("fixture_ref"))
     except PublicationError as error:
         raise PublicationError("freeze fixture or candidate ref is not one scoped ref pair (legacy or r8)") from error
     if identity.get("workflow_path") != REGISTERED_WORKFLOW_PATH:
@@ -1401,6 +1528,15 @@ def check_revision_freeze(freeze_path: Path, repo: Path) -> dict:
             raise PublicationError(f"freeze identity {field} differs from the bound publication manifest")
     if manifest["source_sha"] != source.get("commit"):
         raise PublicationError("freeze source differs from the publication manifest source")
+    if pair_name == "r12" or "main_freshness_record" in bound:
+        # 253-138: re-hash the bound main-fetch record; the local origin/main is never consulted here, so an approved
+        # later re-fetch cannot invalidate the freeze.
+        item = bound.get("main_freshness_record") or {}
+        path = safe_repo_file(repo, item.get("path"), "bound document main_freshness_record path")
+        if not path.is_file() or sha256_hex(path.read_bytes()) != item.get("sha256"):
+            raise PublicationError("bound document main_freshness_record is missing or differs from its digest")
+        if require_r12_main_freshness(repo, manifest) != {"path": item["path"], "sha256": item["sha256"]}:
+            raise PublicationError("bound document main_freshness_record is not the publication manifest's main-fetch record")
     for key, expected in static_freeze_sections().items():
         if freeze.get(key) != expected:
             raise PublicationError(f"freeze {key} differs from the frozen policy (expired reruns, bounds, categories, clock, history)")
@@ -1433,6 +1569,9 @@ def main() -> int:
     parser.add_argument("--output")
     parser.add_argument("--fixture-file", help="repository-relative fixture workflow file (default: the superseded recovery fixture)")
     parser.add_argument("--workflow-path", help="workflow file the fixture child changes (default: the superseded unregistered path)")
+    parser.add_argument("--main-record", help="--prepare: repository-relative sigra.phase253.main-fetch/r12 record; the "
+                        "server parent must be its fetched_main_sha, local origin/main must equal it, and the candidate must "
+                        "merge cleanly into it (required for an r12 freeze)")
     parser.add_argument("--repo-root", help=argparse.SUPPRESS)
     parser.add_argument("--check-manifest")
     parser.add_argument("--publish", action="store_true")
@@ -1465,9 +1604,14 @@ def main() -> int:
         if args.prepare:
             if not (args.candidate_source and args.server_parent and args.output):
                 raise PublicationError("--prepare requires candidate source, server parent, and output")
+            fresh_record = (check_main_freshness_parent(repo_arg or ROOT, args.main_record, args.server_parent)
+                            if args.main_record else None)
             proposal = source_variants(repo_arg or ROOT, args.candidate_source, args.server_parent,
                                        fixture_file=args.fixture_file, workflow_path=args.workflow_path)
             public = {key: value for key, value in proposal.items() if not key.startswith("_")}
+            if fresh_record:
+                public["main_freshness"] = main_freshness_block(repo_arg or ROOT, *fresh_record, proposal["candidate_helper_commit"])
+                validate_manifest(public)
             atomic_json(Path(args.output), public)
             print(json.dumps({"status": proposal["status"], "projected_requests": proposal["projection"]["projected_total_requests"],
                               "largest_tree_body_bytes": proposal["projection"]["largest_tree_body_bytes"],
