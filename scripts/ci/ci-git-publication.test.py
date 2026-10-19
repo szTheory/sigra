@@ -432,11 +432,16 @@ class PublicationTests(unittest.TestCase):
                                               cwd=ROOT, text=True, capture_output=True)
                     self.assertNotEqual(rejected.returncode, 0, label)
 
-    def make_local_publication(self, temp, flags=None, many_entries=0, helpers=False, prepare_args=(), allocation=None):
+    def make_local_publication(self, temp, flags=None, many_entries=0, helpers=False, prepare_args=(), allocation=None,
+                               main_record=False):
         temp_path = pathlib.Path(temp)
         repo = temp_path / "repo"
         parent, source = git_fixture(repo, many_entries=many_entries, helpers=helpers)
         manifest_path = temp_path / "manifest.json"
+        if main_record:
+            # 253-138: a main-fetch record naming the synthetic server parent, with the local origin/main at it.
+            prepare_args = (*prepare_args, "--main-record", write_main_record(repo, parent))
+            git_run(repo, "update-ref", "refs/remotes/origin/main", parent)
         prepared = subprocess.run(["python3", str(PUBLISHER), "--prepare", "--candidate-source", source,
                                    "--server-parent", parent, "--repo-root", str(repo), "--output", str(manifest_path),
                                    *prepare_args],
@@ -1006,6 +1011,23 @@ def git_run(repo, *args):
     return subprocess.run(["git", "-C", str(repo), *args], check=True, text=True, capture_output=True).stdout.strip()
 
 
+MAIN_RECORD_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-MAIN-FETCH-R12.json"
+
+
+def write_main_record(repo, fetched, rel=MAIN_RECORD_REL, **overrides):
+    """253-138: a sigra.phase253.main-fetch/r12 record (the 253-136 field names) naming `fetched` as the fresh main."""
+    record = {"schema_version": "sigra.phase253.main-fetch/r12", "status": "fetched",
+              "command": "git fetch --no-tags origin main", "fetched_main_sha": fetched, "fetch_head_sha": fetched,
+              "fetched_at_utc": "2026-10-19T03:43:56Z", "anomalies": []}
+    record.update(overrides)
+    for key in [key for key, value in record.items() if value is MISSING]:
+        del record[key]
+    path = pathlib.Path(repo) / rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(record, indent=2) + "\n")
+    return rel
+
+
 class RegisteredPublicationTests(unittest.TestCase):
     """Registered ci.yml fixture, actual-github origin, section approvals and the docs publisher (253-91)."""
 
@@ -1028,6 +1050,8 @@ class RegisteredPublicationTests(unittest.TestCase):
         (repo / manifest_rel).write_bytes(manifest_path.read_bytes())
         freeze_rel = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-FREEZE.json"
         git_run(repo, "add", manifest_rel)
+        if kwargs.get("main_record"):
+            git_run(repo, "add", MAIN_RECORD_REL)
         git_run(repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: publication manifest")
         built = subprocess.run(["python3", str(PUBLISHER), "--build-freeze", "--manifest", manifest_rel, "--output", freeze_rel,
                                 "--repo-root", str(repo), *(["--ref-pair", ref_pair] if ref_pair else [])],
@@ -2805,6 +2829,237 @@ class R12RefPairTests(unittest.TestCase):
             self.assertIn("scoped ref gsd/253-replan-r11-candidate already points to a different commit", result.stderr)
             self.assertEqual(server.refs, seeded)
             self.assertFalse([row for row in server.journal if row["method"] == "POST" and row["path"].endswith("/git/refs")])
+
+
+def commit_all(repo, message):
+    git_run(repo, "add", "-A")
+    git_run(repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", message)
+    return git_run(repo, "rev-parse", "HEAD")
+
+
+def stale_parent_repo(root):
+    """253-134 reproduced: the candidate source sits on an old parent P0 while main advanced P0 -> M1 with conflicting edits
+    to the same release-managed files; refs/remotes/origin/main and a main-fetch record name M1."""
+    root.mkdir()
+    subprocess.run(["git", "init", "-q", str(root)], check=True)
+    (root / ".github/workflows").mkdir(parents=True)
+    (root / ".github/workflows/ci.yml").write_text("name: CI\non:\n  pull_request:\n    branches: [main]\n")
+    (root / "mix.exs").write_text('version: "1.4.0"\n')
+    (root / "CHANGELOG.md").write_text("# Changelog\n\n## 1.4.0\n")
+    (root / ".release-please-manifest.json").write_text('{".": "1.4.0"}\n')
+    (root / "app.txt").write_text("base\n")
+    p0 = commit_all(root, "P0")
+    git_run(root, "checkout", "-q", "-b", "upstream-main")
+    (root / "mix.exs").write_text('version: "1.5.0"\n')
+    (root / "CHANGELOG.md").write_text("# Changelog\n\n## 1.5.0 (main)\n\n## 1.4.0\n")
+    (root / ".release-please-manifest.json").write_text('{".": "1.5.0"}\n')
+    m1 = commit_all(root, "M1: main advanced")
+    git_run(root, "checkout", "-q", "-b", "candidate-source", p0)
+    (root / "mix.exs").write_text('version: "1.4.1-candidate"\n')
+    (root / "CHANGELOG.md").write_text("# Changelog\n\n## 1.4.1 (candidate)\n\n## 1.4.0\n")
+    (root / ".release-please-manifest.json").write_text('{".": "1.4.1"}\n')
+    (root / "app.txt").write_text("candidate\n")
+    source = commit_all(root, "S: candidate on the stale parent")
+    git_run(root, "update-ref", "refs/remotes/origin/main", m1)
+    write_main_record(root, m1)
+    return p0, m1, source
+
+
+class MainFreshnessTests(unittest.TestCase):
+    """253-138 (blind spot #4, offline half): an R12 publication or freeze must sit on the recorded fresh main and merge
+    cleanly into it. 253-131/253-134 froze a candidate on the stale 84ebcea60 because nothing compared the parent with main."""
+
+    make_local_publication = PublicationTests.make_local_publication
+    prepare_registered = RegisteredPublicationTests.prepare_registered
+    freeze_environment = RegisteredPublicationTests.freeze_environment
+
+    def prepare(self, repo, source, parent, output, *extra):
+        return subprocess.run(["python3", str(PUBLISHER), "--prepare", "--candidate-source", source, "--server-parent", parent,
+                               "--repo-root", str(repo), "--output", str(output), *extra],
+                              cwd=ROOT, text=True, capture_output=True)
+
+    def test_merge_preflight_reports_conflicting_paths_clean_children_and_raises_on_unknown_objects(self):
+        module = load_publisher()
+        with tempfile.TemporaryDirectory(prefix="sigra-merge-preflight-") as temp:
+            repo = pathlib.Path(temp) / "repo"
+            repo.mkdir()
+            subprocess.run(["git", "init", "-q", str(repo)], check=True)
+            (repo / "mix.exs").write_text("base\n")
+            (repo / "CHANGELOG.md").write_text("base\n")
+            (repo / "other.txt").write_text("untouched\n")
+            parent = commit_all(repo, "parent")
+            git_run(repo, "checkout", "-q", "-b", "head-side")
+            (repo / "mix.exs").write_text("head\n")
+            (repo / "CHANGELOG.md").write_text("head\n")
+            head = commit_all(repo, "head")
+            git_run(repo, "checkout", "-q", "-b", "base-side", parent)
+            (repo / "mix.exs").write_text("base side\n")
+            (repo / "CHANGELOG.md").write_text("base side\n")
+            base = commit_all(repo, "base")
+            (repo / "other.txt").write_text("child of base\n")
+            child = commit_all(repo, "child")
+            conflicted = module.merge_preflight(repo, head, base)
+            self.assertEqual(conflicted, {"head": head, "base": base, "exit": 1, "clean": False,
+                                          "conflicts": ["CHANGELOG.md", "mix.exs"]})
+            self.assertEqual(module.merge_preflight(repo, child, base),
+                             {"head": child, "base": base, "exit": 0, "clean": True, "conflicts": []})
+            refs_before = git_run(repo, "for-each-ref")
+            for unknown in ("f" * 40, "not-a-commit"):
+                with self.subTest(unknown=unknown):
+                    with self.assertRaises(module.PublicationError):
+                        module.merge_preflight(repo, unknown, base)
+                    with self.assertRaises(module.PublicationError):
+                        module.merge_preflight(repo, head, unknown)
+            self.assertEqual(git_run(repo, "for-each-ref"), refs_before, "merge_preflight wrote a ref")
+            self.assertEqual(git_run(repo, "status", "--porcelain"), "", "merge_preflight touched the working tree")
+
+    def test_a_stale_server_parent_on_the_reproduced_253_134_shape_is_refused_with_no_output(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-stale-parent-") as temp:
+            repo = pathlib.Path(temp) / "repo"
+            p0, m1, source = stale_parent_repo(repo)
+            output = pathlib.Path(temp) / "stale-manifest.json"
+            refused = self.prepare(repo, source, p0, output, "--main-record", MAIN_RECORD_REL)
+            self.assertNotEqual(refused.returncode, 0, f"the stale server parent {p0} was accepted: {refused.stdout.strip()}")
+            self.assertIn("server parent is not the recorded fresh main", refused.stderr)
+            self.assertFalse(output.exists(), "a refused stale-parent preparation wrote its manifest")
+
+    def test_the_recorded_fresh_main_as_server_parent_is_ready_with_a_clean_main_freshness(self):
+        module = load_publisher()
+        with tempfile.TemporaryDirectory(prefix="sigra-fresh-parent-") as temp:
+            repo = pathlib.Path(temp) / "repo"
+            p0, m1, source = stale_parent_repo(repo)
+            # Positive control: the source really conflicts with the advanced main on the release-managed files.
+            self.assertEqual(module.merge_preflight(repo, source, m1)["conflicts"],
+                             [".release-please-manifest.json", "CHANGELOG.md", "mix.exs"])
+            output = pathlib.Path(temp) / "fresh-manifest.json"
+            prepared = self.prepare(repo, source, m1, output, "--main-record", MAIN_RECORD_REL)
+            self.assertEqual(prepared.returncode, 0, prepared.stderr)
+            manifest = json.loads(output.read_text())
+            self.assertEqual(manifest["status"], "ready-local-proposal")
+            self.assertEqual(manifest["server_parent_sha"], m1)
+            record_sha = hashlib.sha256((repo / MAIN_RECORD_REL).read_bytes()).hexdigest()
+            self.assertEqual(manifest["main_freshness"], {
+                "record_path": MAIN_RECORD_REL, "record_sha256": record_sha, "fetched_main_sha": m1,
+                "fetched_at_utc": "2026-10-19T03:43:56Z",
+                "merge_preflight": {"head": manifest["candidate_helper_commit"], "base": m1, "exit": 0, "clean": True,
+                                    "conflicts": []},
+                "candidate_parent_is_fetched_main": True})
+            parents = git_run(repo, "rev-list", "--parents", "-n", "1", manifest["candidate_helper_commit"]).split()[1:]
+            self.assertEqual(parents, [m1])
+            checked = subprocess.run(["python3", str(PUBLISHER), "--check-manifest", str(output)], cwd=ROOT, text=True,
+                                     capture_output=True)
+            self.assertEqual(checked.returncode, 0, checked.stderr)
+            # Without --main-record the pre-R12 preparation is unchanged (no main_freshness block).
+            plain = pathlib.Path(temp) / "plain-manifest.json"
+            self.assertEqual(self.prepare(repo, source, p0, plain).returncode, 0)
+            self.assertNotIn("main_freshness", json.loads(plain.read_text()))
+
+    def test_a_record_that_is_not_a_fetched_r12_record_or_disagrees_with_local_main_is_refused_with_no_output(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-bad-main-record-") as temp:
+            repo = pathlib.Path(temp) / "repo"
+            p0, m1, source = stale_parent_repo(repo)
+            absent = "0123456789abcdef0123456789abcdef01234567"
+            cases = {
+                "wrong schema": ({"schema_version": "sigra.phase253.main-fetch/r11"}, None,
+                                 "main-fetch record is not a fetched sigra.phase253.main-fetch/r12 record"),
+                "status failed": ({"status": "failed"}, None,
+                                  "main-fetch record is not a fetched sigra.phase253.main-fetch/r12 record"),
+                "fetched main absent locally": ({"fetched_main_sha": absent, "fetch_head_sha": absent}, None,
+                                                "is not present in the local object store"),
+                "local origin/main moved": ({}, p0, "local origin/main differs from the main-fetch record"),
+                "local origin/main missing": ({}, "delete", "local origin/main differs from the main-fetch record"),
+            }
+            for label, (overrides, origin, message) in cases.items():
+                with self.subTest(label=label):
+                    write_main_record(repo, m1, **overrides)
+                    if origin == "delete":
+                        git_run(repo, "update-ref", "-d", "refs/remotes/origin/main")
+                    elif origin:
+                        git_run(repo, "update-ref", "refs/remotes/origin/main", origin)
+                    output = pathlib.Path(temp) / f"{label.replace(' ', '-').replace('/', '-')}.json"
+                    parent = absent if "absent" in label else m1
+                    refused = self.prepare(repo, source, parent, output, "--main-record", MAIN_RECORD_REL)
+                    self.assertNotEqual(refused.returncode, 0, f"{label} accepted: {refused.stdout.strip()}")
+                    self.assertIn(message, refused.stderr)
+                    self.assertFalse(output.exists(), f"{label} wrote a manifest")
+                    git_run(repo, "update-ref", "refs/remotes/origin/main", m1)
+            write_main_record(repo, m1)
+            control = pathlib.Path(temp) / "control.json"
+            accepted = self.prepare(repo, source, m1, control, "--main-record", MAIN_RECORD_REL)
+            self.assertEqual(accepted.returncode, 0, accepted.stderr)
+
+    def build(self, env, manifest_rel, output_rel, ref_pair="r12"):
+        return subprocess.run(["python3", str(PUBLISHER), "--build-freeze", "--manifest", manifest_rel, "--output", output_rel,
+                               "--repo-root", str(env["repo"]), "--ref-pair", ref_pair, "--freeze-plan", "253-138"],
+                              cwd=ROOT, text=True, capture_output=True)
+
+    def test_an_r12_freeze_refuses_a_manifest_without_a_clean_main_freshness_on_its_server_parent(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-r12-freeze-freshness-") as temp:
+            env = self.freeze_environment(temp, ref_pair="r12", main_record=True)
+            record_sha = hashlib.sha256((env["repo"] / MAIN_RECORD_REL).read_bytes()).hexdigest()
+            self.assertEqual(env["freeze"]["bound_documents"]["main_freshness_record"],
+                             {"path": MAIN_RECORD_REL, "sha256": record_sha})
+            good = json.loads((env["repo"] / env["manifest_rel"]).read_text())
+
+            def no_freshness(value):
+                del value["main_freshness"]
+
+            def conflicting(value):
+                value["main_freshness"]["merge_preflight"].update({"exit": 1, "clean": False, "conflicts": ["mix.exs"]})
+
+            def other_parent(value):
+                value["main_freshness"]["fetched_main_sha"] = env["source"]
+                value["main_freshness"]["merge_preflight"]["base"] = env["source"]
+            cases = {"no main_freshness": (no_freshness, "main_freshness"),
+                     "conflicting merge preflight": (conflicting, "candidate does not merge cleanly into the recorded fresh main: mix.exs"),
+                     "server parent differs from the fetched main": (other_parent, "server parent is not the recorded fresh main")}
+            for index, (label, (mutate, message)) in enumerate(cases.items()):
+                with self.subTest(label=label):
+                    value = json.loads(json.dumps(good))
+                    mutate(value)
+                    rel = f"{PHASE_REL}/bad-manifest-{index}.json"
+                    (env["repo"] / rel).write_text(json.dumps(value, indent=2) + "\n")
+                    commit_all(env["repo"], f"planning: {label}")
+                    output_rel = f"{PHASE_REL}/bad-freeze-{index}.json"
+                    refused = self.build(env, rel, output_rel)
+                    self.assertNotEqual(refused.returncode, 0, f"{label} accepted: {refused.stdout.strip()}")
+                    self.assertIn(message, refused.stderr)
+                    self.assertFalse((env["repo"] / output_rel).exists(), f"{label} wrote a freeze")
+            accepted = self.build(env, env["manifest_rel"], f"{PHASE_REL}/control-freeze.json")
+            self.assertEqual(accepted.returncode, 0, accepted.stderr)
+
+    def test_check_freeze_rehashes_the_main_record_and_never_reads_origin_main(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-r12-check-freshness-") as temp:
+            env = self.freeze_environment(temp, ref_pair="r12", main_record=True)
+            record = env["repo"] / MAIN_RECORD_REL
+            original = record.read_bytes()
+
+            def check():
+                return subprocess.run(["python3", str(PUBLISHER), "--check-freeze", str(env["freeze_path"]),
+                                       "--repo-root", str(env["repo"])], cwd=ROOT, text=True, capture_output=True)
+            first = check()
+            self.assertEqual(first.returncode, 0, first.stderr)
+            record.write_bytes(original.replace(b'"fetched"', b'"fetched" '))
+            changed = check()
+            self.assertNotEqual(changed.returncode, 0, "a changed main-fetch record still validated")
+            self.assertIn("main_freshness_record", changed.stderr)
+            record.write_bytes(original)
+            self.assertEqual(check().returncode, 0)
+            # A later re-fetch moves the local origin/main; the freeze binds the record, never the ref.
+            git_run(env["repo"], "update-ref", "refs/remotes/origin/main", env["source"])
+            moved = check()
+            self.assertEqual(moved.returncode, 0, moved.stderr)
+            git_run(env["repo"], "update-ref", "-d", "refs/remotes/origin/main")
+            deleted = check()
+            self.assertEqual(deleted.returncode, 0, deleted.stderr)
+
+    def test_earlier_pairs_build_freezes_without_a_main_record_exactly_as_before(self):
+        for pair in ("r11", "r10", "legacy"):
+            with self.subTest(pair=pair):
+                with tempfile.TemporaryDirectory(prefix=f"sigra-{pair}-no-main-record-") as temp:
+                    env = self.freeze_environment(temp, ref_pair=pair)
+                    self.assertNotIn("main_freshness", env["manifest"])
+                    self.assertEqual(set(env["freeze"]["bound_documents"]), {"publication_manifest", "fixture_workflow"})
 
 
 class LiveOriginDerivationTests(unittest.TestCase):
