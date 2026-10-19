@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.hermetic-live-audit/r12",
-  "audit_head": "a8213226fb5640a3c875429c9cf49431535377eb",
+  "audit_head": "e2f7054a4cef5607709f2369c53f606f8403b644",
   "matcher": {
     "files": [
       "scripts/ci/ci-hosted-transport.py",
@@ -1318,6 +1318,18 @@
           "sha256": "79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018",
           "sequence": 1,
           "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 18,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json",
+          "sha256": "9e896130b414767a9eec0bb702a7e7492c9673f23e5a503335c6e8ca20976fcf",
+          "sequence": 1,
+          "actual_status": 200
         }
       ],
       "coverage": {
@@ -1326,7 +1338,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads",
           "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
         ],
-        "residual_risk": "The /rate_limit body is observed live in R7, R8, R9 and the 253-127 probe (seq 1). The probe also showed two interleaved core counters: the /rate_limit body and its own x-ratelimit headers read remaining 4851 (reset 1792193189), while the other probe responses' x-ratelimit headers read 4999, 4998, 4997 (reset 1792195729). The drivers read only resources.core.remaining from the /rate_limit body (fresh_preflight, watch_run, ci-pr-proof preflight), so a window's floor check (> 250, else 'GitHub core API budget is at or below 250') uses the body's counter, never a header. If the counter that debits a window's requests is the other one, the floor can read stale; the request caps in the allocation, not this counter, bound the window. First observed again: 253-133."
+        "residual_risk": "The /rate_limit body is observed live in R7, R8, R9 and the 253-127 probe (seq 1). The probe also showed two interleaved core counters: the /rate_limit body and its own x-ratelimit headers read remaining 4851 (reset 1792193189), while the other probe responses' x-ratelimit headers read 4999, 4998, 4997 (reset 1792195729). The drivers read only resources.core.remaining from the /rate_limit body (fresh_preflight, watch_run, ci-pr-proof preflight), so a window's floor check (> 250, else 'GitHub core API budget is at or below 250') uses the body's counter, never a header. If the counter that debits a window's requests is the other one, the floor can read stale; the request caps in the allocation, not this counter, bound the window. Observed again in 253-133 (R11 canary seq 18) and 253-134 (R11 PR seq 1)."
       }
     },
     {
@@ -1368,6 +1380,18 @@
           "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R7.json",
           "sha256": "485872806046b07925a203d21d4bdd7a75cba58c35e4063ef9db96948fe0416f",
           "sequence": 19,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 19,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json",
+          "sha256": "9e896130b414767a9eec0bb702a7e7492c9673f23e5a503335c6e8ca20976fcf",
+          "sequence": 2,
           "actual_status": 200
         }
       ],
@@ -1483,6 +1507,12 @@
           "member_sha256": "16901fc90406e1d2210a08226f6e2661911fc928261141ef2c39941481e8bc2e",
           "pointer": "",
           "route_evidence": "Phase 252 collector's raw GitHub commit check-runs response for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256); the PR head's native checks"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 21,
+          "actual_status": 200
         }
       ],
       "coverage": {
@@ -1523,6 +1553,18 @@
           "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
           "sequence": 22,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 22,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json",
+          "sha256": "9e896130b414767a9eec0bb702a7e7492c9673f23e5a503335c6e8ca20976fcf",
+          "sequence": 4,
           "actual_status": 200
         }
       ],
@@ -1571,6 +1613,18 @@
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
           "sequence": 24,
           "actual_status": 204
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 24,
+          "actual_status": 204
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 78,
+          "actual_status": 204
         }
       ],
       "coverage": {
@@ -1580,10 +1634,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
           "scripts/ci/ci-git-publication.test.py::test_live_real_shape_compact_matrix_fits_and_round_trips"
         ],
-        "residual_risk": "Never observed live: the verifier dispatch (scenario verifier, carrying the compact matrix as the matrix_evidence input); R8 and R9 each sent only four-input scenario dispatches. Before the request, validate_dispatch_inputs runs serialize_dispatch_inputs (dispatch_inputs_invalid / dispatch_inputs_too_large: 'dispatch inputs exceed 65535 Unicode scalar characters') and compact_matrix refuses a payload over MATRIX_PAYLOAD_LIMIT 64511 characters ('compact matrix payload is <n> characters; the dispatch input cap is 65535 including the other inputs', driver: 'compact verifier matrix exceeds its bounded dispatch input'); offline, six receipts derived from the real R9 full-pass receipt compact to 34764 characters, 29747 under the limit. GitHub's acceptance of that payload is unobserved: a refusal stops the driver with 'dispatch returned HTTP <status>' or 'separate verifier dispatch failed'. The driver accepts 202 or 204 while the ledger binding requires 204 (real GitHub returned 204 in R8 and R9), so a 202 halts at the binding, fail-closed. First observed: 253-133, after the six source scenarios.",
-        "fields_without_real_sample": {
-          "meta:dispatch_inputs.matrix_evidence": "the verifier dispatch has never run live; R8/R9 sent scenario dispatches only (four inputs)"
-        }
+        "residual_risk": "Observed live in 253-133: the separate verifier dispatch (CANARY-HTTP-LEDGER-R11 seq 78, matrix_evidence 29652 characters, request body 29916 B) returned 204, like every scenario dispatch. Before the request, validate_dispatch_inputs runs serialize_dispatch_inputs (dispatch_inputs_invalid / dispatch_inputs_too_large: 'dispatch inputs exceed 65535 Unicode scalar characters') and compact_matrix refuses a payload over MATRIX_PAYLOAD_LIMIT 64511 characters ('compact verifier matrix exceeds its bounded dispatch input'). A later refusal stops the driver with 'dispatch returned HTTP <status>' or 'separate verifier dispatch failed'; the driver accepts 202 or 204 while the ledger binding requires 204, so a 202 halts at the binding, fail-closed."
       }
     },
     {
@@ -1623,13 +1674,32 @@
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
           "sequence": 25,
           "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 25,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json",
+          "sha256": "9e896130b414767a9eec0bb702a7e7492c9673f23e5a503335c6e8ca20976fcf",
+          "sequence": 6,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json",
+          "sha256": "9e896130b414767a9eec0bb702a7e7492c9673f23e5a503335c6e8ca20976fcf",
+          "sequence": 7,
+          "actual_status": 200
         }
       ],
       "coverage": {
         "kind": "real-shape-test",
         "refs": [
           "scripts/ci/ci-hosted-gate-verify.test.py::CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger",
-          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline"
+          "scripts/ci/ci-hosted-gate-verify.test.py::RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline",
+          "scripts/ci/ci-hermetic-live-audit.test.py::FieldsBackedTests.test_real_r11_pull_request_discovery_bodies_are_empty"
         ]
       }
     },
@@ -1701,6 +1771,30 @@
           "sha256": "79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018",
           "sequence": 2,
           "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 27,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 54,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 64,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 75,
+          "actual_status": 200
         }
       ],
       "coverage": {
@@ -1719,7 +1813,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::FixtureShapeFidelityTests.test_live_probe_cancelled_run_fixture_matches_the_recorded_shape",
           "scripts/ci/ci-gate-canary-dryrun.test.py::CancelledShapeTests.test_fake_cancelled_run_matches_the_probe_recorded_shape"
         ],
-        "residual_risk": "The run shape is observed live for full-pass (R8, R9), a failure-shaped run (38347679431) and a cancelled run (probe seq 2). Never observed live: the missing-seam and unexpected-skip scenario runs (unobserved_live_shapes ids scenario-missing-seam-run and scenario-unexpected-skip-run). Both must conclude failure: verify_scenario refuses any other conclusion ('actual terminal conclusion does not match <scenario>') and a hosted job set that differs from the scenario's ('hosted job set is missing, duplicated, or unexpected'), and the driver stops on a green one ('negative source unexpectedly concluded success: <scenario>'). First observed: 253-133."
+        "residual_risk": "The run shape is observed live for full-pass (R8, R9, R11 seq 27), the missing-seam and unexpected-skip scenario runs (R11 seq 54 and 64, both failure), a failure-shaped run (38347679431) and cancelled runs (probe seq 2, R11 seq 75). Every scenario must still conclude as frozen: verify_scenario refuses any other conclusion ('actual terminal conclusion does not match <scenario>') and a hosted job set that differs from the scenario's ('hosted job set is missing, duplicated, or unexpected'), and the driver stops on a green negative ('negative source unexpectedly concluded success: <scenario>')."
       }
     },
     {
@@ -1774,6 +1868,12 @@
           "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json",
           "sha256": "79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018",
           "sequence": 3,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 28,
           "actual_status": 200
         }
       ],
@@ -1872,6 +1972,12 @@
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
           "sequence": 29,
           "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 29,
+          "actual_status": 200
         }
       ],
       "coverage": {
@@ -1925,6 +2031,18 @@
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
           "sequence": 30,
           "actual_status": 302
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 30,
+          "actual_status": 302
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 31,
+          "actual_status": 200
         }
       ],
       "coverage": {
@@ -1946,15 +2064,20 @@
       "fields_compared": [
         "meta:actual_status"
       ],
-      "real_samples": [],
-      "coverage": {
-        "kind": "justified",
-        "refs": [],
-        "justification": "The cancelled scenario has never run live: no committed ledger holds a cancel request. The request body is the fixed {} the typed route requires and the driver reads only whether the transport call succeeded; the cancellation itself is proven from the run and jobs the verifier reads afterwards.",
-        "residual_risk": "Never observed live: no committed ledger holds a cancel request, so GitHub's 202 Accepted for POST .../actions/runs/<id>/cancel is unobserved (the 253-127 probe read cancelled run 38141825287's run and jobs, seq 2 and 3, but that run was not cancelled by this transport). If the transport call fails the driver stops with 'identified canary cancellation failed'; any status other than 202 stops it with 'identified canary cancellation returned HTTP <status>' (ci-gate-canary.sh:897-898); if GitHub accepts but never cancels a job, verify_scenario refuses the cancelled receipt ('cancellation was not observed on a hosted fixture job'). All three fail closed after the five earlier source scenarios. First observed: 253-133.",
-        "fields_without_real_sample": {
-          "meta:actual_status": "no cancel request has been sent to GitHub in any window"
+      "real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 73,
+          "actual_status": 202
         }
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hermetic-live-audit.test.py::FieldsBackedTests.test_real_r11_cancel_run_matches_the_typed_route"
+        ],
+        "residual_risk": "Observed live in 253-133 (CANARY-HTTP-LEDGER-R11 seq 73: POST .../actions/runs/39178485107/cancel answered 202, application/json, body {}; the run then concluded cancelled, seq 75 and 76). A later transport failure still stops the driver with 'identified canary cancellation failed', any status other than 202 with 'identified canary cancellation returned HTTP <status>' (ci-gate-canary.sh:897-898), and an accepted cancel that never cancels a job fails verify_scenario ('cancellation was not observed on a hosted fixture job')."
       }
     },
     {
@@ -1999,6 +2122,18 @@
           "sha256": "3b8d5bf4cc0af7fcf302fe3897eaeef3e2219de0822a98d871032c9f4b6c9523",
           "pointer": "/entries/4",
           "route_evidence": "the 253-127 probe bodies record's run-log-chain entry: hop 1 of run_logs for run 38963239851 (probe ledger seq 6, raw_observation_sha256 equal to this entry's sha256), magic and zip member names only"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 47,
+          "actual_status": 302
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 48,
+          "actual_status": 200
         }
       ],
       "coverage": {
@@ -2008,7 +2143,7 @@
           "scripts/ci/ci-hosted-transport.test.py::LivePolicyRedirectTests.test_live_probe_observed_run_logs_chain_is_followed",
           "scripts/ci/ci-gate-canary-dryrun.test.py::RunLogsShapeTests.test_fake_log_redirect_matches_the_probe_recorded_chain"
         ],
-        "residual_risk": "Observed live: hop 0 (R10 ledger seq 47 and probe seq 5: 302 from api.github.com, text/html;charset=utf-8, Content-Length 0, Location results-receiver.actions.githubusercontent.com/rest/runs/<uuid>/logs with a signed query, no port) and hop 1 (probe seq 6: 200 application/zip from results-receiver, chunked with no Content-Length, magic 504b030414000800, members {n}_<job>.txt and <job>/system.txt). Still unobserved: hop 1 on a freshly completed run (the probe read run 38963239851 hours after it completed; the canary fetches logs seconds after each failed scenario: unobserved_live_shapes id shape-run_logs-fresh-run), and another run's logs taking another host. A hop-1 Location on any host outside the allocation's download_hosts, or results-receiver anywhere but run_logs hop 1, is refused by _trusted_download_host before its socket (redirect_rejected); a missing Location or a redirect beyond max_hops 2 stops with redirect_budget_exhausted; a non-200 final receipt makes download_no_follow return non-zero and the driver stop with 'failed-log retrieval failed for run <id>' (ci-gate-canary.sh:916), with no retry on that path. failure_logs is frozen at 6 = 3 failed scenarios (actual-failure, missing-seam, unexpected-skip) x 2 hops with zero slack, so a third hop (results-receiver redirecting on to a blob host, which max_hops 2 allows) is refused at its predebit with category_budget_exhausted on the last failed scenario at the latest. First observed on a fresh run: 253-133."
+        "residual_risk": "Observed live: hop 0 (R10 ledger seq 47, probe seq 5 and R11 canary seq 47, 57, 67: 302 from api.github.com, text/html;charset=utf-8, Content-Length 0, Location results-receiver.actions.githubusercontent.com/rest/runs/<uuid>/logs with a signed query, no port) and hop 1 (probe seq 6 hours after its run completed, and R11 canary seq 48, 58, 68 about a minute after each failed scenario: 200 application/zip from results-receiver, chunked with no Content-Length, starting PK\\x03\\x04; no hop 2). Still unobserved: another run's logs taking another host. A hop-1 Location on any host outside the allocation's download_hosts, or results-receiver anywhere but run_logs hop 1, is refused by _trusted_download_host before its socket (redirect_rejected); a missing Location or a redirect beyond max_hops 2 stops with redirect_budget_exhausted; a non-200 final receipt makes download_no_follow return non-zero and the driver stop with 'failed-log retrieval failed for run <id>' (ci-gate-canary.sh:916), with no retry on that path. failure_logs is frozen at 6 = 3 failed scenarios x 2 hops with zero slack (R11 used 6 of 6), so a third hop is refused at its predebit with category_budget_exhausted."
       }
     },
     {
@@ -2140,6 +2275,12 @@
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
           "sequence": 6,
           "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 1,
+          "actual_status": 200
         }
       ],
       "coverage": {
@@ -2184,6 +2325,12 @@
         {
           "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 2,
+          "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
           "sequence": 2,
           "actual_status": 201
         }
@@ -2233,6 +2380,12 @@
           "sha256": "485872806046b07925a203d21d4bdd7a75cba58c35e4063ef9db96948fe0416f",
           "sequence": 5,
           "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 5,
+          "actual_status": 201
         }
       ],
       "coverage": {
@@ -2279,6 +2432,12 @@
         {
           "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
+          "sequence": 7,
+          "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
           "sequence": 7,
           "actual_status": 200
         }
@@ -2340,6 +2499,12 @@
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
           "sequence": 14,
           "actual_status": 200
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 14,
+          "actual_status": 200
         }
       ],
       "coverage": {
@@ -2387,6 +2552,12 @@
           "sha256": "b0341dd567f840baad429ae4a683fa9b20ea6cc9aeb0c09e629413db2cc806e8",
           "sequence": 13,
           "actual_status": 201
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 13,
+          "actual_status": 201
         }
       ],
       "coverage": {
@@ -2416,39 +2587,26 @@
         "base.ref",
         "base.sha",
         "base.repo.full_name",
-        "meta:actual_status"
+        "meta:actual_status",
+        "mergeable",
+        "mergeable_state"
       ],
-      "real_samples": [],
-      "coverage": {
-        "kind": "justified",
-        "refs": [],
-        "justification": "No PR window has run (253-114 never ran), so no create-PR response is committed. The nearest real bytes are the minimal pull request object GitHub embeds in a real pull_request run (number, head.ref/sha, base.ref/sha), which carries none of draft, merged, state or repo.full_name.",
-        "residual_risk": "Any created-PR field that differs from these paths fails check_pr ('created PR is not the same open unmerged draft PR' or the head/base identity messages) right after creation: the window halts with one open draft PR that was never merged and must be closed by the operator. Never observed live; first observed in the docs_and_prs window: 253-134 (253-123 never ran).",
-        "fields_without_real_sample": {
-          "number": "no create-PR response in any committed ledger (253-114 never ran)",
-          "draft": "no create-PR response in any committed ledger (253-114 never ran)",
-          "merged": "no create-PR response in any committed ledger (253-114 never ran)",
-          "state": "no create-PR response in any committed ledger (253-114 never ran)",
-          "head.ref": "no create-PR response in any committed ledger (253-114 never ran)",
-          "head.sha": "no create-PR response in any committed ledger (253-114 never ran)",
-          "head.repo.full_name": "no create-PR response in any committed ledger (253-114 never ran)",
-          "base.ref": "no create-PR response in any committed ledger (253-114 never ran)",
-          "base.sha": "no create-PR response in any committed ledger (253-114 never ran)",
-          "base.repo.full_name": "no create-PR response in any committed ledger (253-114 never ran)",
-          "meta:actual_status": "no create-PR response in any committed ledger (253-114 never ran)"
-        }
-      },
-      "nearest_real_samples": [
+      "real_samples": [
         {
-          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
-          "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
-          "member": "./raw/families/38317383419/run.json",
-          "member_sha256": "8b8fb94523674dce3624592e905952fe902ad2640134ad9ccbb547927e9ad30b",
-          "pointer": "/pull_requests/0",
-          "route_evidence": "Phase 252 collector's raw GitHub run response for pull_request run 38317383419 (family manifest raw/families/38317383419/manifest.json names this member and its sha256); its pull_requests[0] is GitHub's minimal pull request object",
-          "shows": "head.ref"
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json",
+          "sha256": "9e896130b414767a9eec0bb702a7e7492c9673f23e5a503335c6e8ca20976fcf",
+          "sequence": 5,
+          "actual_status": 201
         }
-      ]
+      ],
+      "coverage": {
+        "kind": "real-shape-test",
+        "refs": [
+          "scripts/ci/ci-hermetic-live-audit.test.py::FieldsBackedTests.test_real_r11_pr_create_body_carries_every_consumed_key",
+          "scripts/ci/ci-pr-proof.test.sh::PrMergeabilityCollectionTests.test_a_clean_moved_main_collects_both_families_inside_the_production_budget"
+        ],
+        "residual_risk": "Observed live in 253-134 (PR-HTTP-LEDGER-R11 seq 5: #337, 201, open draft unmerged, mergeable null, mergeable_state unknown, base main at 09df342a). A created-PR field that differs from these paths fails check_pr ('created PR is not the same open unmerged draft PR' or the head/base identity messages), and on an r12 normal family a created base other than the step-0 preflight's current_main stops with 'main moved between the step-0 preflight and PR creation'. Either way the window halts right after creation with one open draft PR that was never merged and must be closed by the operator."
+      }
     },
     {
       "id": "shape-pr_read",
@@ -2470,30 +2628,46 @@
         "base.sha",
         "base.repo.full_name",
         "meta:actual_status",
-        "merge_commit_sha"
+        "merge_commit_sha",
+        "mergeable",
+        "mergeable_state",
+        "value:mergeable=False",
+        "value:mergeable_state=dirty"
       ],
       "real_samples": [],
       "coverage": {
         "kind": "justified",
         "refs": [],
-        "justification": "No PR window has run, so no PR read is committed; merge_commit_sha, the tested merge the verifier reads the workflow at, has never been observed for this repository.",
-        "residual_risk": "A missing or unchanged merge_commit_sha stops collection ('the PR has no tested merge commit or base identity') or fails 'PR has no distinct tested merge commit'; other differences fail check_pr. All fail closed after the run finished. Never observed live; first observed in the docs_and_prs window: 253-134 (253-123 never ran).",
+        "justification": "No committed ledger holds a PR read: 253-134 stopped at run discovery, before pr_read. The nearest real bytes are the 253-134 create response for the same PR (#337), which carries the same pull request object keys, mergeable null and mergeable_state unknown; a read's merge_commit_sha and the conflict values (mergeable false, mergeable_state dirty) have never been observed for this repository.",
+        "residual_risk": "First observed in 253-144. A conflicted PR is expected to read mergeable false and mergeable_state dirty (GitHub REST docs); any other value on the failure path falls to the 'mergeability is still unknown' stop, and a success-path body missing merge_commit_sha or base.sha stops with 'the PR has no tested merge commit or base identity'.",
         "fields_without_real_sample": {
-          "number": "no PR read in any committed ledger (253-114 never ran)",
-          "draft": "no PR read in any committed ledger (253-114 never ran)",
-          "merged": "no PR read in any committed ledger (253-114 never ran)",
-          "state": "no PR read in any committed ledger (253-114 never ran)",
-          "head.ref": "no PR read in any committed ledger (253-114 never ran)",
-          "head.sha": "no PR read in any committed ledger (253-114 never ran)",
-          "head.repo.full_name": "no PR read in any committed ledger (253-114 never ran)",
-          "base.ref": "no PR read in any committed ledger (253-114 never ran)",
-          "base.sha": "no PR read in any committed ledger (253-114 never ran)",
-          "base.repo.full_name": "no PR read in any committed ledger (253-114 never ran)",
-          "meta:actual_status": "no PR read in any committed ledger (253-114 never ran)",
-          "merge_commit_sha": "no PR read in any committed ledger (253-114 never ran)"
+          "number": "253-134 stopped before pr_read",
+          "draft": "253-134 stopped before pr_read",
+          "merged": "253-134 stopped before pr_read",
+          "state": "253-134 stopped before pr_read",
+          "head.ref": "253-134 stopped before pr_read",
+          "head.sha": "253-134 stopped before pr_read",
+          "head.repo.full_name": "253-134 stopped before pr_read",
+          "base.ref": "253-134 stopped before pr_read",
+          "base.sha": "253-134 stopped before pr_read",
+          "base.repo.full_name": "253-134 stopped before pr_read",
+          "meta:actual_status": "253-134 stopped before pr_read",
+          "merge_commit_sha": "253-134 stopped before pr_read",
+          "mergeable": "253-134 stopped before pr_read",
+          "mergeable_state": "253-134 stopped before pr_read",
+          "value:mergeable=False": "253-134 stopped before pr_read",
+          "value:mergeable_state=dirty": "253-134 stopped before pr_read"
         }
       },
       "nearest_real_samples": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json",
+          "sha256": "9e896130b414767a9eec0bb702a7e7492c9673f23e5a503335c6e8ca20976fcf",
+          "sequence": 5,
+          "actual_status": 201,
+          "route": "pr_create",
+          "shows": "mergeable_state"
+        },
         {
           "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
           "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
@@ -2645,6 +2819,13 @@
           "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
           "sha256": "3c31cb72c3168c4e86a1ea529f16bfdd40b4405551459ca27b9b989cb762df7b",
           "kind": "source"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+          "sha256": "78b01fe33e7a6000111497c727feb2fca8b8d148783a1cebde14c374b3e94278",
+          "sequence": 82,
+          "actual_status": 200,
+          "route": "run_jobs"
         }
       ],
       "coverage": {
@@ -2655,12 +2836,7 @@
           "scripts/ci/ci-hosted-gate-verify.test.py::RegisteredFixtureTests.test_fixture_is_dispatch_only_read_only_and_pins_the_same_actions_as_the_superseded_fixture",
           "scripts/ci/ci-git-publication.test.py::test_live_real_shape_compact_matrix_fits_and_round_trips"
         ],
-        "residual_risk": "Never observed live: the separate verifier run. Its two checked steps (Verify immutable candidate verifier checkout, Verify retained source matrix independently) are in the fixture source but GitHub has never reported them: in every real source run the verifier job is skipped with no steps. GitHub's name for its skipped producer matrix job is unobserved too; the fake serves 'producer (${{ matrix.seam }})' and verify_separate_verifier accepts exactly the 253-117 closed set of four forms (the five expanded names, 'producers', 'producer (${{ matrix.seam }})', 'producer ()'). Nearest real sample: the Phase 252 bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz (sha256 95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30), member ./raw/families/38317383419/jobs-attempt-1.json (sha256 c2db679349f5f5b0baad9d2550c939695cf184dcef9e83d1d856c16362c250e0): its run jobs record install_matrix skipped as one job named exactly 'Install matrix (flag combinations)' (its literal name: field, no matrix suffix), and the bundle records that skip 9 times. That proves one job under its literal name for a skipped matrix job, not how a ${{ matrix.seam }} expression renders when skipped before expansion. A fifth form stops the window after the six scenarios at the separate verifier with 'separate hosted verifier job set is unexpected'; missing checked steps fail 'separate verifier did not confirm its candidate checkout and source matrix' (both fail-closed). First observed: 253-133.",
-        "fields_without_real_sample": {
-          "value:jobs[].steps[].name=Verify immutable candidate verifier checkout": "the verifier job has never executed live (skipped with no steps in every real source run)",
-          "value:jobs[].steps[].name=Verify retained source matrix independently": "the verifier job has never executed live (skipped with no steps in every real source run)",
-          "value:jobs[].name=producer (${{ matrix.seam }})": "the verifier run has never run live, so GitHub's name for its skipped producer matrix job is unobserved (253-117 closed set of four forms)"
-        }
+        "residual_risk": "Observed live in 253-133: the separate verifier run's jobs (CANARY-HTTP-LEDGER-R11 seq 82) are verifier (success, with the steps 'Verify immutable candidate verifier checkout' and 'Verify retained source matrix independently'), the skipped producer matrix job under the literal unexpanded name 'producer (${{ matrix.seam }})' with no steps, and Browser verdict skipped. verify_separate_verifier accepts exactly the 253-117 closed set of four forms for that skipped job's name; a fifth form stops the window after the six scenarios with 'separate hosted verifier job set is unexpected', and missing checked steps fail 'separate verifier did not confirm its candidate checkout and source matrix' (both fail-closed)."
       },
       "nearest_real_samples": [
         {
