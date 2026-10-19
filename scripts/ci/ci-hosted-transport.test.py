@@ -1593,6 +1593,168 @@ class LivePolicyRedirectTests(unittest.TestCase):
         self.assertEqual(self.connects(), [("api.github.com", 443), ("api.github.com", 443)])
 
 
+    # -- 253-146: GitHub's /repositories/<id>/ pagination form (blind spot #5, R12 ledger sequence 21) ---------------
+    CHECK_SHA = "09df342a82e03c3d5d40173c912b70e827f7eadc"
+    # The real id from the committed bytes (asserted equal to the transport's GITHUB_REPOSITORY_ID below).
+    REPOSITORY_ID = 1207487684
+    OTHER_SHA = "84ebcea60" + "0" * 31
+
+    def check_runs_request(self, sha=CHECK_SHA):
+        return {"method": "GET", "route_id": "check_runs", "category": "preflight",
+                "params": {"commit_sha": sha}, "query": {"per_page": 100}}
+
+    def routed_path(self, request, page):
+        return self.transport._route(dict(request, query={**request["query"], "page": page}), self.allocation)[3]
+
+    def id_form(self, request, page, repository_id=None, suffix=None):
+        """GitHub's numeric-id link for request's route: /repositories/<id>/<route suffix>?<same query>&page=N."""
+        path, query = self.routed_path(request, page).split("?", 1)
+        repository_id = self.REPOSITORY_ID if repository_id is None else repository_id
+        suffix = path[len("/repos/szTheory/sigra/"):] if suffix is None else suffix
+        return f"https://api.github.com/repositories/{repository_id}/{suffix}?{query}"
+
+    @staticmethod
+    def github_link(url_for, page, last):
+        """GitHub's Link shape: page 1 next+last; a middle page prev+first+next+last; the last page prev+first."""
+        rels = []
+        if page > 1:
+            rels += [(page - 1, "prev"), (1, "first")]
+        if page < last:
+            rels += [(page + 1, "next"), (last, "last")]
+        return ", ".join(f'<{url_for(target)}>; rel="{rel}"' for target, rel in rels)
+
+    def serve_pages(self, request, key, sizes, url_for, total=None):
+        total = sum(sizes) if total is None else total
+        headers = [("Content-Type", "application/json")]
+        start = 0
+        for page, size in enumerate(sizes, 1):
+            body = {"total_count": total, key: [{"id": start + n + 1} for n in range(size)]}
+            start += size
+            link = self.github_link(url_for, page, len(sizes))
+            self.server.routes[("api.github.com", self.routed_path(request, page))] = (
+                200, headers + ([("Link", link)] if link else []), json.dumps(body).encode())
+
+    def test_repository_id_constant_equals_the_committed_real_repository_id(self):
+        phase = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+        evidence = json.loads((phase / "253-LOAD-RECOVERY-CANARY-EVIDENCE-R11.json").read_text())
+        ledger = json.loads((phase / "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R12.json").read_text())
+        seq21 = [row for row in ledger["transactions"] if row["sequence"] == 21][0]
+        self.assertEqual(seq21["route_id"], "check_runs")
+        paths = [entry["destination"]["path"] for entry in seq21["scrubbed_headers"]["link"]]
+        self.assertEqual(len(paths), 2)
+        ids = {int(path.split("/")[2]) for path in paths}
+        self.assertEqual(ids, {self.REPOSITORY_ID})
+        self.assertEqual(self.transport.GITHUB_REPOSITORY_ID, 1207487684)
+        self.assertEqual(evidence["scenarios"]["full-pass"]["run"]["repository"]["id"], self.transport.GITHUB_REPOSITORY_ID)
+        self.assertEqual(ids, {self.transport.GITHUB_REPOSITORY_ID})
+        self.assertTrue(all(path.startswith("/repositories/") and path.endswith(f"/commits/{self.CHECK_SHA}/check-runs")
+                            for path in paths))
+        # Positive control: an arbitrary id is in neither committed record, so the equality above is not vacuous.
+        for raw in ((phase / "253-LOAD-RECOVERY-CANARY-EVIDENCE-R11.json").read_text(), json.dumps(seq21["scrubbed_headers"])):
+            self.assertNotIn('"id": 999,', raw)
+            self.assertNotIn("/repositories/999/", raw)
+
+    def test_live_check_runs_read_follows_three_repositories_id_pages_but_requests_only_the_approved_route(self):
+        request = self.check_runs_request()
+        self.serve_pages(request, "check_runs", [100, 100, 9], lambda page: self.id_form(request, page))
+        result = self.fetch_pages(request)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        body = json.loads(self.body_path.read_text())
+        self.assertEqual(len(body["check_runs"]), 209)
+        self.assertEqual(body["total_count"], 209)
+        rows = json.loads(self.ledger.read_text())["transactions"]
+        self.assertEqual([(row["host"], row["page_ordinal"], row["category"]) for row in rows],
+                         [("api.github.com", page, "preflight") for page in (1, 2, 3)])
+        self.assertEqual([(row["host"], row["path"], row["authorization"]) for row in self.server.journal],
+                         [("api.github.com", self.routed_path(request, page), f"Bearer {DUMMY_TOKEN}") for page in (1, 2, 3)])
+        self.assertTrue(all(row["path"].startswith(f"/repos/szTheory/sigra/commits/{self.CHECK_SHA}/check-runs?")
+                            for row in self.server.journal))
+        self.assertFalse(any("/repositories/" in row["path"] for row in self.server.journal), "the id URL is never requested")
+        self.assertEqual(self.connects(), [("api.github.com", 443)] * 3)
+        self.assertEqual(self.shim.read_log(self.refusal_log), [])
+
+    def test_live_repositories_id_form_covers_workflow_runs_and_run_jobs_pagination(self):
+        jobs = {"method": "GET", "route_id": "run_jobs", "category": "attempt_jobs",
+                "params": {"run_id": 18234567890}, "query": {"per_page": 100}}
+        for request, key in ((self.runs_request(), "workflow_runs"), (jobs, "jobs")):
+            with self.subTest(route=request["route_id"]):
+                for path in (self.ledger, self.output_path, self.body_path, self.connect_log):
+                    path.unlink(missing_ok=True)
+                self.server.journal.clear()
+                self.serve_pages(request, key, [100, 1], lambda page, request=request: self.id_form(request, page))
+                result = self.fetch_pages(request)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(len(json.loads(self.body_path.read_text())[key]), 101)
+                self.assertEqual([row["path"] for row in self.server.journal],
+                                 [self.routed_path(request, page) for page in (1, 2)])
+
+    def test_live_repositories_id_form_refuses_every_other_id_route_host_page_or_query_before_a_second_request(self):
+        request = self.check_runs_request()
+        good = self.id_form(request, 2)
+        path_only, query = good.split("?", 1)
+        rid = self.REPOSITORY_ID
+        links = {
+            "repository id 1207487685": self.id_form(request, 2, repository_id=1207487685),
+            "a non-numeric id": self.id_form(request, 2, repository_id="sigra"),
+            "another commit": self.id_form(request, 2, suffix=f"commits/{self.OTHER_SHA}/check-runs"),
+            "another route": self.id_form(request, 2, suffix="actions/runs"),
+            "a bare repository": f"https://api.github.com/repositories/{rid}?{query}",
+            "another host": good.replace("https://api.github.com/", "https://evil.example.com/"),
+            "api.github.com on port 8443": good.replace("https://api.github.com/", "https://api.github.com:8443/"),
+            "userinfo": good.replace("https://api.github.com/", "https://user@api.github.com/"),
+            "a fragment": good + "#frag",
+            "page 3 from page 1": f"{path_only}?{query.replace('page=2', 'page=3')}",
+            "page 1 again": f"{path_only}?{query.replace('page=2', 'page=1')}",
+            "an extra query key": f"{good}&filter=all",
+            "a repeated per_page": f"{good}&per_page=100",
+        }
+        # As for the /repos/ form, userinfo and fragments never reach _next_page_url: the response-header scrubber
+        # refuses them first (malformed_location), still before any second request.
+        earlier = {"userinfo": "malformed_location", "a fragment": "malformed_location"}
+        for label, target in links.items():
+            code = earlier.get(label, "pagination_destination_rejected")
+            with self.subTest(link=label):
+                for path in (self.ledger, self.output_path, self.body_path, self.connect_log):
+                    path.unlink(missing_ok=True)
+                self.server.journal.clear()
+                self.serve_pages(request, "check_runs", [100, 100, 9], lambda page: self.id_form(request, page))
+                self.server.routes[("api.github.com", self.routed_path(request, 1))] = (
+                    200, [("Content-Type", "application/json"), ("Link", f'<{target}>; rel="next"')],
+                    json.dumps({"total_count": 209, "check_runs": [{"id": n} for n in range(100)]}).encode())
+                result = self.fetch_pages(request)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn(f"ci-hosted-transport: {code}:", result.stderr)
+                ledger = json.loads(self.ledger.read_text())
+                self.assertEqual([(row["host"], row["page_ordinal"]) for row in ledger["transactions"]], [("api.github.com", 1)])
+                self.assertEqual(ledger["terminal_stop"]["code"], code)
+                self.assertEqual([row["path"] for row in self.server.journal], [self.routed_path(request, 1)], "no second request")
+        # Positive control: the approved /repos/ form still passes on the same route.
+        for path in (self.ledger, self.output_path, self.body_path, self.connect_log):
+            path.unlink(missing_ok=True)
+        self.server.journal.clear()
+        self.serve_pages(request, "check_runs", [100, 100, 9],
+                         lambda page: f"https://api.github.com{self.routed_path(request, page)}")
+        result = self.fetch_pages(request)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(json.loads(self.body_path.read_text())["check_runs"]), 209)
+
+    def test_hermetic_pagination_still_refuses_the_repositories_id_form_and_accepts_its_repos_form(self):
+        hermetic = {"mode": "hermetic-test", "allocation_kind": "canary", "repository": "szTheory/sigra",
+                    "test_origin": "https://localhost:4443", "max_pages": 3}
+        request = dict(self.check_runs_request(), page_ordinal=1)
+        page1 = self.transport._route(dict(request, query={"per_page": 100, "page": 1}), hermetic)
+        self.assertEqual(page1[:2], ("localhost", 4443))
+        page2 = self.transport._route(dict(request, query={"per_page": 100, "page": 2}), hermetic)[3]
+        path, query = page2.split("?", 1)
+        suffix = path[len("/repos/szTheory/sigra/"):]
+        repos_form = f'<https://localhost:4443{page2}>; rel="next"'
+        self.assertEqual(self.transport._next_page_url(repos_form, request, hermetic), f"https://localhost{page2}")
+        id_form = f'<https://localhost:4443/repositories/{self.REPOSITORY_ID}/{suffix}?{query}>; rel="next"'
+        with self.assertRaises(self.transport.TransportError) as caught:
+            self.transport._next_page_url(id_form, request, hermetic)
+        self.assertEqual(caught.exception.code, "pagination_destination_rejected")
+        self.assertIn("pagination link changed its approved API route", str(caught.exception))
+
 class LivePolicyAllocationTests(unittest.TestCase):
     """253-110: the live side of _validate_allocation and _route's test-only routes, offline (no socket at all)."""
 

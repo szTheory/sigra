@@ -1321,5 +1321,61 @@ class DryRunR12MainRecordTests(unittest.TestCase):
         self.assertNotEqual(clone_main, self.real_before["refs/remotes/origin/main"])
 
 
+class DryRunPaginatedCheckRunsTests(unittest.TestCase):
+    """253-146: the server parent is the fetched main as 253-143 read it (209 check runs, three pages, GitHub's Link
+    header). Live-policy emits GitHub's /repositories/<id>/ next links, hermetic the local /repos/ form; both must pass the
+    preflight with exactly 3 check_runs pages (preflight 7 of 8) and reach the workflow lookup and full-pass."""
+
+    FLAGS = ("--ref-pair", "r12", "--seed-r8-refs", "--seed-r9-refs", "--seed-r10-refs", "--seed-r11-refs", "--stop-after", "full-pass")
+
+    def check_quick_gate(self, code, summary, form):
+        self.assertEqual(code, 0, summary)
+        self.assertEqual(summary.get("status"), "passed", summary)
+        reads = [read for read in summary.get("paginated_reads") or [] if read.get("route") == "check_runs"]
+        self.assertEqual(len(reads), 1, summary.get("paginated_reads"))
+        self.assertEqual(reads[0]["pages"], 3, reads)
+        self.assertEqual(reads[0]["next_link_forms"], [form], reads)
+        self.assertEqual(summary.get("requests_by_category", {}).get("preflight"), 7, summary.get("requests_by_category"))
+        self.assertEqual(summary.get("requests_by_route", {}).get("check_runs"), 3, summary.get("requests_by_route"))
+        self.assertEqual(summary.get("requests_by_route", {}).get("workflow"), 1, summary.get("requests_by_route"))
+        self.assertIn("full-pass", summary.get("scenarios") or [], summary)
+        for pair in ("r8", "r9", "r10", "r11"):
+            self.assertIs(summary.get(f"seeded_{pair}_refs_changed"), False, summary)
+
+    def test_live_policy_quick_gate_reads_three_repositories_id_pages_within_preflight_seven(self):
+        code, summary = live_run(*self.FLAGS)
+        self.check_quick_gate(code, summary, "repositories-id")
+        self.assertEqual(summary.get("mode"), "live-policy")
+        self.assertEqual(summary.get("shim_refusals"), [], summary)
+        self.assertEqual((summary.get("authorization") or {}).get("blob_with"), 0, summary)
+        self.assertEqual((summary.get("authorization") or {}).get("results_receiver_with"), 0, summary)
+
+    def test_hermetic_quick_gate_reads_three_repos_form_pages_within_preflight_seven(self):
+        code, summary = run_gate(*self.FLAGS)
+        self.check_quick_gate(code, summary, "repos")
+        self.assertEqual(summary.get("mode"), "hermetic")
+
+    def test_the_fake_serves_209_runs_over_100_100_9_with_githubs_link_rels(self):
+        runner = load_runner()
+        self.assertEqual(runner.GITHUB_REPOSITORY_ID, 1207487684)
+        self.assertEqual(runner.SERVER_PARENT_CHECK_PAGES, (100, 100, 9))
+        runs = runner.server_parent_check_runs("f" * 40, 209)
+        self.assertEqual(len(runs), 209)
+        for name in runner.REQUIRED_CHECKS:
+            self.assertEqual(sum(1 for run in runs if run["name"] == name), 1, name)
+        ledger = {"transactions": [
+            {"route_id": "check_runs", "page_ordinal": page, "hop_ordinal": 0, "scrubbed_headers": {"link": links}}
+            for page, links in ((1, [{"rel": "next", "destination": {"path": "/repositories/1207487684/commits/x/check-runs"}},
+                                     {"rel": "last", "destination": {"path": "/repositories/1207487684/commits/x/check-runs"}}]),
+                                (2, [{"rel": "prev", "destination": {"path": "/repos/szTheory/sigra/commits/x/check-runs"}},
+                                     {"rel": "next", "destination": {"path": "/repositories/1207487684/commits/x/check-runs"}}]),
+                                (3, [{"rel": "prev", "destination": {"path": "/repositories/1207487684/commits/x/check-runs"}}]))]
+            + [{"route_id": "workflow", "page_ordinal": 1, "hop_ordinal": 0, "scrubbed_headers": {}}]}
+        self.assertEqual(runner.paginated_reads(ledger), [{"route": "check_runs", "pages": 3, "next_link_forms": ["repositories-id"]}])
+        # A second page-1 read of the same route is a separate read, never a continuation.
+        twice = {"transactions": ledger["transactions"][:1] + ledger["transactions"][:1]}
+        self.assertEqual(runner.paginated_reads(twice), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

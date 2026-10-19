@@ -960,6 +960,127 @@ class CanaryCheckSourceTests(unittest.TestCase):
         self.assertIn("    hydrate_effective_checks(view)\n    verify_effective_checks(view)\n", pr_family)
 
 
+class MultiPageCheckSourceTests(unittest.TestCase):
+    """253-146: a bounded multi-page check_runs read (the fetched main's 209 runs, 253-143) hydrates the native check
+    sources from the contiguous page set 1..n of one commit; every malformed set is refused by its own rule."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("hosted_gate_verify_multipage", VERIFY)
+        cls.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.module)
+
+    SOURCE = {"sha": SERVER_PARENT, "role": "server_parent"}
+
+    @staticmethod
+    def runs(count, start=1):
+        """count check runs: the five required names first (once each), then other checks with distinct names."""
+        return [check_run(CHECK_NAMES[index - 1] if index <= len(CHECK_NAMES) else f"Other check {index}", index)
+                for index in range(start, start + count)]
+
+    def paged(self, sizes, sha=SERVER_PARENT, total_count=None, ordinals=None, role="server_parent", totals=None):
+        """Evidence whose ledger holds rules, legacy 404 and one check_runs row per page (sizes), sequences 3.."""
+        evidence = V2VerifierContractTests.transport_fixture(self)
+        rules = [{"type": "required_status_checks", "parameters": {"required_status_checks": [
+            {"context": name, "integration_id": 123} for name in CHECK_NAMES]}}]
+        set_body(evidence, 0, json.dumps(rules, separators=(",", ":")).encode())
+        total_count = sum(sizes) if total_count is None else total_count
+        ordinals = list(range(1, len(sizes) + 1)) if ordinals is None else ordinals
+        totals = [total_count] * len(sizes) if totals is None else totals
+        template = evidence["transport_ledger"]["transactions"][2]
+        rows, start = [], 1
+        for number, (size, ordinal, total) in enumerate(zip(sizes, ordinals, totals)):
+            body = json.dumps({"total_count": total, "check_runs": self.runs(size, start)}, separators=(",", ":")).encode()
+            start += size
+            url = f"https://api.github.com/repos/szTheory/sigra/commits/{sha}/check-runs?per_page=100&page={ordinal}"
+            row = copy.deepcopy(template)
+            row.update(sequence=3 + number, page_ordinal=ordinal, url=url, url_sha256=hashlib.sha256(url.encode()).hexdigest(),
+                       response_body_base64=base64.b64encode(body).decode(), response_sha256=hashlib.sha256(body).hexdigest(),
+                       response_bytes=len(body), scrubbed_response_bytes=len(body))
+            rows.append(row)
+        evidence["transport_ledger"]["transactions"][2:] = rows
+        evidence["repository"] = "szTheory/sigra"
+        evidence["expected"] = {"candidate_sha": sha if role is None else CANARY_CANDIDATE}
+        if role is not None:
+            evidence["expected"].update(check_source_sha=sha, check_source_role=role)
+        return evidence
+
+    def hydrate_and_verify(self, evidence, source=SOURCE, **kwargs):
+        self.module.hydrate_effective_checks(evidence, source, **kwargs)
+        return self.module.verify_effective_checks(evidence, source, **kwargs)
+
+    def assert_refused(self, evidence, pattern, source=SOURCE, **kwargs):
+        with self.assertRaisesRegex(self.module.VerificationError, pattern):
+            self.hydrate_and_verify(evidence, source, **kwargs)
+
+    # -- acceptance ----------------------------------------------------------------------------------------------
+    def test_three_page_209_run_server_parent_set_is_hydrated_and_verified(self):
+        evidence = self.paged([100, 100, 9])
+        result = self.hydrate_and_verify(evidence)
+        self.assertEqual(result["status"], "effective_checks_verified")
+        self.assertEqual(evidence["effective_checks"]["native_check_runs"], {"sequences": [3, 4, 5]})
+        self.assertEqual(sorted(item["name"] for item in evidence["producer_checks"]), sorted(CHECK_NAMES))
+
+    def test_three_page_set_passes_verify_canary_checks_with_the_bound_publication_receipt(self):
+        with tempfile.TemporaryDirectory() as root:
+            evidence = CanaryCheckSourceTests.bind_receipt(self, self.paged([100, 100, 9]), root)
+            result = self.module.verify_canary_checks(evidence, root=root)
+        self.assertEqual(result["status"], "effective_checks_verified")
+
+    def test_one_page_set_below_100_runs_is_accepted_on_both_paths(self):
+        self.hydrate_and_verify(self.paged([7]))
+        head = "e" * 40
+        self.hydrate_and_verify(self.paged([7], sha=head, role=None), None)
+
+    def test_legacy_single_sequence_evidence_shape_is_still_accepted(self):
+        evidence = self.paged([7])
+        self.module.hydrate_effective_checks(evidence, self.SOURCE)
+        evidence["effective_checks"]["native_check_runs"] = {"sequence": 3}
+        self.assertEqual(self.module.verify_effective_checks(evidence, self.SOURCE)["status"], "effective_checks_verified")
+
+    # -- refusals ------------------------------------------------------------------------------------------------
+    def test_single_page_short_read_needs_another_charged_page(self):
+        self.assert_refused(self.paged([100], total_count=209), "needs another charged page")
+
+    def test_two_of_three_pages_is_a_short_read_that_needs_another_charged_page(self):
+        self.assert_refused(self.paged([100, 100], total_count=209), "needs another charged page")
+
+    def test_pr_head_stop_one_page_of_100_runs_with_total_count_101_needs_another_charged_page(self):
+        head = "e" * 40
+        self.assert_refused(self.paged([100], sha=head, role=None, total_count=101), "needs another charged page", None)
+
+    def test_a_page_gap_is_not_one_contiguous_page_set(self):
+        self.assert_refused(self.paged([100, 9], total_count=109, ordinals=[1, 3]), "one contiguous page set")
+
+    def test_two_separate_page_one_reads_are_not_one_contiguous_page_set(self):
+        self.assert_refused(self.paged([7, 7], total_count=7, ordinals=[1, 1]), "one contiguous page set")
+
+    def test_total_count_differing_between_pages_is_refused(self):
+        self.assert_refused(self.paged([100, 100, 9], totals=[209, 209, 210]), "total_count differs between pages")
+
+    def test_a_union_shorter_than_total_count_is_refused(self):
+        self.assert_refused(self.paged([100, 100, 8], total_count=209), "page union differs from total_count")
+
+    def test_more_pages_than_ceil_total_count_is_a_wrong_page_count(self):
+        self.assert_refused(self.paged([100, 9, 0], total_count=109), r"more pages than ceil\(total_count/100\)")
+
+    def test_more_pages_than_the_allocation_max_pages_is_refused(self):
+        self.assert_refused(self.paged([100, 100, 9]), "exceed the allocation's max_pages", max_pages=2)
+        self.assertEqual(self.module.MAX_CHECK_RUN_PAGES, 10)
+        self.assert_refused(self.paged([100] * 11), "exceed the allocation's max_pages")
+
+    def test_verify_refuses_a_retained_sequence_set_with_a_gap_or_a_short_read(self):
+        for sequences, pattern in (([3, 5], "one contiguous page set"), ([3, 4], "needs another charged page"),
+                                   ([], "one contiguous page set")):
+            with self.subTest(sequences=sequences):
+                evidence = self.paged([100, 100, 9])
+                self.module.hydrate_effective_checks(evidence, self.SOURCE)
+                evidence["effective_checks"]["native_check_runs"] = {"sequences": sequences}
+                with self.assertRaisesRegex(self.module.VerificationError, pattern):
+                    self.module.verify_effective_checks(evidence, self.SOURCE)
+
+
 class PRVerifierContractTests(unittest.TestCase):
     """Offline contracts for the PR-family and completion CLI/entry points; full chains live in ci-pr-proof.test.sh."""
 

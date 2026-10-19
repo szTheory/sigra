@@ -60,6 +60,11 @@ R7_FREEZE_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-FREEZE-R7.json"
 REPO = "szTheory/sigra"
 WORKFLOW_ID = 259268962
 APP = {"id": 15368, "slug": "github-actions", "name": "GitHub Actions"}
+# 253-146: GitHub names pagination links by this repository's numeric id (R12 ledger sequence 21, the fetched main's
+# check-runs: /repositories/1207487684/commits/<sha>/check-runs). The live-policy fake emits that form; hermetic emits /repos/.
+GITHUB_REPOSITORY_ID = 1207487684
+# 253-146: the fetched main 09df342a carried 209 check runs (R12 ledger sequence 21 total_count), so GitHub paged them 100/100/9.
+SERVER_PARENT_CHECK_PAGES = (100, 100, 9)
 REQUIRED_CHECKS = ("Library tests", "Example unit smoke (ExUnit + ConnTest)", "Install smoke (fresh phx.new + sigra.install)",
                    "Example HTTP smoke (boot + curl critical routes)", "Example Playwright smoke (full lifecycle)")
 SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
@@ -1048,11 +1053,12 @@ class FakeGitHub(ObjectServer):
         pass
 
     # -- REST routes -------------------------------------------------------------------------------------------
-    def _paged(self, query, extra_keys=()):
+    def _paged(self, query, extra_keys=(), max_page=1):
+        # 253-146: max_page (default 1, so every earlier route is unchanged) lets the check-runs route serve pages 1..3.
         expected = {"per_page", "page", *extra_keys}
         if set(query) != expected or any(len(values) != 1 for values in query.values()):
             return None
-        if query["per_page"] != ["100"] or query["page"] != ["1"]:
+        if query["per_page"] != ["100"] or query["page"] not in [[str(page)] for page in range(1, max_page + 1)]:
             return None
         return {key: values[0] for key, values in query.items()}
 
@@ -1068,8 +1074,9 @@ class FakeGitHub(ObjectServer):
         if path == f"/repos/{REPO}/branches/main/protection" and not query:
             return lambda: self._reply(404, {"message": "Branch not protected", "status": "404"})
         match = re.fullmatch(rf"/repos/{REPO}/commits/([a-f0-9]{{40}})/check-runs", path)
-        if match and self._paged(query) is not None:
-            return lambda: self._check_runs(match.group(1))
+        fields = self._paged(query, max_page=len(SERVER_PARENT_CHECK_PAGES)) if match else None
+        if match and fields is not None:
+            return lambda: self._check_runs(match.group(1), int(fields["page"]))
         match = re.fullmatch(rf"/repos/{REPO}/actions/workflows/(\d+)", path)
         if match and not query:
             return lambda: self._workflow(int(match.group(1)))
@@ -1096,13 +1103,30 @@ class FakeGitHub(ObjectServer):
             return lambda: self._redirect("logs", int(match.group(1)))
         return None
 
-    def _check_runs(self, sha):
+    def _check_runs(self, sha, page=1):
         if sha != self.server.server_parent:
+            if page != 1:
+                return self._refuse("only the server parent's check runs are paginated", 404)
             return self._reply(200, {"total_count": 0, "check_runs": []})
-        runs = [{"id": 70000000 + index, "name": name, "head_sha": sha, "status": "completed", "conclusion": "success",
-                 "html_url": f"https://github.com/{REPO}/actions/runs/600000/job/{70000000 + index}",
-                 "app": dict(APP)} for index, name in enumerate(REQUIRED_CHECKS)]
-        self._reply(200, {"total_count": len(runs), "check_runs": runs})
+        # 253-146: the server parent is main as 253-143 really read it: 209 check runs over three pages (100/100/9), each
+        # page carrying total_count 209 and GitHub's Link header in this mode's form (see check_runs_link).
+        sizes = SERVER_PARENT_CHECK_PAGES
+        total = sum(sizes)
+        runs = server_parent_check_runs(sha, total)
+        start = sum(sizes[:page - 1])
+        self._send(200, json.dumps({"total_count": total, "check_runs": runs[start:start + sizes[page - 1]]},
+                                   ensure_ascii=False, separators=(",", ":")).encode(),
+                   extra=[("Link", self._check_runs_link(sha, page, len(sizes)))] if len(sizes) > 1 else ())
+
+    def _check_runs_link(self, sha, page, last):
+        """GitHub's Link shape for page of last: page 1 next+last; a middle page prev+first+next+last; the last prev+first.
+        Live-policy uses GitHub's /repositories/<id>/ form on api.github.com; hermetic the local origin's /repos/ form."""
+        if self.server.live:
+            base = f"https://{API_HOST}/repositories/{GITHUB_REPOSITORY_ID}/commits/{sha}/check-runs"
+        else:
+            base = f"https://localhost:{self.server.server_address[1]}/repos/{REPO}/commits/{sha}/check-runs"
+        rels = ([(page - 1, "prev"), (1, "first")] if page > 1 else []) + ([(page + 1, "next"), (last, "last")] if page < last else [])
+        return ", ".join(f'<{base}?per_page=100&page={target}>; rel="{rel}"' for target, rel in rels)
 
     def _workflow(self, workflow_id):
         if workflow_id != WORKFLOW_ID:
@@ -1406,6 +1430,38 @@ def seeded_scoped_refs(args) -> dict:
     return refs
 
 
+def server_parent_check_runs(sha: str, total: int) -> list:
+    """253-146 (Task 1): total synthetic check runs on the server parent, each required name exactly once on page 1."""
+    names = list(REQUIRED_CHECKS) + [f"Other check {index}" for index in range(len(REQUIRED_CHECKS), total)]
+    return [{"id": 70000000 + index, "name": name, "head_sha": sha, "status": "completed", "conclusion": "success",
+             "html_url": f"https://github.com/{REPO}/actions/runs/600000/job/{70000000 + index}",
+             "app": dict(APP)} for index, name in enumerate(names)]
+
+
+def paginated_reads(ledger: dict) -> list:
+    """253-146: every multi-page read in the window ledger, in order: {route, pages, next_link_forms}, where a form is
+    "repositories-id" (GitHub's /repositories/<id>/ link) or "repos" (the /repos/<owner>/<repo>/ link), read from the
+    scrubbed rel=next destinations."""
+    reads, current = [], None
+    for row in ledger.get("transactions", []):
+        if (row.get("hop_ordinal") or 0) != 0:
+            continue
+        page = row.get("page_ordinal")
+        if current is not None and row.get("route_id") == current["route"] and page == current["pages"] + 1:
+            current["pages"] += 1
+        else:
+            current = {"route": row.get("route_id"), "pages": 1, "next_link_forms": []}
+            reads.append(current)
+        for entry in (row.get("scrubbed_headers") or {}).get("link") or []:
+            path = ((entry or {}).get("destination") or {}).get("path") or ""
+            if (entry or {}).get("rel") != "next":
+                continue
+            form = "repositories-id" if path.startswith("/repositories/") else "repos" if path.startswith("/repos/") else "other"
+            if form not in current["next_link_forms"]:
+                current["next_link_forms"].append(form)
+    return [read for read in reads if read["pages"] > 1]
+
+
 def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_parent: str, verifier_module,
                visibility_delay: float, polls: dict, seed_legacy: bool, live: bool = False, seed_refs: dict | None = None):
     cert, key = work / "tls-cert.pem", work / "tls-key.pem"
@@ -1660,7 +1716,7 @@ def dry_run(args) -> dict:
     live = bool(getattr(args, "live_policy", False))
     summary = {"status": "failed", "synthetic": True, "freeze_plan": None, "scenarios": [], "verifier": {"status": "pending"},
                "requests_by_category": {}, "requests_total": 0, "journal_requests": 0, "stop": None,
-               "mode": "live-policy" if live else "hermetic", "live_hops": [],
+               "mode": "live-policy" if live else "hermetic", "live_hops": [], "paginated_reads": [],
                "authorization": {"api_with": 0, "api_without": 0, "blob_with": 0, "results_receiver_with": 0},
                "requested_sleeps": requested_sleeps(None), "shim_refusals": [], "shim_connect_hosts": [], "violations": []}
     if getattr(args, "transport_from", None):
@@ -1781,6 +1837,7 @@ def dry_run(args) -> dict:
         for row in ledger_value.get("transactions", []):
             routes[row.get("route_id")] = routes.get(row.get("route_id"), 0) + 1
         summary["requests_by_route"] = routes
+        summary["paginated_reads"] = paginated_reads(ledger_value)
         summary["live_hops"] = [{"route": row.get("route_id"), "hop_ordinal": row.get("hop_ordinal"), "host": row.get("host"),
                                  "status": row.get("actual_status"), "category": row.get("category")}
                                 for row in ledger_value.get("transactions", []) if (row.get("hop_ordinal") or 0) >= 1]
