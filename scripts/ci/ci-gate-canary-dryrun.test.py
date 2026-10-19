@@ -1209,5 +1209,117 @@ class RefPairHelpTests(unittest.TestCase):
             self.assertIn(name, text)
 
 
+class DryRunR12MainRecordTests(unittest.TestCase):
+    """253-138: the derived-freeze path of prepare_clone satisfies the r12 main-freshness guard with a synthetic main-fetch
+    record committed inside its temporary clone and bound to its own synthetic server parent; it never skips the guard,
+    and the real checkout's refs are never written. Earlier pairs are unchanged."""
+
+    PAIRS = ("r12", "r11", None)
+    REAL_REFS = ("refs/remotes/origin/main", "refs/heads/main")
+    RECORD_REL = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DRYRUN-MAIN-FETCH-R12.json"
+    RECORD_SUBJECT = "dry-run: synthetic main-fetch record (fetched_main_sha = server parent)"
+
+    @classmethod
+    def git(cls, repo, *args, check=True):
+        result = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True)
+        if check and result.returncode:
+            raise AssertionError(f"git {' '.join(args)} failed: {result.stderr}")
+        return result.stdout.strip()
+
+    @classmethod
+    def setUpClass(cls):
+        cls.runner = load_runner()
+        cls.real_before = {ref: cls.git(ROOT, "rev-parse", ref) for ref in cls.REAL_REFS}
+        cls.works, cls.prepared = [], {}
+        try:
+            for pair in cls.PAIRS:
+                work = Path(tempfile.mkdtemp(prefix=f"sigra-253-main-record-{pair or 'default'}-")).resolve()
+                cls.works.append(work)
+                args = argparse.Namespace(overlay_worktree=True, driver_from=None, driver_patch=None, revision_freeze=None,
+                                          server_parent=None, ref_pair=pair, overlaid=[])
+                cls.prepared[pair] = cls.runner.prepare_clone(args, work)
+        finally:
+            cls.real_after = {ref: cls.git(ROOT, "rev-parse", ref) for ref in cls.REAL_REFS}
+
+    @classmethod
+    def tearDownClass(cls):
+        for work in cls.works:
+            shutil.rmtree(work, ignore_errors=True)
+
+    def manifest(self, prepared):
+        rel = prepared["freeze"]["bound_documents"]["publication_manifest"]["path"]
+        return json.loads((prepared["clone"] / rel).read_text())
+
+    def test_the_r12_clone_commits_a_synthetic_main_record_bound_to_its_server_parent(self):
+        prepared = self.prepared["r12"]
+        clone, freeze = prepared["clone"], prepared["freeze"]
+        parent = freeze["identity"]["server_parent_sha"]
+        record_path = clone / self.RECORD_REL
+        record = json.loads(record_path.read_text())
+        self.assertEqual((record["schema_version"], record["status"], record["synthetic"], record["decided_by"]),
+                         ("sigra.phase253.main-fetch/r12", "fetched", True, "dry-run-synthetic"))
+        self.assertEqual((record["fetched_main_sha"], record["fetch_head_sha"]), (parent, parent))
+        self.assertEqual(self.git(clone, "ls-files", "--error-unmatch", self.RECORD_REL), self.RECORD_REL)
+        self.assertEqual(self.git(clone, "status", "--porcelain", "--", self.RECORD_REL), "")
+        self.assertEqual(self.git(clone, "rev-parse", "refs/remotes/origin/main"), parent)
+        manifest = self.manifest(prepared)
+        fresh = manifest["main_freshness"]
+        self.assertEqual(fresh["fetched_main_sha"], parent)
+        self.assertEqual(fresh["record_path"], self.RECORD_REL)
+        self.assertIs(fresh["merge_preflight"]["clean"], True)
+        self.assertIs(fresh["candidate_parent_is_fetched_main"], True)
+        record_sha = hashlib.sha256(record_path.read_bytes()).hexdigest()
+        self.assertEqual(freeze["bound_documents"]["main_freshness_record"], {"path": self.RECORD_REL, "sha256": record_sha})
+        # The record has its own commit, before the publication commit, and the candidate source is the commit before it.
+        subjects = self.git(clone, "log", "--format=%s", "-n", "6").splitlines()
+        self.assertIn(self.RECORD_SUBJECT, subjects)
+        self.assertLess(subjects.index("dry-run: synthetic publication manifest"), subjects.index(self.RECORD_SUBJECT))
+        record_commit = self.git(clone, "log", "--format=%H", "--fixed-strings", f"--grep={self.RECORD_SUBJECT}", "-n", "1")
+        self.assertEqual(self.git(clone, "diff-tree", "--no-commit-id", "--name-only", "-r", record_commit), self.RECORD_REL)
+        self.assertEqual(manifest["source_sha"], self.git(clone, "rev-parse", f"{record_commit}^"))
+
+    def test_a_manifest_stripped_of_main_freshness_is_refused_inside_the_same_clone(self):
+        prepared = self.prepared["r12"]
+        clone = prepared["clone"]
+        publisher = clone / "scripts/ci/ci-git-publication.py"
+        manifest = self.manifest(prepared)
+        del manifest["main_freshness"]
+        stripped_rel = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DRYRUN-STRIPPED-PUBLICATION.json"
+        (clone / stripped_rel).write_text(json.dumps(manifest, indent=2) + "\n")
+        self.git(clone, "add", stripped_rel)
+        self.git(clone, "commit", "-qm", "dry-run test: manifest stripped of main_freshness")
+
+        def build(manifest_rel, output_rel):
+            return subprocess.run([sys.executable, str(publisher), "--build-freeze", "--manifest", manifest_rel, "--output",
+                                   output_rel, "--repo-root", str(clone), "--ref-pair", "r12"],
+                                  cwd=ROOT, env=clean_env(), capture_output=True, text=True)
+        refused_rel = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DRYRUN-STRIPPED-FREEZE.json"
+        refused = build(stripped_rel, refused_rel)
+        self.assertNotEqual(refused.returncode, 0, "the stripped manifest built an r12 freeze: the guard was bypassed")
+        self.assertIn("main_freshness", refused.stderr)
+        self.assertFalse((clone / refused_rel).exists())
+        # Positive control: the harness's own manifest still builds an r12 freeze in the same clone.
+        control_rel = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DRYRUN-CONTROL-FREEZE.json"
+        control = build(prepared["freeze"]["bound_documents"]["publication_manifest"]["path"], control_rel)
+        self.assertEqual(control.returncode, 0, control.stderr)
+        (clone / control_rel).unlink()
+
+    def test_earlier_pairs_get_no_synthetic_record_main_freshness_or_binding(self):
+        for pair in ("r11", None):
+            with self.subTest(pair=pair):
+                prepared = self.prepared[pair]
+                self.assertFalse((prepared["clone"] / self.RECORD_REL).exists())
+                self.assertNotIn("main_freshness", self.manifest(prepared))
+                self.assertEqual(set(prepared["freeze"]["bound_documents"]), {"publication_manifest", "fixture_workflow"})
+                self.assertNotIn(self.RECORD_SUBJECT, self.git(prepared["clone"], "log", "--format=%s", "-n", "6"))
+
+    def test_the_real_checkout_refs_never_move_and_the_clone_ref_is_its_own(self):
+        self.assertEqual(self.real_after, self.real_before)
+        clone_main = self.git(self.prepared["r12"]["clone"], "rev-parse", "refs/remotes/origin/main")
+        # Positive control: the clone's origin/main is the R7 synthetic parent, not the real checkout's origin/main.
+        self.assertEqual(clone_main, self.prepared["r12"]["freeze"]["identity"]["server_parent_sha"])
+        self.assertNotEqual(clone_main, self.real_before["refs/remotes/origin/main"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
