@@ -580,7 +580,7 @@
       "file": "scripts/ci/ci-pr-proof.sh",
       "anchor": "publisher.verify_publication(receipt_path, bool(args.require_live_origin))",
       "occurrence": 1,
-      "line": 164,
+      "line": 188,
       "hermetic_behavior": "--prepare without --require-live-origin accepts a hermetic receipt; with it, refuses it (tested).",
       "live_behavior": "With --require-live-origin an actual-github receipt is accepted and preparation continues.",
       "coverage": {
@@ -595,7 +595,7 @@
       "file": "scripts/ci/ci-pr-proof.sh",
       "anchor": "\"synthetic\": self.allocation.get(\"mode\") == \"hermetic-test\", \"freeze\": self.freeze,",
       "occurrence": 1,
-      "line": 496,
+      "line": 637,
       "hermetic_behavior": "The PR evidence is labelled synthetic.",
       "live_behavior": "The PR evidence is labelled synthetic false; the verifier's dry-run window guard labels a live-policy run.",
       "coverage": {

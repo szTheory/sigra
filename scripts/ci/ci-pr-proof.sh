@@ -4,13 +4,16 @@
 #   ci-pr-proof.sh --prepare --publication RECEIPT --manifest MANIFEST --output FREEZE [--repo-root DIR] [--poll-interval SECONDS]
 #                  [--budget-document PATH] [--bound-document PATH ...] [--main-record MAIN-FETCH-R12]  (required for the r12 head)
 #   ci-pr-proof.sh --check-only --freeze FREEZE [--allocation ALLOCATION]
+#   ci-pr-proof.sh --main-preflight --freeze PR-FREEZE --current-main SHA --output FILE [--repo-root DIR]
+#                  (step 0, r12 freezes: exit 0 only for status clean; the file is exclusive-create; never fetches)
 #   ci-pr-proof.sh --family normal|docs-only --freeze FREEZE --allocation ALLOCATION --evidence OUT --requests LEDGER [--repo-root DIR]
 #                  --revision-freeze CANARY-FREEZE --action-approval FILE   (committed docs_and_prs section approval, required)
+#                  [--main-preflight FILE]   (normal family on an r12 freeze: required, the clean step-0 preflight)
 #   ci-pr-proof.sh --verify EVIDENCE [--docs-evidence EVIDENCE] [--server-journal JSON] [--docs-server-journal JSON]
 #
 # Every GitHub transaction goes through scripts/ci/ci-hosted-transport.py (predebited, typed, repository
-# scoped, no implicit retry/redirect). --prepare and --check-only perform no network I/O. --verify never
-# trusts collector output: it hands the retained bytes to scripts/ci/ci-hosted-gate-verify.py.
+# scoped, no implicit retry/redirect). --prepare, --check-only and --main-preflight perform no network I/O. --verify
+# never trusts collector output: it hands the retained bytes to scripts/ci/ci-hosted-gate-verify.py.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
@@ -18,7 +21,7 @@ export SIGRA_PR_PROOF_ROOT="$ROOT"
 export PYTHONDONTWRITEBYTECODE=1
 
 if [[ $# -eq 0 || "$1" == "--help" || "$1" == "-h" ]]; then
-  sed -n '2,13p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,16p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
   exit $(( $# == 0 ))
 fi
 
@@ -29,6 +32,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -58,6 +62,15 @@ R12_NORMAL_HEAD = "gsd/253-replan-r12-candidate"
 FAMILY_REFS = {"normal": (NORMAL_HEADS, "main"),
                "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")}
 TERMINAL_POLLS = {"normal": 15, "docs-only": 12}
+# 253-139: the offline step-0 preflight. GitHub runs pull_request CI on the test merge of the head into the CURRENT base,
+# so a main that moved since the freeze is accepted only if the frozen main is its ancestor and the head merges cleanly.
+PREFLIGHT_SCHEMA = "sigra.phase253.pr-main-preflight/r12"
+PREFLIGHT_KEYS = ("schema", "freeze_sha256", "head_sha", "frozen_main", "current_main", "moved", "ancestor", "merge_preflight",
+                  "status")
+PREFLIGHT_MODE = object()  # --main-preflight given without a value selects the step-0 mode
+SHA40 = re.compile(r"[0-9a-f]{40}")
+DOCS_NOT_APPLICABLE = {"status": "not_applicable",
+                       "reason": "the docs-only base is the scoped ref gsd/253-replan-docs-base created in the same window"}
 
 
 class Stop(Exception):
@@ -117,6 +130,17 @@ def frozen_refs(family, spec):
     if not valid:
         raise SystemExit(f"ci-pr-proof: {family} refs are not the exact proof refs")
     return head_ref, base_ref
+
+
+def exclusive_write(path, data):
+    """Create path or fail: an existing file is never replaced (O_CREAT | O_EXCL)."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+    with os.fdopen(fd, "wb") as stream:
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
 
 
 def bound_document(path):
@@ -222,7 +246,7 @@ def prepare(args):
 
 
 # ---------------------------------------------------------------------------------------- check only
-def check_freeze(freeze_path, allocation_path=None):
+def check_freeze(freeze_path, allocation_path=None, quiet=False):
     transport = load(TRANSPORT, "ci_hosted_transport")
     raw = Path(freeze_path).read_bytes()
     freeze = json.loads(raw)
@@ -251,8 +275,107 @@ def check_freeze(freeze_path, allocation_path=None):
                 or allocation.get("category_limits") != transport.PRODUCTION_CATEGORY_LIMITS):
             raise SystemExit("ci-pr-proof: allocation is not the production allocation bound to this exact freeze")
         result["allocation_valid"] = True
-    print(json.dumps(result, sort_keys=True))
+    if not quiet:
+        print(json.dumps(result, sort_keys=True))
     return freeze
+
+
+# --------------------------------------------------------------------------------- step-0 main preflight
+def commit_present(repo, sha):
+    return subprocess.run(["git", "-C", str(repo), "cat-file", "-e", f"{sha}^{{commit}}"], capture_output=True).returncode == 0
+
+
+def is_ancestor(repo, ancestor, descendant):
+    result = subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", ancestor, descendant], capture_output=True)
+    if result.returncode not in (0, 1):
+        raise SystemExit(f"ci-pr-proof: git merge-base failed: {result.stderr.decode('utf-8', 'replace').strip()}; network_requests 0")
+    return result.returncode == 0
+
+
+def preflight_document(publisher, repo, freeze, current_main):
+    """The step-0 preflight of the frozen normal head against current_main: ancestry of the frozen main, then the one
+    merge test (publisher.merge_preflight). rewritten wins over conflicted; only clean is accepted downstream."""
+    frozen, head = freeze["source"]["fetched_main_sha"], freeze["normal"]["head_sha"]
+    ancestor = is_ancestor(repo, frozen, current_main)
+    try:
+        merge = publisher.merge_preflight(repo, head, current_main)
+    except publisher.PublicationError as error:
+        merge = {"head": head, "base": current_main, "exit": None, "clean": False, "conflicts": [], "error": str(error)}
+    status = "rewritten" if not ancestor else ("clean" if merge["clean"] else "conflicted")
+    return {"schema": PREFLIGHT_SCHEMA, "freeze_sha256": freeze["freeze_sha256"], "head_sha": head, "frozen_main": frozen,
+            "current_main": current_main, "moved": current_main != frozen, "ancestor": ancestor, "merge_preflight": merge,
+            "status": status}
+
+
+def main_preflight(args):
+    """253-139 step 0: offline. 253-144's runner does the approved fetch and passes the fetched SHA in as --current-main."""
+    def refuse(rule):
+        raise SystemExit(f"ci-pr-proof: main preflight refused: {rule}; network_requests 0")
+    current = args.current_main
+    if not isinstance(current, str) or not SHA40.fullmatch(current):
+        refuse("--current-main must be a full lowercase 40-hex commit SHA")
+    if Path(args.output).exists():
+        refuse(f"{args.output} already exists; the preflight file is exclusive-create")
+    freeze = check_freeze(args.freeze, quiet=True)
+    if not SHA40.fullmatch(str((freeze.get("source") or {}).get("fetched_main_sha"))):
+        refuse("the freeze is not an r12 PR freeze (no source.fetched_main_sha)")
+    repo = Path(args.repo_root).resolve() if args.repo_root else ROOT
+    if not commit_present(repo, current):
+        refuse(f"current main {current} is not a commit in the local object store (fetch it first; this mode never fetches)")
+    document = preflight_document(load(PUBLICATION, "ci_git_publication"), repo, freeze, current)
+    try:
+        exclusive_write(args.output, (json.dumps(document, indent=2, sort_keys=True) + "\n").encode())
+    except FileExistsError:
+        refuse(f"{args.output} already exists; the preflight file is exclusive-create")
+    print(json.dumps({"status": document["status"], "moved": document["moved"], "current_main": current,
+                      "conflicts": document["merge_preflight"].get("conflicts"), "output": str(args.output),
+                      "network_requests": 0}, sort_keys=True))
+    return 0 if document["status"] == "clean" else 1
+
+
+def required_base_preflight(args, freeze):
+    """The base_preflight the evidence records, checked before any write or request. An r12 normal family needs a clean
+    step-0 preflight for this exact freeze and head, re-derived here; docs-only records not_applicable (its base is a
+    scoped ref created in the same window); a pre-r12 freeze records nothing and takes no preflight."""
+    def refuse(rule):
+        raise SystemExit(f"ci-pr-proof: main preflight refused: {rule}; network_requests 0")
+    given = args.main_preflight
+    r12 = bool((freeze.get("source") or {}).get("fetched_main_sha"))
+    if given is not None and args.family != "normal":
+        refuse("--main-preflight applies to the normal family only")
+    if not r12:
+        if given is not None:
+            refuse("--main-preflight applies only to an r12 PR freeze (one carrying source.fetched_main_sha)")
+        return None
+    if args.family != "normal":
+        return dict(DOCS_NOT_APPLICABLE)
+    if given is None:
+        refuse("the r12 normal family requires --main-preflight FILE (the clean step-0 preflight)")
+    try:
+        raw = Path(given).read_bytes()
+        document = json.loads(raw)
+    except (OSError, ValueError) as error:
+        refuse(f"the main preflight file is unreadable: {error}")
+    if not isinstance(document, dict) or document.get("schema") != PREFLIGHT_SCHEMA or set(document) != set(PREFLIGHT_KEYS):
+        refuse(f"the main preflight schema or field set is not {PREFLIGHT_SCHEMA}")
+    if document["freeze_sha256"] != freeze.get("freeze_sha256"):
+        refuse("the main preflight was made for another PR freeze")
+    if document["head_sha"] != freeze["normal"]["head_sha"]:
+        refuse("the main preflight names another normal head")
+    if document["frozen_main"] != freeze["source"]["fetched_main_sha"]:
+        refuse("the main preflight names another frozen main")
+    if document["status"] != "clean":
+        refuse(f"the step-0 main preflight is not clean (status {document['status']}; conflicts "
+               f"{(document.get('merge_preflight') or {}).get('conflicts')})")
+    current = document["current_main"]
+    repo = Path(args.repo_root).resolve() if args.repo_root else ROOT
+    if not isinstance(current, str) or not SHA40.fullmatch(current) or not commit_present(repo, current):
+        refuse(f"the preflight current main {current!r} is not a commit in the local object store")
+    recomputed = preflight_document(load(PUBLICATION, "ci_git_publication"), repo, freeze, current)
+    if recomputed != document:
+        refuse(f"the main preflight differs from the recomputed preflight (status {recomputed['status']}, conflicts "
+               f"{recomputed['merge_preflight'].get('conflicts')})")
+    return {**document, "sha256": sha256(raw)}
 
 
 # ---------------------------------------------------------------------------------- section approval
@@ -275,8 +398,9 @@ def approved_section(args):
 
 # --------------------------------------------------------------------------------------- collection
 class Collector:
-    def __init__(self, args, section, action_approval):
+    def __init__(self, args, section, action_approval, base_preflight=None):
         self.section = section
+        self.base_preflight = base_preflight
         self.action_approval = action_approval
         self.family = args.family
         self.freeze_raw = Path(args.freeze).read_bytes()
@@ -435,6 +559,10 @@ class Collector:
         self.require_listed_pr(create_body)
         _, created = self.jcall("one", "pr_create", "pr_create", "POST", body=create_body, expect=(201,))
         number = created["number"]
+        expected_base = (self.base_preflight or {}).get("current_main")
+        if expected_base is not None and (created.get("base") or {}).get("sha") != expected_base:
+            raise Stop(f"main moved between the step-0 preflight and PR creation: the created PR base is "
+                       f"{(created.get('base') or {}).get('sha')}, the preflight current_main is {expected_base}")
         run_id = None
         for attempt in range(1, int(self.freeze["poll"]["discovery_attempts"]) + 1):
             _, found = self.jcall("one", "workflow_runs", "run_discovery", params={"workflow_id": WORKFLOW_ID},
@@ -446,7 +574,7 @@ class Collector:
             if attempt < int(self.freeze["poll"]["discovery_attempts"]):
                 self.sleep()
         if run_id is None:
-            raise Stop("no pull_request workflow run was discovered for the published head")
+            raise Stop(self.no_run_verdict(number))
         self.jcall("one", "rate_limit", "pre_watch_rate")
         run = None
         for poll in range(1, TERMINAL_POLLS[self.family] + 1):
@@ -490,6 +618,19 @@ class Collector:
                                    "zip_base64": base64.b64encode(data).decode("ascii")})
         return run
 
+    def no_run_verdict(self, number):
+        """253-139: both discovery attempts found no run. One diagnostic PR read (pr_identity, this failure path only) names
+        GitHub's own reason instead of the generic stop; the success path's pr_identity use is unchanged."""
+        _, pr = self.jcall("one", "pr_read", "pr_identity", params={"pull_number": number})
+        mergeable, state = (pr or {}).get("mergeable"), (pr or {}).get("mergeable_state")
+        if mergeable is False:
+            return (f"pull request #{number} has merge conflicts with its base (mergeable false, mergeable_state {state}); "
+                    "GitHub creates no pull_request run for it")
+        if mergeable is None:
+            return (f"pull request #{number} mergeability is still unknown (mergeable null, mergeable_state {state}); "
+                    "GitHub has not created a pull_request run for it")
+        return f"no pull_request run although pull request #{number} is mergeable (mergeable_state {state})"
+
     def write(self, stop=None, started=False):
         evidence = {"schema_version": EVIDENCE_SCHEMA, "repository": REPO, "family": self.family,
                     "action_approval": self.action_approval,
@@ -498,6 +639,8 @@ class Collector:
                     "transport_ledger": self.ledger(), "server_journal": None, "downloads": self.downloads,
                     "collection": {"complete": not started and stop is None and len(self.downloads) == 5, "stop": stop,
                                    "notes": self.notes + (["collection started; no request has completed yet"] if started else [])}}
+        if self.base_preflight is not None:
+            evidence["base_preflight"] = self.base_preflight
         atomic_write(self.evidence_path, (json.dumps(evidence, sort_keys=True) + "\n").encode())
         return evidence
 
@@ -515,7 +658,8 @@ def run_family(args):
     if Path(args.evidence).exists():
         raise SystemExit(f"ci-pr-proof: {args.evidence} already exists; refusing to overwrite the recorded window and downloads "
                          "(continue the shared ledger with a new --evidence path; the earlier file stays as the record)")
-    collector = Collector(args, section, action_approval)
+    base_preflight = required_base_preflight(args, check_freeze(args.freeze, quiet=True))
+    collector = Collector(args, section, action_approval, base_preflight)
     stop = None
     # Record the approval and the wall-clock window start before the first transaction can leave the process.
     action_approval["window_wall_start_epoch"] = int(time.time())
@@ -579,10 +723,22 @@ def main():
     parser.add_argument("--poll-interval", type=int, default=60)
     parser.add_argument("--main-record", help="--prepare only: the sigra.phase253.main-fetch/r12 record the PR base is checked "
                         "against (required for the r12 normal head)")
+    parser.add_argument("--main-preflight", nargs="?", const=PREFLIGHT_MODE,
+                        help="alone: the offline step-0 mode; with FILE and --family normal: the clean preflight (r12 required)")
+    parser.add_argument("--current-main", help="--main-preflight mode: the freshly fetched main SHA (present locally)")
     args = parser.parse_args()
-    modes = [bool(args.prepare), bool(args.check_only), bool(args.verify), bool(args.family)]
+    preflight_mode = args.main_preflight is PREFLIGHT_MODE
+    modes = [bool(args.prepare), bool(args.check_only), bool(args.verify), bool(args.family), preflight_mode and not args.family]
     if sum(modes) != 1:
-        parser.error("choose exactly one of --prepare, --check-only, --family or --verify")
+        parser.error("choose exactly one of --prepare, --check-only, --main-preflight, --family or --verify")
+    if preflight_mode and args.family:
+        parser.error("--family takes --main-preflight FILE (the step-0 preflight file)")
+    if args.main_preflight is not None and not (preflight_mode or args.family):
+        parser.error("--main-preflight FILE is used with --family only")
+    if preflight_mode:
+        if not (args.freeze and args.current_main and args.output):
+            parser.error("--main-preflight requires --freeze, --current-main and --output")
+        return main_preflight(args)
     if args.prepare:
         if not (args.publication and args.manifest and args.output):
             parser.error("--prepare requires --publication, --manifest and --output")
