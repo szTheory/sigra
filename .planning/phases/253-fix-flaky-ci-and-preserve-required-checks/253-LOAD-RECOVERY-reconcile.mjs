@@ -1978,6 +1978,31 @@ const RESPONSIBILITY_MAP_R12 = Object.freeze({
   ...Object.fromEntries(Object.entries(RESPONSIBILITY_MAP_R11).map(([id, row]) => [id, { owners: remapOwnersR12(row.owners), links: row.links }])),
   "135": { owners: ["142", "145"], links: [...COMPLETION_LINK_KEYS, "load_target_disposition"] },
 });
+// The R11 halted proof map carried through the remap (so no row names halted 134, never-run 135 or 133, whose
+// canary proved the superseded R11 candidate only), plus halted 134's own proof: 136 (the fresh main fetch),
+// 137 (r12 ref pair), 138 (main-freshness RED and server parent), 139 (PR mergeability RED), 140 (fields_backed
+// audit and review), 141 (R12 publication and freeze on fetched main), 143 (the hosted canary on the R12
+// candidate) and 144 (the PR families 134 could not finish).
+const HALTED_PROOF_MAP_R12 = Object.freeze({
+  ...Object.fromEntries(Object.entries(HALTED_PROOF_MAP_R11).map(([id, owners]) => [id, remapOwnersR12(owners)])),
+  "134": ["136", "137", "138", "139", "140", "141", "143", "144"],
+});
+
+// Plan 253-132's receipts name THIS helper and its test, which R12 (plan 253-142) must edit. They are held at
+// the bytes of the last 253-132 commit that touched each file (e5ce3d578), read with git rather than invented.
+const FROZEN_TOOLING_RECEIPTS_R12_PLAN_132 = Object.freeze({
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.mjs`]: "b932d5392ec1a03909b22bd336f9064f9a5af2dc264bbae5c82dbccc40b74a62",
+  [`${PHASE_DIR_REL}/253-LOAD-RECOVERY-reconcile.test.mjs`]: "e17c86b61b638c9792437f46530791cb498559968b004fde0e5b9eef29d28acc",
+});
+// The 253-133 R11 canary records proved R11 candidate 2b239a98 only. R12 publishes a new candidate on fetched
+// main, so they are pinned here as superseded evidence, and they are never an R12 completion link.
+const SUPERSEDED_EVIDENCE_RECORDS_R12 = Object.freeze([
+  "253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R11.json", "253-LOAD-RECOVERY-CANARY-ALLOCATION-R11.json", "253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-check-runs.json",
+  "253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-effective-rules.json", "253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-legacy-protection.json",
+  "253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-rate.json", "253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-registered-workflow.json",
+  "253-LOAD-RECOVERY-CANARY-EVIDENCE-R11.json", "253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json", "253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R11.json", "253-R11-CANARY-OPERATOR.sh",
+]);
+const SUPERSEDED_EVIDENCE_NOTE_R12 = "the 253-133 R11 canary records are superseded evidence for the R11 candidate 2b239a98 only; they are never an R12 completion link or acceptance evidence";
 // A proof owner must exist and must be neither halted nor never executed under R12.
 export function assertProofOwnerR12(phaseDir, owner) {
   const id = String(owner).replace(/^253-/, "");
@@ -1998,6 +2023,19 @@ function buildContractR12({ repoRoot = REPO_ROOT } = {}) {
     originals.push({ plan: planIdOf(n), class: classOf(PAD(n)), plan_path: `${PHASE_DIR_REL}/${file}`, plan_sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") });
   }
   for (const original of originals) original.class = classOf(original.plan.slice(4));
+  for (const id of R12_PLAN_IDS) pinFile(repoRoot, `${PHASE_DIR_REL}/253-${id}-PLAN.md`, `R12 plan 253-${id}`);
+  const byNumber = (a, b) => comparePlanIds(a.plan, b.plan);
+  const completed = [...r11.completed_plans];
+  for (const id of ["125", "126", "127", "128", "129", "130", "131", "132", "133"]) {
+    const described = describeSummary(repoRoot, phaseDir, id, { requireReceipts: false, frozenReceipts: id === "132" ? FROZEN_TOOLING_RECEIPTS_R12_PLAN_132 : {} });
+    if (described.summary.status === "halted" || described.summary.status === "blocked") throw new Error(`completed plan 253-${id} has status ${described.summary.status}`);
+    completed.push(described);
+  }
+  completed.sort(byNumber);
+  const halted = [...r11.halted_plans];
+  const halted134 = describeSummary(repoRoot, phaseDir, "134", { requireReceipts: true });
+  if (halted134.summary.status !== "halted") throw new Error(`halted plan 253-134 summary status is ${halted134.summary.status}`);
+  halted.push(halted134);
   const r11Rows = Object.fromEntries(r11.responsibilities.map((row) => [row.plan.slice(4), row]));
   const responsibilities = UNSTARTED_IDS_R12.map((id) => {
     const mapping = RESPONSIBILITY_MAP_R12[id];
@@ -2023,6 +2061,22 @@ function buildContractR12({ repoRoot = REPO_ROOT } = {}) {
       successor_revision: "R12",
     };
   });
+  const planPins = ids(1, 145).map((n) => {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") };
+  });
+  const haltedProof = Object.fromEntries(HALTED_IDS_R12.map((id) => [`253-${id}`, HALTED_PROOF_MAP_R12[id].map((owner) => `253-${owner}`)]));
+  for (const owners of Object.values(haltedProof)) {
+    for (const owner of owners) {
+      if (!existsSync(join(phaseDir, `${owner}-PLAN.md`))) throw new Error(`halted proof owner ${owner} is missing`);
+      if (HALTED_IDS_R12.includes(owner.slice(4)) || UNSTARTED_IDS_R12.includes(owner.slice(4))) throw new Error(`halted proof owner ${owner} is a halted or never-executed plan`);
+    }
+  }
+  const summaryPins = [...ids(36, 43), ...ids(48, 51), ...ids(57, 63), ...ids(69, 73), ...ids(79, 84), ...ids(89, 92), 95, 96, 97, 100, 101, 102, 103, 104, ...ids(107, 113), ...ids(116, 122), ...ids(125, 134), ...ids(136, 141)].filter((n) => existsSync(join(phaseDir, `253-${PAD(n)}-SUMMARY.md`))).map((n) => {
+    const file = `253-${PAD(n)}-SUMMARY.md`;
+    return { plan: planIdOf(n), path: `${PHASE_DIR_REL}/${file}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "summary") };
+  });
+  const supersededRecords = SUPERSEDED_EVIDENCE_RECORDS_R12.map((name) => ({ path: `${PHASE_DIR_REL}/${name}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${name}`, "superseded R11 canary record") }));
   return {
     schema: CONTRACT_SCHEMA_R12,
     revision: "r12",
@@ -2041,14 +2095,24 @@ function buildContractR12({ repoRoot = REPO_ROOT } = {}) {
     r11_contract: { path: `${PHASE_DIR_REL}/${CONTRACT_NAME_R11}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${CONTRACT_NAME_R11}`, "R11 contract") },
     sdk: r11.sdk,
     capture: r11.capture,
-    plan_pins: r11.plan_pins,
-    summary_pins: r11.summary_pins,
+    plan_pins: planPins,
+    summary_pins: summaryPins,
     originals,
-    completed_plans: r11.completed_plans,
-    halted_plans: r11.halted_plans,
-    halted_proof_map: r11.halted_proof_map,
+    completed_plans: completed,
+    halted_plans: halted,
+    halted_proof_map: haltedProof,
     responsibilities,
-    application: { ...r11.application },
+    fixture_only_records: r11.fixture_only_records,
+    superseded_evidence_records: { note: SUPERSEDED_EVIDENCE_NOTE_R12, records: supersededRecords },
+    application: {
+      root_only: true,
+      write_ahead: true,
+      accepted_only_predicate: "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned",
+      targets: "only the fifty-three previously nonexistent SUMMARY paths; existing files are never overwritten",
+      bundle_requires_final_summary_of: "253-145",
+      then_run: r11.application.then_run,
+      never: [...r11.application.never],
+    },
   };
 }
 
