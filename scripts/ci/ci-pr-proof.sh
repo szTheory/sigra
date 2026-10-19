@@ -9,6 +9,7 @@
 #   ci-pr-proof.sh --family normal|docs-only --freeze FREEZE --allocation ALLOCATION --evidence OUT --requests LEDGER [--repo-root DIR]
 #                  --revision-freeze CANARY-FREEZE --action-approval FILE   (committed docs_and_prs section approval, required)
 #                  [--main-preflight FILE]   (normal family on an r12 freeze: required, the clean step-0 preflight)
+#                  [--docs-publication-receipt OUT]   (docs-only: exclusive-create receipt derived from the ledger rows)
 #   ci-pr-proof.sh --verify EVIDENCE [--docs-evidence EVIDENCE] [--server-journal JSON] [--docs-server-journal JSON]
 #
 # Every GitHub transaction goes through scripts/ci/ci-hosted-transport.py (predebited, typed, repository
@@ -21,7 +22,7 @@ export SIGRA_PR_PROOF_ROOT="$ROOT"
 export PYTHONDONTWRITEBYTECODE=1
 
 if [[ $# -eq 0 || "$1" == "--help" || "$1" == "-h" ]]; then
-  sed -n '2,16p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,17p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
   exit $(( $# == 0 ))
 fi
 
@@ -69,6 +70,7 @@ PREFLIGHT_KEYS = ("schema", "freeze_sha256", "head_sha", "frozen_main", "current
                   "status")
 PREFLIGHT_MODE = object()  # --main-preflight given without a value selects the step-0 mode
 SHA40 = re.compile(r"[0-9a-f]{40}")
+DOCS_RECEIPT_SCHEMA = "sigra.phase253.pr-docs-publication-receipt/r12"
 DOCS_NOT_APPLICABLE = {"status": "not_applicable",
                        "reason": "the docs-only base is the scoped ref gsd/253-replan-docs-base created in the same window"}
 
@@ -401,6 +403,7 @@ class Collector:
     def __init__(self, args, section, action_approval, base_preflight=None):
         self.section = section
         self.base_preflight = base_preflight
+        self.docs_receipt_path = Path(args.docs_publication_receipt) if args.docs_publication_receipt else None
         self.action_approval = action_approval
         self.family = args.family
         self.freeze_raw = Path(args.freeze).read_bytes()
@@ -545,6 +548,41 @@ class Collector:
             if ref_readback.get("object", {}).get("sha") != commit:
                 raise Stop(f"{label}: scoped ref readback differs")
 
+    def docs_publication_receipt(self):
+        """253-139: the docs publication receipt, built only from the shared ledger's docs_publication rows (route,
+        sequence, status, the created tree/commit/ref object and the readbacks), never from collector variables."""
+        ledger = self.ledger()
+        rows, refs, commits = [], [], []
+        for tx in [tx for tx in ledger["transactions"] if tx.get("category") == "docs_publication"]:
+            try:
+                body = json.loads(base64.b64decode(tx.get("response_body_base64") or ""))
+            except (ValueError, TypeError):
+                body = None
+            body = body if isinstance(body, dict) else {}
+            route, status = tx.get("route_id"), tx.get("actual_status")
+            created = readback = None
+            if route in ("git_create_tree", "git_create_commit"):
+                created = body.get("sha")
+                if route == "git_create_commit":
+                    commits.append(created)
+            elif route == "create_ref":
+                created = (body.get("object") or {}).get("sha")
+                refs.append({"ref": body.get("ref"), "sha": created})
+            elif route in ("git_get_commit", "git_get_blob"):
+                readback = body.get("sha")
+            elif route == "get_ref" and status == 200:
+                readback = (body.get("object") or {}).get("sha")
+            rows.append({"sequence": tx.get("sequence"), "route_id": route, "method": tx.get("method"), "actual_status": status,
+                         "created_sha": created, "readback_sha": readback})
+        _, complete = self.docs_publication_state()
+        return {"schema": DOCS_RECEIPT_SCHEMA, "freeze_sha256": self.freeze.get("freeze_sha256"),
+                "docs_base_commit": commits[0] if commits else None, "docs_head_commit": commits[1] if len(commits) > 1 else None,
+                "rows": rows, "refs": refs, "ledger_window_id": ledger.get("window_id"), "complete": complete}
+
+    def write_docs_receipt(self):
+        exclusive_write(self.docs_receipt_path,
+                        (json.dumps(self.docs_publication_receipt(), indent=2, sort_keys=True) + "\n").encode())
+
     def sleep(self):
         time.sleep(max(0, int(self.freeze["poll"]["interval_seconds"])))
 
@@ -553,7 +591,12 @@ class Collector:
         head_sha = self.spec["head_sha"]
         self.preflight()
         if self.family == "docs-only":
-            self.publish_docs()
+            try:
+                self.publish_docs()
+            finally:
+                # Written on the publishing, the already-published and the partial path, before any Stop propagates.
+                if self.docs_receipt_path is not None:
+                    self.write_docs_receipt()
         title = f"Phase 253 {self.family} CI proof (draft, do not merge)"
         create_body = {"title": title, "head": head_ref, "base": base_ref, "body": "Draft proof pull request; never merged.", "draft": True}
         self.require_listed_pr(create_body)
@@ -658,6 +701,12 @@ def run_family(args):
     if Path(args.evidence).exists():
         raise SystemExit(f"ci-pr-proof: {args.evidence} already exists; refusing to overwrite the recorded window and downloads "
                          "(continue the shared ledger with a new --evidence path; the earlier file stays as the record)")
+    if args.docs_publication_receipt is not None:
+        if args.family != "docs-only":
+            raise SystemExit("ci-pr-proof: --docs-publication-receipt applies to the docs-only family only; network_requests 0")
+        if Path(args.docs_publication_receipt).exists():
+            raise SystemExit(f"ci-pr-proof: {args.docs_publication_receipt} already exists; the docs publication receipt is "
+                             "exclusive-create; network_requests 0")
     base_preflight = required_base_preflight(args, check_freeze(args.freeze, quiet=True))
     collector = Collector(args, section, action_approval, base_preflight)
     stop = None
@@ -726,6 +775,8 @@ def main():
     parser.add_argument("--main-preflight", nargs="?", const=PREFLIGHT_MODE,
                         help="alone: the offline step-0 mode; with FILE and --family normal: the clean preflight (r12 required)")
     parser.add_argument("--current-main", help="--main-preflight mode: the freshly fetched main SHA (present locally)")
+    parser.add_argument("--docs-publication-receipt", help="--family docs-only: write (exclusive-create) the docs publication "
+                        "receipt derived from the ledger's docs_publication rows")
     args = parser.parse_args()
     preflight_mode = args.main_preflight is PREFLIGHT_MODE
     modes = [bool(args.prepare), bool(args.check_only), bool(args.verify), bool(args.family), preflight_mode and not args.family]

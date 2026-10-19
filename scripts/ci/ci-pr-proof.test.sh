@@ -592,9 +592,9 @@ class World:
         return process, output
 
     def collect(self, family, evidence_name, check=True, approval="default", revision_freeze="default", env=None, proof=PROOF,
-                main_preflight="auto"):
+                main_preflight="auto", extra_args=()):
         evidence = self.dir / evidence_name
-        extra = []
+        extra = list(extra_args)
         # 253-139: an r12 normal family needs the step-0 preflight; "auto" makes one for the fake's current main.
         if main_preflight == "auto":
             main_preflight = None
@@ -2979,6 +2979,151 @@ class PrMergeabilityCollectionTests(unittest.TestCase):
         freeze = json.loads((PHASE_DIR / "253-LOAD-RECOVERY-PR-FREEZE-R11.json").read_text())
         bound = [item["sha256"] for item in freeze["bound_documents"] if item["path"].endswith("253-LOAD-RECOVERY-BUDGETS.md")]
         self.assertEqual(bound, [sha((PHASE_DIR / "253-LOAD-RECOVERY-BUDGETS.md").read_bytes())])
+
+
+RECEIPT_SCHEMA = "sigra.phase253.pr-docs-publication-receipt/r12"
+
+
+def derive_docs_receipt(evidence):
+    """253-139: the docs publication receipt re-derived here, independently of the collector, from the evidence's
+    transport ledger rows alone (category docs_publication)."""
+    ledger = evidence["transport_ledger"]
+    rows, refs, commits = [], [], []
+    for tx in [tx for tx in ledger["transactions"] if tx.get("category") == "docs_publication"]:
+        try:
+            body = json.loads(base64.b64decode(tx.get("response_body_base64") or ""))
+        except ValueError:
+            body = None
+        body = body if isinstance(body, dict) else {}
+        route, status = tx["route_id"], tx.get("actual_status")
+        created = readback = None
+        if route in ("git_create_tree", "git_create_commit"):
+            created = body.get("sha")
+            if route == "git_create_commit":
+                commits.append(created)
+        elif route == "create_ref":
+            created = (body.get("object") or {}).get("sha")
+            refs.append({"ref": body.get("ref"), "sha": created})
+        elif route in ("git_get_commit", "git_get_blob"):
+            readback = body.get("sha")
+        elif route == "get_ref" and status == 200:
+            readback = (body.get("object") or {}).get("sha")
+        rows.append({"sequence": tx["sequence"], "route_id": route, "method": tx["method"], "actual_status": status,
+                     "created_sha": created, "readback_sha": readback})
+    return {"rows": rows, "refs": refs, "docs_base_commit": commits[0] if commits else None,
+            "docs_head_commit": commits[1] if len(commits) > 1 else None, "ledger_window_id": ledger.get("window_id")}
+
+
+class DocsPublicationReceiptTests(unittest.TestCase):
+    """253-139 (the 253-134 Task 2 receipt gap: no flag or code path wrote it): --family docs-only
+    --docs-publication-receipt OUT writes, exclusive-create, a receipt derived only from the shared ledger's
+    docs_publication rows, on the publishing and on the already-published path."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._cleanups = []
+        cls.holder = unittest.TestCase()
+        cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
+        # Publishing path: the docs objects are published, then the PR create is refused (the window stops after them).
+        cls.world = World(cls.holder, flags={"refuse_pr_create": True}, tag="docs-receipt")
+        w = cls.world
+        cls.first_receipt = w.dir / "docs-receipt-first.json"
+        cls.first, cls.first_path = w.collect("docs-only", "docs-first.json", check=False,
+                                              extra_args=["--docs-publication-receipt", cls.first_receipt])
+        cls.published = len(w.server.journal)
+        # Already-published path: the same shared ledger, the PR now created (PR 102 is the docs-only family here).
+        w.server.flags.pop("refuse_pr_create")
+        w.server.model["numbers"][:] = [102]
+        cls.second_receipt = w.dir / "docs-receipt-second.json"
+        cls.second, cls.second_path = w.collect("docs-only", "docs-second.json", check=False,
+                                                extra_args=["--docs-publication-receipt", cls.second_receipt])
+
+    @classmethod
+    def tearDownClass(cls):
+        for fn, a, k in reversed(cls._cleanups):
+            try:
+                fn(*a, **k)
+            except Exception:
+                pass
+
+    def assert_receipt(self, receipt_path, evidence_path, complete=True):
+        self.assertTrue(receipt_path.exists(), "no docs publication receipt was written")
+        receipt = json.loads(receipt_path.read_text())
+        evidence = json.loads(evidence_path.read_text())
+        self.assertEqual(receipt["schema"], RECEIPT_SCHEMA)
+        self.assertEqual(receipt["freeze_sha256"], self.world.freeze["freeze_sha256"])
+        self.assertIs(receipt["complete"], complete)
+        derived = derive_docs_receipt(evidence)
+        self.assertEqual({key: receipt[key] for key in derived}, derived)
+        self.assertEqual(set(receipt), {"schema", "freeze_sha256", "complete", *derived})
+        return receipt
+
+    def test_the_publishing_path_writes_the_receipt_from_the_ledger_rows(self):
+        self.assertEqual(self.first.returncode, 1, self.first.stdout + self.first.stderr)
+        self.assertIn("pr_create", json.loads(self.first_path.read_text())["collection"]["stop"])
+        receipt = self.assert_receipt(self.first_receipt, self.first_path)
+        spec = self.world.freeze["docs-only"]
+        self.assertEqual(len(receipt["rows"]), 14)
+        self.assertEqual((receipt["docs_base_commit"], receipt["docs_head_commit"]), (spec["base_sha"], spec["head_sha"]))
+        self.assertEqual(receipt["refs"], [{"ref": "refs/heads/gsd/253-replan-docs-base", "sha": spec["base_sha"]},
+                                           {"ref": "refs/heads/gsd/253-replan-docs-head", "sha": spec["head_sha"]}])
+        self.assertEqual([row["actual_status"] for row in receipt["rows"] if row["route_id"] == "get_ref"], [404, 200, 404, 200])
+
+    def test_the_already_published_path_writes_the_same_rows(self):
+        self.assertEqual(self.second.returncode, 0, self.second.stdout + self.second.stderr)
+        later = self.world.server.journal[self.published:]
+        self.assertFalse(any(row["method"] == "POST" and row["path"].endswith(("/trees", "/commits", "/refs")) for row in later),
+                         "the docs objects were published again")
+        receipt = self.assert_receipt(self.second_receipt, self.second_path)
+        self.assertEqual(receipt["rows"], json.loads(self.first_receipt.read_text())["rows"])
+
+    def test_an_existing_receipt_is_never_overwritten_and_nothing_is_requested(self):
+        w = self.world
+        raw, before = self.second_receipt.read_bytes(), len(w.server.journal)
+        process, evidence = w.collect("docs-only", "docs-third.json", check=False,
+                                      extra_args=["--docs-publication-receipt", self.second_receipt])
+        self.assertNotEqual(process.returncode, 0)
+        self.assertIn("already exists", process.stderr)
+        self.assertEqual(self.second_receipt.read_bytes(), raw)
+        self.assertEqual(len(w.server.journal), before)
+        self.assertFalse(evidence.exists())
+
+    def test_the_normal_family_rejects_the_flag_before_any_request(self):
+        w = self.world
+        before = len(w.server.journal)
+        out = w.dir / "normal-receipt.json"
+        process, evidence = w.collect("normal", "normal-with-receipt.json", check=False,
+                                      extra_args=["--docs-publication-receipt", out])
+        self.assertNotEqual(process.returncode, 0)
+        self.assertIn("docs-only family only", process.stderr)
+        self.assertEqual(len(w.server.journal), before)
+        self.assertFalse(evidence.exists())
+        self.assertFalse(out.exists())
+
+    def test_a_partial_publication_writes_the_receipt_with_complete_false_before_the_stop(self):
+        world = World(self, flags={"refuse_pr_create": True}, tag="docs-receipt-partial")
+        first, _ = world.collect("docs-only", "first.json", check=False)
+        self.assertEqual(first.returncode, 1)
+        ledger = json.loads(world.ledger.read_text())
+        for tx in ledger["transactions"]:
+            if tx["route_id"] == "create_ref":
+                body = json.loads(base64.b64decode(tx["response_body_base64"]))
+                body["object"]["sha"] = "f" * 40
+                tx["response_body_base64"] = enc(json.dumps(body).encode())
+                break
+        world.ledger.write_text(json.dumps(ledger))
+        published = len(world.server.journal)
+        world.server.flags.pop("refuse_pr_create")
+        receipt_path = world.dir / "partial-receipt.json"
+        second, path = world.collect("docs-only", "second.json", check=False, extra_args=["--docs-publication-receipt", receipt_path])
+        self.assertEqual(second.returncode, 1)
+        self.assertEqual(len(world.server.journal), published)
+        self.assertIn("complete frozen two-stage", json.loads(path.read_text())["collection"]["stop"])
+        receipt = json.loads(receipt_path.read_text())
+        self.assertIs(receipt["complete"], False)
+        self.assertEqual({key: receipt[key] for key in derive_docs_receipt(json.loads(path.read_text()))},
+                         derive_docs_receipt(json.loads(path.read_text())))
+        self.assertEqual(receipt["refs"][0]["sha"], "f" * 40)
 
 
 if __name__ == "__main__":
