@@ -777,7 +777,9 @@ if [[ "$FIRST_RULE_COUNT" == 100 ]]; then [[ "$RULE_PAGE_COUNT" == 2 ]] || fail 
 jq -e 'type=="object" and ((.required_status_checks // {})|type=="object")' "$LEGACY_RESPONSE" >/dev/null || fail 'legacy branch-protection response is malformed'
 jq -e 'type=="object" and (.check_runs|type=="array")' "$CHECK_RUNS_RESPONSE" >/dev/null || fail 'native check-run source response is incomplete'
 for check_name in "Library tests" "Example unit smoke (ExUnit + ConnTest)" "Install smoke (fresh phx.new + sigra.install)" "Example HTTP smoke (boot + curl critical routes)" "Example Playwright smoke (full lifecycle)"; do
-  jq -e --arg name "$check_name" --arg sha "$CHECK_SOURCE_SHA" '([.check_runs[] | select(.name==$name)] | length == 1) and ([.check_runs[] | select(.name==$name and .head_sha==$sha and (.app.id|type=="number") and .app.id > 0 and (.app.slug|type=="string") and .app.slug != "" and (.html_url|type=="string") and (.html_url|startswith("https://")))] | length == 1)' "$CHECK_RUNS_RESPONSE" >/dev/null \
+  # 253-155 (R14): main lists each required name 2-3 times (R12 ledger sequence 21). Server-parent identity only: at least one
+  # run, every run of the frozen commit with a complete app/source identity, and one app id+slug across the name's runs.
+  jq -e --arg name "$check_name" --arg sha "$CHECK_SOURCE_SHA" '[.check_runs[] | select(.name==$name)] as $runs | ($runs | length >= 1) and ($runs | all(.head_sha==$sha and (.app.id|type=="number") and .app.id > 0 and (.app.slug|type=="string") and .app.slug != "" and (.html_url|type=="string") and (.html_url|startswith("https://")))) and ([$runs[] | [.app.id, .app.slug]] | unique | length == 1)' "$CHECK_RUNS_RESPONSE" >/dev/null \
     || fail "native check-run app/source identity is missing or duplicated: $check_name"
 done
 store_preflight "$RATE_RESPONSE" "$RATE_SOURCE" rate

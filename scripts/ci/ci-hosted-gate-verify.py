@@ -305,6 +305,46 @@ def check_run_page_set(check_txs, expected_sha, max_pages=MAX_CHECK_RUN_PAGES):
     return [tx["sequence"] for tx in check_txs], union
 
 
+def server_parent_native_sources(native_runs, sha):
+    """253-155 (R14): the server-parent check sources of the five required names (D-12 decision, identity only).
+
+    Main lists each required name 2-3 times (R12 ledger sequence 21: Library tests 3x, the others 2-3x, all app 15368
+    github-actions), so per name: every run must be of the frozen source commit (head_sha strict: missing, null or another
+    commit is refused, never skipped) with a complete app/source identity; all runs share one app id and slug; with more
+    than one run every run carries a distinct int id and the newest (highest id) is the source. Conclusions are recorded
+    literally, never required. A name with no run is left out for the caller's exact-five check. Returns
+    {name: {app_id, app_slug, source, conclusion, duplicate_count}}."""
+    grouped = {}
+    for run in native_runs:
+        if isinstance(run, dict) and run.get("name") in REQUIRED_NAMES:
+            grouped.setdefault(run["name"], []).append(run)
+    sources = {}
+    for name in REQUIRED_NAMES:
+        runs = grouped.get(name)
+        if not runs:
+            continue
+        for run in runs:
+            require(isinstance(sha, str) and run.get("head_sha") == sha,
+                    f"native check source run is not of the frozen source commit: {name}")
+            app = run.get("app")
+            require(isinstance(app, dict) and type(app.get("id")) is int and app["id"] > 0
+                    and isinstance(app.get("slug"), str) and app["slug"]
+                    and isinstance(run.get("html_url"), str) and run["html_url"].startswith("https://"),
+                    f"native check app or source identity is missing: {name}")
+        require(len({(run["app"]["id"], run["app"]["slug"]) for run in runs}) == 1,
+                f"native check source identity differs across duplicate runs: {name}")
+        if len(runs) > 1:
+            ids = [run.get("id") for run in runs]
+            require(all(type(value) is int for value in ids) and len(set(ids)) == len(ids),
+                    f"native check source duplicates need run ids: {name}")
+            source = max(runs, key=lambda run: run["id"])
+        else:
+            source = runs[0]
+        sources[name] = {"app_id": source["app"]["id"], "app_slug": source["app"]["slug"], "source": source["html_url"],
+                         "conclusion": source.get("conclusion"), "duplicate_count": len(runs)}
+    return sources
+
+
 def verify_effective_checks(evidence, check_source=None, max_pages=MAX_CHECK_RUN_PAGES):
     """Require complete branch and legacy rules plus native producer app identity.
 
@@ -412,7 +452,14 @@ def verify_effective_checks(evidence, check_source=None, max_pages=MAX_CHECK_RUN
     expected_sha = check_source["sha"] if check_source else evidence.get("expected", {}).get("candidate_sha")
     _, native_runs = check_run_page_set(source_txs, expected_sha, max_pages)
     native_by_name = {}
-    for run in native_runs:
+    duplicate_counts = None
+    if check_source:
+        # 253-155: the server-parent duplicate identity rule; duplicate_count is re-derived here, never trusted.
+        sources = server_parent_native_sources(native_runs, expected_sha)
+        duplicate_counts = {name: item["duplicate_count"] for name, item in sources.items()}
+        native_by_name = {name: {key: item[key] for key in ("app_id", "app_slug", "source", "conclusion")}
+                          for name, item in sources.items()}
+    for run in native_runs if not check_source else ():
         if not isinstance(run, dict) or run.get("name") not in REQUIRED_NAMES:
             continue
         name = run["name"]
@@ -429,6 +476,9 @@ def verify_effective_checks(evidence, check_source=None, max_pages=MAX_CHECK_RUN
         producer = producer_by_name[name]
         require({key: producer.get(key) for key in ("app_id", "app_slug", "source", "conclusion")} == native_by_name[name],
                 f"declared producer app/source differs from native check-run metadata for {name}")
+        if duplicate_counts is not None:
+            require(producer.get("duplicate_count") == duplicate_counts[name],
+                    f"declared producer duplicate_count differs from the measured check runs for {name}")
         app_id = rule.get("app_id", rule.get("integration_id"))
         require(app_id is None or type(app_id) is int and app_id > 0 or app_id == -1,
                 f"effective app scope for {name} is malformed")
@@ -493,7 +543,11 @@ def hydrate_effective_checks(evidence, check_source=None, max_pages=MAX_CHECK_RU
     # 253-146: every check_runs transaction must form one contiguous page set 1..n of the frozen source commit.
     check_sequences, native_runs = check_run_page_set(check_txs, expected_sha, max_pages)
     native_by_name = {}
-    for run in native_runs:
+    if check_source:
+        # 253-155: the server-parent duplicate identity rule (newest run is the source; duplicate_count recorded).
+        native_by_name = {name: {"name": name, **item}
+                          for name, item in server_parent_native_sources(native_runs, expected_sha).items()}
+    for run in native_runs if not check_source else ():
         if not isinstance(run, dict) or run.get("name") not in REQUIRED_NAMES:
             continue
         app = run.get("app")
