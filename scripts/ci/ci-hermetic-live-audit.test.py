@@ -33,6 +33,21 @@ row that is real-shape-test and cites at least one of that ledger's rows for the
 may stay in fields_without_real_sample with a reason. Its positive controls revert shape-run_logs to justified, remove
 its probe sample, point a probe locator at the wrong sequence, and delete the probe ledgers (a vacuous rule is reported).
 
+253-140 adds three rules (blind spot #4: the R11 audit listed pr_create as justified with no real sample and had no
+mergeable field anywhere, while GitHub withheld the PR run because the PR conflicted):
+
+- fields_backed (check_fields_backed): every fields_compared entry of every response-shape row resolves at its dotted path
+  (meta: against the ledger transaction, header: against its scrubbed headers) in at least one decoded real sample, or is
+  a key of coverage.fields_without_real_sample with a non-empty reason, and then coverage.residual_risk is non-empty. A
+  fabricated locator (path, sha256, sequence, route or status not matching a committed transaction) loads nothing, so
+  it backs no field and is itself a problem.
+- window observed routes (check_window_observed_routes): every route with a 2xx or 3xx transaction in a committed R11
+  window ledger (CANARY-HTTP-LEDGER-R11, PR-HTTP-LEDGER-R11) has a real-shape-test row that cites at least one of that
+  ledger's 2xx/3xx rows for the route, exactly as 253-129's probe rule does for the -R11-PROBE ledger.
+- consumed PR keys (PR_BODY_KEYS): every key ci-pr-proof.sh or ci-hosted-gate-verify.py reads from a pr_create or pr_read
+  body is in that route's fields_compared. PRBodyKeysTrackTheCodeTests scans the code's PR-body read sites so the list
+  cannot fall behind the code, and greps every listed key in the code so it cannot run ahead of it either.
+
 Field syntax: a dotted path into the decoded response body ([] steps into each list item, a leading [] for a list root);
 meta:FIELD for a ledger transaction field; header:NAME for a scrubbed response header; value:PATH=TEXT for a leaf equal to
 TEXT; source:TEXT for text present in a committed source sample (a workflow file).
@@ -277,7 +292,22 @@ REAL_SAMPLE_MARKER = re.compile(r"EVIDENCE_R9|REAL_LEDGER_R9|\bLEDGER_R[789]\b|\
                                 r"38347679431|\breal_(?:bodies|run|job|steps|artifact)\(|verifier_run_receipt\(|ledger_body\(|bundle_member\(|"
                                 r"response_shape|REGISTERED_FIXTURE|CANARY-WORKFLOW|CI_YML|PUBLICATION_RECEIPT_R9|REAL_RECEIPT|"
                                 # 253-129: the committed R10 ledger and the 253-127 read-only probe records (-R11-PROBE).
-                                r"\bR10_LEDGER\b|PROBE_(?:LEDGER|EVIDENCE|BODIES)|probe_run_logs_chain\(|self\.seq47\(")
+                                r"\bR10_LEDGER\b|PROBE_(?:LEDGER|EVIDENCE|BODIES)|probe_run_logs_chain\(|self\.seq47\(|"
+                                # 253-140: the committed R11 window ledgers (253-133 canary, 253-134 PR), read at test time.
+                                r"\bR11_(?:PR|CANARY)_LEDGER\b|\bREAL_CREATE_KEYS\b|\bR11_EMPTY_DISCOVERY_BODY\b|"
+                                r"window_ledger_tx\(")
+# 253-140: every GitHub response key the collector or the verifier reads from a PR body (dotted, as fields_compared spells
+# it). pr_create is the 253-134 create response (check_pr, the step-0 base binding, the PR number); pr_read is the
+# post-run read (check_pr, merge_commit_sha, base.sha) and the 253-139 failure-path diagnostic read (mergeable,
+# mergeable_state). mergeable and mergeable_state are listed for pr_create too: GitHub returns them there (null and
+# "unknown" in 253-134) and the PR fake models them from those real bytes.
+PR_BODY_KEYS = {
+    "pr_create": ["number", "state", "draft", "merged", "head.ref", "head.sha", "head.repo.full_name", "base.ref", "base.sha",
+                  "base.repo.full_name", "mergeable", "mergeable_state"],
+    "pr_read": ["number", "state", "draft", "merged", "head.ref", "head.sha", "head.repo.full_name", "base.ref", "base.sha",
+                "base.repo.full_name", "merge_commit_sha", "mergeable", "mergeable_state"],
+}
+PR_KEY_SOURCES = ("scripts/ci/ci-pr-proof.sh", "scripts/ci/ci-hosted-gate-verify.py")
 _NO_BODY = object()
 _MEMBER_CACHE = {}
 
@@ -486,16 +516,11 @@ def check_response_shapes(record, root):
             problems += [f"{rid}: {item}" for item in found]
             if value is not None:
                 loaded.append(value)
-        for field in fields:
-            resolved = any(field_resolves(field, sample) for sample in loaded)
-            if resolved and field in without:
-                problems.append(f"{rid}: field {field!r} resolves in a real sample but is also listed without one")
-            if not resolved and not str(without.get(field, "")).strip():
-                problems.append(f"{rid}: compared field {field!r} resolves in no real sample and has no reason in "
-                                "fields_without_real_sample")
-        for field in without:
-            if field not in fields:
-                problems.append(f"{rid}: fields_without_real_sample names {field!r}, which is not a compared field")
+        problems += check_fields_backed(rid, fields, coverage, loaded)
+        for key in PR_BODY_KEYS.get(route, ()):
+            if key not in fields:
+                problems.append(f"{rid}: the code reads {key!r} from the {route} body but fields_compared does not list it "
+                                "(PR_BODY_KEYS)")
         if not samples and (kind != "justified" or set(without) != set(fields)):
             problems.append(f"{rid}: real_samples may be empty only for a fully justified row")
         for nearest in row.get("nearest_real_samples") or []:
@@ -506,7 +531,7 @@ def check_response_shapes(record, root):
             shows = nearest.get("shows") if isinstance(nearest, dict) else None
             if value is not None and not (isinstance(shows, str) and field_resolves(shows, value)):
                 problems.append(f"{rid}: the nearest real sample does not show {shows!r}")
-        if (without or kind == "justified") and not str(coverage.get("residual_risk", "")).strip():
+        if kind == "justified" and not str(coverage.get("residual_risk", "")).strip():
             problems.append(f"{rid}: a row with a justified field or a justified row needs a non-empty residual_risk")
         if kind == "justified" and not str(coverage.get("justification", "")).strip():
             problems.append(f"{rid}: a justified row needs a non-empty justification")
@@ -531,7 +556,29 @@ def check_response_shapes(record, root):
                 problems.append(f"{rid}: ref {ref!r} shows no real-sample read, so it cannot count as real-shape coverage")
     for route in sorted(expected - set(seen)):
         problems.append(f"route {route} has no response-shape row")
-    return problems + check_probe_observed_routes(record, root)
+    return problems + check_probe_observed_routes(record, root) + check_window_observed_routes(record, root)
+
+
+def check_fields_backed(rid, fields, coverage, loaded):
+    """253-140 fields_backed: each compared field resolves in a loaded (hash-, route-, sequence- and status-checked) real
+    sample, or carries a per-field reason, and any reasoned field needs the row's residual_risk."""
+    problems = []
+    without = coverage.get("fields_without_real_sample") or {}
+    if not isinstance(without, dict):
+        without = {}
+    for field in fields:
+        resolved = any(field_resolves(field, sample) for sample in loaded)
+        if resolved and field in without:
+            problems.append(f"{rid}: field {field!r} resolves in a real sample but is also listed without one")
+        if not resolved and not str(without.get(field, "")).strip():
+            problems.append(f"{rid}: compared field {field!r} resolves in no real sample and has no reason in "
+                            "fields_without_real_sample (fields_backed)")
+    for field in without:
+        if field not in fields:
+            problems.append(f"{rid}: fields_without_real_sample names {field!r}, which is not a compared field")
+    if without and not str(coverage.get("residual_risk", "")).strip():
+        problems.append(f"{rid}: a row with a justified field or a justified row needs a non-empty residual_risk")
+    return problems
 
 
 # 253-129: a route a committed read-only probe ledger (name ending -R11-PROBE.json) saw answer 2xx or 3xx is observed
@@ -598,6 +645,133 @@ def check_probe_observed_routes(record, root):
     return problems
 
 
+# 253-140: the committed R11 hosted-window ledgers. 253-133's canary window and 253-134's PR window answered real GitHub
+# requests the fakes had only modelled; every route either saw answer 2xx/3xx must rest on that window's own bytes.
+CANARY_LEDGER_R11_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json"
+PR_LEDGER_R11_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json"
+WINDOW_LEDGERS_R11 = (CANARY_LEDGER_R11_REL, PR_LEDGER_R11_REL)
+
+
+def observed_window_routes(root):
+    """{ledger rel: {route: {sequence, ...}}} for every 2xx/3xx transaction of each committed R11 window ledger at root."""
+    observed = {}
+    for rel in WINDOW_LEDGERS_R11:
+        path = Path(root) / rel
+        if not path.is_file():
+            continue
+        try:
+            document = json.loads(path.read_bytes())
+        except (UnicodeError, ValueError):
+            continue
+        transactions = document.get("transactions") if isinstance(document, dict) else None
+        if not isinstance(transactions, list):
+            continue
+        routes = observed.setdefault(rel, {})
+        for tx in transactions:
+            status = tx.get("actual_status") if isinstance(tx, dict) else None
+            if type(status) is int and 200 <= status < 400 and isinstance(tx.get("route_id"), str):
+                routes.setdefault(tx["route_id"], set()).add(tx.get("sequence"))
+    return observed
+
+
+def check_window_observed_routes(record, root):
+    """Every route a committed R11 window ledger saw answer 2xx/3xx whose row is not real-shape-test on one of its rows."""
+    observed = observed_window_routes(root)
+    missing = [rel for rel in WINDOW_LEDGERS_R11 if not observed.get(rel)]
+    if missing:
+        return [f"the committed R11 window ledger(s) {missing} hold no 2xx/3xx row or are absent, so the window "
+                "observed-route rule would be vacuous"]
+    rows = {row.get("route"): row for row in record.get("response_shape_rows") or [] if isinstance(row, dict)}
+    problems = []
+    for rel, routes in sorted(observed.items()):
+        for route, sequences in sorted(routes.items()):
+            row = rows.get(route)
+            if row is None:
+                problems.append(f"route {route} was observed live in {rel} (sequence {sorted(sequences)}) and has no "
+                                "response-shape row")
+                continue
+            rid = row.get("id")
+            kind = (row.get("coverage") or {}).get("kind")
+            if kind != "real-shape-test":
+                problems.append(f"{rid}: route {route} was observed live in window ledger {rel} (sequence "
+                                f"{sorted(sequences)}), so its coverage must be real-shape-test, not {kind}")
+            cited = [sample for sample in row.get("real_samples") or [] if isinstance(sample, dict) and sample.get("path") == rel]
+            for sample in cited:
+                if sample.get("sequence") not in sequences:
+                    problems.append(f"{rid}: real sample {rel} sequence {sample.get('sequence')!r} is not a 2xx/3xx {route} "
+                                    f"row of that window ledger (its rows are {sorted(sequences)})")
+            if not any(sample.get("sequence") in sequences for sample in cited):
+                problems.append(f"{rid}: route {route} was observed live in window ledger {rel} but the row cites none of "
+                                f"its rows {sorted(sequences)}")
+    return problems
+
+
+def window_ledger_tx(rel, sequence, root=ROOT):
+    """(transaction, decoded body bytes) for one sequence of a committed R11 window ledger."""
+    rows = [tx for tx in json.loads((Path(root) / rel).read_bytes())["transactions"] if tx["sequence"] == sequence]
+    if len(rows) != 1:
+        raise AssertionError(f"{rel} has {len(rows)} transactions with sequence {sequence}")
+    return rows[0], base64.b64decode(rows[0].get("response_body_base64") or "")
+
+
+# 253-140: the code's PR-body read sites. Each region is the stretch of source between a start and an end line (both
+# exact stripped lines that must exist once), and roots maps a variable (or call) holding a PR body, or one of its
+# sub-objects, to its dotted prefix and to the route(s) whose body it is.
+PR_READ_REGIONS = (
+    {"file": "scripts/ci/ci-pr-proof.sh",
+     "start": '_, created = self.jcall("one", "pr_create", "pr_create", "POST", body=create_body, expect=(201,))',
+     "end": 'raise Stop("the PR has no tested merge commit or base identity")',
+     "roots": {"created": ("", ("pr_create",)), "pr": ("", ("pr_read",))}},
+    {"file": "scripts/ci/ci-pr-proof.sh",
+     "start": "def no_run_verdict(self, number):",
+     "end": 'return f"no pull_request run although pull request #{number} is mergeable (mergeable_state {state})"',
+     "roots": {"pr": ("", ("pr_read",))}},
+    {"file": "scripts/ci/ci-hosted-gate-verify.py",
+     "start": 'creates = _family(transactions, family, "pr_create")',
+     "end": "merge_sha, base_sha = merges.pop(), bases.pop()",
+     # check_pr reads both the created and the read PR; document is the PR read body inside this region only.
+     "roots": {"created": ("", ("pr_create",)), "pr": ("", ("pr_create", "pr_read")),
+               "head": ("head.", ("pr_create", "pr_read")), "base": ("base.", ("pr_create", "pr_read")),
+               "document": ("", ("pr_read",))}},
+    {"file": "scripts/ci/ci-hosted-gate-verify.py",
+     "start": 'created_base = (tx_json(creates[0], "PR creation").get("base") or {}).get("sha")',
+     "end": 'created_base = (tx_json(creates[0], "PR creation").get("base") or {}).get("sha")',
+     "roots": {'tx_json(creates[0], "PR creation")': ("", ("pr_create",))}},
+)
+_ACCESS = r"""(?:\.get\(["']\w+["']\)|\[["']\w+["']\])"""
+
+
+def pr_body_reads(text, region):
+    """{route: {dotted key, ...}} the region reads from PR bodies: VAR.get("k"), VAR["k"], (VAR or {}).get("k") and
+    (VAR.get("a") or {}).get("b") chains on the region's roots."""
+    lines = [line.strip() for line in text.splitlines()]
+    starts = [index for index, line in enumerate(lines) if line == region["start"]]
+    ends = [index for index, line in enumerate(lines) if line == region["end"]]
+    if len(starts) != 1 or len(ends) != 1 or ends[0] < starts[0]:
+        raise AssertionError(f"PR read region in {region['file']} is not delimited exactly once: {region['start']!r} .. "
+                             f"{region['end']!r} (starts {starts}, ends {ends})")
+    body = "\n".join(text.splitlines()[starts[0]:ends[0] + 1])
+    reads = {}
+    for root, (prefix, routes) in region["roots"].items():
+        chain = re.compile(rf"(?<![\w.]){re.escape(root)}(?![\w(])((?:\s+or\s+\{{\}}\))?(?:{_ACCESS}(?:\s+or\s+\{{\}}\))?)+)")
+        for match in chain.finditer(body):
+            keys = re.findall(r"""\.get\(["'](\w+)["']\)|\[["'](\w+)["']\]""", match.group(1))
+            path = prefix + ".".join(get or item for get, item in keys)
+            for route in routes:
+                reads.setdefault(route, set()).add(path)
+    # A sub-object read only to step into it (pr.get("head") or {}, then head.get("ref")) is not itself a compared key.
+    return {route: {key for key in keys if not any(other.startswith(key + ".") for other in keys)}
+            for route, keys in reads.items()}
+
+
+def code_pr_body_reads(root=ROOT):
+    reads = {}
+    for region in PR_READ_REGIONS:
+        for route, keys in pr_body_reads((Path(root) / region["file"]).read_text(), region).items():
+            reads.setdefault(route, set()).update(keys)
+    return reads
+
+
 def load_record(root=ROOT):
     return json.loads((Path(root) / AUDIT_REL).read_text())
 
@@ -619,7 +793,7 @@ def response_shape_sample_paths(record):
 def copy_audited_tree(record, root):
     """Copy everything the checker reads into a scratch root: audited sources, test files and every real sample."""
     for rel in sorted(set(FILES + TEST_FILES + SHAPE_TEST_FILES) | set(response_shape_sample_paths(record))
-                      | set(probe_ledger_paths(ROOT))):
+                      | set(probe_ledger_paths(ROOT)) | set(WINDOW_LEDGERS_R11)):
         target = Path(root) / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / rel, target)
@@ -959,6 +1133,265 @@ class ProbeObservedRoutePositiveControls(unittest.TestCase):
         for rel in probe_ledger_paths(self.root):
             (self.root / rel).unlink()
         self.assertTrue(any("would be vacuous" in item for item in check_probe_observed_routes(self.record, self.root)))
+
+
+R11_PR_LEDGER = PR_LEDGER_R11_REL
+R11_CANARY_LEDGER = CANARY_LEDGER_R11_REL
+R11_CANDIDATE_HEAD = "2b239a98df72b8d47e8c4e03edf193905b3239da"
+
+
+def _resolves(body, path):
+    return any(True for _ in _leaves(body, _path_tokens(path)))
+
+
+class FieldsBackedTests(unittest.TestCase):
+    """253-140: the fields_backed rule and the consumed PR keys on the committed record and the real R11 window bytes."""
+
+    def test_every_pr_row_lists_every_key_the_code_reads(self):
+        rows = {row["route"]: row for row in load_record()["response_shape_rows"]}
+        for route, keys in PR_BODY_KEYS.items():
+            with self.subTest(route=route):
+                self.assertEqual([key for key in keys if key not in rows[route]["fields_compared"]], [])
+        problems = [item for item in check_response_shapes(load_record(), ROOT) if "fields_backed" in item or "PR_BODY_KEYS" in item]
+        self.assertEqual(problems, [], "\n".join(problems))
+
+    def test_real_r11_pr_create_body_carries_every_consumed_key(self):
+        # 253-134 seq 5: the first real create-PR response (#337). Every key the collector and the verifier read from a
+        # create body is present; mergeable null and mergeable_state "unknown" are GitHub's own values right after create.
+        tx, raw = window_ledger_tx(R11_PR_LEDGER, 5)
+        self.assertEqual((tx["route_id"], tx["method"], tx["host"], tx["actual_status"], tx["category"]),
+                         ("pr_create", "POST", "api.github.com", 201, "pr_create"))
+        body = json.loads(raw)
+        for key in PR_BODY_KEYS["pr_create"]:
+            with self.subTest(key=key):
+                self.assertTrue(_resolves(body, key), key)
+        self.assertEqual((body["state"], body["draft"], body["merged"], body["mergeable"], body["mergeable_state"]),
+                         ("open", True, False, None, "unknown"))
+        self.assertEqual((body["head"]["ref"], body["head"]["sha"], body["base"]["ref"]),
+                         ("gsd/253-replan-r11-candidate", R11_CANDIDATE_HEAD, "main"))
+        self.assertEqual({body["head"]["repo"]["full_name"], body["base"]["repo"]["full_name"]}, {"szTheory/sigra"})
+        self.assertRegex(body["base"]["sha"], r"^[0-9a-f]{40}$")
+        self.assertIn("merge_commit_sha", body)  # present but null at creation; the success path reads it from pr_read
+        # Positive control for the resolver: an absent key does not resolve.
+        self.assertFalse(_resolves(body, "mergeable_statez"))
+
+    def test_real_r11_pull_request_discovery_bodies_are_empty(self):
+        # 253-134 seq 6 and 7: both pull_request discovery reads for the published head answered an empty list.
+        for sequence in (6, 7):
+            with self.subTest(sequence=sequence):
+                tx, raw = window_ledger_tx(R11_PR_LEDGER, sequence)
+                self.assertEqual((tx["route_id"], tx["method"], tx["actual_status"], tx["category"]),
+                                 ("workflow_runs", "GET", 200, "run_discovery"))
+                self.assertEqual(raw, b'{"total_count":0,"workflow_runs":[]}')
+                self.assertIn("event=pull_request", tx["url"])
+                self.assertIn(f"head_sha={R11_CANDIDATE_HEAD}", tx["url"])
+                body = json.loads(raw)
+                self.assertTrue(_resolves(body, "total_count") and _resolves(body, "workflow_runs"))
+                # An empty list backs no per-run field: those stay on the canary samples (positive control).
+                self.assertFalse(_resolves(body, "workflow_runs[].id"))
+
+    def test_real_r11_cancel_run_matches_the_typed_route(self):
+        # 253-133 seq 73: the identified cancellation. The typed route, its {} request body and the driver's 202 check
+        # match what GitHub answered.
+        tx, raw = window_ledger_tx(R11_CANARY_LEDGER, 73)
+        self.assertEqual((tx["route_id"], tx["method"], tx["host"], tx["actual_status"], tx["category"]),
+                         ("cancel_run", "POST", "api.github.com", 202, "cancellation"))
+        self.assertEqual(raw, b"{}")
+        self.assertEqual(tx["scrubbed_headers"]["content-length"], "2")
+        method, template, kind = load_transport().ROUTES["cancel_run"]
+        self.assertEqual((method, kind), ("POST", "json"))
+        run_id = re.fullmatch(r"https://api\.github\.com/repos/szTheory/sigra/actions/runs/([0-9]+)/cancel", tx["url"])
+        self.assertIsNotNone(run_id, tx["url"])
+        self.assertEqual(template.format(repo="szTheory/sigra", run_id=run_id.group(1)), urllib_path(tx["url"]))
+        driver = (ROOT / "scripts/ci/ci-gate-canary.sh").read_text()
+        self.assertIn('[[ "$LAST_REQUEST_STATUS" == 202 ]] || fail "identified canary cancellation returned HTTP', driver)
+
+
+class FieldsBackedPositiveControls(unittest.TestCase):
+    """Each control mutates a temporary copy and must make fields_backed or the consumed-key rule fail."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix="sigra-253-140-fields-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.record = load_record()
+        copy_audited_tree(self.record, self.root)
+        self.assertEqual(check_response_shapes(self.record, self.root), [],
+                         "the unmutated copy must pass before a control means anything")
+
+    def row(self, record, route):
+        return next(row for row in record["response_shape_rows"] if row["route"] == route)
+
+    def assert_fails_with(self, needle, record):
+        problems = check_response_shapes(record, self.root)
+        self.assertTrue(any(needle in item for item in problems), problems)
+
+    def test_control_pr_read_without_the_mergeability_fields_fails(self):
+        for key in ("mergeable", "mergeable_state", "merge_commit_sha"):
+            with self.subTest(key=key):
+                record = copy.deepcopy(self.record)
+                row = self.row(record, "pr_read")
+                row["fields_compared"].remove(key)
+                row["coverage"].get("fields_without_real_sample", {}).pop(key, None)
+                self.assert_fails_with(f"the code reads {key!r} from the pr_read body", record)
+
+    def test_control_pr_create_without_mergeable_state_fails(self):
+        record = copy.deepcopy(self.record)
+        self.row(record, "pr_create")["fields_compared"].remove("mergeable_state")
+        self.assert_fails_with("the code reads 'mergeable_state' from the pr_create body", record)
+
+    def test_control_a_fabricated_pr_create_sample_backs_nothing(self):
+        mutations = {"sha256": ("sha256", "0" * 64, "not the recorded " + "0" * 64),
+                     "sequence": ("sequence", 6, "is route workflow_runs, not pr_create"),
+                     "status": ("actual_status", 200, "not the recorded 200"),
+                     "path": ("path", PR_LEDGER_R11_REL.replace("-R11.json", "-R11-FAKE.json"), "does not exist")}
+        for label, (key, value, needle) in mutations.items():
+            with self.subTest(mutation=label):
+                record = copy.deepcopy(self.record)
+                row = self.row(record, "pr_create")
+                row["real_samples"] = [{**sample, key: value} if sample.get("path") == PR_LEDGER_R11_REL else sample
+                                       for sample in row["real_samples"]]
+                self.assert_fails_with(needle, record)
+                self.assert_fails_with("compared field 'mergeable_state' resolves in no real sample", record)
+
+    def test_control_an_unbacked_meta_or_header_field_fails(self):
+        for field in ("meta:no_such_transaction_field", "header:x-no-such-header"):
+            with self.subTest(field=field):
+                record = copy.deepcopy(self.record)
+                self.row(record, "pr_create")["fields_compared"].append(field)
+                self.assert_fails_with(f"compared field {field!r} resolves in no real sample", record)
+
+    def test_control_a_reasoned_field_on_a_real_shape_row_needs_a_residual_risk(self):
+        record = copy.deepcopy(self.record)
+        row = self.row(record, "pr_create")
+        row["fields_compared"].append("auto_merge_never_seen")
+        row["coverage"]["fields_without_real_sample"] = {"auto_merge_never_seen": "control"}
+        row["coverage"]["residual_risk"] = ""
+        self.assert_fails_with("needs a non-empty residual_risk", record)
+        row["coverage"]["residual_risk"] = "control"
+        self.assertEqual(check_response_shapes(record, self.root), [], "a reasoned field with a residual risk is well-formed")
+
+
+class WindowObservedRouteTests(unittest.TestCase):
+    """253-140: every route the 253-133 canary and 253-134 PR windows saw answer 2xx/3xx rests on that window's bytes."""
+
+    EXPECTED = {
+        CANARY_LEDGER_R11_REL: {
+            "git_get_commit": [1, 6, 10], "git_create_tree": [2, 3, 4, 8], "git_create_commit": [5, 9], "git_get_blob": [7, 11],
+            "get_ref": [14, 17, 23, 32], "create_ref": [13, 16], "rate_limit": [18, 26, 35, 43, 53, 63, 74, 80],
+            "rules_main": [19], "check_runs": [21], "workflow": [22], "dispatch": [24, 33, 41, 51, 61, 71, 78],
+            "workflow_runs": [25, 34, 42, 52, 62, 72, 79], "run": [27, 36, 44, 54, 64, 75, 81],
+            "run_jobs": [28, 37, 45, 55, 65, 76, 82], "run_artifacts": [29, 38, 46, 56, 66, 77],
+            "artifact_zip": [30, 31, 39, 40, 49, 50, 59, 60, 69, 70], "run_logs": [47, 48, 57, 58, 67, 68], "cancel_run": [73]},
+        PR_LEDGER_R11_REL: {"rate_limit": [1], "rules_main": [2], "workflow": [4], "pr_create": [5], "workflow_runs": [6, 7]},
+    }
+
+    def test_window_observed_routes_rest_on_their_window_bytes(self):
+        # Positive control for the rule's input: both committed window ledgers are found, tracked, and name these routes.
+        observed = observed_window_routes(ROOT)
+        self.assertEqual({rel: {route: sorted(seqs) for route, seqs in routes.items()} for rel, routes in observed.items()},
+                         self.EXPECTED)
+        tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "--error-unmatch", *WINDOW_LEDGERS_R11],
+                                 capture_output=True, text=True)
+        self.assertEqual(tracked.returncode, 0, tracked.stderr)
+        problems = check_window_observed_routes(load_record(), ROOT)
+        self.assertEqual(problems, [], "\n".join(problems))
+
+    def test_every_real_sample_is_a_committed_file(self):
+        # A locator must name committed bytes, not a file left in the working tree.
+        paths = response_shape_sample_paths(load_record())
+        self.assertIn(PR_LEDGER_R11_REL, paths)
+        tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "--error-unmatch", *paths], capture_output=True, text=True)
+        self.assertEqual(tracked.returncode, 0, tracked.stderr)
+        untracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "--error-unmatch", f"{PHASE_REL}/253-140-not-committed.json"],
+                                   capture_output=True, text=True)
+        self.assertNotEqual(untracked.returncode, 0, "positive control: an uncommitted path is refused")
+
+
+class WindowObservedRoutePositiveControls(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix="sigra-253-140-window-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.record = load_record()
+        copy_audited_tree(self.record, self.root)
+        self.assertEqual(check_window_observed_routes(self.record, self.root), [],
+                         "the unmutated copy must pass before a control means anything")
+
+    def row(self, record, route):
+        return next(row for row in record["response_shape_rows"] if row["route"] == route)
+
+    def assert_fails_with(self, needle, record):
+        problems = check_window_observed_routes(record, self.root)
+        self.assertTrue(any(needle in item for item in problems), problems)
+        self.assertTrue(any(needle in item for item in check_response_shapes(record, self.root)))
+
+    def test_control_cancel_run_reverted_to_justified_fails(self):
+        record = copy.deepcopy(self.record)
+        self.row(record, "cancel_run")["coverage"].update(kind="justified", justification="control", residual_risk="control")
+        self.assert_fails_with("so its coverage must be real-shape-test, not justified", record)
+
+    def test_control_pr_create_without_its_window_sample_fails(self):
+        record = copy.deepcopy(self.record)
+        row = self.row(record, "pr_create")
+        row["real_samples"] = [item for item in row["real_samples"] if item.get("path") != PR_LEDGER_R11_REL]
+        self.assert_fails_with("but the row cites none of its rows [5]", record)
+
+    def test_control_a_window_locator_on_the_wrong_sequence_fails(self):
+        record = copy.deepcopy(self.record)
+        sample = next(item for item in self.row(record, "run_logs")["real_samples"] if item.get("path") == CANARY_LEDGER_R11_REL)
+        sample["sequence"] = 46
+        self.assert_fails_with("sequence 46 is not a 2xx/3xx run_logs row of that window ledger", record)
+
+    def test_control_no_window_ledger_is_reported_as_vacuous(self):
+        (self.root / PR_LEDGER_R11_REL).unlink()
+        self.assertTrue(any("would be vacuous" in item for item in check_window_observed_routes(self.record, self.root)))
+
+
+class PRBodyKeysTrackTheCodeTests(unittest.TestCase):
+    """253-140: PR_BODY_KEYS can neither fall behind the code's PR-body reads nor list a key the code never reads."""
+
+    def test_every_listed_key_is_read_by_the_code(self):
+        texts = {rel: (ROOT / rel).read_text() for rel in PR_KEY_SOURCES}
+
+        def quoted(leaf):
+            return [rel for rel, text in texts.items() if f'"{leaf}"' in text or f"'{leaf}'" in text]
+
+        # Positive control: the grep finds the 253-139 diagnostic key in the collector; negative: a near miss is absent.
+        self.assertIn("scripts/ci/ci-pr-proof.sh", quoted("mergeable_state"))
+        self.assertEqual(quoted("mergeable_statez"), [])
+        for route, keys in PR_BODY_KEYS.items():
+            for key in keys:
+                with self.subTest(route=route, key=key):
+                    self.assertTrue(quoted(key.rpartition(".")[2]), f"{key} is listed for {route} but no source quotes it")
+
+    def test_every_pr_body_read_in_the_code_is_listed(self):
+        reads = code_pr_body_reads(ROOT)
+        # Positive controls: the scan sees the reads 253-139 added and the verifier's check_pr reads.
+        self.assertTrue({"mergeable", "mergeable_state", "merge_commit_sha", "base.sha", "head.repo.full_name"} <= reads["pr_read"],
+                        reads)
+        self.assertTrue({"number", "base.sha", "draft", "head.ref", "base.repo.full_name"} <= reads["pr_create"], reads)
+        for route, keys in reads.items():
+            with self.subTest(route=route):
+                self.assertEqual(sorted(keys - set(PR_BODY_KEYS[route])), [], f"{route} reads unlisted PR body keys")
+
+    def test_control_a_new_pr_body_read_in_the_collector_is_caught(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-253-140-keys-") as tmp:
+            for rel in PR_KEY_SOURCES:
+                (Path(tmp) / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(ROOT / rel, Path(tmp) / rel)
+            path = Path(tmp) / "scripts/ci/ci-pr-proof.sh"
+            text = path.read_text()
+            anchor = 'mergeable, state = (pr or {}).get("mergeable"), (pr or {}).get("mergeable_state")'
+            self.assertEqual(text.count(anchor), 1)
+            path.write_text(text.replace(anchor, anchor + '\n        rebase = (pr or {}).get("rebaseable")', 1))
+            reads = code_pr_body_reads(Path(tmp))
+            self.assertIn("rebaseable", reads["pr_read"])
+            self.assertNotIn("rebaseable", PR_BODY_KEYS["pr_read"])
+            # A deleted region anchor is loud, never a silent empty scan.
+            path.write_text(text.replace("def no_run_verdict(self, number):", "def no_run_verdict_renamed(self, number):", 1))
+            with self.assertRaises(AssertionError):
+                code_pr_body_reads(Path(tmp))
 
 
 if __name__ == "__main__":
