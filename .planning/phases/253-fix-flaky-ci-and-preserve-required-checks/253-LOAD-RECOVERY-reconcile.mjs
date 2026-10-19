@@ -212,7 +212,8 @@ export const DISPOSITION_GAP_R6 = "disposition:CIREL-01:not_reproduced (Jon-appr
 // r7 (plan 253-96) and r8 (plan 253-103) are gated the same way as r6.
 // r9 (plan 253-112) and r10 (plan 253-121) are gated the same way as r6.
 // r11 (plan 253-132) is gated the same way as r6.
-const DISPOSITIONED_REVISIONS = Object.freeze(new Set(["r6", "r7", "r8", "r9", "r10", "r11"]));
+// r12 (plan 253-142) is gated the same way as r6.
+const DISPOSITIONED_REVISIONS = Object.freeze(new Set(["r6", "r7", "r8", "r9", "r10", "r11", "r12"]));
 const isDispositioned = (revision) => DISPOSITIONED_REVISIONS.has(revision);
 
 export function completionArgv(revision, completionPath) {
@@ -446,7 +447,7 @@ function buildContractV1({ repoRoot = REPO_ROOT } = {}) {
 // re-points every never-executed responsibility to the new proof owners 253-48..253-56.
 // ---------------------------------------------------------------------------------------------
 // Numeric revision order: r10 follows r9 (a plain string sort would put r10 before r2), so this list is never sorted.
-export const REVISIONS = Object.freeze(["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"]);
+export const REVISIONS = Object.freeze(["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"]);
 export const CONTRACT_NAME_R2 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R2.json";
 export const CONTRACT_SCHEMA_R2 = "sigra.phase253.load-recovery-reconciliation-contract/r2";
 export const COMPLETED_IDS_R2 = Object.freeze([...COMPLETED_IDS, "36", "37", "38", "39", "42", "43"].sort());
@@ -1951,6 +1952,106 @@ function buildContractR11({ repoRoot = REPO_ROOT } = {}) {
   };
 }
 
+// ---------------------------------------------------------------------------------------------
+// R12 revision (plan 253-142): 253-134 halted in the normal family because draft PR #337 got no pull_request
+// run: its frozen candidate 2b239a98 sat on the stale server parent 84ebcea60 and conflicted with current main,
+// and GitHub creates no pull_request run for a conflicting PR. So 253-135 can never run. R12 is ADDITIVE over
+// v1-R11 (all eleven files, builders and the v1 default stay untouched). It re-points every never-executed
+// responsibility, including 135, to the R12 proof owners 253-136..253-145 and is gated by
+// --require-dispositioned exactly as R6-R11 are.
+// ---------------------------------------------------------------------------------------------
+export const CONTRACT_NAME_R12 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R12.json";
+export const CONTRACT_SCHEMA_R12 = "sigra.phase253.load-recovery-reconciliation-contract/r12";
+export const COMPLETED_IDS_R12 = Object.freeze([...COMPLETED_IDS_R11, "125", "126", "127", "128", "129", "130", "131", "132", "133"].sort(comparePlanIds));
+export const HALTED_IDS_R12 = Object.freeze([...HALTED_IDS_R11, "134"]);
+export const NEVER_RAN_IDS_R12 = Object.freeze(["135"]);
+export const UNSTARTED_IDS_R12 = Object.freeze([...UNSTARTED_IDS_R11, ...NEVER_RAN_IDS_R12].sort(comparePlanIds));
+export const NEVER_RAN_REASON_R12 = "dependency 253-134 halted: normal draft PR #337 got no pull_request run; its frozen candidate 2b239a98 sat on the stale server parent 84ebcea60 and conflicted with current main, and GitHub creates no pull_request run for a conflicting PR";
+export const R12_PLAN_IDS = Object.freeze(ids(136, 145));
+// R11 owner -> R12 owners: 131 stays and gains 141 (which re-derived the publication and freeze on fetched
+// main); 132 stays and gains 142 (this contract); 133 (the R11 canary, which proved candidate 2b239a98 only)
+// becomes 143; halted 134 becomes 144; never-run 135 becomes 142 and 145. Duplicates produced by the remap are
+// dropped, keeping first-seen order.
+export const OWNER_REMAP_R12 = Object.freeze({ "131": ["131", "141"], "132": ["132", "142"], "133": ["143"], "134": ["144"], "135": ["142", "145"] });
+const remapOwnersR12 = (owners) => [...new Set(owners.flatMap((owner) => OWNER_REMAP_R12[owner] ?? [owner]))];
+const RESPONSIBILITY_MAP_R12 = Object.freeze({
+  ...Object.fromEntries(Object.entries(RESPONSIBILITY_MAP_R11).map(([id, row]) => [id, { owners: remapOwnersR12(row.owners), links: row.links }])),
+  "135": { owners: ["142", "145"], links: [...COMPLETION_LINK_KEYS, "load_target_disposition"] },
+});
+// A proof owner must exist and must be neither halted nor never executed under R12.
+export function assertProofOwnerR12(phaseDir, owner) {
+  const id = String(owner).replace(/^253-/, "");
+  if (!existsSync(join(phaseDir, `253-${id}-PLAN.md`))) throw new Error(`proof owner plan 253-${id} is missing`);
+  if (HALTED_IDS_R12.includes(id) || UNSTARTED_IDS_R12.includes(id)) throw new Error(`proof owner 253-${id} is a halted or never-executed plan`);
+}
+function buildContractR12({ repoRoot = REPO_ROOT } = {}) {
+  const phaseDir = join(repoRoot, PHASE_DIR_REL);
+  const r11 = buildContractR11({ repoRoot });
+  const partition = [...COMPLETED_IDS_R12, ...HALTED_IDS_R12, ...UNSTARTED_IDS_R12].sort(comparePlanIds);
+  if (JSON.stringify(partition) !== JSON.stringify(ids(1, 135).map(PAD))) {
+    throw new Error("R12 completed, halted and unstarted ids do not partition the 135 pre-R12 plans");
+  }
+  const classOf = (id) => (COMPLETED_IDS_R12.includes(id) ? "completed" : HALTED_IDS_R12.includes(id) ? "halted" : "unstarted_blocked");
+  const originals = r11.originals.map((original) => ({ ...original }));
+  for (let n = 125; n <= 135; n += 1) {
+    const file = `253-${PAD(n)}-PLAN.md`;
+    originals.push({ plan: planIdOf(n), class: classOf(PAD(n)), plan_path: `${PHASE_DIR_REL}/${file}`, plan_sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${file}`, "plan") });
+  }
+  for (const original of originals) original.class = classOf(original.plan.slice(4));
+  const r11Rows = Object.fromEntries(r11.responsibilities.map((row) => [row.plan.slice(4), row]));
+  const responsibilities = UNSTARTED_IDS_R12.map((id) => {
+    const mapping = RESPONSIBILITY_MAP_R12[id];
+    if (!mapping) throw new Error(`no R12 mapping for 253-${id}`);
+    for (const owner of mapping.owners) assertProofOwnerR12(phaseDir, owner);
+    const common = { owners: mapping.owners.map((owner) => `253-${owner}`), required_links: [...mapping.links], successor_revision: "R12" };
+    if (r11Rows[id]) return { ...r11Rows[id], ...common };
+    if (!NEVER_RAN_IDS_R12.includes(id)) throw new Error(`253-${id} is neither an R11 responsibility nor a never-ran R12 plan`);
+    const text = readFileSync(join(phaseDir, `253-${id}-PLAN.md`), "utf8");
+    const fm = frontmatter(text);
+    return {
+      plan: `253-${id}`,
+      disposition_path: `${PHASE_DIR_REL}/253-${id}-SUMMARY.md`,
+      original_plan_sha256: originals.find((o) => o.plan === `253-${id}`).plan_sha256,
+      objective: objectiveOf(text),
+      requirements: parseList(fm.requirements),
+      depends_on: parseList(fm.depends_on),
+      blocked_by: ["253-134"],
+      owners: common.owners,
+      required_links: common.required_links,
+      disposition: { ...DISPOSITION_FIELDS },
+      never_ran_reason: NEVER_RAN_REASON_R12,
+      successor_revision: "R12",
+    };
+  });
+  return {
+    schema: CONTRACT_SCHEMA_R12,
+    revision: "r12",
+    phase: PHASE,
+    phase_dir: PHASE_DIR_REL,
+    v1_contract: r11.v1_contract,
+    r2_contract: r11.r2_contract,
+    r3_contract: r11.r3_contract,
+    r4_contract: r11.r4_contract,
+    r5_contract: r11.r5_contract,
+    r6_contract: r11.r6_contract,
+    r7_contract: r11.r7_contract,
+    r8_contract: r11.r8_contract,
+    r9_contract: r11.r9_contract,
+    r10_contract: r11.r10_contract,
+    r11_contract: { path: `${PHASE_DIR_REL}/${CONTRACT_NAME_R11}`, sha256: pinFile(repoRoot, `${PHASE_DIR_REL}/${CONTRACT_NAME_R11}`, "R11 contract") },
+    sdk: r11.sdk,
+    capture: r11.capture,
+    plan_pins: r11.plan_pins,
+    summary_pins: r11.summary_pins,
+    originals,
+    completed_plans: r11.completed_plans,
+    halted_plans: r11.halted_plans,
+    halted_proof_map: r11.halted_proof_map,
+    responsibilities,
+    application: { ...r11.application },
+  };
+}
+
 export function buildContract({ repoRoot = REPO_ROOT, revision = "v1" } = {}) {
   if (revision === "v1") return buildContractV1({ repoRoot });
   if (revision === "r2") return buildContractR2({ repoRoot });
@@ -1963,12 +2064,13 @@ export function buildContract({ repoRoot = REPO_ROOT, revision = "v1" } = {}) {
   if (revision === "r9") return buildContractR9({ repoRoot });
   if (revision === "r10") return buildContractR10({ repoRoot });
   if (revision === "r11") return buildContractR11({ repoRoot });
+  if (revision === "r12") return buildContractR12({ repoRoot });
   throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
 }
 
 export function contractPathFor(revision = "v1") {
   if (!REVISIONS.includes(revision)) throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
-  return join(HERE, revision === "r11" ? CONTRACT_NAME_R11 : revision === "r10" ? CONTRACT_NAME_R10 : revision === "r9" ? CONTRACT_NAME_R9 : revision === "r8" ? CONTRACT_NAME_R8 : revision === "r7" ? CONTRACT_NAME_R7 : revision === "r6" ? CONTRACT_NAME_R6 : revision === "r5" ? CONTRACT_NAME_R5 : revision === "r4" ? CONTRACT_NAME_R4 : revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
+  return join(HERE, revision === "r12" ? CONTRACT_NAME_R12 : revision === "r11" ? CONTRACT_NAME_R11 : revision === "r10" ? CONTRACT_NAME_R10 : revision === "r9" ? CONTRACT_NAME_R9 : revision === "r8" ? CONTRACT_NAME_R8 : revision === "r7" ? CONTRACT_NAME_R7 : revision === "r6" ? CONTRACT_NAME_R6 : revision === "r5" ? CONTRACT_NAME_R5 : revision === "r4" ? CONTRACT_NAME_R4 : revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
 }
 
 export function serializeContract(contract) {
