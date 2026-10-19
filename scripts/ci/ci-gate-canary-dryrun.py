@@ -97,6 +97,9 @@ R9_REFS = {"gsd/253-replan-r9-candidate": "b9720d8e00e69e11c965ed7cf5029e3a00087
 # 253-130: the two refs 253-122 created on GitHub (R10 pair, FREEZE-R10's commits); a run seeded with them must never move them.
 R10_REFS = {"gsd/253-replan-r10-candidate": "d16617f77223ff136a0c9e04bc3cd067bc6370cf",
             "gsd/253-replan-r10-fixture": "06bb7dfb7dad0221d49292b9342ad871685a673b"}
+# 253-137: the two refs 253-133 created on GitHub (R11 pair, FREEZE-R11's commits); a run seeded with them must never move them.
+R11_REFS = {"gsd/253-replan-r11-candidate": "2b239a98df72b8d47e8c4e03edf193905b3239da",
+            "gsd/253-replan-r11-fixture": "65c402f966602dfc4a609af724457808cd8528eb"}
 # 253-117: GitHub's recorded responses, read from the committed R9 ledger at run time (the harness runs locally only):
 # seq 25 the workflow_runs listing, 27 the run poll, 28 the jobs page and 29 the artifacts page of real run 38906314106.
 R9_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json"
@@ -1389,8 +1392,8 @@ class FakeServer(OBJECT_TESTS.ObjectHTTPServer):
 
 
 def seeded_scoped_refs(args) -> dict:
-    """The earlier scoped refs the run pre-seeds at their real GitHub SHAs: r8 (--seed-r8-refs), r9 (--seed-r9-refs) and/or
-    r10 (--seed-r10-refs), in any combination."""
+    """The earlier scoped refs the run pre-seeds at their real GitHub SHAs: r8 (--seed-r8-refs), r9 (--seed-r9-refs),
+    r10 (--seed-r10-refs) and/or r11 (--seed-r11-refs), in any combination."""
     refs = {}
     if getattr(args, "seed_r8_refs", False):
         refs.update(R8_REFS)
@@ -1398,6 +1401,8 @@ def seeded_scoped_refs(args) -> dict:
         refs.update(R9_REFS)
     if getattr(args, "seed_r10_refs", False):
         refs.update(R10_REFS)
+    if getattr(args, "seed_r11_refs", False):
+        refs.update(R11_REFS)
     return refs
 
 
@@ -1875,6 +1880,11 @@ def dry_run(args) -> dict:
             summary["seeded_r10_refs_changed"] = bool(changed)
             if changed:
                 problems.append(f"a seeded r10 ref changed: {changed}")
+        if getattr(args, "seed_r11_refs", False):
+            changed = {name: server.refs.get(name) for name, sha in R11_REFS.items() if server.refs.get(name) != sha}
+            summary["seeded_r11_refs_changed"] = bool(changed)
+            if changed:
+                problems.append(f"a seeded r11 ref changed: {changed}")
         expected = ["full-pass"] if args.stop_after == "full-pass" else list(SCENARIOS)
         if failed is None and summary["scenarios"] != expected:
             problems.append(f"verifier accepted {summary['scenarios']}, expected {expected}")
@@ -1912,6 +1922,9 @@ def main() -> int:
     parser.add_argument("--seed-r10-refs", action="store_true",
                         help="pre-seed the two r10 refs 253-122 left on GitHub; they must not change "
                              "(combinable with --seed-r8-refs and --seed-r9-refs)")
+    parser.add_argument("--seed-r11-refs", action="store_true",
+                        help="pre-seed the two r11 refs 253-133 left on GitHub; they must not change "
+                             "(combinable with --seed-r8-refs, --seed-r9-refs and --seed-r10-refs)")
     parser.add_argument("--ref-pair", choices=sorted(PUBLISHER.REF_PAIRS),
                         help="forwarded to --build-freeze for the derived synthetic freeze: one of the publisher's REF_PAIRS "
                              f"({', '.join(sorted(PUBLISHER.REF_PAIRS))}; the publisher's default is "
