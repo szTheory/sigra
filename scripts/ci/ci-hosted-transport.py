@@ -27,6 +27,9 @@ API_HOST = "api.github.com"
 # 253-125: GitHub's run-log redirect host (R10 ledger sequence 47). Trusted only as hop 1 of run_logs, by exact name.
 RESULTS_RECEIVER_HOST = "results-receiver.actions.githubusercontent.com"
 DEFAULT_REPO = "szTheory/sigra"
+# 253-146: GitHub names live pagination links by the repository's numeric id (/repositories/<id>/<route suffix>), as the
+# R12 canary's check_runs Link did (ledger sequence 21; also R11 evidence full-pass run.repository.id). Validated only.
+GITHUB_REPOSITORY_ID = 1207487684
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
 MAX_REQUEST_ENVELOPE_BYTES = MAX_REQUEST_BYTES + 65536
 MAX_ALLOCATION_BYTES = 64 * 1024
@@ -1030,7 +1033,11 @@ def _next_page_url(link_value: str, request: dict, allocation: dict) -> str | No
     if parsed.scheme != "https" or parsed.hostname != API_HOST or parsed.port not in (None, 443) or parsed.username or parsed.password or parsed.fragment:
         raise TransportError("pagination_destination_rejected", "pagination link must stay on api.github.com")
     _, _, _, expected_path = _route(request, allocation)
-    if parsed.path != expected_path.split("?", 1)[0]:
+    approved_path = expected_path.split("?", 1)[0]
+    # 253-146: GitHub may name the same route by repository id; only this repository's id and the identical route suffix.
+    suffix = approved_path.removeprefix(f"/repos/{DEFAULT_REPO}/")
+    id_path = f"/repositories/{GITHUB_REPOSITORY_ID}/{suffix}"
+    if suffix == approved_path or parsed.path not in (approved_path, id_path):
         raise TransportError("pagination_destination_rejected", "pagination link changed its approved API route")
     query = parse_qs(parsed.query, keep_blank_values=True, strict_parsing=True)
     if set(query) - {"page", "per_page", "event", "branch", "head_sha"} or any(len(values) != 1 for values in query.values()):

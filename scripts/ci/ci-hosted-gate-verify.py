@@ -264,7 +264,48 @@ def verify_transport_v2(evidence):
     return {"status": "transport_verified", "requests": len(transactions), "window_id": origin["window_id"]}
 
 
-def verify_effective_checks(evidence, check_source=None):
+# 253-146: the live canary allocation's max_pages (ALLOCATION-R8..R12: 10). A check-runs page set longer than this cannot
+# have come from one bounded read of the frozen window.
+MAX_CHECK_RUN_PAGES = 10
+
+
+def check_run_page_set(check_txs, expected_sha, max_pages=MAX_CHECK_RUN_PAGES):
+    """253-146: the native check runs of one commit, read as the contiguous page set 1..n (the fetched main's 209 runs
+    over three pages, 253-143). Every page is a 200 on the typed check-runs URL of expected_sha with page = its ordinal;
+    total_count is one int on every page; n = ceil(total_count/100) (at least 1) and at most max_pages; the union of the
+    pages has exactly total_count runs. Returns (sequences, union of check_runs)."""
+    # A lone page may carry no ordinal (pre-253-146 fixtures); its URL below still has to name page 1.
+    require(isinstance(check_txs, list) and check_txs and all(isinstance(tx, dict) for tx in check_txs)
+            and ([tx.get("page_ordinal") for tx in check_txs] == list(range(1, len(check_txs) + 1))
+                 or (len(check_txs) == 1 and check_txs[0].get("page_ordinal") is None)),
+            "native check-run pages are not one contiguous page set 1..n of one read")
+    require(isinstance(expected_sha, str) and len(expected_sha) == 40, "native check-run source commit is missing")
+    totals, union = [], []
+    for page, tx in enumerate(check_txs, 1):
+        require(tx.get("route_id") == "check_runs" and tx.get("actual_status") == 200
+                and tx.get("url") == f"https://api.github.com/repos/szTheory/sigra/commits/{expected_sha}/check-runs?per_page=100&page={page}",
+                "native check-run page is not a successful read of the frozen source commit")
+        try:
+            doc = json.loads(base64.b64decode(tx["response_body_base64"], validate=True).decode("utf-8", "strict"))
+        except (KeyError, ValueError, UnicodeError, json.JSONDecodeError) as error:
+            raise VerificationError("native check-run response body is malformed") from error
+        runs = doc.get("check_runs") if isinstance(doc, dict) else None
+        total = doc.get("total_count") if isinstance(doc, dict) else None
+        require(isinstance(runs, list) and type(total) is int and total >= 0 and len(runs) <= 100,
+                "native check-run page is malformed")
+        totals.append(total)
+        union.extend(runs)
+    require(len(set(totals)) == 1, "native check-run total_count differs between pages")
+    total = totals[0]
+    expected_pages = max(1, -(-total // 100))
+    require(len(check_txs) <= max_pages, "native check-run pages exceed the allocation's max_pages")
+    require(len(check_txs) >= expected_pages, "native check-run response is incomplete or needs another charged page")
+    require(len(check_txs) == expected_pages, "native check-run read has more pages than ceil(total_count/100)")
+    require(len(union) == total, "native check-run page union differs from total_count")
+    return [tx["sequence"] for tx in check_txs], union
+
+
+def verify_effective_checks(evidence, check_source=None, max_pages=MAX_CHECK_RUN_PAGES):
     """Require complete branch and legacy rules plus native producer app identity.
 
     With check_source None (the PR-family path) the native read must target expected.candidate_sha and every producer
@@ -357,20 +398,19 @@ def verify_effective_checks(evidence, check_source=None):
         producer_by_name[name] = producer
     source_receipt = checks.get("native_check_runs")
     require(isinstance(source_receipt, dict), "native check-run source receipt is missing")
-    source_tx = by_sequence.get(source_receipt.get("sequence"))
-    expected_sha = check_source["sha"] if check_source else evidence.get("expected", {}).get("candidate_sha")
-    require(isinstance(source_tx, dict) and source_tx.get("route_id") == "check_runs" and source_tx.get("actual_status") == 200,
+    # 253-146: {sequences: [...]} names the contiguous page set; the legacy one-page {sequence: N} shape stays accepted.
+    if "sequences" in source_receipt:
+        require("sequence" not in source_receipt and isinstance(source_receipt["sequences"], list),
+                "native check-run source receipt is malformed")
+        sequences = source_receipt["sequences"]
+    else:
+        sequences = [source_receipt.get("sequence")]
+    source_txs = [by_sequence.get(sequence) if isinstance(sequence, int) and not isinstance(sequence, bool) else None
+                  for sequence in sequences]
+    require(all(isinstance(tx, dict) for tx in source_txs),
             "native check-run metadata is not tied to a successful measured API response")
-    require(isinstance(expected_sha, str) and len(expected_sha) == 40
-            and source_tx.get("url") == f"https://api.github.com/repos/szTheory/sigra/commits/{expected_sha}/check-runs?per_page=100&page=1",
-            "native check-run source uses a different candidate SHA or incomplete page")
-    try:
-        native_body = json.loads(base64.b64decode(source_tx["response_body_base64"], validate=True).decode("utf-8", "strict"))
-    except (KeyError, ValueError, UnicodeError, json.JSONDecodeError) as error:
-        raise VerificationError("native check-run response body is malformed") from error
-    native_runs = native_body.get("check_runs") if isinstance(native_body, dict) else None
-    require(isinstance(native_runs, list) and native_body.get("total_count") == len(native_runs) and len(native_runs) < 100,
-            "native check-run response is incomplete or needs another charged page")
+    expected_sha = check_source["sha"] if check_source else evidence.get("expected", {}).get("candidate_sha")
+    _, native_runs = check_run_page_set(source_txs, expected_sha, max_pages)
     native_by_name = {}
     for run in native_runs:
         if not isinstance(run, dict) or run.get("name") not in REQUIRED_NAMES:
@@ -404,7 +444,7 @@ def verify_effective_checks(evidence, check_source=None):
     return {"status": "effective_checks_verified", "names": list(REQUIRED_NAMES)}
 
 
-def hydrate_effective_checks(evidence, check_source=None):
+def hydrate_effective_checks(evidence, check_source=None, max_pages=MAX_CHECK_RUN_PAGES):
     """Build the v2 check inventory from measured response bodies, never names alone."""
     ledger = evidence.get("transport_ledger")
     require(isinstance(ledger, dict) and isinstance(ledger.get("transactions"), list), "measured transport ledger is missing")
@@ -417,7 +457,7 @@ def hydrate_effective_checks(evidence, check_source=None):
     rule_txs = [tx for tx in transactions if tx.get("route_id") == "rules_main"]
     legacy_txs = [tx for tx in transactions if tx.get("route_id") == "branch_protection"]
     check_txs = [tx for tx in transactions if tx.get("route_id") == "check_runs"]
-    require(rule_txs and len(rule_txs) <= 2 and len(legacy_txs) == 1 and len(check_txs) == 1,
+    require(rule_txs and len(rule_txs) <= 2 and len(legacy_txs) == 1 and check_txs,
             "measured preflight is missing branch rules, legacy protection or native check-run request")
     pages = []
     raw_required = []
@@ -449,16 +489,9 @@ def hydrate_effective_checks(evidence, check_source=None):
         legacy_required += [{"context": item.get("context"), "app_id": item.get("app_id")} for item in checks if isinstance(item, dict)]
         raw_required.extend(legacy_required)
         legacy = {"present": True, "status": 200, "sequence": legacy_tx["sequence"], "required": legacy_required}
-    check_tx = check_txs[0]
-    check_url = check_tx.get("url", "")
     expected_sha = check_source["sha"] if check_source else evidence.get("expected", {}).get("candidate_sha")
-    require(check_tx.get("actual_status") == 200 and isinstance(expected_sha, str)
-            and check_url == f"https://api.github.com/repos/szTheory/sigra/commits/{expected_sha}/check-runs?per_page=100&page=1",
-            "native check-run request is not tied to the frozen source commit")
-    native_doc = body(check_tx)
-    native_runs = native_doc.get("check_runs") if isinstance(native_doc, dict) else None
-    require(isinstance(native_runs, list) and native_doc.get("total_count") == len(native_runs) and len(native_runs) < 100,
-            "native check-run response is incomplete or needs another charged page")
+    # 253-146: every check_runs transaction must form one contiguous page set 1..n of the frozen source commit.
+    check_sequences, native_runs = check_run_page_set(check_txs, expected_sha, max_pages)
     native_by_name = {}
     for run in native_runs:
         if not isinstance(run, dict) or run.get("name") not in REQUIRED_NAMES:
@@ -489,7 +522,7 @@ def hydrate_effective_checks(evidence, check_source=None):
                            "app_slug": native["app_slug"], "source": native["source"]})
     evidence["effective_checks"] = {"endpoint": "/repos/szTheory/sigra/rules/branches/main", "query": {"per_page": 100},
         "complete": True, "terminal_page": len(pages), "rules_pages": pages, "legacy_protection": legacy,
-        "native_check_runs": {"sequence": check_tx["sequence"]}, "required": normalized}
+        "native_check_runs": {"sequences": check_sequences}, "required": normalized}
     evidence["producer_checks"] = list(native_by_name.values())
 
 

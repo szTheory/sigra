@@ -32,7 +32,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if allocation.get(\"mode\") != \"hermetic-test\":",
       "occurrence": 1,
-      "line": 264,
+      "line": 267,
       "hermetic_behavior": "A hermetic allocation may use the test_probe/test_page routes, on its exact local HTTPS origin only.",
       "live_behavior": "A live allocation refuses every test-only route with test_origin_rejected before any socket.",
       "coverage": {
@@ -47,7 +47,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "hermetic_collector = allocation.get(\"mode\") == \"hermetic-test\" and allocation.get(\"allocation_kind\") == \"production\"",
       "occurrence": 1,
-      "line": 276,
+      "line": 279,
       "hermetic_behavior": "A hermetic production allocation routes the PR collector's routes to its local origin.",
       "live_behavior": "False for every live allocation, so no route is redirected to a test origin.",
       "coverage": {
@@ -64,7 +64,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "hermetic_canary = (allocation.get(\"mode\") == \"hermetic-test\" and allocation.get(\"allocation_kind\") == \"canary\"",
       "occurrence": 1,
-      "line": 279,
+      "line": 282,
       "hermetic_behavior": "A hermetic canary-kind allocation routes every canary route to its local origin (253-101).",
       "live_behavior": "False for every live allocation; canary routes stay on api.github.com:443.",
       "coverage": {
@@ -79,7 +79,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "and route_id in HERMETIC_CANARY_ROUTES)",
       "occurrence": 1,
-      "line": 280,
+      "line": 283,
       "hermetic_behavior": "Limits the hermetic canary rerouting to HERMETIC_CANARY_ROUTES.",
       "live_behavior": "Not evaluated: the expression short-circuits on mode == hermetic-test.",
       "coverage": {
@@ -94,7 +94,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "hermetic_collector = hermetic_collector or hermetic_canary",
       "occurrence": 1,
-      "line": 281,
+      "line": 284,
       "hermetic_behavior": "Either hermetic flag sends the route to the local origin.",
       "live_behavior": "Both flags are false, so hermetic_collector stays false.",
       "coverage": {
@@ -110,7 +110,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if (git_object_route or hermetic_collector) and allocation.get(\"mode\") == \"hermetic-test\":",
       "occurrence": 1,
-      "line": 282,
+      "line": 285,
       "hermetic_behavior": "Git object and hermetic collector/canary routes resolve to the validated local HTTPS origin.",
       "live_behavior": "Skipped; the live elif resolves the route to api.github.com:443.",
       "coverage": {
@@ -127,7 +127,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "elif allocation.get(\"mode\") == \"live\":",
       "occurrence": 1,
-      "line": 288,
+      "line": 291,
       "hermetic_behavior": "Not reached for a hermetic allocation whose route matched the hermetic branch.",
       "live_behavior": "Every route of a live allocation resolves to api.github.com:443.",
       "coverage": {
@@ -144,7 +144,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if allocation.get(\"mode\") != \"live\" and not ((git_object_route or hermetic_collector) and allocation.get(\"mode\") == \"hermetic-test\"):",
       "occurrence": 1,
-      "line": 293,
+      "line": 296,
       "hermetic_behavior": "Refuses a non-git, non-collector route under a hermetic allocation (live allocation required).",
       "live_behavior": "Passes: a live allocation may use every typed GitHub route.",
       "coverage": {
@@ -161,7 +161,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if mode not in {\"live\", \"hermetic-test\"}:",
       "occurrence": 1,
-      "line": 457,
+      "line": 460,
       "hermetic_behavior": "hermetic-test is an accepted allocation mode.",
       "live_behavior": "live is an accepted allocation mode; any other mode is refused with allocation_mode.",
       "coverage": {
@@ -177,7 +177,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "allowed = common | test_only if mode == \"hermetic-test\" else common",
       "occurrence": 1,
-      "line": 463,
+      "line": 466,
       "hermetic_behavior": "A hermetic allocation may carry test_origin and test_ca_file.",
       "live_behavior": "A live allocation may carry only the common fields; test fields are unapproved.",
       "coverage": {
@@ -193,7 +193,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if mode == \"live\" and set(allocation) & test_only:",
       "occurrence": 1,
-      "line": 466,
+      "line": 469,
       "hermetic_behavior": "Not reached for hermetic allocations.",
       "live_behavior": "A live allocation naming test_origin or test_ca_file is refused with test_origin_rejected.",
       "coverage": {
@@ -208,7 +208,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "min_requests = 0 if mode == \"hermetic-test\" else 1",
       "occurrence": 1,
-      "line": 481,
+      "line": 484,
       "hermetic_behavior": "A hermetic canary allocation may have max_requests 0.",
       "live_behavior": "A live canary allocation needs at least one request.",
       "coverage": {
@@ -223,7 +223,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "elif mode == \"live\":",
       "occurrence": 1,
-      "line": 485,
+      "line": 488,
       "hermetic_behavior": "Not reached for hermetic canary allocations (else branch, same range).",
       "live_behavior": "A live canary allocation's max_requests must be within 1..117.",
       "coverage": {
@@ -239,7 +239,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if mode == \"live\":",
       "occurrence": 1,
-      "line": 509,
+      "line": 512,
       "hermetic_behavior": "Not reached; a hermetic allocation instead needs its test origin and CA.",
       "live_behavior": "A live allocation needs a unique download_hosts list of only pipelines.actions.githubusercontent.com, productionresultssaN.blob.core.windows.net and (253-125) the exact name results-receiver.actions.githubusercontent.com.",
       "coverage": {
@@ -256,7 +256,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "elif not allocation.get(\"test_origin\") or not allocation.get(\"test_ca_file\"):",
       "occurrence": 1,
-      "line": 516,
+      "line": 519,
       "hermetic_behavior": "A hermetic allocation without test_origin or test_ca_file is refused.",
       "live_behavior": "Not reached: the live branch above validates download_hosts instead.",
       "coverage": {
@@ -272,7 +272,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if allocation.get(\"mode\") == \"hermetic-test\":",
       "occurrence": 1,
-      "line": 571,
+      "line": 574,
       "hermetic_behavior": "The TLS context additionally trusts the allocation's test CA file, which must exist.",
       "live_behavior": "The default system-trust TLS context is used, with SNI on the real host names.",
       "coverage": {
@@ -289,7 +289,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if allocation.get(\"mode\") != \"hermetic-test\":",
       "occurrence": 2,
-      "line": 595,
+      "line": 598,
       "hermetic_behavior": "A hermetic allocation is exempt from the live origin rule (the 253-104 blind spot).",
       "live_behavior": "Hop 0 must be api.github.com:443; a later hop must be an approved trusted download host on a download route (253-125: results-receiver only as run_logs hop 1).",
       "coverage": {
@@ -308,7 +308,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if host != API_HOST or port != 443:",
       "occurrence": 1,
-      "line": 600,
+      "line": 603,
       "hermetic_behavior": "Not reached for hermetic allocations.",
       "live_behavior": "Hop 0 (or no destination) to any host or port other than api.github.com:443 is origin_rejected.",
       "coverage": {
@@ -325,7 +325,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if host == API_HOST:",
       "occurrence": 1,
-      "line": 666,
+      "line": 669,
       "hermetic_behavior": "The local origin is never api.github.com, so no token is read or sent.",
       "live_behavior": "The token is read and sent only to api.github.com, never to a download host; none is authentication_unavailable.",
       "coverage": {
@@ -342,7 +342,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "headers = {\"Accept\": \"application/vnd.github+json\" if host == API_HOST else \"application/json\",",
       "occurrence": 1,
-      "line": 675,
+      "line": 678,
       "hermetic_behavior": "The local origin gets Accept: application/json.",
       "live_behavior": "api.github.com gets the GitHub JSON media type and a download host gets application/json.",
       "coverage": {
@@ -357,7 +357,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if allocation.get(\"mode\") == \"hermetic-test\":",
       "occurrence": 2,
-      "line": 828,
+      "line": 831,
       "hermetic_behavior": "A redirect must stay on the exact local test origin and port.",
       "live_behavior": "A redirect must go to a trusted download host present in download_hosts (elif branch); 253-125: results-receiver is trusted only as hop 1 of run_logs.",
       "coverage": {
@@ -385,7 +385,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if host != test_origin.hostname or port != test_origin.port:",
       "occurrence": 1,
-      "line": 830,
+      "line": 833,
       "hermetic_behavior": "A redirect off the exact local origin is redirect_rejected.",
       "live_behavior": "Not reached: the live elif applies the trusted download-host predicate.",
       "coverage": {
@@ -405,7 +405,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if allocation.get(\"mode\") == \"hermetic-test\" and request.get(\"route_id\") == \"test_page\":",
       "occurrence": 1,
-      "line": 1010,
+      "line": 1013,
       "hermetic_behavior": "A test_page Link must name the next typed local /page/N route.",
       "live_behavior": "Not reached: live Links are checked by the api.github.com rule below.",
       "coverage": {
@@ -421,7 +421,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if allocation.get(\"mode\") == \"hermetic-test\":",
       "occurrence": 3,
-      "line": 1017,
+      "line": 1020,
       "hermetic_behavior": "A hermetic Link must stay on the exact local origin and advance one page of the same route.",
       "live_behavior": "Not reached: live Links are checked by the api.github.com rule below.",
       "coverage": {
@@ -437,7 +437,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "if parsed.scheme != \"https\" or parsed.hostname != API_HOST or parsed.port not in (None, 443) or parsed.username or parsed.password or parsed.fragment:",
       "occurrence": 1,
-      "line": 1030,
+      "line": 1033,
       "hermetic_behavior": "Not reached for hermetic allocations.",
       "live_behavior": "A Link must stay on https://api.github.com:443, keep the approved route path and advance exactly one page.",
       "coverage": {
@@ -453,7 +453,7 @@
       "file": "scripts/ci/ci-hosted-transport.py",
       "anchor": "parsed = urlsplit(f\"https://{API_HOST}{_route(current, allocation)[3]}\")",
       "occurrence": 1,
-      "line": 960,
+      "line": 963,
       "supplementary": true,
       "supplementary_reason": "named by the plan (fetch_pages rules page); it uses API_HOST without a condition, so the matcher does not select it",
       "hermetic_behavior": "A full first rules page synthesizes a page-2 URL used only as the cycle key; the request itself is routed by _route to the local origin.",
@@ -873,7 +873,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "require(record.get(\"synthetic\") is True, \"synthetic command receipt must be labeled synthetic\")",
       "occurrence": 1,
-      "line": 674,
+      "line": 707,
       "hermetic_behavior": "The canary result record must be labelled synthetic (the fixture's tiny command).",
       "live_behavior": "Identical: the record is the synthetic tiny-command receipt in a live window too.",
       "coverage": {
@@ -891,7 +891,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "wanted_ref_state = \"hermetic-unverified\" if hermetic_canary(evidence) else \"verified\"",
       "occurrence": 1,
-      "line": 728,
+      "line": 761,
       "hermetic_behavior": "Hermetic evidence must say fixture_ref_state hermetic-unverified.",
       "live_behavior": "Live evidence must say verified (the driver's live read-back).",
       "coverage": {
@@ -906,7 +906,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "hermetic = allocation[\"mode\"] == \"hermetic-test\"",
       "occurrence": 1,
-      "line": 1008,
+      "line": 1041,
       "hermetic_behavior": "hermetic is true for a hermetic-test production allocation.",
       "live_behavior": "hermetic is false for a live production allocation.",
       "coverage": {
@@ -925,7 +925,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "require(evidence.get(\"synthetic\") is hermetic, \"synthetic label must match the allocation origin (local HTTPS is synthetic, never live)\")",
       "occurrence": 1,
-      "line": 1009,
+      "line": 1042,
       "hermetic_behavior": "The evidence must be labelled synthetic.",
       "live_behavior": "The evidence must be labelled synthetic false.",
       "coverage": {
@@ -943,7 +943,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic:",
       "occurrence": 1,
-      "line": 1026,
+      "line": 1059,
       "hermetic_behavior": "Every transaction must be on the local test origin's host.",
       "live_behavior": "Every transaction must be on api.github.com or a frozen download host (else branch).",
       "coverage": {
@@ -959,7 +959,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "require(tx.get(\"host\") == urlsplit(allocation[\"test_origin\"]).hostname, \"synthetic transaction left the local origin\")",
       "occurrence": 1,
-      "line": 1027,
+      "line": 1060,
       "hermetic_behavior": "A transaction off the local origin is refused.",
       "live_behavior": "Not reached: the live else branch applies the api.github.com/download_hosts rule.",
       "coverage": {
@@ -975,7 +975,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic:",
       "occurrence": 2,
-      "line": 1049,
+      "line": 1082,
       "hermetic_behavior": "The local server journal is required and reconciled, and no Authorization may reach it.",
       "live_behavior": "No journal is required; an optional journal must have one row per transaction.",
       "coverage": {
@@ -993,7 +993,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "hermetic = allocation[\"mode\"] == \"hermetic-test\"",
       "occurrence": 2,
-      "line": 1072,
+      "line": 1105,
       "hermetic_behavior": "hermetic is true for a hermetic-test production allocation.",
       "live_behavior": "hermetic is false; the check view keeps the ledger URLs as recorded.",
       "coverage": {
@@ -1011,7 +1011,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "origin = f\"https://{urlsplit(allocation['test_origin']).hostname}\" if hermetic else None",
       "occurrence": 1,
-      "line": 1073,
+      "line": 1106,
       "hermetic_behavior": "The local origin prefix to rewrite is computed.",
       "live_behavior": "No origin is computed (None).",
       "coverage": {
@@ -1029,7 +1029,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic and row[\"url\"].startswith(origin):",
       "occurrence": 1,
-      "line": 1079,
+      "line": 1112,
       "hermetic_behavior": "Local-origin URLs are rewritten to api.github.com for the check view.",
       "live_behavior": "No rewrite: live URLs are already api.github.com.",
       "coverage": {
@@ -1047,7 +1047,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "return dryrun_pr_result({\"status\": \"synthetic_pr_family_verified\" if evidence[\"synthetic\"] else \"pr_family_verified\", \"family\": family,",
       "occurrence": 1,
-      "line": 1472,
+      "line": 1505,
       "hermetic_behavior": "Hermetic evidence verifies as synthetic_pr_family_verified.",
       "live_behavior": "Live evidence verifies as pr_family_verified, and dryrun_pr_result relabels a dry-run window synthetic.",
       "coverage": {
@@ -1065,7 +1065,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "return dryrun_pr_result({\"status\": \"synthetic_pr_pair_verified\" if not first[\"accepted_live\"] else \"pr_pair_verified\",",
       "occurrence": 1,
-      "line": 1506,
+      "line": 1539,
       "hermetic_behavior": "A hermetic pair verifies as synthetic_pr_pair_verified.",
       "live_behavior": "A live pair verifies as pr_pair_verified, relabelled synthetic on a dry-run window.",
       "coverage": {
@@ -1083,7 +1083,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic_canary(evidence):",
       "occurrence": 1,
-      "line": 1565,
+      "line": 1598,
       "hermetic_behavior": "Checks are hydrated on an api.github.com view of the evidence and the result is synthetic.",
       "live_behavior": "Checks are hydrated (if absent) and verified on the evidence itself.",
       "coverage": {
@@ -1101,7 +1101,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic_canary(evidence) or dryrun_window(evidence):",
       "occurrence": 1,
-      "line": 1733,
+      "line": 1766,
       "hermetic_behavior": "The matrix result is synthetic.",
       "live_behavior": "A live-policy dry-run matrix is synthetic through its window; a real live window is not.",
       "coverage": {
@@ -1119,7 +1119,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic_canary(canary):",
       "occurrence": 1,
-      "line": 1885,
+      "line": 1918,
       "hermetic_behavior": "A hermetic canary link is a synthetic gap.",
       "live_behavior": "A live canary link adds no hermetic gap.",
       "coverage": {
@@ -1135,7 +1135,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "synthetic = synthetic or not pr_result[\"accepted_live\"]",
       "occurrence": 1,
-      "line": 1903,
+      "line": 1936,
       "hermetic_behavior": "A synthetic PR pair marks completion synthetic.",
       "live_behavior": "A live-accepted pair does not; a dry-run pair (accepted_live false) does.",
       "coverage": {
@@ -1153,7 +1153,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if dryrun_window(document):",
       "occurrence": 1,
-      "line": 1915,
+      "line": 1948,
       "hermetic_behavior": "Not specific to hermetic evidence.",
       "live_behavior": "Every link on a 253-dryrun- window is a synthetic gap; real windows are not.",
       "coverage": {
@@ -1171,7 +1171,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "complete = not synthetic and len(opened) == len(LINKS)",
       "occurrence": 1,
-      "line": 1925,
+      "line": 1958,
       "hermetic_behavior": "Synthetic evidence can never be complete.",
       "live_behavior": "Complete only when nothing is synthetic and every link is present.",
       "coverage": {
@@ -1187,7 +1187,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "if hermetic_canary(evidence):",
       "occurrence": 2,
-      "line": 1976,
+      "line": 2009,
       "hermetic_behavior": "A CLI result on hermetic evidence is synthetic with channel hermetic-https.",
       "live_behavior": "Not hermetic: falls to the dry-run window check.",
       "coverage": {
@@ -1203,7 +1203,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "elif dryrun_window(evidence):",
       "occurrence": 1,
-      "line": 1980,
+      "line": 2013,
       "hermetic_behavior": "Not reached for hermetic evidence.",
       "live_behavior": "A live-policy dry run is synthetic with channel live-policy-dry-run; a real window is unlabelled.",
       "coverage": {
@@ -1239,7 +1239,7 @@
       "file": "scripts/ci/ci-hosted-gate-verify.py",
       "anchor": "view = api_view(evidence)",
       "occurrence": 2,
-      "line": 1709,
+      "line": 1742,
       "supplementary": true,
       "supplementary_reason": "253-116 canary receipt-to-ledger binding (verify_canary_bindings): api_view is the hermetic/live branch, but the call has no condition, so the matcher does not select it; recorded so the binding's live side is audited",
       "hermetic_behavior": "Hermetic dry-run evidence is read through api_view, so local-origin ledger URLs are matched as their api.github.com paths when each receipt is bound to its run poll, discovery, dispatch, jobs, artifacts and artifact_zip download (exercised end to end by both offline dry-run gates).",
