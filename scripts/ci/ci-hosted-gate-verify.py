@@ -1167,6 +1167,50 @@ def _run_browser_policy(workflow_bytes, producers, identity):
             raise VerificationError("browser execution policy owner returned malformed output") from error
 
 
+PR_PREFLIGHT_SCHEMA = "sigra.phase253.pr-main-preflight/r12"
+
+
+def verify_base_preflight(evidence, family):
+    """253-139 (D-18/D-23): the step-0 main preflight. A normal family whose freeze carries source.fetched_main_sha (an
+    r12 PR freeze) needs a clean base_preflight for that exact freeze, head and frozen main, and the base GitHub put on
+    the created PR (the ledger's pr_create response body, never a collector claim) must be its current_main. Docs-only
+    records not_applicable (its base is a scoped ref created in the same window). Pre-r12 normal evidence is not
+    inspected, so it verifies exactly as before. Returns the bound current main (normal r12) or None."""
+    freeze = evidence.get("freeze") if isinstance(evidence.get("freeze"), dict) else {}
+    fetched_main = (freeze.get("source") or {}).get("fetched_main_sha")
+    preflight = evidence.get("base_preflight")
+    if family == "docs-only":
+        if preflight is not None:
+            require(isinstance(preflight, dict) and preflight.get("status") == "not_applicable" and set(preflight) <= {"status", "reason"},
+                    "docs-only evidence claims a main preflight; its base_preflight must be not_applicable")
+        require(not fetched_main or preflight is not None, "r12 docs-only evidence must record base_preflight not_applicable")
+        return None
+    if not fetched_main:
+        return None
+    require(isinstance(preflight, dict), "r12 normal PR evidence has no step-0 base_preflight")
+    require(preflight.get("schema") == PR_PREFLIGHT_SCHEMA, f"base_preflight schema is not {PR_PREFLIGHT_SCHEMA}")
+    require(preflight.get("status") == "clean", f"the step-0 main preflight is not clean (status {preflight.get('status')!r})")
+    require(preflight.get("freeze_sha256") == freeze.get("freeze_sha256"), "the step-0 main preflight was made for another PR freeze")
+    head_sha = (freeze.get("normal") or {}).get("head_sha")
+    require(preflight.get("head_sha") == head_sha, "the step-0 main preflight names another normal head")
+    require(preflight.get("frozen_main") == fetched_main, "the step-0 main preflight names another frozen main")
+    current = preflight.get("current_main")
+    require(isinstance(current, str) and SHA40.fullmatch(current) is not None, "base_preflight.current_main is not a commit SHA")
+    merge = preflight.get("merge_preflight") if isinstance(preflight.get("merge_preflight"), dict) else {}
+    require(merge.get("clean") is True and merge.get("conflicts") == [] and merge.get("head") == head_sha and merge.get("base") == current,
+            "the step-0 merge test is not a clean merge of the frozen head into current_main")
+    require(preflight.get("ancestor") is True, "the frozen main is not an ancestor of the preflight current_main")
+    require(preflight.get("moved") is (current != fetched_main), "base_preflight.moved disagrees with frozen_main and current_main")
+    digest = preflight.get("sha256")
+    require(isinstance(digest, str) and SHA64.fullmatch(digest) is not None, "base_preflight.sha256 is not a lowercase 64-hex digest")
+    creates = _family(evidence["transport_ledger"]["transactions"], family, "pr_create")
+    require(len(creates) == 1, "exactly one draft PR creation is required")
+    created_base = (tx_json(creates[0], "PR creation").get("base") or {}).get("sha")
+    require(created_base == current, f"the created PR base {created_base} (ledger pr_create response) differs from the step-0 "
+                                     f"preflight current_main {current}")
+    return current
+
+
 @fail_closed
 def verify_pr_family(evidence, family, _capture=None):
     """Independently verify one actual PR family from retained measured API bytes and producer artifacts."""
@@ -1235,6 +1279,7 @@ def verify_pr_family(evidence, family, _capture=None):
         return base.get("sha")
 
     check_pr(created, "created PR")
+    verify_base_preflight(evidence, family)
     reads = [tx for tx in transactions if tx["family"] == family and tx["route_id"] == "pr_read"]
     require(len(reads) >= 1 and all(tx["actual_status"] == 200 for tx in reads), "the PR must be re-read after the run for its tested merge commit")
     merges, bases = set(), set()

@@ -2894,5 +2894,96 @@ class LiveResultsReceiverHostTests(unittest.TestCase):
         self.module.verify_live_transaction_host(dict(seq31, route_id="run_logs", hop_ordinal=2))
 
 
+class PRBasePreflightTests(unittest.TestCase):
+    """253-139 (D-18/D-23): an r12 normal PR family (its freeze carries source.fetched_main_sha) is accepted only with a
+    clean step-0 base_preflight for that exact freeze and head whose current_main is the base GitHub put on the created
+    PR (read from the ledger's pr_create response body, never from collector claims). Docs-only records not_applicable.
+    Pre-r12 evidence is verified exactly as before. Full chains live in ci-pr-proof.test.sh."""
+
+    HEAD, FROZEN, CURRENT, FREEZE_SHA = "a" * 40, "b" * 40, "c" * 40, "d" * 64
+
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_verifier("hosted_gate_verify_base_preflight")
+
+    def evidence(self, family="normal", r12=True, created_base=None, preflight="default"):
+        freeze = {"freeze_sha256": self.FREEZE_SHA, "normal": {"head_sha": self.HEAD},
+                  "source": {"server_parent_sha": self.FROZEN, **({"fetched_main_sha": self.FROZEN} if r12 else {})}}
+        created = {"number": 101, "base": {"ref": "main" if family == "normal" else "gsd/253-replan-docs-base",
+                                           "sha": created_base or self.CURRENT}}
+        body = json.dumps(created).encode()
+        tx = {"family": family, "route_id": "pr_create", "category": "pr_create", "actual_status": 201,
+              "response_body_base64": base64.b64encode(body).decode("ascii")}
+        document = {"schema_version": "sigra.phase253.pr-proof-evidence/v1", "family": family, "freeze": freeze,
+                    "transport_ledger": {"transactions": [tx]}}
+        if preflight == "default":
+            preflight = self.clean() if family == "normal" else {"status": "not_applicable", "reason": "scoped docs base"}
+        if preflight is not None:
+            document["base_preflight"] = preflight
+        return document
+
+    def clean(self, **overrides):
+        value = {"schema": "sigra.phase253.pr-main-preflight/r12", "freeze_sha256": self.FREEZE_SHA, "head_sha": self.HEAD,
+                 "frozen_main": self.FROZEN, "current_main": self.CURRENT, "moved": True, "ancestor": True,
+                 "merge_preflight": {"head": self.HEAD, "base": self.CURRENT, "exit": 0, "clean": True, "conflicts": []},
+                 "status": "clean", "sha256": "e" * 64}
+        value.update(overrides)
+        return value
+
+    def refused(self, evidence, family, text):
+        with self.assertRaises(self.module.VerificationError) as caught:
+            self.module.verify_base_preflight(evidence, family)
+        self.assertIn(text, str(caught.exception))
+
+    def test_a_clean_matching_preflight_passes_moved_or_not(self):
+        self.assertEqual(self.module.verify_base_preflight(self.evidence(), "normal"), self.CURRENT)
+        unmoved = self.clean(current_main=self.FROZEN, moved=False,
+                             merge_preflight={"head": self.HEAD, "base": self.FROZEN, "exit": 0, "clean": True, "conflicts": []})
+        self.assertEqual(self.module.verify_base_preflight(self.evidence(created_base=self.FROZEN, preflight=unmoved), "normal"),
+                         self.FROZEN)
+
+    def test_r12_normal_evidence_without_a_clean_matching_preflight_is_refused(self):
+        conflicted = {"head": self.HEAD, "base": self.CURRENT, "exit": 1, "clean": False, "conflicts": ["mix.exs"]}
+        cases = {
+            "absent": (None, "has no step-0 base_preflight"),
+            "conflicted": (self.clean(status="conflicted", merge_preflight=conflicted), "is not clean"),
+            "rewritten": (self.clean(status="rewritten", ancestor=False), "is not clean"),
+            "another freeze": (self.clean(freeze_sha256="f" * 64), "another PR freeze"),
+            "another head": (self.clean(head_sha="9" * 40), "another normal head"),
+            "another frozen main": (self.clean(frozen_main="8" * 40), "another frozen main"),
+            "sha256 uppercase": (self.clean(sha256="E" * 64), "base_preflight.sha256"),
+            "sha256 short": (self.clean(sha256="e" * 63), "base_preflight.sha256"),
+            "sha256 missing": ({k: v for k, v in self.clean().items() if k != "sha256"}, "base_preflight.sha256"),
+            "claims clean, merge not clean": (self.clean(merge_preflight=conflicted), "merge test"),
+            "not an ancestor": (self.clean(ancestor=False), "ancestor"),
+            "moved flag wrong": (self.clean(moved=False), "moved"),
+            "wrong schema": (self.clean(schema="sigra.phase253.pr-main-preflight/r11"), "schema"),
+            "not a document": ("clean", "has no step-0 base_preflight"),
+        }
+        for label, (preflight, text) in cases.items():
+            with self.subTest(label=label):
+                self.refused(self.evidence(preflight=preflight), "normal", text)
+        with self.subTest(label="created base differs"):
+            self.refused(self.evidence(created_base="7" * 40), "normal", "differs from the step-0 preflight current_main")
+
+    def test_docs_only_records_not_applicable_and_a_claimed_main_preflight_is_refused(self):
+        self.assertIsNone(self.module.verify_base_preflight(self.evidence("docs-only"), "docs-only"))
+        self.assertIsNone(self.module.verify_base_preflight(self.evidence("docs-only", r12=False, preflight=None), "docs-only"))
+        self.refused(self.evidence("docs-only", preflight=self.clean()), "docs-only", "docs-only")
+        self.refused(self.evidence("docs-only", r12=False, preflight=self.clean()), "docs-only", "docs-only")
+        self.refused(self.evidence("docs-only", preflight=None), "docs-only", "not_applicable")
+
+    def test_pre_r12_normal_evidence_is_not_inspected(self):
+        for preflight in (None, self.clean(status="conflicted")):
+            with self.subTest(preflight=preflight is not None):
+                self.assertIsNone(self.module.verify_base_preflight(self.evidence(r12=False, preflight=preflight), "normal"))
+
+    def test_verify_pr_family_applies_the_base_preflight_check_after_the_created_pr_identity(self):
+        source = Path(VERIFY).read_text()
+        pr_family = source[source.index("def verify_pr_family"):source.index("def verify_docs_workflow_relation")]
+        self.assertIn('    check_pr(created, "created PR")\n    verify_base_preflight(evidence, family)\n', pr_family)
+        self.assertIn("fetched_main_sha", source[source.index("def verify_base_preflight"):source.index("def verify_pr_family")])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
