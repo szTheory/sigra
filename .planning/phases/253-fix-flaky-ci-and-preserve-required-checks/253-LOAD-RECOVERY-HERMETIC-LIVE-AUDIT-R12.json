@@ -2911,102 +2911,74 @@
   ],
   "unobserved_live_shapes": [
     {
-      "id": "shape-cancel_run",
-      "row": "shape-cancel_run",
-      "first_window": "253-133",
-      "unobserved": "the 202 response to the identified canary cancellation",
-      "stop": "'identified canary cancellation failed' / 'identified canary cancellation returned HTTP <status>' (ci-gate-canary.sh:897-898); 'cancellation was not observed on a hosted fixture job' (verify_scenario)"
-    },
-    {
-      "id": "shape-run_logs-fresh-run",
-      "row": "shape-run_logs",
-      "first_window": "253-133",
-      "unobserved": "results-receiver hop 1 seconds after a canary run fails (the probe read a run completed hours earlier; the archive may not be ready, so hop 1 can answer 404 or another status or content-type)",
-      "stop": "non-200 final receipt: download_no_follow returns non-zero and the driver stops with 'failed-log retrieval failed for run <id>' (ci-gate-canary.sh:916), no retry; an extra hop is refused by failure_logs 6/6 (category_budget_exhausted); another host is refused before its socket (redirect_rejected)"
-    },
-    {
-      "id": "workflow-source:canary-fixture",
-      "row": "shape-source-canary-fixture",
-      "first_window": "253-133",
-      "unobserved": "the separate verifier run: its two checked steps and its skipped producer job's name",
-      "stop": "a fifth producer form: 'separate hosted verifier job set is unexpected'; missing steps: 'separate verifier did not confirm its candidate checkout and source matrix' (verify_separate_verifier, after the six scenarios)"
-    },
-    {
-      "id": "shape-dispatch-matrix_evidence",
-      "row": "shape-dispatch",
-      "first_window": "253-133",
-      "unobserved": "GitHub's acceptance of the verifier dispatch carrying matrix_evidence",
-      "stop": "before the request: serialize_dispatch_inputs (dispatch_inputs_invalid / dispatch_inputs_too_large) and compact_matrix's 64511-character MATRIX_PAYLOAD_LIMIT ('compact verifier matrix exceeds its bounded dispatch input'); after: 'dispatch returned HTTP <status>' / 'separate verifier dispatch failed', and a 202 halts at the 204 ledger binding"
-    },
-    {
-      "id": "scenario-missing-seam-run",
-      "row": "shape-run",
-      "first_window": "253-133",
-      "unobserved": "the missing-seam scenario run and its jobs",
-      "stop": "must conclude failure: 'actual terminal conclusion does not match missing-seam' / 'hosted job set is missing, duplicated, or unexpected' (verify_scenario); driver: 'negative source unexpectedly concluded success: missing-seam'"
-    },
-    {
-      "id": "scenario-unexpected-skip-run",
-      "row": "shape-run",
-      "first_window": "253-133",
-      "unobserved": "the unexpected-skip scenario run and its jobs",
-      "stop": "must conclude failure: 'actual terminal conclusion does not match unexpected-skip' / 'hosted job set is missing, duplicated, or unexpected' (verify_scenario); driver: 'negative source unexpectedly concluded success: unexpected-skip'"
-    },
-    {
-      "id": "shape-pr_create",
-      "row": "shape-pr_create",
-      "first_window": "253-134",
-      "unobserved": "the create-PR response",
-      "stop": "check_pr: 'created PR is not the same open unmerged draft PR' or the head/base identity messages"
-    },
-    {
-      "id": "shape-pr_read",
+      "id": "shape-pr_read-real-pr",
       "row": "shape-pr_read",
-      "first_window": "253-134",
-      "unobserved": "the PR read, including merge_commit_sha",
-      "stop": "'the PR has no tested merge commit or base identity' / 'PR has no distinct tested merge commit' / check_pr"
+      "first_window": "253-144",
+      "unobserved": "pr_read on a real PR in both families: the post-run read whose merge_commit_sha and base.sha the collector and the verifier use (253-134 stopped at run discovery, before any pr_read)",
+      "stop": "collector: 'the PR has no tested merge commit or base identity' (ci-pr-proof.sh:636); verifier: 'read PR is not the same open unmerged draft PR' (check_pr, ci-hosted-gate-verify.py:1274) and 'PR has no distinct tested merge commit' (ci-hosted-gate-verify.py:1290)"
     },
     {
-      "id": "shape-compare",
+      "id": "shape-compare-tested-merge",
       "row": "shape-compare",
-      "first_window": "253-134",
-      "unobserved": "the compare response (files[], ahead_by, behind_by)",
-      "stop": "'compare file inventory is empty, malformed or incomplete' or the docs ahead/behind check"
+      "first_window": "253-144",
+      "unobserved": "compare on a real tested merge (files[], ahead_by, behind_by), both families",
+      "stop": "'compare file inventory is empty, malformed or incomplete' (ci-hosted-gate-verify.py:1310); docs-only: 'docs-only head is not one commit ahead of the docs base' (ci-hosted-gate-verify.py:1318)"
     },
     {
-      "id": "shape-repo_contents",
+      "id": "shape-repo_contents-tested-merge",
       "row": "shape-repo_contents",
-      "first_window": "253-134",
-      "unobserved": "the contents response (type, path, encoding, content, sha)",
-      "stop": "'source read is not a base64 file response' / 'source blob differs from the frozen blob'"
+      "first_window": "253-144",
+      "unobserved": "repo_contents at a real tested merge commit (type, path, encoding, content, sha)",
+      "stop": "'source read is not a base64 file response' (ci-hosted-gate-verify.py:1338) / 'source blob differs from the frozen blob' (ci-hosted-gate-verify.py:1340)"
     },
     {
-      "id": "shape-branch_protection-200",
-      "row": "shape-branch_protection",
-      "first_window": "253-133",
-      "unobserved": "a 200 classic-protection body (main has none; every real read is the 404)",
-      "stop": "'legacy branch-protection checks are malformed' or the exact-five rule at preflight, before any dispatch; observable only if an operator adds classic protection (253-133 canary preflight first, then 253-134)"
+      "id": "shape-attempt_jobs-pr-head",
+      "row": "shape-attempt_jobs",
+      "first_window": "253-144",
+      "unobserved": "attempt_jobs for a real pull_request run on the PR head (the transport has never called this route)",
+      "stop": "'job page is not for the terminal run attempt' (ci-hosted-gate-verify.py:1373)"
     },
     {
-      "id": "shape-git_create_blob",
-      "row": "shape-git_create_blob",
-      "first_window": "not called by any R11 hosted window",
-      "unobserved": "the create-blob response",
-      "stop": "the publisher raises before any tree, commit or ref if the response lacks the uploaded sha; becomes 253-133 only if 253-131's PUBLICATION-R11 records binary_blob_requests > 0"
+      "id": "shape-check_runs-pr-head",
+      "row": "shape-check_runs",
+      "first_window": "253-144",
+      "unobserved": "check_runs on a real PR head commit (only main's and the canary candidates' check runs were read)",
+      "stop": "'native check is not a successful check of the PR head: <name>' (ci-hosted-gate-verify.py:1404)"
     },
     {
-      "id": "shape-git_get_tree",
-      "row": "shape-git_get_tree",
-      "first_window": "not called by any R11 hosted window",
-      "unobserved": "any git_get_tree response",
-      "stop": "no caller in scripts/ci"
+      "id": "shape-workflow_runs-populated-pull_request",
+      "row": "shape-workflow_runs",
+      "first_window": "253-144",
+      "unobserved": "a populated pull_request workflow_runs list for the published head (253-134 saw only the empty {\"total_count\":0,\"workflow_runs\":[]}, seq 6 and 7)",
+      "stop": "collector: only a run with the published head_sha and event pull_request is taken (ci-pr-proof.sh:613), else both attempts end in a no_run_verdict stop (ci-pr-proof.sh:664); verifier: 'exactly one discovered pull_request run for the PR head is required' (ci-hosted-gate-verify.py:1353) and 'run is not the actual PR workflow run for the published head' (ci-hosted-gate-verify.py:1359)"
     },
     {
-      "id": "shape-job_logs-hop-1",
-      "row": "shape-job_logs",
-      "first_window": "not called by any R11 hosted window",
-      "unobserved": "the blob host's job-log body beyond the probed hop 0",
-      "stop": "no R11 caller; results-receiver is refused on job_logs before its socket (redirect_rejected)"
+      "id": "shape-pr_read-conflicted-pr",
+      "row": "shape-pr_read",
+      "first_window": "253-144",
+      "unobserved": "pr_read on a conflicted PR (failure path only: the one diagnostic read after both discovery attempts are empty); expected mergeable false, mergeable_state dirty",
+      "stop": "Collector.no_run_verdict (ci-pr-proof.sh:664): 'pull request #N has merge conflicts with its base (mergeable false, mergeable_state <state>); GitHub creates no pull_request run for it'; mergeable null gives 'pull request #N mergeability is still unknown ...'; anything else gives 'no pull_request run although pull request #N is mergeable ...'. Every branch is a stop."
+    },
+    {
+      "id": "step-0-moved-clean-main",
+      "row": "step-0 main preflight (ci-pr-proof.sh --main-preflight)",
+      "first_window": "253-144",
+      "unobserved": "a moved but clean main at step 0: GitHub's main has moved past the fetched 09df342a, the frozen head still merges cleanly into it, and the created PR base equals the preflight's current_main",
+      "stop": "A conflicting move stops before any request at the 253-144 runner's step 0: --main-preflight exits 1 with status conflicted or rewritten (ci-pr-proof.sh:335) and --family normal refuses that file ('the step-0 main preflight is not clean', ci-pr-proof.sh:370; network_requests 0). A move during the window stops after pr_create with 'main moved between the step-0 preflight and PR creation' (ci-pr-proof.sh:607), leaving one open draft PR for Jon; the verifier binds the ledger pr_create base.sha to current_main ('the created PR base ... differs from the step-0 preflight current_main', ci-hosted-gate-verify.py:1209)."
+    },
+    {
+      "id": "docs-only-scoped-ref-publication",
+      "row": "shape-create_ref",
+      "first_window": "253-144",
+      "unobserved": "the docs-only scoped-ref publication (docs base and head trees, commits, readbacks and two create-only scoped refs from absent); never created before (253-134 never reached the remaining family)",
+      "stop": "publish_docs: '<label>: server tree differs from the frozen tree' (ci-pr-proof.sh:533), '<label>: server commit differs from the frozen commit' (ci-pr-proof.sh:537), '<label>: commit readback differs' (ci-pr-proof.sh:540), '<label>: scoped ref readback differs' (ci-pr-proof.sh:549); verifier: 'scoped docs refs were not created exactly once from absent and read back' (ci-hosted-gate-verify.py:1256)"
+    },
+    {
+      "id": "canary-failure_logs-zero-slack",
+      "row": "shape-run_logs",
+      "first_window": "253-143",
+      "unobserved": "any failed-log request beyond the canary table's failure_logs 6 of 6 (3 failed scenarios x 2 hops, zero slack, carried from R11 unchanged; 253-133 used exactly 6, so the slack has never been exercised)",
+      "stop": "the transport's predebit refuses a seventh failure_logs request with category_budget_exhausted (ci-hosted-transport.py:625), and the driver stops with 'failed-log retrieval failed for run <id>' (ci-gate-canary.sh:916)"
     }
   ]
 }
