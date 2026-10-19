@@ -258,8 +258,13 @@ class World:
         return None
 
     def __init__(self, test, flags=None, tag="world", mutate_section=None, ref_pair=None, seed_legacy_refs=False, seed_r8_refs=False,
-                 seed_r9_refs=False, seed_r10_refs=False, seed_r11_refs=False):
+                 seed_r9_refs=False, seed_r10_refs=False, seed_r11_refs=False, main_record=False):
         self.test = test
+        # 253-138: True writes a main-fetch record naming the publication's server parent (and points the local
+        # origin/main at it); the publication and the PR freeze are then prepared with --main-record. False (the default)
+        # leaves every pre-R12 universe exactly as before.
+        self.main_record = main_record
+        self.main_record_rel = None
         self.mutate_section = mutate_section
         self.ref_pair = ref_pair  # 253-102: None publishes without a canary freeze (legacy pair); "r8"/"legacy" publish under a freeze
         self.seed_legacy_refs = seed_legacy_refs
@@ -305,10 +310,15 @@ class World:
         git(self.repo, "commit", "-qm", "candidate")
         self.source = git(self.repo, "rev-parse", "HEAD").decode().strip()
         self.manifest_path = d / "manifest.json"
+        main_record_args = []
+        if self.main_record:
+            self.main_record_rel = pubtest.write_main_record(self.repo, self.parent)
+            git(self.repo, "update-ref", "refs/remotes/origin/main", self.parent)
+            main_record_args = ["--main-record", self.main_record_rel]
         prepared = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--prepare", "--candidate-source", self.source,
                        "--server-parent", self.parent, "--repo-root", self.repo, "--output", self.manifest_path,
                        "--fixture-file", f"{pubtest.PHASE_REL}/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
-                       "--workflow-path", ".github/workflows/ci.yml", cwd=ROOT)
+                       "--workflow-path", ".github/workflows/ci.yml", *main_record_args, cwd=ROOT)
         assert prepared.returncode == 0, prepared.stderr
         self.manifest = json.loads(self.manifest_path.read_text())
         cert, key = d / "server.pem", d / "server-key.pem"
@@ -390,7 +400,7 @@ class World:
         self.budget.write_text("synthetic budget fixture\n")
         prepared = run("bash", PROOF, "--prepare", "--publication", self.receipt_path, "--manifest", self.manifest_path,
                        "--repo-root", self.repo, "--output", self.freeze_path, "--poll-interval", str(self.poll_interval),
-                       "--budget-document", self.budget, cwd=ROOT, timeout=60)
+                       "--budget-document", self.budget, *main_record_args, cwd=ROOT, timeout=60)
         assert prepared.returncode == 0, prepared.stderr + prepared.stdout
         self.freeze = json.loads(self.freeze_path.read_text())
         self.build_approval(self.mutate_section)
@@ -407,12 +417,30 @@ class World:
         self.ledger = d / "pr-ledger.json"
         self.server.ledger_path = str(self.ledger)
 
+    def advance_main(self, edit, rel):
+        """253-138: main moves past the publication's server parent by one commit (a conflicting edit to the candidate's
+        app.txt, or a clean edit to another file), built with plumbing so HEAD, the index and the tree stay put; a
+        main-fetch record at rel names it and the local origin/main points at it."""
+        index = self.dir / f"advance-{edit}.index"
+        env = {**os.environ, "GIT_INDEX_FILE": str(index)}
+        subprocess.run(["git", "-C", str(self.repo), "read-tree", self.parent], env=env, check=True)
+        path, text = ("app.txt", "main moved past the parent\n") if edit == "conflict" else ("main-only.txt", "a clean main edit\n")
+        blob = git(self.repo, "hash-object", "-w", "--stdin", data=text.encode()).decode().strip()
+        subprocess.run(["git", "-C", str(self.repo), "update-index", "--add", "--cacheinfo", f"100644,{blob},{path}"], env=env, check=True)
+        tree = subprocess.check_output(["git", "-C", str(self.repo), "write-tree"], env=env, text=True).strip()
+        main = subprocess.check_output(["git", "-C", str(self.repo), "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                                        "commit-tree", tree, "-p", self.parent, "-m", f"main advanced ({edit})"], text=True).strip()
+        index.unlink()
+        pubtest.write_main_record(self.repo, main, rel=rel)
+        git(self.repo, "update-ref", "refs/remotes/origin/main", main)
+        return main
+
     def build_canary_freeze(self):
         """The real revision freeze, built by the publisher from the committed tree (with the world's ref pair, if any)."""
         manifest_rel = f"{pubtest.PHASE_REL}/253-LOAD-RECOVERY-CANARY-PUBLICATION.json"
         freeze_rel = f"{pubtest.PHASE_REL}/253-LOAD-RECOVERY-CANARY-FREEZE.json"
         (self.repo / manifest_rel).write_bytes(self.manifest_path.read_bytes())
-        git(self.repo, "add", manifest_rel)
+        git(self.repo, "add", manifest_rel, *([self.main_record_rel] if self.main_record_rel else []))
         git(self.repo, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "planning: publication manifest")
         built = run("python3", ROOT / "scripts/ci/ci-git-publication.py", "--build-freeze", "--manifest", manifest_rel,
                     "--output", freeze_rel, "--repo-root", self.repo, *(["--ref-pair", self.ref_pair] if self.ref_pair else []), cwd=ROOT)
@@ -672,11 +700,11 @@ class LiveWorld(World):
     poll_interval = 60  # the frozen production interval; only the shim scales the actual wait
 
     def __init__(self, test, flags=None, tag="live", ref_pair="legacy", sleep_scale=0.001, seed_r8_refs=False, seed_r9_refs=False,
-                 seed_r10_refs=False, seed_r11_refs=False):
+                 seed_r10_refs=False, seed_r11_refs=False, main_record=False):
         self.sleep_scale = sleep_scale
         self.window_id = f"{LIVE_WINDOW_PREFIX}{os.getpid()}"
         super().__init__(test, flags=flags, tag=tag, ref_pair=ref_pair, seed_r8_refs=seed_r8_refs, seed_r9_refs=seed_r9_refs,
-                         seed_r10_refs=seed_r10_refs, seed_r11_refs=seed_r11_refs)
+                         seed_r10_refs=seed_r10_refs, seed_r11_refs=seed_r11_refs, main_record=main_record)
 
     def tls_san(self):
         return "subjectAltName=" + ",".join(f"DNS:{name}" for name in ("localhost", *dryrun.LIVE_TLS_NAMES))
@@ -2367,6 +2395,117 @@ class LivePolicyR11PRTests(unittest.TestCase):
         created = [tx for tx in evidence["transport_ledger"]["transactions"] if tx["route_id"] == "pr_create"]
         self.assertEqual(len(created), 1)
         self.assertEqual(json.loads(base64.b64decode(created[0]["response_body_base64"]))["head"]["ref"], "gsd/253-replan-r11-candidate")
+
+
+class PrPrepareMainFreshnessTests(unittest.TestCase):
+    """253-138 (blind spot #4): 253-134's PR prepare accepted a candidate on the stale 84ebcea60, and GitHub made no
+    pull_request run for the conflicting PR #337. An r12 PR freeze needs the recorded fresh main as the publication's
+    server parent and a normal head that merges cleanly into it, checked offline before any request."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._cleanups = []
+        cls.holder = unittest.TestCase()
+        cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
+        cls.r12 = World(cls.holder, tag="fresh-r12", ref_pair="r12", main_record=True)
+        cls.r11 = World(cls.holder, tag="fresh-r11", ref_pair="r11")
+
+    @classmethod
+    def tearDownClass(cls):
+        for fn, a, k in reversed(cls._cleanups):
+            try:
+                fn(*a, **k)
+            except Exception:
+                pass
+
+    def prepare(self, world, name, *extra):
+        output = world.dir / name
+        before = len(world.server.journal)
+        result = run("bash", PROOF, "--prepare", "--publication", world.receipt_path, "--manifest", world.manifest_path,
+                     "--repo-root", world.repo, "--output", output, "--poll-interval", "0", "--budget-document", world.budget,
+                     *extra, cwd=ROOT, timeout=60)
+        return result, output, len(world.server.journal) - before
+
+    def assert_refused(self, outcome, message):
+        result, output, requests = outcome
+        self.assertNotEqual(result.returncode, 0, f"accepted: {result.stdout.strip()}")
+        self.assertIn(message, result.stderr)
+        self.assertIn("network_requests 0", result.stderr)
+        self.assertFalse(output.exists(), "a refused PR prepare wrote a freeze")
+        self.assertEqual(requests, 0, "a refused PR prepare made a request")
+
+    def scratch_record(self, world, name, fetched, **overrides):
+        rel = f"{pubtest.PHASE_REL}/{name}"
+        pubtest.write_main_record(world.repo, fetched, rel=rel, **overrides)
+        self.addCleanup(lambda: (world.repo / rel).unlink(missing_ok=True))
+        return rel
+
+    def test_the_r12_normal_head_requires_main_record(self):
+        w = self.r12
+        self.assert_refused(self.prepare(w, "r12-no-record-freeze.json"), "the r12 normal head requires --main-record")
+        control, output, requests = self.prepare(w, "r12-with-record-freeze.json", "--main-record", w.main_record_rel)
+        self.assertEqual(control.returncode, 0, control.stderr)
+        self.assertTrue(output.exists())
+        self.assertEqual(requests, 0)
+        output.unlink()
+
+    def test_a_record_whose_main_moved_past_the_server_parent_is_refused(self):
+        w = self.r12
+        publisher = load(ROOT / "scripts/ci/ci-git-publication.py", "publisher_for_fresh_main")
+        self.addCleanup(lambda: git(w.repo, "update-ref", "refs/remotes/origin/main", w.parent))
+        for edit, conflicts in (("conflict", ["app.txt"]), ("clean", [])):
+            with self.subTest(edit=edit):
+                rel = f"{pubtest.PHASE_REL}/advanced-{edit}.json"
+                self.addCleanup(lambda rel=rel: (w.repo / rel).unlink(missing_ok=True))
+                main = w.advance_main(edit, rel)
+                self.assertNotEqual(main, w.parent)
+                # Positive control: the advanced main is a real local commit, conflicting or not with the normal head.
+                self.assertEqual(publisher.merge_preflight(w.repo, w.freeze["normal"]["head_sha"], main)["conflicts"], conflicts)
+                self.assert_refused(self.prepare(w, f"stale-{edit}-freeze.json", "--main-record", rel),
+                                    "server parent is not the recorded fresh main")
+
+    def test_a_manifest_without_main_freshness_is_refused(self):
+        w = self.r11
+        self.assertNotIn("main_freshness", w.manifest)
+        rel = self.scratch_record(w, "r11-main-record.json", w.parent)
+        self.assert_refused(self.prepare(w, "r11-record-freeze.json", "--main-record", rel),
+                            "the publication manifest has no main_freshness")
+
+    def test_a_record_whose_bytes_differ_from_the_manifest_binding_is_refused(self):
+        w = self.r12
+        rel = self.scratch_record(w, "r12-copy-main-record.json", w.parent, anomalies=["a later copy"])
+        self.assertNotEqual(sha((w.repo / rel).read_bytes()), w.manifest["main_freshness"]["record_sha256"])
+        self.assert_refused(self.prepare(w, "r12-copy-freeze.json", "--main-record", rel),
+                            "main_freshness record_sha256 differs from the main-fetch record")
+
+    def test_the_r12_freeze_records_a_clean_mergeability_preflight_and_binds_the_record(self):
+        w = self.r12
+        record = w.repo / w.main_record_rel
+        record_sha = sha(record.read_bytes())
+        self.assertEqual(w.freeze["source"]["fetched_main_sha"], w.parent)
+        self.assertEqual(w.freeze["source"]["main_record_sha256"], record_sha)
+        self.assertEqual(w.freeze["mergeability_preflight"], {"head": w.freeze["normal"]["head_sha"], "base": w.parent, "exit": 0,
+                                                              "clean": True, "conflicts": []})
+        self.assertIn({"path": str(record), "sha256": record_sha}, w.freeze["bound_documents"])
+
+        def check():
+            return run("bash", PROOF, "--check-only", "--freeze", w.freeze_path, cwd=ROOT, timeout=60)
+        self.assertEqual(check().returncode, 0, check().stderr)
+        original = record.read_bytes()
+        try:
+            record.write_bytes(original + b"\n")
+            changed = check()
+            self.assertNotEqual(changed.returncode, 0)
+            self.assertIn("bound document changed since the freeze", changed.stderr)
+        finally:
+            record.write_bytes(original)
+        self.assertEqual(check().returncode, 0)
+
+    def test_pre_r12_universes_prepare_without_main_record_exactly_as_before(self):
+        w = self.r11
+        self.assertEqual(set(w.freeze["source"]), {"manifest_sha256", "publication_receipt_sha256", "source_sha", "server_parent_sha"})
+        self.assertNotIn("mergeability_preflight", w.freeze)
+        self.assertFalse([item for item in w.freeze["bound_documents"] if "MAIN-FETCH" in item["path"]])
 
 
 class LivePolicyR12PRTests(unittest.TestCase):

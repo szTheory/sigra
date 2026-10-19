@@ -95,6 +95,76 @@
         "FAIL: test_check_freeze_rehashes_the_main_record_and_never_reads_origin_main (__main__.MainFreshnessTests.test_check_freeze_rehashes_the_main_record_and_never_reads_origin_main)",
         "AssertionError: 0 == 0 : a changed main-fetch record still validated"
       ]
+    },
+    {
+      "suite": "scripts/ci/ci-pr-proof.test.sh",
+      "task": "Task 2",
+      "proof_source": "unfixed (task2.produced_on_head)",
+      "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN PYTHONPATH SIGRA_LIVE_POLICY_SHIM; bash scripts/ci/ci-pr-proof.test.sh",
+      "exit_code": 1,
+      "summary": "Ran 69 tests in 167.873s, FAILED (errors=3)",
+      "failing_tests": [
+        "setUpClass (__main__.LivePolicyR12PRTests)",
+        "setUpClass (__main__.PrPrepareMainFreshnessTests)",
+        "setUpClass (__main__.R12RefPairTests)"
+      ],
+      "failure_lines": [
+        "ERROR: setUpClass (__main__.LivePolicyR12PRTests)",
+        "AssertionError: ci-git-publication: PublicationError: an r12 freeze needs a publication manifest with main_freshness (prepare with --main-record)",
+        "ERROR: setUpClass (__main__.PrPrepareMainFreshnessTests)",
+        "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+        "ERROR: setUpClass (__main__.R12RefPairTests)",
+        "AssertionError: ci-git-publication: PublicationError: an r12 freeze needs a publication manifest with main_freshness (prepare with --main-record)"
+      ]
+    },
+    {
+      "suite": "scripts/ci/ci-pr-proof.test.sh",
+      "task": "Task 2",
+      "proof_source": "task2.produced_on_head plus only parser.add_argument(\"--main-record\"), reverted after the run",
+      "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN PYTHONPATH SIGRA_LIVE_POLICY_SHIM; bash scripts/ci/ci-pr-proof.test.sh",
+      "exit_code": 1,
+      "summary": "Ran 75 tests in 172.680s, FAILED (failures=5, errors=3)",
+      "failing_tests": [
+        "setUpClass (__main__.LivePolicyR12PRTests)",
+        "test_the_r12_freeze_records_a_clean_mergeability_preflight_and_binds_the_record (__main__.PrPrepareMainFreshnessTests.test_the_r12_freeze_records_a_clean_mergeability_preflight_and_binds_the_record)",
+        "setUpClass (__main__.R12RefPairTests)",
+        "test_a_manifest_without_main_freshness_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_manifest_without_main_freshness_is_refused)",
+        "test_a_record_whose_bytes_differ_from_the_manifest_binding_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_record_whose_bytes_differ_from_the_manifest_binding_is_refused)",
+        "test_a_record_whose_main_moved_past_the_server_parent_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_record_whose_main_moved_past_the_server_parent_is_refused) (edit='conflict')",
+        "test_a_record_whose_main_moved_past_the_server_parent_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_record_whose_main_moved_past_the_server_parent_is_refused) (edit='clean')",
+        "test_the_r12_normal_head_requires_main_record (__main__.PrPrepareMainFreshnessTests.test_the_r12_normal_head_requires_main_record)"
+      ],
+      "failure_lines": [
+        "ERROR: setUpClass (__main__.LivePolicyR12PRTests)",
+        "AssertionError: ci-git-publication: PublicationError: an r12 freeze needs a publication manifest with main_freshness (prepare with --main-record)",
+        "ERROR: test_the_r12_freeze_records_a_clean_mergeability_preflight_and_binds_the_record (__main__.PrPrepareMainFreshnessTests.test_the_r12_freeze_records_a_clean_mergeability_preflight_and_binds_the_record)",
+        "KeyError: 'fetched_main_sha'",
+        "ERROR: setUpClass (__main__.R12RefPairTests)",
+        "AssertionError: ci-git-publication: PublicationError: an r12 freeze needs a publication manifest with main_freshness (prepare with --main-record)",
+        "FAIL: test_a_manifest_without_main_freshness_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_manifest_without_main_freshness_is_refused)",
+        "AssertionError: 0 == 0 : accepted: {\"status\": \"freeze_prepared\", \"freeze_sha256\": \"6a09750c76559e2c4181aa25d6bb6338a2c78606299c0beea5ef6293289e8cc7\", \"network_requests\": 0}",
+        "FAIL: test_a_record_whose_bytes_differ_from_the_manifest_binding_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_record_whose_bytes_differ_from_the_manifest_binding_is_refused)",
+        "AssertionError: 0 == 0 : accepted: {\"status\": \"freeze_prepared\", \"freeze_sha256\": \"2140f8840ac87b1a3cffdc48b39e816aaed94e01a9b3a4b73384c3b5ce66c2ab\", \"network_requests\": 0}",
+        "FAIL: test_a_record_whose_main_moved_past_the_server_parent_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_record_whose_main_moved_past_the_server_parent_is_refused) (edit='conflict')",
+        "AssertionError: 0 == 0 : accepted: {\"status\": \"freeze_prepared\", \"freeze_sha256\": \"2140f8840ac87b1a3cffdc48b39e816aaed94e01a9b3a4b73384c3b5ce66c2ab\", \"network_requests\": 0}",
+        "FAIL: test_a_record_whose_main_moved_past_the_server_parent_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_record_whose_main_moved_past_the_server_parent_is_refused) (edit='clean')",
+        "AssertionError: 0 == 0 : accepted: {\"status\": \"freeze_prepared\", \"freeze_sha256\": \"2140f8840ac87b1a3cffdc48b39e816aaed94e01a9b3a4b73384c3b5ce66c2ab\", \"network_requests\": 0}",
+        "FAIL: test_the_r12_normal_head_requires_main_record (__main__.PrPrepareMainFreshnessTests.test_the_r12_normal_head_requires_main_record)",
+        "AssertionError: 0 == 0 : accepted: {\"status\": \"freeze_prepared\", \"freeze_sha256\": \"2140f8840ac87b1a3cffdc48b39e816aaed94e01a9b3a4b73384c3b5ce66c2ab\", \"network_requests\": 0}"
+      ]
     }
-  ]
+  ],
+  "task2": {
+    "task": "Task 2 (ci-pr-proof.sh --prepare main-freshness guard and PR freeze mergeability_preflight)",
+    "produced_on_head": "ccdd1688b0bf387ad6daf3f06e0f0ec0cb7e1a38",
+    "working_tree": "World main_record fixture argument, World.advance_main and PrPrepareMainFreshnessTests uncommitted on top of produced_on_head (Task 1 GREEN). Entry 3 ran against ci-pr-proof.sh unchanged from produced_on_head: the main_record World is rejected by argparse at PR prepare, and the two 253-137 r12 universes are refused by the Task 1 r12 build-freeze guard until GREEN supplies their record (contract item b). Entry 4 ran against a working-tree ci-pr-proof.sh carrying ONLY parser.add_argument(\"--main-record\") (parsed, never read), reverted with git checkout immediately after the run and never committed.",
+    "stale_record_accepted": {
+      "test": "test_a_record_whose_main_moved_past_the_server_parent_is_refused",
+      "entry": 4,
+      "observed": [
+        "AssertionError: 0 == 0 : accepted: {\"status\": \"freeze_prepared\", \"freeze_sha256\": \"2140f8840ac87b1a3cffdc48b39e816aaed94e01a9b3a4b73384c3b5ce66c2ab\", \"network_requests\": 0}",
+        "AssertionError: 0 == 0 : accepted: {\"status\": \"freeze_prepared\", \"freeze_sha256\": \"2140f8840ac87b1a3cffdc48b39e816aaed94e01a9b3a4b73384c3b5ce66c2ab\", \"network_requests\": 0}"
+      ]
+    }
+  }
 }
