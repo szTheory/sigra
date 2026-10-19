@@ -65,6 +65,10 @@ APP = {"id": 15368, "slug": "github-actions", "name": "GitHub Actions"}
 GITHUB_REPOSITORY_ID = 1207487684
 # 253-146: the fetched main 09df342a carried 209 check runs (R12 ledger sequence 21 total_count), so GitHub paged them 100/100/9.
 SERVER_PARENT_CHECK_PAGES = (100, 100, 9)
+# 253-155: the server parent's page 1 is the real page 253-143 read (R12 ledger sequence 21: 100 runs, total_count 209, each
+# required name 2-3 times, all app 15368 github-actions), read from the committed ledger at harness start.
+R12_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R12.json"
+R12_CHECK_RUNS_SEQUENCE = 21
 REQUIRED_CHECKS = ("Library tests", "Example unit smoke (ExUnit + ConnTest)", "Install smoke (fresh phx.new + sigra.install)",
                    "Example HTTP smoke (boot + curl critical routes)", "Example Playwright smoke (full lifecycle)")
 SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
@@ -1109,7 +1113,8 @@ class FakeGitHub(ObjectServer):
                 return self._refuse("only the server parent's check runs are paginated", 404)
             return self._reply(200, {"total_count": 0, "check_runs": []})
         # 253-146: the server parent is main as 253-143 really read it: 209 check runs over three pages (100/100/9), each
-        # page carrying total_count 209 and GitHub's Link header in this mode's form (see check_runs_link).
+        # page carrying total_count 209 and GitHub's Link header in this mode's form (see check_runs_link). 253-155: page 1
+        # is the real page (server_parent_check_runs), with its real duplicates of every required name.
         sizes = SERVER_PARENT_CHECK_PAGES
         total = sum(sizes)
         runs = server_parent_check_runs(sha, total)
@@ -1430,12 +1435,38 @@ def seeded_scoped_refs(args) -> dict:
     return refs
 
 
-def server_parent_check_runs(sha: str, total: int) -> list:
-    """253-146 (Task 1): total synthetic check runs on the server parent, each required name exactly once on page 1."""
-    names = list(REQUIRED_CHECKS) + [f"Other check {index}" for index in range(len(REQUIRED_CHECKS), total)]
-    return [{"id": 70000000 + index, "name": name, "head_sha": sha, "status": "completed", "conclusion": "success",
-             "html_url": f"https://github.com/{REPO}/actions/runs/600000/job/{70000000 + index}",
-             "app": dict(APP)} for index, name in enumerate(names)]
+_SERVER_PARENT_PAGE: dict = {}
+
+
+def load_server_parent_page(root: Path = ROOT) -> dict:
+    """253-155: the decoded real page 1 of main's check runs (R12 ledger sequence 21) and the sha256 of the ledger file."""
+    if "value" not in _SERVER_PARENT_PAGE:
+        raw = (root / R12_LEDGER_REL).read_bytes()
+        row = next(row for row in json.loads(raw)["transactions"] if row.get("sequence") == R12_CHECK_RUNS_SEQUENCE)
+        if row.get("route_id") != "check_runs" or row.get("page_ordinal") != 1 or row.get("actual_status") != 200:
+            raise RuntimeError("R12 ledger sequence 21 is not the check_runs page 1 that 253-143 read")
+        body = json.loads(base64.b64decode(row["response_body_base64"], validate=True))
+        _SERVER_PARENT_PAGE["value"] = {"path": R12_LEDGER_REL, "sha256": sha256_hex(raw), "sequence": R12_CHECK_RUNS_SEQUENCE,
+                                        "body": body}
+    return _SERVER_PARENT_PAGE["value"]
+
+
+def server_parent_check_runs(sha: str, total: int, page: dict | None = None) -> list:
+    """253-155: the server parent's total check runs. Page 1 is the real page 253-143 read (R12 ledger sequence 21) with
+    every run's head_sha rewritten to sha and nothing else changed. The rest are deterministic synthetic runs: one more
+    same-app duplicate of every required name, then other checks, with ids below the smallest page-1 id (page 1 stays newest)."""
+    body = (page or load_server_parent_page())["body"]
+    real = copy.deepcopy(body["check_runs"])
+    if body.get("total_count") != total or len(real) > total:
+        raise RuntimeError(f"the real page 1 carries total_count {body.get('total_count')}, not {total}")
+    for run in real:
+        run["head_sha"] = sha
+    lowest = min(run["id"] for run in real)
+    names = list(REQUIRED_CHECKS) + [f"Other check {index}" for index in range(len(REQUIRED_CHECKS), total - len(real))]
+    synthetic = [{"id": lowest - 1 - index, "name": name, "head_sha": sha, "status": "completed", "conclusion": "success",
+                  "html_url": f"https://github.com/{REPO}/actions/runs/600000/job/{lowest - 1 - index}",
+                  "app": dict(APP)} for index, name in enumerate(names)]
+    return real + synthetic
 
 
 def paginated_reads(ledger: dict) -> list:
@@ -1728,6 +1759,8 @@ def dry_run(args) -> dict:
     args.overlaid = []
     server = None
     try:
+        # 253-155: the server parent's real page 1 is read from the committed R12 ledger before anything else runs.
+        load_server_parent_page()
         prepared = prepare_clone(args, work)
         clone, phase, freeze, freeze_path = prepared["clone"], prepared["phase"], prepared["freeze"], prepared["freeze_path"]
         summary["freeze_plan"] = prepared["freeze_plan"]

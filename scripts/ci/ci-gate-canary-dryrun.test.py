@@ -1361,8 +1361,12 @@ class DryRunPaginatedCheckRunsTests(unittest.TestCase):
         self.assertEqual(runner.SERVER_PARENT_CHECK_PAGES, (100, 100, 9))
         runs = runner.server_parent_check_runs("f" * 40, 209)
         self.assertEqual(len(runs), 209)
+        # 253-155 (restatement h): page 1 is the real 253-143 page, so required names repeat (2-3x), all of one app.
         for name in runner.REQUIRED_CHECKS:
-            self.assertEqual(sum(1 for run in runs if run["name"] == name), 1, name)
+            self.assertGreaterEqual(sum(1 for run in runs if run["name"] == name), 1, name)
+            self.assertEqual({(run["app"]["id"], run["app"]["slug"]) for run in runs if run["name"] == name},
+                             {(15368, "github-actions")}, name)
+        self.assertTrue(any(sum(1 for run in runs if run["name"] == name) >= 2 for name in runner.REQUIRED_CHECKS), runs[:5])
         ledger = {"transactions": [
             {"route_id": "check_runs", "page_ordinal": page, "hop_ordinal": 0, "scrubbed_headers": {"link": links}}
             for page, links in ((1, [{"rel": "next", "destination": {"path": "/repositories/1207487684/commits/x/check-runs"}},

@@ -258,7 +258,7 @@ class CanaryPreflightCheckSourceTests(unittest.TestCase):
         base = [native_run(name, index) for index, name in enumerate(REQUIRED_NAMES, 1)]
         cases = {
             'four producers': base[:4],
-            'duplicated producer': base + [native_run(REQUIRED_NAMES[0], 9)],
+            'mixed producer': base + [native_run(REQUIRED_NAMES[0], 9, app={'id': 99999, 'slug': 'other-app'})],
             'missing app slug': [native_run(REQUIRED_NAMES[0], 1, app={'id': 15368})] + base[1:],
             'missing source': [native_run(REQUIRED_NAMES[0], 1, html_url=None)] + base[1:],
             'non-https source': [native_run(REQUIRED_NAMES[0], 1, html_url='http://example.test/job/1')] + base[1:],
@@ -269,6 +269,15 @@ class CanaryPreflightCheckSourceTests(unittest.TestCase):
                 result, _ = self._preflight(self._checks(runs))
                 self.assertNotEqual(result.returncode, 0, label)
                 self.assertIn('native check-run app/source identity is missing or duplicated', result.stderr)
+
+    def test_preflight_accepts_identity_consistent_duplicates_on_the_server_parent(self):
+        # 253-155 (R14): main really lists each required name 2-3 times (R12 ledger sequence 21, all app 15368
+        # github-actions, all of the frozen commit); a same-app duplicate of the frozen commit is accepted (identity only).
+        base = [native_run(name, index) for index, name in enumerate(REQUIRED_NAMES, 1)]
+        result, endpoints = self._preflight(self._checks(base + [native_run(REQUIRED_NAMES[0], 9)]))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('preflight-reads-passed', result.stdout)
+        self.assertIn(f'commits/{SERVER_PARENT}/check-runs?per_page=100', endpoints)
 
     def test_preflight_refuses_a_missing_or_malformed_check_source_before_any_request(self):
         runs = [native_run(name, index) for index, name in enumerate(REQUIRED_NAMES, 1)]

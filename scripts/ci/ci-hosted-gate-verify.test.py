@@ -815,7 +815,7 @@ CANARY_CANDIDATE = "a" * 40
 
 
 def check_run(name, index, conclusion="success", **overrides):
-    run = {"name": name, "app": {"id": 123, "slug": "github-actions"},
+    run = {"name": name, "head_sha": SERVER_PARENT, "app": {"id": 123, "slug": "github-actions"},
            "html_url": f"https://github.com/szTheory/sigra/actions/runs/99/job/{index}", "conclusion": conclusion}
     run.update(overrides)
     return run
@@ -915,7 +915,7 @@ class CanaryCheckSourceTests(unittest.TestCase):
         base = self.five()
         cases = {
             "four producers": base[:4],
-            "six producers": base + [check_run(CHECK_NAMES[0], 9)],
+            "six producers, mixed app": base + [check_run(CHECK_NAMES[0], 9, app={"id": 456, "slug": "other-app"})],
             "foreign app": [check_run(CHECK_NAMES[0], 1, app={"id": 456, "slug": "other-app"})] + base[1:],
             "missing source": [check_run(CHECK_NAMES[0], 1, html_url=None)] + base[1:],
             "non-https source": [check_run(CHECK_NAMES[0], 1, html_url="http://github.com/x/job/1")] + base[1:],
@@ -927,6 +927,90 @@ class CanaryCheckSourceTests(unittest.TestCase):
                 self.assertTrue(callable(getattr(self.module, "verify_canary_checks", None)))
                 with self.assertRaises(self.module.VerificationError):
                     self.verify(evidence, root)
+
+    def test_identity_consistent_duplicate_on_the_server_parent_is_accepted_and_counted(self):
+        # 253-155 (R14): main lists each required name 2-3 times, all of one app (R12 ledger sequence 21). On the server
+        # parent a same-app duplicate of the frozen commit is accepted; the newest run (highest id) is the source.
+        base = [check_run(name, index, id=1000 + index) for index, name in enumerate(CHECK_NAMES, 1)]
+        duplicate = check_run(CHECK_NAMES[0], 9, id=2000)
+        with tempfile.TemporaryDirectory() as root:
+            evidence = self.bind_receipt(self.evidence(base + [duplicate]), root)
+            result = self.verify(evidence, root)
+        self.assertEqual(result["status"], "effective_checks_verified")
+        producers = {item["name"]: item for item in evidence["producer_checks"]}
+        self.assertEqual(producers[CHECK_NAMES[0]]["source"], duplicate["html_url"])
+        self.assertEqual(producers[CHECK_NAMES[0]]["duplicate_count"], 2)
+        self.assertEqual([producers[name]["duplicate_count"] for name in CHECK_NAMES[1:]], [1, 1, 1, 1])
+
+    def test_a_stored_duplicate_count_that_differs_from_the_measured_runs_is_refused(self):
+        base = [check_run(name, index, id=1000 + index) for index, name in enumerate(CHECK_NAMES, 1)]
+        with tempfile.TemporaryDirectory() as root:
+            evidence = self.bind_receipt(self.evidence(base + [check_run(CHECK_NAMES[0], 9, id=2000)]), root)
+            source = self.module.canary_check_source(evidence, root)
+            self.module.hydrate_effective_checks(evidence, source)
+            self.module.verify_effective_checks(evidence, source)
+            evidence["producer_checks"][0]["duplicate_count"] = 1
+            with self.assertRaisesRegex(self.module.VerificationError, "duplicate_count"):
+                self.module.verify_effective_checks(evidence, source)
+
+    def test_server_parent_runs_must_carry_the_frozen_source_head_sha(self):
+        base = self.five()
+        missing = check_run(CHECK_NAMES[0], 1)
+        del missing["head_sha"]
+        cases = {
+            "head_sha missing": [missing] + base[1:],
+            "head_sha null": [check_run(CHECK_NAMES[0], 1, head_sha=None)] + base[1:],
+            "head_sha of another commit": [check_run(CHECK_NAMES[0], 1, head_sha="b" * 40)] + base[1:],
+            "duplicate of another commit": [check_run(CHECK_NAMES[0], 1, id=1)] + base[1:]
+                                           + [check_run(CHECK_NAMES[0], 9, id=2, head_sha="b" * 40)],
+        }
+        for label, runs in cases.items():
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as root:
+                evidence = self.bind_receipt(self.evidence(runs), root)
+                with self.assertRaisesRegex(self.module.VerificationError,
+                                            "native check source run is not of the frozen source commit: Library tests"):
+                    self.verify(evidence, root)
+
+    def test_server_parent_duplicates_need_int_run_ids(self):
+        base = self.five()
+        cases = {
+            "second run lacks an id": [check_run(CHECK_NAMES[0], 1, id=1)] + base[1:] + [check_run(CHECK_NAMES[0], 9)],
+            "string id": [check_run(CHECK_NAMES[0], 1, id=1)] + base[1:] + [check_run(CHECK_NAMES[0], 9, id="2")],
+        }
+        for label, runs in cases.items():
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as root:
+                evidence = self.bind_receipt(self.evidence(runs), root)
+                with self.assertRaisesRegex(self.module.VerificationError,
+                                            "native check source duplicates need run ids: Library tests"):
+                    self.verify(evidence, root)
+
+    def test_server_parent_duplicates_with_differing_apps_are_refused(self):
+        base = [check_run(name, index, id=1000 + index) for index, name in enumerate(CHECK_NAMES, 1)]
+        for label, app in (("other app", {"id": 456, "slug": "other-app"}), ("same id, other slug", {"id": 123, "slug": "x"})):
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as root:
+                evidence = self.bind_receipt(self.evidence(base + [check_run(CHECK_NAMES[0], 9, id=2000, app=app)]), root)
+                with self.assertRaisesRegex(self.module.VerificationError,
+                                            "native check source identity differs across duplicate runs: Library tests"):
+                    self.verify(evidence, root)
+
+    def test_a_duplicate_required_name_on_a_pr_head_is_still_refused(self):
+        head = "e" * 40
+        def family_view(runs):
+            evidence = self.evidence(runs, check_sha=head, role=None)
+            ledger = evidence["transport_ledger"]["transactions"]
+            for row, family in zip(ledger, ("shared", "shared", "normal")):
+                row["family"] = family
+            return self.module._view_for_checks(evidence, "normal", {"mode": "live"}, head, ledger[2])
+        duplicated = self.five() + [check_run(CHECK_NAMES[0], 9, id=2000)]
+        with self.assertRaisesRegex(self.module.VerificationError, "native check source is missing or duplicated"):
+            self.module.hydrate_effective_checks(family_view(duplicated))
+        view = family_view(self.five())
+        self.module.hydrate_effective_checks(view)
+        body = json.dumps({"total_count": len(duplicated), "check_runs": duplicated}, separators=(",", ":")).encode()
+        view["transport_ledger"]["transactions"][2]["response_body_base64"] = base64.b64encode(body).decode()
+        with self.assertRaisesRegex(self.module.VerificationError,
+                                    "native check app or source identity is missing or duplicated: Library tests"):
+            self.module.verify_effective_checks(view)
 
     def test_preflight_cli_rejects_the_superseded_candidate_bound_contract(self):
         evidence = self.evidence(self.five(), check_sha=CANARY_CANDIDATE, role=None)
@@ -974,9 +1058,9 @@ class MultiPageCheckSourceTests(unittest.TestCase):
     SOURCE = {"sha": SERVER_PARENT, "role": "server_parent"}
 
     @staticmethod
-    def runs(count, start=1):
-        """count check runs: the five required names first (once each), then other checks with distinct names."""
-        return [check_run(CHECK_NAMES[index - 1] if index <= len(CHECK_NAMES) else f"Other check {index}", index)
+    def runs(count, start=1, sha=SERVER_PARENT):
+        """count check runs of commit sha: the five required names first (once each), then other checks with distinct names."""
+        return [check_run(CHECK_NAMES[index - 1] if index <= len(CHECK_NAMES) else f"Other check {index}", index, head_sha=sha)
                 for index in range(start, start + count)]
 
     def paged(self, sizes, sha=SERVER_PARENT, total_count=None, ordinals=None, role="server_parent", totals=None):
@@ -991,7 +1075,7 @@ class MultiPageCheckSourceTests(unittest.TestCase):
         template = evidence["transport_ledger"]["transactions"][2]
         rows, start = [], 1
         for number, (size, ordinal, total) in enumerate(zip(sizes, ordinals, totals)):
-            body = json.dumps({"total_count": total, "check_runs": self.runs(size, start)}, separators=(",", ":")).encode()
+            body = json.dumps({"total_count": total, "check_runs": self.runs(size, start, sha)}, separators=(",", ":")).encode()
             start += size
             url = f"https://api.github.com/repos/szTheory/sigra/commits/{sha}/check-runs?per_page=100&page={ordinal}"
             row = copy.deepcopy(template)
@@ -2915,9 +2999,10 @@ class PRRealShapeTests(unittest.TestCase):
             21: ['type=="object" and (.check_runs|type=="array")'],
             22: ['.id == 259268962 and .path == ".github/workflows/ci.yml" and .state == "active"'],
         }
-        per_check = ('([.check_runs[] | select(.name==$name)] | length == 1) and ([.check_runs[] | select(.name==$name and '
-                     '.head_sha==$sha and (.app.id|type=="number") and .app.id > 0 and (.app.slug|type=="string") and .app.slug != "" '
-                     'and (.html_url|type=="string") and (.html_url|startswith("https://")))] | length == 1)')
+        per_check = ('[.check_runs[] | select(.name==$name)] as $runs | ($runs | length >= 1) and ($runs | all(.head_sha==$sha '
+                     'and (.app.id|type=="number") and .app.id > 0 and (.app.slug|type=="string") and .app.slug != "" '
+                     'and (.html_url|type=="string") and (.html_url|startswith("https://")))) '
+                     'and ([$runs[] | [.app.id, .app.slug]] | unique | length == 1)')
         for expression in [*[item for items in filters.values() for item in items], per_check]:
             self.assertIn(f"'{expression}'", canary, "a pinned preflight read is no longer the canary driver's expression")
         for sequence, expressions in filters.items():
