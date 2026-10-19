@@ -800,12 +800,20 @@ python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode preflight --evidence 
 }
 
 # 253-101 (commit C): the preflight runs once per evidence window. A later invocation on the same evidence holds an
-# accepted preflight (a non-empty preflight object and exactly one check_runs transaction in the window ledger), so it
-# issues zero preflight-category requests and re-verifies the retained preflight offline instead.
+# accepted preflight (a non-empty preflight object and one check_runs read in the window ledger), so it issues zero
+# preflight-category requests and re-verifies the retained preflight offline instead.
+# 253-155: the read may span pages (main's 209 runs, 100/100/9). The check_runs rows must form exactly one contiguous read:
+# page_ordinal 1..n, every status 200, one commit, and n = ceil(total_count/100) from the page-1 body.
 retained_preflight() {
   [[ -f "$EVIDENCE" && -f "$REQUEST_LEDGER" ]] || return 1
   jq -e '(.preflight | type == "object" and length > 0)' "$EVIDENCE" >/dev/null || return 1
-  [[ "$(jq '[.transactions[] | select(.route_id == "check_runs")] | length' "$REQUEST_LEDGER")" == 1 ]] || return 1
+  jq -e '[.transactions[] | select(.route_id == "check_runs")] as $rows | ($rows | length) as $n
+    | $n >= 1
+      and ([$rows[] | .page_ordinal] == [range(1; $n + 1)])
+      and ($rows | all(.actual_status == 200))
+      and ([$rows[] | ((.url // "") | [capture("/commits/(?<sha>[a-f0-9]{40})/check-runs[?]")] | .[0].sha)] | unique | length == 1 and .[0] != null)
+      and (($rows[0].response_body_base64 // "" | @base64d | fromjson | .total_count) as $total
+           | ($total | type == "number") and ([1, (($total + 99) / 100 | floor)] | max) == $n)' "$REQUEST_LEDGER" >/dev/null 2>&1 || return 1
   [[ -f "$RATE_SOURCE" ]] || return 1
 }
 if retained_preflight; then
