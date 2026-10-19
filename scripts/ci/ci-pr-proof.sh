@@ -50,9 +50,9 @@ WORKFLOW_PATH = ".github/workflows/ci.yml"
 DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
 CI_PATH = WORKFLOW_PATH
 SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
-# 253-102/253-111/253-119/253-130: the normal head is the candidate ref the canary freeze selected, one of exactly these
-# five names (ci-git-publication.py REF_PAIRS); the docs-only refs never vary.
-NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate")
+# 253-102/253-111/253-119/253-130/253-137: the normal head is the candidate ref the canary freeze selected, one of exactly
+# these six names (ci-git-publication.py REF_PAIRS); the docs-only refs never vary.
+NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate")
 FAMILY_REFS = {"normal": (NORMAL_HEADS, "main"),
                "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")}
 TERMINAL_POLLS = {"normal": 15, "docs-only": 12}

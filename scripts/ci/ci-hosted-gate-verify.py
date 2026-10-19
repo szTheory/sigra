@@ -917,9 +917,9 @@ WORKFLOW_ID = 259268962
 DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
 CLASSIFIER_JOB = "Detect docs-only change"
 PR_FAMILIES = ("normal", "docs-only")
-# 253-102/253-111/253-119/253-130: the frozen normal head is the candidate ref the canary freeze selected, one of exactly these
-# five names (ci-git-publication.py REF_PAIRS); base main. The docs-only refs never vary.
-PR_NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate")
+# 253-102/253-111/253-119/253-130/253-137: the frozen normal head is the candidate ref the canary freeze selected, one of
+# exactly these six names (ci-git-publication.py REF_PAIRS); base main. The docs-only refs never vary.
+PR_NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate")
 PR_DOCS_REFS = ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")
 
 
