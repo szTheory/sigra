@@ -1529,9 +1529,27 @@ def prepare_clone(args, work: Path) -> dict:
     else:
         server_parent = args.server_parent or json.loads((ROOT / R7_FREEZE_REL).read_text())["identity"]["server_parent_sha"]
         manifest_rel = f"{PHASE_REL}/253-DRYRUN-CANARY-PUBLICATION.json"
-        run(["python3", str(publisher), "--prepare", "--candidate-source", git(clone, "rev-parse", "HEAD"),
+        candidate_source = git(clone, "rev-parse", "HEAD")
+        main_record_args = []
+        if args.ref_pair == "r12":
+            # 253-138: an r12 freeze must sit on a recorded fresh main. The harness satisfies that guard (never skips it)
+            # with a synthetic main-fetch record whose fetched_main_sha is its own synthetic server parent, and points the
+            # clone's origin/main at that parent. Both live only in this temporary clone; the real checkout's refs are
+            # never written.
+            record_rel = f"{PHASE_REL}/253-DRYRUN-MAIN-FETCH-R12.json"
+            record = {"schema_version": "sigra.phase253.main-fetch/r12", "status": "fetched", "synthetic": True,
+                      "decided_by": "dry-run-synthetic", "fetched_main_sha": server_parent, "fetch_head_sha": server_parent,
+                      "fetched_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                      "note": "dry-run synthetic main-fetch record (fetched_main_sha = server parent); no fetch was made"}
+            (clone / record_rel).write_text(json.dumps(record, indent=2) + "\n")
+            git(clone, "update-ref", "refs/remotes/origin/main", server_parent)
+            main_record_args = ["--main-record", record_rel]
+        run(["python3", str(publisher), "--prepare", "--candidate-source", candidate_source,
              "--server-parent", server_parent, "--repo-root", str(clone), "--output", str(clone / manifest_rel),
-             "--fixture-file", FIXTURE_REL, "--workflow-path", ".github/workflows/ci.yml"], env=env)
+             "--fixture-file", FIXTURE_REL, "--workflow-path", ".github/workflows/ci.yml", *main_record_args], env=env)
+        if main_record_args:
+            git(clone, "add", record_rel)
+            git(clone, "commit", "-qm", "dry-run: synthetic main-fetch record (fetched_main_sha = server parent)")
         git(clone, "add", manifest_rel)
         git(clone, "commit", "-qm", "dry-run: synthetic publication manifest")
         freeze_rel = f"{PHASE_REL}/253-DRYRUN-CANARY-FREEZE.json"
