@@ -57,6 +57,28 @@ transport = load(ROOT / "scripts/ci/ci-hosted-transport.py", "transport")
 sha = lambda data: hashlib.sha256(data).hexdigest()
 enc = lambda data: base64.b64encode(data).decode("ascii")
 
+# 253-139 (blind spot #4, live half): what GitHub actually answered in the 253-134 PR window, decoded from the committed
+# R11 PR ledger at test time (never a hand-written copy). Sequence 5 is the real pr_create 201 (mergeable null,
+# mergeable_state "unknown", base.sha the server's current main); sequences 6 and 7 are the two empty discovery bodies.
+PHASE_DIR = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+R11_PR_LEDGER = PHASE_DIR / "253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json"
+
+
+def r11_pr_ledger_body(sequence):
+    rows = [tx for tx in json.loads(R11_PR_LEDGER.read_bytes())["transactions"] if tx["sequence"] == sequence]
+    assert len(rows) == 1, f"the R11 PR ledger has {len(rows)} rows with sequence {sequence}"
+    return rows[0], base64.b64decode(rows[0]["response_body_base64"])
+
+
+R11_CREATE_TX, R11_CREATE_BODY = r11_pr_ledger_body(5)
+assert R11_CREATE_TX["route_id"] == "pr_create" and R11_CREATE_TX["actual_status"] == 201
+REAL_CREATE_KEYS = tuple(sorted(json.loads(R11_CREATE_BODY)))
+R11_EMPTY_DISCOVERY_TX, R11_EMPTY_DISCOVERY_BODY = r11_pr_ledger_body(6)
+assert R11_EMPTY_DISCOVERY_TX["route_id"] == "workflow_runs" and R11_EMPTY_DISCOVERY_TX["actual_status"] == 200
+# A head GitHub will not test (conflicts, or mergeability not computed yet), or a mergeable head whose run never appears:
+# workflow-runs never lists a run for it.
+NO_RUN_FLAGS = ("conflicted_head", "mergeability_unknown", "no_run_while_mergeable")
+
 GENERATOR = r"""
 import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -167,10 +189,19 @@ class PRHandler(pubtest.ObjectServer):
                 return self._reply(404, {"message": "Not Found"})
             view = copy.deepcopy(pull)
             view["merge_commit_sha"] = model["families"][view["number"]]["merge"]
+            # 253-139: GitHub's computed mergeability. A conflicted (or not yet computed) head has no test merge commit.
+            if flags.get("conflicted_head"):
+                view.update(mergeable=False, mergeable_state="dirty", merge_commit_sha=None)
+            elif flags.get("mergeability_unknown"):
+                view.update(mergeable=None, mergeable_state="unknown", merge_commit_sha=None)
+            else:
+                view.update(mergeable=True, mergeable_state="clean")
             return self._reply(200, view)
         if route.startswith(base + "/compare/"):
             low, high = route.removeprefix(base + "/compare/").split("...")
-            names = git(model["repo"], "diff", "--name-only", low, high).decode().split()
+            # 253-139: three-dot, as GitHub compares (from the merge base), so a base that moved past the head's parent
+            # still lists only the head's own changes. Identical to the two-tree diff when low is an ancestor of high.
+            names = git(model["repo"], "diff", "--name-only", f"{low}...{high}").decode().split()
             ahead = int(git(model["repo"], "rev-list", "--count", f"{low}..{high}"))
             behind = int(git(model["repo"], "rev-list", "--count", f"{high}..{low}"))
             return self._reply(200, {"status": "ahead", "ahead_by": ahead, "behind_by": behind, "total_commits": ahead,
@@ -187,7 +218,8 @@ class PRHandler(pubtest.ObjectServer):
             head = query["head_sha"][0]
             family = next((f for f in model["families"].values() if f["head"] == head), None)
             model["discovery"][head] = model["discovery"].get(head, 0) + 1
-            visible = family and family.get("created") and model["discovery"][head] >= 2
+            visible = (family and family.get("created") and model["discovery"][head] >= 2
+                       and not any(flags.get(flag) for flag in NO_RUN_FLAGS))
             runs = [family["run"](0)] if visible else []
             return self._reply(200, {"total_count": len(runs), "workflow_runs": runs})
         if route.startswith(base + "/actions/runs/"):
@@ -226,10 +258,15 @@ class PRHandler(pubtest.ObjectServer):
             model = self.server.model
             number = model["numbers"].pop(0)
             head_sha = self.server.refs.get(value["head"])
-            base_sha = self.server.parent_sha if value["base"] == "main" else self.server.refs.get(value["base"])
-            pull = {"number": number, "state": "open", "draft": True, "merged": False, "merge_commit_sha": None,
-                    "head": {"ref": value["head"], "sha": head_sha, "repo": {"full_name": "szTheory/sigra"}},
-                    "base": {"ref": value["base"], "sha": base_sha, "repo": {"full_name": "szTheory/sigra"}}}
+            # 253-139: GitHub sets base.sha to main as it is when the PR is created (253-134: 09df342a, not the frozen
+            # 84ebcea60). current_main defaults to the publication parent, so earlier universes are unchanged.
+            base_sha = self.server.current_main if value["base"] == "main" else self.server.refs.get(value["base"])
+            # Every key of the real 253-134 create response; mergeability is not computed yet at creation.
+            pull = {key: None for key in REAL_CREATE_KEYS}
+            pull.update({"number": number, "state": "open", "draft": True, "merged": False, "merge_commit_sha": None,
+                         "title": value.get("title"), "body": value.get("body"), "mergeable": None, "mergeable_state": "unknown",
+                         "head": {"ref": value["head"], "sha": head_sha, "repo": {"full_name": "szTheory/sigra"}},
+                         "base": {"ref": value["base"], "sha": base_sha, "repo": {"full_name": "szTheory/sigra"}}})
             model["pulls"][number] = pull
             model["families"][number]["created"] = True
             return self._reply(201, pull)
@@ -335,6 +372,7 @@ class World:
         self.test.addCleanup(server.server_close)
         pubtest.seed_server(server, self.repo, self.parent)
         server.parent_sha = self.parent
+        server.current_main = self.parent  # 253-139: the fake's current main; set_current_main moves it
         self.ledger_path = d / "publication-ledger.json"
         server.ledger_path = str(self.ledger_path)
         tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -540,9 +578,30 @@ class World:
             assert result.returncode == 0, result.stderr
             return {directory.name: {path.name: path.read_bytes() for path in directory.iterdir()} for directory in (tmp / "out").iterdir()}
 
-    def collect(self, family, evidence_name, check=True, approval="default", revision_freeze="default", env=None, proof=PROOF):
+    def set_current_main(self, sha_value):
+        """253-139: main on the fake server moves (after the freeze, before or after the step-0 preflight)."""
+        self.server.current_main = sha_value
+
+    def main_preflight(self, current_main, name, check=True, freeze=None):
+        """253-139: the offline step-0 preflight (ci-pr-proof.sh --main-preflight) for current_main."""
+        output = self.dir / name
+        process = run("bash", PROOF, "--main-preflight", "--freeze", freeze or self.freeze_path, "--current-main", current_main,
+                      "--output", output, "--repo-root", self.repo, cwd=ROOT, timeout=60)
+        if check:
+            assert process.returncode == 0, process.stdout + process.stderr
+        return process, output
+
+    def collect(self, family, evidence_name, check=True, approval="default", revision_freeze="default", env=None, proof=PROOF,
+                main_preflight="auto"):
         evidence = self.dir / evidence_name
         extra = []
+        # 253-139: an r12 normal family needs the step-0 preflight; "auto" makes one for the fake's current main.
+        if main_preflight == "auto":
+            main_preflight = None
+            if family == "normal" and (self.freeze.get("source") or {}).get("fetched_main_sha"):
+                _, main_preflight = self.main_preflight(self.server.current_main, f"{evidence_name}.main-preflight.json")
+        if main_preflight is not None:
+            extra += ["--main-preflight", main_preflight]
         if revision_freeze == "default":
             revision_freeze = self.canary_freeze_path
         if approval == "default":
@@ -2619,6 +2678,307 @@ class LivePolicySensitivityTests(unittest.TestCase):
         # Recorded, not gated: the hermetic allocation is exempt from the live origin check, so it is blind to 253-104.
         print(f"253-109 sensitivity pre-fix hermetic: {json.dumps(record)}", file=sys.stderr)
         self.assertIn(process.returncode, (0, 1))
+
+
+# ------------------------------------------------------------------------------------------------ 253-139 mergeability
+PREFLIGHT_SCHEMA = "sigra.phase253.pr-main-preflight/r12"
+FIX_138_SUBJECT = "PR prepare requires the recorded fresh main and a clean merge"
+CONFLICT_VERDICT = ("pull request #101 has merge conflicts with its base (mergeable false, mergeable_state dirty); "
+                    "GitHub creates no pull_request run for it")
+UNKNOWN_VERDICT = ("pull request #101 mergeability is still unknown (mergeable null, mergeable_state unknown); "
+                   "GitHub has not created a pull_request run for it")
+MERGEABLE_VERDICT = "no pull_request run although pull request #101 is mergeable (mergeable_state clean)"
+
+
+def r12_world(test, tag, flags=None):
+    return World(test, flags=flags, tag=tag, ref_pair="r12", main_record=True)
+
+
+def make_commit(world, parent, path, text, message):
+    """A commit on top of parent (None: a new root, a rewritten history) changing one file, built with plumbing so the
+    world's HEAD, index and working tree stay put."""
+    index = world.dir / f"commit-{sha(message.encode())[:12]}.index"
+    env = {**os.environ, "GIT_INDEX_FILE": str(index)}
+    subprocess.run(["git", "-C", str(world.repo), "read-tree", parent or world.parent], env=env, check=True)
+    blob = git(world.repo, "hash-object", "-w", "--stdin", data=text.encode()).decode().strip()
+    subprocess.run(["git", "-C", str(world.repo), "update-index", "--add", "--cacheinfo", f"100644,{blob},{path}"], env=env, check=True)
+    tree = subprocess.check_output(["git", "-C", str(world.repo), "write-tree"], env=env, text=True).strip()
+    index.unlink()
+    return subprocess.check_output(["git", "-C", str(world.repo), "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                                    "commit-tree", tree, *(["-p", parent] if parent else []), "-m", message], text=True).strip()
+
+
+def expected_preflight(world, current_main):
+    """The step-0 preflight document, computed here independently of the CLI (publisher.merge_preflight is the one merge
+    test both use). Only for a current main that descends from the frozen main."""
+    publisher = load(ROOT / "scripts/ci/ci-git-publication.py", "publisher_for_main_preflight")
+    frozen, head = world.freeze["source"]["fetched_main_sha"], world.freeze["normal"]["head_sha"]
+    ancestor = subprocess.run(["git", "-C", str(world.repo), "merge-base", "--is-ancestor", frozen, current_main]).returncode == 0
+    assert ancestor, "expected_preflight models descendants only"
+    merge = publisher.merge_preflight(world.repo, head, current_main)
+    return {"schema": PREFLIGHT_SCHEMA, "freeze_sha256": world.freeze["freeze_sha256"], "head_sha": head, "frozen_main": frozen,
+            "current_main": current_main, "moved": current_main != frozen, "ancestor": True, "merge_preflight": merge,
+            "status": "clean" if merge["clean"] else "conflicted"}
+
+
+def write_preflight(world, name, document):
+    path = world.dir / name
+    path.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n")
+    return path
+
+
+def category_counts(ledger):
+    counts = {}
+    for tx in ledger["transactions"]:
+        counts[tx["category"]] = counts.get(tx["category"], 0) + 1
+    return counts
+
+
+def created_pr(evidence):
+    rows = [tx for tx in evidence["transport_ledger"]["transactions"] if tx["route_id"] == "pr_create"]
+    assert len(rows) == 1, f"{len(rows)} pr_create rows"
+    return json.loads(base64.b64decode(rows[0]["response_body_base64"]))
+
+
+class PrMainPreflightTests(unittest.TestCase):
+    """253-139: the offline step-0 preflight (ci-pr-proof.sh --main-preflight) and the r12 normal family's requirement for
+    it. 253-136 fetched main 09df342a; 253-144 re-fetches at step 0 and passes the SHA in. A main that moved since the
+    freeze is accepted only if the frozen main is its ancestor and the normal head merges into it cleanly. No request."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._cleanups = []
+        cls.holder = unittest.TestCase()
+        cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
+        cls.w = r12_world(cls.holder, "preflight")
+        w = cls.w
+        cls.clean_main = make_commit(w, w.parent, "main-only.txt", "a clean main edit\n", "main advanced (clean)")
+        cls.conflict_main = make_commit(w, w.parent, "app.txt", "main moved past the parent\n", "main advanced (conflict)")
+        cls.rewritten_main = make_commit(w, None, "app.txt", "base\n", "main rewritten (new root)")
+
+    @classmethod
+    def tearDownClass(cls):
+        for fn, a, k in reversed(cls._cleanups):
+            try:
+                fn(*a, **k)
+            except Exception:
+                pass
+
+    def preflight(self, current_main, name, freeze=None):
+        before = len(self.w.server.journal)
+        process, output = self.w.main_preflight(current_main, name, check=False, freeze=freeze)
+        self.assertEqual(len(self.w.server.journal), before, "the step-0 preflight made a request")
+        document = json.loads(output.read_text()) if output.exists() else None
+        return process, output, document
+
+    def test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document(self):
+        w = self.w
+        process, output, document = self.preflight(w.parent, "unmoved.json")
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(document, expected_preflight(w, w.parent))
+        self.assertEqual((document["status"], document["moved"], document["ancestor"]), ("clean", False, True))
+        self.assertEqual(json.loads(process.stdout.strip().splitlines()[-1])["network_requests"], 0)
+
+    def test_a_clean_advance_is_clean_and_moved(self):
+        w = self.w
+        process, _, document = self.preflight(self.clean_main, "clean-advance.json")
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(document, expected_preflight(w, self.clean_main))
+        self.assertEqual((document["status"], document["moved"], document["current_main"]), ("clean", True, self.clean_main))
+
+    def test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1(self):
+        w = self.w
+        process, _, document = self.preflight(self.conflict_main, "conflict-advance.json")
+        self.assertEqual(process.returncode, 1, process.stdout + process.stderr)
+        self.assertEqual(document, expected_preflight(w, self.conflict_main))
+        self.assertEqual(document["status"], "conflicted")
+        self.assertEqual(document["merge_preflight"]["conflicts"], ["app.txt"])
+
+    def test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1(self):
+        w = self.w
+        process, _, document = self.preflight(self.rewritten_main, "rewritten.json")
+        self.assertEqual(process.returncode, 1, process.stdout + process.stderr)
+        self.assertEqual((document["status"], document["ancestor"], document["moved"]), ("rewritten", False, True))
+        self.assertEqual((document["frozen_main"], document["current_main"]), (w.parent, self.rewritten_main))
+
+    def test_the_output_is_exclusive_create(self):
+        process, output, first = self.preflight(self.w.parent, "exclusive.json")
+        self.assertEqual(process.returncode, 0, process.stderr)
+        raw = output.read_bytes()
+        again, _, _ = self.preflight(self.clean_main, "exclusive.json")
+        self.assertNotEqual(again.returncode, 0, "a second write to an existing preflight file was accepted")
+        self.assertIn("already exists", again.stderr)
+        self.assertEqual(output.read_bytes(), raw)
+
+    def test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing(self):
+        w = self.w
+        process, output, _ = self.preflight("f" * 40, "absent.json")
+        self.assertNotEqual(process.returncode, 0)
+        self.assertIn("not a commit in the local object store", process.stderr)
+        self.assertFalse(output.exists())
+        freeze = json.loads(w.freeze_path.read_text())
+        del freeze["source"]["fetched_main_sha"]
+        freeze["freeze_sha256"] = sha(json.dumps({k: v for k, v in freeze.items() if k != "freeze_sha256"}, sort_keys=True,
+                                                 ensure_ascii=False, separators=(",", ":")).encode())
+        pre_r12 = w.dir / "pre-r12-freeze.json"
+        pre_r12.write_text(json.dumps(freeze, indent=2, sort_keys=True) + "\n")
+        process, output, _ = self.preflight(w.parent, "pre-r12.json", freeze=pre_r12)
+        self.assertNotEqual(process.returncode, 0)
+        self.assertIn("not an r12 PR freeze", process.stderr)
+        self.assertFalse(output.exists())
+        control, output, _ = self.preflight(w.parent, "control.json")
+        self.assertEqual(control.returncode, 0, "positive control: " + control.stderr)
+
+    # ------------------------------------------------------------------ the r12 normal family requires a clean preflight
+    def refused(self, name, main_preflight, family="normal", text=None):
+        w = self.w
+        before = len(w.server.journal)
+        process, evidence = w.collect(family, f"{name}.json", check=False, main_preflight=main_preflight)
+        self.assertNotEqual(process.returncode, 0, f"{name}: accepted: {process.stdout.strip()}")
+        if text:
+            self.assertIn(text, process.stderr)
+        self.assertIn("network_requests 0", process.stderr)
+        self.assertFalse(evidence.exists(), f"{name}: a refused family wrote evidence")
+        self.assertFalse(w.ledger.exists(), f"{name}: a refused family wrote the ledger")
+        self.assertEqual(len(w.server.journal), before, f"{name}: a refused family made a request")
+
+    def test_a_moved_main_without_a_main_preflight_is_refused_before_any_request(self):
+        w = self.w
+        w.set_current_main(self.clean_main)
+        self.addCleanup(w.set_current_main, w.parent)
+        self.refused("no-preflight", None, text="requires --main-preflight")
+
+    def test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request(self):
+        w = self.w
+        clean = expected_preflight(w, self.clean_main)
+        cases = {
+            "conflicted": (expected_preflight(w, self.conflict_main), "is not clean"),
+            "rewritten": ({**clean, "current_main": self.rewritten_main, "ancestor": False, "status": "rewritten"}, "is not clean"),
+            "another freeze": ({**clean, "freeze_sha256": "e" * 64}, "another PR freeze"),
+            "another head": ({**clean, "head_sha": self.clean_main}, "another normal head"),
+            "current main absent locally": ({**clean, "current_main": "f" * 40,
+                                             "merge_preflight": {**clean["merge_preflight"], "base": "f" * 40}},
+                                            "not a commit in the local object store"),
+            "claims clean, conflicts": ({**expected_preflight(w, self.conflict_main), "status": "clean",
+                                         "merge_preflight": {**clean["merge_preflight"], "base": self.conflict_main}},
+                                        "recomputed"),
+            "wrong schema": ({**clean, "schema": "sigra.phase253.pr-main-preflight/r11"}, "schema"),
+        }
+        for label, (document, text) in cases.items():
+            with self.subTest(label=label):
+                self.refused("bad-" + label.replace(" ", "-"), write_preflight(w, f"bad-{label.replace(' ', '-')}.preflight.json", document),
+                             text=text)
+        with self.subTest(label="docs-only with a main preflight"):
+            self.refused("docs-with-preflight", write_preflight(w, "docs.preflight.json", clean), family="docs-only",
+                         text="normal family only")
+        with self.subTest(label="missing file"):
+            self.refused("missing-preflight", w.dir / "never-written.preflight.json", text="main preflight")
+
+
+class PrMergeabilityCollectionTests(unittest.TestCase):
+    """253-139 (blind spot #4, live half): the fake now answers like GitHub did in 253-134, and the collector names why
+    GitHub made no pull_request run instead of the generic stop. Each scenario is its own r12 universe."""
+
+    def collect_stopped(self, world, name, preflight):
+        process, path = world.collect("normal", f"{name}.json", check=False, main_preflight=preflight)
+        evidence = json.loads(path.read_text()) if path.exists() else {}
+        ledger = json.loads(world.ledger.read_text()) if world.ledger.exists() else {"transactions": []}
+        record = {"exit": process.returncode, "requests": len(world.server.journal),
+                  "stop": (evidence.get("collection") or {}).get("stop"), "stderr_tail": process.stderr.strip().splitlines()[-1:]}
+        print(f"253-139 {name}: {json.dumps(record, sort_keys=True)}", file=sys.stderr)
+        return process, evidence, ledger
+
+    def assert_no_run_verdict(self, flags, name, verdict):
+        w = r12_world(self, name, flags)
+        preflight = write_preflight(w, f"{name}.preflight.json", expected_preflight(w, w.parent))
+        process, evidence, ledger = self.collect_stopped(w, name, preflight)
+        self.assertEqual(process.returncode, 1, process.stdout + process.stderr)
+        self.assertEqual(evidence["collection"]["stop"], verdict)
+        self.assertIs(evidence["collection"]["complete"], False)
+        self.assertEqual(len(ledger["transactions"]), 8)
+        self.assertEqual(len(w.server.journal), 8)
+        self.assertEqual(category_counts(ledger), {"preflight": 4, "pr_create": 1, "run_discovery": 2, "pr_identity": 1})
+        self.assertEqual([tx["route_id"] for tx in ledger["transactions"][-4:]], ["pr_create", "workflow_runs", "workflow_runs", "pr_read"])
+        # The fake answered with GitHub's real 253-134 shapes: the create response and the empty discovery bodies.
+        created = created_pr(evidence)
+        self.assertEqual((created["mergeable"], created["mergeable_state"], created["base"]["sha"]), (None, "unknown", w.parent))
+        discovery = [tx for tx in ledger["transactions"] if tx["route_id"] == "workflow_runs"]
+        self.assertEqual([base64.b64decode(tx["response_body_base64"]) for tx in discovery], [R11_EMPTY_DISCOVERY_BODY] * 2)
+        evidence["server_journal"] = w.server.journal
+        with self.assertRaises(verifier.VerificationError):
+            verifier.verify_pr_family(evidence, "normal")
+        return w, evidence
+
+    def test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests(self):
+        self.assert_no_run_verdict({"conflicted_head": True}, "conflicted-head-replay", CONFLICT_VERDICT)
+
+    def test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict(self):
+        self.assert_no_run_verdict({"mergeability_unknown": True}, "mergeability-unknown", UNKNOWN_VERDICT)
+
+    def test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict(self):
+        self.assert_no_run_verdict({"no_run_while_mergeable": True}, "no-run-while-mergeable", MERGEABLE_VERDICT)
+
+    def test_a_clean_moved_main_collects_both_families_inside_the_production_budget(self):
+        w = r12_world(self, "moved-clean")
+        moved = make_commit(w, w.parent, "main-only.txt", "a clean main edit\n", "main advanced (clean)")
+        w.set_current_main(moved)
+        process, normal_path = w.collect("normal", "moved-normal.json", check=False)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        normal_requests = len(w.server.journal)
+        preflight_path = w.dir / "moved-normal.json.main-preflight.json"
+        preflight = json.loads(preflight_path.read_text())
+        self.assertEqual((preflight["status"], preflight["moved"], preflight["current_main"]), ("clean", True, moved))
+        normal = json.loads(normal_path.read_text())
+        self.assertEqual(normal["base_preflight"], {**preflight, "sha256": sha(preflight_path.read_bytes())})
+        self.assertEqual((normal["base_preflight"]["status"], normal["base_preflight"]["sha256"]),
+                         ("clean", sha(preflight_path.read_bytes())))
+        created = created_pr(normal)
+        self.assertEqual(created["base"]["sha"], moved, "the created PR's base is the server's current main")
+        self.assertTrue(set(REAL_CREATE_KEYS) <= set(created), sorted(set(REAL_CREATE_KEYS) - set(created)))
+        self.assertIn("mergeable", created)
+        self.assertIn("mergeable_state", created)
+        self.assertEqual((created["mergeable"], created["mergeable_state"]), (None, "unknown"))
+        self.assertTrue({"mergeable", "mergeable_state"} <= set(REAL_CREATE_KEYS), "positive control: the real key set")
+        process, docs_path = w.collect("docs-only", "moved-docs.json", check=False)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        docs = json.loads(docs_path.read_text())
+        self.assertEqual(docs["base_preflight"]["status"], "not_applicable")
+        ledger = json.loads(w.ledger.read_text())
+        counts = category_counts(ledger)
+        self.assertEqual(counts["pr_identity"], 8, counts)
+        for category, count in counts.items():
+            self.assertLessEqual(count, transport.PRODUCTION_CATEGORY_LIMITS[category], category)
+        self.assertLessEqual(len(ledger["transactions"]), 120)
+        journal = list(w.server.journal)
+        pair = verifier.verify_pr_pair(attach_journal(normal_path, journal[:normal_requests]), attach_journal(docs_path, journal))
+        self.assertEqual(pair["status"], "synthetic_pr_pair_verified")
+        reads = [tx for tx in ledger["transactions"] if tx["route_id"] == "pr_read"]
+        self.assertEqual([json.loads(base64.b64decode(tx["response_body_base64"]))["mergeable_state"] for tx in reads], ["clean", "clean"])
+
+    def test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create(self):
+        w = r12_world(self, "moved-twice")
+        first = make_commit(w, w.parent, "main-only.txt", "a clean main edit\n", "main advanced (clean)")
+        second = make_commit(w, first, "second-main-only.txt", "another clean main edit\n", "main advanced again")
+        _, preflight = w.main_preflight(first, "moved-twice.preflight.json")
+        w.set_current_main(second)
+        process, evidence, ledger = self.collect_stopped(w, "moved-twice", preflight)
+        self.assertEqual(process.returncode, 1, process.stdout + process.stderr)
+        self.assertIn("main moved between the step-0 preflight and PR creation", evidence["collection"]["stop"])
+        self.assertEqual(category_counts(ledger), {"preflight": 4, "pr_create": 1})
+        self.assertEqual(created_pr(evidence)["base"]["sha"], second)
+        self.assertEqual(evidence["base_preflight"]["current_main"], first)
+
+    def test_the_transport_table_and_the_budget_document_are_unchanged(self):
+        commit = run("git", "-C", ROOT, "log", "-1", "--format=%H", "--fixed-strings", f"--grep={FIX_138_SUBJECT}").stdout.strip()
+        self.assertRegex(commit, r"^[0-9a-f]{40}$", "positive control: the 253-138 fix commit is found by its subject")
+        before = self.enterContext(tempfile.TemporaryDirectory(prefix="sigra-transport-before-"))
+        path = pathlib.Path(before) / "ci-hosted-transport.py"
+        path.write_bytes(git(ROOT, "show", f"{commit}:scripts/ci/ci-hosted-transport.py"))
+        self.assertEqual(transport.PRODUCTION_CATEGORY_LIMITS, load(path, "transport_before_253_139").PRODUCTION_CATEGORY_LIMITS)
+        self.assertEqual(transport.PRODUCTION_CATEGORY_LIMITS["pr_identity"], 8)
+        freeze = json.loads((PHASE_DIR / "253-LOAD-RECOVERY-PR-FREEZE-R11.json").read_text())
+        bound = [item["sha256"] for item in freeze["bound_documents"] if item["path"].endswith("253-LOAD-RECOVERY-BUDGETS.md")]
+        self.assertEqual(bound, [sha((PHASE_DIR / "253-LOAD-RECOVERY-BUDGETS.md").read_bytes())])
 
 
 if __name__ == "__main__":
