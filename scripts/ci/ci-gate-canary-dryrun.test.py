@@ -133,12 +133,14 @@ class PreflightOnceTests(unittest.TestCase):
 
     def test_the_second_invocation_issues_zero_preflight_requests_and_reverifies_the_retained_preflight(self):
         self.assertIn("remaining", self.invocations, self.summary)
-        self.assertEqual(self.invocations["full-pass"]["requests_by_category"].get("preflight"), 5, self.summary)
+        self.assertEqual(self.invocations["full-pass"]["requests_by_category"].get("preflight"), 7, self.summary)
         self.assertEqual(self.invocations["remaining"]["requests_by_category"].get("preflight", 0), 0, self.summary)
         self.assertTrue(self.invocations["remaining"]["retained_preflight_reverified"], self.summary)
 
-    def test_the_window_ledger_holds_exactly_one_check_runs_transaction_within_the_preflight_category(self):
-        self.assertEqual(self.summary["requests_by_route"].get("check_runs"), 1, self.summary)
+    def test_the_window_ledger_holds_one_contiguous_three_page_check_runs_read_within_the_preflight_category(self):
+        self.assertEqual(self.summary["requests_by_route"].get("check_runs"), 3, self.summary)
+        self.assertEqual([read for read in self.summary.get("paginated_reads") or [] if read.get("route") == "check_runs"],
+                         [{"route": "check_runs", "pages": 3, "next_link_forms": ["repos"]}], self.summary.get("paginated_reads"))
         self.assertLessEqual(self.summary["requests_by_category"].get("preflight", 0), 8, self.summary)
 
     def test_the_five_preflight_copies_sit_next_to_the_explicit_evidence(self):
@@ -1354,6 +1356,72 @@ class DryRunPaginatedCheckRunsTests(unittest.TestCase):
         code, summary = run_gate(*self.FLAGS)
         self.check_quick_gate(code, summary, "repos")
         self.assertEqual(summary.get("mode"), "hermetic")
+
+    FULL_FLAGS = FLAGS[:-2]
+
+    def check_full_gate(self, code, summary, form):
+        """253-155: the whole window (six scenarios and the verifier) spends exactly 7 preflight requests: one 3-page
+        check_runs read, which the remaining step re-verifies offline instead of reading again."""
+        self.assertEqual(code, 0, summary)
+        self.assertEqual(summary.get("status"), "passed", summary)
+        self.assertEqual(summary.get("requests_by_category", {}).get("preflight"), 7, summary.get("requests_by_category"))
+        self.assertEqual(summary.get("requests_by_route", {}).get("check_runs"), 3, summary.get("requests_by_route"))
+        reads = [read for read in summary.get("paginated_reads") or [] if read.get("route") == "check_runs"]
+        self.assertEqual(reads, [{"route": "check_runs", "pages": 3, "next_link_forms": [form]}], summary.get("paginated_reads"))
+        invocations = {item["mode"]: item for item in summary.get("invocations", [])}
+        self.assertIn("remaining", invocations, summary)
+        self.assertEqual(invocations["remaining"]["requests_by_category"].get("preflight", 0), 0, invocations["remaining"])
+        self.assertTrue(invocations["remaining"]["retained_preflight_reverified"], invocations["remaining"])
+        self.assertEqual(sorted(summary.get("scenarios") or []), sorted(["full-pass", "docs-only", "actual-failure",
+                                                                         "missing-seam", "unexpected-skip", "cancelled"]), summary)
+        self.assertEqual((summary.get("verifier") or {}).get("status"), "passed", summary)
+        for pair in ("r8", "r9", "r10", "r11"):
+            self.assertIs(summary.get(f"seeded_{pair}_refs_changed"), False, summary)
+
+    def test_hermetic_full_gate_retains_the_three_page_preflight_within_preflight_seven(self):
+        code, summary = run_gate(*self.FULL_FLAGS)
+        self.check_full_gate(code, summary, "repos")
+        self.assertEqual(summary.get("mode"), "hermetic")
+
+    def test_live_policy_full_gate_retains_the_three_page_preflight_within_preflight_seven(self):
+        code, summary = live_run(*self.FULL_FLAGS)
+        self.check_full_gate(code, summary, "repositories-id")
+        self.assertEqual(summary.get("mode"), "live-policy")
+        self.assertEqual(summary.get("shim_refusals"), [], summary)
+
+    def test_the_retained_preflight_is_exactly_one_contiguous_check_runs_read(self):
+        """The driver's real retained_preflight, run on window ledgers: only one contiguous 1..n read of one commit with
+        n = ceil(total_count/100) from page 1 is a retained preflight."""
+        import base64
+        import re
+        source = (ROOT / DRIVER_REL).read_text()
+        match = re.search(r"^retained_preflight\(\) \{\n.*?^\}\n", source, re.M | re.S)
+        self.assertIsNotNone(match, "retained_preflight not found in the driver")
+        sha, other = "1" * 40, "2" * 40
+        def row(page, total=209, commit=sha, status=200):
+            body = base64.b64encode(json.dumps({"total_count": total, "check_runs": []}).encode()).decode()
+            return {"route_id": "check_runs", "page_ordinal": page, "actual_status": status, "response_body_base64": body,
+                    "url": f"https://api.github.com/repos/szTheory/sigra/commits/{commit}/check-runs?per_page=100&page={page}"}
+        cases = {
+            "three contiguous pages of 209": ([row(1), row(2), row(3)], 0),
+            "one page of 7": ([row(1, total=7)], 0),
+            "pages 1 and 3": ([row(1), row(3)], 1),
+            "two separate page-1 reads": ([row(1, total=7), row(1, total=7)], 1),
+            "short read (2 of 3)": ([row(1), row(2)], 1),
+            "a page that is not a 200": ([row(1), row(2, status=500), row(3)], 1),
+            "pages of two commits": ([row(1), row(2, commit=other), row(3)], 1),
+            "no check_runs read": ([], 1),
+        }
+        for label, (rows, expected) in cases.items():
+            with self.subTest(case=label), tempfile.TemporaryDirectory() as directory:
+                tmp = Path(directory)
+                (tmp / "evidence.json").write_text(json.dumps({"preflight": {"initial_rate_limit": {}}}))
+                (tmp / "ledger.json").write_text(json.dumps({"transactions": [{"route_id": "rate_limit"}, *rows]}))
+                (tmp / "rate.json").write_text("{}")
+                script = (f'EVIDENCE="{tmp}/evidence.json"\nREQUEST_LEDGER="{tmp}/ledger.json"\nRATE_SOURCE="{tmp}/rate.json"\n'
+                          + match.group(0) + "retained_preflight\n")
+                result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=60)
+                self.assertEqual(result.returncode, expected, f"{label}: {result.stderr}")
 
     def test_the_fake_serves_209_runs_over_100_100_9_with_githubs_link_rels(self):
         runner = load_runner()
