@@ -1842,7 +1842,7 @@ class R12RefPairTests(unittest.TestCase):
         cls.holder = unittest.TestCase()
         cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
         cls.r12 = World(cls.holder, tag="r12", ref_pair="r12", seed_r8_refs=True, seed_r9_refs=True, seed_r10_refs=True,
-                        seed_r11_refs=True)
+                        seed_r11_refs=True, main_record=True)
         cls.r11 = World(cls.holder, tag="r11-for-r12", ref_pair="r11")
 
     @classmethod
@@ -2486,7 +2486,7 @@ class PrPrepareMainFreshnessTests(unittest.TestCase):
         self.assertEqual(w.freeze["source"]["main_record_sha256"], record_sha)
         self.assertEqual(w.freeze["mergeability_preflight"], {"head": w.freeze["normal"]["head_sha"], "base": w.parent, "exit": 0,
                                                               "clean": True, "conflicts": []})
-        self.assertIn({"path": str(record), "sha256": record_sha}, w.freeze["bound_documents"])
+        self.assertIn({"path": str(record.resolve()), "sha256": record_sha}, w.freeze["bound_documents"])
 
         def check():
             return run("bash", PROOF, "--check-only", "--freeze", w.freeze_path, cwd=ROOT, timeout=60)
@@ -2517,7 +2517,7 @@ class LivePolicyR12PRTests(unittest.TestCase):
         cls.holder = unittest.TestCase()
         cls.holder.addCleanup = lambda fn, *a, **k: cls._cleanups.append((fn, a, k))
         cls.world = LiveWorld(cls.holder, tag="live-r12", ref_pair="r12", seed_r8_refs=True, seed_r9_refs=True, seed_r10_refs=True,
-                              seed_r11_refs=True)
+                              seed_r11_refs=True, main_record=True)
         cls.normal_process, cls.normal_path = cls.world.collect("normal", "live-r12-normal.json", check=False)
 
     @classmethod

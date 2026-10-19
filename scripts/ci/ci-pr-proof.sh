@@ -2,7 +2,7 @@
 # Phase 253 plan 42: finite real PR collector for the normal and docs-only actual pull requests.
 #
 #   ci-pr-proof.sh --prepare --publication RECEIPT --manifest MANIFEST --output FREEZE [--repo-root DIR] [--poll-interval SECONDS]
-#                  [--budget-document PATH] [--bound-document PATH ...]
+#                  [--budget-document PATH] [--bound-document PATH ...] [--main-record MAIN-FETCH-R12]  (required for the r12 head)
 #   ci-pr-proof.sh --check-only --freeze FREEZE [--allocation ALLOCATION]
 #   ci-pr-proof.sh --family normal|docs-only --freeze FREEZE --allocation ALLOCATION --evidence OUT --requests LEDGER [--repo-root DIR]
 #                  --revision-freeze CANARY-FREEZE --action-approval FILE   (committed docs_and_prs section approval, required)
@@ -53,6 +53,8 @@ SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_galle
 # 253-102/253-111/253-119/253-130/253-137: the normal head is the candidate ref the canary freeze selected, one of exactly
 # these six names (ci-git-publication.py REF_PAIRS); the docs-only refs never vary.
 NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate")
+# 253-138: the r12 normal head is prepared only against the recorded fresh main (--main-record); earlier heads are unchanged.
+R12_NORMAL_HEAD = "gsd/253-replan-r12-candidate"
 FAMILY_REFS = {"normal": (NORMAL_HEADS, "main"),
                "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")}
 TERMINAL_POLLS = {"normal": 15, "docs-only": 12}
@@ -123,6 +125,36 @@ def bound_document(path):
 
 
 # ------------------------------------------------------------------------------------------ prepare
+def main_freshness_proof(publisher, repo, record, manifest, head_sha):
+    """253-138: the PR base is the recorded fresh main. The publication's server parent must be the record's
+    fetched_main_sha, its manifest must carry main_freshness over these exact record bytes, and the normal head must merge
+    cleanly into that main (publisher.merge_preflight, the one merge test). Every refusal precedes any write or request."""
+    def refuse(rule):
+        raise SystemExit(f"ci-pr-proof: {rule}; network_requests 0")
+    try:
+        rel, raw, value = publisher.load_main_record(repo, record)
+    except publisher.PublicationError as error:
+        refuse(str(error))
+    fetched = value["fetched_main_sha"]
+    if manifest["server_parent_sha"] != fetched:
+        refuse(f"server parent is not the recorded fresh main: server parent {manifest['server_parent_sha']}, "
+               f"recorded fresh main {fetched}")
+    fresh = manifest.get("main_freshness")
+    if not isinstance(fresh, dict):
+        refuse("the publication manifest has no main_freshness (prepare the publication with --main-record)")
+    if fresh.get("record_sha256") != sha256(raw):
+        refuse("the manifest main_freshness record_sha256 differs from the main-fetch record")
+    try:
+        preflight = publisher.merge_preflight(repo, head_sha, fetched)
+    except publisher.PublicationError as error:
+        refuse(str(error))
+    if not preflight["clean"]:
+        refuse("the normal head does not merge cleanly into the recorded fresh main: " + ", ".join(preflight["conflicts"]))
+    bind_path = rel if repo.resolve() == ROOT.resolve() else str(repo / rel)
+    return {"fetched_main_sha": fetched, "main_record_sha256": sha256(raw), "preflight": preflight,
+            "binding": bound_document(bind_path)}
+
+
 def prepare(args):
     publisher = load(PUBLICATION, "ci_git_publication")
     verifier = load(VERIFY, "ci_hosted_gate_verify")
@@ -145,6 +177,9 @@ def prepare(args):
         raise SystemExit("ci-pr-proof: the publication receipt's candidate_ref is not one of the known candidate refs")
     if manifest.get("docs_head_path") != DOCS_PATH:
         raise SystemExit("ci-pr-proof: manifest documentation path is not the exact proof file")
+    if normal_head == R12_NORMAL_HEAD and not args.main_record:
+        raise SystemExit("ci-pr-proof: the r12 normal head requires --main-record; network_requests 0")
+    fresh = main_freshness_proof(publisher, repo, args.main_record, manifest, candidate) if args.main_record else None
 
     def paths(base, head):
         return [item for item in git(repo, "diff", "--name-only", "-z", base, head).decode("utf-8", "strict").split("\0") if item]
@@ -177,6 +212,10 @@ def prepare(args):
                  "terminal_polls": dict(TERMINAL_POLLS)},
         "bound_documents": [bound_document(path) for path in (args.budget_document or BUDGETS, *BOUND_DEFAULTS, *(args.bound_document or []))],
     }
+    if fresh:
+        freeze["source"].update({"fetched_main_sha": fresh["fetched_main_sha"], "main_record_sha256": fresh["main_record_sha256"]})
+        freeze["mergeability_preflight"] = fresh["preflight"]
+        freeze["bound_documents"].append(fresh["binding"])
     freeze["freeze_sha256"] = sha256(canonical({key: value for key, value in freeze.items() if key != "freeze_sha256"}))
     atomic_write(args.output, (json.dumps(freeze, indent=2, sort_keys=True) + "\n").encode())
     print(json.dumps({"status": "freeze_prepared", "freeze_sha256": freeze["freeze_sha256"], "network_requests": 0}))
@@ -538,6 +577,8 @@ def main():
     parser.add_argument("--bound-document", action="append")
     parser.add_argument("--budget-document", help="path of the frozen budget document (default: the Phase253 load-recovery budgets)")
     parser.add_argument("--poll-interval", type=int, default=60)
+    parser.add_argument("--main-record", help="--prepare only: the sigra.phase253.main-fetch/r12 record the PR base is checked "
+                        "against (required for the r12 normal head)")
     args = parser.parse_args()
     modes = [bool(args.prepare), bool(args.check_only), bool(args.verify), bool(args.family)]
     if sum(modes) != 1:
