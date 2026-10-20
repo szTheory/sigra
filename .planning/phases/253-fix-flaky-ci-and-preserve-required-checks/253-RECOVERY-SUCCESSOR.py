@@ -25,6 +25,9 @@ PLAN_174 = f"{PHASE}/253-174-PLAN.md"
 PLAN_175 = f"{PHASE}/253-175-PLAN.md"
 PLAN_176 = f"{PHASE}/253-176-PLAN.md"
 PLAN_177 = f"{PHASE}/253-177-PLAN.md"
+PLAN_178 = f"{PHASE}/253-178-PLAN.md"
+PLAN_179 = f"{PHASE}/253-179-PLAN.md"
+PLAN_180 = f"{PHASE}/253-180-PLAN.md"
 REVIEW_173 = f"{PHASE}/253-173-RECOVERY-REVIEW.json"
 REVIEW_175 = f"{PHASE}/253-175-REPAIR-REVIEW.json"
 RECEIPT_176 = f"{PHASE}/253-176-RECOVERY-RECEIPT.json"
@@ -775,9 +778,194 @@ def sdk_write_summary(project: Path, number: int, status: str, suffix: str) -> N
                        f"# Simulated SDK fixture {number}\n\n{suffix}\n", encoding="utf-8")
 
 
-HISTORICAL_HALT_IDS = (2, 7, 9, 12, 16, 27, 40, 51, 63, 73, 84, 92, 97,
-                       104, 113, 122, 134, 143, 146, 155, 167, 173, 174)
 NEVER_RAN_IDS = (144, 145, *range(147, 155), *range(156, 164))
+HISTORICAL_HALT_IDS = (2, 7, 9, 12, 16, 27, 40, 51, 63, 73, 84, 92, 97,
+                       104, 113, 122, 134, 143, 146, 155, 167, 173, 174, 175)
+ORIGINALS_180 = "refs/gsd/phase253-successor-180-plan-originals"
+
+
+def validate_169_executable_contract(plan: str, root: Path) -> None:
+    """Inspect the actual original third automated check, not appended prose."""
+    bodies = re.findall(r"<automated>(.*?)</automated>", plan, re.S)
+    if len(bodies) < 3:
+        raise ContractError("169 executable reconciliation assertion body is missing")
+    scripts = re.findall(r'(?:node|\"\$N\")\s+-e\s+\'(.*?)\'', bodies[2], re.S)
+    if len(scripts) != 1:
+        raise ContractError("169 third automated body must contain one executable reconciliation assertion")
+    script = scripts[0]
+    expected_script = expected_169_script(root)
+    try:
+        r12 = read_json(root, R12_CONTRACT)
+        if sha256(read_bytes(root, R12_CONTRACT)) != R12_CONTRACT_SHA256:
+            raise ContractError("169 exact target source differs from frozen R12 bytes")
+        expected_targets = [row["plan"] for row in r12["responsibilities"]]
+    except (KeyError, TypeError) as error:
+        raise ContractError(f"169 exact target source is malformed: {error}") from error
+    expected_targets.extend(f"253-{number:02d}" for number in NEVER_RAN_IDS + (176, 177))
+    expected_halts = [f"253-{number:02d}" for number in HISTORICAL_HALT_IDS]
+    expected_plans = [f"253-{number:02d}" for number in range(1, 181)]
+    for name, expected, reason in (
+        ("EXPECTED_TARGET_IDS", expected_targets, "exact73 target set"),
+        ("EXPECTED_HALT_IDS", expected_halts, "exact24 halt set"),
+        ("EXPECTED_PLAN_IDS", expected_plans, "exact180 plan-pin set"),
+    ):
+        match = re.search(rf"const {name}=(\[.*?\]);", script, re.S)
+        if not match:
+            raise ContractError(f"169 executable {reason} comparison is missing")
+        try:
+            actual = json.loads(match.group(1))
+        except json.JSONDecodeError as error:
+            raise ContractError(f"169 executable {reason} is not a JSON array") from error
+        if actual != expected:
+            label = {"exact73 target set": "73 target set", "exact24 halt set": "24 halt set",
+                     "exact180 plan-pin set": "180-plan-pin set"}[reason]
+            raise ContractError(f"169 executable {label} differs from the authoritative source")
+        actual_rows = {"EXPECTED_TARGET_IDS": "targets", "EXPECTED_HALT_IDS": "halts",
+                       "EXPECTED_PLAN_IDS": "pins"}[name]
+        if f"JSON.stringify(sort({actual_rows}))!==JSON.stringify(sort({name}))" not in script:
+            raise ContractError(f"169 executable {reason} is not compared with actual rows")
+    if not all(needle in script for needle in (
+        "c.responsibilities.length!==73", "c.plan_pins.length!==180", "c.halted_plans.length!==24")):
+        raise ContractError("169 executable reconciliation assertion has a stale count")
+    if script != expected_script:
+        raise ContractError("169 executable reconciliation assertion contains an unapproved executable or comment change")
+
+
+def expected_169_script(root: Path) -> str:
+    r12 = read_json(root, R12_CONTRACT)
+    if sha256(read_bytes(root, R12_CONTRACT)) != R12_CONTRACT_SHA256:
+        raise ContractError("169 exact target source differs from frozen R12 bytes")
+    target_ids = [row["plan"] for row in r12["responsibilities"]]
+    target_ids.extend(f"253-{number:02d}" for number in NEVER_RAN_IDS + (176, 177))
+    halt_ids = [f"253-{number:02d}" for number in HISTORICAL_HALT_IDS]
+    plan_ids = [f"253-{number:02d}" for number in range(1, 181)]
+    return (
+        'const c=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
+        'const t=JSON.stringify(c); '
+        f'const EXPECTED_TARGET_IDS={json.dumps(target_ids,separators=(",",":"))}; '
+        f'const EXPECTED_HALT_IDS={json.dumps(halt_ids,separators=(",",":"))}; '
+        f'const EXPECTED_PLAN_IDS={json.dumps(plan_ids,separators=(",",":"))}; '
+        'const sort=(xs)=>[...xs].sort(); '
+        'const targets=c.responsibilities.map(r=>r.plan); '
+        'const halts=c.halted_plans.map(r=>r.plan); '
+        'const pins=c.plan_pins.map(r=>r.plan); '
+        'if(c.responsibilities.length!==73||c.plan_pins.length!==180||c.halted_plans.length!==24||'
+        'c.application.bundle_requires_final_summary_of!=="253-172"||'
+        'c.application.accepted_only_predicate!=="scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned"||'
+        'JSON.stringify(sort(targets))!==JSON.stringify(sort(EXPECTED_TARGET_IDS))||'
+        'JSON.stringify(sort(halts))!==JSON.stringify(sort(EXPECTED_HALT_IDS))||'
+        'JSON.stringify(sort(pins))!==JSON.stringify(sort(EXPECTED_PLAN_IDS))||'
+        '!t.includes("pagination_destination_rejected")||!t.includes("ci-gate-canary-flow.test.py")||'
+        '!t.includes("TransportSensitivityTests")) process.exit(1)'
+    )
+
+
+def _replace_exactly_once(text: str, old: str, new: str, label: str) -> str:
+    count = text.count(old)
+    if count != 1:
+        raise ContractError(f"ambiguous or missing {label} source anchor (found {count})")
+    return text.replace(old, new, 1)
+
+
+def expected_plan_amendment(original: str, number: int, root: Path) -> str:
+    """Return the only permitted complete future-plan rewrite from its pinned bytes."""
+    if number == 168:
+        current = _replace_exactly_once(original, "wave: 2", "wave: 4", "168 wave")
+        current = _replace_exactly_once(current, 'depends_on: ["253-174"]',
+                                        'depends_on: ["253-180"]', "168 dependency")
+        old_matches = list(re.finditer(
+            r'python3 -c \'import os,pathlib,re,subprocess; p=pathlib\.Path\("[^"]*253-174-PLAN\.md"\);.*?\' \|\| exit \$\?; ?',
+            current, re.S))
+        if len(old_matches) != 1:
+            raise ContractError("ambiguous or missing 168 original receipt preamble")
+        old = old_matches[0].group(0)
+        current = _replace_exactly_once(current, old,
+            "python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 || exit $?; ",
+            "168 receipt preamble")
+        return _replace_exactly_once(current, "253-174-RECOVERY-RECEIPT.json",
+                                     "253-179-RECOVERY-RECEIPT.json", "168 receipt path")
+    if number == 169:
+        current = _replace_exactly_once(original, "wave: 3", "wave: 5", "169 wave")
+        for old, new, label in (
+            ("22 halted", "24 halted", "169 halt count"), ("22) and", "24) and", "169 halt predicate"),
+            ("23 halted", "24 halted", "169 prior halt count"), ("23) and", "24) and", "169 prior halt predicate"),
+            ("71 unstarted", "73 unstarted", "169 target count"), ("71-target", "73-target", "169 target label"),
+            ("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json", "169 receipt path"),
+            ("253-174", "253-179", "169 recovery identity"),
+            ("149 -> 174", "149 -> 179", "149 owner"), ("158 -> 174", "158 -> 179", "158 owner"),
+            ("167 -> 174", "167 -> 179", "167 proof owner"), ("173 -> 174", "173 -> 179", "173 proof owner"),
+            ("154 -> 169 and 172;", "154 -> 169 and 172, 176 -> 179, 177 -> 180;", "new responsibility rows"),
+            ("154 -> 169, 172 (all completion links plus load_target_disposition);",
+             "154 -> 169, 172 (all completion links plus load_target_disposition), 176 -> 179, 177 -> 180;", "new proof rows"),
+            ("173 -> 179.", "173 -> 179; 174 -> [178, 179]; 175 -> [178, 179].", "failed attempt owners"),
+        ):
+            # 253-174 has two distinct references after the receipt path is rewritten.
+            if label == "169 recovery identity":
+                if current.count(old) == 0:
+                    raise ContractError(f"missing {label} source anchor")
+                current = current.replace(old, new)
+            else:
+                # The original plan can legitimately contain no stale prose
+                # occurrence for one of these optional compatibility strings.
+                # When present, transform every original occurrence. Exact
+                # whole-file comparison still rejects any added duplicate.
+                current = current.replace(old, new)
+        current = _replace_exactly_once(current, "253-179 amendment to",
+            "253-179 amendment: verify-receipt --consumer 168 is required before each contract consumer; preserve halted 253-175-PLAN.md, 253-175-SUMMARY.md, 253-175-REPAIR-REVIEW.json and 253-175-EXECUTION-RECORD.json. 253-179 amendment to",
+            "169 preserved historical evidence clause")
+        old_script = expected_169_script(root)
+        bodies = re.findall(r"<automated>(.*?)</automated>", original, re.S)
+        if len(bodies) < 3:
+            raise ContractError("169 third automated source body is missing")
+        scripts = re.findall(r'(?:node|\"\$N\")\s+-e\s+\'(.*?)\'', bodies[2], re.S)
+        if len(scripts) != 1:
+            raise ContractError("169 third automated source body is ambiguous")
+        return _replace_exactly_once(current, scripts[0], old_script, "169 executable assertion")
+    if number in (170, 171):
+        old_wave, new_wave = ((4, 6) if number == 170 else (5, 7))
+        return _replace_exactly_once(original, f"wave: {old_wave}", f"wave: {new_wave}", f"{number} wave")
+    if number == 172:
+        current = _replace_exactly_once(original, "wave: 6", "wave: 8", "172 wave")
+        current = _replace_exactly_once(current,
+            "<automated>N=\"$HOME/.asdf/installs/nodejs/20.18.1/bin/node\";",
+            "<automated>python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 && N=\"$HOME/.asdf/installs/nodejs/20.18.1/bin/node\";",
+            "172 receipt verifier preamble")
+        for old, new, label in (
+            ("Twenty-two halted", "Twenty-four halted", "172 halt prose"),
+            ("22 halted", "24 halted", "172 halt count"),
+            ("71 targets", "73 targets", "172 target count"),
+            ("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json", "172 receipt"),
+            ("253-174-RECOVERY-SUCCESSOR.py", "253-RECOVERY-SUCCESSOR.py", "172 verifier"),
+        ):
+            current = current.replace(old, new)
+        bodies = re.findall(r"<automated>(.*?)</automated>", current, re.S)
+        if len(bodies) != 2:
+            raise ContractError("172 automated command bodies are missing or duplicated")
+        scripts = list(re.finditer(r'"?\$N"?\s+-e\s+\'(const b=JSON\.parse\(require\("fs"\).*?process\.exit\(1\))\' \$P/253-LOAD-RECOVERY-SUPERSESSION-SUMMARIES-R13\.json', bodies[1], re.S))
+        if len(scripts) != 1:
+            raise ContractError("172 original executable bundle assertion is missing or ambiguous")
+        r12 = read_json(root, R12_CONTRACT)
+        targets = [row["plan"] for row in r12["responsibilities"]]
+        targets.extend(f"253-{n:02d}" for n in NEVER_RAN_IDS + (176, 177))
+        new_script = (
+            'const b=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
+            'const paths=(b.entries||[]).map(e=>e.path||e.disposition_path||""); '
+            f'const EXPECTED={json.dumps([f"{n}-SUMMARY.md" for n in targets],separators=(",",":"))}; '
+            'const sort=(xs)=>[...xs].sort(); '
+            'if(paths.length!==73||new Set(paths).size!==73||'
+            'JSON.stringify(sort(paths))!==JSON.stringify(sort(EXPECTED))) process.exit(1)'
+        )
+        body = bodies[1]
+        old_script = scripts[0].group(1)
+        current = current.replace(old_script, new_script, 1)
+        return current
+    raise ContractError(f"no exact amendment specification for plan {number}")
+
+
+def validate_169_owner_contract(plan: str, original: str, root: Path) -> None:
+    expected = expected_plan_amendment(original, 169, root)
+    if plan != expected:
+        raise ContractError("169 ownership table or other instruction bytes differ from the exact original-derived amendment")
 
 
 def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
@@ -856,16 +1044,16 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
                 rel = phase_dir / f"{row['id']}-SUMMARY.md"
                 if rel.is_file() and re.search(r"(?m)^status:\s*blocked\s*$", rel.read_text(encoding="utf-8")):
                     blocked_summaries.append(row["id"])
-        if len(incomplete) != 0 or len(halted) != 23 or blocked_summaries:
+        if len(incomplete) != 0 or len(halted) != 24 or blocked_summaries:
             raise ContractError(f"real SDK copy final accounting differs: incomplete={len(incomplete)}, "
                                 f"halted={len(halted)}, blocked={blocked_summaries}")
         if final_init.get("incomplete_count") != 0 or final_init.get("incomplete_plans") != []:
             raise ContractError("init.execute-phase disagrees with zero incomplete plans")
-        if len(HISTORICAL_HALT_IDS) != 23:
-            raise ContractError("historical halted fixture does not contain exactly23 IDs")
+        if len(HISTORICAL_HALT_IDS) != 24:
+            raise ContractError("historical halted fixture does not contain exactly24 IDs")
         final_plan_rows = {str(row.get("id")): row for row in final_rows}
         if set(row["id"] for row in halted) != {f"253-{number:02d}" for number in HISTORICAL_HALT_IDS}:
-            raise ContractError("SDK copy halted IDs differ from the exact23-plan set")
+            raise ContractError("SDK copy halted IDs differ from the exact24-plan set")
         return {
             "status": "passed",
             "sdk": str(Path.home() / ".codex/gsd-core/bin/gsd-tools.cjs"),
@@ -875,11 +1063,11 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
             "source_snapshot_sha256": sha256(canonical_json_bytes({p.relative_to(project).as_posix(): sha256(p.read_bytes())
                                       for p in sorted((project / ".planning").rglob("*")) if p.is_file()})),
             "readiness_168_runnable": True,
-            "readiness_174_halted": True,
+            "readiness_175_halted": True,
             "pre_simulation_init_sha256": sha256(readiness_raw),
             "pre_simulation_index_sha256": sha256(index_raw),
             "post_chain_incomplete": 0,
-            "post_chain_halted": 23,
+            "post_chain_halted": 24,
             "post_chain_halted_ids": sorted(row["id"] for row in halted),
             "post_chain_blocked_summaries": [],
             "post_chain_init_sha256": sha256(final_init_raw),
@@ -894,41 +1082,17 @@ def canonical_json_bytes(value: object) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
-def validate_contract_limits(original: str, current: str, rel: str) -> None:
-    """Keep request, retry, time, paging and size constraints byte-identical."""
-    pattern = re.compile(r"(?i)(?:cap|ceiling|limit|budget|request|retry|target|at most|no more than|maximum|page|attempt|deadline|margin|bytes)")
-    if rel == f"{PHASE}/253-168-PLAN.md":
-        # The sole executable replacement in the first body is the old nested
-        # 174 receipt command becoming the shared 168 consumer command.
-        nested = re.compile(r"python3 -c 'import os,pathlib,re,subprocess; p=pathlib\.Path\(\"[^\"]*253-174-PLAN\.md\"\);.*?\|\| exit \$\?; ?")
-        consumer = re.compile(r"python3 \.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR\.py verify-receipt --consumer 168 \|\| exit \$\?; ?")
-        original = nested.sub("<RECEIPT-CONSUMER> ", original, count=1)
-        current = consumer.sub("<RECEIPT-CONSUMER> ", current, count=1)
-        current = current.replace("253-176-RECOVERY-RECEIPT.json", "253-174-RECOVERY-RECEIPT.json")
-        current = current.replace("\nverify-receipt --consumer 168\n", "\n")
-    if rel in {f"{PHASE}/253-169-PLAN.md", f"{PHASE}/253-172-PLAN.md"}:
-        current = current.replace("Twenty-three halted", "Twenty-two halted").replace("23 halted", "22 halted")
-    old_rows = [line.strip() for line in original.splitlines() if pattern.search(line)]
-    new_rows = [line.strip() for line in current.splitlines() if pattern.search(line)]
-    if old_rows != new_rows:
-        raise ContractError(f"request/retry/time/page/size contract lines changed in {rel}")
-
-
-def validate_scoped_plan_diff(original: str, current: str, rel: str) -> None:
-    """Reject edits outside the explicit recovery-routing sections of each PLAN."""
+def validate_contract_limits(original: str, current: str, rel: str, root: Path) -> None:
     number = int(re.search(r"253-(168|169|170|171|172)-PLAN\.md$", rel).group(1))
-    allowed = {
-        168: re.compile(r"(?i)(?:wave:|depends_on:|253-(?:167|168|169|173|174|175|176|177)|halted|receipt|recovery|acceptance|review|verify-receipt)"),
-        169: re.compile(r"(?i)(?:wave:|depends_on:|253-(?:167|168|169|173|174|175|176|177)|halted|receipt|recovery|acceptance|review|owner|disposition|partition|never-ran|target|pin|complete)"),
-        170: re.compile(r"(?i)(?:wave:|253-(?:168|169|170|171|172|174|175|176|177)|halted|receipt|recovery|preserv|summary)"),
-        171: re.compile(r"(?i)(?:wave:|253-(?:168|169|170|171|172|174|175|176|177)|halted|receipt|recovery|preserv|summary)"),
-        172: re.compile(r"(?i)(?:wave:|depends_on:|253-(?:167|168|169|170|171|172|173|174|175|176|177)|halted|receipt|recovery|owner|disposition|partition|target|pin|complete|verify-receipt)"),
-    }[number]
-    for line in difflib.unified_diff(original.splitlines(), current.splitlines(), lineterm=""):
-        if line.startswith(("---", "+++", "@@")):
-            continue
-        if line.startswith(("-", "+")) and line[1:].strip() and not allowed.search(line[1:]):
-            raise ContractError(f"unapproved plan instruction diff in {rel}: {line[:180]}")
+    if current != expected_plan_amendment(original, number, root):
+        raise ContractError(f"request/retry/time/page/size contract limits changed outside the exact amendment in {rel}")
+
+
+def validate_scoped_plan_diff(original: str, current: str, rel: str, root: Path) -> None:
+    number = int(re.search(r"253-(168|169|170|171|172)-PLAN\.md$", rel).group(1))
+    expected = expected_plan_amendment(original, number, root)
+    if current != expected:
+        raise ContractError(f"unapproved plan instruction diff in {rel}: bytes do not equal the finite original-derived amendment")
 
 
 def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False) -> dict:
@@ -941,11 +1105,12 @@ def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False)
     if record.get("stage") != stage and not (stage == "entry" and record.get("stage") == "complete"):
         raise ContractError("bridge record stage does not satisfy requested stage")
     originals = record.get("originals")
-    if not isinstance(originals, dict) or set(originals) != {f"{PHASE}/253-{n}-PLAN.md" for n in range(168, 173)}:
-        raise ContractError("bridge must bind the original168–172 plans")
+    original_plan_ids = (168, 169, 170, 171, 172, 176, 177)
+    if not isinstance(originals, dict) or set(originals) != {f"{PHASE}/253-{n}-PLAN.md" for n in original_plan_ids}:
+        raise ContractError("bridge must bind exactly the original168–172/176/177 plans")
     ref = record.get("preservation_ref")
-    if ref != "refs/gsd/phase253-successor-177-plan-originals":
-        raise ContractError("bridge preservation ref is not the scoped durable ref")
+    if ref != ORIGINALS_180:
+        raise ContractError("bridge preservation ref is not the scoped180 durable ref")
     source_commit = record.get("source_commit")
     if not re.fullmatch(r"[0-9a-f]{40}", str(source_commit)):
         raise ContractError("bridge source commit invalid")
@@ -974,10 +1139,13 @@ def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False)
         if rel in allowed_plan_changes:
             if current_hash != amended.get(rel):
                 raise ContractError(f"bridge amendment hash differs: {rel}")
-            validate_contract_limits(git(root, "show", f"{ref}:{rel}").decode("utf-8"),
-                                     read_source_bytes(root, rel).decode("utf-8"), rel)
-            validate_scoped_plan_diff(git(root, "show", f"{ref}:{rel}").decode("utf-8"),
-                                      read_source_bytes(root, rel).decode("utf-8"), rel)
+            original_text = git(root, "show", f"{ref}:{rel}").decode("utf-8", "strict")
+            current_text = read_source_bytes(root, rel).decode("utf-8", "strict")
+            if rel == f"{PHASE}/253-169-PLAN.md":
+                validate_169_executable_contract(current_text, root)
+                validate_169_owner_contract(current_text, original_text, root)
+            validate_contract_limits(original_text, current_text, rel, root)
+            validate_scoped_plan_diff(original_text, current_text, rel, root)
         elif current_hash != protected[rel]:
             raise ContractError(f"unapproved protected file changed during bridge: {rel}")
     for rel, pin in originals.items():
@@ -999,23 +1167,26 @@ def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False)
     p170 = read_bytes(root, f"{PHASE}/253-170-PLAN.md").decode()
     p171 = read_bytes(root, f"{PHASE}/253-171-PLAN.md").decode()
     p172 = read_bytes(root, f"{PHASE}/253-172-PLAN.md").decode()
-    if "depends_on: [\"253-177\"]" not in p168 or "verify-receipt --consumer 168" not in p168:
-        raise ContractError("168 does not consume176 after177")
-    if "253-174-RECOVERY-RECEIPT.json" in p168 or "verify-receipt" not in p168:
-        raise ContractError("168 still depends on the failed174 receipt")
+    original_files = {rel: git(root, "show", f"{ref}:{rel}").decode("utf-8", "strict") for rel in originals}
+    unchanged_plan_ids = (170, 171, 176, 177) if stage == "entry" else (176, 177)
+    for number in unchanged_plan_ids:
+        rel = f"{PHASE}/253-{number}-PLAN.md"
+        if read_bytes(root, rel) != original_files[rel].encode("utf-8"):
+            raise ContractError(f"unapproved original plan changed: {rel}")
+    validate_169_executable_contract(p169, root)
+    if 'depends_on: ["253-180"]' not in p168 or "verify-receipt --consumer 168" not in p168:
+        raise ContractError("168 does not consume179 after180")
+    if "253-174-RECOVERY-RECEIPT.json" in p168 or "253-176-RECOVERY-RECEIPT.json" in p168:
+        raise ContractError("168 still depends on a failed or retired receipt")
     if "253-174-RECOVERY-SUCCESSOR.py" in p168 or "--consumer 174" in p168:
         raise ContractError("168 still invokes the failed174 verifier path")
-    if re.search(r"(?i)(?:halted|halts)\s*[:=]?\s*22\b|\b22\s+(?:halted|halts)\b", p169):
-        raise ContractError("169 retains the stale22-halt accounting")
-    if re.search(r"(?i)(?:halted|halts)\s*[:=]?\s*23\b|\b23\s+(?:halted|halts)\b", p169) is None:
-        raise ContractError("169 does not assert all23 halted plans")
-    if re.search(r"(?i)(?:unstarted|targets)\s*[:=]?\s*71\b|\b71\s+(?:unstarted|targets)", p169) is None:
-        raise ContractError("169 does not retain the same71 disposition targets")
-    if "253-174-RECOVERY-RECEIPT.json" in p169 or "owner 253-174" in p169:
-        raise ContractError("169 still assigns recovery ownership to the failed174 result")
-    for required in ("253-177", "253-176", "23", "71", "253-174", "verify-receipt",
-                     "253-174-PLAN.md", "253-174-SUMMARY.md", "253-174-REGRESSION.log",
-                     "253-174-PERMISSION-PREFLIGHT.json", "253-174-EXECUTION-RECORD.json"):
+    if re.search(r"(?i)(?:unstarted|targets)\s*[:=]?\s*73\b|\b73\s+(?:unstarted|targets)", p169) is None:
+        raise ContractError("169 does not document exactly73 disposition targets")
+    if "253-174-RECOVERY-RECEIPT.json" in p169 or "253-176-RECOVERY-RECEIPT.json" in p169:
+        raise ContractError("169 still references a failed or retired receipt")
+    for required in ("253-180", "253-179", "24", "73", "253-175", "verify-receipt",
+                     "253-175-PLAN.md", "253-175-SUMMARY.md", "253-175-REPAIR-REVIEW.json",
+                     "253-175-EXECUTION-RECORD.json"):
         if required not in p169:
             raise ContractError(f"169 is missing required bridge/pin field {required}")
     if stage == "complete":
@@ -1035,17 +1206,19 @@ def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False)
         if len(completion_links) != 8 or current_links != completion_links:
             raise ContractError("172's eight hosted/native completion links changed")
         if "verify-receipt --consumer 168" not in p172 or "253-174-RECOVERY-RECEIPT.json" in p172:
-            raise ContractError("172 does not use the176 local verifier contract")
-        if "253-174-RECOVERY-SUCCESSOR.py" in p172 or re.search(r"(?i)halted\s*[:=]?\s*22\b", p172):
-            raise ContractError("172 retains a stale174 verifier or22-halt pin")
+            raise ContractError("172 does not use the179 local verifier contract")
+        if "253-174-RECOVERY-SUCCESSOR.py" in p172:
+            raise ContractError("172 retains a stale174 verifier")
+        if "verify-receipt --consumer 168" not in p172:
+            raise ContractError("172 does not verify the179 receipt before bundle consumers")
     if record.get("dispositions_for") not in ([], None):
         raise ContractError("bridge record may not disposition historical halted or recovery plans")
     if stage == "complete":
         evidence = record.get("sdk_copy")
         if not isinstance(evidence, dict) or evidence.get("status") != "passed":
             raise ContractError("complete bridge requires installed SDK copy evidence")
-        required_claims = {"readiness_168_runnable": True, "readiness_174_halted": True,
-                           "post_chain_incomplete": 0, "post_chain_halted": 23,
+        required_claims = {"readiness_168_runnable": True, "readiness_175_halted": True,
+                           "post_chain_incomplete": 0, "post_chain_halted": 24,
                            "post_chain_blocked_summaries": [], "temporary_copy": True}
         for key, expected in required_claims.items():
             if evidence.get(key) != expected:
@@ -1057,8 +1230,9 @@ def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False)
             if not re.fullmatch(r"[0-9a-f]{64}", str(evidence.get(key))):
                 raise ContractError(f"SDK-copy evidence lacks a valid {key}")
         if evidence.get("disposition_ids") != [f"253-{n:02d}" for n in
-                tuple(int(row["plan"].removeprefix("253-")) for row in read_json(root, R12_CONTRACT)["responsibilities"]) + NEVER_RAN_IDS]:
-            raise ContractError("SDK-copy evidence does not use the same frozen71 targets")
+                tuple(int(row["plan"].removeprefix("253-")) for row in read_json(root, R12_CONTRACT)["responsibilities"])
+                + NEVER_RAN_IDS + (176, 177)]:
+            raise ContractError("SDK-copy evidence does not use the same frozen73 targets")
         if sdk:
             actual = run_sdk_copy(root, record, record_path)
             for key, expected in required_claims.items():
@@ -1066,7 +1240,7 @@ def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False)
                     raise ContractError(f"installed SDK rerun failed {key}")
             if actual.get("post_chain_halted_ids") != sorted(
                     f"253-{n:02d}" for n in HISTORICAL_HALT_IDS):
-                raise ContractError("installed SDK rerun halted IDs differ from exact23-plan set")
+                raise ContractError("installed SDK rerun halted IDs differ from exact24-plan set")
     return {"status": "verified", "stage": stage, "plans": 5}
 
 

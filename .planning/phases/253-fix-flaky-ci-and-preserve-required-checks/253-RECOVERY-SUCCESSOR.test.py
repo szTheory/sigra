@@ -29,7 +29,7 @@ def amend_entry_plans(root, original):
     (root / rel168).parent.mkdir(parents=True, exist_ok=True)
     p168 = original[rel168].decode("utf-8")
     p168 = re.sub(r"(?m)^wave: 2$", "wave: 4", p168, count=1)
-    p168 = p168.replace('depends_on: ["253-174"]', 'depends_on: ["253-177"]', 1)
+    p168 = p168.replace('depends_on: ["253-174"]', 'depends_on: ["253-180"]', 1)
     nested = re.compile(
         r'python3 -c \'import os,pathlib,re,subprocess; p=pathlib\.Path\("[^"]*253-174-PLAN\.md"\);.*?\' \|\| exit \$\?; ?')
     p168, count = nested.subn(
@@ -37,17 +37,60 @@ def amend_entry_plans(root, original):
         p168, count=1)
     if count != 1:
         raise AssertionError("entry fixture could not replace the old nested verifier")
-    p168 = p168.replace("253-174-RECOVERY-RECEIPT.json", "253-176-RECOVERY-RECEIPT.json")
+    p168 = p168.replace("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json")
     (root / rel168).write_text(p168)
 
     rel169 = f"{PHASE}/253-169-PLAN.md"
     p169 = original[rel169].decode("utf-8")
     p169 = re.sub(r"(?m)^wave: 3$", "wave: 5", p169, count=1)
-    p169 = p169.replace("22 halted", "23 halted").replace("22) and", "23) and")
-    p169 = p169.replace("253-174-RECOVERY-RECEIPT.json", "253-176-RECOVERY-RECEIPT.json")
-    p169 += ("\n253-177\n253-176\n23 halted\n"
-             "253-174-PLAN.md\n253-174-SUMMARY.md\n253-174-REGRESSION.log\n"
-             "253-174-PERMISSION-PREFLIGHT.json\n253-174-EXECUTION-RECORD.json\nverify-receipt\n")
+    p169 = p169.replace('depends_on: ["253-174"]', 'depends_on: ["253-168"]', 1)
+    p169 = p169.replace("22 halted", "24 halted").replace("22) and", "24) and")
+    p169 = p169.replace("23 halted", "24 halted").replace("23) and", "24) and")
+    p169 = p169.replace("71 unstarted", "73 unstarted").replace("71-target", "73-target")
+    p169 = p169.replace("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json")
+    p169 = p169.replace("253-174", "253-179")
+    p169 = p169.replace("253-177", "253-180")
+    p169 = p169.replace("253-179 amendment to", "253-179 amendment: verify-receipt --consumer 168 is required before each contract consumer; preserve halted 253-175-PLAN.md, 253-175-SUMMARY.md, 253-175-REPAIR-REVIEW.json and 253-175-EXECUTION-RECORD.json. 253-179 amendment to", 1)
+    p169 = p169.replace("149 -> 174", "149 -> 179")
+    p169 = p169.replace("158 -> 174", "158 -> 179")
+    p169 = p169.replace("167 -> 174", "167 -> 179")
+    p169 = p169.replace("173 -> 174", "173 -> 179")
+    p169 = p169.replace("154 -> 169 and 172;", "154 -> 169 and 172, 176 -> 179, 177 -> 180;")
+    p169 = p169.replace("154 -> 169, 172 (all completion links plus load_target_disposition);",
+                        "154 -> 169, 172 (all completion links plus load_target_disposition), 176 -> 179, 177 -> 180;")
+    p169 = p169.replace("173 -> 179.", "173 -> 179; 174 -> [178, 179]; 175 -> [178, 179].")
+    p169 = p169.replace("253-174", "253-179")
+    bodies = re.findall(r"<automated>(.*?)</automated>", p169, re.S)
+    if len(bodies) < 3:
+        raise AssertionError("169 fixture has no third automated contract")
+    old_script = re.findall(r"(?:node|\"\$N\")\s+-e\s+\'(.*?)\'", bodies[2], re.S)
+    if len(old_script) != 1:
+        raise AssertionError("169 fixture has no unique executable R13 assertion")
+    r12 = json.loads((ROOT / successor.R12_CONTRACT).read_bytes())
+    target_ids = [int(row["plan"].removeprefix("253-")) for row in r12["responsibilities"]]
+    target_ids.extend(successor.NEVER_RAN_IDS + (176, 177))
+    halt_ids = list(successor.HISTORICAL_HALT_IDS)
+    plan_ids = list(range(1, 181))
+    new_script = (
+        'const c=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
+        'const t=JSON.stringify(c); '
+        f'const EXPECTED_TARGET_IDS={json.dumps([f"253-{n:02d}" for n in target_ids], separators=(",", ":"))}; '
+        f'const EXPECTED_HALT_IDS={json.dumps([f"253-{n:02d}" for n in halt_ids], separators=(",", ":"))}; '
+        f'const EXPECTED_PLAN_IDS={json.dumps([f"253-{n:02d}" for n in plan_ids], separators=(",", ":"))}; '
+        'const sort=(xs)=>[...xs].sort(); '
+        'const targets=c.responsibilities.map(r=>r.plan); '
+        'const halts=c.halted_plans.map(r=>r.plan); '
+        'const pins=c.plan_pins.map(r=>r.plan); '
+        'if(c.responsibilities.length!==73||c.plan_pins.length!==180||c.halted_plans.length!==24||'
+        'c.application.bundle_requires_final_summary_of!=="253-172"||'
+        'c.application.accepted_only_predicate!=="scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned"||'
+        'JSON.stringify(sort(targets))!==JSON.stringify(sort(EXPECTED_TARGET_IDS))||'
+        'JSON.stringify(sort(halts))!==JSON.stringify(sort(EXPECTED_HALT_IDS))||'
+        'JSON.stringify(sort(pins))!==JSON.stringify(sort(EXPECTED_PLAN_IDS))||'
+        '!t.includes("pagination_destination_rejected")||!t.includes("ci-gate-canary-flow.test.py")||'
+        '!t.includes("TransportSensitivityTests")) process.exit(1)'
+    )
+    p169 = p169.replace(old_script[0], new_script, 1)
     (root / rel169).write_text(p169)
 
 
@@ -195,11 +238,13 @@ class SuccessorContractTests(unittest.TestCase):
             phase = root / PHASE
             phase.mkdir(parents=True)
             originals = {}
-            for number in range(168, 173):
+            for number in (*range(168, 173), 176, 177):
                 rel = f"{PHASE}/253-{number}-PLAN.md"
                 raw = (ROOT / rel).read_bytes()
                 originals[rel] = raw
                 (root / rel).write_bytes(raw)
+            (root / successor.R12_CONTRACT).parent.mkdir(parents=True, exist_ok=True)
+            (root / successor.R12_CONTRACT).write_bytes((ROOT / successor.R12_CONTRACT).read_bytes())
             (root / successor.R12_CONTRACT).write_bytes((ROOT / successor.R12_CONTRACT).read_bytes())
             subprocess.run(["git", "-C", str(root), "init", "-q"], check=True)
             subprocess.run(["git", "-C", str(root), "config", "user.name", "Fixture"], check=True)
@@ -207,9 +252,15 @@ class SuccessorContractTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(root), "add", "."], check=True)
             subprocess.run(["git", "-C", str(root), "commit", "-qm", "original plans"], check=True)
             source_commit = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
-            ref = "refs/gsd/phase253-successor-177-plan-originals"
+            ref = successor.ORIGINALS_180
             subprocess.run(["git", "-C", str(root), "update-ref", ref, source_commit], check=True)
             amend_entry_plans(root, originals)
+            rel169 = f"{PHASE}/253-169-PLAN.md"
+            stale169 = originals[rel169].decode("utf-8")
+            stale169 = re.sub(r"(?m)^wave: 3$", "wave: 5", stale169, count=1)
+            stale169 = stale169.replace('depends_on: ["253-174"]', 'depends_on: ["253-168"]', 1)
+            stale169 += "\n253-180\n253-179\n24 halted\n73 targets\n149 -> 179\n158 -> 179\n167 -> 179\n173 -> 179\n"
+            (root / rel169).write_text(stale169)
             amended = {f"{PHASE}/253-{number}-PLAN.md": hashlib.sha256(
                 (root / f"{PHASE}/253-{number}-PLAN.md").read_bytes()).hexdigest() for number in (168, 169)}
             pins = {}
@@ -230,7 +281,7 @@ class SuccessorContractTests(unittest.TestCase):
             # These are the false-positive executable checks from the recorded
             # report. Hashes are current and self-consistent, so only semantic
             # validation can reject them.
-            p169 = (root / f"{PHASE}/253-169-PLAN.md").read_text()
+            p169 = (root / rel169).read_text()
             self.assertRegex(p169, r"c\.plan_pins\.length\s*!==\s*174")
             self.assertRegex(p169, r"c\.halted_plans\.length\s*!==\s*22")
             self.assertIn("149 -> 174", p169)
@@ -255,24 +306,28 @@ class SuccessorContractTests(unittest.TestCase):
             for number in (168, 169):
                 rel = f"{PHASE}/253-{number}-PLAN.md"
                 original[rel] = (ROOT / rel).read_bytes()
+            (root / successor.R12_CONTRACT).parent.mkdir(parents=True, exist_ok=True)
+            (root / successor.R12_CONTRACT).write_bytes((ROOT / successor.R12_CONTRACT).read_bytes())
             amend_entry_plans(root, original)
             for number in (168, 169):
                 rel = f"{PHASE}/253-{number}-PLAN.md"
                 before = original[rel].decode("utf-8")
                 after = (root / rel).read_text(encoding="utf-8")
-                successor.validate_contract_limits(before, after, rel)
+                successor.validate_contract_limits(before, after, rel, root)
                 lines = after.splitlines()
-                index = next(i for i, line in enumerate(lines)
-                             if re.search(r"(?i)(?:cap|ceiling|limit|budget|request|retry|target|at most|maximum|page|attempt|deadline|margin|bytes)", line)
-                             and re.search(r"\d", line))
-                lines[index] = re.sub(r"\d+", lambda m: str(int(m.group(0)) + 1), lines[index], count=1)
+                if number == 168:
+                    index = next(i for i, line in enumerate(lines) if ".projected_total_requests <= 22" in line)
+                    lines[index] = lines[index].replace(".projected_total_requests <= 22", ".projected_total_requests <= 23", 1)
+                else:
+                    index = next(i for i, line in enumerate(lines) if "pages<=10" in line)
+                    lines[index] = lines[index].replace("pages<=10", "pages<=11", 1)
                 with self.subTest(plan=number), self.assertRaisesRegex(
-                        successor.ContractError, "request/retry/time/page/size contract lines changed"):
-                    successor.validate_contract_limits(before, "\n".join(lines), rel)
+                        successor.ContractError, "request/retry/time/page/size contract limits changed"):
+                    successor.validate_contract_limits(before, "\n".join(lines), rel, root)
                 if number == 169:
                     unapproved = after.replace('plan: "169"', 'plan: "999"', 1)
                     with self.assertRaisesRegex(successor.ContractError, "unapproved plan instruction diff"):
-                        successor.validate_scoped_plan_diff(before, unapproved, rel)
+                        successor.validate_scoped_plan_diff(before, unapproved, rel, root)
 
     def test_prepare_transformation_matches_independent_expected_script(self):
         plan = (ROOT / successor.PLAN_174).read_bytes()
@@ -461,7 +516,7 @@ class SuccessorContractTests(unittest.TestCase):
             phase = root / PHASE
             phase.mkdir(parents=True)
             original = {}
-            for number in range(168, 173):
+            for number in (*range(168, 173), 176, 177):
                 rel = f"{PHASE}/253-{number}-PLAN.md"
                 source = (ROOT / rel).read_bytes()
                 (root / rel).write_bytes(source)
@@ -473,10 +528,11 @@ class SuccessorContractTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(root), "add", "."], check=True)
             subprocess.run(["git", "-C", str(root), "commit", "-qm", "original plans"], check=True)
             source_commit = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
-            ref = "refs/gsd/phase253-successor-177-plan-originals"
+            ref = successor.ORIGINALS_180
             subprocess.run(["git", "-C", str(root), "update-ref", ref, source_commit], check=True)
             # Preserve every cap/control line while applying only entry amendments.
             amend_entry_plans(root, original)
+            good169 = (root / f"{PHASE}/253-169-PLAN.md").read_text()
             changed_plans = {f"{PHASE}/253-168-PLAN.md", f"{PHASE}/253-169-PLAN.md"}
             amended = {rel: hashlib.sha256((root / rel).read_bytes()).hexdigest() for rel in changed_plans}
             pins = {}
@@ -496,6 +552,47 @@ class SuccessorContractTests(unittest.TestCase):
             record_path = f"{PHASE}/253-177-BRIDGE-RECORD.json"
             (root / record_path).write_text(json.dumps(record))
             self.assertEqual(successor.validate_bridge(root, "entry", record_path)["status"], "verified")
+            executable_bodies = re.findall(r"<automated>(.*?)</automated>", good169, re.S)
+            script_match = re.search(r'(?:node|"\$N")\s+-e\s+\'(.*?)\'', executable_bodies[2], re.S)
+            self.assertIsNotNone(script_match)
+            valid_script = script_match.group(1)
+            attacks = (
+                ("restored174pin", "EXPECTED_PLAN_IDS", "253-180", "253-177", "180-plan-pin set"),
+                ("omitted176target", "EXPECTED_TARGET_IDS", "253-176", "253-175", "73 target set"),
+                ("omitted177target", "EXPECTED_TARGET_IDS", "253-177", "253-175", "73 target set"),
+                ("omitted175halt", "EXPECTED_HALT_IDS", "253-175", "253-174", "24 halt set"),
+                ("old174pinCount", "c.plan_pins.length!==180", "c.plan_pins.length!==180", "c.plan_pins.length!==174", "stale count"),
+                ("old22haltCount", "c.halted_plans.length!==24", "c.halted_plans.length!==24", "c.halted_plans.length!==22", "stale count"),
+                ("old71targetCount", "c.responsibilities.length!==73", "c.responsibilities.length!==73", "c.responsibilities.length!==71", "stale count"),
+            )
+            for label, name, needle, replacement, reason in attacks:
+                with self.subTest(label=label):
+                    self.assertIn(needle, valid_script)
+                    mutated_script = valid_script.replace(needle, replacement, 1)
+                    self.assertNotEqual(mutated_script, valid_script)
+                    mutated = good169.replace(valid_script, mutated_script, 1)
+                    (root / f"{PHASE}/253-169-PLAN.md").write_text(mutated)
+                    bad_record = json.loads(json.dumps(record))
+                    bad_record["amended_sha256"][f"{PHASE}/253-169-PLAN.md"] = hashlib.sha256(mutated.encode()).hexdigest()
+                    (root / record_path).write_text(json.dumps(bad_record))
+                    with self.assertRaisesRegex(successor.ContractError, reason):
+                        successor.validate_bridge(root, "entry", record_path)
+            owner_mutations = (("owner149", "149 -> 179", "149 -> 174"),
+                               ("owner158", "158 -> 179", "158 -> 174"),
+                               ("owner167", "167 -> 179", "167 -> 174"),
+                               ("owner173", "173 -> 179", "173 -> 174"))
+            for label, needle, replacement in owner_mutations:
+                with self.subTest(label=label):
+                    mutated = good169.replace(needle, replacement, 1)
+                    self.assertNotEqual(mutated, good169)
+                    (root / f"{PHASE}/253-169-PLAN.md").write_text(mutated)
+                    bad_record = json.loads(json.dumps(record))
+                    bad_record["amended_sha256"][f"{PHASE}/253-169-PLAN.md"] = hashlib.sha256(mutated.encode()).hexdigest()
+                    (root / record_path).write_text(json.dumps(bad_record))
+                    with self.assertRaisesRegex(successor.ContractError, "ownership table"):
+                        successor.validate_bridge(root, "entry", record_path)
+            (root / f"{PHASE}/253-169-PLAN.md").write_text(good169)
+            (root / record_path).write_text(json.dumps(record))
             # A sixth altered file or unrecorded one-file edit cannot pass.
             (root / f"{PHASE}/253-168-PLAN.md").write_text("depends_on: [\"253-177\"]\nverify-receipt --consumer 168\nextra\n")
             with self.assertRaisesRegex(successor.ContractError, "amendment hash"):
@@ -508,24 +605,41 @@ class SuccessorContractTests(unittest.TestCase):
                 plan = (root / rel).read_text(encoding="utf-8")
                 (root / rel).write_text(re.sub(rf"(?m)^wave: {old_wave}$",
                                                f"wave: {new_wave}", plan, count=1))
-            plan172 = original[f"{PHASE}/253-172-PLAN.md"].decode("utf-8")
-            plan172 = re.sub(r"(?m)^wave: 6$", "wave: 8", plan172, count=1)
             plan172 = (original[f"{PHASE}/253-172-PLAN.md"].decode("utf-8")
-                       .replace("Twenty-two halted", "Twenty-three halted")
-                       .replace("22 halted", "23 halted")
-                       .replace("253-174-RECOVERY-RECEIPT.json", "253-176-RECOVERY-RECEIPT.json"))
+                       .replace("Twenty-two halted", "Twenty-four halted")
+                       .replace("22 halted", "24 halted")
+                       .replace("71 targets", "73 targets")
+                       .replace("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json")
+                       .replace("253-174-RECOVERY-SUCCESSOR.py", "253-RECOVERY-SUCCESSOR.py"))
             plan172 = re.sub(r"(?m)^wave: 6$", "wave: 8", plan172, count=1)
-            plan172 += "\nverify-receipt --consumer 168\n"
+            plan172 = plan172.replace(
+                '<automated>N="$HOME/.asdf/installs/nodejs/20.18.1/bin/node";',
+                '<automated>python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 && N="$HOME/.asdf/installs/nodejs/20.18.1/bin/node";', 1)
+            r12 = json.loads((ROOT / successor.R12_CONTRACT).read_bytes())
+            targets = [row["plan"] for row in r12["responsibilities"]]
+            targets.extend(f"253-{n:02d}" for n in successor.NEVER_RAN_IDS + (176, 177))
+            second = re.findall(r"<automated>(.*?)</automated>", plan172, re.S)[1]
+            old_script = re.search(r'"?\$N"?\s+-e\s+\'(const b=JSON\.parse\(require\("fs"\).*?process\.exit\(1\))\' \$P/253-LOAD-RECOVERY-SUPERSESSION-SUMMARIES-R13\.json', second, re.S).group(1)
+            new_script = (
+                'const b=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
+                'const paths=(b.entries||[]).map(e=>e.path||e.disposition_path||""); '
+                f'const EXPECTED={json.dumps([f"{n}-SUMMARY.md" for n in targets],separators=(",",":"))}; '
+                'const sort=(xs)=>[...xs].sort(); '
+                'if(paths.length!==73||new Set(paths).size!==73||'
+                'JSON.stringify(sort(paths))!==JSON.stringify(sort(EXPECTED))) process.exit(1)'
+            )
+            plan172 = plan172.replace(old_script, new_script, 1)
             (root / f"{PHASE}/253-172-PLAN.md").write_text(plan172)
             record["stage"] = "complete"
             record["amended_sha256"] = {
-                rel: hashlib.sha256((root / rel).read_bytes()).hexdigest() for rel in original}
+                rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
+                for rel in (f"{PHASE}/253-{n}-PLAN.md" for n in range(168, 173))}
             ids = tuple(int(row["plan"].removeprefix("253-"))
                         for row in json.loads((ROOT / successor.R12_CONTRACT).read_bytes())["responsibilities"])
-            ids += successor.NEVER_RAN_IDS
+            ids += successor.NEVER_RAN_IDS + (176, 177)
             record["sdk_copy"] = {
-                "status": "passed", "readiness_168_runnable": True, "readiness_174_halted": True,
-                "post_chain_incomplete": 0, "post_chain_halted": 23,
+                "status": "passed", "readiness_168_runnable": True, "readiness_175_halted": True,
+                "post_chain_incomplete": 0, "post_chain_halted": 24,
                 "post_chain_blocked_summaries": [], "temporary_copy": True,
                 "source_copy_commit": "f" * 40,
                 **{key: "a" * 64 for key in ("sdk_sha256", "source_snapshot_sha256",
@@ -540,7 +654,7 @@ class SuccessorContractTests(unittest.TestCase):
                                                         b"at most 25 publication-category requests", 1))
             record["amended_sha256"][f"{PHASE}/253-170-PLAN.md"] = hashlib.sha256(p170.read_bytes()).hexdigest()
             (root / record_path).write_text(json.dumps(record))
-            with self.assertRaisesRegex(successor.ContractError, "request/retry/time/page/size contract"):
+            with self.assertRaisesRegex(successor.ContractError, "request/retry/time/page/size contract limits changed"):
                 successor.validate_bridge(root, "complete", record_path)
 
     def test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits(self):
@@ -549,18 +663,20 @@ class SuccessorContractTests(unittest.TestCase):
             phase = root / PHASE
             phase.mkdir(parents=True)
             originals = {}
-            for number in range(168, 173):
+            for number in (*range(168, 173), 176, 177):
                 rel = f"{PHASE}/253-{number}-PLAN.md"
                 raw = (ROOT / rel).read_bytes()
                 originals[rel] = raw
                 (root / rel).write_bytes(raw)
+            (root / successor.R12_CONTRACT).parent.mkdir(parents=True, exist_ok=True)
+            (root / successor.R12_CONTRACT).write_bytes((ROOT / successor.R12_CONTRACT).read_bytes())
             subprocess.run(["git", "-C", str(root), "init", "-q"], check=True)
             subprocess.run(["git", "-C", str(root), "config", "user.name", "Fixture"], check=True)
             subprocess.run(["git", "-C", str(root), "config", "user.email", "fixture@example.test"], check=True)
             subprocess.run(["git", "-C", str(root), "add", "."], check=True)
             subprocess.run(["git", "-C", str(root), "commit", "-qm", "original plans"], check=True)
             source = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
-            ref = "refs/gsd/phase253-successor-177-plan-originals"
+            ref = successor.ORIGINALS_180
             subprocess.run(["git", "-C", str(root), "update-ref", ref, source], check=True)
             amend_entry_plans(root, originals)
             good168 = (root / f"{PHASE}/253-168-PLAN.md").read_text()
@@ -573,25 +689,30 @@ class SuccessorContractTests(unittest.TestCase):
             for rel, raw in originals.items():
                 oid = subprocess.check_output(["git", "-C", str(root), "hash-object", "--stdin"], input=raw).decode().strip()
                 pins[rel] = {"blob": oid, "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw)}
+            source_paths = {row.split(b"\t", 1)[1].decode() for row in subprocess.check_output(
+                ["git", "-C", str(root), "ls-tree", "-rz", "-r", source, "--", PHASE,
+                 ".planning/phases/252-measure-current-ci"]).split(b"\0") if row}
+            protected = {rel: hashlib.sha256(subprocess.check_output(
+                ["git", "-C", str(root), "show", f"{source}:{rel}"])).hexdigest() for rel in source_paths}
             record = {"schema": successor.BRIDGE_SCHEMA, "stage": "entry", "source_commit": source,
                       "preservation_ref": ref, "originals": pins, "amended_sha256": amended,
-                      "protected_source_bindings": {rel: pin["sha256"] for rel, pin in pins.items()},
+                      "protected_source_bindings": protected,
                       "dispositions_for": []}
             record_path = f"{PHASE}/253-177-BRIDGE-RECORD.json"
             (root / record_path).write_text(json.dumps(record))
             self.assertEqual(successor.validate_bridge(root, "entry", record_path)["status"], "verified")
             corruptions = []
-            bad = json.loads(json.dumps(record)); bad169 = good169.replace("23 halted", "22 halted", 1)
+            bad = json.loads(json.dumps(record)); bad169 = good169.replace("c.halted_plans.length!==24", "c.halted_plans.length!==22", 1)
             (root / f"{PHASE}/253-169-PLAN.md").write_text(bad169)
             bad["amended_sha256"][f"{PHASE}/253-169-PLAN.md"] = hashlib.sha256(bad169.encode()).hexdigest()
             corruptions.append(("22-halt", bad, lambda: None))
             (root / f"{PHASE}/253-169-PLAN.md").write_text(good169)
-            bad = json.loads(json.dumps(record)); bad169 = good169.replace("253-174-EXECUTION-RECORD.json\n", "")
+            bad = json.loads(json.dumps(record)); bad169 = good169.replace("253-175-EXECUTION-RECORD.json", "")
             (root / f"{PHASE}/253-169-PLAN.md").write_text(bad169)
             bad["amended_sha256"][f"{PHASE}/253-169-PLAN.md"] = hashlib.sha256(bad169.encode()).hexdigest()
             corruptions.append(("174-pin", bad, lambda: None))
             (root / f"{PHASE}/253-169-PLAN.md").write_text(good169)
-            bad = json.loads(json.dumps(record)); bad168 = 'depends_on: ["253-177"]\n253-174-RECOVERY-RECEIPT.json\n'
+            bad = json.loads(json.dumps(record)); bad168 = 'depends_on: ["253-180"]\n253-174-RECOVERY-RECEIPT.json\n'
             (root / f"{PHASE}/253-168-PLAN.md").write_text(bad168)
             bad["amended_sha256"][f"{PHASE}/253-168-PLAN.md"] = hashlib.sha256(bad168.encode()).hexdigest()
             corruptions.append(("stale174", bad, lambda: None))
@@ -620,10 +741,10 @@ class SuccessorContractTests(unittest.TestCase):
             result = successor.run_sdk_copy(project, {}, "unused")
         self.assertEqual(result["status"], "passed")
         self.assertTrue(result["readiness_168_runnable"])
-        self.assertTrue(result["readiness_174_halted"])
+        self.assertTrue(result["readiness_175_halted"])
         self.assertEqual(result["post_chain_incomplete"], 0)
-        self.assertEqual(result["post_chain_halted"], 23)
-        self.assertEqual(len(result["disposition_ids"]), 71)
+        self.assertEqual(result["post_chain_halted"], 24)
+        self.assertEqual(len(result["disposition_ids"]), 73)
         self.assertTrue(result["source_copy_commit"])
 
     def test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions(self):
