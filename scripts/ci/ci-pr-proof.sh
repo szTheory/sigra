@@ -55,11 +55,11 @@ WORKFLOW_PATH = ".github/workflows/ci.yml"
 DOCS_PATH = "guides/reference/phase253-docs-only-proof.md"
 CI_PATH = WORKFLOW_PATH
 SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
-# 253-102/253-111/253-119/253-130/253-137: the normal head is the candidate ref the canary freeze selected, one of exactly
-# these six names (ci-git-publication.py REF_PAIRS); the docs-only refs never vary.
-NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate")
-# 253-138: the r12 normal head is prepared only against the recorded fresh main (--main-record); earlier heads are unchanged.
-R12_NORMAL_HEAD = "gsd/253-replan-r12-candidate"
+# 253-102/253-111/253-119/253-130/253-137/253-166: the normal head is the candidate ref the canary freeze selected, one of
+# exactly these seven names (ci-git-publication.py REF_PAIRS); the docs-only refs never vary.
+NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate", "gsd/253-replan-r13-candidate")
+# 253-138/253-166: the r12 and r13 normal heads are prepared only against the recorded fresh main (--main-record).
+MAIN_RECORD_HEADS = {"gsd/253-replan-r12-candidate": "r12", "gsd/253-replan-r13-candidate": "r13"}
 FAMILY_REFS = {"normal": (NORMAL_HEADS, "main"),
                "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")}
 TERMINAL_POLLS = {"normal": 15, "docs-only": 12}
@@ -203,8 +203,8 @@ def prepare(args):
         raise SystemExit("ci-pr-proof: the publication receipt's candidate_ref is not one of the known candidate refs")
     if manifest.get("docs_head_path") != DOCS_PATH:
         raise SystemExit("ci-pr-proof: manifest documentation path is not the exact proof file")
-    if normal_head == R12_NORMAL_HEAD and not args.main_record:
-        raise SystemExit("ci-pr-proof: the r12 normal head requires --main-record; network_requests 0")
+    if normal_head in MAIN_RECORD_HEADS and not args.main_record:
+        raise SystemExit(f"ci-pr-proof: the {MAIN_RECORD_HEADS[normal_head]} normal head requires --main-record; network_requests 0")
     fresh = main_freshness_proof(publisher, repo, args.main_record, manifest, candidate) if args.main_record else None
 
     def paths(base, head):

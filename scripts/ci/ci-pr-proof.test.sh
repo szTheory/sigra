@@ -2779,13 +2779,16 @@ class R13RefPairTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0, label)
                 self.assertFalse(output.exists())
 
-    def test_a_frozen_r14_normal_head_is_refused_by_frozen_refs_before_any_request(self):
+    def test_a_frozen_r14_normal_head_is_refused_by_the_collector_before_any_request(self):
+        # frozen_refs' own refusal of the r14 head is the --check-only test above; the collector's earlier NORMAL_HEADS gate
+        # (against the revision freeze) stops a collection first.
         w = self.r13
         freeze, allocation = self.retarget(w, "gsd/253-replan-r14-candidate", "r14-frozen-normal")
         before = len(w.server.journal)
         process, evidence = self.collect_with(w, "normal", freeze, allocation, "r14-frozen-normal")
         self.assertNotEqual(process.returncode, 0)
-        self.assertIn("normal refs are not the exact proof refs", process.stderr)
+        self.assertIn("the PR freeze normal head ref differs from the revision freeze candidate_ref ('gsd/253-replan-r14-candidate'",
+                      process.stderr)
         self.assertEqual(len(w.server.journal), before, "a request left the process with an r14 head")
         self.assertFalse(evidence.exists())
 
